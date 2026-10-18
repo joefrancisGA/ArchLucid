@@ -115,4 +115,19 @@ describe("keyboard shortcuts findings page (integration)", () => {
 
     expect(onAction).not.toHaveBeenCalled();
   });
+
+  it("does not move focus with Alt+J when focus is in an input", () => {
+    render(<FindingsShortcutHarness ids={CARD_IDS} onAction={onAction} />);
+
+    const first = screen.getByTestId(`finding-card-${CARD_IDS[0]}`);
+    const second = screen.getByTestId(`finding-card-${CARD_IDS[1]}`);
+    first.focus();
+
+    const input = screen.getByTestId("finding-shortcut-input");
+    input.focus();
+    fireCombo("alt+j", input);
+
+    expect(document.activeElement).toBe(input);
+    expect(document.activeElement).not.toBe(second);
+  });
 });

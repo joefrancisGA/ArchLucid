@@ -33,6 +33,10 @@ import {
 } from "@/components/ui/enterprise-table";
 import { useRemediationFactoryShortcuts } from "@/hooks/useRemediationFactoryShortcuts";
 import { focusGovernanceFindingsQueuePathInspectPanel } from "@/hooks/use-governance-findings-queue-path-inspect-shortcuts";
+import {
+  focusRemediationFactoryEvidence,
+  focusRemediationFactoryQueueRow,
+} from "@/lib/governance/governance-findings-queue-keyboard-focus";
 import { fetchRemediationScoreExplanation } from "@/lib/remediation-factory-api";
 import { REMEDIATION_WAVES_SECTION_ID } from "@/lib/remediation-wave-list-copy";
 import type {
@@ -64,6 +68,7 @@ import { RemediationFactoryAttackPathReportSection } from "./RemediationFactoryA
 import { RemediationFactoryTopCutPointsSection } from "./RemediationFactoryTopCutPointsSection";
 import { RemediationFactoryContextStrip } from "./RemediationFactoryContextStrip";
 import { RemediationFactoryPriorityTable } from "./RemediationFactoryPriorityTable";
+import { RemediationFactoryRankedPathsShortcutHints } from "./RemediationFactoryRankedPathsShortcutHints";
 import { RemediationFactoryRankedPathsTable } from "./RemediationFactoryRankedPathsTable";
 import { remediationFactoryPageShortcutsDisclosureEntries } from "./remediation-factory-page-shortcuts-disclosure";
 import {
@@ -474,6 +479,14 @@ export function RemediationFactoryClient() {
     focusGovernanceFindingsQueuePathInspectPanel(pathInspectPanelRef.current);
   }, []);
 
+  const onFocusEvidence = useCallback(() => {
+    focusRemediationFactoryEvidence(getNavigationAnchorRowId(), pathInspectPanelRef.current);
+  }, [getNavigationAnchorRowId]);
+
+  const onReturnToQueue = useCallback(() => {
+    focusRemediationFactoryQueueRow(getNavigationAnchorRowId());
+  }, [getNavigationAnchorRowId]);
+
   const onSelectPathAndFocusInspect = useCallback(
     (pathId: string) => {
       selectPath(pathId);
@@ -496,6 +509,8 @@ export function RemediationFactoryClient() {
     getNavigationAnchorRowId,
     onSelectRowId,
     onFocusInspect,
+    onFocusEvidence,
+    onReturnToQueue,
     onExplainScore,
     explainEnabled: selectedFindingId != null,
   });
@@ -635,6 +650,7 @@ export function RemediationFactoryClient() {
         <header className="space-y-1">
           <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{SECURENOW_PATH_RANKED_PATHS_TITLE}</h2>
           <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PATH_RANKED_PATHS_LEAD}</p>
+          <RemediationFactoryRankedPathsShortcutHints />
         </header>
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-ranked-path-filters-scope">
           These filters narrow the path list only.

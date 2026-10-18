@@ -16,6 +16,8 @@ export type UseRemediationFactoryShortcutsOptions = {
   readonly getNavigationAnchorRowId: () => string | null;
   readonly onSelectRowId: (rowId: string) => void;
   readonly onFocusInspect: () => void;
+  readonly onFocusEvidence: () => void;
+  readonly onReturnToQueue: () => void;
   readonly onExplainScore: () => void;
   readonly explainEnabled: boolean;
 };
@@ -99,6 +101,18 @@ export function useRemediationFactoryShortcuts(options: UseRemediationFactorySho
         description: "Focus path inspect panel",
         handler: () => {
           options.onFocusInspect();
+        },
+      },
+      "alt+o": {
+        description: "Focus evidence link for selected queue row",
+        handler: () => {
+          options.onFocusEvidence();
+        },
+      },
+      "alt+q": {
+        description: "Return focus to selected queue row",
+        handler: () => {
+          options.onReturnToQueue();
         },
       },
     };
