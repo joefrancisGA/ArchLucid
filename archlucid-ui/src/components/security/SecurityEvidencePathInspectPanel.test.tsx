@@ -260,6 +260,9 @@ describe("SecurityEvidencePathInspectPanel", () => {
             explanationSummary: "Remove public network path before privilege hop.",
             suggestedPatternKey: "network.restrict-public",
             operationalCostClass: "Low",
+            pathsCollapsedCount: 1,
+            leverageScore: 1,
+            collapsedPathIds: [],
           },
         ],
         routing: [
