@@ -11,7 +11,8 @@ public sealed class ToxicCombinationEngine(
     IAzureInventorySnapshotRepository snapshotRepository,
     ISecurityEvidencePathRepository pathRepository,
     IOperationalSecurityFindingIngestService findingIngestService,
-    ILogger<ToxicCombinationEngine> logger) : IToxicCombinationEngine
+    ILogger<ToxicCombinationEngine> logger,
+    ISecurityEvidencePathSearchCoverageRepository searchCoverageRepository) : IToxicCombinationEngine
 {
     public async Task<PrivilegePathEngineResult> RunAsync(
         ScopeContext scope,
@@ -202,6 +203,13 @@ public sealed class ToxicCombinationEngine(
             scope,
             ingestItems,
             actorId,
+            cancellationToken);
+
+        await SecurityEvidencePathToxicSearchCoverageRecorder.ReplaceFromParentEnginesAsync(
+            searchCoverageRepository,
+            scope,
+            snapshotId,
+            candidates.Count,
             cancellationToken);
 
         return new PrivilegePathEngineResult

@@ -608,7 +608,8 @@ public sealed class ToxicCombinationEngineTests
             snapshotRepository.Object,
             pathRepository,
             ingestService,
-            NullLogger<ToxicCombinationEngine>.Instance);
+            NullLogger<ToxicCombinationEngine>.Instance,
+            new NoOpSecurityEvidencePathSearchCoverageRepository());
     }
 
     private static OperationalSecurityFindingIngestService CreateIngestService(

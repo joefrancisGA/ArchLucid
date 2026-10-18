@@ -9,6 +9,12 @@ public sealed class PrivilegePathEngineOptions
 
     public const int DefaultMaxFanOutPerNode = 16;
 
+    public const int ContinuationMaxDepth = 12;
+
+    public const int ContinuationMaxPaths = 100;
+
+    public const int ContinuationMaxFanOutPerNode = 32;
+
     public int MaxDepth
     {
         get;
@@ -26,4 +32,12 @@ public sealed class PrivilegePathEngineOptions
         get;
         init;
     } = DefaultMaxFanOutPerNode;
+
+    public static PrivilegePathEngineOptions CreateContinuation() =>
+        new()
+        {
+            MaxDepth = ContinuationMaxDepth,
+            MaxPaths = ContinuationMaxPaths,
+            MaxFanOutPerNode = ContinuationMaxFanOutPerNode,
+        };
 }

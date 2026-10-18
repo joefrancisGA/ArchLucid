@@ -45,11 +45,19 @@ public sealed class PrivilegePathEngine(
         }
 
         InventoryPrivilegePathGraphSnapshot graph = InventoryPrivilegePathGraph.Build(snapshot, analysisSnapshot);
+        bool continuationEnabled = options is null;
         PrivilegePathEngineOptions resolvedOptions = options ?? new PrivilegePathEngineOptions();
         PrivilegePathEnumerationResult enumeration = PrivilegePathEnumerator.EnumerateWithLimits(
             graph,
             resolvedOptions,
             runScope);
+        enumeration = SecurityEvidencePathSearchContinuation.ApplyIfNeeded(
+            graph,
+            enumeration,
+            continuationEnabled,
+            runScope,
+            scope.TenantId,
+            snapshotId);
         await SecurityEvidencePathSearchCoverageRecorder.ReplaceAsync(
             searchCoverageRepository,
             scope,
