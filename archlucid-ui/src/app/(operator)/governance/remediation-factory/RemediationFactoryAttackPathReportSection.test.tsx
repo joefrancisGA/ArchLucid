@@ -53,7 +53,14 @@ describe("RemediationFactoryAttackPathReportSection", () => {
     );
 
     expect(screen.getByText("Vulnerable attack paths")).toBeInTheDocument();
-    expect(screen.getByText("summary")).toBeInTheDocument();
+
+    const row = screen.getByTestId(`security-evidence-ranked-path-row-${confirmedPathId}`);
+    expect(row).toHaveTextContent("Exposed on the network. Deep privilege.");
+    expect(row).not.toHaveTextContent("summary");
+
+    fireEvent.click(screen.getByTestId(`security-evidence-path-rank-rule-${confirmedPathId}`));
+    expect(row).toHaveTextContent("summary");
+
     expect(screen.queryByText("Could not be fully evaluated")).toBeInTheDocument();
     expect(screen.getByTestId("attack-path-report-unevaluated-empty")).toBeInTheDocument();
   });
