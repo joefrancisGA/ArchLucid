@@ -50,6 +50,7 @@
 | PE opt-in gaps in excellence filter | **IDX-10b** | Shipped — extend only |
 | Generic completeness banner | **IDX-11** | Walkthrough 247 / 232 / 15 unexplained |
 | Neighborhood is a crop | **IDX-12** | Selected / RG / neighborhood ignore hops |
+| Hop-focus skips excellence filter | **IDX-12b** | Shipped — extend only |
 | Full-sub-only tests | **IDX-13** | Other eleven modes regress |
 | Complete-graph / icons / RBAC dump | **IDX-HOLD** | Honesty + license |
 
@@ -92,6 +93,7 @@
 | **IDX-10** PE opt-in toggle | After 02 | |
 | **IDX-11** Completeness strip | After 01 | |
 | **IDX-12** Hop-focus modes | After 02+03 | |
+| **IDX-12b** Hop-focus excellence ratchet | After 12 | Shipped — extend only |
 | **IDX-13** Cross-mode ratchet | Last | 01–12 |
 | **IDX-HOLD** | Not implementation | — |
 
