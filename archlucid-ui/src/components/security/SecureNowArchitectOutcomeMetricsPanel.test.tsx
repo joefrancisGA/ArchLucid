@@ -158,7 +158,11 @@ describe("SecureNowArchitectOutcomeMetricsPanel", () => {
     expect(screen.getByText(SECURENOW_ARCHITECT_METRICS_CRITICAL_PATHS_REMOVED)).toBeInTheDocument();
     expect(screen.getByTestId("securenow-architect-metric-Critical/high paths removed")).toHaveTextContent("+3");
     expect(screen.getByTestId("securenow-architect-metrics-provenance")).toBeInTheDocument();
-    expect(screen.getByText(/SA11-metrics-v1/)).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /These snapshot-comparison headline numbers were calculated with the SA-11 architect metrics specification, version 1\./,
+      ),
+    ).toBeInTheDocument();
   });
 
   it("auto-requests compare when a complete snapshot pair is restored from URL state", () => {

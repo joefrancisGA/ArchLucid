@@ -103,6 +103,71 @@ public interface IOperationalSecurityFindingRepository
         CancellationToken cancellationToken = default) =>
         ListFindingIdsByPathIdAsync(scope.TenantId, pathId, cancellationToken);
 
+    async Task<IReadOnlyDictionary<Guid, IReadOnlyList<Guid>>> ListFindingIdsBySnapshotInScopeAsync(
+        ProjectScopeKey scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<OperationalSecurityFindingRecord> findings =
+            await ListByScopeAsync(scope, null, cancellationToken);
+
+        return findings
+            .Where(finding => finding.PathId.HasValue)
+            .GroupBy(finding => finding.PathId!.Value)
+            .ToDictionary(
+                group => group.Key,
+                group => (IReadOnlyList<Guid>)group
+                    .OrderByDescending(finding => finding.LastObservedUtc)
+                    .ThenBy(finding => finding.FindingId)
+                    .Select(finding => finding.FindingId)
+                    .ToList());
+    }
+
+    async Task<RemediationFactoryFindingMetricsAggregate> GetFactoryFindingMetricsAggregateInScopeAsync(
+        ProjectScopeKey scope,
+        DateTime weekStartUtc,
+        DateTime utcNow,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<OperationalSecurityFindingRecord> allFindings =
+            await ListByScopeAsync(scope, null, cancellationToken);
+
+        IReadOnlyList<OperationalSecurityFindingRecord> openFindings = allFindings
+            .Where(item => item.Status is OperationalSecurityFindingStatus.Open or OperationalSecurityFindingStatus.Recurred)
+            .ToList();
+
+        int criticalExposure = openFindings.Count(item =>
+            string.Equals(item.Severity, "critical", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(item.Exposure, "high", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(item.Exposure, "critical", StringComparison.OrdinalIgnoreCase));
+
+        int createdThisWeek = allFindings.Count(item => item.CreatedUtc >= weekStartUtc);
+        int recurrenceCount = allFindings.Count(item => item.Status == OperationalSecurityFindingStatus.Recurred);
+
+        double averageAgeDays = openFindings.Count == 0
+            ? 0
+            : openFindings.Average(item => (utcNow - item.FirstObservedUtc).TotalDays);
+
+        List<RemediationFactoryMetricKeyCount> topControlIds = openFindings
+            .Where(item => !string.IsNullOrWhiteSpace(item.ControlId))
+            .GroupBy(item => item.ControlId!, StringComparer.OrdinalIgnoreCase)
+            .Select(group => new RemediationFactoryMetricKeyCount { Key = group.Key, Count = group.Count() })
+            .OrderByDescending(item => item.Count)
+            .ThenBy(item => item.Key, StringComparer.OrdinalIgnoreCase)
+            .Take(5)
+            .ToList();
+
+        return new RemediationFactoryFindingMetricsAggregate
+        {
+            OpenFindings = openFindings.Count,
+            CriticalExposureCount = criticalExposure,
+            CreatedThisWeek = createdThisWeek,
+            RecurrenceCount = recurrenceCount,
+            AverageAgeDays = averageAgeDays,
+            TopControlIds = topControlIds,
+        };
+    }
+
     async Task<int> CountOpenOrRecurredInScopeAsync(
         ProjectScopeKey scope,
         CancellationToken cancellationToken = default)

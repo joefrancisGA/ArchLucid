@@ -53,6 +53,15 @@ export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_AI_FOOTNOTE =
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME_AND_AI_FOOTNOTE =
   "Dotted hostname and AI inference edges are inferred. They are not observed connections.";
 
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_SOURCE_UNKNOWN_FOOTNOTE =
+  "Dotted inferred edges are inferred. They are not observed connections.";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_UNCLASSIFIED_PROVENANCE =
+  "Provenance was not stored.";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_PRIVATE_ENDPOINT =
+  "Private endpoint access in inventory. This is not observed traffic.";
+
 export const INFRA_EVIDENCE_DIAGRAM_PNG_DATA_ARCHITECTURE_INVENTORY_NOTE =
   "This diagram shows how data stores relate in inventory. It is not a data-movement map.";
 
@@ -71,7 +80,7 @@ export const INFRA_EVIDENCE_DIAGRAM_LEGEND_ACCENT_STORAGE = "Storage";
 
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_ACCENT_IDENTITY = "Identity";
 
-export const INFRA_EVIDENCE_DIAGRAM_LEGEND_ACCENT_OTHER = "Other";
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_ACCENT_OTHER = "Other — not a stored resource category.";
 
 export const INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_COLUMN = "Source";
 

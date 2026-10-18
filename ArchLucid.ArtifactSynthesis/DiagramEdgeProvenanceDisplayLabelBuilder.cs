@@ -26,11 +26,21 @@ public static class DiagramEdgeProvenanceDisplayLabelBuilder
             return $"inferred · {trimmedVerb}";
         }
 
+        if (visualKind == DiagramEdgeVisualKind.Probable)
+        {
+            if (trimmedVerb.Length == 0)
+            {
+                return trimmedVerb;
+            }
+
+            return $"probable · {trimmedVerb}";
+        }
+
         if (visualKind == DiagramEdgeVisualKind.Inferred)
         {
             if (trimmedVerb.Length == 0)
             {
-                return "likely";
+                return "Relationship verb was not stored.";
             }
 
             return $"likely · {trimmedVerb}";

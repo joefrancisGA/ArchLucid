@@ -65,6 +65,12 @@ public sealed class NoOpAzureInventorySnapshotRepository : IAzureInventorySnapsh
         CancellationToken cancellationToken = default)
         => Task.FromResult<(IReadOnlyList<AzureInventoryResourceRecord>, int)?>(null);
 
+    public Task<IReadOnlyList<AzureInventoryResourceRecord>?> ListResourcesBySnapshotIdAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult<IReadOnlyList<AzureInventoryResourceRecord>?>(null);
+
     public Task<AzureInventorySnapshotDeleteResult> TryDeleteSnapshotAsync(
         ScopeContext scope,
         Guid snapshotId,

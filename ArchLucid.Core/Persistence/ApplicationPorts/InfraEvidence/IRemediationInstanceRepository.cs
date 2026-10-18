@@ -125,6 +125,44 @@ public interface IRemediationInstanceRepository
             .ToDictionary(group => group.Key, group => group.Count());
     }
 
+    async Task<RemediationFactoryInstanceMetricsAggregate> GetFactoryInstanceMetricsAggregateInScopeAsync(
+        ProjectScopeKey scope,
+        DateTime weekStartUtc,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<RemediationInstanceRecord> instances = await ListByScopeAsync(scope, cancellationToken);
+
+        int remediatedThisWeek = instances.Count(item =>
+            item.VerifiedUtc.HasValue
+            && item.VerifiedUtc.Value >= weekStartUtc
+            && item.Status is RemediationInstanceStatus.Verified or RemediationInstanceStatus.Closed);
+
+        int automatedCount = instances.Count(item =>
+            item.AutomationLevel is RemediationAutomationLevel.SemiAutomated or RemediationAutomationLevel.Automated);
+
+        int verificationFailures = instances.Count(item => item.Status == RemediationInstanceStatus.VerificationFailed);
+        int businessBlocked = instances.Count(item => item.Status == RemediationInstanceStatus.PreflightBlocked);
+
+        List<RemediationFactoryMetricKeyCount> topPatternKeys = instances
+            .Where(item => !string.IsNullOrWhiteSpace(item.PatternKey))
+            .GroupBy(item => item.PatternKey, StringComparer.OrdinalIgnoreCase)
+            .Select(group => new RemediationFactoryMetricKeyCount { Key = group.Key, Count = group.Count() })
+            .OrderByDescending(item => item.Count)
+            .ThenBy(item => item.Key, StringComparer.OrdinalIgnoreCase)
+            .Take(5)
+            .ToList();
+
+        return new RemediationFactoryInstanceMetricsAggregate
+        {
+            TotalInstances = instances.Count,
+            RemediatedThisWeek = remediatedThisWeek,
+            AutomatedCount = automatedCount,
+            VerificationFailureCount = verificationFailures,
+            BusinessBlockedCount = businessBlocked,
+            TopPatternKeys = topPatternKeys,
+        };
+    }
+
     Task<(IReadOnlyList<RemediationInstanceRecord> Items, int TotalCount)> ListByCloudResourceIdPagedAsync(
         Guid tenantId,
         Guid cloudResourceId,

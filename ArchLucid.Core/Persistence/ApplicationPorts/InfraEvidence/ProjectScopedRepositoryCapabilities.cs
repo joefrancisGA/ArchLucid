@@ -40,6 +40,17 @@ public interface IProjectScopedOperationalSecurityFindingRepository
         Guid pathId,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyDictionary<Guid, IReadOnlyList<Guid>>> ListFindingIdsBySnapshotInScopeAsync(
+        ProjectScopeKey scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default);
+
+    Task<RemediationFactoryFindingMetricsAggregate> GetFactoryFindingMetricsAggregateInScopeAsync(
+        ProjectScopeKey scope,
+        DateTime weekStartUtc,
+        DateTime utcNow,
+        CancellationToken cancellationToken = default);
+
     Task<int> CountOpenOrRecurredInScopeAsync(
         ProjectScopeKey scope,
         CancellationToken cancellationToken = default);
@@ -96,6 +107,11 @@ public interface IProjectScopedRemediationInstanceRepository
 
     Task<IReadOnlyDictionary<string, int>> CountOpenInstancesByStatusInScopeAsync(
         ProjectScopeKey scope,
+        CancellationToken cancellationToken = default);
+
+    Task<RemediationFactoryInstanceMetricsAggregate> GetFactoryInstanceMetricsAggregateInScopeAsync(
+        ProjectScopeKey scope,
+        DateTime weekStartUtc,
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyDictionary<Guid, RemediationInstanceRecord>> ListLatestApprovedByFindingIdsInScopeAsync(

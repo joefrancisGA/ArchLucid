@@ -56,6 +56,27 @@ public interface IAzureInventorySnapshotRepository
         Guid? cloudResourceId = null,
         CancellationToken cancellationToken = default);
 
+    async Task<IReadOnlyList<AzureInventoryResourceRecord>?> ListResourcesBySnapshotIdAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        AzureInventorySnapshotRecord? header =
+            await TryGetBySnapshotIdAsync(scope, snapshotId, cancellationToken);
+
+        if (header is null)
+        {
+            return null;
+        }
+
+        AzureInventorySnapshotDetailReadModel? detail =
+            await TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+
+        return detail?.Resources.ToList();
+    }
+
     Task<AzureInventorySnapshotDeleteResult> TryDeleteSnapshotAsync(
         ScopeContext scope,
         Guid snapshotId,

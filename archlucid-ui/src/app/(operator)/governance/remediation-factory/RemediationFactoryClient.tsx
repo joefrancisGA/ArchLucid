@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
@@ -9,9 +9,8 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { SecurityEvidencePathInspectPanel } from "@/components/security/SecurityEvidencePathInspectPanel";
-import { SecurityEvidencePathRankReasonCell } from "@/components/security/SecurityEvidencePathRankReasonCell";
-import { SecurityEvidencePathRankSortKeyDisclosure } from "@/components/security/SecurityEvidencePathRankSortKeyDisclosure";
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
+import { PageShortcutsDisclosure } from "@/components/usability/PageShortcutsDisclosure";
 import {
   SecureNowArchitectOutcomeMetricsPanel,
   type SecureNowArchitectOutcomeQueryState,
@@ -33,18 +32,12 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
-import { useEnterpriseTableKeyboardNav } from "@/hooks/use-enterprise-table-keyboard-nav";
-import {
-  REMEDIATION_FACTORY_ROW_ATTR,
-  useRemediationFactoryShortcuts,
-} from "@/hooks/useRemediationFactoryShortcuts";
+import { useRemediationFactoryShortcuts } from "@/hooks/useRemediationFactoryShortcuts";
 import { focusGovernanceFindingsQueuePathInspectPanel } from "@/hooks/use-governance-findings-queue-path-inspect-shortcuts";
 import { fetchRemediationScoreExplanation } from "@/lib/remediation-factory-api";
-import { formatRemediationPriorityWhenBand, REMEDIATION_PRIORITY_WHEN_HEADER_HELPER } from "@/lib/remediation-priority-when-band";
 import { REMEDIATION_WAVES_SECTION_ID } from "@/lib/remediation-wave-list-copy";
 import type {
   RemediationFactoryMetrics,
-  RemediationPrioritizedFinding,
   RemediationPrioritizationExplanation,
 } from "@/lib/remediation-factory-types";
 import {
@@ -62,12 +55,6 @@ import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-h
 import { remediationFactoryPathForProductLine } from "@/lib/product-line/securenow-remediation-factory-route";
 import { remediationInstancesPathForProductLine } from "@/lib/product-line/securenow-remediation-instances-route";
 import {
-  formatSecurityEvidencePathConfidenceBandLabel,
-  formatSecurityEvidencePathKindLabel,
-  securityEvidencePathConfidenceBandStatusKind,
-} from "@/lib/security-evidence-path-presentation";
-import type { SecurityEvidencePathRankSummary } from "@/lib/security-evidence-path-types";
-import {
   SECURENOW_PATH_RANKED_PATHS_LEAD,
   SECURENOW_PATH_RANKED_PATHS_TITLE,
 } from "@/lib/product-line/securenow-path-inspect-copy";
@@ -77,6 +64,11 @@ import { cn } from "@/lib/utils";
 import { RemediationFactoryAttackPathReportSection } from "./RemediationFactoryAttackPathReportSection";
 import { RemediationFactoryTopCutPointsSection } from "./RemediationFactoryTopCutPointsSection";
 import { RemediationFactoryContextStrip } from "./RemediationFactoryContextStrip";
+import { remediationFactoryPageShortcutsDisclosureEntries } from "./remediation-factory-page-shortcuts-disclosure";
+import {
+  computeRemediationFactoryRankedPathViewCounts,
+  remediationFactoryRankedPathViewFilteredCount,
+} from "./remediation-factory-ranked-path-view-counts";
 import {
   resolveAttackPathReportSnapshotId,
   shouldShowAttackPathReportRankedSnapshotHint,
@@ -534,6 +526,10 @@ export function RemediationFactoryClient() {
   rankedRef.current = ranked;
   rankedPathsRef.current = rankedPaths;
   const pathView = searchParams.get("pathView") ?? "all";
+  const pathViewCounts = useMemo(
+    () => computeRemediationFactoryRankedPathViewCounts(rankedPaths),
+    [rankedPaths],
+  );
 
   useEffect(() => {
     setRankedPathsPage(1);
@@ -809,6 +805,11 @@ export function RemediationFactoryClient() {
         selectionLabel={selectionLabel}
       />
 
+      <PageShortcutsDisclosure
+        testId="remediation-factory-page-shortcuts"
+        entries={remediationFactoryPageShortcutsDisclosureEntries()}
+      />
+
       {metricsQuery.isError ? (
         <StatusTag kind="needs-attention" label="Executive metrics unavailable" />
       ) : metricsQuery.data ? (
@@ -900,15 +901,7 @@ export function RemediationFactoryClient() {
               onClick={() => setPathView(view.value)}
             >
               {rankedPathsQuery.isSuccess
-                ? `${view.label} · ${
-                    view.value === "all"
-                      ? rankedPaths.length
-                      : view.value === "public-exposure"
-                        ? rankedPaths.filter((row) => row.pathKind.toLowerCase().includes("reachability")).length
-                        : view.value === "privilege"
-                          ? rankedPaths.filter((row) => row.pathKind.toLowerCase().includes("privilege")).length
-                          : rankedPaths.filter((row) => row.pathConfidenceBand === "InsufficientEvidence").length
-                  }`
+                ? `${view.label} · ${remediationFactoryRankedPathViewFilteredCount(view.value, pathViewCounts)}`
                 : view.label}
             </Button>
           ))}

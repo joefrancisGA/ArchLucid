@@ -1,3 +1,4 @@
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.InfraEvidence;
@@ -46,6 +47,16 @@ public interface IRemediationPrioritizationRepository
         ProjectScopeKey scope,
         CancellationToken cancellationToken = default) =>
         ListScoresByTenantAsync(scope.TenantId, cancellationToken);
+
+    async Task<decimal> SumTotalScoresForOpenFindingsInScopeAsync(
+        ProjectScopeKey scope,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<RemediationPrioritizationScoreRecord> scores =
+            await ListScoresByScopeAsync(scope, cancellationToken);
+
+        return scores.Sum(score => score.TotalScore);
+    }
 }
 
 

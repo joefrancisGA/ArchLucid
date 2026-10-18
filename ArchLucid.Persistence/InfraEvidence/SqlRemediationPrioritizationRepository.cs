@@ -6,7 +6,7 @@ using Dapper;
 
 namespace ArchLucid.Persistence.InfraEvidence;
 
-public sealed class SqlRemediationPrioritizationRepository(ISqlConnectionFactory connectionFactory)
+public sealed partial class SqlRemediationPrioritizationRepository(ISqlConnectionFactory connectionFactory)
     : IRemediationPrioritizationRepository
 {
     public async Task<RemediationPrioritizationWeightsRecord?> TryGetWeightsAsync(

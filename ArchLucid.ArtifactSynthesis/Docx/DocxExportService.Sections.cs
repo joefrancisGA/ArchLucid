@@ -40,9 +40,17 @@ public sealed partial class DocxExportService
         else
 
             foreach (RequirementDelta r in c.RequirementChanges)
-                WordDocumentBuilder.AddBodyText(
-                    body,
-                    SanitizeArtifactText($"{r.RequirementName}: {r.ChangeType}"));
+            {
+                string requirementName = DocxManifestFieldPresentation.FormatManifestTableCell(
+                    r.RequirementName,
+                    "Requirement name");
+                string line = requirementName.Contains("was not stored", StringComparison.Ordinal)
+                    || requirementName.Contains("stored empty", StringComparison.Ordinal)
+                    ? $"{requirementName} {r.ChangeType}"
+                    : $"{requirementName}: {r.ChangeType}";
+
+                WordDocumentBuilder.AddBodyText(body, SanitizeArtifactText(line));
+            }
 
         WordDocumentBuilder.AddHeading(body, "Security Posture Delta", DocxStyleIds.Heading2);
         if (c.SecurityChanges.Count == 0)
@@ -83,7 +91,11 @@ public sealed partial class DocxExportService
     private static void AppendRunExplanation(Body body, ExplanationResult e)
     {
         WordDocumentBuilder.AddHeading(body, "Sponsor Narrative (AI)");
-        WordDocumentBuilder.AddBodyText(body, SanitizeArtifactText(e.Summary));
+        WordDocumentBuilder.AddBodyText(
+            body,
+            string.IsNullOrWhiteSpace(e.Summary)
+                ? "Sponsor narrative summary was not stored."
+                : SanitizeArtifactText(e.Summary));
         WordDocumentBuilder.AddSpacer(body);
         WordDocumentBuilder.AddHeading(body, "Key Drivers", DocxStyleIds.Heading2);
         WordDocumentBuilder.AddBulletList(
@@ -121,7 +133,11 @@ public sealed partial class DocxExportService
     private static void AppendComparisonExplanation(Body body, ComparisonExplanationResult e)
     {
         WordDocumentBuilder.AddHeading(body, "Sponsor Change Narrative (AI)");
-        WordDocumentBuilder.AddBodyText(body, SanitizeArtifactText(e.HighLevelSummary));
+        WordDocumentBuilder.AddBodyText(
+            body,
+            string.IsNullOrWhiteSpace(e.HighLevelSummary)
+                ? "Change narrative summary was not stored."
+                : SanitizeArtifactText(e.HighLevelSummary));
         WordDocumentBuilder.AddSpacer(body);
         WordDocumentBuilder.AddHeading(body, "Major Changes (structured)", DocxStyleIds.Heading2);
         WordDocumentBuilder.AddBulletList(

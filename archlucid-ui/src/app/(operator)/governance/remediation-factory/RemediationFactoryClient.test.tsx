@@ -270,6 +270,10 @@ describe("RemediationFactoryClient", () => {
     expect(screen.queryByTestId("remediation-factory-page-lead")).not.toBeInTheDocument();
     expect(screen.getByTestId("remediation-factory-last-refreshed")).toBeInTheDocument();
     expect(screen.getByTestId("remediation-factory-context-strip")).toBeInTheDocument();
+    expect(screen.getByTestId("remediation-factory-page-shortcuts")).toBeInTheDocument();
+    expect(screen.getByTestId("remediation-factory-page-shortcuts-entry-alt-e")).toHaveTextContent(
+      "Explain selected score",
+    );
     expect(screen.getByText(REMEDIATION_FACTORY_EXECUTIVE_METRICS_TITLE)).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent(PAGE_HELP_SHORT_TRIGGER_TEXT);
     expect(screen.getByTestId("remediation-factory-open-waves")).toHaveAttribute(

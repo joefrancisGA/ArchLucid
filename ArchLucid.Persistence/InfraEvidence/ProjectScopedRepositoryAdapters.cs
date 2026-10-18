@@ -25,6 +25,19 @@ public sealed class ProjectScopedOperationalSecurityFindingRepositoryAdapter(
     public Task<IReadOnlyList<Guid>> ListFindingIdsByPathIdInScopeAsync(ProjectScopeKey scope, Guid pathId, CancellationToken cancellationToken = default) =>
         inner.ListFindingIdsByPathIdInScopeAsync(scope, pathId, cancellationToken);
 
+    public Task<IReadOnlyDictionary<Guid, IReadOnlyList<Guid>>> ListFindingIdsBySnapshotInScopeAsync(
+        ProjectScopeKey scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default) =>
+        inner.ListFindingIdsBySnapshotInScopeAsync(scope, snapshotId, cancellationToken);
+
+    public Task<RemediationFactoryFindingMetricsAggregate> GetFactoryFindingMetricsAggregateInScopeAsync(
+        ProjectScopeKey scope,
+        DateTime weekStartUtc,
+        DateTime utcNow,
+        CancellationToken cancellationToken = default) =>
+        inner.GetFactoryFindingMetricsAggregateInScopeAsync(scope, weekStartUtc, utcNow, cancellationToken);
+
     public Task<int> CountOpenOrRecurredInScopeAsync(ProjectScopeKey scope, CancellationToken cancellationToken = default) =>
         inner.CountOpenOrRecurredInScopeAsync(scope, cancellationToken);
 
@@ -67,6 +80,12 @@ public sealed class ProjectScopedRemediationInstanceRepositoryAdapter(
         ProjectScopeKey scope,
         CancellationToken cancellationToken = default) =>
         inner.CountOpenInstancesByStatusInScopeAsync(scope, cancellationToken);
+
+    public Task<RemediationFactoryInstanceMetricsAggregate> GetFactoryInstanceMetricsAggregateInScopeAsync(
+        ProjectScopeKey scope,
+        DateTime weekStartUtc,
+        CancellationToken cancellationToken = default) =>
+        inner.GetFactoryInstanceMetricsAggregateInScopeAsync(scope, weekStartUtc, cancellationToken);
 
     public Task<IReadOnlyDictionary<Guid, RemediationInstanceRecord>> ListLatestApprovedByFindingIdsInScopeAsync(
         ProjectScopeKey scope,
