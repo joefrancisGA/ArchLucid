@@ -32,6 +32,7 @@ export function RemediationFactoryRankedPathsTable(props: {
   readonly page: number;
   readonly pageSize: number;
   readonly onPageChange?: (page: number) => void;
+  readonly pageControlsBusy?: boolean;
 }) {
   const showing = props.rows.length;
   const rankSource = "Server rank (composite sort)";
@@ -47,7 +48,7 @@ export function RemediationFactoryRankedPathsTable(props: {
             type="button"
             variant="outline"
             size="sm"
-            disabled={props.page <= 1}
+            disabled={props.page <= 1 || props.pageControlsBusy === true}
             onClick={() => props.onPageChange?.(props.page - 1)}
             data-testid="remediation-factory-ranked-paths-prev-page"
           >
@@ -57,7 +58,7 @@ export function RemediationFactoryRankedPathsTable(props: {
             type="button"
             variant="outline"
             size="sm"
-            disabled={props.page * props.pageSize >= props.totalCount}
+            disabled={props.page * props.pageSize >= props.totalCount || props.pageControlsBusy === true}
             onClick={() => props.onPageChange?.(props.page + 1)}
             data-testid="remediation-factory-ranked-paths-next-page"
           >
@@ -89,7 +90,7 @@ export function RemediationFactoryRankedPathsTable(props: {
             <EnterpriseTableHeaderCell>
               <span>Band</span>
               <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-                Path evidence band — capped by the weakest hop, not a percentage.
+                Evidence strength for the whole path.
               </span>
             </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>
