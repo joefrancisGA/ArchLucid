@@ -7,6 +7,8 @@ public static class SecurityEvidencePathSearchEngineNames
 
     public const string IntendedReachability = "IntendedReachability";
 
+    public const string ToxicCombination = "ToxicCombination";
+
     public static string DisplayName(string engineName)
     {
         if (string.Equals(engineName, Privilege, StringComparison.Ordinal))
@@ -17,6 +19,11 @@ public static class SecurityEvidencePathSearchEngineNames
         if (string.Equals(engineName, IntendedReachability, StringComparison.Ordinal))
         {
             return "Intended reachability";
+        }
+
+        if (string.Equals(engineName, ToxicCombination, StringComparison.Ordinal))
+        {
+            return "Toxic combination";
         }
 
         return engineName;

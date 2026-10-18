@@ -153,11 +153,19 @@ internal static class SecurityEvidencePathReportAssembler
                      .ThenBy(row => row.LimitKind))
         {
             string reasonCode = MapSearchLimitReasonCode(row.LimitKind);
+            string whyText = string.Equals(
+                row.EngineName,
+                SecurityEvidencePathSearchEngineNames.ToxicCombination,
+                StringComparison.Ordinal)
+                ? SecurityEvidencePathReportReasonCatalog.GetToxicCombinationSearchStoppedWhyText(
+                    row.LimitKind,
+                    row.LimitValue)
+                : SecurityEvidencePathReportReasonCatalog.GetWhyText(reasonCode, row.LimitValue);
 
             groups.Add(new SecurityEvidencePathReportUnevaluatedGroupResponse
             {
                 ReasonCode = reasonCode,
-                WhyText = SecurityEvidencePathReportReasonCatalog.GetWhyText(reasonCode, row.LimitValue),
+                WhyText = whyText,
                 EngineName = SecurityEvidencePathSearchEngineNames.DisplayName(row.EngineName),
                 LimitValue = row.LimitValue,
                 PathsEmitted = row.PathsEmitted,

@@ -44,11 +44,19 @@ public sealed class IntendedReachabilityEngine(
         }
 
         InventoryReachabilityPathGraphSnapshot graph = InventoryReachabilityPathGraph.Build(snapshot, analysisSnapshot);
+        bool continuationEnabled = options is null;
         PrivilegePathEngineOptions resolvedOptions = options ?? new PrivilegePathEngineOptions();
         ReachabilityPathEnumerationResult enumeration = IntendedReachabilityPathEnumerator.EnumerateWithLimits(
             graph,
             resolvedOptions,
             runScope);
+        enumeration = SecurityEvidencePathSearchContinuation.ApplyIfNeeded(
+            graph,
+            enumeration,
+            continuationEnabled,
+            runScope,
+            scope.TenantId,
+            snapshotId);
         await SecurityEvidencePathSearchCoverageRecorder.ReplaceAsync(
             searchCoverageRepository,
             scope,

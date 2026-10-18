@@ -39,6 +39,24 @@ public static class SecurityEvidencePathReportReasonCatalog
         };
     }
 
+    public static string GetToxicCombinationSearchStoppedWhyText(
+        SecurityEvidencePathSearchLimitKind limitKind,
+        int limitValue)
+    {
+        string template = limitKind switch
+        {
+            SecurityEvidencePathSearchLimitKind.MaxPaths =>
+                "Privilege or intended-reachability search stopped after {limit} paths. Toxic combinations use only the paths those engines stored.",
+            SecurityEvidencePathSearchLimitKind.MaxDepth =>
+                "Privilege or intended-reachability search stopped at depth {limit}. Toxic combinations use only the paths those engines stored.",
+            SecurityEvidencePathSearchLimitKind.MaxFanOut =>
+                "Privilege or intended-reachability search stopped after {limit} edges from one node. Toxic combinations use only the paths those engines stored.",
+            _ => throw new ArgumentOutOfRangeException(nameof(limitKind), limitKind, "Unknown search limit kind."),
+        };
+
+        return template.Replace("{limit}", limitValue.ToString(), StringComparison.Ordinal);
+    }
+
     public static IReadOnlyList<string> InsufficientEvidenceEdgeReasonCodesInOrder() =>
     [
         SecurityEvidencePathReportReasonCodes.NsgNotCollected,
