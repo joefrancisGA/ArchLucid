@@ -22,6 +22,7 @@ public sealed class InventoryDiagramExcellenceCrossModeWaveManifestTests
         nameof(InventoryDiagramExcellenceIdx07RatchetTests),
         nameof(InventoryDiagramExcellenceDataFlowInStageHubLayoutTests),
         nameof(InventoryDiagramExcellenceCrossModeWaveManifestTests),
+        nameof(InventoryDiagramExcellenceCrossModeTraitGuardTests),
     ];
 
     [Fact]

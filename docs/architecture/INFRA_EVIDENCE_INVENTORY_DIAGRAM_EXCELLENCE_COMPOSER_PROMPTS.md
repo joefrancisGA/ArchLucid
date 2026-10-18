@@ -43,6 +43,7 @@
 | Hub ratchets lack unified trait filter | **IDX-13t** | Shipped — extend only |
 | Hub sub-wave ratchets not manifest-guarded | **IDX-13u** | Shipped — extend only |
 | Cross-mode ratchets not manifest-guarded | **IDX-13v** | Shipped — extend only |
+| Cross-mode ratchets tagged hub pipeline trait | **IDX-13w** | Shipped — extend only |
 | Singleton-RG tail | **IDX-08** | Full subscription is a postage sheet |
 | Singleton tail skips excellence filter | **IDX-08b** | Shipped — extend only |
 | Duplicate connections | **IDX-09** | Five Office365 cards per Logic App |
@@ -89,6 +90,7 @@
 | **IDX-13t** Data Flow hub pipeline trait guard | After 13s | Shipped — extend only |
 | **IDX-13u** Data Flow hub pipeline wave manifest | After 13t | Shipped — extend only |
 | **IDX-13v** Cross-mode excellence wave manifest | After 11b + 12b + 13 | Shipped — extend only |
+| **IDX-13w** Cross-mode trait isolation guard | After 13v | Shipped — extend only |
 | **IDX-08** Singleton-RG collapse | After 06 | |
 | **IDX-08b** Singleton-RG tail excellence ratchet | After 08 | Shipped — extend only |
 | **IDX-09** Duplicate connection collapse | After 03 | |
