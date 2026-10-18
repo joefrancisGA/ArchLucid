@@ -19,6 +19,10 @@ Do not build any of the following while implementing SN-PERF prompts:
 - Running privilege, reachability, and toxic combination in parallel. Toxic combination reads the paths the first two persist.
 - Deleting the legacy suffix match without the two fixture cases in SN-PERF-04.
 - A neighborhood SQL filter inside SN-PERF-05. That prompt only changes the in-memory pair loop.
+- Loading properties, tags, or relationships to build unchanged drift rows. **SN-PERF-11** is resources only.
+- Changing `RemediationFactoryMetrics` JSON fields or rounding in **SN-PERF-13**.
+- Rewriting hypothesis rules in **SN-PERF-14**.
+- Splitting canonical snapshot detail back into two round trips in **SN-PERF-16**.
 - A new finding engine, a numeric confidence percent, or a change to rank weights.
 - First Load JS work from **PP-01–PP-03**.
 - Hiding a review workspace tab behind More.

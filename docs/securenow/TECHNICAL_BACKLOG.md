@@ -5,7 +5,7 @@
 
 **Audience:** Francis Architecture LLC owner and coding agents scoping SecureNow work.
 
-**Last reconciled:** 2026-10-18 (marked **SN-PERF-06–12** shipped — batched path hops, factory match batching, prioritization prefetch, snapshot header batch, question graph reuse, wave instance lookup). Prior 2026-10-16 (marked **SN-VF-01–05**, **RTA-01–07**, and **AX-DC-02–08** shipped on trunk; **MB-EH** / **MB-SB** messaging behavior shipped). Prior 2026-10-16 (trunk scan: **DIC-01–05**, **DMW-01–02**, **RUR-01–03**, **SN-QQ-01–10**, **DCU-01–05**, and **SH-01–SH-26** help job-match closed — do not greenfield). Prior 2026-10-15 (marked **SH-03** shipped — SecureNow findings help + `/governance/findings` drawer). Prior 2026-10-15 (marked **SH-02** shipped — SecureNow `/help/getting-started` job-match). Prior 2026-10-15 (marked **SN-HOME-01–06** shipped on trunk — SecureNow Home work summary). Prior 2026-10-14 (marked **SN-HAND-09–10** shipped — gap 4 latest remediation attempt on Audit evidence lineage). Prior 2026-10-13 (marked **SN-HAND-05–08** shipped; gaps 1–3 baseline in `ENGINEER_ANALYST_HANDOFF.md`). Prior 2026-10-12 (added **RUR-01–RUR-03** + hold — role display name, counted plain-language `rbac-role-unmapped` warning, and a read / write / nothing question for one app and one resource; prompts only). Prior same day (added **SN-HOME-01–SN-HOME-06** + hold — SecureNow Home work summary, environment freshness, outcome copy, and visible labels; prompts only). Prior 2026-10-06 (added **SN-QQ-09** and **SN-QQ-10** — resource identity on the question card, then a readable open-question count; prompts only). Prior 2026-10-04 (added **DIC-01–DIC-05** + hold — import a customer drawing and compare it to an inventory capture without a sealed review; prompts only). Prior 2026-10-03 (added **SN-QQ-08** — map the questions controller so Diagrams stops 500ing `Unmapped API controller`; prompts only. Prior same day added **SN-QQ-07** — a failed question-queue load shows the API reason; prompts only. Prior same day added **DCU-01–DCU-05** + hold and **SN-QQ-01–SN-QQ-06** + hold; prompts only). Prior 2026-09-20 (trunk scan + prompt indexes under `.cursor/prompts/securenow-*`).
+**Last reconciled:** 2026-10-18 (added **SN-PERF-11** and **13–16** prompts — not implemented. **06–10** and **12** shipped in code without paste files. **11** was not shipped). Prior 2026-10-16 (marked **SN-VF-01–05**, **RTA-01–07**, and **AX-DC-02–08** shipped on trunk; **MB-EH** / **MB-SB** messaging behavior shipped). Prior 2026-10-16 (trunk scan: **DIC-01–05**, **DMW-01–02**, **RUR-01–03**, **SN-QQ-01–10**, **DCU-01–05**, and **SH-01–SH-26** help job-match closed — do not greenfield). Prior 2026-10-15 (marked **SH-03** shipped — SecureNow findings help + `/governance/findings` drawer). Prior 2026-10-15 (marked **SH-02** shipped — SecureNow `/help/getting-started` job-match). Prior 2026-10-15 (marked **SN-HOME-01–06** shipped on trunk — SecureNow Home work summary). Prior 2026-10-14 (marked **SN-HAND-09–10** shipped — gap 4 latest remediation attempt on Audit evidence lineage). Prior 2026-10-13 (marked **SN-HAND-05–08** shipped; gaps 1–3 baseline in `ENGINEER_ANALYST_HANDOFF.md`). Prior 2026-10-12 (added **RUR-01–RUR-03** + hold — role display name, counted plain-language `rbac-role-unmapped` warning, and a read / write / nothing question for one app and one resource; prompts only). Prior same day (added **SN-HOME-01–SN-HOME-06** + hold — SecureNow Home work summary, environment freshness, outcome copy, and visible labels; prompts only). Prior 2026-10-06 (added **SN-QQ-09** and **SN-QQ-10** — resource identity on the question card, then a readable open-question count; prompts only). Prior 2026-10-04 (added **DIC-01–DIC-05** + hold — import a customer drawing and compare it to an inventory capture without a sealed review; prompts only). Prior 2026-10-03 (added **SN-QQ-08** — map the questions controller so Diagrams stops 500ing `Unmapped API controller`; prompts only. Prior same day added **SN-QQ-07** — a failed question-queue load shows the API reason; prompts only. Prior same day added **DCU-01–DCU-05** + hold and **SN-QQ-01–SN-QQ-06** + hold; prompts only). Prior 2026-09-20 (trunk scan + prompt indexes under `.cursor/prompts/securenow-*`).
 
 ## How to use this file
 
@@ -84,6 +84,8 @@ Ordered for SecureNow operator value after the shipped baseline. Size is enginee
 | — | **RTA-01–07** + hold | Reconciliation to action | **Shipped** | — | On trunk (#4511–#4549). Do not greenfield. Index: [`RECONCILIATION_TO_ACTION_LUNA_PROMPTS.md`](../architecture/RECONCILIATION_TO_ACTION_LUNA_PROMPTS.md). |
 | — | **MB-EH**, **MB-SB** | Messaging behavior on diagrams | **Shipped** | — | On trunk. Do not greenfield. Index: [`MESSAGING_BEHAVIOR_COMPOSER_PROMPTS.md`](../architecture/MESSAGING_BEHAVIOR_COMPOSER_PROMPTS.md). |
 | P1 | **SN-PERF-01–05** + hold | Home counts, snapshot round trip, path-search buffer, neighborhood suffix index, toxic pair index | **Shipped** | M | Index: [`SECURENOW_PERFORMANCE_LUNA_PROMPTS.md`](../architecture/SECURENOW_PERFORMANCE_LUNA_PROMPTS.md). |
+| P1 | **SN-PERF-06–10**, **12** | Batched path hops, factory match batch, prioritization prefetch, snapshot header batch, question graph reuse, wave instance lookup | **Shipped** | M | In code. No paste file. Do not greenfield. |
+| P1 | **SN-PERF-11**, **13–16** | Unchanged drift resources, factory aggregates, inspector finding ids, inventory rows, shared header SQL | **Backlog** | M | Paste one file per session. Index: [`SECURENOW_PERFORMANCE_LUNA_PROMPTS.md`](../architecture/SECURENOW_PERFORMANCE_LUNA_PROMPTS.md). |
 | P2 | **IE-RF** | Relationship-first topology (network associations) | **Backlog** | L | Catalog-driven associations; complements diagrams — see [`AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md`](../library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md) item 7. |
 | P2 | **Extractor parity** | Cost, Advisor, orphans, NIC/PE inventory depth | **Backlog** | M | Same extractor discipline; SecureNow inventory workbenches consume output. |
 | P2 | **IDA / IDL / IDS / IDT** | Inventory diagram layout and Graphviz forest | **Backlog** | L | Executive forest packing — see `.cursor/prompts/inventory-diagram-*-00-index.md`. Not a SecureNow-only codepath but blocks “all-day” diagram UX. |
@@ -124,7 +126,7 @@ Paste **one** file per session from the repo root (Cloud Agent: `pwsh` + working
 | Home work summary | [securenow-home-00-index.md](../../.cursor/prompts/securenow-home-00-index.md) | **SN-HOME-01–06** shipped + hold | [`SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md`](../architecture/SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md) |
 | Engineer-to-analyst handoff, gaps 4–5 | [securenow-handoff-00-index.md](../../.cursor/prompts/securenow-handoff-00-index.md) | **SN-HAND-05–10** shipped + hold | [`SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md`](../architecture/SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md) |
 | RBAC unmapped role | [rbac-unmapped-role-00-index.md](../../.cursor/prompts/rbac-unmapped-role-00-index.md) | **RUR-01–RUR-03** + hold | [`RBAC_UNMAPPED_ROLE_LUNA_PROMPTS.md`](../architecture/RBAC_UNMAPPED_ROLE_LUNA_PROMPTS.md) |
-| Performance reads | [securenow-performance-00-index.md](../../.cursor/prompts/securenow-performance-00-index.md) | **SN-PERF-01–05** + hold | [`SECURENOW_PERFORMANCE_LUNA_PROMPTS.md`](../architecture/SECURENOW_PERFORMANCE_LUNA_PROMPTS.md) |
+| Performance reads | [securenow-performance-00-index.md](../../.cursor/prompts/securenow-performance-00-index.md) | **SN-PERF-01–05** shipped; **11**, **13–16** backlog + hold | [`SECURENOW_PERFORMANCE_LUNA_PROMPTS.md`](../architecture/SECURENOW_PERFORMANCE_LUNA_PROMPTS.md) |
 
 ---
 
@@ -360,7 +362,7 @@ Design note: [`ENGINEER_ANALYST_HANDOFF.md`](ENGINEER_ANALYST_HANDOFF.md). Do no
 | SN-HAND-10 | Audit evidence shows the latest attempt | **Shipped** |
 | SN-HAND-HOLD | Stop list | **Hold** |
 
-### SN-PERF — Read-path performance (**SN-PERF-01–SN-PERF-05**)
+### SN-PERF — Read-path performance (**SN-PERF-01–SN-PERF-16**)
 
 Index: [`SECURENOW_PERFORMANCE_LUNA_PROMPTS.md`](../architecture/SECURENOW_PERFORMANCE_LUNA_PROMPTS.md). Do not implement from the index. Prompts only.
 
@@ -371,6 +373,17 @@ Index: [`SECURENOW_PERFORMANCE_LUNA_PROMPTS.md`](../architecture/SECURENOW_PERFO
 | SN-PERF-03 | Reused path-search buffer | **Shipped** |
 | SN-PERF-04 | Neighborhood suffix index | **Shipped** |
 | SN-PERF-05 | Toxic combinations paired by shared asset | **Shipped** |
+| SN-PERF-06 | Batched path hops for metrics, sync, drift, inspector | **Shipped** |
+| SN-PERF-07 | Active pattern matches in one read | **Shipped** |
+| SN-PERF-08 | Prioritization prefetches exceptions and matches | **Shipped** |
+| SN-PERF-09 | Snapshot header and grids in one round trip | **Shipped** |
+| SN-PERF-10 | Question graph from the loaded snapshot | **Shipped** |
+| SN-PERF-11 | Unchanged drift rows from resources only | **Backlog** |
+| SN-PERF-12 | Wave create loads approved instances by finding id | **Shipped** |
+| SN-PERF-13 | Factory metrics from grouped SQL | **Backlog** |
+| SN-PERF-14 | Inspector finding ids in one snapshot read | **Backlog** |
+| SN-PERF-15 | Snapshot inventory rows without full detail | **Backlog** |
+| SN-PERF-16 | Shared snapshot header SQL | **Backlog** |
 | SN-PERF-HOLD | Stop list | **Hold** |
 
 ---
