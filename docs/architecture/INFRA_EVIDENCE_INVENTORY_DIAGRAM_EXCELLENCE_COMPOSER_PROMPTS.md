@@ -30,6 +30,7 @@
 | Hub pipeline Graphviz DOT untested | **IDX-13d** | Shipped — extend only |
 | Hub pipeline graph compile untested | **IDX-13e** | Shipped — extend only |
 | Hub pipeline snapshot Mermaid service untested | **IDX-13f** | Shipped — extend only |
+| Hub pipeline service PNG DOT untested | **IDX-13j** | Shipped — extend only |
 | Singleton-RG tail | **IDX-08** | Full subscription is a postage sheet |
 | Duplicate connections | **IDX-09** | Five Office365 cards per Logic App |
 | PE flag with no UI | **IDX-10** | Operators cannot opt in; or PEs sneak on |
@@ -58,6 +59,7 @@
 | **IDX-13d** Data Flow hub DOT ratchet | After 13c | Shipped — extend only |
 | **IDX-13e** Data Flow hub graph-compile ratchet | After 13d | Shipped — extend only |
 | **IDX-13f** Data Flow hub service Mermaid ratchet | After 13e | Shipped — extend only |
+| **IDX-13j** Data Flow hub service PNG DOT ratchet | After 13i | Shipped — extend only |
 | **IDX-08** Singleton-RG collapse | After 06 | |
 | **IDX-09** Duplicate connection collapse | After 03 | |
 | **IDX-10** PE opt-in toggle | After 02 | |
