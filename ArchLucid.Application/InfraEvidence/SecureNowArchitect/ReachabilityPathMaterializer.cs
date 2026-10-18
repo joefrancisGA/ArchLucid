@@ -47,6 +47,11 @@ internal static class ReachabilityPathMaterializer
             return PathConfidenceBand.InsufficientEvidence;
         }
 
+        if (hop.EdgeType == SecureNowArchitectConstants.NetworkEdgeControlAllowedHopEdgeType)
+        {
+            return PathConfidenceBand.Probable;
+        }
+
         if (hop.ProvenanceKind == ProvenanceKind.ObservedFact)
         {
             return PathConfidenceBand.Confirmed;
@@ -86,6 +91,11 @@ internal static class ReachabilityPathMaterializer
         if (hop.EdgeType == SecureNowArchitectConstants.InsufficientEvidenceNetworkEdgeControlHopEdgeType)
         {
             return SecureNowArchitectConstants.InsufficientEvidenceNetworkEdgeControlHopEdgeType;
+        }
+
+        if (hop.EdgeType == SecureNowArchitectConstants.NetworkEdgeControlAllowedHopEdgeType)
+        {
+            return SecureNowArchitectConstants.NetworkEdgeControlAllowedHopEdgeType;
         }
 
         if (hop.InferenceSource == GraphEdgeInferenceSources.InventoryPeReachableTarget)
