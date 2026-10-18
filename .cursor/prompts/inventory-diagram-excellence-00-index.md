@@ -98,6 +98,7 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-08** Singleton-RG collapse | **Shipped** on trunk — do not greenfield | Tail rollup when ≥8 isolated singleton RGs |
 | **IDX-08b** Singleton-RG tail excellence ratchet | **Shipped** on trunk — extend only | IDX-08 planner not under `InventoryDiagramExcellence` filter |
 | **IDX-09** Duplicate connection collapse | **Shipped** on trunk — do not greenfield | `DiagramInventoryConnectionRollupApplier` |
+| **IDX-09b** Duplicate connection excellence ratchet | **Shipped** on trunk — extend only | Connection rollup not under `InventoryDiagramExcellence` filter |
 | **IDX-10** PE opt-in toggle | **Shipped** on trunk — extend only | Workbench toggle; default off all modes incl. `ResourceGroup` |
 | **IDX-11** Completeness strip | **Shipped** on trunk — extend only | Mode-aware `CompletenessSummary` + banner |
 | **IDX-12** Hop-focus neighborhood / selected / RG | **Shipped** on trunk — extend only | Cited-hop BFS + hidden transit bridge |
@@ -159,6 +160,7 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-excellence-<s
 | 08 | `inventory-diagram-excellence-08-singleton-rg-collapse.md` | Long tail of one-node RG frames |
 | 08b | `inventory-diagram-excellence-08b-singleton-tail-excellence-ratchet.md` | Singleton tail not in excellence filter |
 | 09 | `inventory-diagram-excellence-09-duplicate-connection-collapse.md` | Duplicate Logic App connector cards |
+| 09b | `inventory-diagram-excellence-09b-duplicate-connection-excellence-ratchet.md` | Connection rollup not in excellence filter |
 | 10 | `inventory-diagram-excellence-10-pe-opt-in-toggle.md` | PE cards have no workbench opt-in; hops already used |
 | 11 | `inventory-diagram-excellence-11-completeness-strip.md` | Generic banner; walkthrough counts unexplained |
 | 12 | `inventory-diagram-excellence-12-hop-focus-modes.md` | Neighborhood / selected / RG still feel like a crop of Full |

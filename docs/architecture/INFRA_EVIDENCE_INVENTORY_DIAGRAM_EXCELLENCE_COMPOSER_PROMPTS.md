@@ -45,6 +45,7 @@
 | Singleton-RG tail | **IDX-08** | Full subscription is a postage sheet |
 | Singleton tail skips excellence filter | **IDX-08b** | Shipped — extend only |
 | Duplicate connections | **IDX-09** | Five Office365 cards per Logic App |
+| Connection rollup skips excellence filter | **IDX-09b** | Shipped — extend only |
 | PE flag with no UI | **IDX-10** | Operators cannot opt in; or PEs sneak on |
 | Generic completeness banner | **IDX-11** | Walkthrough 247 / 232 / 15 unexplained |
 | Neighborhood is a crop | **IDX-12** | Selected / RG / neighborhood ignore hops |
@@ -86,6 +87,7 @@
 | **IDX-08** Singleton-RG collapse | After 06 | |
 | **IDX-08b** Singleton-RG tail excellence ratchet | After 08 | Shipped — extend only |
 | **IDX-09** Duplicate connection collapse | After 03 | |
+| **IDX-09b** Duplicate connection excellence ratchet | After 09 | Shipped — extend only |
 | **IDX-10** PE opt-in toggle | After 02 | |
 | **IDX-11** Completeness strip | After 01 | |
 | **IDX-12** Hop-focus modes | After 02+03 | |
