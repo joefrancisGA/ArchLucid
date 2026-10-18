@@ -155,7 +155,7 @@ public static class SecureNowArchitectOutcomeMetricsCalculator
             && item.ExpirationUtc > windowStart
             && item.ExpirationUtc <= windowEnd);
 
-        int recurrenceCount = CountRemediationRecurrences(inputs.Findings, windowStart, windowEnd);
+        int recurrenceCount = SecureNowOutcomeRecurrenceCounter.Count(inputs.Findings, windowStart, windowEnd);
 
         return new SecureNowArchitectOutcomeMetricsResult
         {
@@ -247,57 +247,11 @@ public static class SecureNowArchitectOutcomeMetricsCalculator
         && (nodeId.StartsWith("identity:", StringComparison.OrdinalIgnoreCase)
             || nodeId.Contains("ManagedIdentity", StringComparison.OrdinalIgnoreCase));
 
-    private static int CountRemediationRecurrences(
-        IReadOnlyList<OperationalSecurityFindingRecord> findings,
-        DateTime windowStart,
-        DateTime windowEnd)
-    {
-        List<OperationalSecurityFindingRecord> scoped = findings
-            .Where(finding =>
-                finding.CloudResourceId is not null
-                && finding.CloudResourceId != Guid.Empty
-                && !string.IsNullOrWhiteSpace(finding.ControlId))
-            .ToList();
-
-        HashSet<(Guid CloudResourceId, string ControlId)> closedPairs = scoped
-            .Where(finding => finding.Status == OperationalSecurityFindingStatus.Closed)
-            .Select(finding => (finding.CloudResourceId!.Value, finding.ControlId!))
-            .ToHashSet();
-
-        HashSet<(Guid CloudResourceId, string ControlId)> recurrencePairs = [];
-
-        foreach (OperationalSecurityFindingRecord finding in scoped)
-        {
-
-            if (finding.UpdatedUtc <= windowStart || finding.UpdatedUtc > windowEnd)
-            {
-                continue;
-            }
-
-            (Guid CloudResourceId, string ControlId) pair =
-                (finding.CloudResourceId!.Value, finding.ControlId!);
-
-            if (finding.Status == OperationalSecurityFindingStatus.Recurred)
-            {
-                recurrencePairs.Add(pair);
-                continue;
-            }
-
-            if (finding.Status == OperationalSecurityFindingStatus.Open
-                && closedPairs.Contains(pair))
-            {
-                recurrencePairs.Add(pair);
-            }
-        }
-
-        return recurrencePairs.Count;
-    }
-
     private static HashSet<string> BuildHashSet(IReadOnlyList<SecurityEvidencePathRecord> paths) =>
         paths.Select(path => ToHashKey(path.CanonicalHopHashSha256)).ToHashSet(StringComparer.Ordinal);
 
     private static string ToHashKey(byte[] hash) => Convert.ToHexStringLower(hash);
 
-    private static DateTime SnapshotAnchorUtc(AzureInventorySnapshotRecord snapshot) =>
+    public static DateTime SnapshotAnchorUtc(AzureInventorySnapshotRecord snapshot) =>
         snapshot.UpdatedUtc != default ? snapshot.UpdatedUtc : snapshot.CreatedUtc;
 }

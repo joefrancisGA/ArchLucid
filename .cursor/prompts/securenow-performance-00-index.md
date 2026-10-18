@@ -24,4 +24,4 @@ Copy-paste docs index: [`docs/architecture/SECURENOW_PERFORMANCE_LUNA_PROMPTS.md
 | 16 | **SN-PERF-16** | Snapshot header SQL is one statement shared by lookup and detail. |
 | — | **SN-PERF-HOLD** | Stop list. Paste only when a session drifts. |
 
-**01–05** are shipped. **06–10** and **12** are shipped in code and have no paste file; do not rewrite them. **11** is independent. **15** should follow **11** when both are open, so they share one resource read. **13**, **14**, and **16** are independent of **11**.
+**01–05** are shipped. **06–10**, **12**, and **17–19** are shipped in code and have no paste file; do not rewrite them. **11** is independent. **15** should follow **11** when both are open, so they share one resource read. **13**, **14**, and **16** are independent of **11**.

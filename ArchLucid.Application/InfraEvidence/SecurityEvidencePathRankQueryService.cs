@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Core.Scoping;
@@ -53,38 +55,41 @@ public sealed class SecurityEvidencePathRankQueryService(
             };
         }
 
-        Dictionary<Guid, SecurityEvidencePathRecord> pathHeaders = [];
+        ProjectScopeKey projectScope = scope.ToProjectScopeKey();
+        Guid[] pathIds = ranks.Select(rank => rank.PathId).Distinct().ToArray();
 
-        foreach (SecurityEvidencePathRankRecord rank in ranks)
-        {
-            if (pathHeaders.ContainsKey(rank.PathId))
-            {
-                continue;
-            }
+        IReadOnlyList<SecurityEvidencePathRecord> loadedPaths =
+            await pathRepository.ListByIdsInScopeAsync(projectScope, pathIds, cancellationToken);
 
-            SecurityEvidencePathRecord? path =
-                await pathRepository.TryGetByIdInScopeAsync(scope.ToProjectScopeKey(), rank.PathId, cancellationToken);
+        Dictionary<Guid, SecurityEvidencePathRecord> pathHeaders = loadedPaths
+            .Where(path => ranks.Any(rank =>
+                rank.PathId == path.PathId
+                && rank.SnapshotId == path.SnapshotId
+                && (snapshotId is null || snapshotId == rank.SnapshotId)))
+            .GroupBy(path => path.PathId)
+            .ToDictionary(group => group.Key, group => group.First());
 
-            if (path is not null && path.SnapshotId == rank.SnapshotId
-                && (snapshotId is null || snapshotId == rank.SnapshotId))
-            {
-                pathHeaders[rank.PathId] = path;
-            }
-        }
+        IReadOnlyList<SecurityEvidenceCutPointRecord> cutPointPool = snapshotId is not null && snapshotId != Guid.Empty
+            ? topCutPoints
+            : await cutPointRepository.ListBySnapshotsInScopeAsync(
+                projectScope,
+                ranks.Select(rank => rank.SnapshotId).Distinct().ToArray(),
+                cancellationToken);
 
         List<SecurityEvidencePathRankSummaryResponse> summaries = [];
 
         foreach (SecurityEvidencePathRankRecord rank in ranks)
         {
-
             if (!pathHeaders.TryGetValue(rank.PathId, out SecurityEvidencePathRecord? path))
             {
                 continue;
             }
 
-            IReadOnlyList<SecurityEvidenceCutPointRecord> relatedCutPoints =
-                (await cutPointRepository.ListByPathIdInScopeAsync(scope.ToProjectScopeKey(), rank.PathId, cancellationToken))
-                .Where(cutPoint => cutPoint.SnapshotId == path.SnapshotId).ToList();
+            List<SecurityEvidenceCutPointRecord> relatedCutPoints = cutPointPool
+                .Where(cutPoint =>
+                    cutPoint.SnapshotId == path.SnapshotId
+                    && CutPointCitesPath(cutPoint, path.PathId))
+                .ToList();
 
             summaries.Add(MapSummary(rank, path, relatedCutPoints));
         }
@@ -159,6 +164,24 @@ public sealed class SecurityEvidencePathRankQueryService(
             },
             ComputedUtc = rank.ComputedUtc,
         };
+    }
+
+    private static bool CutPointCitesPath(SecurityEvidenceCutPointRecord cutPoint, Guid pathId)
+    {
+        if (string.IsNullOrWhiteSpace(cutPoint.CollapsedPathIdsJson))
+        {
+            return false;
+        }
+
+        try
+        {
+            List<Guid>? pathIds = JsonSerializer.Deserialize<List<Guid>>(cutPoint.CollapsedPathIdsJson);
+            return pathIds is not null && pathIds.Contains(pathId);
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
     }
 
     private static SecurityEvidencePathRankSummaryResponse MapSummary(

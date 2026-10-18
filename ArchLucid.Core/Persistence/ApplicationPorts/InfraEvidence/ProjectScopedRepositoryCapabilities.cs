@@ -51,6 +51,16 @@ public interface IProjectScopedOperationalSecurityFindingRepository
         DateTime utcNow,
         CancellationToken cancellationToken = default);
 
+    Task<int> CountOpenOrRecurredInScopeAsync(
+        ProjectScopeKey scope,
+        CancellationToken cancellationToken = default);
+
+    Task<int> CountOutcomeRecurrencePairsInScopeAsync(
+        ProjectScopeKey scope,
+        DateTime windowStartUtc,
+        DateTime windowEndUtc,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<OperationalSecurityFindingObservationRecord>> ListObservationsByFindingInScopeAsync(
         ProjectScopeKey scope,
         Guid findingId,

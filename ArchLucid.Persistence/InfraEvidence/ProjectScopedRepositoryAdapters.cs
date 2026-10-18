@@ -38,6 +38,16 @@ public sealed class ProjectScopedOperationalSecurityFindingRepositoryAdapter(
         CancellationToken cancellationToken = default) =>
         inner.GetFactoryFindingMetricsAggregateInScopeAsync(scope, weekStartUtc, utcNow, cancellationToken);
 
+    public Task<int> CountOpenOrRecurredInScopeAsync(ProjectScopeKey scope, CancellationToken cancellationToken = default) =>
+        inner.CountOpenOrRecurredInScopeAsync(scope, cancellationToken);
+
+    public Task<int> CountOutcomeRecurrencePairsInScopeAsync(
+        ProjectScopeKey scope,
+        DateTime windowStartUtc,
+        DateTime windowEndUtc,
+        CancellationToken cancellationToken = default) =>
+        inner.CountOutcomeRecurrencePairsInScopeAsync(scope, windowStartUtc, windowEndUtc, cancellationToken);
+
     public Task<IReadOnlyList<OperationalSecurityFindingObservationRecord>> ListObservationsByFindingInScopeAsync(ProjectScopeKey scope, Guid findingId, CancellationToken cancellationToken = default) =>
         inner.ListObservationsByFindingInScopeAsync(scope, findingId, cancellationToken);
 
