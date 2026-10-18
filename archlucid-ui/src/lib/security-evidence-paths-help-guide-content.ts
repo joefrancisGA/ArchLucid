@@ -1,5 +1,13 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
+export const SECURITY_EVIDENCE_PATHS_HELP_EXECUTIVE_METRICS_MEASUREMENT_ANCHOR =
+  "how-these-counts-are-measured" as const;
+
+export const SECURITY_EVIDENCE_PATHS_HELP_EXECUTIVE_METRICS_MEASUREMENT_HREF = inAppHelpHref(
+  "security-evidence-paths",
+  SECURITY_EVIDENCE_PATHS_HELP_EXECUTIVE_METRICS_MEASUREMENT_ANCHOR,
+);
+
 export const SECURITY_EVIDENCE_PATHS_HELP_PATH = "/help/security-evidence-paths" as const;
 
 export const SECURITY_EVIDENCE_PATHS_HELP_PAGE_TITLE = "Security evidence paths" as const;
