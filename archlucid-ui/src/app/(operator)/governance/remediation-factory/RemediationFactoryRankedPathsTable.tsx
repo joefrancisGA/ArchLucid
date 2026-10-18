@@ -17,11 +17,11 @@ import {
   securityEvidencePathConfidenceBandStatusKind,
 } from "@/lib/security-evidence-path-presentation";
 import type { SecurityEvidencePathRankSummary } from "@/lib/security-evidence-path-types";
+import { SecurityEvidencePathRankReasonCell } from "@/components/security/SecurityEvidencePathRankReasonCell";
+import { SecurityEvidencePathRankSortKeyDisclosure } from "@/components/security/SecurityEvidencePathRankSortKeyDisclosure";
 import { SECURENOW_PATH_RANKED_PATHS_TITLE } from "@/lib/product-line/securenow-path-inspect-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
 import { cn } from "@/lib/utils";
-
-import { RemediationFactoryTableSummaryCell } from "./RemediationFactoryTableSummaryCell";
 
 export function RemediationFactoryRankedPathsTable(props: {
   readonly rows: ReadonlyArray<SecurityEvidencePathRankSummary>;
@@ -116,16 +116,7 @@ export function RemediationFactoryRankedPathsTable(props: {
                     {selected ? <StatusTag kind="ready" label="Inspecting" /> : null}
                   </span>
                 </EnterpriseTableCell>
-                <EnterpriseTableCell>
-                  <RemediationFactoryTableSummaryCell
-                    rowKey={row.pathId}
-                    summary={
-                      row.explanationSummary.trim().length > 0
-                        ? row.explanationSummary
-                        : "Path recorded. Open inspect for the hops."
-                    }
-                  />
-                </EnterpriseTableCell>
+                <SecurityEvidencePathRankReasonCell rank={row} />
                 <EnterpriseTableCell title={row.pathKind}>{formatSecurityEvidencePathKindLabel(row.pathKind)}</EnterpriseTableCell>
                 <EnterpriseTableCell>
                   <StatusTag
@@ -136,9 +127,11 @@ export function RemediationFactoryRankedPathsTable(props: {
                     Open inspect for weakest-hop band limits.
                   </p>
                 </EnterpriseTableCell>
-                <EnterpriseTableCell className="tabular-nums">
-                  <span className="tabular-nums">{row.compositeSortScore.toFixed(4)}</span>
-                  <p className={cn("m-0 mt-1 font-normal", OPERATOR_TYPOGRAPHY.micro)}>Sort key only</p>
+                <EnterpriseTableCell>
+                  <SecurityEvidencePathRankSortKeyDisclosure
+                    pathId={row.pathId}
+                    compositeSortScore={row.compositeSortScore}
+                  />
                 </EnterpriseTableCell>
               </EnterpriseTableInteractiveRow>
             );

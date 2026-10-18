@@ -81,10 +81,6 @@ import type {
 import { securityEvidencePathHopNodeName } from "@/lib/security-evidence-path-types";
 import { formatRemediationPrioritySortKeyLine } from "@/lib/remediation-priority-score-display";
 import { SecurityEvidencePathRankReaderDisclosures } from "@/components/security/SecurityEvidencePathRankReaderDisclosures";
-import {
-  formatSecurityEvidencePathCompositeSortKeyLine,
-  formatSecurityEvidencePathRankLead,
-} from "@/lib/security-evidence-path-rank-display";
 import { cn } from "@/lib/utils";
 import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 
@@ -287,14 +283,11 @@ function PathRankSection(props: { readonly rank: SecurityEvidencePathRankDetail 
         <StatusTag kind="neutral" label={`Rank ${props.rank.rankOrder}`} />
       </div>
       <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
-        Rank prose is authoritative for why this path sorts here. The composite key is ordering only.
+        Dimension prose below expands the reader sentence. The composite key is ordering only.
       </p>
-      <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)} data-testid="security-evidence-path-rank-lead">
-        {formatSecurityEvidencePathRankLead(props.rank)}
-      </p>
-      <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
-        {formatSecurityEvidencePathCompositeSortKeyLine(props.rank.compositeSortScore)}
-      </p>
+      <div className="mt-2">
+        <SecurityEvidencePathRankReaderDisclosures rank={props.rank} />
+      </div>
       {props.rank.dimensionProse.overall.trim().length > 0 ? (
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{props.rank.dimensionProse.overall}</p>
       ) : null}

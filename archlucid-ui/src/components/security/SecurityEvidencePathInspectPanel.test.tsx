@@ -345,9 +345,10 @@ describe("SecurityEvidencePathInspectPanel", () => {
     expect(screen.queryByText(/\d+%/)).not.toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-cut-points")).toBeInTheDocument();
     expect(screen.getByText("Where you could break this path.")).toBeInTheDocument();
-    expect(screen.getByTestId("security-evidence-path-rank-lead")).toHaveTextContent(
-      "High privilege depth with public exposure.",
+    expect(screen.getByTestId("security-evidence-path-rank-reader-path-1")).toHaveTextContent(
+      "Exposed on the network. Wide blast radius.",
     );
+    expect(screen.getByTestId("security-evidence-path-rank")).not.toHaveTextContent("0.7123");
     expect(screen.getByTestId("security-evidence-path-band-weakest-hop-limit")).toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-routing")).toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-decision-readiness")).toHaveTextContent("Verify evidence before action");
