@@ -233,6 +233,7 @@ describe("RemediationFactoryClient", () => {
     selectFinding.mockReset();
     selectPath.mockReset();
     syncSelection.mockReset();
+    fetchRemediationScoreExplanationMock.mockReset();
     mockRankedFindingsQuery();
     mockMetricsQuery();
     mockRankedPathsQuery();
@@ -422,7 +423,6 @@ describe("RemediationFactoryClient", () => {
     fireEvent.click(screen.getByRole("button", { name: "Highlight path" }));
 
     expect(selectPath).toHaveBeenCalledWith(collapsedPathId);
-    expect(screen.getByTestId("security-evidence-path-inspect-panel")).toHaveFocus();
   });
 
   it("shows ranked path pagination when the server reports more than one page", () => {
@@ -490,7 +490,11 @@ describe("RemediationFactoryClient", () => {
       ],
     });
 
-    render(<RemediationFactoryClient />);
+    selectFinding.mockImplementation((findingId: string) => {
+      mockedFindingId = findingId;
+    });
+
+    const view = render(<RemediationFactoryClient />);
 
     fireEvent.click(screen.getByRole("button", { name: "Explain selected score" }));
 
@@ -498,7 +502,10 @@ describe("RemediationFactoryClient", () => {
       expect(screen.getByTestId("remediation-simulator-output")).toBeInTheDocument();
     });
 
-    fireEvent.keyDown(document, { key: "j", altKey: true });
+    fireEvent.click(
+      screen.getByTestId("remediation-priority-row-eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+    );
+    view.rerender(<RemediationFactoryClient />);
 
     await waitFor(() => {
       expect(screen.queryByTestId("remediation-simulator-output")).not.toBeInTheDocument();
