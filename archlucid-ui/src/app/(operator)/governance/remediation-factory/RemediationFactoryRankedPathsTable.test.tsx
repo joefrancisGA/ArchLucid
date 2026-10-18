@@ -50,4 +50,26 @@ describe("RemediationFactoryRankedPathsTable", () => {
       "Composite sort key 0.8123. Ordering only — not a percentage, probability, or live risk score.",
     );
   });
+
+  it("omits the sort key column when showSortKeyColumn is false", () => {
+    render(
+      <RemediationFactoryRankedPathsTable
+        rows={[sampleRow]}
+        selectedPathId={null}
+        onSelect={vi.fn()}
+        scopeLabel="Attack path report · vulnerable"
+        totalCount={1}
+        page={1}
+        pageSize={25}
+        showSortKeyColumn={false}
+      />,
+    );
+
+    expect(screen.getByTestId("remediation-factory-ranked-paths-scope")).toHaveTextContent("Recorded rank");
+    expect(screen.getByTestId("remediation-factory-ranked-paths-scope")).not.toHaveTextContent("composite sort");
+
+    const row = screen.getByTestId("security-evidence-ranked-path-row-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+    expect(row).not.toHaveTextContent("Show sort key");
+    expect(row).not.toHaveTextContent("0.8123");
+  });
 });
