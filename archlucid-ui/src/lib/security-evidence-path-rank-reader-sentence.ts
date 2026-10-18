@@ -1,78 +1,95 @@
-import type { SecurityEvidencePathRankSummary } from "@/lib/security-evidence-path-types";
+/**
+ * Reader sentence for a ranked architect path row.
+ * Dimension scores come from the rank API; do not parse explanationSummary.
+ */
 
 export const SECURITY_EVIDENCE_PATH_RANK_NO_LEADING_REASON =
   "This path does not name a leading reason." as const;
 
-type PathRankScoreInput = Pick<
-  SecurityEvidencePathRankSummary,
-  | "technicalExposureScore"
-  | "privilegeDepthScore"
-  | "blastRadiusScore"
-  | "businessConsequenceScore"
->;
+export type SecurityEvidencePathRankReaderInput = {
+  readonly technicalExposureScore: number;
+  readonly privilegeDepthScore: number;
+  readonly blastRadiusScore: number;
+  readonly businessConsequenceScore: number | null;
+};
+
+type PathRankDimensionKey =
+  | "technicalExposure"
+  | "privilegeDepth"
+  | "blastRadius"
+  | "businessConsequence";
+
+const PATH_RANK_DIMENSION_CLAUSE: Record<PathRankDimensionKey, string> = {
+  technicalExposure: "Exposed on the network",
+  privilegeDepth: "Deep privilege",
+  blastRadius: "Wide blast radius",
+  businessConsequence: "Tied to a crown jewel",
+};
+
+const PATH_RANK_DIMENSION_TIE_ORDER: readonly PathRankDimensionKey[] = [
+  "technicalExposure",
+  "privilegeDepth",
+  "blastRadius",
+  "businessConsequence",
+];
 
 type RankedDimension = {
+  readonly key: PathRankDimensionKey;
   readonly score: number;
-  readonly clause: string;
   readonly tieOrder: number;
 };
 
-const DIMENSION_SPECS: readonly {
-  readonly readScore: (input: PathRankScoreInput) => number | null;
-  readonly clause: string;
-  readonly tieOrder: number;
-}[] = [
-  {
-    readScore: (input) => input.technicalExposureScore,
-    clause: "Exposed on the network",
-    tieOrder: 0,
-  },
-  {
-    readScore: (input) => input.privilegeDepthScore,
-    clause: "Deep privilege",
-    tieOrder: 1,
-  },
-  {
-    readScore: (input) => input.blastRadiusScore,
-    clause: "Wide blast radius",
-    tieOrder: 2,
-  },
-  {
-    readScore: (input) => input.businessConsequenceScore,
-    clause: "Tied to a crown jewel",
-    tieOrder: 3,
-  },
-];
-
-export function formatSecurityEvidencePathRankReaderSentence(input: PathRankScoreInput): string {
-  const ranked = DIMENSION_SPECS
-    .map((spec) => {
-      const score = spec.readScore(input);
-
-      if (score === null || score <= 0) {
-        return null;
-      }
-
-      return {
-        score,
-        clause: spec.clause,
-        tieOrder: spec.tieOrder,
-      } satisfies RankedDimension;
-    })
-    .filter((item): item is RankedDimension => item !== null)
+export function formatSecurityEvidencePathRankReaderSentence(
+  input: SecurityEvidencePathRankReaderInput,
+): string {
+  const leading = PATH_RANK_DIMENSION_TIE_ORDER
+    .filter((key) => isEligibleDimension(input, key))
+    .map((key, tieOrder) => toRankedDimension(input, key, tieOrder))
     .sort(compareRankedDimensions)
     .slice(0, 2)
-    .map((item) => item.clause);
+    .map((item) => PATH_RANK_DIMENSION_CLAUSE[item.key]);
 
-  if (ranked.length === 0) {
-    return SECURITY_EVIDENCE_PATH_RANK_NO_LEADING_REASON;
+  return joinPathRankClauses(leading);
+}
+
+function isEligibleDimension(input: SecurityEvidencePathRankReaderInput, key: PathRankDimensionKey): boolean {
+  if (key === "businessConsequence" && input.businessConsequenceScore === null) {
+    return false;
   }
 
-  if (ranked.length === 1) {
-    return `${ranked[0]}.`;
+  return readDimensionScore(input, key) > 0;
+}
+
+function toRankedDimension(
+  input: SecurityEvidencePathRankReaderInput,
+  key: PathRankDimensionKey,
+  tieOrder: number,
+): RankedDimension {
+  return {
+    key,
+    score: readDimensionScore(input, key),
+    tieOrder,
+  };
+}
+
+function readDimensionScore(input: SecurityEvidencePathRankReaderInput, key: PathRankDimensionKey): number {
+  if (key === "technicalExposure") {
+    return input.technicalExposureScore;
   }
 
-  return `${ranked[0]}. ${ranked[1]}.`;
+  if (key === "privilegeDepth") {
+    return input.privilegeDepthScore;
+  }
+
+  if (key === "blastRadius") {
+    return input.blastRadiusScore;
+  }
+
+  if (input.businessConsequenceScore === null) {
+    return 0;
+  }
+
+  return input.businessConsequenceScore;
 }
 
 function compareRankedDimensions(left: RankedDimension, right: RankedDimension): number {
@@ -81,4 +98,16 @@ function compareRankedDimensions(left: RankedDimension, right: RankedDimension):
   }
 
   return left.tieOrder - right.tieOrder;
+}
+
+function joinPathRankClauses(clauses: readonly string[]): string {
+  if (clauses.length === 0) {
+    return SECURITY_EVIDENCE_PATH_RANK_NO_LEADING_REASON;
+  }
+
+  if (clauses.length === 1) {
+    return `${clauses[0]}.`;
+  }
+
+  return `${clauses[0]}. ${clauses[1]}.`;
 }

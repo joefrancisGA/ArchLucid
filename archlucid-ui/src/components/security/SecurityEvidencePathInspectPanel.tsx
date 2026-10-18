@@ -7,6 +7,8 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { SecurityEvidencePathRankReasonDisclosure } from "@/components/security/SecurityEvidencePathRankReasonDisclosure";
+import { SecurityEvidencePathRankSortKeyDisclosure } from "@/components/security/SecurityEvidencePathRankSortKeyDisclosure";
 import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
