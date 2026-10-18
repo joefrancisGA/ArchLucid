@@ -62,6 +62,15 @@ describe("infra-evidence-png-reading-strip", () => {
       completenessWarnings: [],
     });
     expect(nullMode).toContain("Diagram mode was not stored.");
+
+    const unknownMode = buildInfraEvidencePngReadingStripLines({
+      mode: "inventory",
+      outline: { nodes: [], edges: [] },
+      completenessWarnings: [],
+    });
+    expect(unknownMode).toContain(
+      "Diagram mode was stored as inventory. It is not one of the labeled inventory modes.",
+    );
   });
 
   it("includes a warning count and bounded human-readable warning titles", () => {
