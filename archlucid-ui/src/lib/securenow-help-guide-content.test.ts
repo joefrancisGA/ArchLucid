@@ -328,7 +328,7 @@ describe("SecureNow help guide content", () => {
     expect(hubHelp?.whatIsThisPage).toBe(SECURENOW_CLOUD_CONNECTIONS_HUB.whatIsThisPage);
     expect(hubHelp?.whatToDoNext).not.toMatch(/choose platforms/i);
     expect(hubHelp?.whatToDoNext).not.toMatch(/evidence-only review/i);
-    expect(hubHelp?.whereToConfigureAction?.href).toContain("extract-upload");
+    expect(hubHelp?.whereToConfigureAction?.href).toContain("manual-upload");
     expect(articleHelp?.whatIsThisPage).toBe(SECURENOW_CLOUD_CONNECTIONS_HELP.whatIsThisPage);
     expect(articleHelp?.whatIsThisPage).not.toMatch(/AWS|GCP/i);
     expect(architectureHub?.whatToDoNext).toMatch(/evidence-only review/i);

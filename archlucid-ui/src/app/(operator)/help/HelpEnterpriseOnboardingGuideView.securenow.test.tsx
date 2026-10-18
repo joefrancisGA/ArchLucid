@@ -32,7 +32,7 @@ describe("HelpEnterpriseOnboardingGuideView SecureNow shell", () => {
     expect(screen.queryByRole("link", { name: /core pilot/i })).toBeNull();
     expect(screen.getByRole("link", { name: /extract and upload inventory/i })).toHaveAttribute(
       "href",
-      "/infrastructure/extract-upload",
+      "/infrastructure/manual-upload",
     );
     expect(screen.getByTestId("enterprise-onboarding-hub-step-6")).toHaveTextContent("findings");
     expect(screen.queryByText("Validate first architecture review")).toBeNull();
