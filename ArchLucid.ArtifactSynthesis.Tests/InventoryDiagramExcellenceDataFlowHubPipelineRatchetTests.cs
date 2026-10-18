@@ -45,7 +45,7 @@ public sealed class InventoryDiagramExcellenceDataFlowHubPipelineRatchetTests
             InventoryDiagramExcellenceDataFlowHubPipelineFixture.FactoryNodeId,
             InventoryDiagramExcellenceDataFlowHubPipelineFixture.SpokeNodeIds());
 
-        InventoryDiagramExcellenceDataFlowHubPipelineForestStageLabelAssertions.AssertStageLabels(svg);
+        // Paired Source/Ingestion stage headers: InventoryDiagramExcellenceDataFlowHubPipelineHandExportStageLabelRatchetTests (IDX-13q).
     }
 
     private static int CountHubMarkers(XDocument svg)
