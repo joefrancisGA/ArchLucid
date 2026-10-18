@@ -5,12 +5,12 @@ import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent }
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { SecurityEvidencePathRankReasonDisclosure } from "@/components/security/SecurityEvidencePathRankReasonDisclosure";
-import { SecurityEvidencePathRankSortKeyDisclosure } from "@/components/security/SecurityEvidencePathRankSortKeyDisclosure";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { SecurityEvidencePathInspectPanel } from "@/components/security/SecurityEvidencePathInspectPanel";
+import { SecurityEvidencePathRankReasonCell } from "@/components/security/SecurityEvidencePathRankReasonCell";
+import { SecurityEvidencePathRankSortKeyDisclosure } from "@/components/security/SecurityEvidencePathRankSortKeyDisclosure";
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import {
   SecureNowArchitectOutcomeMetricsPanel,
@@ -405,18 +405,7 @@ function RankedPathsTable(props: {
                   compositeSortScore={row.compositeSortScore}
                 />
               </EnterpriseTableCell>
-              <EnterpriseTableCell>
-                <SecurityEvidencePathRankReasonDisclosure
-                  pathId={row.pathId}
-                  scores={{
-                    technicalExposureScore: row.technicalExposureScore,
-                    privilegeDepthScore: row.privilegeDepthScore,
-                    blastRadiusScore: row.blastRadiusScore,
-                    businessConsequenceScore: row.businessConsequenceScore,
-                  }}
-                  explanationSummary={row.explanationSummary}
-                />
-              </EnterpriseTableCell>
+              <SecurityEvidencePathRankReasonCell rank={row} />
             </EnterpriseTableRow>
           ))}
         </EnterpriseTableBody>

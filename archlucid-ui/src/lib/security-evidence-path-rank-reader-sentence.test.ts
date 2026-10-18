@@ -49,4 +49,28 @@ describe("formatSecurityEvidencePathRankReaderSentence", () => {
 
     expect(sentence).toBe(SECURITY_EVIDENCE_PATH_RANK_NO_LEADING_REASON);
   });
+
+  it("ignores null business consequence and zero scores for the empty copy", () => {
+    expect(
+      formatSecurityEvidencePathRankReaderSentence({
+        technicalExposureScore: 0,
+        privilegeDepthScore: 0,
+        blastRadiusScore: 0,
+        businessConsequenceScore: null,
+      }),
+    ).toBe(SECURITY_EVIDENCE_PATH_RANK_NO_LEADING_REASON);
+  });
+
+  it("does not put a decimal or a percent sign in the sentence", () => {
+    const sentence = formatSecurityEvidencePathRankReaderSentence({
+      technicalExposureScore: 0.42,
+      privilegeDepthScore: 0,
+      blastRadiusScore: 0,
+      businessConsequenceScore: null,
+    });
+
+    expect(sentence).toBe("Exposed on the network.");
+    expect(sentence).not.toMatch(/\d/);
+    expect(sentence).not.toContain("%");
+  });
 });
