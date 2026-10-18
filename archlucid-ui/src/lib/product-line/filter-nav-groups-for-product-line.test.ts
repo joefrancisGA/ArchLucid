@@ -115,7 +115,7 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
       "/integrations/cloud-connections",
       "/infrastructure/declared-connections",
       "/administration/connection-status",
-      "/infrastructure/extract-upload",
+      "/infrastructure/manual-upload",
     ]);
     expect(environmentLinks.some((link) => link.label === "Ask About Your Environment")).toBe(true);
     expect(environmentLinks.some((link) => link.href === SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH)).toBe(true);

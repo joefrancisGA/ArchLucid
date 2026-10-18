@@ -24,7 +24,7 @@ describe("enterprise-onboarding-hub-steps SecureNow", () => {
     const actions = enterpriseOnboardingHelpPrimaryActions("security");
     expect("openCorePilot" in actions).toBe(false);
     expect(actions.openPolicyPacks.href).toBe("/compliance/policy-packs");
-    expect(actions.openExtractUpload.href).toBe("/infrastructure/extract-upload");
+    expect(actions.openExtractUpload.href).toBe("/infrastructure/manual-upload");
   });
 
   it("keeps the eight-step architecture hub with first architecture review", () => {

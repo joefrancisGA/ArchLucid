@@ -58,8 +58,11 @@ export const GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH =
 export const SECURENOW_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH =
   "/infrastructure/declared-connections" as const;
 
-/** SecureNow shell — extract and upload intake (Infrastructure URL namespace). */
-export const SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH = "/infrastructure/extract-upload" as const;
+/** SecureNow shell — manual upload intake (Infrastructure URL namespace). */
+export const SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH = "/infrastructure/manual-upload" as const;
+
+/** Legacy SecureNow extract-upload URL retained as a redirect for bookmarked links. */
+export const SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_LEGACY_PATH = "/infrastructure/extract-upload" as const;
 
 function pathMatchesInfrastructureNamespace(bare: string, basePath: string): boolean {
   return bare === basePath || bare.startsWith(`${basePath}/`);

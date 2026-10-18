@@ -12,6 +12,7 @@ import {
 import {
   GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
   GOVERNANCE_INFRASTRUCTURE_PATH,
+  SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_LEGACY_PATH,
   SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
   SECURENOW_INFRASTRUCTURE_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
@@ -27,6 +28,7 @@ describe("extract-upload-settings-route", () => {
     expect(isExtractUploadSettingsRoutePath(EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH)).toBe(true);
     expect(isExtractUploadSettingsRoutePath(GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH)).toBe(true);
     expect(isExtractUploadSettingsRoutePath(SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH)).toBe(true);
+    expect(isExtractUploadSettingsRoutePath(SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_LEGACY_PATH)).toBe(true);
     expect(isExtractUploadSettingsRoutePath("/administration/users")).toBe(false);
   });
 

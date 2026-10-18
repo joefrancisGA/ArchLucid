@@ -6,6 +6,7 @@ import {
 } from "@/lib/extract-upload-settings-page-copy";
 import {
   GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
+  SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_LEGACY_PATH,
   SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import { isJwtAuthMode } from "@/lib/oidc/config";
@@ -15,6 +16,7 @@ const OPERATOR_SHELL_ACCESS_GATE_LOADING_TITLES: Readonly<Record<string, string>
   [EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH]: EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE,
   [GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH]: EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE,
   [SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH]: extractUploadSettingsPageTitle("security"),
+  [SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_LEGACY_PATH]: extractUploadSettingsPageTitle("security"),
 };
 
 /** Routes that render without operator nav chrome and skip access-gate deferral. */

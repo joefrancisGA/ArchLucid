@@ -58,7 +58,7 @@ describe("SecureNow home outcome copy", () => {
     expect(SECURENOW_DATA_SOURCES_HOME_ROWS.map((row) => row.label)).toEqual([
       SECURENOW_NAV_LABELS["/integrations/cloud-connections"],
       SECURENOW_NAV_LABELS["/infrastructure/declared-connections"],
-      SECURENOW_NAV_LABELS["/infrastructure/extract-upload"],
+      SECURENOW_NAV_LABELS["/infrastructure/manual-upload"],
     ]);
   });
 

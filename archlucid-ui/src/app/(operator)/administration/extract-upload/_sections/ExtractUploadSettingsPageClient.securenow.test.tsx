@@ -5,7 +5,7 @@ vi.mock("next/navigation", async (importOriginal) => {
   const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
 
   return extendNextNavigationVitestMock(importOriginal, {
-    usePathname: () => "/infrastructure/extract-upload",
+    usePathname: () => "/infrastructure/manual-upload",
   });
 });
 
