@@ -19,6 +19,7 @@ internal sealed class SecureNowArchitectTraversalNeighborhood
             .Where(resource => resource.CloudResourceId is Guid id && seedIds.Contains(id))
             .Select(resource => resource.AzureResourceId).ToArray();
         HashSet<string> exactSeeds = new(seedArmIds, StringComparer.OrdinalIgnoreCase);
+        SecureNowArchitectLegacySeedSuffixIndex legacySeedSuffixIndex = new(seedArmIds);
         HashSet<string> inheritedScopes = new(StringComparer.OrdinalIgnoreCase);
         foreach (string armId in seedArmIds)
         {
@@ -48,8 +49,7 @@ internal sealed class SecureNowArchitectTraversalNeighborhood
                 && !node.StartsWith("/subscriptions/", StringComparison.OrdinalIgnoreCase)
                 && !node.StartsWith(AzureInventoryPrincipalNodeId.Prefix, StringComparison.OrdinalIgnoreCase)
                 && !node.StartsWith("azure-ad://", StringComparison.OrdinalIgnoreCase))
-                touchesSeed = seedArmIds.Any(armId => node.EndsWith(armId, StringComparison.OrdinalIgnoreCase)
-                    || armId.EndsWith(node, StringComparison.OrdinalIgnoreCase));
+                touchesSeed = legacySeedSuffixIndex.MatchesLegacyPrefixedNode(node);
             if (touchesSeed)
                 _seedNodes.Add(node);
 

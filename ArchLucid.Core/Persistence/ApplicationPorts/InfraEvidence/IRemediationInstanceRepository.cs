@@ -91,6 +91,18 @@ public interface IRemediationInstanceRepository
             .ToList();
     }
 
+    async Task<IReadOnlyDictionary<string, int>> CountOpenInstancesByStatusInScopeAsync(
+        ProjectScopeKey scope,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<RemediationInstanceRecord> rows = await ListByScopeAsync(scope, cancellationToken);
+
+        return rows
+            .Where(row => row.Status != RemediationInstanceStatus.Closed)
+            .GroupBy(row => row.Status.ToString())
+            .ToDictionary(group => group.Key, group => group.Count());
+    }
+
     Task<(IReadOnlyList<RemediationInstanceRecord> Items, int TotalCount)> ListByCloudResourceIdPagedAsync(
         Guid tenantId,
         Guid cloudResourceId,

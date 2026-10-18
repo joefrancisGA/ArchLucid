@@ -49,12 +49,14 @@ internal static class IntendedReachabilityPathEnumerator
                 break;
             }
 
+            List<PrivilegePathEdge> pathBuffer = [];
+            HashSet<string> visited = new(StringComparer.OrdinalIgnoreCase) { startNode };
             DepthFirstSearch(
                 graph,
                 options,
                 startNode,
-                [],
-                new HashSet<string>(StringComparer.OrdinalIgnoreCase) { startNode },
+                pathBuffer,
+                visited,
                 results,
                 seenPathSignatures, neighborhood, runScope, resourceIds,
                 neighborhood?.TouchesSeed(startNode) == true,
@@ -122,7 +124,7 @@ internal static class IntendedReachabilityPathEnumerator
 
         int fanOut = 0;
 
-        foreach (PrivilegePathEdge edge in edges.OrderBy(static candidate => candidate.EdgeType, StringComparer.Ordinal))
+        foreach (PrivilegePathEdge edge in edges)
         {
             if (SecurityEvidencePathSearchLimitGuard.StopForFanOut(
                     limits,
@@ -149,19 +151,22 @@ internal static class IntendedReachabilityPathEnumerator
                 continue;
 
             fanOut++;
-            List<PrivilegePathEdge> nextPath = [.. path, edge];
-            HashSet<string> nextVisited = [.. visited, edge.ToNodeId];
+            path.Add(edge);
+            visited.Add(edge.ToNodeId);
 
             DepthFirstSearch(
                 graph,
                 options,
                 edge.ToNodeId,
-                nextPath,
-                nextVisited,
+                path,
+                visited,
                 results,
                 seenPathSignatures, neighborhood, runScope, resourceIds,
                 touchedSeed || neighborhood?.TouchesSeed(edge.ToNodeId) == true,
                 limits);
+
+            path.RemoveAt(path.Count - 1);
+            visited.Remove(edge.ToNodeId);
         }
     }
 

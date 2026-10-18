@@ -28,16 +28,6 @@ function errorMessage(error: unknown): string {
     : "Could not load this count.";
 }
 
-function newestSnapshotId(rows: readonly { capturedUtc: string | null; snapshotId: string }[]): string | null {
-  return [...rows]
-    .filter((row) => row.capturedUtc !== null)
-    .sort((left, right) => Date.parse(right.capturedUtc ?? "") - Date.parse(left.capturedUtc ?? ""))[0]?.snapshotId ?? null;
-}
-
-function newestDiff(diffs: readonly InfraEvidenceDiffSummary[]): InfraEvidenceDiffSummary | null {
-  return [...diffs].sort((left, right) => Date.parse(right.createdUtc) - Date.parse(left.createdUtc))[0] ?? null;
-}
-
 function knownCountDetail(count: number | null | undefined, zeroCopy: string, knownCopy: (count: number) => string): string {
   if (count === null || count === undefined) {
     return "";
@@ -79,7 +69,7 @@ export function SecureNowHomeWorkSummary(): React.JSX.Element {
     queryFn: () => fetchInfraEvidenceSnapshots(1, SNAPSHOT_PAGE_SIZE),
     retry: false,
   });
-  const newestSnapshotIdValue = newestSnapshotId(snapshotsQuery.data?.items ?? []);
+  const newestSnapshotIdValue = snapshotsQuery.data?.items[0]?.snapshotId ?? null;
   const diffsQuery = useQuery({
     queryKey: ["securenow", "home", "diffs", newestSnapshotIdValue],
     queryFn: () => fetchInfraEvidenceDiffsForSnapshot(newestSnapshotIdValue ?? ""),
@@ -109,7 +99,7 @@ export function SecureNowHomeWorkSummary(): React.JSX.Element {
         "No critical exposure",
         (count) => `${count} with critical exposure`,
       );
-  const comparisonDiff = diffsQuery.data === undefined ? null : newestDiff(diffsQuery.data);
+  const comparisonDiff = diffsQuery.data === undefined ? null : diffsQuery.data[0] ?? null;
   const changesDetail = snapshotsQuery.isPending || (newestSnapshotIdValue !== null && diffsQuery.isPending)
     ? "Loading…"
     : comparisonDiff === null

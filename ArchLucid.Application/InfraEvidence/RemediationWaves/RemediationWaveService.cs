@@ -65,6 +65,10 @@ public interface IRemediationWaveService
     Task<IReadOnlyList<RemediationWaveRecord>> ListWavesAsync(
         ScopeContext scope,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyDictionary<Guid, int>> GetMemberCountsByScopeAsync(
+        ScopeContext scope,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed class RemediationWaveService(
@@ -219,6 +223,15 @@ public sealed class RemediationWaveService(
         ArgumentNullException.ThrowIfNull(scope);
 
         return await waveRepository.ListByScopeAsync(scope.ToProjectScopeKey(), cancellationToken);
+    }
+
+    public Task<IReadOnlyDictionary<Guid, int>> GetMemberCountsByScopeAsync(
+        ScopeContext scope,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return waveRepository.CountMembersByWaveInScopeAsync(scope.ToProjectScopeKey(), cancellationToken);
     }
 
     private static RemediationWaveOperationResult Failed(string message) =>
