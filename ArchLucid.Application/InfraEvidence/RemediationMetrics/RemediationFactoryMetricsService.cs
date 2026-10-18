@@ -150,38 +150,28 @@ public sealed class RemediationFactoryMetricsService(
         DateTime weekStart = utcNow.AddDays(-7);
         ProjectScopeKey projectScope = scope.ToProjectScopeKey();
 
-        IReadOnlyList<OperationalSecurityFindingRecord> allFindings =
-            await findingRepository.ListByScopeAsync(projectScope, status: null, cancellationToken);
+        RemediationFactoryFindingMetricsAggregate findingMetrics =
+            await findingRepository.GetFactoryFindingMetricsAggregateInScopeAsync(
+                projectScope,
+                weekStart,
+                utcNow,
+                cancellationToken);
 
-        IReadOnlyList<OperationalSecurityFindingRecord> openFindings = allFindings
-            .Where(item => item.Status is OperationalSecurityFindingStatus.Open or OperationalSecurityFindingStatus.Recurred)
-            .ToList();
+        RemediationFactoryInstanceMetricsAggregate instanceMetrics =
+            await instanceRepository.GetFactoryInstanceMetricsAggregateInScopeAsync(
+                projectScope,
+                weekStart,
+                cancellationToken);
 
-        IReadOnlyList<RemediationPrioritizationScoreRecord> scores =
-            await prioritizationRepository.ListScoresByScopeAsync(projectScope, cancellationToken);
+        RemediationFactoryExceptionMetricsAggregate exceptionMetrics =
+            await exceptionRepository.GetFactoryExceptionMetricsAggregateInScopeAsync(
+                projectScope,
+                utcNow,
+                ExpiringSoonWindow,
+                cancellationToken);
 
-        Dictionary<Guid, decimal> scoreByFinding = scores.ToDictionary(item => item.FindingId, item => item.TotalScore);
-
-        decimal riskWeightedOpen = openFindings.Sum(item =>
-            scoreByFinding.TryGetValue(item.FindingId, out decimal score) ? score : 0m);
-
-        int criticalExposure = openFindings.Count(item =>
-            string.Equals(item.Severity, "critical", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(item.Exposure, "high", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(item.Exposure, "critical", StringComparison.OrdinalIgnoreCase));
-
-        int createdThisWeek = allFindings.Count(item => item.CreatedUtc >= weekStart);
-        int recurrenceCount = allFindings.Count(item => item.Status == OperationalSecurityFindingStatus.Recurred);
-
-        IReadOnlyList<RemediationInstanceRecord> instances =
-            await instanceRepository.ListByScopeAsync(projectScope, cancellationToken);
-
-        int remediatedThisWeek = instances.Count(item =>
-            item.VerifiedUtc.HasValue
-            && item.VerifiedUtc.Value >= weekStart
-            && item.Status is RemediationInstanceStatus.Verified or RemediationInstanceStatus.Closed);
-
-        int netBurn = createdThisWeek - remediatedThisWeek;
+        decimal riskWeightedOpen =
+            await prioritizationRepository.SumTotalScoresForOpenFindingsInScopeAsync(projectScope, cancellationToken);
 
         IReadOnlyDictionary<Guid, RemediationPatternMatchResultRecord> activeMatchesByFindingId =
             await matchRepository.ListActiveMatchesByOpenFindingInScopeAsync(projectScope, cancellationToken);
@@ -194,66 +184,35 @@ public sealed class RemediationFactoryMetricsService(
             ? 0m
             : Math.Round((decimal)exactMatchCount / matchedFindings * 100m, 2);
 
-        int automatedCount = instances.Count(item =>
-            item.AutomationLevel is RemediationAutomationLevel.SemiAutomated or RemediationAutomationLevel.Automated);
-
-        decimal automationPercent = instances.Count == 0
+        decimal automationPercent = instanceMetrics.TotalInstances == 0
             ? 0m
-            : Math.Round((decimal)automatedCount / instances.Count * 100m, 2);
+            : Math.Round((decimal)instanceMetrics.AutomatedCount / instanceMetrics.TotalInstances * 100m, 2);
 
-        int verificationFailures = instances.Count(item => item.Status == RemediationInstanceStatus.VerificationFailed);
-        int businessBlocked = instances.Count(item => item.Status == RemediationInstanceStatus.PreflightBlocked);
-
-        IReadOnlyList<OperationalSecurityExceptionRecord> exceptions =
-            await exceptionRepository.ListByScopeAsync(projectScope, cancellationToken);
-
-        int exceptionsActive = exceptions.Count(item => item.Status == OperationalSecurityExceptionStatus.Active);
-        int exceptionsExpired = exceptions.Count(item => item.Status == OperationalSecurityExceptionStatus.Expired);
-
-        int exceptionsExpiringSoon = exceptions.Count(item =>
-            item.Status == OperationalSecurityExceptionStatus.Active
-            && item.ExpirationUtc <= utcNow.Add(ExpiringSoonWindow)
-            && item.ExpirationUtc > utcNow);
-
-        double averageAgeDays = openFindings.Count == 0
-            ? 0
-            : openFindings.Average(item => (utcNow - item.FirstObservedUtc).TotalDays);
-
-        List<RemediationMetricCount> topControlIds = openFindings
-            .Where(item => !string.IsNullOrWhiteSpace(item.ControlId))
-            .GroupBy(item => item.ControlId!, StringComparer.OrdinalIgnoreCase)
-            .Select(group => new RemediationMetricCount { Key = group.Key, Count = group.Count() })
-            .OrderByDescending(item => item.Count)
-            .Take(5)
-            .ToList();
-
-        List<RemediationMetricCount> topPatternKeys = instances
-            .Where(item => !string.IsNullOrWhiteSpace(item.PatternKey))
-            .GroupBy(item => item.PatternKey, StringComparer.OrdinalIgnoreCase)
-            .Select(group => new RemediationMetricCount { Key = group.Key, Count = group.Count() })
-            .OrderByDescending(item => item.Count)
-            .Take(5)
-            .ToList();
+        int netBurn = findingMetrics.CreatedThisWeek - instanceMetrics.RemediatedThisWeek;
 
         return new RemediationFactoryMetrics
         {
-            OpenFindings = openFindings.Count,
+            OpenFindings = findingMetrics.OpenFindings,
             RiskWeightedOpen = Math.Round(riskWeightedOpen, 4),
-            CriticalExposureCount = criticalExposure,
-            CreatedThisWeek = createdThisWeek,
-            RemediatedThisWeek = remediatedThisWeek,
+            CriticalExposureCount = findingMetrics.CriticalExposureCount,
+            CreatedThisWeek = findingMetrics.CreatedThisWeek,
+            RemediatedThisWeek = instanceMetrics.RemediatedThisWeek,
             NetBurn = netBurn,
-            RecurrenceCount = recurrenceCount,
+            RecurrenceCount = findingMetrics.RecurrenceCount,
             PatternCoverageExactMatchPercent = patternCoverage,
             AutomationPercent = automationPercent,
-            VerificationFailureCount = verificationFailures,
-            ExceptionsActive = exceptionsActive,
-            ExceptionsExpiringSoon = exceptionsExpiringSoon,
-            ExceptionsExpired = exceptionsExpired,
-            BusinessBlockedCount = businessBlocked,
-            AverageAgeDays = Math.Round(averageAgeDays, 2),
-            TopControlIds = topControlIds,
-            TopPatternKeys = topPatternKeys,
+            VerificationFailureCount = instanceMetrics.VerificationFailureCount,
+            ExceptionsActive = exceptionMetrics.ExceptionsActive,
+            ExceptionsExpiringSoon = exceptionMetrics.ExceptionsExpiringSoon,
+            ExceptionsExpired = exceptionMetrics.ExceptionsExpired,
+            BusinessBlockedCount = instanceMetrics.BusinessBlockedCount,
+            AverageAgeDays = Math.Round(findingMetrics.AverageAgeDays, 2),
+            TopControlIds = findingMetrics.TopControlIds
+                .Select(item => new RemediationMetricCount { Key = item.Key, Count = item.Count })
+                .ToList(),
+            TopPatternKeys = instanceMetrics.TopPatternKeys
+                .Select(item => new RemediationMetricCount { Key = item.Key, Count = item.Count })
+                .ToList(),
         };
     }
 }

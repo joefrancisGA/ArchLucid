@@ -21,13 +21,13 @@ public sealed class AzureInventoryDiffUnchangedBuilderTests
         string changedArmId =
             "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1";
 
-        AzureInventorySnapshotDetailReadModel snapshotA = BuildSnapshot(snapshotAId, unchangedArmId, changedArmId);
-        AzureInventorySnapshotDetailReadModel snapshotB = BuildSnapshot(snapshotBId, unchangedArmId, changedArmId);
+        IReadOnlyList<AzureInventoryResourceRecord> resourcesA = BuildResources(snapshotAId, unchangedArmId, changedArmId);
+        IReadOnlyList<AzureInventoryResourceRecord> resourcesB = BuildResources(snapshotBId, unchangedArmId, changedArmId);
         HashSet<string> changedAzureResourceIds = new(StringComparer.OrdinalIgnoreCase) { changedArmId };
 
         List<AzureInventoryChangeRecord> unchanged = AzureInventoryDiffUnchangedBuilder.BuildUnchangedResourceChanges(
-            snapshotA,
-            snapshotB,
+            resourcesA,
+            resourcesB,
             diffId,
             snapshotAId,
             snapshotBId,
@@ -38,8 +38,8 @@ public sealed class AzureInventoryDiffUnchangedBuilderTests
         unchanged[0].AzureResourceId.Should().Be(unchangedArmId);
         unchanged[0].RiskClassification.Should().Be("none");
         List<AzureInventoryChangeRecord> repeat = AzureInventoryDiffUnchangedBuilder.BuildUnchangedResourceChanges(
-            snapshotA,
-            snapshotB,
+            resourcesA,
+            resourcesB,
             diffId,
             snapshotAId,
             snapshotBId,
@@ -62,20 +62,20 @@ public sealed class AzureInventoryDiffUnchangedBuilderTests
         string linkArmId =
             "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateDnsZones/zone1/virtualNetworkLinks/link1";
 
-        AzureInventorySnapshotDetailReadModel snapshotA = BuildSnapshotWithResources(
+        IReadOnlyList<AzureInventoryResourceRecord> resourcesA = BuildResourceList(
             snapshotAId,
             (visibleArmId, "Microsoft.Storage/storageAccounts"),
             (solutionArmId, string.Empty),
             (linkArmId, "Microsoft.Network/privateDnsZones/virtualNetworkLinks"));
-        AzureInventorySnapshotDetailReadModel snapshotB = BuildSnapshotWithResources(
+        IReadOnlyList<AzureInventoryResourceRecord> resourcesB = BuildResourceList(
             snapshotBId,
             (visibleArmId, "Microsoft.Storage/storageAccounts"),
             (solutionArmId, string.Empty),
             (linkArmId, "Microsoft.Network/privateDnsZones/virtualNetworkLinks"));
 
         List<AzureInventoryChangeRecord> unchanged = AzureInventoryDiffUnchangedBuilder.BuildUnchangedResourceChanges(
-            snapshotA,
-            snapshotB,
+            resourcesA,
+            resourcesB,
             diffId,
             snapshotAId,
             snapshotBId,
@@ -85,68 +85,31 @@ public sealed class AzureInventoryDiffUnchangedBuilderTests
         unchanged[0].AzureResourceId.Should().Be(visibleArmId);
     }
 
-    private static AzureInventorySnapshotDetailReadModel BuildSnapshot(
+    private static IReadOnlyList<AzureInventoryResourceRecord> BuildResources(
         Guid snapshotId,
         string unchangedArmId,
         string changedArmId)
     {
-        return new AzureInventorySnapshotDetailReadModel
-        {
-            Header = new AzureInventorySnapshotRecord
-            {
-                SnapshotId = snapshotId,
-                TenantId = Guid.NewGuid(),
-                SubscriptionId = "sub",
-                CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
-            },
-            Resources =
-            [
-                new AzureInventoryResourceRecord
-                {
-                    ResourceRowId = Guid.NewGuid(),
-                    SnapshotId = snapshotId,
-                    TenantId = Guid.NewGuid(),
-                    AzureResourceId = unchangedArmId,
-                    ResourceType = "Microsoft.Storage/storageAccounts",
-                    Region = "eastus",
-                },
-                new AzureInventoryResourceRecord
-                {
-                    ResourceRowId = Guid.NewGuid(),
-                    SnapshotId = snapshotId,
-                    TenantId = Guid.NewGuid(),
-                    AzureResourceId = changedArmId,
-                    ResourceType = "Microsoft.Compute/virtualMachines",
-                    Region = "eastus",
-                },
-            ],
-        };
+        return BuildResourceList(
+            snapshotId,
+            (unchangedArmId, "Microsoft.Storage/storageAccounts"),
+            (changedArmId, "Microsoft.Compute/virtualMachines"));
     }
 
-    private static AzureInventorySnapshotDetailReadModel BuildSnapshotWithResources(
+    private static IReadOnlyList<AzureInventoryResourceRecord> BuildResourceList(
         Guid snapshotId,
         params (string AzureResourceId, string ResourceType)[] resources)
     {
-        return new AzureInventorySnapshotDetailReadModel
-        {
-            Header = new AzureInventorySnapshotRecord
+        return resources
+            .Select(resource => new AzureInventoryResourceRecord
             {
+                ResourceRowId = Guid.NewGuid(),
                 SnapshotId = snapshotId,
                 TenantId = Guid.NewGuid(),
-                SubscriptionId = "sub",
-                CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
-            },
-            Resources = resources
-                .Select(resource => new AzureInventoryResourceRecord
-                {
-                    ResourceRowId = Guid.NewGuid(),
-                    SnapshotId = snapshotId,
-                    TenantId = Guid.NewGuid(),
-                    AzureResourceId = resource.AzureResourceId,
-                    ResourceType = resource.ResourceType,
-                    Region = "eastus",
-                })
-                .ToList(),
-        };
+                AzureResourceId = resource.AzureResourceId,
+                ResourceType = resource.ResourceType,
+                Region = "eastus",
+            })
+            .ToList();
     }
 }

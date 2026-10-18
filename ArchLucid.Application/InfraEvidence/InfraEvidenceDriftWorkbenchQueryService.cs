@@ -128,13 +128,13 @@ public sealed class InfraEvidenceDriftWorkbenchQueryService(
 
         if (includeUnchanged)
         {
-            AzureInventorySnapshotDetailReadModel? snapshotA =
-                await _snapshotRepository.TryGetSnapshotDetailAsync(scope, diff.SnapshotAId, cancellationToken);
+            IReadOnlyList<AzureInventoryResourceRecord>? resourcesA =
+                await _snapshotRepository.ListResourcesBySnapshotIdAsync(scope, diff.SnapshotAId, cancellationToken);
 
-            AzureInventorySnapshotDetailReadModel? snapshotB =
-                await _snapshotRepository.TryGetSnapshotDetailAsync(scope, diff.SnapshotBId, cancellationToken);
+            IReadOnlyList<AzureInventoryResourceRecord>? resourcesB =
+                await _snapshotRepository.ListResourcesBySnapshotIdAsync(scope, diff.SnapshotBId, cancellationToken);
 
-            if (snapshotA is null || snapshotB is null)
+            if (resourcesA is null || resourcesB is null)
             {
                 return null;
             }
@@ -147,8 +147,8 @@ public sealed class InfraEvidenceDriftWorkbenchQueryService(
 
             List<AzureInventoryChangeRecord> unchangedChanges =
                 AzureInventoryDiffUnchangedBuilder.BuildUnchangedResourceChanges(
-                    snapshotA,
-                    snapshotB,
+                    resourcesA,
+                    resourcesB,
                     diffId,
                     diff.SnapshotAId,
                     diff.SnapshotBId,
@@ -194,15 +194,15 @@ public sealed class InfraEvidenceDriftWorkbenchQueryService(
             _manifestHashService,
             cancellationToken);
 
-        AzureInventorySnapshotDetailReadModel? snapshot =
-            await _snapshotRepository.TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+        IReadOnlyList<AzureInventoryResourceRecord>? resources =
+            await _snapshotRepository.ListResourcesBySnapshotIdAsync(scope, snapshotId, cancellationToken);
 
-        if (snapshot is null)
+        if (resources is null)
         {
             return null;
         }
 
-        IEnumerable<AzureInventoryResourceRecord> visibleResources = snapshot.Resources
+        IEnumerable<AzureInventoryResourceRecord> visibleResources = resources
             .Where(resource => !AzureInventoryNeverShowArmTypes.ShouldOmitResource(
                 resource.ResourceType,
                 resource.AzureResourceId));
