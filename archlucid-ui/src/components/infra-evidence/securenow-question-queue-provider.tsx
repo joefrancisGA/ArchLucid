@@ -393,7 +393,13 @@ export function SecureNowQuestionQueueProvider(
   );
 
   if (snapshotId.trim().length === 0) {
-    return <>{children}</>;
+    // Nested consumers still render while the workbench snapshot is unresolved.
+    // Skip queue chrome, but keep context so those hooks do not throw.
+    return (
+      <SecureNowQuestionQueueContext.Provider value={contextValue}>
+        {children}
+      </SecureNowQuestionQueueContext.Provider>
+    );
   }
 
   return (

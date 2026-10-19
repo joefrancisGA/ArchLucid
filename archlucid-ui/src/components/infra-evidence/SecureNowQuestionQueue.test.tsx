@@ -1,7 +1,11 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { SecureNowQuestionQueue } from "@/components/infra-evidence/SecureNowQuestionQueue";
+import {
+  SecureNowQuestionQueue,
+  SecureNowQuestionQueueProvider,
+  SecureNowQuestionQueueSnapshotPromo,
+} from "@/components/infra-evidence/SecureNowQuestionQueue";
 
 const mocks = vi.hoisted(() => ({
   listQuestions: vi.fn(),
@@ -429,6 +433,19 @@ describe("SecureNowQuestionQueue", () => {
     resolveFirstLoad?.([question]);
     await waitFor(() => expect(screen.getByTestId("infra-diagrams-question-snapshot-promo")).toHaveTextContent("1 open question"));
     expect(screen.queryByText("Newest snapshot question")).toBeInTheDocument();
+  });
+
+  it("keeps queue context when snapshotId is empty so nested consumers do not crash", () => {
+    expect(() => {
+      render(
+        <SecureNowQuestionQueueProvider snapshotId="">
+          <SecureNowQuestionQueueSnapshotPromo compact />
+        </SecureNowQuestionQueueProvider>,
+      );
+    }).not.toThrow();
+
+    expect(screen.queryByTestId("infra-diagrams-question-snapshot-promo")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("securenow-question-queue")).not.toBeInTheDocument();
   });
 
   it("requires a reason before ignoring a question", async () => {
