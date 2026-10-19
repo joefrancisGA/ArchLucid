@@ -264,6 +264,15 @@ describe("RemediationFactoryClient", () => {
     expect(audienceLine).not.toHaveTextContent(/not architecture findings/i);
   });
 
+  it("distinguishes finding-queue rank from ranked-path rank in the column headers", () => {
+    render(<RemediationFactoryClient />);
+
+    expect(screen.getByTestId("remediation-factory-priority-rank-header-helper")).toHaveTextContent(
+      "This rank is the SecureNow finding queue, not the path list.",
+    );
+    expect(screen.getByText("1 is the first path to inspect.")).toBeInTheDocument();
+  });
+
   it("renders executive cards, keyboard-selectable tables, help, context strip, and path inspect panel", () => {
     render(<RemediationFactoryClient />);
 
