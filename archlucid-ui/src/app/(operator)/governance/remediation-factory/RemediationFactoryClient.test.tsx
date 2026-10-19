@@ -358,6 +358,10 @@ describe("RemediationFactoryClient", () => {
     expect(priorityRow).toHaveTextContent("Reachable from the internet. Sensitive data.");
     expect(priorityRow).toHaveTextContent("customerdata");
     expect(priorityRow).toHaveTextContent("This month");
+    expect(priorityRow).toHaveTextContent("Pattern");
+    expect(priorityRow).not.toHaveTextContent("storage.encrypt");
+
+    fireEvent.click(screen.getByTestId("remediation-priority-pattern-identifiers-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"));
     expect(priorityRow).toHaveTextContent("storage.encrypt");
     expect(priorityRow).not.toHaveTextContent(resourceId);
 

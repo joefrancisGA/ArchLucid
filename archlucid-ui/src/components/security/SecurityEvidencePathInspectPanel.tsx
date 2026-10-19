@@ -555,9 +555,13 @@ function resolvePathInspectSubjectLabel(input: {
   readonly selectedPath: SecurityEvidencePathRankSummary | null | undefined;
 }): string | null {
   if (input.selectedFinding != null) {
-    const rankHint = input.selectedFinding.controlId ?? input.selectedFinding.patternKey ?? input.selectedFinding.findingId;
+    const rankHint = input.selectedFinding.controlId ?? input.selectedFinding.findingId;
+    const patternLead =
+      input.selectedFinding.patternKey != null && input.selectedFinding.patternKey.trim().length > 0
+        ? "Pattern"
+        : "Pattern was not stored";
 
-    return `Finding ${rankHint} · rank ${input.selectedFinding.rankOrder ?? "Rank was not stored"} · control ${input.selectedFinding.controlId ?? "Control id was not stored"} · pattern ${input.selectedFinding.patternKey ?? "Pattern was not stored"}`;
+    return `Finding ${rankHint} · rank ${input.selectedFinding.rankOrder ?? "Rank was not stored"} · control ${input.selectedFinding.controlId ?? "Control id was not stored"} · ${patternLead}`;
   }
 
   if (input.selectedPath != null) {
