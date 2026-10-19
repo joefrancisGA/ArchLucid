@@ -140,6 +140,7 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-14e** Private endpoint opt-in deepening closeout | **Shipped** on trunk — extend only | Index lacks IDX-10b complete subsection + Vitest guard |
 | **IDX-14f** Completeness summary deepening closeout | **Shipped** on trunk — extend only | Index lacks IDX-11b complete subsection + Vitest guard |
 | **IDX-14g** Hop-focus deepening closeout | **Shipped** on trunk — extend only | Index lacks IDX-12b complete subsection + Vitest guard |
+| **IDX-14h** Deepening excellence wave closeout | **Shipped** on trunk — extend only | Index lacks IDX-05b–12b umbrella subsection + Vitest guard |
 | **IDX-HOLD** | Not implementation | — |
 
 ### Data Flow hub pipeline wave (IDX-07f–13u) — complete
@@ -215,6 +216,26 @@ Neighborhood, selected-resource, and resource-group hop-focus compile (cited VNe
 `cd archlucid-ui && npm test -- inventory-diagram-excellence-hop-focus-wave-closeout`
 
 Next **IDX-12** work is **extend-only** (regression fixes on neighborhood / selected / RG focus modes).
+
+### Deepening excellence wave (IDX-05b–12b) — complete
+
+Subnet, singleton tail, duplicate connection, private endpoint opt-in, completeness, and hop-focus deepening slices are index-closeout guarded. Run the deepening closeout bundle:
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-subnet-wave-closeout`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-singleton-tail-wave-closeout`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-duplicate-connection-wave-closeout`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-private-endpoint-wave-closeout`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-completeness-wave-closeout`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-hop-focus-wave-closeout`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-deepening-wave-closeout`
+
+Next deepening work is **extend-only** (regression fixes on per-slice ratchets).
 
 ### Cross-mode excellence wave (IDX-08b–13z) — complete
 
@@ -305,6 +326,7 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-excellence-<s
 | 14e | `inventory-diagram-excellence-14e-private-endpoint-wave-closeout.md` | IDX-10b PE opt-in slice not documented complete in index |
 | 14f | `inventory-diagram-excellence-14f-completeness-wave-closeout.md` | IDX-11b completeness slice not documented complete in index |
 | 14g | `inventory-diagram-excellence-14g-hop-focus-wave-closeout.md` | IDX-12b hop-focus slice not documented complete in index |
+| 14h | `inventory-diagram-excellence-14h-deepening-wave-closeout.md` | IDX-05b–12b deepening bundle not documented complete in index |
 | HOLD | `inventory-diagram-excellence-14-hold.md` | Complete-graph / default PE / icons / RBAC dump |
 
 ## Prerequisites (do not re-implement)
