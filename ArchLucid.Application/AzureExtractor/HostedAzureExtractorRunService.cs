@@ -64,7 +64,8 @@ public sealed class HostedAzureExtractorRunService(
                         CustomerTenantId = configuration.CustomerTenantId,
                         CustomerAppId = configuration.CustomerAppId,
                         SubscriptionId = configuration.SubscriptionId,
-                        IncludeCost = configuration.IncludeCost
+                        IncludeCost = configuration.IncludeCost,
+                        IncludeAppSettingsHosts = true,
                     },
                     cancellationToken)
                 .ConfigureAwait(false);

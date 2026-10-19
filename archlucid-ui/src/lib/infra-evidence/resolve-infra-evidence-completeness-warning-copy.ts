@@ -373,7 +373,19 @@ export function resolveInfraEvidenceCompletenessWarningPresentation(
       code: trimmed,
       title: "App setting hostnames not collected on hosted pull",
       detail:
-        "Hosted inventory uses GET-only ARM calls and does not read app settings. Re-run the Tier 1 PowerShell package with -IncludeAppSettingsHosts to add redacted hostname hints (never values).",
+        "This capture did not read App Service app settings. Opt in to declared connection hostnames on the next hosted pull, or re-run the Tier 1 PowerShell package with -IncludeAppSettingsHosts. Only setting names and parsed host or target names are stored; values are discarded after parsing.",
+    };
+  }
+
+  if (trimmed.startsWith(AzureInventoryRelationshipCompletenessWarningCodes.AppSettingsListForbiddenPrefix)) {
+    const siteResourceId = trimmed.slice(
+      AzureInventoryRelationshipCompletenessWarningCodes.AppSettingsListForbiddenPrefix.length,
+    );
+
+    return {
+      code: trimmed,
+      title: "App settings could not be listed for this site",
+      detail: `The collector identity is missing microsoft.web/sites/config/list/action on ${siteResourceId}. Declared hostname hints from app settings were skipped for that site.`,
     };
   }
 

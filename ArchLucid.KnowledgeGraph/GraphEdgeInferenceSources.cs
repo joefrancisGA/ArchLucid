@@ -46,6 +46,8 @@ public static class GraphEdgeInferenceSources
 
     public const string InventoryNetworkConnection = "inventory-network-connection";
 
+    public const string InventoryApiManagementSubnet = "inventory-api-management-subnet";
+
     public const string InventoryWorkflowAction = "inventory-workflow-action";
 
     public const string InventoryRouteTableRoute = "inventory-route-table-route";
@@ -190,6 +192,8 @@ public static class GraphEdgeInferenceSources
     public const string HumanDeclaredConnection = "human-declared-connection";
 
     public const string OperatorConfirmedConnection = "inventory-operator-confirmed-connection";
+
+    public const string OperatorConfigFile = "inventory-operator-config-file";
 
     public const string InventoryOperatorAttestedDataPlane = "inventory-operator-attested-data-plane";
 

@@ -21,6 +21,26 @@ public static class InventoryDiagramConnectionPostureCatalog
     public const string PostureNotModeledDetail =
         "Connection posture is not modeled for this resource type.";
 
+    public const string AppInsightsNoWorkspaceDetail = "No Log Analytics workspace is linked in this snapshot.";
+
+    public const string AppInsightsNoPrivateLinkScopeDetail =
+        "No Azure Monitor private link scope scopes this component in this snapshot.";
+
+    public const string ApiManagementNoSubnetDetail = "No integration subnet is stored for this API Management instance.";
+
+    public const string ApiManagementNoPrivateEndpointDetail =
+        "No private endpoint targets this API Management instance in this snapshot.";
+
+    public static string FormatSendsTelemetryTo(string workspaceName)
+    {
+        return $"Sends telemetry to {workspaceName}.";
+    }
+
+    public static string FormatIntegratedWithSubnet(string subnetName)
+    {
+        return $"Integrated with subnet {subnetName}.";
+    }
+
     public static bool IsUnmodeledConnectionPosture(string? armResourceType)
     {
         if (string.IsNullOrWhiteSpace(armResourceType))

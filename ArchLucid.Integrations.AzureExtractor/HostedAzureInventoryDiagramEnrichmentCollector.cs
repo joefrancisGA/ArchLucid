@@ -14,6 +14,7 @@ public static class HostedAzureInventoryDiagramEnrichmentCollector
         string accessToken,
         string? subscriptionId,
         IReadOnlyList<HostedAzureArmResourceRecord> resources,
+        bool includeAppSettingsHosts,
         ILogger logger,
         CancellationToken cancellationToken)
     {
@@ -67,7 +68,7 @@ public static class HostedAzureInventoryDiagramEnrichmentCollector
                 logger,
                 cancellationToken).ConfigureAwait(false);
 
-        HostedAzureInventoryAppSettingHostCollectResult appSettingHostResult =
+        HostedAzureInventoryAppSettingHostCollectResult containerAppAppSettingHostResult =
             await HostedAzureInventoryAppSettingHostCollector.CollectAsync(
                 armReadClient,
                 accessToken,
@@ -75,8 +76,26 @@ public static class HostedAzureInventoryDiagramEnrichmentCollector
                 logger,
                 cancellationToken).ConfigureAwait(false);
 
-        collectionWarnings.Add(AzureInventoryRelationshipCompletenessWarningCodes.AppSettingsNotCollectedHostedGetOnly);
-        collectionWarnings.AddRange(appSettingHostResult.CollectionWarnings);
+        List<AzureInventoryAppSettingHostRow> appSettingHosts = containerAppAppSettingHostResult.AppSettingHosts.ToList();
+        collectionWarnings.AddRange(containerAppAppSettingHostResult.CollectionWarnings);
+
+        if (includeAppSettingsHosts)
+        {
+            HostedAzureInventoryWebAppAppSettingHostCollectResult webAppAppSettingHostResult =
+                await HostedAzureInventoryWebAppAppSettingHostCollector.CollectAsync(
+                    armReadClient,
+                    accessToken,
+                    resources,
+                    logger,
+                    cancellationToken).ConfigureAwait(false);
+
+            appSettingHosts.AddRange(webAppAppSettingHostResult.AppSettingHosts);
+            collectionWarnings.AddRange(webAppAppSettingHostResult.CollectionWarnings);
+        }
+        else
+        {
+            collectionWarnings.Add(AzureInventoryRelationshipCompletenessWarningCodes.AppSettingsNotCollectedHostedGetOnly);
+        }
 
         return new HostedAzureDiagramEnrichmentCollectResult
         {
@@ -85,7 +104,7 @@ public static class HostedAzureInventoryDiagramEnrichmentCollector
             MessagingAssociations = messagingAssociations,
             PaasChildAssociations = paasChildResult.Associations,
             ServiceConnectorLinks = serviceConnectorLinks,
-            AppSettingHosts = appSettingHostResult.AppSettingHosts,
+            AppSettingHosts = appSettingHosts,
             CollectionWarnings = collectionWarnings,
         };
     }
