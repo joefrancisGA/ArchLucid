@@ -63,20 +63,7 @@ public sealed class AuthorityPipelineArtifactsStage(
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            await _auditService.LogAsync(
-                new AuditEvent
-                {
-                    EventType = AuditEventTypes.ArtifactSynthesisFailed,
-                    RunId = run.RunId,
-                    TenantId = scope.TenantId,
-                    WorkspaceId = scope.WorkspaceId,
-                    ProjectId = scope.ProjectId,
-                    ManifestId = context.Manifest!.ManifestId,
-                    DataJson = JsonSerializer.Serialize(
-                        new { reason = ex.GetType().Name },
-                        AuditJsonSerializationOptions.Instance),
-                },
-                cancellationToken);
+            await TryLogArtifactSynthesisFailedAsync(context, run, scope, ex, cancellationToken);
 
             throw;
         }
@@ -165,6 +152,58 @@ public sealed class AuthorityPipelineArtifactsStage(
                     ex,
                     "Failed to update LatestSealedManifestId for ArchitectureId={ArchitectureId}.",
                     run.ArchitectureId);
+            }
+        }
+    }
+
+    private async Task TryLogArtifactSynthesisFailedAsync(
+        AuthorityPipelineContext context,
+        RunRecord run,
+        ScopeContext scope,
+        Exception synthesisException,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(run);
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(synthesisException);
+
+        if (_logger.IsEnabled(LogLevel.Error))
+        {
+            _logger.LogError(
+                synthesisException,
+                "Artifact synthesis failed: RunId={RunId}.",
+                run.RunId);
+        }
+
+        // Enlist in the open pipeline transaction. An autonomous AuditEvents INSERT waits on
+        // that transaction's locks and surfaces as DATABASE_TIMEOUT after 30s, hiding this error.
+        try
+        {
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.ArtifactSynthesisFailed,
+                    RunId = run.RunId,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    ManifestId = context.Manifest!.ManifestId,
+                    DataJson = JsonSerializer.Serialize(
+                        new { reason = synthesisException.GetType().Name },
+                        AuditJsonSerializationOptions.Instance),
+                },
+                context.UnitOfWork,
+                cancellationToken);
+        }
+        catch (Exception auditException) when (auditException is not OperationCanceledException)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    auditException,
+                    "Failed to persist ArtifactSynthesisFailed audit for RunId={RunId}.",
+                    run.RunId);
             }
         }
     }
