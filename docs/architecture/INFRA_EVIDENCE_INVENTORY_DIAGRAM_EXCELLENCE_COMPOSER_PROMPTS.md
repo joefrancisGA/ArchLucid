@@ -60,6 +60,7 @@
 | Closeout Vitest files not UI manifest-guarded | **IDX-14j** | Shipped — extend only |
 | Capstone index not aligned after 14j | **IDX-14k** | Shipped — extend only |
 | Capstone heading still titles 14a–14j after 14k | **IDX-14l** | Shipped — extend only |
+| Capstone heading still titles 14a–14k after 14l | **IDX-14m** | Shipped — extend only |
 | Singleton-RG tail | **IDX-08** | Full subscription is a postage sheet |
 | Singleton tail skips excellence filter | **IDX-08b** | Shipped — extend only |
 | Collapsed tail label helpers skip excellence filter | **IDX-08c** | Shipped — extend only |
@@ -124,6 +125,7 @@
 | **IDX-14j** Closeout wave UI manifest (Vitest) | After 14i | Shipped — extend only |
 | **IDX-14k** Closeout capstone index sync (Vitest) | After 14j | Shipped — extend only |
 | **IDX-14l** Closeout capstone 14k heading sync (Vitest) | After 14k | Shipped — extend only |
+| **IDX-14m** Closeout capstone 14l heading sync (Vitest) | After 14l | Shipped — extend only |
 | **IDX-08** Singleton-RG collapse | After 06 | |
 | **IDX-08b** Singleton-RG tail excellence ratchet | After 08 | Shipped — extend only |
 | **IDX-08c** Collapsed singleton tail label excellence ratchet | After 08b | Shipped — extend only |
