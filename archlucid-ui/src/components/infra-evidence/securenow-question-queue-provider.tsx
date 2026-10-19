@@ -135,6 +135,8 @@ function findInferredConnection(
 export function SecureNowQuestionQueueProvider(
   props: SecureNowQuestionQueueProviderProps,
 ): React.JSX.Element | null {
+  "use no memo";
+
   const { snapshotId, children } = props;
   const [questions, setQuestions] = useState<SecureNowQuestion[]>([]);
   const [inferredConnections, setInferredConnections] = useState<OperatorInferredConnectionRow[]>([]);
@@ -410,6 +412,8 @@ export function SecureNowQuestionQueueProvider(
 }
 
 export function useSecureNowQuestionQueue(): SecureNowQuestionQueueContextValue {
+  "use no memo";
+
   const value = useContext(SecureNowQuestionQueueContext);
 
   if (value == null) {
@@ -420,6 +424,8 @@ export function useSecureNowQuestionQueue(): SecureNowQuestionQueueContextValue 
 }
 
 export function useSecureNowQuestionSubjectNodeId(): string | null {
+  "use no memo";
+
   const { drawerOpen, currentQuestion } = useSecureNowQuestionQueue();
   const resourceId = currentQuestion?.resourceId?.trim() ?? "";
 
