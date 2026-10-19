@@ -160,6 +160,68 @@ describe("SecurityEvidencePathInspectPanel", () => {
     expect(screen.getByTestId("security-evidence-path-inspect-select-prompt")).toBeInTheDocument();
   });
 
+  it("hides the finding sort key until Show sort key is opened", () => {
+    vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
+      data: { findingId: "finding-1", pathId: "path-1", title: "Path finding" },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useOperationalSecurityFindingDetailQuery>);
+    vi.mocked(useSecurityEvidencePathDetailQuery).mockReturnValue({
+      data: {
+        pathId: "path-1",
+        snapshotId: "snapshot-1",
+        pathKind: "PrivilegePath",
+        pathConfidenceBand: "HighlyLikely",
+        weakestHopOrdinal: 1,
+        weakestHopReason: "Gap",
+        hops: [],
+        weakestHop: null,
+        explanationTemplate: {
+          actor: null,
+          identity: null,
+          network: null,
+          asset: null,
+          weakControl: null,
+          proposedChange: "",
+          verify: "",
+          architectSentence: null,
+        },
+        relatedCutPoints: [],
+        routing: [],
+      },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathDetailQuery>);
+    vi.mocked(useSecurityEvidencePathRankQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
+
+    renderPanel("finding-1", {
+      selectedFinding: {
+        findingId: "finding-1",
+        totalScore: 0.5,
+        explanationSummary: "Sample",
+        breakdownJson: "[]",
+        controlId: "AC-2",
+        patternKey: "storage.encrypt",
+        rankOrder: 3,
+      },
+      selectedPath: null,
+    });
+
+    const identity = screen.getByTestId("security-evidence-path-inspect-identity");
+    expect(identity).toHaveTextContent("Finding rank 3");
+    expect(identity).not.toHaveTextContent("Sort key 0.5000");
+    expect(identity).not.toHaveTextContent("0.5000");
+
+    fireEvent.click(screen.getByTestId("remediation-priority-sort-key-finding-1"));
+    expect(identity).toHaveTextContent(
+      "Sort key 0.5000. Ordering only — not a percentage, probability, or live risk score.",
+    );
+  });
+
   it("shows resource-scoped empty copy when finding has no pathId", () => {
     vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
       data: { findingId: "finding-1", pathId: null, title: "Test finding" },

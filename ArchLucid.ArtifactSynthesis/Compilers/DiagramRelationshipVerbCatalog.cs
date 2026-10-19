@@ -98,8 +98,13 @@ internal static class DiagramRelationshipVerbCatalog
             return true;
         }
 
-        // HumanDeclaredConnection is provenance, not a relationship verb. The provenance
-        // applier prefixes "declared · " onto the edge-type verb (CONNECTS_TO → connects).
+        // HumanDeclaredConnection is provenance, not a relationship verb. Provenance display
+        // owns the "declared" prefix; keep the relationship verb from edge type (CONNECTS_TO → connects).
+
+        if (normalized.Equals(GraphEdgeInferenceSources.HumanDeclaredConnection, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
 
         if (normalized.Equals(AzureInventoryRelationshipAssociationTypes.NicToSubnet, StringComparison.OrdinalIgnoreCase)
             || normalized.Equals(AzureInventoryRelationshipAssociationTypes.PeToSubnet, StringComparison.OrdinalIgnoreCase)

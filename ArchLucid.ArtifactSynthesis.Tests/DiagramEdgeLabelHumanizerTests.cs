@@ -65,7 +65,7 @@ public sealed class DiagramEdgeLabelHumanizerTests
     }
 
     [Fact]
-    public void ResolveDisplayLabel_uses_edge_type_verb_for_human_declared_connections()
+    public void ResolveDisplayLabel_maps_human_declared_connections_to_connects_verb()
     {
         DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
                 null,

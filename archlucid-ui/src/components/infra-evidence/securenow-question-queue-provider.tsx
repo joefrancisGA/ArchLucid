@@ -135,6 +135,8 @@ function findInferredConnection(
 export function SecureNowQuestionQueueProvider(
   props: SecureNowQuestionQueueProviderProps,
 ): React.JSX.Element | null {
+  "use no memo";
+
   const { snapshotId, children } = props;
   const [questions, setQuestions] = useState<SecureNowQuestion[]>([]);
   const [inferredConnections, setInferredConnections] = useState<OperatorInferredConnectionRow[]>([]);
@@ -390,31 +392,34 @@ export function SecureNowQuestionQueueProvider(
     ],
   );
 
-  // Deep-linked snapshotId mounts question-aware children before the workbench
-  // resolves a snapshot. Keep an empty-queue context so those hooks do not throw.
-  const hasSnapshotId = snapshotId.trim().length > 0;
-  const queueChildren = hasSnapshotId ? (
-    <div className="space-y-3" data-testid="securenow-question-queue">
-      {error != null ? (
-        <OperatorMutationInlineError
-          message={error.message}
-          recoveryScenario={operatorInferredConnectionPanelErrorRecoveryScenario(error.kind)}
-        />
-      ) : null}
-      {children}
-    </div>
-  ) : (
-    children
-  );
+  if (snapshotId.trim().length === 0) {
+    // Nested consumers still render while the workbench snapshot is unresolved.
+    // Skip queue chrome, but keep context so those hooks do not throw.
+    return (
+      <SecureNowQuestionQueueContext.Provider value={contextValue}>
+        {children}
+      </SecureNowQuestionQueueContext.Provider>
+    );
+  }
 
   return (
     <SecureNowQuestionQueueContext.Provider value={contextValue}>
-      {queueChildren}
+      <div className="space-y-3" data-testid="securenow-question-queue">
+        {error != null ? (
+          <OperatorMutationInlineError
+            message={error.message}
+            recoveryScenario={operatorInferredConnectionPanelErrorRecoveryScenario(error.kind)}
+          />
+        ) : null}
+        {children}
+      </div>
     </SecureNowQuestionQueueContext.Provider>
   );
 }
 
 export function useSecureNowQuestionQueue(): SecureNowQuestionQueueContextValue {
+  "use no memo";
+
   const value = useContext(SecureNowQuestionQueueContext);
 
   if (value == null) {
@@ -425,6 +430,8 @@ export function useSecureNowQuestionQueue(): SecureNowQuestionQueueContextValue 
 }
 
 export function useSecureNowQuestionSubjectNodeId(): string | null {
+  "use no memo";
+
   const { drawerOpen, currentQuestion } = useSecureNowQuestionQueue();
   const resourceId = currentQuestion?.resourceId?.trim() ?? "";
 
