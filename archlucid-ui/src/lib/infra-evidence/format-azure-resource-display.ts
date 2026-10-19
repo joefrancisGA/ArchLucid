@@ -45,10 +45,7 @@ export function formatCloudResourceDisplayName(input: CloudResourceDisplayNameIn
     return normalizeSecureNowResourceNameForDisplay(displayName);
   }
 
-  const segments = input.externalResourceId.split("/");
-  const fallbackName = segments[segments.length - 1] ?? input.externalResourceId;
-
-  return normalizeSecureNowResourceNameForDisplay(fallbackName);
+  return "Resource name was not stored.";
 }
 
 const EMPTY_DISPLAY: AzureResourceDisplay = {

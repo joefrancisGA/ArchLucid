@@ -69,7 +69,9 @@ describe("buildSponsorRiskReviewMarkdown", () => {
 
     expect(md).toContain("Risk posture was not stored");
     expect(md).toContain("Final decision was not stored");
-    expect(md).toContain("No sponsor action was stored on this review.");
+    expect(md).toContain(
+      "This export has no separate sponsor-action field. Recommended actions are on the finding rows when they were stored.",
+    );
     expect(md).not.toContain("align owners");
   });
 
@@ -84,7 +86,7 @@ describe("buildSponsorRiskReviewMarkdown", () => {
     expect(md.match(/Risk posture was not stored/g)).toHaveLength(1);
     expect(md).not.toContain("Residual risk posture: .");
     expect(md).toContain(
-      "| Severity was not stored | Finding title was not stored | No recommended action recorded for this finding. |",
+      "| Severity was not stored | Finding title was not stored | Recommended action was stored empty. |",
     );
   });
 

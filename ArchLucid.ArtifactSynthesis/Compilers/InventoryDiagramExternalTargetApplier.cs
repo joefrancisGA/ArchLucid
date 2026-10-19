@@ -106,7 +106,7 @@ internal static class InventoryDiagramExternalTargetApplier
 
                     if (!hasCapturedTarget && existingDiagramNode is not null)
                     {
-                        existingDiagramNode.Label = "Outside this subscription: " + ReadResourceName(targetArmId);
+                        existingDiagramNode.Label = FormatOutsideSubscriptionLabel();
                         externalDiagramNodeIdByArmId[targetArmId] = existingDiagramNodeId;
                     }
 
@@ -255,7 +255,7 @@ internal static class InventoryDiagramExternalTargetApplier
         ast.Nodes.Add(new DiagramNode
         {
             NodeId = nodeId,
-            Label = "Outside this subscription: " + ReadResourceName(targetArmId),
+            Label = FormatOutsideSubscriptionLabel(),
             NodeType = GraphNodeTypes.TopologyResource,
             OrderKey = nextOrderKey++,
             ArmResourceId = targetArmId,
@@ -518,12 +518,8 @@ internal static class InventoryDiagramExternalTargetApplier
         neighbors.Add(targetNodeId);
     }
 
-    private static string ReadResourceName(string armId)
+    private static string FormatOutsideSubscriptionLabel()
     {
-        int lastSlash = armId.LastIndexOf('/');
-
-        return lastSlash >= 0 && lastSlash < armId.Length - 1
-            ? armId[(lastSlash + 1)..]
-            : armId;
+        return "Outside this subscription. Resource name was not stored.";
     }
 }

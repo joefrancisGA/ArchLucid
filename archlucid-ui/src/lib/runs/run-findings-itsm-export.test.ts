@@ -164,7 +164,7 @@ describe("buildQuickDecisionFindingsCsv", () => {
       enforcementTier: "PolicyViolation",
     }]);
 
-    expect(csv).toContain("No recommended action recorded for this finding.");
+    expect(csv).toContain("Recommended action was stored empty.");
     expect(csv).toContain("Policy rule was not stored");
     expect(csv).toContain("Trust label was not stored");
     expect(csv).toContain("Trust label reason was not stored");

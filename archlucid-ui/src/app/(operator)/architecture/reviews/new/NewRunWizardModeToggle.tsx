@@ -35,7 +35,7 @@ export function NewRunWizardModeToggle(props: NewRunWizardModeToggleProps): Reac
       >
         <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           <span className="font-medium text-neutral-900 dark:text-neutral-100">Quick start (3 steps)</span>
-          {" — recommended for your first review. Constraints, optional evidence, and advanced fields use safe defaults."}
+          {" — recommended for your first review. Quick start leaves constraints, optional evidence, and advanced fields unset. It does not store defaults for them."}
         </p>
         <button
           type="button"

@@ -20,7 +20,7 @@ public sealed class InventoryDiagramExternalTargetApplierTests
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
-        ast.Nodes.Should().ContainSingle(node => node.Label == "Outside this subscription: remote");
+        ast.Nodes.Should().ContainSingle(node => node.Label == "Outside this subscription. Resource name was not stored.");
         ast.Edges.Should().ContainSingle(edge =>
             !edge.IsLayoutOnly
             && edge.Label == InventoryDiagramRelationshipLabelTexts.Peered);
@@ -40,7 +40,7 @@ public sealed class InventoryDiagramExternalTargetApplierTests
             new GraphSnapshot { Nodes = [firstVnet, secondVnet] },
             DiagramMode.FullSubscription);
 
-        ast.Nodes.Should().ContainSingle(node => node.Label == "Outside this subscription: remote");
+        ast.Nodes.Should().ContainSingle(node => node.Label == "Outside this subscription. Resource name was not stored.");
         ast.Edges.Count(edge =>
             !edge.IsLayoutOnly
             && edge.Label == InventoryDiagramRelationshipLabelTexts.Peered).Should().Be(2);
@@ -53,7 +53,7 @@ public sealed class InventoryDiagramExternalTargetApplierTests
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
-        ast.Nodes.Should().NotContain(node => node.Label.StartsWith("Outside this subscription:", StringComparison.Ordinal));
+        ast.Nodes.Should().NotContain(node => node.Label.StartsWith("Outside this subscription", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -87,7 +87,8 @@ public sealed class InventoryDiagramExternalTargetApplierTests
             },
             DiagramMode.FullSubscription);
 
-        string externalNodeId = ast.Nodes.Single(node => node.Label == "Outside this subscription: remote").NodeId;
+        string externalNodeId = ast.Nodes.Single(node =>
+            node.Label == "Outside this subscription. Resource name was not stored.").NodeId;
         string vnetNodeId = ast.Nodes.Single(node => node.Label == "vnet-a").NodeId;
         ast.Edges.Should().Contain(edge =>
             !edge.IsLayoutOnly

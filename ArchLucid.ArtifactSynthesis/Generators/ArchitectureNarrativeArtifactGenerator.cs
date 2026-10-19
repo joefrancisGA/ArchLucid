@@ -20,10 +20,15 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         _ = ct;
         StringBuilder sb = new();
 
-        sb.AppendLine($"# {manifest.Metadata.Name}");
+        string reviewName = string.IsNullOrWhiteSpace(manifest.Metadata.Name)
+            ? "Review name was not stored."
+            : manifest.Metadata.Name.Trim();
+        sb.AppendLine($"# {reviewName}");
         sb.AppendLine();
         sb.AppendLine("## Sponsor Summary");
-        sb.AppendLine(manifest.Metadata.Summary);
+        sb.AppendLine(string.IsNullOrWhiteSpace(manifest.Metadata.Summary)
+            ? "Sponsor summary was not stored."
+            : manifest.Metadata.Summary.Trim());
         sb.AppendLine();
 
         sb.AppendLine("## Requirements Coverage");
@@ -117,10 +122,6 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
 
         sb.AppendLine();
 
-        sb.AppendLine("## Objective");
-        sb.AppendLine("Objective was not stored.");
-        sb.AppendLine();
-
         sb.AppendLine("## Assumptions");
 
         foreach (string assumption in manifest.Assumptions)
@@ -149,31 +150,11 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
 
         sb.AppendLine();
 
-        sb.AppendLine("## Architecture Overview");
-        sb.AppendLine("Architecture overview was not stored.");
-        sb.AppendLine();
-
-        sb.AppendLine("## Component Breakdown");
-        sb.AppendLine("Component breakdown was not stored.");
-        sb.AppendLine();
-
-        sb.AppendLine("## Data Flow");
-        sb.AppendLine("Data flow was not stored.");
-        sb.AppendLine();
-
-        sb.AppendLine("## Security Model");
-        sb.AppendLine("Security model was not stored.");
-        sb.AppendLine();
-
-        sb.AppendLine("## Operational Considerations");
-        sb.AppendLine("Operational considerations were not stored.");
-        sb.AppendLine();
-
         sb.AppendLine("## Decisions");
 
         foreach (ResolvedArchitectureDecision decision in manifest.Decisions)
 
-            sb.AppendLine($"- {decision.Category}: {decision.Title} -> {decision.SelectedOption}");
+            sb.AppendLine(FormatDecisionLine(decision));
 
         if (manifest.Decisions.Count == 0)
 
@@ -221,6 +202,15 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
             Content = content,
             ContentHash = ArtifactHashing.ComputeHash(content)
         });
+    }
+
+    private static string FormatDecisionLine(ResolvedArchitectureDecision decision)
+    {
+        string selectedOption = string.IsNullOrWhiteSpace(decision.SelectedOption)
+            ? "Selected option was not stored."
+            : decision.SelectedOption.Trim();
+
+        return $"- {decision.Category}: {decision.Title} -> {selectedOption}";
     }
 
     private static string FormatRequirementLine(string prefix, RequirementCoverageItem item)

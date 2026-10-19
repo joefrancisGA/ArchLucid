@@ -108,7 +108,8 @@ internal static class InventoryDiagramIndirectRelationshipApplier
             InventoryDiagramEvidenceCurrency.Derived => ProvenanceKind.DerivedFact.ToString(),
             InventoryDiagramEvidenceCurrency.Observed => ProvenanceKind.ObservedFact.ToString(),
             InventoryDiagramEvidenceCurrency.Configured => ProvenanceKind.DeterministicInference.ToString(),
-            _ => ProvenanceKind.ObservedFact.ToString(),
+            InventoryDiagramEvidenceCurrency.Current => "Evidence currency was Current, not an observed fact.",
+            _ => "Evidence currency was Current, not an observed fact.",
         };
     }
 

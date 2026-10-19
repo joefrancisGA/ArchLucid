@@ -300,7 +300,7 @@ export function FindingEvidenceGraph(props: FindingEvidenceGraphProps) {
   if (graphNodeIdsExamined.length === 0) {
     return (
       <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} data-testid="finding-evidence-graph-empty">
-        No architecture graph nodes were recorded for this finding trace.
+        Examined node list was empty on this trace.
       </p>
     );
   }

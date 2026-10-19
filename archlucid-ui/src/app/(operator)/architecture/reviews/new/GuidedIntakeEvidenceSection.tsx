@@ -43,7 +43,9 @@ export function GuidedIntakeEvidenceSection(props: GuidedIntakeEvidenceSectionPr
             )}
           >
           {priorAttachedFileNames.map((fileName, index) => (
-            <li key={`${index}-${fileName}`}>{fileName}</li>
+            <li key={`${index}-${fileName}`}>
+              {fileName.trim().length > 0 ? fileName : "File name was not stored."}
+            </li>
           ))}
           </ul>
         </div>
