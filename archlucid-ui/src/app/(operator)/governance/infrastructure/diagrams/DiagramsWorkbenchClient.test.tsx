@@ -366,6 +366,7 @@ describe("DiagramsWorkbenchClient", () => {
     expect(picker).toHaveValue("");
     expect(screen.queryByTestId("infra-diagrams-snapshot-prompt")).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-diagram-viewer-mock")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infra-evidence-diagram-reading-legend")).not.toBeInTheDocument();
     expect(screen.queryByTestId("infra-diagrams-snapshot-id-readout")).not.toBeInTheDocument();
     expect(screen.queryByTestId("infra-diagrams-executive-always-show")).not.toBeInTheDocument();
     expect(fetchInfraEvidenceMermaidRenderMock).not.toHaveBeenCalled();
@@ -531,6 +532,53 @@ describe("DiagramsWorkbenchClient", () => {
     expect(screen.queryByTestId("infra-diagrams-density-coach")).not.toBeInTheDocument();
     expect(screen.queryByText(/too large for a single diagram/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/This view is too large to read/i)).not.toBeInTheDocument();
+  });
+
+  it("shows how to read this diagram above the painted canvas", async () => {
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    const legend = await screen.findByTestId("infra-evidence-diagram-reading-legend");
+    const viewer = await screen.findByTestId("architecture-diagram-viewer-mock");
+
+    expect(legend).toHaveTextContent("How to read this diagram");
+    expect(screen.getByTestId("infra-evidence-diagram-reading-legend-boxes")).toHaveTextContent(
+      "Azure resources",
+    );
+    expect(legend.compareDocumentPosition(viewer) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("shows data-flow honesty in the reading legend when that mode is painted", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      mode: query.mode ?? "dataFlow",
+      fallbackKey: query.fallbackKey ?? null,
+      status: "Succeeded",
+      mermaid: "flowchart LR\n  A-->B",
+      metrics: {
+        nodeCount: 2,
+        edgeCount: 1,
+        subgraphCount: 0,
+        maxDegree: 1,
+        crossSubgraphEdgeCount: 0,
+        textSizeBytes: 120,
+        layoutEstimate: 80,
+      },
+      fallbackArtifacts: [],
+    }));
+
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=dataFlow",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    await screen.findByTestId("architecture-diagram-viewer-mock");
+
+    expect(screen.getByTestId("infra-evidence-diagram-reading-legend-evidence-kind")).toHaveTextContent(
+      /not observed traffic/i,
+    );
   });
 
   it("resynchronizes the selected mode when the URL mode changes", async () => {

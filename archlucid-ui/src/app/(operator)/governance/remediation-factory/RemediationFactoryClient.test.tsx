@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const selectFinding = vi.fn();
 const selectPath = vi.fn();
 const setSnapshotPair = vi.fn();
+const setRankedPage = vi.fn();
 const syncSelection = vi.fn();
 const routerReplaceMock = vi.hoisted(() => vi.fn());
 let searchParams = vi.hoisted(() => new URLSearchParams());
@@ -38,10 +39,12 @@ vi.mock("@/app/(operator)/governance/remediation-factory/use-remediation-factory
     pathId: mockedPathId,
     fromSnapshotId: null,
     toSnapshotId: null,
+    rankedPage: 1,
     hasSnapshotPair: false,
     selectFinding,
     selectPath,
     setSnapshotPair,
+    setRankedPage,
     syncSelection,
   }),
 }));
@@ -301,6 +304,11 @@ describe("RemediationFactoryClient", () => {
     expect(screen.getByTestId("remediation-ranked-path-filters-scope")).toHaveTextContent(
       "These filters narrow the path list only.",
     );
+    expect(screen.getByTestId("remediation-ranked-path-filters-scope")).toHaveTextContent("paths on this page");
+    expect(screen.getByTestId("remediation-factory-context-jump-to-inspect")).toHaveAttribute(
+      "href",
+      "#remediation-factory-path-inspect",
+    );
     expect(screen.getByTestId("remediation-priority-row-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")).toBeInTheDocument();
     expect(screen.getByText(SECURENOW_PATH_RANKED_PATHS_TITLE)).toBeInTheDocument();
     expect(screen.getByTestId("securenow-architect-outcome-metrics-panel")).toBeInTheDocument();
@@ -361,8 +369,7 @@ describe("RemediationFactoryClient", () => {
       "Sort key 0.4200. Ordering only — not a percentage, probability, or live risk score.",
     );
 
-    fireEvent.click(screen.getByTestId("remediation-priority-resource-id-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"));
-    expect(priorityRow).toHaveTextContent(resourceId);
+    expect(screen.queryByTestId("remediation-priority-resource-id-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")).not.toBeInTheDocument();
 
     const measurementHelpLink = screen.getByTestId("remediation-metrics-measurement-help-link");
     expect(measurementHelpLink).toHaveTextContent("How these counts are measured");
@@ -549,7 +556,7 @@ describe("RemediationFactoryClient", () => {
 
     const view = render(<RemediationFactoryClient />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Explain selected score" }));
+    fireEvent.click(screen.getByRole("button", { name: /Explain selected score/i }));
 
     await waitFor(() => {
       expect(screen.getByTestId("remediation-simulator-output")).toBeInTheDocument();

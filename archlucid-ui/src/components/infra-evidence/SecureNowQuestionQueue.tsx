@@ -144,6 +144,8 @@ export type SecureNowQuestionQueueSnapshotPromoProps = {
 export function SecureNowQuestionQueueSnapshotPromo(
   props: SecureNowQuestionQueueSnapshotPromoProps = {},
 ): React.JSX.Element | null {
+  "use no memo";
+
   const compact = props.compact === true;
   const {
     drawerOpen,
@@ -221,6 +223,8 @@ type SecureNowQuestionQueueBarProps = {
 };
 
 export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps): React.JSX.Element | null {
+  "use no memo";
+
   const { outline } = props;
   const {
     drawerOpen,
