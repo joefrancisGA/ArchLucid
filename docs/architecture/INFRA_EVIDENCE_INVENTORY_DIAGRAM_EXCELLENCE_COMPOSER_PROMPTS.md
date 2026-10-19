@@ -58,6 +58,7 @@
 | Deepening 05b–12b bundle not index-closeout | **IDX-14h** | Shipped — extend only |
 | Closeout 14a–14h capstone not index-closeout | **IDX-14i** | Shipped — extend only |
 | Closeout Vitest files not UI manifest-guarded | **IDX-14j** | Shipped — extend only |
+| Capstone index not aligned after 14j | **IDX-14k** | Shipped — extend only |
 | Singleton-RG tail | **IDX-08** | Full subscription is a postage sheet |
 | Singleton tail skips excellence filter | **IDX-08b** | Shipped — extend only |
 | Collapsed tail label helpers skip excellence filter | **IDX-08c** | Shipped — extend only |
@@ -120,6 +121,7 @@
 | **IDX-14h** Deepening excellence wave closeout | After 14g | Shipped — extend only |
 | **IDX-14i** Excellence index closeout wave closeout | After 14h | Shipped — extend only |
 | **IDX-14j** Closeout wave UI manifest (Vitest) | After 14i | Shipped — extend only |
+| **IDX-14k** Closeout capstone index sync (Vitest) | After 14j | Shipped — extend only |
 | **IDX-08** Singleton-RG collapse | After 06 | |
 | **IDX-08b** Singleton-RG tail excellence ratchet | After 08 | Shipped — extend only |
 | **IDX-08c** Collapsed singleton tail label excellence ratchet | After 08b | Shipped — extend only |
