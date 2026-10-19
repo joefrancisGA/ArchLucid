@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { ShortcutHint } from "@/components/ShortcutHint";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { SecurityEvidencePathInspectPanel } from "@/components/security/SecurityEvidencePathInspectPanel";
@@ -38,6 +39,11 @@ import {
   focusRemediationFactoryQueueRow,
 } from "@/lib/governance/governance-findings-queue-keyboard-focus";
 import { fetchRemediationScoreExplanation } from "@/lib/remediation-factory-api";
+import {
+  remediationFactoryExecutiveMetricsErrorRecovery,
+  remediationFactoryPriorityQueueErrorRecovery,
+  remediationFactoryRankedPathsErrorRecovery,
+} from "@/lib/remediation-factory/remediation-factory-error-recovery";
 import { REMEDIATION_WAVES_SECTION_ID } from "@/lib/remediation-wave-list-copy";
 import type {
   RemediationFactoryMetrics,
@@ -105,6 +111,7 @@ import {
   resolveRemediationFactoryLastRefreshedAt,
 } from "./remediation-factory-freshness";
 import { useRemediationFactoryUrlState } from "./use-remediation-factory-url-state";
+import { REMEDIATION_FACTORY_RANKED_PATHS_DEFAULT_PAGE_SIZE } from "./remediation-factory-url-state";
 import {
   REMEDIATION_FACTORY_OPEN_WAVES_LABEL,
   REMEDIATION_FACTORY_PATH_INSPECT_PANEL_ID,
@@ -231,16 +238,18 @@ export function RemediationFactoryClient() {
   const {
     findingId: selectedFindingId,
     pathId: selectedPathId,
+    rankedPage,
     syncSelection,
     selectFinding,
     selectPath,
+    setRankedPage,
     ...urlState
   } = useRemediationFactoryUrlState(productLine);
   const nowMs = useOperatorRelativeFreshnessNowMs();
   const rankedQuery = useRemediationRankedFindingsQuery();
-  const [rankedPathsPage, setRankedPathsPage] = useState(1);
-  const rankedPathsPageSize = 25;
-  const rankedPathsQuery = useSecurityEvidenceRankedPathsQuery(rankedPathsPage, rankedPathsPageSize);
+  const rankedPathsPageSize = REMEDIATION_FACTORY_RANKED_PATHS_DEFAULT_PAGE_SIZE;
+  const rankedPathsQuery = useSecurityEvidenceRankedPathsQuery(rankedPage, rankedPathsPageSize);
+  const workbenchSnapshotId = urlState.toSnapshotId ?? urlState.fromSnapshotId;
   const reportSnapshotId = useMemo(
     () =>
       resolveAttackPathReportSnapshotId(
@@ -290,8 +299,8 @@ export function RemediationFactoryClient() {
   );
 
   useEffect(() => {
-    setRankedPathsPage(1);
-  }, [pathView]);
+    setRankedPage(1);
+  }, [pathView, setRankedPage]);
 
   const visibleRankedPaths = useMemo(() => {
     switch (pathView) {
@@ -312,8 +321,8 @@ export function RemediationFactoryClient() {
       return null;
     }
 
-    return `Showing page ${rankedPathsPage} (${rankedPaths.length} rows) of ${totalCount} ranked paths.`;
-  }, [rankedPaths.length, rankedPathsPage, rankedPathsQuery.data?.totalCount]);
+    return `Showing page ${rankedPage} (${rankedPaths.length} rows) of ${totalCount} ranked paths.`;
+  }, [rankedPaths.length, rankedPage, rankedPathsQuery.data?.totalCount]);
 
   const rankedPathsComputedLine = useMemo(() => {
     if (rankedPaths.length === 0) {
@@ -571,6 +580,8 @@ export function RemediationFactoryClient() {
         lastRefreshedAt={lastRefreshedAt}
         scopeLabel="Advisory remediation factory · current workspace scope"
         selectionLabel={selectionLabel}
+        findingId={selectedFindingId}
+        pathId={selectedPathId}
       />
 
       <PageShortcutsDisclosure
@@ -579,7 +590,18 @@ export function RemediationFactoryClient() {
       />
 
       {metricsQuery.isError ? (
-        <StatusTag kind="needs-attention" label="Executive metrics unavailable" />
+        <>
+          <OperatorErrorRecoveryContract
+            presentation={remediationFactoryExecutiveMetricsErrorRecovery()}
+            testId="remediation-executive-metrics-error-recovery"
+          />
+          <RefreshButton
+            busy={metricsQuery.isFetching}
+            label="Retry executive metrics"
+            data-testid="remediation-executive-metrics-retry"
+            onClick={() => void metricsQuery.refetch()}
+          />
+        </>
       ) : metricsQuery.data ? (
         <ExecutiveMetricsGrid metrics={metricsQuery.data} openFindingsHref={openFindingsHref} />
       ) : (
@@ -632,7 +654,18 @@ export function RemediationFactoryClient() {
           These are SecureNow findings for the current inventory snapshot.
         </p>
         {rankedQuery.isError ? (
-          <StatusTag kind="needs-attention" label="Priority queue unavailable" />
+          <>
+            <OperatorErrorRecoveryContract
+              presentation={remediationFactoryPriorityQueueErrorRecovery()}
+              testId="remediation-priority-queue-error-recovery"
+            />
+            <RefreshButton
+              busy={rankedQuery.isFetching}
+              label="Retry priority queue"
+              data-testid="remediation-priority-queue-retry"
+              onClick={() => void rankedQuery.refetch()}
+            />
+          </>
         ) : ranked.length === 0 ? (
           <EnterpriseCompactEmptyState {...REMEDIATION_FACTORY_PRIORITY_QUEUE_EMPTY} />
         ) : (
@@ -642,6 +675,7 @@ export function RemediationFactoryClient() {
             onSelect={selectFinding}
             scopeLabel="Priority queue"
             totalCount={ranked.length}
+            workbenchSnapshotId={workbenchSnapshotId}
           />
         )}
       </section>
@@ -653,7 +687,7 @@ export function RemediationFactoryClient() {
           <RemediationFactoryRankedPathsShortcutHints />
         </header>
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-ranked-path-filters-scope">
-          These filters narrow the path list only.
+          These filters narrow the path list only. Counts are for paths on this page.
         </p>
         <div className="flex flex-wrap items-center gap-2" aria-label="Ranked path views">
           {PATH_VIEWS.map((view) => (
@@ -676,13 +710,7 @@ export function RemediationFactoryClient() {
         ) : rankedPathsQuery.isError ? (
           <>
             <OperatorErrorRecoveryContract
-              presentation={{
-                whatFailed: "Ranked paths did not load.",
-                whatIsIntact: rankedQuery.isSuccess
-                  ? "The priority queue and the selected snapshot stay on this page."
-                  : "The snapshot selection stays on this page.",
-                nextStep: "Retry the load. This does not change Azure.",
-              }}
+              presentation={remediationFactoryRankedPathsErrorRecovery()}
               testId="remediation-ranked-paths-error-recovery"
             />
             <RefreshButton
@@ -713,10 +741,10 @@ export function RemediationFactoryClient() {
                 onSelect={selectPath}
                 scopeLabel={SECURENOW_PATH_RANKED_PATHS_TITLE}
                 totalCount={rankedPathsQuery.data?.totalCount ?? rankedPaths.length}
-                page={rankedPathsPage}
+                page={rankedPage}
                 pageSize={rankedPathsPageSize}
                 pageControlsBusy={rankedPathsQuery.isFetching}
-                onPageChange={setRankedPathsPage}
+                onPageChange={setRankedPage}
               />
             )}
           </>
@@ -758,11 +786,19 @@ export function RemediationFactoryClient() {
               disabled={selectedFindingId == null}
               onClick={() => selectedFindingId && runSimulator(selectedFindingId)}
             >
-              Explain selected score
+              Explain selected score <ShortcutHint shortcut="alt+e" />
             </Button>
           </>
         )}
         {simulatorError ? <StatusTag kind="needs-attention" label={simulatorError} /> : null}
+        {simulatorExplanation != null
+          && simulatorGeneratedAt != null
+          && simulatorFindingId !== null
+          && simulatorFindingId !== selectedFindingId ? (
+          <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="remediation-simulator-stale-honesty">
+            Score breakdown below is for a different finding. Select the same row again or run Explain to refresh.
+          </p>
+        ) : null}
         {simulatorExplanation != null
           && simulatorGeneratedAt != null
           && simulatorFindingId === selectedFindingId ? (

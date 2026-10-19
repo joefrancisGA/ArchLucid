@@ -2,19 +2,39 @@
 
 import Link from "next/link";
 
+import { CopyIdButton } from "@/components/CopyIdButton";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { StatusTag } from "@/components/ui/status-tag";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
+import { useBooleanSearchParamUrlSync } from "@/hooks/use-boolean-search-param-url-sync";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
+import {
+  parseRemediationFactorySelectionIdentityDisclosureOpenFromSearch,
+  remediationFactorySelectionIdentityDisclosureHrefFromSearch,
+  REMEDIATION_FACTORY_SELECTION_IDENTITY_DISCLOSURE_OPEN_PARAM,
+} from "@/lib/remediation-factory/remediation-factory-selection-identity-disclosure-url";
 import { cn } from "@/lib/utils";
+
+import {
+  REMEDIATION_FACTORY_PATH_INSPECT_PANEL_ID,
+} from "./remediation-factory-page-copy";
 
 export type RemediationFactoryContextStripProps = {
   readonly freshnessLabel: string;
   readonly lastRefreshedAt: Date | null;
   readonly selectionLabel: string | null;
   readonly scopeLabel: string;
+  readonly findingId: string | null;
+  readonly pathId: string | null;
 };
 
 export function RemediationFactoryContextStrip(props: RemediationFactoryContextStripProps) {
+  const [technicalIdsOpen, setTechnicalIdsOpen] = useBooleanSearchParamUrlSync(
+    REMEDIATION_FACTORY_SELECTION_IDENTITY_DISCLOSURE_OPEN_PARAM,
+    parseRemediationFactorySelectionIdentityDisclosureOpenFromSearch,
+    remediationFactorySelectionIdentityDisclosureHrefFromSearch,
+  );
+  const hasTechnicalIds = props.findingId !== null || props.pathId !== null;
+
   return (
     <div
       className={cn(
@@ -52,11 +72,40 @@ export function RemediationFactoryContextStrip(props: RemediationFactoryContextS
           <StatusTag kind="neutral" label="No row selected" />
         </>
       )}
+      {hasTechnicalIds ? (
+        <details
+          className="min-w-0"
+          data-testid="remediation-factory-context-technical-ids"
+          open={technicalIdsOpen}
+          onToggle={(event) => {
+            setTechnicalIdsOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
+        >
+          <summary className={cn("cursor-pointer", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>Technical ids</summary>
+          <div className="mt-1 space-y-1">
+            {props.findingId !== null ? (
+              <p className={cn("m-0 flex flex-wrap items-center gap-2 break-all font-mono", OPERATOR_TYPOGRAPHY.helper)}>
+                <span>Finding</span>
+                <span>{props.findingId}</span>
+                <CopyIdButton value={props.findingId} aria-label="Copy finding ID" />
+              </p>
+            ) : null}
+            {props.pathId !== null ? (
+              <p className={cn("m-0 flex flex-wrap items-center gap-2 break-all font-mono", OPERATOR_TYPOGRAPHY.helper)}>
+                <span>Path</span>
+                <span>{props.pathId}</span>
+                <CopyIdButton value={props.pathId} aria-label="Copy path ID" />
+              </p>
+            ) : null}
+          </div>
+        </details>
+      ) : null}
       <Link
-        href="#remediation-priority-simulator"
+        href={`#${REMEDIATION_FACTORY_PATH_INSPECT_PANEL_ID}`}
         className="ml-auto shrink-0 text-[color:var(--al-accent-interactive)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        data-testid="remediation-factory-context-jump-to-inspect"
       >
-        Jump to simulator
+        Jump to inspect
       </Link>
     </div>
   );

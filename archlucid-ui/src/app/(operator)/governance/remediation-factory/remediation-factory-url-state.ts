@@ -4,6 +4,9 @@ export const REMEDIATION_FACTORY_FINDING_ID_PARAM = "findingId" as const;
 export const REMEDIATION_FACTORY_PATH_ID_PARAM = "pathId" as const;
 export const REMEDIATION_FACTORY_FROM_SNAPSHOT_PARAM = "fromSnapshot" as const;
 export const REMEDIATION_FACTORY_TO_SNAPSHOT_PARAM = "toSnapshot" as const;
+export const REMEDIATION_FACTORY_RANKED_PAGE_PARAM = "rankedPage" as const;
+
+export const REMEDIATION_FACTORY_RANKED_PATHS_DEFAULT_PAGE_SIZE = 25;
 
 export function parseRemediationFactoryFindingIdFromSearch(raw: string | null | undefined): string | null {
   if (raw === null || raw === undefined) {
@@ -35,6 +38,26 @@ export function parseRemediationFactorySnapshotIdFromSearch(raw: string | null |
   return trimmed.length === 0 ? null : trimmed;
 }
 
+export function parseRemediationFactoryRankedPageFromSearch(raw: string | null | undefined): number {
+  if (raw === null || raw === undefined) {
+    return 1;
+  }
+
+  const trimmed = raw.trim();
+
+  if (!/^\d+$/.test(trimmed)) {
+    return 1;
+  }
+
+  const parsed = Number.parseInt(trimmed, 10);
+
+  if (!Number.isFinite(parsed) || parsed < 1) {
+    return 1;
+  }
+
+  return parsed;
+}
+
 export function remediationFactorySelectionHrefFromSearch(
   currentSearch: string,
   patch: {
@@ -42,6 +65,7 @@ export function remediationFactorySelectionHrefFromSearch(
     readonly pathId?: string | null;
     readonly fromSnapshot?: string | null;
     readonly toSnapshot?: string | null;
+    readonly rankedPage?: number;
   },
   pathname: string,
 ): string {
@@ -77,6 +101,14 @@ export function remediationFactorySelectionHrefFromSearch(
       params.delete(REMEDIATION_FACTORY_TO_SNAPSHOT_PARAM);
     } else {
       params.set(REMEDIATION_FACTORY_TO_SNAPSHOT_PARAM, patch.toSnapshot);
+    }
+  }
+
+  if (patch.rankedPage !== undefined) {
+    if (patch.rankedPage <= 1) {
+      params.delete(REMEDIATION_FACTORY_RANKED_PAGE_PARAM);
+    } else {
+      params.set(REMEDIATION_FACTORY_RANKED_PAGE_PARAM, String(patch.rankedPage));
     }
   }
 
