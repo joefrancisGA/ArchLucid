@@ -16,7 +16,7 @@ class TestRoiBatch30DriftGuards(unittest.TestCase):
             _UI / "src/app/(operator)/governance/infrastructure/diagrams/DiagramsWorkbenchClient.tsx"
         ).read_text(encoding="utf-8")
 
-        self.assertIn("SponsorExportSendHonestyStrip", client)
+        self.assertIn("InfraDiagramsExportHonestyStrip", client)
         self.assertIn("infra-diagrams-export", client)
         self.assertIn("infra-diagrams-export-png", client)
         self.assertIn("infra-diagrams-export-mmd", client)

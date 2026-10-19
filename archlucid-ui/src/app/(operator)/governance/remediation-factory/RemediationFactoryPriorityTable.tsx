@@ -90,7 +90,7 @@ export function RemediationFactoryPriorityTable(props: {
                     {selected ? <StatusTag kind="ready" label="Inspecting" /> : null}
                   </span>
                 </EnterpriseTableCell>
-                <RemediationPriorityResourceCell findingId={row.findingId} cloudResourceId={row.cloudResourceId} />
+                <RemediationPriorityResourceCell cloudResourceId={row.cloudResourceId} />
                 <EnterpriseTableCell>{formatRemediationPriorityWhenBand(rankOrder)}</EnterpriseTableCell>
                 <EnterpriseTableCell>
                   <RemediationPrioritySortKeyDisclosure findingId={row.findingId} totalScore={row.totalScore} />

@@ -32,3 +32,7 @@ The remediation factory ranks findings with rule `IE15-priority-v1`. The rank ca
 - Closed assurance **TB-135 / TB-136**
 
 This wave stops at **UU-66**.
+
+## Wave H
+
+The report-and-waves follow-on lives in [`UNDERSTAND_USE_WAVE_H_LUNA_PROMPTS.md`](UNDERSTAND_USE_WAVE_H_LUNA_PROMPTS.md). Paste that file on its own. Do not implement it from this page.

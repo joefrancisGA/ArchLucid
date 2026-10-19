@@ -115,6 +115,7 @@ export function RemediationFactoryAttackPathReportSection(props: {
                 totalCount={props.reportQuery.data.vulnerableAttackPaths.length}
                 page={1}
                 pageSize={props.reportQuery.data.vulnerableAttackPaths.length}
+                showSortKeyColumn={false}
               />
             )}
           </div>
