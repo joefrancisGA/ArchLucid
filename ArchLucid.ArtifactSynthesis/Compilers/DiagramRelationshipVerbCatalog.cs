@@ -98,7 +98,8 @@ internal static class DiagramRelationshipVerbCatalog
             return true;
         }
 
-        // Provenance display owns the "declared" prefix; keep the relationship verb from edge type.
+        // HumanDeclaredConnection is provenance, not a relationship verb. Provenance display
+        // owns the "declared" prefix; keep the relationship verb from edge type (CONNECTS_TO → connects).
 
         if (normalized.Equals(GraphEdgeInferenceSources.HumanDeclaredConnection, StringComparison.OrdinalIgnoreCase))
         {

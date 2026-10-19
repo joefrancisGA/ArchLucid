@@ -82,21 +82,14 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
                     continue;
                 }
 
-                ast.Edges.Add(new DiagramEdge
-                {
-                    FromNodeId = fromMermaidId,
-                    ToNodeId = toMermaidId,
-                    Label = "peering",
-                    InferenceSource = GraphEdgeInferenceSources.InventoryVnetPeering,
-                    ProvenanceKind = ProvenanceKind.ObservedFact.ToString(),
-                });
+                ast.Edges.Add(CreateObservedPeeringEdge(fromMermaidId, toMermaidId));
             }
         }
 
-        RelabelVirtualNetworkPairPeeringEdges(ast);
+        EnsureObservedPeeringOnVirtualNetworkPairs(ast);
     }
 
-    private static void RelabelVirtualNetworkPairPeeringEdges(DiagramAst ast)
+    private static void EnsureObservedPeeringOnVirtualNetworkPairs(DiagramAst ast)
     {
         Dictionary<string, DiagramNode> nodesById = ast.Nodes
             .GroupBy(node => node.NodeId, StringComparer.Ordinal)
@@ -110,28 +103,56 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
                 continue;
             }
 
-            bool isOmittedVerb = string.IsNullOrWhiteSpace(edge.Label)
-                || string.Equals(
-                    edge.Label,
-                    DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel,
-                    StringComparison.Ordinal);
-            bool isPeeringLabel = string.Equals(edge.Label, "peering", StringComparison.OrdinalIgnoreCase);
-
-            if (!isOmittedVerb && !isPeeringLabel)
+            if (!ShouldAnnotateAsObservedPeering(edge))
             {
                 continue;
             }
 
-            edge.Label = "peering";
-
-            if (!string.IsNullOrWhiteSpace(edge.ProvenanceKind))
-            {
-                continue;
-            }
-
-            edge.InferenceSource = GraphEdgeInferenceSources.InventoryVnetPeering;
-            edge.ProvenanceKind = ProvenanceKind.ObservedFact.ToString();
+            AssignObservedPeeringProvenance(edge);
         }
+    }
+
+    private static bool ShouldAnnotateAsObservedPeering(DiagramEdge edge)
+    {
+        if (!string.IsNullOrWhiteSpace(edge.ProvenanceKind))
+        {
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(edge.Label)
+            || string.Equals(
+                edge.Label,
+                DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel,
+                StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        return string.Equals(edge.Label, "peering", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(
+                edge.Label,
+                InventoryDiagramRelationshipLabelTexts.Peered,
+                StringComparison.OrdinalIgnoreCase);
+    }
+
+    // ObservedFact keeps DiagramEdgeProvenanceDisplayLabelApplier from replacing the verb
+    // with "Provenance was not stored." when the graph omitted a provenance kind.
+    private static DiagramEdge CreateObservedPeeringEdge(string fromNodeId, string toNodeId)
+    {
+        DiagramEdge edge = new()
+        {
+            FromNodeId = fromNodeId,
+            ToNodeId = toNodeId,
+        };
+        AssignObservedPeeringProvenance(edge);
+        return edge;
+    }
+
+    private static void AssignObservedPeeringProvenance(DiagramEdge edge)
+    {
+        edge.Label = "peering";
+        edge.InferenceSource = GraphEdgeInferenceSources.InventoryVnetPeering;
+        edge.ProvenanceKind = ProvenanceKind.ObservedFact.ToString();
     }
 
     private static bool IsVirtualNetworkNode(

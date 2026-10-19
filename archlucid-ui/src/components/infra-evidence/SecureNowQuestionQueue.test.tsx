@@ -5,6 +5,7 @@ import {
   SecureNowQuestionQueue,
   SecureNowQuestionQueueProvider,
   SecureNowQuestionQueueSnapshotPromo,
+  useSecureNowQuestionQueue,
 } from "@/components/infra-evidence/SecureNowQuestionQueue";
 
 const mocks = vi.hoisted(() => ({
@@ -433,6 +434,24 @@ describe("SecureNowQuestionQueue", () => {
     resolveFirstLoad?.([question]);
     await waitFor(() => expect(screen.getByTestId("infra-diagrams-question-snapshot-promo")).toHaveTextContent("1 open question"));
     expect(screen.queryByText("Newest snapshot question")).toBeInTheDocument();
+  });
+
+  it("keeps question-queue hooks mounted when snapshotId is empty", () => {
+    function EmptySnapshotQueueProbe() {
+      const { drawerOpen } = useSecureNowQuestionQueue();
+
+      return <div data-testid="empty-snapshot-queue-probe">{drawerOpen ? "open" : "closed"}</div>;
+    }
+
+    render(
+      <SecureNowQuestionQueueProvider snapshotId="">
+        <EmptySnapshotQueueProbe />
+      </SecureNowQuestionQueueProvider>,
+    );
+
+    expect(screen.getByTestId("empty-snapshot-queue-probe")).toHaveTextContent("closed");
+    expect(screen.queryByTestId("securenow-question-queue")).not.toBeInTheDocument();
+    expect(mocks.listQuestions).not.toHaveBeenCalled();
   });
 
   it("keeps queue context when snapshotId is empty so nested consumers do not crash", () => {
