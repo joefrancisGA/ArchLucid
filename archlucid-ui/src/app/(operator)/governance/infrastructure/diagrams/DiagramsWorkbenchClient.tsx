@@ -22,6 +22,7 @@ import { OperatorInferredConnectionsPanel } from "@/components/infra-evidence/Op
 import { InfraEvidenceDataFlowCaptionDisclosure } from "@/components/infra-evidence/InfraEvidenceDataFlowCaptionDisclosure";
 import { InfraEvidenceDiagramOutline } from "@/components/infra-evidence/InfraEvidenceDiagramOutline";
 import { InfraEvidenceDiagramLegend } from "@/components/infra-evidence/InfraEvidenceDiagramLegend";
+import { InfraEvidenceDiagramReadingLegend } from "@/components/infra-evidence/InfraEvidenceDiagramReadingLegend";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -3019,6 +3020,7 @@ export function DiagramsWorkbenchClient() {
               No connectors in this family on this diagram. Connectors in other families are still listed under All.
             </p>
           ) : null}
+          <InfraEvidenceDiagramReadingLegend mode={selectedMode} />
           <DiagramsWorkbenchSecureNowAwareDiagramViewer
             embedQuestionBarInViewport={paintDiagramCanvas}
             mermaidSource={displayMermaidSource}
