@@ -390,21 +390,26 @@ export function SecureNowQuestionQueueProvider(
     ],
   );
 
-  if (snapshotId.trim().length === 0) {
-    return <>{children}</>;
-  }
+  // Deep-linked snapshotId mounts question-aware children before the workbench
+  // resolves a snapshot. Keep an empty-queue context so those hooks do not throw.
+  const hasSnapshotId = snapshotId.trim().length > 0;
+  const queueChildren = hasSnapshotId ? (
+    <div className="space-y-3" data-testid="securenow-question-queue">
+      {error != null ? (
+        <OperatorMutationInlineError
+          message={error.message}
+          recoveryScenario={operatorInferredConnectionPanelErrorRecoveryScenario(error.kind)}
+        />
+      ) : null}
+      {children}
+    </div>
+  ) : (
+    children
+  );
 
   return (
     <SecureNowQuestionQueueContext.Provider value={contextValue}>
-      <div className="space-y-3" data-testid="securenow-question-queue">
-        {error != null ? (
-          <OperatorMutationInlineError
-            message={error.message}
-            recoveryScenario={operatorInferredConnectionPanelErrorRecoveryScenario(error.kind)}
-          />
-        ) : null}
-        {children}
-      </div>
+      {queueChildren}
     </SecureNowQuestionQueueContext.Provider>
   );
 }
