@@ -4,7 +4,7 @@
 
 ## Goal
 
-Mirror **IDX-14e**: document the **12b** hop-focus compile excellence slice as **complete** in the IDX index with explicit dotnet commands, and add a Vitest ratchet so the closeout subsection cannot be deleted without CI failure.
+Mirror **IDX-14f**: document the **12b** hop-focus compile excellence slice as **complete** in the IDX index with explicit dotnet commands, and add a Vitest ratchet so the closeout subsection cannot be deleted without CI failure.
 
 ## What to build
 
