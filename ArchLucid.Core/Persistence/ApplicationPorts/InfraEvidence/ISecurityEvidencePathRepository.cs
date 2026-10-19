@@ -104,4 +104,59 @@ public interface ISecurityEvidencePathRepository
     Task<IReadOnlyList<SecurityEvidencePathRecord>> ListBySnapshotAsync(
         ProjectSnapshotScopeKey scope,
         CancellationToken cancellationToken = default);
+
+    async Task<IReadOnlyList<SecurityEvidencePathHopEdgeTypeReadModel>> ListHopEdgeTypesBySnapshotAsync(
+        ProjectSnapshotScopeKey scope,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<SecurityEvidencePathWithHops> pathsWithHops =
+            await ListWithHopsBySnapshotAsync(scope, cancellationToken);
+
+        List<SecurityEvidencePathHopEdgeTypeReadModel> rows = [];
+
+        foreach (SecurityEvidencePathWithHops pathWithHops in pathsWithHops)
+        {
+            foreach (SecurityEvidencePathHopRecord hop in pathWithHops.Hops)
+            {
+                rows.Add(new SecurityEvidencePathHopEdgeTypeReadModel
+                {
+                    PathId = pathWithHops.Path.PathId,
+                    EdgeType = hop.EdgeType,
+                });
+            }
+        }
+
+        return rows;
+    }
+
+    async Task<IReadOnlyList<SecurityEvidencePathHopOutcomeMetricReadModel>> ListHopOutcomeMetricsBySnapshotAsync(
+        ProjectSnapshotScopeKey scope,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<SecurityEvidencePathWithHops> pathsWithHops =
+            await ListWithHopsBySnapshotAsync(scope, cancellationToken);
+
+        List<SecurityEvidencePathHopOutcomeMetricReadModel> rows = [];
+
+        foreach (SecurityEvidencePathWithHops pathWithHops in pathsWithHops)
+        {
+            foreach (SecurityEvidencePathHopRecord hop in pathWithHops.Hops)
+            {
+                rows.Add(new SecurityEvidencePathHopOutcomeMetricReadModel
+                {
+                    PathId = pathWithHops.Path.PathId,
+                    EdgeType = hop.EdgeType,
+                    FromNodeId = hop.FromNodeId,
+                    ToNodeId = hop.ToNodeId,
+                });
+            }
+        }
+
+        return rows;
+    }
+
+    Task<IReadOnlyList<SecurityEvidencePathWithHops>> ListSharedControlFanOutHopsBySnapshotAsync(
+        ProjectSnapshotScopeKey scope,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult<IReadOnlyList<SecurityEvidencePathWithHops>>([]);
 }

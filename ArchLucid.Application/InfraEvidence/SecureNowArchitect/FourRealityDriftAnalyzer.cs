@@ -87,11 +87,11 @@ public sealed class FourRealityDriftAnalysisInputs
         init;
     } = null!;
 
-    public AzureInventorySnapshotDetailReadModel? PriorSnapshot
+    public IReadOnlyDictionary<Guid, IReadOnlyDictionary<string, string>> PriorPropertiesByCloudResourceId
     {
         get;
         init;
-    }
+    } = new Dictionary<Guid, IReadOnlyDictionary<string, string>>();
 
     public Guid? InventoryDiffId
     {
@@ -166,9 +166,10 @@ public static class FourRealityDriftAnalyzer
                 IReadOnlyDictionary<string, string> currentProperties =
                     FourRealityResourceAccessReader.BuildPropertyBag(inputs.CurrentSnapshot, cloudResourceId);
 
-                IReadOnlyDictionary<string, string>? priorProperties = inputs.PriorSnapshot is null
-                    ? null
-                    : FourRealityResourceAccessReader.BuildPropertyBag(inputs.PriorSnapshot, cloudResourceId);
+                IReadOnlyDictionary<string, string>? priorProperties =
+                    inputs.PriorPropertiesByCloudResourceId.TryGetValue(cloudResourceId, out IReadOnlyDictionary<string, string>? bag)
+                        ? bag
+                        : null;
 
                 FourRealityAccessPosture observed =
                     FourRealityResourceAccessReader.ReadObservedPosture(currentProperties);
@@ -220,6 +221,30 @@ public static class FourRealityDriftAnalyzer
         }
 
         return candidates;
+    }
+
+    public static HashSet<Guid> CollectCloudResourceIdsForSourcePaths(
+        AzureInventorySnapshotDetailReadModel snapshot,
+        IReadOnlyList<SecurityEvidencePathRecord> sourcePaths,
+        IReadOnlyDictionary<Guid, IReadOnlyList<SecurityEvidencePathHopRecord>> hopsByPathId)
+    {
+        HashSet<Guid> cloudResourceIds = [];
+
+        foreach (SecurityEvidencePathRecord sourcePath in sourcePaths)
+        {
+            if (!hopsByPathId.TryGetValue(sourcePath.PathId, out IReadOnlyList<SecurityEvidencePathHopRecord>? hops)
+                || hops.Count == 0)
+            {
+                continue;
+            }
+
+            foreach (Guid cloudResourceId in CollectCloudResourceIds(snapshot, hops))
+            {
+                cloudResourceIds.Add(cloudResourceId);
+            }
+        }
+
+        return cloudResourceIds;
     }
 
     private static IEnumerable<Guid> CollectCloudResourceIds(

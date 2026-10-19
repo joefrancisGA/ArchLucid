@@ -137,7 +137,16 @@ function formatSecureNowQuestionScopeLabel(scopeKind: string | null): string {
   return `Question scope code ${trimmed} has no reviewer label.`;
 }
 
-export function SecureNowQuestionQueueSnapshotPromo(): React.JSX.Element | null {
+export type SecureNowQuestionQueueSnapshotPromoProps = {
+  readonly compact?: boolean;
+};
+
+export function SecureNowQuestionQueueSnapshotPromo(
+  props: SecureNowQuestionQueueSnapshotPromoProps = {},
+): React.JSX.Element | null {
+  "use no memo";
+
+  const compact = props.compact === true;
   const {
     drawerOpen,
     openQuestions,
@@ -160,12 +169,35 @@ export function SecureNowQuestionQueueSnapshotPromo(): React.JSX.Element | null 
     return null;
   }
 
+  if (compact) {
+    return (
+      <p
+        className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="infra-diagrams-question-snapshot-promo"
+      >
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          data-testid="infra-diagrams-question-review"
+          onClick={() => {
+            setFilter("Open");
+            setCurrentIndex(0);
+            setDrawerOpen(true);
+          }}
+        >
+          {openQuestionsCountLabel(openQuestions.length)} — Review
+        </Button>
+      </p>
+    );
+  }
+
   return (
     <p
       className={cn("m-0 flex flex-wrap items-center gap-x-2 gap-y-1", OPERATOR_TYPOGRAPHY.helper)}
       data-testid="infra-diagrams-question-snapshot-promo"
     >
-      <StatusTag kind="needs-attention" />
+      <StatusTag kind="needs-attention" label="Open questions" />
       <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>
         {openQuestionsCountLabel(openQuestions.length)}
       </span>
@@ -191,6 +223,8 @@ type SecureNowQuestionQueueBarProps = {
 };
 
 export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps): React.JSX.Element | null {
+  "use no memo";
+
   const { outline } = props;
   const {
     drawerOpen,

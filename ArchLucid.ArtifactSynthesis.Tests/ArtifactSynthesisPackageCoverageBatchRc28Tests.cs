@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.ArtifactSynthesis.Generators;
+using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.ArtifactSynthesis.Services;
@@ -48,8 +49,8 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28Tests
         string mermaid = renderer.Render(ast);
 
         mermaid.Should().StartWith("flowchart TD");
-        mermaid.Should().Contain("a[\"Alpha 'one'\"]");
-        mermaid.Should().Contain("b[\"Beta\"]");
+        mermaid.Should().Contain($"a[\"Alpha 'one' · {DiagramNodeHumanCaptionFactory.ResourceTypeNotStoredCaption}\"]");
+        mermaid.Should().Contain($"b[\"Beta · {DiagramNodeHumanCaptionFactory.ResourceTypeNotStoredCaption}\"]");
         mermaid.Should().Contain("a -->|\"writes 'data'\"| b");
     }
 
@@ -68,7 +69,7 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28Tests
 
         string mermaid = renderer.Render(ast);
 
-        mermaid.Should().Contain("a[\"Title #93; break line two\"]");
+        mermaid.Should().Contain($"a[\"Title #93; break line two · {DiagramNodeHumanCaptionFactory.ResourceTypeNotStoredCaption}\"]");
         mermaid.Should().NotContain("Title ] break");
     }
 
@@ -96,7 +97,7 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28Tests
 
         string mermaid = renderer.Render(ast);
 
-        mermaid.Should().Contain("a[\"Title break\"]");
+        mermaid.Should().Contain($"a[\"Title break · {DiagramNodeHumanCaptionFactory.ResourceTypeNotStoredCaption}\"]");
         mermaid.Should().NotContain("\u0001");
         mermaid.Should().NotContain("\u200E");
     }

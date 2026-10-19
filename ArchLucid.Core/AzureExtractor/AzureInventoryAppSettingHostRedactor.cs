@@ -3,11 +3,11 @@ using System.Text.RegularExpressions;
 namespace ArchLucid.Core.AzureExtractor;
 
 /// <summary>
-///     Rejects setting values that look like secrets before host parsing (AX-DE-18, SN-RT-02).
+///     Parses app setting values for hostnames and target names, discarding secret material (AX-DE-18, DCH-01–03).
 /// </summary>
 public static partial class AzureInventoryAppSettingHostRedactor
 {
-    private static readonly string[] RejectedSubstrings =
+    private static readonly string[] SecretMarkerSubstrings =
     [
         "Password=",
         "SharedAccessKey=",
@@ -19,6 +19,11 @@ public static partial class AzureInventoryAppSettingHostRedactor
 
     public static bool ShouldRejectValue(string? value)
     {
+        return ContainsSecretMarker(value);
+    }
+
+    public static bool ContainsSecretMarker(string? value)
+    {
         if (string.IsNullOrWhiteSpace(value))
         {
             return false;
@@ -26,9 +31,9 @@ public static partial class AzureInventoryAppSettingHostRedactor
 
         string normalized = value.Trim();
 
-        foreach (string rejected in RejectedSubstrings)
+        foreach (string marker in SecretMarkerSubstrings)
         {
-            if (normalized.Contains(rejected, StringComparison.OrdinalIgnoreCase))
+            if (normalized.Contains(marker, StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }
@@ -39,12 +44,20 @@ public static partial class AzureInventoryAppSettingHostRedactor
 
     public static AzureInventoryAppSettingHostParsedFields? TryParseSettingValue(string? value)
     {
-        if (string.IsNullOrWhiteSpace(value) || ShouldRejectValue(value))
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsedRows = ParseSettingValues(value);
+
+        return parsedRows.Count > 0 ? parsedRows[0] : null;
+    }
+
+    public static IReadOnlyList<AzureInventoryAppSettingHostParsedFields> ParseSettingValues(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
         {
-            return null;
+            return [];
         }
 
         string trimmed = value.Trim();
+        List<AzureInventoryAppSettingHostParsedFields> results = [];
         string? host = TryParseSqlHost(trimmed);
         string? catalog = TryParseSqlCatalog(trimmed, out string? catalogWarning);
         string? keyVaultHost = null;
@@ -72,7 +85,7 @@ public static partial class AzureInventoryAppSettingHostRedactor
             }
         }
 
-        AzureInventoryAppSettingHostParsedFields parsed = new()
+        AzureInventoryAppSettingHostParsedFields primary = new()
         {
             Host = host,
             Catalog = catalog,
@@ -81,12 +94,19 @@ public static partial class AzureInventoryAppSettingHostRedactor
             WarningCode = catalogWarning,
         };
 
-        return parsed.HasAnyField ? parsed : null;
+        if (primary.HasAnyField)
+        {
+            results.Add(primary);
+        }
+
+        AzureInventoryAppSettingHostConnectionStringParser.AppendConnectionHosts(trimmed, results);
+
+        return DeduplicateParsedRows(results);
     }
 
     public static string? TryParseSqlHost(string? connectionString)
     {
-        if (string.IsNullOrWhiteSpace(connectionString) || ShouldRejectValue(connectionString))
+        if (string.IsNullOrWhiteSpace(connectionString))
         {
             return null;
         }
@@ -112,7 +132,7 @@ public static partial class AzureInventoryAppSettingHostRedactor
     {
         warningCode = null;
 
-        if (string.IsNullOrWhiteSpace(connectionString) || ShouldRejectValue(connectionString))
+        if (string.IsNullOrWhiteSpace(connectionString))
         {
             return null;
         }
@@ -145,7 +165,7 @@ public static partial class AzureInventoryAppSettingHostRedactor
     {
         keyVaultHost = null;
 
-        if (string.IsNullOrWhiteSpace(value) || ShouldRejectValue(value))
+        if (string.IsNullOrWhiteSpace(value))
         {
             return null;
         }
@@ -176,7 +196,7 @@ public static partial class AzureInventoryAppSettingHostRedactor
 
     public static (string? KeyVaultHost, string? SecretName) TryParseKeyVaultReference(string? value)
     {
-        if (string.IsNullOrWhiteSpace(value) || ShouldRejectValue(value))
+        if (string.IsNullOrWhiteSpace(value))
         {
             return (null, null);
         }
@@ -199,6 +219,33 @@ public static partial class AzureInventoryAppSettingHostRedactor
         return (vaultHost, secretName);
     }
 
+    private static IReadOnlyList<AzureInventoryAppSettingHostParsedFields> DeduplicateParsedRows(
+        List<AzureInventoryAppSettingHostParsedFields> results)
+    {
+        if (results.Count <= 1)
+        {
+            return results;
+        }
+
+        List<AzureInventoryAppSettingHostParsedFields> deduplicated = [];
+        HashSet<string> seenHosts = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (AzureInventoryAppSettingHostParsedFields row in results)
+        {
+            if (!string.IsNullOrWhiteSpace(row.Host))
+            {
+                if (!seenHosts.Add(row.Host.Trim()))
+                {
+                    continue;
+                }
+            }
+
+            deduplicated.Add(row);
+        }
+
+        return deduplicated;
+    }
+
     private static bool ContainsCatalogTemplatePlaceholder(string catalog)
     {
         return catalog.Contains('{', StringComparison.Ordinal)
@@ -215,7 +262,7 @@ public static partial class AzureInventoryAppSettingHostRedactor
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex SqlCatalogRegex();
 
-    [GeneratedRegex(@"https?://(?<host>[^/\s;]+)", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+    [GeneratedRegex(@"https?://(?<host>[^/\s;:]+)", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex HttpsHostRegex();
 
     [GeneratedRegex(

@@ -2,7 +2,7 @@
      Origin: 2026-10-18 source review of Home and the architect engines.
      Prompts only. Do not implement from this index. -->
 
-# SecureNow performance — prompt index (SN-PERF-01–05, 11, 13–16, 20–24)
+# SecureNow performance — prompt index (SN-PERF-01–05, 11, 13–16, 20–29)
 
 **Do not implement from this index.** Paste **one** numbered file per session.
 
@@ -27,6 +27,11 @@ Copy-paste docs index: [`docs/architecture/SECURENOW_PERFORMANCE_LUNA_PROMPTS.md
 | 22 | **SN-PERF-22** | Preflight production tag reads one resource and its tags. |
 | 23 | **SN-PERF-23** | Instance list seal-checks distinct findings, assessments, and runs. |
 | 24 | **SN-PERF-24** | Snapshot list seal-checks distinct cited runs for the page. |
+| 25 | **SN-PERF-25** | Rank open findings batches metadata, pattern versions, and score writes. |
+| 26 | **SN-PERF-26** | Verification uses snapshot headers and one resource. |
+| 27 | **SN-PERF-27** | Four-reality drift loads prior properties and changes for path resources. |
+| 28 | **SN-PERF-28** | Advisory Terraform uses the visible resource set, not eight grids. |
+| 29 | **SN-PERF-29** | Path detail hypotheses load fan-out hops, not every hop. |
 | — | **SN-PERF-HOLD** | Stop list. Paste only when a session drifts. |
 
-**01–05** are shipped. **06–10**, **12**, and **17–19** are shipped in code and have no paste file; do not rewrite them. **11** is independent. **15** should follow **11** when both are open, so they share one resource read. **13**, **14**, and **16** are independent of **11**. **20** and **21** can run in parallel. **22**, **23**, and **24** are independent of **20**.
+**01–05** are shipped. **06–10**, **12**, and **17–19** are shipped in code and have no paste file; do not rewrite them. **11** is independent. **15** should follow **11** when both are open, so they share one resource read. **13**, **14**, and **16** are independent of **11**. **20** and **21** can run in parallel. **22**, **23**, and **24** are independent of **20**. **25**, **27**, **28**, and **29** can run in parallel. **26** follows **22**.

@@ -254,6 +254,16 @@ export const FINDINGS_PAGE_SHORTCUTS: PageShortcutEntry[] = [
     label: "Previous finding",
     description: "Move focus to the previous finding card or row (Findings queues); stays on the first",
   },
+  {
+    key: "alt+o",
+    label: "Open evidence",
+    description: "Move focus to the evidence link for the focused finding when one is available",
+  },
+  {
+    key: "alt+q",
+    label: "Return to queue",
+    description: "Move focus back to the selected finding card or row",
+  },
 ];
 
 export const REVIEW_DETAIL_PAGE_SHORTCUTS: PageShortcutEntry[] = [

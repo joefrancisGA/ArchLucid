@@ -18,6 +18,11 @@ public interface IProjectScopedOperationalSecurityFindingRepository
         Guid findingId,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<OperationalSecurityFindingRecord>> ListByIdsInScopeAsync(
+        ProjectScopeKey scope,
+        IReadOnlyList<Guid> findingIds,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<OperationalSecurityFindingRecord>> ListByScopeAsync(
         ProjectScopeKey scope,
         OperationalSecurityFindingStatus? status,
@@ -26,6 +31,11 @@ public interface IProjectScopedOperationalSecurityFindingRepository
     Task<IReadOnlyList<OperationalSecurityFindingMetadataRecord>> ListMetadataByFindingInScopeAsync(
         ProjectScopeKey scope,
         Guid findingId,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<OperationalSecurityFindingMetadataRecord>> ListMetadataByFindingIdsInScopeAsync(
+        ProjectScopeKey scope,
+        IReadOnlyList<Guid> findingIds,
         CancellationToken cancellationToken = default);
 
     Task<(IReadOnlyList<OperationalSecurityFindingRecord> Items, int TotalCount)> ListByCloudResourceIdPagedInScopeAsync(

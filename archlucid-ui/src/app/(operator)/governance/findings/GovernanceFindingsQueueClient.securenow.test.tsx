@@ -216,6 +216,8 @@ describe("GovernanceFindingsQueueClient SecureNow /security/assigned-to-me", () 
     expect(shortcutRow).toHaveTextContent("alt+j");
     expect(shortcutRow).toHaveTextContent("alt+k");
     expect(shortcutRow).toHaveTextContent("alt+i");
+    expect(shortcutRow).toHaveTextContent("alt+o");
+    expect(shortcutRow).toHaveTextContent("alt+q");
     expect(screen.queryByTestId("governance-findings-shortcuts")).not.toBeInTheDocument();
   });
 

@@ -59,6 +59,10 @@ describe("RemediationFactoryAttackPathReportSection", () => {
     const row = screen.getByTestId(`security-evidence-ranked-path-row-${confirmedPathId}`);
     expect(row).toHaveTextContent("Exposed on the network. Deep privilege.");
     expect(row).not.toHaveTextContent("summary");
+    expect(row).not.toHaveTextContent("Show sort key");
+    expect(screen.getByTestId("remediation-factory-ranked-paths-scope")).toHaveTextContent("Recorded rank");
+    expect(screen.getByTestId("attack-path-report-section")).not.toHaveTextContent("composite sort");
+    expect(screen.getByTestId("attack-path-report-section")).not.toHaveTextContent("1.0000");
 
     fireEvent.click(screen.getByTestId(`security-evidence-path-rank-rule-${confirmedPathId}`));
     expect(row).toHaveTextContent("summary");

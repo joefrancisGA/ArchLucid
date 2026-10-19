@@ -13,11 +13,23 @@ public sealed class ProjectScopedOperationalSecurityFindingRepositoryAdapter(
     public Task<OperationalSecurityFindingRecord?> TryGetByIdInScopeAsync(ProjectScopeKey scope, Guid findingId, CancellationToken cancellationToken = default) =>
         inner.TryGetByIdInScopeAsync(scope, findingId, cancellationToken);
 
+    public Task<IReadOnlyList<OperationalSecurityFindingRecord>> ListByIdsInScopeAsync(
+        ProjectScopeKey scope,
+        IReadOnlyList<Guid> findingIds,
+        CancellationToken cancellationToken = default) =>
+        inner.ListByIdsInScopeAsync(scope, findingIds, cancellationToken);
+
     public Task<IReadOnlyList<OperationalSecurityFindingRecord>> ListByScopeAsync(ProjectScopeKey scope, OperationalSecurityFindingStatus? status, CancellationToken cancellationToken = default) =>
         inner.ListByScopeAsync(scope, status, cancellationToken);
 
     public Task<IReadOnlyList<OperationalSecurityFindingMetadataRecord>> ListMetadataByFindingInScopeAsync(ProjectScopeKey scope, Guid findingId, CancellationToken cancellationToken = default) =>
         inner.ListMetadataByFindingInScopeAsync(scope, findingId, cancellationToken);
+
+    public Task<IReadOnlyList<OperationalSecurityFindingMetadataRecord>> ListMetadataByFindingIdsInScopeAsync(
+        ProjectScopeKey scope,
+        IReadOnlyList<Guid> findingIds,
+        CancellationToken cancellationToken = default) =>
+        inner.ListMetadataByFindingIdsInScopeAsync(scope, findingIds, cancellationToken);
 
     public Task<(IReadOnlyList<OperationalSecurityFindingRecord> Items, int TotalCount)> ListByCloudResourceIdPagedInScopeAsync(ProjectScopeKey scope, Guid cloudResourceId, int page, int pageSize, CancellationToken cancellationToken = default) =>
         inner.ListByCloudResourceIdPagedInScopeAsync(scope, cloudResourceId, page, pageSize, cancellationToken);

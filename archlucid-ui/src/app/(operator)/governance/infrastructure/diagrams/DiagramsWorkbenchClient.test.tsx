@@ -17,6 +17,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_HELPER,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_CHANGE_DIALOG_CONFIRM,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_CHANGE_DIALOG_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXPORT_HONESTY_LINE,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { DiagramsWorkbenchClient } from "@/app/(operator)/governance/infrastructure/diagrams/DiagramsWorkbenchClient";
 
@@ -25,18 +26,20 @@ const {
   downloadInfraEvidenceMermaidPngMock,
   fetchInfraEvidenceMermaidPreviewMock,
   fetchInfraEvidenceMermaidRenderMock,
+  routerReplaceMock,
 } = vi.hoisted(() => ({
   fetchInfraEvidenceSnapshotsMock: vi.fn(),
   downloadInfraEvidenceMermaidPngMock: vi.fn(),
   fetchInfraEvidenceMermaidPreviewMock: vi.fn(),
   fetchInfraEvidenceMermaidRenderMock: vi.fn(),
+  routerReplaceMock: vi.fn(),
 }));
 
 let searchParams = new URLSearchParams();
 let pathname = "/governance/infrastructure/diagrams";
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ replace: vi.fn() }),
+  useRouter: () => ({ replace: routerReplaceMock }),
   usePathname: () => pathname,
   useSearchParams: () => searchParams,
 }));
@@ -140,6 +143,7 @@ describe("DiagramsWorkbenchClient", () => {
   beforeEach(() => {
     pathname = "/governance/infrastructure/diagrams";
     window.sessionStorage.clear();
+    routerReplaceMock.mockReset();
     fetchInfraEvidenceSnapshotsMock.mockReset();
     fetchInfraEvidenceSnapshotsMock.mockResolvedValue(defaultSnapshotsResponse);
     downloadInfraEvidenceMermaidPngMock.mockReset();
@@ -362,6 +366,7 @@ describe("DiagramsWorkbenchClient", () => {
     expect(picker).toHaveValue("");
     expect(screen.queryByTestId("infra-diagrams-snapshot-prompt")).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-diagram-viewer-mock")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infra-evidence-diagram-reading-legend")).not.toBeInTheDocument();
     expect(screen.queryByTestId("infra-diagrams-snapshot-id-readout")).not.toBeInTheDocument();
     expect(screen.queryByTestId("infra-diagrams-executive-always-show")).not.toBeInTheDocument();
     expect(fetchInfraEvidenceMermaidRenderMock).not.toHaveBeenCalled();
@@ -407,9 +412,7 @@ describe("DiagramsWorkbenchClient", () => {
     expect(caption.querySelector(".font-semibold")?.textContent).toBe("may");
     expect(caption.querySelectorAll(".font-semibold")[1]?.textContent).toBe("observed");
     const readingCardCaption = screen.getByText(/Reading a card:/).closest("p");
-    expect(readingCardCaption).toHaveTextContent(
-      "Reading a card: The first line is the name. The next line is the type. When a store has no consumer, the status line says No consumer found; when it does, Used by N. Factory, host, and runtime lines describe a Data Factory link. A title that is a count, such as 6 storage accounts, opens the list of names. Click that card again to close the list.",
-    );
+    expect(readingCardCaption?.textContent ?? "").toMatch(/No diagram neighbor on this view/);
     expect(readingCardCaption?.querySelector(".font-semibold")?.textContent).toBe("Reading a card:");
   });
 
@@ -529,6 +532,53 @@ describe("DiagramsWorkbenchClient", () => {
     expect(screen.queryByTestId("infra-diagrams-density-coach")).not.toBeInTheDocument();
     expect(screen.queryByText(/too large for a single diagram/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/This view is too large to read/i)).not.toBeInTheDocument();
+  });
+
+  it("shows how to read this diagram above the painted canvas", async () => {
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    const legend = await screen.findByTestId("infra-evidence-diagram-reading-legend");
+    const viewer = await screen.findByTestId("architecture-diagram-viewer-mock");
+
+    expect(legend).toHaveTextContent("How to read this diagram");
+    expect(screen.getByTestId("infra-evidence-diagram-reading-legend-boxes")).toHaveTextContent(
+      "Azure resources",
+    );
+    expect(legend.compareDocumentPosition(viewer) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("shows data-flow honesty in the reading legend when that mode is painted", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      mode: query.mode ?? "dataFlow",
+      fallbackKey: query.fallbackKey ?? null,
+      status: "Succeeded",
+      mermaid: "flowchart LR\n  A-->B",
+      metrics: {
+        nodeCount: 2,
+        edgeCount: 1,
+        subgraphCount: 0,
+        maxDegree: 1,
+        crossSubgraphEdgeCount: 0,
+        textSizeBytes: 120,
+        layoutEstimate: 80,
+      },
+      fallbackArtifacts: [],
+    }));
+
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=dataFlow",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    await screen.findByTestId("architecture-diagram-viewer-mock");
+
+    expect(screen.getByTestId("infra-evidence-diagram-reading-legend-evidence-kind")).toHaveTextContent(
+      /not observed traffic/i,
+    );
   });
 
   it("resynchronizes the selected mode when the URL mode changes", async () => {
@@ -1658,7 +1708,8 @@ describe("DiagramsWorkbenchClient", () => {
     render(<DiagramsWorkbenchClient />);
 
     expect(await screen.findByTestId("infra-evidence-completeness-warnings-banner")).toBeInTheDocument();
-    expect(screen.getByText(/App setting hostnames not collected on hosted pull/)).toBeInTheDocument();
+    expect(screen.getByTestId("infra-evidence-completeness-warnings-scope")).toHaveTextContent("Prod");
+    expect(screen.getAllByText(/App setting hostnames not collected on hosted pull/).length).toBeGreaterThan(0);
   });
 
   it("links the SecureNow breadcrumb parent to the infrastructure overview", async () => {
@@ -1861,6 +1912,54 @@ describe("DiagramsWorkbenchClient", () => {
       expect(screen.getByTestId("infra-diagrams-snapshot-picker")).toHaveValue("");
       expect(screen.getByTestId("infra-diagrams-mode-picker")).toHaveValue("");
     });
+  });
+
+  it("shows loading snapshots placeholder while the catalog fetch is in flight", async () => {
+    fetchInfraEvidenceSnapshotsMock.mockImplementation(() => new Promise(() => {}));
+    render(<DiagramsWorkbenchClient />);
+
+    const picker = await screen.findByTestId("infra-diagrams-snapshot-picker");
+
+    expect(within(picker).getByText("Loading snapshots…")).toBeInTheDocument();
+  });
+
+  it("explains why export buttons stay disabled before subscription selection", async () => {
+    render(<DiagramsWorkbenchClient />);
+
+    await screen.findByTestId("infra-diagrams-snapshots-loading");
+
+    expect(await screen.findByTestId("infra-diagrams-export-png-disabled-reason")).toHaveTextContent(
+      "Select a subscription first.",
+    );
+  });
+
+  it("restores subscription filter from deep-linked snapshot context", async () => {
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive");
+    render(<DiagramsWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-diagrams-subscription-picker")).toHaveValue("sub-1");
+    });
+
+    expect(routerReplaceMock).toHaveBeenCalled();
+  });
+
+  it("surfaces Alt+1/2/3 page shortcuts in working mode", async () => {
+    render(<DiagramsWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-diagrams-page-shortcuts")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-diagrams-page-shortcuts-entry-subscription-picker")).toBeInTheDocument();
+  });
+
+  it("uses diagram export honesty instead of sponsor package footnotes", async () => {
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=full");
+    render(<DiagramsWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-diagrams-export-honesty")).toHaveTextContent(
+      GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXPORT_HONESTY_LINE,
+    );
+    expect(screen.queryByTestId("infra-diagrams-export-honesty-strip")).not.toBeInTheDocument();
+    expect(await screen.findByTestId("infra-diagrams-build-provenance-limitation")).toBeInTheDocument();
   });
 
   it("shows private-endpoint toggle on full subscription and honors the legacy url flag", async () => {

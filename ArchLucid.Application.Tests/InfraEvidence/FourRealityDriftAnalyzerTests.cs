@@ -65,10 +65,10 @@ public sealed class FourRealityDriftAnalyzerTests
             new FourRealityDriftAnalysisInputs
             {
                 CurrentSnapshot = currentSnapshot,
-                PriorSnapshot = BuildSnapshot(
+                PriorPropertiesByCloudResourceId = BuildPriorProperties(BuildSnapshot(
                     PriorSnapshotId,
                     enablePublicNetworkAccess: false,
-                    terraformPublicNetworkAccess: "disabled"),
+                    terraformPublicNetworkAccess: "disabled")),
                 SourcePaths = [sourcePath],
                 HopsByPathId = new Dictionary<Guid, IReadOnlyList<SecurityEvidencePathHopRecord>>
                 {
@@ -99,7 +99,7 @@ public sealed class FourRealityDriftAnalyzerTests
             new FourRealityDriftAnalysisInputs
             {
                 CurrentSnapshot = currentSnapshot,
-                PriorSnapshot = priorSnapshot,
+                PriorPropertiesByCloudResourceId = BuildPriorProperties(priorSnapshot),
                 InventoryDiffId = Guid.NewGuid(),
                 DiffChanges =
                 [
@@ -254,4 +254,13 @@ public sealed class FourRealityDriftAnalyzerTests
             Properties = properties,
         };
     }
+
+    private static IReadOnlyDictionary<Guid, IReadOnlyDictionary<string, string>> BuildPriorProperties(
+        AzureInventorySnapshotDetailReadModel priorSnapshot) =>
+        new Dictionary<Guid, IReadOnlyDictionary<string, string>>
+        {
+            [StorageCloudResourceId] = FourRealityResourceAccessReader.BuildPropertyBag(
+                priorSnapshot,
+                StorageCloudResourceId),
+        };
 }

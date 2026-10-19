@@ -5149,12 +5149,33 @@ function Get-ArchLucidAzureAppSettingHostFromValue
         [string] $Value
     )
 
-    if (Test-ArchLucidAzureAppSettingHostRejectedValue -Value $Value)
+    [object[]]$rows = @(Get-ArchLucidAzureAppSettingHostParsedRows -SettingName $SettingName -Value $Value)
+
+    if ($rows.Count -eq 0)
     {
         return $null
     }
 
-    $row = [ordered]@{
+    return $rows[0]
+}
+
+function Get-ArchLucidAzureAppSettingHostParsedRows
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $SettingName,
+
+        [Parameter(Mandatory = $false)]
+        [string] $Value
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Value))
+    {
+        return @()
+    }
+
+    [System.Collections.ArrayList] $rows = [System.Collections.ArrayList]::new()
+    $primary = [ordered]@{
         settingName = $SettingName
         parsedHost = $null
         catalog = $null
@@ -5163,74 +5184,174 @@ function Get-ArchLucidAzureAppSettingHostFromValue
         warningCode = $null
     }
 
-    if (-not [string]::IsNullOrWhiteSpace($Value))
+    $sqlMatch = [regex]::Match($Value, 'Server\s*=\s*(?:tcp:)?(?<host>[^,;]+)', 'IgnoreCase')
+
+    if ($sqlMatch.Success)
     {
-        $sqlMatch = [regex]::Match($Value, 'Server\s*=\s*(?:tcp:)?(?<host>[^,;]+)', 'IgnoreCase')
+        $primary.parsedHost = $sqlMatch.Groups['host'].Value.Trim().ToLowerInvariant()
+    }
 
-        if ($sqlMatch.Success)
+    $catalogMatch = [regex]::Match(
+        $Value,
+        '(?:Initial\s+Catalog|Database)\s*=\s*(?<catalog>[^;]+)',
+        'IgnoreCase')
+
+    if ($catalogMatch.Success)
+    {
+        [string]$catalog = $catalogMatch.Groups['catalog'].Value.Trim()
+
+        if ($catalog -match '[{}]' -or $catalog -match '(?i)\{0\}' -or $catalog -match '(?i)\{tenant\}')
         {
-            $row.parsedHost = $sqlMatch.Groups['host'].Value.Trim().ToLowerInvariant()
+            $primary.warningCode = 'app-settings-catalog-template'
         }
-
-        $catalogMatch = [regex]::Match(
-            $Value,
-            '(?:Initial\s+Catalog|Database)\s*=\s*(?<catalog>[^;]+)',
-            'IgnoreCase')
-
-        if ($catalogMatch.Success)
+        else
         {
-            [string]$catalog = $catalogMatch.Groups['catalog'].Value.Trim()
+            $primary.catalog = $catalog
+        }
+    }
 
-            if ($catalog -match '[{}]' -or $catalog -match '(?i)\{0\}' -or $catalog -match '(?i)\{tenant\}')
+    $kvMatch = [regex]::Match(
+        $Value,
+        '@Microsoft\.KeyVault\(SecretUri\s*=\s*https?://(?<host>[^/]+)/secrets/(?<secret>[^/)]+)',
+        'IgnoreCase')
+
+    if ($kvMatch.Success)
+    {
+        $primary.keyVaultHost = $kvMatch.Groups['host'].Value.Trim().ToLowerInvariant()
+        $primary.secretName = $kvMatch.Groups['secret'].Value.Trim()
+    }
+
+    if ([string]::IsNullOrWhiteSpace($primary.parsedHost) -and [string]::IsNullOrWhiteSpace($primary.keyVaultHost))
+    {
+        $httpsMatch = [regex]::Match($Value, 'https?://(?<host>[^/\s;]+)', 'IgnoreCase')
+
+        if ($httpsMatch.Success)
+        {
+            [string]$httpsHost = $httpsMatch.Groups['host'].Value.Trim().ToLowerInvariant()
+
+            if ($httpsHost.EndsWith('.vault.azure.net', [StringComparison]::OrdinalIgnoreCase))
             {
-                $row.warningCode = 'app-settings-catalog-template'
+                $primary.keyVaultHost = $httpsHost
             }
             else
             {
-                $row.catalog = $catalog
-            }
-        }
-
-        $kvMatch = [regex]::Match(
-            $Value,
-            '@Microsoft\.KeyVault\(SecretUri\s*=\s*https?://(?<host>[^/]+)/secrets/(?<secret>[^/)]+)',
-            'IgnoreCase')
-
-        if ($kvMatch.Success)
-        {
-            $row.keyVaultHost = $kvMatch.Groups['host'].Value.Trim().ToLowerInvariant()
-            $row.secretName = $kvMatch.Groups['secret'].Value.Trim()
-        }
-
-        if ([string]::IsNullOrWhiteSpace($row.parsedHost) -and [string]::IsNullOrWhiteSpace($row.keyVaultHost))
-        {
-            $httpsMatch = [regex]::Match($Value, 'https?://(?<host>[^/\s;]+)', 'IgnoreCase')
-
-            if ($httpsMatch.Success)
-            {
-                [string]$httpsHost = $httpsMatch.Groups['host'].Value.Trim().ToLowerInvariant()
-
-                if ($httpsHost.EndsWith('.vault.azure.net', [StringComparison]::OrdinalIgnoreCase))
-                {
-                    $row.keyVaultHost = $httpsHost
-                }
-                else
-                {
-                    $row.parsedHost = $httpsHost
-                }
+                $primary.parsedHost = $httpsHost
             }
         }
     }
 
-    if ([string]::IsNullOrWhiteSpace($row.parsedHost) -and
-        [string]::IsNullOrWhiteSpace($row.keyVaultHost) -and
-        [string]::IsNullOrWhiteSpace($row.catalog) -and
-        [string]::IsNullOrWhiteSpace($row.warningCode))
+    if (-not [string]::IsNullOrWhiteSpace($primary.parsedHost) -or
+        -not [string]::IsNullOrWhiteSpace($primary.keyVaultHost) -or
+        -not [string]::IsNullOrWhiteSpace($primary.catalog) -or
+        -not [string]::IsNullOrWhiteSpace($primary.warningCode))
     {
-        return $null
+        [void]$rows.Add($primary)
     }
 
-    return $row
+    Add-ArchLucidAzureAppSettingHostConnectionStringHosts -Value $Value -Rows $rows
+
+    return @($rows.ToArray())
+}
+
+function Add-ArchLucidAzureAppSettingHostConnectionStringHosts
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $Value,
+
+        [Parameter(Mandatory = $true)]
+        [System.Collections.ArrayList] $Rows
+    )
+
+    $accountMatch = [regex]::Match($Value, 'AccountName\s*=\s*(?<name>[^;]+)', 'IgnoreCase')
+
+    if ($accountMatch.Success)
+    {
+        [string]$accountName = $accountMatch.Groups['name'].Value.Trim().ToLowerInvariant()
+        [string[]]$endpointHosts = @()
+
+        foreach ($endpointKey in @('QueueEndpoint', 'TableEndpoint', 'FileEndpoint', 'BlobEndpoint'))
+        {
+            $endpointMatch = [regex]::Match(
+                $Value,
+                "$endpointKey\s*=\s*https?://(?<host>[^/\s;]+)",
+                'IgnoreCase')
+
+            if ($endpointMatch.Success)
+            {
+                $endpointHosts += $endpointMatch.Groups['host'].Value.Trim().ToLowerInvariant()
+            }
+        }
+
+        if ($endpointHosts.Count -gt 0)
+        {
+            foreach ($endpointHost in ($endpointHosts | Select-Object -Unique))
+            {
+                Add-ArchLucidAzureAppSettingHostParsedHostRow -Rows $Rows -ParsedHostValue $endpointHost
+            }
+        }
+        else
+        {
+            $suffixMatch = [regex]::Match($Value, 'EndpointSuffix\s*=\s*(?<suffix>[^;]+)', 'IgnoreCase')
+
+            if ($suffixMatch.Success)
+            {
+                [string]$suffix = $suffixMatch.Groups['suffix'].Value.Trim().ToLowerInvariant()
+                Add-ArchLucidAzureAppSettingHostParsedHostRow -Rows $Rows -ParsedHostValue "$accountName.blob.$suffix"
+            }
+        }
+    }
+
+    $serviceBusMatch = [regex]::Match($Value, 'Endpoint\s*=\s*sb://(?<host>[^/;\s]+)/?', 'IgnoreCase')
+
+    if ($serviceBusMatch.Success)
+    {
+        Add-ArchLucidAzureAppSettingHostParsedHostRow -Rows $Rows -ParsedHostValue $serviceBusMatch.Groups['host'].Value.Trim().ToLowerInvariant()
+    }
+
+    $cosmosMatch = [regex]::Match($Value, 'https?://(?<host>[^/\s;]+\.documents\.azure\.com)', 'IgnoreCase')
+
+    if ($cosmosMatch.Success)
+    {
+        Add-ArchLucidAzureAppSettingHostParsedHostRow -Rows $Rows -ParsedHostValue $cosmosMatch.Groups['host'].Value.Trim().ToLowerInvariant()
+    }
+
+    $redisMatch = [regex]::Match($Value, '(?<host>[^,;\s]+\.redis\.cache\.windows\.net)', 'IgnoreCase')
+
+    if ($redisMatch.Success)
+    {
+        Add-ArchLucidAzureAppSettingHostParsedHostRow -Rows $Rows -ParsedHostValue $redisMatch.Groups['host'].Value.Trim().ToLowerInvariant()
+    }
+}
+
+function Add-ArchLucidAzureAppSettingHostParsedHostRow
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.Collections.ArrayList] $Rows,
+
+        [Parameter(Mandatory = $true)]
+        [string] $ParsedHostValue
+    )
+
+    [string]$normalizedHost = $ParsedHostValue.Trim().ToLowerInvariant()
+
+    foreach ($existing in @($Rows))
+    {
+        if ($existing.parsedHost -eq $normalizedHost)
+        {
+            return
+        }
+    }
+
+    [void]$Rows.Add([ordered]@{
+        settingName = $null
+        parsedHost = $normalizedHost
+        catalog = $null
+        keyVaultHost = $null
+        secretName = $null
+        warningCode = $null
+    })
 }
 
 function Add-ArchLucidAzureAppSettingHostCompanionRow
@@ -5445,20 +5566,19 @@ function Get-ArchLucidAzureAppSettingHostCompanionRows
                     {
                         [string]$settingName = "$( $property.Name )".Trim()
                         [string]$settingValue = "$( $property.Value )".Trim()
-                        $parsed = Get-ArchLucidAzureAppSettingHostFromValue -SettingName $settingName -Value $settingValue
-
-                        if ($null -eq $parsed) { continue }
-
-                        Add-ArchLucidAzureAppSettingHostCompanionRow `
-                            -Rows $rows `
-                            -Seen $seen `
-                            -SiteResourceId $siteResourceId `
-                            -SettingName $settingName `
-                            -ParsedHost $parsed.parsedHost `
-                            -Catalog $parsed.catalog `
-                            -KeyVaultHost $parsed.keyVaultHost `
-                            -SecretName $parsed.secretName `
-                            -WarningCode $parsed.warningCode
+                        foreach ($parsed in @(Get-ArchLucidAzureAppSettingHostParsedRows -SettingName $settingName -Value $settingValue))
+                        {
+                            Add-ArchLucidAzureAppSettingHostCompanionRow `
+                                -Rows $rows `
+                                -Seen $seen `
+                                -SiteResourceId $siteResourceId `
+                                -SettingName $settingName `
+                                -ParsedHost $parsed.parsedHost `
+                                -Catalog $parsed.catalog `
+                                -KeyVaultHost $parsed.keyVaultHost `
+                                -SecretName $parsed.secretName `
+                                -WarningCode $parsed.warningCode
+                        }
                     }
                 }
                 catch
@@ -5483,27 +5603,44 @@ function Get-ArchLucidAzureAppSettingHostCompanionRows
             [string]$secretRef = "$( $envEntry.secretRef )".Trim()
             $parsed = $null
 
+            [object[]]$parsedRows = @()
+
             if (-not [string]::IsNullOrWhiteSpace($settingValue))
             {
-                $parsed = Get-ArchLucidAzureAppSettingHostFromValue -SettingName $settingName -Value $settingValue
+                $parsedRows = @(Get-ArchLucidAzureAppSettingHostParsedRows -SettingName $settingName -Value $settingValue)
             }
 
-            if ($null -eq $parsed -and [string]::IsNullOrWhiteSpace($secretRef))
+            if ($parsedRows.Count -eq 0 -and [string]::IsNullOrWhiteSpace($secretRef))
             {
                 continue
             }
 
-            Add-ArchLucidAzureAppSettingHostCompanionRow `
-                -Rows $rows `
-                -Seen $seen `
-                -SiteResourceId $siteResourceId `
-                -SettingName $settingName `
-                -ParsedHost $(if ($null -ne $parsed) { $parsed.parsedHost } else { $null }) `
-                -Catalog $(if ($null -ne $parsed) { $parsed.catalog } else { $null }) `
-                -KeyVaultHost $(if ($null -ne $parsed) { $parsed.keyVaultHost } else { $null }) `
-                -SecretName $(if ($null -ne $parsed) { $parsed.secretName } else { $null }) `
-                -SecretRef $(if (-not [string]::IsNullOrWhiteSpace($secretRef)) { $secretRef } else { $null }) `
-                -WarningCode $(if ($null -ne $parsed) { $parsed.warningCode } else { $null })
+            if ($parsedRows.Count -eq 0)
+            {
+                Add-ArchLucidAzureAppSettingHostCompanionRow `
+                    -Rows $rows `
+                    -Seen $seen `
+                    -SiteResourceId $siteResourceId `
+                    -SettingName $settingName `
+                    -SecretRef $(if (-not [string]::IsNullOrWhiteSpace($secretRef)) { $secretRef } else { $null })
+
+                continue
+            }
+
+            foreach ($parsed in $parsedRows)
+            {
+                Add-ArchLucidAzureAppSettingHostCompanionRow `
+                    -Rows $rows `
+                    -Seen $seen `
+                    -SiteResourceId $siteResourceId `
+                    -SettingName $settingName `
+                    -ParsedHost $parsed.parsedHost `
+                    -Catalog $parsed.catalog `
+                    -KeyVaultHost $parsed.keyVaultHost `
+                    -SecretName $parsed.secretName `
+                    -SecretRef $(if (-not [string]::IsNullOrWhiteSpace($secretRef)) { $secretRef } else { $null }) `
+                    -WarningCode $parsed.warningCode
+            }
         }
     }
 

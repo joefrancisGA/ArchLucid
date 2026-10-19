@@ -79,7 +79,7 @@ import type {
   SecurityEvidencePathWeakestHop,
 } from "@/lib/security-evidence-path-types";
 import { securityEvidencePathHopNodeName } from "@/lib/security-evidence-path-types";
-import { formatRemediationPrioritySortKeyLine } from "@/lib/remediation-priority-score-display";
+import { RemediationPrioritySortKeyDisclosure } from "@/app/(operator)/governance/remediation-factory/RemediationPrioritySortKeyDisclosure";
 import { SecurityEvidencePathRankReaderDisclosures } from "@/components/security/SecurityEvidencePathRankReaderDisclosures";
 import { cn } from "@/lib/utils";
 import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
@@ -512,9 +512,12 @@ function InspectSelectionIdentityHeader(props: {
           {props.findingSummary.rankOrder ?? "was not stored"} · control{" "}
           {props.findingSummary.controlId?.trim() || "was not stored"}
         </p>
-        <p className={cn("m-0 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)}>
-          {formatRemediationPrioritySortKeyLine(props.findingSummary.totalScore)}
-        </p>
+        {props.findingId != null ? (
+          <RemediationPrioritySortKeyDisclosure
+            findingId={props.findingId}
+            totalScore={props.findingSummary.totalScore}
+          />
+        ) : null}
         <Link
           href={infraRemediationFindingIdDisclosureHrefFromSearch(search, !idsOpen, pathname)}
           className={OPERATOR_LINK.inline}
@@ -552,9 +555,13 @@ function resolvePathInspectSubjectLabel(input: {
   readonly selectedPath: SecurityEvidencePathRankSummary | null | undefined;
 }): string | null {
   if (input.selectedFinding != null) {
-    const rankHint = input.selectedFinding.controlId ?? input.selectedFinding.patternKey ?? input.selectedFinding.findingId;
+    const rankHint = input.selectedFinding.controlId ?? input.selectedFinding.findingId;
+    const patternLead =
+      input.selectedFinding.patternKey != null && input.selectedFinding.patternKey.trim().length > 0
+        ? "Pattern"
+        : "Pattern was not stored";
 
-    return `Finding ${rankHint} · rank ${input.selectedFinding.rankOrder ?? "Rank was not stored"} · control ${input.selectedFinding.controlId ?? "Control id was not stored"} · pattern ${input.selectedFinding.patternKey ?? "Pattern was not stored"}`;
+    return `Finding ${rankHint} · rank ${input.selectedFinding.rankOrder ?? "Rank was not stored"} · control ${input.selectedFinding.controlId ?? "Control id was not stored"} · ${patternLead}`;
   }
 
   if (input.selectedPath != null) {

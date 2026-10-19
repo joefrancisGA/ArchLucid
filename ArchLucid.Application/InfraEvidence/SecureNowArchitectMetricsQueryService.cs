@@ -98,23 +98,43 @@ public sealed class SecureNowArchitectMetricsQueryService(
         Guid snapshotId,
         CancellationToken cancellationToken)
     {
-        IReadOnlyList<SecurityEvidencePathWithHops> pathsWithHops = await pathRepository.ListWithHopsBySnapshotAsync(
-            ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), snapshotId),
-            cancellationToken);
+        ProjectSnapshotScopeKey snapshotScope =
+            ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), snapshotId);
 
-        List<SecurityEvidencePathRecord> paths = [];
-        Dictionary<Guid, IReadOnlyList<SecurityEvidencePathHopRecord>> hopsByPathId = new();
+        IReadOnlyList<SecurityEvidencePathRecord> paths =
+            await pathRepository.ListBySnapshotAsync(snapshotScope, cancellationToken);
 
-        foreach (SecurityEvidencePathWithHops pathWithHops in pathsWithHops)
+        IReadOnlyList<SecurityEvidencePathHopOutcomeMetricReadModel> hopMetrics =
+            await pathRepository.ListHopOutcomeMetricsBySnapshotAsync(snapshotScope, cancellationToken);
+
+        Dictionary<Guid, List<SecurityEvidencePathHopRecord>> hopsByPathId = new();
+
+        foreach (SecurityEvidencePathHopOutcomeMetricReadModel metric in hopMetrics)
         {
-            paths.Add(pathWithHops.Path);
-            hopsByPathId[pathWithHops.Path.PathId] = pathWithHops.Hops;
+            if (!hopsByPathId.TryGetValue(metric.PathId, out List<SecurityEvidencePathHopRecord>? hopList))
+            {
+                hopList = [];
+                hopsByPathId[metric.PathId] = hopList;
+            }
+
+            hopList.Add(new SecurityEvidencePathHopRecord
+            {
+                PathId = metric.PathId,
+                EdgeType = metric.EdgeType,
+                FromNodeId = metric.FromNodeId,
+                ToNodeId = metric.ToNodeId,
+            });
         }
+
+        Dictionary<Guid, IReadOnlyList<SecurityEvidencePathHopRecord>> readOnlyHopsByPathId =
+            hopsByPathId.ToDictionary(
+                entry => entry.Key,
+                entry => (IReadOnlyList<SecurityEvidencePathHopRecord>)entry.Value);
 
         return new SecureNowArchitectOutcomeMetricsSnapshotData
         {
             Paths = paths,
-            HopsByPathId = hopsByPathId,
+            HopsByPathId = readOnlyHopsByPathId,
         };
     }
 

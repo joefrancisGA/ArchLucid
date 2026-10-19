@@ -33,9 +33,11 @@ export function RemediationFactoryRankedPathsTable(props: {
   readonly pageSize: number;
   readonly onPageChange?: (page: number) => void;
   readonly pageControlsBusy?: boolean;
+  readonly showSortKeyColumn?: boolean;
 }) {
   const showing = props.rows.length;
-  const rankSource = "Server rank (composite sort)";
+  const showSortKeyColumn = props.showSortKeyColumn ?? true;
+  const rankSource = showSortKeyColumn ? "Server rank (composite sort)" : "Recorded rank";
 
   return (
     <div className="space-y-2">
@@ -93,10 +95,12 @@ export function RemediationFactoryRankedPathsTable(props: {
                 Evidence strength for the whole path.
               </span>
             </EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>
-              <span>Score</span>
-              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>Sort key. Not a percentage.</span>
-            </EnterpriseTableHeaderCell>
+            {showSortKeyColumn ? (
+              <EnterpriseTableHeaderCell>
+                <span>Score</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>Sort key. Not a percentage.</span>
+              </EnterpriseTableHeaderCell>
+            ) : null}
           </EnterpriseTableRow>
         </EnterpriseTableHead>
         <EnterpriseTableBody>
@@ -128,12 +132,14 @@ export function RemediationFactoryRankedPathsTable(props: {
                     Open inspect for weakest-hop band limits.
                   </p>
                 </EnterpriseTableCell>
-                <EnterpriseTableCell>
-                  <SecurityEvidencePathRankSortKeyDisclosure
-                    pathId={row.pathId}
-                    compositeSortScore={row.compositeSortScore}
-                  />
-                </EnterpriseTableCell>
+                {showSortKeyColumn ? (
+                  <EnterpriseTableCell>
+                    <SecurityEvidencePathRankSortKeyDisclosure
+                      pathId={row.pathId}
+                      compositeSortScore={row.compositeSortScore}
+                    />
+                  </EnterpriseTableCell>
+                ) : null}
               </EnterpriseTableInteractiveRow>
             );
           })}

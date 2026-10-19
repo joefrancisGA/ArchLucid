@@ -45,8 +45,8 @@ import { publicDirUnderUi } from "../e2e/screenshot-output-helpers";
 
 const UX_AUDIT_VIEWPORT = { width: 1440, height: 900 } as const;
 const baseUrl = process.env.SECURENOW_BASE_URL ?? "http://127.0.0.1:3001";
-const href = "/infrastructure/extract-upload";
-const slug = "infrastructure-extract-upload";
+const href = "/infrastructure/manual-upload";
+const slug = "infrastructure-manual-upload";
 
 async function primeSecureNowProductLineCookie(page: Page): Promise<void> {
   await page.context().addCookies([

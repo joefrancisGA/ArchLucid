@@ -25,7 +25,10 @@ import type { CollectionRun } from "@/lib/collection-runs-api";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { formatRelativeTime } from "@/lib/relative-time";
-import { SECURENOW_INFRASTRUCTURE_DRIFT_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import {
+  SECURENOW_INFRASTRUCTURE_DRIFT_PATH,
+  SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
+} from "@/lib/governance/governance-infrastructure-route-paths";
 import {
   SECURENOW_COLLECTION_AGENT_PATH,
 } from "@/lib/product-line/securenow-collection-agent-route";
@@ -242,7 +245,7 @@ export function CollectionAgentPageClient(): React.JSX.Element {
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             <Link href={inAppHelpHref("cloud-connections-azure")} className={cn(OPERATOR_LINK.inline, "font-medium")}>Collection agent setup help</Link>
             {" · "}
-            <Link href="/infrastructure/extract-upload" className={cn(OPERATOR_LINK.inline, "font-medium")}>Manual upload</Link>
+            <Link href={SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH} className={cn(OPERATOR_LINK.inline, "font-medium")}>Manual upload</Link>
           </p>
         </section>
       ) : (

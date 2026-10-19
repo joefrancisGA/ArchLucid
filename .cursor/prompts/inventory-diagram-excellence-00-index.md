@@ -88,6 +88,7 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-03** Cited hops, no all-to-all | **Shipped** on trunk — do not greenfield | Composer exists so collocation can be demoted |
 | **IDX-04** Honest verbs | **Shipped** on trunk — do not greenfield | Closed verb catalog + humanizer |
 | **IDX-05** Nested VNet → subnet frames | **Shipped** on trunk — extend only | VNet/subnet forest frames + membership fallback |
+| **IDX-05b** Nested subnet excellence ratchet | **Shipped** on trunk — extend only | Network/peeled-subnet compile tests outside excellence filter |
 | **IDX-06** Subscription outer frame | **Shipped** on trunk — do not greenfield | `sub-frame` on subscription-scoped modes |
 | **IDX-07** Role-aware packing + hubs | **Shipped** on trunk — extend only | Role columns + hub-spoke in forest packer |
 | **IDX-07b** Data Flow in-stage hub | **Shipped** on trunk — extend only | Hub inside a Data Flow stage; stages stay left-to-right |
@@ -97,6 +98,7 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-07f** Data Flow hub pipeline ratchet | **Shipped** on trunk — extend only | Forest hub pipeline under `InventoryDiagramExcellence` filter |
 | **IDX-08** Singleton-RG collapse | **Shipped** on trunk — do not greenfield | Tail rollup when ≥8 isolated singleton RGs |
 | **IDX-08b** Singleton-RG tail excellence ratchet | **Shipped** on trunk — extend only | IDX-08 planner not under `InventoryDiagramExcellence` filter |
+| **IDX-08c** Collapsed singleton tail label excellence ratchet | **Shipped** on trunk — extend only | Tail label helpers not under `InventoryDiagramExcellence` filter |
 | **IDX-09** Duplicate connection collapse | **Shipped** on trunk — do not greenfield | `DiagramInventoryConnectionRollupApplier` |
 | **IDX-09b** Duplicate connection excellence ratchet | **Shipped** on trunk — extend only | Connection rollup not under `InventoryDiagramExcellence` filter |
 | **IDX-10** PE opt-in toggle | **Shipped** on trunk — extend only | Workbench toggle; default off all modes incl. `ResourceGroup` |
@@ -128,6 +130,19 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-13u** Data Flow hub pipeline wave manifest | **Shipped** on trunk — extend only | Hub sub-wave ratchet classes can be deleted without CI failure |
 | **IDX-13v** Cross-mode excellence wave manifest | **Shipped** on trunk — extend only | Cross-mode ratchet classes (08b–13, completeness) can be deleted without CI failure |
 | **IDX-13w** Cross-mode trait isolation guard | **Shipped** on trunk — extend only | Cross-mode ratchets tagged `DataFlowHubPipeline` shrink the hub slice filter |
+| **IDX-13x** Workbench excellence ratchet (Vitest) | **Shipped** on trunk — extend only | PE default + completeness `missingClasses` not under backend excellence filter |
+| **IDX-13y** Fat-graph forest / DOT parity ratchet | **Shipped** on trunk — extend only | IDX-13b hero modes lack named `BuildFatGraph()` forest/DOT parity class |
+| **IDX-13z** Cross-mode UI wave manifest (Vitest) | **Shipped** on trunk — extend only | Workbench excellence ratchet tests deletable without CI failure |
+| **IDX-14a** Cross-mode excellence wave closeout | **Shipped** on trunk — extend only | Index lacks cross-mode (08b–13z) complete subsection + Vitest guard |
+| **IDX-14b** Subnet nested-frame deepening closeout | **Shipped** on trunk — extend only | Index lacks IDX-05b complete subsection + Vitest guard |
+| **IDX-14c** Singleton-RG tail deepening closeout | **Shipped** on trunk — extend only | Index lacks IDX-08b–08c complete subsection + Vitest guard |
+| **IDX-14d** Duplicate connection deepening closeout | **Shipped** on trunk — extend only | Index lacks IDX-09b complete subsection + Vitest guard |
+| **IDX-14e** Private endpoint opt-in deepening closeout | **Shipped** on trunk — extend only | Index lacks IDX-10b complete subsection + Vitest guard |
+| **IDX-14f** Completeness summary deepening closeout | **Shipped** on trunk — extend only | Index lacks IDX-11b complete subsection + Vitest guard |
+| **IDX-14g** Hop-focus deepening closeout | **Shipped** on trunk — extend only | Index lacks IDX-12b complete subsection + Vitest guard |
+| **IDX-14h** Deepening excellence wave closeout | **Shipped** on trunk — extend only | Index lacks IDX-05b–12b umbrella subsection + Vitest guard |
+| **IDX-14i** Excellence index closeout wave closeout | **Shipped** on trunk — extend only | Index lacks IDX-14a–14h capstone subsection + Vitest guard |
+| **IDX-14j** Closeout wave UI manifest (Vitest) | **Shipped** on trunk — extend only | Closeout Vitest files deletable without CI failure |
 | **IDX-HOLD** | Not implementation | — |
 
 ### Data Flow hub pipeline wave (IDX-07f–13u) — complete
@@ -138,7 +153,127 @@ Forest, Mermaid, DOT, graph compile, snapshot Mermaid service, PNG export, stage
 
 `dotnet test ArchLucid.Application.Tests --filter InventoryDiagramExcellence=DataFlowHubPipeline`
 
-Next hub work is **extend-only** (regression fixes). Cross-mode slice (08b–13w): `FullyQualifiedName~CrossModeWaveManifest` and `FullyQualifiedName~CrossModeTraitGuard` in both test projects. Pick **IDX-08**, **IDX-13** cross-mode deepening, or **IDX-HOLD** for new scope.
+Next hub work is **extend-only** (regression fixes).
+
+### Subnet nested-frame deepening (IDX-05b) — complete
+
+Network dual-subnet compile (`subnet-frame` layers, VM→subnet placement, forest↔DOT parity) and peeled-subnet Full subscription VNet placement are excellence-ratcheted. Run the subnet slice:
+
+`dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellenceNestedSubnetNetworkCompileRatchet`
+
+`dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellencePeeledSubnetVnetFrameRatchet`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-subnet-wave-closeout`
+
+Next **IDX-05** work is **extend-only** (regression fixes when a mode keeps subnet nodes visible).
+
+### Singleton-RG tail deepening (IDX-08b–08c) — complete
+
+Forest tail collapse, hop-focus skip rules, cited cross-RG singleton visibility, neighborhood tile summary copy, and collapsed-tail label parsing are excellence-ratcheted. Run the singleton-tail slice:
+
+`dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellenceSingletonTail`
+
+`dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellenceCollapsedSingletonTailLabelsRatchet`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-singleton-tail-wave-closeout`
+
+Next **IDX-08** work is **extend-only** (regression fixes on subscription-scoped tail rollup).
+
+### Duplicate connection deepening (IDX-09b) — complete
+
+Logic App connector rollup, distinct API label retention, and forest render of merged Office 365 cards are excellence-ratcheted. Run the duplicate-connection slice:
+
+`dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellenceDuplicateConnection`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-duplicate-connection-wave-closeout`
+
+Next **IDX-09** work is **extend-only** (regression fixes on connection rollup).
+
+### Private endpoint opt-in deepening (IDX-10b) — complete
+
+DataFlow/DataArchitecture default-off PE compile, Full subscription Mermaid export without PE arm types, and Network opt-in PE nodes are excellence-ratcheted. Run the private-endpoint slice:
+
+`dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellencePrivateEndpoint`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-private-endpoint-wave-closeout`
+
+Next **IDX-10** work is **extend-only** (regression fixes on workbench PE toggle and compile flag).
+
+### Completeness summary deepening (IDX-11b) — complete
+
+Mode-aware completeness summaries (network vs identity missing classes, hidden hops, Data Flow logicAppConnections) are excellence-ratcheted in Application tests. Run the completeness slice:
+
+`dotnet test ArchLucid.Application.Tests --filter FullyQualifiedName~InventoryDiagramExcellenceCompleteness`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-completeness-wave-closeout`
+
+Next **IDX-11** work is **extend-only** (regression fixes on walkthrough counts and banner copy).
+
+### Hop-focus deepening (IDX-12b) — complete
+
+Neighborhood, selected-resource, and resource-group hop-focus compile (cited VNet visibility, unrelated VM omission, transit bridge rules) are excellence-ratcheted. Run the hop-focus slice:
+
+`dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellenceHopFocus`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-hop-focus-wave-closeout`
+
+Next **IDX-12** work is **extend-only** (regression fixes on neighborhood / selected / RG focus modes).
+
+### Deepening excellence wave (IDX-05b–12b) — complete
+
+Subnet, singleton tail, duplicate connection, private endpoint opt-in, completeness, and hop-focus deepening slices are index-closeout guarded. Run the deepening closeout bundle:
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-subnet-wave-closeout`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-singleton-tail-wave-closeout`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-duplicate-connection-wave-closeout`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-private-endpoint-wave-closeout`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-completeness-wave-closeout`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-hop-focus-wave-closeout`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-deepening-wave-closeout`
+
+Next deepening work is **extend-only** (regression fixes on per-slice ratchets).
+
+### Cross-mode excellence wave (IDX-08b–13z) — complete
+
+Singleton-tail, connection rollup, PE opt-in, completeness, hop-focus, cross-mode parity, fat-graph forest/DOT parity, backend manifest + trait guards, workbench Vitest ratchet, and UI manifest guards are covered. Run the cross-mode slice:
+
+`dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~CrossModeWaveManifest`
+
+`dotnet test ArchLucid.Application.Tests --filter FullyQualifiedName~CrossModeWaveManifest`
+
+`dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~CrossModeTraitGuard`
+
+`dotnet test ArchLucid.Application.Tests --filter FullyQualifiedName~CrossModeTraitGuard`
+
+`dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~FatGraphForestDotParityRatchet`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-workbench.ratchet`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-cross-mode-ui-wave-manifest`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-cross-mode-wave-closeout`
+
+Next cross-mode work is **extend-only** (regression fixes). Pick **IDX-05** when a mode keeps subnet nodes visible, **IDX-08** / **IDX-13** base deepening, or **IDX-HOLD** for new scope.
+
+### Excellence index closeout wave (IDX-14a–14h) — complete
+
+Cross-mode and deepening index closeout umbrellas are documented and Vitest-ratcheted. Run the closeout capstone bundle:
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-cross-mode-wave-closeout`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-deepening-wave-closeout`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-closeout-wave-closeout`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-closeout-wave-ui-manifest`
+
+Next **IDX-14** work is **extend-only** (regression fixes on per-slice or umbrella closeouts).
 
 **Regression guard:** `dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellence` plus `ArchLucid.Application.Tests --filter FullyQualifiedName~InfraEvidenceMermaidCompleteness` and `FullyQualifiedName~InventoryDiagramExcellenceCompleteness`. Data Flow hub pipeline slice (both projects): `dotnet test ArchLucid.ArtifactSynthesis.Tests --filter InventoryDiagramExcellence=DataFlowHubPipeline` and `dotnet test ArchLucid.Application.Tests --filter InventoryDiagramExcellence=DataFlowHubPipeline`. **IDX-05** subnet layer can still deepen when a mode keeps subnet nodes visible.
 
@@ -155,6 +290,7 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-excellence-<s
 | 03 | `inventory-diagram-excellence-03-cited-hops.md` | Same-RG / single-VNet all-to-all and cross-RG guesses |
 | 04 | `inventory-diagram-excellence-04-honest-verbs.md` | Every remaining edge reads as `connects` |
 | 05 | `inventory-diagram-excellence-05-nested-vnet-subnet-frames.md` | No VNet/subnet boxes; IDA-HOLD/IDF-HOLD blocked this |
+| 05b | `inventory-diagram-excellence-05b-nested-subnet-excellence-ratchet.md` | Network/peeled-subnet compile not under excellence filter |
 | 06 | `inventory-diagram-excellence-06-subscription-outer-frame.md` | No subscription container on subscription-scoped views |
 | 07 | `inventory-diagram-excellence-07-role-aware-packing.md` | Role-blind grids; hubs lost in columns |
 | 07b | `inventory-diagram-excellence-07b-dataflow-in-stage-hub.md` | Data Flow stage stacks a high-degree ADF instead of hub-and-spoke |
@@ -164,6 +300,7 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-excellence-<s
 | 07f | `inventory-diagram-excellence-07f-dataflow-hub-ratchet.md` | 07b–07e regressions skip the excellence test filter |
 | 08 | `inventory-diagram-excellence-08-singleton-rg-collapse.md` | Long tail of one-node RG frames |
 | 08b | `inventory-diagram-excellence-08b-singleton-tail-excellence-ratchet.md` | Singleton tail not in excellence filter |
+| 08c | `inventory-diagram-excellence-08c-collapsed-singleton-tail-label-excellence-ratchet.md` | Collapsed tail label helpers not excellence-ratcheted |
 | 09 | `inventory-diagram-excellence-09-duplicate-connection-collapse.md` | Duplicate Logic App connector cards |
 | 09b | `inventory-diagram-excellence-09b-duplicate-connection-excellence-ratchet.md` | Connection rollup not in excellence filter |
 | 10 | `inventory-diagram-excellence-10-pe-opt-in-toggle.md` | PE cards have no workbench opt-in; hops already used |
@@ -195,6 +332,19 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-excellence-<s
 | 13u | `inventory-diagram-excellence-13u-dataflow-hub-wave-manifest.md` | Hub ratchet classes not manifest-guarded |
 | 13v | `inventory-diagram-excellence-13v-cross-mode-wave-manifest.md` | Cross-mode ratchet classes not manifest-guarded |
 | 13w | `inventory-diagram-excellence-13w-cross-mode-trait-guard.md` | Cross-mode ratchets carry hub `DataFlowHubPipeline` trait |
+| 13x | `inventory-diagram-excellence-13x-workbench-excellence-ratchet.md` | Workbench PE default + completeness strip not excellence-ratcheted |
+| 13y | `inventory-diagram-excellence-13y-fat-graph-forest-dot-parity-ratchet.md` | Fat graph forest/DOT parity not in dedicated excellence class |
+| 13z | `inventory-diagram-excellence-13z-cross-mode-ui-wave-manifest.md` | Workbench excellence ratchet not UI manifest-guarded |
+| 14a | `inventory-diagram-excellence-14a-cross-mode-wave-closeout.md` | Cross-mode slice not documented complete in index |
+| 14b | `inventory-diagram-excellence-14b-subnet-wave-closeout.md` | IDX-05b subnet slice not documented complete in index |
+| 14c | `inventory-diagram-excellence-14c-singleton-tail-wave-closeout.md` | IDX-08b–08c singleton tail slice not documented complete in index |
+| 14d | `inventory-diagram-excellence-14d-duplicate-connection-wave-closeout.md` | IDX-09b duplicate connection slice not documented complete in index |
+| 14e | `inventory-diagram-excellence-14e-private-endpoint-wave-closeout.md` | IDX-10b PE opt-in slice not documented complete in index |
+| 14f | `inventory-diagram-excellence-14f-completeness-wave-closeout.md` | IDX-11b completeness slice not documented complete in index |
+| 14g | `inventory-diagram-excellence-14g-hop-focus-wave-closeout.md` | IDX-12b hop-focus slice not documented complete in index |
+| 14h | `inventory-diagram-excellence-14h-deepening-wave-closeout.md` | IDX-05b–12b deepening bundle not documented complete in index |
+| 14i | `inventory-diagram-excellence-14i-closeout-wave-closeout.md` | IDX-14a–14h capstone closeout not documented complete in index |
+| 14j | `inventory-diagram-excellence-14j-closeout-wave-ui-manifest.md` | Closeout Vitest files not manifest-guarded |
 | HOLD | `inventory-diagram-excellence-14-hold.md` | Complete-graph / default PE / icons / RBAC dump |
 
 ## Prerequisites (do not re-implement)

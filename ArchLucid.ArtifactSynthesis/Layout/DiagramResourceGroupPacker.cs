@@ -147,11 +147,10 @@ public static class DiagramResourceGroupPacker
                 continue;
             }
 
+            DiagramNode anchorNode = members[0].Node;
             string? groupName = string.Equals(frameCellId, "shared-services", StringComparison.Ordinal)
                 ? "Shared services"
-                : members
-                    .Select(member => NormalizeGroupName(member.Node.ArmResourceGroup))
-                    .FirstOrDefault(name => name is not null);
+                : DiagramForestCollapsedSingletonTailLabels.ResolveResourceGroupCaption(anchorNode, frameCellId);
 
             if (groupName is null)
             {

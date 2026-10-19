@@ -67,7 +67,7 @@ describe("product-line catalog", () => {
     expect(hrefs).toContain("/security/remediation-factory");
     expect(hrefs).not.toContain("/governance/remediation-factory");
     expect(hrefs).toContain("/administration/users");
-    expect(hrefs).toContain("/infrastructure/extract-upload");
+    expect(hrefs).toContain("/infrastructure/manual-upload");
     expect(hrefs).not.toContain("/governance/infrastructure/extract-upload");
     expect(hrefs).not.toContain("/administration/extract-upload");
     expect(hrefs).not.toContain("/administration/billing");
@@ -159,7 +159,9 @@ describe("product-line catalog", () => {
     expect(isPathAllowedForProductLine("/administration/identity/sso-wizard", "security")).toBe(true);
     expect(isPathAllowedForProductLine("/administration/extract-upload", "security")).toBe(false);
     expect(isPathAllowedForProductLine("/governance/infrastructure/extract-upload", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/infrastructure/manual-upload", "security")).toBe(true);
     expect(isPathAllowedForProductLine("/infrastructure/extract-upload", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/infrastructure/manual-upload", "architecture")).toBe(false);
     expect(isPathAllowedForProductLine("/infrastructure/extract-upload", "architecture")).toBe(false);
     expect(isPathAllowedForProductLine("/governance/infrastructure/extract-upload", "architecture")).toBe(false);
     expect(isPathAllowedForProductLine("/administration/extract-upload", "architecture")).toBe(true);

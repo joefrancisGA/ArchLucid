@@ -120,40 +120,12 @@ public static class AzureInventoryContainerAppEnvHostExtractor
             secretRef = secretRefElement.GetString()?.Trim();
         }
 
-        AzureInventoryAppSettingHostParsedFields? parsed =
-            string.IsNullOrWhiteSpace(settingValue) ? null : AzureInventoryAppSettingHostRedactor.TryParseSettingValue(settingValue);
-
-        if (parsed is null && string.IsNullOrWhiteSpace(secretRef))
-        {
-            return;
-        }
-
-        string host = parsed?.Host ?? string.Empty;
-        string keyVaultHost = parsed?.KeyVaultHost ?? string.Empty;
-        string secretName = parsed?.SecretName ?? string.Empty;
-        string catalog = parsed?.Catalog ?? string.Empty;
-        string warningCode = parsed?.WarningCode ?? string.Empty;
-        string secretRefValue = secretRef ?? string.Empty;
-
-        string key =
-            $"{containerAppResourceId}|{settingName}|{host}|{keyVaultHost}|{secretName}|{catalog}|{secretRefValue}";
-
-        if (!seenKeys.Add(key))
-        {
-            return;
-        }
-
-        rows.Add(new AzureInventoryAppSettingHostRow
-        {
-            SiteResourceId = containerAppResourceId,
-            SettingName = settingName,
-            Host = parsed?.Host,
-            Catalog = parsed?.Catalog,
-            KeyVaultHost = parsed?.KeyVaultHost,
-            SecretName = parsed?.SecretName,
-            SecretRef = secretRef,
-            WarningCode = parsed?.WarningCode,
-            CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
-        });
+        AzureInventoryAppSettingHostRowAppender.AppendParsedRows(
+            containerAppResourceId,
+            settingName,
+            settingValue,
+            secretRef,
+            rows,
+            seenKeys);
     }
 }

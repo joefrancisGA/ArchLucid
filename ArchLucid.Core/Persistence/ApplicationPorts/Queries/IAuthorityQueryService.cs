@@ -134,6 +134,33 @@ public interface IAuthorityQueryService
         Guid runId,
         CancellationToken ct);
 
+    async Task<IReadOnlyList<RunManifestCompareSliceDto>> ListRunManifestCompareSlicesAsync(
+        ScopeContext scope,
+        IReadOnlyList<Guid> runIds,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(runIds);
+
+        List<RunManifestCompareSliceDto> slices = [];
+
+        foreach (Guid runId in runIds.Where(id => id != Guid.Empty).Distinct())
+        {
+            RunDetailDto? detail = await GetRunDetailForManifestCompareAsync(scope, runId, ct);
+
+            if (detail is null)
+                continue;
+
+            slices.Add(new RunManifestCompareSliceDto
+            {
+                RunId = runId,
+                Run = detail.Run,
+                GoldenManifest = detail.GoldenManifest,
+            });
+        }
+
+        return slices;
+    }
+
     /// <summary>
     ///     Retrieval indexing outbox path (TB-2055): graph, findings, trace, manifest, and artifact metadata without
     ///     context snapshot, disposition coverage, or artifact bodies (bodies loaded separately for indexing).

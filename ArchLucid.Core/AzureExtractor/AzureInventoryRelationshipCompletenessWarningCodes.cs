@@ -41,6 +41,8 @@ public static class AzureInventoryRelationshipCompletenessWarningCodes
 
     public const string AppSettingsNotCollectedHostedGetOnly = "app-settings-not-collected-hosted-get-only";
 
+    public const string AppSettingsListForbiddenPrefix = "app-settings-list-forbidden:";
+
     public const string AppSettingsHostUnresolved = "app-settings-host-unresolved";
 
     public const string AppSettingsCatalogTemplate = "app-settings-catalog-template";

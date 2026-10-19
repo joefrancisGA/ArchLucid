@@ -1,3 +1,4 @@
+using System.Xml.Linq;
 using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Models;
 
@@ -23,6 +24,33 @@ public sealed class InventoryDiagramExcellenceSingletonTailRatchetTests
         layout.Svg.Should().Contain($"Other resource groups ({DiagramForestSingletonTailPlanner.SingletonThreshold + 1})");
         layout.Svg.Should().NotContain("singleton-0", "isolated singleton cards must fold into the tail summary");
         layout.Svg.Should().Contain("large-vm");
+    }
+
+    [Fact]
+    public void InventoryDiagramExcellence_singleton_tail_neighborhood_tile_uses_summary_title()
+    {
+        DiagramAst ast = InventoryDiagramExcellenceSingletonTailFixture.BuildSubscriptionScoped(DiagramMode.Network);
+        DiagramForestLayoutResult layout = renderer.Render(ast);
+
+        layout.Succeeded.Should().BeTrue(layout.Error);
+        layout.Svg.Should().NotBeNullOrWhiteSpace();
+        string expectedTitle = $"Other resource groups ({DiagramForestSingletonTailPlanner.SingletonThreshold + 1})";
+        XDocument svg = XDocument.Parse(layout.Svg!);
+        XElement metadata = svg.Descendants()
+            .Single(element =>
+                element.Name.LocalName == "metadata"
+                && element.Attribute("id")?.Value == "diagram-neighborhoods");
+        metadata.Elements()
+            .Where(element => element.Name.LocalName == "neighborhood")
+            .Select(element => element.Attribute("title")?.Value)
+            .Should()
+            .Contain(expectedTitle);
+        metadata.Elements()
+            .Single(element =>
+                element.Name.LocalName == "neighborhood"
+                && element.Attribute("title")?.Value == expectedTitle)
+            .Attribute("resource-count")?.Value
+            .Should().Be((DiagramForestSingletonTailPlanner.SingletonThreshold + 1).ToString());
     }
 
     [Theory]
