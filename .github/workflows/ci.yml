@@ -2420,6 +2420,7 @@ jobs:
       - name: assert_azurerm_resource_catalog.py
         env:
           ARCHLUCID_AZURERM_CATALOG_REMOTE: "1"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python3 scripts/ci/assert_azurerm_resource_catalog.py
 
       - name: test_assert_azurerm_resource_catalog.py

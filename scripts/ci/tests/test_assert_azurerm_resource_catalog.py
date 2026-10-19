@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import importlib.util
+import os
 import sys
 from pathlib import Path
 
@@ -66,6 +67,39 @@ def test_synthetic_token_fails_gate_check() -> None:
 def test_repo_scan_is_clean() -> None:
     errors = catalog.scan(REPO_ROOT, remote=False)
     assert errors == [], errors
+
+
+def test_github_headers_unauthenticated_without_token() -> None:
+    previous = {key: os.environ.pop(key, None) for key in ("GITHUB_TOKEN", "GH_TOKEN")}
+
+    try:
+        headers = catalog.github_headers()
+    finally:
+        for key, value in previous.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
+
+    assert "Authorization" not in headers
+    assert headers["User-Agent"] == "archlucid-abq-51"
+
+
+def test_github_headers_use_github_token() -> None:
+    previous = {key: os.environ.get(key) for key in ("GITHUB_TOKEN", "GH_TOKEN")}
+    os.environ["GITHUB_TOKEN"] = "test-token"
+    os.environ.pop("GH_TOKEN", None)
+
+    try:
+        headers = catalog.github_headers()
+    finally:
+        for key, value in previous.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
+
+    assert headers["Authorization"] == "Bearer test-token"
 
 
 def main() -> int:
