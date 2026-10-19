@@ -103,6 +103,7 @@ function mockRankedFindingsQuery(overrides: Record<string, unknown> = {}) {
         breakdownJson: "[]",
         controlId: "AC-2",
         patternKey: "storage.encrypt",
+        rankOrder: 1,
       },
     ],
     isError: false,

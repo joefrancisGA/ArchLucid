@@ -15,7 +15,22 @@ import { StatusTag } from "@/components/ui/status-tag";
 import type { RemediationPrioritizedFinding } from "@/lib/remediation-factory-types";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
 import { buildRemediationWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-workbench-url";
-import { formatRemediationPriorityWhenBand, REMEDIATION_PRIORITY_WHEN_HEADER_HELPER } from "@/lib/remediation-priority-when-band";
+import {
+  formatRemediationPriorityWhenBandForRankOrder,
+  REMEDIATION_PRIORITY_WHEN_HEADER_HELPER,
+} from "@/lib/remediation-priority-when-band";
+
+const REMEDIATION_PRIORITY_RANK_NOT_STORED = "Rank was not stored.";
+
+const REMEDIATION_CONTROL_ID_NOT_STORED = "Control id was not stored.";
+
+function formatRemediationPriorityControlId(controlId: string | null | undefined): string {
+  if (controlId === null || controlId === undefined || controlId.trim().length === 0) {
+    return REMEDIATION_CONTROL_ID_NOT_STORED;
+  }
+
+  return controlId;
+}
 import { cn } from "@/lib/utils";
 
 import { RemediationFactoryPatternKeyCell } from "./RemediationFactoryPatternKeyCell";
@@ -77,8 +92,8 @@ export function RemediationFactoryPriorityTable(props: {
           </EnterpriseTableRow>
         </EnterpriseTableHead>
         <EnterpriseTableBody>
-          {props.rows.map((row, index) => {
-            const rankOrder = row.rankOrder ?? index + 1;
+          {props.rows.map((row) => {
+            const storedRankOrder = row.rankOrder;
             const selected = props.selectedFindingId === row.findingId;
 
             return (
@@ -91,16 +106,16 @@ export function RemediationFactoryPriorityTable(props: {
               >
                 <EnterpriseTableCell className="tabular-nums text-right">
                   <span className="inline-flex items-center gap-2">
-                    {rankOrder}
+                    {storedRankOrder ?? REMEDIATION_PRIORITY_RANK_NOT_STORED}
                     {selected ? <StatusTag kind="ready" label="Inspecting" /> : null}
                   </span>
                 </EnterpriseTableCell>
                 <RemediationPriorityResourceCell cloudResourceId={row.cloudResourceId} />
-                <EnterpriseTableCell>{formatRemediationPriorityWhenBand(rankOrder)}</EnterpriseTableCell>
+                <EnterpriseTableCell>{formatRemediationPriorityWhenBandForRankOrder(storedRankOrder)}</EnterpriseTableCell>
                 <EnterpriseTableCell>
                   <RemediationPrioritySortKeyDisclosure findingId={row.findingId} totalScore={row.totalScore} />
                 </EnterpriseTableCell>
-                <EnterpriseTableCell>{row.controlId ?? "—"}</EnterpriseTableCell>
+                <EnterpriseTableCell>{formatRemediationPriorityControlId(row.controlId)}</EnterpriseTableCell>
                 <EnterpriseTableCell>
                   <RemediationFactoryPatternKeyCell
                     findingId={row.findingId}

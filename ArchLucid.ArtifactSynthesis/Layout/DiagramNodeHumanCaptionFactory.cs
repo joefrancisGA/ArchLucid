@@ -23,7 +23,7 @@ public static class DiagramNodeHumanCaptionFactory
                 "AzureMySql" => "MySQL link",
                 "Sftp" => "SFTP link",
                 "HttpServer" or "Web" or "RestService" => "HTTP link",
-                _ => $"{linkedServiceType} link",
+                _ => $"Linked service type {linkedServiceType} has no reviewer label.",
             };
         }
 
@@ -44,10 +44,25 @@ public static class DiagramNodeHumanCaptionFactory
 
         if (node.ArmResourceType?.Equals("Microsoft.Web/sites", StringComparison.OrdinalIgnoreCase) == true)
         {
-            return node.ArmResourceKind?.Split(',', 2, StringSplitOptions.TrimEntries)[0]
-                .Equals("functionapp", StringComparison.OrdinalIgnoreCase) == true
-                ? "Function App"
-                : "App Service";
+            string? siteKind = node.ArmResourceKind?.Split(',', 2, StringSplitOptions.TrimEntries)[0];
+
+            if (string.IsNullOrWhiteSpace(siteKind))
+            {
+                return "Site kind was not stored.";
+            }
+
+            if (siteKind.Equals("functionapp", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Function App";
+            }
+
+            if (siteKind.Equals("app", StringComparison.OrdinalIgnoreCase)
+                || siteKind.Equals("api", StringComparison.OrdinalIgnoreCase))
+            {
+                return "App Service";
+            }
+
+            return "Site kind was not stored.";
         }
 
         return DiagramArmTypeFriendlyName.TryFormat(node.ArmResourceType);

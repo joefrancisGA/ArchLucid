@@ -46,6 +46,39 @@ export function resolveCollectionAgentHealth(
   return { kind: "ready", label: "Ready", successfulRun };
 }
 
+export const COLLECTION_AGENT_STALE_SUCCESS_NEEDS_ATTENTION_DETAIL =
+  "Needs attention because the last success is older than 24 hours. That interval is this page's expectation, not a stored schedule." as const;
+
+export function resolveCollectionAgentStaleSuccessDetail(
+  runs: readonly CollectionRun[],
+  nowMs: number = Date.now(),
+  expectedIntervalMs: number = COLLECTION_AGENT_EXPECTED_INTERVAL_MS,
+): string | null {
+  const health = resolveCollectionAgentHealth(runs, nowMs, expectedIntervalMs);
+
+  if (health.label !== "Needs attention") {
+    return null;
+  }
+
+  const latestRun = newestRun(runs);
+
+  if (
+    latestRun?.status === "Failed"
+    || latestRun?.status === "Rejected"
+    || latestRun?.status === "PartiallySucceeded"
+  ) {
+    return null;
+  }
+
+  const successfulRun = health.successfulRun;
+
+  if (successfulRun !== null && nowMs - runTimeMs(successfulRun) > expectedIntervalMs) {
+    return COLLECTION_AGENT_STALE_SUCCESS_NEEDS_ATTENTION_DETAIL;
+  }
+
+  return null;
+}
+
 export function formatCollectionRunDuration(run: CollectionRun): string {
   if (run.finishedUtc === null || run.finishedUtc === undefined) {
     if (run.status === "Running") {

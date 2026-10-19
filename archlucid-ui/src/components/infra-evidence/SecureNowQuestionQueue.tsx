@@ -542,7 +542,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                   ? " · Expiration status was not stored."
                   : currentQuestion.isExpired
                     ? " · Expired"
-                    : ""}
+                    : " · Not expired."}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 {currentQuestion.evidenceFingerprint.trim().length > 0

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   formatRemediationPriorityReaderSentence,
+  REMEDIATION_PRIORITY_BREAKDOWN_NOT_STORED,
   REMEDIATION_PRIORITY_NO_LEADING_FACTOR,
 } from "@/lib/remediation-priority-reader-sentence";
 
@@ -40,7 +41,8 @@ describe("formatRemediationPriorityReaderSentence", () => {
 
   it("says when the breakdown does not name a leading factor", () => {
     expect(formatRemediationPriorityReaderSentence("[]")).toBe(REMEDIATION_PRIORITY_NO_LEADING_FACTOR);
-    expect(formatRemediationPriorityReaderSentence("not-json")).toBe(REMEDIATION_PRIORITY_NO_LEADING_FACTOR);
+    expect(formatRemediationPriorityReaderSentence("")).toBe(REMEDIATION_PRIORITY_BREAKDOWN_NOT_STORED);
+    expect(formatRemediationPriorityReaderSentence("not-json")).toBe(REMEDIATION_PRIORITY_BREAKDOWN_NOT_STORED);
     expect(
       formatRemediationPriorityReaderSentence(
         JSON.stringify([{ Factor: "Severity", NormalizedValue: 0.5, WeightedContribution: 0.1, Source: "unknown" }]),

@@ -92,13 +92,15 @@ function defaultExpirationIso(): string {
   return date.toISOString();
 }
 
-function formatRelativeExpiry(expirationUtc: string): string {
+const DECLARED_CONNECTION_EXPIRATION_UNREADABLE = "Expiration could not be read." as const;
+
+function formatRelativeExpiry(expirationUtc: string): string | null {
   const expiryMs = Date.parse(expirationUtc);
   const deltaMs = expiryMs - Date.now();
   const days = Math.round(deltaMs / (24 * 60 * 60 * 1000));
 
   if (Number.isNaN(expiryMs)) {
-    return "";
+    return null;
   }
 
   if (days < 0) {
@@ -646,7 +648,21 @@ export function DeclaredConnectionsWorkbenchClient() {
                         </EnterpriseTableCell>
                         <EnterpriseTableCell>
                           {formatIsoUtcForDisplay(row.expirationUtc)}
-                          <span className="ms-1 text-al-text-secondary">({formatRelativeExpiry(row.expirationUtc)})</span>
+                          {(() => {
+                            const relativeExpiry = formatRelativeExpiry(row.expirationUtc);
+
+                            if (relativeExpiry === null) {
+                              return (
+                                <span className="ms-1 text-al-text-secondary">
+                                  {DECLARED_CONNECTION_EXPIRATION_UNREADABLE}
+                                </span>
+                              );
+                            }
+
+                            return (
+                              <span className="ms-1 text-al-text-secondary">({relativeExpiry})</span>
+                            );
+                          })()}
                         </EnterpriseTableCell>
                         <EnterpriseTableCell className="space-x-2">
                           <Button type="button" variant="outline" size="sm" onClick={() => setExpandedRowId(expanded ? null : row.connectionId)}>

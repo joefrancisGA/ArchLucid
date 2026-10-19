@@ -19,14 +19,21 @@ import {
   REMEDIATION_FACTORY_TOP_CUT_POINTS_VIEW_PATH,
 } from "./remediation-factory-top-cut-points-copy";
 
-function formatCutPointHeadline(cutPoint: SecurityEvidencePathCutPoint): string {
-  const endpointLabels =
-    cutPoint.fromNodeLabel != null && cutPoint.toNodeLabel != null
-      ? `${cutPoint.fromNodeLabel} → ${cutPoint.toNodeLabel}`
-      : cutPoint.fromNodeLabel ?? cutPoint.toNodeLabel ?? "";
+const REMEDIATION_FACTORY_CUT_ENDPOINT_NOT_STORED = "Cut endpoint was not stored.";
 
-  if (endpointLabels.length > 0) {
-    return `${cutPoint.cutKind} · ${endpointLabels}`;
+const REMEDIATION_FACTORY_SUGGESTED_PATTERN_NOT_STORED = "Suggested pattern was not stored.";
+
+function formatCutPointHeadline(cutPoint: SecurityEvidencePathCutPoint): string {
+  const fromStored =
+    cutPoint.fromNodeLabel != null && cutPoint.fromNodeLabel.trim().length > 0;
+  const toStored = cutPoint.toNodeLabel != null && cutPoint.toNodeLabel.trim().length > 0;
+
+  if (fromStored && toStored) {
+    return `${cutPoint.cutKind} · ${cutPoint.fromNodeLabel!.trim()} → ${cutPoint.toNodeLabel!.trim()}`;
+  }
+
+  if (!fromStored || !toStored) {
+    return `${cutPoint.cutKind} · ${REMEDIATION_FACTORY_CUT_ENDPOINT_NOT_STORED}`;
   }
 
   return cutPoint.cutKind;
@@ -133,17 +140,21 @@ export function RemediationFactoryTopCutPointsSection(props: {
                   {formatCutPointHeadline(cutPoint)}
                 </p>
                 <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>{cutPoint.explanationSummary}</p>
-                {patternKey.length > 0 ? (
-                  <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-                    {REMEDIATION_FACTORY_TOP_CUT_POINTS_PATTERN_PREFIX}{" "}
-                    <Link
-                      href={`/insights/patterns/${encodeURIComponent(patternKey)}`}
-                      className={OPERATOR_LINK.inline}
-                    >
-                      {patternKey}
-                    </Link>
-                  </p>
-                ) : null}
+                <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                  {patternKey.length > 0 ? (
+                    <>
+                      {REMEDIATION_FACTORY_TOP_CUT_POINTS_PATTERN_PREFIX}{" "}
+                      <Link
+                        href={`/insights/patterns/${encodeURIComponent(patternKey)}`}
+                        className={OPERATOR_LINK.inline}
+                      >
+                        {patternKey}
+                      </Link>
+                    </>
+                  ) : (
+                    REMEDIATION_FACTORY_SUGGESTED_PATTERN_NOT_STORED
+                  )}
+                </p>
                 {highlightPathId != null ? (
                   <Button
                     type="button"
