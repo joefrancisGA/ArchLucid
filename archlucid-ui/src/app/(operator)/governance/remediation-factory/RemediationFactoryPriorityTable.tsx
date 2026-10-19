@@ -103,6 +103,7 @@ export function RemediationFactoryPriorityTable(props: {
                 <EnterpriseTableCell>{row.controlId ?? "—"}</EnterpriseTableCell>
                 <EnterpriseTableCell>
                   <RemediationFactoryPatternKeyCell
+                    findingId={row.findingId}
                     patternKey={row.patternKey}
                     emptyLabel="Name not recorded"
                   />
