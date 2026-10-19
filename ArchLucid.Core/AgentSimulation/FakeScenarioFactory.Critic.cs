@@ -32,15 +32,17 @@ public static partial class FakeScenarioFactory
             Confidence = 0.78,
             Findings =
             [
-                new ArchitectureFinding
-                {
-                    FindingId = StableHexId(runId, taskId, "critic-finding-0"),
-                    SourceAgent = AgentType.Critic,
-                    Severity = FindingSeverity.Info,
-                    Category = "Critic",
-                    Message = "Starter architecture is coherent for an MVP.",
-                    EvidenceRefs = ["critic-checklist"]
-                }
+                FakeScenarioFindingKindBProvenance.Attach(
+                    new ArchitectureFinding
+                    {
+                        FindingId = StableHexId(runId, taskId, "critic-finding-0"),
+                        SourceAgent = AgentType.Critic,
+                        Severity = FindingSeverity.Info,
+                        Category = "Critic",
+                        Message = "Starter architecture is coherent for an MVP.",
+                        EvidenceRefs = ["critic-checklist"]
+                    },
+                    FakeScenarioFindingKindBProvenance.StarterCoherenceRuleId)
             ],
             ProposedChanges = new AgentTopologyProposal
             {

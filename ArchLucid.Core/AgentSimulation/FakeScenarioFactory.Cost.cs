@@ -33,15 +33,17 @@ public static partial class FakeScenarioFactory
             Confidence = 0.82,
             Findings =
             [
-                new ArchitectureFinding
-                {
-                    FindingId = StableHexId(runId, taskId, "cost-finding-0"),
-                    SourceAgent = AgentType.Cost,
-                    Severity = FindingSeverity.Info,
-                    Category = "Cost",
-                    Message = "Managed services selected for predictable operational cost.",
-                    EvidenceRefs = ["pricing-profile"]
-                }
+                FakeScenarioFindingKindBProvenance.Attach(
+                    new ArchitectureFinding
+                    {
+                        FindingId = StableHexId(runId, taskId, "cost-finding-0"),
+                        SourceAgent = AgentType.Cost,
+                        Severity = FindingSeverity.Info,
+                        Category = "Cost",
+                        Message = "Managed services selected for predictable operational cost.",
+                        EvidenceRefs = ["pricing-profile"]
+                    },
+                    FakeScenarioFindingKindBProvenance.ManagedServicesCostRuleId)
             ],
             ProposedChanges = new AgentTopologyProposal
             {
