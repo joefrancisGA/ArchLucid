@@ -122,7 +122,11 @@ describe("RiskExceptionsClient", () => {
     render(<RiskExceptionsClient />);
 
     expect(await screen.findByTestId("risk-exceptions-expiring-warning")).toBeInTheDocument();
-    expect(screen.getByText("After this time the exception no longer covers the finding.")).toBeInTheDocument();
+    expect(screen.getByTestId("risk-exceptions-expires-header-helper")).toHaveTextContent(
+      "After this time the exception no longer covers the finding.",
+    );
+    expect(screen.getByText("An exception is temporary. A disposition is the decision.")).toBeInTheDocument();
+    expect(screen.queryByText("The exception stops covering the finding after this time.")).not.toBeInTheDocument();
   });
 
   it("renders empty state with create architecture CTA", async () => {
