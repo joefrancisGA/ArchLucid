@@ -146,6 +146,7 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-14k** Closeout capstone index sync (Vitest) | **Shipped** on trunk — extend only | Capstone heading/Vitest still stop at 14h after 14j |
 | **IDX-14l** Closeout capstone 14k heading sync (Vitest) | **Shipped** on trunk — extend only | Capstone heading still titles 14a–14j after 14k ships |
 | **IDX-14m** Closeout capstone 14l heading sync (Vitest) | **Shipped** on trunk — extend only | Capstone heading still titles 14a–14k after 14l ships |
+| **IDX-14n** Closeout capstone 14m heading sync (Vitest) | **Shipped** on trunk — extend only | Capstone heading still titles 14a–14l after 14m ships |
 | **IDX-HOLD** | Not implementation | — |
 
 ### Data Flow hub pipeline wave (IDX-07f–13u) — complete
@@ -264,7 +265,7 @@ Singleton-tail, connection rollup, PE opt-in, completeness, hop-focus, cross-mod
 
 Next cross-mode work is **extend-only** (regression fixes). Pick **IDX-05** when a mode keeps subnet nodes visible, **IDX-08** / **IDX-13** base deepening, or **IDX-HOLD** for new scope.
 
-### Excellence index closeout wave (IDX-14a–14l) — complete
+### Excellence index closeout wave (IDX-14a–14m) — complete
 
 Cross-mode and deepening index closeout umbrellas are documented and Vitest-ratcheted. Run the closeout capstone bundle:
 
@@ -351,6 +352,7 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-excellence-<s
 | 14k | `inventory-diagram-excellence-14k-closeout-capstone-index-sync.md` | Capstone index not aligned with 14j manifest |
 | 14l | `inventory-diagram-excellence-14l-closeout-capstone-14k-heading.md` | Capstone heading still titles 14a–14j after 14k |
 | 14m | `inventory-diagram-excellence-14m-closeout-capstone-14l-heading.md` | Capstone heading still titles 14a–14k after 14l |
+| 14n | `inventory-diagram-excellence-14n-closeout-capstone-14m-heading.md` | Capstone heading still titles 14a–14l after 14m |
 | HOLD | `inventory-diagram-excellence-14-hold.md` | Complete-graph / default PE / icons / RBAC dump |
 
 ## Prerequisites (do not re-implement)
