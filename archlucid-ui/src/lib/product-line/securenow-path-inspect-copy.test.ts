@@ -29,9 +29,7 @@ describe("securenow-path-inspect-copy", () => {
   });
 
   it("keeps the no-path finding sentence exact", () => {
-    expect(SECURENOW_PATH_INSPECT_EMPTY_NO_PATH).toBe(
-      "This finding does not cite an architect path. Rank and hop evidence stay unavailable until a path is linked.",
-    );
+    expect(SECURENOW_PATH_INSPECT_EMPTY_NO_PATH).toBe("This finding does not cite a path.");
   });
 
   it("rejects deny-list language in SecureNow path inspect copy", () => {
