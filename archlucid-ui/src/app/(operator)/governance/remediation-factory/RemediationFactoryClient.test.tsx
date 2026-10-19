@@ -361,8 +361,7 @@ describe("RemediationFactoryClient", () => {
       "Sort key 0.4200. Ordering only — not a percentage, probability, or live risk score.",
     );
 
-    fireEvent.click(screen.getByTestId("remediation-priority-resource-id-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"));
-    expect(priorityRow).toHaveTextContent(resourceId);
+    expect(screen.queryByTestId("remediation-priority-resource-id-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")).not.toBeInTheDocument();
 
     const measurementHelpLink = screen.getByTestId("remediation-metrics-measurement-help-link");
     expect(measurementHelpLink).toHaveTextContent("How these counts are measured");

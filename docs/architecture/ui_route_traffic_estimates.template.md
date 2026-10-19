@@ -335,6 +335,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | NDI | `/infrastructure/diagrams` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | IDR | `/infrastructure/drift` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | INX | `/infrastructure/extract-upload` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
+| INM | `/infrastructure/manual-upload` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | IRE | `/infrastructure/resources` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | ICL | `/infrastructure/resources/[cloudResourceId]` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | INN | `/infrastructure/snapshots-drift` | 0.02% | 0 | 0 | 2 | Marketing | No | None |

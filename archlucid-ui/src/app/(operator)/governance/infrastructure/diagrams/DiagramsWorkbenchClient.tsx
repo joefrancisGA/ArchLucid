@@ -5,22 +5,17 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
-import {
-  ArchitectureDiagramViewer,
-  type ArchitectureDiagramConnectorSelection,
-  type ArchitectureDiagramMermaidViewerProps,
-} from "@/components/architecture/ArchitectureDiagramViewer";
+import { DiagramsWorkbenchSecureNowAwareDiagramViewer } from "@/app/(operator)/governance/infrastructure/diagrams/DiagramsWorkbenchSecureNowAwareDiagramViewer";
+import { DiagramsWorkbenchSecureNowQuestionBarFallback } from "@/app/(operator)/governance/infrastructure/diagrams/DiagramsWorkbenchSecureNowQuestionBarFallback";
+import { type ArchitectureDiagramConnectorSelection } from "@/components/architecture/ArchitectureDiagramViewer";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { InfraDiagramsExportHonestyStrip } from "@/components/infra-evidence/InfraDiagramsExportHonestyStrip";
 import { PageShortcutsDisclosure } from "@/components/usability/PageShortcutsDisclosure";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import {
-  SecureNowQuestionQueueBar,
   SecureNowQuestionQueueProvider,
   SecureNowQuestionQueueSnapshotPromo,
-  useSecureNowQuestionQueue,
-  useSecureNowQuestionSubjectNodeId,
 } from "@/components/infra-evidence/SecureNowQuestionQueue";
 import { InfraEvidenceCompletenessWarningsBanner } from "@/components/infra-evidence/InfraEvidenceCompletenessWarningsBanner";
 import { OperatorInferredConnectionsPanel } from "@/components/infra-evidence/OperatorInferredConnectionsPanel";
@@ -107,10 +102,7 @@ import {
 import { buildDiagramWalkthrough } from "@/lib/infra-evidence/build-diagram-walkthrough";
 import { filterInfraEvidenceMermaidOutline } from "@/lib/infra-evidence/azure-inventory-never-show-arm-types";
 import { resolveAlwaysExcludedMermaidCollapseEntries } from "@/lib/infra-evidence/infra-evidence-mermaid-collapse-report";
-import {
-  diagramOutlineIncludesFocusResource,
-  resolveDiagramCameraFocusNodeIds,
-} from "@/lib/architecture/architecture-diagram-camera-focus";
+import { resolveDiagramCameraFocusNodeIds } from "@/lib/architecture/architecture-diagram-camera-focus";
 import type {
   InfraEvidenceMermaidFallbackArtifactSummary,
   InfraEvidenceMermaidModePreview,
@@ -3140,72 +3132,5 @@ export function DiagramsWorkbenchClient() {
         </AlertDialogContent>
       </AlertDialog>
     </OperatorPageContainer>
-  );
-}
-
-type DiagramsWorkbenchSecureNowAwareDiagramViewerProps = ArchitectureDiagramMermaidViewerProps & {
-  readonly embedQuestionBarInViewport: boolean;
-};
-
-function DiagramsWorkbenchSecureNowQuestionBarFallback(props: {
-  readonly outline: ArchitectureDiagramMermaidViewerProps["outline"];
-  readonly paintDiagramCanvas: boolean;
-}): React.JSX.Element | null {
-  const { drawerOpen } = useSecureNowQuestionQueue();
-
-  if (!drawerOpen || props.paintDiagramCanvas) {
-    return null;
-  }
-
-  return <SecureNowQuestionQueueBar outline={props.outline ?? null} />;
-}
-
-function DiagramsWorkbenchSecureNowAwareDiagramViewer(
-  props: DiagramsWorkbenchSecureNowAwareDiagramViewerProps,
-): React.JSX.Element {
-  const { embedQuestionBarInViewport, ...viewerProps } = props;
-  const { drawerOpen, currentQuestion } = useSecureNowQuestionQueue();
-  const questionSubjectNodeId = useSecureNowQuestionSubjectNodeId();
-  const [questionFocusNonce, setQuestionFocusNonce] = useState(0);
-
-  useEffect(() => {
-    if (!drawerOpen || currentQuestion == null) {
-      return;
-    }
-
-    setQuestionFocusNonce((current) => current + 1);
-  }, [currentQuestion?.questionKey, currentQuestion?.resourceId, drawerOpen]);
-
-  const questionCameraFocusNodeIds = useMemo(() => {
-    if (!drawerOpen || questionSubjectNodeId == null) {
-      return [];
-    }
-
-    if (!diagramOutlineIncludesFocusResource(viewerProps.outline, questionSubjectNodeId)) {
-      return [];
-    }
-
-    return resolveDiagramCameraFocusNodeIds(questionSubjectNodeId, viewerProps.outline);
-  }, [drawerOpen, viewerProps.outline, questionSubjectNodeId]);
-
-  const effectiveFocusNodeIds = questionCameraFocusNodeIds.length > 0
-    ? questionCameraFocusNodeIds
-    : viewerProps.focusNodeIds;
-  const effectiveFocusNonce = questionCameraFocusNodeIds.length > 0
-    ? questionFocusNonce
-    : viewerProps.focusNonce;
-
-  const viewportHeader = drawerOpen && embedQuestionBarInViewport
-    ? <SecureNowQuestionQueueBar outline={viewerProps.outline ?? null} />
-    : null;
-
-  return (
-    <ArchitectureDiagramViewer
-      {...viewerProps}
-      focusNodeIds={effectiveFocusNodeIds}
-      focusNonce={effectiveFocusNonce}
-      questionSubjectNodeId={drawerOpen ? questionSubjectNodeId : null}
-      viewportHeader={viewportHeader}
-    />
   );
 }
