@@ -98,6 +98,34 @@ describe("InfrastructureAskClient", () => {
     );
     expect(screen.getByTestId("infra-ask-simulator-banner")).toBeInTheDocument();
     expect(screen.getByTestId("infra-ask-citation-CloudResourceId-11111111-1111-1111-1111-111111111111")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-ask-snapshot-honesty")).toHaveTextContent(
+      "Answers use the inventory snapshot on this page. They do not query live Azure.",
+    );
+  });
+
+  it("does not show insufficient-evidence scope copy when the answer is sufficient", async () => {
+    vi.mocked(submitInfraEvidenceAsk).mockResolvedValueOnce({
+      topicKind: "ResourceOverview",
+      answer: "Two storage accounts are in scope.",
+      insufficientEvidence: false,
+      citations: [],
+      simulatorLabel: null,
+    });
+    searchParams = new URLSearchParams("");
+    render(<InfrastructureAskClient />);
+
+    fireEvent.change(screen.getByTestId("infra-ask-question"), {
+      target: { value: "How many storage accounts are in scope?" },
+    });
+    fireEvent.click(screen.getByTestId("infra-ask-submit"));
+
+    expect(await screen.findByTestId("infra-ask-response")).toBeInTheDocument();
+    expect(screen.getByText("Two storage accounts are in scope.")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-ask-insufficient-evidence")).toBeNull();
+    expect(screen.queryByTestId("infra-ask-insufficient-evidence-scope")).toBeNull();
+    expect(screen.getByTestId("infra-ask-snapshot-honesty")).toHaveTextContent(
+      "Answers use the inventory snapshot on this page. They do not query live Azure.",
+    );
   });
 
   it("links FindingId citations into the remediation factory", async () => {
