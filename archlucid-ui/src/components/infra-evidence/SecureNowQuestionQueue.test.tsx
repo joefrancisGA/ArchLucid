@@ -81,7 +81,7 @@ describe("SecureNowQuestionQueue", () => {
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
 
     expect(await screen.findByTestId("infra-diagrams-question-snapshot-promo")).toHaveTextContent("1 open question");
-    expect(screen.getByLabelText("Status: Action needed")).toBeInTheDocument();
+    expect(screen.getByLabelText("Status: Open questions")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Review questions" }));
 
     expect(screen.getByTestId("infra-diagrams-question-bar")).toBeInTheDocument();
@@ -261,7 +261,7 @@ describe("SecureNowQuestionQueue", () => {
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
 
     expect(await screen.findByTestId("infra-diagrams-question-snapshot-promo")).toHaveTextContent("1 open question");
-    expect(screen.getByLabelText("Status: Action needed")).toBeInTheDocument();
+    expect(screen.getByLabelText("Status: Open questions")).toBeInTheDocument();
     expect(screen.getByText("inferred connections unavailable")).toBeInTheDocument();
   });
 
@@ -270,7 +270,7 @@ describe("SecureNowQuestionQueue", () => {
 
     await waitFor(() => expect(mocks.listQuestions).toHaveBeenCalledWith("snapshot-1"));
     expect(screen.queryByTestId("infra-diagrams-question-snapshot-promo")).not.toBeInTheDocument();
-    expect(screen.queryByLabelText("Status: Action needed")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Status: Open questions")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Review questions" })).not.toBeInTheDocument();
     expect(screen.queryByText("No proposed questionnaire items remain for this snapshot.")).not.toBeInTheDocument();
   });
