@@ -142,6 +142,7 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-14g** Hop-focus deepening closeout | **Shipped** on trunk — extend only | Index lacks IDX-12b complete subsection + Vitest guard |
 | **IDX-14h** Deepening excellence wave closeout | **Shipped** on trunk — extend only | Index lacks IDX-05b–12b umbrella subsection + Vitest guard |
 | **IDX-14i** Excellence index closeout wave closeout | **Shipped** on trunk — extend only | Index lacks IDX-14a–14h capstone subsection + Vitest guard |
+| **IDX-14j** Closeout wave UI manifest (Vitest) | **Shipped** on trunk — extend only | Closeout Vitest files deletable without CI failure |
 | **IDX-HOLD** | Not implementation | — |
 
 ### Data Flow hub pipeline wave (IDX-07f–13u) — complete
@@ -270,6 +271,8 @@ Cross-mode and deepening index closeout umbrellas are documented and Vitest-ratc
 
 `cd archlucid-ui && npm test -- inventory-diagram-excellence-closeout-wave-closeout`
 
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-closeout-wave-ui-manifest`
+
 Next **IDX-14** work is **extend-only** (regression fixes on per-slice or umbrella closeouts).
 
 **Regression guard:** `dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellence` plus `ArchLucid.Application.Tests --filter FullyQualifiedName~InfraEvidenceMermaidCompleteness` and `FullyQualifiedName~InventoryDiagramExcellenceCompleteness`. Data Flow hub pipeline slice (both projects): `dotnet test ArchLucid.ArtifactSynthesis.Tests --filter InventoryDiagramExcellence=DataFlowHubPipeline` and `dotnet test ArchLucid.Application.Tests --filter InventoryDiagramExcellence=DataFlowHubPipeline`. **IDX-05** subnet layer can still deepen when a mode keeps subnet nodes visible.
@@ -341,6 +344,7 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-excellence-<s
 | 14g | `inventory-diagram-excellence-14g-hop-focus-wave-closeout.md` | IDX-12b hop-focus slice not documented complete in index |
 | 14h | `inventory-diagram-excellence-14h-deepening-wave-closeout.md` | IDX-05b–12b deepening bundle not documented complete in index |
 | 14i | `inventory-diagram-excellence-14i-closeout-wave-closeout.md` | IDX-14a–14h capstone closeout not documented complete in index |
+| 14j | `inventory-diagram-excellence-14j-closeout-wave-ui-manifest.md` | Closeout Vitest files not manifest-guarded |
 | HOLD | `inventory-diagram-excellence-14-hold.md` | Complete-graph / default PE / icons / RBAC dump |
 
 ## Prerequisites (do not re-implement)
