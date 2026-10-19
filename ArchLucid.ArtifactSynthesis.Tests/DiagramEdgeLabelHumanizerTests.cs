@@ -65,14 +65,14 @@ public sealed class DiagramEdgeLabelHumanizerTests
     }
 
     [Fact]
-    public void ResolveDisplayLabel_maps_human_declared_connections_to_declared()
+    public void ResolveDisplayLabel_uses_edge_type_verb_for_human_declared_connections()
     {
         DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
                 null,
                 GraphEdgeTypes.ConnectsTo,
                 GraphEdgeInferenceSources.HumanDeclaredConnection)
             .Should()
-            .Be("declared");
+            .Be("connects");
     }
 
     [Fact]

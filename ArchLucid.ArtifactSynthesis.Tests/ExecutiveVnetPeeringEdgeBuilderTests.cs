@@ -1,6 +1,8 @@
 using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.AzureExtractor;
+using ArchLucid.KnowledgeGraph;
 
 using FluentAssertions;
 
@@ -21,7 +23,10 @@ public sealed class ExecutiveVnetPeeringEdgeBuilderTests
             Array.Empty<GraphNode>(),
             new Dictionary<string, string>(StringComparer.Ordinal));
 
-        ast.Edges.Single().Label.Should().Be("peering");
+        DiagramEdge peering = ast.Edges.Single();
+        peering.Label.Should().Be("peering");
+        peering.InferenceSource.Should().Be(GraphEdgeInferenceSources.InventoryVnetPeering);
+        peering.ProvenanceKind.Should().Be("ObservedFact");
     }
 
     [Fact]
@@ -37,6 +42,43 @@ public sealed class ExecutiveVnetPeeringEdgeBuilderTests
             new Dictionary<string, string>(StringComparer.Ordinal));
 
         ast.Edges.Single().Label.Should().Be("connects");
+        ast.Edges.Single().ProvenanceKind.Should().BeNull();
+    }
+
+    [Fact]
+    public void Apply_stamps_observed_fact_on_existing_peering_label_without_provenance()
+    {
+        DiagramAst ast = CreateVirtualNetworkPairAst(label: "peering");
+        GraphSnapshot graph = new();
+
+        ExecutiveVnetPeeringEdgeBuilder.Apply(
+            ast,
+            graph,
+            Array.Empty<GraphNode>(),
+            new Dictionary<string, string>(StringComparer.Ordinal));
+
+        DiagramEdge peering = ast.Edges.Single();
+        peering.Label.Should().Be("peering");
+        peering.InferenceSource.Should().Be(GraphEdgeInferenceSources.InventoryVnetPeering);
+        peering.ProvenanceKind.Should().Be("ObservedFact");
+    }
+
+    [Fact]
+    public void Apply_relabels_relationship_omission_virtual_network_pair_edges()
+    {
+        DiagramAst ast = CreateVirtualNetworkPairAst(label: DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel);
+        GraphSnapshot graph = new();
+
+        ExecutiveVnetPeeringEdgeBuilder.Apply(
+            ast,
+            graph,
+            Array.Empty<GraphNode>(),
+            new Dictionary<string, string>(StringComparer.Ordinal));
+
+        DiagramEdge peering = ast.Edges.Single();
+        peering.Label.Should().Be("peering");
+        peering.InferenceSource.Should().Be(GraphEdgeInferenceSources.InventoryVnetPeering);
+        peering.ProvenanceKind.Should().Be("ObservedFact");
     }
 
     [Fact]
@@ -78,6 +120,52 @@ public sealed class ExecutiveVnetPeeringEdgeBuilderTests
             new Dictionary<string, string>(StringComparer.Ordinal));
 
         ast.Edges.Single().Label.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Apply_synthesizes_missing_peering_edge_from_property_json()
+    {
+        const string vnetAArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-a";
+        const string vnetBArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-b";
+        DiagramAst ast = CreateVirtualNetworkPairAst(label: "connects");
+        ast.Edges.Clear();
+        GraphNode left = CreateVnetGraphNode("graph-a", vnetAArmId);
+        GraphNode right = CreateVnetGraphNode("graph-b", vnetBArmId);
+        left.Properties[AzureInventoryVnetPeeringParser.PeeringsPropertyKey] =
+            "[{\"properties\":{\"remoteVirtualNetwork\":{\"id\":\"" + vnetBArmId + "\"}}}]";
+        GraphSnapshot graph = new();
+        graph.Nodes.Add(left);
+        graph.Nodes.Add(right);
+
+        ExecutiveVnetPeeringEdgeBuilder.Apply(
+            ast,
+            graph,
+            [left, right],
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["graph-a"] = "vnet-a",
+                ["graph-b"] = "vnet-b",
+            });
+
+        DiagramEdge peering = ast.Edges.Should().ContainSingle().Subject;
+        peering.Label.Should().Be("peering");
+        peering.InferenceSource.Should().Be(GraphEdgeInferenceSources.InventoryVnetPeering);
+        peering.ProvenanceKind.Should().Be("ObservedFact");
+    }
+
+    private static GraphNode CreateVnetGraphNode(string nodeId, string armId)
+    {
+        return new GraphNode
+        {
+            NodeId = nodeId,
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["arm.id"] = armId,
+                ["arm.type"] = "Microsoft.Network/virtualNetworks",
+            },
+        };
     }
 
     private static DiagramAst CreateVirtualNetworkPairAst(string label)

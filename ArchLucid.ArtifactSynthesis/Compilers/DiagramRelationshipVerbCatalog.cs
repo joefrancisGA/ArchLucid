@@ -98,11 +98,8 @@ internal static class DiagramRelationshipVerbCatalog
             return true;
         }
 
-        if (normalized.Equals(GraphEdgeInferenceSources.HumanDeclaredConnection, StringComparison.OrdinalIgnoreCase))
-        {
-            label = "declared";
-            return true;
-        }
+        // HumanDeclaredConnection is provenance, not a relationship verb. The provenance
+        // applier prefixes "declared · " onto the edge-type verb (CONNECTS_TO → connects).
 
         if (normalized.Equals(AzureInventoryRelationshipAssociationTypes.NicToSubnet, StringComparison.OrdinalIgnoreCase)
             || normalized.Equals(AzureInventoryRelationshipAssociationTypes.PeToSubnet, StringComparison.OrdinalIgnoreCase)

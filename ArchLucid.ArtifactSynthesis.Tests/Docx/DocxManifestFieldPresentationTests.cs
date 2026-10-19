@@ -6,6 +6,8 @@ using Xunit;
 
 namespace ArchLucid.ArtifactSynthesis.Tests.Docx;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
 public sealed class DocxManifestFieldPresentationTests
 {
     [Fact]
