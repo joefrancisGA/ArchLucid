@@ -69,6 +69,7 @@
     "dbo.RunStoredEvidenceFiles",
     "dbo.Runs",
     "dbo.SecureNowCollectionRuns",
+    "dbo.SecurityEvidencePathSearchCoverage",
     "dbo.SecurityEvidencePaths",
     "dbo.SignedReviewRecords",
     "dbo.SupportProblemReports",

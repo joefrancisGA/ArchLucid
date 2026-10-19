@@ -2,6 +2,7 @@ using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Inventory;
 
 namespace ArchLucid.ArtifactSynthesis.Compilers;
@@ -86,14 +87,16 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
                     FromNodeId = fromMermaidId,
                     ToNodeId = toMermaidId,
                     Label = "peering",
+                    InferenceSource = GraphEdgeInferenceSources.InventoryVnetPeering,
+                    ProvenanceKind = ProvenanceKind.ObservedFact.ToString(),
                 });
             }
         }
 
-        RelabelBlankVirtualNetworkPairEdges(ast);
+        RelabelVirtualNetworkPairPeeringEdges(ast);
     }
 
-    private static void RelabelBlankVirtualNetworkPairEdges(DiagramAst ast)
+    private static void RelabelVirtualNetworkPairPeeringEdges(DiagramAst ast)
     {
         Dictionary<string, DiagramNode> nodesById = ast.Nodes
             .GroupBy(node => node.NodeId, StringComparer.Ordinal)
@@ -101,18 +104,33 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
 
         foreach (DiagramEdge edge in DiagramEdgeVisibility.VisibleEdges(ast.Edges))
         {
-            if (!string.IsNullOrWhiteSpace(edge.Label))
-            {
-                continue;
-            }
-
             if (!IsVirtualNetworkNode(nodesById, edge.FromNodeId)
                 || !IsVirtualNetworkNode(nodesById, edge.ToNodeId))
             {
                 continue;
             }
 
+            bool isOmittedVerb = string.IsNullOrWhiteSpace(edge.Label)
+                || string.Equals(
+                    edge.Label,
+                    DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel,
+                    StringComparison.Ordinal);
+            bool isPeeringLabel = string.Equals(edge.Label, "peering", StringComparison.OrdinalIgnoreCase);
+
+            if (!isOmittedVerb && !isPeeringLabel)
+            {
+                continue;
+            }
+
             edge.Label = "peering";
+
+            if (!string.IsNullOrWhiteSpace(edge.ProvenanceKind))
+            {
+                continue;
+            }
+
+            edge.InferenceSource = GraphEdgeInferenceSources.InventoryVnetPeering;
+            edge.ProvenanceKind = ProvenanceKind.ObservedFact.ToString();
         }
     }
 

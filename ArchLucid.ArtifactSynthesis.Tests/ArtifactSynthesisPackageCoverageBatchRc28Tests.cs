@@ -48,8 +48,8 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28Tests
         string mermaid = renderer.Render(ast);
 
         mermaid.Should().StartWith("flowchart TD");
-        mermaid.Should().Contain("a[\"Alpha 'one'\"]");
-        mermaid.Should().Contain("b[\"Beta\"]");
+        mermaid.Should().Contain("a[\"Alpha 'one' · Resource type was not stored\"]");
+        mermaid.Should().Contain("b[\"Beta · Resource type was not stored\"]");
         mermaid.Should().Contain("a -->|\"writes 'data'\"| b");
     }
 
@@ -68,7 +68,7 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28Tests
 
         string mermaid = renderer.Render(ast);
 
-        mermaid.Should().Contain("a[\"Title #93; break line two\"]");
+        mermaid.Should().Contain("a[\"Title #93; break line two · Resource type was not stored\"]");
         mermaid.Should().NotContain("Title ] break");
     }
 
@@ -96,7 +96,7 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28Tests
 
         string mermaid = renderer.Render(ast);
 
-        mermaid.Should().Contain("a[\"Title break\"]");
+        mermaid.Should().Contain("a[\"Title break · Resource type was not stored\"]");
         mermaid.Should().NotContain("\u0001");
         mermaid.Should().NotContain("\u200E");
     }

@@ -43,3 +43,5 @@ Each implementation prompt ends **before commit**. The owner looks, then says wh
 | 64 | `understand-use-64-waves-are-on-the-workbench.md` | `uu/64-waves-are-on-the-workbench` |
 | 65 | `understand-use-65-one-open-findings-count.md` | `uu/65-one-open-findings-count` |
 | 66 | `understand-use-66-resource-on-the-row.md` | `uu/66-resource-on-the-row` |
+
+Wave H is [`understand-use-h-00-index.md`](understand-use-h-00-index.md). Paste that file on its own. Do not implement it from this page.

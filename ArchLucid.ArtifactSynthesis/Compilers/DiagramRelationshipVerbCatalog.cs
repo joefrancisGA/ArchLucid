@@ -98,10 +98,11 @@ internal static class DiagramRelationshipVerbCatalog
             return true;
         }
 
+        // Provenance display owns the "declared" prefix; keep the relationship verb from edge type.
+
         if (normalized.Equals(GraphEdgeInferenceSources.HumanDeclaredConnection, StringComparison.OrdinalIgnoreCase))
         {
-            label = "declared";
-            return true;
+            return false;
         }
 
         if (normalized.Equals(AzureInventoryRelationshipAssociationTypes.NicToSubnet, StringComparison.OrdinalIgnoreCase)

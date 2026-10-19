@@ -137,6 +137,8 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-14b** Subnet nested-frame deepening closeout | **Shipped** on trunk — extend only | Index lacks IDX-05b complete subsection + Vitest guard |
 | **IDX-14c** Singleton-RG tail deepening closeout | **Shipped** on trunk — extend only | Index lacks IDX-08b–08c complete subsection + Vitest guard |
 | **IDX-14d** Duplicate connection deepening closeout | **Shipped** on trunk — extend only | Index lacks IDX-09b complete subsection + Vitest guard |
+| **IDX-14e** Private endpoint opt-in deepening closeout | **Shipped** on trunk — extend only | Index lacks IDX-10b complete subsection + Vitest guard |
+| **IDX-14f** Completeness summary deepening closeout | **Shipped** on trunk — extend only | Index lacks IDX-11b complete subsection + Vitest guard |
 | **IDX-14g** Hop-focus deepening closeout | **Shipped** on trunk — extend only | Index lacks IDX-12b complete subsection + Vitest guard |
 | **IDX-HOLD** | Not implementation | — |
 
@@ -183,6 +185,26 @@ Logic App connector rollup, distinct API label retention, and forest render of m
 `cd archlucid-ui && npm test -- inventory-diagram-excellence-duplicate-connection-wave-closeout`
 
 Next **IDX-09** work is **extend-only** (regression fixes on connection rollup).
+
+### Private endpoint opt-in deepening (IDX-10b) — complete
+
+DataFlow/DataArchitecture default-off PE compile, Full subscription Mermaid export without PE arm types, and Network opt-in PE nodes are excellence-ratcheted. Run the private-endpoint slice:
+
+`dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellencePrivateEndpoint`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-private-endpoint-wave-closeout`
+
+Next **IDX-10** work is **extend-only** (regression fixes on workbench PE toggle and compile flag).
+
+### Completeness summary deepening (IDX-11b) — complete
+
+Mode-aware completeness summaries (network vs identity missing classes, hidden hops, Data Flow logicAppConnections) are excellence-ratcheted in Application tests. Run the completeness slice:
+
+`dotnet test ArchLucid.Application.Tests --filter FullyQualifiedName~InventoryDiagramExcellenceCompleteness`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-completeness-wave-closeout`
+
+Next **IDX-11** work is **extend-only** (regression fixes on walkthrough counts and banner copy).
 
 ### Hop-focus deepening (IDX-12b) — complete
 
@@ -280,6 +302,8 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-excellence-<s
 | 14b | `inventory-diagram-excellence-14b-subnet-wave-closeout.md` | IDX-05b subnet slice not documented complete in index |
 | 14c | `inventory-diagram-excellence-14c-singleton-tail-wave-closeout.md` | IDX-08b–08c singleton tail slice not documented complete in index |
 | 14d | `inventory-diagram-excellence-14d-duplicate-connection-wave-closeout.md` | IDX-09b duplicate connection slice not documented complete in index |
+| 14e | `inventory-diagram-excellence-14e-private-endpoint-wave-closeout.md` | IDX-10b PE opt-in slice not documented complete in index |
+| 14f | `inventory-diagram-excellence-14f-completeness-wave-closeout.md` | IDX-11b completeness slice not documented complete in index |
 | 14g | `inventory-diagram-excellence-14g-hop-focus-wave-closeout.md` | IDX-12b hop-focus slice not documented complete in index |
 | HOLD | `inventory-diagram-excellence-14-hold.md` | Complete-graph / default PE / icons / RBAC dump |
 
