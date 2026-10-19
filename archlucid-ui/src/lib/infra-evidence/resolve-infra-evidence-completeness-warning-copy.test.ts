@@ -13,6 +13,17 @@ describe("resolveInfraEvidenceCompletenessWarningPresentation", () => {
 
     expect(presentation.code).toBe("app-settings-not-collected-hosted-get-only");
     expect(presentation.title).toContain("hosted pull");
+    expect(presentation.detail).toContain("values are discarded");
+    expect(presentation.detail).not.toContain("never values");
+  });
+
+  it("maps app settings list forbidden warnings", () => {
+    const presentation = resolveInfraEvidenceCompletenessWarningPresentation(
+      "app-settings-list-forbidden:/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app",
+    );
+
+    expect(presentation.title).toContain("could not be listed");
+    expect(presentation.detail).toContain("microsoft.web/sites/config/list/action");
   });
 
   it("maps broad RBAC scope warnings", () => {

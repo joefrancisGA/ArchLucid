@@ -188,6 +188,7 @@ public sealed class HostedAzureExtractorClient(
             subscriptionId,
             resources,
             accessToken.Token,
+            request.IncludeAppSettingsHosts,
             cancellationToken).ConfigureAwait(false);
 
         IReadOnlyList<AzureInventoryRecoveryServicesProtectedItemRow> recoveryServicesProtectedItems =
@@ -453,6 +454,7 @@ public sealed class HostedAzureExtractorClient(
             subscriptionId: null,
             resources,
             accessTokenValue,
+            request.IncludeAppSettingsHosts,
             cancellationToken).ConfigureAwait(false);
 
         IReadOnlyList<AzureInventoryRecoveryServicesProtectedItemRow> recoveryServicesProtectedItems =
@@ -563,6 +565,7 @@ public sealed class HostedAzureExtractorClient(
         string? subscriptionId,
         IReadOnlyList<HostedAzureArmResourceRecord> resources,
         string accessToken,
+        bool includeAppSettingsHosts,
         CancellationToken cancellationToken)
     {
         if (_armReadClient is not GetOnlyHostedAzureArmReadClient concreteArmReadClient)
@@ -575,6 +578,7 @@ public sealed class HostedAzureExtractorClient(
             accessToken,
             subscriptionId,
             resources,
+            includeAppSettingsHosts,
             _logger,
             cancellationToken).ConfigureAwait(false);
     }

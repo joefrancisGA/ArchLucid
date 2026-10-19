@@ -13,4 +13,9 @@ public sealed class HostedAzureExtractorCollectionRequest
     public string? ManagementGroupId { get; init; }
 
     public bool IncludeCost { get; init; }
+
+    /// <summary>
+    ///     When true, POST App Service <c>config/appsettings/list</c> and <c>config/connectionstrings/list</c> for hostname hints only (DCH-04).
+    /// </summary>
+    public bool IncludeAppSettingsHosts { get; init; }
 }

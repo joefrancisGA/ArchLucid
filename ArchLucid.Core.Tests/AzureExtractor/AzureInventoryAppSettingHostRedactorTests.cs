@@ -12,9 +12,28 @@ public sealed class AzureInventoryAppSettingHostRedactorTests
     [InlineData("Server=tcp:prodsql.database.windows.net,1433;Password=secret")]
     [InlineData("SharedAccessKey=abc")]
     [InlineData("AccountKey=abc")]
-    public void ShouldRejectValue_blocks_secret_like_content(string value)
+    public void ShouldRejectValue_detects_secret_markers(string value)
     {
         AzureInventoryAppSettingHostRedactor.ShouldRejectValue(value).Should().BeTrue();
+    }
+
+    [Fact]
+    public void TryParseSettingValue_extracts_sql_host_and_catalog_when_password_present()
+    {
+        AzureInventoryAppSettingHostParsedFields? parsed = AzureInventoryAppSettingHostRedactor.TryParseSettingValue(
+            "Server=tcp:prodsql.database.windows.net,1433;Initial Catalog=archlucid;Password=s3cret-value");
+
+        parsed.Should().NotBeNull();
+        parsed!.Host.Should().Be("prodsql.database.windows.net");
+        parsed.Catalog.Should().Be("archlucid");
+    }
+
+    [Theory]
+    [InlineData("AccountKey=abc")]
+    [InlineData("SharedAccessKey=abc")]
+    public void TryParseSettingValue_returns_null_for_secret_only_values(string value)
+    {
+        AzureInventoryAppSettingHostRedactor.TryParseSettingValue(value).Should().BeNull();
     }
 
     [Fact]

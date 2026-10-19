@@ -2,6 +2,7 @@
 
 export const AzureInventoryRelationshipCompletenessWarningCodes = {
   AppSettingsNotCollectedHostedGetOnly: "app-settings-not-collected-hosted-get-only",
+  AppSettingsListForbiddenPrefix: "app-settings-list-forbidden:",
   AppSettingsHostUnresolved: "app-settings-host-unresolved",
   AksWorkloadImagesNotCollectedCustomerScript:
     "aks-workload-images-not-collected-customer-script",

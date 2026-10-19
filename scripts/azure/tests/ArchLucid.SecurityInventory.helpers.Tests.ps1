@@ -751,15 +751,17 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
         $rows[0].secureScore | Should -Be 85
     }
 
-    It 'rejects app setting values that contain password markers' {
+    It 'detects password markers but still parses sql host' {
         Test-ArchLucidAzureAppSettingHostRejectedValue -Value 'Server=tcp:sql.database.windows.net;Password=secret' |
             Should -Be $true
 
         $parsed = Get-ArchLucidAzureAppSettingHostFromValue `
             -SettingName 'SqlConnection' `
-            -Value 'Server=tcp:sql.database.windows.net;Password=secret'
+            -Value 'Server=tcp:prodsql.database.windows.net,1433;Initial Catalog=archlucid;Password=s3cret-value'
 
-        $parsed | Should -Be $null
+        $parsed.parsedHost | Should -Be 'prodsql.database.windows.net'
+        $parsed.catalog | Should -Be 'archlucid'
+        ($parsed | ConvertTo-Json) | Should -Not -Match 's3cret-value'
     }
 
     It 'parses sql host and key vault reference without storing secret values' {
