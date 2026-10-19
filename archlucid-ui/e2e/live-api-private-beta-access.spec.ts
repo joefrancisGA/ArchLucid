@@ -73,7 +73,13 @@ test.describe(
   () => {
   test.skip(!resolveLiveJwtMode(), "Set LIVE_JWT_TOKEN to run private-beta JwtBearer access-path smoke.");
 
+  // Playwright's default hook/test timeout is 30s. Invite-wave beforeAll waits up to 180s for
+  // /health/ready and may JIT-warm create-run (up to LIVE_E2E_PRIVATE_BETA_CREATE_RUN_HTTP_TIMEOUT_MS).
+  test.describe.configure({ timeout: liveE2ePrivateBetaAccessPlaywrightTimeoutMs() });
+
   test.beforeAll(async ({ request }) => {
+    test.setTimeout(liveE2ePrivateBetaAccessPlaywrightTimeoutMs());
+
     await waitForLiveApiReady(request, {
       timeoutMs: process.env.LIVE_E2E_PRIVATE_BETA_ACCESS === "1" ? 180_000 : undefined,
     });
@@ -103,6 +109,8 @@ test.describe(
   });
 
     test("JwtBearer rejects forged x-tenant-id on scope and invitations (TB-925)", async ({ request }) => {
+    test.setTimeout(liveE2ePrivateBetaAccessPlaywrightTimeoutMs());
+
     requireLivePrivateBetaJwtEnv();
 
     await assertJwtScopeBindingRejectsForgedTenantHeader(request);
@@ -244,6 +252,8 @@ test.describe(
     });
 
     test("non-admin principal cannot POST /v1/admin/users/invite (403)", async ({ request }) => {
+    test.setTimeout(liveE2ePrivateBetaAccessPlaywrightTimeoutMs());
+
     requireLivePrivateBetaJwtEnv();
 
     const inviteeEmail = `e2e-beta-nonadmin-${Date.now()}@example.com`;
@@ -364,7 +374,10 @@ test.describe(
   test.describe("browser journeys", () => {
     // Keep independent invitee journeys running after a Reviews-hub failure so one
     // diagnostic timeout cannot hide the remaining private-beta access coverage.
-    test.describe.configure({ mode: "parallel" });
+    test.describe.configure({
+      mode: "parallel",
+      timeout: liveE2ePrivateBetaAccessPlaywrightTimeoutMs(),
+    });
 
     test.beforeEach(async ({ page }) => {
       await stubEmptyArchitectureDraftListRoute(page);

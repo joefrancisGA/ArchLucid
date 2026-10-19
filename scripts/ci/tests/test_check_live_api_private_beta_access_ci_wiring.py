@@ -57,6 +57,48 @@ class TestCheckLiveApiPrivateBetaAccessCiWiring(unittest.TestCase):
 
         self.assertTrue(any("below" in error for error in errors))
 
+    def test_playwright_timeout_wiring_rejects_before_all_without_hook_timeout(self) -> None:
+        errors: list[str] = []
+        timeout_fn = sut._PRIVATE_BETA_TIMEOUT_FN
+        spec_text = "\n".join(
+            [
+                f"test.describe.configure({{ timeout: {timeout_fn}() }});",
+                "test.beforeAll(async ({ request }) => {",
+                "  await waitForLiveApiReady(request);",
+                "});",
+                f"test.setTimeout({timeout_fn}());",
+            ]
+        )
+
+        sut._require_private_beta_playwright_timeout_wiring(
+            spec_text,
+            f"export function {timeout_fn}() {{ if (process.env.CI) {{ return 2700000; }} }}",
+            errors,
+        )
+
+        self.assertTrue(any("test.beforeAll must call" in error for error in errors))
+
+    def test_playwright_timeout_wiring_accepts_before_all_hook_timeout(self) -> None:
+        errors: list[str] = []
+        timeout_fn = sut._PRIVATE_BETA_TIMEOUT_FN
+        spec_text = "\n".join(
+            [
+                f"test.describe.configure({{ timeout: {timeout_fn}() }});",
+                "test.beforeAll(async ({ request }) => {",
+                f"  test.setTimeout({timeout_fn}());",
+                "  await waitForLiveApiReady(request);",
+                "});",
+            ]
+        )
+
+        sut._require_private_beta_playwright_timeout_wiring(
+            spec_text,
+            f"export function {timeout_fn}() {{ if (process.env.CI) {{ return 2_700_000; }} }}",
+            errors,
+        )
+
+        self.assertEqual(errors, [])
+
     def test_push_workflow_requires_failure_triage_rollup(self) -> None:
         push_text = (REPO_ROOT / ".github/workflows/private-beta-access-on-push.yml").read_text(
             encoding="utf-8",

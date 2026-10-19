@@ -158,6 +158,31 @@ def _require_private_beta_playwright_timeout_wiring(spec_text: str, client_text:
             f"test.setTimeout({_PRIVATE_BETA_TIMEOUT_FN}())",
         )
 
+    if f"test.describe.configure({{ timeout: {_PRIVATE_BETA_TIMEOUT_FN}() }})" not in spec_text:
+        errors.append(
+            f"archlucid-ui/e2e/{_SPEC}: describe must configure timeout with {_PRIVATE_BETA_TIMEOUT_FN} "
+            "(Playwright default hook/test timeout is 30s)",
+        )
+
+    before_all_idx = spec_text.find("test.beforeAll")
+
+    if before_all_idx < 0:
+        errors.append(f"archlucid-ui/e2e/{_SPEC}: missing test.beforeAll hook")
+    else:
+        # First `});` after beforeAll is waitForLiveApiReady's options in the real spec;
+        # setTimeout must appear before that so a later test.setTimeout cannot satisfy this guard.
+        hook_end = spec_text.find("});", before_all_idx)
+        before_all_slice = spec_text[
+            before_all_idx : hook_end if hook_end >= 0 else before_all_idx + 800
+        ]
+
+        if f"test.setTimeout({_PRIVATE_BETA_TIMEOUT_FN}())" not in before_all_slice:
+            errors.append(
+                f"archlucid-ui/e2e/{_SPEC}: test.beforeAll must call "
+                f"test.setTimeout({_PRIVATE_BETA_TIMEOUT_FN}()) so waitForLiveApiReady "
+                "and create-run warm are not killed at Playwright's 30s hook default",
+            )
+
     if _LEGACY_RUN_CYCLE_TIMEOUT_FN in spec_text:
         errors.append(
             f"archlucid-ui/e2e/{_SPEC}: must not use {_LEGACY_RUN_CYCLE_TIMEOUT_FN} "
