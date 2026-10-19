@@ -144,6 +144,7 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-14i** Excellence index closeout wave closeout | **Shipped** on trunk — extend only | Index lacks IDX-14a–14h capstone subsection + Vitest guard |
 | **IDX-14j** Closeout wave UI manifest (Vitest) | **Shipped** on trunk — extend only | Closeout Vitest files deletable without CI failure |
 | **IDX-14k** Closeout capstone index sync (Vitest) | **Shipped** on trunk — extend only | Capstone heading/Vitest still stop at 14h after 14j |
+| **IDX-14l** Closeout capstone 14k heading sync (Vitest) | **Shipped** on trunk — extend only | Capstone heading still titles 14a–14j after 14k ships |
 | **IDX-HOLD** | Not implementation | — |
 
 ### Data Flow hub pipeline wave (IDX-07f–13u) — complete
@@ -262,7 +263,7 @@ Singleton-tail, connection rollup, PE opt-in, completeness, hop-focus, cross-mod
 
 Next cross-mode work is **extend-only** (regression fixes). Pick **IDX-05** when a mode keeps subnet nodes visible, **IDX-08** / **IDX-13** base deepening, or **IDX-HOLD** for new scope.
 
-### Excellence index closeout wave (IDX-14a–14j) — complete
+### Excellence index closeout wave (IDX-14a–14k) — complete
 
 Cross-mode and deepening index closeout umbrellas are documented and Vitest-ratcheted. Run the closeout capstone bundle:
 
@@ -347,6 +348,7 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-excellence-<s
 | 14i | `inventory-diagram-excellence-14i-closeout-wave-closeout.md` | IDX-14a–14h capstone closeout not documented complete in index |
 | 14j | `inventory-diagram-excellence-14j-closeout-wave-ui-manifest.md` | Closeout Vitest files not manifest-guarded |
 | 14k | `inventory-diagram-excellence-14k-closeout-capstone-index-sync.md` | Capstone index not aligned with 14j manifest |
+| 14l | `inventory-diagram-excellence-14l-closeout-capstone-14k-heading.md` | Capstone heading still titles 14a–14j after 14k |
 | HOLD | `inventory-diagram-excellence-14-hold.md` | Complete-graph / default PE / icons / RBAC dump |
 
 ## Prerequisites (do not re-implement)
