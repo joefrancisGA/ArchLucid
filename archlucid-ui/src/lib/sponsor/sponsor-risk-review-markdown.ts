@@ -16,8 +16,22 @@ function trimLine(value: string | null | undefined): string {
   return (value ?? "").trim();
 }
 
-function pickRecommendedSponsorAction(summary: RunExplanationSummary): string {
-  return "No sponsor action was stored on this review.";
+function pickRecommendedSponsorAction(_summary: RunExplanationSummary): string {
+  return "This export has no separate sponsor-action field. Recommended actions are on the finding rows when they were stored.";
+}
+
+function formatSponsorFindingRecommendedAction(value: string | null | undefined): string {
+  if (value === null || value === undefined) {
+    return "Recommended action was not stored.";
+  }
+
+  const trimmed = value.trim();
+
+  if (trimmed.length === 0) {
+    return "Recommended action was stored empty.";
+  }
+
+  return trimmed;
 }
 
 function ratioPercentLabel(value: number | null | undefined, emptyLabel: string): string {
@@ -124,9 +138,7 @@ export function buildSponsorRiskReviewMarkdown(
             (r) =>
               `| ${mdTableCell(trimLine(r.severity) || "Severity was not stored")} | ${mdTableCell(
                 trimLine(r.title) || "Finding title was not stored",
-              )} | ${mdTableCell(
-                trimLine(r.recommended) || "No recommended action recorded for this finding.",
-              )} |`,
+              )} | ${mdTableCell(formatSponsorFindingRecommendedAction(r.recommended))} |`,
           ),
           "",
         ].join("\n");

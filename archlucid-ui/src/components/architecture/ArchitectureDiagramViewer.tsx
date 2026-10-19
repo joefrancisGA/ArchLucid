@@ -1424,13 +1424,17 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
           <p className="m-0">
             {questionableNode.questionableReason === null || questionableNode.questionableReason === undefined
               ? "Question reason was not stored."
-              : questionableNode.questionableReason}
+              : questionableNode.questionableReason.trim().length === 0
+                ? "Question reason was stored empty."
+                : questionableNode.questionableReason}
           </p>
           <p className="m-0">
             <span className="font-semibold">Recommended action: </span>
             {questionableNode.questionableAction === null || questionableNode.questionableAction === undefined
               ? "Recommended action was not stored."
-              : questionableNode.questionableAction}
+              : questionableNode.questionableAction.trim().length === 0
+                ? "Recommended action was stored empty."
+                : questionableNode.questionableAction}
           </p>
         </aside>
       ) : null}

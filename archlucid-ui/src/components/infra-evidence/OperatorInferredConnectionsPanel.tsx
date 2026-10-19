@@ -44,6 +44,10 @@ function formatConnectionStatus(status: OperatorInferredConnectionRow["status"])
     return OPERATOR_INFERRED_CONNECTION_STATUS_NOT_STORED_COPY;
   }
 
+  if (status.trim().length === 0) {
+    return "Question status was stored empty.";
+  }
+
   return status;
 }
 
@@ -52,7 +56,30 @@ function formatConnectionSource(source: OperatorInferredConnectionRow["source"])
     return OPERATOR_INFERRED_CONNECTION_SOURCE_NOT_STORED_COPY;
   }
 
+  if (source.trim().length === 0) {
+    return "Question source was stored empty.";
+  }
+
   return source;
+}
+
+function formatFromResource(row: OperatorInferredConnectionRow): string {
+  const fromLabel = row.fromLabel;
+  const fromArmId = row.fromArmId?.trim() ?? "";
+
+  if (fromLabel === null || fromLabel === undefined) {
+    return formatStoredValue(row.fromArmId, "Starting resource was not stored");
+  }
+
+  if (fromLabel.trim().length === 0) {
+    if (fromArmId.length > 0) {
+      return `${fromArmId} · Starting resource label was stored empty.`;
+    }
+
+    return "Starting resource label was stored empty.";
+  }
+
+  return fromLabel;
 }
 
 function formatEndpoint(row: OperatorInferredConnectionRow): string {
@@ -270,10 +297,7 @@ export function OperatorInferredConnectionsPanel(
                       aria-label={`Select ${row.settingName ?? row.connectionId}`}
                     />
                   </EnterpriseTableCell>
-                  <EnterpriseTableCell>{formatStoredValue(
-                    row.fromLabel ?? row.fromArmId,
-                    "Starting resource was not stored",
-                  )}</EnterpriseTableCell>
+                  <EnterpriseTableCell>{formatFromResource(row)}</EnterpriseTableCell>
                   <EnterpriseTableCell>{formatEndpoint(row)}</EnterpriseTableCell>
                   <EnterpriseTableCell>
                     {formatStoredValue(row.settingName, "Setting name was not stored")}

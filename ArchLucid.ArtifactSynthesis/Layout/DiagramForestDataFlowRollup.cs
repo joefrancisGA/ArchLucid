@@ -301,8 +301,8 @@ internal static class DiagramForestDataFlowRollup
         {
             int neighborCount = neighborIdsByNodeId[member.NodeId].Count;
             status = neighborCount == 0
-                ? "No consumer found"
-                : $"Used by {neighborCount}";
+                ? "No diagram neighbor on this view."
+                : $"{neighborCount} diagram neighbors on this view.";
         }
         string resourceGroup = string.IsNullOrWhiteSpace(member.ArmResourceGroup)
             ? "Resource group was not stored."

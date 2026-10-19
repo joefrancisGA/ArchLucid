@@ -526,7 +526,7 @@ describe('ArchitectureDiagramViewer', () => {
   it('labels a rollup focus with its member-list title', async () => {
     const forestLayoutSvg = [
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120">',
-      '  <g class="node" id="node-rollup" data-member-names="storage-a · rg-a · No consumer found|storage-b · rg-b · Used by 1"><title>6 storage accounts</title><rect class="node-card" width="80" height="20"/></g>',
+      '  <g class="node" id="node-rollup" data-member-names="storage-a · rg-a · No diagram neighbor on this view.|storage-b · rg-b · 1 diagram neighbors on this view."><title>6 storage accounts</title><rect class="node-card" width="80" height="20"/></g>',
       '</svg>',
     ].join('');
 
@@ -545,7 +545,9 @@ describe('ArchitectureDiagramViewer', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('diagram-click-focus-status')).toHaveTextContent('6 storage accounts');
-      expect(screen.getByTestId('diagram-click-focus-status')).toHaveTextContent('storage-a · rg-a · No consumer found');
+      expect(screen.getByTestId('diagram-click-focus-status')).toHaveTextContent(
+        'storage-a · rg-a · No diagram neighbor on this view.',
+      );
       expect(screen.getByTestId('diagram-click-focus-status')).not.toHaveTextContent('Showing connections for');
     });
   });

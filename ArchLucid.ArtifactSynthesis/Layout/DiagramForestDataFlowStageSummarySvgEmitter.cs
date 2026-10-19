@@ -95,14 +95,14 @@ internal static class DiagramForestDataFlowStageSummarySvgEmitter
                         continue;
                     }
 
-                    if (status.StartsWith("Used by", StringComparison.Ordinal))
+                    if (status.Contains("diagram neighbors on this view", StringComparison.Ordinal))
                     {
                         used++;
                     }
-                    else if (status.StartsWith("No consumer found", StringComparison.Ordinal))
+                    else if (status.StartsWith("No diagram neighbor on this view", StringComparison.Ordinal))
                     {
                         none++;
-                        nonePhrase = "no consumer found";
+                        nonePhrase = "no diagram neighbor on this view";
                     }
                     else if (status.Contains("no evidence checked", StringComparison.OrdinalIgnoreCase))
                     {
@@ -113,7 +113,7 @@ internal static class DiagramForestDataFlowStageSummarySvgEmitter
 
                 if (used + none > 0 && nonePhrase is not null)
                 {
-                    segment += $" ({used} used, {none} {nonePhrase})";
+                    segment += $" ({used} with diagram neighbors, {none} {nonePhrase})";
                 }
             }
 
