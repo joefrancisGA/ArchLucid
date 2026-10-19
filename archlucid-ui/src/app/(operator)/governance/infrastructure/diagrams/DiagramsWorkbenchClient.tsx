@@ -111,12 +111,7 @@ import type {
 } from "@/lib/infra-evidence/infra-evidence-mermaid-types";
 import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import { formatInfraEvidenceDiagramsApiError } from "@/lib/infra-evidence/infra-evidence-diagrams-api";
-import {
-  INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED,
-  INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED,
-  INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED,
-} from "@/lib/infra-evidence/infra-evidence-diagram-copy";
-import { resolveInfraEvidenceDiagramLegendProbableLine } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-legend-probable-line";
+import { buildInfraMermaidExportLegendCommentLines } from "@/lib/infra-evidence/infra-evidence-png-reading-strip";
 import { formatInfraEvidenceMermaidPngExportError } from "@/lib/infra-evidence/infra-evidence-mermaid-png-export-error";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
@@ -1925,11 +1920,7 @@ export function DiagramsWorkbenchClient() {
         outline: familyFilteredOutline,
         completenessWarnings,
         snapshotLabel:
-          selectedSnapshot != null
-            ? formatSnapshotPickerLabel(selectedSnapshot)
-            : selectedSnapshotId.length > 0
-              ? selectedSnapshotId
-              : null,
+          selectedSnapshot != null ? formatSnapshotPickerLabel(selectedSnapshot) : null,
         ...(isInfraDiagramsResourceGroupMode(selectedMode)
           ? { resourceGroupScopeName: selectedResourceGroupName }
           : {}),
@@ -1985,14 +1976,7 @@ export function DiagramsWorkbenchClient() {
 
     downloadBrowserTextFile(
       `infra-evidence-mermaid-${selectedSnapshotId}-${exportModeToken}.mmd`,
-      [
-        `%% ${INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED}`,
-        `%% ${INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED}`,
-        `%% ${resolveInfraEvidenceDiagramLegendProbableLine(familyFilteredOutline)}`,
-        `%% ${INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED}`,
-        "",
-        mermaidSource,
-      ].join("\n"),
+      [...buildInfraMermaidExportLegendCommentLines(familyFilteredOutline), "", mermaidSource].join("\n"),
       "text/plain;charset=utf-8",
     );
   }, [effectiveFallbackKey, familyFilteredOutline, mermaidExportDisabled, mermaidSource, selectedMode, selectedSnapshotId]);

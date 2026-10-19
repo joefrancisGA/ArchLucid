@@ -411,22 +411,17 @@ function RecommendedActionSection(props: {
       value: props.path.explanationTemplate?.verify ?? "How to check was not stored.",
     },
   ];
-  const verificationValue = lines[lines.length - 1]?.value ?? "Not cited.";
-  const verificationIsProse = /\s/.test(verificationValue);
-
   const displayForLine = (line: { readonly label: string; readonly value: string }): string => {
     if (line.label === "How to check") {
-      if (line.value.length === 0) {
-        return "";
+      if (line.value.length === 0 || line.value === "How to check was not stored.") {
+        return "How to check was not stored.";
       }
 
       if (line.value === "Not cited.") {
         return "Not cited.";
       }
 
-      if (!verificationIsProse) {
-        return "A check is recorded for this path.";
-      }
+      return line.value;
     }
 
     return line.value;

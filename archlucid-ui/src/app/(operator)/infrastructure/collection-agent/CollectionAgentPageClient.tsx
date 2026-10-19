@@ -20,6 +20,7 @@ import {
   formatCollectionRunDuration,
   formatCollectionRunSubscriptionsLabel,
   resolveCollectionAgentHealth,
+  resolveCollectionAgentStaleSuccessDetail,
 } from "@/lib/collection-agent-presentation";
 import type { CollectionRun } from "@/lib/collection-runs-api";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
@@ -169,6 +170,7 @@ export function CollectionAgentPageClient(): React.JSX.Element {
   const triggerMutation = useTriggerCollectionRunMutation();
   const runs = useMemo(() => sortCollectionRuns(query.data ?? []), [query.data]);
   const health = resolveCollectionAgentHealth(runs);
+  const staleSuccessDetail = resolveCollectionAgentStaleSuccessDetail(runs);
   const activeRun = runs.find((run) => run.status === "Running") ?? null;
   const reportedSchedule = runs.find((run) => run.schedule !== null && run.schedule !== undefined && run.schedule.trim().length > 0)?.schedule;
   const triggerFailure = triggerMutation.error === null || triggerMutation.error === undefined
@@ -225,6 +227,9 @@ export function CollectionAgentPageClient(): React.JSX.Element {
           {runs.length > 0 ? <StatusTag kind={health.kind} label={health.label} /> : null}
           <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{successfulRunLabel}</span>
         </div>
+        {staleSuccessDetail !== null ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{staleSuccessDetail}</p>
+        ) : null}
       </section>
 
       <section className="space-y-2" aria-labelledby="collection-agent-schedule-heading">

@@ -5,6 +5,8 @@
 
 export const REMEDIATION_PRIORITY_NO_LEADING_FACTOR = "This row does not name a leading factor." as const;
 
+export const REMEDIATION_PRIORITY_BREAKDOWN_NOT_STORED = "Priority breakdown was not stored." as const;
+
 export const REMEDIATION_PRIORITY_EXCEPTION_CLAUSE = "An exception is already in force." as const;
 
 const FACTOR_CLAUSE = {
@@ -55,10 +57,14 @@ type LeadingClause = {
 };
 
 export function formatRemediationPriorityReaderSentence(breakdownJson: string): string {
+  if (breakdownJson.trim().length === 0) {
+    return REMEDIATION_PRIORITY_BREAKDOWN_NOT_STORED;
+  }
+
   const contributions = parseRemediationPriorityContributions(breakdownJson);
 
   if (contributions === null) {
-    return REMEDIATION_PRIORITY_NO_LEADING_FACTOR;
+    return REMEDIATION_PRIORITY_BREAKDOWN_NOT_STORED;
   }
 
   const leading = contributions

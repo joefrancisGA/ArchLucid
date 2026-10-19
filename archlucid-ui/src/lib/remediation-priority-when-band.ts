@@ -6,9 +6,21 @@ export const REMEDIATION_PRIORITY_WHEN_LATER = "Later" as const;
 
 export const REMEDIATION_PRIORITY_WHEN_HEADER_HELPER =
   "This week, this month, or later follows the queue order. It is not a separate score." as const;
+
+export const REMEDIATION_PRIORITY_WHEN_BAND_NOT_STORED = "When band was not stored." as const;
 const REMEDIATION_PRIORITY_WHEN_THIS_WEEK_MAX_RANK = 5;
 
 const REMEDIATION_PRIORITY_WHEN_THIS_MONTH_MAX_RANK = 25;
+
+export function formatRemediationPriorityWhenBandForRankOrder(
+  rankOrder: number | null | undefined,
+): string {
+  if (rankOrder === null || rankOrder === undefined) {
+    return REMEDIATION_PRIORITY_WHEN_BAND_NOT_STORED;
+  }
+
+  return formatRemediationPriorityWhenBand(rankOrder);
+}
 
 export function formatRemediationPriorityWhenBand(rank: number): string {
   if (rank <= REMEDIATION_PRIORITY_WHEN_THIS_WEEK_MAX_RANK) {

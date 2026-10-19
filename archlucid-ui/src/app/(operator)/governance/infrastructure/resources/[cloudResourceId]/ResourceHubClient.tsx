@@ -1598,7 +1598,11 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                         <EnterpriseTableRow key={`${stream.streamKind}-${item.id}`}>
                           <EnterpriseTableCell>
                             <div className="space-y-1">
-                              <div>{item.title}</div>
+                              <div>
+                                {item.title.trim().length > 0
+                                  ? item.title
+                                  : "Finding title was not stored."}
+                              </div>
                               {findingActionMessages[item.id] != null ? (
                                 <p
                                   className={cn("m-0 text-sm", OPERATOR_TYPOGRAPHY.helper)}
@@ -1632,10 +1636,10 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                             {item.severity != null ? <SeverityTag severity={item.severity} /> : "Severity not recorded"}
                           </EnterpriseTableCell>
                           <EnterpriseTableCell>
-                            {item.status != null ? (
+                            {item.status != null && item.status.trim().length > 0 ? (
                               <StatusTag kind={findingStatusTagKind(item.status)} label={item.status} />
                             ) : (
-                              "—"
+                              "Finding status was not stored."
                             )}
                           </EnterpriseTableCell>
                           <EnterpriseTableCell>

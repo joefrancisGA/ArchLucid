@@ -1214,7 +1214,7 @@ export function RemediationWorkbenchClient() {
                   </div>
                   <div>
                     <dt className="font-medium">Severity</dt>
-                    <dd>{detail.finding.severity ?? "—"}</dd>
+                    <dd>{detail.finding.severity ?? "Severity was not stored."}</dd>
                   </div>
                   {detail.finding.cloudResourceId != null ? (
                     <div>

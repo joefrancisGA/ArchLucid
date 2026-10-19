@@ -14,6 +14,35 @@ import {
   type InfraEvidenceMermaidOutline,
 } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 import { resolveInfraEvidenceCompletenessWarningPresentation } from "@/lib/infra-evidence/resolve-infra-evidence-completeness-warning-copy";
+import { INFRA_DIAGRAMS_MODE_OPTIONS } from "@/lib/infra-evidence/infra-evidence-diagrams-filter-url";
+
+const INVENTORY_STRUCTURE_MODE_READING_SENTENCE =
+  "This diagram shows inventory structure. It is not observed traffic." as const;
+
+const INVENTORY_STRUCTURE_PICKER_MODES = new Set([
+  "full",
+  "architecture",
+  "security",
+  "avd",
+  "businessContinuity",
+  "resourceGroup",
+  "selectedResources",
+  "dependencyNeighborhood",
+]);
+
+function resolveInventoryStructureModeReadingLine(mode: string): string | null {
+  if (!INVENTORY_STRUCTURE_PICKER_MODES.has(mode)) {
+    return null;
+  }
+
+  const option = INFRA_DIAGRAMS_MODE_OPTIONS.find((entry) => entry.value === mode);
+
+  if (option === undefined) {
+    return null;
+  }
+
+  return `${option.label}. ${INVENTORY_STRUCTURE_MODE_READING_SENTENCE}`;
+}
 
 export const INFRA_EVIDENCE_PNG_SNAPSHOT_LABEL_NOT_STORED = "Snapshot label was not stored." as const;
 export const INFRA_EVIDENCE_PNG_RESOURCE_GROUP_SCOPE_NOT_STORED =
@@ -132,11 +161,17 @@ export function buildInfraEvidencePngReadingStripLines(
     input.mode === "identity" ||
     input.mode === "data"
   ) {
-    lines.push("This diagram shows inventory structure. It is not observed traffic.");
+    lines.push(INVENTORY_STRUCTURE_MODE_READING_SENTENCE);
   } else {
-    lines.push(
-      `Diagram mode was stored as ${input.mode}. It is not one of the labeled inventory modes.`,
-    );
+    const inventoryModeLine = resolveInventoryStructureModeReadingLine(input.mode);
+
+    if (inventoryModeLine !== null) {
+      lines.push(inventoryModeLine);
+    } else {
+      lines.push(
+        `Diagram mode was stored as ${input.mode}. It is not one of the labeled inventory modes.`,
+      );
+    }
   }
 
   if (input.outline === null || input.outline === undefined) {
@@ -183,6 +218,34 @@ export function buildInfraEvidencePngReadingStripLines(
 
       lines.push(`${omitted} additional warnings were not listed on this strip.`);
     }
+  }
+
+  return lines;
+}
+
+export function buildInfraMermaidExportLegendCommentLines(
+  outline: InfraEvidenceMermaidOutline | null | undefined,
+): readonly string[] {
+  if (outline === null || outline === undefined) {
+    return [];
+  }
+
+  const lines: string[] = [];
+
+  if (hasStoredObservedFactEdges(outline)) {
+    lines.push(`%% ${INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED}`);
+  }
+
+  if (hasInfraEvidenceDeclaredDiagramEdges(outline)) {
+    lines.push(`%% ${INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED}`);
+  }
+
+  if (hasInfraEvidenceProbableDiagramEdges(outline)) {
+    lines.push(`%% ${resolveInfraEvidenceDiagramLegendProbableLine(outline)}`);
+  }
+
+  if (hasInfraEvidenceInferredDiagramEdges(outline)) {
+    lines.push(`%% ${resolveInfraEvidenceDiagramLegendInferredCopy(outline).legendLine}`);
   }
 
   return lines;
