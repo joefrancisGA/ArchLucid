@@ -3,8 +3,24 @@ import { describe, expect, it } from "vitest";
 import {
   decodeOAuthErrorDescription,
   humanizeAuthorizeCallbackError,
+  readOAuthJsonErrorDescription,
   sanitizeOAuthUserFacingMessage,
 } from "@/lib/oidc/oauth-callback-messages";
+
+describe("readOAuthJsonErrorDescription", () => {
+  it("preserves literal percent signs when JSON is not percent-encoded", () => {
+    expect(readOAuthJsonErrorDescription("100% failed")).toBe("100% failed");
+    expect(readOAuthJsonErrorDescription("a%zz")).toBe("a%zz");
+  });
+
+  it("does not treat plus as space in JSON error_description", () => {
+    expect(readOAuthJsonErrorDescription("User+denied")).toBe("User+denied");
+  });
+
+  it("still decodes valid percent-escapes when IdPs send them in JSON", () => {
+    expect(readOAuthJsonErrorDescription("User%20denied")).toBe("User denied");
+  });
+});
 
 describe("decodeOAuthErrorDescription", () => {
   it("returns empty for null-ish", () => {

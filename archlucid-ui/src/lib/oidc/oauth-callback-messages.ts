@@ -134,6 +134,29 @@ export function decodeOAuthErrorDescription(encoded: string | null | undefined):
   return isReadableOAuthErrorDetail(decoded) ? decoded : "";
 }
 
+/**
+ * RFC 6749 token JSON carries plain-text `error_description` (not query encoding).
+ * Tolerate mistaken %-escapes from some IdPs; on decode failure keep the raw string.
+ * Does not treat `+` as space (unlike authorize-callback query decoding).
+ */
+export function readOAuthJsonErrorDescription(value: string): string {
+  const trimmed = stripOAuthInvisibleFormatChars(value.trim()).trim();
+
+  if (trimmed.length === 0) {
+    return "";
+  }
+
+  let decoded: string;
+
+  try {
+    decoded = collapseOAuthErrorDescriptionLineBreaks(decodeURIComponent(trimmed));
+  } catch {
+    decoded = collapseOAuthErrorDescriptionLineBreaks(trimmed);
+  }
+
+  return isReadableOAuthErrorDetail(decoded) ? decoded : "";
+}
+
 function formatErrorCodeForReading(errorCode: string): string {
   return errorCode
     .replace(/_/g, " ")
