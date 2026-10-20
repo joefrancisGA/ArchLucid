@@ -4,6 +4,7 @@ import {
   sanitizeOAuthUserFacingMessage,
   stripOAuthInvisibleFormatChars,
 } from "@/lib/oidc/oauth-callback-messages";
+import { resolveExpiresInSeconds } from "@/lib/oidc/resolve-expires-in-seconds";
 
 export type OidcTokenResponse = {
   access_token: string;
@@ -150,12 +151,14 @@ function parseOidcTokenResponse(parsed: unknown): OidcTokenResponse {
 
   const refreshToken = normalizeOptionalTokenString(record.refresh_token);
   const idToken = normalizeOptionalTokenString(record.id_token);
+  const expiresIn = resolveExpiresInSeconds(record.expires_in as number | undefined);
 
   return {
     ...(parsed as OidcTokenResponse),
     access_token: accessToken,
     refresh_token: refreshToken,
     id_token: idToken,
+    expires_in: expiresIn,
   };
 }
 

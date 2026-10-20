@@ -30,7 +30,7 @@ describe("refreshAccessToken", () => {
     expect(tokens.access_token).toBe(accessToken);
   });
 
-  it("preserves string expires_in on the parsed token object while normalizing access_token", async () => {
+  it("coerces string expires_in to a number on the parsed token object while normalizing access_token", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,
       text: async () =>
@@ -46,7 +46,26 @@ describe("refreshAccessToken", () => {
     });
 
     expect(tokens.access_token).toBe("access-1");
-    expect(tokens.expires_in).toBe("7200");
+    expect(tokens.expires_in).toBe(7200);
+  });
+
+  it("maps empty array expires_in on token JSON to the default lifetime on the parsed object", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({ access_token: "access-1", expires_in: [], token_type: "Bearer" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const tokens = await refreshAccessToken({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      refreshToken: "rt",
+    });
+
+    expect(tokens.access_token).toBe("access-1");
+    expect(tokens.expires_in).toBe(3600);
   });
 
   it("strips zero-width characters from access_token in successful token responses", async () => {
