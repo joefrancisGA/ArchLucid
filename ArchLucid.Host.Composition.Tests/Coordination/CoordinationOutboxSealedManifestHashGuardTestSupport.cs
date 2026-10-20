@@ -61,6 +61,26 @@ internal static class CoordinationOutboxSealedManifestHashGuardTestSupport
             });
     }
 
+    public static void RegisterRunWithoutSealedGoldenManifestGuardServices(
+        ServiceCollection services,
+        Guid runId)
+    {
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(query => query.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord { RunId = runId },
+                GoldenManifest = null,
+            });
+
+        services.AddScoped(_ => authority.Object);
+        RegisterManifestHashService(services);
+    }
+
     public static void RegisterManifestHashService(
         ServiceCollection services,
         string manifestHash = "sealed-outbox-test-hash")

@@ -7,9 +7,9 @@
 **/obj/
 **/out/
 
-# Test results / coverage
+# Test results / coverage (do not use `coverage*` — excludes UI sources such as `coverage-preview.ts`)
 **/TestResults/
-**/coverage*/
+**/coverage/
 
 # IDE / editor
 .vs/
