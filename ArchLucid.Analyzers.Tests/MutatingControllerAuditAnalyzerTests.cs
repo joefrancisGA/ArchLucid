@@ -893,6 +893,48 @@ public sealed class ExplicitInterfaceEmptyBodyController(IAuditService auditServ
     }
 
     [Fact]
+    public async Task AL0003_reports_when_HttpMethod_delete_on_explicit_interface_implementation()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public interface IDeleteApi
+{
+    System.Threading.Tasks.Task<IActionResult> Delete(System.Threading.CancellationToken cancellationToken);
+}
+
+public sealed class ExplicitInterfaceHttpMethodDeleteController(IAuditService auditService) : ControllerBase, IDeleteApi
+{
+    [HttpMethod("DELETE")]
+    System.Threading.Tasks.Task<IActionResult> IDeleteApi.{|#0:Delete|}(System.Threading.CancellationToken cancellationToken)
+    {
+        return System.Threading.Tasks.Task.FromResult<IActionResult>(Ok());
+    }
+}
+}
+""";
+
+        DiagnosticResult expectedDiagnostic =
+            CSharpAnalyzerVerifier<MutatingControllerAuditAnalyzer, DefaultVerifier>.Diagnostic(
+                    Al0003MutatingControllerAuditDescriptor.Rule)
+                .WithLocation(0)
+                .WithArguments("ArchLucid.Api.Probe.ExplicitInterfaceHttpMethodDeleteController.ArchLucid.Api.Probe.IDeleteApi.Delete");
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expectedDiagnostic },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
+    [Fact]
     public async Task AL0003_reports_when_HttpMethod_named_property_on_explicit_interface_implementation_declares_post()
     {
         const string testCode = AuditAndMvcStubs +

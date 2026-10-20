@@ -621,6 +621,55 @@ namespace N
     }
 
     [Fact]
+    public async Task Reports_inherited_unauthorized_base_post_on_concrete_leaf_of_abstract_with_only_authorized_declared_action()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    public class UnsecuredPostBase : ControllerBase
+    {
+        [HttpPost]
+        public IActionResult Post() => Ok();
+    }
+
+    public abstract class AuthorizedDeclaredMiddle : UnsecuredPostBase
+    {
+        [Authorize]
+        [HttpGet]
+        public IActionResult Safe() => Ok();
+    }
+
+    public sealed class {|#0:LeafController|} : AuthorizedDeclaredMiddle
+    {
+    }
+}
+""";
+
+        DiagnosticResult expectedOnBasePost =
+            CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+                .WithSpan(43, 30, 43, 34)
+                .WithArguments("UnsecuredPostBase.Post()");
+
+        DiagnosticResult expectedOnLeaf =
+            CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+                .WithLocation(0)
+                .WithArguments("UnsecuredPostBase.Post()");
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expectedOnBasePost, expectedOnLeaf },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
     public async Task Reports_type_level_AL0001_on_abstract_controller_with_unauthorized_explicit_interface_despite_authorized_base_action()
     {
         const string testCode = AspNetCoreStubs +
