@@ -5763,3 +5763,4 @@
 {"at":"2026-10-20T23:28:50.0313710Z","zoneId":"scim-users","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Persistence/Scim/SqlScimUserFilterTranslator.cs,ArchLucid.Core/Scim/Filtering/ScimFilterInMemoryEvaluator.cs)"]}
 {"at": "2026-10-20T23:44:54Z", "zoneId": "identity-provider-config", "outcome": "hit", "productLine": "archlucid-shared"}
 {"at":"2026-10-20T23:45:46.3220806Z","zoneId":"topology-proposal-merge","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-20T23:51:46.6373629Z","zoneId":"extraction-router","outcome":"hit","productLine":"archlucid-shared"}
