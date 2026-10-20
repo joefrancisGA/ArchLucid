@@ -530,6 +530,56 @@ describe("SecurityEvidencePathInspectPanel", () => {
     );
   });
 
+  it("shows Internet boundary copy and no resource link when cloudResourceId is missing", () => {
+    vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
+      data: { findingId: "finding-1", pathId: "path-1", title: "Path finding" },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useOperationalSecurityFindingDetailQuery>);
+    vi.mocked(useSecurityEvidencePathDetailQuery).mockReturnValue({
+      data: {
+        pathId: "path-1",
+        snapshotId: "snapshot-1",
+        pathKind: "PrivilegePath",
+        pathConfidenceBand: "Possible",
+        weakestHopOrdinal: 1,
+        weakestHopReason: "Public exposure.",
+        hops: [
+          {
+            hopOrdinal: 1,
+            fromNodeLabel: "Internet",
+            toNodeLabel: "App gateway",
+            edgeType: "PublicExposure",
+            provenanceKind: "ObservedFact",
+            hopConfidenceBand: "HighlyLikely",
+            inferenceSource: null,
+            evidenceReference: "evidence-1",
+            cloudResourceId: null,
+          },
+        ],
+        weakestHop: null,
+        explanationTemplate: null,
+        relatedCutPoints: [],
+        routing: [],
+      },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathDetailQuery>);
+    vi.mocked(useSecurityEvidencePathRankQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
+
+    renderPanel("finding-1");
+
+    expect(screen.getByTestId("security-evidence-path-internet-boundary")).toHaveTextContent(
+      "Internet is the public boundary, not an Azure resource.",
+    );
+    expect(screen.queryByRole("link", { name: "Open resource evidence" })).toBeNull();
+    expect(screen.queryByTestId("security-evidence-path-hop-resource-evidence")).toBeNull();
+  });
+
   it("generates simulator explanation for the selected path", async () => {
     vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
       data: { findingId: "finding-1", pathId: "path-1", title: "Path finding" },
