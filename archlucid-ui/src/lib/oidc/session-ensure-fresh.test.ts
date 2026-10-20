@@ -141,4 +141,34 @@ describe("ensureAccessTokenFresh (LK-06 P2 BFF refresh)", () => {
 
     expect(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY)).toBeNull();
   });
+
+  it("does not overwrite a fresh sign-in expiry hint when a pre-sign-in BFF refresh succeeds", async () => {
+    let releaseRefresh: (() => void) | undefined;
+    const staleBffExpiryMs = Date.now() + 60_000;
+
+    vi.mocked(bffSessionSync.refreshBffSessionCookie).mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          releaseRefresh = () => {
+            resolve({ ok: true, expiresAtMs: staleBffExpiryMs });
+          };
+        }),
+    );
+    vi.spyOn(bffSessionSync, "syncBffSessionCookieFromTokenResponse").mockResolvedValue();
+
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(Date.now()));
+
+    const refreshPromise = ensureAccessTokenFresh();
+
+    await Promise.resolve();
+
+    persistTokenResponse({ access_token: "new-token", expires_in: 3600 });
+    const freshHintMs = Number(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY));
+
+    releaseRefresh?.();
+    await refreshPromise;
+
+    expect(Number(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY))).toBe(freshHintMs);
+    expect(freshHintMs).toBeGreaterThan(staleBffExpiryMs + 3_000_000);
+  });
 });
