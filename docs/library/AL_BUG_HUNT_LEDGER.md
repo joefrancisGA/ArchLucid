@@ -1,4 +1,4 @@
-> **Scope:**
+﻿> **Scope:**
 
 2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `PolicyPackDryRunRedactAuditStage.TryLogAuditAsync` and `PolicyPackGovernanceDryRunService.TryLogProposedPackDryRunAuditAsync` logging `GovernanceDryRunRequested` without `ExplicitActor`, so `AuditService` overwrote `ActorUserId` with `ClaimTypes.NameIdentifier` instead of canonical `jwt:{tid}:{oid}` keys on `GovernanceController` policy-pack dry-run routes; inject `IActorContext`, set `ExplicitActor = true` with `GetActorId()` / `GetActor()` on both audit events; regressions `EvaluateAsync_sets_explicit_actor_for_stable_actor_user_id_when_display_differs` in `PolicyPackDryRunServiceTests` and `PolicyPackGovernanceDryRunServiceTests`; policy pack dry-run suites 35/35; cheap-disproof closed prior ledger rows: tenancy `LogAsync` paths already set `ExplicitActor`, approval submit idempotency replay skips action by design (`IdempotencyFilter`), environment catalog identical replace skips duplicate audit by design (`isIdenticalRetry`); seeded five follow-on `(candidate)` rows.
 
@@ -14969,7 +14969,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 64
+- **hunts:** 65
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-12
@@ -17266,7 +17266,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 34
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-13 — queue notify failure could not terminal-fail Pending rows after Running-only SQL guard
+- **last-bug:** 2026-10-20 — DOCX title and governance provenance omitted artifact-text sanitization
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -28434,7 +28434,7 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **hunts:** 34
 - **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-13
+- **last-hunt:** 2026-10-20
 - **last-bug:** 2026-10-13 — spaced ASCII solidus broke multi-word constraint phrases
 
 2026-10-13 seed hunt (seed→hit): reseeded phrase normalization after duplicate-space fix; proved spaced ASCII `/` between words (`managed / identity`, `private / endpoint`) missed affirmative phrase detection while compact `managed/identity` slugs must stay suppressed; `NormalizeSpacedAsciiSolidus`; regressions in `RequestConstraintPhraseSpacedSolidusTests`; 910 scoped RequestConstraint tests passed.
@@ -35585,6 +35585,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `ExecDigestEmailDispatchSealedManifestHashGuard.EnsureCompositionRunsSealedOrThrowAsync` — invalid `RunIdHex` in composition skips per-run seal check via `Guid.TryParse` continue — **cheap-disproof 2026-09-26 seed hunt:** `ExecDigestWeeklyDeliveryScanner` invokes the guard only after `ExecDigestComposer.ComposeAsync` builds highlights/`LatestCommittedRunIdHex` from committed run repository ids (`ToString("N")`); malformed hex is not reachable from the production compose → dispatch path.
 
 ## Zone: artifact-synthesis
+2026-10-20 thorough hunt (hit): `artifact-synthesis` — `DocxExportService.BuildDocumentAsync` wrote `DocxExportRequest.DocumentTitle` and effective-governance provenance appendix values through newline-only `WordDocumentBuilder.Sanitize`, so OpenXML-invalid control characters in export title or committed coverage dimensions caused DOCX save failure; sanitize title and governance appendix values with `SanitizeArtifactText`; regressions `ExportAsync_sanitizes_control_characters_in_document_title` and `ExportAsync_sanitizes_control_characters_in_effective_governance_provenance_rows`; DocxExportServiceProvenanceTests 4/4 passed.
+
 
 2026-10-13 seed hunt (seed→hit): promoted `DocxExportService.BuildDocumentAsync` Appendix B provenance `Manifest hash` row; persisted `manifest.ManifestHash` with XML-invalid control characters reached `AddSimpleTable` via newline-only `Sanitize` and caused DOCX save failure (rule set row already used `SanitizeArtifactText`); sanitize manifest hash display; regression `ExportAsync_sanitizes_control_characters_in_provenance_manifest_hash_field`; Application scoped filter 104/105 (1 skip); ArtifactSynthesis scoped filter 705/719 (12 pre-existing diagram failures, 2 skipped Terraform).
 
@@ -35636,7 +35638,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
 - **hunts:** 64
 - **last-hunt:** 2026-10-13
-- **bugs-found:** 50
+- **bugs-found:** 51
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-13 — Provenance manifest hash omitted artifact-text sanitization
 - **related-pd-tb:** none
@@ -35644,8 +35646,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
-- [ ] (candidate) `DocxExportService.BuildDocumentAsync` — `DocxExportRequest.DocumentTitle` is written with `AddStyledParagraph` using newline-only `Sanitize`, while `Subtitle` uses `SanitizeArtifactText`; a reachable export title containing OpenXML-invalid control characters may fail DOCX save — locus: title paragraph before sponsor summary; input: `DocumentTitle` with embedded `\u0001` from export request.
-- [ ] (candidate) `DocxExportService.BuildDocumentAsync` — `CommittedEffectiveGovernanceSnapshotExportFormatter.FormatProvenanceAppendixRows` values appended to Appendix B without `SanitizeArtifactText` may carry control characters from committed governance snapshot fields — locus: provenance `foreach` after manifest hash row; input: effective-governance-at-commit payload with control characters in formatted values.
+- [x] (proven) `DocxExportService.BuildDocumentAsync` — `DocxExportRequest.DocumentTitle` reached `AddStyledParagraph` with newline-only `Sanitize` while subtitle used `SanitizeArtifactText`, causing DOCX save failure when title contained OpenXML-invalid control characters — **hit 2026-10-20 thorough hunt:** `SanitizeArtifactText(request.DocumentTitle)`; regression `ExportAsync_sanitizes_control_characters_in_document_title`.
+- [x] (proven) `DocxExportService.BuildDocumentAsync` — `FormatProvenanceAppendixRows` values appended to Appendix B without `SanitizeArtifactText` carried control characters from committed coverage dimensions and caused DOCX save failure — **hit 2026-10-20 thorough hunt:** `SanitizeArtifactText(value)` on governance provenance rows; regression `ExportAsync_sanitizes_control_characters_in_effective_governance_provenance_rows`.
 - [x] (proven) `DocxExportService.BuildDocumentAsync` — persisted `manifest.ManifestHash` with OpenXML-invalid control characters reached Appendix B `AddSimpleTable` without `LlmArtifactFreeTextSanitizer` while the adjacent rule-set row was sanitized, causing DOCX export save failure — **hit 2026-10-13 seed hunt:** `SanitizeArtifactText(manifest.ManifestHash)`; regression `ExportAsync_sanitizes_control_characters_in_provenance_manifest_hash_field`.
 - [x] (proven) `DocxExportService.BuildDocumentAsync` — persisted synthesized artifact `Name`, `ArtifactType`, and `Format` containing OpenXML-invalid control characters reached Appendix A `AddThreeColumnTable` without `LlmArtifactFreeTextSanitizer`, causing DOCX export save failure — **hit 2026-10-13 seed hunt:** `SanitizeArtifactText` on artifact appendix rows; regression `ExportAsync_strips_control_chars_from_artifacts_appendix_table_cells`.
 - [x] (proven) `MermaidDiagramDeterministicRepairer.Repair` — reachable `DiagramNode.QuestionableAttention` from `InventoryDiagramQuestionableAttentionResolver` was omitted when rebuilding nodes during deterministic repair before `DiagramForestLayoutSvgRenderer`, so forest SVG cards lost questionable highlighting — **hit 2026-10-13 seed hunt:** copy `QuestionableAttention` on repair; regressions `Repair_keeps_questionable_attention_for_forest_layout` and extended `Repair_keeps_node_and_edge_painter_metadata_and_copies_lists`.

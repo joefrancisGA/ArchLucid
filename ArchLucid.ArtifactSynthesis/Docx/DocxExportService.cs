@@ -174,7 +174,7 @@ public sealed partial class DocxExportService(
         ImprovementPlan improvementPlan,
         CancellationToken ct)
     {
-        WordDocumentBuilder.AddStyledParagraph(body, request.DocumentTitle, DocxStyleIds.Title);
+        WordDocumentBuilder.AddStyledParagraph(body, SanitizeArtifactText(request.DocumentTitle), DocxStyleIds.Title);
         WordDocumentBuilder.AddBodyText(body, SanitizeArtifactText(request.Subtitle));
         WordDocumentBuilder.AddSpacer(body);
         WordDocumentBuilder.AddBodyText(body, $"Run ID: {manifest.RunId}");
@@ -454,7 +454,7 @@ public sealed partial class DocxExportService(
         foreach ((string label, string value) in CommittedEffectiveGovernanceSnapshotExportFormatter.FormatProvenanceAppendixRows(
                      manifest.EffectiveGovernanceAtCommit))
         {
-            provenanceRows.Add((label, value));
+            provenanceRows.Add((label, SanitizeArtifactText(value)));
         }
 
         WordDocumentBuilder.AddSimpleTable(body, provenanceRows, true);
