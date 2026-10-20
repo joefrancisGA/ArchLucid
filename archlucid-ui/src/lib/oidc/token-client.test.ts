@@ -322,6 +322,29 @@ describe("refreshAccessToken", () => {
     ).rejects.toThrow(/^invalid_grant: Session expired$/);
   });
 
+  it("surfaces emoji ZWJ sequences from JSON error_description on token responses", async () => {
+    const detail = "👨\u200d👩\u200d👧";
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () =>
+        JSON.stringify({
+          error: "invalid_grant",
+          error_description: detail,
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(new RegExp(`invalid_grant: ${detail.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`));
+  });
+
   it("preserves OAuth error codes when JSON error field contains interior zero-width characters", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,

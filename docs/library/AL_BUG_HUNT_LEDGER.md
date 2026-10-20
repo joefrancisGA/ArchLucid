@@ -1,3 +1,17 @@
+2026-10-20 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `isReadableOAuthErrorDetail` stripping ZWNJ/ZWJ via `formatErrorCodeForReading` and rejecting emoji ZWJ `error_description` (no `\p{L}`); detail gate now glue-only normalize + letters or ZWJ emoji sequences; regressions `preserves emoji ZWJ sequences in token error_description copy`, `includes emoji ZWJ detail on access_denied authorize callback copy`, `preserves ZWNJ in authorize error descriptions after decode`, `surfaces emoji ZWJ sequences from JSON error_description on token responses`, `preserves ZWNJ in stored display names when re-read from sessionStorage`; cheap-disproof closed four other run #65 `(candidate)` rows; seeded five new `(candidate)` rows; 284 vitest tests in `src/lib/oidc` passed.
+
+- [x] (proven) `oauth-callback-messages.ts` `isReadableOAuthErrorDetail` — emoji ZWJ / Persian detail dropped — **hit 2026-10-20 seed hunt #66:** code-path readability check stripped ZWNJ/ZWJ and omitted pictographic-only sequences; revised detail gate; authorize + token + session regressions.
+- [x] (invalid) `decodeOAuthErrorDescription` — ZWNJ on authorize query — **cheap-disproof 2026-10-20 seed hunt #66:** covered by shared collapse + new decode regression.
+- [x] (invalid) `readSignedInDisplayName` — legacy Persian ZWNJ — **cheap-disproof 2026-10-20 seed hunt #66:** #64/#65 display normalizer; session regression lock.
+- [x] (invalid) `humanizeAuthorizeCallbackError` — Persian ZWNJ detail — **cheap-disproof 2026-10-20 seed hunt #66:** same detail gate as JSON path; emoji ZWJ authorize regression.
+- [x] (invalid) `errorFromOAuthJson` — Persian ZWNJ on thrown Error — **cheap-disproof 2026-10-20 seed hunt #66:** token-client emoji ZWJ integration regression.
+
+- (candidate) `isReadableOAuthErrorDetail` — regional-indicator emoji flag sequences without ZWJ — locus: pictographic gate; input: `error_description` `🇺🇸` only.
+- (candidate) `truncateOAuthUserFacingMessage` — cut index inside emoji ZWJ cluster — locus: surrogate backoff; input: 280+ char message with family emoji at boundary.
+- (candidate) `normalizeOAuthErrorCode` — ZWJ inside authorize `error` code — locus: collapse; input: non-standard code with `\u200d`.
+- (candidate) `session.ts` `readSignedInUserSubject` — sub claim with interior ZWSP — locus: config strip; input: JWT `sub` stored with `\u200b`.
+- (candidate) `discovery.ts` `parseDiscoveryDocument` — issuer string with interior ZWSP — locus: `normalizeOidcConfigurationString`; input: discovery `issuer` field glue.
+
 2026-10-20 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `readOAuthJsonErrorDescription` / `collapseOAuthErrorDescriptionLineBreaks` still collapsing ZWNJ in token `error_description` (#64 display fix did not reach error copy); authorize + JSON error collapse now uses `OIDC_DISPLAY_GLUE_FORMAT_CHARS` only; `readSignedInDisplayName` re-reads legacy sessionStorage with `normalizeOidcDisplayString` (`John\u200bDoe` → `John Doe`); regressions `preserves ZWNJ in Persian token error_description copy`, `collapses interior ZWSP in legacy stored display names instead of gluing words`; cheap-disproof closed four other run #64 `(candidate)` rows; seeded five new `(candidate)` rows; 279 vitest tests in `src/lib/oidc` passed.
 
 - [x] (proven) `oauth-callback-messages.ts` `readOAuthJsonErrorDescription` — ZWNJ in Persian JSON `error_description` — **hit 2026-10-20 seed hunt #65:** full invisible regex replaced ZWNJ with spaces; glue-only collapse shared with authorize query decode; unit regression.

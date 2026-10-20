@@ -353,6 +353,14 @@ describe("persistTokenResponse", () => {
     expect(readSignedInDisplayName()).toBe("John Doe");
   });
 
+  it("preserves ZWNJ in stored display names when re-read from sessionStorage", () => {
+    const persianName = "می\u200cخواهم";
+
+    sessionStorage.setItem(OIDC_DISPLAY_NAME_KEY, persianName);
+
+    expect(readSignedInDisplayName()).toBe(persianName);
+  });
+
   it("strips zero-width padding when reading user subject hints from sessionStorage", () => {
     sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, "\u200buser-123\u200b");
 

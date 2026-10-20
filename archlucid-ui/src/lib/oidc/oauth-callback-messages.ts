@@ -191,6 +191,10 @@ function containsReadableOAuthCharacters(text: string): boolean {
   return /[\p{L}\p{N}]/u.test(text);
 }
 
+function containsReadableOAuthDetailCharacters(text: string): boolean {
+  return /[\p{L}\p{N}\p{Extended_Pictographic}]/u.test(text);
+}
+
 /** True when an OAuth `error` query/code value is not underscore/invisible padding. */
 export function isReadableOAuthErrorCode(errorCode: string): boolean {
   const formatted = formatErrorCodeForReading(errorCode);
@@ -199,9 +203,26 @@ export function isReadableOAuthErrorCode(errorCode: string): boolean {
 }
 
 function isReadableOAuthErrorDetail(detail: string): boolean {
-  const formatted = formatErrorCodeForReading(detail);
+  const normalized = detail
+    .replace(OIDC_DISPLAY_GLUE_FORMAT_CHARS, " ")
+    .replace(/_/g, " ")
+    .replace(/\s+/gu, " ")
+    .trim();
 
-  return formatted.length > 0 && containsReadableOAuthCharacters(formatted);
+  if (normalized.length === 0) {
+    return false;
+  }
+
+  if (containsReadableOAuthCharacters(normalized)) {
+    return true;
+  }
+
+  // Emoji-only glyphs (e.g. 🔒) are not actionable detail; ZWJ sequences (family emoji) are.
+  if (detail.includes("\u200d") && containsReadableOAuthDetailCharacters(normalized)) {
+    return true;
+  }
+
+  return false;
 }
 
 const MAX_OAUTH_USER_FACING_MESSAGE_LENGTH = 280;

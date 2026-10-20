@@ -46,6 +46,12 @@ describe("readOAuthJsonErrorDescription", () => {
 
     expect(readOAuthJsonErrorDescription(detail)).toBe(detail);
   });
+
+  it("preserves emoji ZWJ sequences in token error_description copy", () => {
+    const detail = "👨\u200d👩\u200d👧";
+
+    expect(readOAuthJsonErrorDescription(detail)).toBe(detail);
+  });
 });
 
 describe("decodeOAuthErrorDescription", () => {
@@ -68,6 +74,12 @@ describe("decodeOAuthErrorDescription", () => {
   it("preserves literal percent signs in authorize error descriptions when not percent-encoded", () => {
     expect(decodeOAuthErrorDescription("50% off")).toBe("50% off");
     expect(decodeOAuthErrorDescription("a%zz")).toBe("a%zz");
+  });
+
+  it("preserves ZWNJ in authorize error descriptions after decode", () => {
+    const detail = "دسترسی\u200cرد";
+
+    expect(decodeOAuthErrorDescription(detail)).toBe(detail);
   });
 
   it("collapses percent-encoded line breaks to spaces for single-line callback copy", () => {
@@ -153,6 +165,12 @@ describe("humanizeAuthorizeCallbackError", () => {
 
   it("maps access_denied when the error query glues the code with a soft hyphen", () => {
     expect(humanizeAuthorizeCallbackError("access\u00ADdenied", "")).toContain("canceled sign-in");
+  });
+
+  it("includes emoji ZWJ detail on access_denied authorize callback copy", () => {
+    const detail = "👨\u200d👩\u200d👧";
+
+    expect(humanizeAuthorizeCallbackError("access_denied", detail)).toContain(detail);
   });
 
   it("maps interaction and consent cases", () => {
