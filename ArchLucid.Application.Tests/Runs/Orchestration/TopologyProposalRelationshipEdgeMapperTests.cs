@@ -1004,6 +1004,52 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
     }
 
     [Fact]
+    public void MapRelationships_resolves_relationship_when_for_each_key_uses_quoted_string_and_graph_uses_unquoted_index()
+    {
+        const string rootTerraformAddress = "azurerm_app_service.main";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-primary",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = $"{rootTerraformAddress}[primary]",
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                SourceType = "Terraform",
+                SourceId = "azurerm_mssql_server.main",
+                Properties = new()
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = $"{rootTerraformAddress}[\"primary\"]",
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ]);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-primary" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
     public void MapRelationships_resolves_indexed_terraform_address_when_graph_source_id_omits_instance_key()
     {
         // The parser also appends an unquoted for_each key: type.name[key].

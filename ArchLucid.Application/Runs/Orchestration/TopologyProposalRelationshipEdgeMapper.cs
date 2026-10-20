@@ -107,8 +107,11 @@ public static class TopologyProposalRelationshipEdgeMapper
 
             TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys(endpointKeyToNodeId, node);
 
+            string canonicalSourceId =
+                TerraformAzurermResourceTypeParser.CanonicalizeTerraformAddressForLookup(node.SourceId ?? string.Empty);
+
             string? terraformEndpointIdentity =
-                TopologyProposalTerraformSourceIdHeuristics.TryNormalizeTerraformEndpointIdentity(node.SourceId);
+                TopologyProposalTerraformSourceIdHeuristics.TryNormalizeTerraformEndpointIdentity(canonicalSourceId);
 
             if (terraformEndpointIdentity is null)
                 continue;
@@ -242,7 +245,8 @@ public static class TopologyProposalRelationshipEdgeMapper
             return false;
         }
 
-        string trimmedCandidate = candidate.Trim();
+        string trimmedCandidate =
+            TerraformAzurermResourceTypeParser.CanonicalizeTerraformAddressForLookup(candidate.Trim());
 
         if (TryResolveMappedNodeId(trimmedCandidate, endpointKeyToNodeId, out nodeId))
             return true;

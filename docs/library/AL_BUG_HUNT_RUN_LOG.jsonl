@@ -5739,3 +5739,4 @@
 {"at":"2026-10-20T22:09:31.1854796Z","zoneId":"retrieval","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Retrieval/"]}
 {"at":"2026-10-20T22:10:20.3915131Z","zoneId":"security-analyzers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs"]}
 {"at":"2026-10-20T22:17:40.5579583Z","zoneId":"identity-provider-config","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs,ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs"]}
+{"at":"2026-10-20T22:17:05.8581055Z","zoneId":"topology-proposal-merge","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/TerraformAzurermResourceTypeParser.cs"]}

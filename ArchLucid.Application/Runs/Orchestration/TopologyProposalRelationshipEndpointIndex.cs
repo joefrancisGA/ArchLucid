@@ -58,6 +58,13 @@ public static partial class TopologyProposalRelationshipEndpointIndex
         if (!TopologyProposalGraphNodeMatchers.IsAgentProposedSourceSentinel(node.SourceId))
         {
             AddResolutionAlias(endpointKeyToNodeId, node.SourceId, node.NodeId);
+            string sourceId = node.SourceId ?? string.Empty;
+            string canonicalSourceId =
+                TerraformAzurermResourceTypeParser.CanonicalizeTerraformAddressForLookup(sourceId);
+
+            if (!string.Equals(canonicalSourceId, sourceId, StringComparison.OrdinalIgnoreCase))
+                AddResolutionAlias(endpointKeyToNodeId, canonicalSourceId, node.NodeId);
+
             TopologyProposalTerraformSourceIdHeuristics.AddTerraformLeafResourceAddressResolutionAliases(
                 endpointKeyToNodeId,
                 node.SourceId,
