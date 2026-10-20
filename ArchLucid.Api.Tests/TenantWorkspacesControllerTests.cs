@@ -1108,6 +1108,100 @@ public sealed class TenantWorkspacesControllerTests
     }
 
     [Fact]
+    public async Task ListAsync_uses_first_inventory_row_name_when_multiple_rows_pin_scoped_default()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        TenantRecord tenant =
+            new()
+            {
+                Id = scope.TenantId,
+                Name = "t",
+                Slug = "t",
+                Tier = TenantTier.Free,
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+                TrialRunsUsed = 0,
+                TrialSeatsUsed = 0,
+                TrialStatus = "None",
+            };
+
+        TenantWorkspaceListItem firstPinRow =
+            new()
+            {
+                WorkspaceId = scope.WorkspaceId,
+                TenantId = scope.TenantId,
+                Name = "first-pin-name",
+                DefaultProjectId = scope.ProjectId,
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+            };
+
+        TenantWorkspaceListItem trailingPinRow =
+            new()
+            {
+                WorkspaceId = scope.WorkspaceId,
+                TenantId = scope.TenantId,
+                Name = "trailing-pin-name",
+                DefaultProjectId = scope.ProjectId,
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+            };
+
+        Mock<ITenantRepository> tenantsMock = new();
+        tenantsMock.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+
+        tenantsMock
+            .Setup(t => t.ListWorkspacesAsync(scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<TenantWorkspaceListItem> { firstPinRow, trailingPinRow }.AsReadOnly());
+
+        Mock<IArchitectureProjectRepository> projectsMock = new();
+        projectsMock
+            .Setup(r => r.ListActiveByTenantAsync(scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new List<ArchitectureProjectRecord>
+                {
+                    new()
+                    {
+                        Id = scope.ProjectId,
+                        TenantId = scope.TenantId,
+                        WorkspaceId = scope.WorkspaceId,
+                        Name = "scoped-project",
+                        CreatedUtc = TimeProvider.System.GetUtcNow(),
+                    },
+                }.AsReadOnly());
+
+        Mock<IScopeContextProvider> scopeMock = new();
+        scopeMock.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        Mock<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>> retentionMock = new();
+        retentionMock.Setup(o => o.CurrentValue).Returns(new ArchitectureProjectRetentionPurgeOptions());
+
+        TenantWorkspacesController sut =
+            new(
+                tenantsMock.Object,
+                projectsMock.Object,
+                scopeMock.Object,
+                Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
+                retentionMock.Object)
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+            };
+
+        IActionResult result = await sut.ListAsync(CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        TenantWorkspacesListResponse body = ok.Value.Should().BeOfType<TenantWorkspacesListResponse>().Subject;
+        body.Workspaces.Should().ContainSingle();
+        body.Workspaces[0].DefaultProjectId.Should().Be(scope.ProjectId);
+        body.Workspaces[0].Name.Should().Be("first-pin-name");
+        body.Workspaces[0].DisplayName.Should().Be("first-pin-name");
+    }
+
+    [Fact]
     public async Task ListAsync_uses_active_default_metadata_row_when_stale_scope_pin_is_not_active()
     {
         ScopeContext scope = new()

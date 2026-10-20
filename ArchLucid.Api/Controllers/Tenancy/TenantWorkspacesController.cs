@@ -114,7 +114,7 @@ public sealed partial class TenantWorkspacesController(
                 firstDefaultRow ??= row;
 
                 if (row.DefaultProjectId == scopedProjectId)
-                    scopedDefaultRow = row;
+                    scopedDefaultRow ??= row;
             }
 
             if (scopedDefaultRow is not null)
