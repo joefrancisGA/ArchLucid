@@ -12,6 +12,13 @@ namespace ArchLucid.Api.Tests.Admin;
 [Trait("Suite", "Core")]
 public sealed class IdentityProviderActivationServiceTests
 {
+    private const string ValidSamlMetadataXml = """
+        <EntityDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata"
+                          entityID="https://idp.example/saml">
+          <IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol" />
+        </EntityDescriptor>
+        """;
+
     [Fact]
     public async Task ActivateAsync_persists_active_tenant_configuration()
     {
@@ -150,7 +157,7 @@ public sealed class IdentityProviderActivationServiceTests
         InMemoryTenantIdentityProviderConfigurationRepository repository = new();
         IdentityProviderActivationService sut = new(repository);
         Guid tenantId = Guid.Parse("22222222-2222-2222-2222-222222222222");
-        const string metadataXml = "<EntityDescriptor entityID=\"https://idp.example/saml\" />";
+        const string metadataXml = ValidSamlMetadataXml;
         IdentityClaimRoleMappingRequest mapping = new()
         {
             RoleClaimName = "groups",
@@ -201,7 +208,7 @@ public sealed class IdentityProviderActivationServiceTests
         InMemoryTenantIdentityProviderConfigurationRepository repository = new();
         IdentityProviderActivationService sut = new(repository);
         Guid tenantId = Guid.Parse("33333333-3333-3333-3333-333333333333");
-        const string metadataXml = "<EntityDescriptor entityID=\"https://idp.example/saml\" />";
+        const string metadataXml = ValidSamlMetadataXml;
         IdentityClaimRoleMappingRequest mapping = new()
         {
             RoleClaimName = "groups",
@@ -718,7 +725,7 @@ public sealed class IdentityProviderActivationServiceTests
                 Protocol = "saml",
                 IssuerUri = "https://idp.example/saml",
                 ClaimMapping = mapping,
-                MetadataXml = "<EntityDescriptor entityID=\"https://idp.example/saml\" />"
+                MetadataXml = ValidSamlMetadataXml
             },
             CancellationToken.None);
 
@@ -735,6 +742,27 @@ public sealed class IdentityProviderActivationServiceTests
             CancellationToken.None);
 
         record.MetadataXml.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task ActivateAsync_rejects_malformed_saml_metadata_xml()
+    {
+        IdentityProviderActivationService sut = new(new InMemoryTenantIdentityProviderConfigurationRepository());
+
+        Func<Task> act = () => sut.ActivateAsync(
+            Guid.Parse("16161616-1616-1616-1616-161616161616"),
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "saml",
+                IssuerUri = "https://idp.example/saml",
+                ClaimMapping = ValidClaimMapping(),
+                MetadataXml = "not-xml"
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*valid SAML metadata*");
     }
 
     [Theory]
@@ -853,7 +881,7 @@ public sealed class IdentityProviderActivationServiceTests
                 Protocol = "saml",
                 IssuerUri = "https://idp.example/saml",
                 ClaimMapping = mapping,
-                MetadataXml = "<EntityDescriptor entityID=\"https://idp.example/saml\" />"
+                MetadataXml = ValidSamlMetadataXml
             },
             CancellationToken.None);
 

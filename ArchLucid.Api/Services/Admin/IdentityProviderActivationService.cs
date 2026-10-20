@@ -77,14 +77,18 @@ public sealed class IdentityProviderActivationService(
 
         bool sameProtocol = existing?.Protocol == parsedProtocol;
 
+        string? metadataXml = ResolveOptionalPersistedField(
+            request.MetadataXml,
+            sameProtocol ? existing?.MetadataXml : null);
+
+        IdentityProviderActivationSamlMetadataGuards.EnsureValidWhenProvided(parsedProtocol, metadataXml);
+
         TenantIdentityProviderConfigurationRecord record = new()
         {
             TenantId = tenantId,
             Protocol = parsedProtocol,
             IssuerUri = canonicalIssuerUri,
-            MetadataXml = ResolveOptionalPersistedField(
-                request.MetadataXml,
-                sameProtocol ? existing?.MetadataXml : null),
+            MetadataXml = metadataXml,
             ClaimMappingJson = claimMappingJson,
             KeyVaultSecretName = ResolveKeyVaultSecretName(
                 request.KeyVaultSecretName,

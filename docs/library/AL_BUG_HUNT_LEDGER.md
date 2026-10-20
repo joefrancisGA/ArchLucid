@@ -7946,11 +7946,12 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 ### Hypotheses
 
 
-- [ ] (candidate) IdentityProviderConfigurationController.DiscoverAsync — forwards the OpenAPI discover body to _discoveryService without IdentityProviderProtocolParser validation at the controller layer; input: POST /v1/admin/identity/discover with an unsupported protocol token from the SSO wizard; wrong outcome: discovery diagnostic shape may disagree with test-login/activate HTTP 400 validation envelopes.
-- [ ] (candidate) IdentityProviderConfigurationController.DiscoverAsync — no explicit empty or whitespace-only metadataUrl guard before discovery; input: wizard discover submit with blank metadataUrl; wrong outcome: downstream discovery failure instead of immediate ProblemDetails validation.
-- [ ] (candidate) IdentityProviderActivationService.ActivateAsync — serializes ClaimMappingJson without an explicit size guard before SQL MERGE despite the ISJSON check; input: activation with a very large claimMapping.mappings array from the wizard; wrong outcome: SQL/command failure instead of validation failed.
-- [ ] (candidate) IdentityProviderConfigurationController.TestLogin — delegates claim-mapping validation entirely to _testLoginService.Execute without controller-level substantive guards; input: POST /v1/admin/identity/test-login with a null element inside claimMapping.mappings; wrong outcome: unhandled exception if the sandbox service regresses.
-- [ ] (candidate) IdentityProviderActivationService.ResolveKeyVaultSecretName — length check runs after merging a omitted request field with an existing stored name; input: same-protocol re-activate omitting keyVaultSecretName when the stored row still contains an oversize legacy secret name; wrong outcome: SQL MERGE truncation failure instead of validation failed.
+- [x] (valid-no-repro) IdentityProviderConfigurationController.DiscoverAsync — controller-layer protocol validation parity — **cheap-disproof 2026-10-20 seed hunt:** discover is an intentional HTTP 200 diagnostic envelope; unsupported protocol returns `DiscoverySucceeded: false` (regression `DiscoverAsync_rejects_non_http_scheme_metadata_url`).
+- [x] (valid-no-repro) IdentityProviderConfigurationController.DiscoverAsync — blank `metadataUrl` — **cheap-disproof 2026-10-20 seed hunt:** discovery service returns `MetadataUrl is required.` in the response body without throwing.
+- [x] (valid-no-repro) IdentityProviderActivationService.ActivateAsync — oversized `ClaimMappingJson` — **cheap-disproof 2026-10-20 seed hunt:** no reproduced SQL MERGE failure in scoped activation tests; column is NVARCHAR(MAX) with ISJSON constraint.
+- [x] (valid-no-repro) IdentityProviderConfigurationController.TestLogin — controller-level claim-mapping guards — **cheap-disproof 2026-10-20 seed hunt:** `_testLoginService.Execute` already maps null mapping entries to `Success: false` (regression `Execute_returns_failure_when_claim_mapping_contains_null_entry`).
+- [x] (valid-no-repro) IdentityProviderActivationService.ResolveKeyVaultSecretName — preserved oversize legacy secret — **cheap-disproof 2026-10-20 seed hunt:** `EnsureKeyVaultSecretNameFits` runs on merged value before upsert (regression `ActivateAsync_rejects_key_vault_secret_name_longer_than_persisted_column`).
+- [x] (proven) `IdentityProviderActivationService.ActivateAsync` — SAML activation accepted malformed `MetadataXml` strings — **hit 2026-10-20 seed hunt:** parse with `SamlMetadataDiscoveryParser` before upsert when metadata is present; regression `ActivateAsync_rejects_malformed_saml_metadata_xml`.
 
 - [x] (proven) PolicyPacksController.SealedManifestGuard.EnsurePolicyPackSimulateRunSealedManifestAllowedAsync — a reachable POST /v1/policy-packs/simulate body with a run id that does not exist in the current scope returned HTTP 409 because GovernanceDispositionSealedManifestGuard treated null manifest-compare detail like a missing golden manifest before the facade could return HTTP 404 — **hit 2026-10-20 seed hunt:** skip the guard when manifest-compare returns no run; enforce PolicyPackSimulateSealedManifestGuard only for committed runs; regressions Simulate_returns_not_found_for_missing_run_before_sealed_manifest_check and Simulate_returns_not_found_when_tenant_missing.
 
@@ -14925,6 +14926,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: identity-provider-config
 
+2026-10-20 seed hunt (seed→hit): promoted SAML `MetadataXml` acceptance on activate — `IdentityProviderActivationService` persisted non-XML or non-metadata strings for SAML tenants while discovery parses metadata; validate with `SamlMetadataDiscoveryParser.Parse` before upsert; regression `ActivateAsync_rejects_malformed_saml_metadata_xml`; cheap-disproof closed five ledger `(candidate)` rows (discover HTTP 200 envelope, blank metadataUrl diagnostic, claim-mapping JSON size without SQL repro, test-login null-mapping sandbox guard, preserved oversize Key Vault secret rejected by `EnsureKeyVaultSecretNameFits`); 53 scoped `IdentityProviderActivationServiceTests` passed.
+
 2026-10-20 seed hunt (seed→hit): promoted duplicate `ClaimMapping.Mappings` `IdpValue` rows — activation and sandbox test-login accepted case-insensitive duplicates while `ResolveRoles` kept only the first mapping, so operators could persist ambiguous SSO role assignments; shared `EnsureNoDuplicateIdpMappingValues` guard on activate and test-login; regressions `ActivateAsync_rejects_duplicate_idp_value_mappings` and `Execute_returns_failure_when_claim_mapping_contains_duplicate_idp_values`; 68 scoped activation/sandbox tests passed.
 
 2026-10-20 seed hunt (seed-only): re-read activation/controller paths; cheap-disproof closed five `(candidate)` rows (discover/test-login HTTP 200 envelopes are intentional wizard contracts; GET partial canonicalization and audit summary shape match prior valid-no-repro notes; empty-string `keyVaultSecretName` is OpenAPI-only because SSO/SAML UIs send null); no new hunt-ready promotion; 66 scoped activation/controller tests passed.
@@ -14943,11 +14946,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 61
-- **bugs-found:** 43
+- **hunts:** 62
+- **bugs-found:** 44
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — duplicate IdP claim value mappings accepted at activation
+- **last-bug:** 2026-10-20 — SAML activation accepted malformed MetadataXml
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
