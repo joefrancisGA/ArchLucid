@@ -366,6 +366,18 @@ function getExpiresAtMs(): number {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
+function hasOidcSessionIdentityHints(): boolean {
+  if (readSignedInUserSubject() !== null) {
+    return true;
+  }
+
+  if (readSignedInDisplayName() !== null) {
+    return true;
+  }
+
+  return false;
+}
+
 /** Access token expiry (epoch ms), or 0 when unknown. */
 export function getAccessTokenExpiresAtMs(): number {
   if (typeof sessionStorage === "undefined") {
@@ -393,6 +405,10 @@ export async function ensureAccessTokenFresh(): Promise<void> {
   const exp = getExpiresAtMs();
 
   if (Date.now() < exp - EXPIRY_SKEW_MS) {
+    return;
+  }
+
+  if (exp <= 0 && !hasOidcSessionIdentityHints()) {
     return;
   }
 

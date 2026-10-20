@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import * as bffSessionSync from "@/lib/oidc/bff-session-sync";
 import { clearOidcSession, ensureAccessTokenFresh, persistTokenResponse } from "@/lib/oidc/session";
-import { OIDC_EXPIRES_AT_MS_KEY } from "@/lib/oidc/storage-keys";
+import { OIDC_EXPIRES_AT_MS_KEY, OIDC_USER_SUBJECT_KEY } from "@/lib/oidc/storage-keys";
 
 describe("ensureAccessTokenFresh (LK-06 P2 BFF refresh)", () => {
   beforeEach(() => {
@@ -170,5 +170,36 @@ describe("ensureAccessTokenFresh (LK-06 P2 BFF refresh)", () => {
 
     expect(Number(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY))).toBe(freshHintMs);
     expect(freshHintMs).toBeGreaterThan(staleBffExpiryMs + 3_000_000);
+  });
+
+  it("does not refresh or restore expiry hints after sign-out cleared identity hints", async () => {
+    vi.mocked(bffSessionSync.refreshBffSessionCookie).mockResolvedValue({
+      ok: true,
+      expiresAtMs: Date.now() + 3_600_000,
+    });
+
+    persistTokenResponse({ access_token: "tok", expires_in: 3600 });
+    clearOidcSession();
+
+    await ensureAccessTokenFresh();
+
+    expect(bffSessionSync.refreshBffSessionCookie).not.toHaveBeenCalled();
+    expect(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY)).toBeNull();
+  });
+
+  it("still refreshes when expiry hint is missing but identity hints remain", async () => {
+    const refreshedMs = Date.now() + 3_600_000;
+
+    vi.mocked(bffSessionSync.refreshBffSessionCookie).mockResolvedValue({
+      ok: true,
+      expiresAtMs: refreshedMs,
+    });
+
+    sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, "user-123");
+
+    await ensureAccessTokenFresh();
+
+    expect(bffSessionSync.refreshBffSessionCookie).toHaveBeenCalledTimes(1);
+    expect(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY)).toBe(String(refreshedMs));
   });
 });
