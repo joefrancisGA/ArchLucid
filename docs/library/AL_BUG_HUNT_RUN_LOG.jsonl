@@ -5630,3 +5630,4 @@
 {"at":"2026-10-20T14:18:41.0294703Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Governance/GovernanceController.ApprovalRequests.Batch.cs"]}
 {"at":"2026-10-20T14:27:52.4347273Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Governance/GovernanceController.Insights.cs"]}
 {"at":"2026-10-20T14:35:43.4103942Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Tenancy/TenantWorkspacesController.ProjectCrud.cs,ArchLucid.Api.Tests/TenantWorkspacesControllerTests.cs"]}
+{"at":"2026-10-20T14:45:03.2258595Z","zoneId":"api-tenancy-workspaces","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Tenancy/TenantWorkspacesController.cs"]}
