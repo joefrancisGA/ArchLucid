@@ -1471,6 +1471,7 @@ describe("DiagramsWorkbenchClient", () => {
     const resourceGroupPicker = await screen.findByTestId("infra-diagrams-resource-group-picker");
     expect(screen.getByText(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_PICKER_TITLE)).toBeInTheDocument();
     expect(resourceGroupPicker).toHaveValue("");
+    expect(screen.queryByTestId("infra-diagrams-one-resource-group-caption")).not.toBeInTheDocument();
   });
 
   it("shows the resource group map caption for a collapsed full subscription diagram", async () => {
