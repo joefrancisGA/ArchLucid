@@ -6,6 +6,8 @@ using ArchLucid.Api.Validators;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.Workflow;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
@@ -16,6 +18,7 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
+using ArchLucid.TestSupport.SealedManifest;
 
 using FluentAssertions;
 
@@ -1249,6 +1252,87 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
         approvals.VerifyNoOtherCalls();
         workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task BatchReviewApprovalRequests_reaches_facade_when_scope_posture_sealed_manifest_would_conflict()
+    {
+        const string approvalRequestId = "apr-batch-posture-guard";
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid committedRunId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new(MockBehavior.Strict);
+        approvals
+            .Setup(r => r.GetByIdAsync(approvalRequestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceApprovalRequest
+            {
+                ApprovalRequestId = approvalRequestId,
+                RunId = runId.ToString("D"),
+            });
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId });
+
+        Mock<IGovernanceWorkflowFacade> workflow = new(MockBehavior.Strict);
+        workflow
+            .Setup(w => w.ApproveAsync(
+                approvalRequestId,
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceApprovalRequest { ApprovalRequestId = approvalRequestId });
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActor()).Returns("reviewer");
+        actor.Setup(a => a.GetActorId()).Returns("reviewer-id");
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(service => service.ListRunSummariesKeysetAsync(
+                It.IsAny<string?>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            (
+                new[]
+                {
+                    new RunSummary
+                    {
+                        RunId = committedRunId.ToString("D"),
+                        Status = nameof(ArchitectureRunStatus.Committed),
+                    },
+                },
+                false,
+                (string?)null));
+
+        GovernanceController sut = CreateController(
+            runRepository: runs.Object,
+            approvalRepository: approvals.Object,
+            workflowFacade: workflow.Object,
+            actorContext: actor.Object,
+            runDetailQueryService: runDetails.Object,
+            authorityQueryService: SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun("stored-hash"),
+            manifestHashService: SealedManifestHashTestSupport.CreateManifestHashService("computed-hash"));
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.BatchReviewApprovalRequests(
+            new GovernanceApprovalBatchReviewRequest
+            {
+                ApprovalRequestIds = [approvalRequestId],
+                Decision = "approve",
+            },
+            CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        ApiGovernanceBatchReviewResponse body =
+            ok.Value.Should().BeOfType<ApiGovernanceBatchReviewResponse>().Subject;
+        body.Results.Should().ContainSingle().Which.Succeeded.Should().BeTrue();
+        workflow.VerifyAll();
+        approvals.VerifyAll();
     }
 
     [Fact]
@@ -3338,7 +3422,10 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         IGovernanceWorkflowFacade? workflowFacade = null,
         ITenantRepository? tenantRepository = null,
         IActorContext? actorContext = null,
-        IAuditService? auditService = null)
+        IAuditService? auditService = null,
+        IRunDetailQueryService? runDetailQueryService = null,
+        IAuthorityQueryService? authorityQueryService = null,
+        IManifestHashService? manifestHashService = null)
     {
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
@@ -3359,6 +3446,9 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             lineageService: lineageService,
             rationaleService: rationaleService,
             auditService: auditService,
-            tenantRepository: tenantRepository ?? TenantExistsRepository());
+            tenantRepository: tenantRepository ?? TenantExistsRepository(),
+            authorityQueryService: authorityQueryService,
+            manifestHashService: manifestHashService,
+            runDetailQueryService: runDetailQueryService);
     }
 }

@@ -39,12 +39,6 @@ public sealed partial class GovernanceController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        IActionResult? sealedGuardResult =
-            await EnsureGovernanceInsightsScopeSealedManifestReadAllowedAsync(cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
         string reviewedBy = actorContext.GetActor();
         string reviewedByActorKey = actorContext.GetActorId();
         string? reviewedByMailbox = actorContext.TryGetSubmitterMailbox();

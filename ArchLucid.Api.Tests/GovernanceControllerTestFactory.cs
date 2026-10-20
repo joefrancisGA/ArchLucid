@@ -49,6 +49,7 @@ internal static class GovernanceControllerTestFactory
         IGovernanceMutationCorrectionService? mutationCorrectionService = null,
         IAuthorityQueryService? authorityQueryService = null,
         IManifestHashService? manifestHashService = null,
+        IRunDetailQueryService? runDetailQueryService = null,
         HttpContext? httpContext = null)
     {
         IScopeContextProvider scope = scopeContextProvider ?? Mock.Of<IScopeContextProvider>();
@@ -103,7 +104,7 @@ internal static class GovernanceControllerTestFactory
             scope,
             authorityQueryService ?? Mock.Of<IAuthorityQueryService>(),
             manifestHashService ?? Mock.Of<IManifestHashService>(),
-            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
+            runDetailQueryService ?? SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
 
             policyPackDryRunService ?? Mock.Of<IPolicyPackDryRunService>(),
             policyPackGovernanceDryRunService ?? Mock.Of<IPolicyPackGovernanceDryRunService>(),
