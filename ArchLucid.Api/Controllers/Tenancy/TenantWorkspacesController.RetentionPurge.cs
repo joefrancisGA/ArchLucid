@@ -31,8 +31,7 @@ public sealed partial class TenantWorkspacesController
         IReadOnlyList<TenantWorkspaceListItem> workspaces = TenantWorkspaceInventoryCoalesce.CoalesceWorkspaces(
             await _tenantRepository.ListWorkspacesAsync(scope.TenantId, cancellationToken));
 
-        TenantWorkspaceListItem? currentWorkspace =
-            workspaces.SingleOrDefault(w => w.WorkspaceId == scope.WorkspaceId);
+        TenantWorkspaceListItem? currentWorkspace = FindWorkspace(workspaces, scope.WorkspaceId);
 
         if (currentWorkspace is null)
             return this.NotFoundProblem("Workspace was not found for this tenant.", ProblemTypes.ResourceNotFound);

@@ -41,4 +41,9 @@ public sealed partial class TenantWorkspacesController(
 
     private readonly IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions> _retentionPurgeOptions =
         retentionPurgeOptions ?? throw new ArgumentNullException(nameof(retentionPurgeOptions));
+
+    private static TenantWorkspaceListItem? FindWorkspace(
+        IReadOnlyList<TenantWorkspaceListItem> workspaces,
+        Guid workspaceId) =>
+        workspaces.FirstOrDefault(w => w.WorkspaceId == workspaceId);
 }

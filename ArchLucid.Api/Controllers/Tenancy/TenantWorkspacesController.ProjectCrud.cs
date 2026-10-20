@@ -36,7 +36,7 @@ public sealed partial class TenantWorkspacesController
         IReadOnlyList<TenantWorkspaceListItem> workspaces = TenantWorkspaceInventoryCoalesce.CoalesceWorkspaces(
             await _tenantRepository.ListWorkspacesAsync(scope.TenantId, cancellationToken));
 
-        TenantWorkspaceListItem? workspace = workspaces.SingleOrDefault(w => w.WorkspaceId == workspaceId);
+        TenantWorkspaceListItem? workspace = FindWorkspace(workspaces, workspaceId);
 
         if (workspace is null)
             return this.NotFoundProblem("Workspace was not found for this tenant.", ProblemTypes.ResourceNotFound);
@@ -157,7 +157,7 @@ public sealed partial class TenantWorkspacesController
         IReadOnlyList<TenantWorkspaceListItem> workspaces = TenantWorkspaceInventoryCoalesce.CoalesceWorkspaces(
             await _tenantRepository.ListWorkspacesAsync(scope.TenantId, cancellationToken));
 
-        TenantWorkspaceListItem? workspace = workspaces.SingleOrDefault(w => w.WorkspaceId == workspaceId);
+        TenantWorkspaceListItem? workspace = FindWorkspace(workspaces, workspaceId);
 
         if (workspace is null)
             return this.NotFoundProblem("Workspace was not found for this tenant.", ProblemTypes.ResourceNotFound);
@@ -167,10 +167,6 @@ public sealed partial class TenantWorkspacesController
 
         if (projectId != scope.ProjectId)
             return this.NotFoundProblem("Architecture project was not found for this tenant.", ProblemTypes.ResourceNotFound);
-
-        IReadOnlyList<ArchitectureProjectRecord> softDeletedProjects =
-            await _architectureProjectRepository.ListSoftDeletedByTenantAsync(scope.TenantId, cancellationToken)
-            ?? Array.Empty<ArchitectureProjectRecord>();
 
         ArchitectureProjectRestoreResult outcome =
             await _architectureProjectRepository.TryRestoreAsync(
