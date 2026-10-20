@@ -47,7 +47,7 @@ public sealed class ArchitectureReviewRobustnessWave87ArchitectureTests
         dryRun.Should().Contain("EnsureSealedManifestReadAllowedAsync");
         dryRun.Should().Contain("EnsureDryRunRunIdsSealedManifestReadAllowedAsync");
         simulate.Should().Contain("MapGovernanceSealedManifestConflict");
-        insights.Should().Contain("EnsureGovernanceInsightsScopeSealedManifestReadAllowedAsync");
+        insights.Should().Contain("MapGovernanceSealedManifestConflict");
         governanceGuard.Should().Contain("MapGovernanceSealedManifestConflict");
         findingMute.Should().Contain("EnsureFindingMuteRunSealedManifestAllowedAsync");
         findingMuteGuard.Should().Contain("MapFindingMuteSealedManifestConflict");

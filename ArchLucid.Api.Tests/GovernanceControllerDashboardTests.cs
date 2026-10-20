@@ -2,9 +2,14 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
+using ArchLucid.TestSupport.SealedManifest;
 
 using FluentAssertions;
 
@@ -39,6 +44,61 @@ public sealed class GovernanceControllerDashboardTests
                 WorkspaceId = id,
                 Name = "workspace",
             }).ToList());
+    }
+
+    [SkippableFact]
+    public async Task GetDashboard_reaches_facade_when_scope_posture_sealed_manifest_would_conflict()
+    {
+        Guid tenantId = Guid.Parse("cccccccc-dddd-eeee-ffff-000011112222");
+        Guid committedRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(DashboardScope(tenantId));
+
+        Mock<IGovernanceDashboardService> dashboard = new(MockBehavior.Strict);
+        dashboard
+            .Setup(d => d.GetDashboardAsync(
+                tenantId,
+                20,
+                20,
+                20,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceDashboardSummary());
+
+        Mock<ITenantRepository> tenants = new();
+        SetupTenantExists(tenants, tenantId, WorkspaceId);
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(service => service.ListRunSummariesKeysetAsync(
+                It.IsAny<string?>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            (
+                new[]
+                {
+                    new RunSummary
+                    {
+                        RunId = committedRunId.ToString("D"),
+                        Status = nameof(ArchitectureRunStatus.Committed),
+                    },
+                },
+                false,
+                (string?)null));
+
+        GovernanceController sut = GovernanceControllerTestFactory.Create(
+            scopeContextProvider: scope.Object,
+            dashboardService: dashboard.Object,
+            tenantRepository: tenants.Object,
+            runDetailQueryService: runDetails.Object,
+            authorityQueryService: SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun("stored-hash"),
+            manifestHashService: SealedManifestHashTestSupport.CreateManifestHashService("computed-hash"));
+
+        IActionResult result = await sut.GetDashboard(20, 20, 20, CancellationToken.None);
+
+        result.Should().BeOfType<OkObjectResult>();
+        dashboard.VerifyAll();
     }
 
     [SkippableFact]
@@ -432,6 +492,64 @@ public sealed class GovernanceControllerDashboardTests
         Microsoft.AspNetCore.Mvc.ProblemDetails problem =
             badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
         problem.Type.Should().Be(ProblemTypes.ValidationFailed);
+    }
+
+    [SkippableFact]
+    public async Task GetComplianceDriftTrend_reaches_facade_when_scope_posture_sealed_manifest_would_conflict()
+    {
+        Guid tenantId = Guid.Parse("cccccccc-dddd-eeee-ffff-000011112222");
+        Guid committedRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        DateTime fromUtc = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime toUtc = fromUtc.AddDays(7);
+        const int bucketMinutes = 1440;
+
+        Mock<IComplianceDriftTrendService> drift = new(MockBehavior.Strict);
+        drift
+            .Setup(d => d.GetTrendAsync(
+                tenantId,
+                fromUtc,
+                toUtc,
+                TimeSpan.FromMinutes(bucketMinutes),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(service => service.ListRunSummariesKeysetAsync(
+                It.IsAny<string?>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            (
+                new[]
+                {
+                    new RunSummary
+                    {
+                        RunId = committedRunId.ToString("D"),
+                        Status = nameof(ArchitectureRunStatus.Committed),
+                    },
+                },
+                false,
+                (string?)null));
+
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(DashboardScope(tenantId));
+
+        Mock<ITenantRepository> tenants = new();
+        SetupTenantExists(tenants, tenantId, WorkspaceId);
+
+        GovernanceController sut = GovernanceControllerTestFactory.Create(
+            scopeContextProvider: scope.Object,
+            complianceDriftTrendService: drift.Object,
+            tenantRepository: tenants.Object,
+            runDetailQueryService: runDetails.Object,
+            authorityQueryService: SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun("stored-hash"),
+            manifestHashService: SealedManifestHashTestSupport.CreateManifestHashService("computed-hash"));
+
+        IActionResult result = await sut.GetComplianceDriftTrend(fromUtc, toUtc, bucketMinutes, CancellationToken.None);
+
+        result.Should().BeOfType<OkObjectResult>();
+        drift.VerifyAll();
     }
 
     [SkippableFact]

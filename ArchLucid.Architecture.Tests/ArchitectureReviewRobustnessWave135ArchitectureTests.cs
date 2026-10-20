@@ -40,7 +40,7 @@ public sealed class ArchitectureReviewRobustnessWave135ArchitectureTests
         approvalCreate.Should().Contain("SubmitApprovalRequest");
         approvalCreate.Should().Contain("EnsureSealedManifestReadAllowedAsync");
         approvalBatch.Should().Contain("BatchReviewApprovalRequests");
-        approvalBatch.Should().Contain("EnsureGovernanceInsightsScopeSealedManifestReadAllowedAsync");
+        approvalBatch.Should().Contain("MapGovernanceSealedManifestConflict");
     }
 
     [Fact]
