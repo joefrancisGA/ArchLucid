@@ -866,6 +866,49 @@ namespace N
     }
 
     [Fact]
+    public async Task Reports_unsecured_explicit_interface_when_implemented_interface_inherits_authorized_marker_interface()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    [Authorize]
+    public interface IAuthorizedRoot
+    {
+    }
+
+    public interface IUnsecuredApi : IAuthorizedRoot
+    {
+        IActionResult Post();
+    }
+
+    public sealed class InheritedMarkerController : ControllerBase, IUnsecuredApi
+    {
+        [HttpPost]
+        IActionResult IUnsecuredApi.{|#0:Post|}() => Ok();
+    }
+}
+""";
+
+        DiagnosticResult expectedDiagnostic =
+            CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+                .WithLocation(0)
+                .WithArguments("InheritedMarkerController.IUnsecuredApi.Post()");
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            ExpectedDiagnostics = { expectedDiagnostic },
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
     public async Task Reports_unsecured_explicit_interface_when_sibling_interface_has_type_level_Authorize()
     {
         const string testCode = AspNetCoreStubs +

@@ -380,12 +380,6 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
         {
             if (SymbolHasAuthorizeOrAllowAnonymous(explicitImplementation, authorizeAttribute, allowAnonymousAttribute))
                 return true;
-
-            if (InterfaceTypeHasAuthorizeOrAllowAnonymous(
-                    explicitImplementation.ContainingType,
-                    authorizeAttribute,
-                    allowAnonymousAttribute))
-                return true;
         }
 
         INamedTypeSymbol containingType = method.ContainingType;
@@ -406,29 +400,12 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
                 if (implementation is null || !SymbolEqualityComparer.Default.Equals(implementation, method))
                     continue;
 
-                if (InterfaceTypeHasAuthorizeOrAllowAnonymous(iface, authorizeAttribute, allowAnonymousAttribute))
+                if (SymbolHasAuthorizeOrAllowAnonymous(iface, authorizeAttribute, allowAnonymousAttribute))
                     return true;
 
                 if (SymbolHasAuthorizeOrAllowAnonymous(interfaceMethod, authorizeAttribute, allowAnonymousAttribute))
                     return true;
             }
-        }
-
-        return false;
-    }
-
-    private static bool InterfaceTypeHasAuthorizeOrAllowAnonymous(
-        INamedTypeSymbol interfaceType,
-        INamedTypeSymbol? authorizeAttribute,
-        INamedTypeSymbol? allowAnonymousAttribute)
-    {
-        if (SymbolHasAuthorizeOrAllowAnonymous(interfaceType, authorizeAttribute, allowAnonymousAttribute))
-            return true;
-
-        foreach (INamedTypeSymbol inheritedInterface in interfaceType.AllInterfaces)
-        {
-            if (SymbolHasAuthorizeOrAllowAnonymous(inheritedInterface, authorizeAttribute, allowAnonymousAttribute))
-                return true;
         }
 
         return false;
