@@ -190,14 +190,6 @@ public sealed partial class GovernancePreviewController(
         if (tenantProblem is not null)
             return tenantProblem;
 
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        IActionResult? sealedGuardResult =
-            await EnsureGovernancePreviewScopeSealedManifestReadAllowedAsync(scope, cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-
         try
         {
             GovernanceEnvironmentComparisonRequest request = new()
