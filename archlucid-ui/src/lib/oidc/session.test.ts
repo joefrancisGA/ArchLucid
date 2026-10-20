@@ -5,6 +5,7 @@ import {
   clearOidcSession,
   consumePkceState,
   consumePostSignInReturnUrl,
+  getAccessTokenExpiresAtMs,
   getAccessTokenForApi,
   isLikelySignedIn,
   persistTokenResponse,
@@ -122,6 +123,20 @@ describe("getAccessTokenForApi / isLikelySignedIn expiry parsing (LK-06 P2)", ()
     sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(Date.now() + 3_600_000));
 
     expect(isLikelySignedIn()).toBe(false);
+    expect(getAccessTokenExpiresAtMs()).toBe(0);
+  });
+
+  it("returns zero expiry for consumers when identity hints are missing", () => {
+    const futureMs = Date.now() + 3_600_000;
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(futureMs));
+    sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, "user-123");
+
+    expect(getAccessTokenExpiresAtMs()).toBe(futureMs);
+
+    sessionStorage.removeItem(OIDC_USER_SUBJECT_KEY);
+    sessionStorage.removeItem(OIDC_DISPLAY_NAME_KEY);
+
+    expect(getAccessTokenExpiresAtMs()).toBe(0);
   });
 
   it("treats scientific-notation expires_at_ms session hints in the past as expired", () => {

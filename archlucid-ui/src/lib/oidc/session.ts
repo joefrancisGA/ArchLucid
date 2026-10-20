@@ -384,6 +384,10 @@ export function getAccessTokenExpiresAtMs(): number {
     return 0;
   }
 
+  if (!hasOidcSessionIdentityHints()) {
+    return 0;
+  }
+
   return getExpiresAtMs();
 }
 
