@@ -1,5 +1,6 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
+<<<<<<< HEAD
 2026-10-20 seed hunt (seed-only): `security-analyzers` — promoted hunt-ready rows from run #82 follow-ons (`[AllowAnonymous]` sibling marker inherited explicit, grandparent type-level `[Authorize]`); cheap-disproof closed `[AllowAnonymous]` mirror (post-#82 inherited explicit narrowing already reports; regression `Reports_inherited_unauthorized_explicit_interface_when_base_also_implements_allow_anonymous_marker_interface`) and grandparent `[Authorize]` (intentional `HasTypeLevelAuthorizeOrAllowAnonymous` ancestor walk); no hunt-ready repro for `MutatingControllerAuditAnalyzer` sibling-marker AL0003 without reachable false negative; seeded five new `(candidate)` rows; 116 scoped analyzer tests passed (`RunAnalyzers=false`).
 
 - [x] (valid-no-repro) `RequireAuthorizationAnalyzer` — `[AllowAnonymous]` sibling marker on base with inherited explicit POST — **cheap-disproof 2026-10-20 seed hunt #83 (lane A):** parity #82 `ExplicitInterfaceImplementationHasAuthorization`; regression lock.
@@ -13,6 +14,21 @@
 - (candidate) `TenantIdentityBoundaryAnalyzer` — `Task<ClaimsPrincipal>` return through async helper in inner layer — locus: return type walk; input: banned type in private service method called from controller.
 - (candidate) `MutatingControllerAuditAnalyzer` — derived override adds `[HttpPost]` without `LogAsync` when base virtual is allowlisted — locus: `IsShadowedVirtualMutatingAction`; input: shadowed virtual with different verb attribute.
 - (candidate) `RequireAuthorizationAnalyzer` — nested sealed controller inside authorized outer controller with inherited explicit from outer base — locus: nested type independent analysis; input: outer `[Authorize]` must not skip inner unauthorized explicit.
+=======
+2026-10-20 seed hunt (seed-only): `ui-oidc` — skipped picker top zone `security-analyzers` (lane-A lock); re-read `session`, `bff-session-sync`, `initiate-redirect`, `token-client`, and focused tests; promoted no hunt-ready row; cheap-disproof closed five run #84 `(candidate)` rows; regression `does not clear the BFF cookie when a pre-sign-out refresh succeeds after a replacement sign-in`; seeded five new `(candidate)` rows; 310 vitest tests in `src/lib/oidc` passed.
+
+- [x] (valid-no-repro) `ensureAccessTokenFresh` — stale ok refresh after `clearOidcSession` during in-flight refresh — **cheap-disproof 2026-10-20 seed hunt (lane C):** generation-mismatch ok clear gated on `hasOidcSessionIdentityHints()` (#84); regression `does not clear the BFF cookie when a pre-sign-out refresh succeeds after a replacement sign-in`.
+- [x] (valid-no-repro) `syncTokenToBff` — identity-less generation bump vs concurrent authorized sync — **cheap-disproof 2026-10-20 seed hunt (lane C):** `reapplies replacement token sync when a stale sign-out-era POST completes late` and identity-less stale-sync tests.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — soft-fail near expiry with identity hints — **cheap-disproof 2026-10-20 seed hunt (lane C):** `bff-session-sync.test.ts` soft-fail matrix; `ensureAccessTokenFresh` no-ops without identity.
+- [x] (valid-no-repro) `persistNonSensitiveSessionHints` — refresh omits id_token leaving prior subject — **cheap-disproof 2026-10-20 seed hunt (lane C):** `removeOidcKeys` before apply; empty replacement clears hints.
+- [x] (valid-no-repro) `initiateOidcRedirect` — supplemental discovery failure after primary PKCE pending — **cheap-disproof 2026-10-20 seed hunt (lane C):** `initiate-redirect.test.ts` preserves return path when google PKCE pending.
+
+- (candidate) `ensureAccessTokenFresh` — stale 401 refresh after `clearOidcSession` then replacement sign-in — locus: `shouldClearSession` + generation mismatch; input: rejected refresh must not wipe PKCE when identity restored before completion.
+- (candidate) `persistTokenResponse` — identity-less bump while `refreshInFlight` still running — locus: `refreshInFlight = null` vs dangling promise; input: late ok refresh writes expiry without identity after identity-less.
+- (candidate) `syncBffSessionCookieFromTokenResponse` — POST succeeds without CSRF header vs refresh route — locus: mutation header parity; input: host requires CSRF on sync only (deployment contract).
+- (candidate) `token-client` — token response `expires_in` as JSON string with interior ZWSP — locus: `resolveExpiresInSeconds` string path; input: `"36\u200b00"` seconds from provider.
+- (candidate) `signOutAndRedirectHome` — `resolveRpLogoutUrlFromBffSession` succeeds after `clearOidcSession` already cleared BFF — locus: RP logout uses id_token from cookie; input: logout URL null when cookie cleared before assign (intentional local fallback).
+>>>>>>> bbbc8794ff (al-bug (lane C): ui-oidc seed-only — sign-out refresh regression)
 
 2026-10-20 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `ensureAccessTokenFresh` stale ok refresh after identity-less persist followed by replacement sign-in; generation-mismatch ok path always called `clearBffSessionCookie`, wiping the HttpOnly cookie established by the replacement `persistTokenResponse`; now clear only when identity hints are absent after generation drift; regressions `does not clear the BFF cookie when a pre-identity-less refresh succeeds after a replacement sign-in` and `drops only the expiry hint when BFF refresh is rejected after identity-less replacement invalidates session generation`; cheap-disproof closed five run #83 `(candidate)` rows; seeded five new `(candidate)` rows; 309 vitest tests in `src/lib/oidc` passed.
 
