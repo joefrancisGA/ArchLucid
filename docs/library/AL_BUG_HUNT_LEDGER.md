@@ -1,5 +1,12 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
+2026-10-20 seed hunt (audit dry, lane B): `identity-provider-config` — owner-directed audit closing **protocol-switch / greenfield activation missing protocol-specific persisted fields**; consolidated `IdentityProviderActivationProtocolFieldRequirements` + `IdentityProviderActivationProtocolFieldGuards` (SAML `MetadataXml` on greenfield or cross-protocol to SAML; OIDC `KeyVaultSecretName` on cross-protocol to OIDC only); matrix regressions `IdentityProviderActivationProtocolTransitionMatrixTests` and `SsoWizardTestLoginProtocolFieldMatrixTests` (sandbox test-login has no metadata/secret fields on request); no new failing repro beyond shipped guards; 90 scoped activation/matrix/controller tests passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — greenfield OIDC without `KeyVaultSecretName` — **audit 2026-10-20 seed hunt (lane B):** intentional deferred secret name; matrix `ActivateAsync_matrix_greenfield_oidc_without_key_vault_secret_succeeds`.
+- [x] (valid-no-repro) `SsoWizardTestLoginService.Execute` — protocol-specific persisted fields — **audit 2026-10-20 seed hunt (lane B):** not on `IdentityProviderTestLoginRequest`; matrix `TestLogin_matrix_does_not_require_protocol_persisted_fields_on_request`.
+
+**Closed defect class (2026-10-20, lane B):** Tenant IdP **activation** omitting protocol-specific persisted fields (`MetadataXml` for SAML, `KeyVaultSecretName` for OIDC) on greenfield or cross-protocol transitions. Requirements live in `IdentityProviderActivationProtocolFieldRequirements`; do not reopen one-off protocol-switch guard hunts — extend the matrix instead.
+
 2026-10-20 seed hunt (seed→hit, lane B): `identity-provider-config` — picker seed hunt; promoted protocol switch SAML→OIDC without `KeyVaultSecretName` (symmetric to SAML metadata on protocol change); `IdentityProviderActivationOidcKeyVaultGuards.EnsurePresentWhenRequired` when activating OIDC from a non-OIDC row; regression `ActivateAsync_rejects_protocol_switch_to_oidc_without_key_vault_secret`; updated `ActivateAsync_protocol_switch_clears_saml_metadata_xml_when_omitted`; 71 scoped activation/controller tests passed (`RunAnalyzers=false`).
 
 - [x] (proven) `IdentityProviderActivationService.ActivateAsync` — protocol switch to OIDC without substantive `KeyVaultSecretName` — **hit 2026-10-20 seed hunt (lane B):** `requiresOidcKeyVaultSecretName` guard; regression above.
@@ -14981,6 +14988,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: identity-provider-config
 
+2026-10-20 seed hunt (audit dry, lane B): protocol-specific activation field audit; class closed; `IdentityProviderActivationProtocolTransitionMatrixTests` + `SsoWizardTestLoginProtocolFieldMatrixTests`; 90 scoped tests passed.
+
 2026-10-20 seed hunt (seed→hit, lane B): protocol switch to OIDC without `KeyVaultSecretName`; `requiresOidcKeyVaultSecretName` when activating OIDC from a non-OIDC row; regression `ActivateAsync_rejects_protocol_switch_to_oidc_without_key_vault_secret`; 71 scoped activation/controller tests passed.
 
 2026-10-20 seed hunt (seed→hit, lane B): protocol switch to SAML without `MetadataXml`; `requiresSamlMetadata` when first row or non-SAML predecessor; regression `ActivateAsync_rejects_protocol_switch_to_saml_without_metadata`; 70 scoped activation/controller tests passed.
@@ -15007,11 +15016,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 65
+- **hunts:** 66
 - **bugs-found:** 47
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — protocol switch to OIDC without KeyVaultSecretName
+- **last-bug:** 2026-10-20 — protocol switch to OIDC without KeyVaultSecretName (class closed 2026-10-20 audit)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

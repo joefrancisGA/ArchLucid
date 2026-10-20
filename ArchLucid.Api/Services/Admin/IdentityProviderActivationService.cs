@@ -81,27 +81,15 @@ public sealed class IdentityProviderActivationService(
             request.MetadataXml,
             sameProtocol ? existing?.MetadataXml : null);
 
-        bool requiresSamlMetadata = existing is null
-            || (parsedProtocol == TenantIdentityProtocol.Saml && existing.Protocol != TenantIdentityProtocol.Saml);
-
-        IdentityProviderActivationSamlMetadataGuards.EnsurePresentWhenRequired(
-            parsedProtocol,
-            metadataXml,
-            requiresSamlMetadata);
-        IdentityProviderActivationSamlMetadataGuards.EnsureValidWhenProvided(parsedProtocol, metadataXml);
-
         string? keyVaultSecretName = ResolveKeyVaultSecretName(
             request.KeyVaultSecretName,
             sameProtocol ? existing?.KeyVaultSecretName : null);
 
-        bool requiresOidcKeyVaultSecretName = existing is not null
-            && parsedProtocol == TenantIdentityProtocol.Oidc
-            && existing.Protocol != TenantIdentityProtocol.Oidc;
-
-        IdentityProviderActivationOidcKeyVaultGuards.EnsurePresentWhenRequired(
+        IdentityProviderActivationProtocolFieldGuards.EnsureActivateFields(
             parsedProtocol,
+            metadataXml,
             keyVaultSecretName,
-            requiresOidcKeyVaultSecretName);
+            existing);
 
         TenantIdentityProviderConfigurationRecord record = new()
         {

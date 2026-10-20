@@ -5752,3 +5752,4 @@
 {"at":"2026-10-20T22:59:28.877585Z","zoneId":"identity-provider-config","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-20T23:06:35.6429336Z","zoneId":"identity-provider-config","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-20T23:07:59.7673199Z","zoneId":"retrieval","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-20T23:12:31.7993026Z","zoneId":"identity-provider-config","outcome":"dry","productLine":"archlucid-shared"}
