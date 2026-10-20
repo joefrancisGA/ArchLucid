@@ -50,7 +50,7 @@ public sealed class SecureNowAnalysisPipelineTests(ITestOutputHelper output)
         long reusedMs = timer.ElapsedMilliseconds;
         long reusedBytes = GC.GetTotalAllocatedBytes() - allocationStart;
 
-        baseline.ReadCount.Should().Be(9);
+        baseline.ReadCount.Should().Be(6);
         reused.ReadCount.Should().Be(1);
         reused.Paths.Should().NotBeEmpty();
         reused.PathSignatures().Should().Equal(baseline.PathSignatures());
@@ -149,6 +149,24 @@ public sealed class SecureNowAnalysisPipelineTests(ITestOutputHelper output)
                 });
             snapshots.Setup(r => r.TryGetPriorMaterializedSnapshotIdAsync(It.IsAny<ScopeContext>(), "sub", SnapshotId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(hasPrior ? PriorId : null);
+            snapshots.Setup(r => r.ListResourcesByCloudResourceIdsAsync(
+                    It.IsAny<ScopeContext>(),
+                    It.IsAny<Guid>(),
+                    It.IsAny<IReadOnlyList<Guid>>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync([]);
+            snapshots.Setup(r => r.ListTagsByResourceRowIdsAsync(
+                    It.IsAny<ScopeContext>(),
+                    It.IsAny<Guid>(),
+                    It.IsAny<IReadOnlyList<Guid>>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync([]);
+            snapshots.Setup(r => r.ListResourcesAndPropertiesByCloudResourceIdsAsync(
+                    It.IsAny<ScopeContext>(),
+                    It.IsAny<Guid>(),
+                    It.IsAny<IReadOnlyList<Guid>>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(([], []));
 
             Mock<ISecurityEvidencePathRepository> paths = new();
             SecurityEvidencePathInsertResult Insert(SecurityEvidencePathRecord path, IReadOnlyList<SecurityEvidencePathHopRecord> hops)
@@ -156,6 +174,7 @@ public sealed class SecureNowAnalysisPipelineTests(ITestOutputHelper output)
                 SecurityEvidencePathGuard.ValidatedPath validated = SecurityEvidencePathGuard.ValidateAndMaterialize(path, hops);
                 SecurityEvidencePathWithHops? existing = Paths.FirstOrDefault(item => item.Path.SnapshotId == path.SnapshotId
                     && item.Path.CanonicalHopHashSha256.SequenceEqual(validated.Path.CanonicalHopHashSha256));
+
                 if (existing is not null)
                     return new() { PathId = existing.Path.PathId, Created = false };
                 Paths.Add(new(validated.Path, validated.Hops));
@@ -190,6 +209,7 @@ public sealed class SecureNowAnalysisPipelineTests(ITestOutputHelper output)
             patterns.Setup(r => r.ListApprovedVersionsForTenantAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
             Mock<IArchitectureDiagramReconciliationRepository> reconciliation = new();
             reconciliation.Setup(r => r.ListRunIdsBySnapshotAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
+            reconciliation.Setup(r => r.ListBySnapshotAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
             Mock<IAzureInventoryDiffRepository> diffs = new();
             diffs.Setup(r => r.InsertDiffAsync(It.IsAny<ScopeContext>(), It.IsAny<AzureInventoryDiffPersistRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((ScopeContext _, AzureInventoryDiffPersistRequest request, CancellationToken _) => new AzureInventoryDiffPersistResult { DiffId = request.DiffId, Summary = request.Summary });
