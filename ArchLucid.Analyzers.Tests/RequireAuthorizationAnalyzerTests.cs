@@ -620,6 +620,84 @@ namespace N
     }
 
     [Fact]
+    public async Task Reports_type_level_AL0001_on_abstract_controller_with_unauthorized_explicit_interface_despite_authorized_base_action()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    public abstract class SecureBase : ControllerBase
+    {
+        [Authorize]
+        [HttpGet]
+        public IActionResult Safe() => Ok();
+    }
+
+    public interface IUnsecuredApi
+    {
+        IActionResult Get();
+    }
+
+    public abstract class {|#0:MiddleController|} : SecureBase, IUnsecuredApi
+    {
+        [HttpGet]
+        IActionResult IUnsecuredApi.Get() => Ok();
+    }
+}
+""";
+
+        DiagnosticResult expectedDiagnostic =
+            CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+                .WithLocation(0)
+                .WithArguments("MiddleController");
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            ExpectedDiagnostics = { expectedDiagnostic },
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task Does_not_report_explicit_interface_implementation_when_impl_declares_AllowAnonymous()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    public interface IAnonymousApi
+    {
+        IActionResult Get();
+    }
+
+    public sealed class ImplController : ControllerBase, IAnonymousApi
+    {
+        [AllowAnonymous]
+        [HttpGet]
+        IActionResult IAnonymousApi.Get() => Ok();
+    }
+}
+""";
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
     public async Task Reports_inherited_unauthorized_explicit_interface_action_for_empty_derived_controller()
     {
         const string testCode = AspNetCoreStubs +

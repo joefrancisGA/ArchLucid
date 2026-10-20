@@ -199,6 +199,41 @@ namespace N
   }
 
   [Fact]
+  public async Task Reports_out_ClaimsPrincipal_parameter_in_inner_layer_assembly()
+  {
+    const string testCode = """
+using System.Security.Claims;
+
+namespace ArchLucid.Application.Probe;
+
+public sealed class Handler
+{
+    public bool TryGet(out {|#0:ClaimsPrincipal|} user)
+    {
+        {|#1:user|} = null!;
+        return false;
+    }
+}
+""";
+
+    await new CSharpAnalyzerTest<TenantIdentityBoundaryAnalyzer, DefaultVerifier>
+    {
+      TestCode = testCode,
+      ExpectedDiagnostics =
+      {
+        CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+          .WithLocation(0)
+          .WithArguments("System.Security.Claims.ClaimsPrincipal"),
+        CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+          .WithLocation(1)
+          .WithArguments("System.Security.Claims.ClaimsPrincipal")
+      },
+      ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+      SolutionTransforms = { InnerLayerAssemblyNameTransform }
+    }.RunAsync();
+  }
+
+  [Fact]
   public async Task Reports_scoped_ref_ClaimsPrincipal_parameter_in_inner_layer_assembly()
   {
     const string testCode = """
