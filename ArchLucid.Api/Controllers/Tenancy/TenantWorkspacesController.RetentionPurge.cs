@@ -71,7 +71,14 @@ public sealed partial class TenantWorkspacesController
         int retentionDays =
             ArchitectureProjectRetentionSchedule.ClampRetentionDays(_retentionPurgeOptions.CurrentValue.RetentionDays);
 
-        HashSet<Guid> defaultMetadataPinnedProjectIds = workspaces
+        HashSet<Guid> foreignWorkspaceDefaultPinProjectIds = workspaces
+            .Where(workspace => workspace.WorkspaceId != scope.WorkspaceId)
+            .Select(workspace => workspace.DefaultProjectId)
+            .Where(projectId => projectId != Guid.Empty)
+            .ToHashSet();
+
+        HashSet<Guid> currentWorkspaceDefaultPinProjectIds = workspaces
+            .Where(workspace => workspace.WorkspaceId == scope.WorkspaceId)
             .Select(workspace => workspace.DefaultProjectId)
             .Where(projectId => projectId != Guid.Empty)
             .ToHashSet();
@@ -91,7 +98,12 @@ public sealed partial class TenantWorkspacesController
                     {
                         DateTimeOffset deletedUtc = p.DeletedUtc!.Value;
 
-                        bool retentionPurgeScheduled = !defaultMetadataPinnedProjectIds.Contains(p.Id);
+                        bool protectsDeletedProjectFromPurge =
+                            foreignWorkspaceDefaultPinProjectIds.Contains(p.Id)
+                            || (currentWorkspaceDefaultPinProjectIds.Contains(p.Id)
+                                && (defaultProjectId == Guid.Empty || p.Id == defaultProjectId));
+
+                        bool retentionPurgeScheduled = !protectsDeletedProjectFromPurge;
 
                         return new TenantWorkspaceDeletedProjectApiDto
                         {
