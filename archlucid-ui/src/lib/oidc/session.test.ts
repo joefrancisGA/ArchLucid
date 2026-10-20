@@ -347,6 +347,12 @@ describe("persistTokenResponse", () => {
     expect(readSignedInDisplayName()).toBe("Jane Operator");
   });
 
+  it("collapses interior ZWSP in legacy stored display names instead of gluing words", () => {
+    sessionStorage.setItem(OIDC_DISPLAY_NAME_KEY, "John\u200bDoe");
+
+    expect(readSignedInDisplayName()).toBe("John Doe");
+  });
+
   it("strips zero-width padding when reading user subject hints from sessionStorage", () => {
     sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, "\u200buser-123\u200b");
 

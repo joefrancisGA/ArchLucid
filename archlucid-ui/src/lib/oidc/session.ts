@@ -32,6 +32,7 @@ import {
 import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
 import {
   normalizeOidcConfigurationString,
+  normalizeOidcDisplayString,
   parseOidcEpochMsHint,
   stripOAuthInvisibleFormatChars,
 } from "@/lib/oidc/oauth-callback-messages";
@@ -419,7 +420,19 @@ export function readSignedInDisplayName(): string | null {
     return null;
   }
 
-  return readNormalizedIdentitySessionKey(OIDC_DISPLAY_NAME_KEY);
+  const value = readSessionKey(OIDC_DISPLAY_NAME_KEY);
+
+  if (value === null) {
+    return null;
+  }
+
+  const normalized = normalizeOidcDisplayString(value);
+
+  if (normalized.length === 0) {
+    return null;
+  }
+
+  return normalized;
 }
 
 export function readSignedInUserSubject(): string | null {

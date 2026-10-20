@@ -40,6 +40,12 @@ describe("readOAuthJsonErrorDescription", () => {
   it("decodes percent-encoded newlines in JSON error_description", () => {
     expect(readOAuthJsonErrorDescription("line1%0Aline2")).toBe("line1 line2");
   });
+
+  it("preserves ZWNJ in Persian token error_description copy", () => {
+    const detail = "دسترسی\u200cرد";
+
+    expect(readOAuthJsonErrorDescription(detail)).toBe(detail);
+  });
 });
 
 describe("decodeOAuthErrorDescription", () => {
