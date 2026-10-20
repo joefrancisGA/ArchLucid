@@ -7724,3 +7724,4 @@
 {"at": "2026-10-20T07:12:00Z", "zoneId": "arm-terraform-source-ids", "outcome": "hit", "productLine": "archlucid-shared"}
 {"at": "2026-10-20T07:25:00Z", "zoneId": "archlucid-core", "outcome": "seed-only", "productLine": "archlucid-shared"}
 {"at": "2026-10-20T07:27:00Z", "zoneId": "archlucid-core", "outcome": "hit", "productLine": "archlucid-shared"}
+{"at": "2026-10-20T07:42:00Z", "zoneId": "api-governance-tenancy-controllers", "outcome": "hit", "productLine": "archlucid-shared"}

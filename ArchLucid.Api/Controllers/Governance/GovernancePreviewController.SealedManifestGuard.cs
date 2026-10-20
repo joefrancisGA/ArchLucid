@@ -1,5 +1,6 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.Posture;
 using ArchLucid.Application.Governance.Preview;
 using ArchLucid.Core.Scoping;
@@ -17,14 +18,24 @@ public sealed partial class GovernancePreviewController
         ScopeContext scope,
         CancellationToken cancellationToken)
     {
+        if (!Guid.TryParse(runId, out Guid parsedRunId) || parsedRunId == Guid.Empty)
+            return null;
+
+        RunDetailDto? detail =
+            await _authorityQueryService.GetRunDetailForManifestCompareAsync(
+                scope,
+                parsedRunId,
+                cancellationToken);
+
+        if (detail is null)
+            return null;
+
         try
         {
-            await GovernancePreviewSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
-                runId,
-                scope,
-                _authorityQueryService,
-                _manifestHashService,
-                cancellationToken);
+            PolicyPackSimulateSealedManifestGuard.EnsureRunSealedManifestHashOrThrow(
+                detail.GoldenManifest,
+                parsedRunId.ToString("D"),
+                _manifestHashService);
         }
         catch (ConflictException ex)
         {

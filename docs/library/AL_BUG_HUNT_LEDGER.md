@@ -32111,7 +32111,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **hunts:** 140
 - **bugs-found:** 120
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-15
+- **last-hunt:** 2026-10-20
 - **last-bug:** 2026-10-15 — Evolution / clarification contract JSON null lists
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -36657,6 +36657,16 @@ heap-disproved mermaid typed-topology candidate.
 ---
 
 ## Zone: api-governance-tenancy-controllers
+2026-10-20 seed hunt (seed→hit): promoted `EnsureGovernancePreviewRunSealedManifestReadAllowedAsync` calling `GovernanceDispositionSealedManifestGuard` before preview service run lookup, so POST /v1/governance-preview/preview with an out-of-scope run id returned HTTP 409 instead of 404; align with policy-pack simulate guard (fetch manifest-compare, skip when detail is null); regression `Preview_returns_not_found_for_missing_run_before_sealed_manifest_check`.
+
+- [x] (proven) `GovernancePreviewController.EnsureGovernancePreviewRunSealedManifestReadAllowedAsync` — reachable POST /v1/governance-preview/preview with a run id absent from manifest-compare returned HTTP 409 because disposition sealed-manifest guard treated missing golden manifest as conflict before `RunNotFoundException` mapping — regression `Preview_returns_not_found_for_missing_run_before_sealed_manifest_check`.
+
+- (candidate) `GovernancePreCommitSimulationController.SealedManifestGuard` — missing run id returns 409 before checklist 404 — locus: pre-commit GET simulate guard; input: unknown run id on checklist route.
+- (candidate) `GovernanceStickinessController.SealedManifestGuard` — disposition routes block missing runs with 409 — locus: stickiness sealed guard; input: risk exception on foreign run id.
+- (candidate) `GovernanceController.BatchReviewApprovalRequests` — batch path lacks idempotency key — locus: batch-review POST; input: `(valid-no-repro)` by design unless replay audit gap reproved.
+- (candidate) `TenantWorkspacesController.DeleteProjectAsync` — `ListActiveByTenantAsync` null without coalesce on default-project guard branch — locus: delete default metadata path; input: mock-only null (cheap-disproof vs Dapper).
+- (candidate) `GovernancePreviewController.CompareEnvironments` — scope sealed guard vs missing activation manifest — locus: compare-environments POST; input: environments with no active manifest.
+
 2026-10-16 seed hunt (seed→hit): promoted durable governance audit factory `AuditEvent.RunId`; 20/20 audit support tests.
 
 2026-10-16 seed hunt (seed→hit): promoted manifest-promoted audit `DataJson` actor fields; 10/10 audit support tests.
@@ -36708,11 +36718,11 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 329
+- **hunts:** 330
 - **last-hunt:** 2026-10-15
-- **bugs-found:** 524
+- **bugs-found:** 525
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-16 — dry-run governance validation audits omitted ExplicitActor
+- **last-bug:** 2026-10-20 — governance preview sealed guard blocked missing runs with HTTP 409
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
