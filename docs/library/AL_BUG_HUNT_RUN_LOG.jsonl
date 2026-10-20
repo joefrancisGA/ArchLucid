@@ -5656,3 +5656,4 @@
 {"at":"2026-10-20T17:13:57.9615004Z","zoneId":"api-tenancy-workspaces","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-20T17:27:54.784154Z","zoneId":"api-tenancy-workspaces","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-20T17:34:56.3504217Z","zoneId":"api-tenancy-workspaces","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-20T17:43:54.4706550Z","zoneId":"api-tenancy-workspaces","outcome":"seed-only","productLine":"archlucid-shared"}
