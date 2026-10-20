@@ -58,6 +58,22 @@ describe("buildFindingRawContextBlocks", () => {
     expect(blocks[1]?.kind).toBe("provenance-evidence");
   });
 
+  it("labels missing model deployment in LLM prompt meta", () => {
+    const audit: FindingLlmAudit = {
+      traceId: "trace-1",
+      agentType: "Compliance",
+      systemPromptRedacted: "",
+      userPromptRedacted: "Evaluate policy pack against graph snapshot …",
+      rawResponseRedacted: "",
+      modelDeploymentName: "",
+      redactionCountsByCategory: {},
+    };
+
+    const blocks = buildFindingRawContextBlocks(null, null, audit);
+
+    expect(blocks[0]?.meta).toContain("Model deployment was not stored.");
+  });
+
   it("appends redacted LLM user prompt when audit is available", () => {
     const audit: FindingLlmAudit = {
       traceId: "trace-1",

@@ -3,7 +3,10 @@ import {
   formatStampCatalogEngineFailureHonestyLine,
   formatStampWithheldHonestyLine,
 } from "@/lib/findings/findings-withheld-band";
-import { countFindingsByClassificationBand } from "@/lib/findings/review-detail-findings-classification-band";
+import {
+  countFindingsByClassificationBand,
+  hasMissingEvidenceReferenceCount,
+} from "@/lib/findings/review-detail-findings-classification-band";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -20,12 +23,18 @@ export function RunDetailReviewPackageClassificationSummary(
 ): React.JSX.Element | null {
   const counts = countFindingsByClassificationBand(props.findings);
   const total = counts.decisionGrade + counts.checklist;
-  const withheldLine = formatStampWithheldHonestyLine(props.withheldFindingCount ?? 0);
+  const evidenceRefCountNotStored = hasMissingEvidenceReferenceCount(props.findings);
+  const withheldLine = formatStampWithheldHonestyLine(props.withheldFindingCount);
   const catalogEngineFailureLine = formatStampCatalogEngineFailureHonestyLine(
-    props.catalogAdvisoryEngineFailureCount ?? 0,
+    props.catalogAdvisoryEngineFailureCount,
   );
 
-  if (total === 0 && withheldLine === null && catalogEngineFailureLine === null) {
+  if (
+    total === 0 &&
+    withheldLine === null &&
+    catalogEngineFailureLine === null &&
+    !evidenceRefCountNotStored
+  ) {
     return null;
   }
 
@@ -45,6 +54,14 @@ export function RunDetailReviewPackageClassificationSummary(
         Decision-grade: {counts.decisionGrade} · Checklist: {counts.checklist}
         {counts.uncited > 0 ? ` · Uncited: ${counts.uncited}` : ""}
       </p>
+      {evidenceRefCountNotStored ? (
+        <p
+          className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="run-detail-stamp-evidence-ref-not-stored"
+        >
+          Evidence reference count was not stored.
+        </p>
+      ) : null}
       {withheldLine !== null ? (
         <p
           className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}

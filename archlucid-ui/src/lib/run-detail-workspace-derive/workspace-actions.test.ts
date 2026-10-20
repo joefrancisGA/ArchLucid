@@ -17,7 +17,7 @@ function sampleFinding(
     muteReason: partial.muteReason ?? null,
     enforcementTier: partial.enforcementTier ?? "Blocking",
     humanReviewStatus: partial.humanReviewStatus ?? null,
-    evidenceRefCount: partial.evidenceRefCount ?? 0,
+    evidenceRefCount: partial.evidenceRefCount !== undefined ? partial.evidenceRefCount : 0,
     aiReasoning: partial.aiReasoning ?? {
       reasoningTrace: "",
       wireJson: "{}",
@@ -101,6 +101,32 @@ describe("deriveBlockingApprovalCount", () => {
     });
 
     expect(count).toBe(0);
+  });
+});
+
+describe("deriveRecommendedWorkspaceActions evidence ref honesty (P-05 / P-09)", () => {
+  it("does not count omitted evidenceRefCount as an evidence gap", () => {
+    const actions = deriveRecommendedWorkspaceActions({
+      runId: "run-1",
+      findings: [
+        sampleFinding({
+          findingId: "f-omitted",
+          evidenceRefCount: null,
+        }),
+      ],
+      manifestId: "manifest-1",
+      showProgressTracker: false,
+      hasCommitBlockingFailures: false,
+      blockingFindingCount: 0,
+      buyerPolishedArtifactTable: false,
+      operatorGovernanceDecision: null,
+      manifestStatus: null,
+      runCompleted: true,
+      evidenceCoverageComplete: false,
+    });
+
+    expect(actions.some((action) => action.id === "add-evidence")).toBe(false);
+    expect(actions.some((action) => action.id === "evidence-ref-count-not-stored")).toBe(true);
   });
 });
 

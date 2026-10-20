@@ -109,10 +109,10 @@ export function QuickDecisionSummaryEmptyState({
     const warningN =
       typeof headlineWarningCount === "number" && Number.isFinite(headlineWarningCount)
         ? Math.trunc(headlineWarningCount)
-        : 0;
+        : null;
 
     const warningPhrase =
-      warningN > 0
+      warningN !== null && warningN > 0
         ? " One monitored PHI minimization risk remains in this review record — review severity and controls below."
         : "";
 

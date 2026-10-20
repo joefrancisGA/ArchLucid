@@ -138,7 +138,11 @@ export function buildWithheldFindingDeepLink(runId: string, row: WithheldFinding
   return `/architecture/reviews/${encodeURIComponent(runId)}?reviewTab=findings`;
 }
 
-export function formatStampWithheldHonestyLine(count: number): string | null {
+export function formatStampWithheldHonestyLine(count: number | null | undefined): string | null {
+  if (count === null || count === undefined) {
+    return "Withheld finding count was not stored.";
+  }
+
   if (count <= 0) {
     return null;
   }
@@ -146,7 +150,13 @@ export function formatStampWithheldHonestyLine(count: number): string | null {
   return `${count} withheld ${count === 1 ? "item" : "items"} did not enter the sealed record — open Needs attention on Findings.`;
 }
 
-export function formatStampCatalogEngineFailureHonestyLine(catalogAdvisoryFailureCount: number): string | null {
+export function formatStampCatalogEngineFailureHonestyLine(
+  catalogAdvisoryFailureCount: number | null | undefined,
+): string | null {
+  if (catalogAdvisoryFailureCount === null || catalogAdvisoryFailureCount === undefined) {
+    return "Catalog engine failure count was not stored.";
+  }
+
   if (catalogAdvisoryFailureCount <= 0) {
     return null;
   }

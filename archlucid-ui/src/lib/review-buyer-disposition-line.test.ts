@@ -90,6 +90,20 @@ describe("buildBuyerReviewPackageDispositionLine", () => {
     expect(line).toContain("9 findings, including 1 non-blocking monitored risk");
   });
 
+  it("does not invent a monitored risk count when warningCountDisplay is omitted", () => {
+    const line = buildBuyerReviewPackageDispositionLine({
+      hasGoldenManifest: true,
+      findingCountDisplay: 9,
+      warningCountDisplay: null,
+      unresolvedIssueCountDisplay: 0,
+      governanceGateLabel: "Passed",
+      aggregateRiskPosture: "Approved with monitoring",
+    });
+
+    expect(line).toContain("monitored risk count was not stored");
+    expect(line).not.toContain("with 1 monitored risk");
+  });
+
   it("surfaces unresolved manifest issues when present", () => {
     const line = buildBuyerReviewPackageDispositionLine({
       hasGoldenManifest: true,

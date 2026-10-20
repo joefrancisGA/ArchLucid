@@ -2,7 +2,9 @@ import { feasibilityVerdictKindLabel, feasibilityVerdictTone } from "@/lib/feasi
 import { quickDecisionFindingHasRecordedDisposition } from "@/lib/findings/finding-recorded-disposition";
 import {
   countFindingsByClassificationBand,
+  hasMissingEvidenceReferenceCount,
   isDecisionGradeFinding,
+  isUncitedFinding,
 } from "@/lib/findings/review-detail-findings-classification-band";
 import { countFindingsByTreatmentBand } from "@/lib/review-quality/compare-treatment-band-delta";
 import { compareFindingSeverity } from "@/lib/quick-decision-severity-labels";
@@ -43,16 +45,12 @@ export function countUncitedFindings(findings: readonly QuickDecisionFinding[]):
   let uncited = 0;
 
   for (const finding of findings) {
-    if (finding.evidenceRefCount === 0) {
+    if (isUncitedFinding(finding)) {
       uncited += 1;
     }
   }
 
   return uncited;
-}
-
-function hasMissingEvidenceReferenceCount(findings: readonly QuickDecisionFinding[]): boolean {
-  return findings.some((finding) => finding.evidenceRefCount === null || finding.evidenceRefCount === undefined);
 }
 
 function resolveTopDecisionGradeFinding(

@@ -2,6 +2,14 @@ import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-det
 
 export type ReviewFindingsClassificationBandId = "decision-grade" | "checklist" | "uncited" | "all";
 
+export function isEvidenceRefCountNotStored(finding: QuickDecisionFinding): boolean {
+  return finding.evidenceRefCount === null || finding.evidenceRefCount === undefined;
+}
+
+export function hasMissingEvidenceReferenceCount(findings: readonly QuickDecisionFinding[]): boolean {
+  return findings.some((finding) => isEvidenceRefCountNotStored(finding));
+}
+
 export function isUncitedFinding(finding: QuickDecisionFinding): boolean {
   return finding.evidenceRefCount === 0;
 }

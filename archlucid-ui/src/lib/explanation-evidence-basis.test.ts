@@ -34,6 +34,15 @@ describe("resolveExplanationEvidenceBasisBadges", () => {
     expect(badges.every((badge) => badge.warnBeforeSponsorSend)).toBe(true);
   });
 
+  it("labels omitted citation rows separately from zero citations", () => {
+    const badges = resolveExplanationEvidenceBasisBadges({
+      citationCount: null,
+      faithfulnessSupportRatio: 0.86,
+    });
+
+    expect(badges.map((badge) => badge.display)).toContain("Citations not returned");
+  });
+
   it("requires manual review when no basis is available", () => {
     const badges = resolveExplanationEvidenceBasisBadges({});
 
