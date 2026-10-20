@@ -381,6 +381,42 @@ describe("ensureAccessTokenFresh (LK-06 P2 BFF refresh)", () => {
     expect(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY)).toBe(String(expiredHintMs));
   });
 
+  it("does not clear a replacement sign-in when a pre-refresh BFF 401 arrives after subject swap without changing expiry", async () => {
+    let releaseRefresh: (() => void) | undefined;
+    const expiredHintMs = Date.now();
+
+    vi.mocked(bffSessionSync.refreshBffSessionCookie).mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          releaseRefresh = () => {
+            resolve({ ok: false, shouldClearSession: true });
+          };
+        }),
+    );
+    vi.spyOn(bffSessionSync, "syncBffSessionCookieFromTokenResponse").mockResolvedValue();
+
+    sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, "user-before-swap");
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(expiredHintMs));
+
+    const refreshPromise = ensureAccessTokenFresh();
+
+    await Promise.resolve();
+
+    const nowSpy = vi.spyOn(Date, "now").mockReturnValue(expiredHintMs - 3_600_000);
+
+    persistTokenResponse({ access_token: accessTokenWithSubjectClaim("user-after-swap"), expires_in: 3600 });
+
+    nowSpy.mockRestore();
+
+    await Promise.resolve();
+
+    releaseRefresh?.();
+    await refreshPromise;
+
+    expect(sessionStorage.getItem(OIDC_USER_SUBJECT_KEY)).toBe("user-after-swap");
+    expect(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY)).toBe(String(expiredHintMs));
+  });
+
   it("does not clear a replacement sign-in when a pre-refresh BFF 401 arrives after subject hints were restored without changing expiry", async () => {
     let releaseRefresh: (() => void) | undefined;
     const expiredHintMs = Date.now();
