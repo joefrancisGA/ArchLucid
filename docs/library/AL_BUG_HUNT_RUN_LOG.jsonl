@@ -5718,3 +5718,5 @@
 {"at":"2026-10-20T21:33:07.2484761Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/lib/oidc/session.ts)"]}
 {"at":"2026-10-20T21:36:56.1661027Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/lib/oidc/session.ts,archlucid-ui/src/lib/oidc/session-ensure-fresh.test.ts)"]}
 {"at":"2026-10-20T21:35:10.4946176Z","zoneId":"security-analyzers","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs,ArchLucid.Analyzers.Tests/RequireAuthorizationAnalyzerTests.cs)"]}
+{"at":"2026-10-20T21:40:27Z","zoneId":"security-analyzers","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(ArchLucid.Analyzers.Tests/RequireAuthorizationAnalyzerTests.cs)"]}
+{"at":"2026-10-20T21:40:27.8574696Z","zoneId":"security-analyzers","outcome":"seed-only","productLine":"archlucid-shared"}
