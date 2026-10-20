@@ -1,3 +1,4 @@
+using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
@@ -58,4 +59,25 @@ public sealed partial class TenantWorkspacesController(
         Guid workspaceId,
         Guid projectId) =>
         workspaces.Any(w => w.WorkspaceId != workspaceId && w.DefaultProjectId == projectId && w.DefaultProjectId != Guid.Empty);
+
+    private static Guid ResolveScopedWorkspaceDefaultProjectId(
+        IReadOnlyList<TenantWorkspaceListItem> workspaces,
+        Guid workspaceId,
+        IReadOnlyList<TenantWorkspaceProjectApiDto> activeProjectsInWorkspace)
+    {
+        HashSet<Guid> activeProjectIds = activeProjectsInWorkspace
+            .Select(static project => project.ProjectId)
+            .ToHashSet();
+
+        foreach (TenantWorkspaceListItem row in workspaces)
+        {
+            if (row.WorkspaceId != workspaceId)
+                continue;
+
+            if (row.DefaultProjectId != Guid.Empty && activeProjectIds.Contains(row.DefaultProjectId))
+                return row.DefaultProjectId;
+        }
+
+        return Guid.Empty;
+    }
 }

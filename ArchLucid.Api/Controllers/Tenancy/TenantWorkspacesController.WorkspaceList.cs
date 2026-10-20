@@ -53,9 +53,10 @@ public sealed partial class TenantWorkspacesController
                 })
             .ToList();
 
-        Guid defaultProjectId = workspaceProjects.Any(p => p.ProjectId == currentWorkspace.DefaultProjectId)
-            ? currentWorkspace.DefaultProjectId
-            : Guid.Empty;
+        Guid defaultProjectId = ResolveScopedWorkspaceDefaultProjectId(
+            workspaces,
+            currentWorkspace.WorkspaceId,
+            workspaceProjects);
 
         TenantWorkspacesListResponse body = new()
         {

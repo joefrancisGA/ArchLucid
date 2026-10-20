@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
+2026-10-20 seed hunt (seed→hit): `api-tenancy-workspaces` — promoted `TenantWorkspacesController.ListAsync` returning empty `DefaultProjectId` when the first duplicate workspace inventory row omitted default metadata but a later row pinned the active scoped project; `ResolveScopedWorkspaceDefaultProjectId` scans all rows for the workspace; regression `ListAsync_returns_default_project_id_when_duplicate_inventory_row_pins_active_project`; 58 scoped `TenantWorkspaces` tests passed; cheap-disproof closed recycle-bin display-name-only duplicate row (cosmetic), empty active-list default delete idempotent retry (intentional).
+
 2026-10-20 seed hunt (seed→hit): `api-tenancy-workspaces` — promoted `TenantWorkspacesController.DeleteProjectAsync` fail-open when duplicate workspace inventory rows pin the caller default on a non-first row (foreign-pin branch null-coalesced active list after `FindWorkspace` missed metadata); scan all rows for caller vs foreign default pins; regression `DeleteProjectAsync_returns_bad_request_when_duplicate_workspace_row_pins_caller_default_and_active_list_is_null`; 57 scoped `TenantWorkspaces` tests passed; cheap-disproof closed `CorePilotTeamChecklistController` null list (saturated null-deref), `TenantHomepageSettingsController` `Guid.Empty` clear (existing tests), `TenantExecDigestPreferencesController` tenant-only GET (by design).
 
 2026-10-20 seed hunt (seed→hit): `api-tenancy-workspaces` — promoted `TenantWorkspacesController` workspace lookup via `SingleOrDefault` throwing when `ListWorkspacesAsync` returned duplicate `WorkspaceId` rows (HTTP 500 on list/recycle-bin/delete/restore); shared `FindWorkspace` uses `FirstOrDefault`; regression `ListAsync_returns_ok_when_tenant_inventory_contains_duplicate_workspace_rows`; removed unused `ListSoftDeletedByTenantAsync` read on restore path; 56 scoped `TenantWorkspaces` tests passed; cheap-disproof closed `ListAsync` null active list default clearing (intentional), `TenantIntegrationsOperationsController` GET already uses scope preflight.
@@ -38510,11 +38512,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 ---
 ## Zone: api-tenancy-workspaces
 
+2026-10-20 seed hunt (seed→hit): promoted `TenantWorkspacesController.ListAsync` duplicate workspace rows hiding default project metadata on non-first inventory row; `ResolveScopedWorkspaceDefaultProjectId`; regression `ListAsync_returns_default_project_id_when_duplicate_inventory_row_pins_active_project`.
+
+- [x] (proven) `TenantWorkspacesController.ListAsync` — duplicate workspace inventory default metadata on non-first row — regression above.
+
+- (valid-no-repro) `TenantWorkspacesController.ListRecycleBinAsync` — duplicate workspace rows surface first-row display name only — **cheap-disproof 2026-10-20 seed hunt #15:** cosmetic `Name`/`DisplayName` only; purge pinning already aggregates all rows.
+
 2026-10-20 seed hunt (seed→hit): promoted `TenantWorkspacesController.DeleteProjectAsync` duplicate workspace rows pinning caller default on non-first inventory row; `CallerWorkspacePinsProjectAsDefault` / `ForeignWorkspacePinsProjectAsDefault`; regression `DeleteProjectAsync_returns_bad_request_when_duplicate_workspace_row_pins_caller_default_and_active_list_is_null`.
 
 - [x] (proven) `TenantWorkspacesController.DeleteProjectAsync` — duplicate workspace inventory caller-default pin missed by `FindWorkspace` — regression above.
-
-- (candidate) `TenantWorkspacesController.ListRecycleBinAsync` — duplicate workspace rows surface first-row display name only — locus: recycle-bin DTO; input: cosmetic metadata mismatch when duplicates disagree on `Name`.
 - (candidate) `TenantWorkspacesController.DeleteProjectAsync` — caller default delete when active list empty but not null — locus: default metadata guard; input: fail-open vs idempotent `AlreadyDeleted` retry tension.
 
 2026-10-20 seed hunt (seed→hit): promoted `TenantWorkspacesController` duplicate `WorkspaceId` inventory rows crashing `SingleOrDefault`; `FindWorkspace` helper; regression `ListAsync_returns_ok_when_tenant_inventory_contains_duplicate_workspace_rows`.
