@@ -713,7 +713,7 @@ public sealed class IdentityProviderActivationServiceTests
     }
 
     [Fact]
-    public async Task ActivateAsync_clears_metadata_xml_when_whitespace_only_string_provided()
+    public async Task ActivateAsync_rejects_saml_reactivate_that_would_clear_metadata_via_whitespace()
     {
         InMemoryTenantIdentityProviderConfigurationRepository repository = new();
         IdentityProviderActivationService sut = new(repository);
@@ -732,7 +732,7 @@ public sealed class IdentityProviderActivationServiceTests
             },
             CancellationToken.None);
 
-        TenantIdentityProviderConfigurationRecord record = await sut.ActivateAsync(
+        Func<Task> act = () => sut.ActivateAsync(
             tenantId,
             "admin@test",
             new IdentityProviderActivateRequest
@@ -744,7 +744,8 @@ public sealed class IdentityProviderActivationServiceTests
             },
             CancellationToken.None);
 
-        record.MetadataXml.Should().BeNull();
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*MetadataXml*");
     }
 
     [Fact]
@@ -958,11 +959,11 @@ public sealed class IdentityProviderActivationServiceTests
     }
 
     [Fact]
-    public async Task ActivateAsync_clears_metadata_xml_when_invisible_unicode_only_string_provided()
+    public async Task ActivateAsync_rejects_saml_reactivate_that_would_clear_metadata_via_invisible_unicode()
     {
         InMemoryTenantIdentityProviderConfigurationRepository repository = new();
         IdentityProviderActivationService sut = new(repository);
-        Guid tenantId = Guid.Parse("17171717-1717-1717-1717-171717171717");
+        Guid tenantId = Guid.Parse("1a1a1a1a-1a1a-1a1a-1a1a-1a1a1a1a1a1a");
         IdentityClaimRoleMappingRequest mapping = ValidClaimMapping();
 
         await sut.ActivateAsync(
@@ -977,7 +978,7 @@ public sealed class IdentityProviderActivationServiceTests
             },
             CancellationToken.None);
 
-        TenantIdentityProviderConfigurationRecord record = await sut.ActivateAsync(
+        Func<Task> act = () => sut.ActivateAsync(
             tenantId,
             "admin@test",
             new IdentityProviderActivateRequest
@@ -989,7 +990,8 @@ public sealed class IdentityProviderActivationServiceTests
             },
             CancellationToken.None);
 
-        record.MetadataXml.Should().BeNull();
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*MetadataXml*");
     }
 
     [Fact]

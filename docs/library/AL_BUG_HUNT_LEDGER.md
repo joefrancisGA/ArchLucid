@@ -13,6 +13,14 @@
 - [x] (valid-no-repro) `SsoWizardTestLoginService.Execute` — protocol-specific persisted fields — **audit 2026-10-20 seed hunt (lane B):** not on `IdentityProviderTestLoginRequest`; matrix `TestLogin_matrix_does_not_require_protocol_persisted_fields_on_request`.
 
 **Closed defect class (2026-10-20, lane B):** Tenant IdP **activation** omitting protocol-specific persisted fields (`MetadataXml` for SAML, `KeyVaultSecretName` for OIDC) on greenfield or cross-protocol transitions. Requirements live in `IdentityProviderActivationProtocolFieldRequirements`; do not reopen one-off protocol-switch guard hunts — extend the matrix instead.
+2026-10-20 seed hunt (seed→hit, lane C): `identity-provider-config` — picker seed hunt under lane-C lock; promoted SAML same-protocol re-activate with whitespace-only `MetadataXml` — `ResolveOptionalPersistedField` cleared metadata while `RequiresSubstantiveSamlMetadataXml` only enforced on greenfield or protocol switch, persisting active SAML without metadata; require substantive metadata after optional-field resolution on every SAML activation; regressions `ActivateAsync_rejects_saml_reactivate_that_would_clear_metadata_via_whitespace` and `ActivateAsync_rejects_saml_reactivate_that_would_clear_metadata_via_invisible_unicode`; 71 scoped activation/controller tests passed (`RunAnalyzers=false`).
+
+- [x] (proven) `IdentityProviderActivationService.ActivateAsync` — SAML re-activate whitespace `MetadataXml` clears persisted metadata — **hit 2026-10-20 seed hunt (lane C):** `IdentityProviderActivationProtocolFieldRequirements.RequiresSubstantiveSamlMetadataXml`; regressions above.
+- (candidate) `IdentityProviderActivationService.ActivateAsync` — OIDC same-protocol re-activate with whitespace-only `KeyVaultSecretName` clears client secret pointer — locus: `ResolveOptionalPersistedField` + `requiresOidcKeyVaultSecretName` only on protocol switch; input: re-activate OIDC with `KeyVaultSecretName = "   "` after secret was set.
+- (candidate) `IdentityProviderActivationService.ActivateAsync` — greenfield OIDC activate persists substantive `MetadataXml` from stale wizard field — locus: `EnsureValidWhenProvided` skips non-SAML protocol; input: `Protocol = oidc` with valid SAML `MetadataXml` in body.
+- (candidate) `IdentityProviderConfigurationController.TestLogin` — null `SampleClaimValues` on otherwise valid OIDC sandbox request — locus: `SsoWizardTestLoginService.Execute` after controller passes request; input: omitted sample claim array.
+- (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` — non-canonical issuer stored in SQL returned without rewrite when canonicalization fails — locus: `WithCanonicalConfigurationIssuer` early return; input: GET row whose `IssuerUri` is not absolute HTTP(S).
+- (candidate) `IdentityProviderConfigurationController.DiscoverAsync` — successful discovery response keeps non-canonical `JwksUri` when validator rejects shape — locus: `WithCanonicalWizardUris` partial rewrite; input: discover payload with relative `jwksUri` string.
 
 2026-10-20 seed hunt (seed→hit, lane B): `identity-provider-config` — picker seed hunt; promoted protocol switch SAML→OIDC without `KeyVaultSecretName` (symmetric to SAML metadata on protocol change); `IdentityProviderActivationOidcKeyVaultGuards.EnsurePresentWhenRequired` when activating OIDC from a non-OIDC row; regression `ActivateAsync_rejects_protocol_switch_to_oidc_without_key_vault_secret`; updated `ActivateAsync_protocol_switch_clears_saml_metadata_xml_when_omitted`; 71 scoped activation/controller tests passed (`RunAnalyzers=false`).
 
@@ -14998,6 +15006,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: identity-provider-config
 
 2026-10-20 seed hunt (audit dry, lane B): protocol-specific activation field audit; class closed; `IdentityProviderActivationProtocolTransitionMatrixTests` + `SsoWizardTestLoginProtocolFieldMatrixTests`; 90 scoped tests passed.
+2026-10-20 seed hunt (seed→hit, lane C): SAML whitespace `MetadataXml` re-activate cleared metadata; require substantive metadata on every SAML activation after field resolution; regressions `ActivateAsync_rejects_saml_reactivate_that_would_clear_metadata_via_whitespace` and invisible-unicode sibling; 71 scoped activation/controller tests passed.
 
 2026-10-20 seed hunt (seed→hit, lane B): protocol switch to OIDC without `KeyVaultSecretName`; `requiresOidcKeyVaultSecretName` when activating OIDC from a non-OIDC row; regression `ActivateAsync_rejects_protocol_switch_to_oidc_without_key_vault_secret`; 71 scoped activation/controller tests passed.
 
@@ -15030,6 +15039,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-20
 - **last-bug:** 2026-10-20 — protocol switch to OIDC without KeyVaultSecretName (class closed 2026-10-20 audit)
+- **bugs-found:** 48
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-20
+- **last-bug:** 2026-10-20 — SAML re-activate whitespace MetadataXml cleared metadata
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

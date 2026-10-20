@@ -8,19 +8,13 @@ namespace ArchLucid.Api.Services.Admin;
 internal static class IdentityProviderActivationProtocolFieldRequirements
 {
     /// <summary>
-    ///     SAML SP metadata is required on first SAML configuration and on any cross-protocol switch to SAML.
-    ///     Same-protocol reactivate may omit <c>MetadataXml</c> to preserve or whitespace-clear the stored value.
+    ///     Every SAML activation must persist substantive metadata after optional-field resolution.
+    ///     Omitted same-protocol reactivate preserves the stored row; whitespace-only input must not clear it.
     /// </summary>
     internal static bool RequiresSubstantiveSamlMetadataXml(
         TenantIdentityProviderConfigurationRecord? existing,
-        TenantIdentityProtocol targetProtocol)
-    {
-        if (targetProtocol != TenantIdentityProtocol.Saml)
-            return false;
-
-        return existing is null
-            || existing.Protocol != TenantIdentityProtocol.Saml;
-    }
+        TenantIdentityProtocol targetProtocol) =>
+        targetProtocol == TenantIdentityProtocol.Saml;
 
     /// <summary>
     ///     OIDC client-secret Key Vault name is required on cross-protocol switch to OIDC.
