@@ -13859,13 +13859,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: identity-provider-config
 
+2026-10-20 seed hunt (seed-only): re-read activation/controller paths; cheap-disproof closed five `(candidate)` rows (discover/test-login HTTP 200 envelopes are intentional wizard contracts; GET partial canonicalization and audit summary shape match prior valid-no-repro notes; empty-string `keyVaultSecretName` is OpenAPI-only because SSO/SAML UIs send null); no new hunt-ready promotion; 66 scoped activation/controller tests passed.
+
 2026-10-20 seed hunt (seed-only): re-read `IdentityProviderConfigurationController` and `IdentityProviderActivationService` after bugsmash merge; cheap-disproof closed empty-string `KeyVaultSecretName` preserve (wizard sends null via `trim() || null`), legacy PascalCase GET mapping (UI `parsePersistedClaimMappingJson`), and partial JWKS canonicalization on discover (discovery service already HTTP-validates `jwks_uri`); no row met hunt-ready bar; seeded five `(candidate)` rows; 66 scoped activation/controller tests passed.
 
-- (candidate) `IdentityProviderConfigurationController.DiscoverAsync` — discovery validation failures return HTTP 200 with `DiscoverySucceeded: false` while `ActivateAsync` maps the same class of input mistakes to HTTP 400 — locus: discover vs activate action results; input: POST `v1/admin/identity/discover` with non-HTTP `metadataUrl`; wrong outcome: API clients that only check status codes treat failed discovery as transport success; reachability: OpenAPI admin identity discover endpoint.
-- (candidate) `IdentityProviderConfigurationController.TestLogin` — claim-mapping validation failures return HTTP 200 with `Success: false` while `ActivateAsync` returns HTTP 400 for equivalent payloads — locus: `TestLogin` vs `ActivateAsync`; input: activate/test-login with invalid `CustomGroupClaimRegex`; wrong outcome: automation that posts test-login and checks only HTTP status misreads readiness; reachability: POST `v1/admin/identity/test-login` wizard step before activate.
-- (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` — `WithCanonicalConfigurationIssuer` rewrites stored issuer on read but leaves other persisted fields verbatim — locus: GET configuration response shaping; input: legacy row with redundant `:443` issuer and trimmed-field drift on `UpdatedByActorId`; wrong outcome: operator compares GET issuer to audit `issuerUri` while actor id casing/spacing still differs; reachability: GET `v1/admin/identity/configuration` after historical activations.
-- (candidate) `IdentityProviderActivationService.ResolveOptionalPersistedField` — JSON `keyVaultSecretName: ""` on same-protocol reactivate clears the stored secret (not preserve) — locus: optional field merge; input: API client sending empty string instead of omitting property; wrong outcome: unintended secret clear; reachability: OpenAPI activate body (wizard sends null, not empty string).
-- (candidate) `IdentityProviderConfigurationController.ActivateAsync` — audit `DataJson` omits `metadataXml`/`claimMapping` presence while GET configuration returns full row — locus: activation audit payload; input: SAML activate with metadata configured; wrong outcome: SIEM rules keyed only on audit JSON under-report SAML metadata activation; reachability: `AuditEventTypes.IdentitySsoConfigurationActivated` emission on activate.
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.DiscoverAsync` — discovery validation failures return HTTP 200 with `DiscoverySucceeded: false` while `ActivateAsync` returns HTTP 400 — **cheap-disproof 2026-10-20 seed hunt:** discover is a read-only wizard step that always returns a body envelope; clients must read `DiscoverySucceeded` (regression `DiscoverAsync_rejects_non_http_scheme_metadata_url`).
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.TestLogin` — claim-mapping validation failures return HTTP 200 with `Success: false` while `ActivateAsync` returns HTTP 400 — **cheap-disproof 2026-10-20 seed hunt:** sandbox test-login is intentionally non-throwing; wizard reads `Success`/`DiagnosticSummary` (regressions `TestLogin_rejects_invalid_protocol`, `Execute_returns_failure_when_custom_group_claim_regex_is_whitespace_only`).
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.GetConfigurationAsync` — issuer canonicalization on read without rewriting other fields — **cheap-disproof 2026-10-20 seed hunt:** `UpdatedByActorId` is trimmed on activate before persist; audit uses `record.UpdatedByActorId` (regression `ActivateAsync_audit_logs_trimmed_actor_user_id_matching_persisted_row`); issuer canonicalization regression `GetConfigurationAsync_returns_canonical_issuer_uri_for_stored_row`.
+- [x] (valid-no-repro) `IdentityProviderActivationService.ResolveOptionalPersistedField` — empty-string `keyVaultSecretName` clears on reactivate — **cheap-disproof 2026-10-20 seed hunt:** null preserves, whitespace clears by design; SSO wizard and SAML SP form send `null` via `trim() || null` (`use-sso-wizard-page.ts`, `buildSamlSpActivateRequest`).
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.ActivateAsync` — audit `DataJson` omits full configuration row — **cheap-disproof 2026-10-20 seed hunt:** intentional audit summary (regression `ActivateAsync_audit_logs_persisted_protocol_not_raw_request_protocol`); operators use GET configuration for full SAML fields (2026-10-06 valid-no-repro on audit metadata).
 
 - **id:** identity-provider-config
 - **status:** open
@@ -13873,10 +13875,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 59
+- **hunts:** 60
 - **bugs-found:** 42
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-09
+- **last-hunt:** 2026-10-20
 - **last-bug:** 2026-10-09 — activation persisted issuer, secret name, or actor id past SQL column width
 - **related-pd-tb:** none
 - **code-changed-since:** yes
