@@ -1,8 +1,12 @@
+using System.Diagnostics.Metrics;
+
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Tenancy;
+using ArchLucid.TestSupport.Diagnostics;
 
 using FluentAssertions;
 
@@ -13,6 +17,7 @@ using Moq;
 
 namespace ArchLucid.Application.Tests.Tenancy;
 
+[Collection("ArchLucidInstrumentation")]
 [Trait("Suite", "Core")]
 public sealed class TrialLifecycleTransitionEngineTests
 {
@@ -135,6 +140,27 @@ public sealed class TrialLifecycleTransitionEngineTests
     [Fact]
     public async Task TryAdvanceTenantAsync_skips_transition_audit_when_offboard_completes_after_record_before_audit()
     {
+        ArchLucidInstrumentationTestSupport.EnsureInitialized();
+        _ = ArchLucidInstrumentation.TrialExpirationsTotal;
+
+        long expirationMeasurements = 0;
+
+        using MeterListener meterListener = new();
+        meterListener.InstrumentPublished = (instrument, listener) =>
+        {
+            if (instrument.Name == "archlucid_trial_expirations_total")
+                listener.EnableMeasurementEvents(instrument);
+        };
+
+        meterListener.SetMeasurementEventCallback<long>(
+            (instrument, measurement, _, _) =>
+            {
+                if (instrument.Name == "archlucid_trial_expirations_total")
+                    expirationMeasurements += measurement;
+            });
+
+        meterListener.Start();
+
         Guid tenantId = Guid.NewGuid();
         DateTimeOffset anchor = new(2026, 5, 1, 0, 0, 0, TimeSpan.Zero);
         TenantRecord active = new()
@@ -195,6 +221,7 @@ public sealed class TrialLifecycleTransitionEngineTests
         audit.Verify(
             a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
             Times.Never);
+        expirationMeasurements.Should().Be(0);
     }
 
     [Fact]
