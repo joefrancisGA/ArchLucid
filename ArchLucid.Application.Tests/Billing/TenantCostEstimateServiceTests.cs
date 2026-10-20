@@ -114,6 +114,25 @@ public sealed class TenantCostEstimateServiceTests
         result.Should().BeNull();
     }
 
+    [SkippableFact]
+    public async Task TryGetEstimateAsync_standard_tenant_with_zero_configured_rates_explains_unconfigured_band()
+    {
+        BillingUnitRatesOptions rates = new()
+        {
+            Currency = "USD",
+            StandardMonthlyUsdLow = 0,
+            StandardMonthlyUsdHigh = 0,
+        };
+
+        TenantCostEstimate? result = await EstimateAsync(TenantTier.Standard, rates);
+
+        result.Should().NotBeNull();
+        result!.EstimatedMonthlyUsdLow.Should().Be(0);
+        result.EstimatedMonthlyUsdHigh.Should().Be(0);
+        result.Factors.Should().Contain(factor =>
+            factor.Contains("not configured", StringComparison.OrdinalIgnoreCase));
+    }
+
     private static async Task<TenantCostEstimate?> EstimateAsync(TenantTier tier, BillingUnitRatesOptions rates)
     {
         Mock<ITenantRepository> tenants = new();

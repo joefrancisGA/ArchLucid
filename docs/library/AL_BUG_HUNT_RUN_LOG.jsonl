@@ -7708,3 +7708,4 @@
 {"at":"2026-10-20T05:05:51.9276717Z","zoneId":"identity-provider-config","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs","ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs"]}
 {"at":"2026-10-20T05:11:06.6224317Z","zoneId":"cloud-extractors","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Integrations.AwsExtractor/","ArchLucid.Integrations.GcpExtractor/","ArchLucid.Integrations.AzureExtractor/"]}
 {"at":"2026-10-20T05:20:53.4653861Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Integrations.AzureExtractor/","ArchLucid.Core/AzureExtractor/"]}
+{"at":"2026-10-20T05:27:46.3467221Z","zoneId":"application-billing-logic","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Billing/"]}

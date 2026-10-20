@@ -39,7 +39,16 @@ public sealed class TenantCostEstimateService(ITenantRepository tenantRepository
             return null;
 
         if (tenant.Tier is TenantTier.Free)
+        {
             factors.Add("Free tier: guidance defaults to zero — activate a commercial plan for a non-zero band.");
+        }
+
+        if (tenant.Tier is TenantTier.Standard or TenantTier.Enterprise && low == 0m && high == 0m)
+        {
+            factors.Add(
+                "Commercial monthly rates are not configured; displayed band is zero until Billing:UnitRates is set.");
+        }
+
         return new TenantCostEstimate(rates.Currency, tenant.Tier, low, high, factors, rates.MethodologyNote);
     }
 
