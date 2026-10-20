@@ -58,17 +58,18 @@ internal static class SqlScimUserFilterTranslator
 
         parameters.Add(pName, bound);
 
+        // RFC 7644 string compares are case-insensitive; match in-memory evaluator and LOWER(userName) lookups.
         return op switch
         {
-            "eq" => $"{col} = @{pName}",
-            "ne" => $"{col} <> @{pName}",
-            "co" => $"{col} LIKE @{pName}",
-            "sw" => $"{col} LIKE @{pName}",
-            "ew" => $"{col} LIKE @{pName}",
-            "gt" => $"{col} > @{pName}",
-            "lt" => $"{col} < @{pName}",
-            "ge" => $"{col} >= @{pName}",
-            "le" => $"{col} <= @{pName}",
+            "eq" => $"LOWER({col}) = LOWER(@{pName})",
+            "ne" => $"LOWER({col}) <> LOWER(@{pName})",
+            "co" => $"LOWER({col}) LIKE LOWER(@{pName})",
+            "sw" => $"LOWER({col}) LIKE LOWER(@{pName})",
+            "ew" => $"LOWER({col}) LIKE LOWER(@{pName})",
+            "gt" => $"LOWER({col}) > LOWER(@{pName})",
+            "lt" => $"LOWER({col}) < LOWER(@{pName})",
+            "ge" => $"LOWER({col}) >= LOWER(@{pName})",
+            "le" => $"LOWER({col}) <= LOWER(@{pName})",
             _ => throw new ScimFilterSqlException($"Unsupported operator '{op}'.")
         };
     }

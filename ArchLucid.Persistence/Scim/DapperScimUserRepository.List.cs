@@ -91,7 +91,7 @@ public sealed partial class DapperScimUserRepository
                            SELECT u.Id, u.TenantId, u.ExternalId, u.UserName, u.DisplayName, u.Active, u.ResolvedRole,
                                   u.ResolvedRoleOrigin, u.DirectoryRemovedUtc, u.CreatedUtc, u.UpdatedUtc
                            FROM dbo.ScimUsers u
-                           WHERE u.TenantId = @TenantId AND u.ExternalId = @ExternalId;
+                           WHERE u.TenantId = @TenantId AND LOWER(u.ExternalId) = LOWER(@ExternalId);
                            """;
 
         UserRow? row = await connection.QuerySingleOrDefaultAsync<UserRow>(

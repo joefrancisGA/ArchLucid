@@ -1,5 +1,12 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
+2026-10-20 seed hunt (seed→hit, lane B): `scim-users` — skipped closed `identity-provider-config` protocol-field class; promoted SQL `externalId`/`userName`/`displayName` filter `eq` case mismatch vs in-memory RFC 7644 compares — `SqlScimUserFilterTranslator` now wraps string operators with `LOWER`; `DapperScimUserRepository.GetByExternalIdAsync` uses `LOWER` like `GetByUserNameAsync`; regressions `SqlScimUserFilterTranslatorCaseInsensitivityTests`, `ListAsync_external_id_filter_matches_case_insensitive`, `CreateAsync_external_id_case_variant_conflicts_with_existing_user`; cheap-disproof closed ledger `(candidate)` PATCH `displayName` JSON null (already clears via `ResolvePatchDisplayName`) and malformed `startIndex` (model binding); 62 scoped SCIM list/filter tests passed (`RunAnalyzers=false`).
+
+- [x] (proven) `SqlScimUserFilterTranslator` / `ScimUsersController.ListAsync` — SCIM filter string `eq` on `externalId` case-sensitive in SQL — **hit 2026-10-20 seed hunt (lane B):** `LOWER` on string compare operators; regression `BuildWhere_string_eq_uses_lower_for_case_insensitive_match`.
+- [x] (proven) `DapperScimUserRepository.GetByExternalIdAsync` — exact `ExternalId` match without `LOWER` — **hit 2026-10-20 seed hunt (lane B):** align with in-memory ordinal-ignore-case lookup; regression `CreateAsync_external_id_case_variant_conflicts_with_existing_user`.
+- [x] (valid-no-repro) `ScimUserService.PatchAsync` — PATCH replace `displayName` with JSON `null` — **cheap-disproof 2026-10-20 seed hunt (lane B):** `ResolvePatchDisplayName` maps null to clear.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — non-integer `startIndex` query — **cheap-disproof 2026-10-20 seed hunt (lane B):** ASP.NET Core model binding rejects before service.
+
 2026-10-20 seed hunt (audit dry, lane B): `identity-provider-config` — owner-directed audit closing **protocol-switch / greenfield activation missing protocol-specific persisted fields**; consolidated `IdentityProviderActivationProtocolFieldRequirements` + `IdentityProviderActivationProtocolFieldGuards` (SAML `MetadataXml` on greenfield or cross-protocol to SAML; OIDC `KeyVaultSecretName` on cross-protocol to OIDC only); matrix regressions `IdentityProviderActivationProtocolTransitionMatrixTests` and `SsoWizardTestLoginProtocolFieldMatrixTests` (sandbox test-login has no metadata/secret fields on request); no new failing repro beyond shipped guards; 90 scoped activation/matrix/controller tests passed (`RunAnalyzers=false`).
 
 - [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — greenfield OIDC without `KeyVaultSecretName` — **audit 2026-10-20 seed hunt (lane B):** intentional deferred secret name; matrix `ActivateAsync_matrix_greenfield_oidc_without_key_vault_secret_succeeds`.
@@ -14901,17 +14908,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: scim-users
 
+2026-10-20 seed hunt (seed→hit, lane B): SQL SCIM filter string compares and `GetByExternalIdAsync` case sensitivity; regressions above; 62 scoped tests passed.
+
 - **id:** scim-users
 - **status:** open
 - **impact:** high
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 33
-- **bugs-found:** 21
+- **hunts:** 34
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-09 — second live user with the same userName was accepted
+- **last-bug:** 2026-10-20 — SQL SCIM filter string eq case-sensitive on externalId
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -14958,8 +14967,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — `startIndex` above `totalResults` returns empty `items` with stable `totalResults` — **cheap-disproof 2026-10-06 seed hunt:** RFC-aligned empty page; regression `ListAsync_start_index_above_total_returns_empty_page`
 
 - [x] (proven) `ScimUserService.PatchAsync` — PATCH `remove` on `externalId` or `userName` repopulated the stored value from the required-string fallback — **hit 2026-10-09 seed hunt:** `RejectRemovedRequiredAttribute` returns `mutability`; regressions `PatchAsync_remove_userName_rejects_required_attribute` and `PatchAsync_remove_externalId_rejects_required_attribute`.
-- [ ] (candidate) `ScimUsersController.ListAsync` — `filter` parse failures return `invalidFilter` but malformed `startIndex` query types may bind as zero before service normalization.
-- [ ] (candidate) `ScimUserService.PatchAsync` — PATCH replace `displayName` with JSON `null` may not clear when `ResolvePatchDisplayName` only handles string whitespace.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — malformed `startIndex` query types may bind as zero — **cheap-disproof 2026-10-20 seed hunt (lane B):** model binding rejects non-integer `startIndex` before `ListAsync`.
+- [x] (valid-no-repro) `ScimUserService.PatchAsync` — PATCH replace `displayName` with JSON `null` may not clear — **cheap-disproof 2026-10-20 seed hunt (lane B):** `ResolvePatchDisplayName` clears on `JsonValueKind.Null`.
 
 ### Hypotheses
 
