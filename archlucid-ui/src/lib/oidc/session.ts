@@ -408,7 +408,7 @@ export async function ensureAccessTokenFresh(): Promise<void> {
     return;
   }
 
-  if (exp <= 0 && !hasOidcSessionIdentityHints()) {
+  if (!hasOidcSessionIdentityHints()) {
     return;
   }
 
@@ -485,6 +485,10 @@ export function isLikelySignedIn(): boolean {
   }
 
   const exp = getExpiresAtMs();
+
+  if (!hasOidcSessionIdentityHints()) {
+    return false;
+  }
 
   return exp > 0 && Date.now() < exp - EXPIRY_SKEW_MS;
 }

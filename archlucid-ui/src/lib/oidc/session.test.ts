@@ -23,6 +23,13 @@ import {
   OIDC_USER_SUBJECT_KEY,
 } from "@/lib/oidc/storage-keys";
 
+function accessTokenWithSubjectClaim(sub: string = "user-test"): string {
+  const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
+  const payload = Buffer.from(JSON.stringify({ sub })).toString("base64url");
+
+  return `${header}.${payload}.sig`;
+}
+
 describe("storePostSignInReturnUrl / consumePostSignInReturnUrl", () => {
   afterEach(() => {
     sessionStorage.clear();
@@ -106,8 +113,15 @@ describe("getAccessTokenForApi / isLikelySignedIn expiry parsing (LK-06 P2)", ()
   it("parses expires_at_ms session hints after stripping zero-width padding", () => {
     const futureMs = Date.now() + 3_600_000;
     sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, `${futureMs}\u200b`);
+    sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, "user-123");
 
     expect(isLikelySignedIn()).toBe(true);
+  });
+
+  it("does not treat a future expires_at_ms hint alone as signed in", () => {
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(Date.now() + 3_600_000));
+
+    expect(isLikelySignedIn()).toBe(false);
   });
 
   it("treats scientific-notation expires_at_ms session hints in the past as expired", () => {
@@ -188,7 +202,7 @@ describe("persistTokenResponse", () => {
   });
 
   it("treats negative expires_in as the default lifetime instead of writing a past expiry", () => {
-    persistTokenResponse({ access_token: "tok", expires_in: -120 });
+    persistTokenResponse({ access_token: accessTokenWithSubjectClaim(), expires_in: -120 });
 
     const expiresAtMs = Number(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY));
 
@@ -226,7 +240,10 @@ describe("persistTokenResponse", () => {
   });
 
   it("maps boolean false expires_in from malformed token JSON to the default lifetime", () => {
-    persistTokenResponse({ access_token: "tok", expires_in: false as unknown as number });
+    persistTokenResponse({
+      access_token: accessTokenWithSubjectClaim(),
+      expires_in: false as unknown as number,
+    });
 
     const expiresAtMs = Number(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY));
     const expectedMin = Date.now() + 3590 * 1000;
@@ -238,7 +255,10 @@ describe("persistTokenResponse", () => {
   });
 
   it("maps boolean expires_in from malformed token JSON to the default lifetime", () => {
-    persistTokenResponse({ access_token: "tok", expires_in: true as unknown as number });
+    persistTokenResponse({
+      access_token: accessTokenWithSubjectClaim(),
+      expires_in: true as unknown as number,
+    });
 
     const expiresAtMs = Number(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY));
     const expectedMin = Date.now() + 3590 * 1000;
@@ -250,7 +270,10 @@ describe("persistTokenResponse", () => {
   });
 
   it("coerces string expires_in from the token response before writing expiry", () => {
-    persistTokenResponse({ access_token: "tok", expires_in: "7200" as unknown as number });
+    persistTokenResponse({
+      access_token: accessTokenWithSubjectClaim(),
+      expires_in: "7200" as unknown as number,
+    });
 
     const expiresAtMs = Number(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY));
     const expectedMin = Date.now() + 7190 * 1000;
