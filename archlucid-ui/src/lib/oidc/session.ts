@@ -102,27 +102,36 @@ function removeOidcKeys(keys: readonly string[]): void {
   }
 }
 
+function readNormalizedSubjectFromPayload(payload: Record<string, unknown> | null): string | null {
+  if (payload === null || typeof payload.sub !== "string") {
+    return null;
+  }
+
+  const normalizedSubject = normalizeOidcConfigurationString(payload.sub);
+
+  if (normalizedSubject.length === 0) {
+    return null;
+  }
+
+  return normalizedSubject;
+}
+
 function persistNonSensitiveSessionHints(tokens: OidcTokenResponse, expiresAtMs: number): void {
   removeOidcKeys([OIDC_DISPLAY_NAME_KEY, OIDC_USER_SUBJECT_KEY]);
 
   const accessPayload = decodeJwtPayload(tokens.access_token);
+  const idPayload = tokens.id_token ? decodeJwtPayload(tokens.id_token) : null;
   const displayNameFromAccess = pickDisplayNameFromPayload(accessPayload);
-  const displayNameFromId =
-    displayNameFromAccess ??
-    (tokens.id_token ? pickDisplayNameFromPayload(decodeJwtPayload(tokens.id_token)) : null);
+  const displayNameFromId = displayNameFromAccess ?? pickDisplayNameFromPayload(idPayload);
 
   if (displayNameFromId) {
     sessionStorage.setItem(OIDC_DISPLAY_NAME_KEY, displayNameFromId);
   }
 
-  const subject = accessPayload?.sub;
+  const normalizedSubject = readNormalizedSubjectFromPayload(accessPayload) ?? readNormalizedSubjectFromPayload(idPayload);
 
-  if (typeof subject === "string") {
-    const normalizedSubject = normalizeOidcConfigurationString(subject);
-
-    if (normalizedSubject.length > 0) {
-      sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, normalizedSubject);
-    }
+  if (normalizedSubject !== null) {
+    sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, normalizedSubject);
   }
 
   if (accessPayload !== null && !hasOidcSessionIdentityHints()) {

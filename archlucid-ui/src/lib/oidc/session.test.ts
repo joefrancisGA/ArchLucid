@@ -465,6 +465,23 @@ describe("persistTokenResponse", () => {
     expect(sessionStorage.getItem(OIDC_ACCESS_TOKEN_KEY)).toBeNull();
   });
 
+  it("stores subject hints from id_token when the access JWT omits sub", () => {
+    const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
+    const accessPayload = Buffer.from(JSON.stringify({ scp: "openid profile" })).toString("base64url");
+    const idPayload = Buffer.from(
+      JSON.stringify({ sub: "id-token-user", name: "Jane Operator", exp: Math.floor(Date.now() / 1000) + 3600 }),
+    ).toString("base64url");
+
+    persistTokenResponse({
+      access_token: `${header}.${accessPayload}.sig`,
+      id_token: `${header}.${idPayload}.sig`,
+      expires_in: 3600,
+    });
+
+    expect(sessionStorage.getItem(OIDC_USER_SUBJECT_KEY)).toBe("id-token-user");
+    expect(sessionStorage.getItem(OIDC_DISPLAY_NAME_KEY)).toBe("Jane Operator");
+  });
+
   it("clears stale identity hints when a replacement token has no identity claims", () => {
     const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
     const previousPayload = Buffer.from(JSON.stringify({ sub: "previous-user", name: "Previous User" })).toString(
