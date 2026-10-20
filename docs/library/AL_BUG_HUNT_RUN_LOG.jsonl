@@ -5760,8 +5760,9 @@
 {"at":"2026-10-20T23:34:17.0374518Z","zoneId":"orchestrator-transient-retry","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-20T23:36:45.3837176Z","zoneId":"agent-runtime-evaluation","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-20T23:43:56.3565867Z","zoneId":"extraction-router","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-20T23:28:50.0313710Z","zoneId":"scim-users","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Persistence/Scim/SqlScimUserFilterTranslator.cs,ArchLucid.Core/Scim/Filtering/ScimFilterInMemoryEvaluator.cs)"]}
-{"at": "2026-10-20T23:44:54Z", "zoneId": "identity-provider-config", "outcome": "hit", "productLine": "archlucid-shared"}
+{"at":"2026-10-20T23:28:50.031371Z","zoneId":"scim-users","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Persistence/Scim/SqlScimUserFilterTranslator.cs,ArchLucid.Core/Scim/Filtering/ScimFilterInMemoryEvaluator.cs)"]}
+{"at":"2026-10-20T23:44:54Z","zoneId":"identity-provider-config","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-20T23:45:46.3220806Z","zoneId":"topology-proposal-merge","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-20T23:51:46.6373629Z","zoneId":"extraction-router","outcome":"hit","productLine":"archlucid-shared"}
 {"at": "2026-10-20T23:58:06Z", "zoneId": "identity-provider-config", "outcome": "hit", "productLine": "archlucid-shared"}
+{"at":"2026-10-20T23:56:42.7620816Z","zoneId":"extraction-router","outcome":"hit","productLine":"archlucid-shared"}
