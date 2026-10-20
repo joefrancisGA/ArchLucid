@@ -5632,3 +5632,4 @@
 {"at":"2026-10-20T14:35:43.4103942Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Tenancy/TenantWorkspacesController.ProjectCrud.cs,ArchLucid.Api.Tests/TenantWorkspacesControllerTests.cs"]}
 {"at":"2026-10-20T14:45:03.2258595Z","zoneId":"api-tenancy-workspaces","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Tenancy/TenantWorkspacesController.cs"]}
 {"at":"2026-10-20T14:50:42.0310948Z","zoneId":"api-tenancy-workspaces","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Http/TenantWorkspaceScopePreflight.cs,ArchLucid.Api/Controllers/Tenancy/TenantWorkspaceInventoryCoalesce.cs"]}
+{"at":"2026-10-20T14:56:54.7791177Z","zoneId":"api-tenancy-workspaces","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/TenantUsageStatusService.cs,ArchLucid.Core/Tenancy/TenantWorkspaceListCoalesce.cs"]}
