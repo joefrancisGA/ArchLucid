@@ -1,5 +1,6 @@
 import { isSafeOidcEndpointUrl } from "@/lib/oidc/discovery";
 import {
+  decodeOAuthErrorDescription,
   isReadableOAuthErrorCode,
   sanitizeOAuthUserFacingMessage,
   stripOAuthInvisibleFormatChars,
@@ -35,9 +36,12 @@ function errorFromOAuthJson(json: unknown): Error | null {
   }
 
   const record = json as { error?: unknown; error_description?: unknown };
-  const msg = [readOAuthErrorString(record.error), readOAuthErrorString(record.error_description)]
-    .filter((part) => part.length > 0)
-    .join(": ");
+  const errorCode = readOAuthErrorString(record.error);
+  const errorDescription =
+    typeof record.error_description === "string"
+      ? decodeOAuthErrorDescription(record.error_description)
+      : "";
+  const msg = [errorCode, errorDescription].filter((part) => part.length > 0).join(": ");
 
   if (!msg) {
     return null;
