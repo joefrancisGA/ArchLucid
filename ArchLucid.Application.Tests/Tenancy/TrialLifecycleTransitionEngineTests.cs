@@ -821,15 +821,15 @@ public sealed class TrialLifecycleTransitionEngineTests
         repo
             .Setup(r => r.GetFirstWorkspaceAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantWorkspaceLink { WorkspaceId = Guid.NewGuid(), DefaultProjectId = Guid.NewGuid() });
+        int recordedTransitions = 0;
         repo
-            .SetupSequence(r => r.TryRecordTrialLifecycleTransitionAsync(
+            .Setup(r => r.TryRecordTrialLifecycleTransitionAsync(
                 tenantId,
                 TrialLifecycleStatus.ExportOnly,
                 TrialLifecycleStatus.Deleted,
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true)
-            .ReturnsAsync(false);
+            .ReturnsAsync(() => Interlocked.Increment(ref recordedTransitions) == 1);
 
         Mock<ITenantHardPurgeService> purge = new();
         purge
