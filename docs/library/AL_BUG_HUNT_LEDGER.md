@@ -1,5 +1,19 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
+2026-10-20 seed hunt (seed-only): `ui-oidc` — owner closure of stale-refresh/identity-hint race class at `94e6b092f5`; no bypass found; cheap-disproof closed five run #90 `(candidate)` rows as structural or out-of-scope; regression lock `allows stale ok refresh to update expiry when persist repeats unchanged identity hints`; re-read `initiate-redirect`, `bff-session-sync`, `token-client`, `discovery`, `build-authorize-url`; seeded five new non-stale `(candidate)` rows; 318 vitest tests in `src/lib/oidc` passed.
+
+- [x] (valid-no-repro) `persistTokenResponse` — identity hint cleared while expiry remains — **cheap-disproof 2026-10-20 seed hunt (lane C):** identity-less early return bumps generation per `94e6b092f5`; table-driven stale-refresh suite.
+- [x] (valid-no-repro) `ensureAccessTokenFresh` — identical identity snapshot with new expiry should allow stale ok write — **cheap-disproof 2026-10-20 seed hunt (lane C):** `allows stale ok refresh to update expiry when persist repeats unchanged identity hints`.
+- [x] (valid-no-repro) `syncTokenToBff` — identity unchanged persist should not cancel in-flight refresh — **cheap-disproof 2026-10-20 seed hunt (lane C):** duplicate persist with unchanged snapshot does not bump generation; stale ok applies.
+- [x] (valid-no-repro) `clearOidcSession` — identity change then immediate sign-out vs refresh finally — **cheap-disproof 2026-10-20 seed hunt (lane C):** `clearOidcSession` generation increment supersedes in-flight refresh; existing sign-out race regressions.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — partial identity loss without persist — **cheap-disproof 2026-10-20 seed hunt (lane C):** no product caller strips hints mid-flight without `persistTokenResponse`; out of scope for closed class.
+
+- (candidate) `initiateSupplementalOidcRedirect` — primary PKCE cleared on successful google redirect when primary PKCE still pending — locus: `clearPkceState("primary")` on success; input: user switches providers mid dual-flow tab.
+- (candidate) `pulseBffSessionActivity` — ignored when CSRF meta missing but session cookie present — locus: `readBffCsrfTokenFromDocument`; input: keepalive hook before CSRF bootstrap on hydrated page.
+- (candidate) `syncBffSessionCookieFromTokenResponse` — empty normalized access_token after ZWSP trim — locus: `normalizeOidcConfigurationString`; input: access_token whitespace-only skips POST silently.
+- (candidate) `buildAuthorizeUrl` — discovery query params dropped when authorization_endpoint URL has fragment — locus: `new URL` + `searchParams.set`; input: IdP endpoint with `#` fragment (invalid but misconfigured).
+- (candidate) `loadDiscoveryDocument` — stale cached discovery served after authority env change — locus: discovery cache key; input: switch `NEXT_PUBLIC_OIDC_AUTHORITY` without reload.
+
 2026-10-20 seed hunt (structural): `ui-oidc` — owner-directed consolidation after runs #99–#104 one-off stale-refresh patches; replaced per-case identity bump flags with `oidcIdentityHintsChanged` snapshot on subject/display presence and value in `persistTokenResponse`; table-driven regression `stale in-flight BFF refresh after persistTokenResponse identity hint changes`; cheap-disproof closed five run #89 `(candidate)` rows as covered by structural guard; seeded five new `(candidate)` rows; 317 vitest tests in `src/lib/oidc` passed.
 
 - [x] (proven) `persistTokenResponse` — structural stale-refresh race on any identity hint delta — **2026-10-20 seed hunt (lane C):** unified generation bump when subject or display hint changes; supersedes subject-restore/replace/display-replace branches.
