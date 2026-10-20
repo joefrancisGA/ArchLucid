@@ -15115,6 +15115,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: saml-jwt-bearer
+2026-10-20 seed hunt (seed->hit): promoted ScimBearerAuthenticationHandler.TryReadBearerToken comma-folded Authorization header parse; regression HandleAuthenticateAsync_succeeds_when_duplicate_bearer_credentials_are_comma_folded_in_one_header; ScimBearerAuthenticationHandlerTests 2/2; seeded five follow-on (candidate) rows.
+
+- (candidate) ScimBearerAuthenticationHandler.TryReadBearerToken - first comma-separated Bearer segment when first token is revoked.
+- (candidate) SamlSpConfigurationDiagnostics validUntil pass copy says No root validUntil when nested-only expiry absent.
+- (candidate) RecentAuthenticationEvaluator iat Integer64 without auth_time on cookie principals.
+- (candidate) PlatformUserAuthVersionJwtBearerPostConfigure duplicate archlucid_auth_ver on constructed principals.
+- (candidate) SamlMetadataDiscoveryParser multi-EntityDescriptor federation throw is intentional.
+
 2026-10-16 thorough hunt (hit): duplicate Authorization header SCIM bearer parse; ScimBearer handler tests + scoped SAML/JWT/SCIM filter.
 
 
@@ -15124,11 +15132,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 24
-- **bugs-found:** 23
+- **hunts:** 25
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-16
-- **last-bug:** 2026-10-16 — SAML metadata validUntil ignored on nested EntityDescriptor under EntitiesDescriptor
+- **last-hunt:** 2026-10-20
+- **last-bug:** 2026-10-20 — SCIM Bearer auth failed when duplicate Authorization credentials were comma-folded into one header
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

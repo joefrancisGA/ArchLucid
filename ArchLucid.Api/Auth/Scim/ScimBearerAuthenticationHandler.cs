@@ -56,21 +56,26 @@ internal class ScimBearerAuthenticationHandler(
                 continue;
             }
 
-            if (!headerValue.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            // HTTP field combination can fold duplicate Authorization values into one comma-separated header.
+            foreach (string segment in headerValue.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
             {
-                continue;
+
+                if (!segment.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                string candidate = segment["Bearer ".Length..].Trim();
+
+                if (string.IsNullOrWhiteSpace(candidate))
+                {
+                    continue;
+                }
+
+                bearerToken = candidate;
+
+                return true;
             }
-
-            string candidate = headerValue["Bearer ".Length..].Trim();
-
-            if (string.IsNullOrWhiteSpace(candidate))
-            {
-                continue;
-            }
-
-            bearerToken = candidate;
-
-            return true;
         }
 
         bearerToken = string.Empty;
