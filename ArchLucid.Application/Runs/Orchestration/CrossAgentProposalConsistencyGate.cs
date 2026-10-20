@@ -239,8 +239,12 @@ public static class CrossAgentProposalConsistencyGate
 
         foreach (ManifestRelationship relationship in relationships)
         {
-            bool sourceDeclaredInBatch = declaredBatchEndpointKeys.Contains(relationship.SourceId);
-            bool targetDeclaredInBatch = declaredBatchEndpointKeys.Contains(relationship.TargetId);
+            bool sourceDeclaredInBatch = TopologyProposalRelationshipEndpointIndex.DeclaredEndpointKeySetContains(
+                declaredBatchEndpointKeys,
+                relationship.SourceId);
+            bool targetDeclaredInBatch = TopologyProposalRelationshipEndpointIndex.DeclaredEndpointKeySetContains(
+                declaredBatchEndpointKeys,
+                relationship.TargetId);
 
             // Defer relationships that reference endpoints outside this batch to merge-gate graph validation.
             if (!sourceDeclaredInBatch || !targetDeclaredInBatch)
@@ -265,8 +269,12 @@ public static class CrossAgentProposalConsistencyGate
         HashSet<string> declaredEndpointKeys,
         HashSet<string> validationEndpointKeys)
     {
-        bool sourceDeclared = declaredEndpointKeys.Contains(relationship.SourceId);
-        bool targetDeclared = declaredEndpointKeys.Contains(relationship.TargetId);
+        bool sourceDeclared = TopologyProposalRelationshipEndpointIndex.DeclaredEndpointKeySetContains(
+            declaredEndpointKeys,
+            relationship.SourceId);
+        bool targetDeclared = TopologyProposalRelationshipEndpointIndex.DeclaredEndpointKeySetContains(
+            declaredEndpointKeys,
+            relationship.TargetId);
 
         if (!sourceDeclared || !targetDeclared)
             return true;

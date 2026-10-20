@@ -66,8 +66,12 @@ public static class AgentProposalStructuralPostProcessor
         ManifestRelationship relationship,
         HashSet<string> declaredEndpointKeys)
     {
-        bool sourceDeclared = declaredEndpointKeys.Contains(relationship.SourceId);
-        bool targetDeclared = declaredEndpointKeys.Contains(relationship.TargetId);
+        bool sourceDeclared = TopologyProposalRelationshipEndpointIndex.DeclaredEndpointKeySetContains(
+            declaredEndpointKeys,
+            relationship.SourceId);
+        bool targetDeclared = TopologyProposalRelationshipEndpointIndex.DeclaredEndpointKeySetContains(
+            declaredEndpointKeys,
+            relationship.TargetId);
 
         if (!sourceDeclared || !targetDeclared)
             return true;
@@ -254,10 +258,18 @@ public static class AgentProposalStructuralPostProcessor
 
         foreach (ManifestRelationship relationship in relationships)
         {
-            bool sourceDeclared = declaredEndpointKeysBefore.Contains(relationship.SourceId);
-            bool targetDeclared = declaredEndpointKeysBefore.Contains(relationship.TargetId);
-            bool sourceRetained = declaredEndpointKeysAfter.Contains(relationship.SourceId);
-            bool targetRetained = declaredEndpointKeysAfter.Contains(relationship.TargetId);
+            bool sourceDeclared = TopologyProposalRelationshipEndpointIndex.DeclaredEndpointKeySetContains(
+                declaredEndpointKeysBefore,
+                relationship.SourceId);
+            bool targetDeclared = TopologyProposalRelationshipEndpointIndex.DeclaredEndpointKeySetContains(
+                declaredEndpointKeysBefore,
+                relationship.TargetId);
+            bool sourceRetained = TopologyProposalRelationshipEndpointIndex.DeclaredEndpointKeySetContains(
+                declaredEndpointKeysAfter,
+                relationship.SourceId);
+            bool targetRetained = TopologyProposalRelationshipEndpointIndex.DeclaredEndpointKeySetContains(
+                declaredEndpointKeysAfter,
+                relationship.TargetId);
 
             // An external id was never a proposal node. That must not keep an edge whose other
             // end was a service or datastore that brief grounding just removed.

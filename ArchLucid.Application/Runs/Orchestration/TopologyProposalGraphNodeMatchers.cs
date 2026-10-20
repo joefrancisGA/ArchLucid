@@ -60,15 +60,15 @@ internal static class TopologyProposalGraphNodeMatchers
 
         if (serviceId is not null)
         {
-            if (string.Equals(nodeId, serviceId, StringComparison.OrdinalIgnoreCase))
+            if (TopologyProposalRelationshipEndpointIndex.ManifestEndpointReferencesEqual(nodeId, serviceId))
                 return true;
 
-            if (string.Equals(nodeSourceId, serviceId, StringComparison.OrdinalIgnoreCase))
+            if (TopologyProposalRelationshipEndpointIndex.ManifestEndpointReferencesEqual(nodeSourceId, serviceId))
                 return true;
 
             // tf show JSON stamps the Terraform address on Label (declaration id on SourceId); agents often key
             // ServiceId to that address, which the merge gate already indexed via Label.
-            if (string.Equals(nodeLabel, serviceId, StringComparison.OrdinalIgnoreCase))
+            if (TopologyProposalRelationshipEndpointIndex.ManifestEndpointReferencesEqual(nodeLabel, serviceId))
                 return true;
 
             if (TopologyProposalEndpointArmKeys.ArmResourceIdMatches(
@@ -125,14 +125,14 @@ internal static class TopologyProposalGraphNodeMatchers
 
         if (datastoreId is not null)
         {
-            if (string.Equals(nodeId, datastoreId, StringComparison.OrdinalIgnoreCase))
+            if (TopologyProposalRelationshipEndpointIndex.ManifestEndpointReferencesEqual(nodeId, datastoreId))
                 return true;
 
-            if (string.Equals(nodeSourceId, datastoreId, StringComparison.OrdinalIgnoreCase))
+            if (TopologyProposalRelationshipEndpointIndex.ManifestEndpointReferencesEqual(nodeSourceId, datastoreId))
                 return true;
 
             // Same tf show JSON shape as services: Terraform address on Label, declaration id on SourceId.
-            if (string.Equals(nodeLabel, datastoreId, StringComparison.OrdinalIgnoreCase))
+            if (TopologyProposalRelationshipEndpointIndex.ManifestEndpointReferencesEqual(nodeLabel, datastoreId))
                 return true;
 
             if (TopologyProposalEndpointArmKeys.ArmResourceIdMatches(
@@ -190,13 +190,13 @@ internal static class TopologyProposalGraphNodeMatchers
         string? nodeId = TopologyProposalRelationshipEndpointIndex.TrimManifestEndpointValue(node.NodeId);
         string? nodeSourceId = TopologyProposalRelationshipEndpointIndex.TrimManifestEndpointValue(node.SourceId);
 
-        if (string.Equals(nodeLabel, proposedName, StringComparison.OrdinalIgnoreCase))
+        if (TopologyProposalRelationshipEndpointIndex.ManifestEndpointReferencesEqual(nodeLabel, proposedName))
             return true;
 
-        if (string.Equals(nodeId, proposedName, StringComparison.OrdinalIgnoreCase))
+        if (TopologyProposalRelationshipEndpointIndex.ManifestEndpointReferencesEqual(nodeId, proposedName))
             return true;
 
-        if (string.Equals(nodeSourceId, proposedName, StringComparison.OrdinalIgnoreCase))
+        if (TopologyProposalRelationshipEndpointIndex.ManifestEndpointReferencesEqual(nodeSourceId, proposedName))
             return true;
 
         if (nodeLabel is not null)

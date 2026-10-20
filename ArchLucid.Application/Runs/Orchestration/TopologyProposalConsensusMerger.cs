@@ -255,7 +255,7 @@ public static class TopologyProposalConsensusMerger
     }
 
     private static string CanonicalizeConsensusManifestEndpointReference(string value) =>
-        TerraformAzurermResourceTypeParser.CanonicalizeTerraformAddressForLookup(value.Trim());
+        TopologyProposalRelationshipEndpointIndex.CanonicalizeTerraformEndpointReferenceForLookup(value);
 
     private static string RelationshipKey(
         ManifestRelationship relationship,

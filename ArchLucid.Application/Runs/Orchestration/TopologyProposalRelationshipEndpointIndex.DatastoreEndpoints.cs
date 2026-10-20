@@ -24,6 +24,7 @@ public static partial class TopologyProposalRelationshipEndpointIndex
 
         AddResolutionAlias(aliasToNodeId, datastore.DatastoreName, nodeId);
         AddResolutionAlias(aliasToNodeId, datastore.DatastoreId, nodeId);
+        AddCanonicalTerraformInstanceKeyResolutionAlias(aliasToNodeId, datastore.DatastoreId, nodeId);
         AddResolutionAlias(aliasToNodeId, BuildSyntheticDatastoreNodeId(datastore.DatastoreName), nodeId);
         TopologyProposalTerraformSourceIdHeuristics.AddTerraformLeafResourceAddressResolutionAliases(
             aliasToNodeId,
@@ -42,6 +43,7 @@ public static partial class TopologyProposalRelationshipEndpointIndex
 
         AddResolutionAlias(aliasToNodeId, datastore.DatastoreName, nodeId);
         AddResolutionAlias(aliasToNodeId, datastore.DatastoreId, nodeId);
+        AddCanonicalTerraformInstanceKeyResolutionAlias(aliasToNodeId, datastore.DatastoreId, nodeId);
         AddResolutionAlias(aliasToNodeId, BuildSyntheticDatastoreNodeId(datastore.DatastoreName), nodeId);
         TopologyProposalEndpointArmKeys.AddArmResourceIdResolutionAliases(
             aliasToNodeId,

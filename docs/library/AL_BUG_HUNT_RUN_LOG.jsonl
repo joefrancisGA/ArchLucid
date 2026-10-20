@@ -5741,4 +5741,8 @@
 {"at":"2026-10-20T22:17:40.5579583Z","zoneId":"identity-provider-config","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs,ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs"]}
 {"at":"2026-10-20T22:17:05.8581055Z","zoneId":"topology-proposal-merge","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/TerraformAzurermResourceTypeParser.cs"]}
 {"at":"2026-10-20T22:25:52.8197434Z","zoneId":"topology-proposal-merge","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/TopologyProposalConsensusMerger.cs"]}
+<<<<<<< HEAD
 {"at":"2026-10-20T22:29:09.9801605Z","zoneId":"identity-provider-config","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs,ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs"]}
+=======
+{"at":"2026-10-20T22:31:50.8951496Z","zoneId":"topology-proposal-merge","outcome":"hit","productLine":"archlucid-shared","paths":["TopologyProposalRelationshipEndpointIndex.cs,TopologyProposalGraphNodeMatchers.cs"]}
+>>>>>>> b4c7f0f643 (Route all topology Terraform address keys through canonicalizer.)

@@ -102,7 +102,7 @@ internal static partial class TerraformAzurermResourceTypeParser
         if (string.IsNullOrWhiteSpace(terraformAddress))
             return null;
 
-        string trimmed = terraformAddress.Trim();
+        string trimmed = CanonicalizeTerraformAddressForLookup(terraformAddress.Trim());
         int bracket = trimmed.LastIndexOf('[');
 
         if (bracket <= 0 || trimmed[^1] != ']')
