@@ -88,8 +88,6 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
         bool foundPublicApiAction = false;
         bool reportedAnyMethod = false;
         bool hasAnyDeclaredPublicMethods = false;
-        bool hasDeclaredQualifyingApiActions = false;
-        bool hasAuthorizedDeclaredQualifyingApiAction = false;
         bool hasUnauthorizedDeclaredApiActions = false;
 
         foreach (ISymbol member in symbol.GetMembers())
@@ -119,12 +117,10 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
                  MethodInheritsAttributeFromOverriddenChain(method, nonActionAttribute)))
                 continue;
 
-            hasDeclaredQualifyingApiActions = true;
             foundPublicApiAction = true;
 
             if (ActionHasAuthorization(method, authorizeAttribute, allowAnonymousAttribute))
             {
-                hasAuthorizedDeclaredQualifyingApiAction = true;
                 continue;
             }
 
@@ -144,8 +140,7 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
             reportedAnyMethod = true;
         }
 
-        if (!symbol.IsAbstract &&
-            (!hasDeclaredQualifyingApiActions || !hasAuthorizedDeclaredQualifyingApiAction))
+        if (!symbol.IsAbstract)
         {
             for (INamedTypeSymbol? baseType = symbol.BaseType;
                  baseType is not null &&
@@ -250,7 +245,10 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
 
                 foundInheritedApiAction = true;
 
-                if (!ActionHasAuthorization(inheritedMethod, authorizeAttribute, allowAnonymousAttribute))
+                if (!InheritedPublicApiActionHasAuthorization(
+                        inheritedMethod,
+                        authorizeAttribute,
+                        allowAnonymousAttribute))
                 {
                     return false;
                 }

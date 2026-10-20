@@ -247,7 +247,7 @@ namespace N
     }
 
     [Fact]
-    public async Task Does_not_report_inherited_unauthorized_action_when_derived_declares_authorized_action()
+    public async Task Reports_inherited_unauthorized_action_when_derived_declares_unrelated_authorized_action()
     {
         MetadataReference sharedControllerReference = BuildSharedUnauthenticatedGetControllerReference();
         CSharpCompilation apiCompilation = CSharpCompilation.Create(
@@ -279,9 +279,10 @@ namespace N
                 .WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(new RequireAuthorizationAnalyzer()))
                 .GetAnalyzerDiagnosticsAsync();
 
-        Assert.DoesNotContain(
+        Assert.Single(
             diagnostics,
-            diagnostic => diagnostic.Id == Al0001Descriptor.Rule.Id);
+            diagnostic => diagnostic.Id == Al0001Descriptor.Rule.Id &&
+                          diagnostic.GetMessage().Contains("InheritedGet", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -824,6 +825,54 @@ namespace N
                 CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
                     .WithLocation(1)
                     .WithArguments("EmptyMiddle"),
+            },
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task Reports_inherited_unauthorized_explicit_when_derived_declares_authorized_public_action()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    public interface IUnsecuredApi
+    {
+        IActionResult Post();
+    }
+
+    public abstract class {|#0:SharedBase|} : ControllerBase, IUnsecuredApi
+    {
+        [HttpPost]
+        IActionResult IUnsecuredApi.{|#1:Post|}() => Ok();
+    }
+
+    public sealed class {|#2:DerivedController|} : SharedBase
+    {
+        [Authorize]
+        [HttpGet]
+        public IActionResult Get() => Ok();
+    }
+}
+""";
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            ExpectedDiagnostics =
+            {
+                CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+                    .WithLocation(0)
+                    .WithArguments("SharedBase"),
+                CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+                    .WithLocation(2)
+                    .WithArguments("SharedBase.IUnsecuredApi.Post()"),
             },
             SolutionTransforms = { ProductAssemblyNameTransform }
         }.RunAsync();
