@@ -47,23 +47,45 @@ public sealed partial class TenantWorkspacesController
         if (projectId != scope.ProjectId)
             return this.NotFoundProblem("Architecture project was not found for this tenant.", ProblemTypes.ResourceNotFound);
 
-        bool projectPinnedAsDefaultMetadata = workspaces
-            .Any(w => w.DefaultProjectId == projectId && w.DefaultProjectId != Guid.Empty);
-
-        if (projectPinnedAsDefaultMetadata)
+        if (workspace.DefaultProjectId == projectId && workspace.DefaultProjectId != Guid.Empty)
         {
-            IReadOnlyList<ArchitectureProjectRecord> activeProjects =
-                await _architectureProjectRepository.ListActiveByTenantAsync(scope.TenantId, cancellationToken)
-                ?? Array.Empty<ArchitectureProjectRecord>();
+            IReadOnlyList<ArchitectureProjectRecord>? activeProjects =
+                await _architectureProjectRepository.ListActiveByTenantAsync(scope.TenantId, cancellationToken);
 
-            bool projectIsActiveInCallerWorkspace = activeProjects.Any(
-                p => p.WorkspaceId == workspaceId && p.Id == projectId);
-
-            if (projectIsActiveInCallerWorkspace)
+            if (activeProjects is null)
             {
                 return this.BadRequestProblem(
                     "The workspace default architecture project cannot be deleted. Create another project and re-point the workspace default first.",
                     ProblemTypes.BusinessRuleViolation);
+            }
+
+            if (activeProjects.Any(p => p.WorkspaceId == workspaceId && p.Id == projectId))
+            {
+                return this.BadRequestProblem(
+                    "The workspace default architecture project cannot be deleted. Create another project and re-point the workspace default first.",
+                    ProblemTypes.BusinessRuleViolation);
+            }
+        }
+        else
+        {
+            bool projectPinnedAsDefaultMetadata = workspaces
+                .Any(w => w.DefaultProjectId == projectId && w.DefaultProjectId != Guid.Empty);
+
+            if (projectPinnedAsDefaultMetadata)
+            {
+                IReadOnlyList<ArchitectureProjectRecord> activeProjects =
+                    await _architectureProjectRepository.ListActiveByTenantAsync(scope.TenantId, cancellationToken)
+                    ?? Array.Empty<ArchitectureProjectRecord>();
+
+                bool projectIsActiveInCallerWorkspace = activeProjects.Any(
+                    p => p.WorkspaceId == workspaceId && p.Id == projectId);
+
+                if (projectIsActiveInCallerWorkspace)
+                {
+                    return this.BadRequestProblem(
+                        "The workspace default architecture project cannot be deleted. Create another project and re-point the workspace default first.",
+                        ProblemTypes.BusinessRuleViolation);
+                }
             }
         }
 

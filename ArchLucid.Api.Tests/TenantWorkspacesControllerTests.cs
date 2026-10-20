@@ -1449,6 +1449,77 @@ public sealed class TenantWorkspacesControllerTests
     }
 
     [Fact]
+    public async Task DeleteProjectAsync_returns_bad_request_when_deleting_caller_default_and_active_list_is_null()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        TenantRecord tenant =
+            new()
+            {
+                Id = scope.TenantId,
+                Name = "t",
+                Slug = "t",
+                Tier = TenantTier.Free,
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+                TrialRunsUsed = 0,
+                TrialSeatsUsed = 0,
+                TrialStatus = "None",
+            };
+
+        TenantWorkspaceListItem workspace =
+            new()
+            {
+                WorkspaceId = scope.WorkspaceId,
+                TenantId = scope.TenantId,
+                Name = "w",
+                DefaultProjectId = scope.ProjectId,
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+            };
+
+        Mock<ITenantRepository> tenantsMock = new();
+        tenantsMock.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+
+        tenantsMock
+            .Setup(t => t.ListWorkspacesAsync(scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<TenantWorkspaceListItem> { workspace }.AsReadOnly());
+
+        Mock<IArchitectureProjectRepository> projectsMock = new(MockBehavior.Strict);
+        projectsMock
+            .Setup(r => r.ListActiveByTenantAsync(scope.TenantId, It.IsAny<CancellationToken>()))
+            .Returns(Task.FromResult<IReadOnlyList<ArchitectureProjectRecord>>(null!));
+
+        Mock<IScopeContextProvider> scopeMock = new();
+        scopeMock.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        TenantWorkspacesController sut =
+            new(
+                tenantsMock.Object,
+                projectsMock.Object,
+                scopeMock.Object,
+                Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
+                Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+            };
+
+        IActionResult result =
+            await sut.DeleteProjectAsync(scope.WorkspaceId, scope.ProjectId, CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        projectsMock.Verify(
+            r => r.ListActiveByTenantAsync(scope.TenantId, It.IsAny<CancellationToken>()),
+            Times.Once);
+        projectsMock.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task DeleteProjectAsync_returns_no_content_when_default_project_is_already_soft_deleted_retry()
     {
         ScopeContext scope = new()
