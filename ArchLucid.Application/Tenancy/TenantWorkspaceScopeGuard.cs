@@ -53,8 +53,8 @@ public static class TenantWorkspaceScopeGuard
         if (tenantRepository is IWorkspaceQueryTenantRepository workspaceQuery)
             return await workspaceQuery.WorkspaceExistsAsync(tenantId, workspaceId, cancellationToken).ConfigureAwait(false);
 
-        IReadOnlyList<TenantWorkspaceListItem> workspaces =
-            await tenantRepository.ListWorkspacesAsync(tenantId, cancellationToken).ConfigureAwait(false);
+        IReadOnlyList<TenantWorkspaceListItem> workspaces = TenantWorkspaceListCoalesce.Coalesce(
+            await tenantRepository.ListWorkspacesAsync(tenantId, cancellationToken).ConfigureAwait(false));
 
         return workspaces.Any(workspace => workspace.WorkspaceId == workspaceId);
     }

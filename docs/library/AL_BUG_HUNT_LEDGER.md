@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
+2026-10-20 seed hunt (seed→hit): `api-tenancy-workspaces` — promoted `TenantWorkspaceScopeGuard` and `TenantLlmCostReportingService` null `ListWorkspacesAsync` before `.Any` / `FirstOrDefault` (NRE on LLM cost dashboard and application scope guard); `TenantWorkspaceListCoalesce` parity; regressions `RequireTenantAndWorkspaceAsync_returns_workspace_not_found_when_list_workspaces_is_null` and `BuildDashboardAsync_uses_workspace_id_when_workspace_list_is_null`; cheap-disproof closed homepage PUT sealed-manifest ordering (missing run 404 before guard), weekly digest foreign workspace (existing test), measured-roi missing subscription (service returns snapshot), legal-hold `UntilUtc` boundary (mapper rejects past instants), baseline/cost validation-before-tenant (documented intentional).
+
 2026-10-20 seed hunt (seed→hit): `api-tenancy-workspaces` — promoted `TenantUsageStatusService.BuildAsync` calling `.Count` on null `ListWorkspacesAsync` (NRE on GET /v1/tenant/usage-status); consolidate null workspace inventory via `TenantWorkspaceListCoalesce` in Core (API `TenantWorkspaceInventoryCoalesce` delegates); regression `BuildAsync_treats_null_workspace_list_as_empty`; 4 `TenantUsageStatusServiceTests` + 54 TenantWorkspaces/scope-preflight tests passed; cheap-disproof closed homepage null run list (service `.ToArray()`), recycle-bin cross-workspace pin semantics (existing regressions), customer-success mid-request race `(valid-no-repro)`.
 
 2026-10-20 seed hunt (seed→hit): `api-tenancy-workspaces` — promoted `TenantWorkspaceScopePreflight.WorkspaceExistsAsync` `ListWorkspacesAsync` fallback calling `.Any` on null workspace inventory (NRE on tenancy read controllers using preflight without `IWorkspaceQueryTenantRepository`); extract shared `TenantWorkspaceInventoryCoalesce` under tenancy controllers (parity with `TenantWorkspacesController` run #6); regression `WorkspaceExistsAsync_falls_back_to_ListWorkspacesAsync_when_list_is_null_returns_false`; 54 scoped TenantWorkspaces + scope-preflight tests passed; cheap-disproof closed checklist/homepage null-list candidates (persistence/service always materialize collections), integrations null `IntegrationEventBus` (DTO default instance).
@@ -11134,7 +11136,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
 - **hunts:** 46
-- **bugs-found:** 14
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-12 — bulk disposition duplicate guard used Ordinal so case-variant finding ids double-appended via direct service callers
@@ -11361,7 +11363,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-11 seed hunt (seed-only): re-read `ArchitectureReviewRecurrenceNextRunCalculator` and its production caller boundary; the scheduler implementation returns UTC-normalized occurrences, the facade bounds reachable preview counts, and no fresh mechanism-backed candidate met the promotion bar. The focused recurrence suite passed 47/47; no production or regression code changed.
 
-- **hunts:** 34
+- **hunts:** 35
 - **last-hunt:** 2026-10-10
 
 2026-10-11 seed hunt (seed-only): `review-recurrence` — re-read the unchanged calculator and focused tests, including all public single-run/batch inputs and the scheduler delegation boundary. The focused suite passed 47/47; no fresh reachable mechanism-backed hypothesis emerged and no production or regression code changed.
@@ -38498,15 +38500,26 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 ---
 ## Zone: api-tenancy-workspaces
 
+2026-10-20 seed hunt (seed→hit): promoted application `TenantWorkspaceScopeGuard` + `TenantLlmCostReportingService` null workspace inventory; Core `TenantWorkspaceListCoalesce`; regressions above.
+
+- [x] (proven) `TenantWorkspaceScopeGuard` / `TenantLlmCostReportingService` — null `ListWorkspacesAsync` — regressions above.
+
+- (candidate) `PostAuthWorkspaceBootstrapService` — `ListWorkspacesAsync` null before workspace selection — locus: identity bootstrap; input: mock null list.
+- (candidate) `TenantAiBudgetPolicyResolver` — null workspace list before tier resolution — locus: AI budget policy; input: mock null list.
+- (candidate) `TenantHomepageSettingsController.PutAsync` — `GetSnapshotAsync` before null `SelectedRunId` clear branch — locus: PUT ordering; input: verify no duplicate audit on clear.
+- (candidate) `TenantMeasuredRoiController` — no tenant row preflight on GET — locus: measured-roi; input: `(valid-no-repro)` tenant id from JWT scope.
+- (candidate) `TenantCatalogMigrationStatusController` — migration banner without workspace preflight — locus: GET catalog-migration-status; input: intentional tenant-only read.
+
+
 2026-10-20 seed hunt (seed→hit): promoted `TenantUsageStatusService` null workspace list before `.Count`; Core `TenantWorkspaceListCoalesce`; regression `BuildAsync_treats_null_workspace_list_as_empty`.
 
 - [x] (proven) `TenantUsageStatusService.BuildAsync` — null `ListWorkspacesAsync` before `.Count` — regression above.
 
-- (candidate) `TenantBaselineController` / `TenantCostSettingsController` — empty route or body guid validation vs tenant preflight ordering — locus: GET/PUT baseline and cost settings; input: cheap-disproof against existing route guards.
-- (candidate) `TenantHomepageSettingsController.PutAsync` — featured sample run id validation vs sealed-manifest guard ordering — locus: PUT homepage-settings; input: missing run returns 404 before conflict.
-- (candidate) `TenantErasureLegalHoldController` — `UntilUtc` exactly equal to server clock second boundary — locus: legal-hold POST; input: edge instant vs `TimeProvider` truncation.
-- (candidate) `TenantWeeklyDigestHealthController` — digest health when tenant row exists but workspace scope is foreign — locus: GET digest health; input: verify 404 parity with preflight.
-- (candidate) `TenantMeasuredRoiController` — ROI snapshot when billing subscription row missing for paid tier — locus: GET measured-roi; input: tier label fallback vs HTTP 404.
+- [x] (invalid) `TenantBaselineController` / `TenantCostSettingsController` — validation before tenant preflight — **cheap-disproof 2026-10-20 seed hunt #9:** `PutAsync_returns_bad_request_when_ea_discount_invalid_and_tenant_missing` documents intentional 400-first ordering.
+- [x] (invalid) `TenantHomepageSettingsController.PutAsync` — sealed-manifest vs missing run ordering — **cheap-disproof 2026-10-20 seed hunt #9:** `PutAsync_returns_not_found_when_selected_run_is_out_of_scope` proves 404 before sealed guard.
+- [x] (invalid) `TenantErasureLegalHoldController` — `UntilUtc` boundary — **cheap-disproof 2026-10-20 seed hunt #9:** `SetLegalHoldAsync_returns_bad_request_when_until_utc_is_in_the_past` covers non-future instants.
+- [x] (invalid) `TenantWeeklyDigestHealthController` — foreign workspace scope — **cheap-disproof 2026-10-20 seed hunt #9:** `GetAsync_returns_not_found_when_workspace_missing`.
+- [x] (valid-no-repro) `TenantMeasuredRoiController` — missing billing subscription — **cheap-disproof 2026-10-20 seed hunt #9:** `TenantMeasuredRoiService` returns snapshot with null cost band by design.
 
 
 2026-10-20 seed hunt (seed→hit): promoted `TenantWorkspaceScopePreflight` null workspace list fallback; shared `TenantWorkspaceInventoryCoalesce`; regression `WorkspaceExistsAsync_falls_back_to_ListWorkspacesAsync_when_list_is_null_returns_false`.
