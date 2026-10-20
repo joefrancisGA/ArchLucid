@@ -107,11 +107,11 @@ public sealed partial class TenantWorkspacesController(
             if (row.WorkspaceId != workspaceId)
                 continue;
 
+            if (row.DefaultProjectId == scopedProjectId && scopedProjectId != Guid.Empty)
+                return row;
+
             if (row.DefaultProjectId == Guid.Empty || !activeProjectIds.Contains(row.DefaultProjectId))
                 continue;
-
-            if (row.DefaultProjectId == scopedProjectId)
-                return row;
 
             if (fallbackRow is null)
                 fallbackRow = row;
