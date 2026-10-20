@@ -485,7 +485,14 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryHostnameInferredTarget, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.HostnameInferredTarget, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(value, GraphEdgeInferenceSources.InventorySynapseLinkedServiceInferred, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, GraphEdgeInferenceSources.InventoryStorageHostRef, StringComparison.OrdinalIgnoreCase))
+        {
+            humanized = "From app settings";
+
+            return true;
+        }
+
+        if (string.Equals(value, GraphEdgeInferenceSources.InventorySynapseLinkedServiceInferred, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.SynapseLinkedServiceInferred, StringComparison.OrdinalIgnoreCase))
         {
             humanized = "No stored link; hostname or linked-service text was inferred.";
