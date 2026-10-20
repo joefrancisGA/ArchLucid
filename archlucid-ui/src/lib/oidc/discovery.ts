@@ -32,11 +32,6 @@ function isHttpOrHttpsUrl(url: string): boolean {
       return false;
     }
 
-    // Stale discovery query keys must not merge with PKCE authorize parameters or token POST targets.
-    if (parsed.search.length > 0) {
-      return false;
-    }
-
     return true;
   } catch {
     return false;

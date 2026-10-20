@@ -107,6 +107,27 @@ describe("refreshAccessToken", () => {
     ).rejects.toThrow(/missing access_token/i);
   });
 
+  it("posts to token endpoints that include required query parameters (B2C policy)", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () => JSON.stringify({ access_token: "access-1", token_type: "Bearer" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await refreshAccessToken({
+      tokenEndpoint:
+        "https://contoso.b2clogin.com/contoso.onmicrosoft.com/B2C_1_signin/oauth2/v2.0/token?p=B2C_1_signin",
+      clientId: "client",
+      refreshToken: "rt",
+    });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://contoso.b2clogin.com/contoso.onmicrosoft.com/B2C_1_signin/oauth2/v2.0/token?p=B2C_1_signin",
+      expect.objectContaining({ method: "POST" }),
+    );
+  });
+
   it("rejects token endpoints that embed userinfo before calling fetch", async () => {
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
