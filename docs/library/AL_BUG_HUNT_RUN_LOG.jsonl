@@ -7722,3 +7722,4 @@
 {"outcome":"hit","zoneId":"ui-infra-resource-hub","productLine":"securenow","at":"2026-10-20T06:48:56.1720694Z"}
 {"at": "2026-10-20T06:57:23Z", "zoneId": "securenow-question-queue", "outcome": "hit", "productLine": "securenow"}
 {"at": "2026-10-20T07:12:00Z", "zoneId": "arm-terraform-source-ids", "outcome": "hit", "productLine": "archlucid-shared"}
+{"at": "2026-10-20T07:25:00Z", "zoneId": "archlucid-core", "outcome": "seed-only", "productLine": "archlucid-shared"}

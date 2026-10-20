@@ -1,3 +1,5 @@
+2026-10-20 seed hunt (seed-only): `archlucid-core` — cheap-disproof on open DNS/reachability candidates; 85 focused Core tests passed.
+
 2026-10-20 seed hunt (seed→hit): `arm-terraform-source-ids` — declared ARM `endpointAliases` keys with trailing slashes missed canonical relationship lookup; regression `MapRelationships_resolves_declared_alias_when_alias_key_is_arm_id_with_trailing_slash`.
 
 2026-10-20 seed hunt (seed→hit): `securenow-question-queue` — promoted `SecureNowQuestionDispositionService.ReopenAsync` stale answer fields after reopen; regression `Reopen_clears_prior_answer_fields_from_listed_questions`.
@@ -6937,7 +6939,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - (candidate) `AzureInventoryVnetCustomDnsIndex.TryParseDnsServersFromJson` — JSON string scalar wrapping `dhcpOptions` object with only default DNS still misread when nested object parse fails — locus: string recursion; input: double-encoded default-only projection.
 
 - [x] (proven) `AzureInventoryVnetCustomDnsIndex.TryParseDnsServersFromJson` — `dhcpOptions` JSON string scalar wrapping a lone DNS address ignored — **hit 2026-10-16 seed hunt:** fall back to flattened DNS value after failed nested parse; regression `VnetUsesCustomDns_true_when_dhcpOptions_property_is_json_string_scalar_wrapping_custom_dns_address`.
-- (candidate) `AzureInventoryVnetCustomDnsIndex.AppendDnsServersFromJsonArray` — numeric JSON elements in `dnsServers` arrays skipped — locus: array element kind handling; input: mixed-type dhcpOptions projection.
+- [x] (valid-no-repro) `AzureInventoryVnetCustomDnsIndex.AppendDnsServersFromJsonArray` — numeric JSON elements in `dnsServers` arrays are decoded via `TryReadDnsServerFromNumericElement` and packed uint32 octet arrays — **cheap-disproof 2026-10-20 seed hunt:** regressions in `AzureInventoryVnetCustomDnsIndexTests`; no code change. in `dnsServers` arrays skipped — locus: array element kind handling; input: mixed-type dhcpOptions projection.
 - (candidate) `AzureInventoryPrivateEndpointDnsJoinIndex.BuildComputeToVnetMap` — resolved VNet ARM ids not passed through `ArmResourceIdNormalizer` — locus: `computeToVnet` values; input: subnet-derived vnet id with trailing slash.
 - (candidate) `AzureInventoryRouteTableRouteParser.ParseExplicitRouteProperties` — explicit flattened route keys with non-numeric index segments skipped — locus: index extraction; input: inventory.policy.route keys from hosted extract.
 - (candidate) `AzureInventoryReachabilityEdgeControlIndex.Build` — route table ARM id stored with trailing slash while subnet→route-table relationship ids are normalized — locus: normalized resource index; input: padded route table ARM id on resource bag key.
@@ -19540,7 +19542,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **hunts:** 49
 - **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-15
+- **last-hunt:** 2026-10-20
 - **last-bug:** 2026-10-15 — pilot value report markdown summary metrics when zero runs load under truncation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -22801,6 +22803,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: archlucid-core
+2026-10-20 seed hunt (seed-only): re-read ArchLucid.Core reachability, VNet DNS, route-table, and app-setting host parsers after bugsmash churn; cheap-disproof closed duplicate open candidates (numeric `dnsServers` elements, private-endpoint VNet normalization, AGW backend normalization, route-table ARM index normalization) against current code and regressions; no hunt-ready row promoted; 85 focused Core tests passed.
+
 2026-10-16 seed hunt (seed→hit): promoted JSON string-scalar `loadBalancerBackendAddresses` elements; 20/20 LB backend tests.
 
 2026-10-16 seed hunt (seed→hit): promoted PascalCase pool `Properties` on LB traffic resolver; 7/7 backend tests.
@@ -22948,7 +22952,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 485
+- **hunts:** 486
 - **last-hunt:** 2026-10-15
 - **bugs-found:** 3520
 - **consecutive-dry-hunts:** 0
@@ -22984,6 +22988,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+
+- (candidate) `HostedAzureArmChildCollectionReadResult` / `GetOnlyHostedAzureArmReadClient` — child-resource collectors that omit `PartialCollection` when only the final page is truncated may still report full enumeration — locus: pagination stop in `Integrations.AzureExtractor` child reads; input: hosted Static Web App or Fabric capacity child listing stopped by `nextLink` cap.
+- (candidate) `AzureInventoryAppSettingHostRowAppender` — secret-marker rejection runs on the raw setting value before connection-string host parsing, so a value with both `password=` and a parseable non-secret host may emit zero host rows — locus: discard vs parse ordering in hosted web-app collector; input: App Service connection string listed in portal samples with password segment.
+- (candidate) `AzureInventoryVnetCustomDnsIndex.TryParseDnsServersFromJson` — `dnsServers` array elements shaped as JSON objects (for example `{ "ipAddress": "10.0.0.4" }`) are skipped — locus: `AppendDnsServersFromJsonArray` element kinds; input: ARM export dhcpOptions projection using object-shaped server entries.
+- (candidate) `InventoryDiagramConnectionPostureCatalog` — newly cataloged app-setting host warnings may not map to completeness copy for container-app env host collection — locus: warning code registration vs `resolve-infra-evidence-completeness-warning-copy`; input: `app-settings-hosts-container-apps-env-missing` on diagram enrichment rows.
+- (candidate) `AzureInventoryReachabilityEdgeControlIndex.RouteTableRequiresUnmodeledEdgeControl` — explicit flattened routes whose `nextHopArmId` points at a firewall resource missing network rule collections still return false when routes JSON lists a virtual appliance hop — locus: firewall short-circuit vs routes JSON precedence; input: route table row with both explicit appliance ARM id and co-located `routes` JSON.
 - (candidate) `AzureInventoryVnetCustomDnsIndex.TryParseDnsServersFromJson` — numeric JSON elements in `dnsServers` arrays skipped — locus: `AppendDnsServersFromJsonArray`; input: mixed-type dhcpOptions projection.
 - (candidate) `AzureInventoryPrivateEndpointDnsJoinIndex.BuildComputeToVnetMap` — resolved VNet ARM ids not passed through `ArmResourceIdNormalizer` — locus: `computeToVnet` values; input: subnet-derived vnet id with trailing slash.
 - (candidate) `AzureInventoryReachabilityEdgeControlIndex.AssetDeclaredBehindApplicationGateway` — AGW backend relationship `FromAzureResourceId` not normalized at ingest — locus: index build; input: padded AGW ARM id on backend triple.
