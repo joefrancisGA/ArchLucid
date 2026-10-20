@@ -122,12 +122,27 @@ class TestCheckBetaReadinessUnittestDiscover(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             workflow = root / ".github" / "workflows"
-            tests_dir = root / "scripts" / "ci" / "tests"
+            scripts_dir = root / "scripts" / "ci"
+            tests_dir = scripts_dir / "tests"
             workflow.mkdir(parents=True)
             tests_dir.mkdir(parents=True)
             (tests_dir / "test_ok.py").write_text(_UNITTEST_MODULE, encoding="utf-8")
             (workflow / "ui-typecheck-on-push.yml").write_text(
-                _WORKFLOW_TEMPLATE.format(pattern="test_ok.py"),
+                (
+                    "jobs:\n"
+                    "  beta-readiness-guards:\n"
+                    "    steps:\n"
+                    "      - run: bash scripts/ci/run_beta_readiness_wiring_guards.sh\n"
+                    "      - run: bash scripts/ci/run_beta_readiness_wiring_guard_unit_tests.sh\n"
+                ),
+                encoding="utf-8",
+            )
+            (scripts_dir / "run_beta_readiness_wiring_guards.sh").write_text(
+                "# missing check_beta_readiness_unittest_discover.py\n",
+                encoding="utf-8",
+            )
+            (scripts_dir / "run_beta_readiness_wiring_guard_unit_tests.sh").write_text(
+                'python3 -m unittest discover -s scripts/ci/tests -p "test_ok.py"\n',
                 encoding="utf-8",
             )
 
