@@ -82,6 +82,9 @@ public sealed class TrialLifecycleTransitionEngine(
                 return purgeTransitionGateReturn;
             }
 
+            if (await IsErasureSupersededAsync(tenantId, cancellationToken))
+                return true;
+
             bool recorded = await _tenantRepository.TryRecordTrialLifecycleTransitionAsync(
                 tenantId,
                 persistedTrialStatus,
@@ -122,6 +125,9 @@ public sealed class TrialLifecycleTransitionEngine(
             return transitionGateReturn;
         }
 
+        if (await IsErasureSupersededAsync(tenantId, cancellationToken))
+            return true;
+
         bool ok = await _tenantRepository.TryRecordTrialLifecycleTransitionAsync(
             tenantId,
             persistedTrialStatus,
@@ -143,6 +149,16 @@ public sealed class TrialLifecycleTransitionEngine(
         }
 
         return true;
+    }
+
+    private async Task<bool> IsErasureSupersededAsync(Guid tenantId, CancellationToken cancellationToken)
+    {
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+        if (tenant is null)
+            return true;
+
+        return tenant.OffboardedUtc is not null;
     }
 
     private async Task<TrialLifecycleAutomationGate> EvaluateAutomationGateAsync(
