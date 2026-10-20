@@ -1,3 +1,17 @@
+2026-10-20 seed hunt (seed-only): `ui-oidc` — operator #68: stop seeding/promoting invisible-character or emoji-only OAuth error/display hypotheses (#60–#67 diminishing returns); hunted material auth/session loci (BFF refresh vs `clearOidcSession` generation, stale `syncTokenToBff` vs replacement persist, `signOutAndRedirectHome` RP logout ordering, discovery transient retry, `ensureAccessTokenFresh` 401 clear) — existing regressions cover; retired five run #67 emoji/copy `(candidate)` rows without new repro; seeded five material `(candidate)` rows; 288 vitest tests in `src/lib/oidc` passed.
+
+- [x] (invalid) `truncateOAuthUserFacingMessage` — flag split at 280 chars — **retired operator #68:** emoji/error-copy class excluded from ui-oidc seeding.
+- [x] (invalid) `isReadableOAuthErrorDetail` — keycap-only detail — **retired operator #68:** emoji/error-copy class excluded.
+- [x] (invalid) `normalizeOidcDisplayString` — flag in JWT `name` — **retired operator #68:** emoji/display-copy class excluded.
+- [x] (invalid) `readOAuthJsonErrorDescription` — flag + ZWSP padding — **retired operator #68:** invisible/emoji error-copy class excluded.
+- [x] (invalid) `build-authorize-url.ts` — ZWSP in `scope` — **retired operator #68:** invisible config glue class excluded from promotion (low beta impact).
+
+- (candidate) `ensureAccessTokenFresh` — 401 `shouldClearSession` while OIDC callback `persistTokenResponse` in flight — locus: `refreshSessionGeneration` vs `syncTokenToBff`; input: session refresh rejected during parallel sign-in callback (`session-ensure-fresh.test.ts` partial overlap).
+- (candidate) `signOutAndRedirectHome` — `clearOidcSession` DELETE races new sign-in POST — locus: non-awaited `clearBffSessionCookie`; input: sign-out then immediate re-auth before DELETE completes (`session.test.ts` replacement-session guard).
+- (candidate) `consumePkceState` — primary vs google flow state collision — locus: flow iteration order; input: identical `state` in both sessionStorage keys (misconfiguration / extremely rare RNG).
+- (candidate) `loadDiscoveryDocument` — cached in-flight promise never evicted on slow hang — locus: `discoveryPromises` map; input: fetch never resolves (network stall).
+- (candidate) `refreshBffSessionCookie` — soft-fail with future `expires_at_ms` hint stale in sessionStorage — locus: `isLikelySignedIn` vs BFF cookie; input: transient 502 then API calls without `ensureAccessTokenFresh`.
+
 2026-10-20 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `isReadableOAuthErrorDetail` dropping regional-indicator flag `error_description` (`🇺🇸`); #66 gate accepted letters or ZWJ pictographic sequences only; now accepts `\p{Regional_Indicator}{2}` flag sequences while keeping single-glyph emoji-only (🔒) on default copy; regressions `preserves regional-indicator flag emoji in token error_description copy`, `preserves regional-indicator flag emoji in authorize error descriptions`, `includes regional-indicator flag detail on access_denied authorize callback copy`, `surfaces regional-indicator flag emoji from JSON error_description on token responses`; cheap-disproof closed four other run #66 `(candidate)` rows; seeded five new `(candidate)` rows; 288 vitest tests in `src/lib/oidc` passed.
 
 - [x] (proven) `oauth-callback-messages.ts` `isReadableOAuthErrorDetail` — flag-only `error_description` — **hit 2026-10-20 seed hunt #67:** regional-indicator pairs rejected as unreadable; `containsRegionalIndicatorFlagSequence`; authorize + token regressions.
