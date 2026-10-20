@@ -50,12 +50,6 @@
 - [x] (valid-no-repro) `TenantIdentityBoundaryAnalyzer` — `IEnumerable<ClaimsPrincipal?>` — **cheap-disproof 2026-10-20 seed hunt (lane A):** `IsOrUsesBannedType` recurses generic arguments with `UnwrapNullable`.
 - [x] (valid-no-repro) `MutatingControllerAuditAnalyzer` — `[AcceptVerbs]` on explicit impl with sibling marker on base — **cheap-disproof 2026-10-20 seed hunt (lane A):** verb scan independent of marker interfaces; existing `ExplicitInterfaceAcceptVerbs` regression.
 
-- [x] (valid-no-repro) `RequireAuthorizationAnalyzer` — partial class splits `[Authorize]` across files — **cheap-disproof 2026-10-20 seed hunt #84 (lane A):** see top stanza.
-- [x] (valid-no-repro) `MutatingControllerAuditAnalyzer` — `MutatingAuditExcluded` sibling marker suppressing inherited explicit AL0003 — **cheap-disproof 2026-10-20 seed hunt #84 (lane A):** see top stanza.
-- [x] (valid-no-repro) `TenantIdentityBoundaryAnalyzer` — `Task<ClaimsPrincipal>` return through async helper — **cheap-disproof 2026-10-20 seed hunt #84 (lane A):** see top stanza.
-- [x] (valid-no-repro) `MutatingControllerAuditAnalyzer` — derived override adds `[HttpPost]` without `LogAsync` when base virtual is allowlisted — **cheap-disproof 2026-10-20 seed hunt #84 (lane A):** see top stanza.
-- [x] (valid-no-repro) `RequireAuthorizationAnalyzer` — nested sealed controller inside authorized outer — **cheap-disproof 2026-10-20 seed hunt #84 (lane A):** see top stanza.
-
 2026-10-20 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `ensureAccessTokenFresh` stale ok refresh after identity-less persist followed by replacement sign-in; generation-mismatch ok path always called `clearBffSessionCookie`, wiping the HttpOnly cookie established by the replacement `persistTokenResponse`; now clear only when identity hints are absent after generation drift; regressions `does not clear the BFF cookie when a pre-identity-less refresh succeeds after a replacement sign-in` and `drops only the expiry hint when BFF refresh is rejected after identity-less replacement invalidates session generation`; cheap-disproof closed five run #83 `(candidate)` rows; seeded five new `(candidate)` rows; 309 vitest tests in `src/lib/oidc` passed.
 
 - [x] (proven) `ensureAccessTokenFresh` — stale ok refresh after identity-less then replacement sign-in — **hit 2026-10-20 seed hunt (lane C):** generation mismatch cleared BFF despite restored identity hints; gate stale ok clear on `hasOidcSessionIdentityHints()`; `session-ensure-fresh.test.ts` regressions.
