@@ -1189,6 +1189,42 @@ public sealed class IdentityProviderActivationServiceTests
         record.UpdatedByActorId.Should().Be(actorId);
     }
 
+    [Fact]
+    public async Task ActivateAsync_rejects_duplicate_idp_value_mappings()
+    {
+        IdentityProviderActivationService sut = new(new InMemoryTenantIdentityProviderConfigurationRepository());
+
+        Func<Task> act = () => sut.ActivateAsync(
+            Guid.Parse("15151515-1515-1515-1515-151515151515"),
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = new IdentityClaimRoleMappingRequest
+                {
+                    RoleClaimName = "groups",
+                    Mappings =
+                    [
+                        new IdentityClaimRoleMappingEntryRequest
+                        {
+                            IdpValue = "al-admins",
+                            ArchLucidRole = "Admin"
+                        },
+                        new IdentityClaimRoleMappingEntryRequest
+                        {
+                            IdpValue = "AL-ADMINS",
+                            ArchLucidRole = "Operator"
+                        }
+                    ]
+                }
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*Duplicate IdpValue*");
+    }
+
     private static IdentityClaimRoleMappingRequest ValidClaimMapping() => new()
     {
         RoleClaimName = "groups",

@@ -63,6 +63,7 @@ public sealed class IdentityProviderActivationService(
 
         IdentityProviderClaimMappingSubstantiveGuards.EnsureNoNullMappingEntries(request.ClaimMapping);
         IdentityProviderClaimMappingSubstantiveGuards.EnsureSubstantiveMappingEntries(request.ClaimMapping);
+        IdentityProviderClaimMappingSubstantiveGuards.EnsureNoDuplicateIdpMappingValues(request.ClaimMapping);
         IdentityProviderClaimMappingSubstantiveGuards.EnsureSubstantiveCustomGroupClaimRegexWhenProvided(request.ClaimMapping);
 
         IdentityClaimRoleMappingDocument mapping = IdentityClaimRoleMappingResolver.ToDocument(request.ClaimMapping);

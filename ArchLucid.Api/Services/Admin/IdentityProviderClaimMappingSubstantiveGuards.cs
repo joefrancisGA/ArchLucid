@@ -29,6 +29,22 @@ internal static class IdentityProviderClaimMappingSubstantiveGuards
         }
     }
 
+    internal static void EnsureNoDuplicateIdpMappingValues(IdentityClaimRoleMappingRequest request)
+    {
+        HashSet<string> seenIdpValues = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (IdentityClaimRoleMappingEntryRequest entry in request.Mappings)
+        {
+            string idpValue = entry.IdpValue.Trim();
+
+            if (!seenIdpValues.Add(idpValue))
+            {
+                throw new ArgumentException(
+                    $"Duplicate IdpValue '{idpValue}' in ClaimMapping.Mappings.");
+            }
+        }
+    }
+
     internal static void EnsureSubstantiveCustomGroupClaimRegexWhenProvided(IdentityClaimRoleMappingRequest request)
     {
         if (request.CustomGroupClaimRegex is null)

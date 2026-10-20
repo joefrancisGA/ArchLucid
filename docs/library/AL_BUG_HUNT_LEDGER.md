@@ -14903,6 +14903,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: identity-provider-config
 
+2026-10-20 seed hunt (seed→hit): promoted duplicate `ClaimMapping.Mappings` `IdpValue` rows — activation and sandbox test-login accepted case-insensitive duplicates while `ResolveRoles` kept only the first mapping, so operators could persist ambiguous SSO role assignments; shared `EnsureNoDuplicateIdpMappingValues` guard on activate and test-login; regressions `ActivateAsync_rejects_duplicate_idp_value_mappings` and `Execute_returns_failure_when_claim_mapping_contains_duplicate_idp_values`; 68 scoped activation/sandbox tests passed.
+
 2026-10-20 seed hunt (seed-only): re-read activation/controller paths; cheap-disproof closed five `(candidate)` rows (discover/test-login HTTP 200 envelopes are intentional wizard contracts; GET partial canonicalization and audit summary shape match prior valid-no-repro notes; empty-string `keyVaultSecretName` is OpenAPI-only because SSO/SAML UIs send null); no new hunt-ready promotion; 66 scoped activation/controller tests passed.
 
 2026-10-20 seed hunt (seed-only): re-read `IdentityProviderConfigurationController` and `IdentityProviderActivationService` after bugsmash merge; cheap-disproof closed empty-string `KeyVaultSecretName` preserve (wizard sends null via `trim() || null`), legacy PascalCase GET mapping (UI `parsePersistedClaimMappingJson`), and partial JWKS canonicalization on discover (discovery service already HTTP-validates `jwks_uri`); no row met hunt-ready bar; seeded five `(candidate)` rows; 66 scoped activation/controller tests passed.
@@ -14919,11 +14921,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 60
-- **bugs-found:** 42
+- **hunts:** 61
+- **bugs-found:** 43
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-09 — activation persisted issuer, secret name, or actor id past SQL column width
+- **last-bug:** 2026-10-20 — duplicate IdP claim value mappings accepted at activation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
