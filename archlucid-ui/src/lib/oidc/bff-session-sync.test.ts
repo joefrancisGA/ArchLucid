@@ -407,6 +407,22 @@ describe("refreshBffSessionCookie (LK-06 P2)", () => {
     expect(result).toEqual({ ok: false, shouldClearSession: false });
   });
 
+  it("soft-fails refresh when expires_at_ms is a JSON array", async () => {
+    const futureMs = Date.now() + 3_600_000;
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({ expires_at_ms: [futureMs] }),
+      })),
+    );
+
+    const result = await refreshBffSessionCookie();
+
+    expect(result).toEqual({ ok: false, shouldClearSession: false });
+  });
+
   it("soft-fails refresh when expires_at_ms string exceeds MAX_SAFE_INTEGER", async () => {
     const unsafeEpochMs = String(Number.MAX_SAFE_INTEGER + 1);
 

@@ -1,3 +1,18 @@
+2026-10-20 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready BFF refresh `expires_at_ms` JSON array scalar; `Number([epoch])` coerced single-element arrays into accepted refresh hints (#48–#49 fixed strings and numbers only); `parseBffExpiresAtMs` now accepts only `string` or `number`; regression `soft-fails refresh when expires_at_ms is a JSON array`; cheap-disproof closed four other run #50 `(candidate)` rows; seeded five new `(candidate)` rows; 243 vitest tests in `src/lib/oidc` passed.
+
+- [x] (proven) `bff-session-sync.ts` `parseBffExpiresAtMs` — JSON array `expires_at_ms` on BFF refresh — **hit 2026-10-20 seed hunt #51:** non-primitive `Number(raw)` accepted one-element arrays; regression `soft-fails refresh when expires_at_ms is a JSON array`.
+- [x] (valid-no-repro) `signOutAndRedirectHome` — RP logout URL unavailable — **cheap-disproof 2026-10-20 seed hunt #51:** intentional local clear + `/` fallback when BFF cannot supply IdP logout URL.
+- [x] (valid-no-repro) `loadDiscoveryDocument` — in-flight dedupe — **cheap-disproof 2026-10-20 seed hunt #51:** single shared promise per discovery URL is intentional thundering-herd guard.
+- [x] (invalid) `syncBffSessionCookieFromTokenResponse` — POST without CSRF — **cheap-disproof 2026-10-20 seed hunt #51:** issue route uses same-origin gate only; refresh/activity require CSRF by design (`bff-session/route.ts`).
+- [x] (valid-no-repro) `humanizeAuthorizeCallbackError` — unknown error codes with detail — **cheap-disproof 2026-10-20 seed hunt #51:** regression `humanizeAuthorizeCallbackError` custom_problem includes readable detail.
+- [x] (invalid) `consumePkceState` — primary-before-google on state collision — **cheap-disproof 2026-10-20 seed hunt #51:** 128-bit opaque state collision is not hunt-ready reachability.
+
+- (candidate) `parseBffExpiresAtMs` — JSON `null` / boolean `expires_at_ms` — locus: `typeof raw !== "number"` guard; input: refresh body `{ expires_at_ms: null }` after #51 primitive rejection.
+- (candidate) `token-client.ts` `postTokenForm` — successful non-JSON body — locus: `JSON.parse` catch; input: token endpoint returns HTML error page with `200` (misconfigured proxy).
+- (candidate) `discovery.ts` `parseDiscoveryDocument` — `end_session_endpoint` with userinfo — locus: optional logout URL branch; input: discovery doc with `https://user@idp/logout` (authorization endpoints already reject userinfo).
+- (candidate) `session.ts` `storePostSignInReturnUrl` — fragment-only path `#section` — locus: `isSafeReturnPath`; input: post-sign-in return URL with hash-only path.
+- (candidate) `build-authorize-url.ts` — duplicate query keys from discovery endpoint — locus: `new URL` + `searchParams.set`; input: authorization endpoint URL that already contains `client_id` query param.
+
 2026-10-20 seed hunt (seed-only): `ui-oidc` — promoted all five run #49 `(candidate)` rows; repro-first attempts and cheap-disproof closed each (BFF logout URL zero-width already stripped before `isSafeOidcEndpointUrl`; activity pulse without CSRF is intentional; discovery failed-fetch cache eviction covered by `retries discovery after a 503`; non-string OAuth `error` fields intentionally ignored; auth mode env compare is exact `jwt`/`jwt-bearer` by design); no product changes; seeded five new `(candidate)` rows; 242 vitest tests matching `src/lib/oidc` passed.
 
 - [x] (valid-no-repro) `resolveRpLogoutUrlFromBffSession` — zero-width inside logout URL — **cheap-disproof 2026-10-20 seed hunt #50:** regression `strips zero-width characters from BFF logout URLs before safety checks`; host-label ZWSP normalizes before navigation.

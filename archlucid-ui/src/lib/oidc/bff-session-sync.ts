@@ -23,7 +23,11 @@ function parseBffExpiresAtMs(raw: unknown): number {
     return parseOidcEpochMsHint(raw);
   }
 
-  return coerceAcceptedOidcEpochMsHint(Number(raw));
+  if (typeof raw !== "number") {
+    return Number.NaN;
+  }
+
+  return coerceAcceptedOidcEpochMsHint(raw);
 }
 
 function resolveWorkingModeForBffSession(): boolean {
