@@ -35813,20 +35813,22 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 58
-- **bugs-found:** 37
+- **hunts:** 59
+- **bugs-found:** 38
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — SecureNow collection blob reader NRE on null-bound storage prefix
+- **last-hunt:** 2026-10-20
+- **last-bug:** 2026-10-20 — API usage flush skipped when metering disabled mid-run
 - **code-changed-since:** no
 - **related-pd-tb:** none
+
+2026-10-20 seed hunt (seed→hit): promoted `ApiRequestUsageEventBatchFlushHostedService.ExecuteAsync` when `MeteringOptions.Enabled` flips false during the flush timer loop; drain buffered API usage before exiting the loop (not only on `StopAsync`); regression `ExecuteAsync_flushes_buffered_events_when_metering_disabled_before_timer_tick`; 3 metering tests passed.
 
 2026-10-15 seed hunt (seed→hit): promoted `AzureBlobCollectionRunArtifactReader` null-bound `SecureNow:CollectionStorage` prefix/container options; fall back to `runs/` and `securenow-collection` when configuration binding leaves null; regressions `ManifestPrefix_null_bound_prefix_falls_back_to_default_without_null_reference` and `Container_null_bound_container_name_falls_back_to_default_without_argument_null`; 467 scoped host-composition tests passed.
 
 - [x] (proven) `AzureBlobCollectionRunArtifactReader.ManifestPrefix` / `Container` — null-bound `CollectionRunStorageOptions.Prefix` or `ContainerName` from configuration binding — **hit 2026-10-15 seed hunt:** null-safe defaults before trim/GetBlobContainerClient; regressions in `AzureBlobCollectionRunArtifactReaderTests`.
 
 - [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — manifests with missing `packageBlobPath` are skipped silently without ingest audit (reachable input: blob manifest JSON omitting package path).
-- [ ] (candidate) `ApiRequestUsageEventBatchFlushHostedService.ExecuteAsync` — metering disabled via options reload leaves buffered events until host stop (reachable input: `MeteringOptions.Enabled` flips false without shutdown).
+- [x] (proven) `ApiRequestUsageEventBatchFlushHostedService.ExecuteAsync` — `MeteringOptions.Enabled` flips false during periodic flush — **hit 2026-10-20 seed hunt:** flush pending batch before breaking inner loop; regression `ExecuteAsync_flushes_buffered_events_when_metering_disabled_before_timer_tick`.
 - [ ] (candidate) `GraphProjectionCacheInvalidationSubscriberHostedService` — malformed pub/sub payload is ignored without metric (reachable input: invalid JSON on invalidate channel).
 - [ ] (candidate) `SqlStorageProviderRegistrar` `ICollectionRunArtifactReader` factory — `BlobServiceClient` missing uses empty reader even when collection storage section is configured (reachable input: SQL host without artifact blob URI).
 - [ ] (candidate) `InMemoryValueReportJobQueue` — distributed poll state write failure logs warning but local poll still succeeds with stale phase (reachable input: `IValueReportJobPollStateCache.Set` throws).
