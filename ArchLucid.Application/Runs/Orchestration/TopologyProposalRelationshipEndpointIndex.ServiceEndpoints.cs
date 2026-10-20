@@ -9,6 +9,7 @@ public static partial class TopologyProposalRelationshipEndpointIndex
     {
         AddEndpointKey(endpointKeys, service.ServiceName);
         AddEndpointKey(endpointKeys, service.ServiceId);
+        AddCanonicalTerraformInstanceKeyEndpointKey(endpointKeys, service.ServiceId);
         TopologyProposalTerraformSourceIdHeuristics.AddTerraformLeafResourceAddressKeys(endpointKeys, service.ServiceId);
         AddSyntheticServiceEndpointKey(endpointKeys, service.ServiceName);
     }
@@ -41,6 +42,7 @@ public static partial class TopologyProposalRelationshipEndpointIndex
 
         AddResolutionAlias(aliasToNodeId, service.ServiceName, nodeId);
         AddResolutionAlias(aliasToNodeId, service.ServiceId, nodeId);
+        AddCanonicalTerraformInstanceKeyResolutionAlias(aliasToNodeId, service.ServiceId, nodeId);
         AddResolutionAlias(aliasToNodeId, BuildSyntheticServiceNodeId(service.ServiceName), nodeId);
         TopologyProposalEndpointArmKeys.AddArmResourceIdResolutionAliases(
             aliasToNodeId,

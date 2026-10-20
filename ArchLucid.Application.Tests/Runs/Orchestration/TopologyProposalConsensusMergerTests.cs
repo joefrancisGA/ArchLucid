@@ -515,6 +515,71 @@ public sealed class TopologyProposalConsensusMergerTests
     }
 
     [Fact]
+    public void Merge_intersects_relationships_when_models_disagree_only_on_quoted_for_each_instance_key()
+    {
+        const string indexedRoot = "azurerm_app_service.main";
+
+        static List<ManifestService> Services(string serviceId) =>
+        [
+            new ManifestService
+            {
+                ServiceName = "api",
+                ServiceId = serviceId,
+                ServiceType = ServiceType.Api,
+                RuntimePlatform = RuntimePlatform.AppService,
+            },
+        ];
+
+        static List<ManifestDatastore> Datastores() =>
+        [
+            new ManifestDatastore
+            {
+                DatastoreName = "sql",
+                DatastoreId = "ds-sql",
+                DatastoreType = DatastoreType.Sql,
+                RuntimePlatform = RuntimePlatform.SqlServer,
+            },
+        ];
+
+        AgentTopologyProposal primary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices = Services($"{indexedRoot}[\"0\"]"),
+            AddedDatastores = Datastores(),
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = $"{indexedRoot}[\"0\"]",
+                    TargetId = "ds-sql",
+                    RelationshipType = RelationshipType.ReadsFrom,
+                },
+            ],
+        };
+
+        AgentTopologyProposal secondary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices = Services($"{indexedRoot}[0]"),
+            AddedDatastores = Datastores(),
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = $"{indexedRoot}[0]",
+                    TargetId = "ds-sql",
+                    RelationshipType = RelationshipType.ReadsFrom,
+                },
+            ],
+        };
+
+        TopologyProposalConsensusMergeResult result = TopologyProposalConsensusMerger.Merge(primary, secondary);
+
+        result.DisagreementCount.Should().Be(0);
+        result.MergedProposal.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
     public void Merge_does_not_intersect_relationships_when_models_reference_different_for_each_terraform_keys()
     {
         const string indexedRoot = "azurerm_key_vault.kv";

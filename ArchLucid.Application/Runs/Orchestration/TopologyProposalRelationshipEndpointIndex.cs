@@ -97,6 +97,33 @@ public static partial class TopologyProposalRelationshipEndpointIndex
         knownEndpointKeys.Add(value.Trim());
     }
 
+    internal static void AddCanonicalTerraformInstanceKeyEndpointKey(HashSet<string> knownEndpointKeys, string? terraformSourceId)
+    {
+        if (string.IsNullOrWhiteSpace(terraformSourceId))
+            return;
+
+        string trimmed = terraformSourceId.Trim();
+        string canonical = TerraformAzurermResourceTypeParser.CanonicalizeTerraformAddressForLookup(trimmed);
+
+        if (!string.Equals(canonical, trimmed, StringComparison.OrdinalIgnoreCase))
+            knownEndpointKeys.Add(canonical);
+    }
+
+    internal static void AddCanonicalTerraformInstanceKeyResolutionAlias(
+        Dictionary<string, string> aliasToNodeId,
+        string? terraformSourceId,
+        string nodeId)
+    {
+        if (string.IsNullOrWhiteSpace(terraformSourceId))
+            return;
+
+        string trimmed = terraformSourceId.Trim();
+        string canonical = TerraformAzurermResourceTypeParser.CanonicalizeTerraformAddressForLookup(trimmed);
+
+        if (!string.Equals(canonical, trimmed, StringComparison.OrdinalIgnoreCase))
+            AddResolutionAlias(aliasToNodeId, canonical, nodeId);
+    }
+
     internal static void AddResolutionAlias(Dictionary<string, string> aliasToNodeId, string? endpointKey, string nodeId)
     {
         if (string.IsNullOrWhiteSpace(endpointKey))

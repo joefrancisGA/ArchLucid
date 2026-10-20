@@ -237,18 +237,25 @@ public static class TopologyProposalConsensusMerger
     private static string ResolveServiceIdentity(ManifestService service)
     {
         if (!string.IsNullOrWhiteSpace(service.ServiceId))
-            return service.ServiceId.Trim();
+            return CanonicalizeConsensusManifestEndpointReference(service.ServiceId);
 
-        return string.IsNullOrWhiteSpace(service.ServiceName) ? string.Empty : service.ServiceName.Trim();
+        return string.IsNullOrWhiteSpace(service.ServiceName)
+            ? string.Empty
+            : CanonicalizeConsensusManifestEndpointReference(service.ServiceName);
     }
 
     private static string ResolveDatastoreIdentity(ManifestDatastore datastore)
     {
         if (!string.IsNullOrWhiteSpace(datastore.DatastoreId))
-            return datastore.DatastoreId.Trim();
+            return CanonicalizeConsensusManifestEndpointReference(datastore.DatastoreId);
 
-        return string.IsNullOrWhiteSpace(datastore.DatastoreName) ? string.Empty : datastore.DatastoreName.Trim();
+        return string.IsNullOrWhiteSpace(datastore.DatastoreName)
+            ? string.Empty
+            : CanonicalizeConsensusManifestEndpointReference(datastore.DatastoreName);
     }
+
+    private static string CanonicalizeConsensusManifestEndpointReference(string value) =>
+        TerraformAzurermResourceTypeParser.CanonicalizeTerraformAddressForLookup(value.Trim());
 
     private static string RelationshipKey(
         ManifestRelationship relationship,
@@ -264,7 +271,7 @@ public static class TopologyProposalConsensusMerger
         if (string.IsNullOrWhiteSpace(endpoint))
             return string.Empty;
 
-        string trimmed = endpoint.Trim();
+        string trimmed = CanonicalizeConsensusManifestEndpointReference(endpoint);
         string? terraformEndpointIdentity =
             TopologyProposalTerraformSourceIdHeuristics.TryNormalizeTerraformEndpointIdentity(trimmed);
 

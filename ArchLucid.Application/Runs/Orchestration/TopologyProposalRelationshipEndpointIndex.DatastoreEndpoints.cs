@@ -9,6 +9,7 @@ public static partial class TopologyProposalRelationshipEndpointIndex
     {
         AddEndpointKey(endpointKeys, datastore.DatastoreName);
         AddEndpointKey(endpointKeys, datastore.DatastoreId);
+        AddCanonicalTerraformInstanceKeyEndpointKey(endpointKeys, datastore.DatastoreId);
         TopologyProposalTerraformSourceIdHeuristics.AddTerraformLeafResourceAddressKeys(endpointKeys, datastore.DatastoreId);
         AddSyntheticDatastoreEndpointKey(endpointKeys, datastore.DatastoreName);
     }
