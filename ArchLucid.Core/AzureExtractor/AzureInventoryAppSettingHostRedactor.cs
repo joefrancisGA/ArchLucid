@@ -254,7 +254,9 @@ public static partial class AzureInventoryAppSettingHostRedactor
                || catalog.Contains("{tenant}", StringComparison.OrdinalIgnoreCase);
     }
 
-    [GeneratedRegex(@"Server\s*=\s*(?:tcp:)?(?<host>[^,;]+)", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+    [GeneratedRegex(
+        @"(?:Server|Data\s+Source)\s*=\s*(?:tcp:)?(?<host>[^,;]+)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex SqlServerHostRegex();
 
     [GeneratedRegex(

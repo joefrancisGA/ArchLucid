@@ -1,3 +1,5 @@
+2026-10-20 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryAppSettingHostRedactor.TryParseSqlHost` ignoring ADO.NET `Data Source=` SQL connection strings so App Service / Function declared SQL hosts were dropped from `app-settings-hosts.json` companion rows; extend `SqlServerHostRegex` to accept `Data Source` alias; regression `TryParseSettingValue_extracts_sql_host_from_data_source_alias`; app-setting host Core tests 25/25.
+
 2026-10-20 seed hunt (seed-only): `archlucid-core` — cheap-disproof on open DNS/reachability candidates; 85 focused Core tests passed.
 
 2026-10-20 seed hunt (seed→hit): `arm-terraform-source-ids` — declared ARM `endpointAliases` keys with trailing slashes missed canonical relationship lookup; regression `MapRelationships_resolves_declared_alias_when_alias_key_is_arm_id_with_trailing_slash`.
@@ -22803,6 +22805,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: archlucid-core
+2026-10-20 seed hunt (seed→hit): promoted `AzureInventoryAppSettingHostRedactor.TryParseSqlHost` / `ParseSettingValues` dropping SQL hosts when app setting values use ADO.NET `Data Source=` instead of `Server=`; regex now accepts both aliases; regression `TryParseSettingValue_extracts_sql_host_from_data_source_alias`; 25/25 `AzureInventoryAppSettingHost*` Core tests passed.
+
 2026-10-20 seed hunt (seed-only): re-read ArchLucid.Core reachability, VNet DNS, route-table, and app-setting host parsers after bugsmash churn; cheap-disproof closed duplicate open candidates (numeric `dnsServers` elements, private-endpoint VNet normalization, AGW backend normalization, route-table ARM index normalization) against current code and regressions; no hunt-ready row promoted; 85 focused Core tests passed.
 
 2026-10-16 seed hunt (seed→hit): promoted JSON string-scalar `loadBalancerBackendAddresses` elements; 20/20 LB backend tests.
@@ -22898,6 +22902,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 
 
+- [x] (proven) `AzureInventoryAppSettingHostRedactor.TryParseSqlHost` — ADO.NET `Data Source=tcp:host,1433` connection strings yield null host so inventory host rows omit declared Azure SQL endpoints — locus: `SqlServerHostRegex`; input: App Service connection string setting using `Data Source=` per SqlConnection; regression `TryParseSettingValue_extracts_sql_host_from_data_source_alias`.
+
+- (candidate) `AzureInventoryAppSettingHostRedactor.TryParseSqlHost` — `User ID=` / `UID=` host confusion — locus: SQL regex; input: verify only server keys parsed (cheap-disproof).
+- (candidate) `AzureInventoryAppSettingHostRedactor.TryParseHttpsHost` — bare hostname without scheme in app setting — locus: `HttpsHostRegex`; input: `myapi.azurewebsites.net` literal.
+- (candidate) `AzureInventoryAppSettingHostConnectionStringParser` — Event Hubs `Endpoint=sb://` with entity path segment — locus: `ServiceBusEndpointRegex`; input: `Endpoint=sb://ns.servicebus.windows.net/myhub`.
+- (candidate) `AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference` — `SecretUri` with version segment — locus: `KeyVaultSecretUriRegex`; input: `@Microsoft.KeyVault(SecretUri=https://vault/secrets/name/version)`.
+- (candidate) `AzureInventoryAppSettingHostRowAppender` — setting value rejected when host field contains `key=` substring from hostname — locus: `ShouldRejectValue`; input: hostname containing `key=` token (invalid unless repro).
+
 - (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — `networkInterfaceIPConfiguration` provided as JSON string scalar ARM id not read — locus: `AddIpConfigurationTargets` nested address path; input: string-scalar ip configuration reference on `loadBalancerBackendAddresses`.
 - (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — `backendIPConfigurations` entries as string scalars inside flat pool bag — locus: flat pool + string config; input: combined projection end-to-end.
 - (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — `backendAddressPool` string-scalar pool id on flattened rule row — locus: `TryReadBackendPoolReferenceId`; input: cheap-disproof if already handled.
@@ -22952,11 +22964,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 486
-- **last-hunt:** 2026-10-15
-- **bugs-found:** 3520
+- **hunts:** 487
+- **last-hunt:** 2026-10-20
+- **bugs-found:** 3521
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-16 — PascalCase NextHopType in routes JSON broke edge-control detection
+- **last-bug:** 2026-10-20 — ADO.NET Data Source SQL host alias omitted from app-setting host extraction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
