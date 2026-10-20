@@ -1,3 +1,6 @@
+2026-10-20 seed hunt (seed→hit): `api-tenancy-workspaces` — promoted `ListRecycleBinAsync` purge guard treating `defaultProjectId == Guid.Empty` like sole-metadata protection even when the workspace still has active projects, leaving stale inventory pins blocking purge for deleted former defaults; only apply empty-default blanket pin protection when the scoped workspace has zero active projects; regression `ListRecycleBinAsync_schedules_purge_when_stale_default_pin_remains_but_active_project_has_no_inventory_default`; 67 scoped `TenantWorkspaces` tests passed.
+
+
 2026-10-20 seed hunt (seed→hit): `api-tenancy-workspaces` — promoted `ListRecycleBinAsync` retention purge guard treating any tenant inventory default pin as blocking purge when duplicate workspace rows still pin a former default after active default moved to a sibling project; protect purge only for resolved current-workspace default pins (or all pins when no active default) and foreign-workspace default pins; regression `ListRecycleBinAsync_schedules_purge_when_stale_inventory_row_pins_deleted_project_but_active_default_moved`; 66 scoped `TenantWorkspaces` tests passed.
 
 
