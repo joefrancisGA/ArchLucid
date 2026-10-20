@@ -23125,6 +23125,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: retrieval
 
+2026-10-20 thorough hunt (hit): proved `RetrievalDocumentBuilder.BuildForFindings` and `PriorManifestRetrievalDocumentBuilder.BuildFromFindings` keyed generated finding identities off raw snapshot list indexes, so leading muted or blank rows shifted `generated-{runId}-N` and left duplicate orphan vectors when mute state changed between run-completion reindexes; use an emitted-finding ordinal among indexed rows only; regressions `BuildForFindings_missing_finding_id_uses_emitted_ordinal_not_raw_list_index` and `BuildFromFindings_missing_finding_id_uses_emitted_ordinal_not_raw_list_index`; cheap-disproof closed non-positive `maxChars` direct chunker calls (production indexing uses fixed defaults), duplicate `DocumentId` within one batch (run-completion builders emit distinct id patterns), and duplicate `ChunkId` upsert overwrite (documented replace-by-id semantics); 366 scoped Retrieval/Indexing tests passed.
+
 2026-10-11 seed hunt (seed-only): re-read retrieval indexing, scope validation, in-memory vector cleanup, Azure filter construction, embedding normalization, and graph-neighbor bounds; no new row met the full hunt-ready bar. The exact Retrieval/Indexing filter passed 364/364. Seeded three bounded candidates for zero-cap configuration semantics, zero-neighbor graph bounds, and chunk-ID-only cleanup scope; no production or regression change.
 
 2026-10-11 thorough hunt (hit): proved two independent configuration/input defects. `AcceptedManifestTrainingDataExporter` coerced `MaxManifestsPerExport = 0` to one and emitted training data; the clamp now permits zero. `PolicyPackCorpusIndexer` preserved an explicit blank `rulePackId` instead of falling back to the pack directory; null, empty, and whitespace IDs now use the fallback. Regressions `ExportAsync_with_zero_manifest_limit_exports_no_manifests` and `BuildDocumentsAsync_blank_rule_pack_id_falls_back_to_pack_directory_name`; 364 scoped Retrieval/Indexing tests passed.
@@ -23173,11 +23175,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 71
-- **last-hunt:** 2026-10-11
-- **bugs-found:** 32
+- **hunts:** 72
+- **last-hunt:** 2026-10-20
+- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-11 — zero export limit and blank policy-pack identity
+- **last-bug:** 2026-10-20 — generated finding document ids shifted when leading findings were muted
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -23191,6 +23193,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `AzureSearchTenantScopeFilterBuilder.BuildScopeFilter` emits platform-corpus clauses alongside tenant scope, so an empty assigned policy-pack set may still expose non-policy platform documents where callers expect no platform results.
 - [ ] (candidate) `RetrievalIndexingService` records empty-document catalog state after vector cleanup, so a cleanup failure may leave catalog freshness inconsistent with the still-present vectors.
 - [ ] (candidate) `CachingEmbeddingService.EmbedManyAsync` maps inner vectors positionally without checking cardinality, so a reachable mixed blank/nonblank batch can index past the returned vectors after a provider filters blank inputs.
+- [x] (proven) `RetrievalDocumentBuilder.BuildForFindings` / `PriorManifestRetrievalDocumentBuilder.BuildFromFindings` used raw snapshot list indexes for `generated-{runId}-N` finding ids, so leading muted or blank rows shifted document identity for the same active finding between reindexes — **hit 2026-10-20 thorough hunt:** index only emitted findings; regressions `BuildForFindings_missing_finding_id_uses_emitted_ordinal_not_raw_list_index` and `BuildFromFindings_missing_finding_id_uses_emitted_ordinal_not_raw_list_index`.
 - [ ] (candidate) `RetrievalDocumentBuilder.BuildForFindings` uses list position for missing finding IDs, so reordering a findings snapshot between retries can assign a prior finding's document identity to a different finding.
 - [ ] (candidate) `AzureAiSearchVectorIndex.RemoveChunkIdsAsync` forwards stale chunk IDs without an ambient-scope check, so a reachable cleanup input containing a colliding chunk ID could delete a vector outside the current tenant scope.
 - [ ] (candidate) `InMemoryVectorIndex.RemoveChunksForDocumentAsync` ignores cancellation while mutating stored chunks, so cancellation arriving during a reachable retry can still complete destructive cleanup after the indexing operation is abandoned.
@@ -23266,9 +23269,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — multi-document batch removed prior vectors per document before all `EmbedManyAsync` calls finished, so a later embedding failure left earlier documents without vectors and unchanged catalog hashes — **hit 2026-10-04 seed hunt #51:** defer `RemoveChunksForDocumentAsync` until after all embeddings succeed, immediately before `UpsertChunksAsync`; regression `IndexDocumentsAsync_when_later_document_embed_fails_does_not_leave_earlier_document_vectors_deleted`.
 - [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — batched reindex removed prior vectors for every document before `UpsertChunksAsync`, so upsert failures left the whole batch without searchable vectors while catalog hashes stayed stale — **hit 2026-10-04 seed hunt #52:** upsert new chunks first and remove-then-reupsert only when catalog `IndexedChunkCount` exceeds the new chunk count; regression `IndexDocumentsAsync_when_batch_upsert_fails_does_not_leave_prior_document_vectors_deleted`.
 - [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — content-shrink cleanup removed all document chunks then re-upserted, so re-upsert failure after batch upsert left zero searchable vectors — **hit 2026-10-04 seed hunt #53:** delete only stale higher-ordinal `chunkId` values via `RemoveChunkIdsAsync`; regression `IndexDocumentsAsync_when_content_shrinks_keeps_new_chunks_when_stale_ordinal_cleanup_reupsert_would_fail`.
-- [ ] (candidate) `SimpleTextChunker.Chunk` / `StructureAwareTextChunker.Chunk` — a reachable non-positive `maxChars` argument can return no chunks or throw for non-empty content instead of rejecting invalid chunk configuration; direct `ITextChunker` callers can supply the input, but production option reachability and intended failure semantics are not established.
-- [ ] (candidate) `RetrievalIndexingService.IndexDocumentsAsync` — two reachable `RetrievalDocument` entries with the same `DocumentId` in one batch generate colliding `{documentId}-chunk-{ordinal}` ids and let the later document overwrite the earlier one; batch uniqueness is not enforced in the selected path.
-- [ ] (candidate) `InMemoryVectorIndex.UpsertChunksAsync` — two reachable chunks with the same `ChunkId` but different scope/content are applied sequentially and the later row replaces the earlier row; global chunk-id uniqueness is not established for all indexing callers.
+- [x] (proven) `RetrievalDocumentBuilder.BuildForFindings` / `PriorManifestRetrievalDocumentBuilder.BuildFromFindings` — generated finding document ids used raw snapshot list indexes, so leading muted rows shifted `generated-{runId}-N` and orphaned vectors when mute state changed — **hit 2026-10-20 thorough hunt:** emitted-finding ordinal among indexed rows only; regressions `BuildForFindings_missing_finding_id_uses_emitted_ordinal_not_raw_list_index` and `BuildFromFindings_missing_finding_id_uses_emitted_ordinal_not_raw_list_index`.
+- [x] (valid-no-repro) `SimpleTextChunker.Chunk` / `StructureAwareTextChunker.Chunk` — non-positive `maxChars` — **cheap-disproof 2026-10-20 thorough hunt:** `RetrievalIndexingService` always chunks with per-chunker defaults; no config path supplies non-positive `maxChars` on the production index path.
+- [x] (valid-no-repro) `RetrievalIndexingService.IndexDocumentsAsync` — duplicate `DocumentId` in one batch — **cheap-disproof 2026-10-20 thorough hunt:** run-completion and builder paths emit distinct `DocumentId` patterns per source row; no reproduced caller batch with colliding ids.
+- [x] (valid-no-repro) `InMemoryVectorIndex.UpsertChunksAsync` — duplicate `ChunkId` overwrite — **cheap-disproof 2026-10-20 thorough hunt:** replace-by-`ChunkId` is documented index semantics; indexing generates unique chunk ids per document ordinal.
 
 2026-09-12 thorough hunt #1961 (hit): proved Louvain edge/node casing mismatch; cheap-disproof closed PolicyPackChunker colon-split on shipped templates; scoped Louvain tests passed.
 

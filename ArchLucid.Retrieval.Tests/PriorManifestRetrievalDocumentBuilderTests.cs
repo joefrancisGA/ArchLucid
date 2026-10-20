@@ -106,4 +106,54 @@ public sealed class PriorManifestRetrievalDocumentBuilderTests
 
         secondDocumentId.Should().Be(firstDocumentId);
     }
+
+    [Fact]
+    public void BuildFromFindings_missing_finding_id_uses_emitted_ordinal_not_raw_list_index()
+    {
+        Guid runId = Guid.NewGuid();
+        Finding activeFinding = new()
+        {
+            FindingId = null!,
+            Category = "Security",
+            Severity = FindingSeverity.Error,
+            Rationale = "Use private endpoints.",
+        };
+
+        List<Finding> withLeadingMuted =
+        [
+            new()
+            {
+                FindingId = "muted-only",
+                Category = "Cost",
+                Severity = FindingSeverity.Warning,
+                Rationale = "Muted row should not shift generated identity.",
+                IsMuted = true,
+            },
+            activeFinding,
+        ];
+
+        string withMutedDocumentId = PriorManifestRetrievalDocumentBuilder.BuildFromFindings(
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                runId,
+                Guid.NewGuid(),
+                withLeadingMuted,
+                DateTime.UtcNow)
+            .Single()
+            .DocumentId;
+
+        string soloDocumentId = PriorManifestRetrievalDocumentBuilder.BuildFromFindings(
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                runId,
+                Guid.NewGuid(),
+                [activeFinding],
+                DateTime.UtcNow)
+            .Single()
+            .DocumentId;
+
+        soloDocumentId.Should().Be(withMutedDocumentId);
+    }
 }

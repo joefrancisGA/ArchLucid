@@ -103,27 +103,20 @@ public static class PriorManifestRetrievalDocumentBuilder
         ArgumentNullException.ThrowIfNull(findings);
 
         List<RetrievalDocument> documents = [];
-
-        int findingIndex = 0;
+        int emittedFindingOrdinal = 0;
 
         foreach (Finding finding in findings)
         {
             if (finding.IsMuted)
-            {
-                findingIndex++;
                 continue;
-            }
 
             string message = ResolveFindingMessage(finding);
 
             if (string.IsNullOrWhiteSpace(message))
-            {
-                findingIndex++;
                 continue;
-            }
 
             string findingId = string.IsNullOrWhiteSpace(finding.FindingId)
-                ? $"generated-{runId:N}-{findingIndex}"
+                ? $"generated-{runId:N}-{emittedFindingOrdinal}"
                 : finding.FindingId.Trim();
 
             string content =
@@ -147,7 +140,7 @@ public static class PriorManifestRetrievalDocumentBuilder
                 decisionId: null,
                 findingId: findingId));
 
-            findingIndex++;
+            emittedFindingOrdinal++;
         }
 
         return documents;

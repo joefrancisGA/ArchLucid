@@ -167,6 +167,58 @@ public sealed class RetrievalDocumentBuilderTests
     }
 
     [Fact]
+    public void BuildForFindings_missing_finding_id_uses_emitted_ordinal_not_raw_list_index()
+    {
+        Guid runId = Guid.NewGuid();
+        Finding activeFinding = new()
+        {
+            FindingId = null!,
+            Category = "Security",
+            Severity = FindingSeverity.Error,
+            Rationale = "Use private endpoints.",
+        };
+
+        List<Finding> withLeadingMuted =
+        [
+            new()
+            {
+                FindingId = "muted-only",
+                Category = "Cost",
+                Severity = FindingSeverity.Warning,
+                Rationale = "Muted row should not shift generated identity.",
+                IsMuted = true,
+            },
+            activeFinding,
+        ];
+
+        RetrievalDocumentBuilder sut = new();
+
+        string withMutedDocumentId = sut.BuildForFindings(
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                runId,
+                Guid.NewGuid(),
+                withLeadingMuted,
+                DateTime.UtcNow)
+            .Single()
+            .DocumentId;
+
+        string soloDocumentId = sut.BuildForFindings(
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                runId,
+                Guid.NewGuid(),
+                [activeFinding],
+                DateTime.UtcNow)
+            .Single()
+            .DocumentId;
+
+        soloDocumentId.Should().Be(withMutedDocumentId);
+    }
+
+    [Fact]
     public void BuildForFindings_skips_muted_and_empty_messages()
     {
         Guid tenantId = Guid.NewGuid();

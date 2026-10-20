@@ -230,6 +230,7 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
         DateTime createdUtc)
     {
         List<RetrievalDocument> documents = [];
+        int emittedFindingOrdinal = 0;
 
         for (int findingIndex = 0; findingIndex < findings.Count; findingIndex++)
         {
@@ -246,7 +247,7 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
 
             // JSON deserialization can leave FindingId null; the run-scoped index keeps retries stable.
             string findingId = string.IsNullOrWhiteSpace(finding.FindingId)
-                ? $"generated-{runId:N}-{findingIndex}"
+                ? $"generated-{runId:N}-{emittedFindingOrdinal}"
                 : finding.FindingId.Trim();
 
             string content = $"[{finding.Category}] {finding.Severity}: {message}";
@@ -269,6 +270,8 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
                 CreatedUtc = createdUtc,
                 FindingId = findingId
             });
+
+            emittedFindingOrdinal++;
         }
 
         return documents;
