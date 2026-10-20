@@ -909,6 +909,53 @@ namespace N
     }
 
     [Fact]
+    public async Task Reports_inherited_unauthorized_action_when_derived_declares_only_undecorated_public_helper()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Mvc;
+
+    public abstract class {|#2:SharedUnauthenticatedGetController|} : ControllerBase
+    {
+        [HttpGet]
+        public IActionResult InheritedGet() => Ok();
+    }
+
+    public sealed class {|#1:DerivedWithUndecoratedHelperOnlyController|} : SharedUnauthenticatedGetController
+    {
+        public IActionResult {|#0:Helper|}() => Ok();
+    }
+}
+""";
+
+        DiagnosticResult expectedOnHelper =
+            CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+                .WithLocation(0)
+                .WithArguments("DerivedWithUndecoratedHelperOnlyController.Helper()");
+
+        DiagnosticResult expectedOnInherited =
+            CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+                .WithLocation(1)
+                .WithArguments("SharedUnauthenticatedGetController.InheritedGet()");
+
+        DiagnosticResult expectedOnAbstractBase =
+            CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+                .WithLocation(2)
+                .WithArguments("SharedUnauthenticatedGetController");
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expectedOnHelper, expectedOnInherited, expectedOnAbstractBase },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
     public async Task Reports_unsecured_explicit_interface_when_sibling_interface_has_type_level_Authorize()
     {
         const string testCode = AspNetCoreStubs +

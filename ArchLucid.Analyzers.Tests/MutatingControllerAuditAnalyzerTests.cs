@@ -735,6 +735,43 @@ public sealed class ConcreteAuditedController(ConcreteAuditService auditService)
     }
 
     [Fact]
+    public async Task AL0003_reports_when_AcceptVerbs_mixed_get_and_post_lacks_IAudit_LogAsync()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public sealed class AcceptVerbsMixedVerbsController(IAuditService auditService) : ControllerBase
+{
+    [AcceptVerbs("GET", "POST")]
+    public System.Threading.Tasks.Task<IActionResult> {|#0:Upsert|}(System.Threading.CancellationToken cancellationToken)
+    {
+        return System.Threading.Tasks.Task.FromResult<IActionResult>(Ok());
+    }
+}
+}
+""";
+
+        DiagnosticResult expectedDiagnostic =
+            CSharpAnalyzerVerifier<MutatingControllerAuditAnalyzer, DefaultVerifier>.Diagnostic(
+                    Al0003MutatingControllerAuditDescriptor.Rule)
+                .WithLocation(0)
+                .WithArguments("ArchLucid.Api.Probe.AcceptVerbsMixedVerbsController.Upsert");
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expectedDiagnostic },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
+    [Fact]
     public async Task AL0003_reports_when_AcceptVerbs_post_action_lacks_IAudit_LogAsync()
     {
         const string testCode = AuditAndMvcStubs +

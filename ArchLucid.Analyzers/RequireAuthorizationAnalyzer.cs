@@ -89,6 +89,7 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
         bool reportedAnyMethod = false;
         bool hasAnyDeclaredPublicMethods = false;
         bool hasDeclaredQualifyingApiActions = false;
+        bool hasAuthorizedDeclaredQualifyingApiAction = false;
         bool hasUnauthorizedDeclaredApiActions = false;
 
         foreach (ISymbol member in symbol.GetMembers())
@@ -121,20 +122,11 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
             hasDeclaredQualifyingApiActions = true;
             foundPublicApiAction = true;
 
-            if (SymbolHasAuthorizeOrAllowAnonymous(method, authorizeAttribute, allowAnonymousAttribute))
+            if (ActionHasAuthorization(method, authorizeAttribute, allowAnonymousAttribute))
+            {
+                hasAuthorizedDeclaredQualifyingApiAction = true;
                 continue;
-
-            if (MethodInheritsAuthorizeOrAllowAnonymousFromInterfaces(
-                    method,
-                    authorizeAttribute,
-                    allowAnonymousAttribute))
-                continue;
-
-            if (MethodInheritsAuthorizeOrAllowAnonymousFromOverriddenChain(
-                    method,
-                    authorizeAttribute,
-                    allowAnonymousAttribute))
-                continue;
+            }
 
             Location? location = method.Locations.FirstOrDefault();
 
@@ -152,7 +144,8 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
             reportedAnyMethod = true;
         }
 
-        if (!symbol.IsAbstract && !hasDeclaredQualifyingApiActions)
+        if (!symbol.IsAbstract &&
+            (!hasDeclaredQualifyingApiActions || !hasAuthorizedDeclaredQualifyingApiAction))
         {
             for (INamedTypeSymbol? baseType = symbol.BaseType;
                  baseType is not null &&

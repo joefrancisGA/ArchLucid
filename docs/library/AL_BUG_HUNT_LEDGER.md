@@ -28,6 +28,22 @@
 - (candidate) `consumePostSignInReturnUrl` — unsafe path consumed then stripped — locus: `isSafeReturnPath` on consume; input: stored path mutated in sessionStorage manually.
 - (candidate) `refreshBffSessionCookie` — soft-fail near expiry with identity-only display hint — locus: transient `shouldClearSession: false`; input: offline tab inside skew window.
 
+2026-10-20 seed hunt (seed→hit): `security-analyzers` — promoted hunt-ready inherited-action scan skipped when derived declared only unauthorized undecorated public helpers (`hasDeclaredQualifyingApiActions` gated inherited loop); empty-looking derived types could inherit unauthenticated `[HttpGet]` actions without AL0001; still skip inherited scan when any declared qualifying action is authorized; regression `Reports_inherited_unauthorized_action_when_derived_declares_only_undecorated_public_helper`; cheap-disproof closed five run #48 `(candidate)` rows; seeded five new `(candidate)` rows; 113 scoped analyzer tests passed (`RunAnalyzers=false`).
+
+- [x] (proven) `RequireAuthorizationAnalyzer.AnalyzeNamedType` — inherited scan skipped for undecorated helper — **hit 2026-10-20 seed hunt (lane B):** `!hasDeclaredQualifyingApiActions` blocked inherited AL0001; run inherited when no authorized declared action; regression `Reports_inherited_unauthorized_action_when_derived_declares_only_undecorated_public_helper`.
+- [x] (valid-no-repro) `RequireAuthorizationAnalyzer` — `[AllowAnonymous]` marker interface sibling — **cheap-disproof 2026-10-20 seed hunt (lane B):** post-#48 per-member interface auth; unsecured explicit still reports (mirror Authorize marker regression).
+- [x] (valid-no-repro) `MutatingControllerAuditAnalyzer` — `[AcceptVerbs("GET", "POST")]` — **cheap-disproof 2026-10-20 seed hunt (lane B):** constructor params array scan; regression `AL0003_reports_when_AcceptVerbs_mixed_get_and_post_lacks_IAudit_LogAsync`.
+- [x] (valid-no-repro) `TenantIdentityBoundaryAnalyzer` — `ClaimsPrincipal?` — **cheap-disproof 2026-10-20 seed hunt (lane B):** `UnwrapNullable` in `IsOrUsesBannedType`; existing nullable parameter regressions.
+- [x] (valid-no-repro) `RequireAuthorizationAnalyzer` — nested unauthorized inner controller — **cheap-disproof 2026-10-20 seed hunt (lane B):** `Reports_nested_controller_class_without_authorization`.
+
+- (candidate) `RequireAuthorizationAnalyzer` — inherited scan when derived declares unauthorized `[HttpPost]` plus inherited unauth GET — locus: `hasAuthorizedDeclaredQualifyingApiAction`; input: both inherited and declared should report.
+- (candidate) `MutatingControllerAuditAnalyzer` — `IsShadowedVirtualMutatingAction` when derived override changes verb attribute only — locus: virtual shadow skip; input: base virtual GET derived override HttpPost without LogAsync.
+- (candidate) `TenantIdentityBoundaryAnalyzer` — `IEnumerable<ClaimsPrincipal>` covariant return position — locus: generic type argument walk; input: inner-layer service returns enumerable of principal.
+- (candidate) `MutatingControllerAuditAnalyzer` — referenced-base explicit interface POST in metadata-only assembly — locus: `AnalyzeReferencedBaseActions` + `DeclaringSyntaxReferences.Length`; input: explicit impl in referenced DLL without source.
+- (candidate) `RequireAuthorizationAnalyzer` — partial controller declaration split across files — locus: symbol analyzer per syntax tree; input: authorize attribute on other partial half.
+
+ 1cd23cc58c (Fix AL0001 inherited scan skipped by unauthorized derived helpers)
+
 2026-10-20 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `isLikelySignedIn` refresh-skew false negative; `EXPIRY_SKEW_MS` gates when `ensureAccessTokenFresh` runs but `isLikelySignedIn` also subtracted skew so identity + not-yet-expired hints read signed-out for up to 60s before expiry; now treats signed-in until `expires_at_ms`; regression `treats identity hints as signed in until expires_at_ms even inside the refresh skew window`; cheap-disproof closed five run #78 material `(candidate)` rows; seeded five new material `(candidate)` rows; 304 vitest tests in `src/lib/oidc` passed.
 
 - [x] (proven) `session.ts` `isLikelySignedIn` — skew-window false negative — **hit 2026-10-20 seed hunt #79 (lane A):** display/subject hints with future `expires_at_ms` inside refresh skew returned false; decouple signed-in probe from pre-refresh skew; `session.test.ts` regression.

@@ -4195,7 +4195,6 @@
 {"at":"2026-10-10T07:14:47.4992914Z","zoneId":"context-ingestion","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.ContextIngestion/"]}
 {"at":"2026-10-10T07:22:11.735516Z","zoneId":"context-ingestion","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.ContextIngestion/"]}
 {"at":"2026-10-10T07:27:19.6356368Z","zoneId":"context-ingestion","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.ContextIngestion/"]}
-{"at":"2026-10-10T07:27:19.6356368Z","zoneId":"context-ingestion","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.ContextIngestion/"]}
 {"at":"2026-10-10T07:36:16.2989417Z","zoneId":"context-ingestion","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.ContextIngestion/"]}
 {"at":"2026-10-10T07:42:27.7377236Z","zoneId":"context-ingestion","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.ContextIngestion/"]}
 {"at":"2026-10-10T07:49:01.7869564Z","zoneId":"context-ingestion","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.ContextIngestion/"]}
@@ -5713,3 +5712,4 @@
 {"at":"2026-10-20T21:14:45.8164305Z","zoneId":"orchestrator-transient-retry","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs,ArchLucid.Application.Tests/Runs/Orchestration/CommitRunTransientRetryPolicyTests.cs)"]}
 {"at":"2026-10-20T21:18:26.1350115Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-20T21:22:28.8308656Z","zoneId":"security-analyzers","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-20T21:22:24.7351469Z","zoneId":"security-analyzers","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs)"]}
