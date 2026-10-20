@@ -452,6 +452,11 @@ export async function ensureAccessTokenFresh(): Promise<void> {
         const result = await refreshBffSessionCookie();
 
         if (generationAtStart !== refreshSessionGeneration) {
+          // The refresh POST may have completed after identity-less persist or sign-out cleared the cookie.
+          if (result.ok) {
+            void clearBffSessionCookie();
+          }
+
           return;
         }
 

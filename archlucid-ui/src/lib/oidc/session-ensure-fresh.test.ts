@@ -300,6 +300,39 @@ describe("ensureAccessTokenFresh (LK-06 P2 BFF refresh)", () => {
     expect(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY)).toBe(expiresHintAtRefreshStart);
   });
 
+  it("clears the BFF cookie when an in-flight refresh succeeds after identity-less replacement invalidates session generation", async () => {
+    let releaseRefresh: (() => void) | undefined;
+    const refreshedMs = Date.now() + 3_600_000;
+
+    vi.mocked(bffSessionSync.refreshBffSessionCookie).mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          releaseRefresh = () => {
+            resolve({ ok: true, expiresAtMs: refreshedMs });
+          };
+        }),
+    );
+    const clearMock = vi.spyOn(bffSessionSync, "clearBffSessionCookie").mockResolvedValue();
+
+    seedExpiredSessionWithIdentityHints();
+
+    const refreshPromise = ensureAccessTokenFresh();
+
+    await Promise.resolve();
+
+    persistTokenResponse({ access_token: "opaque-identity-less", expires_in: 3600 });
+
+    await Promise.resolve();
+
+    expect(clearMock).toHaveBeenCalledTimes(1);
+
+    releaseRefresh?.();
+    await refreshPromise;
+
+    expect(clearMock).toHaveBeenCalledTimes(2);
+    expect(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY)).toBeNull();
+  });
+
   it("still refreshes when only a display-name identity hint remains", async () => {
     const refreshedMs = Date.now() + 3_600_000;
 

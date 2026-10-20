@@ -1,5 +1,20 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
+2026-10-20 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `ensureAccessTokenFresh` ok refresh after identity-less `persistTokenResponse` generation bump; stale refresh POST could extend the HttpOnly BFF cookie after identity-less persist cleared it because generation mismatch returned without a follow-up clear; now `clearBffSessionCookie` when refresh succeeds on a stale generation; regression `clears the BFF cookie when an in-flight refresh succeeds after identity-less replacement invalidates session generation`; cheap-disproof closed five run #82 `(candidate)` rows; seeded five new `(candidate)` rows; 307 vitest tests in `src/lib/oidc` passed.
+
+- [x] (proven) `ensureAccessTokenFresh` — ok refresh after identity-less generation bump — **hit 2026-10-20 seed hunt (lane B):** generation mismatch early return left BFF cookie extended; stale ok clears cookie; `session-ensure-fresh.test.ts` regression.
+- [x] (valid-no-repro) `syncTokenToBff` — sign-out during identity-less race — **cheap-disproof 2026-10-20 seed hunt (lane B):** #83 generation bump + stale ok clear mirrors stale sync clear path.
+- [x] (valid-no-repro) `initiateOidcRedirect` — discovery failure return URL when google PKCE absent — **cheap-disproof 2026-10-20 seed hunt (lane B):** `initiate-redirect.test.ts` discovery failure cases.
+- [x] (invalid) `loadDiscoveryDocument` — cached issuer drift — **cheap-disproof 2026-10-20 seed hunt (lane B):** authority env static per tab; not reachable without reload.
+- [x] (valid-no-repro) `persistNonSensitiveSessionHints` — empty JWT payload segment — **cheap-disproof 2026-10-20 seed hunt (lane B):** `decodeJwtPayload` returns null for empty segment; id_token fallback in existing tests.
+
+- (candidate) `ensureAccessTokenFresh` — rejected refresh after identity-less generation bump — locus: generation mismatch on `shouldClearSession`; input: 401 after identity-less persist should not full clear PKCE.
+- (candidate) `persistTokenResponse` — authorized persist during in-flight refresh ok — locus: same-generation concurrent sign-in; input: expiry hint write when `expiresAtHintAtStart` unchanged.
+- (candidate) `pulseBffSessionActivity` — unauthorized after identity-less BFF clear — locus: activity pulse vs cookie; input: pulse 401 when client hints already cleared.
+- (candidate) `signOutAndRedirectHome` — RP logout fetch slow vs `clearOidcSession` — locus: await before clear; input: IdP logout URL resolved after client keys cleared.
+- (candidate) `resolveExpiresInSeconds` — string `expires_in` with grouped separators — locus: `normalizeNumericOidcHintString`; input: `1,800` seconds from token JSON.
+
+
 2026-10-20 thorough hunt (dry): `topology-proposal-merge` — re-read merge gate, graph merge, endpoint index, edge mapper, Terraform source-id heuristics, and consensus merger; cheap-disproof closed five open `(candidate)` rows (non-overlay pre-registration, ARM-before-canonical false intersection, manifest ARM slash registration, topology extension materialization, instance-stripped consensus intersection); regressions `Merge_does_not_intersect_relationships_when_models_reference_different_indexed_terraform_instances` and `Merge_does_not_intersect_relationships_when_one_model_uses_unindexed_root_and_other_uses_indexed_instance`; seeded five follow-on `(candidate)` rows; 1,634 scoped topology merge/consensus tests passed (`RunAnalyzers=false`).
 
 - [x] (invalid) `AgentTopologyProposalMergeGate.FilterValidatedProposals` — non-overlay agents skip merge-order pre-registration — **cheap-disproof 2026-10-20 thorough hunt (lane C):** `AgentType` has only Topology/Cost/Compliance/Critic and all require overlay validation.
