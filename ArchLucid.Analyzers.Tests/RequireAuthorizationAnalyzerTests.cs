@@ -866,6 +866,49 @@ namespace N
     }
 
     [Fact]
+    public async Task Reports_unsecured_explicit_interface_when_sibling_interface_has_type_level_Authorize()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    [Authorize]
+    public interface IAuthorizedMarker
+    {
+    }
+
+    public interface IUnsecuredApi
+    {
+        IActionResult Post();
+    }
+
+    public sealed class DualInterfaceController : ControllerBase, IAuthorizedMarker, IUnsecuredApi
+    {
+        [HttpPost]
+        IActionResult IUnsecuredApi.{|#0:Post|}() => Ok();
+    }
+}
+""";
+
+        DiagnosticResult expectedDiagnostic =
+            CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+                .WithLocation(0)
+                .WithArguments("DualInterfaceController.IUnsecuredApi.Post()");
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            ExpectedDiagnostics = { expectedDiagnostic },
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
     public async Task Does_not_report_derived_controller_when_inherited_action_is_allow_anonymous_on_interface()
     {
         const string testCode = AspNetCoreStubs +

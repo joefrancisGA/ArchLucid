@@ -392,9 +392,6 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
 
         foreach (INamedTypeSymbol iface in containingType.AllInterfaces)
         {
-            if (InterfaceTypeHasAuthorizeOrAllowAnonymous(iface, authorizeAttribute, allowAnonymousAttribute))
-                return true;
-
             foreach (ISymbol member in iface.GetMembers())
             {
                 if (member is not IMethodSymbol interfaceMethod)
@@ -408,6 +405,9 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
 
                 if (implementation is null || !SymbolEqualityComparer.Default.Equals(implementation, method))
                     continue;
+
+                if (InterfaceTypeHasAuthorizeOrAllowAnonymous(iface, authorizeAttribute, allowAnonymousAttribute))
+                    return true;
 
                 if (SymbolHasAuthorizeOrAllowAnonymous(interfaceMethod, authorizeAttribute, allowAnonymousAttribute))
                     return true;
