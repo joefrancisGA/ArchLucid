@@ -47,7 +47,7 @@ public sealed partial class TenantWorkspacesController
         if (projectId != scope.ProjectId)
             return this.NotFoundProblem("Architecture project was not found for this tenant.", ProblemTypes.ResourceNotFound);
 
-        if (workspace.DefaultProjectId == projectId && workspace.DefaultProjectId != Guid.Empty)
+        if (CallerWorkspacePinsProjectAsDefault(workspaces, workspaceId, projectId))
         {
             IReadOnlyList<ArchitectureProjectRecord>? activeProjects =
                 await _architectureProjectRepository.ListActiveByTenantAsync(scope.TenantId, cancellationToken);
@@ -66,26 +66,20 @@ public sealed partial class TenantWorkspacesController
                     ProblemTypes.BusinessRuleViolation);
             }
         }
-        else
+        else if (ForeignWorkspacePinsProjectAsDefault(workspaces, workspaceId, projectId))
         {
-            bool projectPinnedAsDefaultMetadata = workspaces
-                .Any(w => w.DefaultProjectId == projectId && w.DefaultProjectId != Guid.Empty);
+            IReadOnlyList<ArchitectureProjectRecord> activeProjects =
+                await _architectureProjectRepository.ListActiveByTenantAsync(scope.TenantId, cancellationToken)
+                ?? Array.Empty<ArchitectureProjectRecord>();
 
-            if (projectPinnedAsDefaultMetadata)
+            bool projectIsActiveInCallerWorkspace = activeProjects.Any(
+                p => p.WorkspaceId == workspaceId && p.Id == projectId);
+
+            if (projectIsActiveInCallerWorkspace)
             {
-                IReadOnlyList<ArchitectureProjectRecord> activeProjects =
-                    await _architectureProjectRepository.ListActiveByTenantAsync(scope.TenantId, cancellationToken)
-                    ?? Array.Empty<ArchitectureProjectRecord>();
-
-                bool projectIsActiveInCallerWorkspace = activeProjects.Any(
-                    p => p.WorkspaceId == workspaceId && p.Id == projectId);
-
-                if (projectIsActiveInCallerWorkspace)
-                {
-                    return this.BadRequestProblem(
-                        "The workspace default architecture project cannot be deleted. Create another project and re-point the workspace default first.",
-                        ProblemTypes.BusinessRuleViolation);
-                }
+                return this.BadRequestProblem(
+                    "The workspace default architecture project cannot be deleted. Create another project and re-point the workspace default first.",
+                    ProblemTypes.BusinessRuleViolation);
             }
         }
 

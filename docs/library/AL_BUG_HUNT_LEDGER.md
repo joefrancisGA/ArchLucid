@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
+2026-10-20 seed hunt (seed→hit): `api-tenancy-workspaces` — promoted `TenantWorkspacesController.DeleteProjectAsync` fail-open when duplicate workspace inventory rows pin the caller default on a non-first row (foreign-pin branch null-coalesced active list after `FindWorkspace` missed metadata); scan all rows for caller vs foreign default pins; regression `DeleteProjectAsync_returns_bad_request_when_duplicate_workspace_row_pins_caller_default_and_active_list_is_null`; 57 scoped `TenantWorkspaces` tests passed; cheap-disproof closed `CorePilotTeamChecklistController` null list (saturated null-deref), `TenantHomepageSettingsController` `Guid.Empty` clear (existing tests), `TenantExecDigestPreferencesController` tenant-only GET (by design).
+
 2026-10-20 seed hunt (seed→hit): `api-tenancy-workspaces` — promoted `TenantWorkspacesController` workspace lookup via `SingleOrDefault` throwing when `ListWorkspacesAsync` returned duplicate `WorkspaceId` rows (HTTP 500 on list/recycle-bin/delete/restore); shared `FindWorkspace` uses `FirstOrDefault`; regression `ListAsync_returns_ok_when_tenant_inventory_contains_duplicate_workspace_rows`; removed unused `ListSoftDeletedByTenantAsync` read on restore path; 56 scoped `TenantWorkspaces` tests passed; cheap-disproof closed `ListAsync` null active list default clearing (intentional), `TenantIntegrationsOperationsController` GET already uses scope preflight.
 
 2026-10-20 seed hunt (seed→hit): `api-tenancy-workspaces` — promoted `TenantWorkspacesController.RestoreProjectAsync` returning HTTP 404 when `ListSoftDeletedByTenantAsync` included the scoped project but `DeletedUtc` was null, skipping `TryRestoreAsync` even when restore would succeed; remove pre-restore projection guard (parity with recycle-bin omitting undated rows without blocking restore); regression `RestoreProjectAsync_returns_no_content_when_soft_deleted_row_lacks_deleted_utc_and_restore_succeeds`; 55 scoped `TenantWorkspaces` tests passed; cheap-disproof closed `ListAsync` null active list default metadata clearing (intentional), `CorePilotTeamChecklistController` null list (out of TenantWorkspaces filter / saturated null-deref).
@@ -38508,11 +38510,16 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 ---
 ## Zone: api-tenancy-workspaces
 
+2026-10-20 seed hunt (seed→hit): promoted `TenantWorkspacesController.DeleteProjectAsync` duplicate workspace rows pinning caller default on non-first inventory row; `CallerWorkspacePinsProjectAsDefault` / `ForeignWorkspacePinsProjectAsDefault`; regression `DeleteProjectAsync_returns_bad_request_when_duplicate_workspace_row_pins_caller_default_and_active_list_is_null`.
+
+- [x] (proven) `TenantWorkspacesController.DeleteProjectAsync` — duplicate workspace inventory caller-default pin missed by `FindWorkspace` — regression above.
+
+- (candidate) `TenantWorkspacesController.ListRecycleBinAsync` — duplicate workspace rows surface first-row display name only — locus: recycle-bin DTO; input: cosmetic metadata mismatch when duplicates disagree on `Name`.
+- (candidate) `TenantWorkspacesController.DeleteProjectAsync` — caller default delete when active list empty but not null — locus: default metadata guard; input: fail-open vs idempotent `AlreadyDeleted` retry tension.
+
 2026-10-20 seed hunt (seed→hit): promoted `TenantWorkspacesController` duplicate `WorkspaceId` inventory rows crashing `SingleOrDefault`; `FindWorkspace` helper; regression `ListAsync_returns_ok_when_tenant_inventory_contains_duplicate_workspace_rows`.
 
 - [x] (proven) `TenantWorkspacesController` list/recycle/delete/restore — duplicate workspace id inventory throws — regression above.
-
-- (candidate) `TenantWorkspacesController.DeleteProjectAsync` — caller default delete when active list empty but not null — locus: default metadata guard; input: fail-open vs idempotent `AlreadyDeleted` retry tension.
 - (candidate) `CorePilotTeamChecklistController.GetAsync` — null checklist `ListAsync` before `Select` — locus: core-pilot checklist GET; input: saturated null-deref class; defer shared coalesce helper.
 - (candidate) `TenantHomepageSettingsController.PutAsync` — `Guid.Empty` selected run id vs nullable clear path — locus: PUT body; input: cheap-disproof OpenAPI/nullable contract.
 - (candidate) `TenantExecDigestPreferencesController.GetExecDigestPreferences` — tenant-only GET without workspace preflight — locus: digest prefs; input: `(valid-no-repro)` tenant-scoped preferences by design.

@@ -46,4 +46,16 @@ public sealed partial class TenantWorkspacesController(
         IReadOnlyList<TenantWorkspaceListItem> workspaces,
         Guid workspaceId) =>
         workspaces.FirstOrDefault(w => w.WorkspaceId == workspaceId);
+
+    private static bool CallerWorkspacePinsProjectAsDefault(
+        IReadOnlyList<TenantWorkspaceListItem> workspaces,
+        Guid workspaceId,
+        Guid projectId) =>
+        workspaces.Any(w => w.WorkspaceId == workspaceId && w.DefaultProjectId == projectId && w.DefaultProjectId != Guid.Empty);
+
+    private static bool ForeignWorkspacePinsProjectAsDefault(
+        IReadOnlyList<TenantWorkspaceListItem> workspaces,
+        Guid workspaceId,
+        Guid projectId) =>
+        workspaces.Any(w => w.WorkspaceId != workspaceId && w.DefaultProjectId == projectId && w.DefaultProjectId != Guid.Empty);
 }
