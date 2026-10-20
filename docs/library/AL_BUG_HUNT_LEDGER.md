@@ -1,5 +1,20 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
+2026-10-20 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `persistTokenResponse` identity-less replacement vs in-flight BFF sync; early return cleared the BFF cookie but left session generation unchanged so a late `syncBffSessionCookieFromTokenResponse` POST could resurrect the HttpOnly cookie after identity hints were dropped; bump `refreshSessionGeneration`, drop `latestTokenSyncRequest`, and clear again on stale completion; regression `clears the BFF cookie again when a stale token sync completes after an identity-less replacement persist`; cheap-disproof closed five run #80 `(candidate)` rows; seeded five new `(candidate)` rows; 306 vitest tests in `src/lib/oidc` passed.
+
+- [x] (proven) `persistTokenResponse` — stale sync after identity-less replacement — **hit 2026-10-20 seed hunt (lane B):** in-flight authorized sync completed after opaque identity-less persist; generation bump + stale-path clear; `session.test.ts` regression.
+- [x] (valid-no-repro) `ensureAccessTokenFresh` — 401 clear with display-only identity — **cheap-disproof 2026-10-20 seed hunt (lane B):** display satisfies `hasOidcSessionIdentityHints`; #80 partial-expiry path when hints already cleared.
+- [x] (valid-no-repro) `signOutAndRedirectHome` — null RP logout URL — **cheap-disproof 2026-10-20 seed hunt (lane B):** redirects home after `clearOidcSession`; existing sign-out tests.
+- [x] (valid-no-repro) `consumePostSignInReturnUrl` — unsafe stored path — **cheap-disproof 2026-10-20 seed hunt (lane B):** `isSafeReturnPath` on consume returns null; existing return-url tests.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — soft-fail inside skew with display hint — **cheap-disproof 2026-10-20 seed hunt (lane B):** transient failure retains hints; `bff-session-sync.test.ts` coverage.
+
+- (candidate) `ensureAccessTokenFresh` — ok refresh after identity-less persist bumps generation — locus: generation at persist vs in-flight refresh; input: concurrent refresh started before identity-less replacement.
+- (candidate) `syncTokenToBff` — identity-less generation bump vs sign-out clear ordering — locus: double clear on stale completion; input: sign-out during identity-less replacement race.
+- (candidate) `initiateOidcRedirect` — discovery failure clears return URL when google PKCE absent — locus: `readPkceState("google")` guard; input: primary discovery fail with google state set.
+- (candidate) `loadDiscoveryDocument` — cached issuer drift after authority env change — locus: discovery cache key; input: tab lifetime authority override (environmental).
+- (candidate) `persistNonSensitiveSessionHints` — id_token display when access JWT empty string payload — locus: decode empty segment; input: `access_token` with trailing dot only.
+
+
 2026-10-20 seed hunt (seed→hit): `security-analyzers` — promoted hunt-ready `RequireAuthorizationAnalyzer.MethodInheritsAuthorizeOrAllowAnonymousFromInterfaces` inherited marker `[Authorize]`; `IUnsecuredApi : IAuthorizedRoot` explicit `Post` skipped AL0001 because `InterfaceTypeHasAuthorizeOrAllowAnonymous` walked parent interfaces; honor only direct `[Authorize]`/`[AllowAnonymous]` on the implemented interface and its members; regression `Reports_unsecured_explicit_interface_when_implemented_interface_inherits_authorized_marker_interface`; cheap-disproof closed five run #48 `(candidate)` rows; seeded five new `(candidate)` rows; 112 scoped analyzer tests passed (`RunAnalyzers=false`).
 
 - [x] (proven) `RequireAuthorizationAnalyzer.MethodInheritsAuthorizeOrAllowAnonymousFromInterfaces` — inherited interface type-level `[Authorize]` — **hit 2026-10-20 seed hunt #81 (lane A):** parent marker interface suppressed AL0001 on unsecured explicit API members; drop inherited-interface type auth walk; `RequireAuthorizationAnalyzerTests` regression.
@@ -41,8 +56,6 @@
 - (candidate) `TenantIdentityBoundaryAnalyzer` — `IEnumerable<ClaimsPrincipal>` covariant return position — locus: generic type argument walk; input: inner-layer service returns enumerable of principal.
 - (candidate) `MutatingControllerAuditAnalyzer` — referenced-base explicit interface POST in metadata-only assembly — locus: `AnalyzeReferencedBaseActions` + `DeclaringSyntaxReferences.Length`; input: explicit impl in referenced DLL without source.
 - (candidate) `RequireAuthorizationAnalyzer` — partial controller declaration split across files — locus: symbol analyzer per syntax tree; input: authorize attribute on other partial half.
-
- 1cd23cc58c (Fix AL0001 inherited scan skipped by unauthorized derived helpers)
 
 2026-10-20 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `isLikelySignedIn` refresh-skew false negative; `EXPIRY_SKEW_MS` gates when `ensureAccessTokenFresh` runs but `isLikelySignedIn` also subtracted skew so identity + not-yet-expired hints read signed-out for up to 60s before expiry; now treats signed-in until `expires_at_ms`; regression `treats identity hints as signed in until expires_at_ms even inside the refresh skew window`; cheap-disproof closed five run #78 material `(candidate)` rows; seeded five new material `(candidate)` rows; 304 vitest tests in `src/lib/oidc` passed.
 

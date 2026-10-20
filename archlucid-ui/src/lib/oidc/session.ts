@@ -205,6 +205,10 @@ export function persistTokenResponse(tokens: OidcTokenResponse): void {
   persistNonSensitiveSessionHints(normalizedTokens, expiresAtMs);
 
   if (!hasOidcSessionIdentityHints()) {
+    // Invalidate in-flight BFF sync so a late POST cannot resurrect the HttpOnly cookie.
+    refreshSessionGeneration += 1;
+    refreshInFlight = null;
+    latestTokenSyncRequest = null;
     void clearBffSessionCookie();
 
     return;

@@ -515,6 +515,36 @@ describe("persistTokenResponse", () => {
     expect(clearMock).toHaveBeenCalledTimes(1);
   });
 
+  it("clears the BFF cookie again when a stale token sync completes after an identity-less replacement persist", async () => {
+    let releaseStaleSync: (() => void) | undefined;
+    const authorizedToken = accessTokenWithSubjectClaim("authorized-user");
+
+    vi.spyOn(bffSessionSync, "syncBffSessionCookieFromTokenResponse").mockImplementation(
+      async (tokens) => {
+        if (tokens.access_token === authorizedToken) {
+          await new Promise<void>((resolve) => {
+            releaseStaleSync = resolve;
+          });
+        }
+      },
+    );
+    const clearMock = vi.spyOn(bffSessionSync, "clearBffSessionCookie").mockResolvedValue();
+
+    persistTokenResponse({ access_token: authorizedToken, expires_in: 3600 });
+    await Promise.resolve();
+    await Promise.resolve();
+    await vi.waitUntil(() => releaseStaleSync !== undefined);
+
+    persistTokenResponse({ access_token: "opaque-identity-less", expires_in: 3600 });
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(clearMock).toHaveBeenCalledTimes(1);
+
+    releaseStaleSync?.();
+    await vi.waitUntil(() => clearMock.mock.calls.length >= 2);
+  });
+
   it("persists expiry hints for opaque access when id_token supplies subject", () => {
     const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
     const idPayload = Buffer.from(JSON.stringify({ sub: "opaque-pair-user" })).toString("base64url");
