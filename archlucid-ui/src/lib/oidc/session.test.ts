@@ -483,6 +483,7 @@ describe("persistTokenResponse", () => {
 
     expect(sessionStorage.getItem(OIDC_DISPLAY_NAME_KEY)).toBeNull();
     expect(sessionStorage.getItem(OIDC_USER_SUBJECT_KEY)).toBeNull();
+    expect(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY)).toBeNull();
   });
 
   it("keeps an older token sync from overwriting a newer same-session sync", async () => {
