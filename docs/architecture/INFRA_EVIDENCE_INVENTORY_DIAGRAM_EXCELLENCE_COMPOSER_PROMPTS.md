@@ -65,6 +65,7 @@
 | Capstone heading still titles 14a–14m after 14n | **IDX-14o** | Shipped — extend only |
 | Capstone heading still titles 14a–14n after 14o | **IDX-14p** | Shipped — extend only |
 | Capstone heading still titles 14a–14o after 14p | **IDX-14q** | Shipped — extend only |
+| Capstone heading still titles 14a–14p after 14q | **IDX-14r** | Shipped — extend only |
 | Singleton-RG tail | **IDX-08** | Full subscription is a postage sheet |
 | Singleton tail skips excellence filter | **IDX-08b** | Shipped — extend only |
 | Collapsed tail label helpers skip excellence filter | **IDX-08c** | Shipped — extend only |
@@ -134,6 +135,7 @@
 | **IDX-14o** Closeout capstone 14n heading sync (Vitest) | After 14n | Shipped — extend only |
 | **IDX-14p** Closeout capstone 14o heading sync (Vitest) | After 14o | Shipped — extend only |
 | **IDX-14q** Closeout capstone 14p heading sync (Vitest) | After 14p | Shipped — extend only |
+| **IDX-14r** Closeout capstone 14q heading sync (Vitest) | After 14q | Shipped — extend only |
 | **IDX-08** Singleton-RG collapse | After 06 | |
 | **IDX-08b** Singleton-RG tail excellence ratchet | After 08 | Shipped — extend only |
 | **IDX-08c** Collapsed singleton tail label excellence ratchet | After 08b | Shipped — extend only |
