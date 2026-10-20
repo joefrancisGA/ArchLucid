@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
+2026-10-20 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceController.GetDashboard` / `GetComplianceDriftTrend` running scope posture sealed-manifest guard before aggregated insights reads, so governance dashboard and compliance drift trend returned HTTP 409 when the latest committed project run failed hash verification unrelated to the insight query; remove scope guard (approval lineage/rationale keep per-request sealed-manifest guards); regressions `GetDashboard_reaches_facade_when_scope_posture_sealed_manifest_would_conflict` and `GetComplianceDriftTrend_reaches_facade_when_scope_posture_sealed_manifest_would_conflict`.
+
 2026-10-20 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceController.BatchReviewApprovalRequests` running scope posture sealed-manifest guard before per-item batch review, so POST /v1/governance/approval-requests/batch-review returned HTTP 409 when the latest committed project run failed hash verification unrelated to approval runs in the batch; remove scope guard (single-item approve/reject still uses per-request sealed-manifest read guard); regression `BatchReviewApprovalRequests_reaches_facade_when_scope_posture_sealed_manifest_would_conflict`.
 
 2026-10-20 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernancePreviewController.CompareEnvironments` running scope posture sealed-manifest guard before `CompareEnvironmentsAsync`, so read-only environment comparison returned HTTP 409 when the latest committed project run failed hash verification even though comparison only loads active activation manifests inside the service; remove scope guard from compare-environments (per-activation sealing remains in `GovernancePreviewService`); regression `CompareEnvironments_reaches_service_when_scope_posture_sealed_manifest_would_conflict`.
@@ -36664,6 +36666,16 @@ heap-disproved mermaid typed-topology candidate.
 ---
 
 ## Zone: api-governance-tenancy-controllers
+2026-10-20 seed hunt (seed→hit): promoted insights dashboard/drift scope posture sealed-manifest over-block; regressions `GetDashboard_reaches_facade_when_scope_posture_sealed_manifest_would_conflict` and `GetComplianceDriftTrend_reaches_facade_when_scope_posture_sealed_manifest_would_conflict`.
+
+- [x] (proven) `GovernanceController.GetDashboard` / `GetComplianceDriftTrend` — scope `EnsureGovernanceInsightsScopeSealedManifestReadAllowedAsync` blocked aggregated insights reads with HTTP 409 when latest committed run failed sealed-hash verification — regressions above.
+
+- (candidate) `TenantWorkspacesController.DeleteProjectAsync` — `ListActiveByTenantAsync` null without coalesce — locus: default-project metadata branch; input: align with `RestoreProjectAsync` / `ListAsync`.
+- (candidate) `GovernanceStickinessController` — revoke/renew risk exception sealed guard vs purged manifest-compare run — locus: `EnsureRiskExceptionRunSealedManifestAllowedAsync`; input: cheap-disproof after disposition guard null-detail skip.
+- (candidate) `GovernancePreCommitSimulationController.SealedManifestGuard` — missing run id returns 409 before checklist 404 — locus: pre-commit routes; input: `(valid-no-repro)` run repository preflight precedes guard.
+- (candidate) `GovernancePreviewController.Preview` — run-scoped sealed guard vs missing manifest-compare run — locus: preview POST; input: cheap-disproof after null-detail skip.
+- (candidate) `GovernanceController` — approval lineage/rationale still use per-request sealed guard when manifest missing — locus: `EnsureSealedManifestReadAllowedForApprovalRequestAsync`; input: verify 404 vs 409 semantics.
+
 2026-10-20 seed hunt (seed→hit): promoted batch-review scope posture sealed-manifest over-block; regression `BatchReviewApprovalRequests_reaches_facade_when_scope_posture_sealed_manifest_would_conflict`.
 
 - [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — scope `EnsureGovernanceInsightsScopeSealedManifestReadAllowedAsync` blocked batch review with HTTP 409 when latest committed run failed sealed-hash verification unrelated to approval request runs — regression above.
