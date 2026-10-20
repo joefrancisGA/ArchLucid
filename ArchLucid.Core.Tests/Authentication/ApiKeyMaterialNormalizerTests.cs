@@ -81,6 +81,21 @@ public sealed class ApiKeyMaterialNormalizerTests
     }
 
     [Fact]
+    public void Normalize_lowercases_ascii_hex_key_material()
+    {
+        const string uppercaseHex =
+            "A1B2C3D4E5F6789012345678901234567890ABCDEF1234567890ABCDEF12345678";
+
+        ApiKeyMaterialNormalizer.Normalize(uppercaseHex).Should().Be(uppercaseHex.ToLowerInvariant());
+    }
+
+    [Fact]
+    public void Normalize_preserves_case_for_non_hex_key_material()
+    {
+        ApiKeyMaterialNormalizer.Normalize("api-key-bdr-Admin-aB3x").Should().Be("api-key-bdr-Admin-aB3x");
+    }
+
+    [Fact]
     public void Normalize_strips_embedded_no_break_space_from_key_material()
     {
         ApiKeyMaterialNormalizer.Normalize("sec\u00A0ret-admin").Should().Be("secret-admin");

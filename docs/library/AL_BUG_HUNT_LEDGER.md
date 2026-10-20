@@ -15228,6 +15228,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: api-key-auth
 
+2026-10-20 thorough hunt (hit): `api-key-auth` — promoted hunt-ready `ApiKeyMaterialNormalizer` hex casing; uppercase hex in `Authentication:ApiKey:AdminKey` with lowercase `X-Api-Key` failed `ConstantTimeKeyEquals` while rotation issues lowercase hex; `IsAsciiHexKeyMaterial` + lowercase fold for long hex-only segments; regressions `When_admin_key_config_and_header_differ_only_by_hex_casing_still_authenticates`, `Normalize_lowercases_ascii_hex_key_material`, `Normalize_preserves_case_for_non_hex_key_material`; cheap-disproof closed stale `(candidate)` legacy audit `keyId` row (fixed 2026-10-11); 73 scoped ApiKey auth/settings unit tests passed (2 SQL endpoint tests blocked — no SQL Server in cloud VM).
+
+- [x] (proven) `ApiKeyMaterialNormalizer` — hex-only key material compared case-sensitively — **hit 2026-10-20 thorough hunt lane B:** uppercase deployment hex with lowercase header rejected valid admin auth; lowercase fold for ascii-hex segments ≥32 chars; `ApiKeyAuthenticationHandlerTests.When_admin_key_config_and_header_differ_only_by_hex_casing_still_authenticates` + `ApiKeyMaterialNormalizerTests`.
+- [x] (invalid) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy route audit `keyId` noncanonical — **cheap-disproof 2026-10-20 thorough hunt lane B:** `response.Slot` already written to audit JSON; regression `RotateKeyIdAsync_persisted_audit_uses_canonical_slot_for_padded_route_value` (2026-10-11).
+
+- (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — identical `AdminKey` and `ReadOnlyKey` with both slots non-expired grants admin permissions — locus: admin branch precedes reader; input: misconfigured Key Vault with same material in both slots (may be intentional overlap semantics).
+- (candidate) `AdminApiKeySettingsService.Rotate` — append rotation omits expiry metadata in response — locus: `AdminApiKeyRotateResponse`; input: operator append-rotates without updating `*ExpiresAt` fields.
+- (candidate) `MatchesAnyCommaSeparatedKey` — comma in literal secret cannot authenticate as one value — locus: comma splits config segments; input: operator provisions comma-containing secret (documented rotation delimiter).
+- (candidate) `ApiKeyAuthenticationHandler` — configuration reload to empty normalized slot fails all requests without distinct misconfiguration signal — locus: `CurrentValue` + `MatchesAnyCommaSeparatedKey`; input: transient empty `AdminKey` during reload.
+- (candidate) `AdminApiKeySettingsController` — cancellation between `Rotate` and audit after client disconnect — locus: synchronous rotate then cancellable audit; input: aborted HTTP request (no key returned to client when audit throws).
+
 2026-10-10 seed hunt (seed-only): re-read authentication matching, key normalization, expiry, rotation, and audit boundaries; no new reachable mechanism-backed candidate emerged and no hypothesis was promoted. The exact picker filter passed 71 unit tests; 2 SQL-backed endpoint tests were blocked by the missing SQL Server test connection. The five existing candidates remain bounded and unproven.
 
 2026-10-10 seed hunt (seed-only): re-read the handler, rotation paths, duplicate-header behavior, expiry branches, and focused tests; no new reachable mechanism-backed candidate emerged and no hypothesis was promoted. The exact picker filter passed 71 unit tests; 2 SQL-backed endpoint tests were blocked by the missing SQL Server test connection. The five existing candidates remain bounded and unproven.
@@ -15285,11 +15296,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 79
-- **bugs-found:** 22
+- **hunts:** 80
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-11
-- **last-bug:** 2026-10-11 — legacy API key rotation audit stored a noncanonical route slot
+- **last-hunt:** 2026-10-20
+- **last-bug:** 2026-10-20 — hex API key material rejected when config/header casing differed
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15344,7 +15355,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) `AdminApiKeySettingsController.RotateKeyIdAsync` — the legacy route accepts a valid case/whitespace-variant slot but writes the raw `keyId` into its audit payload while the service returns the canonical slot, so audit readers can see a noncanonical slot for a successful rotation — input: `POST /v1/admin/apikeys/%20readonly%20/rotate` or another route-encoded casing variant.
+- [x] (invalid) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy route audit `keyId` noncanonical — **cheap-disproof 2026-10-20 thorough hunt lane B:** audit uses `response.Slot`; regression `RotateKeyIdAsync_persisted_audit_uses_canonical_slot_for_padded_route_value`.
 - [x] (proven) `AdminApiKeySettingsController` rotation audits — API key principal name was copied onto the event, then `AuditService` stored `ActorUserId` as `unknown` because `NameIdentifier` is absent unless `ExplicitActor` is set — **hit 2026-10-09 seed hunt (seed→hit):** both settings rotate and legacy key-id rotate share `LogRotationAuditAsync`; regressions `RotateAsync_persisted_audit_keeps_api_key_name_when_name_identifier_is_absent` and `RotateKeyIdAsync_persisted_audit_keeps_api_key_name_when_name_identifier_is_absent` (failed first as `unknown`).
 - [x] (proven) `AdminApiKeySettingsService.GetSnapshot` / `Rotate` treat UTF-8 BOM-only `AdminKey` as configured — **hit 2026-09-27 seed hunt #53:** `HasConfiguredKeyMaterial` counted BOM-only mask segments while auth normalization left no matchable material; fixed via shared `ApiKeyMaterialNormalizer` and masker segment skip; regressions `GetSnapshot_treats_utf8_bom_only_admin_slot_as_unconfigured`, `Rotate_without_invalidate_previous_returns_replace_when_admin_slot_is_utf8_bom_only`, `When_admin_key_config_is_only_utf8_bom_returns_invalid_key`.
 

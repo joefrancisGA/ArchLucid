@@ -796,6 +796,31 @@ public sealed class ApiKeyAuthenticationHandlerTests
     }
 
     [SkippableFact]
+    public async Task When_admin_key_config_and_header_differ_only_by_hex_casing_still_authenticates()
+    {
+        const string lowercaseHex =
+            "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef12345678";
+        string uppercaseHex = lowercaseHex.ToUpperInvariant();
+
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", lowercaseHex);
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = uppercaseHex
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.IsInRole(ArchLucidRoles.Admin).Should().BeTrue();
+    }
+
+    [SkippableFact]
     public async Task When_shared_key_admin_expired_but_reader_slot_still_valid_authenticates_as_reader()
     {
         DefaultHttpContext http = new();

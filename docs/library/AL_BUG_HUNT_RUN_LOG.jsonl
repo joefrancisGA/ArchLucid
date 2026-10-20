@@ -5705,3 +5705,4 @@
 {"at":"2026-10-20T20:42:13.5465813Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-20T20:49:57.9117527Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-20T20:57:33.0148140Z","zoneId":"topology-proposal-merge","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs,ArchLucid.Application.Tests/Runs/Orchestration/TopologyProposalRelationshipEdgeMapperTests.cs)"]}
+{"at":"2026-10-20T21:05:29.0773041Z","zoneId":"api-key-auth","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Core/Authentication/ApiKeyMaterialNormalizer.cs,ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs)"]}

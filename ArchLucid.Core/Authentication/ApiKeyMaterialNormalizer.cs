@@ -14,7 +14,15 @@ public static class ApiKeyMaterialNormalizer
         if (trimmed.Length == 0)
             return string.Empty;
 
-        return RemoveInvisibleKeyMaterialChars(trimmed);
+        string withoutInvisible = RemoveInvisibleKeyMaterialChars(trimmed);
+
+        if (withoutInvisible.Length == 0)
+            return string.Empty;
+
+        if (IsAsciiHexKeyMaterial(withoutInvisible))
+            return withoutInvisible.ToLowerInvariant();
+
+        return withoutInvisible;
     }
 
     private static string RemoveInvisibleKeyMaterialChars(string value)
@@ -48,5 +56,19 @@ public static class ApiKeyMaterialNormalizer
 
         // Word/HTML paste can embed no-break or thin spaces inside otherwise valid hex keys.
         return character != ' ' && category == UnicodeCategory.SpaceSeparator;
+    }
+
+    private static bool IsAsciiHexKeyMaterial(string value)
+    {
+        if (value.Length < ApiKeyMaterialGenerator.DefaultKeyByteLength)
+            return false;
+
+        foreach (char character in value)
+        {
+            if (!char.IsAsciiHexDigit(character))
+                return false;
+        }
+
+        return true;
     }
 }
