@@ -401,6 +401,54 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
     }
 
     [Fact]
+    public void TryClaimService_returns_false_when_terraform_instance_key_differs_only_by_string_literal_quotes()
+    {
+        const string rootTerraformAddress = "azurerm_app_service.main";
+
+        HashSet<string> claimed = new(StringComparer.OrdinalIgnoreCase);
+
+        ManifestService unquotedIndex = new()
+        {
+            ServiceName = "api-a",
+            ServiceId = $"{rootTerraformAddress}[0]",
+        };
+
+        TopologyProposalRelationshipEndpointIndex.TryClaimService(unquotedIndex, claimed).Should().BeTrue();
+
+        ManifestService quotedIndex = new()
+        {
+            ServiceName = "api-b",
+            ServiceId = $"{rootTerraformAddress}[\"0\"]",
+        };
+
+        TopologyProposalRelationshipEndpointIndex.TryClaimService(quotedIndex, claimed).Should().BeFalse();
+    }
+
+    [Fact]
+    public void TryClaimDatastore_returns_false_when_terraform_instance_key_differs_only_by_string_literal_quotes()
+    {
+        const string rootTerraformAddress = "azurerm_storage_account.sa";
+
+        HashSet<string> claimed = new(StringComparer.OrdinalIgnoreCase);
+
+        ManifestDatastore unquotedIndex = new()
+        {
+            DatastoreName = "store-a",
+            DatastoreId = $"{rootTerraformAddress}[0]",
+        };
+
+        TopologyProposalRelationshipEndpointIndex.TryClaimDatastore(unquotedIndex, claimed).Should().BeTrue();
+
+        ManifestDatastore quotedIndex = new()
+        {
+            DatastoreName = "store-b",
+            DatastoreId = $"{rootTerraformAddress}[\"0\"]",
+        };
+
+        TopologyProposalRelationshipEndpointIndex.TryClaimDatastore(quotedIndex, claimed).Should().BeFalse();
+    }
+
+    [Fact]
     public void TryClaimDatastore_returns_false_when_name_id_or_synthetic_already_claimed()
     {
         HashSet<string> claimed = new(StringComparer.OrdinalIgnoreCase);

@@ -129,5 +129,5 @@ public static partial class TopologyProposalRelationshipEndpointIndex
     }
 
     private static bool EndpointKeyIsClaimed(string? value, HashSet<string> claimedEndpointKeys) =>
-        !string.IsNullOrWhiteSpace(value) && claimedEndpointKeys.Contains(value.Trim());
+        EndpointKeyIsKnown(value, claimedEndpointKeys);
 }
