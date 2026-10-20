@@ -1,7 +1,9 @@
-import { normalizeNumericOidcHintString } from "@/lib/oidc/oauth-callback-messages";
+import {
+  MAX_PLAUSIBLE_OIDC_EXPIRES_IN_SEC,
+  normalizeNumericOidcHintString,
+} from "@/lib/oidc/oauth-callback-messages";
 
-/** OAuth access-token lifetimes above one year are treated as malformed provider input. */
-export const MAX_PLAUSIBLE_OIDC_EXPIRES_IN_SEC = 31_536_000;
+export { MAX_PLAUSIBLE_OIDC_EXPIRES_IN_SEC };
 
 /** Normalizes OIDC `expires_in` (seconds) for client hints and BFF cookie TTL parity. */
 export function resolveExpiresInSeconds(expiresIn: number | undefined): number {

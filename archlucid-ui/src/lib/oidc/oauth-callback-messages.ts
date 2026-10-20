@@ -58,6 +58,30 @@ export function normalizeNumericOidcHintString(value: string): string {
 
 const NON_DECIMAL_OIDC_NUMERIC_PREFIX = /^0[xXbBoO]/u;
 
+/** OAuth access-token lifetimes above one year; shared with `resolve-expires-in-seconds`. */
+export const MAX_PLAUSIBLE_OIDC_EXPIRES_IN_SEC = 31_536_000;
+
+/** Rejects unsafe-integer and implausibly far-future epoch-ms hints (string or JSON number paths). */
+export function coerceAcceptedOidcEpochMsHint(parsed: number): number {
+  if (!Number.isFinite(parsed)) {
+    return Number.NaN;
+  }
+
+  const truncatedEpochMs = Math.trunc(parsed);
+
+  if (!Number.isSafeInteger(truncatedEpochMs)) {
+    return Number.NaN;
+  }
+
+  const maxPlausibleEpochMs = Date.now() + MAX_PLAUSIBLE_OIDC_EXPIRES_IN_SEC * 1000;
+
+  if (truncatedEpochMs < 0 || truncatedEpochMs > maxPlausibleEpochMs) {
+    return Number.NaN;
+  }
+
+  return parsed;
+}
+
 /** Parses epoch-ms hints from sessionStorage or BFF refresh JSON; rejects hex/binary/octal literals. */
 export function parseOidcEpochMsHint(value: string): number {
   const normalized = normalizeNumericOidcHintString(value);
@@ -76,7 +100,7 @@ export function parseOidcEpochMsHint(value: string): number {
     return Number.NaN;
   }
 
-  return parsed;
+  return coerceAcceptedOidcEpochMsHint(parsed);
 }
 
 export function collapseOAuthErrorDescriptionLineBreaks(text: string): string {

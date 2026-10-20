@@ -165,6 +165,13 @@ describe("getAccessTokenForApi / isLikelySignedIn expiry parsing (LK-06 P2)", ()
     expect(isLikelySignedIn()).toBe(false);
     expect(getAccessTokenForApi()).toBeUndefined();
   });
+
+  it("treats expires_at_ms session hints above MAX_SAFE_INTEGER as expired", () => {
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(Number.MAX_SAFE_INTEGER + 1));
+
+    expect(isLikelySignedIn()).toBe(false);
+    expect(getAccessTokenForApi()).toBeUndefined();
+  });
 });
 
 describe("persistTokenResponse", () => {

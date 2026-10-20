@@ -1,12 +1,10 @@
 import { isSafeOidcEndpointUrl } from "@/lib/oidc/discovery";
 import {
+  coerceAcceptedOidcEpochMsHint,
   normalizeOidcConfigurationString,
   parseOidcEpochMsHint,
 } from "@/lib/oidc/oauth-callback-messages";
-import {
-  MAX_PLAUSIBLE_OIDC_EXPIRES_IN_SEC,
-  resolveExpiresInSeconds,
-} from "@/lib/oidc/resolve-expires-in-seconds";
+import { resolveExpiresInSeconds } from "@/lib/oidc/resolve-expires-in-seconds";
 import type { OidcTokenResponse } from "@/lib/oidc/token-client";
 import { applyBffCsrfHeader, readBffCsrfTokenFromDocument } from "@/lib/proxy/bff-session-csrf-client";
 import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
@@ -25,26 +23,7 @@ function parseBffExpiresAtMs(raw: unknown): number {
     return parseOidcEpochMsHint(raw);
   }
 
-  const numeric = Number(raw);
-
-  if (!Number.isFinite(numeric)) {
-    return Number.NaN;
-  }
-
-  const truncatedEpochMs = Math.trunc(numeric);
-
-  // JSON numbers above 2^53-1 are not safe integers; string hints already reject via parseOidcEpochMsHint.
-  if (!Number.isSafeInteger(truncatedEpochMs)) {
-    return Number.NaN;
-  }
-
-  const maxPlausibleEpochMs = Date.now() + MAX_PLAUSIBLE_OIDC_EXPIRES_IN_SEC * 1000;
-
-  if (truncatedEpochMs < 0 || truncatedEpochMs > maxPlausibleEpochMs) {
-    return Number.NaN;
-  }
-
-  return numeric;
+  return coerceAcceptedOidcEpochMsHint(Number(raw));
 }
 
 function resolveWorkingModeForBffSession(): boolean {
