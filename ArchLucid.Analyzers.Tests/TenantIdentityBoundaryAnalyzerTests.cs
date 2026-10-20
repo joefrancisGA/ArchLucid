@@ -530,6 +530,35 @@ namespace N
   }
 
   [Fact]
+  public async Task Reports_params_array_element_for_banned_type_in_inner_layer_assembly()
+  {
+    const string testCode = """
+
+namespace ArchLucid.Application.Probe;
+
+using System.Security.Claims;
+
+public sealed class Handler
+{
+    public void M(params {|#0:ClaimsPrincipal|}[] users) { }
+}
+""";
+
+    await new CSharpAnalyzerTest<TenantIdentityBoundaryAnalyzer, DefaultVerifier>
+    {
+      TestCode = testCode,
+      ExpectedDiagnostics =
+      {
+        CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+          .WithLocation(0)
+          .WithArguments("System.Security.Claims.ClaimsPrincipal")
+      },
+      ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+      SolutionTransforms = { InnerLayerAssemblyNameTransform }
+    }.RunAsync();
+  }
+
+  [Fact]
   public async Task Reports_array_element_identifier_for_banned_type_in_inner_layer_assembly()
   {
     const string testCode = """

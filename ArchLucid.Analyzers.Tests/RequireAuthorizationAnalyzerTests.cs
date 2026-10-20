@@ -665,6 +665,88 @@ namespace N
     }
 
     [Fact]
+    public async Task Reports_outer_abstract_only_when_nested_controller_is_authorized_and_outer_has_unauthorized_explicit_interface()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    public interface IUnsecuredApi
+    {
+        IActionResult Get();
+    }
+
+    public abstract class {|#0:OuterController|} : ControllerBase, IUnsecuredApi
+    {
+        [HttpGet]
+        IActionResult IUnsecuredApi.Get() => Ok();
+
+        public sealed class NestedController : ControllerBase
+        {
+            [Authorize]
+            [HttpGet]
+            public IActionResult Get() => Ok();
+        }
+    }
+}
+""";
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            ExpectedDiagnostics =
+            {
+                CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+                    .WithLocation(0)
+                    .WithArguments("OuterController")
+            },
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task Does_not_report_empty_derived_when_explicit_interface_implementation_declares_Authorize()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    public interface IAuthorizedApi
+    {
+        IActionResult Get();
+    }
+
+    public abstract class SharedController : ControllerBase, IAuthorizedApi
+    {
+        [Authorize]
+        [HttpGet]
+        IActionResult IAuthorizedApi.Get() => Ok();
+    }
+
+    public sealed class DerivedController : SharedController
+    {
+    }
+}
+""";
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
     public async Task Does_not_report_explicit_interface_implementation_when_impl_declares_AllowAnonymous()
     {
         const string testCode = AspNetCoreStubs +

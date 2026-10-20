@@ -1673,6 +1673,41 @@ public sealed class CastAuditedController(IAuditService auditService) : Controll
     }
 
     [Fact]
+    public async Task AL0003_does_not_report_AcceptVerbs_post_on_explicit_interface_implementation()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public interface IMutatingApi
+{
+    System.Threading.Tasks.Task<IActionResult> Post(System.Threading.CancellationToken cancellationToken);
+}
+
+public sealed class ExplicitInterfaceAcceptVerbsController(IAuditService auditService) : ControllerBase, IMutatingApi
+{
+    [AcceptVerbs("POST")]
+    System.Threading.Tasks.Task<IActionResult> IMutatingApi.Post(System.Threading.CancellationToken cancellationToken)
+    {
+        return System.Threading.Tasks.Task.FromResult<IActionResult>(Ok());
+    }
+}
+}
+""";
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
+    [Fact]
     public async Task AL0003_is_absent_when_LogAsync_lives_on_partial_method_implementation()
     {
         const string partOne = AuditAndMvcStubs +
