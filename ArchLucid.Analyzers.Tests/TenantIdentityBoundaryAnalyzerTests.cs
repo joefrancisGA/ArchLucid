@@ -559,6 +559,36 @@ public sealed class Handler
   }
 
   [Fact]
+  public async Task Reports_ValueTask_of_ClaimsPrincipal_return_in_inner_layer_assembly()
+  {
+    const string testCode = """
+
+namespace ArchLucid.Application.Probe;
+
+using System.Security.Claims;
+using System.Threading.Tasks;
+
+public sealed class Handler
+{
+    public {|#0:ValueTask|}<ClaimsPrincipal> M() => default;
+}
+""";
+
+    await new CSharpAnalyzerTest<TenantIdentityBoundaryAnalyzer, DefaultVerifier>
+    {
+      TestCode = testCode,
+      ExpectedDiagnostics =
+      {
+        CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+          .WithLocation(0)
+          .WithArguments("System.Threading.Tasks.ValueTask<System.Security.Claims.ClaimsPrincipal>")
+      },
+      ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+      SolutionTransforms = { InnerLayerAssemblyNameTransform }
+    }.RunAsync();
+  }
+
+  [Fact]
   public async Task Reports_array_element_identifier_for_banned_type_in_inner_layer_assembly()
   {
     const string testCode = """
