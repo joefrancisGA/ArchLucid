@@ -6900,6 +6900,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ### Hypotheses
 
+
+- [ ] (candidate) IdentityProviderConfigurationController.DiscoverAsync — forwards the OpenAPI discover body to _discoveryService without IdentityProviderProtocolParser validation at the controller layer; input: POST /v1/admin/identity/discover with an unsupported protocol token from the SSO wizard; wrong outcome: discovery diagnostic shape may disagree with test-login/activate HTTP 400 validation envelopes.
+- [ ] (candidate) IdentityProviderConfigurationController.DiscoverAsync — no explicit empty or whitespace-only metadataUrl guard before discovery; input: wizard discover submit with blank metadataUrl; wrong outcome: downstream discovery failure instead of immediate ProblemDetails validation.
+- [ ] (candidate) IdentityProviderActivationService.ActivateAsync — serializes ClaimMappingJson without an explicit size guard before SQL MERGE despite the ISJSON check; input: activation with a very large claimMapping.mappings array from the wizard; wrong outcome: SQL/command failure instead of validation failed.
+- [ ] (candidate) IdentityProviderConfigurationController.TestLogin — delegates claim-mapping validation entirely to _testLoginService.Execute without controller-level substantive guards; input: POST /v1/admin/identity/test-login with a null element inside claimMapping.mappings; wrong outcome: unhandled exception if the sandbox service regresses.
+- [ ] (candidate) IdentityProviderActivationService.ResolveKeyVaultSecretName — length check runs after merging a omitted request field with an existing stored name; input: same-protocol re-activate omitting keyVaultSecretName when the stored row still contains an oversize legacy secret name; wrong outcome: SQL MERGE truncation failure instead of validation failed.
+
 - [x] (proven) PolicyPacksController.SealedManifestGuard.EnsurePolicyPackSimulateRunSealedManifestAllowedAsync — a reachable POST /v1/policy-packs/simulate body with a run id that does not exist in the current scope returned HTTP 409 because GovernanceDispositionSealedManifestGuard treated null manifest-compare detail like a missing golden manifest before the facade could return HTTP 404 — **hit 2026-10-20 seed hunt:** skip the guard when manifest-compare returns no run; enforce PolicyPackSimulateSealedManifestGuard only for committed runs; regressions Simulate_returns_not_found_for_missing_run_before_sealed_manifest_check and Simulate_returns_not_found_when_tenant_missing.
 
 - [x] (proven) `AzureInventoryVnetCustomDnsIndex.AppendDnsServersFromJsonArray` — numeric JSON elements in `dnsServers` arrays skipped — **hit 2026-10-16 seed hunt:** octet-array join and uint32 packed address reads; regression `VnetUsesCustomDns_true_when_dhcpOptions_json_array_lists_numeric_octets`.
@@ -13859,6 +13866,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ---
 
+2026-10-20 seed hunt (seed-only): identity-provider-config — re-read IdentityProviderConfigurationController discover/test-login/activate/get-configuration paths and IdentityProviderActivationService activation persistence after recent field-limit and camelCase claim-mapping hits; no row met the hunt-ready bar for a failing repro in the selected files. Seeded five bounded (candidate) rows for discover request validation parity, empty metadata URL handling, claim-mapping JSON size, test-login guard delegation, and legacy oversize Key Vault secret names on same-protocol re-activate. Scoped IdentityProviderActivationServiceTests passed 51/51 and IdentityProviderConfigurationControllerTests passed 15/15. No production change.
+
 ## Zone: identity-provider-config
 
 2026-10-20 seed hunt (seed-only): re-read activation/controller paths; cheap-disproof closed five `(candidate)` rows (discover/test-login HTTP 200 envelopes are intentional wizard contracts; GET partial canonicalization and audit summary shape match prior valid-no-repro notes; empty-string `keyVaultSecretName` is OpenAPI-only because SSO/SAML UIs send null); no new hunt-ready promotion; 66 scoped activation/controller tests passed.
@@ -13884,6 +13893,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **last-bug:** 2026-10-09 — activation persisted issuer, secret name, or actor id past SQL column width
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-20 seed hunt (seed-only): re-read controller and activation service; seeded five candidates; 51 activation + 15 controller tests passed.
 
 2026-10-09 seed hunt (seed→hit): an issuer URI, Key Vault secret name, or actor id longer than migration 183's NVARCHAR columns was upserted. SQL truncation then failed the request. Those fields are rejected before upsert. Regression `ActivateAsync_rejects_key_vault_secret_name_longer_than_persisted_column` failed first.
 
