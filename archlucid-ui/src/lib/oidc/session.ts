@@ -453,7 +453,7 @@ export async function ensureAccessTokenFresh(): Promise<void> {
 
         if (generationAtStart !== refreshSessionGeneration) {
           // The refresh POST may have completed after identity-less persist or sign-out cleared the cookie.
-          if (result.ok) {
+          if (result.ok && !hasOidcSessionIdentityHints()) {
             void clearBffSessionCookie();
           }
 

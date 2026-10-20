@@ -300,6 +300,82 @@ describe("ensureAccessTokenFresh (LK-06 P2 BFF refresh)", () => {
     expect(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY)).toBe(expiresHintAtRefreshStart);
   });
 
+  it("does not clear the BFF cookie when a pre-identity-less refresh succeeds after a replacement sign-in", async () => {
+    let releaseRefresh: (() => void) | undefined;
+    const refreshedMs = Date.now() + 3_600_000;
+
+    vi.mocked(bffSessionSync.refreshBffSessionCookie).mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          releaseRefresh = () => {
+            resolve({ ok: true, expiresAtMs: refreshedMs });
+          };
+        }),
+    );
+    const clearMock = vi.spyOn(bffSessionSync, "clearBffSessionCookie").mockResolvedValue();
+    const syncMock = vi
+      .spyOn(bffSessionSync, "syncBffSessionCookieFromTokenResponse")
+      .mockResolvedValue();
+
+    seedExpiredSessionWithIdentityHints();
+
+    const refreshPromise = ensureAccessTokenFresh();
+
+    await Promise.resolve();
+
+    persistTokenResponse({ access_token: "opaque-identity-less", expires_in: 3600 });
+
+    await Promise.resolve();
+
+    persistTokenResponse({ access_token: accessTokenWithSubjectClaim("user-replacement"), expires_in: 3600 });
+
+    await Promise.resolve();
+
+    expect(clearMock).toHaveBeenCalledTimes(1);
+    expect(syncMock).toHaveBeenCalledTimes(1);
+
+    releaseRefresh?.();
+    await refreshPromise;
+
+    expect(clearMock).toHaveBeenCalledTimes(1);
+    expect(syncMock).toHaveBeenCalledTimes(1);
+    expect(sessionStorage.getItem(OIDC_USER_SUBJECT_KEY)).toBe("user-replacement");
+  });
+
+  it("drops only the expiry hint when BFF refresh is rejected after identity-less replacement invalidates session generation", async () => {
+    let releaseRefresh: (() => void) | undefined;
+
+    vi.mocked(bffSessionSync.refreshBffSessionCookie).mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          releaseRefresh = () => {
+            resolve({ ok: false, shouldClearSession: true });
+          };
+        }),
+    );
+    const clearMock = vi.spyOn(bffSessionSync, "clearBffSessionCookie").mockResolvedValue();
+
+    storePkceState("callback-state", "callback-verifier", "callback-nonce", "primary");
+    seedExpiredSessionWithIdentityHints();
+
+    const refreshPromise = ensureAccessTokenFresh();
+
+    await Promise.resolve();
+
+    persistTokenResponse({ access_token: "opaque-identity-less", expires_in: 3600 });
+
+    await Promise.resolve();
+
+    expect(clearMock).toHaveBeenCalledTimes(1);
+
+    releaseRefresh?.();
+    await refreshPromise;
+
+    expect(clearMock).toHaveBeenCalledTimes(1);
+    expect(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY)).toBeNull();
+    expect(sessionStorage.getItem(OIDC_OAUTH_STATE_KEY)).toBe("callback-state");
+  });
+
   it("clears the BFF cookie when an in-flight refresh succeeds after identity-less replacement invalidates session generation", async () => {
     let releaseRefresh: (() => void) | undefined;
     const refreshedMs = Date.now() + 3_600_000;
