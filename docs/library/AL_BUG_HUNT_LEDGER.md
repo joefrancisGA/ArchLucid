@@ -1,3 +1,6 @@
+2026-10-20 seed hunt (seed→hit): `api-tenancy-workspaces` — promoted `ListRecycleBinAsync` retention purge guard treating any tenant inventory default pin as blocking purge when duplicate workspace rows still pin a former default after active default moved to a sibling project; protect purge only for resolved current-workspace default pins (or all pins when no active default) and foreign-workspace default pins; regression `ListRecycleBinAsync_schedules_purge_when_stale_inventory_row_pins_deleted_project_but_active_default_moved`; 66 scoped `TenantWorkspaces` tests passed.
+
+
 2026-10-20 seed hunt (seed→hit): `api-tenancy-workspaces` — promoted `ListRecycleBinAsync` workspace title using active-default inventory row when JWT `scope.ProjectId` is soft-deleted but a sibling project remains the active default (`ResolveScopedWorkspaceInventoryRow` resolved-default branch ran before inactive-scope metadata); `preferInactiveScopedInventoryRow` for recycle-bin display only; regression `ListRecycleBinAsync_uses_scope_metadata_row_name_when_scoped_project_is_soft_deleted_with_active_sibling_default`; 65 scoped `TenantWorkspaces` tests passed; seeded candidates closed for list/recycle display parity when scope inactive (list keeps active-default title per existing regression).
 
 
