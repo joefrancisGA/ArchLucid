@@ -678,7 +678,7 @@ public sealed class IdentityProviderActivationServiceTests
     }
 
     [Fact]
-    public async Task ActivateAsync_clears_key_vault_secret_when_whitespace_only_string_provided()
+    public async Task ActivateAsync_rejects_oidc_reactivate_that_would_clear_key_vault_secret_via_invisible_unicode()
     {
         InMemoryTenantIdentityProviderConfigurationRepository repository = new();
         IdentityProviderActivationService sut = new(repository);
@@ -697,7 +697,43 @@ public sealed class IdentityProviderActivationServiceTests
             },
             CancellationToken.None);
 
-        TenantIdentityProviderConfigurationRecord record = await sut.ActivateAsync(
+        Func<Task> act = () => sut.ActivateAsync(
+            tenantId,
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = mapping,
+                KeyVaultSecretName = "\u200B"
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*KeyVaultSecretName*");
+    }
+
+    [Fact]
+    public async Task ActivateAsync_rejects_oidc_reactivate_that_would_clear_key_vault_secret_via_whitespace()
+    {
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        IdentityProviderActivationService sut = new(repository);
+        Guid tenantId = Guid.Parse("a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0");
+        IdentityClaimRoleMappingRequest mapping = ValidClaimMapping();
+
+        await sut.ActivateAsync(
+            tenantId,
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = mapping,
+                KeyVaultSecretName = "tenant-idp-client-secret"
+            },
+            CancellationToken.None);
+
+        Func<Task> act = () => sut.ActivateAsync(
             tenantId,
             "admin@test",
             new IdentityProviderActivateRequest
@@ -709,7 +745,8 @@ public sealed class IdentityProviderActivationServiceTests
             },
             CancellationToken.None);
 
-        record.KeyVaultSecretName.Should().BeNull();
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*KeyVaultSecretName*");
     }
 
     [Fact]
@@ -921,41 +958,6 @@ public sealed class IdentityProviderActivationServiceTests
 
         await act.Should().ThrowAsync<ArgumentException>()
             .WithMessage("*actorId*");
-    }
-
-    [Fact]
-    public async Task ActivateAsync_clears_key_vault_secret_when_invisible_unicode_only_string_provided()
-    {
-        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
-        IdentityProviderActivationService sut = new(repository);
-        Guid tenantId = Guid.Parse("16161616-1616-1616-1616-161616161616");
-        IdentityClaimRoleMappingRequest mapping = ValidClaimMapping();
-
-        await sut.ActivateAsync(
-            tenantId,
-            "admin@test",
-            new IdentityProviderActivateRequest
-            {
-                Protocol = "oidc",
-                IssuerUri = "https://idp.example/",
-                ClaimMapping = mapping,
-                KeyVaultSecretName = "tenant-idp-client-secret"
-            },
-            CancellationToken.None);
-
-        TenantIdentityProviderConfigurationRecord record = await sut.ActivateAsync(
-            tenantId,
-            "admin@test",
-            new IdentityProviderActivateRequest
-            {
-                Protocol = "oidc",
-                IssuerUri = "https://idp.example/",
-                ClaimMapping = mapping,
-                KeyVaultSecretName = "\u200B"
-            },
-            CancellationToken.None);
-
-        record.KeyVaultSecretName.Should().BeNull();
     }
 
     [Fact]

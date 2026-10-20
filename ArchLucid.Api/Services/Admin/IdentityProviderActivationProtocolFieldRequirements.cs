@@ -18,7 +18,8 @@ internal static class IdentityProviderActivationProtocolFieldRequirements
 
     /// <summary>
     ///     OIDC client-secret Key Vault name is required on cross-protocol switch to OIDC.
-    ///     Greenfield OIDC may omit the name until a follow-up activation; same-protocol reactivate preserves null.
+    ///     Greenfield OIDC may omit the name until a follow-up activation; same-protocol reactivate preserves null
+    ///     unless the stored row already has a substantive secret name (whitespace must not clear it).
     /// </summary>
     internal static bool RequiresSubstantiveOidcKeyVaultSecretName(
         TenantIdentityProviderConfigurationRecord? existing,
@@ -27,7 +28,12 @@ internal static class IdentityProviderActivationProtocolFieldRequirements
         if (targetProtocol != TenantIdentityProtocol.Oidc)
             return false;
 
-        return existing is not null
-            && existing.Protocol != TenantIdentityProtocol.Oidc;
+        if (existing is null)
+            return false;
+
+        if (existing.Protocol != TenantIdentityProtocol.Oidc)
+            return true;
+
+        return IdentityProviderSubstantiveTextValidation.HasSubstantiveText(existing.KeyVaultSecretName);
     }
 }
