@@ -119,4 +119,34 @@ public sealed class TenantUsageStatusServiceTests
         snapshot.WorkspacesUsed.Should().Be(1);
         snapshot.WorkspacesLimit.Should().Be(CommercialPackagingLimits.TeamWorkspacesIncluded);
     }
+
+    [SkippableFact]
+    public async Task BuildAsync_treats_null_workspace_list_as_empty()
+    {
+        Guid tenantId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        TenantRecord tenant = new()
+        {
+            Id = tenantId,
+            Name = "t",
+            Slug = "t",
+            Tier = TenantTier.Free,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
+            TrialStatus = TrialLifecycleStatus.Active,
+            TrialSeatsUsed = 1,
+            TrialSeatsLimit = 5,
+        };
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+        tenants.Setup(t => t.ListWorkspacesAsync(tenantId, It.IsAny<CancellationToken>()))
+            .Returns(Task.FromResult<IReadOnlyList<TenantWorkspaceListItem>>(null!));
+        Mock<IBillingLedger> ledger = new();
+        ledger.Setup(l => l.TryGetSubscriptionAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((BillingSubscriptionSnapshot?)null);
+        TenantUsageStatusService sut = new(tenants.Object, ledger.Object);
+
+        TenantUsageStatusSnapshot? snapshot = await sut.BuildAsync(tenantId, CancellationToken.None);
+
+        snapshot.Should().NotBeNull();
+        snapshot!.WorkspacesUsed.Should().Be(0);
+    }
 }

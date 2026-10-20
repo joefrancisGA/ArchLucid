@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
+2026-10-20 seed hunt (seed→hit): `api-tenancy-workspaces` — promoted `TenantUsageStatusService.BuildAsync` calling `.Count` on null `ListWorkspacesAsync` (NRE on GET /v1/tenant/usage-status); consolidate null workspace inventory via `TenantWorkspaceListCoalesce` in Core (API `TenantWorkspaceInventoryCoalesce` delegates); regression `BuildAsync_treats_null_workspace_list_as_empty`; 4 `TenantUsageStatusServiceTests` + 54 TenantWorkspaces/scope-preflight tests passed; cheap-disproof closed homepage null run list (service `.ToArray()`), recycle-bin cross-workspace pin semantics (existing regressions), customer-success mid-request race `(valid-no-repro)`.
+
 2026-10-20 seed hunt (seed→hit): `api-tenancy-workspaces` — promoted `TenantWorkspaceScopePreflight.WorkspaceExistsAsync` `ListWorkspacesAsync` fallback calling `.Any` on null workspace inventory (NRE on tenancy read controllers using preflight without `IWorkspaceQueryTenantRepository`); extract shared `TenantWorkspaceInventoryCoalesce` under tenancy controllers (parity with `TenantWorkspacesController` run #6); regression `WorkspaceExistsAsync_falls_back_to_ListWorkspacesAsync_when_list_is_null_returns_false`; 54 scoped TenantWorkspaces + scope-preflight tests passed; cheap-disproof closed checklist/homepage null-list candidates (persistence/service always materialize collections), integrations null `IntegrationEventBus` (DTO default instance).
 
 2026-10-20 seed hunt (seed→hit): `api-tenancy-workspaces` — promoted `TenantWorkspacesController` calling `ListWorkspacesAsync` without coalescing null workspace inventory before `SingleOrDefault` / `Any`, so list/recycle-bin/delete/restore could throw when a repository test double returned null (parity with active/soft-deleted project list guards); shared `CoalesceWorkspaces` helper; regression `ListAsync_returns_not_found_when_workspace_list_is_null`; 53 scoped TenantWorkspaces tests passed; cheap-disproof closed integrations `Surfaces` null (DTO default `[]`), legal-hold whitespace-only `Reason` (mapper rejects), convert-trial null body (by design), usage-status trial `CommercialTier` null (by design).
@@ -11701,7 +11703,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
-- **hunts:** 33
+- **hunts:** 34
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-16
@@ -28807,7 +28809,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **paths:** ArchLucid.Core/Identity/; ArchLucid.Core/Billing/; ArchLucid.Core/Budgeting/
 - **test-filter:** FullyQualifiedName~CommercialTenant
 - **hunts:** 33
-- **bugs-found:** 13
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-10
 - **last-bug:** 2026-10-09 — hourly OTP email SQL counted completed and expired challenges
@@ -38496,15 +38498,26 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 ---
 ## Zone: api-tenancy-workspaces
 
+2026-10-20 seed hunt (seed→hit): promoted `TenantUsageStatusService` null workspace list before `.Count`; Core `TenantWorkspaceListCoalesce`; regression `BuildAsync_treats_null_workspace_list_as_empty`.
+
+- [x] (proven) `TenantUsageStatusService.BuildAsync` — null `ListWorkspacesAsync` before `.Count` — regression above.
+
+- (candidate) `TenantBaselineController` / `TenantCostSettingsController` — empty route or body guid validation vs tenant preflight ordering — locus: GET/PUT baseline and cost settings; input: cheap-disproof against existing route guards.
+- (candidate) `TenantHomepageSettingsController.PutAsync` — featured sample run id validation vs sealed-manifest guard ordering — locus: PUT homepage-settings; input: missing run returns 404 before conflict.
+- (candidate) `TenantErasureLegalHoldController` — `UntilUtc` exactly equal to server clock second boundary — locus: legal-hold POST; input: edge instant vs `TimeProvider` truncation.
+- (candidate) `TenantWeeklyDigestHealthController` — digest health when tenant row exists but workspace scope is foreign — locus: GET digest health; input: verify 404 parity with preflight.
+- (candidate) `TenantMeasuredRoiController` — ROI snapshot when billing subscription row missing for paid tier — locus: GET measured-roi; input: tier label fallback vs HTTP 404.
+
+
 2026-10-20 seed hunt (seed→hit): promoted `TenantWorkspaceScopePreflight` null workspace list fallback; shared `TenantWorkspaceInventoryCoalesce`; regression `WorkspaceExistsAsync_falls_back_to_ListWorkspacesAsync_when_list_is_null_returns_false`.
 
 - [x] (proven) `TenantWorkspaceScopePreflight.WorkspaceExistsAsync` — null `ListWorkspacesAsync` before `.Any` — regression above.
 
-- (candidate) `TenantUsageStatusService.BuildAsync` — `ListWorkspacesAsync` null before `.Count` — locus: usage-status snapshot; input: mock null list (application layer).
-- (candidate) `TenantHomepageSettingsController.ListEligibleSamplesAsync` — null `ListRecentInScopeAsync` before `.Where` — locus: featured sample eligibility; input: run repository returns null.
+- [x] (proven) `TenantUsageStatusService.BuildAsync` — null `ListWorkspacesAsync` before `.Count` — **hit 2026-10-20 seed hunt #8:** `TenantWorkspaceListCoalesce`; regression `BuildAsync_treats_null_workspace_list_as_empty`.
+- [x] (invalid) `TenantHomepageSettingsController.ListEligibleSamplesAsync` — null run list — **cheap-disproof 2026-10-20 seed hunt #8:** `FeaturedCompletedSampleService` projects with `.ToArray()` after repository read.
 - (candidate) `TenantCostSettingsController` / `TenantBaselineController` — scope preflight vs direct tenant lookup ordering on empty route guids — locus: PUT/GET baseline; input: cheap-disproof route validation order.
-- (candidate) `TenantCustomerSuccessController` funnel/health reads — stale scope when workspace deleted mid-request — locus: long-running read; input: `(valid-no-repro)` unless repro with race.
-- (candidate) `TenantWorkspacesController.ListRecycleBinAsync` — `defaultMetadataPinnedProjectIds` includes foreign-workspace defaults when computing purge schedule for current workspace deletes — locus: tenant-wide pin set; input: verify intended cross-workspace pin semantics (regressions exist).
+- [x] (valid-no-repro) `TenantCustomerSuccessController` — stale scope mid-request — **cheap-disproof 2026-10-20 seed hunt #8:** no durable cross-request scope mutation in controller reads.
+- [x] (valid-no-repro) `TenantWorkspacesController.ListRecycleBinAsync` — tenant-wide default pin set for purge schedule — **cheap-disproof 2026-10-20 seed hunt #8:** `ListRecycleBinAsync_omits_purge_schedule_when_another_workspace_still_pins_default_metadata` documents intended behavior.
 
 
 2026-10-20 seed hunt (seed→hit): promoted `TenantWorkspacesController.CoalesceWorkspaces` for null `ListWorkspacesAsync` results across list/recycle-bin/delete/restore; regression `ListAsync_returns_not_found_when_workspace_list_is_null`.
@@ -38514,7 +38527,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `TenantWorkspaceScopePreflight.WorkspaceExistsAsync` — null `ListWorkspacesAsync` before `.Any` — **hit 2026-10-20 seed hunt #7:** `TenantWorkspaceInventoryCoalesce`; regression `WorkspaceExistsAsync_falls_back_to_ListWorkspacesAsync_when_list_is_null_returns_false`.
 - [x] (invalid) `CorePilotTeamChecklistController.GetAsync` — repository `ListAsync` null — **cheap-disproof 2026-10-20 seed hunt #7:** SQL/in-memory checklist repositories return materialized lists.
 - [x] (invalid) `TenantHomepageSettingsController.ListEligibleSamplesAsync` — null candidate list — **cheap-disproof 2026-10-20 seed hunt #7:** `FeaturedCompletedSampleService.ListEligibleCandidatesAsync` ends with `.ToArray()`.
-- (candidate) `TenantUsageStatusService.BuildAsync` — `ListWorkspacesAsync` null before `.Count` — locus: usage-status snapshot (called from `TenantUsageStatusController`); input: mock null workspace list.
+- [x] (proven) `TenantUsageStatusService.BuildAsync` — null workspace list — **hit 2026-10-20 seed hunt #8** (see top zone entry).
 - [x] (invalid) `TenantIntegrationsOperationsController.GetAsync` — null `IntegrationEventBus` — **cheap-disproof 2026-10-20 seed hunt #7:** property defaults to `new()`; reader assigns `busSummary`.
 
 

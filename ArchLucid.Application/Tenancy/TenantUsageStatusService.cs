@@ -28,8 +28,8 @@ public sealed class TenantUsageStatusService(
             return null;
 
         bool isTrial = TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Active);
-        IReadOnlyList<TenantWorkspaceListItem> workspaces =
-            await _tenantRepository.ListWorkspacesAsync(tenantId, cancellationToken);
+        IReadOnlyList<TenantWorkspaceListItem> workspaces = TenantWorkspaceListCoalesce.Coalesce(
+            await _tenantRepository.ListWorkspacesAsync(tenantId, cancellationToken));
         int workspacesUsed = workspaces.Count;
         int seatsUsed = ResolveSeatsUsed(tenant);
         BillingSubscriptionSnapshot? subscription =
