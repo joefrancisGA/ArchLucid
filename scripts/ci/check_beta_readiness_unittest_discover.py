@@ -15,6 +15,8 @@ import sys
 from pathlib import Path
 
 _PUSH_REL = ".github/workflows/ui-typecheck-on-push.yml"
+_GUARDS_SCRIPT_REL = "scripts/ci/run_beta_readiness_wiring_guards.sh"
+_UNITTEST_SCRIPT_REL = "scripts/ci/run_beta_readiness_wiring_guard_unit_tests.sh"
 _CHECK_REL = "scripts/ci/check_beta_readiness_unittest_discover.py"
 _TEST_REL = "scripts/ci/tests/test_check_beta_readiness_unittest_discover.py"
 _TESTS_DIR_REL = "scripts/ci/tests"
@@ -129,17 +131,17 @@ def collect_module_errors(patterns: list[str], tests_dir: Path) -> list[str]:
     return errors
 
 
-def collect_wiring_errors(workflow_text: str) -> list[str]:
+def collect_wiring_errors(guards_script_text: str, unittest_script_text: str) -> list[str]:
     errors: list[str] = []
 
-    if _CHECK_REL not in workflow_text:
+    if _CHECK_REL not in guards_script_text:
         errors.append(
-            f"{_PUSH_REL}: CI: beta-readiness wiring guards must run {_CHECK_REL}",
+            f"{_GUARDS_SCRIPT_REL}: CI: beta-readiness wiring guards must run {_CHECK_REL}",
         )
 
-    if f'-p "{Path(_TEST_REL).name}"' not in workflow_text:
+    if f'-p "{Path(_TEST_REL).name}"' not in unittest_script_text:
         errors.append(
-            f"{_PUSH_REL}: Beta-readiness guard unit tests must discover {Path(_TEST_REL).name}",
+            f"{_UNITTEST_SCRIPT_REL}: Beta-readiness guard unit tests must discover {Path(_TEST_REL).name}",
         )
 
     return errors
@@ -147,16 +149,40 @@ def collect_wiring_errors(workflow_text: str) -> list[str]:
 
 def scan(root: Path) -> list[str]:
     push_path = root / _PUSH_REL
+    guards_script_path = root / _GUARDS_SCRIPT_REL
+    unittest_script_path = root / _UNITTEST_SCRIPT_REL
     errors: list[str] = []
 
     if not push_path.is_file():
-        return [f"missing {_PUSH_REL}"]
+        errors.append(f"missing {_PUSH_REL}")
+
+    if not guards_script_path.is_file():
+        errors.append(f"missing {_GUARDS_SCRIPT_REL}")
+
+    if not unittest_script_path.is_file():
+        errors.append(f"missing {_UNITTEST_SCRIPT_REL}")
+
+    if errors:
+        return errors
 
     workflow_text = push_path.read_text(encoding="utf-8")
-    errors.extend(collect_wiring_errors(workflow_text))
+
+    if _GUARDS_SCRIPT_REL not in workflow_text:
+        errors.append(
+            f"{_PUSH_REL}: beta-readiness job must invoke {_GUARDS_SCRIPT_REL}",
+        )
+
+    if _UNITTEST_SCRIPT_REL not in workflow_text:
+        errors.append(
+            f"{_PUSH_REL}: beta-readiness job must invoke {_UNITTEST_SCRIPT_REL}",
+        )
+
+    guards_script_text = guards_script_path.read_text(encoding="utf-8")
+    unittest_script_text = unittest_script_path.read_text(encoding="utf-8")
+    errors.extend(collect_wiring_errors(guards_script_text, unittest_script_text))
     errors.extend(
         collect_module_errors(
-            parse_discover_patterns(workflow_text),
+            parse_discover_patterns(unittest_script_text),
             root / _TESTS_DIR_REL,
         ),
     )
