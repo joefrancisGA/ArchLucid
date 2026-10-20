@@ -135,6 +135,19 @@ async function syncTokenToBff(request: TokenSyncRequest): Promise<void> {
   await syncBffSessionCookieFromTokenResponse(request.tokens);
 
   if (request.generation !== refreshSessionGeneration) {
+    const latestRequest = latestTokenSyncRequest;
+
+    if (
+      latestRequest &&
+      latestRequest.generation === refreshSessionGeneration &&
+      latestRequest.sequence !== request.sequence
+    ) {
+      // A late stale POST must not be the final BFF cookie when a replacement session exists.
+      await syncTokenToBff(latestRequest);
+
+      return;
+    }
+
     // Keep stale sign-in cleanup from deleting a replacement session's cookie.
     if (latestTokenSyncGeneration !== refreshSessionGeneration) {
       await clearBffSessionCookie();

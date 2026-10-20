@@ -329,6 +329,40 @@ describe("persistTokenResponse", () => {
     expect(clearBffSessionCookieMock).toHaveBeenCalledTimes(1);
   });
 
+  it("reapplies replacement token sync when a stale sign-out-era POST completes late", async () => {
+    let releaseStaleSync: (() => void) | undefined;
+    let lastSyncedAccessToken = "";
+
+    vi.spyOn(bffSessionSync, "syncBffSessionCookieFromTokenResponse").mockImplementation(
+      async (tokens) => {
+        if (tokens.access_token === "stale-token") {
+          await new Promise<void>((resolve) => {
+            releaseStaleSync = resolve;
+          });
+        }
+
+        lastSyncedAccessToken = tokens.access_token;
+      },
+    );
+
+    persistTokenResponse({ access_token: "stale-token", expires_in: 3600 });
+    await Promise.resolve();
+    await Promise.resolve();
+    clearOidcSession();
+    persistTokenResponse({ access_token: "replacement-token", expires_in: 3600 });
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(lastSyncedAccessToken).toBe("replacement-token");
+
+    releaseStaleSync?.();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(lastSyncedAccessToken).toBe("replacement-token");
+  });
+
   it("returns null for zero-width-only display-name hints read from sessionStorage", () => {
     sessionStorage.setItem(OIDC_DISPLAY_NAME_KEY, "\u200b\u200b");
 
