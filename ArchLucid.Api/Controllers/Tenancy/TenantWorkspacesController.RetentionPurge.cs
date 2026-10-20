@@ -31,10 +31,13 @@ public sealed partial class TenantWorkspacesController
         IReadOnlyList<TenantWorkspaceListItem> workspaces = TenantWorkspaceInventoryCoalesce.CoalesceWorkspaces(
             await _tenantRepository.ListWorkspacesAsync(scope.TenantId, cancellationToken));
 
-        TenantWorkspaceListItem? currentWorkspace = FindWorkspace(workspaces, scope.WorkspaceId);
-
-        if (currentWorkspace is null)
+        if (FindWorkspace(workspaces, scope.WorkspaceId) is null)
             return this.NotFoundProblem("Workspace was not found for this tenant.", ProblemTypes.ResourceNotFound);
+
+        TenantWorkspaceListItem displayWorkspace = ResolveWorkspaceInventoryRowForScope(
+            workspaces,
+            scope.WorkspaceId,
+            scope.ProjectId)!;
 
         IReadOnlyList<ArchitectureProjectRecord> deleted =
             await _architectureProjectRepository.ListSoftDeletedByTenantAsync(scope.TenantId, cancellationToken)
@@ -54,9 +57,9 @@ public sealed partial class TenantWorkspacesController
 
         TenantWorkspaceRecycleBinApiDto dto = new()
         {
-            WorkspaceId = currentWorkspace.WorkspaceId,
-            Name = currentWorkspace.Name,
-            DisplayName = currentWorkspace.Name,
+            WorkspaceId = displayWorkspace.WorkspaceId,
+            Name = displayWorkspace.Name,
+            DisplayName = displayWorkspace.Name,
             DeletedProjects = workspaceDeleted
                 .Select(
                     p =>

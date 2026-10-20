@@ -28,9 +28,7 @@ public sealed partial class TenantWorkspacesController
         IReadOnlyList<TenantWorkspaceListItem> workspaces = TenantWorkspaceInventoryCoalesce.CoalesceWorkspaces(
             await _tenantRepository.ListWorkspacesAsync(scope.TenantId, cancellationToken));
 
-        TenantWorkspaceListItem? currentWorkspace = FindWorkspace(workspaces, scope.WorkspaceId);
-
-        if (currentWorkspace is null)
+        if (FindWorkspace(workspaces, scope.WorkspaceId) is null)
             return this.NotFoundProblem("Workspace was not found for this tenant.", ProblemTypes.ResourceNotFound);
 
         IReadOnlyList<ArchitectureProjectRecord> projects =
@@ -42,7 +40,9 @@ public sealed partial class TenantWorkspacesController
         int retentionDays =
             ArchitectureProjectRetentionSchedule.ClampRetentionDays(_retentionPurgeOptions.CurrentValue.RetentionDays);
 
-        List<TenantWorkspaceProjectApiDto> workspaceProjects = byWorkspace[currentWorkspace.WorkspaceId]
+        Guid workspaceId = scope.WorkspaceId;
+
+        List<TenantWorkspaceProjectApiDto> workspaceProjects = byWorkspace[workspaceId]
             .OrderBy(static p => p.Name, StringComparer.OrdinalIgnoreCase)
             .Select(
                 p => new TenantWorkspaceProjectApiDto
@@ -55,9 +55,15 @@ public sealed partial class TenantWorkspacesController
 
         Guid defaultProjectId = ResolveScopedWorkspaceDefaultProjectId(
             workspaces,
-            currentWorkspace.WorkspaceId,
+            workspaceId,
             scope.ProjectId,
             workspaceProjects);
+
+        TenantWorkspaceListItem displayWorkspace = ResolveScopedWorkspaceInventoryRow(
+            workspaces,
+            workspaceId,
+            scope.ProjectId,
+            workspaceProjects)!;
 
         TenantWorkspacesListResponse body = new()
         {
@@ -66,9 +72,9 @@ public sealed partial class TenantWorkspacesController
             [
                 new TenantWorkspaceApiDto
                 {
-                    WorkspaceId = currentWorkspace.WorkspaceId,
-                    Name = currentWorkspace.Name,
-                    DisplayName = currentWorkspace.Name,
+                    WorkspaceId = displayWorkspace.WorkspaceId,
+                    Name = displayWorkspace.Name,
+                    DisplayName = displayWorkspace.Name,
                     DefaultProjectId = defaultProjectId,
                     Projects = workspaceProjects
                 }

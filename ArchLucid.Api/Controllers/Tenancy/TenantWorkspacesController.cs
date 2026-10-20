@@ -89,4 +89,54 @@ public sealed partial class TenantWorkspacesController(
 
         return fallbackDefaultProjectId;
     }
+
+    private static TenantWorkspaceListItem? ResolveScopedWorkspaceInventoryRow(
+        IReadOnlyList<TenantWorkspaceListItem> workspaces,
+        Guid workspaceId,
+        Guid scopedProjectId,
+        IReadOnlyList<TenantWorkspaceProjectApiDto> activeProjectsInWorkspace)
+    {
+        HashSet<Guid> activeProjectIds = activeProjectsInWorkspace
+            .Select(static project => project.ProjectId)
+            .ToHashSet();
+
+        TenantWorkspaceListItem? fallbackRow = null;
+
+        foreach (TenantWorkspaceListItem row in workspaces)
+        {
+            if (row.WorkspaceId != workspaceId)
+                continue;
+
+            if (row.DefaultProjectId == Guid.Empty || !activeProjectIds.Contains(row.DefaultProjectId))
+                continue;
+
+            if (row.DefaultProjectId == scopedProjectId)
+                return row;
+
+            if (fallbackRow is null)
+                fallbackRow = row;
+        }
+
+        if (fallbackRow is not null)
+            return fallbackRow;
+
+        return FindWorkspace(workspaces, workspaceId);
+    }
+
+    private static TenantWorkspaceListItem? ResolveWorkspaceInventoryRowForScope(
+        IReadOnlyList<TenantWorkspaceListItem> workspaces,
+        Guid workspaceId,
+        Guid scopedProjectId)
+    {
+        if (scopedProjectId != Guid.Empty)
+        {
+            TenantWorkspaceListItem? scopePinRow = workspaces.FirstOrDefault(
+                w => w.WorkspaceId == workspaceId && w.DefaultProjectId == scopedProjectId);
+
+            if (scopePinRow is not null)
+                return scopePinRow;
+        }
+
+        return FindWorkspace(workspaces, workspaceId);
+    }
 }
