@@ -77,9 +77,19 @@ public sealed partial class TenantWorkspacesController
 
             if (projectIsActiveInCallerWorkspace)
             {
-                return this.BadRequestProblem(
-                    "The workspace default architecture project cannot be deleted. Create another project and re-point the workspace default first.",
-                    ProblemTypes.BusinessRuleViolation);
+                ILookup<Guid, ArchitectureProjectRecord> activeProjectsByWorkspace = activeProjects.ToLookup(
+                    static project => project.WorkspaceId);
+
+                if (ForeignWorkspaceMetadataProtectsFromRetentionPurge(
+                        workspaces,
+                        workspaceId,
+                        projectId,
+                        activeProjectsByWorkspace))
+                {
+                    return this.BadRequestProblem(
+                        "The workspace default architecture project cannot be deleted. Create another project and re-point the workspace default first.",
+                        ProblemTypes.BusinessRuleViolation);
+                }
             }
         }
 

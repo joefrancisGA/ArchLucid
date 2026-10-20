@@ -4716,4 +4716,122 @@ public sealed class TenantWorkspacesControllerTests
         row.ProjectId.Should().Be(pinnedDeletedProjectId);
         row.PurgeAfterUtc.Should().Be(ArchitectureProjectRetentionSchedule.ComputePurgeAfterUtc(deletedUtc, 30));
     }
+
+    [Fact]
+    public async Task DeleteProjectAsync_returns_no_content_when_foreign_workspace_stale_row_pins_caller_project_but_foreign_default_moved()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        Guid foreignActiveDefaultProjectId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+
+        TenantRecord tenant =
+            new()
+            {
+                Id = scope.TenantId,
+                Name = "t",
+                Slug = "t",
+                Tier = TenantTier.Free,
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+                TrialRunsUsed = 0,
+                TrialSeatsUsed = 0,
+                TrialStatus = "None",
+            };
+
+        TenantWorkspaceListItem currentWorkspace =
+            new()
+            {
+                WorkspaceId = scope.WorkspaceId,
+                TenantId = scope.TenantId,
+                Name = "current",
+                DefaultProjectId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+            };
+
+        TenantWorkspaceListItem foreignStaleDefaultRow =
+            new()
+            {
+                WorkspaceId = foreignWorkspaceId,
+                TenantId = scope.TenantId,
+                Name = "foreign-stale",
+                DefaultProjectId = scope.ProjectId,
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+            };
+
+        TenantWorkspaceListItem foreignActiveDefaultRow =
+            new()
+            {
+                WorkspaceId = foreignWorkspaceId,
+                TenantId = scope.TenantId,
+                Name = "foreign-active",
+                DefaultProjectId = foreignActiveDefaultProjectId,
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+            };
+
+        Mock<ITenantRepository> tenantsMock = new();
+        tenantsMock.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+        tenantsMock
+            .Setup(t => t.ListWorkspacesAsync(scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new List<TenantWorkspaceListItem> { currentWorkspace, foreignStaleDefaultRow, foreignActiveDefaultRow }
+                    .AsReadOnly());
+
+        Mock<IArchitectureProjectRepository> projectsMock = new();
+        projectsMock
+            .Setup(r => r.ListActiveByTenantAsync(scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new List<ArchitectureProjectRecord>
+                {
+                    new()
+                    {
+                        Id = scope.ProjectId,
+                        TenantId = scope.TenantId,
+                        WorkspaceId = scope.WorkspaceId,
+                        Name = "caller-active",
+                        CreatedUtc = TimeProvider.System.GetUtcNow(),
+                    },
+                    new()
+                    {
+                        Id = foreignActiveDefaultProjectId,
+                        TenantId = scope.TenantId,
+                        WorkspaceId = foreignWorkspaceId,
+                        Name = "foreign-active-default",
+                        CreatedUtc = TimeProvider.System.GetUtcNow(),
+                    },
+                }.AsReadOnly());
+
+        projectsMock
+            .Setup(r => r.TrySoftDeleteAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ArchitectureProjectSoftDeleteResult.Deleted);
+
+        Mock<IScopeContextProvider> scopeMock = new();
+        scopeMock.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        Mock<IAuditService> auditMock = new();
+        auditMock
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        TenantWorkspacesController sut =
+            new(
+                tenantsMock.Object,
+                projectsMock.Object,
+                scopeMock.Object,
+                auditMock.Object,
+                Mock.Of<IActorContext>(),
+                Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+            };
+
+        IActionResult result =
+            await sut.DeleteProjectAsync(scope.WorkspaceId, scope.ProjectId, CancellationToken.None);
+
+        result.Should().BeOfType<NoContentResult>();
+    }
 }
