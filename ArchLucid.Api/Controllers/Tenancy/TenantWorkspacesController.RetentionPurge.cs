@@ -101,7 +101,8 @@ public sealed partial class TenantWorkspacesController
                         bool protectsDeletedProjectFromPurge =
                             foreignWorkspaceDefaultPinProjectIds.Contains(p.Id)
                             || (currentWorkspaceDefaultPinProjectIds.Contains(p.Id)
-                                && (defaultProjectId == Guid.Empty || p.Id == defaultProjectId));
+                                && (p.Id == defaultProjectId
+                                    || (defaultProjectId == Guid.Empty && workspaceActiveProjects.Count == 0)));
 
                         bool retentionPurgeScheduled = !protectsDeletedProjectFromPurge;
 
