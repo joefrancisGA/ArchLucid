@@ -116,12 +116,8 @@ public sealed class FinalizeReadinessControllerTests
         readiness
             .Setup(service => service.BuildAsync(
                 runIdText,
-                // Moq It.Is builds an expression tree; CS8122 forbids `is` patterns there.
                 It.Is<IReadOnlyList<string>?>(ids =>
-                    ids != null
-                    && ids.Count == 2
-                    && ids.Contains("assumption-a")
-                    && ids.Contains("assumption-b")),
+                    ContainsAcknowledgedAssumptionIds(ids)),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new FinalizeReadinessResult
             {
@@ -171,6 +167,15 @@ public sealed class FinalizeReadinessControllerTests
         IActionResult action = await sut.GetReadinessAsync(runIdText, null, CancellationToken.None);
 
         action.Should().BeOfType<ObjectResult>().Subject.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    // CS8122: Moq It.Is compiles to an expression tree and cannot contain `is not null`.
+    private static bool ContainsAcknowledgedAssumptionIds(IReadOnlyList<string>? ids)
+    {
+        return ids is not null
+            && ids.Count == 2
+            && ids.Contains("assumption-a")
+            && ids.Contains("assumption-b");
     }
 
     private static GovernancePreCommitSimulationController CreateController(

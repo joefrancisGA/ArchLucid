@@ -50,6 +50,15 @@ public sealed class GovernanceStickinessControllerTests
 
     private const string SealedManifestHash = "abc123sealedhash";
 
+    // CS8122: Moq It.Is compiles to an expression tree and cannot contain `is not null`.
+    private static bool IsOpenFindingsAssignedToReviewer(ArchitectureRiskRegisterListOptions? options)
+    {
+        return options is not null
+            && options.OpenFindingsOnly
+            && options.AssignedToUserIds is not null
+            && options.AssignedToUserIds.Contains("reviewer@test");
+    }
+
     private static void SetupNoActiveWaivers(Mock<IRiskExceptionRepository> repository)
     {
         repository
@@ -1189,12 +1198,8 @@ public sealed class GovernanceStickinessControllerTests
                 Scope.WorkspaceId,
                 Scope.ProjectId,
                 It.IsAny<int>(),
-                // Moq It.Is builds an expression tree; CS8122 forbids `is` patterns there.
                 It.Is<ArchitectureRiskRegisterListOptions?>(options =>
-                    options != null
-                    && options.OpenFindingsOnly
-                    && options.AssignedToUserIds != null
-                    && options.AssignedToUserIds.Contains("reviewer@test")),
+                    IsOpenFindingsAssignedToReviewer(options)),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 new ArchitectureRiskRegisterResponse
