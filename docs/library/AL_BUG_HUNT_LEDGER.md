@@ -26,6 +26,10 @@
 - (candidate) `MutatingControllerAuditAnalyzer` — virtual override of mutating action without `LogAsync` when base is allowlisted — locus: `IsShadowedVirtualMutatingAction`; input: derived override shadows unaudited base on different verb attribute.
 - (candidate) `RequireAuthorizationAnalyzer` — `[Authorize]` on nested controller class inside outer controller — locus: `AnalyzeNamedType` per nested type; input: outer authorized inner unauthorized public GET (nested type analyzed independently).
 
+2026-10-20 thorough hunt (hit): `orchestrator-transient-retry` — promoted `CommitRunTransientRetryPolicy.IsExhausted` ignoring negative `elapsed` values so restored retry state one attempt below `MaxAttempts` could extend the commit loop past the retry budget; treat negative elapsed as exhausted; regression `IsExhausted_returns_true_when_elapsed_is_negative_so_restored_retry_state_cannot_extend_budget`; 28 scoped `CommitRunTransientRetryPolicyTests` + Persistence `OrchestratorTransientDbRetryTests` passed (`RunAnalyzers=false`).
+
+- [x] (proven) `CommitRunTransientRetryPolicy.IsExhausted` — negative elapsed postpones exhaustion — **hit 2026-10-20 thorough hunt (lane C):** `elapsed < TimeSpan.Zero` fails closed; regression `IsExhausted_returns_true_when_elapsed_is_negative_so_restored_retry_state_cannot_extend_budget`.
+
 2026-10-20 thorough hunt (hit): `extraction-router` — promoted `DifficultyBasedExtractionRouter.FindBoundedMarkerIndex` / `IsValidMarkerStartBoundary` treating `@` as a token start boundary, so architecture prose with `ops@owner.example.com` plus a separate `unowned` mention false-matched `owner` and emitted an operational-ownership gap; reject `@` as a marker start boundary (parity with end-boundary email handling); regression `Extract_does_not_emit_ownership_gap_for_email_domain_owner_label_with_unowned`; 33 scoped `DifficultyBasedExtractionRouterTests` passed (`RunAnalyzers=false`).
 
 - [x] (proven) `FindBoundedMarkerIndex` / `IsValidMarkerStartBoundary` — email domain label false `owner` token — **hit 2026-10-20 thorough hunt (lane C):** `ops@owner.example.com` with `unowned`; `@` start boundary fix; regression `Extract_does_not_emit_ownership_gap_for_email_domain_owner_label_with_unowned`.
@@ -9536,6 +9540,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: orchestrator-transient-retry
+2026-10-20 thorough hunt (hit): negative `elapsed` retry budget bypass; regression `IsExhausted_returns_true_when_elapsed_is_negative_so_restored_retry_state_cannot_extend_budget`.
+
+- [x] (proven) `CommitRunTransientRetryPolicy.IsExhausted` — negative elapsed — **hit 2026-10-20 thorough hunt (lane C):** fail closed on `elapsed < TimeSpan.Zero`.
+
 
 **Hunts:** 61 · **Bugs found:** 9 · **Consecutive dry hunts:** 14
 
@@ -9658,7 +9666,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `OrchestratorTransientDbRetry.IsRetriableOrchestratorDbFailure` — a top-level aggregate containing a nested aggregate plus a direct transient sibling may flatten to a classification that differs from the wrapper-recursive path — locus: `TryGetParallelPersistInners` and `IsParallelPersistAggregateInnerRetriable` ~65–80; input: parallel persistence failure with both direct and nested aggregate inners.
 - [ ] (candidate) `OrchestratorTransientDbRetry.TryGetParallelPersistInners` — an exception chain that contains an empty aggregate before a populated aggregate may return the populated branch but discard a direct transient exception outside that branch — locus: wrapper-chain scan ~95–108; input: repository wrapper with an empty aggregate, a transient SQL sibling, and a later populated aggregate.
 - [ ] (candidate) `OrchestratorTransientDbRetry` — retry-delay jitter is sampled even when cancellation is already requested, potentially consuming retry-policy work before cancellation is observed — locus: `DelayGenerator` ~40–52; input: cancellation requested during the first transient failure’s retry scheduling.
-- [ ] (candidate) `CommitRunTransientRetryPolicy.IsExhausted` — a negative elapsed duration is accepted as within budget and can postpone exhaustion after a clock or state restoration anomaly — locus: upper-bound-only comparison ~20; input: retry state restored with `elapsed = TimeSpan.FromMilliseconds(-1)` and attempt below `MaxAttempts`.
+- [x] (proven) `CommitRunTransientRetryPolicy.IsExhausted` — negative elapsed postponed exhaustion — **hit 2026-10-20 thorough hunt (lane C):** regression `IsExhausted_returns_true_when_elapsed_is_negative_so_restored_retry_state_cannot_extend_budget`.
 - [ ] (candidate) `CommitRunTransientRetryPolicy.ManifestReconcilePollDelay` — a poll index at `ManifestReconcilePollAttempts` still produces a delay even though that index is outside the intended poll range — locus: public linear delay method ~26–28; input: reconciliation loop or caller invokes the delay helper after the final allowed poll.
 
 - [x] Retry policy retries a non-transient SQL error (constraint / timeout misclassified) Î“Ã‡Ã¶ fixed: `SqlTransientDetector` treated outer `TimeoutException` before inner non-transient `SqlException`

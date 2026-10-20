@@ -17,7 +17,7 @@ public static class CommitRunTransientRetryPolicy
     public static readonly TimeSpan RetryBudget = TimeSpan.FromSeconds(20);
 
     public static bool IsExhausted(int attempt, TimeSpan elapsed) =>
-        attempt >= MaxAttempts || elapsed >= RetryBudget;
+        attempt >= MaxAttempts || elapsed >= RetryBudget || elapsed < TimeSpan.Zero;
 
     public static TimeSpan RetryDelay(int attempt) =>
         TimeSpan.FromMilliseconds(150 * attempt);
