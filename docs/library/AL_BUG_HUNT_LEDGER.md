@@ -1,3 +1,18 @@
+2026-10-20 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready malformed token `expires_in: []`; `resolveExpiresInSeconds` coerced `Number([])` to zero and `persistTokenResponse` wrote immediate session expiry; now treats non-null object `expires_in` as absent (default 3600s); regressions `maps an empty array expires_in to the default lifetime instead of zero`, `treats empty array expires_in as the default lifetime instead of immediate expiry`; cheap-disproof closed four other run #51 `(candidate)` rows; seeded five new `(candidate)` rows; 245 vitest tests in `src/lib/oidc` passed.
+
+- [x] (proven) `resolve-expires-in-seconds.ts` — JSON array `expires_in` on token response — **hit 2026-10-20 seed hunt #52:** `Number([]) === 0` bypassed null/boolean guards; regressions `maps an empty array expires_in to the default lifetime instead of zero`, `treats empty array expires_in as the default lifetime instead of immediate expiry`.
+- [x] (valid-no-repro) `parseBffExpiresAtMs` — JSON `null` / boolean `expires_at_ms` — **cheap-disproof 2026-10-20 seed hunt #52:** #51 primitive-type guard returns `NaN`; regression `soft-fails refresh when expires_at_ms is a JSON boolean`.
+- [x] (valid-no-repro) `token-client.ts` `postTokenForm` — non-JSON `200` body — **cheap-disproof 2026-10-20 seed hunt #52:** `JSON.parse` failure throws `Token response was not valid JSON`.
+- [x] (invalid) `discovery.ts` `parseDiscoveryDocument` — `end_session_endpoint` userinfo — **cheap-disproof 2026-10-20 seed hunt #52:** regression `omits end_session_endpoint that embeds userinfo credentials`.
+- [x] (invalid) `session.ts` `storePostSignInReturnUrl` — hash-only return path — **cheap-disproof 2026-10-20 seed hunt #52:** `isSafeReturnPath` requires leading `/`.
+- [x] (valid-no-repro) `build-authorize-url.ts` — pre-existing query on authorization endpoint — **cheap-disproof 2026-10-20 seed hunt #52:** `URLSearchParams.set` replaces duplicate keys on the authorize URL.
+
+- (candidate) `resolve-expires-in-seconds.ts` — single-element array `expires_in: [3600]` — locus: object guard maps all arrays to default; input: malformed token JSON with one-element array (now defaults to 3600).
+- (candidate) `parseOidcTokenResponse` — spreads malformed `expires_in` types into `OidcTokenResponse` — locus: object spread before normalization; input: token JSON with object-typed `expires_in`.
+- (candidate) `bff-session-sync.ts` `refreshBffSessionCookie` — omits `expires_in` on refresh response — locus: only reads `expires_at_ms`; input: BFF refresh returns `{ ok: true }` without epoch hint.
+- (candidate) `session.ts` `consumePkceState` — zero-width padding in callback `state` query — locus: `normalizePkceCallbackQueryValue`; input: IdP returns state with ZWSP suffix.
+- (candidate) `token-client.ts` `trimTokenFormParams` — omits empty string values — locus: `URLSearchParams` still posts empty keys; input: `code_verifier` whitespace-only after normalize.
+
 2026-10-20 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready BFF refresh `expires_at_ms` JSON array scalar; `Number([epoch])` coerced single-element arrays into accepted refresh hints (#48–#49 fixed strings and numbers only); `parseBffExpiresAtMs` now accepts only `string` or `number`; regression `soft-fails refresh when expires_at_ms is a JSON array`; cheap-disproof closed four other run #50 `(candidate)` rows; seeded five new `(candidate)` rows; 243 vitest tests in `src/lib/oidc` passed.
 
 - [x] (proven) `bff-session-sync.ts` `parseBffExpiresAtMs` — JSON array `expires_at_ms` on BFF refresh — **hit 2026-10-20 seed hunt #51:** non-primitive `Number(raw)` accepted one-element arrays; regression `soft-fails refresh when expires_at_ms is a JSON array`.
