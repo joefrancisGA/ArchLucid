@@ -300,6 +300,28 @@ describe("refreshAccessToken", () => {
     ).rejects.toThrow(/^invalid_grant: User\+denied$/);
   });
 
+  it("collapses interior zero-width characters in JSON error_description on token responses", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () =>
+        JSON.stringify({
+          error: "invalid_grant",
+          error_description: "Policy\u200bdenied",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/^invalid_grant: Policy denied$/);
+  });
+
   it("decodes percent-encoded OAuth error_description fields from JSON token responses", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,

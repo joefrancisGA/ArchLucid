@@ -20,6 +20,14 @@ describe("readOAuthJsonErrorDescription", () => {
   it("still decodes valid percent-escapes when IdPs send them in JSON", () => {
     expect(readOAuthJsonErrorDescription("User%20denied")).toBe("User denied");
   });
+
+  it("collapses interior zero-width characters to spaces instead of gluing words", () => {
+    expect(readOAuthJsonErrorDescription("Policy\u200bdenied")).toBe("Policy denied");
+  });
+
+  it("decodes percent-encoded newlines in JSON error_description", () => {
+    expect(readOAuthJsonErrorDescription("line1%0Aline2")).toBe("line1 line2");
+  });
 });
 
 describe("decodeOAuthErrorDescription", () => {

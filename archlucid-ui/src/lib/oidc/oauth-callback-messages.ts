@@ -140,18 +140,18 @@ export function decodeOAuthErrorDescription(encoded: string | null | undefined):
  * Does not treat `+` as space (unlike authorize-callback query decoding).
  */
 export function readOAuthJsonErrorDescription(value: string): string {
-  const trimmed = stripOAuthInvisibleFormatChars(value.trim()).trim();
+  const collapsed = collapseOAuthErrorDescriptionLineBreaks(value.trim());
 
-  if (trimmed.length === 0) {
+  if (collapsed.length === 0) {
     return "";
   }
 
   let decoded: string;
 
   try {
-    decoded = collapseOAuthErrorDescriptionLineBreaks(decodeURIComponent(trimmed));
+    decoded = collapseOAuthErrorDescriptionLineBreaks(decodeURIComponent(collapsed));
   } catch {
-    decoded = collapseOAuthErrorDescriptionLineBreaks(trimmed);
+    decoded = collapsed;
   }
 
   return isReadableOAuthErrorDetail(decoded) ? decoded : "";
