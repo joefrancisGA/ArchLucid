@@ -47,14 +47,21 @@ public sealed partial class PolicyPacksController
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
+        RunDetailDto? detail =
+            await _authorityQueryService.GetRunDetailForManifestCompareAsync(
+                scope,
+                parsedRunId,
+                cancellationToken);
+
+        if (detail is null)
+            return null;
+
         try
         {
-            await GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync(
-                parsedRunId,
-                scope,
-                _authorityQueryService,
-                _manifestHashService,
-                cancellationToken);
+            PolicyPackSimulateSealedManifestGuard.EnsureRunSealedManifestHashOrThrow(
+                detail.GoldenManifest,
+                parsedRunId.ToString("D"),
+                _manifestHashService);
         }
         catch (ConflictException ex)
         {

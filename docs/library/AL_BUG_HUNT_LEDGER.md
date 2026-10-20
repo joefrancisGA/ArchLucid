@@ -6900,6 +6900,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ### Hypotheses
 
+- [x] (proven) PolicyPacksController.SealedManifestGuard.EnsurePolicyPackSimulateRunSealedManifestAllowedAsync — a reachable POST /v1/policy-packs/simulate body with a run id that does not exist in the current scope returned HTTP 409 because GovernanceDispositionSealedManifestGuard treated null manifest-compare detail like a missing golden manifest before the facade could return HTTP 404 — **hit 2026-10-20 seed hunt:** skip the guard when manifest-compare returns no run; enforce PolicyPackSimulateSealedManifestGuard only for committed runs; regressions Simulate_returns_not_found_for_missing_run_before_sealed_manifest_check and Simulate_returns_not_found_when_tenant_missing.
+
 - [x] (proven) `AzureInventoryVnetCustomDnsIndex.AppendDnsServersFromJsonArray` — numeric JSON elements in `dnsServers` arrays skipped — **hit 2026-10-16 seed hunt:** octet-array join and uint32 packed address reads; regression `VnetUsesCustomDns_true_when_dhcpOptions_json_array_lists_numeric_octets`.
 - [x] (proven) `AzureInventoryVnetCustomDnsIndex.AppendDnsServersFromJsonArray` — back-to-back numeric octet sequences after the first four bytes ignored — **hit 2026-10-16 seed hunt:** join every four-byte group; regressions `VnetUsesCustomDns_true_when_dhcpOptions_json_array_lists_two_numeric_octet_sequences` and `VnetUsesCustomDns_false_when_dhcpOptions_json_array_lists_numeric_octets_for_azure_default_only`.
 - [x] (proven) `AzureInventoryVnetCustomDnsIndex.TryFormatPackedUint32DnsAddressString` — scientific-notation packed uint32 strings in indexed `dhcpOptions.dnsServers.{n}` values rejected because dotted literals were skipped — **hit 2026-10-16 seed hunt:** allow scientific notation before packed decode; regression `VnetUsesCustomDns_false_when_indexed_flat_dns_server_is_scientific_notation_packed_uint32_for_azure_default`.
@@ -38135,15 +38137,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 40
-- **bugs-found:** 20
+- **hunts:** 41
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-10
-- **last-bug:** 2026-10-10 — padded semver route value was validated but not normalized before version lookup
+- **last-hunt:** 2026-10-20
+- **last-bug:** 2026-10-20 — simulate sealed-manifest guard blocked missing-run and scope-not-found with HTTP 409
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 Split from retired `api-governance-tenancy-controllers` (ABQ-08).
+
+2026-10-20 seed hunt (seed->hit): simulate sealed-manifest guard no longer maps unknown runs to HTTP 409 before facade scope/run-not-found handling; 82 scoped tests passed.
 
 2026-10-10 seed hunt (seed-only): reread policy-pack assignment mutations, catalog CRUD, effective/page-bundle/version reads, simulation and validation routes, facade outcome mapping, and conditional ETags; no fresh reachability-backed wrong-outcome hypothesis survived the hunt-ready bar. The focused `PolicyPacksController` filter passed 80/80. No production change.
 
