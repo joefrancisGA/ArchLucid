@@ -203,6 +203,30 @@ public sealed class DifficultyBasedExtractionRouterTests
     }
 
     [Fact]
+    public void Extract_does_not_emit_ownership_gap_for_parenthetical_owner_label_with_unowned()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "The runbook lists (owner security) as the paging contact. Legacy racks remain unowned.",
+            "src-parenthetical-owner");
+
+        elements.Should().NotContain(element =>
+            element.Kind == ArchitectureElementKind.OperationalOwnership
+            && element.Name.Contains("Unowned component", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Extract_does_not_emit_ownership_gap_for_backtick_owner_label_with_unowned()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "The schema field `owner` documents RACI. Legacy racks remain unowned.",
+            "src-backtick-owner");
+
+        elements.Should().NotContain(element =>
+            element.Kind == ArchitectureElementKind.OperationalOwnership
+            && element.Name.Contains("Unowned component", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void Extract_does_not_emit_transition_for_as_isolated_substring_with_target_state()
     {
         IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
