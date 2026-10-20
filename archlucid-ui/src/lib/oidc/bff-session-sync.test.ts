@@ -197,6 +197,20 @@ describe("resolveRpLogoutUrlFromBffSession", () => {
     vi.unstubAllGlobals();
   });
 
+  it("returns null when the BFF logout-url payload is not a string", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({ url: 123 }),
+      })),
+    );
+
+    const url = await resolveRpLogoutUrlFromBffSession();
+
+    expect(url).toBeNull();
+  });
+
   it("returns null when the BFF logout URL embeds userinfo credentials", async () => {
     vi.stubGlobal(
       "fetch",
@@ -223,6 +237,23 @@ describe("resolveRpLogoutUrlFromBffSession", () => {
     const url = await resolveRpLogoutUrlFromBffSession();
 
     expect(url).toBe("https://idp.example/logout");
+  });
+
+  it("returns a B2C logout URL when the BFF response retains the policy query parameter", async () => {
+    const b2cLogout =
+      "https://contoso.b2clogin.com/contoso.onmicrosoft.com/B2C_1_signin/oauth2/v2.0/logout?p=B2C_1_signin&id_token_hint=eyJhbGciOiJub25lIn0.&post_logout_redirect_uri=https%3A%2F%2Fapp.example%2F";
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({ url: b2cLogout }),
+      })),
+    );
+
+    const url = await resolveRpLogoutUrlFromBffSession();
+
+    expect(url).toBe(b2cLogout);
   });
 
   it("strips zero-width characters from BFF logout URLs before safety checks", async () => {
@@ -459,6 +490,20 @@ describe("refreshBffSessionCookie (LK-06 P2)", () => {
       vi.fn(async () => ({
         ok: true,
         json: async () => ({ expires_at_ms: true }),
+      })),
+    );
+
+    const result = await refreshBffSessionCookie();
+
+    expect(result).toEqual({ ok: false, shouldClearSession: false });
+  });
+
+  it("soft-fails refresh when expires_at_ms is JSON null", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({ expires_at_ms: null }),
       })),
     );
 

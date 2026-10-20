@@ -203,7 +203,7 @@ export async function resolveRpLogoutUrlFromBffSession(): Promise<string | null>
 
     const body = (await response.json()) as { url?: string | null };
     const url =
-      body.url === null || body.url === undefined
+      typeof body.url !== "string"
         ? ""
         : normalizeOidcConfigurationString(body.url);
 

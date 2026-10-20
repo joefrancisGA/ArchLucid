@@ -107,6 +107,37 @@ describe("refreshAccessToken", () => {
     ).rejects.toThrow(/missing access_token/i);
   });
 
+  it("posts authorization code grants to token endpoints that include required query parameters (B2C policy)", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () => JSON.stringify({ access_token: "access-1", token_type: "Bearer" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const tokenEndpoint =
+      "https://contoso.b2clogin.com/contoso.onmicrosoft.com/B2C_1_signin/oauth2/v2.0/token?p=B2C_1_signin";
+
+    await exchangeAuthorizationCode({
+      tokenEndpoint,
+      clientId: "client",
+      code: "auth-code",
+      redirectUri: "https://app.example/callback",
+      codeVerifier: "verifier",
+    });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      tokenEndpoint,
+      expect.objectContaining({ method: "POST" }),
+    );
+
+    const requestInit = fetchMock.mock.calls[0]?.[1] as { body?: URLSearchParams };
+    const posted = new URLSearchParams(requestInit.body);
+
+    expect(posted.get("grant_type")).toBe("authorization_code");
+    expect(posted.get("code")).toBe("auth-code");
+  });
+
   it("posts to token endpoints that include required query parameters (B2C policy)", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,

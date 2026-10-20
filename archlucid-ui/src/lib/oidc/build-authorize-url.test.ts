@@ -57,6 +57,27 @@ describe("buildAuthorizeUrl", () => {
     expect(url.searchParams.get("code_challenge_method")).toBe("S256");
   });
 
+  it("overwrites discovery response_mode with query because the SPA callback expects query parameters", () => {
+    const docWithFragmentMode: OidcDiscoveryDocument = {
+      ...discoveryDoc,
+      authorization_endpoint: "https://login.example.com/oauth2/v2.0/authorize?response_mode=fragment",
+    };
+
+    const url = new URL(
+      buildAuthorizeUrl({
+        doc: docWithFragmentMode,
+        clientId: "client-1",
+        redirectUri: "https://app.example/callback",
+        scope: "openid profile",
+        state: "state-1",
+        codeChallenge: "challenge-1",
+        nonce: "nonce-1",
+      }),
+    );
+
+    expect(url.searchParams.get("response_mode")).toBe("query");
+  });
+
   it("overwrites duplicate query keys on the discovery authorization endpoint with ArchLucid values", () => {
     const docWithStaleClientId: OidcDiscoveryDocument = {
       ...discoveryDoc,
