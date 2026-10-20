@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 const repoRoot = join(process.cwd(), "..");
 const indexRelativePath = ".cursor/prompts/inventory-diagram-excellence-00-index.md";
 
-const closeoutWaveCompleteHeading = "### Excellence index closeout wave (IDX-14a–14n) — complete";
+const closeoutWaveCompleteHeading = "### Excellence index closeout wave (IDX-14a–14o) — complete";
 
 const crossModeCompleteHeading = "### Cross-mode excellence wave (IDX-08b–13z) — complete";
 
@@ -21,6 +21,7 @@ const requiredIndexFilterTokens: readonly string[] = [
   "inventory-diagram-excellence-14l-closeout-capstone-14k-heading",
   "inventory-diagram-excellence-14m-closeout-capstone-14l-heading",
   "inventory-diagram-excellence-14n-closeout-capstone-14m-heading",
+  "inventory-diagram-excellence-14o-closeout-capstone-14n-heading",
 ];
 
 describe("InventoryDiagramExcellence closeout wave closeout", () => {
