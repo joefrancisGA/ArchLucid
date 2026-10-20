@@ -5732,4 +5732,4 @@
 {"at":"2026-10-20T21:47:51.7582932Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-20T21:54:40.4879338Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-20T21:58:03.8101675Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-20T21:59:52.9888987Z","zoneId":"security-analyzers","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-20T22:02:38.5906937Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
