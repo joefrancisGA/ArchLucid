@@ -353,11 +353,14 @@ describe("persistTokenResponse", () => {
       .spyOn(bffSessionSync, "clearBffSessionCookie")
       .mockResolvedValue();
 
-    persistTokenResponse({ access_token: "stale-token", expires_in: 3600 });
+    const staleAccessToken = accessTokenWithSubjectClaim("stale-token");
+    const replacementAccessToken = accessTokenWithSubjectClaim("replacement-token");
+
+    persistTokenResponse({ access_token: staleAccessToken, expires_in: 3600 });
     await Promise.resolve();
     await Promise.resolve();
     clearOidcSession();
-    persistTokenResponse({ access_token: "replacement-token", expires_in: 3600 });
+    persistTokenResponse({ access_token: replacementAccessToken, expires_in: 3600 });
 
     await Promise.resolve();
     releaseStaleSync?.();
@@ -370,10 +373,12 @@ describe("persistTokenResponse", () => {
   it("reapplies replacement token sync when a stale sign-out-era POST completes late", async () => {
     let releaseStaleSync: (() => void) | undefined;
     let lastSyncedAccessToken = "";
+    const staleAccessToken = accessTokenWithSubjectClaim("stale-token");
+    const replacementAccessToken = accessTokenWithSubjectClaim("replacement-token");
 
     vi.spyOn(bffSessionSync, "syncBffSessionCookieFromTokenResponse").mockImplementation(
       async (tokens) => {
-        if (tokens.access_token === "stale-token") {
+        if (tokens.access_token === staleAccessToken) {
           await new Promise<void>((resolve) => {
             releaseStaleSync = resolve;
           });
@@ -383,22 +388,22 @@ describe("persistTokenResponse", () => {
       },
     );
 
-    persistTokenResponse({ access_token: "stale-token", expires_in: 3600 });
+    persistTokenResponse({ access_token: staleAccessToken, expires_in: 3600 });
     await Promise.resolve();
     await Promise.resolve();
     clearOidcSession();
-    persistTokenResponse({ access_token: "replacement-token", expires_in: 3600 });
+    persistTokenResponse({ access_token: replacementAccessToken, expires_in: 3600 });
 
     await Promise.resolve();
     await Promise.resolve();
 
-    expect(lastSyncedAccessToken).toBe("replacement-token");
+    expect(lastSyncedAccessToken).toBe(replacementAccessToken);
 
     releaseStaleSync?.();
     await Promise.resolve();
     await Promise.resolve();
 
-    expect(lastSyncedAccessToken).toBe("replacement-token");
+    expect(lastSyncedAccessToken).toBe(replacementAccessToken);
   });
 
   it("returns null for zero-width-only display-name hints read from sessionStorage", () => {
@@ -490,6 +495,19 @@ describe("persistTokenResponse", () => {
     expect(sessionStorage.getItem(OIDC_DISPLAY_NAME_KEY)).toBeNull();
   });
 
+  it("does not sync identity-less opaque tokens to the BFF cookie", async () => {
+    const syncMock = vi.spyOn(bffSessionSync, "syncBffSessionCookieFromTokenResponse").mockResolvedValue();
+    const clearMock = vi.spyOn(bffSessionSync, "clearBffSessionCookie").mockResolvedValue();
+
+    persistTokenResponse({ access_token: "opaque-access-token", expires_in: 3600 });
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(syncMock).not.toHaveBeenCalled();
+    expect(clearMock).toHaveBeenCalledTimes(1);
+  });
+
   it("persists expiry hints for opaque access when id_token supplies subject", () => {
     const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
     const idPayload = Buffer.from(JSON.stringify({ sub: "opaque-pair-user" })).toString("base64url");
@@ -542,10 +560,12 @@ describe("persistTokenResponse", () => {
   it("keeps an older token sync from overwriting a newer same-session sync", async () => {
     let releaseOlderSync: (() => void) | undefined;
     let bffAccessToken = "";
+    const olderAccessToken = accessTokenWithSubjectClaim("older-token");
+    const newerAccessToken = accessTokenWithSubjectClaim("newer-token");
     const syncMock = vi
       .spyOn(bffSessionSync, "syncBffSessionCookieFromTokenResponse")
       .mockImplementation(async (tokens) => {
-        if (tokens.access_token === "older-token") {
+        if (tokens.access_token === olderAccessToken) {
           await new Promise<void>((resolve) => {
             releaseOlderSync = resolve;
           });
@@ -554,70 +574,75 @@ describe("persistTokenResponse", () => {
         bffAccessToken = tokens.access_token;
       });
 
-    persistTokenResponse({ access_token: "older-token", expires_in: 3600 });
+    persistTokenResponse({ access_token: olderAccessToken, expires_in: 3600 });
     await Promise.resolve();
     await Promise.resolve();
     await vi.waitUntil(() => syncMock.mock.calls.length === 1);
 
-    persistTokenResponse({ access_token: "newer-token", expires_in: 3600 });
+    persistTokenResponse({ access_token: newerAccessToken, expires_in: 3600 });
     releaseOlderSync?.();
     await vi.waitUntil(() => syncMock.mock.calls.length === 2);
-    await vi.waitUntil(() => bffAccessToken === "newer-token");
+    await vi.waitUntil(() => bffAccessToken === newerAccessToken);
 
-    expect(bffAccessToken).toBe("newer-token");
+    expect(bffAccessToken).toBe(newerAccessToken);
   });
 
   it("keeps BFF sync POST count bounded during rapid overlapping token persists", async () => {
     const releaseByToken = new Map<string, () => void>();
+    const slowAccessToken1 = accessTokenWithSubjectClaim("slow-1");
+    const slowAccessToken2 = accessTokenWithSubjectClaim("slow-2");
+    const finalAccessToken = accessTokenWithSubjectClaim("final-token");
     const syncMock = vi
       .spyOn(bffSessionSync, "syncBffSessionCookieFromTokenResponse")
       .mockImplementation(async (tokens) => {
         const token = tokens.access_token;
 
-        if (token.startsWith("slow-")) {
+        if (token === slowAccessToken1 || token === slowAccessToken2) {
           await new Promise<void>((resolve) => {
             releaseByToken.set(token, resolve);
           });
         }
       });
 
-    persistTokenResponse({ access_token: "slow-1", expires_in: 3600 });
-    persistTokenResponse({ access_token: "slow-2", expires_in: 3600 });
-    persistTokenResponse({ access_token: "final-token", expires_in: 3600 });
+    persistTokenResponse({ access_token: slowAccessToken1, expires_in: 3600 });
+    persistTokenResponse({ access_token: slowAccessToken2, expires_in: 3600 });
+    persistTokenResponse({ access_token: finalAccessToken, expires_in: 3600 });
 
     await Promise.resolve();
     await Promise.resolve();
 
-    releaseByToken.get("slow-1")?.();
+    releaseByToken.get(slowAccessToken1)?.();
     await Promise.resolve();
-    releaseByToken.get("slow-2")?.();
+    releaseByToken.get(slowAccessToken2)?.();
     await vi.waitUntil(() => syncMock.mock.calls.length >= 5);
 
     expect(syncMock.mock.calls.length).toBeLessThanOrEqual(7);
-    expect(syncMock.mock.calls.at(-1)?.[0].access_token).toBe("final-token");
+    expect(syncMock.mock.calls.at(-1)?.[0].access_token).toBe(finalAccessToken);
   });
 
   it("does not block a newer sync behind a hung older request", async () => {
     let bffAccessToken = "";
+    const hungAccessToken = accessTokenWithSubjectClaim("hung-token");
+    const newerAccessToken = accessTokenWithSubjectClaim("newer-token");
     const syncMock = vi
       .spyOn(bffSessionSync, "syncBffSessionCookieFromTokenResponse")
       .mockImplementation(async (tokens) => {
-        if (tokens.access_token === "hung-token") {
+        if (tokens.access_token === hungAccessToken) {
           await new Promise<void>(() => {});
         }
 
         bffAccessToken = tokens.access_token;
       });
 
-    persistTokenResponse({ access_token: "hung-token", expires_in: 3600 });
+    persistTokenResponse({ access_token: hungAccessToken, expires_in: 3600 });
     await Promise.resolve();
     await Promise.resolve();
     await vi.waitUntil(() => syncMock.mock.calls.length === 1);
 
-    persistTokenResponse({ access_token: "newer-token", expires_in: 3600 });
+    persistTokenResponse({ access_token: newerAccessToken, expires_in: 3600 });
     await vi.waitUntil(() => syncMock.mock.calls.length === 2);
 
-    expect(bffAccessToken).toBe("newer-token");
+    expect(bffAccessToken).toBe(newerAccessToken);
   });
 });
 

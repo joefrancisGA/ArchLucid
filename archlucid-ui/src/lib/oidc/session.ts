@@ -203,6 +203,13 @@ export function persistTokenResponse(tokens: OidcTokenResponse): void {
   const expiresAtMs = Date.now() + expiresInSec * 1000;
 
   persistNonSensitiveSessionHints(normalizedTokens, expiresAtMs);
+
+  if (!hasOidcSessionIdentityHints()) {
+    void clearBffSessionCookie();
+
+    return;
+  }
+
   const generationAtPersist = refreshSessionGeneration;
   latestTokenSyncGeneration = generationAtPersist;
   const request: TokenSyncRequest = {
