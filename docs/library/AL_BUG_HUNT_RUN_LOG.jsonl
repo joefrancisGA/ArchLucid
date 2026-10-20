@@ -5626,3 +5626,4 @@
 {"at":"2026-10-20T07:27:00Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-20T07:42:00Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-20T14:03:57.7807986Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.SealedManifestGuard.cs,ArchLucid.Application/Governance/GovernanceDispositionSealedManifestGuard.cs"]}
+{"at":"2026-10-20T14:12:22.5493049Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Governance/GovernancePreviewController.cs"]}
