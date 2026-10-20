@@ -94,11 +94,44 @@ public sealed partial class TenantWorkspacesController(
         IReadOnlyList<TenantWorkspaceListItem> workspaces,
         Guid workspaceId,
         Guid scopedProjectId,
-        IReadOnlyList<TenantWorkspaceProjectApiDto> activeProjectsInWorkspace)
+        IReadOnlyList<TenantWorkspaceProjectApiDto> activeProjectsInWorkspace,
+        Guid resolvedDefaultProjectId)
     {
         HashSet<Guid> activeProjectIds = activeProjectsInWorkspace
             .Select(static project => project.ProjectId)
             .ToHashSet();
+
+        if (resolvedDefaultProjectId != Guid.Empty)
+        {
+            TenantWorkspaceListItem? firstDefaultRow = null;
+            TenantWorkspaceListItem? scopedDefaultRow = null;
+
+            foreach (TenantWorkspaceListItem row in workspaces)
+            {
+                if (row.WorkspaceId != workspaceId || row.DefaultProjectId != resolvedDefaultProjectId)
+                    continue;
+
+                firstDefaultRow ??= row;
+
+                if (row.DefaultProjectId == scopedProjectId)
+                    scopedDefaultRow = row;
+            }
+
+            if (scopedDefaultRow is not null)
+                return scopedDefaultRow;
+
+            if (firstDefaultRow is not null)
+                return firstDefaultRow;
+        }
+
+        if (scopedProjectId != Guid.Empty && !activeProjectIds.Contains(scopedProjectId))
+        {
+            foreach (TenantWorkspaceListItem row in workspaces)
+            {
+                if (row.WorkspaceId == workspaceId && row.DefaultProjectId == scopedProjectId)
+                    return row;
+            }
+        }
 
         TenantWorkspaceListItem? fallbackRow = null;
 
@@ -107,11 +140,11 @@ public sealed partial class TenantWorkspacesController(
             if (row.WorkspaceId != workspaceId)
                 continue;
 
-            if (row.DefaultProjectId == scopedProjectId && scopedProjectId != Guid.Empty)
-                return row;
-
             if (row.DefaultProjectId == Guid.Empty || !activeProjectIds.Contains(row.DefaultProjectId))
                 continue;
+
+            if (row.DefaultProjectId == scopedProjectId)
+                return row;
 
             if (fallbackRow is null)
                 fallbackRow = row;

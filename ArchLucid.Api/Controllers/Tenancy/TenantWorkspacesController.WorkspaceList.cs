@@ -63,7 +63,8 @@ public sealed partial class TenantWorkspacesController
             workspaces,
             workspaceId,
             scope.ProjectId,
-            workspaceProjects)!;
+            workspaceProjects,
+            defaultProjectId)!;
 
         TenantWorkspacesListResponse body = new()
         {

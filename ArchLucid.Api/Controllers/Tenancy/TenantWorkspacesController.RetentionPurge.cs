@@ -50,11 +50,18 @@ public sealed partial class TenantWorkspacesController
                 })
             .ToList();
 
+        Guid defaultProjectId = ResolveScopedWorkspaceDefaultProjectId(
+            workspaces,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            workspaceActiveProjects);
+
         TenantWorkspaceListItem displayWorkspace = ResolveScopedWorkspaceInventoryRow(
             workspaces,
             scope.WorkspaceId,
             scope.ProjectId,
-            workspaceActiveProjects)!;
+            workspaceActiveProjects,
+            defaultProjectId)!;
 
         IReadOnlyList<ArchitectureProjectRecord> deleted =
             await _architectureProjectRepository.ListSoftDeletedByTenantAsync(scope.TenantId, cancellationToken)
