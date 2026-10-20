@@ -1,10 +1,16 @@
-2026-10-20 seed hunt (seed→hit): `security-analyzers` — promoted `MutatingControllerAuditAnalyzer.MethodIsCandidateApiAction` gap for explicit interface implementations (`MethodKind.ExplicitInterfaceImplementation` is private metadata) with `[HttpPost]` on `IMutatingApi.Post` only; unaudited explicit `IMutatingApi.Post` skipped AL0003; align candidate API-action gate with `RequireAuthorizationAnalyzer` explicit-interface handling; regression `AL0003_reports_when_HttpPost_is_declared_on_explicit_interface_implementation`; seeded five `(candidate)` rows; 94 scoped analyzer tests passed (`RunAnalyzers=false`).
+2026-10-20 seed hunt (seed-only): `security-analyzers` — re-read analyzers after explicit-interface AL0001/AL0003 fixes (#41–#42); promoted run #42 `(candidate)` rows to hunt-ready and cheap-disproof closed all five (mixed authorized public + unauthorized explicit AL0001 still reports; explicit-interface local-function `LogAsync`; referenced-base explicit `[HttpPost]`; `scoped ref` ARCH001; intermediate `[Authorize]` base before `ControllerBase`); regression locks only; seeded five new `(candidate)` rows; 99 scoped analyzer tests passed (`RunAnalyzers=false`).
 
-- (candidate) `RequireAuthorizationAnalyzer.AnalyzeNamedType` — unauthorized explicit interface action without interface auth may still skip method-level AL0001 when controller also declares a public `[Authorize]` action — locus: declared-action scan vs inherited scan gate; input: mixed explicit/private and public authorized actions on same controller.
-- (candidate) `MutatingControllerAuditAnalyzer.AnalyzeSemanticModel` — explicit interface mutating action with `LogAsync` only in a local function inside the explicit impl body — locus: `SemanticBodiesInvokeAuditLogAsync` descendant walk; input: mirror existing local-function regression on public actions.
-- (candidate) `MutatingControllerAuditAnalyzer.AnalyzeReferencedBaseActions` — referenced assembly base exposes explicit interface `[HttpPost]` with `DeclaringSyntaxReferences.Length == 0` — locus: referenced-base filter vs explicit impl metadata; input: compiled reference repro after explicit-interface fix.
-- (candidate) `TenantIdentityBoundaryAnalyzer.AnalyzeIdentifierName` — `scoped ref` parameter typed `ClaimsPrincipal` in inner layer — locus: parameter identifier binding with `scoped ref` modifier; input: extend `Reports_ref_ClaimsPrincipal_parameter_in_inner_layer_assembly` with `scoped ref`.
-- (candidate) `RequireAuthorizationAnalyzer.HasTypeLevelAuthorizeOrAllowAnonymous` — `[Authorize]` on a controller base class outside the `ControllerBase` inheritance chain stop — locus: type-level auth walk stops at `SymbolIsControllerBase`; input: intermediate non-controller base between `ControllerBase` and API type.
+- [x] (valid-no-repro) `RequireAuthorizationAnalyzer.AnalyzeNamedType` — unauthorized explicit interface alongside authorized public action — **cheap-disproof 2026-10-20 seed hunt #43:** declared-action loop scans explicit implementations independently; regression `Reports_unauthorized_explicit_interface_action_when_controller_has_authorized_public_action`.
+- [x] (valid-no-repro) `MutatingControllerAuditAnalyzer.AnalyzeSemanticModel` — `LogAsync` in local function inside explicit interface body — **cheap-disproof 2026-10-20 seed hunt #43:** descendant invocation walk unchanged; regression `AL0003_is_absent_when_LogAsync_is_in_local_function_inside_explicit_interface_implementation`.
+- [x] (valid-no-repro) `MutatingControllerAuditAnalyzer.AnalyzeReferencedBaseActions` — referenced explicit interface `[HttpPost]` — **cheap-disproof 2026-10-20 seed hunt #43:** metadata-only explicit impl passes `MethodIsCandidateApiAction` after #42; regression `AL0003_reports_mutating_explicit_interface_action_in_referenced_controller_base_assembly`.
+- [x] (valid-no-repro) `TenantIdentityBoundaryAnalyzer.AnalyzeIdentifierName` — `scoped ref` banned parameters — **cheap-disproof 2026-10-20 seed hunt #43:** `IParameterSymbol` binding; regression `Reports_scoped_ref_ClaimsPrincipal_parameter_in_inner_layer_assembly`.
+- [x] (valid-no-repro) `RequireAuthorizationAnalyzer.HasTypeLevelAuthorizeOrAllowAnonymous` — `[Authorize]` on intermediate controller base — **cheap-disproof 2026-10-20 seed hunt #43:** type walk stops at `ControllerBase` and includes bases above it; regression `Does_not_report_when_intermediate_controller_base_has_Authorize`.
+
+- (candidate) `RequireAuthorizationAnalyzer` inherited-action scan — `MethodKind.ExplicitInterfaceImplementation` on a base class in the current compilation may be skipped because inherited loop filters `MethodKind.Ordinary` only — locus: `AnalyzeNamedType` base-type foreach; input: abstract base with explicit interface GET and empty derived controller without type-level auth.
+- (candidate) `MutatingControllerAuditAnalyzer.MutatingAuditExcludeApplies` — `[MutatingAuditExcluded]` on explicit interface implementation method may not suppress AL0003 when verb is inherited from interface — locus: exclusion walk vs `MethodKind.ExplicitInterfaceImplementation`; input: mirror `Mutating_audit_excluded_on_interface_method_suppresses_AL0003` with explicit impl body.
+- (candidate) `TenantIdentityBoundaryAnalyzer.AnalyzeIdentifierName` — `in` parameter modifier on `IHttpContextAccessor` in inner layer — locus: parameter identifier binding; input: extend ref/scoped-ref regressions with `in` modifier.
+- (candidate) `RequireAuthorizationAnalyzer.ActionHasAuthorization` — default interface implementation on a controller-facing interface with `[Authorize]` on the default member — locus: `FindImplementationForInterfaceMember` vs DIM metadata; input: controller implements interface with default `Get()` carrying `[Authorize]`.
+- (candidate) `MutatingControllerAuditAnalyzer.HttpMethodAttributeDeclaresMutatingVerb` — `[HttpMethod(Methods = new[] { "POST" })]` on controller action (named `Methods` array) without constructor literal — locus: `NamedArguments` array handling; input: sibling to `AL0003_reports_when_HttpMethod_named_property_declares_post_without_constructor_args`.
 
 2026-10-20 thorough hunt (hit): `security-analyzers` — proved `RequireAuthorizationAnalyzer.AnalyzeNamedType` ignored `MethodKind.ExplicitInterfaceImplementation` actions, so a controller whose only endpoint was an explicit `IAuthorizedApi.Get` with `[Authorize]` on the interface method still received type-level AL0001; analyze explicit interface implementations and inherit interface authorization via existing `MethodInheritsAuthorizeOrAllowAnonymousFromInterfaces`; regression `Does_not_report_explicit_interface_implementation_when_interface_method_has_Authorize`; cheap-disproof closed four open `(candidate)` rows; 93 scoped analyzer tests passed (`RunAnalyzers=false`).
 
@@ -6941,7 +6947,7 @@
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-20 — Tenant value report DOCX omitted artifact-text sanitization
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-10-11 seed hunt (seed-only): re-read `ArchLucid.Application/Billing/` and the scoped Marketplace, BillingCheckout, and TenantLlmCostReporting tests; 26 scoped tests passed. No newly seeded row met the full failing-repro bar. Preserved three concrete candidates for a later hunt.
 
@@ -18134,7 +18140,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-20

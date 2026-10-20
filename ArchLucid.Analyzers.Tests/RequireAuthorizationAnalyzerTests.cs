@@ -588,6 +588,80 @@ namespace N
     }
 
     [Fact]
+    public async Task Does_not_report_when_intermediate_controller_base_has_Authorize()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    [Authorize]
+    public abstract class AuthorizedControllerBase : ControllerBase
+    {
+    }
+
+    public sealed class ChildController : AuthorizedControllerBase
+    {
+        [HttpGet]
+        public IActionResult Get() => Ok();
+    }
+}
+""";
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task Reports_unauthorized_explicit_interface_action_when_controller_has_authorized_public_action()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    public interface IUnsecuredApi
+    {
+        IActionResult Post();
+    }
+
+    public sealed class MixedController : ControllerBase, IUnsecuredApi
+    {
+        [Authorize]
+        [HttpGet]
+        public IActionResult Get() => Ok();
+
+        [HttpPost]
+        IActionResult IUnsecuredApi.{|#0:Post|}() => Ok();
+    }
+}
+""";
+
+        DiagnosticResult expectedDiagnostic =
+            CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+                .WithLocation(0)
+                .WithArguments("MixedController.IUnsecuredApi.Post()");
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            ExpectedDiagnostics = { expectedDiagnostic },
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
     public async Task Does_not_report_derived_controller_when_inherited_action_is_allow_anonymous_on_interface()
     {
         const string testCode = AspNetCoreStubs +
