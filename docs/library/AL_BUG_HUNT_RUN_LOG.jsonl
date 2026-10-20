@@ -5747,3 +5747,4 @@
 {"at":"2026-10-20T22:38:38.9620131Z","zoneId":"retrieval","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Retrieval/Indexing/RetrievalDocumentBuilder.cs"]}
 {"at":"2026-10-20T22:48:46.1004825Z","zoneId":"agent-runtime-evaluation","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.AgentRuntime/Evaluation/AgentOutputTraceCitationGate.cs"]}
 {"at":"2026-10-20T22:52:15.3595441Z","zoneId":"identity-provider-config","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-20T22:54:17.6778130Z","zoneId":"agent-runtime-evaluation","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.AgentRuntime/Evaluation/AgentOutputJsonPropertyReader.cs"]}
