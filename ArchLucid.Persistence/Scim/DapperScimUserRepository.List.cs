@@ -92,6 +92,7 @@ public sealed partial class DapperScimUserRepository
                                   u.ResolvedRoleOrigin, u.DirectoryRemovedUtc, u.CreatedUtc, u.UpdatedUtc
                            FROM dbo.ScimUsers u
                            WHERE u.TenantId = @TenantId
+                             AND u.ExternalId = @ExternalId
                              AND u.ExternalId COLLATE Latin1_General_CS_AS = @ExternalId COLLATE Latin1_General_CS_AS;
                            """;
 

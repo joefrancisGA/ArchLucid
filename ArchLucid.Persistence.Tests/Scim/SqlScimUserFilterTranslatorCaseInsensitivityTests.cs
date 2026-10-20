@@ -12,7 +12,7 @@ namespace ArchLucid.Persistence.Tests.Scim;
 public sealed class SqlScimUserFilterTranslatorCaseInsensitivityTests
 {
     [Fact]
-    public void BuildWhere_externalId_eq_uses_case_sensitive_collation_without_lower()
+    public void BuildWhere_externalId_eq_uses_seek_then_filter_for_case_exact()
     {
         DynamicParameters parameters = new();
         int next = 0;
@@ -22,7 +22,8 @@ public sealed class SqlScimUserFilterTranslatorCaseInsensitivityTests
             parameters,
             ref next);
 
-        sql.Should().Contain("u.ExternalId COLLATE Latin1_General_CS_AS");
+        sql.Should().Contain("u.ExternalId = @f1");
+        sql.Should().Contain("u.ExternalId COLLATE Latin1_General_CS_AS = @f1 COLLATE Latin1_General_CS_AS");
         sql.Should().NotContain("LOWER(u.ExternalId)");
     }
 
@@ -41,5 +42,6 @@ public sealed class SqlScimUserFilterTranslatorCaseInsensitivityTests
 
         sql.Should().Contain($"{columnSql} = @");
         sql.Should().NotContain($"LOWER({columnSql})");
+        sql.Should().NotContain("COLLATE Latin1_General_CS_AS");
     }
 }

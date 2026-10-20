@@ -8,9 +8,7 @@ internal static class SqlScimUserFilterTranslator
 {
     // dbo.ScimUsers string columns inherit database default collation (no per-column COLLATE in schema;
     // ArchLucid SQL is CI, typically SQL_Latin1_General_CP1_CI_AS). userName/displayName use plain compares
-    // so IX_ScimUsers_TenantId_UserName stays sargable. externalId (RFC caseExact=true) uses CS collation.
-    private const string CaseSensitiveCollation = "Latin1_General_CS_AS";
-
+    // so IX_ScimUsers_TenantId_UserName stays sargable. externalId (RFC caseExact=true) uses seek-then-filter.
     public static string BuildWhere(ScimFilterNode? filter, DynamicParameters parameters, ref int nextParam)
     {
         return filter is null ? "1 = 1" : Build(filter, parameters, ref nextParam);
@@ -64,49 +62,54 @@ internal static class SqlScimUserFilterTranslator
         parameters.Add(pName, bound);
 
         bool caseExact = ScimUserFilterAttributeSemantics.IsCaseExact(c.AttributePath);
+        string paramRef = "@" + pName;
 
         return op switch
         {
-            "eq" => EqualitySql(col, pName, caseExact),
-            "ne" => Negate(EqualitySql(col, pName, caseExact)),
-            "co" => LikeSql(col, pName, caseExact),
-            "sw" => LikeSql(col, pName, caseExact),
-            "ew" => LikeSql(col, pName, caseExact),
-            "gt" => OrderedCompareSql(col, pName, ">", caseExact),
-            "lt" => OrderedCompareSql(col, pName, "<", caseExact),
-            "ge" => OrderedCompareSql(col, pName, ">=", caseExact),
-            "le" => OrderedCompareSql(col, pName, "<=", caseExact),
+            "eq" => EqualitySql(col, paramRef, caseExact),
+            "ne" => NotEqualSql(col, paramRef, caseExact),
+            "co" => LikeSql(col, paramRef, caseExact),
+            "sw" => LikeSql(col, paramRef, caseExact),
+            "ew" => LikeSql(col, paramRef, caseExact),
+            "gt" => OrderedCompareSql(col, paramRef, ">", caseExact),
+            "lt" => OrderedCompareSql(col, paramRef, "<", caseExact),
+            "ge" => OrderedCompareSql(col, paramRef, ">=", caseExact),
+            "le" => OrderedCompareSql(col, paramRef, "<=", caseExact),
             _ => throw new ScimFilterSqlException($"Unsupported operator '{op}'.")
         };
     }
 
-    private static string EqualitySql(string col, string pName, bool caseExact)
+    private static string EqualitySql(string col, string paramRef, bool caseExact)
     {
         if (caseExact)
-            return $"{CollationWrap(col, CaseSensitiveCollation)} = {CollationWrap("@" + pName, CaseSensitiveCollation)}";
+            return SqlScimCaseExactStringSql.Equality(col, paramRef);
 
-        return $"{col} = @{pName}";
+        return $"{col} = {paramRef}";
     }
 
-    private static string LikeSql(string col, string pName, bool caseExact)
+    private static string NotEqualSql(string col, string paramRef, bool caseExact)
     {
         if (caseExact)
-            return $"{CollationWrap(col, CaseSensitiveCollation)} LIKE {CollationWrap("@" + pName, CaseSensitiveCollation)}";
+            return SqlScimCaseExactStringSql.NotEqual(col, paramRef);
 
-        return $"{col} LIKE @{pName}";
+        return $"{col} <> {paramRef}";
     }
 
-    private static string OrderedCompareSql(string col, string pName, string op, bool caseExact)
+    private static string LikeSql(string col, string paramRef, bool caseExact)
     {
         if (caseExact)
-            return $"{CollationWrap(col, CaseSensitiveCollation)} {op} {CollationWrap("@" + pName, CaseSensitiveCollation)}";
+            return SqlScimCaseExactStringSql.Like(col, paramRef);
 
-        return $"{col} {op} @{pName}";
+        return $"{col} LIKE {paramRef}";
     }
 
-    private static string Negate(string equalitySql) => equalitySql.Replace(" = ", " <> ", StringComparison.Ordinal);
+    private static string OrderedCompareSql(string col, string paramRef, string op, bool caseExact)
+    {
+        if (caseExact)
+            return SqlScimCaseExactStringSql.OrderedCompare(col, paramRef, op);
 
-    private static string CollationWrap(string expr, string collation) => $"{expr} COLLATE {collation}";
+        return $"{col} {op} {paramRef}";
+    }
 
     private static string NextName(ref int nextParam)
     {
