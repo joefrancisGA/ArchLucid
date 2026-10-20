@@ -93,7 +93,7 @@ export function RunDetailSponsorModeExplanationCard(
           <dt className="font-semibold">Trust label</dt>
           <dd className="m-0 mt-1">
             <ExplanationEvidenceBasisBadges
-              citationCount={citationCount}
+              citationCount={citations === undefined || citations === null ? null : citationCount}
               faithfulnessSupportRatio={faithfulnessRatio}
               deterministicFallbackUsed={isDeterministicExplanationFallback(explanationSummary)}
               compact

@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
+import {
+  buyerFacingReviewLinkLabelFromRunId,
+  buyerFacingReviewTitleFromSummary,
+} from "@/lib/buyer/buyer-facing-review-title";
 import {
   SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
   SHOWCASE_BUYER_REVIEW_TITLE,
@@ -112,5 +115,11 @@ describe("buyerFacingReviewTitleFromSummary", () => {
         }),
       ),
     ).toBe("Demo — Retail baseline manifest (trusted baseline seed).");
+  });
+});
+
+describe("buyerFacingReviewLinkLabelFromRunId", () => {
+  it("uses omission copy when run id is blank", () => {
+    expect(buyerFacingReviewLinkLabelFromRunId("   ")).toBe("Review id was not stored.");
   });
 });

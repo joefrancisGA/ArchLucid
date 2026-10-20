@@ -16,7 +16,7 @@ export function buyerFacingReviewLinkLabelFromRunId(runId: string): string {
 
   const trimmed = runId.trim();
 
-  return trimmed.length > 0 ? trimmed : " — ";
+  return trimmed.length > 0 ? trimmed : "Review id was not stored.";
 }
 
 /** Buyer-oriented review title: stable label for the curated sample; otherwise description or fallback. */

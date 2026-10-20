@@ -90,7 +90,9 @@ export function buildBuyerReviewPackageDispositionLine(input: BuyerReviewDisposi
 
   const lead =
     posture !== null && posture.toLowerCase() === "approved with monitoring"
-      ? `Approved for implementation planning with ${warnings ?? 1} monitored risk${warnings === 1 ? "" : "s"} under active oversight.`
+      ? warnings === null
+        ? "Approved for implementation planning — monitored risk count was not stored."
+        : `Approved for implementation planning with ${warnings} monitored risk${warnings === 1 ? "" : "s"} under active oversight.`
       : posture !== null
         ? `Finalized package — ${posture}.`
         : "Finalized package — approval complete.";
