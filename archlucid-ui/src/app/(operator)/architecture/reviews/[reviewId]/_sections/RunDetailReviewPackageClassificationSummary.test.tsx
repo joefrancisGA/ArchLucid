@@ -36,8 +36,46 @@ describe("RunDetailReviewPackageClassificationSummary (IS-06)", () => {
   });
 
   it("renders nothing when there are no findings", () => {
-    const { container } = render(<RunDetailReviewPackageClassificationSummary findings={[]} />);
+    const { container } = render(
+      <RunDetailReviewPackageClassificationSummary
+        findings={[]}
+        withheldFindingCount={0}
+        catalogAdvisoryEngineFailureCount={0}
+      />,
+    );
 
     expect(container).toBeEmptyDOMElement();
+  });
+
+  it("shows evidence ref not-stored helper aligned with spine (P-19)", () => {
+    render(
+      <RunDetailReviewPackageClassificationSummary
+        findings={[
+          {
+            ...buildFinding("f-1", "DecisionGradeFinding"),
+            evidenceRefCount: null,
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByTestId("run-detail-stamp-evidence-ref-not-stored")).toHaveTextContent(
+      "Evidence reference count was not stored.",
+    );
+  });
+
+  it("labels omitted withheld and catalog counts (P-16)", () => {
+    render(
+      <RunDetailReviewPackageClassificationSummary
+        findings={[buildFinding("f-1", "DecisionGradeFinding")]}
+      />,
+    );
+
+    expect(screen.getByTestId("run-detail-stamp-withheld-honesty")).toHaveTextContent(
+      "Withheld finding count was not stored.",
+    );
+    expect(screen.getByTestId("run-detail-stamp-catalog-engine-failure-honesty")).toHaveTextContent(
+      "Catalog engine failure count was not stored.",
+    );
   });
 });

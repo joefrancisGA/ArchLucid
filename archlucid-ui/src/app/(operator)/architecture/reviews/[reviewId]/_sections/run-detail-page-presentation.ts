@@ -184,7 +184,7 @@ export async function buildRunDetailPresentation(
   });
 
   const evidenceGapsCount = filterUnresolvedFindings(quickDecisionFindings).filter(
-    (finding) => (finding.evidenceRefCount ?? 0) === 0,
+    (finding) => finding.evidenceRefCount === 0,
   ).length;
   const evidenceCoverageComplete =
     evidenceGapsCount === 0 &&

@@ -89,7 +89,13 @@ export function deriveRecommendedWorkspaceActions(input: {
     return status?.label === "Pending review";
   }).length;
   const evidenceGaps = input.findings.filter(
-    (finding) => !finding.isMuted && !isFindingResolved(finding) && (finding.evidenceRefCount ?? 0) === 0,
+    (finding) => !finding.isMuted && !isFindingResolved(finding) && finding.evidenceRefCount === 0,
+  ).length;
+  const evidenceRefCountNotStored = input.findings.filter(
+    (finding) =>
+      !finding.isMuted &&
+      !isFindingResolved(finding) &&
+      (finding.evidenceRefCount === null || finding.evidenceRefCount === undefined),
   ).length;
 
   if (input.showProgressTracker) {
@@ -171,6 +177,18 @@ export function deriveRecommendedWorkspaceActions(input: {
       ownerOrRole: null,
       href: buildReviewDetailTabHref(input.runId, "evidence"),
       actionLabel: "Add evidence",
+    });
+  }
+
+  if (evidenceRefCountNotStored > 0 && actions.length < 4) {
+    actions.push({
+      id: "evidence-ref-count-not-stored",
+      title: "Review evidence reference counts",
+      reason: `Evidence reference count was not stored for ${evidenceRefCountNotStored} open finding${evidenceRefCountNotStored === 1 ? "" : "s"}.`,
+      relatedFindingCount: evidenceRefCountNotStored,
+      ownerOrRole: null,
+      href: buildReviewDetailTabHref(input.runId, "findings"),
+      actionLabel: "Open findings",
     });
   }
 
