@@ -1,5 +1,17 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
+2026-10-20 thorough hunt (dry, lane C): `orchestrator-transient-retry` — skipped closed `identity-provider-config` (hint override `orchestrator-transient-retry`); cheap-disproof closed four open `(candidate)` rows (top-level nested all-transient aggregate plus bare transient SQL sibling retries via `ExecuteAsync_retries_when_top_level_aggregate_inner_is_nested_aggregate_with_only_transient_sql_inners` and `ExecuteAsync_retries_when_aggregate_sole_inner_is_target_invocation_wrapping_all_transient_nested_aggregate`; wrapper empty-shell-then-mixed fail-fast via `ExecuteAsync_does_not_retry_when_first_nested_aggregate_on_chain_is_empty_shell_before_mixed_aggregate` and `ExecuteAsync_does_not_retry_when_two_empty_aggregate_shells_precede_mixed_parallel_persist_aggregate`; cancellation during Polly backoff via `ExecuteAsync_honors_cancellation_during_retry_backoff_after_transient_sql`; reconcile poll index 8 delay unused by authority loop via `AuthorityDrivenArchitectureRunCommitOrchestrator` `reconcilePoll < ManifestReconcilePollAttempts` guard and `ManifestReconcilePollDelay_sum_for_inter_poll_waits_fits_inside_retry_budget`); seeded five follow-on `(candidate)` rows; 126 scoped `CommitRunTransientRetryPolicyTests` + `OrchestratorTransientDbRetryTests` passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry.IsRetriableOrchestratorDbFailure` — top-level aggregate with nested all-transient aggregate plus direct transient sibling — **cheap-disproof 2026-10-20 thorough hunt (lane C):** flatten + per-inner recursion matches wrapper path; regressions above.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry.TryGetParallelPersistInners` — empty aggregate before populated aggregate discards outer transient — **cheap-disproof 2026-10-20 thorough hunt (lane C):** intentional fail-fast on first populated mixed aggregate on wrapper chain; regressions above.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` — jitter sampled when cancellation already requested — **cheap-disproof 2026-10-20 thorough hunt (lane C):** `ExecuteAsync_honors_cancellation_during_retry_backoff_after_transient_sql`.
+- [x] (valid-no-repro) `CommitRunTransientRetryPolicy.ManifestReconcilePollDelay` — delay at `ManifestReconcilePollAttempts` — **cheap-disproof 2026-10-20 thorough hunt (lane C):** authority loop never calls delay when `reconcilePoll == ManifestReconcilePollAttempts`.
+- (candidate) `OrchestratorTransientDbRetry.TryGetParallelPersistInners` — first populated aggregate on wrapper chain is all-transient but a deeper chained mixed aggregate follows via `SetInnerException` — locus: early return on first populated aggregate; input: `InvalidOperationException` → all-transient `AggregateException` chained to mixed aggregate (retry vs fail-fast parity).
+- (candidate) `OrchestratorTransientDbRetry.IsRetriableOrchestratorDbFailure` — `ReflectionTypeLoadException` with non-empty `LoaderExceptions` carrying transient SQL beside aggregate sibling — locus: `LoaderExceptions` not walked by `SqlTransientDetector`; input: parallel persist aggregate `[reflectionLoad, deadlock]` with loader entry wrapping `1205`.
+- (candidate) `CommitRunTransientRetryPolicy.IsExhausted` — `attempt` zero with `elapsed` just below budget after long unique-key reconcile branch — locus: reconcile poll delays not folded into `Stopwatch` before `IsExhausted`; input: simulated wall clock near `RetryBudget` on first outer attempt.
+- (candidate) `OrchestratorTransientDbRetry` — `AggregateException` flatten includes duplicate inner references counted twice in `All` — locus: `aggregate.Flatten().InnerExceptions`; input: duplicate same `SqlException` instance listed twice (should remain retriable).
+- (candidate) `AuthorityDrivenArchitectureRunCommitOrchestrator` — transient SQL catch uses `SqlTransientDetector` without parallel-persist aggregate rules — locus: commit loop `catch` filter vs `OrchestratorTransientDbRetry`; input: mixed parallel-persist aggregate at commit boundary (retry policy divergence).
+
 2026-10-20 seed hunt (seed→hit, lane C): `extraction-router` — skipped closed `identity-provider-config` (hint override `extraction-router`); promoted URL query `owner=` parameter false token — `FindBoundedMarkerIndex` treated `?owner=` as bounded `owner` while `unowned` appeared elsewhere, emitting spurious `OperationalOwnership` gap; reject `?`, `&`, `#`, and `=` as marker start boundaries and `=` as end boundary; regression `Extract_does_not_emit_ownership_gap_for_query_string_owner_parameter_with_unowned`; 56 scoped `DifficultyBasedExtractionRouter` tests passed (`RunAnalyzers=false`).
 
 - [x] (proven) `FindBoundedMarkerIndex` / `IsValidMarkerStartBoundary` — `?owner=` query parameter with separate `unowned` mention — **hit 2026-10-20 seed hunt (lane C):** query-string boundary exclusions; regression above.
@@ -10072,11 +10084,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 60
+- **hunts:** 61
 - **bugs-found:** 9
-- **consecutive-dry-hunts:** 13
-- **last-hunt:** 2026-10-08
-- **last-bug:** 2026-10-07 — empty nested aggregate shell blocked orchestrator retry on transient SQL
+- **consecutive-dry-hunts:** 14
+- **last-hunt:** 2026-10-20
+- **last-bug:** 2026-10-20 — negative `CommitRunTransientRetryPolicy.IsExhausted` elapsed guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
