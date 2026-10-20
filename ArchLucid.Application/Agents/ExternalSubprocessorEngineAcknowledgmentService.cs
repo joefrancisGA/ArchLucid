@@ -35,7 +35,7 @@ public sealed class ExternalSubprocessorEngineAcknowledgmentService(
             .TryGetAsync(tenantId, TenantSettingKeys.ExternalSubprocessorEngineAcknowledged, cancellationToken)
             .ConfigureAwait(false);
 
-        return string.Equals(stored, AcknowledgedValue, StringComparison.Ordinal);
+        return string.Equals(stored?.Trim(), AcknowledgedValue, StringComparison.Ordinal);
     }
 
     public async Task RecordWorkspaceAcknowledgmentAsync(CancellationToken cancellationToken)

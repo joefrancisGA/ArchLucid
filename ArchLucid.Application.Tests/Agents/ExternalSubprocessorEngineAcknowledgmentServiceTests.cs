@@ -2,6 +2,7 @@ using ArchLucid.Application.Agents;
 using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Tenancy;
 
 using FluentAssertions;
@@ -19,6 +20,31 @@ public sealed class ExternalSubprocessorEngineAcknowledgmentServiceTests
         WorkspaceId = Guid.NewGuid(),
         ProjectId = Guid.NewGuid(),
     };
+
+    [Fact]
+    public async Task HasWorkspaceAcknowledgmentAsync_returns_true_when_stored_value_has_surrounding_whitespace()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<ITenantSettingsRepository> tenantSettings = new();
+        tenantSettings
+            .Setup(r => r.TryGetAsync(
+                Scope.TenantId,
+                TenantSettingKeys.ExternalSubprocessorEngineAcknowledged,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(" Acknowledged ");
+
+        ExternalSubprocessorEngineAcknowledgmentService sut = new(
+            scopeProvider.Object,
+            new Mock<IActorContext>().Object,
+            new Mock<IAuditService>().Object,
+            tenantSettings.Object);
+
+        bool acknowledged = await sut.HasWorkspaceAcknowledgmentAsync(CancellationToken.None);
+
+        acknowledged.Should().BeTrue();
+    }
 
     [Fact]
     public async Task RecordWorkspaceAcknowledgmentAsync_sets_explicit_actor_for_stable_actor_user_id_when_display_differs()

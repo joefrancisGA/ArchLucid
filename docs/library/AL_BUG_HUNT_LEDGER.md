@@ -1,5 +1,7 @@
 ﻿> **Scope:**
 
+2026-10-20 seed hunt (seed→hit): `application-agents` — promoted `ExternalSubprocessorEngineAcknowledgmentService.HasWorkspaceAcknowledgmentAsync` treating tenant setting `TenantSettingKeys.ExternalSubprocessorEngineAcknowledged` with surrounding whitespace as not acknowledged; compare `stored?.Trim()` to `Acknowledged`; regression `HasWorkspaceAcknowledgmentAsync_returns_true_when_stored_value_has_surrounding_whitespace`; `ExternalSubprocessorEngineAcknowledgmentServiceTests` 2/2.
+
 2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `PolicyPackDryRunRedactAuditStage.TryLogAuditAsync` and `PolicyPackGovernanceDryRunService.TryLogProposedPackDryRunAuditAsync` logging `GovernanceDryRunRequested` without `ExplicitActor`, so `AuditService` overwrote `ActorUserId` with `ClaimTypes.NameIdentifier` instead of canonical `jwt:{tid}:{oid}` keys on `GovernanceController` policy-pack dry-run routes; inject `IActorContext`, set `ExplicitActor = true` with `GetActorId()` / `GetActor()` on both audit events; regressions `EvaluateAsync_sets_explicit_actor_for_stable_actor_user_id_when_display_differs` in `PolicyPackDryRunServiceTests` and `PolicyPackGovernanceDryRunServiceTests`; policy pack dry-run suites 35/35; cheap-disproof closed prior ledger rows: tenancy `LogAsync` paths already set `ExplicitActor`, approval submit idempotency replay skips action by design (`IdempotencyFilter`), environment catalog identical replace skips duplicate audit by design (`isIdenticalRetry`); seeded five follow-on `(candidate)` rows.
 
 - (candidate) `GovernanceController.ApprovalRequests.BatchReview` — no idempotency key on batch path — locus: `POST approval-requests/batch-review`; input: safe-retry duplicate batch body vs single-item review idempotency.
@@ -38521,11 +38523,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 41
-- **bugs-found:** 39
+- **hunts:** 42
+- **bugs-found:** 40
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-16
-- **last-bug:** 2026-10-16 — Confidence calibration missing envelope agentType
+- **last-hunt:** 2026-10-20
+- **last-bug:** 2026-10-20 — External subprocessor ack trim on read
+2026-10-20 seed hunt (seed→hit): reseeded application-agents with no open hypotheses; promoted `ExternalSubprocessorEngineAcknowledgmentService.HasWorkspaceAcknowledgmentAsync` whitespace-padded tenant setting false negative; fixed trim on read; regression `HasWorkspaceAcknowledgmentAsync_returns_true_when_stored_value_has_surrounding_whitespace`; 2/2 `ExternalSubprocessorEngineAcknowledgmentServiceTests` passed.
+
 
 2026-10-13 seed hunt (seed→hit): reseeded enricher composition after tenancy churn; proved cross-agent consistency ran before consensus so Cost kept api→worker when intersection dropped `svc-worker`; prune sibling relationships to merged topology endpoints after consensus merge; regression `EnrichAsync_prunes_sibling_relationships_when_dual_model_consensus_removes_topology_endpoint`; 109 scoped Application.Tests.Agents tests passed.
 
@@ -38640,6 +38644,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - (candidate) `FindingIacStubGenerator.ResolveAgentTypeFromFindings` — conflicting `sourceAgent` values across findings on one row pick the first only — locus: agent type resolution; input: enrichment row with topology and compliance findings on same `AgentResult`.
 - (candidate) `TopologyProposalDualModelConsensusEnricher.PruneSiblingRelationshipsToConsensusTopology` — sibling `AddedServices` still list consensus-dropped topology ids — locus: service lists after prune; input: compliance re-declares `svc-worker` removed from merged topology.
 - (candidate) `AgentCuratedEvidenceProposer` — enricher runs before structural post-process — locus: `AgentEnrichersCompositionModule` order; input: typed finding text references service dropped by brief grounding in same batch.
+- [x] (proven) `ExternalSubprocessorEngineAcknowledgmentService.HasWorkspaceAcknowledgmentAsync` — tenant setting value with leading/trailing whitespace failed exact `Acknowledged` match so `ReviewModelAliasResolver` and run-create gates treated workspace as unacknowledged after manual SQL/import trim drift on `TenantSettingKeys.ExternalSubprocessorEngineAcknowledged` — **hit 2026-10-20 seed hunt:** `stored?.Trim()` before ordinal compare; regression `HasWorkspaceAcknowledgmentAsync_returns_true_when_stored_value_has_surrounding_whitespace`.
 - [x] (proven) `AgentConfidenceCalibrationService.ApplyCalibratedConfidenceForRunAsync` — calibrated with default `AgentType` when envelope omitted `agentType` but findings declared `sourceAgent` — **hit 2026-10-16 seed hunt:** `AgentResultEnvelopeAgentTypeResolver.ResolveAgentType`; regression `ApplyCalibratedConfidenceForRunAsync_uses_finding_source_agent_when_envelope_agent_type_missing`.
 - (candidate) `EvidenceProposalPromoter.BuildCatalogEntryId` — punctuation-only titles always mint random catalog ids — locus: empty slug branch; input: title `!!!` after trim.
 - (candidate) `FindingIacStubGenerator.GenerateAndPersistStubsForRunAsync` — relational mute flag application skipped when `runId` is not a parseable GUID, leaving muted findings eligible for stub generation on non-GUID run ids — locus: `ApplyRelationalMuteFlagsAsync`; input: alphanumeric demo run id with muted finding rows.
