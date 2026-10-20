@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
+2026-10-20 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceStickinessController.EnsureGovernanceDispositionRunSealedManifestAllowedAsync` and `GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync` treating manifest-compare miss as HTTP 409 before `RunNotFoundException` mapping on `POST /v1/governance/risk-exceptions`; skip sealed-hash guard when `GetRunDetailForManifestCompareAsync` returns null (preview/policy-pack simulate parity); regression `CreateRiskException_returns_not_found_for_missing_run_before_sealed_manifest_check`; cheap-disproof closed `GovernancePreCommitSimulationController` missing-run candidate (run repository preflight before sealed guard).
+
 2026-10-20 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryAppSettingHostRedactor.TryParseSqlHost` ignoring ADO.NET `Data Source=` SQL connection strings so App Service / Function declared SQL hosts were dropped from `app-settings-hosts.json` companion rows; extend `SqlServerHostRegex` to accept `Data Source` alias; regression `TryParseSettingValue_extracts_sql_host_from_data_source_alias`; app-setting host Core tests 25/25.
 
 2026-10-20 seed hunt (seed-only): `archlucid-core` — cheap-disproof on open DNS/reachability candidates; 85 focused Core tests passed.
@@ -36658,6 +36660,16 @@ heap-disproved mermaid typed-topology candidate.
 ---
 
 ## Zone: api-governance-tenancy-controllers
+2026-10-20 seed hunt (seed→hit): promoted stickiness disposition sealed-manifest guard returning HTTP 409 for unknown runs before not-found handlers; skip when manifest-compare detail is null; regression `CreateRiskException_returns_not_found_for_missing_run_before_sealed_manifest_check`; cheap-disproof closed pre-commit checklist missing-run candidate (run repository preflight already precedes sealed guard).
+
+- [x] (proven) `GovernanceStickinessController.EnsureGovernanceDispositionRunSealedManifestAllowedAsync` — reachable `POST /v1/governance/risk-exceptions` with a run id absent from manifest-compare returned HTTP 409 because disposition sealed-manifest guard treated missing golden manifest as conflict before `RunNotFoundException` mapping — regression `CreateRiskException_returns_not_found_for_missing_run_before_sealed_manifest_check`.
+
+- (candidate) `GovernanceStickinessController` — other disposition routes (revoke/renew risk exception) sealed guard vs missing manifest-compare run — locus: facade `RevokeRiskExceptionAsync` / `RenewRiskExceptionAsync`; input: waiver on purged run id.
+- (candidate) `GovernancePreCommitSimulationController.SealedManifestGuard` — missing run id returns 409 before checklist 404 — locus: pre-commit GET simulate guard; input: `(valid-no-repro)` run repository preflight precedes guard.
+- (candidate) `GovernanceController.BatchReviewApprovalRequests` — batch path lacks idempotency key — locus: batch-review POST; input: `(valid-no-repro)` by design unless replay audit gap reproved.
+- (candidate) `TenantWorkspacesController.DeleteProjectAsync` — `ListActiveByTenantAsync` null without coalesce on default-project guard branch — locus: delete default metadata path; input: mock-only null (cheap-disproof vs Dapper).
+- (candidate) `GovernancePreviewController.CompareEnvironments` — scope sealed guard vs missing activation manifest — locus: compare-environments POST; input: environments with no active manifest.
+
 2026-10-20 seed hunt (seed→hit): promoted `EnsureGovernancePreviewRunSealedManifestReadAllowedAsync` calling `GovernanceDispositionSealedManifestGuard` before preview service run lookup, so POST /v1/governance-preview/preview with an out-of-scope run id returned HTTP 409 instead of 404; align with policy-pack simulate guard (fetch manifest-compare, skip when detail is null); regression `Preview_returns_not_found_for_missing_run_before_sealed_manifest_check`.
 
 - [x] (proven) `GovernancePreviewController.EnsureGovernancePreviewRunSealedManifestReadAllowedAsync` — reachable POST /v1/governance-preview/preview with a run id absent from manifest-compare returned HTTP 409 because disposition sealed-manifest guard treated missing golden manifest as conflict before `RunNotFoundException` mapping — regression `Preview_returns_not_found_for_missing_run_before_sealed_manifest_check`.

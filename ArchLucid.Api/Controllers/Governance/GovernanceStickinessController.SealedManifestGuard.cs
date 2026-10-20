@@ -25,14 +25,23 @@ public sealed partial class GovernanceStickinessController
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
+        RunDetailDto? detail =
+            await _authorityQueryService.GetRunDetailForManifestCompareAsync(
+                scope,
+                resolvedRunId,
+                cancellationToken);
+
+        // Unknown runs must reach disposition handlers so routes return 404, not sealed-manifest 409.
+
+        if (detail is null)
+            return null;
+
         try
         {
-            await GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync(
-                resolvedRunId,
-                scope,
-                _authorityQueryService,
-                _manifestHashService,
-                cancellationToken);
+            GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrow(
+                detail.GoldenManifest,
+                resolvedRunId.ToString("D"),
+                _manifestHashService);
         }
         catch (ConflictException ex)
         {

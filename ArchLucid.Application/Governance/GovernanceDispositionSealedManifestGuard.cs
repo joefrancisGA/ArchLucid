@@ -26,15 +26,30 @@ public static class GovernanceDispositionSealedManifestGuard
         RunDetailDto? detail =
             await authorityQueryService.GetRunDetailForManifestCompareAsync(scope, runId, cancellationToken);
 
-        if (detail?.GoldenManifest is null)
+        // Unknown runs must reach callers so HTTP routes can return 404 instead of sealed-manifest 409.
+        if (detail is null)
+            return;
+
+        EnsureRunSealedManifestHashOrThrow(detail.GoldenManifest, runId.ToString("D"), manifestHashService);
+    }
+
+    public static void EnsureRunSealedManifestHashOrThrow(
+        ManifestDocument? goldenManifest,
+        string runIdLabel,
+        IManifestHashService manifestHashService)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runIdLabel);
+        ArgumentNullException.ThrowIfNull(manifestHashService);
+
+        if (goldenManifest is null)
         {
             throw new ConflictException(
-                $"Governance disposition blocked for run '{runId:D}': committed golden manifest is missing.");
+                $"Governance disposition blocked for run '{runIdLabel}': committed golden manifest is missing.");
         }
 
         ManifestDecisionReceiptExportBinder.EnsureSealedManifestHashMatchesOrThrow(
-            detail.GoldenManifest,
-            runId.ToString("D"),
+            goldenManifest,
+            runIdLabel,
             manifestHashService);
     }
 
