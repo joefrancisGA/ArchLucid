@@ -1,3 +1,18 @@
+2026-10-20 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `readOAuthErrorString` interior zero-width in JSON `error` field; global invisible strip glued OAuth codes (`invalid\u200bgrant` → `invalidgrant`); now collapses format chars to spaces and rejoins snake_case tokens before readability check; regression `preserves OAuth error codes when JSON error field contains interior zero-width characters`; cheap-disproof closed four other run #60 `(candidate)` rows; seeded five new `(candidate)` rows; 268 vitest tests in `src/lib/oidc` passed.
+
+- [x] (proven) `token-client.ts` `readOAuthErrorString` — interior ZWSP in JSON `error` code — **hit 2026-10-20 seed hunt #61:** strip merged code tokens; collapse + whitespace-to-underscore normalize; token regression.
+- [x] (invalid) `errorFromOAuthJson` — description-only JSON — **cheap-disproof 2026-10-20 seed hunt #61:** existing `throws when HTTP 200 OAuth JSON includes only error_description`.
+- [x] (invalid) `readOAuthError` — non-JSON error body — **cheap-disproof 2026-10-20 seed hunt #61:** existing buyer-safe `Token endpoint error {status}` test.
+- [x] (invalid) `build-authorize-url.ts` — `redirect_uri` with embedded `?` — **cheap-disproof 2026-10-20 seed hunt #61:** `URLSearchParams.set` percent-encodes value; OAuth redirect URI must not include query per RFC 6749 redirect URI registration.
+- [x] (valid-no-repro) `bff-session-sync.ts` — missing `access_token` — **cheap-disproof 2026-10-20 seed hunt #61:** early return when normalized access token empty (intentional no-op).
+- [x] (invalid) `discovery.ts` — logout URL with userinfo — **cheap-disproof 2026-10-20 seed hunt #61:** `isHttpOrHttpsUrl` rejects credentials; optional endpoint omitted.
+
+- (candidate) `readOAuthErrorString` — soft hyphen inside JSON `error` code — locus: `collapseOAuthErrorDescriptionLineBreaks`; input: `invalid\u00ADgrant`.
+- (candidate) `humanizeAuthorizeCallbackError` — `error` query param with interior ZWSP — locus: `stripOAuthInvisibleFormatChars` on code; input: `access\u200b_denied` on authorize callback.
+- (candidate) `token-client.ts` `normalizeTokenString` — interior ZWSP inside `access_token` — locus: global strip; input: JWT-shaped token with `\u200b` between segments.
+- (candidate) `session.ts` `consumePkceState` — state value with interior ZWSP — locus: normalize before compare; input: returned state differs only by ZWSP.
+- (candidate) `discovery.ts` `fetchDiscoveryDocument` — cached promise key vs normalized issuer URL — locus: `discoveryPromises` map key; input: issuer string differing only by trailing slash.
+
 2026-10-20 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `readOAuthJsonErrorDescription` interior zero-width characters; `stripOAuthInvisibleFormatChars` on full JSON descriptions glued words (`Policy\u200bdenied` → `Policydenied`); now collapses invisible format chars to spaces before optional percent-decode (same as authorize-query collapse path); regressions `collapses interior zero-width characters to spaces instead of gluing words`, `decodes percent-encoded newlines in JSON error_description`, `collapses interior zero-width characters in JSON error_description on token responses`; cheap-disproof closed four other run #59 `(candidate)` rows; seeded five new `(candidate)` rows; 267 vitest tests in `src/lib/oidc` passed.
 
 - [x] (proven) `oauth-callback-messages.ts` `readOAuthJsonErrorDescription` — interior ZWSP in token JSON `error_description` — **hit 2026-10-20 seed hunt #60:** global invisible strip merged words; collapse-to-space before decode; token + unit regressions.

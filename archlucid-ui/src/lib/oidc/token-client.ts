@@ -1,5 +1,6 @@
 import { isSafeOidcEndpointUrl } from "@/lib/oidc/discovery";
 import {
+  collapseOAuthErrorDescriptionLineBreaks,
   isReadableOAuthErrorCode,
   readOAuthJsonErrorDescription,
   sanitizeOAuthUserFacingMessage,
@@ -21,13 +22,14 @@ function readOAuthErrorString(value: unknown): string {
     return "";
   }
 
-  const trimmed = stripOAuthInvisibleFormatChars(value.trim()).trim();
+  const collapsed = collapseOAuthErrorDescriptionLineBreaks(value.trim());
+  const normalized = collapsed.replace(/\s+/gu, "_").trim();
 
-  if (trimmed.length === 0 || !isReadableOAuthErrorCode(trimmed)) {
+  if (normalized.length === 0 || !isReadableOAuthErrorCode(normalized)) {
     return "";
   }
 
-  return trimmed;
+  return normalized;
 }
 
 function errorFromOAuthJson(json: unknown): Error | null {
