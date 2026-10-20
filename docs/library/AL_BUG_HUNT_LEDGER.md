@@ -1,5 +1,10 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
+2026-10-20 thorough hunt (hit, lane C): `agent-runtime-evaluation` — skipped picker top `identity-provider-config` (two prior seed hits); hunted `agent-runtime-evaluation` under lane-C lock; promoted `(candidate)` case-variant `PROPOSEDCHANGES` / finding field keys — `HeuristicAgentOutputSemanticEvaluator` treated topology-only payloads as present via case-insensitive `claims`/`findings` checks but `HeuristicAgentOutputTraceQualityStage` used case-sensitive nested reads, forcing semantic score 0; trace quality stage now resolves agent JSON properties ordinal-ignore-case (aligned with claim evidence stage); regressions `Evaluate_matches_case_variant_proposed_changes_for_topology_surface_ratio` and `Evaluate_matches_case_variant_findings_properties`; 216 scoped Evaluation tests passed.
+
+- [x] (proven) `HeuristicAgentOutputTraceQualityStage.EvaluateProposedChangesSurfaceRatio` — case-variant `PROPOSEDCHANGES` / `ADDEDSERVICES` / `ADDEDRELATIONSHIPS` — **hit 2026-10-20 thorough hunt (lane C):** `TryGetPropertyIgnoreCase` on proposed-change surface reads; regression `Evaluate_matches_case_variant_proposed_changes_for_topology_surface_ratio`.
+- [x] (proven) `HeuristicAgentOutputTraceQualityStage.EvaluateFindings` — case-variant `FINDINGS` / `SEVERITY` / `DESCRIPTION` / `RECOMMENDATION` — **hit 2026-10-20 thorough hunt (lane C):** ignore-case finding field reads; regression `Evaluate_matches_case_variant_findings_properties`.
+
 2026-10-20 thorough hunt (audit hit, lane B): `topology-proposal-merge` — owner-directed closure pass on Terraform `for_each` instance-key quote mismatches; routed graph node matchers, relationship validation, declared-key sets (cross-agent + structural post-processor), instance-key strip, and graph endpoint keys through `CanonicalizeTerraformEndpointReferenceForLookup`; regressions per site (`TryResolveGraphTopologyNodeIdForService_returns_true_when_service_id_quotes_for_each_key…`, `EndpointKeyIsKnown_returns_true_when_known_keys_use_unquoted_for_each…`, `DeclaredEndpointKeySetContains_matches_quoted_and_unquoted…`, datastore resolver, `TerraformAzurermResourceTypeParserTests`); **class closed** — do not reopen quote-only topology hunts; 1,664 scoped topology/endpoint/consensus tests passed (`RunAnalyzers=false`).
 
 - [x] (proven) `TopologyProposalGraphNodeMatchers.NodeMatchesService` — quoted `ServiceId` versus unquoted graph `SourceId` — **hit 2026-10-20 audit (lane B):** `ManifestEndpointReferencesEqual`; regression on service resolver above.
@@ -20905,11 +20910,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 53
-- **bugs-found:** 32
+- **hunts:** 54
+- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-12
-- **last-bug:** 2026-10-10 — reference-case catalog stayed empty after configuration enablement
+- **last-hunt:** 2026-10-20
+- **last-bug:** 2026-10-20 — heuristic trace quality ignored case-variant proposedChanges and finding fields
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -20925,14 +20930,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-12 seed hunt (seed-only): re-read the selected Evaluation paths and focused heuristic, structural, citation, faithfulness, and harness tests. A proposed-changes casing candidate is bounded and reachable at the untrusted agent JSON boundary; a focused finding-casing repro was attempted but the AgentRuntime test build was blocked before discovery by unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors. No candidate was promoted and no production or regression code changed.
 
-- [ ] (candidate) `HeuristicAgentOutputTraceQualityStage.EvaluateProposedChangesSurfaceRatio` — a reachable topology result using case-variant `PROPOSEDCHANGES` / `ADDEDSERVICES` / `ADDEDRELATIONSHIPS` keys can be recognized as topology-only by the case-insensitive overall-presence check but receive a zero proposed-surface ratio from exact nested lookups; input is untrusted agent-result JSON at the evaluation boundary.
+- [x] (proven) `HeuristicAgentOutputTraceQualityStage.EvaluateProposedChangesSurfaceRatio` — case-variant proposedChanges keys — **hit 2026-10-20 thorough hunt (lane C):** see zone header regression `Evaluate_matches_case_variant_proposed_changes_for_topology_surface_ratio`.
 
 2026-10-12 seed hunt (seed-only): reread case-insensitive evaluation parsing, citation gates, heuristic quality scoring, faithfulness judging, and embedding evidence handling. The faithfulness judge-score casing candidate was promoted for a focused repro, but the AgentRuntime test build was blocked before execution by unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors; no candidate was proven and no production change was made.
 
 - [ ] (candidate) `AgentOutputFaithfulnessEvaluator.ReadScore` — a reachable LLM judge response using `FAITHFULNESS_SCORE` or other casing may be treated as missing, so configured faithfulness enforcement is skipped; locus: exact `JsonElement.TryGetProperty` score reads; input: external keyed judge JSON.
 - [ ] (candidate) `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` — a reachable real-agent result using `Citations` casing may be treated as citation-free and rejected under PilotStrict despite containing a usable citation; locus: exact top-level citation property read; input: untrusted agent-result JSON.
 - [ ] (candidate) `AgentOutputTraceCitationGate.TryCountTopLevelEvidenceRefs` — a reachable real-agent result using `EvidenceRefs` casing may fail the configured PilotStrict evidence-reference floor despite usable references; locus: exact top-level evidence-reference property read; input: untrusted agent-result JSON.
-- [ ] (candidate) `HeuristicAgentOutputTraceQualityStage.EvaluateFindings` — finding fields with casing variants such as `Severity` or `Recommendation` may score as incomplete even though the serialized agent result is structurally valid; locus: exact finding-property reads; input: untrusted agent-result JSON.
+- [x] (proven) `HeuristicAgentOutputTraceQualityStage.EvaluateFindings` — case-variant finding fields — **hit 2026-10-20 thorough hunt (lane C):** see zone header regression `Evaluate_matches_case_variant_findings_properties`.
 
 2026-10-11 seed hunt (seed-only): re-read the selected evaluation quality-gate, JSON grounding, semantic-judge, and trace-quality paths; 213 scoped Evaluation tests passed. No distinct reachable wrong outcome met the promotion bar after the recent case-insensitive JSON fixes and existing candidate review.
 
