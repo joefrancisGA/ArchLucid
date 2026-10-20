@@ -385,6 +385,7 @@ export async function ensureAccessTokenFresh(): Promise<void> {
 
   if (!refreshInFlight) {
     const generationAtStart = refreshSessionGeneration;
+    const expiresAtHintAtStart = getExpiresAtMs();
     let activeRefreshPromise: Promise<void> | null = null;
     activeRefreshPromise = (async () => {
       try {
@@ -401,7 +402,10 @@ export async function ensureAccessTokenFresh(): Promise<void> {
         }
 
         if (result.shouldClearSession) {
-          clearOidcSession();
+          // A concurrent sign-in may have refreshed session hints while refresh was in flight.
+          if (expiresAtHintAtStart === getExpiresAtMs()) {
+            clearOidcSession();
+          }
         }
       } finally {
         if (refreshInFlight === activeRefreshPromise) {

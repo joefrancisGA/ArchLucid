@@ -1,3 +1,17 @@
+2026-10-20 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `ensureAccessTokenFresh` 401 clear racing `persistTokenResponse`; stale BFF refresh `shouldClearSession` called `clearOidcSession` after callback sign-in refreshed `expires_at_ms` hint; now clears only when expiry hint unchanged since refresh start; regression `does not clear a fresh sign-in when a pre-sign-in BFF refresh is rejected`; cheap-disproof closed four other run #68 material `(candidate)` rows; seeded five new material `(candidate)` rows (no emoji/invisible copy); 289 vitest tests in `src/lib/oidc` passed.
+
+- [x] (proven) `session.ts` `ensureAccessTokenFresh` — 401 refresh vs concurrent sign-in — **hit 2026-10-20 seed hunt #69:** in-flight rejected refresh wiped new session hints; guard `expiresAtHintAtStart === getExpiresAtMs()` before `clearOidcSession`; `session-ensure-fresh.test.ts` regression.
+- [x] (invalid) `signOutAndRedirectHome` — DELETE races sign-in POST — **cheap-disproof 2026-10-20 seed hunt #69:** `session.test.ts` replacement-session BFF sync guard; RP logout resolves URL before clear.
+- [x] (invalid) `consumePkceState` — primary/google state collision — **cheap-disproof 2026-10-20 seed hunt #69:** opaque `randomOpaqueState` collision not reachable; flow order documented in tests.
+- [x] (valid-no-repro) `loadDiscoveryDocument` — hung fetch caches forever — **cheap-disproof 2026-10-20 seed hunt #69:** network hang is environmental; eviction on reject covers real failures; no AbortSignal in zone.
+- [x] (invalid) `refreshBffSessionCookie` — stale future `expires_at_ms` vs dead BFF — **cheap-disproof 2026-10-20 seed hunt #69:** `ensureAccessTokenFresh` + 401 clear path is intended recovery; transient soft-fail retains hint by design.
+
+- (candidate) `ensureAccessTokenFresh` — successful refresh writes expiry after `clearOidcSession` generation bump — locus: ok branch vs generation; input: slow refresh returns ok after sign-out started.
+- (candidate) `persistTokenResponse` — `syncTokenToBff` generation mismatch clears cookie — locus: post-sync generation check; input: sign-out during slow BFF POST (existing tests partial).
+- (candidate) `CallbackClient.tsx` — token exchange succeeds after `consumePkceState` null — locus: callback route; input: missing state in sessionStorage mid-callback.
+- (candidate) `initiate-redirect.ts` — discovery failure leaves PKCE material without cleanup — locus: redirect error paths; input: `loadDiscoveryDocument` throw after `storePkceState`.
+- (candidate) `bff-session-sync.ts` `pulseBffSessionActivity` — 403 treated as unauthorized vs ignored — locus: status branch; input: CSRF mismatch vs server policy.
+
 2026-10-20 seed hunt (seed-only): `ui-oidc` — operator #68: stop seeding/promoting invisible-character or emoji-only OAuth error/display hypotheses (#60–#67 diminishing returns); hunted material auth/session loci (BFF refresh vs `clearOidcSession` generation, stale `syncTokenToBff` vs replacement persist, `signOutAndRedirectHome` RP logout ordering, discovery transient retry, `ensureAccessTokenFresh` 401 clear) — existing regressions cover; retired five run #67 emoji/copy `(candidate)` rows without new repro; seeded five material `(candidate)` rows; 288 vitest tests in `src/lib/oidc` passed.
 
 - [x] (invalid) `truncateOAuthUserFacingMessage` — flag split at 280 chars — **retired operator #68:** emoji/error-copy class excluded from ui-oidc seeding.

@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import * as bffSessionSync from "@/lib/oidc/bff-session-sync";
-import { clearOidcSession, ensureAccessTokenFresh } from "@/lib/oidc/session";
+import { clearOidcSession, ensureAccessTokenFresh, persistTokenResponse } from "@/lib/oidc/session";
 import { OIDC_EXPIRES_AT_MS_KEY } from "@/lib/oidc/storage-keys";
 
 describe("ensureAccessTokenFresh (LK-06 P2 BFF refresh)", () => {
@@ -88,6 +88,34 @@ describe("ensureAccessTokenFresh (LK-06 P2 BFF refresh)", () => {
     await ensureAccessTokenFresh();
 
     expect(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY)).not.toBeNull();
+  });
+
+  it("does not clear a fresh sign-in when a pre-sign-in BFF refresh is rejected", async () => {
+    let releaseRefresh: (() => void) | undefined;
+
+    vi.mocked(bffSessionSync.refreshBffSessionCookie).mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          releaseRefresh = () => {
+            resolve({ ok: false, shouldClearSession: true });
+          };
+        }),
+    );
+    vi.spyOn(bffSessionSync, "syncBffSessionCookieFromTokenResponse").mockResolvedValue();
+
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(Date.now()));
+
+    const refreshPromise = ensureAccessTokenFresh();
+
+    await Promise.resolve();
+
+    persistTokenResponse({ access_token: "new-token", expires_in: 3600 });
+
+    releaseRefresh?.();
+    await refreshPromise;
+
+    expect(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY)).not.toBeNull();
+    expect(Number(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY))).toBeGreaterThan(Date.now());
   });
 
   it("does not resurrect session hints when clearOidcSession runs during an in-flight refresh", async () => {
