@@ -116,6 +116,25 @@ function readNormalizedSubjectFromPayload(payload: Record<string, unknown> | nul
   return normalizedSubject;
 }
 
+type OidcIdentityHintsSnapshot = {
+  readonly subjectHint: string | null;
+  readonly displayHint: string | null;
+};
+
+function readOidcIdentityHintsSnapshot(): OidcIdentityHintsSnapshot {
+  return {
+    subjectHint: readSignedInUserSubject(),
+    displayHint: readSignedInDisplayName(),
+  };
+}
+
+function oidcIdentityHintsChanged(
+  before: OidcIdentityHintsSnapshot,
+  after: OidcIdentityHintsSnapshot,
+): boolean {
+  return before.subjectHint !== after.subjectHint || before.displayHint !== after.displayHint;
+}
+
 function persistNonSensitiveSessionHints(tokens: OidcTokenResponse, expiresAtMs: number): void {
   removeOidcKeys([OIDC_DISPLAY_NAME_KEY, OIDC_USER_SUBJECT_KEY]);
 
@@ -201,9 +220,7 @@ export function persistTokenResponse(tokens: OidcTokenResponse): void {
 
   const expiresInSec = resolveExpiresInSeconds(tokens.expires_in);
   const expiresAtMs = Date.now() + expiresInSec * 1000;
-  const subjectHintBeforePersist = readSignedInUserSubject();
-  const displayHintBeforePersist = readSignedInDisplayName();
-  const hadIdentityHintsBeforePersist = hasOidcSessionIdentityHints();
+  const identityHintsBeforePersist = readOidcIdentityHintsSnapshot();
 
   persistNonSensitiveSessionHints(normalizedTokens, expiresAtMs);
 
@@ -217,29 +234,10 @@ export function persistTokenResponse(tokens: OidcTokenResponse): void {
     return;
   }
 
-  const subjectHintAfterPersist = readSignedInUserSubject();
-  const subjectRestoredAfterPersist =
-    subjectHintBeforePersist === null && subjectHintAfterPersist !== null;
-  const subjectReplacedAfterPersist =
-    subjectHintBeforePersist !== null &&
-    subjectHintAfterPersist !== null &&
-    subjectHintBeforePersist !== subjectHintAfterPersist;
-  const displayHintAfterPersist = readSignedInDisplayName();
-  const displayRestoredAfterPersist =
-    displayHintBeforePersist === null && displayHintAfterPersist !== null;
-  const displayReplacedAfterPersist =
-    displayHintBeforePersist !== null &&
-    displayHintAfterPersist !== null &&
-    displayHintBeforePersist !== displayHintAfterPersist;
+  const identityHintsAfterPersist = readOidcIdentityHintsSnapshot();
 
-  if (
-    !hadIdentityHintsBeforePersist ||
-    subjectRestoredAfterPersist ||
-    subjectReplacedAfterPersist ||
-    displayRestoredAfterPersist ||
-    displayReplacedAfterPersist
-  ) {
-    // A replacement sign-in after mid-flight hint loss must ignore stale BFF refresh results.
+  if (oidcIdentityHintsChanged(identityHintsBeforePersist, identityHintsAfterPersist)) {
+    // Any identity hint change during persist must ignore stale in-flight BFF refresh results.
     refreshSessionGeneration += 1;
     refreshInFlight = null;
   }
