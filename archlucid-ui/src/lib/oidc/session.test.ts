@@ -96,7 +96,7 @@ describe("getAccessTokenForApi / isLikelySignedIn expiry parsing (LK-06 P2)", ()
   });
 
   it("never exposes access tokens from sessionStorage after sign-in", () => {
-    persistTokenResponse({ access_token: "tok", expires_in: 3600 });
+    persistTokenResponse({ access_token: accessTokenWithSubjectClaim(), expires_in: 3600 });
 
     expect(sessionStorage.getItem(OIDC_ACCESS_TOKEN_KEY)).toBeNull();
     expect(sessionStorage.getItem(OIDC_REFRESH_TOKEN_KEY)).toBeNull();
@@ -209,7 +209,7 @@ describe("persistTokenResponse", () => {
   });
 
   it("treats empty array expires_in as the default lifetime instead of immediate expiry", () => {
-    persistTokenResponse({ access_token: "tok", expires_in: [] as unknown as number });
+    persistTokenResponse({ access_token: accessTokenWithSubjectClaim(), expires_in: [] as unknown as number });
 
     const expiresAtMs = Number(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY));
 
@@ -229,7 +229,7 @@ describe("persistTokenResponse", () => {
   });
 
   it("honors zero expires_in so callers refresh immediately", () => {
-    persistTokenResponse({ access_token: "tok", expires_in: 0 });
+    persistTokenResponse({ access_token: accessTokenWithSubjectClaim(), expires_in: 0 });
 
     expect(getAccessTokenForApi()).toBeUndefined();
     expect(isLikelySignedIn()).toBe(false);
@@ -302,7 +302,7 @@ describe("persistTokenResponse", () => {
 
   it("truncates fractional expires_in to whole seconds (parity with bff-session-sync)", () => {
     const before = Date.now();
-    persistTokenResponse({ access_token: "tok", expires_in: 10.9 });
+    persistTokenResponse({ access_token: accessTokenWithSubjectClaim(), expires_in: 10.9 });
 
     const expiresAtMs = Number(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY));
 
@@ -322,7 +322,7 @@ describe("persistTokenResponse", () => {
     );
     vi.spyOn(bffSessionSync, "clearBffSessionCookie").mockResolvedValue();
 
-    persistTokenResponse({ access_token: "tok", expires_in: 3600 });
+    persistTokenResponse({ access_token: accessTokenWithSubjectClaim(), expires_in: 3600 });
     await Promise.resolve();
     await Promise.resolve();
     clearOidcSession();
@@ -480,6 +480,14 @@ describe("persistTokenResponse", () => {
 
     expect(sessionStorage.getItem(OIDC_USER_SUBJECT_KEY)).toBe("id-token-user");
     expect(sessionStorage.getItem(OIDC_DISPLAY_NAME_KEY)).toBe("Jane Operator");
+  });
+
+  it("does not persist expiry hints for opaque access tokens without identity claims", () => {
+    persistTokenResponse({ access_token: "opaque-access-token", expires_in: 3600 });
+
+    expect(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY)).toBeNull();
+    expect(sessionStorage.getItem(OIDC_USER_SUBJECT_KEY)).toBeNull();
+    expect(sessionStorage.getItem(OIDC_DISPLAY_NAME_KEY)).toBeNull();
   });
 
   it("clears stale identity hints when a replacement token has no identity claims", () => {

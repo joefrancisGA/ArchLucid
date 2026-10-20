@@ -134,7 +134,7 @@ function persistNonSensitiveSessionHints(tokens: OidcTokenResponse, expiresAtMs:
     sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, normalizedSubject);
   }
 
-  if (accessPayload !== null && !hasOidcSessionIdentityHints()) {
+  if (!hasOidcSessionIdentityHints()) {
     sessionStorage.removeItem(OIDC_EXPIRES_AT_MS_KEY);
 
     return;

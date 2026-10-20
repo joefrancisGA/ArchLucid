@@ -14,6 +14,13 @@ function seedExpiredSessionWithIdentityHints(): void {
   sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(Date.now()));
 }
 
+function accessTokenWithSubjectClaim(sub: string = "user-test"): string {
+  const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
+  const payload = Buffer.from(JSON.stringify({ sub })).toString("base64url");
+
+  return `${header}.${payload}.sig`;
+}
+
 describe("ensureAccessTokenFresh (LK-06 P2 BFF refresh)", () => {
   beforeEach(() => {
     sessionStorage.clear();
@@ -113,13 +120,13 @@ describe("ensureAccessTokenFresh (LK-06 P2 BFF refresh)", () => {
     );
     vi.spyOn(bffSessionSync, "syncBffSessionCookieFromTokenResponse").mockResolvedValue();
 
-    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(Date.now()));
+    seedExpiredSessionWithIdentityHints();
 
     const refreshPromise = ensureAccessTokenFresh();
 
     await Promise.resolve();
 
-    persistTokenResponse({ access_token: "new-token", expires_in: 3600 });
+    persistTokenResponse({ access_token: accessTokenWithSubjectClaim(), expires_in: 3600 });
 
     releaseRefresh?.();
     await refreshPromise;
@@ -140,7 +147,7 @@ describe("ensureAccessTokenFresh (LK-06 P2 BFF refresh)", () => {
         }),
     );
 
-    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(Date.now()));
+    seedExpiredSessionWithIdentityHints();
 
     const refreshPromise = ensureAccessTokenFresh();
 
@@ -166,13 +173,13 @@ describe("ensureAccessTokenFresh (LK-06 P2 BFF refresh)", () => {
     );
     vi.spyOn(bffSessionSync, "syncBffSessionCookieFromTokenResponse").mockResolvedValue();
 
-    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(Date.now()));
+    seedExpiredSessionWithIdentityHints();
 
     const refreshPromise = ensureAccessTokenFresh();
 
     await Promise.resolve();
 
-    persistTokenResponse({ access_token: "new-token", expires_in: 3600 });
+    persistTokenResponse({ access_token: accessTokenWithSubjectClaim(), expires_in: 3600 });
     const freshHintMs = Number(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY));
 
     releaseRefresh?.();
@@ -188,7 +195,10 @@ describe("ensureAccessTokenFresh (LK-06 P2 BFF refresh)", () => {
       expiresAtMs: Date.now() + 3_600_000,
     });
 
-    persistTokenResponse({ access_token: "tok", expires_in: 3600 });
+    const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
+    const payload = Buffer.from(JSON.stringify({ sub: "user-123" })).toString("base64url");
+
+    persistTokenResponse({ access_token: `${header}.${payload}.sig`, expires_in: 3600 });
     clearOidcSession();
 
     await ensureAccessTokenFresh();
