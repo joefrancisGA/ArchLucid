@@ -1,5 +1,19 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
+2026-10-20 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `ensureAccessTokenFresh` 401 clear after mid-flight identity strip; rejected BFF refresh with unchanged expiry hint still called `clearOidcSession` and wiped in-flight PKCE state when identity keys were already gone; now full clear only when identity hints remain, otherwise drop orphan `expires_at_ms` and clear BFF cookie; regression `drops only the expiry hint when BFF refresh is rejected after identity hints were cleared mid-flight`; cheap-disproof closed five run #79 material `(candidate)` rows; seeded five new material `(candidate)` rows; 305 vitest tests in `src/lib/oidc` passed.
+
+- [x] (proven) `session.ts` `ensureAccessTokenFresh` — 401 clear without identity — **hit 2026-10-20 seed hunt #80 (lane A):** identity stripped mid-flight + `shouldClearSession` invoked `clearOidcSession` and removed PKCE keys; identity-gated full clear; `session-ensure-fresh.test.ts` regression.
+- [x] (invalid) `getAccessTokenExpiresAtMs` — skew parity with `isLikelySignedIn` — **cheap-disproof 2026-10-20 seed hunt #80:** #79 decoupled signed-in probe from skew; expiry consumers intentionally return raw `expires_at_ms` with identity for warning UX.
+- [x] (invalid) `persistTokenResponse` — identity-less persist vs slow prior BFF sync — **cheap-disproof 2026-10-20 seed hunt #80:** early return after identity-less persist; generation mismatch path does not resurrect cookie from stale sync in existing overlap tests.
+- [x] (invalid) `CallbackClient.tsx` — late canceled after exchange — **cheap-disproof 2026-10-20 seed hunt #80:** `canceled` checked immediately before `persistTokenResponse`; no second await gap.
+- [x] (invalid) `pulseBffSessionActivity` — CSRF missing during refresh — **cheap-disproof 2026-10-20 seed hunt #80:** activity pulse returns `ignored` without CSRF; refresh path independent.
+
+- (candidate) `ensureAccessTokenFresh` — 401 clear when only display-name hint remains after subject stripped mid-flight — locus: `hasOidcSessionIdentityHints`; input: display without subject on rejected refresh.
+- (candidate) `syncTokenToBff` — identity-less early return vs in-flight valid sync completion order — locus: `persistTokenResponse` return before sync; input: replacement identity-less token while earlier sync POST in flight.
+- (candidate) `signOutAndRedirectHome` — RP logout URL null still redirects home after clear — locus: redirect branch; input: BFF returns empty logout URL.
+- (candidate) `consumePostSignInReturnUrl` — unsafe path consumed then stripped — locus: `isSafeReturnPath` on consume; input: stored path mutated in sessionStorage manually.
+- (candidate) `refreshBffSessionCookie` — soft-fail near expiry with identity-only display hint — locus: transient `shouldClearSession: false`; input: offline tab inside skew window.
+
 2026-10-20 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `isLikelySignedIn` refresh-skew false negative; `EXPIRY_SKEW_MS` gates when `ensureAccessTokenFresh` runs but `isLikelySignedIn` also subtracted skew so identity + not-yet-expired hints read signed-out for up to 60s before expiry; now treats signed-in until `expires_at_ms`; regression `treats identity hints as signed in until expires_at_ms even inside the refresh skew window`; cheap-disproof closed five run #78 material `(candidate)` rows; seeded five new material `(candidate)` rows; 304 vitest tests in `src/lib/oidc` passed.
 
 - [x] (proven) `session.ts` `isLikelySignedIn` — skew-window false negative — **hit 2026-10-20 seed hunt #79 (lane A):** display/subject hints with future `expires_at_ms` inside refresh skew returned false; decouple signed-in probe from pre-refresh skew; `session.test.ts` regression.
