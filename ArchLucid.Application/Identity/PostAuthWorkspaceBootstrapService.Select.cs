@@ -24,8 +24,8 @@ public sealed partial class PostAuthWorkspaceBootstrapService
             return null;
         }
 
-        IReadOnlyList<TenantWorkspaceListItem> workspaces =
-            await _tenantRepository.ListWorkspacesAsync(request.TenantId, cancellationToken).ConfigureAwait(false);
+        IReadOnlyList<TenantWorkspaceListItem> workspaces = TenantWorkspaceListCoalesce.Coalesce(
+            await _tenantRepository.ListWorkspacesAsync(request.TenantId, cancellationToken).ConfigureAwait(false));
 
         TenantWorkspaceListItem? workspace = workspaces.FirstOrDefault(row => row.WorkspaceId == request.WorkspaceId);
 

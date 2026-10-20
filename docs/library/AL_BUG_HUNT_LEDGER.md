@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
+2026-10-20 seed hunt (seed→hit): `api-tenancy-workspaces` — promoted `PostAuthWorkspaceBootstrapService.SelectWorkspaceAsync` and `PostAuthBootstrapSupport.BuildWorkspaceSummariesAsync` calling `FirstOrDefault` on null `ListWorkspacesAsync` (NRE on post-auth workspace pick and status summaries); consolidated `TenantAiBudgetPolicyResolver.ResolvePaidSpendPlanIdAsync` `.Count` on null list in same Core coalesce pass; regression `SelectWorkspaceAsync_returns_null_when_workspace_list_is_null_instead_of_throwing`; 11 application tenancy/bootstrap tests + 54 TenantWorkspaces/scope-preflight tests passed; cheap-disproof closed homepage PUT ordering, measured-roi tenant-only read, catalog-migration banner `(valid-no-repro)` / intentional.
+
 2026-10-20 seed hunt (seed→hit): `api-tenancy-workspaces` — promoted `TenantWorkspaceScopeGuard` and `TenantLlmCostReportingService` null `ListWorkspacesAsync` before `.Any` / `FirstOrDefault` (NRE on LLM cost dashboard and application scope guard); `TenantWorkspaceListCoalesce` parity; regressions `RequireTenantAndWorkspaceAsync_returns_workspace_not_found_when_list_workspaces_is_null` and `BuildDashboardAsync_uses_workspace_id_when_workspace_list_is_null`; cheap-disproof closed homepage PUT sealed-manifest ordering (missing run 404 before guard), weekly digest foreign workspace (existing test), measured-roi missing subscription (service returns snapshot), legal-hold `UntilUtc` boundary (mapper rejects past instants), baseline/cost validation-before-tenant (documented intentional).
 
 2026-10-20 seed hunt (seed→hit): `api-tenancy-workspaces` — promoted `TenantUsageStatusService.BuildAsync` calling `.Count` on null `ListWorkspacesAsync` (NRE on GET /v1/tenant/usage-status); consolidate null workspace inventory via `TenantWorkspaceListCoalesce` in Core (API `TenantWorkspaceInventoryCoalesce` delegates); regression `BuildAsync_treats_null_workspace_list_as_empty`; 4 `TenantUsageStatusServiceTests` + 54 TenantWorkspaces/scope-preflight tests passed; cheap-disproof closed homepage null run list (service `.ToArray()`), recycle-bin cross-workspace pin semantics (existing regressions), customer-success mid-request race `(valid-no-repro)`.
@@ -38500,12 +38502,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 ---
 ## Zone: api-tenancy-workspaces
 
-2026-10-20 seed hunt (seed→hit): promoted application `TenantWorkspaceScopeGuard` + `TenantLlmCostReportingService` null workspace inventory; Core `TenantWorkspaceListCoalesce`; regressions above.
+2026-10-20 seed hunt (seed→hit): promoted `PostAuthWorkspaceBootstrapService` / `PostAuthBootstrapSupport` null workspace inventory before `FirstOrDefault`; `TenantAiBudgetPolicyResolver` null list before `.Count`; Core `TenantWorkspaceListCoalesce`; regression `SelectWorkspaceAsync_returns_null_when_workspace_list_is_null_instead_of_throwing`.
 
-- [x] (proven) `TenantWorkspaceScopeGuard` / `TenantLlmCostReportingService` — null `ListWorkspacesAsync` — regressions above.
+- [x] (proven) `PostAuthWorkspaceBootstrapService.SelectWorkspaceAsync` / `PostAuthBootstrapSupport.BuildWorkspaceSummariesAsync` — null `ListWorkspacesAsync` before `FirstOrDefault` — regression above.
+- [x] (proven) `TenantAiBudgetPolicyResolver.ResolvePaidSpendPlanIdAsync` — null `ListWorkspacesAsync` before `.Count` — consolidated with same coalesce pass (run #10).
 
-- (candidate) `PostAuthWorkspaceBootstrapService` — `ListWorkspacesAsync` null before workspace selection — locus: identity bootstrap; input: mock null list.
-- (candidate) `TenantAiBudgetPolicyResolver` — null workspace list before tier resolution — locus: AI budget policy; input: mock null list.
+- (candidate) `PostAuthWorkspaceBootstrapService.CreateWorkspaceAsync` — provisioning path null workspace list after insert — locus: create-workspace bootstrap; input: scan for uncached `ListWorkspacesAsync` reads.
 - (candidate) `TenantHomepageSettingsController.PutAsync` — `GetSnapshotAsync` before null `SelectedRunId` clear branch — locus: PUT ordering; input: verify no duplicate audit on clear.
 - (candidate) `TenantMeasuredRoiController` — no tenant row preflight on GET — locus: measured-roi; input: `(valid-no-repro)` tenant id from JWT scope.
 - (candidate) `TenantCatalogMigrationStatusController` — migration banner without workspace preflight — locus: GET catalog-migration-status; input: intentional tenant-only read.
