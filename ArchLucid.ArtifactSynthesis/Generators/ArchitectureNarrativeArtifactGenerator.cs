@@ -1,6 +1,7 @@
 using System.Text;
 
 using ArchLucid.ArtifactSynthesis.Interfaces;
+using ArchLucid.ArtifactSynthesis.Markdown;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Sanitization;
 using ArchLucid.ArtifactSynthesis.Services;
@@ -25,6 +26,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
             : manifest.Metadata.Name.Trim();
         sb.AppendLine($"# {reviewName}");
         sb.AppendLine();
+        ArchitectureRequiredMarkdownSections.AppendRequiredProductSections(sb, manifest);
         sb.AppendLine("## Sponsor Summary");
         sb.AppendLine(string.IsNullOrWhiteSpace(manifest.Metadata.Summary)
             ? "Sponsor summary was not stored."
