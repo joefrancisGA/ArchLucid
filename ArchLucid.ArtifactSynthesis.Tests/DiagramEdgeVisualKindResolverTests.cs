@@ -96,4 +96,12 @@ public sealed class DiagramEdgeVisualKindResolverTests
             .Should()
             .Be("probable · connects");
     }
+
+    [Fact]
+    public void Build_probable_empty_verb_uses_probable_headline()
+    {
+        DiagramEdgeProvenanceDisplayLabelBuilder.Build("  ", DiagramEdgeVisualKind.Probable)
+            .Should()
+            .Be("probable");
+    }
 }

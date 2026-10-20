@@ -35585,6 +35585,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `ExecDigestEmailDispatchSealedManifestHashGuard.EnsureCompositionRunsSealedOrThrowAsync` — invalid `RunIdHex` in composition skips per-run seal check via `Guid.TryParse` continue — **cheap-disproof 2026-09-26 seed hunt:** `ExecDigestWeeklyDeliveryScanner` invokes the guard only after `ExecDigestComposer.ComposeAsync` builds highlights/`LatestCommittedRunIdHex` from committed run repository ids (`ToString("N")`); malformed hex is not reachable from the production compose → dispatch path.
 
 ## Zone: artifact-synthesis
+2026-10-20 seed hunt (seed→hit): promoted `DiagramEdgeProvenanceDisplayLabelBuilder.Build` probable branch; inventory edges with `DerivedFact` provenance and blank humanized verbs reached `DiagramEdgeProvenanceDisplayLabelApplier` and rendered an empty canvas label while declared/inferred kinds fall back to a headline token; return `probable` when the verb is blank; regression `Build_probable_empty_verb_uses_probable_headline`; DiagramEdgeVisualKindResolverTests 12/12 passed.
+
 2026-10-20 thorough hunt (hit): `DocxValueReportRenderer.RenderAsync` wrote tenant value-report snapshot strings (`LegacyRunStatusLabel` from `DapperValueReportMetricsReader` / `Runs.LegacyRunStatus`, `EstimatedLlmCostMethodologyNote`, review-cycle paragraphs) through raw OpenXML `Paragraph` text without `LlmArtifactFreeTextSanitizer`, causing DOCX save failure; sanitize all paragraph text in the private `Paragraph` helper; regressions `RenderAsync_strips_control_chars_from_legacy_run_status_label` and `RenderAsync_strips_control_chars_from_llm_cost_methodology_note`; DocxValueReportRendererTests 2/2 passed.
 
 2026-10-20 seed hunt (seed→hit): promoted `FindingVerificationReportDocxRenderer.Render` package-reference table; persisted `SourceManifestHash` / `ReportHash` on sealed finding-verification exports reached `AddSimpleTable` with newline-only `WordDocumentBuilder.Sanitize` while per-finding cells already used `LlmArtifactFreeTextSanitizer`, causing DOCX save failure; sanitize hash cells with `SanitizeFindingCell`; regression `Render_strips_control_chars_from_package_reference_hash_fields`; FindingVerificationReportDocxRendererTests 3/3 passed.
@@ -35632,24 +35634,26 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 2026-10-11 seed hunt (seed-only): re-read the selected artifact-synthesis and DOCX paths after the prior DOCX sanitization hit; no fresh hunt-ready row met the reachability and wrong-outcome bar. The scoped application ArtifactSynthesis/Docx filter passed 101/102 with one intentional skip; the dedicated ArtifactSynthesis test project was blocked before discovery by existing `CS8625` in `DiagramAstGraphvizDotEmitterTests.cs`; no production or regression code changed.
 
-2026-10-11 thorough hunt (hit): `DocxExportService.BuildDocumentAsync` wrote persisted `RuleSetId` and `RuleSetVersion` directly into the provenance table, so a reachable manifest rule-set field containing an OpenXML-invalid control character caused DOCX export to throw while saving. Sanitized the combined rule-set display value; regression `ExportAsync_sanitizes_control_characters_in_provenance_rule_set_fields` failed first and passed after the fix. The branded PNG length candidate was invalid because `TryExtractInnerPng` has no production caller.
-
-- **id:** artifact-synthesis
+2026-10-11 thorough hunt (hit): `DocxExportService.BuildDocumentAsync` wro- **id:** artifact-synthesis
 - **status:** open
 - **impact:** medium
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 64
-- **last-hunt:** 2026-10-13
-- **bugs-found:** 51
+- **hunts:** 68
+- **last-hunt:** 2026-10-20
+- **bugs-found:** 54
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-13 — Provenance manifest hash omitted artifact-text sanitization
+- **last-bug:** 2026-10-20 — Probable provenance edges omitted display label when verb blank
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
 ### Hypotheses
 
+- [x] (proven) `DiagramEdgeProvenanceDisplayLabelBuilder.Build` — `DerivedFact` / probable visual kind with blank humanized verb returned an empty label instead of the `probable` headline used by sibling provenance kinds — **hit 2026-10-20 seed hunt:** return `probable` when verb is whitespace; regression `Build_probable_empty_verb_uses_probable_headline`.
+- [ ] (candidate) `MermaidDiagramDeterministicRepairer.Repair` — data-flow rollup and collapsed singleton-tail node flags (`IsDataFlowRollup`, `IsCollapsedResourceGroupTail`, member name lists) are not copied when rebuilding nodes — locus: `repairedNodes.Add(new DiagramNode` initializer; input: AST nodes that already carry rollup/tail metadata before a repair pass.
+- [ ] (candidate) `DiagramEdgeProvenanceDisplayLabelApplier.ApplyToVisibleEdges` — `ObservedFact` edges skip label enrichment, so inventory edges that lose inference metadata during repair may keep stale blank labels on forest canvases — locus: `visualKind == Observed` continue branch; input: `ProvenanceKind=ObservedFact` with empty `Label` after `MermaidDiagramDeterministicRepairer`.
+- [ ] (candidate) `ArchitectureRequiredMarkdownSections.AppendArchitectureOverview` — `ManifestService.Purpose` is interpolated into markdown bullets without field-level sanitization before the generator-wide `LlmArtifactFreeTextSanitizer` pass — locus: service bullet loop; input: `TopologySection.Services` purpose strings from committed manifests.
 - [x] (proven) `FindingVerificationReportDocxRenderer.Render` — persisted `SourceManifestHash` and `ReportHash` on sealed finding-verification report exports reached package-reference `AddSimpleTable` without `LlmArtifactFreeTextSanitizer` while per-finding rows were sanitized, causing DOCX save failure — **hit 2026-10-20 seed hunt:** `SanitizeFindingCell` on hash cells; regression `Render_strips_control_chars_from_package_reference_hash_fields`.
 - [x] (proven) `DocxValueReportRenderer.RenderAsync` — `LegacyRunStatusLabel` from `Runs.LegacyRunStatus` via value-report metrics reader reached raw `Paragraph` text and caused DOCX save failure — **hit 2026-10-20 thorough hunt:** `LlmArtifactFreeTextSanitizer` in private `Paragraph` helper; regression `RenderAsync_strips_control_chars_from_legacy_run_status_label`.
 - [x] (proven) `DocxValueReportRenderer.RenderAsync` — `EstimatedLlmCostMethodologyNote` and review-cycle narrative strings reached raw `Paragraph` text without sanitizer — **hit 2026-10-20 thorough hunt:** shared `Paragraph` sanitization; regression `RenderAsync_strips_control_chars_from_llm_cost_methodology_note`.
@@ -35787,6 +35791,13 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-05 seed hunt #831 (seed-only): reseeded post-#732 DOCX/Mermaid parity gaps; four new candidates on Mermaid syntax sanitization, posture table sanitization, explanation bullet sanitization, and unresolved-issue diagram parity.
 
 2026-09-04 thorough hunt #732 (hit): proved DOCX assumptions/constraints parity and posture-string sanitization; cheap-disproved mermaid typed-topology candidate.
+
+2026-09-02 thorough hunt #536: proved architecture narrative decisions parity gap vs reference-architecture markdown and DOCX export.
+
+---
+
+2026-10-03 seed hunt (seed-only): `host-composition` — re-read distributed-cache/Redis resolver registration order and composition tests; the pre-registered multiplexer candidate is test-only and no new reachable wrong outcome emerged. Scoped composition test command completed successfully.
+heap-disproved mermaid typed-topology candidate.
 
 2026-09-02 thorough hunt #536: proved architecture narrative decisions parity gap vs reference-architecture markdown and DOCX export.
 

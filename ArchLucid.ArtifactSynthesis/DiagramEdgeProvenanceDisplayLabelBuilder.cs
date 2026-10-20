@@ -30,7 +30,7 @@ public static class DiagramEdgeProvenanceDisplayLabelBuilder
         {
             if (trimmedVerb.Length == 0)
             {
-                return trimmedVerb;
+                return "probable";
             }
 
             return $"probable · {trimmedVerb}";
