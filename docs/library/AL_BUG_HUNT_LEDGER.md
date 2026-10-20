@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
+2026-10-20 seed hunt (seed→hit): `api-tenancy-workspaces` — promoted `TenantWorkspacesController` calling `ListWorkspacesAsync` without coalescing null workspace inventory before `SingleOrDefault` / `Any`, so list/recycle-bin/delete/restore could throw when a repository test double returned null (parity with active/soft-deleted project list guards); shared `CoalesceWorkspaces` helper; regression `ListAsync_returns_not_found_when_workspace_list_is_null`; 53 scoped TenantWorkspaces tests passed; cheap-disproof closed integrations `Surfaces` null (DTO default `[]`), legal-hold whitespace-only `Reason` (mapper rejects), convert-trial null body (by design), usage-status trial `CommercialTier` null (by design).
+
 2026-10-20 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `TenantWorkspacesController.DeleteProjectAsync` calling `ListActiveByTenantAsync` on the cross-workspace default-metadata pin guard without `?? Array.Empty<ArchitectureProjectRecord>()`, so when another workspace pinned the scoped project as default and the active list was null the delete path threw `NullReferenceException` instead of soft-deleting; null-coalesce parity with `ListAsync`; regression `DeleteProjectAsync_returns_no_content_when_active_list_is_null_and_foreign_workspace_pins_project_metadata`; 14 scoped DeleteProject tests passed.
 
 2026-10-20 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceController.GetDashboard` / `GetComplianceDriftTrend` running scope posture sealed-manifest guard before aggregated insights reads, so governance dashboard and compliance drift trend returned HTTP 409 when the latest committed project run failed hash verification unrelated to the insight query; remove scope guard (approval lineage/rationale keep per-request sealed-manifest guards); regressions `GetDashboard_reaches_facade_when_scope_posture_sealed_manifest_would_conflict` and `GetComplianceDriftTrend_reaches_facade_when_scope_posture_sealed_manifest_would_conflict`.
@@ -8961,7 +8963,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-07 — empty nested aggregate shell blocked orchestrator retry on transient SQL
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-06 thorough hunt (dry): cheap-disproof closed five follow-on `(candidate)` rows (cancellation sibling fail-fast, wrapper-chain nested mixed aggregate after transient SQL, transient SQL root with mixed aggregate on inner chain, third-retry jitter floor, layered outer/inner delay asymmetry intentional); regressions `ExecuteAsync_does_not_retry_aggregate_with_deadlock_and_task_canceled_siblings`, `ExecuteAsync_does_not_retry_aggregate_with_deadlock_and_operation_canceled_siblings`, `ExecuteAsync_does_not_retry_when_nested_mixed_aggregate_follows_transient_sql_on_wrapper_chain`, `ExecuteAsync_does_not_retry_when_transient_sql_wraps_mixed_parallel_persist_aggregate_on_inner_chain`, `Third_orchestrator_retry_delay_with_max_negative_jitter_stays_positive`; 64 scoped transient-retry tests passed (46 Persistence + 18 Application).
 
@@ -11568,7 +11570,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
 - **hunts:** 44
-- **bugs-found:** 11
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 12
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-07 — learning profile outside caller scope attached to simulation context
@@ -13258,7 +13260,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** auth callback; access panel
 - **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
 - **test-filter:** AuthCallbackAccessPanel
-- **hunts:** 31
+- **hunts:** 32
 - **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-07
@@ -35186,7 +35188,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **hunts:** 110
 - **bugs-found:** 85
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-15
+- **last-hunt:** 2026-10-20
 - **last-bug:** 2026-10-15 — percent-encoded Unicode line separator in navigable URL path
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -38492,6 +38494,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 ---
 ## Zone: api-tenancy-workspaces
 
+2026-10-20 seed hunt (seed→hit): promoted `TenantWorkspacesController.CoalesceWorkspaces` for null `ListWorkspacesAsync` results across list/recycle-bin/delete/restore; regression `ListAsync_returns_not_found_when_workspace_list_is_null`.
+
+- [x] (proven) `TenantWorkspacesController` — `ListWorkspacesAsync` null before workspace resolution — regression above.
+
+- (candidate) `TenantWorkspaceScopePreflight.WorkspaceExistsAsync` — `ListWorkspacesAsync` null before `.Any` on non-`IWorkspaceQueryTenantRepository` tenants — locus: shared preflight used by tenancy read controllers; input: mock null list.
+- (candidate) `CorePilotTeamChecklistController.GetAsync` — `ICorePilotTeamChecklistRepository.ListAsync` null before `.Select` — locus: GET checklist; input: defective repository returning null.
+- (candidate) `TenantHomepageSettingsController.ListEligibleSamplesAsync` — eligible candidates null before `.Select` — locus: GET eligible-samples; input: service returns null collection.
+- (candidate) `TenantUsageStatusService.BuildAsync` — `ListWorkspacesAsync` null before `.Count` — locus: usage-status snapshot (called from `TenantUsageStatusController`); input: mock null workspace list.
+- (candidate) `TenantIntegrationsOperationsController.GetAsync` — `ConnectorOperationsSummary.IntegrationEventBus` null before property reads — locus: GET integrations operations; input: summary DTO with null bus (reader always sets instance).
+
+
 - **id:** api-tenancy-workspaces
 - **split-from:** api-governance-tenancy-controllers
 - **status:** open
@@ -38503,7 +38516,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — workspace list null active-project repository result
+- **last-bug:** 2026-10-20 — workspace list null tenant workspace inventory
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -38512,10 +38525,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `TenantWorkspacesController.ListAsync` — `ListActiveByTenantAsync` null before `ToLookup` — **hit 2026-10-15 seed hunt:** regression `ListAsync_returns_ok_with_empty_projects_when_active_project_list_is_null`.
 
 - [x] (proven) `TenantWorkspacesController.DeleteProjectAsync` — `ListActiveByTenantAsync` null during tenant-wide default-metadata pin guard threw before soft-delete — **hit 2026-10-20 seed hunt (api-governance-tenancy-controllers #5):** `?? Array.Empty` parity with `ListAsync`; regression `DeleteProjectAsync_returns_no_content_when_active_list_is_null_and_foreign_workspace_pins_project_metadata`.
-- [ ] (candidate) `TenantIntegrationsOperationsController.GetAsync` — `ConnectorOperationsSummary.Surfaces` null before `.Select` (reachable input: summary reader returns null collection).
-- [ ] (candidate) `TenantErasureLegalHoldController.SetLegalHoldAsync` — empty-string `Reason` after trim stored vs omitted (reachable input: whitespace-only reason body).
-- [ ] (candidate) `TenantUsageStatusController.GetUsageStatusAsync` — trial tenant with null `CommercialTier` in snapshot maps to unexpected response default (reachable input: `BuildAsync` snapshot for trial row).
-- [ ] (candidate) `TenantTrialController.ConvertTrialAsync` — null request body maps to validation message vs generic facade validation (reachable input: POST convert with omitted body).
+- [x] (invalid) `TenantIntegrationsOperationsController.GetAsync` — `ConnectorOperationsSummary.Surfaces` null before `.Select` — **cheap-disproof 2026-10-20 seed hunt #6:** `ConnectorOperationsSummary.Surfaces` defaults to `[]`; reader always assigns a list.
+- [x] (invalid) `TenantErasureLegalHoldController.SetLegalHoldAsync` — whitespace-only `Reason` — **cheap-disproof 2026-10-20 seed hunt #6:** `TenantErasureLegalHoldHttpMapper.ValidateSetLegalHold` returns HTTP 400 before tenant lookup.
+- [x] (valid-no-repro) `TenantUsageStatusController.GetUsageStatusAsync` — trial `CommercialTier` null — **cheap-disproof 2026-10-20 seed hunt #6:** `TenantUsageStatusService` sets `commercialTier` null when trial is active by design.
+- [x] (invalid) `TenantTrialController.ConvertTrialAsync` — null request body — **cheap-disproof 2026-10-20 seed hunt #6:** `ConvertTrialAsync_accepts_null_body_with_unspecified_tier` documents intentional unspecified-tier convert.
 
 2026-10-09 seed hunt (seed→hit): promoted sibling audit-actor parity with `TenantWorkspacesController`; baseline, cost, homepage, digest, and checklist events set `ActorUserId` from `IActorContext` but omitted `ExplicitActor`, so persisted rows kept `ClaimTypes.NameIdentifier`; regression `PutAsync_persisted_audit_keeps_actor_context_id_when_name_identifier_differs`; 99 scoped tenancy controller tests passed.
 
