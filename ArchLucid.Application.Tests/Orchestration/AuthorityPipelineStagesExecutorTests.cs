@@ -576,8 +576,43 @@ public sealed class AuthorityPipelineStagesExecutorTests
                     && e.RunId == runGuid
                     && e.ManifestId.HasValue
                     && e.ManifestId.Value != Guid.Empty),
+                It.IsAny<IArchLucidUnitOfWork>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAfterRunPersistedAsync_when_artifact_synthesis_and_failure_audit_throw_rethrows_synthesis()
+    {
+        Guid runGuid = Guid.NewGuid();
+        AuthorityPipelineStagesExecutorTestFactory.ExecutorFixture fixture = AuthorityPipelineStagesExecutorTestFactory.CreateExecutor(
+            configureSynthesis: s =>
+            {
+                s.Setup(x => x.SynthesizeAsync(It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>()))
+                    .ThrowsAsync(new InvalidOperationException("synthesis failed"));
+                s.Setup(x => x.SynthesizeAsync(
+                        It.IsAny<ManifestDocument>(),
+                        It.IsAny<IReadOnlyList<TechnologyLedgerEntry>>(),
+                        It.IsAny<CancellationToken>()))
+                    .ThrowsAsync(new InvalidOperationException("synthesis failed"));
+            });
+        AuthorityPipelineStagesExecutor sut = fixture.Executor;
+        Mock<IAuditService> audit = fixture.Audit;
+        audit
+            .Setup(a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.ArtifactSynthesisFailed),
+                It.IsAny<IArchLucidUnitOfWork>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new TimeoutException("audit insert blocked"));
+
+        AuthorityPipelineContext ctx = AuthorityPipelineStagesExecutorTestFactory.CreateContext(runId: runGuid);
+
+        Func<Task> act = async () => await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("synthesis failed");
     }
 
     private sealed record HistogramMeasurement([UsedImplicitly] double Value, List<KeyValuePair<string, object?>> Tags);

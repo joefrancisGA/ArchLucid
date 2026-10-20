@@ -26,7 +26,13 @@ public sealed class RequiredAuditTrailOrphanProbeSqlTests
         RequiredAuditTrailOrphanProbeSql.ArchitectureShareGrantedMissingAudit.Should()
             .Contain("ArchitectureIdentity.ShareGranted")
             .And.Contain("dbo.ArchitectureShares")
+            .And.Contain("s.ActorOid")
+            .And.Contain("$.targetActorOid")
             .And.Contain("@GraceMinutes");
+
+        RequiredAuditTrailOrphanProbeSql.ArchitectureShareGrantedMissingAudit.Should()
+            .NotContain("s.UserId")
+            .And.NotContain("$.userId");
 
         RequiredAuditTrailOrphanProbeSql.ArchitectureRestrictToSharesEnabledMissingAudit.Should()
             .Contain("ArchitectureIdentity.RestrictToSharesEnabled")

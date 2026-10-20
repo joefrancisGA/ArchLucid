@@ -108,8 +108,20 @@ def check_gate_text(file_name: str, text: str, catalog: set[str], retired: set[s
     return errors
 
 
-def fetch_remote_slugs() -> list[str]:
+def github_headers() -> dict[str, str]:
     headers = {"User-Agent": "archlucid-abq-51", "Accept": "application/vnd.github+json"}
+    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+
+    if token:
+        # Authenticated GitHub API calls use a much higher rate limit than the
+        # shared Actions egress IP, which otherwise 403s this remote pin check.
+        headers["Authorization"] = f"Bearer {token}"
+
+    return headers
+
+
+def fetch_remote_slugs() -> list[str]:
+    headers = github_headers()
 
     def get(url: str) -> dict:
         request = urllib.request.Request(url, headers=headers)
