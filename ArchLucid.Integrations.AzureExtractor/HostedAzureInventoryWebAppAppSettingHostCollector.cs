@@ -81,7 +81,6 @@ public static class HostedAzureInventoryWebAppAppSettingHostCollector
                     if (logger.IsEnabled(LogLevel.Debug))
                     {
                         logger.LogDebug(
-                            ex,
                             "Hosted Azure extractor skipped app service config list {ListPath} for {SiteResourceId}.",
                             listPath,
                             siteResourceId);

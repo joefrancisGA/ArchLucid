@@ -76,7 +76,6 @@ public static class HostedAzureInventoryAppSettingHostCollector
                 if (logger.IsEnabled(LogLevel.Debug))
                 {
                     logger.LogDebug(
-                        ex,
                         "Hosted Azure extractor skipped Container App env hosts for {ContainerAppId}.",
                         resource.ResourceId);
                 }

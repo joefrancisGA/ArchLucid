@@ -1105,6 +1105,57 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
         @($rows | ForEach-Object flowDirection) | Should -Contain 'Write'
     }
 
+    It 'serializes app setting host companion rows without secret payload (DCH-03)' {
+        [object[]]$fixtures = @(
+            @{
+                value = 'Server=tcp:prodsql.database.windows.net,1433;Initial Catalog=db;Password=s3cret-value'
+                host = 'prodsql.database.windows.net'
+            },
+            @{
+                value = 'DefaultEndpointsProtocol=https;AccountName=starch;AccountKey=s3cret-value;EndpointSuffix=core.windows.net'
+                host = 'starch.blob.core.windows.net'
+            },
+            @{
+                value = 'Endpoint=sb://orders.servicebus.windows.net/;SharedAccessKey=s3cret-value'
+                host = 'orders.servicebus.windows.net'
+            }
+        )
+
+        foreach ($fixture in $fixtures) {
+            [object[]]$parsedRows = @(Get-ArchLucidAzureAppSettingHostParsedRows -SettingName 'ConnectionStrings:Primary' -Value $fixture.value)
+            $rows = [System.Collections.ArrayList]::new()
+            $seen = @{}
+
+            foreach ($parsed in $parsedRows) {
+                Add-ArchLucidAzureAppSettingHostCompanionRow `
+                    -Rows $rows `
+                    -Seen $seen `
+                    -SiteResourceId '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app1' `
+                    -SettingName 'ConnectionStrings:Primary' `
+                    -ParsedHost $parsed.parsedHost `
+                    -Catalog $parsed.catalog `
+                    -KeyVaultHost $parsed.keyVaultHost `
+                    -SecretName $parsed.secretName `
+                    -WarningCode $parsed.warningCode
+            }
+
+            [string]$json = $rows | ConvertTo-Json -Depth 6 -Compress
+            $json | Should -Not -Contain 's3cret-value'
+            $json | Should -Contain $fixture.host
+        }
+    }
+
+    It 'does not echo app setting values from the Web sites config list catch (DCH-03)' {
+        [string]$helpers = Get-Content -LiteralPath $script:helperPath -Raw
+        [System.Text.RegularExpressions.Match] $functionMatch = [regex]::Match(
+            $helpers,
+            '(?ms)^function Get-ArchLucidAzureAppSettingHostCompanionRows\b.*?(?=^function |\z)')
+
+        $functionMatch.Success | Should -Be $true
+        $functionMatch.Value | Should -Not -Match '\$response\.Content'
+        $functionMatch.Value | Should -Not -Match 'catch\s*\{[^\}]*\$settingValue'
+    }
+
     It 'collects safe Azure resource ids from Logic App action definitions' {
         $rows = [System.Collections.ArrayList]::new()
         $seen = @{}

@@ -40,4 +40,35 @@ public sealed class AzureInventoryAppSettingHostDiscardTests
                                 || name.Contains("Password", StringComparison.OrdinalIgnoreCase)
                                 || name.Contains("ConnectionString", StringComparison.OrdinalIgnoreCase));
     }
+
+    [Theory]
+    [InlineData(
+        "Server=tcp:prodsql.database.windows.net,1433;Initial Catalog=db;Password=s3cret-value",
+        "prodsql.database.windows.net")]
+    [InlineData(
+        "DefaultEndpointsProtocol=https;AccountName=starch;AccountKey=s3cret-value;EndpointSuffix=core.windows.net",
+        "starch.blob.core.windows.net")]
+    [InlineData(
+        "Endpoint=sb://orders.servicebus.windows.net/;SharedAccessKey=s3cret-value",
+        "orders.servicebus.windows.net")]
+    public void Row_appender_serializes_without_secret_payload(string connectionString, string expectedHost)
+    {
+        List<AzureInventoryAppSettingHostRow> rows = [];
+        HashSet<string> seenKeys = new(StringComparer.OrdinalIgnoreCase);
+
+        AzureInventoryAppSettingHostRowAppender.AppendParsedRows(
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app1",
+            "ConnectionStrings:Primary",
+            connectionString,
+            secretRef: null,
+            rows,
+            seenKeys);
+
+        rows.Should().ContainSingle();
+        rows[0].Host.Should().Be(expectedHost);
+
+        string json = JsonSerializer.Serialize(rows);
+
+        json.Should().NotContain(SecretPayload);
+    }
 }
