@@ -236,6 +236,35 @@ describe("ensureAccessTokenFresh (LK-06 P2 BFF refresh)", () => {
     expect(bffSessionSync.refreshBffSessionCookie).not.toHaveBeenCalled();
   });
 
+  it("does not write refreshed expiry when identity hints are cleared during an in-flight BFF refresh", async () => {
+    let releaseRefresh: (() => void) | undefined;
+    const refreshedMs = Date.now() + 3_600_000;
+
+    vi.mocked(bffSessionSync.refreshBffSessionCookie).mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          releaseRefresh = () => {
+            resolve({ ok: true, expiresAtMs: refreshedMs });
+          };
+        }),
+    );
+
+    seedExpiredSessionWithIdentityHints();
+    const expiresHintAtRefreshStart = sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY);
+
+    const refreshPromise = ensureAccessTokenFresh();
+
+    await Promise.resolve();
+
+    sessionStorage.removeItem(OIDC_USER_SUBJECT_KEY);
+
+    releaseRefresh?.();
+    await refreshPromise;
+
+    expect(sessionStorage.getItem(OIDC_USER_SUBJECT_KEY)).toBeNull();
+    expect(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY)).toBe(expiresHintAtRefreshStart);
+  });
+
   it("still refreshes when only a display-name identity hint remains", async () => {
     const refreshedMs = Date.now() + 3_600_000;
 

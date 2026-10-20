@@ -446,7 +446,7 @@ export async function ensureAccessTokenFresh(): Promise<void> {
 
         if (result.ok) {
           // A concurrent sign-in may have refreshed session hints while refresh was in flight.
-          if (expiresAtHintAtStart === getExpiresAtMs()) {
+          if (expiresAtHintAtStart === getExpiresAtMs() && hasOidcSessionIdentityHints()) {
             sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(result.expiresAtMs));
           }
 

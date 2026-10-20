@@ -490,6 +490,34 @@ describe("persistTokenResponse", () => {
     expect(sessionStorage.getItem(OIDC_DISPLAY_NAME_KEY)).toBeNull();
   });
 
+  it("persists expiry hints for opaque access when id_token supplies subject", () => {
+    const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
+    const idPayload = Buffer.from(JSON.stringify({ sub: "opaque-pair-user" })).toString("base64url");
+
+    persistTokenResponse({
+      access_token: "opaque-access-token",
+      id_token: `${header}.${idPayload}.sig`,
+      expires_in: 3600,
+    });
+
+    expect(sessionStorage.getItem(OIDC_USER_SUBJECT_KEY)).toBe("opaque-pair-user");
+    expect(Number(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY))).toBeGreaterThan(Date.now());
+  });
+
+  it("prefers access-token subject over a conflicting id_token subject", () => {
+    const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
+    const accessPayload = Buffer.from(JSON.stringify({ sub: "access-subject" })).toString("base64url");
+    const idPayload = Buffer.from(JSON.stringify({ sub: "id-token-subject" })).toString("base64url");
+
+    persistTokenResponse({
+      access_token: `${header}.${accessPayload}.sig`,
+      id_token: `${header}.${idPayload}.sig`,
+      expires_in: 3600,
+    });
+
+    expect(sessionStorage.getItem(OIDC_USER_SUBJECT_KEY)).toBe("access-subject");
+  });
+
   it("clears stale identity hints when a replacement token has no identity claims", () => {
     const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
     const previousPayload = Buffer.from(JSON.stringify({ sub: "previous-user", name: "Previous User" })).toString(
