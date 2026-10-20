@@ -25,6 +25,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
             : manifest.Metadata.Name.Trim();
         sb.AppendLine($"# {reviewName}");
         sb.AppendLine();
+        ArchitectureMandatedMarkdownSections.Append(sb, manifest);
         sb.AppendLine("## Sponsor Summary");
         sb.AppendLine(string.IsNullOrWhiteSpace(manifest.Metadata.Summary)
             ? "Sponsor summary was not stored."
