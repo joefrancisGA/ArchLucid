@@ -1,3 +1,6 @@
+2026-10-20 seed hunt (seed→hit): `api-tenancy-workspaces` — promoted `ResolveScopedWorkspaceInventoryRow` returning the first duplicate row that still pins JWT `scope.ProjectId` even when that project is no longer active, while `ResolveScopedWorkspaceDefaultProjectId` correctly surfaced a later row's active default (list `Name` disagreed with `DefaultProjectId`); align display row to resolved default metadata first, then soft-deleted scope-pin fallback; regression `ListAsync_uses_active_default_metadata_row_when_stale_scope_pin_is_not_active`; 63 scoped `TenantWorkspaces` tests passed; cheap-disproof closed sibling tenancy null-deref (saturated).
+
+
 2026-10-20 seed hunt (seed→hit): `api-tenancy-workspaces` — promoted `ResolveScopedWorkspaceInventoryRow` skipping duplicate inventory rows that pin JWT `scope.ProjectId` when that project is soft-deleted (active-project filter ran before scope-pin match), so recycle-bin/workspace list headers showed the first inventory row name; honor scope metadata pin before active-default validation; regression `ListRecycleBinAsync_uses_scope_metadata_row_name_when_default_project_is_soft_deleted`; 62 scoped `TenantWorkspaces` tests passed; cheap-disproof closed saturated null-deref on sibling tenancy controllers.
 
 
