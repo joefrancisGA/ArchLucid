@@ -12,6 +12,17 @@ const REMEDIATION_PRIORITY_WHEN_THIS_WEEK_MAX_RANK = 5;
 
 const REMEDIATION_PRIORITY_WHEN_THIS_MONTH_MAX_RANK = 25;
 
+export function resolveRemediationPriorityQueueRankOrder(
+  rankOrder: number | null | undefined,
+  oneBasedRowIndex: number,
+): number {
+  if (rankOrder !== null && rankOrder !== undefined) {
+    return rankOrder;
+  }
+
+  return oneBasedRowIndex;
+}
+
 export function formatRemediationPriorityWhenBandForRankOrder(
   rankOrder: number | null | undefined,
 ): string {
@@ -20,6 +31,15 @@ export function formatRemediationPriorityWhenBandForRankOrder(
   }
 
   return formatRemediationPriorityWhenBand(rankOrder);
+}
+
+export function formatRemediationPriorityWhenBandForQueueRow(
+  rankOrder: number | null | undefined,
+  oneBasedRowIndex: number,
+): string {
+  return formatRemediationPriorityWhenBand(
+    resolveRemediationPriorityQueueRankOrder(rankOrder, oneBasedRowIndex),
+  );
 }
 
 export function formatRemediationPriorityWhenBand(rank: number): string {
