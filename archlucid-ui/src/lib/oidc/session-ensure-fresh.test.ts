@@ -2,10 +2,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import * as bffSessionSync from "@/lib/oidc/bff-session-sync";
-import { clearOidcSession, ensureAccessTokenFresh, persistTokenResponse } from "@/lib/oidc/session";
+import {
+  clearOidcSession,
+  ensureAccessTokenFresh,
+  persistTokenResponse,
+  storePkceState,
+} from "@/lib/oidc/session";
 import {
   OIDC_DISPLAY_NAME_KEY,
   OIDC_EXPIRES_AT_MS_KEY,
+  OIDC_OAUTH_STATE_KEY,
   OIDC_USER_SUBJECT_KEY,
 } from "@/lib/oidc/storage-keys";
 
@@ -234,6 +240,35 @@ describe("ensureAccessTokenFresh (LK-06 P2 BFF refresh)", () => {
     await ensureAccessTokenFresh();
 
     expect(bffSessionSync.refreshBffSessionCookie).not.toHaveBeenCalled();
+  });
+
+  it("drops only the expiry hint when BFF refresh is rejected after identity hints were cleared mid-flight", async () => {
+    let releaseRefresh: (() => void) | undefined;
+
+    vi.mocked(bffSessionSync.refreshBffSessionCookie).mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          releaseRefresh = () => {
+            resolve({ ok: false, shouldClearSession: true });
+          };
+        }),
+    );
+
+    storePkceState("callback-state", "callback-verifier", "callback-nonce", "primary");
+    seedExpiredSessionWithIdentityHints();
+
+    const refreshPromise = ensureAccessTokenFresh();
+
+    await Promise.resolve();
+
+    sessionStorage.removeItem(OIDC_USER_SUBJECT_KEY);
+
+    releaseRefresh?.();
+    await refreshPromise;
+
+    expect(sessionStorage.getItem(OIDC_USER_SUBJECT_KEY)).toBeNull();
+    expect(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY)).toBeNull();
+    expect(sessionStorage.getItem(OIDC_OAUTH_STATE_KEY)).toBe("callback-state");
   });
 
   it("does not write refreshed expiry when identity hints are cleared during an in-flight BFF refresh", async () => {

@@ -463,7 +463,12 @@ export async function ensureAccessTokenFresh(): Promise<void> {
         if (result.shouldClearSession) {
           // A concurrent sign-in may have refreshed session hints while refresh was in flight.
           if (expiresAtHintAtStart === getExpiresAtMs()) {
-            clearOidcSession();
+            if (hasOidcSessionIdentityHints()) {
+              clearOidcSession();
+            } else {
+              sessionStorage.removeItem(OIDC_EXPIRES_AT_MS_KEY);
+              void clearBffSessionCookie();
+            }
           }
         }
       } finally {
