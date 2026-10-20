@@ -116,10 +116,11 @@ describe("RunDetailEvidenceTabPanel", () => {
       </QueryClientProvider>,
     );
 
-    expect(screen.getByTestId("run-detail-evidence-tab-scope")).toHaveTextContent(
-      "Evidence here is what this review used.",
-    );
-    expect(screen.getByRole("link", { name: "Submitted evidence" })).toHaveAttribute("href", "#submitted-evidence-inventory");
+    const scopeSentence = screen.getByTestId("run-detail-evidence-tab-scope");
+    expect(scopeSentence).toHaveTextContent("Evidence here is what this review used.");
+    const submittedEvidenceNav = screen.getByRole("link", { name: "Submitted evidence" });
+    expect(scopeSentence.compareDocumentPosition(submittedEvidenceNav) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(submittedEvidenceNav).toHaveAttribute("href", "#submitted-evidence-inventory");
     expect(screen.getByRole("link", { name: "Deliverables" })).toHaveAttribute("href", "#artifacts-exports");
     expect(screen.getByRole("link", { name: "Evidence basis" })).toHaveAttribute("href", "#trust-evidence");
 
