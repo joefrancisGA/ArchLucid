@@ -292,7 +292,8 @@ public sealed class IdentityProviderActivationServiceTests
             {
                 Protocol = "saml",
                 IssuerUri = "https://idp.example/saml",
-                ClaimMapping = mapping
+                ClaimMapping = mapping,
+                MetadataXml = ValidSamlMetadataXml,
             },
             CancellationToken.None);
 
@@ -773,6 +774,40 @@ public sealed class IdentityProviderActivationServiceTests
 
         Func<Task> act = () => sut.ActivateAsync(
             Guid.Parse("17171717-1717-1717-1717-171717171717"),
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "saml",
+                IssuerUri = "https://idp.example/saml",
+                ClaimMapping = ValidClaimMapping(),
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*MetadataXml*");
+    }
+
+    [Fact]
+    public async Task ActivateAsync_rejects_protocol_switch_to_saml_without_metadata()
+    {
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        IdentityProviderActivationService sut = new(repository);
+        Guid tenantId = Guid.Parse("18181818-1818-1818-1818-181818181818");
+
+        await sut.ActivateAsync(
+            tenantId,
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = ValidClaimMapping(),
+                KeyVaultSecretName = "tenant-idp-client-secret",
+            },
+            CancellationToken.None);
+
+        Func<Task> act = () => sut.ActivateAsync(
+            tenantId,
             "admin@test",
             new IdentityProviderActivateRequest
             {

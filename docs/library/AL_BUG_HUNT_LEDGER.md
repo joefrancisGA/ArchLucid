@@ -5,6 +5,9 @@
 - [x] (proven) `AgentOutputQualityGate.Evaluate` — non-finite `calibratedConfidence` bypasses reject/warn comparisons — **hit 2026-10-20 thorough hunt (lane C):** reject before floor checks; regression `Evaluate_rejects_when_calibrated_confidence_is_non_finite`.
 - [x] (valid-no-repro) `AgentOutputEvaluationHarness.Evaluate` / reference-case required JSON keys — **cheap-disproof 2026-10-20 thorough hunt (lane C):** `StringComparer.OrdinalIgnoreCase` name sets; regression `Evaluate_matches_required_json_keys_case_insensitively`.
 - [x] (valid-no-repro) `AgentOutputLlmSemanticJudge.TryParseJudgeResponse` — out-of-range `overallQuality` clamped — **cheap-disproof 2026-10-20 thorough hunt (lane C):** intentional clamp after finite parse; overlaps saturated external judge score-validation class.
+2026-10-20 seed hunt (seed→hit, lane B): `identity-provider-config` — picker seed hunt; promoted protocol switch OIDC→SAML without `MetadataXml` after greenfield-only guard left a null-metadata SAML row; `requiresSamlMetadata` when `existing is null` or activating SAML from a non-SAML row; regressions `ActivateAsync_rejects_protocol_switch_to_saml_without_metadata` and updated `ActivateAsync_protocol_switch_clears_oidc_key_vault_secret_when_omitted`; 70 scoped activation/controller tests passed (`RunAnalyzers=false`).
+
+- [x] (proven) `IdentityProviderActivationService.ActivateAsync` — protocol switch to SAML without substantive `MetadataXml` — **hit 2026-10-20 seed hunt (lane B):** `requiresSamlMetadata` guard; regression above.
 
 2026-10-20 thorough hunt (hit, lane C): `agent-runtime-evaluation` — owner-directed audit closing the **case-sensitive agent-output JSON property read** defect class after two prior partial hits; routed every evaluation-boundary `JsonElement` property lookup in the zone through shared `AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase` (removed eight duplicate private helpers; fixed remaining case-sensitive reads in `AgentResultEmbeddingFaithfulnessScorer` and `AgentOutputFaithfulnessEvaluator.ReadScore`); regression locks per site (`AgentOutputJsonPropertyReaderTests`, existing heuristic/citation/coverage/faithfulness/LLM-judge case-variant tests, `TryComputeMeanCosineAsync_reads_case_variant_claims_array`, `TryEvaluateAsync_parses_case_variant_faithfulness_score_property`); **class closed** — do not reopen casing-only agent-output JSON property hunts in this zone; 220 scoped Evaluation tests passed.
 
@@ -14969,6 +14972,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: identity-provider-config
 
+2026-10-20 seed hunt (seed→hit, lane B): protocol switch to SAML without `MetadataXml`; `requiresSamlMetadata` when first row or non-SAML predecessor; regression `ActivateAsync_rejects_protocol_switch_to_saml_without_metadata`; 70 scoped activation/controller tests passed.
+
 2026-10-20 seed hunt (seed→hit, lane B): greenfield SAML activate without `MetadataXml`; `EnsurePresentWhenRequired` on first tenant configuration row; regression `ActivateAsync_rejects_saml_activate_without_metadata_on_greenfield_tenant`; 69 scoped activation/controller tests passed.
 
 2026-10-20 seed hunt (seed→hit): promoted SAML `MetadataXml` acceptance on activate — `IdentityProviderActivationService` persisted non-XML or non-metadata strings for SAML tenants while discovery parses metadata; validate with `SamlMetadataDiscoveryParser.Parse` before upsert; regression `ActivateAsync_rejects_malformed_saml_metadata_xml`; cheap-disproof closed five ledger `(candidate)` rows (discover HTTP 200 envelope, blank metadataUrl diagnostic, claim-mapping JSON size without SQL repro, test-login null-mapping sandbox guard, preserved oversize Key Vault secret rejected by `EnsureKeyVaultSecretNameFits`); 53 scoped `IdentityProviderActivationServiceTests` passed.
@@ -14991,11 +14996,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 63
-- **bugs-found:** 45
+- **hunts:** 64
+- **bugs-found:** 46
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — greenfield SAML activation without MetadataXml
+- **last-bug:** 2026-10-20 — protocol switch to SAML without MetadataXml
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

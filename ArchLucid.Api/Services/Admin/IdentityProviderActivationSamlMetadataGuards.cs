@@ -11,12 +11,12 @@ internal static class IdentityProviderActivationSamlMetadataGuards
     internal static void EnsurePresentWhenRequired(
         TenantIdentityProtocol protocol,
         string? resolvedMetadataXml,
-        bool isGreenfieldTenantActivation)
+        bool requiresSubstantiveMetadata)
     {
         if (protocol != TenantIdentityProtocol.Saml)
             return;
 
-        if (!isGreenfieldTenantActivation)
+        if (!requiresSubstantiveMetadata)
             return;
 
         if (IdentityProviderSubstantiveTextValidation.HasSubstantiveText(resolvedMetadataXml))
