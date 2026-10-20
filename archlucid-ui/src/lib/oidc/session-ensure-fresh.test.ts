@@ -20,9 +20,9 @@ function seedExpiredSessionWithIdentityHints(): void {
   sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(Date.now()));
 }
 
-function accessTokenWithSubjectClaim(sub: string = "user-test"): string {
+function accessTokenWithSubjectClaim(sub: string = "user-test", name?: string): string {
   const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
-  const payload = Buffer.from(JSON.stringify({ sub })).toString("base64url");
+  const payload = Buffer.from(JSON.stringify({ sub, ...(name ? { name } : {}) })).toString("base64url");
 
   return `${header}.${payload}.sig`;
 }
@@ -378,6 +378,84 @@ describe("ensureAccessTokenFresh (LK-06 P2 BFF refresh)", () => {
 
     expect(sessionStorage.getItem(OIDC_USER_SUBJECT_KEY)).toBe("user-restored");
     expect(sessionStorage.getItem(OIDC_DISPLAY_NAME_KEY)).toBe("Jane Operator");
+    expect(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY)).toBe(String(expiredHintMs));
+  });
+
+  it("does not overwrite expiry when stale ok refresh completes after subject swap without changing expiry hint", async () => {
+    let releaseRefresh: (() => void) | undefined;
+    const expiredHintMs = Date.now();
+    const staleBffExpiryMs = Date.now() + 60_000;
+
+    vi.mocked(bffSessionSync.refreshBffSessionCookie).mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          releaseRefresh = () => {
+            resolve({ ok: true, expiresAtMs: staleBffExpiryMs });
+          };
+        }),
+    );
+    vi.spyOn(bffSessionSync, "syncBffSessionCookieFromTokenResponse").mockResolvedValue();
+
+    sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, "user-before-swap");
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(expiredHintMs));
+
+    const refreshPromise = ensureAccessTokenFresh();
+
+    await Promise.resolve();
+
+    const nowSpy = vi.spyOn(Date, "now").mockReturnValue(expiredHintMs - 3_600_000);
+
+    persistTokenResponse({ access_token: accessTokenWithSubjectClaim("user-after-swap"), expires_in: 3600 });
+
+    nowSpy.mockRestore();
+
+    await Promise.resolve();
+
+    releaseRefresh?.();
+    await refreshPromise;
+
+    expect(sessionStorage.getItem(OIDC_USER_SUBJECT_KEY)).toBe("user-after-swap");
+    expect(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY)).toBe(String(expiredHintMs));
+  });
+
+  it("does not clear session when pre-refresh BFF 401 arrives after display-name refresh with unchanged subject and expiry", async () => {
+    let releaseRefresh: (() => void) | undefined;
+    const expiredHintMs = Date.now();
+
+    vi.mocked(bffSessionSync.refreshBffSessionCookie).mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          releaseRefresh = () => {
+            resolve({ ok: false, shouldClearSession: true });
+          };
+        }),
+    );
+    vi.spyOn(bffSessionSync, "syncBffSessionCookieFromTokenResponse").mockResolvedValue();
+
+    sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, "user-stable");
+    sessionStorage.setItem(OIDC_DISPLAY_NAME_KEY, "Old Display");
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(expiredHintMs));
+
+    const refreshPromise = ensureAccessTokenFresh();
+
+    await Promise.resolve();
+
+    const nowSpy = vi.spyOn(Date, "now").mockReturnValue(expiredHintMs - 3_600_000);
+
+    persistTokenResponse({
+      access_token: accessTokenWithSubjectClaim("user-stable", "New Display"),
+      expires_in: 3600,
+    });
+
+    nowSpy.mockRestore();
+
+    await Promise.resolve();
+
+    releaseRefresh?.();
+    await refreshPromise;
+
+    expect(sessionStorage.getItem(OIDC_USER_SUBJECT_KEY)).toBe("user-stable");
+    expect(sessionStorage.getItem(OIDC_DISPLAY_NAME_KEY)).toBe("New Display");
     expect(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY)).toBe(String(expiredHintMs));
   });
 

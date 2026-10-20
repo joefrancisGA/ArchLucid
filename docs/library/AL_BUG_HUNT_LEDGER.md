@@ -1,5 +1,19 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
+2026-10-20 seed hunt (seed→hit): `ui-oidc` — picker seed hunt; promoted run #88 `(candidate)` display-name refresh with unchanged subject during stale BFF 401; `displayReplacedAfterPersist` generation bump; regressions `does not clear session when pre-refresh BFF 401 arrives after display-name refresh with unchanged subject and expiry` and `does not overwrite expiry when stale ok refresh completes after subject swap without changing expiry hint`; cheap-disproof closed three sibling `(candidate)` rows; seeded five new `(candidate)` rows; 317 vitest tests in `src/lib/oidc` passed.
+
+- [x] (proven) `persistTokenResponse` — subject replace with only display-name change (same sub) during refresh — **2026-10-20 seed hunt (lane C):** stale `shouldClearSession` cleared profile refresh when expiry hint unchanged; `displayReplacedAfterPersist` bump.
+- [x] (valid-no-repro) `ensureAccessTokenFresh` — stale ok refresh writes BFF expiry when subject replaced and expiry hint unchanged — **cheap-disproof 2026-10-20 seed hunt (lane C):** subject-replace bump ignores stale ok; regression lock on unchanged expiry hint.
+- [x] (valid-no-repro) `syncTokenToBff` — subject-replaced bump vs duplicate persist same subject — **cheap-disproof 2026-10-20 seed hunt (lane C):** identical subject/display persist does not bump generation; stale refresh remains valid for same session.
+- [x] (valid-no-repro) `clearOidcSession` — subject replace then immediate sign-out before stale refresh completes — **cheap-disproof 2026-10-20 seed hunt (lane C):** `clearOidcSession` increments generation before stale refresh applies; existing sign-out race regressions.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — soft-fail refresh after subject replace should not clear cookie — **cheap-disproof 2026-10-20 seed hunt (lane C):** `does not clear the session on transient BFF refresh failure` covers soft-fail path.
+
+- (candidate) `ensureAccessTokenFresh` — stale ok refresh after display-only identity (no subject) restore — locus: `displayRestoredAfterPersist` without subject; input: strip subject, persist id_token name only before stale ok.
+- (candidate) `persistTokenResponse` — display hint cleared then restored with same subject during refresh — locus: `displayRestoredAfterPersist`; input: remove display key mid-flight then persist JWT name.
+- (candidate) `syncTokenToBff` — display-replaced bump invalidates in-flight token sync POST — locus: generation vs `syncTokenToBff`; input: profile refresh during slow BFF sync.
+- (candidate) `bff-session-sync` — refresh route returns ok with expires_at_ms after display-replace bump — locus: generation mismatch ok write; input: stale ok after display-only profile update.
+- (candidate) `initiateOidcRedirect` — profile refresh during pending primary PKCE — locus: PKCE keys vs generation bump; input: callback persist updates display while redirect in flight.
+
 2026-10-20 seed hunt (seed→hit): `ui-oidc` — picker seed hunt; promoted run #87 `(candidate)` subject swap during in-flight BFF refresh; `subjectReplacedAfterPersist` generation bump when subject hint changes without clearing session; regression `does not clear a replacement sign-in when a pre-refresh BFF 401 arrives after subject swap without changing expiry`; cheap-disproof closed four sibling `(candidate)` rows; seeded five new `(candidate)` rows; 315 vitest tests in `src/lib/oidc` passed.
 
 - [x] (proven) `persistTokenResponse` — subject swap (A→B) without generation bump during in-flight refresh — **2026-10-20 seed hunt (lane C):** stale `shouldClearSession` cleared replacement user when expiry hint unchanged; `subjectReplacedAfterPersist` bump.

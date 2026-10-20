@@ -202,6 +202,7 @@ export function persistTokenResponse(tokens: OidcTokenResponse): void {
   const expiresInSec = resolveExpiresInSeconds(tokens.expires_in);
   const expiresAtMs = Date.now() + expiresInSec * 1000;
   const subjectHintBeforePersist = readSignedInUserSubject();
+  const displayHintBeforePersist = readSignedInDisplayName();
   const hadIdentityHintsBeforePersist = hasOidcSessionIdentityHints();
 
   persistNonSensitiveSessionHints(normalizedTokens, expiresAtMs);
@@ -223,8 +224,21 @@ export function persistTokenResponse(tokens: OidcTokenResponse): void {
     subjectHintBeforePersist !== null &&
     subjectHintAfterPersist !== null &&
     subjectHintBeforePersist !== subjectHintAfterPersist;
+  const displayHintAfterPersist = readSignedInDisplayName();
+  const displayRestoredAfterPersist =
+    displayHintBeforePersist === null && displayHintAfterPersist !== null;
+  const displayReplacedAfterPersist =
+    displayHintBeforePersist !== null &&
+    displayHintAfterPersist !== null &&
+    displayHintBeforePersist !== displayHintAfterPersist;
 
-  if (!hadIdentityHintsBeforePersist || subjectRestoredAfterPersist || subjectReplacedAfterPersist) {
+  if (
+    !hadIdentityHintsBeforePersist ||
+    subjectRestoredAfterPersist ||
+    subjectReplacedAfterPersist ||
+    displayRestoredAfterPersist ||
+    displayReplacedAfterPersist
+  ) {
     // A replacement sign-in after mid-flight hint loss must ignore stale BFF refresh results.
     refreshSessionGeneration += 1;
     refreshInFlight = null;
