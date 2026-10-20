@@ -268,7 +268,21 @@ export function buildFindingPolicyEvidenceCitationsFromQuickDecision(
     return { pack, policy, evidence: evidenceFromSnippets };
   }
 
-  const evidenceRefCount = finding.evidenceRefCount ?? 0;
+  if (finding.evidenceRefCount === null || finding.evidenceRefCount === undefined) {
+    return {
+      pack,
+      policy,
+      evidence: [
+        {
+          label: "Evidence reference count was not stored.",
+          detail: null,
+          href: findingInspectHref(runId, finding.findingId),
+        },
+      ],
+    };
+  }
+
+  const evidenceRefCount = finding.evidenceRefCount;
 
   if (evidenceRefCount <= 0) {
     return { pack, policy, evidence: [] };

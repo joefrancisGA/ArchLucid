@@ -289,7 +289,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     return ordinals;
   }, [admittedRequiredMustQuestionKeys, allQuestions, requiredMustQuestionKeys]);
   const getClarificationOrdinal = useCallback(
-    (questionKey: string): number => clarificationOrdinalByKey.get(questionKey) ?? 0,
+    (questionKey: string): number | null => clarificationOrdinalByKey.get(questionKey) ?? null,
     [clarificationOrdinalByKey],
   );
   const getClarificationStatus = useCallback(

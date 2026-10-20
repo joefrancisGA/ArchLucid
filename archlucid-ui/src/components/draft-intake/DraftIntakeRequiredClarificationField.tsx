@@ -51,7 +51,7 @@ export type DraftIntakeRequiredClarificationFieldProps = {
   readonly question: DraftElicitationQuestion;
   readonly answer: string;
   readonly busy: boolean;
-  readonly clarificationIndex: number;
+  readonly clarificationIndex: number | null;
   readonly clarificationTotal: number;
   readonly isPrimary?: boolean;
   readonly isFocused?: boolean;
@@ -110,7 +110,9 @@ export function DraftIntakeRequiredClarificationField(
           )}
           data-testid="socratic-question-progress"
         >
-          Required clarification {props.clarificationIndex} of {props.clarificationTotal}
+          {props.clarificationIndex !== null && props.clarificationIndex > 0
+            ? `Required clarification ${props.clarificationIndex} of ${props.clarificationTotal}`
+            : "Clarification order was not stored."}
         </p>
         {props.clarificationStatus !== undefined ? (
           <StatusTag

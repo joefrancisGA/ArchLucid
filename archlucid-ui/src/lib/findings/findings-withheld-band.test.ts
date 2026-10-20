@@ -49,6 +49,12 @@ describe("findings-withheld-band (DR-02)", () => {
   it("formats stamp honesty line when count is positive", () => {
     expect(formatStampWithheldHonestyLine(2)).toContain("2 withheld");
     expect(formatStampWithheldHonestyLine(0)).toBeNull();
+    expect(formatStampWithheldHonestyLine(undefined)).toBe(
+      "Withheld finding count was not stored.",
+    );
+    expect(formatStampCatalogEngineFailureHonestyLine(undefined)).toBe(
+      "Catalog engine failure count was not stored.",
+    );
   });
 
   it("parses advisory engine failure withheld rows", () => {

@@ -4,6 +4,7 @@ import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-det
 import {
   countFindingsByClassificationBand,
   filterFindingsByClassificationBand,
+  isUncitedFinding,
 } from "@/lib/findings/review-detail-findings-classification-band";
 
 function finding(
@@ -21,6 +22,7 @@ function finding(
     enforcementTier: overrides.enforcementTier ?? "baseline",
     classification: overrides.classification ?? null,
     insightDensityScore: overrides.insightDensityScore ?? null,
+    evidenceRefCount: overrides.evidenceRefCount,
   };
 }
 
@@ -47,6 +49,19 @@ describe("review-detail-findings-classification-band (IS-07)", () => {
       decisionGrade: 1,
       checklist: 1,
       uncited: 0,
+    });
+  });
+
+  it("does not treat omitted evidenceRefCount as uncited (P-06)", () => {
+    const omitted = finding({ findingId: "omit-1", evidenceRefCount: null });
+    const zero = finding({ findingId: "zero-1", evidenceRefCount: 0 });
+
+    expect(isUncitedFinding(omitted)).toBe(false);
+    expect(isUncitedFinding(zero)).toBe(true);
+    expect(countFindingsByClassificationBand([omitted, zero])).toEqual({
+      decisionGrade: 0,
+      checklist: 0,
+      uncited: 1,
     });
   });
 });

@@ -13,7 +13,11 @@ export function AgentEvidenceFaithfulnessBadge(props: { ratio: unknown }) {
   const pres = evidenceFaithfulnessBadgePresentation(props.ratio);
 
   if (pres.tier === "absent")
-    return <span className="text-neutral-400 dark:text-neutral-500">—</span>;
+    return (
+      <span className="text-neutral-400 dark:text-neutral-500" aria-label="Faithfulness ratio was not stored.">
+        Faithfulness ratio was not stored.
+      </span>
+    );
 
   const hint = `${EVIDENCE_FAITHFULNESS_HEURISTIC_DISCLAIMER} Shown: ${pres.formattedRatio}.`;
 

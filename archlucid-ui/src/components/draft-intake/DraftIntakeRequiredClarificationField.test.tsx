@@ -254,4 +254,24 @@ describe("DraftIntakeRequiredClarificationField", () => {
 
     expect(onAnswerChange).toHaveBeenCalledWith(CLOUD_TARGET_QUESTION_KEY, "Azure");
   });
+
+  it("does not show clarification 0 of N when ordinal is missing (P-15)", () => {
+    render(
+      <DraftIntakeRequiredClarificationField
+        question={sampleQuestion}
+        answer=""
+        busy={false}
+        clarificationIndex={null}
+        clarificationTotal={7}
+        onAnswerChange={vi.fn()}
+        onSaveAndContinue={vi.fn()}
+        onSkip={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByTestId("socratic-question-progress")).toHaveTextContent(
+      "Clarification order was not stored.",
+    );
+    expect(screen.queryByText(/Required clarification 0 of/)).not.toBeInTheDocument();
+  });
 });

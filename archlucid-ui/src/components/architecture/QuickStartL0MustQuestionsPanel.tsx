@@ -229,7 +229,7 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
   const handledClarificationCount = total - activePendingQuestions.length;
 
   const getClarificationOrdinal = useCallback(
-    (questionKey: string): number => clarificationOrdinalByKey.get(questionKey) ?? 0,
+    (questionKey: string): number | null => clarificationOrdinalByKey.get(questionKey) ?? null,
     [clarificationOrdinalByKey],
   );
 

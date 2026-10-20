@@ -41,7 +41,7 @@ export type SocraticIntakeWizardStepClarificationsProps = {
   readonly totalRequiredClarifications: number;
   readonly handledClarificationCount: number;
   readonly allClarificationsHandled: boolean;
-  readonly getClarificationOrdinal: (questionKey: string) => number;
+  readonly getClarificationOrdinal: (questionKey: string) => number | null;
   readonly getClarificationStatus: (
     questionKey: string,
   ) => { kind: EnterpriseStatusKind; label: string } | undefined;

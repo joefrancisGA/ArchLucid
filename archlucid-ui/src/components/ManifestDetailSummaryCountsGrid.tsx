@@ -5,6 +5,7 @@ import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
+import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { BUYER_EXAMPLE_COUNT_SUFFIX } from "@/lib/buyer/buyer-polish-copy";
 import {
@@ -55,7 +56,7 @@ export function ManifestDetailSummaryCountsGrid({
       <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
         <p className={manifestTileLabelClass}>Decisions</p>
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.kpiValue)}>
-          {Number.isFinite(summary.decisionCount) ? summary.decisionCount : " — "}
+          {finiteIntegerCountDisplay(summary.decisionCount)}
         </p>
       </div>
       <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
@@ -63,13 +64,13 @@ export function ManifestDetailSummaryCountsGrid({
           {buyerPolishedLayout && isCuratedDemo ? "Monitored risks" : "Warnings"}
         </p>
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.kpiValue)}>
-          {Number.isFinite(summary.warningCount) ? summary.warningCount : " — "}
+          {finiteIntegerCountDisplay(summary.warningCount)}
         </p>
       </div>
       <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
         <p className={manifestTileLabelClass}>Unresolved</p>
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.kpiValue)}>
-          {Number.isFinite(summary.unresolvedIssueCount) ? summary.unresolvedIssueCount : " — "}
+          {finiteIntegerCountDisplay(summary.unresolvedIssueCount)}
         </p>
       </div>
       {includeShowcaseTrailTiles ? (

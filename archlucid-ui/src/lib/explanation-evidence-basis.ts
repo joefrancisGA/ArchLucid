@@ -97,28 +97,42 @@ export function resolveExplanationEvidenceBasisBadges(
     );
   }
 
-  const citationCount = input.citationCount ?? 0;
-
-  if (citationCount > 0 && !badges.some((item) => item.label === "low-support")) {
-    badges.push(
-      badge(
-        "evidence-backed",
-        "Evidence-backed",
-        `${citationCount} persisted citation${citationCount === 1 ? "" : "s"} support this explanation.`,
-        false,
-      ),
-    );
+  if (input.citationCount !== null && input.citationCount !== undefined && input.citationCount > 0) {
+    if (!badges.some((item) => item.label === "low-support")) {
+      const citationCount = input.citationCount;
+      badges.push(
+        badge(
+          "evidence-backed",
+          "Evidence-backed",
+          `${citationCount} persisted citation${citationCount === 1 ? "" : "s"} support this explanation.`,
+          false,
+        ),
+      );
+    }
   }
 
   if (badges.length === 0) {
-    badges.push(
-      badge(
-        "manual-review-required",
-        "Manual review required",
-        "No persisted citation or support ratio is available for this explanation.",
-        true,
-      ),
-    );
+    if (input.citationCount === null || input.citationCount === undefined) {
+      badges.push(
+        badge(
+          "manual-review-required",
+          "Citations not returned",
+          "The server did not return persisted citation rows for this explanation.",
+          true,
+        ),
+      );
+    } else {
+      badges.push(
+        badge(
+          "manual-review-required",
+          "Manual review required",
+          input.citationCount === 0
+            ? "No persisted citations were stored for this explanation."
+            : "No persisted citation or support ratio is available for this explanation.",
+          true,
+        ),
+      );
+    }
   }
 
   return badges;

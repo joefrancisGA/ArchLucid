@@ -18,6 +18,16 @@ import { RunDetailLastFailureCard } from "@/components/runs/RunDetailLastFailure
 import { RunDetailCreateHomeActivityTechnicalDisclosures } from "./RunDetailCreateHomeActivityTechnicalDisclosures";
 import { RunDetailProgressTrackerDeferred } from "./run-detail-page-view-deferred-chunks";
 
+function shouldShowCreateHomeProvenanceAsOf(label: string): boolean {
+  const trimmed = label.trim();
+
+  if (trimmed.length === 0 || trimmed === " — ") {
+    return false;
+  }
+
+  return trimmed !== "Not recorded" && trimmed !== "Date not readable";
+}
+
 export type RunDetailCreateHomeActivityPanelProps = {
   readonly runId: string;
   readonly routeRunId: string;
@@ -138,7 +148,7 @@ export function RunDetailCreateHomeActivityPanel(props: RunDetailCreateHomeActiv
           >
             Full provenance view
           </Link>
-          {props.provenanceAsOfLabel !== " — " ? (
+          {shouldShowCreateHomeProvenanceAsOf(props.provenanceAsOfLabel) ? (
             <span className="text-al-text-secondary"> (as of {props.provenanceAsOfLabel})</span>
           ) : null}
         </p>

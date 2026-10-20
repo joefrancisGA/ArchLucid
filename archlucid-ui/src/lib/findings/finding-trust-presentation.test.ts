@@ -54,6 +54,16 @@ describe("deriveFindingTrustPresentation", () => {
     });
   });
 
+  it("does not treat omitted evidenceRefCount as citation-missing (P-08)", () => {
+    const presentation = deriveFindingTrustPresentation({
+      trustLabel: "Heuristic",
+      evidenceRefCount: null,
+      confidenceLevel: "High",
+    });
+
+    expect(presentation.chipSet.kind).not.toBe("citation-missing");
+  });
+
   it("does not invent export labels when the wire label is absent", () => {
     const presentation = deriveFindingTrustPresentation({
       trustLabel: "  ",

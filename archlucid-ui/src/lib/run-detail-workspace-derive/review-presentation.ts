@@ -64,6 +64,13 @@ export function deriveReviewNextActionLabel(input: {
     }
   }
 
+  if (
+    primary !== null &&
+    (primary.evidenceRefCount === null || primary.evidenceRefCount === undefined)
+  ) {
+    return `Evidence reference count was not stored for ${primary.title}. Confirm remediation ownership when counts are available.`;
+  }
+
   if (primary !== null && primary.evidenceRefCount === 0) {
     return `Confirm evidence and remediation ownership for ${primary.title}`;
   }

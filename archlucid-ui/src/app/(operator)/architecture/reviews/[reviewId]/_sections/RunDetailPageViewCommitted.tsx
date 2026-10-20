@@ -108,7 +108,7 @@ export function RunDetailPageViewCommitted(props: RunDetailPageViewCommittedProp
         manifestFinalized={Boolean(m.manifestId)}
         buyerPolished={m.buyerPolishedArtifactTable ?? false}
         usedStaticDemoRun={m.usedStaticDemoRun}
-        warningCountDisplay={m.warningCountDisplay ?? 0}
+        warningCountDisplay={m.warningCountDisplay}
       />
 
       {!m.manifestId ? (

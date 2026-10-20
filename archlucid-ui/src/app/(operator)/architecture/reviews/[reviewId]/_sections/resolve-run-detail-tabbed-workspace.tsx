@@ -148,7 +148,7 @@ export function resolveRunDetailTabbedWorkspace(
         manifestFinalized={Boolean(m.manifestId)}
         buyerPolished={m.buyerPolishedArtifactTable ?? false}
         usedStaticDemoRun={m.usedStaticDemoRun}
-        warningCountDisplay={m.warningCountDisplay ?? 0}
+        warningCountDisplay={m.warningCountDisplay}
       />
       <RunDetailArchitectureGraphIsland model={m} context={deferredContext} />
     </div>

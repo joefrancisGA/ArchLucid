@@ -59,6 +59,13 @@ describe("RunDetailCreateHomeActivityPanel", () => {
     expect(screen.getByTestId("outcome-cards").closest("details")).not.toBeNull();
   });
 
+  it("does not append as-of text when provenance timestamp was not recorded", () => {
+    render(<RunDetailCreateHomeActivityPanel {...baseProps} provenanceAsOfLabel="Not recorded" />);
+
+    expect(screen.getByRole("link", { name: "Full provenance view" })).toBeInTheDocument();
+    expect(screen.queryByText(/\(as of /)).not.toBeInTheDocument();
+  });
+
   it("anchors failure details for View failure details deep links", () => {
     render(
       <RunDetailCreateHomeActivityPanel
