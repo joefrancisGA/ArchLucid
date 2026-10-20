@@ -621,6 +621,32 @@ namespace N
     }
 
     [Fact]
+    public async Task Does_not_report_type_level_AL0001_when_only_non_public_route_marked_actions_exist()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Mvc;
+
+    public sealed class ProtectedRouteController : ControllerBase
+    {
+        [HttpGet]
+        protected IActionResult Get() => Ok();
+    }
+}
+""";
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
     public async Task Reports_inherited_unauthorized_base_post_on_concrete_leaf_of_abstract_with_only_authorized_declared_action()
     {
         const string testCode = AspNetCoreStubs +

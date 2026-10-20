@@ -559,6 +559,37 @@ public sealed class Handler
   }
 
   [Fact]
+  public async Task Reports_Func_of_ClaimsPrincipal_parameter_in_inner_layer_assembly()
+  {
+    const string testCode = """
+
+namespace ArchLucid.Application.Probe;
+
+using System;
+using System.Security.Claims;
+using System.Threading.Tasks;
+
+public sealed class Handler
+{
+    public void M({|#0:Func|}<ClaimsPrincipal, Task> handler) { }
+}
+""";
+
+    await new CSharpAnalyzerTest<TenantIdentityBoundaryAnalyzer, DefaultVerifier>
+    {
+      TestCode = testCode,
+      ExpectedDiagnostics =
+      {
+        CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+          .WithLocation(0)
+          .WithArguments("System.Func<System.Security.Claims.ClaimsPrincipal, System.Threading.Tasks.Task>")
+      },
+      ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+      SolutionTransforms = { InnerLayerAssemblyNameTransform }
+    }.RunAsync();
+  }
+
+  [Fact]
   public async Task Reports_IAsyncEnumerable_of_ClaimsPrincipal_parameter_in_inner_layer_assembly()
   {
     const string testCode = """

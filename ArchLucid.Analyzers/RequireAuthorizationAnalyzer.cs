@@ -201,6 +201,15 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
                 return;
             }
 
+            // Non-public methods with ASP.NET route markers are not API actions; do not emit a
+            // type-level AL0001 when the controller exposes no public actions (e.g. protected helpers).
+            if (!symbol.IsAbstract &&
+                !foundPublicApiAction &&
+                SymbolHasNonPublicRouteAttributedMember(symbol, nonActionAttribute))
+            {
+                return;
+            }
+
             Location? typeLocation = symbol.Locations.FirstOrDefault();
 
             if (typeLocation is null)
@@ -529,4 +538,59 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
 
         return false;
     }
+
+    private static bool SymbolHasNonPublicRouteAttributedMember(
+        INamedTypeSymbol symbol,
+        INamedTypeSymbol? nonActionAttribute)
+    {
+        foreach (ISymbol member in symbol.GetMembers())
+        {
+            if (member is not IMethodSymbol method)
+                continue;
+
+            if (method.IsImplicitlyDeclared || method.IsStatic)
+                continue;
+
+            if (IsDeclaredControllerApiMethod(method))
+                continue;
+
+            if (nonActionAttribute is not null &&
+                (SymbolHasAttribute(method, nonActionAttribute) ||
+                 MethodInheritsAttributeFromOverriddenChain(method, nonActionAttribute)))
+            {
+                continue;
+            }
+
+            if (MethodHasAspNetCoreActionMarkerAttribute(method))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool MethodHasAspNetCoreActionMarkerAttribute(IMethodSymbol method)
+    {
+        foreach (AttributeData attribute in method.GetAttributes())
+        {
+            INamedTypeSymbol? attributeClass = attribute.AttributeClass;
+
+            for (INamedTypeSymbol? walker = attributeClass; walker is not null; walker = walker.BaseType)
+            {
+                if (IsAspNetCoreActionMarkerAttributeName(walker.Name))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool IsAspNetCoreActionMarkerAttributeName(string attributeMetadataName) =>
+        attributeMetadataName is "HttpGetAttribute"
+            or "HttpPostAttribute"
+            or "HttpPutAttribute"
+            or "HttpDeleteAttribute"
+            or "HttpPatchAttribute"
+            or "RouteAttribute"
+            or "HttpMethodAttribute"
+            or "AcceptVerbsAttribute";
 }
