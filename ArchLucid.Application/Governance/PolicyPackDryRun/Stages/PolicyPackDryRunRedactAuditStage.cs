@@ -26,9 +26,11 @@ public sealed class PolicyPackDryRunRedactAuditStage(
     public Dictionary<string, double> ParseThresholds(IReadOnlyDictionary<string, string> proposedThresholds)
     {
         Dictionary<string, double> parsed = new(StringComparer.OrdinalIgnoreCase);
+
         foreach (KeyValuePair<string, string> entry in proposedThresholds)
         {
             if (string.IsNullOrWhiteSpace(entry.Key) || string.IsNullOrWhiteSpace(entry.Value)) continue;
+
             if (!double.TryParse(entry.Value.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out double value)) continue;
             parsed[entry.Key.Trim()] = value;
         }

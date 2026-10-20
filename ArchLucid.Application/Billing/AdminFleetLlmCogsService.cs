@@ -128,6 +128,7 @@ public sealed class AdminFleetLlmCogsService(
             return true;
 
         // Reasoning-only deployments can price traces while global input/output are zeroed for rollback.
+
         if (options.ReasoningUsdPerMillionTokens > 0m)
             return true;
 

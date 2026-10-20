@@ -32,6 +32,7 @@ public sealed class GovernanceWorkflowAuditSupport(
     public void StampGovernanceScope(GovernanceApprovalRequest request)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
         if (scope.TenantId == Guid.Empty)
             return;
         request.TenantId = scope.TenantId;
@@ -42,6 +43,7 @@ public sealed class GovernanceWorkflowAuditSupport(
     public void StampGovernanceScope(GovernancePromotionRecord record)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
         if (scope.TenantId == Guid.Empty)
             return;
         record.TenantId = scope.TenantId;
@@ -52,6 +54,7 @@ public sealed class GovernanceWorkflowAuditSupport(
     public void StampGovernanceScope(GovernanceEnvironmentActivation activation)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
         if (scope.TenantId == Guid.Empty)
             return;
         activation.TenantId = scope.TenantId;

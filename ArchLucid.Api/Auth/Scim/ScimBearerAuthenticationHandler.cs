@@ -57,6 +57,7 @@ internal class ScimBearerAuthenticationHandler(
             }
 
             // HTTP field combination can fold duplicate Authorization values into one comma-separated header.
+
             foreach (string segment in headerValue.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
             {
 

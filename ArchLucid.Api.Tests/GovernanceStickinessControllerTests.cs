@@ -232,6 +232,7 @@ public sealed class GovernanceStickinessControllerTests
             .ReturnsAsync(new GovernanceDecisionsNeededSummaryResponse());
 
         Mock<IReviewsAwaitingActionQueryService> reviewsAwaitingService = reviewsAwaiting ?? new Mock<IReviewsAwaitingActionQueryService>();
+
         if (reviewsAwaiting is null)
         {
             reviewsAwaitingService
@@ -1189,9 +1190,9 @@ public sealed class GovernanceStickinessControllerTests
                 Scope.ProjectId,
                 It.IsAny<int>(),
                 It.Is<ArchitectureRiskRegisterListOptions?>(options =>
-                    options != null
+                    options is not null
                     && options.OpenFindingsOnly
-                    && options.AssignedToUserIds != null
+                    && options.AssignedToUserIds is not null
                     && options.AssignedToUserIds.Contains("reviewer@test")),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(

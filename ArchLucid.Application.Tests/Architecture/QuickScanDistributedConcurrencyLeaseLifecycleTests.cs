@@ -2578,7 +2578,7 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
         {
             RenewCallCount++;
 
-            await inner.RenewLeaseAsync(leaseId, utcNow, leaseDuration, cancellationToken).ConfigureAwait(false);
+            await inner.RenewLeaseAsync(leaseId, utcNow, leaseDuration, cancellationToken);
         }
     }
 

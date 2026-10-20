@@ -15,6 +15,7 @@ public sealed class TenantCostEstimateService(ITenantRepository tenantRepository
     public async Task<TenantCostEstimate?> TryGetEstimateAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
         if (tenant is null)
             return null;
 

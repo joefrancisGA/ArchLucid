@@ -16,6 +16,7 @@ public sealed partial class PolicyPacksController
         CancellationToken cancellationToken)
     {
         ScopeContext? scope = _scopeContextProvider.GetCurrentScope();
+
         if (scope is null)
             return null;
 

@@ -564,6 +564,7 @@ public async Task Foreign_snapshot_cannot_read_or_write()
             .Returns(Task.CompletedTask);
 
         Mock<IOperatorInferredConnectionRepository>? inferredConnectionsMock = null;
+
         if (inferredConnectionsUnavailable)
         {
             inferredConnectionsMock = new Mock<IOperatorInferredConnectionRepository>();

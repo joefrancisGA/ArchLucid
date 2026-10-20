@@ -117,7 +117,7 @@ public sealed class FinalizeReadinessControllerTests
             .Setup(service => service.BuildAsync(
                 runIdText,
                 It.Is<IReadOnlyList<string>?>(ids =>
-                    ids != null
+                    ids is not null
                     && ids.Count == 2
                     && ids.Contains("assumption-a")
                     && ids.Contains("assumption-b")),

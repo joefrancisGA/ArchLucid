@@ -227,6 +227,7 @@ public static class AzureInventoryVnetPeeringParser
         }
 
         // Inventory property bags are not guaranteed to use a case-insensitive comparer.
+
         foreach (KeyValuePair<string, string> pair in properties)
         {
             if (!string.Equals(pair.Key, PeeringsPropertyKey, StringComparison.OrdinalIgnoreCase))

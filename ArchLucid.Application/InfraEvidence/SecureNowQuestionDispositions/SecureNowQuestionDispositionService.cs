@@ -51,6 +51,7 @@ public sealed class SecureNowQuestionDispositionService(
 
         AzureInventorySnapshotDetailReadModel? snapshot =
             await snapshotRepository.TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+
         if (snapshot is null || string.IsNullOrWhiteSpace(snapshot.Header.SubscriptionId))
             return [];
 
@@ -115,6 +116,7 @@ public sealed class SecureNowQuestionDispositionService(
 
         AzureInventorySnapshotRecord? snapshot =
             await snapshotRepository.TryGetBySnapshotIdAsync(scope, snapshotId, cancellationToken);
+
         if (snapshot is null || string.IsNullOrWhiteSpace(snapshot.SubscriptionId))
             return [];
 
@@ -174,6 +176,7 @@ public sealed class SecureNowQuestionDispositionService(
             request.QuestionKey,
             request.Reason,
             actorKey);
+
         if (validationError is not null)
             return Failed(validationError);
 
@@ -187,6 +190,7 @@ public sealed class SecureNowQuestionDispositionService(
                 NormalizeResourceId(request.ResourceId),
                 NormalizeQuestionKey(request.QuestionKey),
                 cancellationToken);
+
         if (existing is null)
             return Failed("Question disposition was not found.");
 
@@ -241,6 +245,7 @@ public sealed class SecureNowQuestionDispositionService(
         ArgumentNullException.ThrowIfNull(request);
 
         string? validationError = ValidateWriteRequest(request, actorKey, status);
+
         if (validationError is not null)
             return Failed(validationError);
 
@@ -256,6 +261,7 @@ public sealed class SecureNowQuestionDispositionService(
                 request,
                 request.Source == SecureNowQuestionSource.InferredConnection,
                 cancellationToken);
+
             if (mutationValidationError is not null)
                 return Failed(mutationValidationError);
         }
@@ -395,6 +401,7 @@ public sealed class SecureNowQuestionDispositionService(
             request.QuestionKey,
             request.Reason,
             actorKey);
+
         if (identityError is not null)
             return identityError;
 
@@ -403,6 +410,7 @@ public sealed class SecureNowQuestionDispositionService(
 
         if (!Enum.IsDefined(request.Source))
             return "Source is invalid.";
+
         if (!Enum.IsDefined(request.ScopeKind))
             return "ScopeKind is invalid.";
 
@@ -422,16 +430,22 @@ public sealed class SecureNowQuestionDispositionService(
     {
         if (string.IsNullOrWhiteSpace(subscriptionId))
             return "SubscriptionId is required.";
+
         if (string.IsNullOrWhiteSpace(questionKey) || !VersionedQuestionKey.IsMatch(questionKey.Trim()))
             return "QuestionKey must end with a positive version such as @v1.";
+
         if (questionKey.Trim().Length > MaximumQuestionKeyLength)
             return "QuestionKey is too long.";
+
         if (string.IsNullOrWhiteSpace(resourceId))
             return "ResourceId is required.";
+
         if (string.IsNullOrWhiteSpace(reason))
             return "Reason is required.";
+
         if (string.IsNullOrWhiteSpace(actorKey))
             return "ActorKey is required.";
+
         if (resourceId.Length > 2048)
             return "ResourceId is too long.";
         return null;
@@ -441,8 +455,10 @@ public sealed class SecureNowQuestionDispositionService(
     {
         DateTime now = TimeProvider.System.UtcNowDateTime();
         DateTime expiration = expirationUtc ?? now.Add(MaximumDispositionLifetime);
+
         if (expiration <= now)
             return "ExpirationUtc must be in the future.";
+
         if (expiration > now.Add(MaximumDispositionLifetime).AddMinutes(1))
             return "ExpirationUtc cannot be more than 90 days ahead.";
         return null;
@@ -518,9 +534,11 @@ public sealed class SecureNowQuestionDispositionService(
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         List<SecureNowDiagramQuestionCandidate> candidates = [];
+
         foreach (AzureInventoryResourceRecord resource in snapshot.Resources)
         {
             string resourceId = Normalize(resource.AzureResourceId);
+
             if (relationshipResourceIds.Contains(resourceId)
                 || IsSharedServiceType(resource.ResourceType))
                 continue;
