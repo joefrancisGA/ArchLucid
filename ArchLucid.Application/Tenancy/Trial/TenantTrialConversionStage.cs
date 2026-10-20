@@ -82,10 +82,6 @@ public sealed class TenantTrialConversionStage(
         if (tenantBeforeConvert?.OffboardedUtc is not null)
             return new TenantTrialConvertResult { Outcome = TenantTrialHttpOutcome.Success };
 
-        ArchLucidInstrumentation.RecordTrialConversion(
-            TrialLifecycleStatus.Active,
-            tier?.ToString() ?? "unspecified");
-
         TenantRecord? tenantBeforeMark =
             await _tenantRepository.GetByIdAsync(tenant.Id, cancellationToken).ConfigureAwait(false);
 
@@ -110,6 +106,10 @@ public sealed class TenantTrialConversionStage(
 
         if (afterConvert is null || afterConvert.OffboardedUtc is not null)
             return new TenantTrialConvertResult { Outcome = TenantTrialHttpOutcome.Success };
+
+        ArchLucidInstrumentation.RecordTrialConversion(
+            TrialLifecycleStatus.Active,
+            tier?.ToString() ?? "unspecified");
 
         await _auditService.LogAsync(
             new AuditEvent
