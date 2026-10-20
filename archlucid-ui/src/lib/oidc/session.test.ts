@@ -179,6 +179,14 @@ describe("persistTokenResponse", () => {
     sessionStorage.clear();
   });
 
+  it("treats empty array expires_in as the default lifetime instead of immediate expiry", () => {
+    persistTokenResponse({ access_token: "tok", expires_in: [] as unknown as number });
+
+    const expiresAtMs = Number(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY));
+
+    expect(expiresAtMs).toBeGreaterThan(Date.now() + 3_000_000);
+  });
+
   it("treats negative expires_in as the default lifetime instead of writing a past expiry", () => {
     persistTokenResponse({ access_token: "tok", expires_in: -120 });
 

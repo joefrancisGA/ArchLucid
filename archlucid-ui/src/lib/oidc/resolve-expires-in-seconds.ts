@@ -19,6 +19,11 @@ export function resolveExpiresInSeconds(expiresIn: number | undefined): number {
     return defaultExpiresInSec;
   }
 
+  // Malformed JSON such as `expires_in: []` must not coerce via `Number([]) === 0`.
+  if (typeof expiresIn === "object") {
+    return defaultExpiresInSec;
+  }
+
   let numericExpiresIn: number;
 
   if (typeof expiresIn === "string") {
