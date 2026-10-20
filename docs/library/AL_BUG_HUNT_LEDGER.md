@@ -40612,6 +40612,10 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 ---
 
 ## Zone: ui-review-detail-workspace
+2026-10-20 seed hunt (seed->hit): promoted `RunDetailSponsorBriefingSection` `runDetailSponsorBriefingOpen` syncing only on `popstate`, leaving sponsor briefing collapsible stale on Next.js soft navigation; reconcile from `useSearchParams`; regression `follows runDetailSponsorBriefingOpen query changes without a popstate event`; `RunDetailSponsorBriefingSection.url-sync.test.tsx` 1/1; cheap-disproof closed `use-review-detail-workspace-tabs` (already reconciles `reviewTab` from `useSearchParams`); seeded five follow-on `(candidate)` rows.
+
+- [x] (proven) `RunDetailSponsorBriefingSection` — `runDetailSponsorBriefingOpen` ignored on Next.js soft navigation — **hit 2026-10-20 seed hunt:** reconcile sponsor briefing collapsible from `useSearchParams`; regression `follows runDetailSponsorBriefingOpen query changes without a popstate event`.
+
 2026-10-16 seed hunt (seed→hit): promoted `RunDetailLastFailureCard` `runLastFailureTechOpen` soft-navigation sync; proved and fixed; reseeded five follow-on `(candidate)` rows.
 
 - [x] (proven) `RunDetailLastFailureCard` — `runLastFailureTechOpen` ignored on Next.js soft navigation — **hit 2026-10-16 seed hunt:** reconcile technical details disclosure from `useSearchParams`; regression `follows runLastFailureTechOpen query changes without a popstate event`
@@ -40685,7 +40689,6 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - [x] (proven) `technology-baseline/TechnologyBaselinePanel` — `technologyBaselineEvidenceRefEntryId` / `techEntryId` ignored on Next.js soft navigation — **hit 2026-10-16 seed hunt:** reconcile evidence-ref disclosure and rationale entry id from `useSearchParams`; regression `follows technologyBaselineEvidenceRefEntryId query changes without a popstate event`. — locus: technology baseline panel; input: soft navigation with evidence-ref or rationale entry query.
 - [x] (proven) `RunDetailDetailedOutcomeCardsDisclosure` — `runDetailOutcomeCardsOpen` ignored on Next.js soft navigation — **hit 2026-10-16 seed hunt:** reconcile detailed outcome cards disclosure from `useSearchParams`; regression `follows runDetailOutcomeCardsOpen query changes without a popstate event`. — locus: detailed outcome cards disclosure; input: soft navigation with outcome cards open query.
 - [x] (proven) `RunDetailWorkspaceShell` / `RunDetailWorkspaceDisclosureProvider` — `runDetailWorkspaceDisclosuresExpanded` ignored on Next.js soft navigation — **hit 2026-10-16 seed hunt:** reconcile all `data-workspace-disclosure` details from `useSearchParams`; regression `follows runDetailWorkspaceDisclosuresExpanded query changes without a popstate event`. — locus: workspace expand/collapse provider; input: soft navigation with disclosures expanded query.
-- (candidate) `RunDetailSponsorBriefingSection` — `runDetailSponsorBriefingOpen` soft navigation without remount — locus: sponsor briefing collapsible; input: soft navigation toggles briefing open after initial mount.
 - (candidate) `ReviewWorkspaceMoreTabsMenu` — closing popover when `reviewMoreTabsOpen` cleared without `popstate` — locus: more-sections menu; input: Link removes open flag on soft navigation.
 - (candidate) `WorkspaceAiAvailabilityPanel` — nested debug metadata when `workspaceAiProbeDebugMetadataOpen` on soft navigation — locus: probe diagnostics nested accordion; input: soft navigation with debug metadata open query.
 - (candidate) `RunDetailSponsorBriefingSection` — `runDetailSponsorBriefingOpen` soft navigation while default-open SSR defers URL read — locus: sponsor briefing collapsible; input: soft navigation sets briefing open flag after mount without remount.
@@ -40822,11 +40825,11 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 39
-- **bugs-found:** 30
+- **hunts:** 40
+- **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-16
-- **last-bug:** 2026-10-16 — Last failure technical details ignored on soft navigation
+- **last-hunt:** 2026-10-20
+- **last-bug:** 2026-10-20 — Sponsor briefing collapsible ignored on soft navigation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.
@@ -40909,7 +40912,6 @@ ABQ-09 churn hotspot; review detail route tree.
 - (candidate) `FindingInspectViewEvidenceCollapsible` — view-evidence collapsible sync only on `popstate` — locus: finding inspect view evidence collapsible; input: soft navigation with view-evidence open query.
 - (candidate) `RunDetailFindingsToolbar` — `findingsFilterPanelOpen` sync only on `popstate` — locus: findings toolbar filter panel; input: soft navigation with filter panel open query.
 - [x] (proven) `FindingInspectEvidenceSection` — `findingInspectEvidenceCitationArtifactId` ignored on Next.js soft navigation — **hit 2026-10-16 seed hunt:** reconcile citation disclosure and diagram preview from `useSearchParams`; regression `follows findingInspectEvidenceCitationArtifactId query changes without a popstate event`. — locus: finding inspect evidence section; input: soft navigation with citation artifact id query.
-- (candidate) `RunDetailSponsorBriefingSection` — `runDetailSponsorBriefingOpen` soft navigation without remount — locus: sponsor briefing collapsible; input: soft navigation toggles briefing open after initial mount.
 - (candidate) `ReviewWorkspaceMoreTabsMenu` — closing popover when `reviewMoreTabsOpen` cleared without `popstate` — locus: more-sections menu; input: Link removes open flag on soft navigation.
 - (candidate) `WorkspaceAiAvailabilityPanel` — nested debug metadata when `workspaceAiProbeDebugMetadataOpen` on soft navigation — locus: probe diagnostics nested accordion; input: soft navigation with debug metadata open query.
 - (candidate) `TechnologyBaselinePanel` — rationale dialog when `techEntryId` set on soft navigation before ledger rows load — locus: technology baseline rationale dialog; input: soft navigation sets techEntryId then entries hydrate.
