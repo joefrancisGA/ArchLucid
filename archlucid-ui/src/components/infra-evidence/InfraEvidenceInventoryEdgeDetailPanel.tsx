@@ -126,13 +126,14 @@ function resolveEdgeHint(edge: InfraEvidenceMermaidOutlineEdge): string | null {
 
 
 
-  if (edge.inferenceSource === "inventory-hostname-inferred-target") {
+  const inferenceSource = edge.inferenceSource?.trim().toLowerCase() ?? "";
 
+  if (
+    inferenceSource === "inventory-hostname-inferred-target"
+    || inferenceSource === "inventory-storage-host-ref"
+  ) {
     return INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_HOSTNAME_HINT;
-
   }
-
-
 
   return null;
 
