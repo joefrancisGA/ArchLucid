@@ -807,6 +807,48 @@ public sealed class InterfacePostController(IAuditService auditService) : Contro
     }
 
     [Fact]
+    public async Task AL0003_reports_when_HttpPost_is_declared_on_explicit_interface_implementation()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public interface IMutatingApi
+{
+    [HttpPost("x")]
+    System.Threading.Tasks.Task<IActionResult> Post(System.Threading.CancellationToken cancellationToken);
+}
+
+public sealed class ExplicitInterfacePostController(IAuditService auditService) : ControllerBase, IMutatingApi
+{
+    System.Threading.Tasks.Task<IActionResult> IMutatingApi.{|#0:Post|}(System.Threading.CancellationToken cancellationToken)
+    {
+        return System.Threading.Tasks.Task.FromResult<IActionResult>(Ok());
+    }
+}
+}
+""";
+
+        DiagnosticResult expectedDiagnostic =
+            CSharpAnalyzerVerifier<MutatingControllerAuditAnalyzer, DefaultVerifier>.Diagnostic(
+                    Al0003MutatingControllerAuditDescriptor.Rule)
+                .WithLocation(0)
+                .WithArguments("ArchLucid.Api.Probe.ExplicitInterfacePostController.ArchLucid.Api.Probe.IMutatingApi.Post");
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expectedDiagnostic },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
+    [Fact]
     public async Task Mutating_audit_excluded_on_interface_method_suppresses_AL0003()
     {
         const string testCode = AuditAndMvcStubs +
