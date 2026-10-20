@@ -184,6 +184,10 @@ export function GovernanceFindingsQueueDesktopTable(
         return;
       }
 
+      if (row.runId.trim().length === 0) {
+        return;
+      }
+
       router.push(governanceFindingInspectHref(row.runId, row.findingId));
       onRowOpened?.(row);
     },

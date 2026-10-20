@@ -41400,15 +41400,17 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 57
-- **bugs-found:** 36
+- **hunts:** 58
+- **bugs-found:** 37
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — assigned-to-me review link with blank run id
+- **last-hunt:** 2026-10-20
+- **last-bug:** 2026-10-20 — keyboard Enter navigated findings with blank run id
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ABQ-09 churn hotspot.
+
+2026-10-20 thorough hunt (hit): `GovernanceFindingsQueueDesktopTable` Enter activation called `router.push` for whitespace-only `runId` while review links already omit navigation; guard keyboard open when `runId` is blank; regression `does not keyboard-navigate findings when run id is blank`; 11 desktop table tests passed.
 
 2026-10-10 seed hunt (seed-only): re-read the queue client, bulk-selection hook, synopsis, facets, and focused tests after the stale-selection fix; no new row met the hunt-ready bar and no hypothesis was promoted. Seeded five bounded candidates for loaded-versus-displayed bulk IDs, non-finding row identity, prefetch filtering, saved-view payload transitions, and queue-mode selection state. Seven focused helper/hook tests passed.
 
@@ -41424,7 +41426,7 @@ ABQ-09 churn hotspot.
 
 - [x] (proven) `GovernanceFindingsQueueAssignedToMeRowCells` / buyer-polished `GovernanceFindingsQueueTableRow` — assigned-to-me and buyer-polished review columns linked `runLabel` even when `runId` was whitespace-only, yielding a broken `/architecture/reviews/` href while operational rows already render plain text — **hit 2026-10-13 seed hunt:** `runId.trim().length > 0` guard before review links; regression `renders assigned-to-me review label without link when run id is blank`.
 
-- [ ] (candidate) `GovernanceFindingsQueueDesktopTable` keyboard activation — `onActivateRow` path calls `onRowOpened` before navigation but does not guard blank `runId` when `onActivateRow` is undefined.
+- [x] (proven) `GovernanceFindingsQueueDesktopTable` keyboard activation — Enter on rows with whitespace-only `runId` navigated to broken inspect href — **hit 2026-10-20 thorough hunt:** skip `router.push` when `runId.trim()` is empty; regression `does not keyboard-navigate findings when run id is blank`.
 - [ ] (candidate) `GovernanceFindingsQueueAssignedToMeRowCells` derivation disclosure — URL sync uses raw `row.findingId` while scope filters may hide rows whose ids contain encoded characters.
 - [ ] (candidate) `useGovernanceFindingsQueueBulkActions` — URL bulk selections restored before queue rows load may briefly intersect an empty loaded-id set on first paint.
 - [ ] (candidate) `GovernanceFindingsQueueScopeSection` — architecture-scoped run sets vs single `runId` scope banner may both render when URL carries conflicting scope params.

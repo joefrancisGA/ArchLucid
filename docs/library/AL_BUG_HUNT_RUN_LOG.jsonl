@@ -7717,3 +7717,4 @@
 {"at": "2026-10-20T06:14:37.754488Z", "zoneId": "artifact-synthesis", "outcome": "hit", "productLine": "archlucid-shared", "paths": ["ArchLucid.ArtifactSynthesis/Docx/DocxValueReportRenderer.cs"]}
 {"at": "2026-10-20T06:21:12.355739Z", "zoneId": "artifact-synthesis", "outcome": "hit", "productLine": "archlucid-shared", "paths": ["ArchLucid.ArtifactSynthesis/DiagramEdgeProvenanceDisplayLabelBuilder.cs"]}
 {"at": "2026-10-20T06:27:06.131563Z", "zoneId": "host-composition", "outcome": "hit", "productLine": "archlucid-shared", "paths": ["ArchLucid.Host.Composition/Metering/ApiRequestUsageEventBatchFlushHostedService.cs"], "severity": "medium", "defectClass": "state-machine-gap"}
+{"at": "2026-10-20T06:32:33.819980Z", "zoneId": "ui-governance-findings-queue", "outcome": "hit", "productLine": "archlucid-shared", "paths": ["archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsQueueDesktopTable.tsx"], "severity": "medium"}
