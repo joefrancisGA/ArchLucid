@@ -25,8 +25,8 @@ function edge(
 
 describe("infra-evidence-diagram-family", () => {
   it("prefers inference sources over labels", () => {
-    expect(resolveInfraEvidenceDiagramFamily(edge("May access", "inventory-hostname-inferred-target"))).toBe(
-      "InferredHostname",
+    expect(resolveInfraEvidenceDiagramFamily(edge("From app settings", "inventory-hostname-inferred-target"))).toBe(
+      "AppSettingsHost",
     );
   });
 

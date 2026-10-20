@@ -6,6 +6,7 @@ export const INFRA_EVIDENCE_DIAGRAM_FAMILIES = [
   "DeclaredMovement",
   "AuthorizedAccess",
   "StructuralNetworkPath",
+  "AppSettingsHost",
   "InferredHostname",
   "HumanConfirmed",
   "ObservedRuntime",
@@ -20,6 +21,7 @@ export const INFRA_EVIDENCE_DIAGRAM_FAMILY_LABELS: Readonly<Record<InfraEvidence
   DeclaredMovement: "Pipeline wiring",
   AuthorizedAccess: "May access",
   StructuralNetworkPath: "Private network path",
+  AppSettingsHost: "From app settings",
   InferredHostname: "Likely connected",
   HumanConfirmed: "Confirmed connection",
   ObservedRuntime: "Observed in logs",
@@ -31,7 +33,8 @@ const FAMILY_BY_INFERENCE_SOURCE: Readonly<Record<string, InfraEvidenceDiagramFa
   "inventory-app-authorized-access": "AuthorizedAccess",
   "inventory-app-key-vault-ref": "AuthorizedAccess",
   "inventory-event-grid-destination": "DeclaredMovement",
-  "inventory-hostname-inferred-target": "InferredHostname",
+  "inventory-hostname-inferred-target": "AppSettingsHost",
+  "inventory-storage-host-ref": "AppSettingsHost",
   "inventory-observed-dependency": "ObservedRuntime",
   "inventory-operator-confirmed-connection": "HumanConfirmed",
   "inventory-pe-reachable-target": "StructuralNetworkPath",
@@ -54,6 +57,10 @@ function resolveFamilyFromLabel(label: string): InfraEvidenceDiagramFamily | nul
 
   if (normalized.includes("private network path") || normalized.includes("private endpoint")) {
     return "StructuralNetworkPath";
+  }
+
+  if (normalized.includes("from app settings")) {
+    return "AppSettingsHost";
   }
 
   if (normalized.includes("likely connected") || normalized.includes("hostname")) {

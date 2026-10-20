@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  INFRA_EVIDENCE_DIAGRAM_LEGEND_APP_SETTINGS,
+  INFRA_EVIDENCE_DIAGRAM_LEGEND_APP_SETTINGS_AND_AI,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_AI,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME_AND_AI,
@@ -9,18 +11,38 @@ import {
 import { resolveInfraEvidenceDiagramLegendInferredCopy } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-legend-inferred-line";
 
 describe("resolveInfraEvidenceDiagramLegendInferredCopy (P-05)", () => {
-  it("uses hostname copy for hostname-inferred edges", () => {
+  it("uses app-settings copy for hostname-inferred edges", () => {
     const copy = resolveInfraEvidenceDiagramLegendInferredCopy({
       nodes: [],
       edges: [
         {
           from: "web",
           to: "sql",
-          label: "likely connected to",
+          label: "From app settings",
           source: "inferred",
           confidenceBand: "inferred",
           provenanceKind: "DeterministicInference",
           inferenceSource: "inventory-hostname-inferred-target",
+          declaredConnectionId: null,
+        },
+      ],
+    });
+
+    expect(copy.legendLine).toBe(INFRA_EVIDENCE_DIAGRAM_LEGEND_APP_SETTINGS);
+  });
+
+  it("uses linked-service guess copy for adf-linked-service-inferred edges", () => {
+    const copy = resolveInfraEvidenceDiagramLegendInferredCopy({
+      nodes: [],
+      edges: [
+        {
+          from: "adf",
+          to: "blob",
+          label: "inferred",
+          source: "inferred",
+          confidenceBand: "inferred",
+          provenanceKind: "DeterministicInference",
+          inferenceSource: "inventory-adf-linked-service-inferred",
           declaredConnectionId: null,
         },
       ],
@@ -76,7 +98,7 @@ describe("resolveInfraEvidenceDiagramLegendInferredCopy (P-05)", () => {
       ],
     });
 
-    expect(copy.legendLine).toBe(INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME_AND_AI);
+    expect(copy.legendLine).toBe(INFRA_EVIDENCE_DIAGRAM_LEGEND_APP_SETTINGS_AND_AI);
   });
 
   it("uses inference-source-unknown copy for generic inferred edges (P-02)", () => {
