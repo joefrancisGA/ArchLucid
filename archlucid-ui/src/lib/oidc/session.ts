@@ -511,13 +511,13 @@ export function isLikelySignedIn(): boolean {
     return false;
   }
 
-  const exp = getExpiresAtMs();
-
   if (!hasOidcSessionIdentityHints()) {
     return false;
   }
 
-  return exp > 0 && Date.now() < exp - EXPIRY_SKEW_MS;
+  const exp = getExpiresAtMs();
+
+  return exp > 0 && Date.now() < exp;
 }
 
 /**
