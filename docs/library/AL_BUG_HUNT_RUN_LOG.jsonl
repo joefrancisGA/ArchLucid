@@ -5651,3 +5651,4 @@
 {"at":"2026-10-20T16:41:22.110918Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-20T16:46:09.4244946Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-20T16:51:22.2128637Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-20T16:58:47.9802269Z","zoneId":"api-tenancy-workspaces","outcome":"hit","productLine":"archlucid-shared"}
