@@ -76,4 +76,16 @@ describe("pickDisplayNameFromPayload", () => {
   it("collapses interior zero-width characters in display-name claims instead of gluing words", () => {
     expect(pickDisplayNameFromPayload({ name: "John\u200bDoe" })).toBe("John Doe");
   });
+
+  it("preserves ZWNJ in Persian display names", () => {
+    const persianName = "می\u200cخواهم";
+
+    expect(pickDisplayNameFromPayload({ name: persianName })).toBe(persianName);
+  });
+
+  it("preserves ZWJ in emoji display names", () => {
+    const familyEmoji = "👨\u200d👩\u200d👧";
+
+    expect(pickDisplayNameFromPayload({ name: familyEmoji })).toBe(familyEmoji);
+  });
 });

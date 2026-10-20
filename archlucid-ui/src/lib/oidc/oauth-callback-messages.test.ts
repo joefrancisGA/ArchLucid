@@ -3,9 +3,21 @@ import { describe, expect, it } from "vitest";
 import {
   decodeOAuthErrorDescription,
   humanizeAuthorizeCallbackError,
+  normalizeOidcDisplayString,
   readOAuthJsonErrorDescription,
   sanitizeOAuthUserFacingMessage,
 } from "@/lib/oidc/oauth-callback-messages";
+
+describe("normalizeOidcDisplayString", () => {
+  it("collapses ZWSP-like glue characters to spaces without merging Latin words", () => {
+    expect(normalizeOidcDisplayString("John\u200bDoe")).toBe("John Doe");
+  });
+
+  it("preserves ZWNJ and ZWJ used in Persian and emoji display copy", () => {
+    expect(normalizeOidcDisplayString("می\u200cخواهم")).toBe("می\u200cخواهم");
+    expect(normalizeOidcDisplayString("👨\u200d👩\u200d👧")).toBe("👨\u200d👩\u200d👧");
+  });
+});
 
 describe("readOAuthJsonErrorDescription", () => {
   it("preserves literal percent signs when JSON is not percent-encoded", () => {

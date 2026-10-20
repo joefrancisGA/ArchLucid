@@ -5,6 +5,9 @@
 
 const OAUTH_INVISIBLE_FORMAT_CHARS = /[\u200B-\u200D\u2060\uFEFF]/gu;
 
+/** Accidental Latin copy/paste separators — not ZWNJ (U+200C) or ZWJ (U+200D) used in Persian/Indic and emoji. */
+const OIDC_DISPLAY_GLUE_FORMAT_CHARS = /[\u200B\u2060\uFEFF]/gu;
+
 export function stripOAuthInvisibleFormatChars(text: string): string {
   return text.replace(OAUTH_INVISIBLE_FORMAT_CHARS, "");
 }
@@ -16,7 +19,11 @@ export function normalizeOidcConfigurationString(value: string): string {
 
 /** Normalizes human-readable OIDC claim copy (names, titles) for session display. */
 export function normalizeOidcDisplayString(value: string): string {
-  return collapseOAuthErrorDescriptionLineBreaks(value.trim());
+  return value
+    .replace(OIDC_DISPLAY_GLUE_FORMAT_CHARS, " ")
+    .replace(/[\u0000-\u001F\u007F\u2028\u2029\u0085]/gu, " ")
+    .replace(/\s+/gu, " ")
+    .trim();
 }
 
 function isOAuthInvisibleFormatChar(char: string): boolean {
