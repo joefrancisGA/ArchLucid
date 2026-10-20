@@ -64,6 +64,12 @@ export function RemediationFactoryPriorityTable(props: {
               >
                 This rank is the SecureNow finding queue, not the path list.
               </span>
+              <span
+                className={cn("ml-2 block font-normal", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="remediation-factory-priority-rank-header-helper"
+              >
+                This rank is the SecureNow finding queue, not the path list.
+              </span>
             </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Resource</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>

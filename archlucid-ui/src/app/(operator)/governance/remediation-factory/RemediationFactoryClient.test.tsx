@@ -300,6 +300,10 @@ describe("RemediationFactoryClient", () => {
       "/security/remediation-instances#remediation-waves",
     );
     expect(screen.getByText("Sort key for this queue. Not a percentage.")).toBeInTheDocument();
+    expect(screen.getByTestId("remediation-factory-priority-rank-header-helper")).toHaveTextContent(
+      "This rank is the SecureNow finding queue, not the path list.",
+    );
+    expect(screen.getByText("1 is the first path to inspect.")).toBeInTheDocument();
     expect(screen.getByText("This week, this month, or later follows the queue order. It is not a separate score.")).toBeInTheDocument();
     const priorityRow = screen.getByTestId("remediation-priority-row-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
     expect(priorityRow).toHaveTextContent("This row does not name a leading factor.");
