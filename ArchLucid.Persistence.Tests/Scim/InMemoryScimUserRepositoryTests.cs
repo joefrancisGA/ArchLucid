@@ -24,11 +24,13 @@ public sealed class InMemoryScimUserRepositoryTests
             CancellationToken.None);
 
         ScimUserRecord? byId = await sut.GetByIdAsync(tenantId, inserted.Id, CancellationToken.None);
-        ScimUserRecord? byExt = await sut.GetByExternalIdAsync(tenantId, "EXT-1", CancellationToken.None);
+        ScimUserRecord? byExtCaseVariant = await sut.GetByExternalIdAsync(tenantId, "EXT-1", CancellationToken.None);
+        ScimUserRecord? byExt = await sut.GetByExternalIdAsync(tenantId, "ext-1", CancellationToken.None);
         ScimUserRecord? byName = await sut.GetByUserNameAsync(tenantId, "ALICE", CancellationToken.None);
 
         byId.Should().NotBeNull();
-        byId.UserName.Should().Be("alice");
+        byId!.UserName.Should().Be("alice");
+        byExtCaseVariant.Should().BeNull("externalId is RFC 7643 caseExact=true");
         byExt.Should().BeEquivalentTo(byId);
         byName.Should().BeEquivalentTo(byId);
     }

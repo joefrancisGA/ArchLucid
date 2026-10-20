@@ -25,6 +25,7 @@ public static class ScimFilterInMemoryEvaluator
     private static bool Compare(ScimUserRecord user, ScimComparisonNode c)
     {
         string? left = GetString(user, c.AttributePath);
+        StringComparison comparison = ScimUserFilterAttributeSemantics.StringComparisonFor(c.AttributePath);
 
         if (string.Equals(c.Operator, "pr", StringComparison.Ordinal))
             return left is not null;
@@ -33,33 +34,33 @@ public static class ScimFilterInMemoryEvaluator
 
         return c.Operator.ToLowerInvariant() switch
         {
-            "eq" => string.Equals(left, right, StringComparison.OrdinalIgnoreCase),
-            "ne" => !string.Equals(left, right, StringComparison.OrdinalIgnoreCase),
-            "co" => left is not null && left.Contains(right, StringComparison.OrdinalIgnoreCase),
-            "sw" => left is not null && left.StartsWith(right, StringComparison.OrdinalIgnoreCase),
-            "ew" => left is not null && left.EndsWith(right, StringComparison.OrdinalIgnoreCase),
-            "gt" => LexGreater(left, right),
-            "lt" => LexLess(left, right),
-            "ge" => LexGreater(left, right) || string.Equals(left, right, StringComparison.OrdinalIgnoreCase),
-            "le" => LexLess(left, right) || string.Equals(left, right, StringComparison.OrdinalIgnoreCase),
+            "eq" => string.Equals(left, right, comparison),
+            "ne" => !string.Equals(left, right, comparison),
+            "co" => left is not null && left.Contains(right, comparison),
+            "sw" => left is not null && left.StartsWith(right, comparison),
+            "ew" => left is not null && left.EndsWith(right, comparison),
+            "gt" => LexGreater(left, right, comparison),
+            "lt" => LexLess(left, right, comparison),
+            "ge" => LexGreater(left, right, comparison) || string.Equals(left, right, comparison),
+            "le" => LexLess(left, right, comparison) || string.Equals(left, right, comparison),
             _ => false
         };
     }
 
-    private static bool LexGreater(string? left, string right)
+    private static bool LexGreater(string? left, string right, StringComparison comparison)
     {
         if (left is null)
             return false;
 
-        return string.Compare(left, right, StringComparison.OrdinalIgnoreCase) > 0;
+        return string.Compare(left, right, comparison) > 0;
     }
 
-    private static bool LexLess(string? left, string right)
+    private static bool LexLess(string? left, string right, StringComparison comparison)
     {
         if (left is null)
             return false;
 
-        return string.Compare(left, right, StringComparison.OrdinalIgnoreCase) < 0;
+        return string.Compare(left, right, comparison) < 0;
     }
 
     private static string? GetString(ScimUserRecord user, string path)

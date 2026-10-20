@@ -587,7 +587,7 @@ public sealed class ScimUsersServiceUnitTests
     }
 
     [Fact]
-    public async Task ListAsync_external_id_filter_matches_case_insensitive()
+    public async Task ListAsync_external_id_filter_matches_case_exact_per_rfc7643()
     {
         Guid tenantId = Guid.NewGuid();
         InMemoryScimUserRepository users = new();
@@ -606,16 +606,54 @@ public sealed class ScimUsersServiceUnitTests
         (IReadOnlyList<ScimUserRecord> items, int total) =
             await sut.ListAsync(tenantId, @"externalId eq ""EXT-1""", 1, 100, CancellationToken.None);
 
+        total.Should().Be(0);
+        items.Should().BeEmpty();
+
+        (items, total) = await sut.ListAsync(tenantId, @"externalId eq ""ext-1""", 1, 100, CancellationToken.None);
         total.Should().Be(1);
         items.Should().ContainSingle(u => u.ExternalId == "ext-1");
     }
 
     [Fact]
-    public async Task CreateAsync_external_id_case_variant_conflicts_with_existing_user()
+    public async Task ListAsync_userName_filter_matches_case_insensitive()
     {
         Guid tenantId = Guid.NewGuid();
         InMemoryScimUserRepository users = new();
         ScimUserService sut = CreateService(users, new InMemoryTenantRepository());
+
+        await users.InsertAsync(
+            tenantId,
+            "ext-1",
+            "alice@example.com",
+            null,
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        (IReadOnlyList<ScimUserRecord> items, int total) =
+            await sut.ListAsync(tenantId, @"userName eq ""ALICE@example.com""", 1, 100, CancellationToken.None);
+
+        total.Should().Be(1);
+        items.Should().ContainSingle(u => u.UserName == "alice@example.com");
+    }
+
+    [Fact]
+    public async Task CreateAsync_external_id_case_variant_does_not_conflict_with_existing_user()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        await tenants.InsertTenantAsync(
+            tenantId,
+            "SCIM externalId Tenant",
+            $"slug-{tenantId:N}",
+            TenantTier.Enterprise,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None,
+            enterpriseScimSeatsLimit: 10);
+        ScimUserService sut = CreateService(users, tenants);
 
         await users.InsertAsync(
             tenantId,
@@ -636,9 +674,10 @@ public sealed class ScimUsersServiceUnitTests
             }
             """);
 
-        Func<Task> act = () => sut.CreateAsync(tenantId, body.RootElement, CancellationToken.None);
+        ScimUserRecord created = await sut.CreateAsync(tenantId, body.RootElement, CancellationToken.None);
 
-        await act.Should().ThrowAsync<ScimConflictException>();
+        created.ExternalId.Should().Be("EXT-1");
+        created.UserName.Should().Be("bob@example.com");
     }
 
     [Fact]

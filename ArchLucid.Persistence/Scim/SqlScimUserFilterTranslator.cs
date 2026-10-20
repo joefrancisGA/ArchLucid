@@ -6,6 +6,11 @@ namespace ArchLucid.Persistence.Scim;
 
 internal static class SqlScimUserFilterTranslator
 {
+    // dbo.ScimUsers string columns inherit database default collation (no per-column COLLATE in schema;
+    // ArchLucid SQL is CI, typically SQL_Latin1_General_CP1_CI_AS). userName/displayName use plain compares
+    // so IX_ScimUsers_TenantId_UserName stays sargable. externalId (RFC caseExact=true) uses CS collation.
+    private const string CaseSensitiveCollation = "Latin1_General_CS_AS";
+
     public static string BuildWhere(ScimFilterNode? filter, DynamicParameters parameters, ref int nextParam)
     {
         return filter is null ? "1 = 1" : Build(filter, parameters, ref nextParam);
@@ -58,21 +63,50 @@ internal static class SqlScimUserFilterTranslator
 
         parameters.Add(pName, bound);
 
-        // RFC 7644 string compares are case-insensitive; match in-memory evaluator and LOWER(userName) lookups.
+        bool caseExact = ScimUserFilterAttributeSemantics.IsCaseExact(c.AttributePath);
+
         return op switch
         {
-            "eq" => $"LOWER({col}) = LOWER(@{pName})",
-            "ne" => $"LOWER({col}) <> LOWER(@{pName})",
-            "co" => $"LOWER({col}) LIKE LOWER(@{pName})",
-            "sw" => $"LOWER({col}) LIKE LOWER(@{pName})",
-            "ew" => $"LOWER({col}) LIKE LOWER(@{pName})",
-            "gt" => $"LOWER({col}) > LOWER(@{pName})",
-            "lt" => $"LOWER({col}) < LOWER(@{pName})",
-            "ge" => $"LOWER({col}) >= LOWER(@{pName})",
-            "le" => $"LOWER({col}) <= LOWER(@{pName})",
+            "eq" => EqualitySql(col, pName, caseExact),
+            "ne" => Negate(EqualitySql(col, pName, caseExact)),
+            "co" => LikeSql(col, pName, caseExact),
+            "sw" => LikeSql(col, pName, caseExact),
+            "ew" => LikeSql(col, pName, caseExact),
+            "gt" => OrderedCompareSql(col, pName, ">", caseExact),
+            "lt" => OrderedCompareSql(col, pName, "<", caseExact),
+            "ge" => OrderedCompareSql(col, pName, ">=", caseExact),
+            "le" => OrderedCompareSql(col, pName, "<=", caseExact),
             _ => throw new ScimFilterSqlException($"Unsupported operator '{op}'.")
         };
     }
+
+    private static string EqualitySql(string col, string pName, bool caseExact)
+    {
+        if (caseExact)
+            return $"{CollationWrap(col, CaseSensitiveCollation)} = {CollationWrap("@" + pName, CaseSensitiveCollation)}";
+
+        return $"{col} = @{pName}";
+    }
+
+    private static string LikeSql(string col, string pName, bool caseExact)
+    {
+        if (caseExact)
+            return $"{CollationWrap(col, CaseSensitiveCollation)} LIKE {CollationWrap("@" + pName, CaseSensitiveCollation)}";
+
+        return $"{col} LIKE @{pName}";
+    }
+
+    private static string OrderedCompareSql(string col, string pName, string op, bool caseExact)
+    {
+        if (caseExact)
+            return $"{CollationWrap(col, CaseSensitiveCollation)} {op} {CollationWrap("@" + pName, CaseSensitiveCollation)}";
+
+        return $"{col} {op} @{pName}";
+    }
+
+    private static string Negate(string equalitySql) => equalitySql.Replace(" = ", " <> ", StringComparison.Ordinal);
+
+    private static string CollationWrap(string expr, string collation) => $"{expr} COLLATE {collation}";
 
     private static string NextName(ref int nextParam)
     {
