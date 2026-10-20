@@ -7716,3 +7716,4 @@
 {"at": "2026-10-20T06:09:04.391715Z", "zoneId": "artifact-synthesis", "outcome": "hit", "productLine": "archlucid-shared", "paths": ["ArchLucid.ArtifactSynthesis/FindingVerification/"]}
 {"at": "2026-10-20T06:14:37.754488Z", "zoneId": "artifact-synthesis", "outcome": "hit", "productLine": "archlucid-shared", "paths": ["ArchLucid.ArtifactSynthesis/Docx/DocxValueReportRenderer.cs"]}
 {"at": "2026-10-20T06:21:12.355739Z", "zoneId": "artifact-synthesis", "outcome": "hit", "productLine": "archlucid-shared", "paths": ["ArchLucid.ArtifactSynthesis/DiagramEdgeProvenanceDisplayLabelBuilder.cs"]}
+{"at": "2026-10-20T06:27:06.131563Z", "zoneId": "host-composition", "outcome": "hit", "productLine": "archlucid-shared", "paths": ["ArchLucid.Host.Composition/Metering/ApiRequestUsageEventBatchFlushHostedService.cs"], "severity": "medium", "defectClass": "state-machine-gap"}
