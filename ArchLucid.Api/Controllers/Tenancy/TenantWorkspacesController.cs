@@ -95,11 +95,23 @@ public sealed partial class TenantWorkspacesController(
         Guid workspaceId,
         Guid scopedProjectId,
         IReadOnlyList<TenantWorkspaceProjectApiDto> activeProjectsInWorkspace,
-        Guid resolvedDefaultProjectId)
+        Guid resolvedDefaultProjectId,
+        bool preferInactiveScopedInventoryRow = false)
     {
         HashSet<Guid> activeProjectIds = activeProjectsInWorkspace
             .Select(static project => project.ProjectId)
             .ToHashSet();
+
+        if (preferInactiveScopedInventoryRow
+            && scopedProjectId != Guid.Empty
+            && !activeProjectIds.Contains(scopedProjectId))
+        {
+            foreach (TenantWorkspaceListItem row in workspaces)
+            {
+                if (row.WorkspaceId == workspaceId && row.DefaultProjectId == scopedProjectId)
+                    return row;
+            }
+        }
 
         if (resolvedDefaultProjectId != Guid.Empty)
         {
@@ -124,7 +136,9 @@ public sealed partial class TenantWorkspacesController(
                 return firstDefaultRow;
         }
 
-        if (scopedProjectId != Guid.Empty && !activeProjectIds.Contains(scopedProjectId))
+        if (!preferInactiveScopedInventoryRow
+            && scopedProjectId != Guid.Empty
+            && !activeProjectIds.Contains(scopedProjectId))
         {
             foreach (TenantWorkspaceListItem row in workspaces)
             {

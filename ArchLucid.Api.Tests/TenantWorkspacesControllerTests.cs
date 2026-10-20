@@ -1398,6 +1398,118 @@ public sealed class TenantWorkspacesControllerTests
     }
 
     [Fact]
+    public async Task ListRecycleBinAsync_uses_scope_metadata_row_name_when_scoped_project_is_soft_deleted_with_active_sibling_default()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        Guid activeDefaultProjectId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        DateTimeOffset deletedUtc = new(2026, 8, 1, 12, 0, 0, TimeSpan.Zero);
+
+        TenantRecord tenant =
+            new()
+            {
+                Id = scope.TenantId,
+                Name = "t",
+                Slug = "t",
+                Tier = TenantTier.Free,
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+                TrialRunsUsed = 0,
+                TrialSeatsUsed = 0,
+                TrialStatus = "None",
+            };
+
+        TenantWorkspaceListItem scopeMetadataRow =
+            new()
+            {
+                WorkspaceId = scope.WorkspaceId,
+                TenantId = scope.TenantId,
+                Name = "scope-metadata",
+                DefaultProjectId = scope.ProjectId,
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+            };
+
+        TenantWorkspaceListItem activeDefaultRow =
+            new()
+            {
+                WorkspaceId = scope.WorkspaceId,
+                TenantId = scope.TenantId,
+                Name = "active-default",
+                DefaultProjectId = activeDefaultProjectId,
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+            };
+
+        Mock<ITenantRepository> tenantsMock = new();
+        tenantsMock.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+
+        tenantsMock
+            .Setup(t => t.ListWorkspacesAsync(scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<TenantWorkspaceListItem> { activeDefaultRow, scopeMetadataRow }.AsReadOnly());
+
+        Mock<IArchitectureProjectRepository> projectsMock = new();
+        projectsMock
+            .Setup(r => r.ListActiveByTenantAsync(scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new List<ArchitectureProjectRecord>
+                {
+                    new()
+                    {
+                        Id = activeDefaultProjectId,
+                        TenantId = scope.TenantId,
+                        WorkspaceId = scope.WorkspaceId,
+                        Name = "active-default-project",
+                        CreatedUtc = TimeProvider.System.GetUtcNow(),
+                    },
+                }.AsReadOnly());
+
+        projectsMock
+            .Setup(r => r.ListSoftDeletedByTenantAsync(scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new List<ArchitectureProjectRecord>
+                {
+                    new()
+                    {
+                        Id = scope.ProjectId,
+                        TenantId = scope.TenantId,
+                        WorkspaceId = scope.WorkspaceId,
+                        Name = "soft-deleted-scoped",
+                        CreatedUtc = deletedUtc,
+                        DeletedUtc = deletedUtc,
+                    },
+                }.AsReadOnly());
+
+        Mock<IScopeContextProvider> scopeMock = new();
+        scopeMock.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        Mock<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>> retentionMock = new();
+        retentionMock.Setup(o => o.CurrentValue).Returns(new ArchitectureProjectRetentionPurgeOptions());
+
+        TenantWorkspacesController sut =
+            new(
+                tenantsMock.Object,
+                projectsMock.Object,
+                scopeMock.Object,
+                Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
+                retentionMock.Object)
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+            };
+
+        IActionResult result = await sut.ListRecycleBinAsync(CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        TenantWorkspacesRecycleBinResponse body = ok.Value.Should().BeOfType<TenantWorkspacesRecycleBinResponse>().Subject;
+        body.Workspaces.Should().ContainSingle();
+        body.Workspaces[0].Name.Should().Be("scope-metadata");
+        body.Workspaces[0].DisplayName.Should().Be("scope-metadata");
+    }
+
+    [Fact]
     public async Task ListRecycleBinAsync_uses_fallback_metadata_row_name_when_duplicate_inventory_rows_disagree()
     {
         ScopeContext scope = new()
