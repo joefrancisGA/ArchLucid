@@ -27,6 +27,11 @@ function isHttpOrHttpsUrl(url: string): boolean {
       return false;
     }
 
+    // Hash fragments are not sent on token POSTs and should not ride along on authorize navigation.
+    if (parsed.hash.length > 0) {
+      return false;
+    }
+
     return true;
   } catch {
     return false;

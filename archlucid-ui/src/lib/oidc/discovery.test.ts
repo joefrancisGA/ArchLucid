@@ -293,6 +293,64 @@ describe("loadDiscoveryDocument", () => {
     );
   });
 
+  it("rejects authorization endpoints that include a hash fragment", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        issuer: "https://login.microsoftonline.com/tenant/v2.0",
+        authorization_endpoint: "https://login.microsoftonline.com/authorize#stale-fragment",
+        token_endpoint: "https://login.microsoftonline.com/token",
+      }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { loadDiscoveryDocument } = await import("@/lib/oidc/discovery");
+
+    await expect(loadDiscoveryDocument("https://login.microsoftonline.com/tenant/v2.0")).rejects.toThrow(
+      /invalid endpoint URLs/i,
+    );
+  });
+
+  it("rejects token endpoints that include a hash fragment", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        issuer: "https://login.microsoftonline.com/tenant/v2.0",
+        authorization_endpoint: "https://login.microsoftonline.com/authorize",
+        token_endpoint: "https://login.microsoftonline.com/token#stale-fragment",
+      }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { loadDiscoveryDocument } = await import("@/lib/oidc/discovery");
+
+    await expect(loadDiscoveryDocument("https://login.microsoftonline.com/tenant/v2.0")).rejects.toThrow(
+      /invalid endpoint URLs/i,
+    );
+  });
+
+  it("omits end_session_endpoint values that include a hash fragment", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        issuer: "https://login.microsoftonline.com/tenant/v2.0",
+        authorization_endpoint: "https://login.microsoftonline.com/authorize",
+        token_endpoint: "https://login.microsoftonline.com/token",
+        end_session_endpoint: "https://login.microsoftonline.com/logout#stale-fragment",
+      }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { loadDiscoveryDocument } = await import("@/lib/oidc/discovery");
+
+    const doc = await loadDiscoveryDocument("https://login.microsoftonline.com/tenant/v2.0");
+
+    expect(doc.end_session_endpoint).toBeUndefined();
+  });
+
   it("rejects discovery endpoints that do not use http or https", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,
