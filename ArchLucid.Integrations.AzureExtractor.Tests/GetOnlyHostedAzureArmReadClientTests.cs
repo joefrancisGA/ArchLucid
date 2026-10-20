@@ -909,6 +909,64 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task ListChildResourcesWithStatusAsync_retains_children_and_marks_partial_when_later_page_fails()
+    {
+        const string staticSiteId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/staticSites/swa1";
+        const string nextLink =
+            $"https://management.azure.com{staticSiteId}/linkedBackends?api-version=2023-12-01&$skiptoken=page2";
+
+        string firstPageBody = """
+                               {
+                                 "value": [
+                                   {
+                                     "name": "be1",
+                                     "properties": {
+                                       "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/api1"
+                                     }
+                                   }
+                                 ],
+                                 "nextLink": "STATIC_SITE_NEXT_LINK"
+                               }
+                               """.Replace("STATIC_SITE_NEXT_LINK", nextLink, StringComparison.Ordinal);
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current <= 2)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(firstPageBody)
+                        });
+                }
+
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+            });
+
+        GetOnlyHostedAzureArmReadClient client = new(
+            new HttpClient(handler),
+            NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        HostedAzureArmChildCollectionReadResult result = await client.ListChildResourcesWithStatusAsync(
+            "token-abc",
+            staticSiteId,
+            "linkedBackends",
+            "2023-12-01",
+            CancellationToken.None);
+
+        Assert.Equal(3, requestCount);
+        Assert.Equal(200, result.StatusCode);
+        Assert.True(result.PartialCollection);
+        Assert.Single(result.Values);
+    }
+
+    [Fact]
     public async Task ListVaultBackupProtectedItemsAsync_rejects_next_link_for_different_vault_resource_id()
     {
         const string vaultResourceId =

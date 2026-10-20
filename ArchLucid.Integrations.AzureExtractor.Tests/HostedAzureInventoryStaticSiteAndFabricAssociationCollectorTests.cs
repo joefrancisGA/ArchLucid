@@ -128,6 +128,31 @@ public sealed class HostedAzureInventoryStaticSiteAndFabricAssociationCollectorT
     }
 
     [Fact]
+    public async Task CollectAsync_warns_when_static_site_linked_backend_list_is_partially_collected()
+    {
+        using JsonDocument backend = JsonDocument.Parse(
+            """
+            { "properties": { "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/api1" } }
+            """);
+
+        Mock<IHostedAzureArmReadClient> armClient = SetupChildList(
+            StaticSiteId,
+            "linkedBackends",
+            "2023-12-01",
+            HostedAzureArmChildCollectionReadResult.Succeeded([backend.RootElement.Clone()], partialCollection: true));
+
+        HostedAzureInventoryStaticSiteAndFabricAssociationCollectResult result =
+            await CollectAsync(armClient, [CreateResource("Microsoft.Web/staticSites", StaticSiteId)]);
+
+        Assert.Single(result.Associations);
+        Assert.Equal(
+            AzureInventoryStaticSiteCollectionWarnings.Format(
+                AzureInventoryStaticSiteCollectionWarnings.ReasonPartialEnumeration,
+                StaticSiteId),
+            Assert.Single(result.CollectionWarnings));
+    }
+
+    [Fact]
     public async Task CollectAsync_dedupes_duplicate_static_site_backend_rows()
     {
         using JsonDocument first = JsonDocument.Parse(
@@ -253,6 +278,31 @@ public sealed class HostedAzureInventoryStaticSiteAndFabricAssociationCollectorT
         Assert.Equal(ArmResourceIdNormalizer.Normalize(WorkspaceId), association.ToResourceId);
         Assert.Equal(AzureInventoryRelationshipAssociationTypes.FabricCapacityToWorkspace, association.AssociationType);
         Assert.Empty(result.CollectionWarnings);
+    }
+
+    [Fact]
+    public async Task CollectAsync_warns_when_fabric_workspace_list_is_partially_collected()
+    {
+        using JsonDocument workspace = JsonDocument.Parse(
+            """
+            { "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Fabric/workspaces/ws1", "name": "Sales" }
+            """);
+
+        Mock<IHostedAzureArmReadClient> armClient = SetupChildList(
+            FabricCapacityId,
+            "workspaces",
+            "2024-05-01",
+            HostedAzureArmChildCollectionReadResult.Succeeded([workspace.RootElement.Clone()], partialCollection: true));
+
+        HostedAzureInventoryStaticSiteAndFabricAssociationCollectResult result =
+            await CollectAsync(armClient, [CreateResource("Microsoft.Fabric/capacities", FabricCapacityId)]);
+
+        Assert.Single(result.Associations);
+        Assert.Equal(
+            AzureInventoryFabricCapacityCollectionWarnings.FormatAssignmentsNotCollected(
+                AzureInventoryFabricCapacityCollectionWarnings.ReasonPartialEnumeration,
+                FabricCapacityId),
+            Assert.Single(result.CollectionWarnings));
     }
 
     [Fact]

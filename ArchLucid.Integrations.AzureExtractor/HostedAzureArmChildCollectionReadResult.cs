@@ -16,12 +16,21 @@ public sealed class HostedAzureArmChildCollectionReadResult
         init;
     } = [];
 
-    public static HostedAzureArmChildCollectionReadResult Succeeded(IReadOnlyList<JsonElement> values)
+    public bool PartialCollection
+    {
+        get;
+        init;
+    }
+
+    public static HostedAzureArmChildCollectionReadResult Succeeded(
+        IReadOnlyList<JsonElement> values,
+        bool partialCollection = false)
     {
         return new HostedAzureArmChildCollectionReadResult
         {
             StatusCode = 200,
             Values = values,
+            PartialCollection = partialCollection,
         };
     }
 

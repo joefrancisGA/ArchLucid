@@ -17,6 +17,8 @@ public static class AzureInventoryFabricCapacityCollectionWarnings
 
     public const string ReasonUnavailable = "unavailable";
 
+    public const string ReasonPartialEnumeration = "partial-enumeration";
+
     public static string FormatAssignmentsNotCollected(string reason, string capacityResourceId)
     {
         return $"{AssignmentsNotCollectedBase}:{reason}:{NormalizeCapacityId(capacityResourceId)}";

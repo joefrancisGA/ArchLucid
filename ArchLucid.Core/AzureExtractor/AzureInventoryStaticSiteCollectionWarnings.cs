@@ -13,6 +13,8 @@ public static class AzureInventoryStaticSiteCollectionWarnings
 
     public const string ReasonError = "error";
 
+    public const string ReasonPartialEnumeration = "partial-enumeration";
+
     public static string Format(string reason, string staticSiteResourceId)
     {
         return $"{BackendsNotCollectedBase}:{reason}:{staticSiteResourceId.Trim().TrimEnd('/')}";

@@ -20,12 +20,14 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
             ? trimmedParentId
             : $"{trimmedParentId}/{childCollectionName.Trim()}";
 
-        return await ListJsonElementsAtRelativePathAsync(
+        (IReadOnlyList<JsonElement> values, _) = await ListJsonElementsAtRelativePathAsync(
             accessToken,
             relativePath,
             apiVersion,
             logLabel,
             cancellationToken).ConfigureAwait(false);
+
+        return values;
     }
 
     internal async Task<JsonElement?> TryGetArmResourceJsonAsync(
@@ -118,17 +120,17 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
             return HostedAzureArmChildCollectionReadResult.Failed(statusCode);
         }
 
-        IReadOnlyList<JsonElement> values = await ListJsonElementsAtRelativePathAsync(
+        (IReadOnlyList<JsonElement> values, bool partialCollection) = await ListJsonElementsAtRelativePathAsync(
             accessToken,
             relativePath,
             apiVersion,
             childSegment,
             cancellationToken).ConfigureAwait(false);
 
-        return HostedAzureArmChildCollectionReadResult.Succeeded(values);
+        return HostedAzureArmChildCollectionReadResult.Succeeded(values, partialCollection);
     }
 
-    private async Task<IReadOnlyList<JsonElement>> ListJsonElementsAtRelativePathAsync(
+    private async Task<(IReadOnlyList<JsonElement> Values, bool PartialCollection)> ListJsonElementsAtRelativePathAsync(
         string accessToken,
         string relativePath,
         string apiVersion,
@@ -143,6 +145,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         string? nextLink = $"https://management.azure.com/{trimmedPath}?api-version={apiVersion}";
         HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
         int requestCount = 0;
+        bool partialCollection = false;
 
         while (!string.IsNullOrWhiteSpace(nextLink))
         {
@@ -155,6 +158,11 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
 
             if (ShouldBreakForPageCap(requestCount))
             {
+                if (childResources.Count > 0)
+                {
+                    partialCollection = true;
+                }
+
                 break;
             }
 
@@ -178,6 +186,11 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
                         (int)response.StatusCode);
                 }
 
+                if (childResources.Count > 0)
+                {
+                    partialCollection = true;
+                }
+
                 break;
             }
 
@@ -188,6 +201,11 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
 
             if (document is null)
             {
+                if (childResources.Count > 0)
+                {
+                    partialCollection = true;
+                }
+
                 break;
             }
 
@@ -217,6 +235,6 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
             }
         }
 
-        return childResources;
+        return (childResources, partialCollection);
     }
 }

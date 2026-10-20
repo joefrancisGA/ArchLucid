@@ -35993,6 +35993,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 
 2026-10-20 thorough hunt (dry): cloud-extractors — cheap-disproved four open (candidate) rows: vault protected-item Succeeded = true on partial retain matches the 2026-10-13 hit (ListVaultBackupProtectedItemsAsync_retains_items_when_later_page_fails); role eligibility schedule listing intentionally soft-fails like management-group eligibility while standing assignments use ShouldBreakForPaginationHttpFailure; AWS Resource Explorer and GCP Asset Inventory intentionally fail the hosted extract on SDK/API errors while partial retain covers in-client pagination guards (page cap, repeated token). No failing repro attempted. Scoped tests: 10 AWS/GCP collector tests passed; Azure GetOnlyHostedAzureArmReadClientTests passed. No production change.
+2026-10-20 thorough hunt (hit): cloud-extractors — ListChildResourcesWithStatusAsync PartialCollection + NR-40/NR-42 partial-enumeration warnings; regressions ListChildResourcesWithStatusAsync_retains_children_and_marks_partial_when_later_page_fails, CollectAsync_warns_when_static_site_linked_backend_list_is_partially_collected, CollectAsync_warns_when_fabric_workspace_list_is_partially_collected; 21 tests passed.
+
 
 ## Zone: cloud-extractors
 
@@ -36121,11 +36123,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 145
-- **bugs-found:** 91
-- **consecutive-dry-hunts:** 1
+- **hunts:** 146
+- **bugs-found:** 92
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-13 — Diagnostic settings page cap omitted PartialCollection
+- **last-bug:** 2026-10-20 — Child ARM listing partial enumeration omitted completeness warnings
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -36152,11 +36154,12 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-03 seed hunt (hit): promoted the subscription policy-assignment pagination candidate; `ListPolicyAssignmentsAtRestPathAsync` validated only the subscription, so an ARM `nextLink` into `policyDefinitions` was followed and could merge another collection's rows. Fixed with exact listing-path validation for subscription and management-group policy assignments; regression `ListSubscriptionPolicyAssignmentsAsync_rejects_next_link_for_different_policy_collection`; 1 focused Azure extractor test passed.
 
 ### Hypotheses
+- [x] (valid-no-repro) `GetOnlyHostedAzureArmReadClient.ListVaultProtectedItemsAsync` — reachable follow-up HTTP failure retains items but returns `Succeeded = true`, so `HostedAzureInventoryRecoveryServicesCollector` may omit backup/site-recovery completeness failure rows while pagination was truncated — locus: final `HostedAzureVaultProtectedItemListResult` when `items.Count > 0` after mid-pagination break; input: mock page-1 item plus page-2 HTTP 500 (see `ListVaultBackupProtectedItemsAsync_retains_items_when_later_page_fails`). — **cheap-disproof 2026-10-20 thorough hunt:** see dry chronicle same day.
+- [x] (valid-no-repro) `GetOnlyHostedAzureArmReadClient.ListSubscriptionRoleEligibilitySchedulesAsync` — reachable first-page HTTP 503 on `roleEligibilitySchedules` breaks with an empty list and debug log while `ListSubscriptionRoleAssignmentsAtListingPathAsync` throws via `ShouldBreakForPaginationHttpFailure` when no rows were collected — locus: non-success branch without `EnsureSuccessStatusCode` on first page; input: subscription pull with mocked `503` on eligibility listing only. — **cheap-disproof 2026-10-20 thorough hunt:** see dry chronicle same day.
+- [x] (valid-no-repro) `AwsResourceExplorerInventoryCollector.CollectAsync` — reachable `AmazonServiceException` on a follow-up `SearchAsync` call propagates and fails the extract instead of returning resources already collected from earlier pages — locus: pagination loop without catch around SDK calls; input: first page succeeds, second call throws throttling. — **cheap-disproof 2026-10-20 thorough hunt:** see dry chronicle same day.
+- [x] (proven) `GetOnlyHostedAzureArmReadClient.ListChildResourcesWithStatusAsync` / `HostedAzureInventoryStaticSiteAndFabricAssociationCollector` — mid-pagination ARM child listing returned rows without `PartialCollection`, so NR-40/NR-42 collectors omitted `partial-enumeration` warnings — **hit 2026-10-20 thorough hunt:** propagate partial flag; regressions `ListChildResourcesWithStatusAsync_retains_children_and_marks_partial_when_later_page_fails`, `CollectAsync_warns_when_static_site_linked_backend_list_is_partially_collected`, `CollectAsync_warns_when_fabric_workspace_list_is_partially_collected`.
 
-- [ ] (candidate) `GetOnlyHostedAzureArmReadClient.ListVaultProtectedItemsAsync` — reachable follow-up HTTP failure retains items but returns `Succeeded = true`, so `HostedAzureInventoryRecoveryServicesCollector` may omit backup/site-recovery completeness failure rows while pagination was truncated — locus: final `HostedAzureVaultProtectedItemListResult` when `items.Count > 0` after mid-pagination break; input: mock page-1 item plus page-2 HTTP 500 (see `ListVaultBackupProtectedItemsAsync_retains_items_when_later_page_fails`).
-- [ ] (candidate) `GetOnlyHostedAzureArmReadClient.ListSubscriptionRoleEligibilitySchedulesAsync` — reachable first-page HTTP 503 on `roleEligibilitySchedules` breaks with an empty list and debug log while `ListSubscriptionRoleAssignmentsAtListingPathAsync` throws via `ShouldBreakForPaginationHttpFailure` when no rows were collected — locus: non-success branch without `EnsureSuccessStatusCode` on first page; input: subscription pull with mocked `503` on eligibility listing only.
-- [ ] (candidate) `AwsResourceExplorerInventoryCollector.CollectAsync` — reachable `AmazonServiceException` on a follow-up `SearchAsync` call propagates and fails the extract instead of returning resources already collected from earlier pages — locus: pagination loop without catch around SDK calls; input: first page succeeds, second call throws throttling.
-- [ ] (candidate) `GcpAssetInventoryCollector.CollectFromRawPagesAsync` — reachable exception from a later raw Asset Search page propagates and fails the extract instead of returning resources already collected — locus: `await foreach` over pages without partial retain on mid-stream failure; input: enumerable yields one page then throws.
+- [x] (valid-no-repro) `GcpAssetInventoryCollector.CollectFromRawPagesAsync` — reachable exception from a later raw Asset Search page propagates and fails the extract instead of returning resources already collected — locus: `await foreach` over pages without partial retain on mid-stream failure; input: enumerable yields one page then throws. — **cheap-disproof 2026-10-20 thorough hunt:** see dry chronicle same day.
 
 - [x] (proven) `GetOnlyHostedAzureArmReadClient.ListDiagnosticSettingsForResourceAsync` — reachable diagnostic-settings pagination that exceeded `MaxPaginationRequests` (64) stopped with settings collected but left `PartialCollection` false, so hosted ZIP omitted diagnostic partial-collection warnings — **hit 2026-10-13 seed hunt:** set `partialCollection` when `settings.Count > 0` before page-cap break; regression `ListDiagnosticSettingsAsync_marks_partial_when_max_page_cap_reached_after_settings_collected`.
 - [x] (proven) `GetOnlyHostedAzureArmReadClient.ListDiagnosticSettingsForResourceAsync` — reachable cross-resource diagnostic-settings `nextLink` values caused `EnsureTargetsDiagnosticSettingsResource` to throw after a successful first page and failed diagnostic collection for every other path-relevant resource — **hit 2026-10-13 seed hunt:** stop pagination with `partialCollection` when `settings.Count > 0`; rethrow when no rows were collected; regression `ListDiagnosticSettingsAsync_continues_after_cross_resource_next_link_for_one_resource`.
