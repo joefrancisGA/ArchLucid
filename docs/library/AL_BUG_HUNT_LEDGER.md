@@ -7940,7 +7940,7 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.RelationshipValidation.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalTerraformSourceIdHeuristics.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalConsensusMerger.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 67
+- **hunts:** 68
 - **last-hunt:** 2026-10-20
 - **bugs-found:** 53
 - **consecutive-dry-hunts:** 0
@@ -15067,6 +15067,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-20 seed hunt (seed-only): identity-provider-config — re-read IdentityProviderConfigurationController discover/test-login/activate/get-configuration paths and IdentityProviderActivationService activation persistence after recent field-limit and camelCase claim-mapping hits; no row met the hunt-ready bar for a failing repro in the selected files. Seeded five bounded (candidate) rows for discover request validation parity, empty metadata URL handling, claim-mapping JSON size, test-login guard delegation, and legacy oversize Key Vault secret names on same-protocol re-activate. Scoped IdentityProviderActivationServiceTests passed 51/51 and IdentityProviderConfigurationControllerTests passed 15/15. No production change.
 
 ## Zone: identity-provider-config
+2026-10-20 seed hunt (seed->hit): promoted OIDC activate persisting optional MetadataXml and SAML activate persisting KeyVaultSecretName from OpenAPI activate body; strip protocol-inapplicable persisted fields after guards; regressions ActivateAsync_does_not_persist_metadata_xml_when_protocol_is_oidc and ActivateAsync_does_not_persist_key_vault_secret_when_protocol_is_saml; 58 scoped IdentityProviderActivationServiceTests passed.
+
+- [x] (proven) IdentityProviderActivationService.ActivateAsync — POST /v1/admin/identity/activate with protocol oidc and metadataXml stored SAML metadata on tenant row — regression ActivateAsync_does_not_persist_metadata_xml_when_protocol_is_oidc.
+
 2026-10-20 seed hunt (seed->hit): promoted same-protocol OIDC reactivate accepting whitespace-only KeyVaultSecretName, clearing a persisted client-secret pointer while SAML already rejects metadata clear; require substantive KeyVaultSecretName when existing OIDC row already stores a secret name; regressions ActivateAsync_rejects_oidc_reactivate_that_would_clear_key_vault_secret_via_whitespace and invisible-unicode sibling; 56 scoped IdentityProviderActivationServiceTests passed.
 
 - [x] (proven) IdentityProviderActivationProtocolFieldRequirements.RequiresSubstantiveOidcKeyVaultSecretName — POST /v1/admin/identity/activate same-protocol OIDC with whitespace keyVaultSecretName cleared KeyVaultSecretName — regression ActivateAsync_rejects_oidc_reactivate_that_would_clear_key_vault_secret_via_whitespace.
@@ -15106,10 +15110,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-20
 - **last-bug:** 2026-10-20 — protocol switch to OIDC without KeyVaultSecretName (class closed 2026-10-20 audit)
-- **bugs-found:** 49
+- **bugs-found:** 50
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — OIDC re-activate whitespace cleared KeyVaultSecretName
+- **last-bug:** 2026-10-20 — OIDC activate stored cross-protocol MetadataXml
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

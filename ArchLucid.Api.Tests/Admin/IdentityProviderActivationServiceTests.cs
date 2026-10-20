@@ -1349,6 +1349,50 @@ public sealed class IdentityProviderActivationServiceTests
             .WithMessage("*Duplicate IdpValue*");
     }
 
+    [Fact]
+    public async Task ActivateAsync_does_not_persist_metadata_xml_when_protocol_is_oidc()
+    {
+        IdentityProviderActivationService sut = new(new InMemoryTenantIdentityProviderConfigurationRepository());
+
+        TenantIdentityProviderConfigurationRecord record = await sut.ActivateAsync(
+            Guid.Parse("b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1"),
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = ValidClaimMapping(),
+                MetadataXml = ValidSamlMetadataXml,
+                KeyVaultSecretName = "tenant-idp-client-secret",
+            },
+            CancellationToken.None);
+
+        record.MetadataXml.Should().BeNull();
+        record.KeyVaultSecretName.Should().Be("tenant-idp-client-secret");
+    }
+
+    [Fact]
+    public async Task ActivateAsync_does_not_persist_key_vault_secret_when_protocol_is_saml()
+    {
+        IdentityProviderActivationService sut = new(new InMemoryTenantIdentityProviderConfigurationRepository());
+
+        TenantIdentityProviderConfigurationRecord record = await sut.ActivateAsync(
+            Guid.Parse("c2c2c2c2-c2c2-c2c2-c2c2-c2c2c2c2c2c2"),
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "saml",
+                IssuerUri = "https://idp.example/saml",
+                ClaimMapping = ValidClaimMapping(),
+                MetadataXml = ValidSamlMetadataXml,
+                KeyVaultSecretName = "tenant-idp-client-secret",
+            },
+            CancellationToken.None);
+
+        record.KeyVaultSecretName.Should().BeNull();
+        record.MetadataXml.Should().Be(ValidSamlMetadataXml);
+    }
+
     private static IdentityClaimRoleMappingRequest ValidClaimMapping() => new()
     {
         RoleClaimName = "groups",

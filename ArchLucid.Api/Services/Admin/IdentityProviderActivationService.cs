@@ -91,6 +91,12 @@ public sealed class IdentityProviderActivationService(
             keyVaultSecretName,
             existing);
 
+        if (parsedProtocol != TenantIdentityProtocol.Saml)
+            metadataXml = null;
+
+        if (parsedProtocol != TenantIdentityProtocol.Oidc)
+            keyVaultSecretName = null;
+
         TenantIdentityProviderConfigurationRecord record = new()
         {
             TenantId = tenantId,
