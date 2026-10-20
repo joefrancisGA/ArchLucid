@@ -124,6 +124,10 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(humanizeAuthorizeCallbackError("access\u200b_denied", "")).toContain("canceled sign-in");
   });
 
+  it("maps interaction_required when the error query glues the code with an interior zero-width character", () => {
+    expect(humanizeAuthorizeCallbackError("interaction\u200brequired", "")).toContain("Another sign-in step");
+  });
+
   it("maps interaction and consent cases", () => {
     expect(humanizeAuthorizeCallbackError("interaction_required", "")).toContain("Another sign-in step");
 

@@ -1,7 +1,7 @@
 import { isSafeOidcEndpointUrl } from "@/lib/oidc/discovery";
 import {
-  collapseOAuthErrorDescriptionLineBreaks,
   isReadableOAuthErrorCode,
+  normalizeOAuthErrorCode,
   readOAuthJsonErrorDescription,
   sanitizeOAuthUserFacingMessage,
   stripOAuthInvisibleFormatChars,
@@ -22,8 +22,7 @@ function readOAuthErrorString(value: unknown): string {
     return "";
   }
 
-  const collapsed = collapseOAuthErrorDescriptionLineBreaks(value.trim());
-  const normalized = collapsed.replace(/\s+/gu, "_").trim();
+  const normalized = normalizeOAuthErrorCode(value);
 
   if (normalized.length === 0 || !isReadableOAuthErrorCode(normalized)) {
     return "";

@@ -1,3 +1,17 @@
+2026-10-20 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `humanizeAuthorizeCallbackError` authorize `error` query with interior ZWSP gluing code (`interaction\u200brequired` → generic copy); shared `normalizeOAuthErrorCode` (collapse + snake_case + collapse duplicate underscores) for authorize callback and token JSON `error`; regressions `maps interaction_required when the error query glues the code with an interior zero-width character`, `preserves OAuth error codes when JSON error field contains a soft hyphen`; cheap-disproof closed four other run #61 `(candidate)` rows; seeded five new `(candidate)` rows; 270 vitest tests in `src/lib/oidc` passed.
+
+- [x] (proven) `oauth-callback-messages.ts` `humanizeAuthorizeCallbackError` — glued authorize `error` code — **hit 2026-10-20 seed hunt #62:** strip-only path left `interactionrequired`; `normalizeOAuthErrorCode` shared with token client; authorize + token regressions.
+- [x] (valid-no-repro) `readOAuthErrorString` — soft hyphen in JSON `error` — **cheap-disproof 2026-10-20 seed hunt #62:** covered by shared normalizer; token regression lock.
+- [x] (invalid) `token-client.ts` `normalizeTokenString` — interior ZWSP in `access_token` — **cheap-disproof 2026-10-20 seed hunt #62:** tokens are base64url; interior format chars would invalidate JWT before strip semantics matter.
+- [x] (invalid) `session.ts` `consumePkceState` — state differs only by interior ZWSP — **cheap-disproof 2026-10-20 seed hunt #62:** callback and stored state use the same `normalizePkceCallbackQueryValue` strip (symmetric).
+- [x] (invalid) `discovery.ts` `loadDiscoveryDocument` — cache key vs trailing slash — **cheap-disproof 2026-10-20 seed hunt #62:** `discoveryUrlForAuthority` normalizes pathname before map key.
+
+- (candidate) `normalizeOAuthErrorCode` — authorize `error` with soft hyphen only (`access\u00ADdenied`) — locus: collapse; input: callback query without underscore.
+- (candidate) `decodeOAuthErrorDescription` — literal `%` in authorize `error_description` with valid trailing escape — locus: decodeURIComponent; input: `50% off` vs `User%20denied` on callback query.
+- (candidate) `jwt-payload.ts` `readIdTokenNonce` — nonce with interior ZWSP — locus: strip vs collapse; input: ID token nonce claim mismatch.
+- (candidate) `session.ts` `ensureAccessTokenFresh` — concurrent refresh with generation bump — locus: `refreshInFlight` / `refreshSessionGeneration`; input: overlapping tab refresh (race).
+- (candidate) `bff-session-sync.ts` `refreshBffSessionCookie` — 401 with JSON OAuth error body — locus: response parse; input: BFF refresh returns `{ error: "invalid_grant" }`.
+
 2026-10-20 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `readOAuthErrorString` interior zero-width in JSON `error` field; global invisible strip glued OAuth codes (`invalid\u200bgrant` → `invalidgrant`); now collapses format chars to spaces and rejoins snake_case tokens before readability check; regression `preserves OAuth error codes when JSON error field contains interior zero-width characters`; cheap-disproof closed four other run #60 `(candidate)` rows; seeded five new `(candidate)` rows; 268 vitest tests in `src/lib/oidc` passed.
 
 - [x] (proven) `token-client.ts` `readOAuthErrorString` — interior ZWSP in JSON `error` code — **hit 2026-10-20 seed hunt #61:** strip merged code tokens; collapse + whitespace-to-underscore normalize; token regression.

@@ -300,6 +300,28 @@ describe("refreshAccessToken", () => {
     ).rejects.toThrow(/^invalid_grant: User\+denied$/);
   });
 
+  it("preserves OAuth error codes when JSON error field contains a soft hyphen", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () =>
+        JSON.stringify({
+          error: "invalid\u00ADgrant",
+          error_description: "Session expired",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/^invalid_grant: Session expired$/);
+  });
+
   it("preserves OAuth error codes when JSON error field contains interior zero-width characters", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,

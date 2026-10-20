@@ -112,6 +112,17 @@ export function collapseOAuthErrorDescriptionLineBreaks(text: string): string {
     .trim();
 }
 
+/** Normalizes OAuth `error` codes from authorize query params or token JSON (collapse glue characters, snake_case). */
+export function normalizeOAuthErrorCode(value: string): string {
+  const collapsed = collapseOAuthErrorDescriptionLineBreaks(value.trim());
+
+  return collapsed
+    .replace(/\s+/gu, "_")
+    .replace(/_+/gu, "_")
+    .trim()
+    .toLowerCase();
+}
+
 export function decodeOAuthErrorDescription(encoded: string | null | undefined): string {
   if (encoded === null || encoded === undefined) {
     return "";
@@ -217,7 +228,7 @@ function buyerSafeAuthorizeErrorWithoutCode(detail: string): string {
 }
 
 export function humanizeAuthorizeCallbackError(errorCode: string, decodedDescription: string): string {
-  const normalized = stripOAuthInvisibleFormatChars(errorCode.trim()).trim().toLowerCase();
+  const normalized = normalizeOAuthErrorCode(errorCode);
   const sanitizedDetail = sanitizeOAuthUserFacingMessage(decodedDescription);
   const detail = isReadableOAuthErrorDetail(sanitizedDetail) ? sanitizedDetail : "";
   const readableCode = formatErrorCodeForReading(normalized);
