@@ -32,6 +32,7 @@ import {
 import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
 import {
   normalizeOidcConfigurationString,
+  normalizeOidcDisplayString,
   parseOidcEpochMsHint,
   stripOAuthInvisibleFormatChars,
 } from "@/lib/oidc/oauth-callback-messages";
@@ -103,7 +104,6 @@ function removeOidcKeys(keys: readonly string[]): void {
 
 function persistNonSensitiveSessionHints(tokens: OidcTokenResponse, expiresAtMs: number): void {
   removeOidcKeys([OIDC_DISPLAY_NAME_KEY, OIDC_USER_SUBJECT_KEY]);
-  sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(expiresAtMs));
 
   const accessPayload = decodeJwtPayload(tokens.access_token);
   const displayNameFromAccess = pickDisplayNameFromPayload(accessPayload);
@@ -124,6 +124,14 @@ function persistNonSensitiveSessionHints(tokens: OidcTokenResponse, expiresAtMs:
       sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, normalizedSubject);
     }
   }
+
+  if (accessPayload !== null && !hasOidcSessionIdentityHints()) {
+    sessionStorage.removeItem(OIDC_EXPIRES_AT_MS_KEY);
+
+    return;
+  }
+
+  sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(expiresAtMs));
 }
 
 async function syncTokenToBff(request: TokenSyncRequest): Promise<void> {
@@ -134,6 +142,19 @@ async function syncTokenToBff(request: TokenSyncRequest): Promise<void> {
   await syncBffSessionCookieFromTokenResponse(request.tokens);
 
   if (request.generation !== refreshSessionGeneration) {
+    const latestRequest = latestTokenSyncRequest;
+
+    if (
+      latestRequest &&
+      latestRequest.generation === refreshSessionGeneration &&
+      latestRequest.sequence !== request.sequence
+    ) {
+      // A late stale POST must not be the final BFF cookie when a replacement session exists.
+      await syncTokenToBff(latestRequest);
+
+      return;
+    }
+
     // Keep stale sign-in cleanup from deleting a replacement session's cookie.
     if (latestTokenSyncGeneration !== refreshSessionGeneration) {
       await clearBffSessionCookie();
@@ -352,9 +373,25 @@ function getExpiresAtMs(): number {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
+function hasOidcSessionIdentityHints(): boolean {
+  if (readSignedInUserSubject() !== null) {
+    return true;
+  }
+
+  if (readSignedInDisplayName() !== null) {
+    return true;
+  }
+
+  return false;
+}
+
 /** Access token expiry (epoch ms), or 0 when unknown. */
 export function getAccessTokenExpiresAtMs(): number {
   if (typeof sessionStorage === "undefined") {
+    return 0;
+  }
+
+  if (!hasOidcSessionIdentityHints()) {
     return 0;
   }
 
@@ -382,8 +419,13 @@ export async function ensureAccessTokenFresh(): Promise<void> {
     return;
   }
 
+  if (!hasOidcSessionIdentityHints()) {
+    return;
+  }
+
   if (!refreshInFlight) {
     const generationAtStart = refreshSessionGeneration;
+    const expiresAtHintAtStart = getExpiresAtMs();
     let activeRefreshPromise: Promise<void> | null = null;
     activeRefreshPromise = (async () => {
       try {
@@ -394,13 +436,19 @@ export async function ensureAccessTokenFresh(): Promise<void> {
         }
 
         if (result.ok) {
-          sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(result.expiresAtMs));
+          // A concurrent sign-in may have refreshed session hints while refresh was in flight.
+          if (expiresAtHintAtStart === getExpiresAtMs()) {
+            sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(result.expiresAtMs));
+          }
 
           return;
         }
 
         if (result.shouldClearSession) {
-          clearOidcSession();
+          // A concurrent sign-in may have refreshed session hints while refresh was in flight.
+          if (expiresAtHintAtStart === getExpiresAtMs()) {
+            clearOidcSession();
+          }
         }
       } finally {
         if (refreshInFlight === activeRefreshPromise) {
@@ -419,7 +467,19 @@ export function readSignedInDisplayName(): string | null {
     return null;
   }
 
-  return readNormalizedIdentitySessionKey(OIDC_DISPLAY_NAME_KEY);
+  const value = readSessionKey(OIDC_DISPLAY_NAME_KEY);
+
+  if (value === null) {
+    return null;
+  }
+
+  const normalized = normalizeOidcDisplayString(value);
+
+  if (normalized.length === 0) {
+    return null;
+  }
+
+  return normalized;
 }
 
 export function readSignedInUserSubject(): string | null {
@@ -436,6 +496,10 @@ export function isLikelySignedIn(): boolean {
   }
 
   const exp = getExpiresAtMs();
+
+  if (!hasOidcSessionIdentityHints()) {
+    return false;
+  }
 
   return exp > 0 && Date.now() < exp - EXPIRY_SKEW_MS;
 }

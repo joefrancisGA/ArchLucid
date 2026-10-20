@@ -29,9 +29,11 @@ public sealed class SecurityEvidencePathRoutingSyncService(
             return;
         }
 
-        IReadOnlyList<SecurityEvidencePathWithHops> pathsWithHops = await pathRepository.ListWithHopsBySnapshotAsync(
-            ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), snapshotId),
-            cancellationToken);
+        IReadOnlyList<SecurityEvidencePathWithHops> pathsWithHops =
+            await pathRepository.ListWithHopsBySnapshotAsync(
+                ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), snapshotId),
+                cancellationToken)
+            ?? [];
 
         if (pathsWithHops.Count == 0)
         {
@@ -50,7 +52,8 @@ public sealed class SecurityEvidencePathRoutingSyncService(
                 scope,
                 snapshotId,
                 cloudResourceIds,
-                cancellationToken);
+                cancellationToken)
+            ?? [];
 
         List<Guid> resourceRowIds = hopResources
             .Select(resource => resource.ResourceRowId)
@@ -63,7 +66,8 @@ public sealed class SecurityEvidencePathRoutingSyncService(
                 scope,
                 snapshotId,
                 resourceRowIds,
-                cancellationToken);
+                cancellationToken)
+            ?? [];
 
         SecurityEvidencePathRoutingTagSlice tagSlice = new()
         {

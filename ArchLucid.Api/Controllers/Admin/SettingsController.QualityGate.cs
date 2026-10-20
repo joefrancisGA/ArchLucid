@@ -49,14 +49,15 @@ public sealed partial class SettingsController
             await _qualityGateModeService.SetAsync(mode, cancellationToken).ConfigureAwait(false);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        string actor = User?.Identity?.Name ?? "admin";
+        (string actorUserId, string actorUserName) = GetAuditActorFields();
 
         await _auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.TenantAgentOutputQualityGateModeUpdated,
-                ActorUserId = actor,
-                ActorUserName = actor,
+                ExplicitActor = true,
+                ActorUserId = actorUserId,
+                ActorUserName = actorUserName,
                 TenantId = scope.TenantId,
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,
@@ -77,14 +78,15 @@ public sealed partial class SettingsController
             await _qualityGateModeService.ClearOverrideAsync(cancellationToken).ConfigureAwait(false);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        string actor = User?.Identity?.Name ?? "admin";
+        (string actorUserId, string actorUserName) = GetAuditActorFields();
 
         await _auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.TenantAgentOutputQualityGateModeOverrideCleared,
-                ActorUserId = actor,
-                ActorUserName = actor,
+                ExplicitActor = true,
+                ActorUserId = actorUserId,
+                ActorUserName = actorUserName,
                 TenantId = scope.TenantId,
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,

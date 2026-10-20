@@ -60,6 +60,8 @@ public sealed class TenantLlmCostTopRunRanker(
             .OrderByDescending(static ranked => ranked.Row.EstimatedCostUsd)
             // Cost ties, including every unpriced run, must count reasoning tokens or a one-token prompt outranks them.
             .ThenByDescending(static ranked => ranked.MeasurableTokens)
+            // Keyset scan order is not stable across polls; break remaining ties on run id.
+            .ThenByDescending(static ranked => ranked.Row.RunId, StringComparer.Ordinal)
             .Take(takeCap)
             .Select(static ranked => ranked.Row)
             .ToList();

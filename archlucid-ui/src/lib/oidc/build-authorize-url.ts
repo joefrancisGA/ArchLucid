@@ -14,6 +14,7 @@ export function buildAuthorizeUrl(params: {
   codeChallenge: string;
   nonce: string;
 }): string {
+  // Retain IdP-specific query keys from discovery (e.g. Azure AD B2C `p=` policy) — ArchLucid params win on name collision.
   const url = new URL(params.doc.authorization_endpoint);
 
   url.searchParams.set("client_id", trimAuthorizeQueryValue(params.clientId));

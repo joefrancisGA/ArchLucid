@@ -6,6 +6,7 @@ using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
@@ -38,6 +39,7 @@ public sealed partial class GovernancePreCommitSimulationController(
     IPreCommitGovernanceGate gate,
     IPreFinalizeChecklistService preFinalizeChecklistService,
     IFinalizeReadinessService finalizeReadinessService,
+    IActorContext actorContext,
     IAuditService auditService,
     IRunRepository runRepository,
     IScopeContextProvider scopeContextProvider,
@@ -45,6 +47,9 @@ public sealed partial class GovernancePreCommitSimulationController(
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService) : ControllerBase
 {
+    private readonly IActorContext _actorContext =
+        actorContext ?? throw new ArgumentNullException(nameof(actorContext));
+
     private readonly IAuthorityQueryService _authorityQueryService =
         authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
 
@@ -59,6 +64,15 @@ public sealed partial class GovernancePreCommitSimulationController(
 
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
+    private (string ActorUserId, string ActorUserName) GetAuditActorFields()
+    {
+        // AuditService replaces ActorUserId with NameIdentifier unless ExplicitActor is set.
+        string actorUserId = _actorContext.GetActorId();
+        string actorUserName = User?.Identity?.Name ?? actorUserId;
+
+        return (actorUserId, actorUserName);
+    }
 
     private async Task<IActionResult?> RequireTenantAndWorkspaceOrNotFoundAsync(CancellationToken cancellationToken)
     {
@@ -270,12 +284,16 @@ public sealed partial class GovernancePreCommitSimulationController(
                 cancellationToken);
 
             Guid? auditRunId = runGuid;
+            (string actorUserId, string actorUserName) = GetAuditActorFields();
 
             await auditService.LogAsync(
                 new AuditEvent
                 {
                     EventType = AuditEventTypes.GovernancePreCommitSimulationEvaluated,
                     RunId = auditRunId,
+                    ExplicitActor = true,
+                    ActorUserId = actorUserId,
+                    ActorUserName = actorUserName,
                     DataJson = JsonSerializer.Serialize(new
                     {
                         runId = runIdNormalized,

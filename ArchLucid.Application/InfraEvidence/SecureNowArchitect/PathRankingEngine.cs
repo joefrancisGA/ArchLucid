@@ -32,9 +32,11 @@ public sealed class PathRankingEngine(
             return Failed("ActorId is required.");
         }
 
-        IReadOnlyList<SecurityEvidencePathWithHops> paths = await pathRepository.ListWithHopsBySnapshotAsync(
-            ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), snapshotId),
-            cancellationToken);
+        IReadOnlyList<SecurityEvidencePathWithHops> paths =
+            await pathRepository.ListWithHopsBySnapshotAsync(
+                ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), snapshotId),
+                cancellationToken)
+            ?? [];
 
         if (paths.Count == 0)
         {

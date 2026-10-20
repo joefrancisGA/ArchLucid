@@ -1,5 +1,6 @@
 import { isSafeOidcEndpointUrl } from "@/lib/oidc/discovery";
 import {
+  coerceAcceptedOidcEpochMsHint,
   normalizeOidcConfigurationString,
   parseOidcEpochMsHint,
 } from "@/lib/oidc/oauth-callback-messages";
@@ -22,7 +23,11 @@ function parseBffExpiresAtMs(raw: unknown): number {
     return parseOidcEpochMsHint(raw);
   }
 
-  return Number(raw);
+  if (typeof raw !== "number") {
+    return Number.NaN;
+  }
+
+  return coerceAcceptedOidcEpochMsHint(raw);
 }
 
 function resolveWorkingModeForBffSession(): boolean {
@@ -198,7 +203,7 @@ export async function resolveRpLogoutUrlFromBffSession(): Promise<string | null>
 
     const body = (await response.json()) as { url?: string | null };
     const url =
-      body.url === null || body.url === undefined
+      typeof body.url !== "string"
         ? ""
         : normalizeOidcConfigurationString(body.url);
 

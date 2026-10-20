@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
@@ -7,12 +7,23 @@ import { GOVERNANCE_FINDINGS_QUEUE_VIRTUALIZE_MIN_ROWS } from "@/app/(operator)/
 import { GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM } from "@/lib/governance/governance-findings-resource-group-disclosure-url";
 
 let searchQuery = "";
+const routerPushMock = vi.hoisted(() => vi.fn());
 
 vi.mock("next/navigation", async (importOriginal) => {
   const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
 
   return extendNextNavigationVitestMock(importOriginal, {
     useSearchParams: () => new URLSearchParams(searchQuery),
+    useRouter: () =>
+      ({
+        back: vi.fn(),
+        forward: vi.fn(),
+        prefetch: vi.fn(),
+        push: routerPushMock,
+        refresh: vi.fn(),
+        replace: vi.fn(),
+        bfcacheId: null,
+      }) as unknown as ReturnType<typeof import("next/navigation")["useRouter"]>,
   });
 });
 
@@ -54,6 +65,7 @@ function rowForResource(index: number, resourceId: string): GovernanceFindingQue
 describe("GovernanceFindingsQueueDesktopTable", () => {
   beforeEach(() => {
     searchQuery = "";
+    routerPushMock.mockReset();
 
     globalThis.ResizeObserver = class {
       observe(): void {}
@@ -125,6 +137,20 @@ describe("GovernanceFindingsQueueDesktopTable", () => {
     );
 
     expect(screen.getByTestId("governance-row-insight-density-finding-0")).toHaveTextContent("Density 87");
+  });
+
+  it("does not keyboard-navigate findings when run id is blank", () => {
+    render(
+      <GovernanceFindingsQueueDesktopTable
+        rows={[{ ...sampleRow(0), runId: "   " }]}
+        buyerPolishedShell={false}
+      />,
+    );
+
+    const keyboardRegion = screen.getByTestId("governance-findings-queue-keyboard-region");
+    fireEvent.keyDown(keyboardRegion, { key: "Enter" });
+
+    expect(routerPushMock).not.toHaveBeenCalled();
   });
 
   it("renders assigned-to-me review label without link when run id is blank", () => {

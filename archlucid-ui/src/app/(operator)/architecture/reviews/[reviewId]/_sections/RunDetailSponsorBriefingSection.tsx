@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -31,6 +31,10 @@ function readSponsorBriefingOpenFromWindowLocation(): boolean {
   return param === null ? true : parseRunDetailSponsorBriefingOpenFromSearch(param);
 }
 
+function parseSponsorBriefingOpenFromSearchParam(raw: string | null): boolean {
+  return raw === null ? true : parseRunDetailSponsorBriefingOpenFromSearch(raw);
+}
+
 export type RunDetailSponsorBriefingSectionProps = {
   readonly runId: string;
   readonly manifestId: string;
@@ -52,6 +56,10 @@ export function RunDetailSponsorBriefingSection(props: RunDetailSponsorBriefingS
     careerArtifactHonesty,
   } = props;
   const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const urlSponsorBriefingOpen = parseSponsorBriefingOpenFromSearchParam(
+    searchParams.get(RUN_DETAIL_SPONSOR_BRIEFING_OPEN_PARAM),
+  );
   // Stable SSR/client first paint — URL sync runs in useEffect (avoids hydration mismatch).
   const [sponsorBriefingOpen, setSponsorBriefingOpenState] = useState(true);
   const sponsorBriefingOpenRef = useRef(sponsorBriefingOpen);
@@ -100,6 +108,15 @@ export function RunDetailSponsorBriefingSection(props: RunDetailSponsorBriefingS
     };
   }, []);
 
+  useEffect(() => {
+    if (sponsorBriefingOpenRef.current === urlSponsorBriefingOpen) {
+      return;
+    }
+
+    sponsorBriefingOpenRef.current = urlSponsorBriefingOpen;
+    setSponsorBriefingOpenState(urlSponsorBriefingOpen);
+  }, [urlSponsorBriefingOpen]);
+
   const deliverables = (
     <>
       <PilotRoiValidationHandoffClientDeferred runId={runId} curatedSampleRun={curatedSampleRun} className="mb-4" />
@@ -119,6 +136,7 @@ export function RunDetailSponsorBriefingSection(props: RunDetailSponsorBriefingS
     return (
       <CollapsibleSection
         title={BUYER_SPONSOR_BRIEFING_PACKAGE_LABEL}
+        sectionTestId="run-detail-sponsor-briefing"
         open={sponsorBriefingOpen}
         onToggle={setSponsorBriefingOpen}
       >

@@ -1,3 +1,4 @@
+using ArchLucid.ArtifactSynthesis.Sanitization;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.ValueReports;
 
@@ -157,6 +158,8 @@ public sealed class DocxValueReportRenderer(ILogger<DocxValueReportRenderer> log
         bool italic = false,
         int fontSizeHalfPoints = 22)
     {
+        string sanitizedText = LlmArtifactFreeTextSanitizer.Sanitize(text);
+
         Paragraph p = new();
         Run r = new();
         RunProperties props = new();
@@ -169,7 +172,7 @@ public sealed class DocxValueReportRenderer(ILogger<DocxValueReportRenderer> log
             props.AppendChild(new Italic());
 
         r.AppendChild(props);
-        r.AppendChild(new Text(text) { Space = SpaceProcessingModeValues.Preserve });
+        r.AppendChild(new Text(sanitizedText) { Space = SpaceProcessingModeValues.Preserve });
         p.AppendChild(r);
 
         return p;

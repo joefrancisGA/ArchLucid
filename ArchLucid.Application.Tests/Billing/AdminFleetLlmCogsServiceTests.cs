@@ -154,6 +154,35 @@ public sealed class AdminFleetLlmCogsServiceTests
     }
 
     [SkippableFact]
+    public async Task BuildDashboardAsync_treats_explicit_reasoning_rate_as_configured_when_global_io_are_zero()
+    {
+        Guid tenantId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+        AdminFleetLlmCogsService sut = CreateService(
+            [Tenant(tenantId, "Epsilon")],
+            new InMemoryLlmTenantBudgetRepository(),
+            new LlmMonthlyTenantDollarBudgetOptions
+            {
+                Enabled = true,
+                IncludedUsdPerUtcMonth = 50m,
+                HardCutoffUsdPerUtcMonth = 100m,
+            },
+            new LlmCostEstimationOptions
+            {
+                Enabled = true,
+                InputUsdPerMillionTokens = 0m,
+                OutputUsdPerMillionTokens = 0m,
+                ReasoningUsdPerMillionTokens = 2.5m,
+            });
+
+        AdminFleetLlmCogsDashboardResponse result = await sut.BuildDashboardAsync();
+
+        AdminFleetLlmCogsRowResponse row = result.Rows.Should().ContainSingle().Subject;
+        row.CostRatesConfigured.Should().BeTrue();
+        row.BudgetCompletionLabel.Should().Be("complete");
+        result.MissingRateTenantCount.Should().Be(0);
+    }
+
+    [SkippableFact]
     public async Task BuildDashboardAsync_WhenCostRatesMissing_ReturnsAdvisorySignal()
     {
         Guid tenantId = Guid.Parse("44444444-4444-4444-4444-444444444444");

@@ -1105,6 +1105,59 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
     }
 
     [Fact]
+    public void MapRelationships_emits_edges_for_all_indexed_instances_when_source_uses_unindexed_root_terraform_address()
+    {
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-0",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api-0",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = "module.wrapper.azurerm_app_service.main[0]",
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api-1",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = "module.wrapper.azurerm_app_service.main[1]",
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                SourceType = "Terraform",
+                SourceId = "azurerm_mssql_server.main",
+                Properties = new()
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "azurerm_app_service.main",
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ]);
+
+        edges.Should().HaveCount(2);
+        edges.Should().Contain(e => e.FromNodeId == "svc-0" && e.ToNodeId == "ds-1");
+        edges.Should().Contain(e => e.FromNodeId == "svc-1" && e.ToNodeId == "ds-1");
+    }
+
+    [Fact]
     public void MapRelationships_resolves_leaf_terraform_address_from_overlay_service_aliases_when_topology_nodes_omit_compute()
     {
         const string rootTerraformAddress = "azurerm_app_service.main";
@@ -4393,6 +4446,56 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
                 new ManifestRelationship
                 {
                     SourceId = "billing-api",
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public void MapRelationships_resolves_declared_alias_when_alias_key_is_arm_id_with_trailing_slash()
+    {
+        const string canonicalArmId =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api-app";
+        const string trailingSlashAliasKey = canonicalArmId + "/";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new()
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [trailingSlashAliasKey] = "svc-1",
+        };
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = canonicalArmId,
                     TargetId = "sql",
                     RelationshipType = RelationshipType.ReadsFrom
                 }

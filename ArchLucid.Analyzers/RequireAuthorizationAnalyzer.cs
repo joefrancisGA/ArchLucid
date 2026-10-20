@@ -99,16 +99,16 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
             if (method.IsImplicitlyDeclared)
                 continue;
 
-            if (method.DeclaredAccessibility != Accessibility.Public)
+            if (!IsDeclaredControllerApiMethod(method))
                 continue;
 
             if (method.IsStatic)
                 continue;
 
-            if (method.MethodKind != MethodKind.Ordinary)
+            if (method.MethodKind is not (MethodKind.Ordinary or MethodKind.ExplicitInterfaceImplementation))
                 continue;
 
-            if (method.AssociatedSymbol is not null)
+            if (method.AssociatedSymbol is not null && method.ExplicitInterfaceImplementations.IsDefaultOrEmpty)
                 continue;
 
             hasAnyDeclaredPublicMethods = true;
@@ -161,13 +161,7 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
             {
                 foreach (IMethodSymbol inheritedMethod in baseType.GetMembers().OfType<IMethodSymbol>())
                 {
-                    if (inheritedMethod.IsStatic ||
-                        inheritedMethod.MethodKind != MethodKind.Ordinary ||
-                        inheritedMethod.AssociatedSymbol is not null ||
-                        inheritedMethod.DeclaredAccessibility != Accessibility.Public ||
-                        (nonActionAttribute is not null &&
-                         (SymbolHasAttribute(inheritedMethod, nonActionAttribute) ||
-                          MethodInheritsAttributeFromOverriddenChain(inheritedMethod, nonActionAttribute))))
+                    if (!IsDeclaredPublicApiAction(inheritedMethod, nonActionAttribute))
                     {
                         continue;
                     }
@@ -271,6 +265,14 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
         return foundInheritedApiAction;
     }
 
+    private static bool IsDeclaredControllerApiMethod(IMethodSymbol method)
+    {
+        if (method.MethodKind == MethodKind.ExplicitInterfaceImplementation)
+            return true;
+
+        return method.DeclaredAccessibility == Accessibility.Public;
+    }
+
     private static bool IsDeclaredPublicApiAction(IMethodSymbol method, INamedTypeSymbol? nonActionAttribute)
     {
         if (method.IsStatic)
@@ -278,17 +280,16 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
             return false;
         }
 
-        if (method.MethodKind != MethodKind.Ordinary)
+        if (method.AssociatedSymbol is not null && method.ExplicitInterfaceImplementations.IsDefaultOrEmpty)
         {
             return false;
         }
 
-        if (method.AssociatedSymbol is not null)
+        if (method.MethodKind == MethodKind.ExplicitInterfaceImplementation)
         {
-            return false;
+            // Explicit interface actions are inherited like public API actions.
         }
-
-        if (method.DeclaredAccessibility != Accessibility.Public)
+        else if (method.MethodKind != MethodKind.Ordinary || method.DeclaredAccessibility != Accessibility.Public)
         {
             return false;
         }

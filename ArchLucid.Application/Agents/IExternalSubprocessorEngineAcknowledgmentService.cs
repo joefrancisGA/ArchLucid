@@ -4,5 +4,5 @@ public interface IExternalSubprocessorEngineAcknowledgmentService
 {
     Task<bool> HasWorkspaceAcknowledgmentAsync(CancellationToken cancellationToken);
 
-    Task RecordWorkspaceAcknowledgmentAsync(string actorUserId, CancellationToken cancellationToken);
+    Task RecordWorkspaceAcknowledgmentAsync(CancellationToken cancellationToken);
 }

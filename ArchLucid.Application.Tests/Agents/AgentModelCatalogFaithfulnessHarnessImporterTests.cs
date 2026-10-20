@@ -1,4 +1,5 @@
 using ArchLucid.Application.Agents;
+using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Agents;
 using ArchLucid.Core.Audit;
@@ -40,7 +41,8 @@ public sealed class AgentModelCatalogFaithfulnessHarnessImporterTests
         repository,
         new NoOpAgentModelCatalogCacheInvalidator(),
         new NoOpAuditService(),
-        new FixedScopeContextProvider()));
+        new FixedScopeContextProvider(),
+        new FixedActorContext("operator@test")));
 
     AgentModelCatalogRow first = await importer.ImportForAliasAsync(
       AgentModelAliasIds.StandardGeneral,
@@ -84,7 +86,8 @@ public sealed class AgentModelCatalogFaithfulnessHarnessImporterTests
         repository,
         new NoOpAgentModelCatalogCacheInvalidator(),
         new NoOpAuditService(),
-        new FixedScopeContextProvider()));
+        new FixedScopeContextProvider(),
+        new FixedActorContext("operator@test")));
 
     InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
       importer.ImportForAliasAsync(
@@ -131,5 +134,14 @@ public sealed class AgentModelCatalogFaithfulnessHarnessImporterTests
         WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
         ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333")
       };
+  }
+
+  private sealed class FixedActorContext(string actorId) : IActorContext
+  {
+    public string GetActor() => actorId;
+
+    public string GetActorId() => actorId;
+
+    public string? TryGetSubmitterMailbox() => null;
   }
 }

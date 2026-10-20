@@ -147,8 +147,8 @@ public sealed class TenantAiBudgetPolicyResolver(
             return null;
         }
 
-        IReadOnlyList<TenantWorkspaceListItem> workspaces =
-            await _tenantRepository.ListWorkspacesAsync(tenant.Id, cancellationToken).ConfigureAwait(false);
+        IReadOnlyList<TenantWorkspaceListItem> workspaces = TenantWorkspaceListCoalesce.Coalesce(
+            await _tenantRepository.ListWorkspacesAsync(tenant.Id, cancellationToken).ConfigureAwait(false));
         BillingSubscriptionSnapshot? subscription =
             await _billingLedger.TryGetSubscriptionAsync(tenant.Id, cancellationToken).ConfigureAwait(false);
         int seatsUsed = tenant.Tier == TenantTier.Enterprise

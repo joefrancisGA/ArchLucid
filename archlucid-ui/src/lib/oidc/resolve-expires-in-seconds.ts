@@ -1,7 +1,9 @@
-import { normalizeNumericOidcHintString } from "@/lib/oidc/oauth-callback-messages";
+import {
+  MAX_PLAUSIBLE_OIDC_EXPIRES_IN_SEC,
+  normalizeNumericOidcHintString,
+} from "@/lib/oidc/oauth-callback-messages";
 
-/** OAuth access-token lifetimes above one year are treated as malformed provider input. */
-const MAX_PLAUSIBLE_OIDC_EXPIRES_IN_SEC = 31_536_000;
+export { MAX_PLAUSIBLE_OIDC_EXPIRES_IN_SEC };
 
 /** Normalizes OIDC `expires_in` (seconds) for client hints and BFF cookie TTL parity. */
 export function resolveExpiresInSeconds(expiresIn: number | undefined): number {
@@ -14,6 +16,11 @@ export function resolveExpiresInSeconds(expiresIn: number | undefined): number {
   // Malformed JSON scalars such as null/boolean are coerced by Number() to
   // zero/one; treat them as absent instead of creating a misleading short TTL.
   if (expiresIn === null || typeof expiresIn === "boolean") {
+    return defaultExpiresInSec;
+  }
+
+  // Malformed JSON such as `expires_in: []` must not coerce via `Number([]) === 0`.
+  if (typeof expiresIn === "object") {
     return defaultExpiresInSec;
   }
 

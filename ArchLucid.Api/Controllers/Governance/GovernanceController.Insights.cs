@@ -51,12 +51,6 @@ public sealed partial class GovernanceController
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
-        IActionResult? sealedGuardResult =
-            await EnsureGovernanceInsightsScopeSealedManifestReadAllowedAsync(cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
         try
         {
             GovernanceDashboardSummary summary = await _insightsFacade.GetDashboardAsync(
@@ -124,12 +118,6 @@ public sealed partial class GovernanceController
 
         if (tenantProblem is not null)
             return tenantProblem;
-
-        IActionResult? sealedGuardResult =
-            await EnsureGovernanceInsightsScopeSealedManifestReadAllowedAsync(cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 

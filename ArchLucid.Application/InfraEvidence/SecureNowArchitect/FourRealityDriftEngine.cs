@@ -96,39 +96,40 @@ public sealed class FourRealityDriftEngine(
                 AzureInventoryDiffSummaryRecord? diffSummary =
                     await diffRepository.TryGetBySnapshotPairAsync(scope, priorId, snapshotId, cancellationToken);
 
-                if (diffSummary is not null)
-                {
-                    inventoryDiffId = diffSummary.DiffId;
-                    diffChanges = await diffRepository.ListChangesByDiffIdAndCloudResourceIdsAsync(
-                        scope,
-                        diffSummary.DiffId,
-                        pathCloudResourceIdList,
-                        cancellationToken);
-                }
-
-                if (pathCloudResourceIdList.Count > 0)
-                {
-                    (IReadOnlyList<AzureInventoryResourceRecord> priorResources,
-                            IReadOnlyList<AzureInventoryResourcePropertyReadModel> priorProperties) =
-                        await snapshotRepository.ListResourcesAndPropertiesByCloudResourceIdsAsync(
-                            scope,
-                            priorId,
-                            pathCloudResourceIdList,
-                            cancellationToken);
-
-                    foreach (AzureInventoryResourceRecord priorResource in priorResources)
+                    if (diffSummary is not null)
                     {
-                        if (priorResource.CloudResourceId is not Guid priorCloudResourceId)
-                        {
-                            continue;
-                        }
-
-                        priorPropertiesByCloudResourceId[priorCloudResourceId] =
-                            FourRealityResourceAccessReader.BuildPropertyBag(
-                                priorProperties,
-                                priorResource.ResourceRowId);
+                        inventoryDiffId = diffSummary.DiffId;
+                        diffChanges = await diffRepository.ListChangesByDiffIdAndCloudResourceIdsAsync(
+                            scope,
+                            diffSummary.DiffId,
+                            pathCloudResourceIdList,
+                            cancellationToken)
+                            ?? [];
                     }
-                }
+
+                    if (pathCloudResourceIdList.Count > 0)
+                    {
+                        (IReadOnlyList<AzureInventoryResourceRecord>? priorResources,
+                                IReadOnlyList<AzureInventoryResourcePropertyReadModel>? priorProperties) =
+                            await snapshotRepository.ListResourcesAndPropertiesByCloudResourceIdsAsync(
+                                scope,
+                                priorId,
+                                pathCloudResourceIdList,
+                                cancellationToken);
+
+                        foreach (AzureInventoryResourceRecord priorResource in priorResources ?? [])
+                        {
+                            if (priorResource.CloudResourceId is not Guid priorCloudResourceId)
+                            {
+                                continue;
+                            }
+
+                            priorPropertiesByCloudResourceId[priorCloudResourceId] =
+                                FourRealityResourceAccessReader.BuildPropertyBag(
+                                    priorProperties ?? [],
+                                    priorResource.ResourceRowId);
+                        }
+                    }
             }
         }
 
@@ -266,7 +267,8 @@ public sealed class FourRealityDriftEngine(
         CancellationToken cancellationToken)
     {
         IReadOnlyList<ArchitectureDiagramReconciliationPersistRecord> records =
-            await reconciliationRepository.ListBySnapshotAsync(scope.TenantId, snapshotId, cancellationToken);
+            await reconciliationRepository.ListBySnapshotAsync(scope.TenantId, snapshotId, cancellationToken)
+            ?? [];
 
         foreach (ArchitectureDiagramReconciliationPersistRecord record in records)
         {

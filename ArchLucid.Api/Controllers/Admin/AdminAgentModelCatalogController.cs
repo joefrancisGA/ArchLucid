@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Agents;
+using ArchLucid.Application.Common;
 using ArchLucid.Core.Agents;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -28,6 +29,7 @@ public sealed class AdminAgentModelCatalogController(
     IAgentModelCatalogEvaluationRecorder evaluationRecorder,
     IAgentModelCatalogFaithfulnessHarnessImporter faithfulnessHarnessImporter,
     IAgentModelCatalogCacheInvalidator cacheInvalidator,
+    IActorContext actorContext,
     IAuditService auditService,
     IScopeContextProvider scopeContextProvider) : ControllerBase
 {
@@ -43,11 +45,23 @@ public sealed class AdminAgentModelCatalogController(
     private readonly IAgentModelCatalogCacheInvalidator _cacheInvalidator =
         cacheInvalidator ?? throw new ArgumentNullException(nameof(cacheInvalidator));
 
+    private readonly IActorContext _actorContext =
+        actorContext ?? throw new ArgumentNullException(nameof(actorContext));
+
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private (string ActorUserId, string ActorUserName) GetAuditActorFields()
+    {
+        // AuditService replaces ActorUserId with NameIdentifier unless ExplicitActor is set.
+        string actorUserId = _actorContext.GetActorId();
+        string actorUserName = User?.Identity?.Name ?? actorUserId;
+
+        return (actorUserId, actorUserName);
+    }
 
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<AgentModelCatalogRow>), StatusCodes.Status200OK)]
@@ -95,7 +109,7 @@ public sealed class AdminAgentModelCatalogController(
         _cacheInvalidator.Invalidate();
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        string actor = User?.Identity?.Name ?? "admin";
+        (string actorUserId, string actorUserName) = GetAuditActorFields();
 
         await _auditService.LogAsync(
             new AuditEvent
@@ -103,8 +117,9 @@ public sealed class AdminAgentModelCatalogController(
                 EventType = before is null
                     ? AuditEventTypes.ModelCatalogEntryCreated
                     : AuditEventTypes.ModelCatalogEntryUpdated,
-                ActorUserId = actor,
-                ActorUserName = actor,
+                ExplicitActor = true,
+                ActorUserId = actorUserId,
+                ActorUserName = actorUserName,
                 TenantId = scope.TenantId,
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,
@@ -136,7 +151,7 @@ public sealed class AdminAgentModelCatalogController(
             return this.BadRequestProblem("EvaluationState is invalid.", ProblemTypes.ValidationFailed);
         }
 
-        string actor = User?.Identity?.Name ?? "admin";
+        (_, string actorUserName) = GetAuditActorFields();
 
         try
         {
@@ -146,7 +161,7 @@ public sealed class AdminAgentModelCatalogController(
                     taskType,
                     evaluationState,
                     request.EvidenceJson,
-                    actor,
+                    actorUserName,
                     cancellationToken)
                 .ConfigureAwait(false);
 

@@ -1,5 +1,5 @@
 import {
-  normalizeOidcConfigurationString,
+  normalizeOidcDisplayString,
   stripOAuthInvisibleFormatChars,
 } from "@/lib/oidc/oauth-callback-messages";
 
@@ -71,7 +71,7 @@ export function pickDisplayNameFromPayload(payload: Record<string, unknown> | nu
       continue;
     }
 
-    const normalized = normalizeOidcConfigurationString(candidate);
+    const normalized = normalizeOidcDisplayString(candidate);
 
     if (normalized.length > 0) {
       return normalized;

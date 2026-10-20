@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type SetStateAction } from "react";
 
 import type { WizardEvidenceUploadTrackState } from "@/components/wizard/steps/WizardPostCreateEvidenceUploadPanel";
 import type { ApiProblemDetails } from "@/lib/api-problem";
@@ -51,6 +51,16 @@ export function useNewRunWizardPendingEvidence(options: PendingEvidenceOptions) 
   const [evidenceUploadError, setEvidenceUploadError] = useState<PendingEvidenceUploadFailure | null>(null);
   const inventoryPlatformDetectionGenerationRef = useRef(0);
   const pendingEvidenceUploadGenerationRef = useRef(0);
+  const pendingDocumentFilesRef = useRef<File[]>([]);
+
+  useEffect(() => {
+    pendingDocumentFilesRef.current = pendingDocumentFiles;
+  }, [pendingDocumentFiles]);
+
+  const setPendingDocumentFilesWithUploadGeneration = useCallback((next: SetStateAction<File[]>) => {
+    pendingEvidenceUploadGenerationRef.current += 1;
+    setPendingDocumentFiles(next);
+  }, []);
 
   const handlePendingEvidenceFileChange = useCallback(
     (file: File | null) => {
@@ -104,9 +114,9 @@ export function useNewRunWizardPendingEvidence(options: PendingEvidenceOptions) 
     async (runIdValue: string): Promise<void> => {
       const inventoryFile = pendingEvidenceFile;
       const inventoryPlatform = pendingInventoryPlatform;
-      const documentFiles = pendingDocumentFiles;
       const hasInventory = inventoryFile !== null && inventoryPlatform !== null;
-      const hasDocuments = documentFiles.length > 0;
+      const hasDocuments =
+        pendingDocumentFilesRef.current.length > 0 || pendingDocumentFiles.length > 0;
 
       if (!hasInventory && !hasDocuments) {
         return;
@@ -158,6 +168,8 @@ export function useNewRunWizardPendingEvidence(options: PendingEvidenceOptions) 
           setPendingEvidenceFile(null);
           setPendingInventoryPlatform(null);
         }
+
+        const documentFiles = pendingDocumentFilesRef.current;
 
         if (documentFiles.length > 0) {
           const documentResult = await uploadWizardPendingDocumentEvidence(runIdValue, documentFiles);
@@ -262,7 +274,7 @@ export function useNewRunWizardPendingEvidence(options: PendingEvidenceOptions) 
   return {
     pendingEvidenceFile,
     pendingDocumentFiles,
-    setPendingDocumentFiles,
+    setPendingDocumentFiles: setPendingDocumentFilesWithUploadGeneration,
     evidenceUploadState,
     evidenceUploadProgressPercent,
     evidenceUploadError,

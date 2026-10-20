@@ -122,6 +122,16 @@ public sealed class PathRankingEngineTests
         snapshotRepository
             .Setup(repository => repository.TryGetSnapshotDetailAsync(scope, SnapshotId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(snapshot);
+        snapshotRepository
+            .Setup(repository => repository.TryGetDefenderBandContextAsync(
+                scope,
+                SnapshotId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AzureInventoryDefenderBandContextReadModel
+            {
+                SubscriptionId = SubscriptionId,
+                DefenderSummaries = snapshot.DefenderSummaries,
+            });
 
         PathRankingEngine engine = new(
             pathRepository.Object,

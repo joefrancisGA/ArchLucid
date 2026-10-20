@@ -125,6 +125,25 @@ describe("ResourceHubClient", () => {
     expect(await screen.findByTestId("infra-resource-hub-page-title")).toHaveTextContent("gateway");
   });
 
+  it("clears hub evidence when a newer URL selection fails to load", async () => {
+    const nextSnapshotId = "33333333-3333-3333-3333-333333333333";
+
+    const { rerender } = render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-tabs")).toBeInTheDocument();
+    expect(screen.getByText("Peering")).toBeInTheDocument();
+
+    searchParams = new URLSearchParams(`tab=overview&snapshotId=${nextSnapshotId}`);
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () => {
+      throw new Error("Captured evidence unavailable for snapshot.");
+    });
+    rerender(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-load-error")).toBeInTheDocument();
+    expect(screen.queryByText("Peering")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infra-resource-hub-tabs")).not.toBeInTheDocument();
+  });
+
   it("does not let a stale resource request overwrite a newer URL selection", async () => {
     let resolveFirstRequest: ((hub: ReturnType<typeof buildResourceHubTestMockHub>) => void) | undefined;
     let resolveSecondRequest: ((hub: ReturnType<typeof buildResourceHubTestMockHub>) => void) | undefined;

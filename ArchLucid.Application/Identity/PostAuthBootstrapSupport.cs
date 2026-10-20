@@ -76,8 +76,8 @@ internal static class PostAuthBootstrapSupport
 
         foreach (WorkspaceMembershipRecord membership in activeMemberships)
         {
-            IReadOnlyList<TenantWorkspaceListItem> workspaces =
-                await tenantRepository.ListWorkspacesAsync(membership.TenantId, cancellationToken).ConfigureAwait(false);
+            IReadOnlyList<TenantWorkspaceListItem> workspaces = TenantWorkspaceListCoalesce.Coalesce(
+                await tenantRepository.ListWorkspacesAsync(membership.TenantId, cancellationToken).ConfigureAwait(false));
 
             TenantWorkspaceListItem? workspace =
                 workspaces.FirstOrDefault(row => row.WorkspaceId == membership.WorkspaceId);

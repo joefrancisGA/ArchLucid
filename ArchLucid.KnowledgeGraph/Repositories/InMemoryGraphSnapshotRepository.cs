@@ -84,6 +84,7 @@ public class InMemoryGraphSnapshotRepository : IGraphSnapshotRepository
                 .Where(s => s.ContextSnapshotId == contextSnapshotId)
                 .Where(s => SnapshotVisibleUnderScope(s.GraphSnapshotId, scope))
                 .OrderByDescending(s => s.CreatedUtc)
+                .ThenByDescending(s => s.GraphSnapshotId)
                 .FirstOrDefault();
 
             return Task.FromResult(latest);

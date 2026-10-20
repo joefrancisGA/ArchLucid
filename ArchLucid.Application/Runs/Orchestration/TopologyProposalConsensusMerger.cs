@@ -27,19 +27,21 @@ public static class TopologyProposalConsensusMerger
         IReadOnlyList<ManifestDatastore> combinedDatastores =
             CombineManifestDatastores(primaryDatastores, secondaryDatastores);
 
+        List<ManifestRelationship> intersectedRelationshipRows = IntersectRelationships(
+            primaryRelationships,
+            secondaryRelationships,
+            primaryServices,
+            primaryDatastores,
+            secondaryServices,
+            secondaryDatastores);
+
         List<ManifestRelationship> intersectedRelationships =
             PruneRelationshipsToDeclaredEndpoints(
                 intersectedServices,
                 intersectedDatastores,
                 combinedServices,
                 combinedDatastores,
-                IntersectRelationships(
-                    primaryRelationships,
-                    secondaryRelationships,
-                    primaryServices,
-                    primaryDatastores,
-                    secondaryServices,
-                    secondaryDatastores));
+                intersectedRelationshipRows);
         List<string> intersectedControls = IntersectControls(
             primary.RequiredControls ?? [],
             secondary.RequiredControls ?? []);
@@ -49,8 +51,8 @@ public static class TopologyProposalConsensusMerger
             + (secondaryServices.Count - intersectedServices.Count)
             + (primaryDatastores.Count - intersectedDatastores.Count)
             + (secondaryDatastores.Count - intersectedDatastores.Count)
-            + (primaryRelationships.Count - intersectedRelationships.Count)
-            + (secondaryRelationships.Count - intersectedRelationships.Count)
+            + (primaryRelationships.Count - intersectedRelationshipRows.Count)
+            + (secondaryRelationships.Count - intersectedRelationshipRows.Count)
             + ((primary.RequiredControls?.Count ?? 0) - intersectedControls.Count)
             + ((secondary.RequiredControls?.Count ?? 0) - intersectedControls.Count);
 
@@ -230,7 +232,7 @@ public static class TopologyProposalConsensusMerger
         $"{ResolveServiceIdentity(service)}|{service.ServiceType}|{service.RuntimePlatform}";
 
     private static string DatastoreKey(ManifestDatastore datastore) =>
-        $"{ResolveDatastoreIdentity(datastore)}|{datastore.DatastoreType}";
+        $"{ResolveDatastoreIdentity(datastore)}|{datastore.DatastoreType}|{datastore.RuntimePlatform}";
 
     private static string ResolveServiceIdentity(ManifestService service)
     {

@@ -66,10 +66,14 @@ public static partial class AgentTopologyProposalMergeGate
         }
 
         List<AgentResult> filtered = [];
+        HashSet<string> emittedResultIds = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (AgentResult result in results)
         {
             if (!sanitizedResultsById.TryGetValue(result.ResultId, out AgentResult? sanitizedResult))
+                continue;
+
+            if (!emittedResultIds.Add(result.ResultId))
                 continue;
 
             filtered.Add(sanitizedResult);

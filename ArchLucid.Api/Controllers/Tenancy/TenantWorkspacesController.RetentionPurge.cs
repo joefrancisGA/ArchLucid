@@ -28,14 +28,41 @@ public sealed partial class TenantWorkspacesController
         if (tenant is null)
             return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
-        IReadOnlyList<TenantWorkspaceListItem> workspaces =
-            await _tenantRepository.ListWorkspacesAsync(scope.TenantId, cancellationToken);
+        IReadOnlyList<TenantWorkspaceListItem> workspaces = TenantWorkspaceInventoryCoalesce.CoalesceWorkspaces(
+            await _tenantRepository.ListWorkspacesAsync(scope.TenantId, cancellationToken));
 
-        TenantWorkspaceListItem? currentWorkspace =
-            workspaces.SingleOrDefault(w => w.WorkspaceId == scope.WorkspaceId);
-
-        if (currentWorkspace is null)
+        if (FindWorkspace(workspaces, scope.WorkspaceId) is null)
             return this.NotFoundProblem("Workspace was not found for this tenant.", ProblemTypes.ResourceNotFound);
+
+        IReadOnlyList<ArchitectureProjectRecord> activeProjects =
+            await _architectureProjectRepository.ListActiveByTenantAsync(scope.TenantId, cancellationToken)
+            ?? Array.Empty<ArchitectureProjectRecord>();
+
+        List<TenantWorkspaceProjectApiDto> workspaceActiveProjects = activeProjects
+            .Where(p => p.WorkspaceId == scope.WorkspaceId)
+            .OrderBy(static p => p.Name, StringComparer.OrdinalIgnoreCase)
+            .Select(
+                p => new TenantWorkspaceProjectApiDto
+                {
+                    ProjectId = p.Id,
+                    Name = p.Name,
+                    DisplayName = p.Name
+                })
+            .ToList();
+
+        Guid defaultProjectId = ResolveScopedWorkspaceDefaultProjectId(
+            workspaces,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            workspaceActiveProjects);
+
+        TenantWorkspaceListItem displayWorkspace = ResolveScopedWorkspaceInventoryRow(
+            workspaces,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            workspaceActiveProjects,
+            defaultProjectId,
+            preferInactiveScopedInventoryRow: true)!;
 
         IReadOnlyList<ArchitectureProjectRecord> deleted =
             await _architectureProjectRepository.ListSoftDeletedByTenantAsync(scope.TenantId, cancellationToken)
@@ -44,7 +71,11 @@ public sealed partial class TenantWorkspacesController
         int retentionDays =
             ArchitectureProjectRetentionSchedule.ClampRetentionDays(_retentionPurgeOptions.CurrentValue.RetentionDays);
 
-        HashSet<Guid> defaultMetadataPinnedProjectIds = workspaces
+        ILookup<Guid, ArchitectureProjectRecord> activeProjectsByWorkspace = activeProjects.ToLookup(
+            static project => project.WorkspaceId);
+
+        HashSet<Guid> currentWorkspaceDefaultPinProjectIds = workspaces
+            .Where(workspace => workspace.WorkspaceId == scope.WorkspaceId)
             .Select(workspace => workspace.DefaultProjectId)
             .Where(projectId => projectId != Guid.Empty)
             .ToHashSet();
@@ -55,16 +86,26 @@ public sealed partial class TenantWorkspacesController
 
         TenantWorkspaceRecycleBinApiDto dto = new()
         {
-            WorkspaceId = currentWorkspace.WorkspaceId,
-            Name = currentWorkspace.Name,
-            DisplayName = currentWorkspace.Name,
+            WorkspaceId = displayWorkspace.WorkspaceId,
+            Name = displayWorkspace.Name,
+            DisplayName = displayWorkspace.Name,
             DeletedProjects = workspaceDeleted
                 .Select(
                     p =>
                     {
                         DateTimeOffset deletedUtc = p.DeletedUtc!.Value;
 
-                        bool retentionPurgeScheduled = !defaultMetadataPinnedProjectIds.Contains(p.Id);
+                        bool protectsDeletedProjectFromPurge =
+                            ForeignWorkspaceMetadataProtectsFromRetentionPurge(
+                                workspaces,
+                                scope.WorkspaceId,
+                                p.Id,
+                                activeProjectsByWorkspace)
+                            || (currentWorkspaceDefaultPinProjectIds.Contains(p.Id)
+                                && (p.Id == defaultProjectId
+                                    || (defaultProjectId == Guid.Empty && workspaceActiveProjects.Count == 0)));
+
+                        bool retentionPurgeScheduled = !protectsDeletedProjectFromPurge;
 
                         return new TenantWorkspaceDeletedProjectApiDto
                         {

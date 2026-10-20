@@ -4,6 +4,7 @@ using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
+using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Manifest;
@@ -53,6 +54,7 @@ namespace ArchLucid.Api.Controllers.Governance;
 public sealed partial class GovernanceResolutionController(
     IScopeContextProvider scopeProvider,
     IEffectiveGovernanceResolver resolver,
+    IActorContext actorContext,
     IAuditService auditService,
     ITenantRepository tenantRepository,
     IAuthorityQueryService authorityQueryService,
@@ -73,6 +75,18 @@ public sealed partial class GovernanceResolutionController(
 
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
+    private readonly IActorContext _actorContext =
+        actorContext ?? throw new ArgumentNullException(nameof(actorContext));
+
+    private (string ActorUserId, string ActorUserName) GetAuditActorFields()
+    {
+        // AuditService replaces ActorUserId with NameIdentifier unless ExplicitActor is set.
+        string actorUserId = _actorContext.GetActorId();
+        string actorUserName = User?.Identity?.Name ?? actorUserId;
+
+        return (actorUserId, actorUserName);
+    }
 
     /// <summary>
     ///     Runs hierarchical governance resolution for the caller’s scope and returns the full
@@ -116,10 +130,15 @@ public sealed partial class GovernanceResolutionController(
                 scope.ProjectId,
                 ct);
 
+            (string actorUserId, string actorUserName) = GetAuditActorFields();
+
             await auditService.LogAsync(
                 new AuditEvent
                 {
                     EventType = AuditEventTypes.GovernanceResolutionExecuted,
+                    ExplicitActor = true,
+                    ActorUserId = actorUserId,
+                    ActorUserName = actorUserName,
                     DataJson = JsonSerializer.Serialize(new GovernanceResolutionAuditData(
                         scope.TenantId,
                         scope.WorkspaceId,
@@ -140,6 +159,9 @@ public sealed partial class GovernanceResolutionController(
                 new AuditEvent
                 {
                     EventType = AuditEventTypes.GovernanceConflictDetected,
+                    ExplicitActor = true,
+                    ActorUserId = actorUserId,
+                    ActorUserName = actorUserName,
                     DataJson = JsonSerializer.Serialize(new GovernanceConflictAuditData(
                         scope.TenantId,
                         scope.WorkspaceId,

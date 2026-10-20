@@ -30,7 +30,7 @@ describe("refreshAccessToken", () => {
     expect(tokens.access_token).toBe(accessToken);
   });
 
-  it("preserves string expires_in on the parsed token object while normalizing access_token", async () => {
+  it("coerces string expires_in to a number on the parsed token object while normalizing access_token", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,
       text: async () =>
@@ -46,7 +46,26 @@ describe("refreshAccessToken", () => {
     });
 
     expect(tokens.access_token).toBe("access-1");
-    expect(tokens.expires_in).toBe("7200");
+    expect(tokens.expires_in).toBe(7200);
+  });
+
+  it("maps empty array expires_in on token JSON to the default lifetime on the parsed object", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({ access_token: "access-1", expires_in: [], token_type: "Bearer" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const tokens = await refreshAccessToken({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      refreshToken: "rt",
+    });
+
+    expect(tokens.access_token).toBe("access-1");
+    expect(tokens.expires_in).toBe(3600);
   });
 
   it("strips zero-width characters from access_token in successful token responses", async () => {
@@ -86,6 +105,58 @@ describe("refreshAccessToken", () => {
         refreshToken: "rt",
       }),
     ).rejects.toThrow(/missing access_token/i);
+  });
+
+  it("posts authorization code grants to token endpoints that include required query parameters (B2C policy)", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () => JSON.stringify({ access_token: "access-1", token_type: "Bearer" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const tokenEndpoint =
+      "https://contoso.b2clogin.com/contoso.onmicrosoft.com/B2C_1_signin/oauth2/v2.0/token?p=B2C_1_signin";
+
+    await exchangeAuthorizationCode({
+      tokenEndpoint,
+      clientId: "client",
+      code: "auth-code",
+      redirectUri: "https://app.example/callback",
+      codeVerifier: "verifier",
+    });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      tokenEndpoint,
+      expect.objectContaining({ method: "POST" }),
+    );
+
+    const requestInit = fetchMock.mock.calls[0]?.[1] as { body?: URLSearchParams };
+    const posted = new URLSearchParams(requestInit.body);
+
+    expect(posted.get("grant_type")).toBe("authorization_code");
+    expect(posted.get("code")).toBe("auth-code");
+  });
+
+  it("posts to token endpoints that include required query parameters (B2C policy)", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () => JSON.stringify({ access_token: "access-1", token_type: "Bearer" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await refreshAccessToken({
+      tokenEndpoint:
+        "https://contoso.b2clogin.com/contoso.onmicrosoft.com/B2C_1_signin/oauth2/v2.0/token?p=B2C_1_signin",
+      clientId: "client",
+      refreshToken: "rt",
+    });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://contoso.b2clogin.com/contoso.onmicrosoft.com/B2C_1_signin/oauth2/v2.0/token?p=B2C_1_signin",
+      expect.objectContaining({ method: "POST" }),
+    );
   });
 
   it("rejects token endpoints that embed userinfo before calling fetch", async () => {
@@ -183,6 +254,184 @@ describe("refreshAccessToken", () => {
 
     expect(message).toMatch(/token endpoint error 400/i);
     expect(message).not.toMatch(/403: true/i);
+  });
+
+  it("preserves literal percent signs in JSON error_description on token responses", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () =>
+        JSON.stringify({
+          error: "invalid_grant",
+          error_description: "100% failed",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/^invalid_grant: 100% failed$/);
+  });
+
+  it("does not treat plus as space in JSON error_description on token responses", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () =>
+        JSON.stringify({
+          error: "invalid_grant",
+          error_description: "User+denied",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/^invalid_grant: User\+denied$/);
+  });
+
+  it("preserves OAuth error codes when JSON error field contains a soft hyphen", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () =>
+        JSON.stringify({
+          error: "invalid\u00ADgrant",
+          error_description: "Session expired",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/^invalid_grant: Session expired$/);
+  });
+
+  it("surfaces regional-indicator flag emoji from JSON error_description on token responses", async () => {
+    const detail = "🇺🇸";
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () =>
+        JSON.stringify({
+          error: "invalid_grant",
+          error_description: detail,
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/^invalid_grant: 🇺🇸$/u);
+  });
+
+  it("surfaces emoji ZWJ sequences from JSON error_description on token responses", async () => {
+    const detail = "👨\u200d👩\u200d👧";
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () =>
+        JSON.stringify({
+          error: "invalid_grant",
+          error_description: detail,
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(new RegExp(`invalid_grant: ${detail.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`));
+  });
+
+  it("preserves OAuth error codes when JSON error field contains interior zero-width characters", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () =>
+        JSON.stringify({
+          error: "invalid\u200bgrant",
+          error_description: "Session expired",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/^invalid_grant: Session expired$/);
+  });
+
+  it("collapses interior zero-width characters in JSON error_description on token responses", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () =>
+        JSON.stringify({
+          error: "invalid_grant",
+          error_description: "Policy\u200bdenied",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/^invalid_grant: Policy denied$/);
+  });
+
+  it("decodes percent-encoded OAuth error_description fields from JSON token responses", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () =>
+        JSON.stringify({
+          error: "invalid_grant",
+          error_description: "User%20denied",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/^invalid_grant: User denied$/);
   });
 
   it("collapses soft hyphens in token endpoint OAuth error descriptions", async () => {

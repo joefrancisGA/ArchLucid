@@ -1,3 +1,4 @@
+using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -9,6 +10,7 @@ namespace ArchLucid.Application.Agents;
 /// <summary>Records and checks workspace-admin acknowledgment before external-subprocessor engines (TB-2109).</summary>
 public sealed class ExternalSubprocessorEngineAcknowledgmentService(
     IScopeContextProvider scopeContextProvider,
+    IActorContext actorContext,
     IAuditService auditService,
     ITenantSettingsRepository tenantSettingsRepository) : IExternalSubprocessorEngineAcknowledgmentService
 {
@@ -16,6 +18,9 @@ public sealed class ExternalSubprocessorEngineAcknowledgmentService(
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IActorContext _actorContext =
+        actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
@@ -30,13 +35,11 @@ public sealed class ExternalSubprocessorEngineAcknowledgmentService(
             .TryGetAsync(tenantId, TenantSettingKeys.ExternalSubprocessorEngineAcknowledged, cancellationToken)
             .ConfigureAwait(false);
 
-        return string.Equals(stored, AcknowledgedValue, StringComparison.Ordinal);
+        return string.Equals(stored?.Trim(), AcknowledgedValue, StringComparison.Ordinal);
     }
 
-    public async Task RecordWorkspaceAcknowledgmentAsync(string actorUserId, CancellationToken cancellationToken)
+    public async Task RecordWorkspaceAcknowledgmentAsync(CancellationToken cancellationToken)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(actorUserId);
-
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         Guid tenantId = RequireTenantId();
 
@@ -48,12 +51,16 @@ public sealed class ExternalSubprocessorEngineAcknowledgmentService(
                 cancellationToken)
             .ConfigureAwait(false);
 
+        string actorUserId = _actorContext.GetActorId();
+        string actorUserName = _actorContext.GetActor();
+
         await _auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.WorkspaceExternalSubprocessorEngineAcknowledged,
+                ExplicitActor = true,
                 ActorUserId = actorUserId,
-                ActorUserName = actorUserId,
+                ActorUserName = actorUserName,
                 TenantId = scope.TenantId,
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,

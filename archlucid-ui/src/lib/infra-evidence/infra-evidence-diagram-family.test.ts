@@ -30,6 +30,12 @@ describe("infra-evidence-diagram-family", () => {
     );
   });
 
+  it("maps app-setting host inference sources to From app settings family", () => {
+    expect(resolveInfraEvidenceDiagramFamily(edge("From app settings", "inventory-storage-host-ref"))).toBe(
+      "AppSettingsHost",
+    );
+  });
+
   it("maps family verbs and leaves unknown edges in All only", () => {
     expect(resolveInfraEvidenceDiagramFamily(edge("Reads from", null))).toBe("DeclaredMovement");
     expect(resolveInfraEvidenceDiagramFamily(edge("May access", null))).toBe("AuthorizedAccess");

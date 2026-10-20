@@ -1,9 +1,12 @@
 import { isSafeOidcEndpointUrl } from "@/lib/oidc/discovery";
 import {
   isReadableOAuthErrorCode,
+  normalizeOAuthErrorCode,
+  readOAuthJsonErrorDescription,
   sanitizeOAuthUserFacingMessage,
   stripOAuthInvisibleFormatChars,
 } from "@/lib/oidc/oauth-callback-messages";
+import { resolveExpiresInSeconds } from "@/lib/oidc/resolve-expires-in-seconds";
 
 export type OidcTokenResponse = {
   access_token: string;
@@ -19,13 +22,13 @@ function readOAuthErrorString(value: unknown): string {
     return "";
   }
 
-  const trimmed = stripOAuthInvisibleFormatChars(value.trim()).trim();
+  const normalized = normalizeOAuthErrorCode(value);
 
-  if (trimmed.length === 0 || !isReadableOAuthErrorCode(trimmed)) {
+  if (normalized.length === 0 || !isReadableOAuthErrorCode(normalized)) {
     return "";
   }
 
-  return trimmed;
+  return normalized;
 }
 
 function errorFromOAuthJson(json: unknown): Error | null {
@@ -34,9 +37,12 @@ function errorFromOAuthJson(json: unknown): Error | null {
   }
 
   const record = json as { error?: unknown; error_description?: unknown };
-  const msg = [readOAuthErrorString(record.error), readOAuthErrorString(record.error_description)]
-    .filter((part) => part.length > 0)
-    .join(": ");
+  const errorCode = readOAuthErrorString(record.error);
+  const errorDescription =
+    typeof record.error_description === "string"
+      ? readOAuthJsonErrorDescription(record.error_description)
+      : "";
+  const msg = [errorCode, errorDescription].filter((part) => part.length > 0).join(": ");
 
   if (!msg) {
     return null;
@@ -150,12 +156,14 @@ function parseOidcTokenResponse(parsed: unknown): OidcTokenResponse {
 
   const refreshToken = normalizeOptionalTokenString(record.refresh_token);
   const idToken = normalizeOptionalTokenString(record.id_token);
+  const expiresIn = resolveExpiresInSeconds(record.expires_in as number | undefined);
 
   return {
     ...(parsed as OidcTokenResponse),
     access_token: accessToken,
     refresh_token: refreshToken,
     id_token: idToken,
+    expires_in: expiresIn,
   };
 }
 

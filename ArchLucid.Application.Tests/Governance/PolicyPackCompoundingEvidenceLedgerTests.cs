@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Text.Json;
 
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.PolicyPackCompoundingEvidenceLedger;
 using ArchLucid.Contracts.Governance;
@@ -268,8 +269,13 @@ public sealed class PolicyPackCompoundingEvidenceLedgerTests
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(TestScope);
 
+        Mock<IActorContext> actorContext = new();
+        actorContext.Setup(a => a.GetActorId()).Returns("jwt:test:actor");
+        actorContext.Setup(a => a.GetActor()).Returns("Test Actor");
+
         return new PolicyPackGovernanceDryRunService(
             scope.Object,
+            actorContext.Object,
             runs,
             findings,
             goldenManifests,

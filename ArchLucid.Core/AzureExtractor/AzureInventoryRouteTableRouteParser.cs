@@ -70,8 +70,14 @@ public static class AzureInventoryRouteTableRouteParser
                 AddressPrefix = ReadRouteProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix),
                 NextHopType = ReadRouteProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix),
                 NextHopIpAddress = ReadRouteProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix),
-                NextHopArmId = ReadRouteProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopArmIdSuffix),
+                NextHopArmId = TryParseFlattenedNextHopArmId(properties, index),
             };
+
+            if (!RouteHasReachableContent(route)
+                && TryParseRouteFromFlattenedRowBlob(properties, index, out AzureInventoryRouteTableRoute blobRoute))
+            {
+                route = blobRoute;
+            }
 
             if (!RouteHasReachableContent(route))
             {
@@ -96,15 +102,83 @@ public static class AzureInventoryRouteTableRouteParser
                 continue;
             }
 
-            if (!TryExtractExplicitRouteIndex(key, out string index))
+            if (TryExtractExplicitRouteIndex(key, out string index))
+            {
+                indexes.Add(index);
+
+                continue;
+            }
+
+            string routeRowKeySuffix = key[InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix.Length..];
+
+            if (!string.IsNullOrEmpty(routeRowKeySuffix) && !routeRowKeySuffix.Contains('.'))
+            {
+                indexes.Add(routeRowKeySuffix);
+            }
+        }
+
+        return indexes;
+    }
+
+    private static bool TryParseRouteFromFlattenedRowBlob(
+        IReadOnlyDictionary<string, string> properties,
+        string index,
+        out AzureInventoryRouteTableRoute route)
+    {
+        route = new AzureInventoryRouteTableRoute();
+
+        string rowKey = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}{index}";
+
+        if (!TryReadPropertyValueIgnoreCase(properties, rowKey, out string? rowJson)
+            || string.IsNullOrWhiteSpace(rowJson))
+        {
+            return false;
+        }
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(rowJson);
+
+            if (!TryParseRouteFromRouteElement(document.RootElement, out route))
+            {
+                return false;
+            }
+
+            return RouteHasReachableContent(route);
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
+    private static bool TryReadPropertyValueIgnoreCase(
+        IReadOnlyDictionary<string, string> properties,
+        string propertyKey,
+        out string? value)
+    {
+        if (properties.TryGetValue(propertyKey, out value) && !string.IsNullOrWhiteSpace(value))
+        {
+            return true;
+        }
+
+        foreach ((string key, string propertyValue) in properties)
+        {
+
+            if (!key.Equals(propertyKey, StringComparison.OrdinalIgnoreCase)
+                || string.IsNullOrWhiteSpace(propertyValue))
             {
                 continue;
             }
 
-            indexes.Add(index);
+            value = propertyValue;
+
+            return true;
         }
 
-        return indexes;
+        value = null;
+
+        return false;
     }
 
     private static bool TryExtractExplicitRouteIndex(string propertyKey, out string index)
@@ -134,7 +208,24 @@ public static class AzureInventoryRouteTableRouteParser
         InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix,
         InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix,
         InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopArmIdSuffix,
+        InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopReferenceSuffix,
     ];
+
+    private static string? TryParseFlattenedNextHopArmId(
+        IReadOnlyDictionary<string, string> properties,
+        string index)
+    {
+        string? fromArmIdSuffix = TryParseFlattenedArmIdValue(
+            ReadRouteProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopArmIdSuffix));
+
+        if (!string.IsNullOrWhiteSpace(fromArmIdSuffix))
+        {
+            return fromArmIdSuffix;
+        }
+
+        return TryParseFlattenedArmIdValue(
+            ReadRouteProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopReferenceSuffix));
+    }
 
     private static bool RouteHasReachableContent(AzureInventoryRouteTableRoute route)
     {
@@ -322,11 +413,52 @@ public static class AzureInventoryRouteTableRouteParser
         return string.IsNullOrWhiteSpace(parsed) ? null : parsed.Trim();
     }
 
+    private static string? TryParseFlattenedArmIdValue(string? rawValue)
+    {
+        if (string.IsNullOrWhiteSpace(rawValue))
+        {
+            return null;
+        }
+
+        string trimmed = rawValue.Trim();
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(trimmed);
+            JsonElement root = document.RootElement;
+
+            if (AzureExtractorJsonObjectElement.TryUnwrapObject(root, out JsonElement objectReference))
+            {
+                string? fromObject = TryReadArmIdFromReferenceObject(objectReference);
+
+                if (!string.IsNullOrWhiteSpace(fromObject))
+                {
+                    return fromObject;
+                }
+            }
+
+            if (root.ValueKind is JsonValueKind.String)
+            {
+                return NormalizeArmId(root.GetString());
+            }
+        }
+        catch (JsonException)
+        {
+        }
+
+        return NormalizeArmId(trimmed);
+    }
+
     private static string? TryReadNestedArmId(JsonElement propertiesElement, string propertyName)
     {
         if (!TryGetPropertyIgnoreCase(propertiesElement, propertyName, out JsonElement valueElement))
         {
             return null;
+        }
+
+        if (AzureExtractorJsonObjectElement.TryUnwrapObject(valueElement, out JsonElement objectReference))
+        {
+            return TryReadArmIdFromReferenceObject(objectReference);
         }
 
         if (valueElement.ValueKind is JsonValueKind.String)
@@ -336,18 +468,24 @@ public static class AzureInventoryRouteTableRouteParser
 
         if (valueElement.ValueKind is JsonValueKind.Object)
         {
+            return TryReadArmIdFromReferenceObject(valueElement);
+        }
 
-            foreach (JsonProperty property in valueElement.EnumerateObject())
+        return null;
+    }
+
+    private static string? TryReadArmIdFromReferenceObject(JsonElement referenceObject)
+    {
+        foreach (JsonProperty property in referenceObject.EnumerateObject())
+        {
+
+            if (!property.Name.Equals("id", StringComparison.OrdinalIgnoreCase)
+                || property.Value.ValueKind is not JsonValueKind.String)
             {
-
-                if (!property.Name.Equals("id", StringComparison.OrdinalIgnoreCase)
-                    || property.Value.ValueKind is not JsonValueKind.String)
-                {
-                    continue;
-                }
-
-                return NormalizeArmId(property.Value.GetString());
+                continue;
             }
+
+            return NormalizeArmId(property.Value.GetString());
         }
 
         return null;

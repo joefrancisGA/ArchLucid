@@ -44,7 +44,9 @@ internal static class DecisioningTextTokenMatcher
 
             if (hasBoundaryBefore
                 && hasBoundaryAfter
-                && !IsNegatedNonPrefix(haystack, index))
+                && !IsNegatedNonPrefix(haystack, index)
+                && !IsNoArticleNegation(haystack, index)
+                && !IsDoNotRequirePhraseNegation(haystack, index))
             {
                 return true;
             }
@@ -214,5 +216,41 @@ internal static class DecisioningTextTokenMatcher
 
         return tokenIndex >= 4
             && haystack.AsSpan(tokenIndex - 4, 4).Equals("non ", StringComparison.Ordinal);
+    }
+
+    private static bool IsNoArticleNegation(string haystack, int tokenIndex)
+    {
+        if (tokenIndex < 3)
+        {
+            return false;
+        }
+
+        return haystack.AsSpan(tokenIndex - 3, 3).Equals("no ".AsSpan(), StringComparison.Ordinal);
+    }
+
+    private static bool IsDoNotRequirePhraseNegation(string haystack, int phraseStartIndex)
+    {
+        const int maxLookback = 64;
+        int windowStart = Math.Max(0, phraseStartIndex - maxLookback);
+        string prefix = haystack[windowStart..phraseStartIndex];
+
+        ReadOnlySpan<string> negationPhrases =
+        [
+            "do not require ",
+            "do not use ",
+            "do not mandate ",
+            "do not need ",
+            "do not deploy ",
+        ];
+
+        foreach (string negationPhrase in negationPhrases)
+        {
+            if (prefix.Contains(negationPhrase, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

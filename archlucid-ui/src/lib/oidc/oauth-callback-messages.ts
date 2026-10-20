@@ -5,6 +5,9 @@
 
 const OAUTH_INVISIBLE_FORMAT_CHARS = /[\u200B-\u200D\u2060\uFEFF]/gu;
 
+/** Accidental Latin copy/paste separators — not ZWNJ (U+200C) or ZWJ (U+200D) used in Persian/Indic and emoji. */
+const OIDC_DISPLAY_GLUE_FORMAT_CHARS = /[\u200B\u2060\uFEFF]/gu;
+
 export function stripOAuthInvisibleFormatChars(text: string): string {
   return text.replace(OAUTH_INVISIBLE_FORMAT_CHARS, "");
 }
@@ -12,6 +15,15 @@ export function stripOAuthInvisibleFormatChars(text: string): string {
 /** Trims deployment configuration strings and removes zero-width format characters. */
 export function normalizeOidcConfigurationString(value: string): string {
   return stripOAuthInvisibleFormatChars(value.trim()).trim();
+}
+
+/** Normalizes human-readable OIDC claim copy (names, titles) for session display. */
+export function normalizeOidcDisplayString(value: string): string {
+  return value
+    .replace(OIDC_DISPLAY_GLUE_FORMAT_CHARS, " ")
+    .replace(/[\u0000-\u001F\u007F\u2028\u2029\u0085]/gu, " ")
+    .replace(/\s+/gu, " ")
+    .trim();
 }
 
 function isOAuthInvisibleFormatChar(char: string): boolean {
@@ -58,6 +70,30 @@ export function normalizeNumericOidcHintString(value: string): string {
 
 const NON_DECIMAL_OIDC_NUMERIC_PREFIX = /^0[xXbBoO]/u;
 
+/** OAuth access-token lifetimes above one year; shared with `resolve-expires-in-seconds`. */
+export const MAX_PLAUSIBLE_OIDC_EXPIRES_IN_SEC = 31_536_000;
+
+/** Rejects unsafe-integer and implausibly far-future epoch-ms hints (string or JSON number paths). */
+export function coerceAcceptedOidcEpochMsHint(parsed: number): number {
+  if (!Number.isFinite(parsed)) {
+    return Number.NaN;
+  }
+
+  const truncatedEpochMs = Math.trunc(parsed);
+
+  if (!Number.isSafeInteger(truncatedEpochMs)) {
+    return Number.NaN;
+  }
+
+  const maxPlausibleEpochMs = Date.now() + MAX_PLAUSIBLE_OIDC_EXPIRES_IN_SEC * 1000;
+
+  if (truncatedEpochMs < 0 || truncatedEpochMs > maxPlausibleEpochMs) {
+    return Number.NaN;
+  }
+
+  return parsed;
+}
+
 /** Parses epoch-ms hints from sessionStorage or BFF refresh JSON; rejects hex/binary/octal literals. */
 export function parseOidcEpochMsHint(value: string): number {
   const normalized = normalizeNumericOidcHintString(value);
@@ -76,16 +112,27 @@ export function parseOidcEpochMsHint(value: string): number {
     return Number.NaN;
   }
 
-  return parsed;
+  return coerceAcceptedOidcEpochMsHint(parsed);
 }
 
 export function collapseOAuthErrorDescriptionLineBreaks(text: string): string {
   return text
-    .replace(OAUTH_INVISIBLE_FORMAT_CHARS, " ")
+    .replace(OIDC_DISPLAY_GLUE_FORMAT_CHARS, " ")
     // Soft hyphens are optional break points; on single-line callback copy they glue words (Policy\u00ADdenied).
     .replace(/[\u0000-\u001F\u007F\u2028\u2029\u0085\u00AD]/gu, " ")
     .replace(/\s+/gu, " ")
     .trim();
+}
+
+/** Normalizes OAuth `error` codes from authorize query params or token JSON (collapse glue characters, snake_case). */
+export function normalizeOAuthErrorCode(value: string): string {
+  const collapsed = collapseOAuthErrorDescriptionLineBreaks(value.trim());
+
+  return collapsed
+    .replace(/\s+/gu, "_")
+    .replace(/_+/gu, "_")
+    .trim()
+    .toLowerCase();
 }
 
 export function decodeOAuthErrorDescription(encoded: string | null | undefined): string {
@@ -110,6 +157,29 @@ export function decodeOAuthErrorDescription(encoded: string | null | undefined):
   return isReadableOAuthErrorDetail(decoded) ? decoded : "";
 }
 
+/**
+ * RFC 6749 token JSON carries plain-text `error_description` (not query encoding).
+ * Tolerate mistaken %-escapes from some IdPs; on decode failure keep the raw string.
+ * Does not treat `+` as space (unlike authorize-callback query decoding).
+ */
+export function readOAuthJsonErrorDescription(value: string): string {
+  const collapsed = collapseOAuthErrorDescriptionLineBreaks(value.trim());
+
+  if (collapsed.length === 0) {
+    return "";
+  }
+
+  let decoded: string;
+
+  try {
+    decoded = collapseOAuthErrorDescriptionLineBreaks(decodeURIComponent(collapsed));
+  } catch {
+    decoded = collapsed;
+  }
+
+  return isReadableOAuthErrorDetail(decoded) ? decoded : "";
+}
+
 function formatErrorCodeForReading(errorCode: string): string {
   return errorCode
     .replace(/_/g, " ")
@@ -121,6 +191,14 @@ function containsReadableOAuthCharacters(text: string): boolean {
   return /[\p{L}\p{N}]/u.test(text);
 }
 
+function containsReadableOAuthDetailCharacters(text: string): boolean {
+  return /[\p{L}\p{N}\p{Extended_Pictographic}]/u.test(text);
+}
+
+function containsRegionalIndicatorFlagSequence(text: string): boolean {
+  return /(?:\p{Regional_Indicator}{2})+/u.test(text);
+}
+
 /** True when an OAuth `error` query/code value is not underscore/invisible padding. */
 export function isReadableOAuthErrorCode(errorCode: string): boolean {
   const formatted = formatErrorCodeForReading(errorCode);
@@ -129,9 +207,30 @@ export function isReadableOAuthErrorCode(errorCode: string): boolean {
 }
 
 function isReadableOAuthErrorDetail(detail: string): boolean {
-  const formatted = formatErrorCodeForReading(detail);
+  const normalized = detail
+    .replace(OIDC_DISPLAY_GLUE_FORMAT_CHARS, " ")
+    .replace(/_/g, " ")
+    .replace(/\s+/gu, " ")
+    .trim();
 
-  return formatted.length > 0 && containsReadableOAuthCharacters(formatted);
+  if (normalized.length === 0) {
+    return false;
+  }
+
+  if (containsReadableOAuthCharacters(normalized)) {
+    return true;
+  }
+
+  // Emoji-only glyphs (e.g. 🔒) are not actionable detail; ZWJ sequences (family emoji) are.
+  if (detail.includes("\u200d") && containsReadableOAuthDetailCharacters(normalized)) {
+    return true;
+  }
+
+  if (containsRegionalIndicatorFlagSequence(normalized)) {
+    return true;
+  }
+
+  return false;
 }
 
 const MAX_OAUTH_USER_FACING_MESSAGE_LENGTH = 280;
@@ -170,7 +269,7 @@ function buyerSafeAuthorizeErrorWithoutCode(detail: string): string {
 }
 
 export function humanizeAuthorizeCallbackError(errorCode: string, decodedDescription: string): string {
-  const normalized = stripOAuthInvisibleFormatChars(errorCode.trim()).trim().toLowerCase();
+  const normalized = normalizeOAuthErrorCode(errorCode);
   const sanitizedDetail = sanitizeOAuthUserFacingMessage(decodedDescription);
   const detail = isReadableOAuthErrorDetail(sanitizedDetail) ? sanitizedDetail : "";
   const readableCode = formatErrorCodeForReading(normalized);

@@ -53,7 +53,11 @@ public sealed class ApiRequestUsageEventBatchFlushHostedService(
                 options.Normalize();
 
                 if (!options.Enabled)
+                {
+                    await FlushPendingAsync(options.ApiRequestBatchMaxSize, stoppingToken).ConfigureAwait(false);
+
                     break;
+                }
 
                 await FlushPendingAsync(options.ApiRequestBatchMaxSize, stoppingToken).ConfigureAwait(false);
             }

@@ -37,20 +37,41 @@ public static class WorkloadConditionedRequirementExpectationResolver
 
             if (expectedCategories.Any(c =>
                     c.Equals(GraphTopologyCategories.Identity, StringComparison.OrdinalIgnoreCase))
-                || ContainsAnyKeyword(scopeTokens, "identity", "entra", "oauth", "sso", "key vault", "keyvault"))
+                || TopologyExpectedCategoryResolver.ScopeTokensContainAnyKeyword(
+                    scopeTokens,
+                    "identity",
+                    "entra",
+                    "oauth",
+                    "sso",
+                    "key vault",
+                    "keyvault"))
             {
                 expected.Add("identity-access");
             }
 
             if (expectedCategories.Any(c =>
                     c.Equals(GraphTopologyCategories.Network, StringComparison.OrdinalIgnoreCase))
-                || ContainsAnyKeyword(scopeTokens, "vnet", "subnet", "private endpoint", "private link", "vpn"))
+                || TopologyExpectedCategoryResolver.ScopeTokensContainAnyKeyword(
+                    scopeTokens,
+                    "vnet",
+                    "subnet",
+                    "private endpoint",
+                    "private link",
+                    "vpn"))
             {
                 expected.Add("network-isolation");
             }
 
-            if (ContainsAnyKeyword(scopeTokens, "compliance", "regulated", "hipaa", "pci", "sox"))
+            if (TopologyExpectedCategoryResolver.ScopeTokensContainAnyKeyword(
+                    scopeTokens,
+                    "compliance",
+                    "regulated",
+                    "hipaa",
+                    "pci",
+                    "sox"))
+            {
                 expected.Add("compliance");
+            }
         }
 
         UnionPolicyExpectedRequirementThemes(contextNode, expected);
@@ -87,52 +108,78 @@ public static class WorkloadConditionedRequirementExpectationResolver
 
         string combined = $"{requirementNode.Label} {GetRequirementText(requirementNode)}";
 
-        if (ContainsAnyKeyword(combined, "identity", "entra", "oauth", "sso", "authentication", "authorization"))
+        if (TopologyExpectedCategoryResolver.DelimitedTextContainsAnyKeyword(
+                combined,
+                "identity",
+                "entra",
+                "oauth",
+                "sso",
+                "authentication",
+                "authorization"))
+        {
             return "identity-access";
+        }
 
-        if (ContainsAnyKeyword(combined, "encrypt", "retention", "backup", "data protection", "pii", "phi"))
+        if (TopologyExpectedCategoryResolver.DelimitedTextContainsAnyKeyword(
+                combined,
+                "encrypt",
+                "retention",
+                "backup",
+                "data protection",
+                "pii",
+                "phi"))
+        {
             return "data-protection";
+        }
 
-        if (ContainsAnyKeyword(combined, "network", "segmentation", "firewall", "private link", "vnet", "subnet"))
+        if (TopologyExpectedCategoryResolver.DelimitedTextContainsAnyKeyword(
+                combined,
+                "network",
+                "segmentation",
+                "firewall",
+                "private link",
+                "vnet",
+                "subnet"))
+        {
             return "network-isolation";
+        }
 
-        if (ContainsAnyKeyword(combined, "compliance", "audit", "regulated", "hipaa", "pci", "sox"))
+        if (TopologyExpectedCategoryResolver.DelimitedTextContainsAnyKeyword(
+                combined,
+                "compliance",
+                "audit",
+                "regulated",
+                "hipaa",
+                "pci",
+                "sox"))
+        {
             return "compliance";
+        }
 
-        if (ContainsAnyKeyword(combined, "availability", "sla", "resilien", "failover", "uptime"))
+        if (TopologyExpectedCategoryResolver.DelimitedTextContainsAnyKeyword(
+                combined,
+                "availability",
+                "sla",
+                "resilien",
+                "failover",
+                "uptime"))
+        {
             return "availability";
+        }
 
-        if (ContainsAnyKeyword(combined, "traceab", "manifest", "decision", "requirement"))
+        if (TopologyExpectedCategoryResolver.DelimitedTextContainsAnyKeyword(
+                combined,
+                "traceab",
+                "manifest",
+                "decision",
+                "requirement"))
+        {
             return "traceability";
+        }
 
         return "general";
     }
 
     private static string GetRequirementText(GraphNode requirementNode) =>
         requirementNode.Properties.TryGetValue("text", out string? text) ? text ?? string.Empty : string.Empty;
-
-    private static bool ContainsAnyKeyword(string haystack, params string[] keywords)
-    {
-        foreach (string keyword in keywords)
-        {
-            if (haystack.Contains(keyword, StringComparison.OrdinalIgnoreCase))
-                return true;
-        }
-
-        return false;
-    }
-
-    private static bool ContainsAnyKeyword(IReadOnlyList<string> tokens, params string[] keywords)
-    {
-        foreach (string token in tokens)
-        {
-            foreach (string keyword in keywords)
-            {
-                if (token.Contains(keyword, StringComparison.OrdinalIgnoreCase))
-                    return true;
-            }
-        }
-
-        return false;
-    }
 }

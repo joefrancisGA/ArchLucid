@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.DefaultPolicyPacks;
 using ArchLucid.Contracts.Governance;
@@ -189,8 +190,13 @@ public sealed class DefaultPolicyPackCoverageTests
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(static s => s.GetCurrentScope()).Returns(TestScope);
 
+        Mock<IActorContext> actorContext = new();
+        actorContext.Setup(static a => a.GetActorId()).Returns("jwt:test:actor");
+        actorContext.Setup(static a => a.GetActor()).Returns("Test Actor");
+
         return new PolicyPackGovernanceDryRunService(
             scope.Object,
+            actorContext.Object,
             runs,
             findings,
             new InMemoryGoldenManifestRepository(),

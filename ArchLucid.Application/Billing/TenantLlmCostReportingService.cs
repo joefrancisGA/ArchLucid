@@ -91,9 +91,10 @@ public sealed class TenantLlmCostReportingService(
             };
         }
 
-        IReadOnlyList<TenantWorkspaceListItem> workspaces = await _tenantRepository
-            .ListWorkspacesAsync(scope.TenantId, cancellationToken)
-            .ConfigureAwait(false);
+        IReadOnlyList<TenantWorkspaceListItem> workspaces = TenantWorkspaceListCoalesce.Coalesce(
+            await _tenantRepository
+                .ListWorkspacesAsync(scope.TenantId, cancellationToken)
+                .ConfigureAwait(false));
         string workspaceName = workspaces
                                  .FirstOrDefault(workspace => workspace.WorkspaceId == scope.WorkspaceId)?.Name
                              ?? scope.WorkspaceId.ToString("D", System.Globalization.CultureInfo.InvariantCulture);

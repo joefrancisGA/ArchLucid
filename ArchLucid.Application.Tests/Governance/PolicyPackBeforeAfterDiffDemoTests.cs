@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.PolicyPackBeforeAfterDiff;
 using ArchLucid.Contracts.Governance;
@@ -290,8 +291,13 @@ public sealed class PolicyPackBeforeAfterDiffDemoTests : VerifyBase
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(TestScope);
 
+        Mock<IActorContext> actorContext = new();
+        actorContext.Setup(a => a.GetActorId()).Returns("jwt:test:actor");
+        actorContext.Setup(a => a.GetActor()).Returns("Test Actor");
+
         return new PolicyPackGovernanceDryRunService(
             scope.Object,
+            actorContext.Object,
             runs,
             findings,
             goldenManifests,

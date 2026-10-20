@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Text.Json;
 
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.PolicyPackDryRun.Stages;
 using ArchLucid.Application.Pilots;
@@ -553,6 +554,39 @@ public sealed class PolicyPackDryRunServiceTests
     }
 
     [SkippableFact]
+    public async Task EvaluateAsync_sets_explicit_actor_for_stable_actor_user_id_when_display_differs()
+    {
+        const string actorKey = "jwt:tenant:operator-oid";
+        StubAuditService audit = new();
+        FakeRunDetailQueryService runs = new();
+        runs.AddRun("run-clean", critical: 0, high: 0, medium: 0);
+
+        Mock<IActorContext> actorContext = new();
+        actorContext.Setup(a => a.GetActorId()).Returns(actorKey);
+        actorContext.Setup(a => a.GetActor()).Returns("Operator Display");
+
+        PolicyPackDryRunService sut = CreateSut(
+            runs,
+            new FakeDeltaComputer(),
+            new StubRedactor(),
+            audit,
+            actorContext: actorContext.Object);
+
+        await sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string>(),
+            ["run-clean"],
+            pageSize: 20,
+            page: 1,
+            CancellationToken.None);
+
+        audit.LastEvent.Should().NotBeNull();
+        audit.LastEvent!.ExplicitActor.Should().BeTrue();
+        audit.LastEvent.ActorUserId.Should().Be(actorKey);
+        audit.LastEvent.ActorUserName.Should().Be("Operator Display");
+    }
+
+    [SkippableFact]
     public async Task EvaluateAsync_deduplicates_duplicate_evaluate_against_run_ids_case_insensitively()
     {
         CountingRunDetailQueryService runs = new();
@@ -630,10 +664,13 @@ public sealed class PolicyPackDryRunServiceTests
         IPilotRunDeltaComputer pilotRunDeltaComputer,
         IPromptRedactor redactor,
         IAuditService auditService,
-        PolicyPack? pack = null)
+        PolicyPack? pack = null,
+        IActorContext? actorContext = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        IActorContext resolvedActorContext = actorContext ?? CreateDefaultActorContext();
 
         PolicyPack visiblePack = pack ?? new PolicyPack
         {
@@ -650,9 +687,22 @@ public sealed class PolicyPackDryRunServiceTests
 
         return new PolicyPackDryRunService(
             new PolicyPackDryRunLoadStage(runDetailQueryService, pilotRunDeltaComputer, NullLogger<PolicyPackDryRunLoadStage>.Instance),
-            new PolicyPackDryRunRedactAuditStage(redactor, auditService, NullLogger<PolicyPackDryRunRedactAuditStage>.Instance),
+            new PolicyPackDryRunRedactAuditStage(
+                redactor,
+                auditService,
+                resolvedActorContext,
+                NullLogger<PolicyPackDryRunRedactAuditStage>.Instance),
             scopeProvider.Object,
             packs.Object);
+    }
+
+    private static IActorContext CreateDefaultActorContext()
+    {
+        Mock<IActorContext> actorContext = new();
+        actorContext.Setup(a => a.GetActorId()).Returns("jwt:default:actor");
+        actorContext.Setup(a => a.GetActor()).Returns("Default Actor");
+
+        return actorContext.Object;
     }
 
     private sealed class StubRedactor : IPromptRedactor

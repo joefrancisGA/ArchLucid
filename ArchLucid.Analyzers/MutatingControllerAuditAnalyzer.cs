@@ -15,6 +15,7 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
     internal const string HttpDeleteAttributeShortName = "HttpDeleteAttribute";
     internal const string HttpPatchAttributeShortName = "HttpPatchAttribute";
     internal const string HttpMethodAttributeShortName = "HttpMethodAttribute";
+    internal const string AcceptVerbsAttributeShortName = "AcceptVerbsAttribute";
 
     private static readonly SymbolDisplayFormat AllowlistFqTypeFormat =
         new(globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Omitted,
@@ -186,10 +187,23 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         INamedTypeSymbol controllerBaseTypeSymbolScoped,
         INamedTypeSymbol? nonActionAttributeTypeSymbolScoped)
     {
-        if (methodDeclaredSymbol.MethodKind != MethodKind.Ordinary ||
-            methodDeclaredSymbol.IsStatic ||
-            methodDeclaredSymbol.AssociatedSymbol is not null ||
-            methodDeclaredSymbol.DeclaredAccessibility != Accessibility.Public)
+        if (methodDeclaredSymbol.IsStatic)
+        {
+            return false;
+        }
+
+        if (methodDeclaredSymbol.AssociatedSymbol is not null &&
+            methodDeclaredSymbol.ExplicitInterfaceImplementations.IsDefaultOrEmpty)
+        {
+            return false;
+        }
+
+        if (methodDeclaredSymbol.MethodKind == MethodKind.ExplicitInterfaceImplementation)
+        {
+            // Explicit interface actions are private in metadata but still participate in audit enforcement.
+        }
+        else if (methodDeclaredSymbol.MethodKind != MethodKind.Ordinary ||
+                 methodDeclaredSymbol.DeclaredAccessibility != Accessibility.Public)
         {
             return false;
         }
@@ -431,6 +445,12 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
                     return true;
 
                 if (string.Equals(attributeWalkerNameScoped.Name, HttpMethodAttributeShortName, StringComparison.Ordinal) &&
+                    HttpMethodAttributeDeclaresMutatingVerb(attributeDataScoped))
+                {
+                    return true;
+                }
+
+                if (string.Equals(attributeWalkerNameScoped.Name, AcceptVerbsAttributeShortName, StringComparison.Ordinal) &&
                     HttpMethodAttributeDeclaresMutatingVerb(attributeDataScoped))
                 {
                     return true;

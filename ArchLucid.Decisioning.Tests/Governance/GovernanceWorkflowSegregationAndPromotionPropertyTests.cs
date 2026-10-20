@@ -129,6 +129,7 @@ public sealed class GovernanceWorkflowSegregationAndPromotionPropertyTests
             notes: null,
             dryRun: false,
             verbosePromotionValidationErrors: false,
+            promotedByDisplay: null,
             cancellationToken: CancellationToken.None);
 
         await act.Should().ThrowAsync<InvalidOperationException>()
@@ -165,6 +166,7 @@ public sealed class GovernanceWorkflowSegregationAndPromotionPropertyTests
             notes: null,
             dryRun: false,
             verbosePromotionValidationErrors: true,
+            promotedByDisplay: null,
             cancellationToken: CancellationToken.None);
 
         await act.Should().ThrowAsync<InvalidOperationException>()
@@ -201,6 +203,7 @@ public sealed class GovernanceWorkflowSegregationAndPromotionPropertyTests
             notes: null,
             dryRun: false,
             verbosePromotionValidationErrors: true,
+            promotedByDisplay: null,
             cancellationToken: CancellationToken.None);
 
         await act.Should().ThrowAsync<InvalidOperationException>()
@@ -237,6 +240,7 @@ public sealed class GovernanceWorkflowSegregationAndPromotionPropertyTests
             notes: null,
             dryRun: false,
             verbosePromotionValidationErrors: true,
+            promotedByDisplay: null,
             cancellationToken: CancellationToken.None);
 
         await act.Should().ThrowAsync<InvalidOperationException>()

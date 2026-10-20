@@ -27,6 +27,8 @@ public static class InventoryDiagramNodeRelationshipPropertyKeys
 
     public const string RouteNextHopArmIdSuffix = ".nextHopArmId";
 
+    public const string RouteNextHopReferenceSuffix = ".nextHop";
+
     public const string NsgAssociationPrefix = "inventory.policy.nsg.association.";
 
     public const string NsgAssociationTargetSuffix = ".targetArmId";

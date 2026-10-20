@@ -124,8 +124,22 @@ public sealed class AdminFleetLlmCogsService(
         if (options is null || !options.Enabled)
             return false;
 
-        return options.InputUsdPerMillionTokens > 0m
-               && options.OutputUsdPerMillionTokens > 0m;
+        if (options.InputUsdPerMillionTokens > 0m && options.OutputUsdPerMillionTokens > 0m)
+            return true;
+
+        // Reasoning-only deployments can price traces while global input/output are zeroed for rollback.
+
+        if (options.ReasoningUsdPerMillionTokens > 0m)
+            return true;
+
+        if (options.Deployments is null || options.Deployments.Count == 0)
+            return false;
+
+        return options.Deployments.Values.Any(static deployment =>
+            deployment is not null
+            && (deployment.InputUsdPerMillionTokens > 0m
+                || deployment.OutputUsdPerMillionTokens > 0m
+                || deployment.ReasoningUsdPerMillionTokens > 0m));
     }
 
     private static string ClassifyBudgetCompletion(

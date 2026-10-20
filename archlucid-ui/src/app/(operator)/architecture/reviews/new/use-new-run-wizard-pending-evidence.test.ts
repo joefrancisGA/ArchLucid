@@ -339,6 +339,66 @@ describe("useNewRunWizardPendingEvidence (TB-2246)", () => {
     });
   });
 
+  it("does not upload documents cleared while inventory upload is in flight", async () => {
+    let resolveInventory!: (value: { ok: true }) => void;
+    const inventoryPromise = new Promise<{ ok: true }>((resolve) => {
+      resolveInventory = resolve;
+    });
+
+    vi.mocked(detectTier1InventoryPlatformFromFile).mockResolvedValue("aws");
+    vi.mocked(uploadWizardPendingInventoryEvidence).mockReturnValue(inventoryPromise);
+    vi.mocked(uploadWizardPendingDocumentEvidence).mockResolvedValue({ ok: true });
+
+    const inventoryFile = buildAwsInventoryZipFile();
+    const documentFile = new File(["notes"], "notes.pdf", { type: "application/pdf" });
+
+    const onInventoryFileSelected = vi.fn();
+
+    const { result } = renderHook(() =>
+      useNewRunWizardPendingEvidence({
+        runId: "run-clear-docs-mid-upload",
+        autoUploadOnCreate: false,
+        onInventoryFileSelected,
+      }),
+    );
+
+    act(() => {
+      result.current.handlePendingEvidenceFileChange(inventoryFile);
+      result.current.setPendingDocumentFiles([documentFile]);
+    });
+
+    await waitFor(() => {
+      expect(onInventoryFileSelected).toHaveBeenCalledWith("aws");
+      expect(result.current.pendingEvidenceFile).toBe(inventoryFile);
+    });
+
+    act(() => {
+      void result.current.uploadPendingEvidence("run-clear-docs-mid-upload");
+    });
+
+    await waitFor(() => {
+      expect(result.current.evidenceUploadState).toBe("uploading");
+    });
+
+    act(() => {
+      result.current.setPendingDocumentFiles([]);
+    });
+
+    await act(async () => {
+      resolveInventory({ ok: true });
+      await inventoryPromise;
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      expect(uploadWizardPendingInventoryEvidence).toHaveBeenCalledTimes(1);
+      expect(uploadWizardPendingDocumentEvidence).not.toHaveBeenCalled();
+      expect(result.current.evidenceUploadState).toBe("idle");
+      expect(result.current.pendingEvidenceFile).toBe(inventoryFile);
+      expect(result.current.pendingDocumentFiles).toEqual([]);
+    });
+  });
+
   it("retains pending inventory selection in hook state for post-submit upload retries", async () => {
     vi.mocked(detectTier1InventoryPlatformFromFile).mockResolvedValue("aws");
 

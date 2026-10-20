@@ -369,6 +369,56 @@ public sealed class DecisionEngineV2Tests
     }
 
     [Fact]
+    public async Task ResolveAsync_security_node_does_not_promote_managed_identity_when_strengthen_mentions_unmanaged_identity()
+    {
+        List<AgentTask> tasks =
+        [
+            new()
+            {
+                TaskId = "T1",
+                RunId = "RUN-SEC-MI-NEG",
+                AgentType = AgentType.Topology,
+                Status = AgentTaskStatus.Completed,
+            },
+        ];
+
+        List<AgentResult> results =
+        [
+            new()
+            {
+                RunId = "RUN-SEC-MI-NEG",
+                TaskId = "T1",
+                AgentType = AgentType.Topology,
+                Confidence = 0.7,
+                ResultId = "r",
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+        ];
+
+        List<AgentEvaluation> evals =
+        [
+            new()
+            {
+                RunId = "RUN-SEC-MI-NEG",
+                TargetAgentTaskId = "T1",
+                EvaluationType = "strengthen",
+                ConfidenceDelta = 0.2,
+                Rationale = "Keep unmanaged identity for this legacy integration.",
+            },
+        ];
+
+        IReadOnlyList<DecisionNode> decisions = await _engine.ResolveAsync(
+            "RUN-SEC-MI-NEG",
+            new ArchitectureRequest { RequestId = "R", SystemName = "S", Description = "d" },
+            tasks,
+            results,
+            evals);
+
+        DecisionNode security = decisions.Single(d => d.Topic == "SecurityControlPromotion");
+        security.Rationale.Should().Be("No control promotion");
+    }
+
+    [Fact]
     public async Task ResolveAsync_security_node_promotes_private_endpoints_when_rationale_prohibits_non_private_fallback()
     {
         List<AgentTask> tasks =

@@ -20,22 +20,35 @@ public static class AzureInventoryLoadBalancerBackendParentArmIdResolver
         try
         {
             using JsonDocument document = JsonDocument.Parse(backendAddressPoolsJson);
+            JsonElement poolsRoot = document.RootElement;
 
-            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+            if (poolsRoot.ValueKind is JsonValueKind.String)
+            {
+                string? nestedPoolsJson = poolsRoot.GetString();
+
+                if (string.IsNullOrWhiteSpace(nestedPoolsJson))
+                {
+                    return parentArmIds;
+                }
+
+                return ResolveFromBackendAddressPoolsJson(nestedPoolsJson);
+            }
+
+            if (!AzureExtractorJsonArrayRoot.TryCloneRows(poolsRoot, out JsonElement[] pools))
             {
                 return parentArmIds;
             }
 
-            foreach (JsonElement pool in document.RootElement.EnumerateArray())
+            foreach (JsonElement pool in pools)
             {
-                if (!pool.TryGetProperty("properties", out JsonElement properties)
-                    || properties.ValueKind is not JsonValueKind.Object)
+                if (!TryGetBackendAddressPoolPropertiesBag(pool, out JsonElement properties))
                 {
                     continue;
                 }
 
                 AddFromIpConfigurationCollection(parentArmIds, seen, properties, "backendIPConfigurations", nestedAddress: false);
                 AddFromIpConfigurationCollection(parentArmIds, seen, properties, "loadBalancerBackendAddresses", nestedAddress: true);
+                AddFromApplicationGatewayBackendAddresses(parentArmIds, seen, properties);
             }
         }
         catch (JsonException)
@@ -53,7 +66,7 @@ public static class AzureInventoryLoadBalancerBackendParentArmIdResolver
         string collectionName,
         bool nestedAddress)
     {
-        if (!poolProperties.TryGetProperty(collectionName, out JsonElement configurations)
+        if (!TryGetPropertyIgnoreCase(poolProperties, collectionName, out JsonElement configurations)
             || configurations.ValueKind is not JsonValueKind.Array)
         {
             return;
@@ -61,9 +74,15 @@ public static class AzureInventoryLoadBalancerBackendParentArmIdResolver
 
         foreach (JsonElement configuration in configurations.EnumerateArray())
         {
+
+            if (!AzureExtractorJsonObjectElement.TryResolveCollectionElement(configuration, nestedAddress, out JsonElement configurationElement))
+            {
+                continue;
+            }
+
             string? ipConfigurationId = nestedAddress
-                ? TryReadNestedNetworkInterfaceIpConfigurationId(configuration)
-                : TryReadDirectId(configuration);
+                ? TryReadNestedNetworkInterfaceIpConfigurationId(configurationElement)
+                : TryReadDirectId(configurationElement);
 
             if (string.IsNullOrWhiteSpace(ipConfigurationId))
             {
@@ -86,31 +105,120 @@ public static class AzureInventoryLoadBalancerBackendParentArmIdResolver
         }
     }
 
-    private static string? TryReadDirectId(JsonElement configuration)
+    private static void AddFromApplicationGatewayBackendAddresses(
+        List<string> parentArmIds,
+        HashSet<string> seen,
+        JsonElement poolProperties)
     {
-        if (!configuration.TryGetProperty("id", out JsonElement idElement)
-            || idElement.ValueKind is not JsonValueKind.String)
+        if (!TryGetPropertyIgnoreCase(poolProperties, "backendAddresses", out JsonElement addresses)
+            || addresses.ValueKind is not JsonValueKind.Array)
         {
-            return null;
+            return;
         }
 
-        return idElement.GetString();
+        foreach (JsonElement address in addresses.EnumerateArray())
+        {
+            string? backendArmId = AzureInventoryApplicationGatewayBackendAddressReader.TryReadBackendResourceArmId(address);
+
+            if (string.IsNullOrWhiteSpace(backendArmId))
+            {
+                continue;
+            }
+
+            string normalized = ArmResourceIdNormalizer.Normalize(backendArmId);
+
+            if (seen.Add(normalized))
+            {
+                parentArmIds.Add(normalized);
+            }
+        }
+    }
+
+    private static bool TryGetBackendAddressPoolPropertiesBag(JsonElement pool, out JsonElement poolProperties)
+    {
+        if (!AzureExtractorJsonObjectElement.TryUnwrapObject(pool, out JsonElement poolElement))
+        {
+            poolProperties = default;
+
+            return false;
+        }
+
+        if (TryGetPropertyIgnoreCase(poolElement, "properties", out JsonElement nested)
+            && nested.ValueKind is JsonValueKind.Object)
+        {
+            poolProperties = nested;
+
+            return true;
+        }
+
+        if (poolElement.ValueKind is JsonValueKind.Object
+            && (TryGetPropertyIgnoreCase(poolElement, "backendIPConfigurations", out _)
+                || TryGetPropertyIgnoreCase(poolElement, "loadBalancerBackendAddresses", out _)
+                || TryGetPropertyIgnoreCase(poolElement, "backendAddresses", out _)))
+        {
+            poolProperties = poolElement;
+
+            return true;
+        }
+
+        poolProperties = default;
+
+        return false;
+    }
+
+    private static string? TryReadDirectId(JsonElement configuration)
+    {
+        return AzureInventoryNetworkInterfaceIpConfigurationReferenceReader.TryReadArmId(configuration);
     }
 
     private static string? TryReadNestedNetworkInterfaceIpConfigurationId(JsonElement address)
     {
-        if (!address.TryGetProperty("properties", out JsonElement properties)
-            || properties.ValueKind is not JsonValueKind.Object
-            || !properties.TryGetProperty("networkInterfaceIPConfiguration", out JsonElement reference))
+
+        if (address.ValueKind is JsonValueKind.String)
         {
-            return null;
+            return TryReadNetworkInterfaceIpConfigurationReference(address);
         }
 
-        if (reference.ValueKind is JsonValueKind.String)
+        if (TryGetPropertyIgnoreCase(address, "properties", out JsonElement properties)
+            && properties.ValueKind is JsonValueKind.Object
+            && TryGetPropertyIgnoreCase(properties, "networkInterfaceIPConfiguration", out JsonElement nestedReference))
         {
-            return reference.GetString();
+            return TryReadNetworkInterfaceIpConfigurationReference(nestedReference);
         }
 
-        return TryReadDirectId(reference);
+        if (TryGetPropertyIgnoreCase(address, "networkInterfaceIPConfiguration", out JsonElement flatReference))
+        {
+            return TryReadNetworkInterfaceIpConfigurationReference(flatReference);
+        }
+
+        return null;
+    }
+
+    private static string? TryReadNetworkInterfaceIpConfigurationReference(JsonElement reference)
+    {
+        return AzureInventoryNetworkInterfaceIpConfigurationReferenceReader.TryReadArmId(reference);
+    }
+
+    private static bool TryGetPropertyIgnoreCase(
+        JsonElement element,
+        string propertyName,
+        out JsonElement value)
+    {
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+
+            if (!property.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            value = property.Value;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 }

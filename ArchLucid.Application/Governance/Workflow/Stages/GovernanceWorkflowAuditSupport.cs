@@ -32,6 +32,7 @@ public sealed class GovernanceWorkflowAuditSupport(
     public void StampGovernanceScope(GovernanceApprovalRequest request)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
         if (scope.TenantId == Guid.Empty)
             return;
         request.TenantId = scope.TenantId;
@@ -42,6 +43,7 @@ public sealed class GovernanceWorkflowAuditSupport(
     public void StampGovernanceScope(GovernancePromotionRecord record)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
         if (scope.TenantId == Guid.Empty)
             return;
         record.TenantId = scope.TenantId;
@@ -52,6 +54,7 @@ public sealed class GovernanceWorkflowAuditSupport(
     public void StampGovernanceScope(GovernanceEnvironmentActivation activation)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
         if (scope.TenantId == Guid.Empty)
             return;
         activation.TenantId = scope.TenantId;
@@ -107,10 +110,13 @@ public sealed class GovernanceWorkflowAuditSupport(
                     manifestVersion = record.ManifestVersion,
                     sourceEnvironment = record.SourceEnvironment,
                     targetEnvironment = record.TargetEnvironment,
-                    approvalRequestId = record.ApprovalRequestId
+                    approvalRequestId = record.ApprovalRequestId,
+                    promotedBy = promotedByDisplay,
+                    promotedByActorKey
                 },
                 AuditJsonSerializationOptions.Instance));
         auditEvent.ExplicitActor = true;
+        auditEvent.RunId = TryParseGovernanceAuditRunId(record.RunId);
 
         return auditEvent;
     }
@@ -140,6 +146,7 @@ public sealed class GovernanceWorkflowAuditSupport(
                 },
                 AuditJsonSerializationOptions.Instance));
         auditEvent.ExplicitActor = true;
+        auditEvent.RunId = TryParseGovernanceAuditRunId(activation.RunId);
 
         return auditEvent;
     }
@@ -171,6 +178,7 @@ public sealed class GovernanceWorkflowAuditSupport(
                 },
                 AuditJsonSerializationOptions.Instance));
         auditEvent.ExplicitActor = true;
+        auditEvent.RunId = TryParseGovernanceAuditRunId(request.RunId);
 
         return auditEvent;
     }
@@ -196,6 +204,9 @@ public sealed class GovernanceWorkflowAuditSupport(
                 {
                     approvalRequestId = request.ApprovalRequestId,
                     runId = request.RunId,
+                    manifestVersion = request.ManifestVersion,
+                    sourceEnvironment = request.SourceEnvironment,
+                    targetEnvironment = request.TargetEnvironment,
                     reviewedBy = reviewedByDisplay,
                     reviewedByActorKey,
                     reviewComment
@@ -225,9 +236,12 @@ public sealed class GovernanceWorkflowAuditSupport(
             new
             {
                 workflow = "approvalRequest",
+                runId,
                 manifestVersion,
                 sourceEnvironment,
-                targetEnvironment
+                targetEnvironment,
+                requestedBy = requestedByDisplay,
+                requestedByActorKey
             },
             AuditJsonSerializationOptions.Instance);
         AuditEvent auditEvent = scope.CreateAuditEvent(
@@ -263,10 +277,13 @@ public sealed class GovernanceWorkflowAuditSupport(
             new
             {
                 workflow = "promotion",
+                runId,
                 manifestVersion,
                 sourceEnvironment,
                 targetEnvironment,
-                approvalRequestId
+                approvalRequestId,
+                promotedBy = promotedByDisplay,
+                promotedByActorKey
             },
             AuditJsonSerializationOptions.Instance);
         AuditEvent auditEvent = scope.CreateAuditEvent(
@@ -303,6 +320,10 @@ public sealed class GovernanceWorkflowAuditSupport(
                 new
                 {
                     approvalRequestId,
+                    runId = request.RunId,
+                    manifestVersion = request.ManifestVersion,
+                    sourceEnvironment = request.SourceEnvironment,
+                    targetEnvironment = request.TargetEnvironment,
                     requestedBy = request.RequestedBy,
                     requestedByActorKey = request.RequestedByActorKey,
                     attemptedReviewerBy = reviewedByDisplay,
@@ -315,5 +336,16 @@ public sealed class GovernanceWorkflowAuditSupport(
             selfApprovalBlocked,
             $"GovernanceSelfApprovalBlocked:{LogSanitizer.Sanitize(approvalRequestId)}",
             cancellationToken);
+    }
+
+    private static Guid? TryParseGovernanceAuditRunId(string? runId)
+    {
+
+        if (string.IsNullOrWhiteSpace(runId))
+        {
+            return null;
+        }
+
+        return Guid.TryParse(runId, out Guid runGuid) ? runGuid : null;
     }
 }

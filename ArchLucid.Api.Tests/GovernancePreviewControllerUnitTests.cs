@@ -4,6 +4,8 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Validators;
 using ArchLucid.Application;
 using ArchLucid.Application.Governance.Preview;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance.Preview;
 using ArchLucid.Core.Manifest;
@@ -312,6 +314,61 @@ public sealed class GovernancePreviewControllerUnitTests
     }
 
     [Fact]
+    public async Task CompareEnvironments_reaches_service_when_scope_posture_sealed_manifest_would_conflict()
+    {
+        Guid committedRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IGovernancePreviewService> preview = new(MockBehavior.Strict);
+        preview
+            .Setup(service => service.CompareEnvironmentsAsync(
+                It.IsAny<GovernanceEnvironmentComparisonRequest>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new GovernanceEnvironmentComparisonResult
+                {
+                    SourceEnvironment = "dev",
+                    TargetEnvironment = "test",
+                });
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(service => service.ListRunSummariesKeysetAsync(
+                It.IsAny<string?>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            (
+                new[]
+                {
+                    new RunSummary
+                    {
+                        RunId = committedRunId.ToString("D"),
+                        Status = nameof(ArchitectureRunStatus.Committed),
+                    },
+                },
+                false,
+                (string?)null));
+
+        GovernancePreviewController controller = CreateController(
+            preview.Object,
+            tenantExists: true,
+            runDetailQueryService: runDetails.Object,
+            manifestHashService: SealedManifestHashTestSupport.CreateManifestHashService("computed-hash"),
+            authorityQueryService: SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun("stored-hash"));
+
+        IActionResult action = await controller.CompareEnvironments(
+            new CreateGovernanceEnvironmentComparisonRequest
+            {
+                SourceEnvironment = "dev",
+                TargetEnvironment = "test",
+            },
+            CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        preview.VerifyAll();
+    }
+
+    [Fact]
     public async Task CompareEnvironments_returns_not_found_when_tenant_missing()
     {
         Mock<IGovernancePreviewService> preview = new(MockBehavior.Strict);
@@ -334,7 +391,10 @@ public sealed class GovernancePreviewControllerUnitTests
     private static GovernancePreviewController CreateController(
         IGovernancePreviewService previewService,
         bool tenantExists,
-        IScopeContextProvider? scopeProvider = null)
+        IScopeContextProvider? scopeProvider = null,
+        IAuthorityQueryService? authorityQueryService = null,
+        IManifestHashService? manifestHashService = null,
+        IRunDetailQueryService? runDetailQueryService = null)
     {
         Mock<IScopeContextProvider> scopeMock = new();
         scopeMock.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
@@ -365,9 +425,9 @@ public sealed class GovernancePreviewControllerUnitTests
             previewService,
             scopeProvider ?? scopeMock.Object,
             tenants.Object,
-            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
-            SealedManifestHashTestSupport.CreateManifestHashService(),
-            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
+            authorityQueryService ?? SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            manifestHashService ?? SealedManifestHashTestSupport.CreateManifestHashService(),
+            runDetailQueryService ?? SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
             NullLogger<GovernancePreviewController>.Instance)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },

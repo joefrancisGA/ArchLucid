@@ -112,6 +112,14 @@ public static class HostedAzureInventoryStaticSiteAndFabricAssociationCollector
             return;
         }
 
+        if (listResult.PartialCollection)
+        {
+            warnings.Add(
+                AzureInventoryStaticSiteCollectionWarnings.Format(
+                    AzureInventoryStaticSiteCollectionWarnings.ReasonPartialEnumeration,
+                    staticSite.ResourceId));
+        }
+
         foreach (JsonElement backend in listResult.Values)
         {
             string? backendResourceId = AzureInventoryStaticSiteLinkedBackendParser.TryReadBackendResourceId(backend);
@@ -171,6 +179,14 @@ public static class HostedAzureInventoryStaticSiteAndFabricAssociationCollector
             return;
         }
 
+        if (listResult.PartialCollection)
+        {
+            warnings.Add(
+                AzureInventoryFabricCapacityCollectionWarnings.FormatAssignmentsNotCollected(
+                    AzureInventoryFabricCapacityCollectionWarnings.ReasonPartialEnumeration,
+                    capacity.ResourceId));
+        }
+
         int outsideInventoryCount = 0;
 
         foreach (JsonElement workspace in listResult.Values)
@@ -219,19 +235,4 @@ public static class HostedAzureInventoryStaticSiteAndFabricAssociationCollector
         associations.Add(
             new HostedAzureArmNetworkAssociationRecord(fromResourceId, toResourceId, associationType));
     }
-}
-
-public sealed class HostedAzureInventoryStaticSiteAndFabricAssociationCollectResult
-{
-    public IReadOnlyList<HostedAzureArmNetworkAssociationRecord> Associations
-    {
-        get;
-        init;
-    } = [];
-
-    public IReadOnlyList<string> CollectionWarnings
-    {
-        get;
-        init;
-    } = [];
 }

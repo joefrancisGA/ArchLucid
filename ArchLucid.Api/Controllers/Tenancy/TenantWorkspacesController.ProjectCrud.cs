@@ -33,10 +33,10 @@ public sealed partial class TenantWorkspacesController
         if (tenant is null)
             return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
-        IReadOnlyList<TenantWorkspaceListItem> workspaces =
-            await _tenantRepository.ListWorkspacesAsync(scope.TenantId, cancellationToken);
+        IReadOnlyList<TenantWorkspaceListItem> workspaces = TenantWorkspaceInventoryCoalesce.CoalesceWorkspaces(
+            await _tenantRepository.ListWorkspacesAsync(scope.TenantId, cancellationToken));
 
-        TenantWorkspaceListItem? workspace = workspaces.SingleOrDefault(w => w.WorkspaceId == workspaceId);
+        TenantWorkspaceListItem? workspace = FindWorkspace(workspaces, workspaceId);
 
         if (workspace is null)
             return this.NotFoundProblem("Workspace was not found for this tenant.", ProblemTypes.ResourceNotFound);
@@ -47,22 +47,49 @@ public sealed partial class TenantWorkspacesController
         if (projectId != scope.ProjectId)
             return this.NotFoundProblem("Architecture project was not found for this tenant.", ProblemTypes.ResourceNotFound);
 
-        bool projectPinnedAsDefaultMetadata = workspaces
-            .Any(w => w.DefaultProjectId == projectId && w.DefaultProjectId != Guid.Empty);
+        if (CallerWorkspacePinsProjectAsDefault(workspaces, workspaceId, projectId))
+        {
+            IReadOnlyList<ArchitectureProjectRecord>? activeProjects =
+                await _architectureProjectRepository.ListActiveByTenantAsync(scope.TenantId, cancellationToken);
 
-        if (projectPinnedAsDefaultMetadata)
+            if (activeProjects is null)
+            {
+                return this.BadRequestProblem(
+                    "The workspace default architecture project cannot be deleted. Create another project and re-point the workspace default first.",
+                    ProblemTypes.BusinessRuleViolation);
+            }
+
+            if (activeProjects.Any(p => p.WorkspaceId == workspaceId && p.Id == projectId))
+            {
+                return this.BadRequestProblem(
+                    "The workspace default architecture project cannot be deleted. Create another project and re-point the workspace default first.",
+                    ProblemTypes.BusinessRuleViolation);
+            }
+        }
+        else if (ForeignWorkspacePinsProjectAsDefault(workspaces, workspaceId, projectId))
         {
             IReadOnlyList<ArchitectureProjectRecord> activeProjects =
-                await _architectureProjectRepository.ListActiveByTenantAsync(scope.TenantId, cancellationToken);
+                await _architectureProjectRepository.ListActiveByTenantAsync(scope.TenantId, cancellationToken)
+                ?? Array.Empty<ArchitectureProjectRecord>();
 
             bool projectIsActiveInCallerWorkspace = activeProjects.Any(
                 p => p.WorkspaceId == workspaceId && p.Id == projectId);
 
             if (projectIsActiveInCallerWorkspace)
             {
-                return this.BadRequestProblem(
-                    "The workspace default architecture project cannot be deleted. Create another project and re-point the workspace default first.",
-                    ProblemTypes.BusinessRuleViolation);
+                ILookup<Guid, ArchitectureProjectRecord> activeProjectsByWorkspace = activeProjects.ToLookup(
+                    static project => project.WorkspaceId);
+
+                if (ForeignWorkspaceMetadataProtectsFromRetentionPurge(
+                        workspaces,
+                        workspaceId,
+                        projectId,
+                        activeProjectsByWorkspace))
+                {
+                    return this.BadRequestProblem(
+                        "The workspace default architecture project cannot be deleted. Create another project and re-point the workspace default first.",
+                        ProblemTypes.BusinessRuleViolation);
+                }
             }
         }
 
@@ -131,10 +158,10 @@ public sealed partial class TenantWorkspacesController
         if (tenant is null)
             return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
-        IReadOnlyList<TenantWorkspaceListItem> workspaces =
-            await _tenantRepository.ListWorkspacesAsync(scope.TenantId, cancellationToken);
+        IReadOnlyList<TenantWorkspaceListItem> workspaces = TenantWorkspaceInventoryCoalesce.CoalesceWorkspaces(
+            await _tenantRepository.ListWorkspacesAsync(scope.TenantId, cancellationToken));
 
-        TenantWorkspaceListItem? workspace = workspaces.SingleOrDefault(w => w.WorkspaceId == workspaceId);
+        TenantWorkspaceListItem? workspace = FindWorkspace(workspaces, workspaceId);
 
         if (workspace is null)
             return this.NotFoundProblem("Workspace was not found for this tenant.", ProblemTypes.ResourceNotFound);
@@ -144,20 +171,6 @@ public sealed partial class TenantWorkspacesController
 
         if (projectId != scope.ProjectId)
             return this.NotFoundProblem("Architecture project was not found for this tenant.", ProblemTypes.ResourceNotFound);
-
-        IReadOnlyList<ArchitectureProjectRecord> softDeletedProjects =
-            await _architectureProjectRepository.ListSoftDeletedByTenantAsync(scope.TenantId, cancellationToken)
-            ?? Array.Empty<ArchitectureProjectRecord>();
-
-        ArchitectureProjectRecord? softDeletedProject = softDeletedProjects
-            .FirstOrDefault(p => p.WorkspaceId == workspaceId && p.Id == projectId);
-
-        if (softDeletedProject is not null && !softDeletedProject.DeletedUtc.HasValue)
-        {
-            return this.NotFoundProblem(
-                "Architecture project was not found or is not soft-deleted.",
-                ProblemTypes.ResourceNotFound);
-        }
 
         ArchitectureProjectRestoreResult outcome =
             await _architectureProjectRepository.TryRestoreAsync(

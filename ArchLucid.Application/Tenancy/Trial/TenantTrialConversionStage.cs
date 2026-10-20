@@ -82,10 +82,6 @@ public sealed class TenantTrialConversionStage(
         if (tenantBeforeConvert?.OffboardedUtc is not null)
             return new TenantTrialConvertResult { Outcome = TenantTrialHttpOutcome.Success };
 
-        ArchLucidInstrumentation.RecordTrialConversion(
-            TrialLifecycleStatus.Active,
-            tier?.ToString() ?? "unspecified");
-
         TenantRecord? tenantBeforeMark =
             await _tenantRepository.GetByIdAsync(tenant.Id, cancellationToken).ConfigureAwait(false);
 
@@ -111,6 +107,12 @@ public sealed class TenantTrialConversionStage(
         if (afterConvert is null || afterConvert.OffboardedUtc is not null)
             return new TenantTrialConvertResult { Outcome = TenantTrialHttpOutcome.Success };
 
+        TenantRecord? tenantBeforeAudit =
+            await _tenantRepository.GetByIdAsync(tenant.Id, cancellationToken).ConfigureAwait(false);
+
+        if (tenantBeforeAudit is null || tenantBeforeAudit.OffboardedUtc is not null)
+            return new TenantTrialConvertResult { Outcome = TenantTrialHttpOutcome.Success };
+
         await _auditService.LogAsync(
             new AuditEvent
             {
@@ -123,6 +125,10 @@ public sealed class TenantTrialConversionStage(
                 DataJson = JsonSerializer.Serialize(new { targetTier = body?.TargetTier }),
             },
             cancellationToken).ConfigureAwait(false);
+
+        ArchLucidInstrumentation.RecordTrialConversion(
+            TrialLifecycleStatus.Active,
+            tier?.ToString() ?? "unspecified");
 
         return new TenantTrialConvertResult { Outcome = TenantTrialHttpOutcome.Success };
     }

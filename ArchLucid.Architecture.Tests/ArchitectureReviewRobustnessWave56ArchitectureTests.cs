@@ -33,7 +33,7 @@ public sealed class ArchitectureReviewRobustnessWave56ArchitectureTests
         architectureExportGuard.Should().Contain("EnsureSealedManifestReadAllowedAsync");
         governanceInsights.Should().Contain("GetDashboard");
         governanceInsights.Should().Contain("GetComplianceDriftTrend");
-        governanceInsights.Should().Contain("EnsureGovernanceInsightsScopeSealedManifestReadAllowedAsync");
+        governanceInsights.Should().Contain("EnsureSealedManifestReadAllowedForApprovalRequestAsync");
         governanceInsights.Should().Contain("Status409Conflict");
         governanceGuard.Should().Contain("EnsureGovernanceInsightsScopeSealedManifestReadAllowedAsync");
         runComparisonAgents.Should().Contain("CompareAgentResults");

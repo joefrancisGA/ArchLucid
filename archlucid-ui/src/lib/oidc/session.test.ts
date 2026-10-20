@@ -5,6 +5,7 @@ import {
   clearOidcSession,
   consumePkceState,
   consumePostSignInReturnUrl,
+  getAccessTokenExpiresAtMs,
   getAccessTokenForApi,
   isLikelySignedIn,
   persistTokenResponse,
@@ -22,6 +23,13 @@ import {
   OIDC_REFRESH_TOKEN_KEY,
   OIDC_USER_SUBJECT_KEY,
 } from "@/lib/oidc/storage-keys";
+
+function accessTokenWithSubjectClaim(sub: string = "user-test"): string {
+  const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
+  const payload = Buffer.from(JSON.stringify({ sub })).toString("base64url");
+
+  return `${header}.${payload}.sig`;
+}
 
 describe("storePostSignInReturnUrl / consumePostSignInReturnUrl", () => {
   afterEach(() => {
@@ -106,8 +114,29 @@ describe("getAccessTokenForApi / isLikelySignedIn expiry parsing (LK-06 P2)", ()
   it("parses expires_at_ms session hints after stripping zero-width padding", () => {
     const futureMs = Date.now() + 3_600_000;
     sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, `${futureMs}\u200b`);
+    sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, "user-123");
 
     expect(isLikelySignedIn()).toBe(true);
+  });
+
+  it("does not treat a future expires_at_ms hint alone as signed in", () => {
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(Date.now() + 3_600_000));
+
+    expect(isLikelySignedIn()).toBe(false);
+    expect(getAccessTokenExpiresAtMs()).toBe(0);
+  });
+
+  it("returns zero expiry for consumers when identity hints are missing", () => {
+    const futureMs = Date.now() + 3_600_000;
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(futureMs));
+    sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, "user-123");
+
+    expect(getAccessTokenExpiresAtMs()).toBe(futureMs);
+
+    sessionStorage.removeItem(OIDC_USER_SUBJECT_KEY);
+    sessionStorage.removeItem(OIDC_DISPLAY_NAME_KEY);
+
+    expect(getAccessTokenExpiresAtMs()).toBe(0);
   });
 
   it("treats scientific-notation expires_at_ms session hints in the past as expired", () => {
@@ -165,6 +194,13 @@ describe("getAccessTokenForApi / isLikelySignedIn expiry parsing (LK-06 P2)", ()
     expect(isLikelySignedIn()).toBe(false);
     expect(getAccessTokenForApi()).toBeUndefined();
   });
+
+  it("treats expires_at_ms session hints above MAX_SAFE_INTEGER as expired", () => {
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(Number.MAX_SAFE_INTEGER + 1));
+
+    expect(isLikelySignedIn()).toBe(false);
+    expect(getAccessTokenForApi()).toBeUndefined();
+  });
 });
 
 describe("persistTokenResponse", () => {
@@ -172,8 +208,16 @@ describe("persistTokenResponse", () => {
     sessionStorage.clear();
   });
 
+  it("treats empty array expires_in as the default lifetime instead of immediate expiry", () => {
+    persistTokenResponse({ access_token: "tok", expires_in: [] as unknown as number });
+
+    const expiresAtMs = Number(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY));
+
+    expect(expiresAtMs).toBeGreaterThan(Date.now() + 3_000_000);
+  });
+
   it("treats negative expires_in as the default lifetime instead of writing a past expiry", () => {
-    persistTokenResponse({ access_token: "tok", expires_in: -120 });
+    persistTokenResponse({ access_token: accessTokenWithSubjectClaim(), expires_in: -120 });
 
     const expiresAtMs = Number(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY));
 
@@ -211,7 +255,10 @@ describe("persistTokenResponse", () => {
   });
 
   it("maps boolean false expires_in from malformed token JSON to the default lifetime", () => {
-    persistTokenResponse({ access_token: "tok", expires_in: false as unknown as number });
+    persistTokenResponse({
+      access_token: accessTokenWithSubjectClaim(),
+      expires_in: false as unknown as number,
+    });
 
     const expiresAtMs = Number(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY));
     const expectedMin = Date.now() + 3590 * 1000;
@@ -223,7 +270,10 @@ describe("persistTokenResponse", () => {
   });
 
   it("maps boolean expires_in from malformed token JSON to the default lifetime", () => {
-    persistTokenResponse({ access_token: "tok", expires_in: true as unknown as number });
+    persistTokenResponse({
+      access_token: accessTokenWithSubjectClaim(),
+      expires_in: true as unknown as number,
+    });
 
     const expiresAtMs = Number(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY));
     const expectedMin = Date.now() + 3590 * 1000;
@@ -235,7 +285,10 @@ describe("persistTokenResponse", () => {
   });
 
   it("coerces string expires_in from the token response before writing expiry", () => {
-    persistTokenResponse({ access_token: "tok", expires_in: "7200" as unknown as number });
+    persistTokenResponse({
+      access_token: accessTokenWithSubjectClaim(),
+      expires_in: "7200" as unknown as number,
+    });
 
     const expiresAtMs = Number(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY));
     const expectedMin = Date.now() + 7190 * 1000;
@@ -314,6 +367,40 @@ describe("persistTokenResponse", () => {
     expect(clearBffSessionCookieMock).toHaveBeenCalledTimes(1);
   });
 
+  it("reapplies replacement token sync when a stale sign-out-era POST completes late", async () => {
+    let releaseStaleSync: (() => void) | undefined;
+    let lastSyncedAccessToken = "";
+
+    vi.spyOn(bffSessionSync, "syncBffSessionCookieFromTokenResponse").mockImplementation(
+      async (tokens) => {
+        if (tokens.access_token === "stale-token") {
+          await new Promise<void>((resolve) => {
+            releaseStaleSync = resolve;
+          });
+        }
+
+        lastSyncedAccessToken = tokens.access_token;
+      },
+    );
+
+    persistTokenResponse({ access_token: "stale-token", expires_in: 3600 });
+    await Promise.resolve();
+    await Promise.resolve();
+    clearOidcSession();
+    persistTokenResponse({ access_token: "replacement-token", expires_in: 3600 });
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(lastSyncedAccessToken).toBe("replacement-token");
+
+    releaseStaleSync?.();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(lastSyncedAccessToken).toBe("replacement-token");
+  });
+
   it("returns null for zero-width-only display-name hints read from sessionStorage", () => {
     sessionStorage.setItem(OIDC_DISPLAY_NAME_KEY, "\u200b\u200b");
 
@@ -330,6 +417,20 @@ describe("persistTokenResponse", () => {
     sessionStorage.setItem(OIDC_DISPLAY_NAME_KEY, "\u200bJane Operator\u200b");
 
     expect(readSignedInDisplayName()).toBe("Jane Operator");
+  });
+
+  it("collapses interior ZWSP in legacy stored display names instead of gluing words", () => {
+    sessionStorage.setItem(OIDC_DISPLAY_NAME_KEY, "John\u200bDoe");
+
+    expect(readSignedInDisplayName()).toBe("John Doe");
+  });
+
+  it("preserves ZWNJ in stored display names when re-read from sessionStorage", () => {
+    const persianName = "می\u200cخواهم";
+
+    sessionStorage.setItem(OIDC_DISPLAY_NAME_KEY, persianName);
+
+    expect(readSignedInDisplayName()).toBe(persianName);
   });
 
   it("strips zero-width padding when reading user subject hints from sessionStorage", () => {
@@ -382,6 +483,7 @@ describe("persistTokenResponse", () => {
 
     expect(sessionStorage.getItem(OIDC_DISPLAY_NAME_KEY)).toBeNull();
     expect(sessionStorage.getItem(OIDC_USER_SUBJECT_KEY)).toBeNull();
+    expect(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY)).toBeNull();
   });
 
   it("keeps an older token sync from overwriting a newer same-session sync", async () => {

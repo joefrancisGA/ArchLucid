@@ -1,4 +1,5 @@
 using ArchLucid.Api.Controllers.Governance;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
@@ -66,6 +67,7 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
         GovernanceEnvironmentCatalogController controller = new(
             scopeProvider.Object,
             catalogService.Object,
+            Mock.Of<IActorContext>(),
             Mock.Of<IAuditService>(),
             tenants.Object,
             SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
@@ -115,6 +117,7 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
         GovernanceEnvironmentCatalogController controller = new(
             scopeProvider.Object,
             catalogService.Object,
+            Mock.Of<IActorContext>(),
             Mock.Of<IAuditService>(),
             tenants.Object,
             SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
@@ -164,6 +167,7 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
         GovernanceEnvironmentCatalogController controller = new(
             scopeProvider.Object,
             catalogService.Object,
+            Mock.Of<IActorContext>(),
             Mock.Of<IAuditService>(),
             tenants.Object,
             SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
@@ -194,6 +198,7 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
         GovernanceEnvironmentCatalogController controller = new(
             scopeProvider.Object,
             catalogService.Object,
+            Mock.Of<IActorContext>(),
             auditService.Object,
             TenantMissingRepository(),
             SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
@@ -231,6 +236,7 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
         GovernanceEnvironmentCatalogController controller = new(
             scopeProvider.Object,
             catalogService.Object,
+            Mock.Of<IActorContext>(),
             auditService.Object,
             TenantExistsRepository(),
             SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
@@ -265,6 +271,7 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
         GovernanceEnvironmentCatalogController controller = new(
             scopeProvider.Object,
             catalogService.Object,
+            Mock.Of<IActorContext>(),
             auditService.Object,
             TenantExistsRepository(),
             SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
@@ -297,6 +304,7 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
         GovernanceEnvironmentCatalogController controller = new(
             scopeProvider.Object,
             catalogService.Object,
+            Mock.Of<IActorContext>(),
             auditService.Object,
             TenantMissingRepository(),
             SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
@@ -360,6 +368,7 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
         GovernanceEnvironmentCatalogController controller = new(
             scopeProvider.Object,
             catalogService.Object,
+            Mock.Of<IActorContext>(),
             auditService.Object,
             TenantExistsRepository(),
             SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
@@ -440,6 +449,7 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
         GovernanceEnvironmentCatalogController controller = new(
             scopeProvider.Object,
             catalogService.Object,
+            Mock.Of<IActorContext>(),
             auditService.Object,
             TenantExistsRepository(),
             SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
@@ -509,6 +519,7 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
         GovernanceEnvironmentCatalogController controller = new(
             scopeProvider.Object,
             catalogService.Object,
+            Mock.Of<IActorContext>(),
             auditService.Object,
             TenantExistsRepository(),
             SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),

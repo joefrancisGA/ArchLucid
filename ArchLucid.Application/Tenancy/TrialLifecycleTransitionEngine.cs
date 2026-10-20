@@ -82,6 +82,9 @@ public sealed class TrialLifecycleTransitionEngine(
                 return purgeTransitionGateReturn;
             }
 
+            if (await IsErasureSupersededAsync(tenantId, cancellationToken))
+                return true;
+
             bool recorded = await _tenantRepository.TryRecordTrialLifecycleTransitionAsync(
                 tenantId,
                 persistedTrialStatus,
@@ -97,8 +100,10 @@ public sealed class TrialLifecycleTransitionEngine(
                 return false;
             }
 
-            await EmitAuditAsync(tenant, advancement, cancellationToken);
-            ArchLucidInstrumentation.RecordTrialExpiration($"{advancement.FromStatus}->{advancement.ToStatus}");
+            if (await TryEmitAuditAsync(tenant, advancement, cancellationToken))
+            {
+                ArchLucidInstrumentation.RecordTrialExpiration($"{advancement.FromStatus}->{advancement.ToStatus}");
+            }
 
             if (ShouldStopForAutomationGate(
                     await EvaluateAutomationGateAsync(tenantId, utcNow, cancellationToken),
@@ -120,6 +125,9 @@ public sealed class TrialLifecycleTransitionEngine(
             return transitionGateReturn;
         }
 
+        if (await IsErasureSupersededAsync(tenantId, cancellationToken))
+            return true;
+
         bool ok = await _tenantRepository.TryRecordTrialLifecycleTransitionAsync(
             tenantId,
             persistedTrialStatus,
@@ -135,9 +143,22 @@ public sealed class TrialLifecycleTransitionEngine(
             return false;
         }
 
-        await EmitAuditAsync(tenant, advancement, cancellationToken);
-        ArchLucidInstrumentation.RecordTrialExpiration($"{advancement.FromStatus}->{advancement.ToStatus}");
+        if (await TryEmitAuditAsync(tenant, advancement, cancellationToken))
+        {
+            ArchLucidInstrumentation.RecordTrialExpiration($"{advancement.FromStatus}->{advancement.ToStatus}");
+        }
+
         return true;
+    }
+
+    private async Task<bool> IsErasureSupersededAsync(Guid tenantId, CancellationToken cancellationToken)
+    {
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+        if (tenant is null)
+            return true;
+
+        return tenant.OffboardedUtc is not null;
     }
 
     private async Task<TrialLifecycleAutomationGate> EvaluateAutomationGateAsync(
@@ -194,17 +215,20 @@ public sealed class TrialLifecycleTransitionEngine(
         return TrialLifecycleStatus.EqualsStatus(afterMiss.TrialStatus, targetStatus);
     }
 
-    private async Task EmitAuditAsync(TenantRecord tenant, TrialLifecycleAdvancement advancement, CancellationToken cancellationToken)
+    private async Task<bool> TryEmitAuditAsync(
+        TenantRecord tenant,
+        TrialLifecycleAdvancement advancement,
+        CancellationToken cancellationToken)
     {
         TenantRecord? current = await _tenantRepository.GetByIdAsync(tenant.Id, cancellationToken).ConfigureAwait(false);
 
         if (current is null || current.OffboardedUtc is not null)
-            return;
+            return false;
 
         TenantWorkspaceLink? workspace = await _tenantRepository.GetFirstWorkspaceAsync(tenant.Id, cancellationToken).ConfigureAwait(false);
 
         if (workspace is null)
-            return;
+            return false;
 
         Guid workspaceId = workspace.WorkspaceId;
         Guid projectId = workspace.DefaultProjectId;
@@ -222,5 +246,7 @@ public sealed class TrialLifecycleTransitionEngine(
                     fromStatus = advancement.FromStatus, toStatus = advancement.ToStatus, reason = advancement.Reason
                 })
             }, cancellationToken);
+
+        return true;
     }
 }

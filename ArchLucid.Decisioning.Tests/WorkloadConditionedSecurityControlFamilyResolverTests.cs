@@ -64,6 +64,55 @@ public sealed class WorkloadConditionedSecurityControlFamilyResolverTests
     }
 
     [Fact]
+    public void ResolveExpectedControlFamilies_WhenConstraintMentionsSubprocessors_DoesNotAddExtraIdentityAccessFromSsoSubstring()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "ctx-1",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "scope",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        [ContextGraphPropertyKeys.Constraints] =
+                            "Vendor risk: subprocessors documented; data residency EU+US regions"
+                    }
+                }
+            ]
+        };
+
+        IReadOnlyList<string> familiesBefore =
+            WorkloadConditionedSecurityControlFamilyResolver.ResolveExpectedControlFamilies(graph);
+
+        familiesBefore.Count(f =>
+                f.Equals(SecurityControlFamilies.IdentityAccess, StringComparison.OrdinalIgnoreCase))
+            .Should()
+            .Be(1);
+    }
+
+    [Fact]
+    public void ResolveControlFamily_WhenLabelMentionsInvulnerability_DoesNotReturnVulnerabilityManagement()
+    {
+        GraphNode node = new()
+        {
+            NodeId = "sec-1",
+            NodeType = GraphNodeTypes.SecurityBaseline,
+            Label = "Business invulnerability program charter",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["controlId"] = "org-resilience-01"
+            }
+        };
+
+        WorkloadConditionedSecurityControlFamilyResolver.ResolveControlFamily(node)
+            .Should()
+            .NotBe(SecurityControlFamilies.VulnerabilityManagement);
+    }
+
+    [Fact]
     public void ResolveControlFamily_WhenControlIdSuggestsNetwork_ReturnsNetworkIsolation()
     {
         GraphNode node = new()

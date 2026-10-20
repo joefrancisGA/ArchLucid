@@ -117,10 +117,7 @@ public sealed class FinalizeReadinessControllerTests
             .Setup(service => service.BuildAsync(
                 runIdText,
                 It.Is<IReadOnlyList<string>?>(ids =>
-                    ids != null
-                    && ids.Count == 2
-                    && ids.Contains("assumption-a")
-                    && ids.Contains("assumption-b")),
+                    ContainsAcknowledgedAssumptionIds(ids)),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new FinalizeReadinessResult
             {
@@ -172,6 +169,15 @@ public sealed class FinalizeReadinessControllerTests
         action.Should().BeOfType<ObjectResult>().Subject.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
+    // CS8122: Moq It.Is compiles to an expression tree and cannot contain `is not null`.
+    private static bool ContainsAcknowledgedAssumptionIds(IReadOnlyList<string>? ids)
+    {
+        return ids is not null
+            && ids.Count == 2
+            && ids.Contains("assumption-a")
+            && ids.Contains("assumption-b");
+    }
+
     private static GovernancePreCommitSimulationController CreateController(
         IRunRepository runRepository,
         IFinalizeReadinessService finalizeReadinessService)
@@ -198,6 +204,7 @@ public sealed class FinalizeReadinessControllerTests
             Mock.Of<IPreCommitGovernanceGate>(),
             Mock.Of<IPreFinalizeChecklistService>(),
             finalizeReadinessService,
+            Mock.Of<ArchLucid.Application.Common.IActorContext>(),
             Mock.Of<ArchLucid.Core.Audit.IAuditService>(),
             runRepository,
             scopeProvider.Object,

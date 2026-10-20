@@ -3,8 +3,62 @@ import { describe, expect, it } from "vitest";
 import {
   decodeOAuthErrorDescription,
   humanizeAuthorizeCallbackError,
+  normalizeOidcDisplayString,
+  readOAuthJsonErrorDescription,
   sanitizeOAuthUserFacingMessage,
 } from "@/lib/oidc/oauth-callback-messages";
+
+describe("normalizeOidcDisplayString", () => {
+  it("collapses ZWSP-like glue characters to spaces without merging Latin words", () => {
+    expect(normalizeOidcDisplayString("John\u200bDoe")).toBe("John Doe");
+  });
+
+  it("preserves ZWNJ and ZWJ used in Persian and emoji display copy", () => {
+    expect(normalizeOidcDisplayString("می\u200cخواهم")).toBe("می\u200cخواهم");
+    expect(normalizeOidcDisplayString("👨\u200d👩\u200d👧")).toBe("👨\u200d👩\u200d👧");
+  });
+});
+
+describe("readOAuthJsonErrorDescription", () => {
+  it("preserves literal percent signs when JSON is not percent-encoded", () => {
+    expect(readOAuthJsonErrorDescription("100% failed")).toBe("100% failed");
+    expect(readOAuthJsonErrorDescription("a%zz")).toBe("a%zz");
+  });
+
+  it("does not treat plus as space in JSON error_description", () => {
+    expect(readOAuthJsonErrorDescription("User+denied")).toBe("User+denied");
+  });
+
+  it("still decodes valid percent-escapes when IdPs send them in JSON", () => {
+    expect(readOAuthJsonErrorDescription("User%20denied")).toBe("User denied");
+  });
+
+  it("collapses interior zero-width characters to spaces instead of gluing words", () => {
+    expect(readOAuthJsonErrorDescription("Policy\u200bdenied")).toBe("Policy denied");
+  });
+
+  it("decodes percent-encoded newlines in JSON error_description", () => {
+    expect(readOAuthJsonErrorDescription("line1%0Aline2")).toBe("line1 line2");
+  });
+
+  it("preserves ZWNJ in Persian token error_description copy", () => {
+    const detail = "دسترسی\u200cرد";
+
+    expect(readOAuthJsonErrorDescription(detail)).toBe(detail);
+  });
+
+  it("preserves emoji ZWJ sequences in token error_description copy", () => {
+    const detail = "👨\u200d👩\u200d👧";
+
+    expect(readOAuthJsonErrorDescription(detail)).toBe(detail);
+  });
+
+  it("preserves regional-indicator flag emoji in token error_description copy", () => {
+    const detail = "🇺🇸";
+
+    expect(readOAuthJsonErrorDescription(detail)).toBe(detail);
+  });
+});
 
 describe("decodeOAuthErrorDescription", () => {
   it("returns empty for null-ish", () => {
@@ -21,6 +75,21 @@ describe("decodeOAuthErrorDescription", () => {
 
   it("falls back safely on invalid percent sequences", () => {
     expect(decodeOAuthErrorDescription("%E0%A4%A")).toBe("%E0%A4%A");
+  });
+
+  it("preserves literal percent signs in authorize error descriptions when not percent-encoded", () => {
+    expect(decodeOAuthErrorDescription("50% off")).toBe("50% off");
+    expect(decodeOAuthErrorDescription("a%zz")).toBe("a%zz");
+  });
+
+  it("preserves ZWNJ in authorize error descriptions after decode", () => {
+    const detail = "دسترسی\u200cرد";
+
+    expect(decodeOAuthErrorDescription(detail)).toBe(detail);
+  });
+
+  it("preserves regional-indicator flag emoji in authorize error descriptions", () => {
+    expect(decodeOAuthErrorDescription("🇺🇸")).toBe("🇺🇸");
   });
 
   it("collapses percent-encoded line breaks to spaces for single-line callback copy", () => {
@@ -98,6 +167,24 @@ describe("humanizeAuthorizeCallbackError", () => {
 
   it("maps standard authorize error codes when the error query contains zero-width characters", () => {
     expect(humanizeAuthorizeCallbackError("access\u200b_denied", "")).toContain("canceled sign-in");
+  });
+
+  it("maps interaction_required when the error query glues the code with an interior zero-width character", () => {
+    expect(humanizeAuthorizeCallbackError("interaction\u200brequired", "")).toContain("Another sign-in step");
+  });
+
+  it("maps access_denied when the error query glues the code with a soft hyphen", () => {
+    expect(humanizeAuthorizeCallbackError("access\u00ADdenied", "")).toContain("canceled sign-in");
+  });
+
+  it("includes emoji ZWJ detail on access_denied authorize callback copy", () => {
+    const detail = "👨\u200d👩\u200d👧";
+
+    expect(humanizeAuthorizeCallbackError("access_denied", detail)).toContain(detail);
+  });
+
+  it("includes regional-indicator flag detail on access_denied authorize callback copy", () => {
+    expect(humanizeAuthorizeCallbackError("access_denied", "🇺🇸")).toBe("Sign-in stopped: 🇺🇸");
   });
 
   it("maps interaction and consent cases", () => {

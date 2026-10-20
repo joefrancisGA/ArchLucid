@@ -17,6 +17,20 @@ public sealed partial class GovernancePreviewController
         ScopeContext scope,
         CancellationToken cancellationToken)
     {
+        if (!Guid.TryParse(runId, out Guid parsedRunId) || parsedRunId == Guid.Empty)
+            return null;
+
+        RunDetailDto? detail =
+            await _authorityQueryService.GetRunDetailForManifestCompareAsync(
+                scope,
+                parsedRunId,
+                cancellationToken);
+
+        // Unknown runs must reach PreviewActivationAsync so the route returns 404, not sealed-manifest 409.
+
+        if (detail is null)
+            return null;
+
         try
         {
             await GovernancePreviewSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(

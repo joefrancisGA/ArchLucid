@@ -103,6 +103,19 @@ public sealed class TenantWorkspaceScopePreflightTests
         result.Should().BeFalse();
     }
 
+    [Fact]
+    public async Task WorkspaceExistsAsync_falls_back_to_ListWorkspacesAsync_when_list_is_null_returns_false()
+    {
+        Mock<ITenantRepository> repo = new();
+        repo.Setup(r => r.ListWorkspacesAsync(TenantId, It.IsAny<CancellationToken>()))
+            .Returns(Task.FromResult<IReadOnlyList<TenantWorkspaceListItem>>(null!));
+
+        bool result = await TenantWorkspaceScopePreflight.WorkspaceExistsAsync(
+            repo.Object, TenantId, WorkspaceId, CancellationToken.None);
+
+        result.Should().BeFalse();
+    }
+
     // ── RequireTenantAndWorkspaceAsync integration ──────────────────────────────
 
     [Fact]

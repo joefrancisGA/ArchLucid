@@ -135,7 +135,10 @@ public static class TopologyExpectedCategoryResolver
     private static bool MentionsIdentityWorkload(IReadOnlyList<string> tokens) =>
         ContainsAnyKeyword(tokens, "identity", "entra", "key vault", "keyvault", "oauth", "sso");
 
-    private static bool ContainsAnyKeyword(IReadOnlyList<string> tokens, params string[] keywords)
+    private static bool ContainsAnyKeyword(IReadOnlyList<string> tokens, params string[] keywords) =>
+        ScopeTokensContainAnyKeyword(tokens, keywords);
+
+    internal static bool ScopeTokensContainAnyKeyword(IReadOnlyList<string> tokens, params string[] keywords)
     {
         foreach (string token in tokens)
         {
@@ -150,6 +153,24 @@ public static class TopologyExpectedCategoryResolver
                 {
                     return true;
                 }
+            }
+        }
+
+        return false;
+    }
+
+    internal static bool DelimitedTextContainsAnyKeyword(string haystack, params string[] keywords)
+    {
+        if (string.IsNullOrWhiteSpace(haystack))
+        {
+            return false;
+        }
+
+        foreach (string keyword in keywords)
+        {
+            if (TokenContainsKeyword(haystack, keyword))
+            {
+                return true;
             }
         }
 
@@ -177,15 +198,27 @@ public static class TopologyExpectedCategoryResolver
             ['/', '.', '_', ':', ' ', '-'],
             StringSplitOptions.RemoveEmptyEntries);
 
-        foreach (string part in parts)
+        for (int partIndex = 0; partIndex < parts.Length; partIndex++)
         {
+            string part = parts[partIndex];
+
             if (part.Equals(normalizedKeyword, StringComparison.Ordinal))
             {
+                if (partIndex > 0 && parts[partIndex - 1].Equals("no", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
                 return true;
             }
 
             if (DecisioningTextTokenMatcher.IsLongerProductToken(part, normalizedKeyword))
             {
+                if (partIndex > 0 && parts[partIndex - 1].Equals("no", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
                 return true;
             }
         }

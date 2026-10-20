@@ -15,24 +15,45 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
         ArgumentNullException.ThrowIfNull(loadBalancerNode);
 
         Dictionary<string, int?> portByPoolId = BuildLoadBalancerPortByPoolId(loadBalancerNode.Properties);
-        List<BackendTarget> targets = [];
 
         if (!loadBalancerNode.Properties.TryGetValue("backendAddressPools", out string? poolsJson)
             || string.IsNullOrWhiteSpace(poolsJson))
         {
-            return targets;
+            return [];
         }
+
+        return ParseLoadBalancerBackendTargets(poolsJson, portByPoolId);
+    }
+
+    private static List<BackendTarget> ParseLoadBalancerBackendTargets(
+        string poolsJson,
+        IReadOnlyDictionary<string, int?> portByPoolId)
+    {
+        List<BackendTarget> targets = [];
 
         try
         {
             using JsonDocument document = JsonDocument.Parse(poolsJson);
+            JsonElement poolsRoot = document.RootElement;
 
-            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+            if (poolsRoot.ValueKind is JsonValueKind.String)
+            {
+                string? nestedPoolsJson = poolsRoot.GetString();
+
+                if (string.IsNullOrWhiteSpace(nestedPoolsJson))
+                {
+                    return targets;
+                }
+
+                return ParseLoadBalancerBackendTargets(nestedPoolsJson, portByPoolId);
+            }
+
+            if (!AzureExtractorJsonArrayRoot.TryCloneRows(poolsRoot, out JsonElement[] pools))
             {
                 return targets;
             }
 
-            foreach (JsonElement pool in document.RootElement.EnumerateArray())
+            foreach (JsonElement pool in pools)
             {
                 string? poolId = TryReadPoolId(pool);
                 int? rulePort = null;
@@ -42,8 +63,7 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
                     portByPoolId.TryGetValue(ArmResourceIdNormalizer.Normalize(poolId), out rulePort);
                 }
 
-                if (!pool.TryGetProperty("properties", out JsonElement properties)
-                    || properties.ValueKind is not JsonValueKind.Object)
+                if (!TryGetBackendAddressPoolPropertiesBag(pool, out JsonElement properties))
                 {
                     continue;
                 }
@@ -64,37 +84,54 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
     {
         ArgumentNullException.ThrowIfNull(applicationGatewayNode);
 
-        List<BackendTarget> targets = [];
-
         if (!applicationGatewayNode.Properties.TryGetValue("backendAddressPools", out string? poolsJson)
             || string.IsNullOrWhiteSpace(poolsJson))
         {
-            return targets;
+            return [];
         }
+
+        return ParseApplicationGatewayBackendTargets(poolsJson);
+    }
+
+    private static List<BackendTarget> ParseApplicationGatewayBackendTargets(string poolsJson)
+    {
+        List<BackendTarget> targets = [];
 
         try
         {
             using JsonDocument document = JsonDocument.Parse(poolsJson);
+            JsonElement poolsRoot = document.RootElement;
 
-            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+            if (poolsRoot.ValueKind is JsonValueKind.String)
+            {
+                string? nestedPoolsJson = poolsRoot.GetString();
+
+                if (string.IsNullOrWhiteSpace(nestedPoolsJson))
+                {
+                    return targets;
+                }
+
+                return ParseApplicationGatewayBackendTargets(nestedPoolsJson);
+            }
+
+            if (!AzureExtractorJsonArrayRoot.TryCloneRows(poolsRoot, out JsonElement[] pools))
             {
                 return targets;
             }
 
-            foreach (JsonElement pool in document.RootElement.EnumerateArray())
+            foreach (JsonElement pool in pools)
             {
-                if (!pool.TryGetProperty("properties", out JsonElement properties)
-                    || properties.ValueKind is not JsonValueKind.Object)
+                if (!TryGetBackendAddressPoolPropertiesBag(pool, out JsonElement properties))
                 {
                     continue;
                 }
 
-                if (properties.TryGetProperty("backendAddresses", out JsonElement addresses)
+                if (TryGetPropertyIgnoreCase(properties, "backendAddresses", out JsonElement addresses)
                     && addresses.ValueKind is JsonValueKind.Array)
                 {
                     foreach (JsonElement address in addresses.EnumerateArray())
                     {
-                        string? backendArmId = TryReadApplicationGatewayBackendArmId(address);
+                        string? backendArmId = AzureInventoryApplicationGatewayBackendAddressReader.TryReadBackendResourceArmId(address);
 
                         if (string.IsNullOrWhiteSpace(backendArmId))
                         {
@@ -130,21 +167,42 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
         try
         {
             using JsonDocument document = JsonDocument.Parse(rulesJson);
+            JsonElement rulesRoot = document.RootElement;
 
-            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+            if (rulesRoot.ValueKind is JsonValueKind.String)
+            {
+                string? nestedRulesJson = rulesRoot.GetString();
+
+                if (string.IsNullOrWhiteSpace(nestedRulesJson))
+                {
+                    return portByPoolId;
+                }
+
+                return BuildLoadBalancerPortByPoolId(
+                    new Dictionary<string, string>(StringComparer.Ordinal)
+                    {
+                        ["loadBalancingRules"] = nestedRulesJson,
+                    });
+            }
+
+            if (!AzureExtractorJsonArrayRoot.TryCloneRows(rulesRoot, out JsonElement[] rules))
             {
                 return portByPoolId;
             }
 
-            foreach (JsonElement rule in document.RootElement.EnumerateArray())
+            foreach (JsonElement rule in rules)
             {
-                if (!rule.TryGetProperty("properties", out JsonElement ruleProperties)
-                    || ruleProperties.ValueKind is not JsonValueKind.Object)
+                if (!AzureExtractorJsonObjectElement.TryUnwrapObject(rule, out JsonElement ruleElement))
                 {
                     continue;
                 }
 
-                if (!ruleProperties.TryGetProperty("backendAddressPool", out JsonElement poolReference))
+                if (!TryGetLoadBalancingRulePropertiesBag(ruleElement, out JsonElement ruleProperties))
+                {
+                    continue;
+                }
+
+                if (!TryGetPropertyIgnoreCase(ruleProperties, "backendAddressPool", out JsonElement poolReference))
                 {
                     continue;
                 }
@@ -179,7 +237,7 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
         int? rulePort,
         bool nestedAddress)
     {
-        if (!poolProperties.TryGetProperty(collectionName, out JsonElement configurations)
+        if (!TryGetPropertyIgnoreCase(poolProperties, collectionName, out JsonElement configurations)
             || configurations.ValueKind is not JsonValueKind.Array)
         {
             return;
@@ -187,9 +245,15 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
 
         foreach (JsonElement configuration in configurations.EnumerateArray())
         {
+
+            if (!AzureExtractorJsonObjectElement.TryResolveCollectionElement(configuration, nestedAddress, out JsonElement configurationElement))
+            {
+                continue;
+            }
+
             string? ipConfigurationId = nestedAddress
-                ? TryReadNestedNetworkInterfaceIpConfigurationId(configuration)
-                : TryReadDirectId(configuration);
+                ? TryReadNestedNetworkInterfaceIpConfigurationId(configurationElement)
+                : TryReadDirectId(configurationElement);
 
             if (string.IsNullOrWhiteSpace(ipConfigurationId))
             {
@@ -210,62 +274,119 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
 
     private static string? TryReadDirectId(JsonElement configuration)
     {
-        if (!configuration.TryGetProperty("id", out JsonElement idElement)
-            || idElement.ValueKind is not JsonValueKind.String)
-        {
-            return null;
-        }
-
-        return idElement.GetString();
+        return AzureInventoryNetworkInterfaceIpConfigurationReferenceReader.TryReadArmId(configuration);
     }
 
     private static string? TryReadNestedNetworkInterfaceIpConfigurationId(JsonElement address)
     {
-        if (!address.TryGetProperty("properties", out JsonElement properties)
-            || properties.ValueKind is not JsonValueKind.Object
-            || !properties.TryGetProperty("networkInterfaceIPConfiguration", out JsonElement reference))
+
+        if (address.ValueKind is JsonValueKind.String)
         {
-            return null;
+            return TryReadNetworkInterfaceIpConfigurationReference(address);
         }
 
-        if (reference.ValueKind is JsonValueKind.String)
+        if (TryGetPropertyIgnoreCase(address, "properties", out JsonElement properties)
+            && properties.ValueKind is JsonValueKind.Object
+            && TryGetPropertyIgnoreCase(properties, "networkInterfaceIPConfiguration", out JsonElement nestedReference))
         {
-            return reference.GetString();
+            return TryReadNetworkInterfaceIpConfigurationReference(nestedReference);
         }
 
-        return TryReadDirectId(reference);
+        if (TryGetPropertyIgnoreCase(address, "networkInterfaceIPConfiguration", out JsonElement flatReference))
+        {
+            return TryReadNetworkInterfaceIpConfigurationReference(flatReference);
+        }
+
+        return null;
+    }
+
+    private static string? TryReadNetworkInterfaceIpConfigurationReference(JsonElement reference)
+    {
+        return AzureInventoryNetworkInterfaceIpConfigurationReferenceReader.TryReadArmId(reference);
     }
 
     private static string? TryReadPoolId(JsonElement pool)
     {
-        if (pool.TryGetProperty("id", out JsonElement idElement) && idElement.ValueKind is JsonValueKind.String)
+        if (!AzureExtractorJsonObjectElement.TryUnwrapObject(pool, out JsonElement poolElement))
         {
-            return idElement.GetString();
+            return null;
         }
 
-        return null;
+        if (!TryGetPropertyIgnoreCase(poolElement, "id", out JsonElement idElement))
+        {
+            return null;
+        }
+
+        return AzureInventoryNetworkInterfaceIpConfigurationReferenceReader.TryReadArmId(idElement);
     }
 
     private static string? TryReadBackendPoolReferenceId(JsonElement poolReference)
     {
-        if (poolReference.ValueKind is JsonValueKind.String)
+        return AzureInventoryNetworkInterfaceIpConfigurationReferenceReader.TryReadArmId(poolReference);
+    }
+
+    private static bool TryGetBackendAddressPoolPropertiesBag(JsonElement pool, out JsonElement poolProperties)
+    {
+        if (!AzureExtractorJsonObjectElement.TryUnwrapObject(pool, out JsonElement poolElement))
         {
-            return poolReference.GetString();
+            poolProperties = default;
+
+            return false;
         }
 
-        if (poolReference.ValueKind is JsonValueKind.Object
-            && poolReference.TryGetProperty("id", out JsonElement idElement)
-            && idElement.ValueKind is JsonValueKind.String)
+        if (TryGetPropertyIgnoreCase(poolElement, "properties", out JsonElement nested)
+            && nested.ValueKind is JsonValueKind.Object)
         {
-            return idElement.GetString();
+            poolProperties = nested;
+
+            return true;
         }
 
-        return null;
+        if (poolElement.ValueKind is JsonValueKind.Object
+            && (TryGetPropertyIgnoreCase(poolElement, "backendIPConfigurations", out _)
+                || TryGetPropertyIgnoreCase(poolElement, "loadBalancerBackendAddresses", out _)
+                || TryGetPropertyIgnoreCase(poolElement, "backendAddresses", out _)))
+        {
+            poolProperties = poolElement;
+
+            return true;
+        }
+
+        poolProperties = default;
+
+        return false;
+    }
+
+    /// <summary>
+    /// Hosted inventory may store each rule as a full ARM resource or as a flattened properties bag only.
+    /// </summary>
+    private static bool TryGetLoadBalancingRulePropertiesBag(JsonElement rule, out JsonElement ruleProperties)
+    {
+        if (TryGetPropertyIgnoreCase(rule, "properties", out JsonElement nested)
+            && nested.ValueKind is JsonValueKind.Object)
+        {
+            ruleProperties = nested;
+
+            return true;
+        }
+
+        if (rule.ValueKind is JsonValueKind.Object
+            && (TryGetPropertyIgnoreCase(rule, "backendPort", out _)
+                || TryGetPropertyIgnoreCase(rule, "backendAddressPool", out _)))
+        {
+            ruleProperties = rule;
+
+            return true;
+        }
+
+        ruleProperties = default;
+
+        return false;
     }
 
     private static int? TryReadBackendPort(JsonElement ruleProperties)
     {
-        if (!ruleProperties.TryGetProperty("backendPort", out JsonElement backendPortElement))
+        if (!TryGetPropertyIgnoreCase(ruleProperties, "backendPort", out JsonElement backendPortElement))
         {
             return null;
         }
@@ -285,27 +406,26 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
         return null;
     }
 
-    private static string? TryReadApplicationGatewayBackendArmId(JsonElement address)
+    private static bool TryGetPropertyIgnoreCase(
+        JsonElement element,
+        string propertyName,
+        out JsonElement value)
     {
-        if (!address.TryGetProperty("properties", out JsonElement properties)
-            || properties.ValueKind is not JsonValueKind.Object)
+        foreach (JsonProperty property in element.EnumerateObject())
         {
-            return null;
+
+            if (!property.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            value = property.Value;
+
+            return true;
         }
 
-        if (properties.TryGetProperty("backendIpAddress", out JsonElement ipElement)
-            && ipElement.ValueKind is JsonValueKind.String
-            && !string.IsNullOrWhiteSpace(ipElement.GetString()))
-        {
-            return null;
-        }
+        value = default;
 
-        if (properties.TryGetProperty("backendResourceId", out JsonElement resourceIdElement)
-            && resourceIdElement.ValueKind is JsonValueKind.String)
-        {
-            return resourceIdElement.GetString();
-        }
-
-        return null;
+        return false;
     }
 }

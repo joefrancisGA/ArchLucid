@@ -46,6 +46,17 @@ public sealed class AzureInventoryAppSettingHostRedactorTests
     }
 
     [Fact]
+    public void TryParseSettingValue_extracts_sql_host_from_data_source_alias()
+    {
+        AzureInventoryAppSettingHostParsedFields? parsed = AzureInventoryAppSettingHostRedactor.TryParseSettingValue(
+            "Data Source=tcp:prodsql.database.windows.net,1433;Initial Catalog=archlucid;");
+
+        parsed.Should().NotBeNull();
+        parsed!.Host.Should().Be("prodsql.database.windows.net");
+        parsed.Catalog.Should().Be("archlucid");
+    }
+
+    [Fact]
     public void TryParseSettingValue_extracts_sql_host_and_catalog()
     {
         AzureInventoryAppSettingHostParsedFields? parsed = AzureInventoryAppSettingHostRedactor.TryParseSettingValue(

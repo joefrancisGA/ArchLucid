@@ -18,6 +18,14 @@ function edge(inferenceSource: string): InfraEvidenceMermaidOutlineEdge {
 }
 
 describe("InfraEvidenceInventoryEdgeDetailPanel (P-15)", () => {
+  it("shows app-settings hostname copy for storage host-ref edges", () => {
+    render(
+      <InfraEvidenceInventoryEdgeDetailPanel edge={edge("inventory-storage-host-ref")} onClose={() => undefined} />,
+    );
+
+    expect(screen.getByText(/read from app settings/i)).toBeInTheDocument();
+  });
+
   it("shows configuration copy instead of inference slugs for static site backends", () => {
     render(
       <InfraEvidenceInventoryEdgeDetailPanel edge={edge("inventory-static-site-backend")} onClose={() => undefined} />,

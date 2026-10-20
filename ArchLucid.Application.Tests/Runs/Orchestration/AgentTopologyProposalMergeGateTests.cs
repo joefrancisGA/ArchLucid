@@ -201,6 +201,79 @@ public sealed class AgentTopologyProposalMergeGateTests
     }
 
     [Fact]
+    public void FilterValidatedProposals_emits_single_row_when_batch_contains_duplicate_result_ids()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+        const string duplicateResultId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+
+        AgentResult first = TopologyResult(
+            RelationshipProposal(Relationship(relationshipType: RelationshipType.ReadsFrom)),
+            resultId: duplicateResultId);
+        AgentResult second = TopologyResult(
+            RelationshipProposal(Relationship(relationshipType: RelationshipType.WritesTo)),
+            resultId: duplicateResultId);
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [first, second]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ResultId.Should().Be(duplicateResultId);
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle(relationship =>
+            relationship.RelationshipType == RelationshipType.WritesTo);
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_emits_single_row_when_greenfield_batch_contains_duplicate_result_ids()
+    {
+        GraphSnapshot graph = Graph();
+        const string duplicateResultId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+
+        static AgentTopologyProposal GreenfieldProposal(params ManifestRelationship[] relationships) =>
+            new()
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "svc-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "sql",
+                        DatastoreId = "ds-sql",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer,
+                    },
+                ],
+                AddedRelationships = [.. relationships],
+            };
+
+        AgentResult first = TopologyResult(
+            GreenfieldProposal(
+                Relationship("api", "sql"),
+                Relationship("api", "sql", RelationshipType.WritesTo)),
+            resultId: duplicateResultId);
+        AgentResult second = TopologyResult(
+            GreenfieldProposal(Relationship("api", "sql", RelationshipType.PublishesTo)),
+            resultId: duplicateResultId);
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [first, second]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ResultId.Should().Be(duplicateResultId);
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle(relationship =>
+            relationship.RelationshipType == RelationshipType.PublishesTo);
+    }
+
+    [Fact]
     public void FilterValidatedProposals_WhenInventoryExists_AllowsServicesKeyedByInventoriedNodeIds()
     {
         GraphSnapshot graph = Graph(ComputeNode());

@@ -190,6 +190,10 @@ public sealed class TrialTenantBootstrapService(
                             new { trialExpiresUtc = expires, sampleRunId })
                     },
                     cancellationToken);
+
+                if (await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken))
+                    return;
+
                 await _tenantRepository.EnqueueTrialArchitecturePreseedAsync(result.TenantId, cancellationToken);
                 ArchLucidInstrumentation.RecordTrialSignup("self_service", "trial_provisioned");
             }

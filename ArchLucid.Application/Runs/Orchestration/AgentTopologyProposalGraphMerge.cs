@@ -44,7 +44,6 @@ public static class AgentTopologyProposalGraphMerge
             .OrderBy(static result => GetMergeOrder(result.AgentType))
             .ToList();
 
-        bool greenfieldGraph = graph.Nodes.Count == 0;
         HashSet<string> seenTopologyKeys = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (GraphNode node in graph.Nodes)
@@ -70,7 +69,8 @@ public static class AgentTopologyProposalGraphMerge
             if (proposal is null)
                 continue;
 
-            bool materializeNodes = result.AgentType == AgentType.Topology || greenfieldGraph;
+            bool materializeNodes = result.AgentType == AgentType.Topology
+                || (graph.Nodes.Count == 0 && added.Count == 0);
             string? reasoning = result.ReasoningTrace?.Trim();
             Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase);
 
