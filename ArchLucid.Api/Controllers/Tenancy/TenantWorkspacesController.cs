@@ -170,4 +170,53 @@ public sealed partial class TenantWorkspacesController(
         return FindWorkspace(workspaces, workspaceId);
     }
 
+    private static bool ForeignWorkspaceMetadataProtectsFromRetentionPurge(
+        IReadOnlyList<TenantWorkspaceListItem> workspaces,
+        Guid callerWorkspaceId,
+        Guid deletedProjectId,
+        ILookup<Guid, ArchitectureProjectRecord> activeProjectsByWorkspace)
+    {
+        IEnumerable<Guid> foreignWorkspaceIds = workspaces
+            .Select(workspace => workspace.WorkspaceId)
+            .Where(workspaceId => workspaceId != callerWorkspaceId)
+            .Distinct();
+
+        foreach (Guid foreignWorkspaceId in foreignWorkspaceIds)
+        {
+            List<TenantWorkspaceProjectApiDto> foreignActiveProjects = activeProjectsByWorkspace[foreignWorkspaceId]
+                .OrderBy(static project => project.Name, StringComparer.OrdinalIgnoreCase)
+                .Select(
+                    project => new TenantWorkspaceProjectApiDto
+                    {
+                        ProjectId = project.Id,
+                        Name = project.Name,
+                        DisplayName = project.Name
+                    })
+                .ToList();
+
+            Guid foreignResolvedDefaultProjectId = ResolveScopedWorkspaceDefaultProjectId(
+                workspaces,
+                foreignWorkspaceId,
+                Guid.Empty,
+                foreignActiveProjects);
+
+            HashSet<Guid> foreignWorkspaceDefaultPinProjectIds = workspaces
+                .Where(workspace => workspace.WorkspaceId == foreignWorkspaceId)
+                .Select(workspace => workspace.DefaultProjectId)
+                .Where(projectId => projectId != Guid.Empty)
+                .ToHashSet();
+
+            if (!foreignWorkspaceDefaultPinProjectIds.Contains(deletedProjectId))
+                continue;
+
+            if (deletedProjectId == foreignResolvedDefaultProjectId
+                || (foreignResolvedDefaultProjectId == Guid.Empty && foreignActiveProjects.Count == 0))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }
