@@ -40,7 +40,7 @@ public sealed partial class AgentOutputLlmSemanticJudge
             return null;
         }
 
-        string userPayload = TrimForJudge(parsedResultJson, judgeOpts.MaxInputCharacters);
+        string userPayload = AgentOutputJudgePayloadTrimmer.Trim(parsedResultJson, judgeOpts.MaxInputCharacters);
         string systemPrompt = BuildSystemPrompt(agentType);
         string userPrompt = "traceId:" + traceId + "\nagentJson:\n" + userPayload;
 
@@ -122,18 +122,6 @@ public sealed partial class AgentOutputLlmSemanticJudge
         });
 
         return Math.Sqrt(sq / values.Count);
-    }
-
-    private static string TrimForJudge(string json, int maxChars)
-    {
-        maxChars = Math.Max(4096, maxChars);
-
-        if (json.Length <= maxChars)
-            return json;
-
-        return json.Substring(0, maxChars) +
-               "\n…truncated_total_chars=" +
-               json.Length.ToString(CultureInfo.InvariantCulture);
     }
 
     private static string BuildSystemPrompt(AgentType agentType)

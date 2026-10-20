@@ -111,6 +111,44 @@ public sealed class AgentOutputFaithfulnessEvaluatorTests
     }
 
     [Fact]
+    public async Task TryEvaluateAsync_trims_evidence_without_splitting_surrogate_pairs()
+    {
+        Mock<IAgentCompletionClient> client = new();
+        string? capturedUser = null;
+        client
+            .Setup(c => c.CompleteJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int?>(),
+                It.IsAny<float?>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<string, string, int?, float?, CancellationToken>((_, user, _, _, _) => capturedUser = user)
+            .ReturnsAsync("""{"faithfulnessScore":0.5,"rationale":"ok"}""");
+
+        const int maxChars = 4096;
+        string emoji = "\uD83D\uDE00";
+        string longDescription = new string('d', maxChars - 1) + emoji + new string('z', 100);
+
+        AgentOutputFaithfulnessEvaluator sut = CreateEvaluator(
+            client.Object,
+            qualityGateEnabled: true,
+            faithfulnessEnabled: true,
+            maxEvidenceCharacters: maxChars);
+
+        await sut.TryEvaluateAsync(
+            "trace-surrogate",
+            """{"claims":[{"text":"x","evidence":"y"}]}""",
+            EvidenceWithDescription(longDescription),
+            CancellationToken.None);
+
+        capturedUser.Should().NotBeNull();
+        int payloadEnd = capturedUser!.IndexOf("\n…truncated_total_chars=", StringComparison.Ordinal);
+        payloadEnd.Should().BeGreaterThan(0);
+        char lastEvidenceChar = capturedUser[payloadEnd - 1];
+        char.IsHighSurrogate(lastEvidenceChar).Should().BeFalse();
+    }
+
+    [Fact]
     public async Task TryEvaluateAsync_rejects_faithfulness_score_outside_judge_range()
     {
         Mock<IAgentCompletionClient> client = new();
@@ -151,7 +189,9 @@ public sealed class AgentOutputFaithfulnessEvaluatorTests
     private static AgentOutputFaithfulnessEvaluator CreateEvaluator(
         IAgentCompletionClient client,
         bool qualityGateEnabled,
-        bool faithfulnessEnabled)
+        bool faithfulnessEnabled,
+        int maxEvidenceCharacters = 12000,
+        int maxInputCharacters = 12000)
     {
         Mock<IOptionsMonitor<LlmJudgeDailyTokenBudgetOptions>> judgeBudgetOpts = new();
         judgeBudgetOpts.Setup(o => o.CurrentValue).Returns(new LlmJudgeDailyTokenBudgetOptions { Enabled = true });
@@ -168,6 +208,8 @@ public sealed class AgentOutputFaithfulnessEvaluatorTests
         {
             Enabled = faithfulnessEnabled,
             SkipWhenSimulator = false,
+            MaxEvidenceCharacters = maxEvidenceCharacters,
+            MaxInputCharacters = maxInputCharacters,
         });
 
         Mock<IOptionsMonitor<AgentOutputQualityGateOptions>> gateOpts = new();
@@ -196,7 +238,7 @@ public sealed class AgentOutputFaithfulnessEvaluatorTests
             NullLogger<AgentOutputFaithfulnessEvaluator>.Instance);
     }
 
-    private static AgentEvidencePackage SampleEvidence() =>
+    private static AgentEvidencePackage EvidenceWithDescription(string description) =>
         new()
         {
             SystemName = "Acct",
@@ -204,7 +246,7 @@ public sealed class AgentOutputFaithfulnessEvaluatorTests
             CloudProvider = "Azure",
             Request = new RequestEvidence
             {
-                Description = "Use Blob storage for archives",
+                Description = description,
             },
             ServiceCatalog =
             [
@@ -217,4 +259,7 @@ public sealed class AgentOutputFaithfulnessEvaluatorTests
                 },
             ],
         };
+
+    private static AgentEvidencePackage SampleEvidence() =>
+        EvidenceWithDescription("Use Blob storage for archives");
 }

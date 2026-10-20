@@ -107,8 +107,8 @@ public sealed class AgentOutputFaithfulnessEvaluator(
             return null;
         }
 
-        string evidenceText = TrimForJudge(index.FullBlob, opts.MaxEvidenceCharacters);
-        string agentJson = TrimForJudge(parsedResultJson, opts.MaxInputCharacters);
+        string evidenceText = AgentOutputJudgePayloadTrimmer.Trim(index.FullBlob, opts.MaxEvidenceCharacters);
+        string agentJson = AgentOutputJudgePayloadTrimmer.Trim(parsedResultJson, opts.MaxInputCharacters);
 
         ResolvedSystemPrompt systemResolved = FaithfulnessJudgePromptResolver.Resolve();
         AgentPromptActivityTags.Apply(systemResolved);
@@ -155,18 +155,6 @@ public sealed class AgentOutputFaithfulnessEvaluator(
 
             return null;
         }
-    }
-
-    private static string TrimForJudge(string text, int maxChars)
-    {
-        maxChars = Math.Max(4096, maxChars);
-
-        if (text.Length <= maxChars)
-            return text;
-
-        return text.Substring(0, maxChars) +
-               "\n…truncated_total_chars=" +
-               text.Length.ToString(CultureInfo.InvariantCulture);
     }
 
     private static double? TryParseFaithfulnessResponse(string raw)
