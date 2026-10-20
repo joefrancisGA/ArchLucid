@@ -5758,3 +5758,4 @@
 {"at":"2026-10-20T23:25:31.4649154Z","zoneId":"extraction-router","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-20T23:28:50.031371Z","zoneId":"scim-users","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Persistence/Scim/SqlScimUserFilterTranslator.cs,ArchLucid.Core/Scim/Filtering/ScimFilterInMemoryEvaluator.cs)"]}
 {"at":"2026-10-20T23:34:17.0374518Z","zoneId":"orchestrator-transient-retry","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-20T23:36:45.3837176Z","zoneId":"agent-runtime-evaluation","outcome":"hit","productLine":"archlucid-shared"}
