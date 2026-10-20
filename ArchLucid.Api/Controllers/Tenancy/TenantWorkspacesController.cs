@@ -41,8 +41,4 @@ public sealed partial class TenantWorkspacesController(
 
     private readonly IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions> _retentionPurgeOptions =
         retentionPurgeOptions ?? throw new ArgumentNullException(nameof(retentionPurgeOptions));
-
-    private static IReadOnlyList<TenantWorkspaceListItem> CoalesceWorkspaces(
-        IReadOnlyList<TenantWorkspaceListItem>? workspaces) =>
-        workspaces ?? Array.Empty<TenantWorkspaceListItem>();
 }

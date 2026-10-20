@@ -1,3 +1,4 @@
+using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -66,8 +67,8 @@ internal static class TenantWorkspaceScopePreflight
         if (tenantRepository is IWorkspaceQueryTenantRepository workspaceQuery)
             return await workspaceQuery.WorkspaceExistsAsync(tenantId, workspaceId, cancellationToken).ConfigureAwait(false);
 
-        IReadOnlyList<TenantWorkspaceListItem> workspaces =
-            await tenantRepository.ListWorkspacesAsync(tenantId, cancellationToken).ConfigureAwait(false);
+        IReadOnlyList<TenantWorkspaceListItem> workspaces = TenantWorkspaceInventoryCoalesce.CoalesceWorkspaces(
+            await tenantRepository.ListWorkspacesAsync(tenantId, cancellationToken).ConfigureAwait(false));
 
         return workspaces.Any(workspace => workspace.WorkspaceId == workspaceId);
     }

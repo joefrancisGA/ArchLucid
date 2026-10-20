@@ -28,7 +28,7 @@ public sealed partial class TenantWorkspacesController
         if (tenant is null)
             return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
-        IReadOnlyList<TenantWorkspaceListItem> workspaces = CoalesceWorkspaces(
+        IReadOnlyList<TenantWorkspaceListItem> workspaces = TenantWorkspaceInventoryCoalesce.CoalesceWorkspaces(
             await _tenantRepository.ListWorkspacesAsync(scope.TenantId, cancellationToken));
 
         TenantWorkspaceListItem? currentWorkspace =
