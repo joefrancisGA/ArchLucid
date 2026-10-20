@@ -28,8 +28,9 @@ jobs:
       - name: Dispatch ci.yml on master
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
           HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           set -euo pipefail
-          gh workflow run ci.yml --ref master -f run_extended_live_a11y_matrix=false
+          gh workflow run ci.yml --repo "${GH_REPO}" --ref master -f run_extended_live_a11y_matrix=false
           echo "Queued full CI on master for commit ${HEAD_SHA}"
