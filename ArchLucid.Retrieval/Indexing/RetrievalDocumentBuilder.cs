@@ -87,6 +87,7 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
         }
 
         var topology = manifest.Topology;
+
         if (topology.Services.Count > 0 || topology.Datastores.Count > 0 || topology.Relationships.Count > 0)
         {
             List<string> serviceNames = topology.Services

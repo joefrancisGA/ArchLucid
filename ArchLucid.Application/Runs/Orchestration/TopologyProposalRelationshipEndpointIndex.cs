@@ -34,6 +34,7 @@ public static partial class TopologyProposalRelationshipEndpointIndex
         AddEndpointKey(endpointKeys, node.NodeId);
 
         // "ProposedChanges" is a provenance sentinel shared by every topology-agent node, not an architecture endpoint.
+
         if (!TopologyProposalGraphNodeMatchers.IsAgentProposedSourceSentinel(node.SourceId))
         {
             AddEndpointKey(endpointKeys, node.SourceId);

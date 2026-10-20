@@ -190,6 +190,7 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
         {
             // An abstract controller with no members of its own still inherits actions. The empty-type
             // diagnostic is for controllers that do not already expose an authorized inherited action.
+
             if (symbol.IsAbstract &&
                 InheritedPublicApiActionsAreAllAuthorized(
                     symbol,
@@ -203,6 +204,7 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
 
             // Non-public and [NonAction] route-marked members are not API actions; do not emit a
             // type-level AL0001 when the controller exposes no public actions (e.g. protected helpers).
+
             if (!symbol.IsAbstract &&
                 !foundPublicApiAction &&
                 (SymbolHasNonPublicRouteAttributedMember(symbol, nonActionAttribute) ||
