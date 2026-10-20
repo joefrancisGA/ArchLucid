@@ -161,8 +161,10 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
 
                     foundPublicApiAction = true;
 
-                    // Declared actions already accept interface [Authorize]. Inherited actions must use the same check.
-                    if (ActionHasAuthorization(inheritedMethod, authorizeAttribute, allowAnonymousAttribute))
+                    if (InheritedPublicApiActionHasAuthorization(
+                            inheritedMethod,
+                            authorizeAttribute,
+                            allowAnonymousAttribute))
                     {
                         continue;
                     }
@@ -313,6 +315,55 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
         }
 
         return MethodInheritsAuthorizeOrAllowAnonymousFromInterfaces(method, authorizeAttribute, allowAnonymousAttribute);
+    }
+
+    private static bool InheritedPublicApiActionHasAuthorization(
+        IMethodSymbol inheritedMethod,
+        INamedTypeSymbol? authorizeAttribute,
+        INamedTypeSymbol? allowAnonymousAttribute)
+    {
+        if (inheritedMethod.MethodKind == MethodKind.ExplicitInterfaceImplementation)
+        {
+            return ExplicitInterfaceImplementationHasAuthorization(
+                inheritedMethod,
+                authorizeAttribute,
+                allowAnonymousAttribute);
+        }
+
+        return ActionHasAuthorization(inheritedMethod, authorizeAttribute, allowAnonymousAttribute);
+    }
+
+    private static bool ExplicitInterfaceImplementationHasAuthorization(
+        IMethodSymbol method,
+        INamedTypeSymbol? authorizeAttribute,
+        INamedTypeSymbol? allowAnonymousAttribute)
+    {
+        if (SymbolHasAuthorizeOrAllowAnonymous(method, authorizeAttribute, allowAnonymousAttribute))
+        {
+            return true;
+        }
+
+        if (MethodInheritsAuthorizeOrAllowAnonymousFromOverriddenChain(method, authorizeAttribute, allowAnonymousAttribute))
+        {
+            return true;
+        }
+
+        foreach (IMethodSymbol interfaceMethod in method.ExplicitInterfaceImplementations)
+        {
+            if (SymbolHasAuthorizeOrAllowAnonymous(interfaceMethod, authorizeAttribute, allowAnonymousAttribute))
+            {
+                return true;
+            }
+
+            INamedTypeSymbol iface = interfaceMethod.ContainingType;
+
+            if (SymbolHasAuthorizeOrAllowAnonymous(iface, authorizeAttribute, allowAnonymousAttribute))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static bool InheritsFromControllerBase(INamedTypeSymbol type, INamedTypeSymbol controllerBase)
