@@ -5685,3 +5685,4 @@
 {"at":"2026-10-20T19:47:35.9416886Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/oidc/"]}
 {"at":"2026-10-20T19:50:56.946192Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/oidc/"]}
 {"at":"2026-10-20T19:53:12.8912433Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/oidc/"]}
+{"at":"2026-10-20T19:56:02.7271236Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/lib/oidc/)"]}
