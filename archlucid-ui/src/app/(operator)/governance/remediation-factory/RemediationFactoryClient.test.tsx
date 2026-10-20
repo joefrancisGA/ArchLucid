@@ -226,7 +226,10 @@ import {
   SECURENOW_PATH_RANKED_PATHS_TITLE,
 } from "@/lib/product-line/securenow-path-inspect-copy";
 import { REMEDIATION_FACTORY_EXECUTIVE_METRICS_TITLE } from "./remediation-factory-metric-presentation";
-import { REMEDIATION_FACTORY_PATH_INSPECT_PANEL_ID } from "./remediation-factory-page-copy";
+import {
+  REMEDIATION_FACTORY_PAGE_SUBTITLE,
+  REMEDIATION_FACTORY_PATH_INSPECT_PANEL_ID,
+} from "./remediation-factory-page-copy";
 
 describe("RemediationFactoryClient", () => {
   beforeEach(() => {
@@ -280,7 +283,8 @@ describe("RemediationFactoryClient", () => {
     expect(screen.getByTestId("remediation-factory-page")).toBeInTheDocument();
     expect(screen.getByTestId("remediation-factory-page-title")).toHaveTextContent("Priorities & Waves");
     expect(screen.queryByTestId("remediation-factory-claim-discipline")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("remediation-factory-page-lead")).not.toBeInTheDocument();
+    expect(screen.getByTestId("remediation-factory-page-lead")).toHaveTextContent(REMEDIATION_FACTORY_PAGE_SUBTITLE);
+    expect(screen.queryByText(/wave planning/i)).not.toBeInTheDocument();
     expect(screen.getByTestId("remediation-factory-last-refreshed")).toBeInTheDocument();
     expect(screen.getByTestId("remediation-factory-context-strip")).toBeInTheDocument();
     expect(screen.getByTestId("remediation-factory-page-shortcuts")).toBeInTheDocument();

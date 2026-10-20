@@ -114,6 +114,7 @@ import { useRemediationFactoryUrlState } from "./use-remediation-factory-url-sta
 import { REMEDIATION_FACTORY_RANKED_PATHS_DEFAULT_PAGE_SIZE } from "./remediation-factory-url-state";
 import {
   REMEDIATION_FACTORY_OPEN_WAVES_LABEL,
+  REMEDIATION_FACTORY_PAGE_SUBTITLE,
   REMEDIATION_FACTORY_PATH_INSPECT_PANEL_ID,
   REMEDIATION_FACTORY_PRIMARY_CONTENT_ID,
   REMEDIATION_FACTORY_SKIP_LINK_LABEL,
@@ -537,6 +538,8 @@ export function RemediationFactoryClient() {
         navHref={navHref}
         title={pageTitle}
         titleTestId="remediation-factory-page-title"
+        subtitle={REMEDIATION_FACTORY_PAGE_SUBTITLE}
+        subtitleTestId="remediation-factory-page-lead"
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
