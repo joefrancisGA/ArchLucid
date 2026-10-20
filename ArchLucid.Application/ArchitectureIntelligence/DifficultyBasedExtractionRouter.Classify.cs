@@ -144,33 +144,6 @@ public sealed partial class DifficultyBasedExtractionRouter
         return -1;
     }
 
-    private static bool IsValidMarkerStartBoundary(char previous) =>
-        !char.IsLetterOrDigit(previous)
-        && previous != '-'
-        && previous != '_'
-        && previous != '.'
-        && previous != '/'
-        && previous != ':'
-        && previous != '@'
-        && previous != '?'
-        && previous != '&'
-        && previous != '#'
-        && previous != '='
-        && previous != '('
-        && previous != '['
-        && previous != '`';
-
-    private static bool IsValidMarkerEndBoundary(char next) =>
-        !char.IsLetterOrDigit(next)
-        && next != '-'
-        && next != '_'
-        && next != '@'
-        && next != '/'
-        && next != '='
-        && next != ')'
-        && next != ']'
-        && next != '`';
-
     private static bool ContainsAny(string sourceText, params string[] needles)
     {
         return needles.Any(needle => ContainsHumanReviewMarker(sourceText, needle));
