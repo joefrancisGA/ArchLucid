@@ -126,6 +126,78 @@ public sealed class RetrievalDocumentBuilderTests
     }
 
     [Fact]
+    public void BuildForManifest_missing_decision_id_uses_emitted_ordinal_not_raw_list_index()
+    {
+        Guid runId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+        ResolvedArchitectureDecision activeDecision = new()
+        {
+            DecisionId = null!,
+            Title = "Use private endpoints",
+            Category = "Security",
+            SelectedOption = "Private Link",
+            Rationale = "Reduce public exposure.",
+        };
+
+        List<ResolvedArchitectureDecision> withLeadingBlankTitle =
+        [
+            new()
+            {
+                DecisionId = null!,
+                Title = "   ",
+                Category = "Cost",
+                SelectedOption = "Skip",
+                Rationale = "Blank title row should not shift generated identity.",
+            },
+            activeDecision,
+        ];
+
+        ManifestDocument withLeadingBlank = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            RunId = runId,
+            ManifestId = manifestId,
+            CreatedUtc = DateTime.UtcNow,
+            ManifestHash = "hash",
+            RuleSetId = "rules",
+            RuleSetVersion = "1",
+            RuleSetHash = "rh",
+            Metadata = new ArchLucid.Core.Manifest.Sections.ManifestMetadata { Name = "Retail API" },
+            Decisions = withLeadingBlankTitle,
+        };
+
+        ManifestDocument solo = new()
+        {
+            TenantId = withLeadingBlank.TenantId,
+            WorkspaceId = withLeadingBlank.WorkspaceId,
+            ProjectId = withLeadingBlank.ProjectId,
+            RunId = runId,
+            ManifestId = manifestId,
+            CreatedUtc = withLeadingBlank.CreatedUtc,
+            ManifestHash = withLeadingBlank.ManifestHash,
+            RuleSetId = withLeadingBlank.RuleSetId,
+            RuleSetVersion = withLeadingBlank.RuleSetVersion,
+            RuleSetHash = withLeadingBlank.RuleSetHash,
+            Metadata = withLeadingBlank.Metadata,
+            Decisions = [activeDecision],
+        };
+
+        RetrievalDocumentBuilder sut = new();
+
+        string withLeadingBlankDocumentId = sut.BuildForManifest(withLeadingBlank)
+            .Single(document => document.SourceType == "ManifestDecision")
+            .DocumentId;
+
+        string soloDocumentId = sut.BuildForManifest(solo)
+            .Single(document => document.SourceType == "ManifestDecision")
+            .DocumentId;
+
+        soloDocumentId.Should().Be(withLeadingBlankDocumentId);
+    }
+
+    [Fact]
     public void BuildForFindings_missing_finding_id_is_stable_across_rebuilds()
     {
         Guid runId = Guid.NewGuid();

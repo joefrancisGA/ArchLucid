@@ -80,6 +80,12 @@ public sealed class CachingEmbeddingService(
 
         IReadOnlyList<float[]> embedded = await _inner.EmbedManyAsync(missTexts, ct).ConfigureAwait(false);
 
+        if (embedded.Count != missTexts.Count)
+        {
+            throw new InvalidOperationException(
+                $"Embedding provider returned {embedded.Count} vectors for {missTexts.Count} texts.");
+        }
+
         for (int m = 0; m < missIndexes.Count; m++)
         {
             float[] vector = embedded[m];

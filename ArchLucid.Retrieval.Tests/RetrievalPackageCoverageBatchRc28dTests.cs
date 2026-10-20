@@ -123,6 +123,64 @@ public sealed class RetrievalPackageCoverageBatchRc28dTests
     }
 
     [Fact]
+    public void PriorManifestRetrievalDocumentBuilder_BuildFromManifest_missing_decision_id_uses_emitted_ordinal_not_raw_list_index()
+    {
+        Guid runId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid manifestId = Guid.Parse("44444444-4444-4444-4444-444444444444");
+        ResolvedArchitectureDecision activeDecision = new()
+        {
+            DecisionId = null!,
+            Category = "Security",
+            Title = "Prefer private endpoints",
+            SelectedOption = "Private Link",
+            Rationale = "Reduce public exposure.",
+        };
+
+        ManifestDocument withLeadingBlank = new()
+        {
+            TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            RunId = runId,
+            ManifestId = manifestId,
+            Decisions =
+            [
+                new ResolvedArchitectureDecision
+                {
+                    DecisionId = null!,
+                    Category = "Cost",
+                    Title = "   ",
+                    SelectedOption = "Skip",
+                    Rationale = "Blank title row should not shift generated identity.",
+                },
+                activeDecision,
+            ],
+        };
+
+        ManifestDocument solo = new()
+        {
+            TenantId = withLeadingBlank.TenantId,
+            WorkspaceId = withLeadingBlank.WorkspaceId,
+            ProjectId = withLeadingBlank.ProjectId,
+            RunId = runId,
+            ManifestId = manifestId,
+            Decisions = [activeDecision],
+        };
+
+        string withLeadingBlankDocumentId = PriorManifestRetrievalDocumentBuilder
+            .BuildFromManifest(withLeadingBlank, DateTime.UtcNow)
+            .Single()
+            .DocumentId;
+
+        string soloDocumentId = PriorManifestRetrievalDocumentBuilder
+            .BuildFromManifest(solo, DateTime.UtcNow)
+            .Single()
+            .DocumentId;
+
+        soloDocumentId.Should().Be(withLeadingBlankDocumentId);
+    }
+
+    [Fact]
     public void PolicyPackChunker_handles_empty_header_fallback_and_sentence_windows()
     {
         PolicyPackChunker chunker = new();

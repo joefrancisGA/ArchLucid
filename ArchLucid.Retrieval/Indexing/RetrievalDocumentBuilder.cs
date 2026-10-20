@@ -44,6 +44,8 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
             }
         ];
 
+        int emittedDecisionOrdinal = 0;
+
         for (int decisionIndex = 0; decisionIndex < manifest.Decisions.Count; decisionIndex++)
         {
             ResolvedArchitectureDecision decision = manifest.Decisions[decisionIndex];
@@ -53,7 +55,7 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
 
             // JSON deserialization can leave DecisionId null; the manifest-scoped index keeps retries stable.
             string decisionId = string.IsNullOrWhiteSpace(decision.DecisionId)
-                ? $"generated-{manifest.ManifestId:N}-{decisionIndex}"
+                ? $"generated-{manifest.ManifestId:N}-{emittedDecisionOrdinal}"
                 : decision.DecisionId.Trim();
 
             string rationale = string.IsNullOrWhiteSpace(decision.Rationale) ? string.Empty : decision.Rationale.Trim();
@@ -84,6 +86,8 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
                 CreatedUtc = manifest.CreatedUtc,
                 DecisionId = decisionId
             });
+
+            emittedDecisionOrdinal++;
         }
 
         var topology = manifest.Topology;
