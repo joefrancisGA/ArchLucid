@@ -96,6 +96,20 @@ jobs:
           version: "8.30.1"
           config-path: .gitleaks.toml
 
+  beta-readiness-wiring-guards:
+    name: "CI: beta-readiness wiring guards"
+    if: github.event_name == 'pull_request'
+    needs: gitleaks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Beta-readiness wiring guards (trunk gate parity with push corset)
+        run: |
+          bash scripts/ci/run_beta_readiness_wiring_guards.sh
+          bash scripts/ci/run_beta_readiness_wiring_guard_unit_tests.sh
+
   # Resolves committed real-mode marker files for job-level conditions (hashFiles is step-scoped only).
   real-mode-ci-flags:
     name: "CI: real-mode flags"

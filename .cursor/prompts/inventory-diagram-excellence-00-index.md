@@ -152,6 +152,7 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-14q** Closeout capstone 14p heading sync (Vitest) | **Shipped** on trunk — extend only | Capstone heading still titles 14a–14o after 14p ships |
 | **IDX-14r** Closeout capstone 14q heading sync (Vitest) | **Shipped** on trunk — extend only | Capstone heading still titles 14a–14p after 14q ships |
 | **IDX-14s** Closeout capstone 14r heading sync (Vitest) | **Shipped** on trunk — extend only | Capstone heading still titles 14a–14q after 14r ships |
+| **IDX-14t** Closeout capstone 14s heading sync (Vitest) | **Shipped** on trunk — extend only | Capstone heading still titles 14a–14r after 14s ships |
 | **IDX-HOLD** | Not implementation | — |
 
 ### Data Flow hub pipeline wave (IDX-07f–13u) — complete
@@ -270,7 +271,7 @@ Singleton-tail, connection rollup, PE opt-in, completeness, hop-focus, cross-mod
 
 Next cross-mode work is **extend-only** (regression fixes). Pick **IDX-05** when a mode keeps subnet nodes visible, **IDX-08** / **IDX-13** base deepening, or **IDX-HOLD** for new scope.
 
-### Excellence index closeout wave (IDX-14a–14r) — complete
+### Excellence index closeout wave (IDX-14a–14s) — complete
 
 Cross-mode and deepening index closeout umbrellas are documented and Vitest-ratcheted. Run the closeout capstone bundle:
 
@@ -363,6 +364,7 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-excellence-<s
 | 14q | `inventory-diagram-excellence-14q-closeout-capstone-14p-heading.md` | Capstone heading still titles 14a–14o after 14p |
 | 14r | `inventory-diagram-excellence-14r-closeout-capstone-14q-heading.md` | Capstone heading still titles 14a–14p after 14q |
 | 14s | `inventory-diagram-excellence-14s-closeout-capstone-14r-heading.md` | Capstone heading still titles 14a–14q after 14r |
+| 14t | `inventory-diagram-excellence-14t-closeout-capstone-14s-heading.md` | Capstone heading still titles 14a–14r after 14s |
 | HOLD | `inventory-diagram-excellence-14-hold.md` | Complete-graph / default PE / icons / RBAC dump |
 
 ## Prerequisites (do not re-implement)

@@ -25,14 +25,14 @@ function edge(
 
 describe("infra-evidence-diagram-family", () => {
   it("prefers inference sources over labels", () => {
-    expect(resolveInfraEvidenceDiagramFamily(edge("May access", "inventory-hostname-inferred-target"))).toBe(
-      "InferredHostname",
+    expect(resolveInfraEvidenceDiagramFamily(edge("From app settings", "inventory-hostname-inferred-target"))).toBe(
+      "AppSettingsHost",
     );
   });
 
-  it("maps app-setting host inference sources to Likely connected family", () => {
+  it("maps app-setting host inference sources to From app settings family", () => {
     expect(resolveInfraEvidenceDiagramFamily(edge("From app settings", "inventory-storage-host-ref"))).toBe(
-      "InferredHostname",
+      "AppSettingsHost",
     );
   });
 

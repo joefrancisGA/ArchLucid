@@ -33,6 +33,7 @@ const EVIDENCE_FAMILY_VALUES = new Set([
   "DeclaredMovement",
   "AuthorizedAccess",
   "StructuralNetworkPath",
+  "AppSettingsHost",
   "InferredHostname",
   "HumanConfirmed",
   "ObservedRuntime",

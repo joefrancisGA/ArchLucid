@@ -66,9 +66,21 @@ public sealed class DiagramEdgeVisualKindResolverTests
     }
 
     [Fact]
-    public void From_deterministic_inference_returns_inferred()
+    public void From_deterministic_inference_app_setting_host_returns_declared()
     {
         DiagramEdgeVisualKindResolver.From("DeterministicInference", GraphEdgeInferenceSources.InventoryHostnameInferredTarget)
+            .Should()
+            .Be(DiagramEdgeVisualKind.Declared);
+
+        DiagramEdgeVisualKindResolver.From("DeterministicInference", GraphEdgeInferenceSources.InventoryStorageHostRef)
+            .Should()
+            .Be(DiagramEdgeVisualKind.Declared);
+    }
+
+    [Fact]
+    public void From_deterministic_inference_synapse_linked_service_guess_returns_inferred()
+    {
+        DiagramEdgeVisualKindResolver.From("DeterministicInference", GraphEdgeInferenceSources.InventorySynapseLinkedServiceInferred)
             .Should()
             .Be(DiagramEdgeVisualKind.Inferred);
     }
