@@ -53,7 +53,8 @@ public sealed partial class TenantWorkspacesController
         if (projectPinnedAsDefaultMetadata)
         {
             IReadOnlyList<ArchitectureProjectRecord> activeProjects =
-                await _architectureProjectRepository.ListActiveByTenantAsync(scope.TenantId, cancellationToken);
+                await _architectureProjectRepository.ListActiveByTenantAsync(scope.TenantId, cancellationToken)
+                ?? Array.Empty<ArchitectureProjectRecord>();
 
             bool projectIsActiveInCallerWorkspace = activeProjects.Any(
                 p => p.WorkspaceId == workspaceId && p.Id == projectId);

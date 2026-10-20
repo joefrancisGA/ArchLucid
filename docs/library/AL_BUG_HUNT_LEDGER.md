@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
+2026-10-20 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `TenantWorkspacesController.DeleteProjectAsync` calling `ListActiveByTenantAsync` on the cross-workspace default-metadata pin guard without `?? Array.Empty<ArchitectureProjectRecord>()`, so when another workspace pinned the scoped project as default and the active list was null the delete path threw `NullReferenceException` instead of soft-deleting; null-coalesce parity with `ListAsync`; regression `DeleteProjectAsync_returns_no_content_when_active_list_is_null_and_foreign_workspace_pins_project_metadata`; 14 scoped DeleteProject tests passed.
+
 2026-10-20 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceController.GetDashboard` / `GetComplianceDriftTrend` running scope posture sealed-manifest guard before aggregated insights reads, so governance dashboard and compliance drift trend returned HTTP 409 when the latest committed project run failed hash verification unrelated to the insight query; remove scope guard (approval lineage/rationale keep per-request sealed-manifest guards); regressions `GetDashboard_reaches_facade_when_scope_posture_sealed_manifest_would_conflict` and `GetComplianceDriftTrend_reaches_facade_when_scope_posture_sealed_manifest_would_conflict`.
 
 2026-10-20 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceController.BatchReviewApprovalRequests` running scope posture sealed-manifest guard before per-item batch review, so POST /v1/governance/approval-requests/batch-review returned HTTP 409 when the latest committed project run failed hash verification unrelated to approval runs in the batch; remove scope guard (single-item approve/reject still uses per-request sealed-manifest read guard); regression `BatchReviewApprovalRequests_reaches_facade_when_scope_posture_sealed_manifest_would_conflict`.
@@ -36666,11 +36668,21 @@ heap-disproved mermaid typed-topology candidate.
 ---
 
 ## Zone: api-governance-tenancy-controllers
+2026-10-20 seed hunt (seed→hit): promoted `TenantWorkspacesController.DeleteProjectAsync` null `ListActiveByTenantAsync` on default-metadata pin guard (NRE); regression `DeleteProjectAsync_returns_no_content_when_active_list_is_null_and_foreign_workspace_pins_project_metadata`.
+
+- [x] (proven) `TenantWorkspacesController.DeleteProjectAsync` — `ListActiveByTenantAsync` null on cross-workspace default-metadata pin guard threw before soft-delete — regression above.
+
+- (candidate) `GovernanceStickinessController` — revoke/renew risk exception sealed guard vs purged manifest-compare run — locus: `EnsureRiskExceptionRunSealedManifestAllowedAsync`; input: cheap-disproof after disposition guard null-detail skip.
+- (candidate) `GovernancePreCommitSimulationController.SealedManifestGuard` — missing run id returns 409 before checklist 404 — locus: pre-commit routes; input: `(valid-no-repro)` run repository preflight precedes guard.
+- (candidate) `GovernanceController` — approval lineage/rationale per-request sealed guard when manifest missing — locus: `EnsureSealedManifestReadAllowedForApprovalRequestAsync`; input: verify 404 vs 409 semantics.
+- (candidate) `GovernanceController` insights GET routes — scope posture sealed guard vs empty committed-run catalog — locus: remaining insights list endpoints; input: verify intended fail-closed posture.
+- (candidate) `TenantWorkspacesController` project CRUD — audit `ActorUserName` when `Identity.Name` null — locus: soft-delete/restore audits; input: service principal without display name claim.
+
 2026-10-20 seed hunt (seed→hit): promoted insights dashboard/drift scope posture sealed-manifest over-block; regressions `GetDashboard_reaches_facade_when_scope_posture_sealed_manifest_would_conflict` and `GetComplianceDriftTrend_reaches_facade_when_scope_posture_sealed_manifest_would_conflict`.
 
 - [x] (proven) `GovernanceController.GetDashboard` / `GetComplianceDriftTrend` — scope `EnsureGovernanceInsightsScopeSealedManifestReadAllowedAsync` blocked aggregated insights reads with HTTP 409 when latest committed run failed sealed-hash verification — regressions above.
 
-- (candidate) `TenantWorkspacesController.DeleteProjectAsync` — `ListActiveByTenantAsync` null without coalesce — locus: default-project metadata branch; input: align with `RestoreProjectAsync` / `ListAsync`.
+- [x] (invalid) `TenantWorkspacesController.DeleteProjectAsync` — `ListActiveByTenantAsync` null without coalesce — **hit 2026-10-20 seed hunt #5:** fixed with `?? Array.Empty`; regression `DeleteProjectAsync_returns_no_content_when_active_list_is_null_and_foreign_workspace_pins_project_metadata`.
 - (candidate) `GovernanceStickinessController` — revoke/renew risk exception sealed guard vs purged manifest-compare run — locus: `EnsureRiskExceptionRunSealedManifestAllowedAsync`; input: cheap-disproof after disposition guard null-detail skip.
 - (candidate) `GovernancePreCommitSimulationController.SealedManifestGuard` — missing run id returns 409 before checklist 404 — locus: pre-commit routes; input: `(valid-no-repro)` run repository preflight precedes guard.
 - (candidate) `GovernancePreviewController.Preview` — run-scoped sealed guard vs missing manifest-compare run — locus: preview POST; input: cheap-disproof after null-detail skip.
@@ -38499,7 +38511,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - [x] (proven) `TenantWorkspacesController.ListAsync` — `ListActiveByTenantAsync` null before `ToLookup` — **hit 2026-10-15 seed hunt:** regression `ListAsync_returns_ok_with_empty_projects_when_active_project_list_is_null`.
 
-- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` — `ListActiveByTenantAsync` null during tenant-wide default-metadata pin guard may throw instead of failing closed with HTTP 409/503 (reachable input: defective repository/test double returning null while metadata pins `projectId`).
+- [x] (proven) `TenantWorkspacesController.DeleteProjectAsync` — `ListActiveByTenantAsync` null during tenant-wide default-metadata pin guard threw before soft-delete — **hit 2026-10-20 seed hunt (api-governance-tenancy-controllers #5):** `?? Array.Empty` parity with `ListAsync`; regression `DeleteProjectAsync_returns_no_content_when_active_list_is_null_and_foreign_workspace_pins_project_metadata`.
 - [ ] (candidate) `TenantIntegrationsOperationsController.GetAsync` — `ConnectorOperationsSummary.Surfaces` null before `.Select` (reachable input: summary reader returns null collection).
 - [ ] (candidate) `TenantErasureLegalHoldController.SetLegalHoldAsync` — empty-string `Reason` after trim stored vs omitted (reachable input: whitespace-only reason body).
 - [ ] (candidate) `TenantUsageStatusController.GetUsageStatusAsync` — trial tenant with null `CommercialTier` in snapshot maps to unexpected response default (reachable input: `BuildAsync` snapshot for trial row).
