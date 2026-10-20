@@ -34,10 +34,27 @@ public sealed partial class TenantWorkspacesController
         if (FindWorkspace(workspaces, scope.WorkspaceId) is null)
             return this.NotFoundProblem("Workspace was not found for this tenant.", ProblemTypes.ResourceNotFound);
 
-        TenantWorkspaceListItem displayWorkspace = ResolveWorkspaceInventoryRowForScope(
+        IReadOnlyList<ArchitectureProjectRecord> activeProjects =
+            await _architectureProjectRepository.ListActiveByTenantAsync(scope.TenantId, cancellationToken)
+            ?? Array.Empty<ArchitectureProjectRecord>();
+
+        List<TenantWorkspaceProjectApiDto> workspaceActiveProjects = activeProjects
+            .Where(p => p.WorkspaceId == scope.WorkspaceId)
+            .OrderBy(static p => p.Name, StringComparer.OrdinalIgnoreCase)
+            .Select(
+                p => new TenantWorkspaceProjectApiDto
+                {
+                    ProjectId = p.Id,
+                    Name = p.Name,
+                    DisplayName = p.Name
+                })
+            .ToList();
+
+        TenantWorkspaceListItem displayWorkspace = ResolveScopedWorkspaceInventoryRow(
             workspaces,
             scope.WorkspaceId,
-            scope.ProjectId)!;
+            scope.ProjectId,
+            workspaceActiveProjects)!;
 
         IReadOnlyList<ArchitectureProjectRecord> deleted =
             await _architectureProjectRepository.ListSoftDeletedByTenantAsync(scope.TenantId, cancellationToken)

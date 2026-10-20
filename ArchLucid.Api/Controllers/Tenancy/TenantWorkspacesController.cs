@@ -123,20 +123,4 @@ public sealed partial class TenantWorkspacesController(
         return FindWorkspace(workspaces, workspaceId);
     }
 
-    private static TenantWorkspaceListItem? ResolveWorkspaceInventoryRowForScope(
-        IReadOnlyList<TenantWorkspaceListItem> workspaces,
-        Guid workspaceId,
-        Guid scopedProjectId)
-    {
-        if (scopedProjectId != Guid.Empty)
-        {
-            TenantWorkspaceListItem? scopePinRow = workspaces.FirstOrDefault(
-                w => w.WorkspaceId == workspaceId && w.DefaultProjectId == scopedProjectId);
-
-            if (scopePinRow is not null)
-                return scopePinRow;
-        }
-
-        return FindWorkspace(workspaces, workspaceId);
-    }
 }
