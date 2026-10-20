@@ -72,4 +72,8 @@ describe("pickDisplayNameFromPayload", () => {
     expect(pickDisplayNameFromPayload({ name: "\u200bJane Operator\u200b" })).toBe("Jane Operator");
     expect(pickDisplayNameFromPayload({ preferred_username: "\u200b" })).toBeNull();
   });
+
+  it("collapses interior zero-width characters in display-name claims instead of gluing words", () => {
+    expect(pickDisplayNameFromPayload({ name: "John\u200bDoe" })).toBe("John Doe");
+  });
 });

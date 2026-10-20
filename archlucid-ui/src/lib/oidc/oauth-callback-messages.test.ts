@@ -47,6 +47,11 @@ describe("decodeOAuthErrorDescription", () => {
     expect(decodeOAuthErrorDescription("%E0%A4%A")).toBe("%E0%A4%A");
   });
 
+  it("preserves literal percent signs in authorize error descriptions when not percent-encoded", () => {
+    expect(decodeOAuthErrorDescription("50% off")).toBe("50% off");
+    expect(decodeOAuthErrorDescription("a%zz")).toBe("a%zz");
+  });
+
   it("collapses percent-encoded line breaks to spaces for single-line callback copy", () => {
     expect(decodeOAuthErrorDescription("Policy%20denied%0D%0Ainjected")).toBe("Policy denied injected");
   });
@@ -126,6 +131,10 @@ describe("humanizeAuthorizeCallbackError", () => {
 
   it("maps interaction_required when the error query glues the code with an interior zero-width character", () => {
     expect(humanizeAuthorizeCallbackError("interaction\u200brequired", "")).toContain("Another sign-in step");
+  });
+
+  it("maps access_denied when the error query glues the code with a soft hyphen", () => {
+    expect(humanizeAuthorizeCallbackError("access\u00ADdenied", "")).toContain("canceled sign-in");
   });
 
   it("maps interaction and consent cases", () => {

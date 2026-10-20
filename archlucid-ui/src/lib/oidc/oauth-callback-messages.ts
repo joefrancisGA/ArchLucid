@@ -14,6 +14,11 @@ export function normalizeOidcConfigurationString(value: string): string {
   return stripOAuthInvisibleFormatChars(value.trim()).trim();
 }
 
+/** Normalizes human-readable OIDC claim copy (names, titles) for session display. */
+export function normalizeOidcDisplayString(value: string): string {
+  return collapseOAuthErrorDescriptionLineBreaks(value.trim());
+}
+
 function isOAuthInvisibleFormatChar(char: string): boolean {
   if (char.length === 0) {
     return false;
