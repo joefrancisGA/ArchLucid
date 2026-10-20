@@ -27,6 +27,13 @@ function accessTokenWithSubjectClaim(sub: string = "user-test"): string {
   return `${header}.${payload}.sig`;
 }
 
+function idTokenWithSubjectClaim(sub: string, name?: string): string {
+  const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
+  const payload = Buffer.from(JSON.stringify({ sub, ...(name ? { name } : {}) })).toString("base64url");
+
+  return `${header}.${payload}.sig`;
+}
+
 describe("ensureAccessTokenFresh (LK-06 P2 BFF refresh)", () => {
   beforeEach(() => {
     sessionStorage.clear();
@@ -328,6 +335,50 @@ describe("ensureAccessTokenFresh (LK-06 P2 BFF refresh)", () => {
 
     expect(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY)).toBeNull();
     expect(sessionStorage.getItem(OIDC_USER_SUBJECT_KEY)).toBeNull();
+  });
+
+  it("does not clear a replacement sign-in when a pre-refresh BFF 401 arrives after subject is restored via id_token while display hint remains", async () => {
+    let releaseRefresh: (() => void) | undefined;
+    const expiredHintMs = Date.now();
+
+    vi.mocked(bffSessionSync.refreshBffSessionCookie).mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          releaseRefresh = () => {
+            resolve({ ok: false, shouldClearSession: true });
+          };
+        }),
+    );
+    vi.spyOn(bffSessionSync, "syncBffSessionCookieFromTokenResponse").mockResolvedValue();
+
+    sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, "user-before-strip");
+    sessionStorage.setItem(OIDC_DISPLAY_NAME_KEY, "Jane Operator");
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(expiredHintMs));
+
+    const refreshPromise = ensureAccessTokenFresh();
+
+    await Promise.resolve();
+
+    sessionStorage.removeItem(OIDC_USER_SUBJECT_KEY);
+
+    const nowSpy = vi.spyOn(Date, "now").mockReturnValue(expiredHintMs - 3_600_000);
+
+    persistTokenResponse({
+      access_token: "opaque-access-token",
+      id_token: idTokenWithSubjectClaim("user-restored", "Jane Operator"),
+      expires_in: 3600,
+    });
+
+    nowSpy.mockRestore();
+
+    await Promise.resolve();
+
+    releaseRefresh?.();
+    await refreshPromise;
+
+    expect(sessionStorage.getItem(OIDC_USER_SUBJECT_KEY)).toBe("user-restored");
+    expect(sessionStorage.getItem(OIDC_DISPLAY_NAME_KEY)).toBe("Jane Operator");
+    expect(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY)).toBe(String(expiredHintMs));
   });
 
   it("does not clear a replacement sign-in when a pre-refresh BFF 401 arrives after subject hints were restored without changing expiry", async () => {
