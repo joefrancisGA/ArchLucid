@@ -15,6 +15,7 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
     internal const string HttpDeleteAttributeShortName = "HttpDeleteAttribute";
     internal const string HttpPatchAttributeShortName = "HttpPatchAttribute";
     internal const string HttpMethodAttributeShortName = "HttpMethodAttribute";
+    internal const string AcceptVerbsAttributeShortName = "AcceptVerbsAttribute";
 
     private static readonly SymbolDisplayFormat AllowlistFqTypeFormat =
         new(globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Omitted,
@@ -444,6 +445,12 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
                     return true;
 
                 if (string.Equals(attributeWalkerNameScoped.Name, HttpMethodAttributeShortName, StringComparison.Ordinal) &&
+                    HttpMethodAttributeDeclaresMutatingVerb(attributeDataScoped))
+                {
+                    return true;
+                }
+
+                if (string.Equals(attributeWalkerNameScoped.Name, AcceptVerbsAttributeShortName, StringComparison.Ordinal) &&
                     HttpMethodAttributeDeclaresMutatingVerb(attributeDataScoped))
                 {
                     return true;

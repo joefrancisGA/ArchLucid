@@ -3,6 +3,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Bootstrap;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Demo;
 using ArchLucid.Persistence.Coordination.Compare;
@@ -69,9 +70,10 @@ public sealed partial class DemoViewerController
 
     /// <summary>POST is not supported on the anonymous viewer.</summary>
     /// <remarks>
-    ///     <c>[AcceptVerbs("POST")]</c> keeps POST routing; CI treats <c>[HttpPost]</c> as mutating and would require
-    ///     audit for this non-mutating 405 handler.
+    ///     <c>[AcceptVerbs("POST")]</c> keeps POST routing while <c>[MutatingAuditExcluded]</c> documents the intentional
+    ///     405 handler (AL0003 treats AcceptVerbs POST like other mutating verb attributes).
     /// </remarks>
+    [MutatingAuditExcluded("Anonymous viewer 405 handler; no audit side effects.")]
     [AcceptVerbs("POST")]
     [Route("{*catchAll}")]
     [ProducesResponseType(StatusCodes.Status405MethodNotAllowed)]

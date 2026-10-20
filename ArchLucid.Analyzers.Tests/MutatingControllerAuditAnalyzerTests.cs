@@ -735,7 +735,7 @@ public sealed class ConcreteAuditedController(ConcreteAuditService auditService)
     }
 
     [Fact]
-    public async Task AcceptVerbs_post_does_not_trigger_AL0003()
+    public async Task AL0003_reports_when_AcceptVerbs_post_action_lacks_IAudit_LogAsync()
     {
         const string testCode = AuditAndMvcStubs +
             """
@@ -748,7 +748,7 @@ using Microsoft.AspNetCore.Mvc;
 public sealed class AcceptVerbsPostController(IAuditService auditService) : ControllerBase
 {
     [AcceptVerbs("POST")]
-    public IActionResult PostNotAllowed()
+    public IActionResult {|#0:PostNotAllowed|}()
     {
         return Ok();
     }
@@ -756,9 +756,16 @@ public sealed class AcceptVerbsPostController(IAuditService auditService) : Cont
 }
 """;
 
+        DiagnosticResult expectedDiagnostic =
+            CSharpAnalyzerVerifier<MutatingControllerAuditAnalyzer, DefaultVerifier>.Diagnostic(
+                    Al0003MutatingControllerAuditDescriptor.Rule)
+                .WithLocation(0)
+                .WithArguments("ArchLucid.Api.Probe.AcceptVerbsPostController.PostNotAllowed");
+
         await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
         {
             TestCode = testCode,
+            ExpectedDiagnostics = { expectedDiagnostic },
             ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
             SolutionTransforms = { MarkAssemblyAsArchLucidApi }
         }.RunAsync();
@@ -1673,7 +1680,7 @@ public sealed class CastAuditedController(IAuditService auditService) : Controll
     }
 
     [Fact]
-    public async Task AL0003_does_not_report_AcceptVerbs_post_on_explicit_interface_implementation()
+    public async Task AL0003_reports_when_AcceptVerbs_post_on_explicit_interface_implementation()
     {
         const string testCode = AuditAndMvcStubs +
             """
@@ -1691,7 +1698,7 @@ public interface IMutatingApi
 public sealed class ExplicitInterfaceAcceptVerbsController(IAuditService auditService) : ControllerBase, IMutatingApi
 {
     [AcceptVerbs("POST")]
-    System.Threading.Tasks.Task<IActionResult> IMutatingApi.Post(System.Threading.CancellationToken cancellationToken)
+    System.Threading.Tasks.Task<IActionResult> IMutatingApi.{|#0:Post|}(System.Threading.CancellationToken cancellationToken)
     {
         return System.Threading.Tasks.Task.FromResult<IActionResult>(Ok());
     }
@@ -1699,9 +1706,16 @@ public sealed class ExplicitInterfaceAcceptVerbsController(IAuditService auditSe
 }
 """;
 
+        DiagnosticResult expectedDiagnostic =
+            CSharpAnalyzerVerifier<MutatingControllerAuditAnalyzer, DefaultVerifier>.Diagnostic(
+                    Al0003MutatingControllerAuditDescriptor.Rule)
+                .WithLocation(0)
+                .WithArguments("ArchLucid.Api.Probe.ExplicitInterfaceAcceptVerbsController.ArchLucid.Api.Probe.IMutatingApi.Post");
+
         await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
         {
             TestCode = testCode,
+            ExpectedDiagnostics = { expectedDiagnostic },
             ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
             SolutionTransforms = { MarkAssemblyAsArchLucidApi }
         }.RunAsync();
