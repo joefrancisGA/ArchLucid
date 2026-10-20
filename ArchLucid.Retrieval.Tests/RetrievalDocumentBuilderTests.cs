@@ -386,6 +386,50 @@ public sealed class RetrievalDocumentBuilderTests
     }
 
     [Fact]
+    public void BuildForArtifacts_collapses_duplicate_artifact_ids_to_last_entry()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+        Guid artifactId = Guid.NewGuid();
+
+        RetrievalDocumentBuilder sut = new();
+
+        IReadOnlyList<RetrievalDocument> artifacts = sut.BuildForArtifacts(
+            tenantId,
+            workspaceId,
+            projectId,
+            [
+                new SynthesizedArtifact
+                {
+                    ArtifactId = artifactId,
+                    RunId = runId,
+                    ManifestId = manifestId,
+                    Name = "summary-v1.json",
+                    Content = "first",
+                    ContentHash = "hash-v1",
+                    CreatedUtc = new DateTime(2026, 7, 9, 12, 0, 0, DateTimeKind.Utc),
+                },
+                new SynthesizedArtifact
+                {
+                    ArtifactId = artifactId,
+                    RunId = runId,
+                    ManifestId = manifestId,
+                    Name = "summary-v2.json",
+                    Content = "second",
+                    ContentHash = "hash-v2",
+                    CreatedUtc = new DateTime(2026, 7, 9, 12, 5, 0, DateTimeKind.Utc),
+                },
+            ]);
+
+        artifacts.Should().ContainSingle();
+        artifacts[0].Content.Should().Be("second");
+        artifacts[0].ContentHash.Should().Be("hash-v2");
+    }
+
+    [Fact]
     public void BuildForProvenance_emits_single_graph_summary_document()
     {
         Guid tenantId = Guid.NewGuid();

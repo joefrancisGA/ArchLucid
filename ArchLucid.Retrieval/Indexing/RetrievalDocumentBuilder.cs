@@ -139,24 +139,29 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
         Guid projectId,
         IReadOnlyList<SynthesizedArtifact> artifacts)
     {
-        return artifacts.Select(x => new RetrievalDocument
-        {
-            DocumentId = $"artifact-{x.ArtifactId:N}",
-            TenantId = tenantId,
-            WorkspaceId = workspaceId,
-            ProjectId = projectId,
-            RunId = x.RunId,
-            ManifestId = x.ManifestId,
-            CorpusKind = CorpusKind.TenantManifest,
-            SourceType = "Artifact",
-            SourceId = x.ArtifactId.ToString(),
-            Title = x.Name,
-            Content = x.Content,
-            ContentHash = x.ContentHash,
-            CreatedUtc = x.CreatedUtc,
-            DecisionId = null,
-            FindingId = null
-        }).ToList();
+        // Run-completion outbox retries may resend the same ArtifactId; keep the last payload so indexing does not emit duplicate DocumentIds.
+        return artifacts
+            .GroupBy(static x => x.ArtifactId)
+            .Select(static group => group.Last())
+            .Select(x => new RetrievalDocument
+            {
+                DocumentId = $"artifact-{x.ArtifactId:N}",
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
+                RunId = x.RunId,
+                ManifestId = x.ManifestId,
+                CorpusKind = CorpusKind.TenantManifest,
+                SourceType = "Artifact",
+                SourceId = x.ArtifactId.ToString(),
+                Title = x.Name,
+                Content = x.Content,
+                ContentHash = x.ContentHash,
+                CreatedUtc = x.CreatedUtc,
+                DecisionId = null,
+                FindingId = null
+            })
+            .ToList();
     }
 
     /// <inheritdoc />

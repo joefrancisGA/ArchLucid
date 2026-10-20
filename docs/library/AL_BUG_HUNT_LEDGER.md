@@ -3,6 +3,10 @@
 2026-10-20 seed hunt (seed→hit, lane B): `identity-provider-config` — picker seed hunt; promoted protocol switch SAML→OIDC without `KeyVaultSecretName` (symmetric to SAML metadata on protocol change); `IdentityProviderActivationOidcKeyVaultGuards.EnsurePresentWhenRequired` when activating OIDC from a non-OIDC row; regression `ActivateAsync_rejects_protocol_switch_to_oidc_without_key_vault_secret`; updated `ActivateAsync_protocol_switch_clears_saml_metadata_xml_when_omitted`; 71 scoped activation/controller tests passed (`RunAnalyzers=false`).
 
 - [x] (proven) `IdentityProviderActivationService.ActivateAsync` — protocol switch to OIDC without substantive `KeyVaultSecretName` — **hit 2026-10-20 seed hunt (lane B):** `requiresOidcKeyVaultSecretName` guard; regression above.
+2026-10-20 thorough hunt (hit, lane C): `retrieval` — owner skip `agent-runtime-evaluation` (four prior lane-C runs); hint override `retrieval`; promoted `(candidate)` duplicate `ArtifactId` in run-completion artifact batch — `BuildForArtifacts` emitted two `artifact-{id}` documents so indexing upserted the same chunk ids twice and the first artifact body was silently replaced; collapse duplicate artifact ids with last-wins before document mapping; regression `BuildForArtifacts_collapses_duplicate_artifact_ids_to_last_entry`; cheap-disproof closed stale `(candidate)` list-position finding-id row (emitted-ordinal fix shipped 2026-10-20); 370 scoped `ArchLucid.Retrieval.Tests` Retrieval/Indexing filter passed.
+
+- [x] (proven) `RetrievalDocumentBuilder.BuildForArtifacts` — duplicate `ArtifactId` in one indexing batch — **hit 2026-10-20 thorough hunt (lane C):** `GroupBy` + last-wins; regression `BuildForArtifacts_collapses_duplicate_artifact_ids_to_last_entry`.
+- [x] (invalid) `RetrievalDocumentBuilder.BuildForFindings` — list reorder shifts generated ids — **cheap-disproof 2026-10-20 thorough hunt (lane C):** superseded by emitted-finding ordinal fix; regression `BuildForFindings_missing_finding_id_uses_emitted_ordinal_not_raw_list_index`.
 
 2026-10-20 thorough hunt (hit, lane C): `agent-runtime-evaluation` — skipped picker top `identity-provider-config` (lane-B lock; did not create or modify that lock); promoted `(candidate)` non-finite `calibratedConfidence` — `AgentOutputQualityGate.Evaluate` treated `NaN`/infinity as passing threshold comparisons, so a persisted non-finite calibrated score could accept an otherwise sub-floor semantic result; gate now rejects non-finite semantic inputs before floor checks; regression `Evaluate_rejects_when_calibrated_confidence_is_non_finite`; cheap-disproof closed harness/reference-case required-key casing siblings (ignore-case sets shipped) and LLM judge out-of-range clamp (saturated score-validation class); 223 scoped Evaluation tests passed.
 
@@ -23267,11 +23271,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 72
+- **hunts:** 73
 - **last-hunt:** 2026-10-20
-- **bugs-found:** 33
+- **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-20 — generated finding document ids shifted when leading findings were muted
+- **last-bug:** 2026-10-20 — duplicate artifact ids in run-completion indexing batch
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -23286,10 +23290,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `RetrievalIndexingService` records empty-document catalog state after vector cleanup, so a cleanup failure may leave catalog freshness inconsistent with the still-present vectors.
 - [ ] (candidate) `CachingEmbeddingService.EmbedManyAsync` maps inner vectors positionally without checking cardinality, so a reachable mixed blank/nonblank batch can index past the returned vectors after a provider filters blank inputs.
 - [x] (proven) `RetrievalDocumentBuilder.BuildForFindings` / `PriorManifestRetrievalDocumentBuilder.BuildFromFindings` used raw snapshot list indexes for `generated-{runId}-N` finding ids, so leading muted or blank rows shifted document identity for the same active finding between reindexes — **hit 2026-10-20 thorough hunt:** index only emitted findings; regressions `BuildForFindings_missing_finding_id_uses_emitted_ordinal_not_raw_list_index` and `BuildFromFindings_missing_finding_id_uses_emitted_ordinal_not_raw_list_index`.
-- [ ] (candidate) `RetrievalDocumentBuilder.BuildForFindings` uses list position for missing finding IDs, so reordering a findings snapshot between retries can assign a prior finding's document identity to a different finding.
+- [x] (invalid) `RetrievalDocumentBuilder.BuildForFindings` — list position for missing finding IDs — **cheap-disproof 2026-10-20 thorough hunt (lane C):** emitted-finding ordinal shipped 2026-10-20.
 - [ ] (candidate) `AzureAiSearchVectorIndex.RemoveChunkIdsAsync` forwards stale chunk IDs without an ambient-scope check, so a reachable cleanup input containing a colliding chunk ID could delete a vector outside the current tenant scope.
 - [ ] (candidate) `InMemoryVectorIndex.RemoveChunksForDocumentAsync` ignores cancellation while mutating stored chunks, so cancellation arriving during a reachable retry can still complete destructive cleanup after the indexing operation is abandoned.
-- [ ] (candidate) `RetrievalDocumentBuilder.BuildForArtifacts` emits one document per artifact without duplicate-ID detection, so a reachable artifact retry list containing the same `ArtifactId` twice can silently overwrite one artifact's vector during upsert.
+- [x] (proven) `RetrievalDocumentBuilder.BuildForArtifacts` — duplicate `ArtifactId` in retry batch — **hit 2026-10-20 thorough hunt (lane C):** regression `BuildForArtifacts_collapses_duplicate_artifact_ids_to_last_entry`.
 
 2026-10-03 seed hunt (seed-only): repeated the selected retrieval indexing, scope validation, Azure Search filtering, and in-memory catalog review; no new reachable mechanism-backed candidate emerged; 351 focused tests passed.
 
