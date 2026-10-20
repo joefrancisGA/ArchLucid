@@ -4509,6 +4509,53 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
     }
 
     [Fact]
+    public void MapRelationships_resolves_relationship_when_endpoint_aliases_chain_rename_labels_to_graph_node_id()
+    {
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new()
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["rename-a"] = "rename-b",
+            ["rename-b"] = "svc-1",
+        };
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "rename-a",
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
     public void MapRelationships_resolves_endpoints_when_declared_alias_value_has_internal_whitespace_after_synthetic_prefix()
     {
         List<GraphNode> nodes =
