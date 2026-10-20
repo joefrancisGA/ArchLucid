@@ -84,6 +84,33 @@ public sealed class AgentOutputFaithfulnessEvaluatorTests
     }
 
     [Fact]
+    public async Task TryEvaluateAsync_parses_case_variant_faithfulness_score_property()
+    {
+        Mock<IAgentCompletionClient> client = new();
+        client
+            .Setup(c => c.CompleteJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int?>(),
+                It.IsAny<float?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("""{"FAITHFULNESSSCORE":0.77,"rationale":"grounded"}""");
+
+        AgentOutputFaithfulnessEvaluator sut = CreateEvaluator(
+            client.Object,
+            qualityGateEnabled: true,
+            faithfulnessEnabled: true);
+
+        double? score = await sut.TryEvaluateAsync(
+            "trace-case-score",
+            """{"claims":[{"text":"Use Blob storage","evidence":"catalog"}]}""",
+            SampleEvidence(),
+            CancellationToken.None);
+
+        score.Should().BeApproximately(0.77, 0.001);
+    }
+
+    [Fact]
     public async Task TryEvaluateAsync_rejects_faithfulness_score_outside_judge_range()
     {
         Mock<IAgentCompletionClient> client = new();

@@ -1,5 +1,11 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
+2026-10-20 thorough hunt (hit, lane C): `agent-runtime-evaluation` — owner-directed audit closing the **case-sensitive agent-output JSON property read** defect class after two prior partial hits; routed every evaluation-boundary `JsonElement` property lookup in the zone through shared `AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase` (removed eight duplicate private helpers; fixed remaining case-sensitive reads in `AgentResultEmbeddingFaithfulnessScorer` and `AgentOutputFaithfulnessEvaluator.ReadScore`); regression locks per site (`AgentOutputJsonPropertyReaderTests`, existing heuristic/citation/coverage/faithfulness/LLM-judge case-variant tests, `TryComputeMeanCosineAsync_reads_case_variant_claims_array`, `TryEvaluateAsync_parses_case_variant_faithfulness_score_property`); **class closed** — do not reopen casing-only agent-output JSON property hunts in this zone; 220 scoped Evaluation tests passed.
+
+- [x] (proven) `AgentOutputJsonPropertyReader` — consolidated ordinal-ignore-case reads for all agent-output JSON property lookups in `ArchLucid.AgentRuntime/Evaluation` — **hit 2026-10-20 thorough hunt (lane C):** single shared helper; site regressions listed in zone header.
+
+**Closed defect class (2026-10-20, lane C):** Agent-output evaluation JSON property names that differ only by casing from the wire contract (`claims`, `findings`, `proposedChanges`, `citations`, `evidenceRefs`, judge score keys, etc.). Further casing-only rows are invalid for hunting — use semantic/schema defects instead.
+
 2026-10-20 thorough hunt (hit, lane C): `agent-runtime-evaluation` — skipped picker top `identity-provider-config` (lane-B zone lock); promoted `(candidate)` case-variant `CITATIONS` / `EVIDENCEREFS` on PilotStrict traces — `AgentOutputTraceCitationGate` used case-sensitive top-level reads while other evaluation paths already accept Web/camelCase variants, so valid agent JSON failed citation presence and evidence-ref floor; gate now resolves those properties ordinal-ignore-case; regression `TryEvaluateTrace_pilot_strict_accepts_case_variant_citation_and_evidence_ref_properties`; cheap-disproof closed harness required-key casing sibling (existing `Evaluate_matches_required_json_keys_case_insensitively`); 217 scoped Evaluation tests passed.
 
 - [x] (proven) `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` — case-variant `Citations` top-level property — **hit 2026-10-20 thorough hunt (lane C):** `TryGetPropertyIgnoreCase`; regression `TryEvaluateTrace_pilot_strict_accepts_case_variant_citation_and_evidence_ref_properties`.
@@ -20928,11 +20934,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 55
-- **bugs-found:** 34
+- **hunts:** 56
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — PilotStrict citation gate ignored case-variant citations and evidenceRefs
+- **last-bug:** 2026-10-20 — consolidated agent-output JSON property casing reads
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -20952,7 +20958,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-12 seed hunt (seed-only): reread case-insensitive evaluation parsing, citation gates, heuristic quality scoring, faithfulness judging, and embedding evidence handling. The faithfulness judge-score casing candidate was promoted for a focused repro, but the AgentRuntime test build was blocked before execution by unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors; no candidate was proven and no production change was made.
 
-- [ ] (candidate) `AgentOutputFaithfulnessEvaluator.ReadScore` — a reachable LLM judge response using `FAITHFULNESS_SCORE` or other casing may be treated as missing, so configured faithfulness enforcement is skipped; locus: exact `JsonElement.TryGetProperty` score reads; input: external keyed judge JSON.
+- [x] (proven) `AgentOutputFaithfulnessEvaluator.ReadScore` — case-variant judge score property — **hit 2026-10-20 thorough hunt (lane C):** `AgentOutputJsonPropertyReader`; regression `TryEvaluateAsync_parses_case_variant_faithfulness_score_property`.
 - [x] (proven) `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` — case-variant `Citations` — **hit 2026-10-20 thorough hunt (lane C):** see zone header regression `TryEvaluateTrace_pilot_strict_accepts_case_variant_citation_and_evidence_ref_properties`.
 - [x] (proven) `AgentOutputTraceCitationGate.TryCountTopLevelEvidenceRefs` — case-variant `EvidenceRefs` — **hit 2026-10-20 thorough hunt (lane C):** same regression lock.
 - [x] (proven) `HeuristicAgentOutputTraceQualityStage.EvaluateFindings` — case-variant finding fields — **hit 2026-10-20 thorough hunt (lane C):** see zone header regression `Evaluate_matches_case_variant_findings_properties`.

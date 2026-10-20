@@ -57,7 +57,7 @@ internal static class AgentOutputTraceCitationGate
             if (doc.RootElement.ValueKind != JsonValueKind.Object)
                 return false;
 
-            return TryGetPropertyIgnoreCase(doc.RootElement, "citations", out JsonElement citationsElement)
+            return AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(doc.RootElement, "citations", out JsonElement citationsElement)
                    && citationsElement.ValueKind == JsonValueKind.Array
                    && citationsElement.EnumerateArray().Any(static citation =>
                        citation.ValueKind == JsonValueKind.Object
@@ -73,7 +73,7 @@ internal static class AgentOutputTraceCitationGate
 
     private static int TryCountTopLevelEvidenceRefs(JsonElement root)
     {
-        if (!TryGetPropertyIgnoreCase(root, "evidenceRefs", out JsonElement refsElement) ||
+        if (!AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(root, "evidenceRefs", out JsonElement refsElement) ||
             refsElement.ValueKind != JsonValueKind.Array)
             return 0;
 
@@ -83,26 +83,5 @@ internal static class AgentOutputTraceCitationGate
             .Count(static reference =>
                 reference.ValueKind == JsonValueKind.String
                 && !string.IsNullOrWhiteSpace(reference.GetString()));
-    }
-
-    private static bool TryGetPropertyIgnoreCase(
-        JsonElement element,
-        string propertyName,
-        out JsonElement value)
-    {
-        if (element.TryGetProperty(propertyName, out value))
-            return true;
-
-        foreach (JsonProperty property in element.EnumerateObject())
-        {
-            if (string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
-            {
-                value = property.Value;
-                return true;
-            }
-        }
-
-        value = default;
-        return false;
     }
 }

@@ -64,7 +64,7 @@ public sealed class AgentResultEmbeddingFaithfulnessScorer(
             if (doc.RootElement.ValueKind != JsonValueKind.Object)
                 return null;
 
-            if (doc.RootElement.TryGetProperty("claims", out JsonElement claimsEl) &&
+            if (AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(doc.RootElement, "claims", out JsonElement claimsEl) &&
                 claimsEl.ValueKind == JsonValueKind.Array)
             {
                 foreach (JsonElement claim in claimsEl.EnumerateArray())
@@ -89,7 +89,7 @@ public sealed class AgentResultEmbeddingFaithfulnessScorer(
                 }
             }
 
-            if (doc.RootElement.TryGetProperty("findings", out JsonElement findingsEl) &&
+            if (AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(doc.RootElement, "findings", out JsonElement findingsEl) &&
                 findingsEl.ValueKind == JsonValueKind.Array)
             {
                 foreach (JsonElement finding in findingsEl.EnumerateArray())

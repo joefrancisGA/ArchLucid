@@ -201,10 +201,12 @@ public sealed class AgentOutputFaithfulnessEvaluator(
 
     private static double ReadScore(JsonElement root)
     {
-        if (root.TryGetProperty("faithfulnessScore", out JsonElement camel) && TryGetDouble(camel, out double v1))
+        if (AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(root, "faithfulnessScore", out JsonElement camel)
+            && TryGetDouble(camel, out double v1))
             return v1;
 
-        if (root.TryGetProperty("faithfulness_score", out JsonElement snake) && TryGetDouble(snake, out double v2))
+        if (AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(root, "faithfulness_score", out JsonElement snake)
+            && TryGetDouble(snake, out double v2))
             return v2;
 
         return double.NaN;

@@ -20,7 +20,7 @@ internal sealed class HeuristicAgentOutputTraceQualityStage
 
     public (double ratio, int incompleteCount) EvaluateFindings(JsonElement root)
     {
-        if (!TryGetPropertyIgnoreCase(root, "findings", out JsonElement findingsElement) ||
+        if (!AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(root, "findings", out JsonElement findingsElement) ||
             findingsElement.ValueKind != JsonValueKind.Array)
             return (0.0, 0);
 
@@ -34,15 +34,15 @@ internal sealed class HeuristicAgentOutputTraceQualityStage
             if (finding.ValueKind != JsonValueKind.Object)
                 continue;
 
-            bool hasSeverity = TryGetPropertyIgnoreCase(finding, "severity", out JsonElement sev)
+            bool hasSeverity = AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(finding, "severity", out JsonElement sev)
                                && sev.ValueKind == JsonValueKind.String
                                && (sev.GetString()?.Length ?? 0) > 0;
 
-            bool hasDescription = TryGetPropertyIgnoreCase(finding, "description", out JsonElement desc)
+            bool hasDescription = AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(finding, "description", out JsonElement desc)
                                   && desc.ValueKind == JsonValueKind.String
                                   && (desc.GetString()?.Length ?? 0) > _minDescriptionLength;
 
-            bool hasRecommendation = TryGetPropertyIgnoreCase(finding, "recommendation", out JsonElement rec)
+            bool hasRecommendation = AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(finding, "recommendation", out JsonElement rec)
                                        && rec.ValueKind == JsonValueKind.String
                                        && (rec.GetString()?.Length ?? 0) > _minRecommendationLength;
 
@@ -73,52 +73,31 @@ internal sealed class HeuristicAgentOutputTraceQualityStage
     /// </summary>
     public double EvaluateProposedChangesSurfaceRatio(JsonElement root)
     {
-        if (!TryGetPropertyIgnoreCase(root, "proposedChanges", out JsonElement pc) ||
+        if (!AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(root, "proposedChanges", out JsonElement pc) ||
             pc.ValueKind != JsonValueKind.Object)
             return 0.0;
 
         int hits = 0;
 
-        if (TryGetPropertyIgnoreCase(pc, "addedServices", out JsonElement svc) &&
+        if (AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(pc, "addedServices", out JsonElement svc) &&
             svc.ValueKind == JsonValueKind.Array &&
             svc.GetArrayLength() > 0)
 
             hits += _tightened ? CountWellFormedServices(svc) > 0 ? 1 : 0 : 1;
 
-        if (TryGetPropertyIgnoreCase(pc, "addedDatastores", out JsonElement ds) &&
+        if (AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(pc, "addedDatastores", out JsonElement ds) &&
             ds.ValueKind == JsonValueKind.Array &&
             ds.GetArrayLength() > 0)
 
             hits += _tightened ? CountWellFormedDatastores(ds) > 0 ? 1 : 0 : 1;
 
-        if (TryGetPropertyIgnoreCase(pc, "addedRelationships", out JsonElement rel) &&
+        if (AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(pc, "addedRelationships", out JsonElement rel) &&
             rel.ValueKind == JsonValueKind.Array &&
             rel.GetArrayLength() > 0)
 
             hits += _tightened ? CountWellFormedRelationships(rel) > 0 ? 1 : 0 : 1;
 
         return hits / 3.0;
-    }
-
-    private static bool TryGetPropertyIgnoreCase(
-        JsonElement element,
-        string propertyName,
-        out JsonElement value)
-    {
-        if (element.TryGetProperty(propertyName, out value))
-            return true;
-
-        foreach (JsonProperty property in element.EnumerateObject())
-        {
-            if (string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
-            {
-                value = property.Value;
-                return true;
-            }
-        }
-
-        value = default;
-        return false;
     }
 
     private static bool ShareSignificantToken(string a, string b)
@@ -175,7 +154,7 @@ internal sealed class HeuristicAgentOutputTraceQualityStage
 
         foreach (JsonElement item in array.EnumerateArray().Where(item => item.ValueKind == JsonValueKind.Object))
         {
-            if (TryGetPropertyIgnoreCase(item, "serviceName", out JsonElement name) &&
+            if (AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(item, "serviceName", out JsonElement name) &&
                 name.ValueKind == JsonValueKind.String &&
                 !string.IsNullOrWhiteSpace(name.GetString()))
 
@@ -191,7 +170,7 @@ internal sealed class HeuristicAgentOutputTraceQualityStage
 
         foreach (JsonElement item in array.EnumerateArray().Where(item => item.ValueKind == JsonValueKind.Object))
         {
-            if (TryGetPropertyIgnoreCase(item, "datastoreName", out JsonElement name) &&
+            if (AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(item, "datastoreName", out JsonElement name) &&
                 name.ValueKind == JsonValueKind.String &&
                 !string.IsNullOrWhiteSpace(name.GetString()))
 
@@ -207,11 +186,11 @@ internal sealed class HeuristicAgentOutputTraceQualityStage
 
         foreach (JsonElement item in array.EnumerateArray().Where(item => item.ValueKind == JsonValueKind.Object))
         {
-            bool src = TryGetPropertyIgnoreCase(item, "sourceId", out JsonElement s) &&
+            bool src = AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(item, "sourceId", out JsonElement s) &&
                        s.ValueKind == JsonValueKind.String &&
                        !string.IsNullOrWhiteSpace(s.GetString());
 
-            bool tgt = TryGetPropertyIgnoreCase(item, "targetId", out JsonElement t) &&
+            bool tgt = AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(item, "targetId", out JsonElement t) &&
                        t.ValueKind == JsonValueKind.String &&
                        !string.IsNullOrWhiteSpace(t.GetString());
 

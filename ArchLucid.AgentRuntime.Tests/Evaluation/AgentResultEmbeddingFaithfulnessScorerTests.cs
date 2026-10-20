@@ -109,6 +109,27 @@ public sealed class AgentResultEmbeddingFaithfulnessScorerTests
         cosine.Value.Should().BeGreaterThan(0.92);
     }
 
+    [Fact]
+    public async Task TryComputeMeanCosineAsync_reads_case_variant_claims_array()
+    {
+        const string shared = "uniquephrase telemetry grounding xyz987";
+
+        AgentEvidencePackage evidence = MinimalEvidence(shared);
+
+        string json =
+            $$"""
+            {"CLAIMS":[{"text":"{{shared}}"}],"FINDINGS":[]}
+            """;
+
+        AgentResultEmbeddingFaithfulnessScorer sut = CreateSut(new DeterministicHistogramEmbeddingService(), embeddingEnabled: true);
+
+        double? cosine =
+            await sut.TryComputeMeanCosineAsync(json, evidence, CancellationToken.None);
+
+        cosine.Should().NotBeNull();
+        cosine.Value.Should().BeGreaterThan(0.92);
+    }
+
     private static AgentEvidencePackage MinimalEvidence(string requestDescription)
     {
         return new AgentEvidencePackage
