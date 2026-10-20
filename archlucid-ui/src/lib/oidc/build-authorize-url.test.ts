@@ -31,6 +31,28 @@ describe("buildAuthorizeUrl", () => {
     expect(url.searchParams.get("nonce")).toBe("nonce-1");
   });
 
+  it("does not preserve stale query keys from the discovery authorization endpoint", () => {
+    const docWithLegacyQuery: OidcDiscoveryDocument = {
+      ...discoveryDoc,
+      authorization_endpoint: "https://login.example.com/oauth2/v2.0/authorize?legacy=1",
+    };
+
+    const url = new URL(
+      buildAuthorizeUrl({
+        doc: docWithLegacyQuery,
+        clientId: "client-1",
+        redirectUri: "https://app.example/callback",
+        scope: "openid profile",
+        state: "state-1",
+        codeChallenge: "challenge-1",
+        nonce: "nonce-1",
+      }),
+    );
+
+    expect(url.searchParams.get("legacy")).toBeNull();
+    expect(url.searchParams.get("client_id")).toBe("client-1");
+  });
+
   it("strips zero-width characters from authorize query parameters before encoding", () => {
     const url = new URL(
       buildAuthorizeUrl({

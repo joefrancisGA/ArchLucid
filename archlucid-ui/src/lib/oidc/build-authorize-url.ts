@@ -14,7 +14,8 @@ export function buildAuthorizeUrl(params: {
   codeChallenge: string;
   nonce: string;
 }): string {
-  const url = new URL(params.doc.authorization_endpoint);
+  const endpoint = new URL(params.doc.authorization_endpoint);
+  const url = new URL(`${endpoint.origin}${endpoint.pathname}`);
 
   url.searchParams.set("client_id", trimAuthorizeQueryValue(params.clientId));
   url.searchParams.set("response_type", "code");
