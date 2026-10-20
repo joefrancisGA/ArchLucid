@@ -6758,11 +6758,11 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.RelationshipValidation.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalTerraformSourceIdHeuristics.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalConsensusMerger.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 1609
-- **last-hunt:** 2026-10-07
-- **bugs-found:** 977
+- **hunts:** 66
+- **last-hunt:** 2026-10-20
+- **bugs-found:** 52
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-05 — consensus intersection ignored label versus synthetic relationship endpoints
+- **last-bug:** 2026-10-20 — Finding verification DOCX omitted hash-field artifact-text sanitization
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -35585,6 +35585,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `ExecDigestEmailDispatchSealedManifestHashGuard.EnsureCompositionRunsSealedOrThrowAsync` — invalid `RunIdHex` in composition skips per-run seal check via `Guid.TryParse` continue — **cheap-disproof 2026-09-26 seed hunt:** `ExecDigestWeeklyDeliveryScanner` invokes the guard only after `ExecDigestComposer.ComposeAsync` builds highlights/`LatestCommittedRunIdHex` from committed run repository ids (`ToString("N")`); malformed hex is not reachable from the production compose → dispatch path.
 
 ## Zone: artifact-synthesis
+2026-10-20 seed hunt (seed→hit): promoted `FindingVerificationReportDocxRenderer.Render` package-reference table; persisted `SourceManifestHash` / `ReportHash` on sealed finding-verification exports reached `AddSimpleTable` with newline-only `WordDocumentBuilder.Sanitize` while per-finding cells already used `LlmArtifactFreeTextSanitizer`, causing DOCX save failure; sanitize hash cells with `SanitizeFindingCell`; regression `Render_strips_control_chars_from_package_reference_hash_fields`; FindingVerificationReportDocxRendererTests 3/3 passed.
+
 2026-10-20 thorough hunt (hit): `artifact-synthesis` — `DocxExportService.BuildDocumentAsync` wrote `DocxExportRequest.DocumentTitle` and effective-governance provenance appendix values through newline-only `WordDocumentBuilder.Sanitize`, so OpenXML-invalid control characters in export title or committed coverage dimensions caused DOCX save failure; sanitize title and governance appendix values with `SanitizeArtifactText`; regressions `ExportAsync_sanitizes_control_characters_in_document_title` and `ExportAsync_sanitizes_control_characters_in_effective_governance_provenance_rows`; DocxExportServiceProvenanceTests 4/4 passed.
 
 
@@ -35646,6 +35648,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
+- [x] (proven) `FindingVerificationReportDocxRenderer.Render` — persisted `SourceManifestHash` and `ReportHash` on sealed finding-verification report exports reached package-reference `AddSimpleTable` without `LlmArtifactFreeTextSanitizer` while per-finding rows were sanitized, causing DOCX save failure — **hit 2026-10-20 seed hunt:** `SanitizeFindingCell` on hash cells; regression `Render_strips_control_chars_from_package_reference_hash_fields`.
+- [ ] (candidate) `DocxValueReportRenderer.RenderAsync` — `ValueReportRunStatusRow.LegacyRunStatusLabel` from tenant value-report aggregation is interpolated into `Paragraph` without `LlmArtifactFreeTextSanitizer` while architecture exports sanitize free text — locus: legacy status rows loop; input: persisted legacy status label strings on `ValueReportSnapshot.RunStatusRows`.
+- [ ] (candidate) `DocxValueReportRenderer.RenderAsync` — `ValueReportReviewCycleSectionFormatter` paragraph text and `EstimatedLlmCostMethodologyNote` are written with raw `Paragraph` calls — locus: ROI narrative and LLM cost sections; input: snapshot fields populated from review-cycle and cost methodology strings in the value-report export pipeline.
+- [ ] (candidate) `WordDocumentBuilder.AddBulletList` — bullet items use newline-only `Sanitize` on strings that callers may pass without prior `LlmArtifactFreeTextSanitizer` — locus: shared bullet helper; input: manifest list fields when a future caller skips `SanitizeArtifactText` (sibling table paths use `SanitizeTableCellText` for issues).
 - [x] (proven) `DocxExportService.BuildDocumentAsync` — `DocxExportRequest.DocumentTitle` reached `AddStyledParagraph` with newline-only `Sanitize` while subtitle used `SanitizeArtifactText`, causing DOCX save failure when title contained OpenXML-invalid control characters — **hit 2026-10-20 thorough hunt:** `SanitizeArtifactText(request.DocumentTitle)`; regression `ExportAsync_sanitizes_control_characters_in_document_title`.
 - [x] (proven) `DocxExportService.BuildDocumentAsync` — `FormatProvenanceAppendixRows` values appended to Appendix B without `SanitizeArtifactText` carried control characters from committed coverage dimensions and caused DOCX save failure — **hit 2026-10-20 thorough hunt:** `SanitizeArtifactText(value)` on governance provenance rows; regression `ExportAsync_sanitizes_control_characters_in_effective_governance_provenance_rows`.
 - [x] (proven) `DocxExportService.BuildDocumentAsync` — persisted `manifest.ManifestHash` with OpenXML-invalid control characters reached Appendix B `AddSimpleTable` without `LlmArtifactFreeTextSanitizer` while the adjacent rule-set row was sanitized, causing DOCX export save failure — **hit 2026-10-13 seed hunt:** `SanitizeArtifactText(manifest.ManifestHash)`; regression `ExportAsync_sanitizes_control_characters_in_provenance_manifest_hash_field`.

@@ -38,8 +38,8 @@ public static class FindingVerificationReportDocxRenderer
                 [
                     ("Run ID", model.RunId.ToString("D")),
                     ("Report ID", model.ReportId.ToString("D")),
-                    ("Source manifest hash", model.SourceManifestHash),
-                    ("Report hash", model.ReportHash),
+                    ("Source manifest hash", SanitizeFindingCell(model.SourceManifestHash)),
+                    ("Report hash", SanitizeFindingCell(model.ReportHash)),
                     ("Created (UTC)", model.CreatedUtc.ToString("O", CultureInfo.InvariantCulture)),
                     (
                         "Verification findings snapshot",

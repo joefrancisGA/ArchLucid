@@ -37,6 +37,33 @@ public sealed class FindingVerificationReportDocxRendererTests
     }
 
     [Fact]
+    public void Render_strips_control_chars_from_package_reference_hash_fields()
+    {
+        FindingVerificationReportDocumentModel model = CreateModel(
+            new FindingVerificationReportFindingRow
+            {
+                FindingId = "finding-a",
+                Title = "Title",
+                Severity = "Low",
+                Status = "Materialized",
+                TraceText = "trace",
+            },
+            sourceManifestHash: "sha256-sealed\u0001hash",
+            reportHash: "sha256-report\u0002hash");
+
+        byte[] docx = FindingVerificationReportDocxRenderer.Render(model);
+
+        using MemoryStream stream = new(docx);
+        using WordprocessingDocument document = WordprocessingDocument.Open(stream, false);
+        string xml = document.MainDocumentPart!.Document.OuterXml;
+
+        xml.Should().Contain("sha256-sealedhash");
+        xml.Should().Contain("sha256-reporthash");
+        xml.Should().NotContain("\u0001");
+        xml.Should().NotContain("\u0002");
+    }
+
+    [Fact]
     public void Render_includes_severity_column_matching_markdown_export()
     {
         FindingVerificationReportDocumentModel model = CreateModel(
@@ -60,14 +87,16 @@ public sealed class FindingVerificationReportDocxRendererTests
     }
 
     private static FindingVerificationReportDocumentModel CreateModel(
-        FindingVerificationReportFindingRow finding)
+        FindingVerificationReportFindingRow finding,
+        string sourceManifestHash = "sha256-sealed",
+        string reportHash = "sha256-report")
     {
         return new FindingVerificationReportDocumentModel
         {
             ReportId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
             RunId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
-            SourceManifestHash = "sha256-sealed",
-            ReportHash = "sha256-report",
+            SourceManifestHash = sourceManifestHash,
+            ReportHash = reportHash,
             CreatedUtc = new DateTime(2026, 9, 8, 12, 0, 0, DateTimeKind.Utc),
             Summary = new FindingVerificationReportConfirmedRateSummary
             {
