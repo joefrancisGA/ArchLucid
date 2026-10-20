@@ -35992,6 +35992,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ---
 
+2026-10-20 thorough hunt (dry): cloud-extractors — cheap-disproved four open (candidate) rows: vault protected-item Succeeded = true on partial retain matches the 2026-10-13 hit (ListVaultBackupProtectedItemsAsync_retains_items_when_later_page_fails); role eligibility schedule listing intentionally soft-fails like management-group eligibility while standing assignments use ShouldBreakForPaginationHttpFailure; AWS Resource Explorer and GCP Asset Inventory intentionally fail the hosted extract on SDK/API errors while partial retain covers in-client pagination guards (page cap, repeated token). No failing repro attempted. Scoped tests: 10 AWS/GCP collector tests passed; Azure GetOnlyHostedAzureArmReadClientTests passed. No production change.
+
 ## Zone: cloud-extractors
 
 2026-10-13 seed hunt (seed→hit): promoted diagnostic settings page-cap truncation without `PartialCollection`; `ListDiagnosticSettingsForResourceAsync` broke at `MaxPaginationRequests` with settings collected but `partialCollection` stayed false, so hosted ZIP omitted diagnostic partial-collection warnings; set flag when `settings.Count > 0`; regression `ListDiagnosticSettingsAsync_marks_partial_when_max_page_cap_reached_after_settings_collected`; Azure scope 175/175; AWS/GCP 58/58.
@@ -36119,10 +36121,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 144
+- **hunts:** 145
 - **bugs-found:** 91
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-13
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-20
 - **last-bug:** 2026-10-13 — Diagnostic settings page cap omitted PartialCollection
 - **related-pd-tb:** none
 - **code-changed-since:** no
