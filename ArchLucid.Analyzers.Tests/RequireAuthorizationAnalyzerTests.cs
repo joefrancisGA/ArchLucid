@@ -620,6 +620,50 @@ namespace N
     }
 
     [Fact]
+    public async Task Reports_inherited_unauthorized_explicit_interface_action_for_empty_derived_controller()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Mvc;
+
+    public interface IUnsecuredApi
+    {
+        IActionResult Get();
+    }
+
+    public abstract class {|#0:SharedController|} : ControllerBase, IUnsecuredApi
+    {
+        [HttpGet]
+        IActionResult IUnsecuredApi.Get() => Ok();
+    }
+
+    public sealed class {|#1:DerivedController|} : SharedController
+    {
+    }
+}
+""";
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            ExpectedDiagnostics =
+            {
+                CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+                    .WithLocation(0)
+                    .WithArguments("SharedController"),
+                CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+                    .WithLocation(1)
+                    .WithArguments("SharedController.IUnsecuredApi.Get()")
+            },
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
     public async Task Reports_unauthorized_explicit_interface_action_when_controller_has_authorized_public_action()
     {
         const string testCode = AspNetCoreStubs +

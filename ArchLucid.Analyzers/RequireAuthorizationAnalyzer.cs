@@ -161,13 +161,7 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
             {
                 foreach (IMethodSymbol inheritedMethod in baseType.GetMembers().OfType<IMethodSymbol>())
                 {
-                    if (inheritedMethod.IsStatic ||
-                        inheritedMethod.MethodKind != MethodKind.Ordinary ||
-                        inheritedMethod.AssociatedSymbol is not null ||
-                        inheritedMethod.DeclaredAccessibility != Accessibility.Public ||
-                        (nonActionAttribute is not null &&
-                         (SymbolHasAttribute(inheritedMethod, nonActionAttribute) ||
-                          MethodInheritsAttributeFromOverriddenChain(inheritedMethod, nonActionAttribute))))
+                    if (!IsDeclaredPublicApiAction(inheritedMethod, nonActionAttribute))
                     {
                         continue;
                     }
@@ -286,17 +280,16 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
             return false;
         }
 
-        if (method.MethodKind != MethodKind.Ordinary)
+        if (method.AssociatedSymbol is not null && method.ExplicitInterfaceImplementations.IsDefaultOrEmpty)
         {
             return false;
         }
 
-        if (method.AssociatedSymbol is not null)
+        if (method.MethodKind == MethodKind.ExplicitInterfaceImplementation)
         {
-            return false;
+            // Explicit interface actions are inherited like public API actions.
         }
-
-        if (method.DeclaredAccessibility != Accessibility.Public)
+        else if (method.MethodKind != MethodKind.Ordinary || method.DeclaredAccessibility != Accessibility.Public)
         {
             return false;
         }
