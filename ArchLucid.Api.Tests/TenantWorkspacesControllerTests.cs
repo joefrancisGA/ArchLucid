@@ -910,6 +910,108 @@ public sealed class TenantWorkspacesControllerTests
     }
 
     [Fact]
+    public async Task ListAsync_prefers_scope_project_default_when_duplicate_inventory_rows_disagree()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        Guid siblingProjectId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        TenantRecord tenant =
+            new()
+            {
+                Id = scope.TenantId,
+                Name = "t",
+                Slug = "t",
+                Tier = TenantTier.Free,
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+                TrialRunsUsed = 0,
+                TrialSeatsUsed = 0,
+                TrialStatus = "None",
+            };
+
+        TenantWorkspaceListItem siblingDefaultRow =
+            new()
+            {
+                WorkspaceId = scope.WorkspaceId,
+                TenantId = scope.TenantId,
+                Name = "sibling-default",
+                DefaultProjectId = siblingProjectId,
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+            };
+
+        TenantWorkspaceListItem scopeDefaultRow =
+            new()
+            {
+                WorkspaceId = scope.WorkspaceId,
+                TenantId = scope.TenantId,
+                Name = "scope-default",
+                DefaultProjectId = scope.ProjectId,
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+            };
+
+        Mock<ITenantRepository> tenantsMock = new();
+        tenantsMock.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+
+        tenantsMock
+            .Setup(t => t.ListWorkspacesAsync(scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<TenantWorkspaceListItem> { siblingDefaultRow, scopeDefaultRow }.AsReadOnly());
+
+        Mock<IArchitectureProjectRepository> projectsMock = new();
+        projectsMock
+            .Setup(r => r.ListActiveByTenantAsync(scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new List<ArchitectureProjectRecord>
+                {
+                    new()
+                    {
+                        Id = scope.ProjectId,
+                        TenantId = scope.TenantId,
+                        WorkspaceId = scope.WorkspaceId,
+                        Name = "scoped-project",
+                        CreatedUtc = TimeProvider.System.GetUtcNow(),
+                    },
+                    new()
+                    {
+                        Id = siblingProjectId,
+                        TenantId = scope.TenantId,
+                        WorkspaceId = scope.WorkspaceId,
+                        Name = "sibling-project",
+                        CreatedUtc = TimeProvider.System.GetUtcNow(),
+                    },
+                }.AsReadOnly());
+
+        Mock<IScopeContextProvider> scopeMock = new();
+        scopeMock.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        Mock<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>> retentionMock = new();
+        retentionMock.Setup(o => o.CurrentValue).Returns(new ArchitectureProjectRetentionPurgeOptions());
+
+        TenantWorkspacesController sut =
+            new(
+                tenantsMock.Object,
+                projectsMock.Object,
+                scopeMock.Object,
+                Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
+                retentionMock.Object)
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+            };
+
+        IActionResult result = await sut.ListAsync(CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        TenantWorkspacesListResponse body = ok.Value.Should().BeOfType<TenantWorkspacesListResponse>().Subject;
+        body.Workspaces.Should().ContainSingle();
+        body.Workspaces[0].DefaultProjectId.Should().Be(scope.ProjectId);
+    }
+
+    [Fact]
     public async Task ListRecycleBinAsync_returns_only_current_workspace_deleted_projects()
     {
         ScopeContext scope = new()

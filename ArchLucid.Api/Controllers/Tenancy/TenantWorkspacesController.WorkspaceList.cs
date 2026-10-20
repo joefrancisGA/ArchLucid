@@ -56,6 +56,7 @@ public sealed partial class TenantWorkspacesController
         Guid defaultProjectId = ResolveScopedWorkspaceDefaultProjectId(
             workspaces,
             currentWorkspace.WorkspaceId,
+            scope.ProjectId,
             workspaceProjects);
 
         TenantWorkspacesListResponse body = new()

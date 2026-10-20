@@ -63,21 +63,30 @@ public sealed partial class TenantWorkspacesController(
     private static Guid ResolveScopedWorkspaceDefaultProjectId(
         IReadOnlyList<TenantWorkspaceListItem> workspaces,
         Guid workspaceId,
+        Guid scopedProjectId,
         IReadOnlyList<TenantWorkspaceProjectApiDto> activeProjectsInWorkspace)
     {
         HashSet<Guid> activeProjectIds = activeProjectsInWorkspace
             .Select(static project => project.ProjectId)
             .ToHashSet();
 
+        Guid fallbackDefaultProjectId = Guid.Empty;
+
         foreach (TenantWorkspaceListItem row in workspaces)
         {
             if (row.WorkspaceId != workspaceId)
                 continue;
 
-            if (row.DefaultProjectId != Guid.Empty && activeProjectIds.Contains(row.DefaultProjectId))
-                return row.DefaultProjectId;
+            if (row.DefaultProjectId == Guid.Empty || !activeProjectIds.Contains(row.DefaultProjectId))
+                continue;
+
+            if (row.DefaultProjectId == scopedProjectId)
+                return scopedProjectId;
+
+            if (fallbackDefaultProjectId == Guid.Empty)
+                fallbackDefaultProjectId = row.DefaultProjectId;
         }
 
-        return Guid.Empty;
+        return fallbackDefaultProjectId;
     }
 }

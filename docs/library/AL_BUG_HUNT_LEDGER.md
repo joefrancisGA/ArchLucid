@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
+2026-10-20 seed hunt (seed→hit): `api-tenancy-workspaces` — promoted `TenantWorkspacesController.ListAsync` returning a sibling project as `DefaultProjectId` when duplicate workspace inventory rows disagreed but both defaults were active (first inventory row won over JWT-scoped project); prefer `scope.ProjectId` when it is a valid pinned default across duplicate rows; regression `ListAsync_prefers_scope_project_default_when_duplicate_inventory_rows_disagree`; 59 scoped `TenantWorkspaces` tests passed; cheap-disproof closed recycle-bin purge pinning (already aggregates all rows), `CorePilotTeamChecklistController` null list (saturated null-deref).
+
 2026-10-20 seed hunt (seed→hit): `api-tenancy-workspaces` — promoted `TenantWorkspacesController.ListAsync` returning empty `DefaultProjectId` when the first duplicate workspace inventory row omitted default metadata but a later row pinned the active scoped project; `ResolveScopedWorkspaceDefaultProjectId` scans all rows for the workspace; regression `ListAsync_returns_default_project_id_when_duplicate_inventory_row_pins_active_project`; 58 scoped `TenantWorkspaces` tests passed; cheap-disproof closed recycle-bin display-name-only duplicate row (cosmetic), empty active-list default delete idempotent retry (intentional).
 
 2026-10-20 seed hunt (seed→hit): `api-tenancy-workspaces` — promoted `TenantWorkspacesController.DeleteProjectAsync` fail-open when duplicate workspace inventory rows pin the caller default on a non-first row (foreign-pin branch null-coalesced active list after `FindWorkspace` missed metadata); scan all rows for caller vs foreign default pins; regression `DeleteProjectAsync_returns_bad_request_when_duplicate_workspace_row_pins_caller_default_and_active_list_is_null`; 57 scoped `TenantWorkspaces` tests passed; cheap-disproof closed `CorePilotTeamChecklistController` null list (saturated null-deref), `TenantHomepageSettingsController` `Guid.Empty` clear (existing tests), `TenantExecDigestPreferencesController` tenant-only GET (by design).
@@ -38511,6 +38513,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ---
 ## Zone: api-tenancy-workspaces
+
+2026-10-20 seed hunt (seed→hit): promoted `TenantWorkspacesController.ListAsync` conflicting duplicate-row defaults choosing sibling over JWT-scoped project; `ResolveScopedWorkspaceDefaultProjectId` prefers scoped project when valid; regression `ListAsync_prefers_scope_project_default_when_duplicate_inventory_rows_disagree`.
+
+- [x] (proven) `TenantWorkspacesController.ListAsync` — duplicate inventory rows disagree on active default — regression above.
 
 2026-10-20 seed hunt (seed→hit): promoted `TenantWorkspacesController.ListAsync` duplicate workspace rows hiding default project metadata on non-first inventory row; `ResolveScopedWorkspaceDefaultProjectId`; regression `ListAsync_returns_default_project_id_when_duplicate_inventory_row_pins_active_project`.
 
