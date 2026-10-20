@@ -372,6 +372,35 @@ describe('ArchitectureDiagramViewer', () => {
     });
   });
 
+  it('labels blank node names in connection focus status', async () => {
+    const forestLayoutSvg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120">',
+      '  <g class="node" id="node-blank" transform="translate(10,20)"><title></title><rect class="node-card" width="40" height="20"/></g>',
+      '  <g class="edge" data-from="blank" data-to="other"><title>used by</title><path d="M50 30L60 30"/></g>',
+      '</svg>',
+    ].join('');
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  a["A"] --> b["B"]'}
+        layoutSvg={forestLayoutSvg}
+        outline={{ nodes: [], edges: [] }}
+        textAlternative="Inventory topology"
+        viewportAriaLabel="Inventory topology"
+      />,
+    );
+
+    const host = await screen.findByTestId('architecture-diagram-svg-host');
+
+    fireEvent.click(host.querySelector('#node-blank')!);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('diagram-click-focus-status')).toHaveTextContent(
+        'Showing connections for Resource name was not stored.',
+      );
+    });
+  });
+
   it('reports connector clicks and dims other connectors when selected', async () => {
     const onSelectConnector = vi.fn();
     const forestLayoutSvg = [
@@ -497,7 +526,7 @@ describe('ArchitectureDiagramViewer', () => {
   it('labels a rollup focus with its member-list title', async () => {
     const forestLayoutSvg = [
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120">',
-      '  <g class="node" id="node-rollup" data-member-names="storage-a · rg-a · No consumer found|storage-b · rg-b · Used by 1"><title>6 storage accounts</title><rect class="node-card" width="80" height="20"/></g>',
+      '  <g class="node" id="node-rollup" data-member-names="storage-a · rg-a · No diagram neighbor on this view.|storage-b · rg-b · 1 diagram neighbors on this view."><title>6 storage accounts</title><rect class="node-card" width="80" height="20"/></g>',
       '</svg>',
     ].join('');
 
@@ -516,7 +545,9 @@ describe('ArchitectureDiagramViewer', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('diagram-click-focus-status')).toHaveTextContent('6 storage accounts');
-      expect(screen.getByTestId('diagram-click-focus-status')).toHaveTextContent('storage-a · rg-a · No consumer found');
+      expect(screen.getByTestId('diagram-click-focus-status')).toHaveTextContent(
+        'storage-a · rg-a · No diagram neighbor on this view.',
+      );
       expect(screen.getByTestId('diagram-click-focus-status')).not.toHaveTextContent('Showing connections for');
     });
   });
@@ -836,6 +867,26 @@ describe('ArchitectureDiagramViewer', () => {
     expect(controls.compareDocumentPosition(viewport) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(hint.className.split(/\s+/u)).not.toContain('sr-only');
     expect(inkClip.className.split(/\s+/u)).toContain('overflow-hidden');
+  });
+
+  it('omits stacked viewport hint copy when viewportHint is empty', async () => {
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        textAlternative="A"
+        viewportAriaLabel="Inventory diagram for snapshot snap-1"
+        fullscreenTitle="Inventory diagram · Executive"
+        viewportControlsLayout="stacked"
+        viewportHint=""
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architecture-diagram-viewport-controls')).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId('architecture-diagram-viewport-hint')).not.toBeInTheDocument();
+    expect(screen.queryByText(ARCHITECTURE_DIAGRAM_VIEWPORT_HINT)).not.toBeInTheDocument();
   });
 
   it('keeps overlay viewport hint screen-reader only while clipping diagram ink', async () => {

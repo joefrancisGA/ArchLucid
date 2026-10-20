@@ -9,10 +9,17 @@ internal static class IntendedReachabilityPathEnumerator
     public static IReadOnlyList<ReachabilityPathCandidate> Enumerate(
         InventoryReachabilityPathGraphSnapshot graph,
         PrivilegePathEngineOptions options,
+        SecureNowArchitectEngineRunScope? runScope = null) =>
+        EnumerateWithLimits(graph, options, runScope).Candidates;
+
+    internal static ReachabilityPathEnumerationResult EnumerateWithLimits(
+        InventoryReachabilityPathGraphSnapshot graph,
+        PrivilegePathEngineOptions options,
         SecureNowArchitectEngineRunScope? runScope = null)
     {
         ArgumentNullException.ThrowIfNull(graph);
         ArgumentNullException.ThrowIfNull(options);
+        SecurityEvidencePathSearchLimitTracker limits = new();
 
         SecureNowArchitectTraversalNeighborhood? neighborhood = runScope is { IsFullEstate: false }
             ? new(graph.OutgoingEdges, graph.ResourcesByArmId, runScope.SeedCloudResourceIds, options.MaxDepth)
@@ -38,21 +45,31 @@ internal static class IntendedReachabilityPathEnumerator
         {
             if (results.Count >= options.MaxPaths)
             {
+                limits.RecordMaxPaths();
                 break;
             }
 
+            List<PrivilegePathEdge> pathBuffer = [];
+            HashSet<string> visited = new(StringComparer.OrdinalIgnoreCase) { startNode };
             DepthFirstSearch(
                 graph,
                 options,
                 startNode,
-                [],
-                new HashSet<string>(StringComparer.OrdinalIgnoreCase) { startNode },
+                pathBuffer,
+                visited,
                 results,
                 seenPathSignatures, neighborhood, runScope, resourceIds,
-                neighborhood?.TouchesSeed(startNode) == true);
+                neighborhood?.TouchesSeed(startNode) == true,
+                limits);
         }
 
-        return results;
+        limits.SetPathsEmitted(results.Count);
+
+        return new ReachabilityPathEnumerationResult
+        {
+            Candidates = results,
+            LimitHits = limits.ToHits(options),
+        };
     }
 
     private static void DepthFirstSearch(
@@ -66,9 +83,24 @@ internal static class IntendedReachabilityPathEnumerator
         SecureNowArchitectTraversalNeighborhood? neighborhood,
         SecureNowArchitectEngineRunScope? runScope,
         IReadOnlyDictionary<string, Guid> resourceIds,
-        bool touchedSeed)
+        bool touchedSeed,
+        SecurityEvidencePathSearchLimitTracker limits)
     {
-        if (path.Count >= options.MaxDepth || results.Count >= options.MaxPaths)
+        if (SecurityEvidencePathSearchLimitGuard.StopForDepth(
+                limits,
+                options,
+                path.Count,
+                graph.OutgoingEdges,
+                currentNode,
+                visited)
+            || SecurityEvidencePathSearchLimitGuard.StopForPathCap(
+                limits,
+                options,
+                results.Count,
+                graph.OutgoingEdges.TryGetValue(currentNode, out List<PrivilegePathEdge>? cappedEdges)
+                    ? cappedEdges
+                    : [],
+                visited))
         {
             return;
         }
@@ -92,9 +124,20 @@ internal static class IntendedReachabilityPathEnumerator
 
         int fanOut = 0;
 
-        foreach (PrivilegePathEdge edge in edges.OrderBy(static candidate => candidate.EdgeType, StringComparer.Ordinal))
+        foreach (PrivilegePathEdge edge in edges)
         {
-            if (fanOut >= options.MaxFanOutPerNode)
+            if (SecurityEvidencePathSearchLimitGuard.StopForFanOut(
+                    limits,
+                    options,
+                    fanOut,
+                    edges,
+                    visited)
+                || SecurityEvidencePathSearchLimitGuard.StopForPathCap(
+                    limits,
+                    options,
+                    results.Count,
+                    edges,
+                    visited))
             {
                 break;
             }
@@ -108,18 +151,22 @@ internal static class IntendedReachabilityPathEnumerator
                 continue;
 
             fanOut++;
-            List<PrivilegePathEdge> nextPath = [.. path, edge];
-            HashSet<string> nextVisited = [.. visited, edge.ToNodeId];
+            path.Add(edge);
+            visited.Add(edge.ToNodeId);
 
             DepthFirstSearch(
                 graph,
                 options,
                 edge.ToNodeId,
-                nextPath,
-                nextVisited,
+                path,
+                visited,
                 results,
                 seenPathSignatures, neighborhood, runScope, resourceIds,
-                touchedSeed || neighborhood?.TouchesSeed(edge.ToNodeId) == true);
+                touchedSeed || neighborhood?.TouchesSeed(edge.ToNodeId) == true,
+                limits);
+
+            path.RemoveAt(path.Count - 1);
+            visited.Remove(edge.ToNodeId);
         }
     }
 
@@ -243,10 +290,23 @@ internal static class IntendedReachabilityPathEnumerator
         }
 
         if (!hasInsufficientEvidence
-            && graph.EdgeControlIndex is not null
-            && TryAppendEdgeControlInsufficientHop(graph, finalHops, hasPublicExposureHop, currentNode))
+            && graph.EdgeControlIndex is not null)
         {
-            hasInsufficientEvidence = true;
+            NetworkEdgeControlHopResult edgeControlResult = TryApplyNetworkEdgeControlHops(
+                graph,
+                finalHops,
+                hasPublicExposureHop,
+                currentNode);
+
+            if (edgeControlResult == NetworkEdgeControlHopResult.PathDenied)
+            {
+                return false;
+            }
+
+            if (edgeControlResult == NetworkEdgeControlHopResult.InsufficientAdded)
+            {
+                hasInsufficientEvidence = true;
+            }
         }
 
         candidate = new ReachabilityPathCandidate
@@ -295,7 +355,15 @@ internal static class IntendedReachabilityPathEnumerator
         return false;
     }
 
-    private static bool TryAppendEdgeControlInsufficientHop(
+    private enum NetworkEdgeControlHopResult
+    {
+        NotApplied = 0,
+        InsufficientAdded = 1,
+        AllowedAdded = 2,
+        PathDenied = 3,
+    }
+
+    private static NetworkEdgeControlHopResult TryApplyNetworkEdgeControlHops(
         InventoryReachabilityPathGraphSnapshot graph,
         List<PrivilegePathEdge> finalHops,
         bool hasPublicExposureHop,
@@ -308,17 +376,42 @@ internal static class IntendedReachabilityPathEnumerator
                      .Where(InventoryReachabilityPathGraph.IsSubnetNode)
                      .Distinct(StringComparer.OrdinalIgnoreCase))
         {
+            if (graph.SubnetToFirewallArmId.ContainsKey(ArmResourceIdNormalizer.Normalize(subnetNode)))
+            {
+                AzureInventoryNetworkEdgeControlDecision firewallDecision =
+                    AzureInventoryReachabilityEdgeControlEvaluator.EvaluateSubnetFirewallRoute(
+                        subnetNode,
+                        graph.ReachabilityResourcesByArmId,
+                        graph.SubnetToFirewallArmId);
+
+                if (firewallDecision == AzureInventoryNetworkEdgeControlDecision.Deny)
+                {
+                    return NetworkEdgeControlHopResult.PathDenied;
+                }
+
+                if (firewallDecision == AzureInventoryNetworkEdgeControlDecision.Allow)
+                {
+                    AppendAllowedEdgeControlHop(finalHops, subnetNode, terminalAssetNodeId);
+
+                    return NetworkEdgeControlHopResult.AllowedAdded;
+                }
+
+                AppendInsufficientEdgeControlHop(finalHops, subnetNode, terminalAssetNodeId);
+
+                return NetworkEdgeControlHopResult.InsufficientAdded;
+            }
+
             if (edgeControlIndex.SubnetRequiresEdgeControlEvidence(subnetNode))
             {
-                AppendEdgeControlHop(finalHops, subnetNode, terminalAssetNodeId);
+                AppendInsufficientEdgeControlHop(finalHops, subnetNode, terminalAssetNodeId);
 
-                return true;
+                return NetworkEdgeControlHopResult.InsufficientAdded;
             }
         }
 
         if (!hasPublicExposureHop)
         {
-            return false;
+            return NetworkEdgeControlHopResult.NotApplied;
         }
 
         bool traversesEdgeAppliance = finalHops.Any(hop =>
@@ -327,21 +420,77 @@ internal static class IntendedReachabilityPathEnumerator
 
         if (traversesEdgeAppliance)
         {
-            return false;
+            return NetworkEdgeControlHopResult.NotApplied;
+        }
+
+        if (edgeControlIndex.TryGetApplicationGatewayForBackend(
+                terminalAssetNodeId,
+                out string applicationGatewayArmId)
+            && graph.ReachabilityResourcesByArmId.TryGetValue(
+                applicationGatewayArmId,
+                out AzureInventoryReachabilityResourceProperties? applicationGatewayResource))
+        {
+            AzureInventoryNetworkEdgeControlDecision agwDecision =
+                AzureInventoryReachabilityEdgeControlEvaluator.EvaluateApplicationGateway(
+                    applicationGatewayResource.Properties,
+                    terminalAssetNodeId);
+
+            if (agwDecision == AzureInventoryNetworkEdgeControlDecision.Deny)
+            {
+                return NetworkEdgeControlHopResult.PathDenied;
+            }
+
+            if (agwDecision == AzureInventoryNetworkEdgeControlDecision.Allow)
+            {
+                AppendAllowedEdgeControlHop(finalHops, applicationGatewayArmId, terminalAssetNodeId);
+
+                return NetworkEdgeControlHopResult.AllowedAdded;
+            }
+
+            AppendInsufficientEdgeControlHop(finalHops, terminalAssetNodeId, terminalAssetNodeId);
+
+            return NetworkEdgeControlHopResult.InsufficientAdded;
+        }
+
+        if (edgeControlIndex.TryGetFrontDoorForBackend(terminalAssetNodeId, out string frontDoorArmId)
+            && graph.ReachabilityResourcesByArmId.TryGetValue(
+                frontDoorArmId,
+                out AzureInventoryReachabilityResourceProperties? frontDoorResource))
+        {
+            AzureInventoryNetworkEdgeControlDecision frontDoorDecision =
+                AzureInventoryReachabilityEdgeControlEvaluator.EvaluateFrontDoor(
+                    frontDoorResource.Properties,
+                    terminalAssetNodeId);
+
+            if (frontDoorDecision == AzureInventoryNetworkEdgeControlDecision.Deny)
+            {
+                return NetworkEdgeControlHopResult.PathDenied;
+            }
+
+            if (frontDoorDecision == AzureInventoryNetworkEdgeControlDecision.Allow)
+            {
+                AppendAllowedEdgeControlHop(finalHops, frontDoorArmId, terminalAssetNodeId);
+
+                return NetworkEdgeControlHopResult.AllowedAdded;
+            }
+
+            AppendInsufficientEdgeControlHop(finalHops, terminalAssetNodeId, terminalAssetNodeId);
+
+            return NetworkEdgeControlHopResult.InsufficientAdded;
         }
 
         if (edgeControlIndex.AssetDeclaredBehindApplicationGateway(terminalAssetNodeId)
             || edgeControlIndex.AssetDeclaredBehindFrontDoor(terminalAssetNodeId))
         {
-            AppendEdgeControlHop(finalHops, terminalAssetNodeId, terminalAssetNodeId);
+            AppendInsufficientEdgeControlHop(finalHops, terminalAssetNodeId, terminalAssetNodeId);
 
-            return true;
+            return NetworkEdgeControlHopResult.InsufficientAdded;
         }
 
-        return false;
+        return NetworkEdgeControlHopResult.NotApplied;
     }
 
-    private static void AppendEdgeControlHop(
+    private static void AppendInsufficientEdgeControlHop(
         List<PrivilegePathEdge> finalHops,
         string fromNodeId,
         string toNodeId)
@@ -353,6 +502,21 @@ internal static class IntendedReachabilityPathEnumerator
             EdgeType = SecureNowArchitectConstants.InsufficientEvidenceNetworkEdgeControlHopEdgeType,
             ProvenanceKind = ProvenanceKind.DeterministicInference,
             RoleName = null,
+        });
+    }
+
+    private static void AppendAllowedEdgeControlHop(
+        List<PrivilegePathEdge> finalHops,
+        string fromNodeId,
+        string toNodeId)
+    {
+        finalHops.Add(new PrivilegePathEdge
+        {
+            FromNodeId = fromNodeId,
+            ToNodeId = toNodeId,
+            EdgeType = SecureNowArchitectConstants.NetworkEdgeControlAllowedHopEdgeType,
+            ProvenanceKind = ProvenanceKind.DeterministicInference,
+            RoleName = AzureInventoryReachabilityEdgeControlEvaluator.AllowedHopRoleName,
         });
     }
 }

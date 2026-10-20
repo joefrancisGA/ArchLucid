@@ -40,6 +40,8 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(GraphEdgeInferenceSources.InventoryNicSubnet, "in")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.NicToSubnet, "in")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedService, "uses")]
+    [InlineData(GraphEdgeInferenceSources.InventoryLogicAppConnection, "API connection")]
+    [InlineData(GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage, "Diagnostic setting names")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, "likely · in")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, "Reads from")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfWritesTo, "Writes to")]
@@ -63,9 +65,28 @@ public sealed class DiagramEdgeLabelHumanizerTests
     }
 
     [Fact]
+    public void ResolveDisplayLabel_maps_human_declared_connections_to_connects_verb()
+    {
+        DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
+                null,
+                GraphEdgeTypes.ConnectsTo,
+                GraphEdgeInferenceSources.HumanDeclaredConnection)
+            .Should()
+            .Be("connects");
+    }
+
+    [Fact]
     public void HumanizeLabel_preserves_custom_non_canonical_labels()
     {
         DiagramEdgeLabelHumanizer.HumanizeLabel("reads").Should().Be("reads");
+    }
+
+    [Fact]
+    public void ResolveDisplayLabel_returns_relationship_not_stored_when_inputs_are_blank()
+    {
+        DiagramEdgeLabelHumanizer.ResolveDisplayLabel(null, null, null)
+            .Should()
+            .Be("Relationship was not stored");
     }
 
     [Fact]
@@ -89,8 +110,9 @@ public sealed class DiagramEdgeLabelHumanizerTests
     }
 
     [Theory]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.DiagnosticToDestination, "Sends diagnostics to")]
-    [InlineData(GraphEdgeInferenceSources.InventoryDiagnosticDestination, "Sends diagnostics to")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.DiagnosticToDestination, "Diagnostic setting names")]
+    [InlineData(GraphEdgeInferenceSources.InventoryDiagnosticDestination, "Diagnostic setting names")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.DiagnosticSettingToStorage, "Diagnostic setting names")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AppAuthorizedAccess, "May access")]
     [InlineData(GraphEdgeTypes.MayAccess, "May access")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.EventGridToDestination, "Routes events to")]

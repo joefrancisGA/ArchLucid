@@ -13,17 +13,52 @@ public sealed class ProjectScopedOperationalSecurityFindingRepositoryAdapter(
     public Task<OperationalSecurityFindingRecord?> TryGetByIdInScopeAsync(ProjectScopeKey scope, Guid findingId, CancellationToken cancellationToken = default) =>
         inner.TryGetByIdInScopeAsync(scope, findingId, cancellationToken);
 
+    public Task<IReadOnlyList<OperationalSecurityFindingRecord>> ListByIdsInScopeAsync(
+        ProjectScopeKey scope,
+        IReadOnlyList<Guid> findingIds,
+        CancellationToken cancellationToken = default) =>
+        inner.ListByIdsInScopeAsync(scope, findingIds, cancellationToken);
+
     public Task<IReadOnlyList<OperationalSecurityFindingRecord>> ListByScopeAsync(ProjectScopeKey scope, OperationalSecurityFindingStatus? status, CancellationToken cancellationToken = default) =>
         inner.ListByScopeAsync(scope, status, cancellationToken);
 
     public Task<IReadOnlyList<OperationalSecurityFindingMetadataRecord>> ListMetadataByFindingInScopeAsync(ProjectScopeKey scope, Guid findingId, CancellationToken cancellationToken = default) =>
         inner.ListMetadataByFindingInScopeAsync(scope, findingId, cancellationToken);
 
+    public Task<IReadOnlyList<OperationalSecurityFindingMetadataRecord>> ListMetadataByFindingIdsInScopeAsync(
+        ProjectScopeKey scope,
+        IReadOnlyList<Guid> findingIds,
+        CancellationToken cancellationToken = default) =>
+        inner.ListMetadataByFindingIdsInScopeAsync(scope, findingIds, cancellationToken);
+
     public Task<(IReadOnlyList<OperationalSecurityFindingRecord> Items, int TotalCount)> ListByCloudResourceIdPagedInScopeAsync(ProjectScopeKey scope, Guid cloudResourceId, int page, int pageSize, CancellationToken cancellationToken = default) =>
         inner.ListByCloudResourceIdPagedInScopeAsync(scope, cloudResourceId, page, pageSize, cancellationToken);
 
     public Task<IReadOnlyList<Guid>> ListFindingIdsByPathIdInScopeAsync(ProjectScopeKey scope, Guid pathId, CancellationToken cancellationToken = default) =>
         inner.ListFindingIdsByPathIdInScopeAsync(scope, pathId, cancellationToken);
+
+    public Task<IReadOnlyDictionary<Guid, IReadOnlyList<Guid>>> ListFindingIdsBySnapshotInScopeAsync(
+        ProjectScopeKey scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default) =>
+        inner.ListFindingIdsBySnapshotInScopeAsync(scope, snapshotId, cancellationToken);
+
+    public Task<RemediationFactoryFindingMetricsAggregate> GetFactoryFindingMetricsAggregateInScopeAsync(
+        ProjectScopeKey scope,
+        DateTime weekStartUtc,
+        DateTime utcNow,
+        CancellationToken cancellationToken = default) =>
+        inner.GetFactoryFindingMetricsAggregateInScopeAsync(scope, weekStartUtc, utcNow, cancellationToken);
+
+    public Task<int> CountOpenOrRecurredInScopeAsync(ProjectScopeKey scope, CancellationToken cancellationToken = default) =>
+        inner.CountOpenOrRecurredInScopeAsync(scope, cancellationToken);
+
+    public Task<int> CountOutcomeRecurrencePairsInScopeAsync(
+        ProjectScopeKey scope,
+        DateTime windowStartUtc,
+        DateTime windowEndUtc,
+        CancellationToken cancellationToken = default) =>
+        inner.CountOutcomeRecurrencePairsInScopeAsync(scope, windowStartUtc, windowEndUtc, cancellationToken);
 
     public Task<IReadOnlyList<OperationalSecurityFindingObservationRecord>> ListObservationsByFindingInScopeAsync(ProjectScopeKey scope, Guid findingId, CancellationToken cancellationToken = default) =>
         inner.ListObservationsByFindingInScopeAsync(scope, findingId, cancellationToken);
@@ -52,6 +87,23 @@ public sealed class ProjectScopedRemediationInstanceRepositoryAdapter(
 
     public Task<IReadOnlyList<RemediationInstanceRecord>> ListByScopeAsync(ProjectScopeKey scope, CancellationToken cancellationToken = default) =>
         inner.ListByScopeAsync(scope, cancellationToken);
+
+    public Task<IReadOnlyDictionary<string, int>> CountOpenInstancesByStatusInScopeAsync(
+        ProjectScopeKey scope,
+        CancellationToken cancellationToken = default) =>
+        inner.CountOpenInstancesByStatusInScopeAsync(scope, cancellationToken);
+
+    public Task<RemediationFactoryInstanceMetricsAggregate> GetFactoryInstanceMetricsAggregateInScopeAsync(
+        ProjectScopeKey scope,
+        DateTime weekStartUtc,
+        CancellationToken cancellationToken = default) =>
+        inner.GetFactoryInstanceMetricsAggregateInScopeAsync(scope, weekStartUtc, cancellationToken);
+
+    public Task<IReadOnlyDictionary<Guid, RemediationInstanceRecord>> ListLatestApprovedByFindingIdsInScopeAsync(
+        ProjectScopeKey scope,
+        IReadOnlyCollection<Guid> findingIds,
+        CancellationToken cancellationToken = default) =>
+        inner.ListLatestApprovedByFindingIdsInScopeAsync(scope, findingIds, cancellationToken);
 
     public Task<(IReadOnlyList<RemediationInstanceRecord> Items, int TotalCount)> ListByCloudResourceIdPagedInScopeAsync(ProjectScopeKey scope, Guid cloudResourceId, int page, int pageSize, CancellationToken cancellationToken = default) =>
         inner.ListByCloudResourceIdPagedInScopeAsync(scope, cloudResourceId, page, pageSize, cancellationToken);

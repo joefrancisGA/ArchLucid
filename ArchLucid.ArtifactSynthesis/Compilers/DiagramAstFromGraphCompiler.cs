@@ -36,6 +36,11 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         List<GraphNode> topologyNodes = ApplyModeNodeFilter(graph, allTopologyNodes.ToList(), mode, options);
 
+        if (isDataArchitectureMode)
+        {
+            topologyNodes = DataFlowPlacementEndpointIncluder.Include(graph, topologyNodes);
+        }
+
         if (mode == DiagramMode.Avd)
         {
             topologyNodes = InventoryDiagramAvdViewFilter.IncludeAvdDiagramNodes(graph, topologyNodes);
@@ -63,6 +68,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         if (isDataFlowMode)
         {
             topologyNodes = DataFlowEvidenceEndpointIncluder.Include(graph, topologyNodes);
+            topologyNodes = DataFlowPlacementEndpointIncluder.Include(graph, topologyNodes);
             topologyNodes = DataFlowTraversalHopEndpointIncluder.Include(graph, topologyNodes);
         }
         else if (!isSecureNowDataMode)
@@ -109,8 +115,12 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             includedEdges = DiagramRecoveryServicesIncluder.IncludeEdges(graph, includedEdges, includedNodeIds);
         }
 
+        IReadOnlyDictionary<string, string> dataFlowStageOverrides = isDataFlowMode
+            ? DiagramDataFlowEffectiveStageResolver.BuildStageOverrides(topologyNodes, includedEdges)
+            : new Dictionary<string, string>(StringComparer.Ordinal);
+
         IReadOnlyList<DiagramSubgraph> subgraphs = isDataFlowMode
-            ? DiagramDataFlowStageSubgraphPlanner.PlanSubgraphs(topologyNodes)
+            ? DiagramDataFlowStageSubgraphPlanner.PlanSubgraphs(topologyNodes, dataFlowStageOverrides)
             : isDataArchitectureMode
                 ? DiagramDataArchitectureTypeGroupPlanner.PlanSubgraphs(topologyNodes)
                 : subgraphPlanner.PlanSubgraphs(topologyNodes);
@@ -135,7 +145,13 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             string mermaidNodeId = MermaidIdSanitizer.Sanitize(node.NodeId);
             nodeIdMap[node.NodeId] = mermaidNodeId;
 
-            DiagramNode diagramNode = BuildDiagramNode(node, mermaidNodeId, subgraphs, mode, order++);
+            DiagramNode diagramNode = BuildDiagramNode(
+                node,
+                mermaidNodeId,
+                subgraphs,
+                mode,
+                order++,
+                dataFlowStageOverrides);
 
             if (policyQuestionableNodes.TryGetValue(node.NodeId, out DiagramQuestionableAttention? policyAttention))
             {
@@ -204,14 +220,25 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         bool retainNetworkDetailNodes = mode == DiagramMode.ResourceGroup
             || (mode == DiagramMode.FullSubscription && options.IncludeNetworkDetails);
 
-        // Data architecture is a placement canvas: containment and movement hydrators
-        // would draw Reads from / Writes to that the mode's honesty caption forbids.
+        // Data architecture is a placement canvas: movement hydrators would draw Reads from /
+        // Writes to that the mode's honesty caption forbids. Hidden-hop compose still runs so
+        // subnet / VNet placement survives mode filters (IDX-02).
 
-        if (!isDataArchitectureMode)
+        if (isDataArchitectureMode)
+        {
+            DiagramArmParentChildEdgeHydrator.Apply(ast, graph, nodeIdMap);
+            DiagramCollapsedAttachmentEdgeLifter.Apply(ast, graph, nodeIdMap);
+        }
+        else
         {
             DiagramArmParentChildEdgeHydrator.Apply(ast, graph, nodeIdMap);
             DiagramCollapsedAttachmentEdgeLifter.Apply(ast, graph, nodeIdMap);
             DiagramAstLayoutEdgeBuilder.AddDerivedVmVnetLayoutEdges(ast, graph, mode, nodeIdMap);
+            if (mode == DiagramMode.Network)
+            {
+                DiagramAstSubnetPlacementEdgeEnsurer.Apply(ast, graph, nodeIdMap);
+            }
+
             InventoryDiagramNodeRelationshipApplier.Apply(
                 ast,
                 graph,
@@ -242,6 +269,8 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             InventoryDiagramHiddenPublicIpMarkApplier.Apply(ast, graph, nodeIdMap, retainNetworkDetailNodes);
             InventoryDiagramDefaultRouteRelationshipApplier.Apply(ast, graph, nodeIdMap);
             InventoryDiagramKubernetesServiceLoadBalancerRelationshipApplier.Apply(ast);
+            InventoryDiagramFabricCapacityRelationshipApplier.Apply(ast);
+            InventoryDiagramStaticSiteRelationshipApplier.Apply(ast);
             InventoryDiagramLoadBalancerBackendRelationshipApplier.Apply(ast, graph, nodeIdMap);
             InventoryDiagramVnetPeeringRelationshipApplier.Apply(ast, graph, nodeIdMap, mode);
             InventoryDiagramExternalTargetApplier.Apply(ast, graph, nodeIdMap, mode);
@@ -361,7 +390,8 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         string mermaidNodeId,
         IReadOnlyList<DiagramSubgraph> subgraphs,
         DiagramMode mode,
-        int orderKey)
+        int orderKey,
+        IReadOnlyDictionary<string, string> dataFlowStageOverrides)
     {
         // Rollup nodes ("+N more databases") are not real resources: no seed, so the outline
         // does not offer Focus neighborhood on them, and no ARM metadata to humanize.
@@ -369,7 +399,10 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         string? subgraphId = mode switch
         {
-            DiagramMode.DataFlow => DiagramDataFlowStageSubgraphPlanner.ResolveSubgraphId(node, subgraphs),
+            DiagramMode.DataFlow => DiagramDataFlowStageSubgraphPlanner.ResolveSubgraphId(
+                node,
+                subgraphs,
+                dataFlowStageOverrides),
             DiagramMode.DataArchitecture => DiagramDataArchitectureTypeGroupPlanner.ResolveSubgraphId(node, subgraphs),
             _ => subgraphPlanner.ResolveSubgraphId(node, subgraphs),
         };
@@ -556,12 +589,14 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
                 return ApplyNetworkInterfaceCollapse(
                     graph,
                     mode,
-                    DiagramNicCollapseApplier.IncludeVirtualMachinesAttachedToNetworkInterfaces(
+                    NetworkDiagramPlacementWorkloadIncluder.Include(
                         graph,
-                        IncludeInventoryConnectedVirtualMachines(
+                        DiagramNicCollapseApplier.IncludeVirtualMachinesAttachedToNetworkInterfaces(
                             graph,
-                            NetworkDiagramNodeFilter.ExcludeNetworkInterfaces(
-                                FilterByCategories(nodes, GraphTopologyCategories.Network)))));
+                            IncludeInventoryConnectedVirtualMachines(
+                                graph,
+                                NetworkDiagramNodeFilter.ExcludeNetworkInterfaces(
+                                    FilterByCategories(nodes, GraphTopologyCategories.Network))))));
             case DiagramMode.Security:
                 return ApplyNetworkInterfaceCollapse(
                     graph,
@@ -640,11 +675,6 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
     private static bool HidePrivateEndpointCards(DiagramMode mode, DiagramAstCompileOptions options)
     {
-        if (mode == DiagramMode.ResourceGroup)
-        {
-            return false;
-        }
-
         if (mode == DiagramMode.FullSubscription && options.IncludeNetworkDetails)
         {
             return false;
@@ -823,9 +853,12 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
     {
         foreach (GraphEdge edge in graph.Edges)
         {
-            if (edge.InferenceSource?.Equals(
-                    GraphEdgeInferenceSources.InventoryResourceGroupCollocation,
-                    StringComparison.OrdinalIgnoreCase) == true)
+            if (edge.Weight < DiagramAstFromGraphCompilerConstants.MinimumEdgeWeight)
+            {
+                continue;
+            }
+
+            if (!InventoryDiagramIndirectRelationshipResolver.IsCitedEdge(edge))
             {
                 continue;
             }
@@ -857,103 +890,19 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         }
 
         HashSet<string> nodeIds = nodes.Select(node => node.NodeId).ToHashSet(StringComparer.Ordinal);
-        Dictionary<string, List<string>> adjacency = nodeIds.ToDictionary(
-            nodeId => nodeId,
-            _ => new List<string>(),
-            StringComparer.Ordinal);
-
-        foreach (GraphEdge edge in graph.Edges)
-        {
-            if (edge.Weight < DiagramAstFromGraphCompilerConstants.MinimumEdgeWeight)
-            {
-                continue;
-            }
-
-            if (!adjacency.ContainsKey(edge.FromNodeId) || !adjacency.ContainsKey(edge.ToNodeId))
-            {
-                continue;
-            }
-
-            adjacency[edge.FromNodeId].Add(edge.ToNodeId);
-            adjacency[edge.ToNodeId].Add(edge.FromNodeId);
-        }
-
-        AddParentInventoryAdjacency(nodes, adjacency);
-
-        HashSet<string> visited = new(StringComparer.Ordinal);
-        Queue<(string NodeId, int Depth)> queue = new();
-        queue.Enqueue((resolvedSeedNodeId, 0));
-        visited.Add(resolvedSeedNodeId);
-
-        while (queue.Count > 0)
-        {
-            (string nodeId, int depth) = queue.Dequeue();
-
-            if (depth >= options.NeighborhoodDepth)
-            {
-                continue;
-            }
-
-            if (!adjacency.TryGetValue(nodeId, out List<string>? neighbors))
-            {
-                continue;
-            }
-
-            foreach (string neighbor in neighbors)
-            {
-                if (visited.Add(neighbor))
-                {
-                    queue.Enqueue((neighbor, depth + 1));
-                }
-            }
-        }
+        Dictionary<string, HashSet<string>> adjacency =
+            DiagramHopFocusGraphAdjacencyBuilder.Build(graph, nodeIds);
+        HashSet<string> visited = DiagramHopFocusGraphAdjacencyBuilder.CollectReachable(
+            adjacency,
+            resolvedSeedNodeId,
+            options.NeighborhoodDepth);
 
         return nodes
             .Where(node => visited.Contains(node.NodeId))
+            .Where(node => !DiagramHopFocusGraphAdjacencyBuilder.IsHiddenTransitNode(node))
             .ToList();
     }
 
-    private static void AddParentInventoryAdjacency(
-        List<GraphNode> nodes,
-        Dictionary<string, List<string>> adjacency)
-    {
-        Dictionary<string, string> nodeIdByArmId = new(StringComparer.OrdinalIgnoreCase);
-
-        foreach (GraphNode node in nodes)
-        {
-            string armId = DiagramAstGraphNodeClassifier.ReadArmId(node);
-
-            if (string.IsNullOrWhiteSpace(armId) || nodeIdByArmId.ContainsKey(armId))
-            {
-                continue;
-            }
-
-            nodeIdByArmId[armId] = node.NodeId;
-        }
-
-        foreach (GraphNode node in nodes)
-        {
-            if (node.Properties is null
-                || !node.Properties.TryGetValue("arm.parentId", out string? parentId)
-                || string.IsNullOrWhiteSpace(parentId))
-            {
-                continue;
-            }
-
-            if (!nodeIdByArmId.TryGetValue(parentId, out string? parentNodeId))
-            {
-                continue;
-            }
-
-            if (!adjacency.ContainsKey(parentNodeId) || !adjacency.ContainsKey(node.NodeId))
-            {
-                continue;
-            }
-
-            adjacency[parentNodeId].Add(node.NodeId);
-            adjacency[node.NodeId].Add(parentNodeId);
-        }
-    }
 
     private static List<GraphNode> ApplyDataFlowFilter(List<GraphNode> nodes)
     {

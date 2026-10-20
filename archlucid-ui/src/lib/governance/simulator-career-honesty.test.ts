@@ -99,4 +99,19 @@ describe("simulator semantic support band presentation (AS-068)", () => {
     expect(presentation.label).toBe("Not scored");
     expect(presentation.isRehearsalPresentation).toBe(true);
   });
+
+  it("labels stored empty and unrecognized wire bands on career surfaces", () => {
+    expect(
+      presentDecisionGradeSemanticSupportBand({
+        wireBand: "",
+        structuralExecutionMode: StructuralExecutionModeWire.Real,
+      }).label,
+    ).toBe("Semantic support band was stored empty.");
+    expect(
+      presentDecisionGradeSemanticSupportBand({
+        wireBand: "Foo",
+        structuralExecutionMode: StructuralExecutionModeWire.Real,
+      }).label,
+    ).toBe("Semantic support band was not recognized.");
+  });
 });

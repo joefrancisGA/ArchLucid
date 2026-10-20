@@ -17,11 +17,11 @@ import {
   securityEvidencePathConfidenceBandStatusKind,
 } from "@/lib/security-evidence-path-presentation";
 import type { SecurityEvidencePathRankSummary } from "@/lib/security-evidence-path-types";
+import { SecurityEvidencePathRankReasonCell } from "@/components/security/SecurityEvidencePathRankReasonCell";
+import { SecurityEvidencePathRankSortKeyDisclosure } from "@/components/security/SecurityEvidencePathRankSortKeyDisclosure";
 import { SECURENOW_PATH_RANKED_PATHS_TITLE } from "@/lib/product-line/securenow-path-inspect-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
 import { cn } from "@/lib/utils";
-
-import { RemediationFactoryTableSummaryCell } from "./RemediationFactoryTableSummaryCell";
 
 export function RemediationFactoryRankedPathsTable(props: {
   readonly rows: ReadonlyArray<SecurityEvidencePathRankSummary>;
@@ -32,9 +32,12 @@ export function RemediationFactoryRankedPathsTable(props: {
   readonly page: number;
   readonly pageSize: number;
   readonly onPageChange?: (page: number) => void;
+  readonly pageControlsBusy?: boolean;
+  readonly showSortKeyColumn?: boolean;
 }) {
   const showing = props.rows.length;
-  const rankSource = "Server rank (composite sort)";
+  const showSortKeyColumn = props.showSortKeyColumn ?? true;
+  const rankSource = showSortKeyColumn ? "Server rank (composite sort)" : "Recorded rank";
 
   return (
     <div className="space-y-2">
@@ -47,7 +50,7 @@ export function RemediationFactoryRankedPathsTable(props: {
             type="button"
             variant="outline"
             size="sm"
-            disabled={props.page <= 1}
+            disabled={props.page <= 1 || props.pageControlsBusy === true}
             onClick={() => props.onPageChange?.(props.page - 1)}
             data-testid="remediation-factory-ranked-paths-prev-page"
           >
@@ -57,7 +60,7 @@ export function RemediationFactoryRankedPathsTable(props: {
             type="button"
             variant="outline"
             size="sm"
-            disabled={props.page * props.pageSize >= props.totalCount}
+            disabled={props.page * props.pageSize >= props.totalCount || props.pageControlsBusy === true}
             onClick={() => props.onPageChange?.(props.page + 1)}
             data-testid="remediation-factory-ranked-paths-next-page"
           >
@@ -89,13 +92,15 @@ export function RemediationFactoryRankedPathsTable(props: {
             <EnterpriseTableHeaderCell>
               <span>Band</span>
               <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-                Path evidence band — capped by the weakest hop, not a percentage.
+                Evidence strength for the whole path.
               </span>
             </EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>
-              <span>Score</span>
-              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>Sort key. Not a percentage.</span>
-            </EnterpriseTableHeaderCell>
+            {showSortKeyColumn ? (
+              <EnterpriseTableHeaderCell>
+                <span>Score</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>Sort key. Not a percentage.</span>
+              </EnterpriseTableHeaderCell>
+            ) : null}
           </EnterpriseTableRow>
         </EnterpriseTableHead>
         <EnterpriseTableBody>
@@ -116,16 +121,7 @@ export function RemediationFactoryRankedPathsTable(props: {
                     {selected ? <StatusTag kind="ready" label="Inspecting" /> : null}
                   </span>
                 </EnterpriseTableCell>
-                <EnterpriseTableCell>
-                  <RemediationFactoryTableSummaryCell
-                    rowKey={row.pathId}
-                    summary={
-                      row.explanationSummary.trim().length > 0
-                        ? row.explanationSummary
-                        : "Path recorded. Open inspect for the hops."
-                    }
-                  />
-                </EnterpriseTableCell>
+                <SecurityEvidencePathRankReasonCell rank={row} />
                 <EnterpriseTableCell title={row.pathKind}>{formatSecurityEvidencePathKindLabel(row.pathKind)}</EnterpriseTableCell>
                 <EnterpriseTableCell>
                   <StatusTag
@@ -136,10 +132,14 @@ export function RemediationFactoryRankedPathsTable(props: {
                     Open inspect for weakest-hop band limits.
                   </p>
                 </EnterpriseTableCell>
-                <EnterpriseTableCell className="tabular-nums">
-                  <span className="tabular-nums">{row.compositeSortScore.toFixed(4)}</span>
-                  <p className={cn("m-0 mt-1 font-normal", OPERATOR_TYPOGRAPHY.micro)}>Sort key only</p>
-                </EnterpriseTableCell>
+                {showSortKeyColumn ? (
+                  <EnterpriseTableCell>
+                    <SecurityEvidencePathRankSortKeyDisclosure
+                      pathId={row.pathId}
+                      compositeSortScore={row.compositeSortScore}
+                    />
+                  </EnterpriseTableCell>
+                ) : null}
               </EnterpriseTableInteractiveRow>
             );
           })}

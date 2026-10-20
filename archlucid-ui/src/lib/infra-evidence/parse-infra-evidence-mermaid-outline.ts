@@ -1,3 +1,4 @@
+import { INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_OBSERVED } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
 import { normalizeSecureNowResourceNameForDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
 import { findUnquotedMermaidCommentIndex } from "@/lib/mermaid/find-unquoted-mermaid-comment-index";
 
@@ -306,6 +307,14 @@ function emptyOutlineEdgeMetadata(): OutlineEdgeMetadata {
   };
 }
 
+export function formatInfraEvidenceOutlineProvenanceReviewerBand(provenanceKind: string): string {
+  if (provenanceKind === "ObservedFact") {
+    return INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_OBSERVED;
+  }
+
+  return `Provenance "${provenanceKind}" has no reviewer band.`;
+}
+
 function resolveOutlineEdgeSourceFromProvenance(provenanceKind: string): InfraEvidenceDiagramOutlineEdgeSource {
   const normalized = provenanceKind.toLowerCase();
 
@@ -325,7 +334,11 @@ function resolveOutlineEdgeSourceFromProvenance(provenanceKind: string): InfraEv
     return "inferred";
   }
 
-  return "observed";
+  if (normalized === "observedfact") {
+    return "observed";
+  }
+
+  return "missing";
 }
 
 function parseOutlineEdgeMetadata(comment: string): OutlineEdgeMetadata {
@@ -415,6 +428,19 @@ export function hasInfraEvidenceProbableDiagramEdges(
   }
 
   return /al-provenance=DerivedFact/iu.test(source);
+}
+
+export function hasInfraEvidenceUnclassifiedDiagramEdges(
+  outline: InfraEvidenceMermaidOutline | null,
+  layoutSvg?: string | null,
+): boolean {
+  if (outline != null && outline.edges.some((edge) => edge.source === "missing")) {
+    return true;
+  }
+
+  const svg = layoutSvg?.trim() ?? "";
+
+  return svg.length > 0 && /stroke-dasharray\s*=\s*["']2\s+2["']/iu.test(svg);
 }
 
 export function hasInfraEvidenceInferredDiagramEdges(
@@ -630,7 +656,9 @@ export function resolveInfraEvidenceOutlineNodeLabel(
     return "Endpoint was not in this diagram outline";
   }
 
-  if (match.label.trim().length === 0) {
+  const trimmedLabel = match.label.trim();
+
+  if (trimmedLabel.length === 0 || trimmedLabel === "—" || trimmedLabel === "-") {
     return "Node name was not stored";
   }
 

@@ -1,22 +1,17 @@
 using ArchLucid.ArtifactSynthesis.Models;
-using ArchLucid.KnowledgeGraph;
-using ArchLucid.KnowledgeGraph.Inventory;
 
 namespace ArchLucid.ArtifactSynthesis.Compilers;
 
 /// <summary>
-///     Labels blank or generic VNet-to-VNet connectors as peering. Executive VNet pairs are peering
-///     when a stored edge exists; the compiler does not invent extra pairs here.
+///     Labels visible connectors when no relationship verb was stored. Stored verbs are left unchanged.
 /// </summary>
 internal static class DiagramConnectionTypeAnnotator
 {
+    public const string RelationshipNotStoredLabel = "Relationship was not stored";
+
     public static void Annotate(DiagramAst ast)
     {
         ArgumentNullException.ThrowIfNull(ast);
-
-        Dictionary<string, DiagramNode> nodesById = ast.Nodes.ToDictionary(
-            node => node.NodeId,
-            StringComparer.Ordinal);
 
         foreach (DiagramEdge edge in ast.Edges)
         {
@@ -25,41 +20,12 @@ internal static class DiagramConnectionTypeAnnotator
                 continue;
             }
 
-            if (!nodesById.TryGetValue(edge.FromNodeId, out DiagramNode? fromNode)
-                || !nodesById.TryGetValue(edge.ToNodeId, out DiagramNode? toNode))
+            if (!string.IsNullOrWhiteSpace(edge.Label))
             {
                 continue;
             }
 
-            if (!IsVirtualNetwork(fromNode) || !IsVirtualNetwork(toNode))
-            {
-                continue;
-            }
-
-            if (!ShouldReplaceWithPeering(edge.Label))
-            {
-                continue;
-            }
-
-            edge.Label = "peering";
+            edge.Label = RelationshipNotStoredLabel;
         }
-    }
-
-    private static bool ShouldReplaceWithPeering(string? label)
-    {
-        if (string.IsNullOrWhiteSpace(label))
-        {
-            return true;
-        }
-
-        string trimmed = label.Trim();
-
-        return string.Equals(trimmed, "connects", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(trimmed, GraphEdgeTypes.ConnectsTo, StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static bool IsVirtualNetwork(DiagramNode node)
-    {
-        return AzureInventoryTopologyCategory.IsVirtualNetworkArmType(node.ArmResourceType ?? string.Empty);
     }
 }

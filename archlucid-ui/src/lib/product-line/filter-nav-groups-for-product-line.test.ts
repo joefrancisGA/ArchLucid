@@ -115,9 +115,9 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
       "/integrations/cloud-connections",
       "/infrastructure/declared-connections",
       "/administration/connection-status",
-      "/infrastructure/extract-upload",
+      "/infrastructure/manual-upload",
     ]);
-    expect(environmentLinks.some((link) => link.label === "Ask about your environment")).toBe(true);
+    expect(environmentLinks.some((link) => link.label === "Ask About Your Environment")).toBe(true);
     expect(environmentLinks.some((link) => link.href === SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH)).toBe(true);
     expect(environmentLinks.some((link) => link.href === "/governance/infrastructure/diagrams")).toBe(false);
     expect(dataSourceLinks.some((link) => link.href === "/governance/infrastructure/extract-upload")).toBe(false);
@@ -131,31 +131,31 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
     expect(dataSourceLinks.find((link) => link.href === "/integrations/cloud-connections")?.label).toBe(
       SECURENOW_AZURE_CONNECTIONS_NAV_LABEL,
     );
-    expect(findingsLinks.map((link) => link.label)).toEqual(["My findings", "All findings"]);
+    expect(findingsLinks.map((link) => link.label)).toEqual(["My Findings", "All Findings"]);
     expect(remediationLinks.map((link) => link.label)).toEqual([
-      "Priorities & waves",
-      "Fix playbooks",
-      "Remediation tracker",
+      "Priorities & Waves",
+      "Fix Playbooks",
+      "Remediation Tracker",
     ]);
     expect(environmentLinks.map((link) => link.label)).toEqual([
       "Resources",
       "Diagrams",
-      "Diagram reconciliation",
-      "Changes & drift",
-      "Ask about your environment",
-      "Terraform mapping",
+      "Diagram Reconciliation",
+      "Changes & Drift",
+      "Ask About Your Environment",
+      "Terraform Mapping",
     ]);
     expect(complianceLinks.map((link) => link.label)).toEqual([
       "Frameworks",
-      "Effective rules",
-      "Audit evidence",
+      "Effective Rules",
+      "Audit Evidence",
     ]);
     expect(dataSourceLinks.map((link) => link.label)).toEqual([
-      "Collection agent",
-      "Azure connections",
-      "Declared connections",
-      "Connection status",
-      "Manual upload",
+      "Collection Agent",
+      "Azure Connections",
+      "Declared Connections",
+      "Connection Status",
+      "Manual Upload",
     ]);
     expect(rows.map((row) => row.group.caption)).toEqual([
       undefined,

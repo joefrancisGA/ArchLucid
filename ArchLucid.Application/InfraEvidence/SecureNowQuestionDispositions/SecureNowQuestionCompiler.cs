@@ -28,12 +28,14 @@ public sealed class SecureNowQuestionCompiler
     public IReadOnlyList<SecureNowQuestionRecord> Compile(
         ScopeContext scope,
         AzureInventorySnapshotDetailReadModel snapshot,
+        IReadOnlyList<SecureNowPackQuestionCandidate> packCandidates,
         IReadOnlyList<SecureNowDiagramQuestionCandidate> diagramCandidates,
         IReadOnlyList<OperatorInferredConnectionRecord> inferredConnections,
         IReadOnlyList<SecureNowQuestionDispositionRecord> dispositions)
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(snapshot);
+        ArgumentNullException.ThrowIfNull(packCandidates);
         ArgumentNullException.ThrowIfNull(diagramCandidates);
         ArgumentNullException.ThrowIfNull(inferredConnections);
         ArgumentNullException.ThrowIfNull(dispositions);
@@ -53,6 +55,44 @@ public sealed class SecureNowQuestionCompiler
         Dictionary<string, AzureInventoryResourceRecord> resourcesById = snapshot.Resources
             .GroupBy(resource => Normalize(resource.AzureResourceId), StringComparer.OrdinalIgnoreCase)
             .ToDictionary(group => group.Key, group => group.First(), StringComparer.OrdinalIgnoreCase);
+
+        foreach (SecureNowPackQuestionCandidate packCandidate in packCandidates
+                     .OrderBy(candidate => Normalize(candidate.ResourceId), StringComparer.Ordinal)
+                     .ThenBy(candidate => NormalizeQuestionKey(candidate.QuestionKey), StringComparer.Ordinal))
+        {
+            string questionKey = NormalizeQuestionKey(packCandidate.QuestionKey);
+            if (questionKey.Length == 0)
+                continue;
+
+            string resourceId = Normalize(packCandidate.ResourceId);
+            string fingerprint = Fingerprint(
+                questionKey,
+                resourceId,
+                packCandidate.QuestionText);
+
+            AddQuestion(
+                questions,
+                emitted,
+                dispositionsByIdentity,
+                new SecureNowQuestionRecord
+                {
+                    SnapshotId = snapshot.Header.SnapshotId,
+                    SubscriptionId = subscriptionId,
+                    ResourceId = resourceId,
+                    QuestionKey = questionKey,
+                    Source = SecureNowQuestionSource.PolicyPack,
+                    ScopeKind = packCandidate.ScopeKind,
+                    QuestionText = packCandidate.QuestionText,
+                    ReasonText = packCandidate.ReasonText,
+                    SourceLine = "Policy pack",
+                    AnswerCodes = packCandidate.AnswerCodes,
+                    EvidenceFingerprint = fingerprint,
+                    Status = SecureNowQuestionDispositionStatus.Open,
+                },
+                now,
+                resourcesById,
+                packCandidate.ResourceType);
+        }
 
         foreach (OperatorInferredConnectionRecord inferred in inferredConnections
                      .Where(record => record.Status == OperatorInferredConnectionStatus.Proposed)

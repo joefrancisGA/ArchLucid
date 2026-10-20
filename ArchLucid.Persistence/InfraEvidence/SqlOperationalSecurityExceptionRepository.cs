@@ -7,7 +7,7 @@ using Dapper;
 
 namespace ArchLucid.Persistence.InfraEvidence;
 
-public sealed class SqlOperationalSecurityExceptionRepository(ISqlConnectionFactory connectionFactory)
+public sealed partial class SqlOperationalSecurityExceptionRepository(ISqlConnectionFactory connectionFactory)
     : IOperationalSecurityExceptionRepository
 {
     public async Task InsertAsync(OperationalSecurityExceptionRecord record, CancellationToken cancellationToken = default)

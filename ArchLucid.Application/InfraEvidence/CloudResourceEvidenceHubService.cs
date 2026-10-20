@@ -1,4 +1,5 @@
 using ArchLucid.Application.InfraEvidence.Mermaid;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.InfraEvidence;
@@ -82,15 +83,16 @@ public sealed class CloudResourceEvidenceHubService(
                 cancellationToken);
         }
 
-        AzureInventorySnapshotDetailReadModel? snapshotDetail = snapshotId != Guid.Empty
-            ? await snapshotRepository.TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken)
+        ResourceHubSlice? resourceSlice = snapshotId != Guid.Empty
+            ? await LoadResourceHubSliceAsync(
+                scope,
+                snapshotId,
+                cloudResourceId,
+                identity.ExternalResourceIdNormalized,
+                cancellationToken)
             : null;
 
-        AzureInventoryResourceRecord? resourceRow = snapshotDetail?.Resources
-            .FirstOrDefault(row => row.CloudResourceId == cloudResourceId);
-
-        CloudResourceCurrentConfigurationSection? currentConfiguration =
-            resourceRow is null ? null : MapCurrentConfiguration(snapshotId, resourceRow, snapshotDetail!);
+        CloudResourceCurrentConfigurationSection? currentConfiguration = resourceSlice?.CurrentConfiguration;
 
         (string? terraformAddress, string? terraformGenerationMethod) =
             await ResolveTerraformMappingAsync(scope, snapshotId, cloudResourceId, cancellationToken);
@@ -153,7 +155,7 @@ public sealed class CloudResourceEvidenceHubService(
         {
             CloudResourceId = cloudResourceId,
             ExternalResourceId = identity.ExternalResourceIdNormalized,
-            ResourceType = identity.ResourceType ?? resourceRow?.ResourceType,
+            ResourceType = identity.ResourceType ?? resourceSlice?.ResourceRow?.ResourceType,
             CurrentConfiguration = currentConfiguration,
             TerraformAddress = terraformAddress,
             TerraformGenerationMethod = terraformGenerationMethod,
@@ -173,8 +175,8 @@ public sealed class CloudResourceEvidenceHubService(
                 pageSize,
                 architectureItems.Count),
             RemediationInstances = BuildRemediationPage(remediationPage, page, pageSize, remediationTotal),
-            RbacAssignments = MapRbacAssignments(snapshotDetail, identity.ExternalResourceIdNormalized),
-            NetworkRelationships = MapNetworkRelationships(snapshotDetail, identity.ExternalResourceIdNormalized),
+            RbacAssignments = resourceSlice?.RbacAssignments ?? [],
+            NetworkRelationships = resourceSlice?.NetworkRelationships ?? [],
             RecentChanges = recentChanges,
             AuditLineageLink = auditLineageLink,
             EvidencePointers = evidencePointers,
@@ -187,17 +189,101 @@ public sealed class CloudResourceEvidenceHubService(
         };
     }
 
+    private async Task<ResourceHubSlice?> LoadResourceHubSliceAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        Guid cloudResourceId,
+        string externalResourceId,
+        CancellationToken cancellationToken)
+    {
+        (IReadOnlyList<AzureInventoryResourceRecord> Items, int TotalCount)? pagedResources =
+            await snapshotRepository.ListResourcesBySnapshotIdPagedAsync(
+                scope,
+                snapshotId,
+                1,
+                1,
+                cloudResourceId,
+                cancellationToken);
+
+        if (pagedResources is null)
+            return null;
+
+        AzureInventoryResourceRecord? resourceRow = pagedResources.Value.Items.FirstOrDefault();
+
+        if (resourceRow is null)
+        {
+            return new ResourceHubSlice
+            {
+                ResourceRow = null,
+                CurrentConfiguration = null,
+                RbacAssignments = [],
+                NetworkRelationships = [],
+            };
+        }
+
+        IReadOnlyList<AzureInventoryResourcePropertyReadModel> properties =
+            await snapshotRepository.ListResourcePropertiesByResourceRowIdAsync(
+                scope,
+                snapshotId,
+                resourceRow.ResourceRowId,
+                cancellationToken);
+
+        IReadOnlyList<AzureInventoryTagReadModel> tags =
+            await snapshotRepository.ListResourceTagsByResourceRowIdAsync(
+                scope,
+                snapshotId,
+                resourceRow.ResourceRowId,
+                cancellationToken);
+
+        CloudResourceCurrentConfigurationSection currentConfiguration =
+            MapCurrentConfiguration(snapshotId, resourceRow, properties, tags);
+
+        IReadOnlyList<AzureInventoryResourceRecord>? visibilityRows =
+            await snapshotRepository.ListResourceVisibilityRowsBySnapshotIdAsync(scope, snapshotId, cancellationToken);
+
+        HashSet<string> visibleArmIds = visibilityRows is null
+            ? AzureInventoryVisibleSnapshotProjection.BuildVisibleArmIdSet(
+                AzureInventoryVisibleSnapshotProjection.FilterVisibleResources([]))
+            : AzureInventoryVisibleSnapshotProjection.BuildVisibleArmIdSet(
+                AzureInventoryVisibleSnapshotProjection.FilterVisibleResources(visibilityRows));
+
+        IReadOnlyList<AzureInventoryResourceRelationshipReadModel> touchingRelationships =
+            await snapshotRepository.ListRelationshipsTouchingAzureResourceIdAsync(
+                scope,
+                snapshotId,
+                externalResourceId,
+                cancellationToken);
+
+        List<AzureInventoryResourceRelationshipReadModel> visibleRelationships =
+            AzureInventoryVisibleSnapshotProjection.FilterVisibleRelationships(touchingRelationships, visibleArmIds);
+
+        IReadOnlyList<AzureInventoryRoleAssignmentReadModel> roleAssignments =
+            await snapshotRepository.ListRoleAssignmentsForAzureResourceScopeAsync(
+                scope,
+                snapshotId,
+                externalResourceId,
+                cancellationToken);
+
+        return new ResourceHubSlice
+        {
+            ResourceRow = resourceRow,
+            CurrentConfiguration = currentConfiguration,
+            RbacAssignments = MapRbacAssignments(roleAssignments, externalResourceId),
+            NetworkRelationships = MapNetworkRelationships(visibleRelationships, externalResourceId),
+        };
+    }
+
     private static CloudResourceCurrentConfigurationSection MapCurrentConfiguration(
         Guid snapshotId,
         AzureInventoryResourceRecord resourceRow,
-        AzureInventorySnapshotDetailReadModel snapshotDetail)
+        IReadOnlyList<AzureInventoryResourcePropertyReadModel> properties,
+        IReadOnlyList<AzureInventoryTagReadModel> tags)
     {
-        Dictionary<string, string> properties = snapshotDetail.Properties
-            .Where(row => row.ResourceRowId == resourceRow.ResourceRowId && !row.IsRedacted)
+        Dictionary<string, string> propertyMap = properties
+            .Where(row => !row.IsRedacted)
             .ToDictionary(row => row.PropertyKey, row => row.PropertyValue ?? string.Empty, StringComparer.OrdinalIgnoreCase);
 
-        Dictionary<string, string> tags = snapshotDetail.Tags
-            .Where(row => row.ResourceRowId == resourceRow.ResourceRowId)
+        Dictionary<string, string> tagMap = tags
             .ToDictionary(row => row.TagKey, row => row.TagValue ?? string.Empty, StringComparer.OrdinalIgnoreCase);
 
         return new CloudResourceCurrentConfigurationSection
@@ -207,9 +293,36 @@ public sealed class CloudResourceEvidenceHubService(
             ResourceType = resourceRow.ResourceType,
             ResourceGroup = resourceRow.ResourceGroup,
             Region = resourceRow.Region,
-            Properties = properties,
-            Tags = tags,
+            Properties = propertyMap,
+            Tags = tagMap,
         };
+    }
+
+    private sealed class ResourceHubSlice
+    {
+        public AzureInventoryResourceRecord? ResourceRow
+        {
+            get;
+            init;
+        }
+
+        public CloudResourceCurrentConfigurationSection? CurrentConfiguration
+        {
+            get;
+            init;
+        }
+
+        public List<CloudResourceRbacAssignmentSummary> RbacAssignments
+        {
+            get;
+            init;
+        } = [];
+
+        public List<CloudResourceNetworkRelationshipSummary> NetworkRelationships
+        {
+            get;
+            init;
+        } = [];
     }
 
     private async Task<(string? Address, string? GenerationMethod)> ResolveTerraformMappingAsync(
@@ -221,11 +334,12 @@ public sealed class CloudResourceEvidenceHubService(
         if (snapshotId == Guid.Empty)
             return (null, null);
 
-        IReadOnlyList<AdvisoryTerraformResourceMappingRecord> mappings =
-            await terraformRepository.ListMappingsBySnapshotIdAsync(scope, snapshotId, cancellationToken);
-
-        AdvisoryTerraformResourceMappingRecord? match = mappings
-            .FirstOrDefault(row => row.CloudResourceId == cloudResourceId);
+        AdvisoryTerraformResourceMappingRecord? match =
+            await terraformRepository.TryGetMappingByCloudResourceIdAsync(
+                scope,
+                snapshotId,
+                cloudResourceId,
+                cancellationToken);
 
         if (match is null)
             return (null, null);
@@ -369,11 +483,14 @@ public sealed class CloudResourceEvidenceHubService(
             return [];
 
         IReadOnlyList<AzureInventoryChangeRecord> changes =
-            await diffRepository.ListChangesByDiffIdAsync(scope, diffSummary.DiffId, cancellationToken);
+            await diffRepository.ListChangesByDiffAndCloudResourceAsync(
+                scope,
+                diffSummary.DiffId,
+                cloudResourceId,
+                RecentChangeTake,
+                cancellationToken);
 
         return changes
-            .Where(change => change.CloudResourceId == cloudResourceId)
-            .Take(RecentChangeTake)
             .Select(change => new CloudResourceInventoryChangeSummary
             {
                 ChangeId = change.ChangeId,
@@ -425,13 +542,10 @@ public sealed class CloudResourceEvidenceHubService(
     }
 
     private static List<CloudResourceRbacAssignmentSummary> MapRbacAssignments(
-        AzureInventorySnapshotDetailReadModel? snapshotDetail,
+        IReadOnlyList<AzureInventoryRoleAssignmentReadModel> roleAssignments,
         string externalResourceId)
     {
-        if (snapshotDetail is null)
-            return [];
-
-        return snapshotDetail.RoleAssignments
+        return roleAssignments
             .Where(row => ScopeMatchesResource(row.Scope, externalResourceId))
             .Select(row => new CloudResourceRbacAssignmentSummary
             {
@@ -443,13 +557,10 @@ public sealed class CloudResourceEvidenceHubService(
     }
 
     private static List<CloudResourceNetworkRelationshipSummary> MapNetworkRelationships(
-        AzureInventorySnapshotDetailReadModel? snapshotDetail,
+        IReadOnlyList<AzureInventoryResourceRelationshipReadModel> relationships,
         string externalResourceId)
     {
-        if (snapshotDetail is null)
-            return [];
-
-        return snapshotDetail.Relationships
+        return relationships
             .Where(row => string.Equals(row.FromAzureResourceId, externalResourceId, StringComparison.OrdinalIgnoreCase)
                 || string.Equals(row.ToAzureResourceId, externalResourceId, StringComparison.OrdinalIgnoreCase))
             .Select(row => new CloudResourceNetworkRelationshipSummary

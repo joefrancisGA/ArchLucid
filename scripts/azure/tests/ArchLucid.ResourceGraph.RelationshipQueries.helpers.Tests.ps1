@@ -384,6 +384,9 @@ Describe 'ArchLucid.ResourceGraph.RelationshipQueries.helpers.ps1' {
         $spec.Count | Should -Be 1
         $spec[0].Query | Should -Match 'privatelinkscopes/scopedresources'
         $spec[0].Query | Should -Match 'linkedResourceId'
+        $spec[0].Query | Should -Match 'scopedResourceKind'
+        $spec[0].Query | Should -Match "properties\['kind'\]"
+        $spec[0].Query | Should -Not -Match ', kind = tostring\(properties\.kind\)'
     }
 
     It 'builds an ARG query for AVD session host to VM associations' {

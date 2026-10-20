@@ -7,4 +7,5 @@ public enum DiagramEdgeVisualKind
     AiInferred = 2,
     Probable = 3,
     Inferred = 4,
+    Unclassified = 5,
 }

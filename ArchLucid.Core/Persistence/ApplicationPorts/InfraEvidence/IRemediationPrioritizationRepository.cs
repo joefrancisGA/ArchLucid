@@ -1,3 +1,4 @@
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.InfraEvidence;
@@ -33,6 +34,19 @@ public interface IRemediationPrioritizationRepository
             },
             cancellationToken);
 
+    async Task UpsertScoresInScopeAsync(
+        ProjectScopeKey scope,
+        IReadOnlyList<RemediationPrioritizationScoreMutation> mutations,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(mutations);
+
+        foreach (RemediationPrioritizationScoreMutation mutation in mutations)
+        {
+            await UpsertScoreInScopeAsync(scope, mutation, cancellationToken);
+        }
+    }
+
     Task<RemediationPrioritizationScoreRecord?> TryGetScoreAsync(
         Guid tenantId,
         Guid findingId,
@@ -46,6 +60,16 @@ public interface IRemediationPrioritizationRepository
         ProjectScopeKey scope,
         CancellationToken cancellationToken = default) =>
         ListScoresByTenantAsync(scope.TenantId, cancellationToken);
+
+    async Task<decimal> SumTotalScoresForOpenFindingsInScopeAsync(
+        ProjectScopeKey scope,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<RemediationPrioritizationScoreRecord> scores =
+            await ListScoresByScopeAsync(scope, cancellationToken);
+
+        return scores.Sum(score => score.TotalScore);
+    }
 }
 
 

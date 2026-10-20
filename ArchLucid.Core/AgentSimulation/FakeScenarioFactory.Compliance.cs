@@ -35,32 +35,51 @@ public static partial class FakeScenarioFactory
                 RequestConstraintClassifier.HasManagedIdentityConstraint(request) ? 1 : 0,
                 "Private endpoints are required for data-bearing services.");
 
-        List<ArchitectureFinding> findings = [];
+        List<ArchitectureFinding> findings =
+        [
+            FakeScenarioFindingKindBProvenance.Attach(
+                new ArchitectureFinding
+                {
+                    FindingId = StableHexId(runId, taskId, "compliance-finding-keyvault"),
+                    SourceAgent = AgentType.Compliance,
+                    Severity = FindingSeverity.Info,
+                    Category = "Compliance",
+                    Message = "Secrets should be stored in Key Vault.",
+                    EvidenceRefs = ["policy-pack:enterprise-default"]
+                },
+                FakeScenarioFindingKindBProvenance.KeyVaultSecretsRuleId)
+        ];
 
         if (RequestConstraintClassifier.HasPrivateNetworkingConstraint(request))
         {
-            findings.Add(new ArchitectureFinding
-            {
-                FindingId = StableHexId(runId, taskId, "compliance-finding-0"),
-                SourceAgent = AgentType.Compliance,
-                Severity = FindingSeverity.Critical,
-                Category = "Compliance",
-                Message = "PrivateNetworkingRequired",
-                EvidenceRefs = ["policy-pack:enterprise-default"]
-            });
+            findings.Add(
+                FakeScenarioFindingKindBProvenance.Attach(
+                    new ArchitectureFinding
+                    {
+                        FindingId = StableHexId(runId, taskId, "compliance-finding-0"),
+                        SourceAgent = AgentType.Compliance,
+                        Severity = FindingSeverity.Critical,
+                        Category = "Compliance",
+                        Message = "PrivateNetworkingRequired",
+                        EvidenceRefs = ["policy-pack:enterprise-default"]
+                    },
+                    FakeScenarioFindingKindBProvenance.PrivateNetworkingRuleId));
         }
 
         if (RequestConstraintClassifier.HasManagedIdentityConstraint(request))
         {
-            findings.Add(new ArchitectureFinding
-            {
-                FindingId = StableHexId(runId, taskId, "compliance-finding-1"),
-                SourceAgent = AgentType.Compliance,
-                Severity = FindingSeverity.Critical,
-                Category = "Compliance",
-                Message = "ManagedIdentityRequired",
-                EvidenceRefs = ["policy-pack:azure-security-baseline"]
-            });
+            findings.Add(
+                FakeScenarioFindingKindBProvenance.Attach(
+                    new ArchitectureFinding
+                    {
+                        FindingId = StableHexId(runId, taskId, "compliance-finding-1"),
+                        SourceAgent = AgentType.Compliance,
+                        Severity = FindingSeverity.Critical,
+                        Category = "Compliance",
+                        Message = "ManagedIdentityRequired",
+                        EvidenceRefs = ["policy-pack:azure-security-baseline"]
+                    },
+                    FakeScenarioFindingKindBProvenance.ManagedIdentityRuleId));
         }
 
         return new AgentResult

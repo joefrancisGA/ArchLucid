@@ -1,4 +1,4 @@
-import { firstRecommendationSentence } from "@/lib/quick-decision-summary-derive";
+import { firstRecommendationSentence, severityBadgeLabel } from "@/lib/quick-decision-summary-derive";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/findings/finding-inspect-graph-evidence";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
@@ -11,32 +11,25 @@ import {
 /** Shown when a finding carries no recommendation text of its own. */
 export const QUICK_DECISION_RECOMMENDATION_FALLBACK = "No recommended action recorded for this finding.";
 
+export const QUICK_DECISION_RECOMMENDATION_STORED_EMPTY =
+  "Recommended action was stored empty." as const;
+
 /** First recommendation sentence, or the shared fallback when the finding has no recommendation. */
 export function quickDecisionRecommendationSnippet(finding: QuickDecisionFinding): string {
-  return finding.recommendation.length > 0
-    ? firstRecommendationSentence(finding.recommendation)
-    : QUICK_DECISION_RECOMMENDATION_FALLBACK;
+  if (finding.recommendation.length === 0) {
+    return QUICK_DECISION_RECOMMENDATION_FALLBACK;
+  }
+
+  if (finding.recommendation.trim().length === 0) {
+    return QUICK_DECISION_RECOMMENDATION_STORED_EMPTY;
+  }
+
+  return firstRecommendationSentence(finding.recommendation);
 }
 
 /** Severity wording used by ITSM / work-item payloads (coarser than the severity badge scale). */
 export function quickDecisionWorkItemSeverityLabel(severityValue: number | null): string {
-  if (severityValue === null) {
-    return "Severity was not stored";
-  }
-
-  if (severityValue >= 3) {
-    return "High";
-  }
-
-  if (severityValue === 2) {
-    return "Medium";
-  }
-
-  if (severityValue === 1) {
-    return "Low";
-  }
-
-  return "Info";
+  return severityBadgeLabel(severityValue);
 }
 
 /** Evidence navigation targets derived for a single finding row (no API calls). */

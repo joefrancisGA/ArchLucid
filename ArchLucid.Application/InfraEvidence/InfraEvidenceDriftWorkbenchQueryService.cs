@@ -1,3 +1,4 @@
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.InfraEvidence.Mermaid;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.Pagination;
@@ -44,16 +45,27 @@ public sealed class InfraEvidenceDriftWorkbenchQueryService(
         (IReadOnlyList<AzureInventorySnapshotRecord> items, int totalCount) =
             await _snapshotRepository.ListSnapshotsAsync(scope, page, pageSize, subscriptionId, cancellationToken);
 
-        foreach (AzureInventorySnapshotRecord snapshot in items)
-        {
-            await InfraEvidenceSnapshotSealedManifestHashGuard.EnsureRunCitedSnapshotSealedOrThrowAsync(
-                scope,
-                snapshot.SnapshotId,
-                _reconciliationRepository,
-                _authorityQueryService,
-                _manifestHashService,
+        IReadOnlyList<Guid> snapshotIds = items
+            .Select(snapshot => snapshot.SnapshotId)
+            .ToList();
+
+        IReadOnlyList<ArchitectureDiagramReconciliationSnapshotRunRecord> snapshotRuns =
+            await _reconciliationRepository.ListRunIdsBySnapshotIdsAsync(
+                scope.TenantId,
+                snapshotIds,
                 cancellationToken);
-        }
+
+        HashSet<Guid> distinctRunIds = snapshotRuns
+            .Select(row => row.RunId)
+            .Where(runId => runId != Guid.Empty)
+            .ToHashSet();
+
+        await GovernanceDispositionSealedManifestGuard.EnsureDistinctRunsSealedManifestHashOrThrowAsync(
+            distinctRunIds.ToList(),
+            scope,
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken);
 
         return PagedResponseBuilder.FromDatabasePage(items, totalCount, page, pageSize);
     }
@@ -128,13 +140,13 @@ public sealed class InfraEvidenceDriftWorkbenchQueryService(
 
         if (includeUnchanged)
         {
-            AzureInventorySnapshotDetailReadModel? snapshotA =
-                await _snapshotRepository.TryGetSnapshotDetailAsync(scope, diff.SnapshotAId, cancellationToken);
+            IReadOnlyList<AzureInventoryResourceRecord>? resourcesA =
+                await _snapshotRepository.ListResourcesBySnapshotIdAsync(scope, diff.SnapshotAId, cancellationToken);
 
-            AzureInventorySnapshotDetailReadModel? snapshotB =
-                await _snapshotRepository.TryGetSnapshotDetailAsync(scope, diff.SnapshotBId, cancellationToken);
+            IReadOnlyList<AzureInventoryResourceRecord>? resourcesB =
+                await _snapshotRepository.ListResourcesBySnapshotIdAsync(scope, diff.SnapshotBId, cancellationToken);
 
-            if (snapshotA is null || snapshotB is null)
+            if (resourcesA is null || resourcesB is null)
             {
                 return null;
             }
@@ -147,8 +159,8 @@ public sealed class InfraEvidenceDriftWorkbenchQueryService(
 
             List<AzureInventoryChangeRecord> unchangedChanges =
                 AzureInventoryDiffUnchangedBuilder.BuildUnchangedResourceChanges(
-                    snapshotA,
-                    snapshotB,
+                    resourcesA,
+                    resourcesB,
                     diffId,
                     diff.SnapshotAId,
                     diff.SnapshotBId,
@@ -194,15 +206,15 @@ public sealed class InfraEvidenceDriftWorkbenchQueryService(
             _manifestHashService,
             cancellationToken);
 
-        AzureInventorySnapshotDetailReadModel? snapshot =
-            await _snapshotRepository.TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+        IReadOnlyList<AzureInventoryResourceRecord>? resources =
+            await _snapshotRepository.ListResourcesBySnapshotIdAsync(scope, snapshotId, cancellationToken);
 
-        if (snapshot is null)
+        if (resources is null)
         {
             return null;
         }
 
-        IEnumerable<AzureInventoryResourceRecord> visibleResources = snapshot.Resources
+        IEnumerable<AzureInventoryResourceRecord> visibleResources = resources
             .Where(resource => !AzureInventoryNeverShowArmTypes.ShouldOmitResource(
                 resource.ResourceType,
                 resource.AzureResourceId));

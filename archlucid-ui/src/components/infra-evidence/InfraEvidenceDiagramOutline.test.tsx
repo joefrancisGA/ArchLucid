@@ -245,6 +245,47 @@ describe("InfraEvidenceDiagramOutline", () => {
     ]);
   });
 
+  it("does not label unknown provenance tokens as Observed (P-01)", () => {
+    const unknownProvenanceOutline: InfraEvidenceMermaidOutline = {
+      nodes: [
+        {
+          id: "n_a",
+          label: "app",
+          resourceType: "Microsoft.Web/sites",
+          resourceGroup: "rg-app",
+        },
+        {
+          id: "n_b",
+          label: "sql",
+          resourceType: "Microsoft.Sql/servers",
+          resourceGroup: "rg-data",
+        },
+      ],
+      edges: [
+        {
+          from: "n_a",
+          to: "n_b",
+          label: "connects",
+          source: "observed",
+          confidenceBand: "observed",
+          provenanceKind: "NotAFact",
+          inferenceSource: null,
+          declaredConnectionId: null,
+        },
+      ],
+    };
+
+    render(
+      <InfraEvidenceDiagramOutline
+        outline={unknownProvenanceOutline}
+        defaultNodesOpen={true}
+        defaultEdgesOpen={true}
+      />,
+    );
+
+    expect(screen.getByText('Provenance "NotAFact" has no reviewer band.')).toBeInTheDocument();
+  });
+
   it("shows peering for unlabeled VNet-to-VNet edges", () => {
     const peeringOutline: InfraEvidenceMermaidOutline = {
       nodes: [
@@ -711,14 +752,81 @@ describe("InfraEvidenceDiagramOutline", () => {
       "ArchLucid has a question about 1 resource.",
     );
     const unknownSection = screen.getByTestId("infra-diagrams-unknown-nodes-list");
-    expect(within(unknownSection).getByText("Connection state recorded as unknown. (1)")).toBeTruthy();
-    expect(
-      within(unknownSection).getByText(
-        "No connection state detail was stored.",
-      ),
-    ).toBeTruthy();
+    expect(unknownSection).toHaveTextContent("Connection state was not classified. (1)");
+    expect(within(unknownSection).getAllByText("Connection state was not classified.").length).toBeGreaterThan(0);
     expect(within(unknownSection).queryByRole("textbox")).toBeNull();
     expect(within(unknownSection).queryByRole("button", { name: /save/i })).toBeNull();
+  });
+
+  it("narrows unknown rows to the starting resource group by default", () => {
+    const unknownOutline: InfraEvidenceMermaidOutline = {
+      nodes: [
+        {
+          id: "n_seed",
+          label: "storage-seed",
+          seedNodeId: "graph-seed-id",
+          resourceGroup: "anly-aib-nprd-hi",
+          connectionState: "Unknown",
+        },
+        {
+          id: "n_same_rg",
+          label: "same-rg-peer",
+          resourceGroup: "anly-aib-nprd-hi",
+          connectionState: "Unknown",
+        },
+        {
+          id: "n_other_rg",
+          label: "adf-edw",
+          resourceGroup: "anly-edw-dev-readonly-hi",
+          connectionState: "Unknown",
+        },
+      ],
+      edges: [],
+    };
+
+    render(
+      <InfraEvidenceDiagramOutline
+        outline={unknownOutline}
+        defaultNodesOpen={true}
+        startingResourceSeedId="graph-seed-id"
+      />,
+    );
+
+    const unknownSection = screen.getByTestId("infra-diagrams-unknown-nodes-list");
+
+    expect(within(unknownSection).getByText("same-rg-peer")).toBeTruthy();
+    expect(within(unknownSection).queryByText("adf-edw")).toBeNull();
+    expect(screen.getByTestId("infra-diagrams-unknown-filter-summary")).toHaveTextContent(
+      "Showing 2 of 3 unknown resources.",
+    );
+    expect(unknownSection).toHaveTextContent("Connection state was not classified. (2 of 3)");
+  });
+
+  it("shows an unmodeled connection posture instead of the generic unknown sentence", () => {
+    const unknownOutline: InfraEvidenceMermaidOutline = {
+      nodes: [
+        {
+          id: "n_component",
+          label: "ai-aep-hi-dev-wus-001",
+          resourceType: "Microsoft.Insights/components",
+          resourceGroup: "anly-aep-dev-hi",
+          connectionState: "Unknown",
+          unresolvedRelationshipDetails: [
+            "Connection posture is not modeled for this resource type.",
+          ],
+        },
+      ],
+      edges: [],
+    };
+
+    render(<InfraEvidenceDiagramOutline outline={unknownOutline} defaultNodesOpen={true} />);
+
+    const unknownSection = screen.getByTestId("infra-diagrams-unknown-nodes-list");
+
+    expect(
+      within(unknownSection).getByText("Connection posture is not modeled for this resource type."),
+    ).toBeTruthy();
+    expect(within(unknownSection).queryByText("Stands alone")).toBeNull();
   });
 
   it("shows unresolved relationship details on unknown rows", () => {
@@ -770,7 +878,7 @@ describe("InfraEvidenceDiagramOutline", () => {
       "Connection state was not stored. (1)",
     );
     expect(screen.getByTestId("infra-diagrams-unknown-nodes-list")).toHaveTextContent(
-      "Connection state recorded as unknown. (1)",
+      "Connection state was not classified. (1)",
     );
   });
 

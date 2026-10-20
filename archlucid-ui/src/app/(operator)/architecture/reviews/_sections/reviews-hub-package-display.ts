@@ -44,9 +44,9 @@ export type ReviewsHubReviewRowDisplay = {
   readonly ownerLabel: string;
   readonly lastUpdated: string;
   readonly lastUpdatedAbsolute: string;
-  readonly findingsCount: number;
-  readonly riskCount: number;
-  readonly evidenceCount: number;
+  readonly findingsCount: number | null;
+  readonly riskCount: number | null;
+  readonly evidenceCount: number | null;
   readonly governanceState: string;
   readonly needsAttention: boolean;
   readonly primaryAction: PrimaryReviewExploreLink;
@@ -122,9 +122,9 @@ function resolveReviewsHubArchitectureDisplayName(
   return reviewPackageArchitectureName(run);
 }
 
-function finiteCount(value: number | null | undefined): number {
+function storedFiniteCount(value: number | null | undefined): number | null {
   if (typeof value !== "number" || !Number.isFinite(value)) {
-    return 0;
+    return null;
   }
 
   return Math.max(0, Math.trunc(value));
@@ -200,10 +200,10 @@ function reviewGovernanceState(run: RunSummary): string {
   return "Ready for governance";
 }
 
-function reviewEvidenceCount(run: RunSummary): number {
-  const artifacts = finiteCount(run.artifactCount);
+function reviewEvidenceCount(run: RunSummary): number | null {
+  const artifacts = storedFiniteCount(run.artifactCount);
 
-  if (artifacts > 0) {
+  if (artifacts !== null) {
     return artifacts;
   }
 
@@ -211,31 +211,13 @@ function reviewEvidenceCount(run: RunSummary): number {
     return 4;
   }
 
-  let score = 0;
-
-  if (run.hasContextSnapshot === true) {
-    score += 1;
-  }
-
-  if (run.hasGraphSnapshot === true) {
-    score += 1;
-  }
-
-  if (run.hasFindingsSnapshot === true) {
-    score += 1;
-  }
-
-  if (run.hasGoldenManifest === true) {
-    score += 1;
-  }
-
-  return score;
+  return null;
 }
 
-function reviewFindingCount(run: RunSummary): number {
-  const wire = finiteCount(run.findingCount);
+function reviewFindingCount(run: RunSummary): number | null {
+  const wire = storedFiniteCount(run.findingCount);
 
-  if (wire > 0) {
+  if (wire !== null) {
     return wire;
   }
 
@@ -243,13 +225,13 @@ function reviewFindingCount(run: RunSummary): number {
     return SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount;
   }
 
-  return run.hasFindingsSnapshot === true ? 1 : 0;
+  return null;
 }
 
-function reviewRiskCount(run: RunSummary): number {
-  const wire = finiteCount(run.warningCount);
+function reviewRiskCount(run: RunSummary): number | null {
+  const wire = storedFiniteCount(run.warningCount);
 
-  if (wire > 0) {
+  if (wire !== null) {
     return wire;
   }
 
@@ -257,7 +239,7 @@ function reviewRiskCount(run: RunSummary): number {
     return SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount;
   }
 
-  return run.hasWarnings === true || run.hasGovernanceWarnings === true ? 1 : 0;
+  return null;
 }
 
 /** Row presentation model for the `/architecture/reviews` hub inventory. */

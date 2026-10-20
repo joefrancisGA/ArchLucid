@@ -5,6 +5,8 @@ using Xunit;
 
 namespace ArchLucid.Application.Tests.Analysis;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
 public sealed class ReplayComparisonExportsDiffSliceTests
 {
     [Fact]

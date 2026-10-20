@@ -864,54 +864,10 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         DiagramAst? ast,
         AzureInventorySnapshotDetailReadModel? snapshot)
     {
-        if (ast is null)
-        {
-            return null;
-        }
-
-        List<DiagramEdge> visibleEdges = ast.Edges
-            .Where(edge => !edge.IsLayoutOnly)
-            .ToList();
-        HashSet<string> collectedClasses = visibleEdges
-            .Select(edge => edge.InferenceSource ?? edge.Label)
-            .Where(source => !string.IsNullOrWhiteSpace(source))
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-        int hiddenHopCount = visibleEdges.Count(edge =>
-            edge.InferenceSource is not null
-            && (edge.InferenceSource.Equals(GraphEdgeInferenceSources.InventoryNicSubnet, StringComparison.OrdinalIgnoreCase)
-                || edge.InferenceSource.Equals(GraphEdgeInferenceSources.InventoryPeSubnet, StringComparison.OrdinalIgnoreCase)
-                || edge.InferenceSource.Equals(GraphEdgeInferenceSources.InventoryPrivateEndpoint, StringComparison.OrdinalIgnoreCase)));
-        int collocationCount = visibleEdges.Count(IsLikelyResourceGroupEdge);
-
-        return new InfraEvidenceMermaidCompletenessSummary
-        {
-            Mode = modeKey,
-            VisibleNodeCount = ast.Nodes.Count,
-            VisibleEdgeCount = visibleEdges.Count,
-            ConnectedComponentCount = DiagramAstVisibleComponentCounter.Count(ast),
-            HiddenHopsUsedCount = hiddenHopCount,
-            LikelyInCollocationEdgeCount = collocationCount,
-            CollectedClasses = collectedClasses.Order(StringComparer.Ordinal).ToList(),
-            MissingClasses = ResolveCompletenessWarnings(snapshot)
-                .Where(warning => warning.Contains("missing", StringComparison.OrdinalIgnoreCase))
-                .ToList(),
-        };
-    }
-
-    private static bool IsLikelyResourceGroupEdge(DiagramEdge edge)
-    {
-        return (string.Equals(
-                    edge.InferenceSource,
-                    GraphEdgeInferenceSources.InventoryAdfLinkedServiceInferred,
-                    StringComparison.OrdinalIgnoreCase)
-                || string.Equals(
-                    edge.InferenceSource,
-                    GraphEdgeInferenceSources.InventoryAppKeyVaultRef,
-                    StringComparison.OrdinalIgnoreCase))
-               && string.Equals(
-                   edge.ProvenanceKind,
-                   ProvenanceKind.DeterministicInference.ToString(),
-                   StringComparison.OrdinalIgnoreCase);
+        return InfraEvidenceMermaidCompletenessSummaryBuilder.Build(
+            modeKey,
+            ast,
+            ResolveCompletenessWarnings(snapshot));
     }
 
     private static List<string> ResolveCompletenessWarnings(AzureInventorySnapshotDetailReadModel? snapshot)

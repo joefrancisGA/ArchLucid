@@ -18,6 +18,11 @@ public interface IProjectScopedOperationalSecurityFindingRepository
         Guid findingId,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<OperationalSecurityFindingRecord>> ListByIdsInScopeAsync(
+        ProjectScopeKey scope,
+        IReadOnlyList<Guid> findingIds,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<OperationalSecurityFindingRecord>> ListByScopeAsync(
         ProjectScopeKey scope,
         OperationalSecurityFindingStatus? status,
@@ -26,6 +31,11 @@ public interface IProjectScopedOperationalSecurityFindingRepository
     Task<IReadOnlyList<OperationalSecurityFindingMetadataRecord>> ListMetadataByFindingInScopeAsync(
         ProjectScopeKey scope,
         Guid findingId,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<OperationalSecurityFindingMetadataRecord>> ListMetadataByFindingIdsInScopeAsync(
+        ProjectScopeKey scope,
+        IReadOnlyList<Guid> findingIds,
         CancellationToken cancellationToken = default);
 
     Task<(IReadOnlyList<OperationalSecurityFindingRecord> Items, int TotalCount)> ListByCloudResourceIdPagedInScopeAsync(
@@ -38,6 +48,27 @@ public interface IProjectScopedOperationalSecurityFindingRepository
     Task<IReadOnlyList<Guid>> ListFindingIdsByPathIdInScopeAsync(
         ProjectScopeKey scope,
         Guid pathId,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyDictionary<Guid, IReadOnlyList<Guid>>> ListFindingIdsBySnapshotInScopeAsync(
+        ProjectScopeKey scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default);
+
+    Task<RemediationFactoryFindingMetricsAggregate> GetFactoryFindingMetricsAggregateInScopeAsync(
+        ProjectScopeKey scope,
+        DateTime weekStartUtc,
+        DateTime utcNow,
+        CancellationToken cancellationToken = default);
+
+    Task<int> CountOpenOrRecurredInScopeAsync(
+        ProjectScopeKey scope,
+        CancellationToken cancellationToken = default);
+
+    Task<int> CountOutcomeRecurrencePairsInScopeAsync(
+        ProjectScopeKey scope,
+        DateTime windowStartUtc,
+        DateTime windowEndUtc,
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<OperationalSecurityFindingObservationRecord>> ListObservationsByFindingInScopeAsync(
@@ -82,6 +113,20 @@ public interface IProjectScopedRemediationInstanceRepository
 
     Task<IReadOnlyList<RemediationInstanceRecord>> ListByScopeAsync(
         ProjectScopeKey scope,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyDictionary<string, int>> CountOpenInstancesByStatusInScopeAsync(
+        ProjectScopeKey scope,
+        CancellationToken cancellationToken = default);
+
+    Task<RemediationFactoryInstanceMetricsAggregate> GetFactoryInstanceMetricsAggregateInScopeAsync(
+        ProjectScopeKey scope,
+        DateTime weekStartUtc,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyDictionary<Guid, RemediationInstanceRecord>> ListLatestApprovedByFindingIdsInScopeAsync(
+        ProjectScopeKey scope,
+        IReadOnlyCollection<Guid> findingIds,
         CancellationToken cancellationToken = default);
 
     Task<(IReadOnlyList<RemediationInstanceRecord> Items, int TotalCount)> ListByCloudResourceIdPagedInScopeAsync(

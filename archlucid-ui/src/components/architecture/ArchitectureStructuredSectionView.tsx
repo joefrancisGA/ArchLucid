@@ -157,7 +157,7 @@ export function ArchitectureStructuredSectionView(
               >
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-                    {entity.label}
+                    {entity.label.length === 0 ? "Item label was stored empty." : entity.label}
                   </p>
                   {entity.provenance === "inferred" ? (
                     <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
@@ -173,7 +173,11 @@ export function ArchitectureStructuredSectionView(
                   <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                     {entity.detail}
                   </p>
-                ) : null}
+                ) : (
+                  <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                    Detail was stored empty.
+                  </p>
+                )}
               </li>
             ))}
           </ul>

@@ -41,7 +41,8 @@ import {
   GOVERNANCE_STANDARDS_RULES_SKIP_LINK_LABEL,
 } from "@/lib/governance-standards-rules-page-copy";
 import { STANDARDS_RULES_LOAD_RETRY_LABEL } from "@/lib/standards-rules-page";
-import { GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_STANDARDS_AND_RULES_PATH, SECURENOW_STANDARDS_AND_RULES_PATH } from "@/lib/governance/governance-route-paths";
+import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 import { formatGovernanceResolutionResultsSummaryLabel } from "@/lib/governance/governance-resolution-results-label";
 import { buildPolicyPacksImpactPreviewHref } from "@/lib/policy-packs-review-handoff";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
@@ -94,6 +95,14 @@ export function GovernanceResolutionPageView(props: Props) {
   const standardsResultsLabel = m.loading
     ? "Loading rules…"
     : `${rows.filteredRuleRows.length} of ${rows.allRuleRows.length} rules`;
+  const architectureStandardsTitle = m.buyerPolishedShell
+    ? STANDARDS_RULES_PAGE_TITLE
+    : OPERATOR_NAV_LINK_LABELS.governanceResolution;
+  const standardsPageTitle = resolveSecureNowPageHeading(
+    productLine,
+    architectureStandardsTitle,
+    SECURENOW_STANDARDS_AND_RULES_PATH,
+  );
 
   const scopedRunBanner = rows.scopedRunFilterActive ? (
     <p
@@ -304,7 +313,7 @@ export function GovernanceResolutionPageView(props: Props) {
 
         <OperatorPageHeader
           navHref={standardsPath}
-          title={STANDARDS_RULES_PAGE_TITLE}
+          title={standardsPageTitle}
           titleTestId="standards-rules-page-title"
           subtitle={GOVERNANCE_STANDARDS_RULES_PAGE_SUBTITLE_BUYER}
           claimDiscipline={STANDARDS_RULES_CLAIM_DISCIPLINE}
@@ -359,7 +368,7 @@ export function GovernanceResolutionPageView(props: Props) {
 
       <OperatorPageHeader
         navHref={standardsPath}
-        title={OPERATOR_NAV_LINK_LABELS.governanceResolution}
+        title={standardsPageTitle}
         subtitle={
           m.canMutateEnterprisePolicySurfaces
             ? governanceResolutionPageLeadOperator

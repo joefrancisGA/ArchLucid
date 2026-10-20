@@ -514,6 +514,59 @@ function Get-ArchLucidAzureAksRunCommandPollPath([string] $CommandResultId)
     return $path
 }
 
+function Format-ArchLucidAzureAksWorkloadImageCollectionWarningCode(
+    [Parameter(Mandatory = $true)]
+    [string] $ClusterResourceId,
+
+    [Parameter(Mandatory = $true)]
+    [string] $Reason)
+{
+    [string]$normalizedClusterId = "$( $ClusterResourceId )".Trim().TrimEnd('/')
+    [string]$normalizedReason = "$( $Reason )".Trim()
+
+    return "aks-workload-images-not-collected-customer-script:${normalizedReason}:$normalizedClusterId"
+}
+
+function Resolve-ArchLucidAzureAksWorkloadImageCollectionWarningReason([string] $OutcomeKind)
+{
+    switch ("$( $OutcomeKind )".Trim())
+    {
+        'InsufficientRbac' { return 'insufficient-rbac' }
+        'MissingLogs' { return 'missing-logs' }
+        'RunCommandFailed' { return 'run-command-failed' }
+        'HttpError' { return 'http-error' }
+        'PollTimeout' { return 'poll-timeout' }
+        'Error' { return 'error' }
+        default { return 'unavailable' }
+    }
+}
+
+function New-ArchLucidAzureAksWorkloadImageCommandOutcome(
+    [Parameter(Mandatory = $true)]
+    [ValidateSet('Success', 'InsufficientRbac', 'MissingLogs', 'RunCommandFailed', 'HttpError', 'PollTimeout', 'Unavailable', 'Error')]
+    [string] $Kind,
+
+    [string] $Logs = $null,
+
+    [int] $HttpStatusCode = 0)
+{
+    return [pscustomobject]@{
+        kind = $Kind
+        logs = $Logs
+        httpStatusCode = $HttpStatusCode
+    }
+}
+
+function Resolve-ArchLucidAzureAksRunCommandHttpOutcomeKind([int] $StatusCode)
+{
+    if ($StatusCode -eq 401 -or $StatusCode -eq 403)
+    {
+        return 'InsufficientRbac'
+    }
+
+    return 'HttpError'
+}
+
 function Read-ArchLucidAzureAksRunCommandLogs([object] $Document)
 {
     if ($null -eq $Document -or $null -eq $Document.properties)
@@ -542,82 +595,117 @@ function Read-ArchLucidAzureAksRunCommandLogs([object] $Document)
     }
 }
 
-function Get-ArchLucidAzureAksWorkloadImageCommandOutput([string] $ResourceId)
+function Get-ArchLucidAzureAksWorkloadImageCommandOutcome([string] $ResourceId)
 {
-    [string]$command = Get-ArchLucidAzureAksWorkloadImageKubectlCommand
-    [string]$payload = @{ command = $command } | ConvertTo-Json -Compress
-    [object]$response = Invoke-AzRestMethod `
-        -Method POST `
-        -Path "$ResourceId/runCommand?api-version=2024-02-01" `
-        -Payload $payload `
-        -ErrorAction Stop
-
-    if ($response.StatusCode -lt 200 -or $response.StatusCode -ge 300)
+    try
     {
-        return $null
-    }
-
-    [object]$document = $response.Content | ConvertFrom-Json -ErrorAction Stop
-    [object]$initialLogs = Read-ArchLucidAzureAksRunCommandLogs -Document $document
-
-    if ($null -ne $initialLogs)
-    {
-        if ($initialLogs.missingLogs)
-        {
-            return [pscustomobject]@{ missingLogs = $true }
-        }
-
-        return $initialLogs.logs
-    }
-
-    [string]$pollPath = Get-ArchLucidAzureAksRunCommandPollPath -CommandResultId "$( $document.id )"
-
-    if ([string]::IsNullOrWhiteSpace($pollPath))
-    {
-        return $null
-    }
-
-    for ($poll = 0; $poll -lt 15; $poll++)
-    {
-        Start-Sleep -Seconds 2
-
-        [object]$pollResponse = Invoke-AzRestMethod `
-            -Method GET `
-            -Path $pollPath `
+        [string]$command = Get-ArchLucidAzureAksWorkloadImageKubectlCommand
+        [string]$payload = @{ command = $command } | ConvertTo-Json -Compress
+        [object]$response = Invoke-AzRestMethod `
+            -Method POST `
+            -Path "$ResourceId/runCommand?api-version=2024-02-01" `
+            -Payload $payload `
             -ErrorAction Stop
 
-        if ($pollResponse.StatusCode -lt 200 -or $pollResponse.StatusCode -ge 300)
+        if ($response.StatusCode -lt 200 -or $response.StatusCode -ge 300)
         {
-            return $null
+            return New-ArchLucidAzureAksWorkloadImageCommandOutcome `
+                -Kind $(Resolve-ArchLucidAzureAksRunCommandHttpOutcomeKind -StatusCode $response.StatusCode) `
+                -HttpStatusCode $response.StatusCode
         }
 
-        if ([string]::IsNullOrWhiteSpace($pollResponse.Content))
+        [object]$document = $response.Content | ConvertFrom-Json -ErrorAction Stop
+        [object]$initialOutcome = Resolve-ArchLucidAzureAksRunCommandDocumentOutcome -Document $document
+
+        if ($null -ne $initialOutcome)
         {
-            continue
+            return $initialOutcome
         }
 
-        [object]$pollDocument = $pollResponse.Content | ConvertFrom-Json -ErrorAction Stop
-        [object]$pollLogs = Read-ArchLucidAzureAksRunCommandLogs -Document $pollDocument
+        [string]$pollPath = Get-ArchLucidAzureAksRunCommandPollPath -CommandResultId "$( $document.id )"
 
-        if ($null -ne $pollLogs)
+        if ([string]::IsNullOrWhiteSpace($pollPath))
         {
-            if ($pollLogs.missingLogs)
+            return New-ArchLucidAzureAksWorkloadImageCommandOutcome -Kind Unavailable
+        }
+
+        for ($poll = 0; $poll -lt 15; $poll++)
+        {
+            Start-Sleep -Seconds 2
+
+            [object]$pollResponse = Invoke-AzRestMethod `
+                -Method GET `
+                -Path $pollPath `
+                -ErrorAction Stop
+
+            if ($pollResponse.StatusCode -lt 200 -or $pollResponse.StatusCode -ge 300)
             {
-                return [pscustomobject]@{ missingLogs = $true }
+                return New-ArchLucidAzureAksWorkloadImageCommandOutcome `
+                    -Kind $(Resolve-ArchLucidAzureAksRunCommandHttpOutcomeKind -StatusCode $pollResponse.StatusCode) `
+                    -HttpStatusCode $pollResponse.StatusCode
             }
 
-            return $pollLogs.logs
+            if ([string]::IsNullOrWhiteSpace($pollResponse.Content))
+            {
+                continue
+            }
+
+            [object]$pollDocument = $pollResponse.Content | ConvertFrom-Json -ErrorAction Stop
+            [object]$pollOutcome = Resolve-ArchLucidAzureAksRunCommandDocumentOutcome -Document $pollDocument
+
+            if ($null -ne $pollOutcome)
+            {
+                return $pollOutcome
+            }
+
+            [string]$pollState = "$( $pollDocument.properties.provisioningState )"
+
+            if ($pollState -in @('Failed', 'Canceled', 'Cancelled'))
+            {
+                return New-ArchLucidAzureAksWorkloadImageCommandOutcome -Kind RunCommandFailed
+            }
         }
 
-        [string]$pollState = "$( $pollDocument.properties.provisioningState )"
+        return New-ArchLucidAzureAksWorkloadImageCommandOutcome -Kind PollTimeout
+    }
+    catch
+    {
+        return New-ArchLucidAzureAksWorkloadImageCommandOutcome -Kind Error
+    }
+}
 
-        if ($pollState -in @('Failed', 'Canceled', 'Cancelled'))
-        {
-            return $null
-        }
+function Resolve-ArchLucidAzureAksRunCommandDocumentOutcome([object] $Document)
+{
+    if ($null -eq $Document -or $null -eq $Document.properties)
+    {
+        return $null
     }
 
-    return $null
+    [string]$provisioningState = "$( $Document.properties.provisioningState )".Trim()
+
+    if ([string]::IsNullOrWhiteSpace($provisioningState))
+    {
+        return $null
+    }
+
+    if ($provisioningState -in @('Failed', 'Canceled', 'Cancelled'))
+    {
+        return New-ArchLucidAzureAksWorkloadImageCommandOutcome -Kind RunCommandFailed
+    }
+
+    if (-not $provisioningState.Equals('Succeeded', [System.StringComparison]::OrdinalIgnoreCase))
+    {
+        return $null
+    }
+
+    if (-not ($Document.properties.PSObject.Properties.Name -contains 'logs'))
+    {
+        return New-ArchLucidAzureAksWorkloadImageCommandOutcome -Kind MissingLogs
+    }
+
+    return New-ArchLucidAzureAksWorkloadImageCommandOutcome `
+        -Kind Success `
+        -Logs "$( $Document.properties.logs )"
 }
 
 function Add-ArchLucidAzureVmssSubnetPropertiesFromPayload(
@@ -754,22 +842,19 @@ function Add-ArchLucidAzureAksWorkloadImageProperties(
 
         try
         {
-            [object]$output = Get-ArchLucidAzureAksWorkloadImageCommandOutput -ResourceId $resourceId
+            [object]$outcome = Get-ArchLucidAzureAksWorkloadImageCommandOutcome -ResourceId $resourceId
 
-            if ($null -eq $output)
+            if ($outcome.kind -ne 'Success')
             {
-                [void]$warnings.Add('aks-workload-images-not-collected-customer-script')
-                continue
-            }
-
-            if ($output -is [pscustomobject] -and $output.missingLogs)
-            {
-                [void]$warnings.Add('aks-workload-images-not-collected-customer-script')
+                [string]$reason = Resolve-ArchLucidAzureAksWorkloadImageCollectionWarningReason -OutcomeKind $outcome.kind
+                [void]$warnings.Add($(Format-ArchLucidAzureAksWorkloadImageCollectionWarningCode `
+                    -ClusterResourceId $resourceId `
+                    -Reason $reason))
                 continue
             }
 
             [string[]]$images = @(
-                "$( $output )" -split '\r?\n' |
+                "$( $outcome.logs )" -split '\r?\n' |
                     ForEach-Object { "$_".Trim() } |
                     Where-Object { -not [string]::IsNullOrWhiteSpace($_) } |
                     Select-Object -Unique
@@ -792,7 +877,9 @@ function Add-ArchLucidAzureAksWorkloadImageProperties(
         }
         catch
         {
-            [void]$warnings.Add('aks-workload-images-not-collected-customer-script')
+            [void]$warnings.Add($(Format-ArchLucidAzureAksWorkloadImageCollectionWarningCode `
+                -ClusterResourceId $resourceId `
+                -Reason $(Resolve-ArchLucidAzureAksWorkloadImageCollectionWarningReason -OutcomeKind Error)))
         }
     }
 
@@ -4590,6 +4677,222 @@ function Add-ArchLucidAzureLogicAppActionConnectionRows
     }
 }
 
+function Add-ArchLucidAzureLogicAppWorkflowCollectionFailureRow(
+    [System.Collections.IList] $Rows,
+    [hashtable] $Seen,
+    [string] $WorkflowResourceId,
+    [string] $WorkflowName,
+    [string] $Reason)
+{
+    [string]$warningCode = "logic-app-connections-not-collected:${Reason}:$( $WorkflowResourceId.Trim() )"
+    [string]$key = "$WorkflowResourceId|_collection|$warningCode"
+
+    if ($Seen.ContainsKey($key))
+    {
+        return
+    }
+
+    $Seen[$key] = $true
+
+    [string]$collectionStatus = if ($Reason -eq 'insufficient-permission') { 'Forbidden' } else { 'MalformedPayload' }
+
+    [void]$Rows.Add([ordered]@{
+        workflowResourceId = $WorkflowResourceId
+        workflowName = $WorkflowName
+        connectionName = '_collection'
+        collectionStatus = $collectionStatus
+        warningCode = $warningCode
+    })
+}
+
+function Add-ArchLucidAzureStaticSiteLinkedBackendAssociationRows(
+    [System.Collections.IList] $NetworkAssociationRows,
+    [object[]] $InventoryResources)
+{
+    [System.Collections.Generic.List[string]]$warnings = [System.Collections.Generic.List[string]]::new()
+    [hashtable]$seen = @{}
+
+    foreach ($row in @($NetworkAssociationRows))
+    {
+        [string]$key = "$( $row.fromResourceId )|$( $row.associationType )|$( $row.toResourceId )"
+        $seen[$key] = $true
+    }
+
+    if (-not (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue))
+    {
+        return [pscustomobject]@{
+            rows = @($NetworkAssociationRows)
+            warnings = @($warnings)
+        }
+    }
+
+    foreach ($resource in @($InventoryResources))
+    {
+        if ($null -eq $resource) { continue }
+
+        [string]$resourceType = "$( $resource.resourceType )".Trim()
+        [string]$resourceId = "$( $resource.resourceId )".Trim()
+
+        if ($resourceType -ne 'Microsoft.Web/staticSites' -or [string]::IsNullOrWhiteSpace($resourceId))
+        {
+            continue
+        }
+
+        try
+        {
+            [string]$path = "$resourceId/linkedBackends?api-version=2023-12-01"
+            [object]$response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
+
+            if ($response.StatusCode -eq 401 -or $response.StatusCode -eq 403)
+            {
+                [void]$warnings.Add("static-site-backends-not-collected:insufficient-permission:$resourceId")
+                continue
+            }
+
+            if ($response.StatusCode -lt 200 -or $response.StatusCode -ge 300)
+            {
+                [void]$warnings.Add("static-site-backends-not-collected:http-error:$resourceId")
+                continue
+            }
+
+            [object]$payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+
+            foreach ($backend in @($payload.value))
+            {
+                [string]$backendResourceId = ''
+
+                try
+                {
+                    $backendResourceId = "$( $backend.properties.resourceId )".Trim()
+                }
+                catch
+                {
+                }
+
+                if ([string]::IsNullOrWhiteSpace($backendResourceId))
+                {
+                    try
+                    {
+                        $backendResourceId = "$( $backend.properties.backendResourceId )".Trim()
+                    }
+                    catch
+                    {
+                    }
+                }
+
+                if ([string]::IsNullOrWhiteSpace($backendResourceId))
+                {
+                    continue
+                }
+
+                Add-ArchLucidNetworkAssociationRow `
+                    -Rows $NetworkAssociationRows `
+                    -Seen $seen `
+                    -FromResourceId $resourceId `
+                    -ToResourceId $backendResourceId `
+                    -AssociationType 'staticSiteToLinkedBackend'
+            }
+        }
+        catch
+        {
+            [void]$warnings.Add("static-site-backends-not-collected:error:$resourceId")
+        }
+    }
+
+    return [pscustomobject]@{
+        rows = @($NetworkAssociationRows)
+        warnings = @($warnings)
+    }
+}
+
+function Add-ArchLucidAzureFabricCapacityWorkspaceAssociationRows(
+    [System.Collections.IList] $NetworkAssociationRows,
+    [object[]] $InventoryResources)
+{
+    [System.Collections.Generic.List[string]]$warnings = [System.Collections.Generic.List[string]]::new()
+    [hashtable]$seen = @{}
+
+    foreach ($row in @($NetworkAssociationRows))
+    {
+        [string]$key = "$( $row.fromResourceId )|$( $row.associationType )|$( $row.toResourceId )"
+        $seen[$key] = $true
+    }
+
+    if (-not (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue))
+    {
+        return [pscustomobject]@{
+            rows = @($NetworkAssociationRows)
+            warnings = @($warnings)
+        }
+    }
+
+    foreach ($resource in @($InventoryResources))
+    {
+        if ($null -eq $resource) { continue }
+
+        [string]$resourceType = "$( $resource.resourceType )".Trim()
+        [string]$resourceId = "$( $resource.resourceId )".Trim()
+
+        if ($resourceType -ne 'Microsoft.Fabric/capacities' -or [string]::IsNullOrWhiteSpace($resourceId))
+        {
+            continue
+        }
+
+        try
+        {
+            [string]$path = "$resourceId/workspaces?api-version=2024-05-01"
+            [object]$response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
+
+            if ($response.StatusCode -eq 401 -or $response.StatusCode -eq 403)
+            {
+                [void]$warnings.Add("fabric-capacity-assignments-not-collected:insufficient-permission:$resourceId")
+                continue
+            }
+
+            if ($response.StatusCode -lt 200 -or $response.StatusCode -ge 300)
+            {
+                [void]$warnings.Add("fabric-capacity-assignments-not-collected:http-error:$resourceId")
+                continue
+            }
+
+            [object]$payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+            [int]$outsideInventoryCount = 0
+
+            foreach ($workspace in @($payload.value))
+            {
+                [string]$workspaceId = "$( $workspace.id )".Trim()
+
+                if (-not $workspaceId.StartsWith('/subscriptions/', [System.StringComparison]::OrdinalIgnoreCase))
+                {
+                    $outsideInventoryCount++
+                    continue
+                }
+
+                Add-ArchLucidNetworkAssociationRow `
+                    -Rows $NetworkAssociationRows `
+                    -Seen $seen `
+                    -FromResourceId $resourceId `
+                    -ToResourceId $workspaceId `
+                    -AssociationType 'fabricCapacityToWorkspace'
+            }
+
+            if ($outsideInventoryCount -gt 0)
+            {
+                [void]$warnings.Add("fabric-capacity-workspaces-outside-inventory:${outsideInventoryCount}:$resourceId")
+            }
+        }
+        catch
+        {
+            [void]$warnings.Add("fabric-capacity-assignments-not-collected:error:$resourceId")
+        }
+    }
+
+    return [pscustomobject]@{
+        rows = @($NetworkAssociationRows)
+        warnings = @($warnings)
+    }
+}
+
 function Get-ArchLucidAzureLogicAppConnectionCompanionRows
 {
     param(
@@ -4611,48 +4914,96 @@ function Get-ArchLucidAzureLogicAppConnectionCompanionRows
 
         [string]$resourceType = "$( $resource.resourceType )".Trim()
         [string]$resourceId = "$( $resource.resourceId )".Trim()
+        [string]$workflowName = "$( $resource.name )".Trim()
 
         if ($resourceType -eq 'Microsoft.Logic/workflows' -and -not [string]::IsNullOrWhiteSpace($resourceId))
         {
             try
             {
                 [string]$path = "$resourceId?api-version=2019-05-01"
-                $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
-                $workflow = $response.Content | ConvertFrom-Json -ErrorAction Stop
-                $connections = $workflow.properties.parameters.'$connections'.value
+                [object]$response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
 
-                foreach ($property in $connections.PSObject.Properties)
+                if ($response.StatusCode -eq 401 -or $response.StatusCode -eq 403)
                 {
-                    [string]$connectionName = $property.Name
-                    [string]$connectionResourceId = "$( $property.Value.connectionId )".Trim()
+                    Add-ArchLucidAzureLogicAppWorkflowCollectionFailureRow `
+                        -Rows $rows `
+                        -Seen $seen `
+                        -WorkflowResourceId $resourceId `
+                        -WorkflowName $workflowName `
+                        -Reason 'insufficient-permission'
+                    continue
+                }
 
-                    if (-not (Test-ArchLucidAzureAdfStaticReferenceName -ReferenceName $connectionName)) { continue }
-                    if ([string]::IsNullOrWhiteSpace($connectionResourceId)) { continue }
+                if ($response.StatusCode -lt 200 -or $response.StatusCode -ge 300)
+                {
+                    Add-ArchLucidAzureLogicAppWorkflowCollectionFailureRow `
+                        -Rows $rows `
+                        -Seen $seen `
+                        -WorkflowResourceId $resourceId `
+                        -WorkflowName $workflowName `
+                        -Reason 'http-error'
+                    continue
+                }
 
-                    [string]$key = "$resourceId|$connectionName|$connectionResourceId"
-                    if ($seen.ContainsKey($key)) { continue }
-                    $seen[$key] = $true
-                    $seen["$resourceId|$connectionResourceId"] = $true
+                [object]$workflow = $response.Content | ConvertFrom-Json -ErrorAction Stop
+                [string]$resolvedWorkflowName = "$( $workflow.name )".Trim()
 
-                    [void]$rows.Add([ordered]@{
-                        workflowResourceId = $resourceId
-                        workflowName = "$( $workflow.name )".Trim()
-                        connectionName = $connectionName
-                        connectionResourceId = $connectionResourceId
-                        collectionStatus = 'Succeeded'
-                    })
+                if ([string]::IsNullOrWhiteSpace($resolvedWorkflowName))
+                {
+                    $resolvedWorkflowName = $workflowName
+                }
+
+                [object]$connections = $null
+
+                try
+                {
+                    $connections = $workflow.properties.parameters.'$connections'.value
+                }
+                catch
+                {
+                }
+
+                if ($null -ne $connections)
+                {
+                    foreach ($property in $connections.PSObject.Properties)
+                    {
+                        [string]$connectionName = $property.Name
+                        [string]$connectionResourceId = "$( $property.Value.connectionId )".Trim()
+
+                        if (-not (Test-ArchLucidAzureAdfStaticReferenceName -ReferenceName $connectionName)) { continue }
+                        if ([string]::IsNullOrWhiteSpace($connectionResourceId)) { continue }
+
+                        [string]$key = "$resourceId|$connectionName|$connectionResourceId"
+                        if ($seen.ContainsKey($key)) { continue }
+                        $seen[$key] = $true
+                        $seen["$resourceId|$connectionResourceId"] = $true
+
+                        [void]$rows.Add([ordered]@{
+                            workflowResourceId = $resourceId
+                            workflowName = $resolvedWorkflowName
+                            connectionName = $connectionName
+                            connectionResourceId = $connectionResourceId
+                            collectionStatus = 'Succeeded'
+                        })
+                    }
                 }
 
                 Add-ArchLucidAzureLogicAppActionConnectionRows `
                     -Node $workflow.properties.definition `
                     -ActionName $workflow.name `
                     -WorkflowResourceId $resourceId `
-                    -WorkflowName "$( $workflow.name )".Trim() `
+                    -WorkflowName $resolvedWorkflowName `
                     -Rows $rows `
                     -Seen $seen
             }
             catch
             {
+                Add-ArchLucidAzureLogicAppWorkflowCollectionFailureRow `
+                    -Rows $rows `
+                    -Seen $seen `
+                    -WorkflowResourceId $resourceId `
+                    -WorkflowName $workflowName `
+                    -Reason 'error'
             }
         }
     }
@@ -4798,12 +5149,33 @@ function Get-ArchLucidAzureAppSettingHostFromValue
         [string] $Value
     )
 
-    if (Test-ArchLucidAzureAppSettingHostRejectedValue -Value $Value)
+    [object[]]$rows = @(Get-ArchLucidAzureAppSettingHostParsedRows -SettingName $SettingName -Value $Value)
+
+    if ($rows.Count -eq 0)
     {
         return $null
     }
 
-    $row = [ordered]@{
+    return $rows[0]
+}
+
+function Get-ArchLucidAzureAppSettingHostParsedRows
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $SettingName,
+
+        [Parameter(Mandatory = $false)]
+        [string] $Value
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Value))
+    {
+        return @()
+    }
+
+    [System.Collections.ArrayList] $rows = [System.Collections.ArrayList]::new()
+    $primary = [ordered]@{
         settingName = $SettingName
         parsedHost = $null
         catalog = $null
@@ -4812,74 +5184,174 @@ function Get-ArchLucidAzureAppSettingHostFromValue
         warningCode = $null
     }
 
-    if (-not [string]::IsNullOrWhiteSpace($Value))
+    $sqlMatch = [regex]::Match($Value, 'Server\s*=\s*(?:tcp:)?(?<host>[^,;]+)', 'IgnoreCase')
+
+    if ($sqlMatch.Success)
     {
-        $sqlMatch = [regex]::Match($Value, 'Server\s*=\s*(?:tcp:)?(?<host>[^,;]+)', 'IgnoreCase')
+        $primary.parsedHost = $sqlMatch.Groups['host'].Value.Trim().ToLowerInvariant()
+    }
 
-        if ($sqlMatch.Success)
+    $catalogMatch = [regex]::Match(
+        $Value,
+        '(?:Initial\s+Catalog|Database)\s*=\s*(?<catalog>[^;]+)',
+        'IgnoreCase')
+
+    if ($catalogMatch.Success)
+    {
+        [string]$catalog = $catalogMatch.Groups['catalog'].Value.Trim()
+
+        if ($catalog -match '[{}]' -or $catalog -match '(?i)\{0\}' -or $catalog -match '(?i)\{tenant\}')
         {
-            $row.parsedHost = $sqlMatch.Groups['host'].Value.Trim().ToLowerInvariant()
+            $primary.warningCode = 'app-settings-catalog-template'
         }
-
-        $catalogMatch = [regex]::Match(
-            $Value,
-            '(?:Initial\s+Catalog|Database)\s*=\s*(?<catalog>[^;]+)',
-            'IgnoreCase')
-
-        if ($catalogMatch.Success)
+        else
         {
-            [string]$catalog = $catalogMatch.Groups['catalog'].Value.Trim()
+            $primary.catalog = $catalog
+        }
+    }
 
-            if ($catalog -match '[{}]' -or $catalog -match '(?i)\{0\}' -or $catalog -match '(?i)\{tenant\}')
+    $kvMatch = [regex]::Match(
+        $Value,
+        '@Microsoft\.KeyVault\(SecretUri\s*=\s*https?://(?<host>[^/]+)/secrets/(?<secret>[^/)]+)',
+        'IgnoreCase')
+
+    if ($kvMatch.Success)
+    {
+        $primary.keyVaultHost = $kvMatch.Groups['host'].Value.Trim().ToLowerInvariant()
+        $primary.secretName = $kvMatch.Groups['secret'].Value.Trim()
+    }
+
+    if ([string]::IsNullOrWhiteSpace($primary.parsedHost) -and [string]::IsNullOrWhiteSpace($primary.keyVaultHost))
+    {
+        $httpsMatch = [regex]::Match($Value, 'https?://(?<host>[^/\s;]+)', 'IgnoreCase')
+
+        if ($httpsMatch.Success)
+        {
+            [string]$httpsHost = $httpsMatch.Groups['host'].Value.Trim().ToLowerInvariant()
+
+            if ($httpsHost.EndsWith('.vault.azure.net', [StringComparison]::OrdinalIgnoreCase))
             {
-                $row.warningCode = 'app-settings-catalog-template'
+                $primary.keyVaultHost = $httpsHost
             }
             else
             {
-                $row.catalog = $catalog
-            }
-        }
-
-        $kvMatch = [regex]::Match(
-            $Value,
-            '@Microsoft\.KeyVault\(SecretUri\s*=\s*https?://(?<host>[^/]+)/secrets/(?<secret>[^/)]+)',
-            'IgnoreCase')
-
-        if ($kvMatch.Success)
-        {
-            $row.keyVaultHost = $kvMatch.Groups['host'].Value.Trim().ToLowerInvariant()
-            $row.secretName = $kvMatch.Groups['secret'].Value.Trim()
-        }
-
-        if ([string]::IsNullOrWhiteSpace($row.parsedHost) -and [string]::IsNullOrWhiteSpace($row.keyVaultHost))
-        {
-            $httpsMatch = [regex]::Match($Value, 'https?://(?<host>[^/\s;]+)', 'IgnoreCase')
-
-            if ($httpsMatch.Success)
-            {
-                [string]$httpsHost = $httpsMatch.Groups['host'].Value.Trim().ToLowerInvariant()
-
-                if ($httpsHost.EndsWith('.vault.azure.net', [StringComparison]::OrdinalIgnoreCase))
-                {
-                    $row.keyVaultHost = $httpsHost
-                }
-                else
-                {
-                    $row.parsedHost = $httpsHost
-                }
+                $primary.parsedHost = $httpsHost
             }
         }
     }
 
-    if ([string]::IsNullOrWhiteSpace($row.parsedHost) -and
-        [string]::IsNullOrWhiteSpace($row.keyVaultHost) -and
-        [string]::IsNullOrWhiteSpace($row.catalog) -and
-        [string]::IsNullOrWhiteSpace($row.warningCode))
+    if (-not [string]::IsNullOrWhiteSpace($primary.parsedHost) -or
+        -not [string]::IsNullOrWhiteSpace($primary.keyVaultHost) -or
+        -not [string]::IsNullOrWhiteSpace($primary.catalog) -or
+        -not [string]::IsNullOrWhiteSpace($primary.warningCode))
     {
-        return $null
+        [void]$rows.Add($primary)
     }
 
-    return $row
+    Add-ArchLucidAzureAppSettingHostConnectionStringHosts -Value $Value -Rows $rows
+
+    return @($rows.ToArray())
+}
+
+function Add-ArchLucidAzureAppSettingHostConnectionStringHosts
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $Value,
+
+        [Parameter(Mandatory = $true)]
+        [System.Collections.ArrayList] $Rows
+    )
+
+    $accountMatch = [regex]::Match($Value, 'AccountName\s*=\s*(?<name>[^;]+)', 'IgnoreCase')
+
+    if ($accountMatch.Success)
+    {
+        [string]$accountName = $accountMatch.Groups['name'].Value.Trim().ToLowerInvariant()
+        [string[]]$endpointHosts = @()
+
+        foreach ($endpointKey in @('QueueEndpoint', 'TableEndpoint', 'FileEndpoint', 'BlobEndpoint'))
+        {
+            $endpointMatch = [regex]::Match(
+                $Value,
+                "$endpointKey\s*=\s*https?://(?<host>[^/\s;]+)",
+                'IgnoreCase')
+
+            if ($endpointMatch.Success)
+            {
+                $endpointHosts += $endpointMatch.Groups['host'].Value.Trim().ToLowerInvariant()
+            }
+        }
+
+        if ($endpointHosts.Count -gt 0)
+        {
+            foreach ($endpointHost in ($endpointHosts | Select-Object -Unique))
+            {
+                Add-ArchLucidAzureAppSettingHostParsedHostRow -Rows $Rows -ParsedHostValue $endpointHost
+            }
+        }
+        else
+        {
+            $suffixMatch = [regex]::Match($Value, 'EndpointSuffix\s*=\s*(?<suffix>[^;]+)', 'IgnoreCase')
+
+            if ($suffixMatch.Success)
+            {
+                [string]$suffix = $suffixMatch.Groups['suffix'].Value.Trim().ToLowerInvariant()
+                Add-ArchLucidAzureAppSettingHostParsedHostRow -Rows $Rows -ParsedHostValue "$accountName.blob.$suffix"
+            }
+        }
+    }
+
+    $serviceBusMatch = [regex]::Match($Value, 'Endpoint\s*=\s*sb://(?<host>[^/;\s]+)/?', 'IgnoreCase')
+
+    if ($serviceBusMatch.Success)
+    {
+        Add-ArchLucidAzureAppSettingHostParsedHostRow -Rows $Rows -ParsedHostValue $serviceBusMatch.Groups['host'].Value.Trim().ToLowerInvariant()
+    }
+
+    $cosmosMatch = [regex]::Match($Value, 'https?://(?<host>[^/\s;]+\.documents\.azure\.com)', 'IgnoreCase')
+
+    if ($cosmosMatch.Success)
+    {
+        Add-ArchLucidAzureAppSettingHostParsedHostRow -Rows $Rows -ParsedHostValue $cosmosMatch.Groups['host'].Value.Trim().ToLowerInvariant()
+    }
+
+    $redisMatch = [regex]::Match($Value, '(?<host>[^,;\s]+\.redis\.cache\.windows\.net)', 'IgnoreCase')
+
+    if ($redisMatch.Success)
+    {
+        Add-ArchLucidAzureAppSettingHostParsedHostRow -Rows $Rows -ParsedHostValue $redisMatch.Groups['host'].Value.Trim().ToLowerInvariant()
+    }
+}
+
+function Add-ArchLucidAzureAppSettingHostParsedHostRow
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.Collections.ArrayList] $Rows,
+
+        [Parameter(Mandatory = $true)]
+        [string] $ParsedHostValue
+    )
+
+    [string]$normalizedHost = $ParsedHostValue.Trim().ToLowerInvariant()
+
+    foreach ($existing in @($Rows))
+    {
+        if ($existing.parsedHost -eq $normalizedHost)
+        {
+            return
+        }
+    }
+
+    [void]$Rows.Add([ordered]@{
+        settingName = $null
+        parsedHost = $normalizedHost
+        catalog = $null
+        keyVaultHost = $null
+        secretName = $null
+        warningCode = $null
+    })
 }
 
 function Add-ArchLucidAzureAppSettingHostCompanionRow
@@ -5094,20 +5566,19 @@ function Get-ArchLucidAzureAppSettingHostCompanionRows
                     {
                         [string]$settingName = "$( $property.Name )".Trim()
                         [string]$settingValue = "$( $property.Value )".Trim()
-                        $parsed = Get-ArchLucidAzureAppSettingHostFromValue -SettingName $settingName -Value $settingValue
-
-                        if ($null -eq $parsed) { continue }
-
-                        Add-ArchLucidAzureAppSettingHostCompanionRow `
-                            -Rows $rows `
-                            -Seen $seen `
-                            -SiteResourceId $siteResourceId `
-                            -SettingName $settingName `
-                            -ParsedHost $parsed.parsedHost `
-                            -Catalog $parsed.catalog `
-                            -KeyVaultHost $parsed.keyVaultHost `
-                            -SecretName $parsed.secretName `
-                            -WarningCode $parsed.warningCode
+                        foreach ($parsed in @(Get-ArchLucidAzureAppSettingHostParsedRows -SettingName $settingName -Value $settingValue))
+                        {
+                            Add-ArchLucidAzureAppSettingHostCompanionRow `
+                                -Rows $rows `
+                                -Seen $seen `
+                                -SiteResourceId $siteResourceId `
+                                -SettingName $settingName `
+                                -ParsedHost $parsed.parsedHost `
+                                -Catalog $parsed.catalog `
+                                -KeyVaultHost $parsed.keyVaultHost `
+                                -SecretName $parsed.secretName `
+                                -WarningCode $parsed.warningCode
+                        }
                     }
                 }
                 catch
@@ -5132,27 +5603,44 @@ function Get-ArchLucidAzureAppSettingHostCompanionRows
             [string]$secretRef = "$( $envEntry.secretRef )".Trim()
             $parsed = $null
 
+            [object[]]$parsedRows = @()
+
             if (-not [string]::IsNullOrWhiteSpace($settingValue))
             {
-                $parsed = Get-ArchLucidAzureAppSettingHostFromValue -SettingName $settingName -Value $settingValue
+                $parsedRows = @(Get-ArchLucidAzureAppSettingHostParsedRows -SettingName $settingName -Value $settingValue)
             }
 
-            if ($null -eq $parsed -and [string]::IsNullOrWhiteSpace($secretRef))
+            if ($parsedRows.Count -eq 0 -and [string]::IsNullOrWhiteSpace($secretRef))
             {
                 continue
             }
 
-            Add-ArchLucidAzureAppSettingHostCompanionRow `
-                -Rows $rows `
-                -Seen $seen `
-                -SiteResourceId $siteResourceId `
-                -SettingName $settingName `
-                -ParsedHost $(if ($null -ne $parsed) { $parsed.parsedHost } else { $null }) `
-                -Catalog $(if ($null -ne $parsed) { $parsed.catalog } else { $null }) `
-                -KeyVaultHost $(if ($null -ne $parsed) { $parsed.keyVaultHost } else { $null }) `
-                -SecretName $(if ($null -ne $parsed) { $parsed.secretName } else { $null }) `
-                -SecretRef $(if (-not [string]::IsNullOrWhiteSpace($secretRef)) { $secretRef } else { $null }) `
-                -WarningCode $(if ($null -ne $parsed) { $parsed.warningCode } else { $null })
+            if ($parsedRows.Count -eq 0)
+            {
+                Add-ArchLucidAzureAppSettingHostCompanionRow `
+                    -Rows $rows `
+                    -Seen $seen `
+                    -SiteResourceId $siteResourceId `
+                    -SettingName $settingName `
+                    -SecretRef $(if (-not [string]::IsNullOrWhiteSpace($secretRef)) { $secretRef } else { $null })
+
+                continue
+            }
+
+            foreach ($parsed in $parsedRows)
+            {
+                Add-ArchLucidAzureAppSettingHostCompanionRow `
+                    -Rows $rows `
+                    -Seen $seen `
+                    -SiteResourceId $siteResourceId `
+                    -SettingName $settingName `
+                    -ParsedHost $parsed.parsedHost `
+                    -Catalog $parsed.catalog `
+                    -KeyVaultHost $parsed.keyVaultHost `
+                    -SecretName $parsed.secretName `
+                    -SecretRef $(if (-not [string]::IsNullOrWhiteSpace($secretRef)) { $secretRef } else { $null }) `
+                    -WarningCode $parsed.warningCode
+            }
         }
     }
 

@@ -58,6 +58,76 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         return document.RootElement.Clone();
     }
 
+    public async Task<(int StatusCode, JsonElement? Body)> ReadArmResourceWithStatusAsync(
+        string accessToken,
+        string resourceId,
+        string apiVersion,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
+        ArgumentException.ThrowIfNullOrWhiteSpace(resourceId);
+
+        string trimmedResourceId = resourceId.Trim().TrimStart('/');
+        string requestUri = $"https://management.azure.com/{trimmedResourceId}?api-version={apiVersion}";
+
+        using HttpRequestMessage request = new(HttpMethod.Get, requestUri);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+        using HttpResponseMessage response =
+            await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+        int statusCode = (int)response.StatusCode;
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return (statusCode, null);
+        }
+
+        await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+        using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
+
+        return (statusCode, document.RootElement.Clone());
+    }
+
+    public async Task<HostedAzureArmChildCollectionReadResult> ListChildResourcesWithStatusAsync(
+        string accessToken,
+        string parentResourceId,
+        string childSegment,
+        string apiVersion,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
+        ArgumentException.ThrowIfNullOrWhiteSpace(parentResourceId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(childSegment);
+
+        string trimmedParent = parentResourceId.Trim().TrimStart('/').TrimEnd('/');
+        string relativePath = $"{trimmedParent}/{childSegment.Trim('/')}";
+        string requestUri = $"https://management.azure.com/{relativePath}?api-version={apiVersion}";
+
+        using HttpRequestMessage request = new(HttpMethod.Get, requestUri);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+        using HttpResponseMessage response =
+            await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+        int statusCode = (int)response.StatusCode;
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return HostedAzureArmChildCollectionReadResult.Failed(statusCode);
+        }
+
+        IReadOnlyList<JsonElement> values = await ListJsonElementsAtRelativePathAsync(
+            accessToken,
+            relativePath,
+            apiVersion,
+            childSegment,
+            cancellationToken).ConfigureAwait(false);
+
+        return HostedAzureArmChildCollectionReadResult.Succeeded(values);
+    }
+
     private async Task<IReadOnlyList<JsonElement>> ListJsonElementsAtRelativePathAsync(
         string accessToken,
         string relativePath,

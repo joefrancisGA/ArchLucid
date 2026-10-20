@@ -931,10 +931,14 @@ public static class AzureInventorySecurityEdgeMaterializer
     {
         ArgumentNullException.ThrowIfNull(warnings);
 
-        if (!AzureInventoryRelationshipAssociationTypes.TryGet(
-                AzureInventoryRelationshipAssociationTypes.DiagnosticToDestination,
-                out AzureInventoryRelationshipAssociationTypeDefinition? definition)
-            || definition is null)
+        AzureInventoryRelationshipAssociationTypes.TryGet(
+            AzureInventoryRelationshipAssociationTypes.DiagnosticToDestination,
+            out AzureInventoryRelationshipAssociationTypeDefinition? defaultDefinition);
+        AzureInventoryRelationshipAssociationTypes.TryGet(
+            AzureInventoryRelationshipAssociationTypes.DiagnosticSettingToStorage,
+            out AzureInventoryRelationshipAssociationTypeDefinition? storageDefinition);
+
+        if (defaultDefinition is null && storageDefinition is null)
         {
             return;
         }
@@ -955,6 +959,37 @@ public static class AzureInventorySecurityEdgeMaterializer
 
             foreach (string destinationArmId in AzureInventoryDiagnosticDestinationParser.EnumerateDestinationArmIds(diagnostic))
             {
+                if (IsStorageAccountArmId(destinationArmId) && storageDefinition is not null)
+                {
+                    string normalizedStorageAccountId = ArmResourceIdNormalizer.Normalize(destinationArmId);
+
+                    if (inventoriedArmIds.Count > 0
+                        && (!inventoriedArmIds.Contains(normalizedTargetId)
+                            || !inventoriedArmIds.Contains(normalizedStorageAccountId)))
+                    {
+                        continue;
+                    }
+
+                    AddRelationship(
+                        relationships,
+                        relationshipKeys,
+                        normalizedTargetId,
+                        normalizedStorageAccountId,
+                        storageDefinition.DefaultGraphEdgeType,
+                        storageDefinition.DefaultProvenanceKind,
+                        ObservedFactConfidence,
+                        storageDefinition.DefaultInferenceSource);
+
+                    emittedDestination = true;
+
+                    continue;
+                }
+
+                if (defaultDefinition is null)
+                {
+                    continue;
+                }
+
                 AzureInventoryEventHubVisibleEndpointResolver.ResolveDiagnosticDestination(
                     destinationArmId,
                     inventoriedArmIds,
@@ -966,8 +1001,8 @@ public static class AzureInventorySecurityEdgeMaterializer
                     relationshipKeys,
                     normalizedTargetId,
                     resolvedDestinationArmId,
-                    definition.DefaultGraphEdgeType,
-                    definition.DefaultProvenanceKind,
+                    defaultDefinition.DefaultGraphEdgeType,
+                    defaultDefinition.DefaultProvenanceKind,
                     ObservedFactConfidence,
                     diagnosticInferenceSource);
 
@@ -979,6 +1014,13 @@ public static class AzureInventorySecurityEdgeMaterializer
                 warnings.Add("diagnostic-destination-unresolved");
             }
         }
+    }
+
+    private static bool IsStorageAccountArmId(string armResourceId)
+    {
+        return armResourceId.Contains(
+            "/Microsoft.Storage/storageAccounts/",
+            StringComparison.OrdinalIgnoreCase);
     }
 
     private static IEnumerable<string> ExtractAssignedIdentityArmIds(AzureExtractorExtendedResourceRow resource)

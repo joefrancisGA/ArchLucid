@@ -1,7 +1,12 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { SecureNowQuestionQueue } from "@/components/infra-evidence/SecureNowQuestionQueue";
+import {
+  SecureNowQuestionQueue,
+  SecureNowQuestionQueueProvider,
+  SecureNowQuestionQueueSnapshotPromo,
+  useSecureNowQuestionQueue,
+} from "@/components/infra-evidence/SecureNowQuestionQueue";
 
 const mocks = vi.hoisted(() => ({
   listQuestions: vi.fn(),
@@ -77,7 +82,7 @@ describe("SecureNowQuestionQueue", () => {
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
 
     expect(await screen.findByTestId("infra-diagrams-question-snapshot-promo")).toHaveTextContent("1 open question");
-    expect(screen.getByLabelText("Status: Action needed")).toBeInTheDocument();
+    expect(screen.getByLabelText("Status: Open questions")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Review questions" }));
 
     expect(screen.getByTestId("infra-diagrams-question-bar")).toBeInTheDocument();
@@ -173,6 +178,30 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByText(/Expiration status was not stored/)).toBeInTheDocument();
   });
 
+  it("maps known question source and scope codes (P-16, P-17)", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      { ...question, source: "InventoryEvidence", scopeKind: "Resource" },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+
+    expect(screen.getByText("Source: Asked from inventory evidence.")).toBeInTheDocument();
+    expect(screen.getByText("Scope: This resource.")).toBeInTheDocument();
+  });
+
+  it("labels unknown question source and scope codes (P-16, P-17)", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      { ...question, source: "CustomSource", scopeKind: "Tenant" },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+
+    expect(screen.getByText("Source: Question source code CustomSource has no reviewer label.")).toBeInTheDocument();
+    expect(screen.getByText("Scope: Question scope code Tenant has no reviewer label.")).toBeInTheDocument();
+  });
+
   it("shows omitted question source and scope in details", async () => {
     mocks.listQuestions.mockResolvedValue([
       { ...question, source: null, scopeKind: null },
@@ -233,7 +262,7 @@ describe("SecureNowQuestionQueue", () => {
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
 
     expect(await screen.findByTestId("infra-diagrams-question-snapshot-promo")).toHaveTextContent("1 open question");
-    expect(screen.getByLabelText("Status: Action needed")).toBeInTheDocument();
+    expect(screen.getByLabelText("Status: Open questions")).toBeInTheDocument();
     expect(screen.getByText("inferred connections unavailable")).toBeInTheDocument();
   });
 
@@ -242,7 +271,7 @@ describe("SecureNowQuestionQueue", () => {
 
     await waitFor(() => expect(mocks.listQuestions).toHaveBeenCalledWith("snapshot-1"));
     expect(screen.queryByTestId("infra-diagrams-question-snapshot-promo")).not.toBeInTheDocument();
-    expect(screen.queryByLabelText("Status: Action needed")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Status: Open questions")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Review questions" })).not.toBeInTheDocument();
     expect(screen.queryByText("No proposed questionnaire items remain for this snapshot.")).not.toBeInTheDocument();
   });
@@ -273,7 +302,7 @@ describe("SecureNowQuestionQueue", () => {
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
-    fireEvent.click(screen.getByRole("button", { name: "Not sure" }));
+    fireEvent.click(screen.getByRole("button", { name: "Not sure. This does not store an answer." }));
 
     await waitFor(() => expect(screen.getByText("No questions match this filter.")).toBeInTheDocument());
     expect(mocks.answerQuestion).not.toHaveBeenCalled();
@@ -300,7 +329,7 @@ describe("SecureNowQuestionQueue", () => {
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
     fireEvent.click(screen.getByRole("button", { name: "Yes" }));
-    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
 
     await waitFor(() => {
       expect(mocks.confirmConnection).toHaveBeenCalledWith("snapshot-1", {
@@ -324,7 +353,7 @@ describe("SecureNowQuestionQueue", () => {
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
-    fireEvent.click(screen.getByRole("button", { name: "Not sure" }));
+    fireEvent.click(screen.getByRole("button", { name: "Not sure. This does not store an answer." }));
 
     expect(
       await screen.findByText("Should other-resource connect to a peer, or stand alone?"),
@@ -336,7 +365,7 @@ describe("SecureNowQuestionQueue", () => {
 
     const view = render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
-    fireEvent.click(screen.getByRole("button", { name: "Not sure" }));
+    fireEvent.click(screen.getByRole("button", { name: "Not sure. This does not store an answer." }));
 
     view.rerender(<SecureNowQuestionQueue snapshotId="snapshot-2" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
@@ -405,6 +434,37 @@ describe("SecureNowQuestionQueue", () => {
     resolveFirstLoad?.([question]);
     await waitFor(() => expect(screen.getByTestId("infra-diagrams-question-snapshot-promo")).toHaveTextContent("1 open question"));
     expect(screen.queryByText("Newest snapshot question")).toBeInTheDocument();
+  });
+
+  it("keeps question-queue hooks mounted when snapshotId is empty", () => {
+    function EmptySnapshotQueueProbe() {
+      const { drawerOpen } = useSecureNowQuestionQueue();
+
+      return <div data-testid="empty-snapshot-queue-probe">{drawerOpen ? "open" : "closed"}</div>;
+    }
+
+    render(
+      <SecureNowQuestionQueueProvider snapshotId="">
+        <EmptySnapshotQueueProbe />
+      </SecureNowQuestionQueueProvider>,
+    );
+
+    expect(screen.getByTestId("empty-snapshot-queue-probe")).toHaveTextContent("closed");
+    expect(screen.queryByTestId("securenow-question-queue")).not.toBeInTheDocument();
+    expect(mocks.listQuestions).not.toHaveBeenCalled();
+  });
+
+  it("keeps queue context when snapshotId is empty so nested consumers do not crash", () => {
+    expect(() => {
+      render(
+        <SecureNowQuestionQueueProvider snapshotId="">
+          <SecureNowQuestionQueueSnapshotPromo compact />
+        </SecureNowQuestionQueueProvider>,
+      );
+    }).not.toThrow();
+
+    expect(screen.queryByTestId("infra-diagrams-question-snapshot-promo")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("securenow-question-queue")).not.toBeInTheDocument();
   });
 
   it("requires a reason before ignoring a question", async () => {

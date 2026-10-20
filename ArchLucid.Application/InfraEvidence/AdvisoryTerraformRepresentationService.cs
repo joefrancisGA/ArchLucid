@@ -37,7 +37,7 @@ public sealed class AdvisoryTerraformRepresentationService(
                 cancellationToken);
 
             AzureInventorySnapshotDetailReadModel? snapshot =
-                await snapshotRepository.TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+                await snapshotRepository.TryGetAdvisoryTerraformVisibleSnapshotAsync(scope, snapshotId, cancellationToken);
 
             if (snapshot is null)
             {

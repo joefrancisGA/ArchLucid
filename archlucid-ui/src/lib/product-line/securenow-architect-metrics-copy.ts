@@ -1,13 +1,15 @@
-export const SECURENOW_ARCHITECT_METRICS_TITLE = "Architect outcome metrics" as const;
+import { secureNowTitleCase } from "@/lib/product-line/securenow-title-case";
+
+export const SECURENOW_ARCHITECT_METRICS_TITLE = secureNowTitleCase("Architect outcome metrics");
 
 export const SECURENOW_ARCHITECT_METRICS_LEAD =
   "Compare inventory snapshots for architecture outcomes (SA-11). Headline counts describe path removal and posture change — not ticket burn-down." as const;
 
-export const SECURENOW_ARCHITECT_METRICS_FROM_LABEL = "From snapshot" as const;
+export const SECURENOW_ARCHITECT_METRICS_FROM_LABEL = secureNowTitleCase("From snapshot");
 
-export const SECURENOW_ARCHITECT_METRICS_TO_LABEL = "To snapshot" as const;
+export const SECURENOW_ARCHITECT_METRICS_TO_LABEL = secureNowTitleCase("To snapshot");
 
-export const SECURENOW_ARCHITECT_METRICS_COMPARE_BUTTON = "Compare snapshots" as const;
+export const SECURENOW_ARCHITECT_METRICS_COMPARE_BUTTON = secureNowTitleCase("Compare snapshots");
 
 export const SECURENOW_ARCHITECT_METRICS_LOADING = "Loading architect outcome metrics…" as const;
 
@@ -16,7 +18,26 @@ export const SECURENOW_ARCHITECT_METRICS_ERROR = "Architect outcome metrics unav
 export const SECURENOW_ARCHITECT_METRICS_SNAPSHOTS_EMPTY =
   "At least two inventory snapshots are required to compare architect outcomes." as const;
 
-export const SECURENOW_ARCHITECT_METRICS_RULE_VERSION_PREFIX = "Rule version" as const;
+const SECURENOW_ARCHITECT_METRICS_RULE_VERSION_EXPLANATIONS: Readonly<Record<string, string>> = {
+  "SA11-metrics-v1":
+    "These snapshot-comparison headline numbers were calculated with the SA-11 architect metrics specification, version 1.",
+};
+
+export function formatSecureNowArchitectMetricsRuleVersionExplanation(ruleVersion: string): string {
+  const trimmed = ruleVersion.trim();
+
+  if (trimmed.length === 0) {
+    return "These snapshot-comparison headline numbers use an unspecified calculation rule.";
+  }
+
+  const known = SECURENOW_ARCHITECT_METRICS_RULE_VERSION_EXPLANATIONS[trimmed];
+
+  if (known !== undefined) {
+    return known;
+  }
+
+  return `These snapshot-comparison headline numbers were calculated with rule version ${trimmed}.`;
+}
 
 export const SECURENOW_ARCHITECT_METRICS_SUPPORTING_OPEN_FINDINGS = "Supporting: open findings" as const;
 

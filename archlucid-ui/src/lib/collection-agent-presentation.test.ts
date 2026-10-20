@@ -43,7 +43,7 @@ describe("collection-agent-presentation", () => {
         [run({ status: "Failed", errorSummary: "Reader denied" })],
         Date.parse("2026-10-11T23:00:00.000Z"),
       ).label,
-    ).toBe("Blocked");
+    ).toBe("No successful run stored");
 
     expect(
       resolveCollectionAgentHealth(
@@ -94,6 +94,11 @@ describe("collection-agent-presentation", () => {
     expect(formatCollectionRunSubscriptionsLabel(run({ subscriptionsCoveredJson: "[]" }))).toBe(
       "Subscriptions covered were stored as an empty list.",
     );
-    expect(formatCollectionRunSubscriptionsLabel(run({ subscriptionsCoveredJson: '["sub-a"]' }))).toBe("1");
+    expect(formatCollectionRunSubscriptionsLabel(run({ subscriptionsCoveredJson: '["sub-a"]' }))).toBe(
+      "1 subscription covered.",
+    );
+    expect(
+      formatCollectionRunSubscriptionsLabel(run({ subscriptionsCoveredJson: '["sub-a","sub-b","sub-c"]' })),
+    ).toBe("3 subscriptions covered.");
   });
 });

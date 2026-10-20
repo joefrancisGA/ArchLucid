@@ -7,6 +7,7 @@ using FluentAssertions;
 namespace ArchLucid.Contracts.Tests.Common;
 
 [Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
 public sealed class AgentTypeJsonConverterTests
 {
     private static readonly JsonSerializerOptions Options = new()
@@ -50,6 +51,14 @@ public sealed class AgentTypeJsonConverterTests
 
         act.Should().Throw<JsonException>()
             .WithMessage("*Unknown agent type value*");
+    }
+
+    [Fact]
+    public void Write_coerces_unset_default_to_topology_key()
+    {
+        string json = JsonSerializer.Serialize(default(AgentType), Options);
+
+        json.Should().Be("\"topology\"");
     }
 
     [Fact]

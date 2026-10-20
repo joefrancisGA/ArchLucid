@@ -91,6 +91,78 @@ public interface IRemediationInstanceRepository
             .ToList();
     }
 
+    async Task<IReadOnlyDictionary<Guid, RemediationInstanceRecord>> ListLatestApprovedByFindingIdsInScopeAsync(
+        ProjectScopeKey scope,
+        IReadOnlyCollection<Guid> findingIds,
+        CancellationToken cancellationToken = default)
+    {
+        if (findingIds.Count == 0)
+        {
+            return new Dictionary<Guid, RemediationInstanceRecord>();
+        }
+
+        HashSet<Guid> wantedFindingIds = findingIds.ToHashSet();
+        IReadOnlyList<RemediationInstanceRecord> rows = await ListByScopeAsync(scope, cancellationToken);
+
+        return rows
+            .Where(row => wantedFindingIds.Contains(row.FindingId)
+                && row.Status == RemediationInstanceStatus.Approved)
+            .GroupBy(row => row.FindingId)
+            .ToDictionary(
+                group => group.Key,
+                group => group.OrderByDescending(row => row.UpdatedUtc).First());
+    }
+
+    async Task<IReadOnlyDictionary<string, int>> CountOpenInstancesByStatusInScopeAsync(
+        ProjectScopeKey scope,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<RemediationInstanceRecord> rows = await ListByScopeAsync(scope, cancellationToken);
+
+        return rows
+            .Where(row => row.Status != RemediationInstanceStatus.Closed)
+            .GroupBy(row => row.Status.ToString())
+            .ToDictionary(group => group.Key, group => group.Count());
+    }
+
+    async Task<RemediationFactoryInstanceMetricsAggregate> GetFactoryInstanceMetricsAggregateInScopeAsync(
+        ProjectScopeKey scope,
+        DateTime weekStartUtc,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<RemediationInstanceRecord> instances = await ListByScopeAsync(scope, cancellationToken);
+
+        int remediatedThisWeek = instances.Count(item =>
+            item.VerifiedUtc.HasValue
+            && item.VerifiedUtc.Value >= weekStartUtc
+            && item.Status is RemediationInstanceStatus.Verified or RemediationInstanceStatus.Closed);
+
+        int automatedCount = instances.Count(item =>
+            item.AutomationLevel is RemediationAutomationLevel.SemiAutomated or RemediationAutomationLevel.Automated);
+
+        int verificationFailures = instances.Count(item => item.Status == RemediationInstanceStatus.VerificationFailed);
+        int businessBlocked = instances.Count(item => item.Status == RemediationInstanceStatus.PreflightBlocked);
+
+        List<RemediationFactoryMetricKeyCount> topPatternKeys = instances
+            .Where(item => !string.IsNullOrWhiteSpace(item.PatternKey))
+            .GroupBy(item => item.PatternKey, StringComparer.OrdinalIgnoreCase)
+            .Select(group => new RemediationFactoryMetricKeyCount { Key = group.Key, Count = group.Count() })
+            .OrderByDescending(item => item.Count)
+            .ThenBy(item => item.Key, StringComparer.OrdinalIgnoreCase)
+            .Take(5)
+            .ToList();
+
+        return new RemediationFactoryInstanceMetricsAggregate
+        {
+            TotalInstances = instances.Count,
+            RemediatedThisWeek = remediatedThisWeek,
+            AutomatedCount = automatedCount,
+            VerificationFailureCount = verificationFailures,
+            BusinessBlockedCount = businessBlocked,
+            TopPatternKeys = topPatternKeys,
+        };
+    }
+
     Task<(IReadOnlyList<RemediationInstanceRecord> Items, int TotalCount)> ListByCloudResourceIdPagedAsync(
         Guid tenantId,
         Guid cloudResourceId,

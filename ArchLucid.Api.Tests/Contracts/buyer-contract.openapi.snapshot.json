@@ -35569,6 +35569,72 @@
         },
         "type": "object"
       },
+      "SecurityEvidencePathReportResponse": {
+        "properties": {
+          "snapshotId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "unevaluatedGroups": {
+            "items": {
+              "$ref": "#/components/schemas/SecurityEvidencePathReportUnevaluatedGroupResponse"
+            },
+            "type": "array"
+          },
+          "vulnerableAttackPaths": {
+            "items": {
+              "$ref": "#/components/schemas/SecurityEvidencePathRankSummaryResponse"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "SecurityEvidencePathReportUnevaluatedGroupResponse": {
+        "properties": {
+          "engineName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "limitValue": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "pathCount": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "pathIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "pathsEmitted": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "reasonCode": {
+            "type": "string"
+          },
+          "whyText": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "SecurityEvidencePathRoutingResponse": {
         "properties": {
           "displayName": {

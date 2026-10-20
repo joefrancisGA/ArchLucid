@@ -50,18 +50,24 @@ function closedSecureNowQuestionAnswerLines(question: ClosedQuestionAnswerFields
     lines.push("Answer code was not stored.");
   } else if (question.answerCode.length > 0) {
     lines.push(secureNowQuestionAnswerLabel(question.answerCode));
+  } else {
+    lines.push("Answer code was stored empty.");
   }
 
   if (question.answerText === null || question.answerText === undefined) {
     lines.push("Answer text was not stored.");
   } else if (question.answerText.length > 0) {
     lines.push(question.answerText);
+  } else {
+    lines.push("Answer text was stored empty.");
   }
 
   if (question.reason === null || question.reason === undefined) {
     lines.push("Disposition reason was not stored.");
   } else if (question.reason.length > 0) {
     lines.push(question.reason);
+  } else {
+    lines.push("Disposition reason was stored empty.");
   }
 
   return lines;
@@ -91,7 +97,56 @@ function openQuestionsCountLabel(count: number): string {
   return `${count} open questions`;
 }
 
-export function SecureNowQuestionQueueSnapshotPromo(): React.JSX.Element | null {
+function formatSecureNowQuestionSourceLabel(source: string | null): string {
+  if (source === null) {
+    return "Question source was not stored.";
+  }
+
+  const trimmed = source.trim();
+
+  if (trimmed.length === 0) {
+    return "Question source was not stored.";
+  }
+
+  if (trimmed === "InventoryEvidence") {
+    return "Asked from inventory evidence.";
+  }
+
+  if (trimmed === "InferredConnection") {
+    return "Asked because a connection was inferred. Answering does not store a link.";
+  }
+
+  return `Question source code ${trimmed} has no reviewer label.`;
+}
+
+function formatSecureNowQuestionScopeLabel(scopeKind: string | null): string {
+  if (scopeKind === null) {
+    return "Question scope was not stored.";
+  }
+
+  const trimmed = scopeKind.trim();
+
+  if (trimmed.length === 0) {
+    return "Question scope was not stored.";
+  }
+
+  if (trimmed === "Resource") {
+    return "This resource.";
+  }
+
+  return `Question scope code ${trimmed} has no reviewer label.`;
+}
+
+export type SecureNowQuestionQueueSnapshotPromoProps = {
+  readonly compact?: boolean;
+};
+
+export function SecureNowQuestionQueueSnapshotPromo(
+  props: SecureNowQuestionQueueSnapshotPromoProps = {},
+): React.JSX.Element | null {
+  "use no memo";
+
+  const compact = props.compact === true;
   const {
     drawerOpen,
     openQuestions,
@@ -114,12 +169,35 @@ export function SecureNowQuestionQueueSnapshotPromo(): React.JSX.Element | null 
     return null;
   }
 
+  if (compact) {
+    return (
+      <p
+        className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="infra-diagrams-question-snapshot-promo"
+      >
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          data-testid="infra-diagrams-question-review"
+          onClick={() => {
+            setFilter("Open");
+            setCurrentIndex(0);
+            setDrawerOpen(true);
+          }}
+        >
+          {openQuestionsCountLabel(openQuestions.length)} — Review
+        </Button>
+      </p>
+    );
+  }
+
   return (
     <p
       className={cn("m-0 flex flex-wrap items-center gap-x-2 gap-y-1", OPERATOR_TYPOGRAPHY.helper)}
       data-testid="infra-diagrams-question-snapshot-promo"
     >
-      <StatusTag kind="needs-attention" />
+      <StatusTag kind="needs-attention" label="Open questions" />
       <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>
         {openQuestionsCountLabel(openQuestions.length)}
       </span>
@@ -145,6 +223,8 @@ type SecureNowQuestionQueueBarProps = {
 };
 
 export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps): React.JSX.Element | null {
+  "use no memo";
+
   const { outline } = props;
   const {
     drawerOpen,
@@ -182,6 +262,8 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
   const resourceOnDiagram = currentQuestion == null || resourceIdMissing || outline == null
     ? true
     : diagramOutlineIncludesFocusResource(outline, currentQuestion.resourceId);
+  const inferredConnectionQuestion =
+    currentQuestion?.source?.trim() === "InferredConnection";
 
   return (
     <div
@@ -237,6 +319,16 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
         </p>
       ) : null}
 
+      {currentQuestion != null && !resourceIdMissing && outline === null ? (
+        <p
+          className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="infra-diagrams-question-outline-not-loaded"
+          role="status"
+        >
+          Diagram outline was not loaded, so this question is not confirmed on the diagram.
+        </p>
+      ) : null}
+
       {currentQuestion != null && !resourceIdMissing && outline != null && !resourceOnDiagram ? (
         <p
           className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
@@ -261,6 +353,14 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                   Answer choices were stored as an empty list.
                 </p>
               ) : null}
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                Not sure moves to the next question without storing an answer.
+              </p>
+              {inferredConnectionQuestion ? (
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  Asked because a connection was inferred. Answering does not store a link.
+                </p>
+              ) : null}
               <div className="flex flex-wrap gap-2">
                 {currentQuestion.answerCodes?.map((answerCode) => (
                   <Button
@@ -278,13 +378,15 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                       setDrawerAction("answer");
                     }}
                   >
-                    {secureNowQuestionAnswerLabel(answerCode)}
+                    {answerCode === "NotSure"
+                      ? "Not sure. This does not store an answer."
+                      : secureNowQuestionAnswerLabel(answerCode)}
                   </Button>
                 ))}
               </div>
               {selectedAnswer != null ? (
                 <Button type="button" size="sm" variant="primary" disabled={busy} onClick={() => void submitAction()}>
-                  Continue
+                  Save answer
                 </Button>
               ) : null}
               <div className="flex flex-wrap gap-2">
@@ -417,26 +519,35 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                   : "Source line was not stored"}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Source: {currentQuestion.source === null ? "Question source was not stored." : currentQuestion.source}
+                Source: {formatSecureNowQuestionSourceLabel(currentQuestion.source)}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Scope: {currentQuestion.scopeKind === null ? "Question scope was not stored." : currentQuestion.scopeKind}
+                Scope: {formatSecureNowQuestionScopeLabel(currentQuestion.scopeKind)}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 Subscription:{" "}
                 {currentQuestion.subscriptionId === null
                   ? "Subscription id was not stored."
-                  : currentQuestion.subscriptionId}
+                  : currentQuestion.subscriptionId.trim().length === 0
+                    ? "Subscription id was stored empty."
+                    : currentQuestion.subscriptionId}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 {currentQuestion.expirationUtc === null || currentQuestion.expirationUtc === undefined
                   ? "Expiration was not stored."
-                  : currentQuestion.expirationUtc}
+                  : currentQuestion.expirationUtc.trim().length === 0
+                    ? "Expiration was stored empty."
+                    : currentQuestion.expirationUtc}
                 {currentQuestion.isExpired === null
                   ? " · Expiration status was not stored."
                   : currentQuestion.isExpired
                     ? " · Expired"
-                    : ""}
+                    : " · Not expired."}
+              </p>
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {currentQuestion.evidenceFingerprint.trim().length > 0
+                  ? `Evidence fingerprint: ${currentQuestion.evidenceFingerprint}`
+                  : "Evidence fingerprint was not stored."}
               </p>
             </div>
           </CollapsibleSection>

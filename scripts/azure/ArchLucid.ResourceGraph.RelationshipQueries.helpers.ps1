@@ -846,7 +846,7 @@ function Get-ArchLucidArgNetworkAssociationQuerySpecs
         }
         [pscustomobject]@{
             Kind = 'monitorPrivateLinkScopeScopedResource'
-            Query = "Resources | where type =~ 'microsoft.insights/privatelinkscopes/scopedresources' $rgFilter | project id, type, linkedResourceId = tostring(properties.linkedResourceId), kind = tostring(properties.kind)"
+            Query = "Resources | where type =~ 'microsoft.insights/privatelinkscopes/scopedresources' $rgFilter | project id, type, linkedResourceId = tostring(properties.linkedResourceId), scopedResourceKind = tostring(properties['kind'])"
         }
         [pscustomobject]@{
             Kind = 'loadBalancer'
@@ -1055,7 +1055,7 @@ function Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph
                             -Seen $seen `
                             -ScopedResourceId $resourceId `
                             -LinkedResourceId "$( $Row.linkedResourceId )".Trim() `
-                            -Kind "$( $Row.kind )".Trim()
+                            -Kind "$( $Row.scopedResourceKind )".Trim()
                     }
                     'loadBalancer' {
                         Add-ArchLucidArgNetworkAssociationRowsFromLoadBalancerRecord `

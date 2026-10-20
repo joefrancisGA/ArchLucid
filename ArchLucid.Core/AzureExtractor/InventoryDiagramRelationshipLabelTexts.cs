@@ -7,7 +7,7 @@ public static class InventoryDiagramRelationshipLabelTexts
 
     public const string PrivateAccess = "Private access";
 
-    public const string PublicExposureCaption = "public";
+    public const string PublicExposureCaption = "Public IP is attached; its card is hidden on this diagram.";
 
     public const string Peered = "Peered";
 

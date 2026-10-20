@@ -4,6 +4,11 @@ import { useMemo } from "react";
 
 import type { FindingDispositionKind } from "@/lib/api/governance-stickiness-api";
 
+import {
+  focusFindingCardRow,
+  focusGovernanceFindingsQueueEvidence,
+} from "@/lib/governance/governance-findings-queue-keyboard-focus";
+
 import { useKeyboardShortcuts, type KeyboardShortcutsMap } from "./useKeyboardShortcuts";
 
 /** Disposition kinds bound to Alt+1 / Alt+2 / Alt+3 on finding cards. */
@@ -30,7 +35,28 @@ export type UseFindingCardShortcutsOptions = {
   onFindingFocus?: (findingId: string) => void;
   /** IR-008 — on inhabited findings, start from the first card when nothing is focused. */
   defaultFocusFirstFinding?: boolean;
+  /** Used for alt+o / alt+q when focus moved into path inspect or another panel. */
+  getQueueAnchorFindingId?: () => string | null;
+  getPathInspectPanel?: () => HTMLElement | null;
 };
+
+function resolveQueueAnchorFindingId(
+  getQueueAnchorFindingId?: () => string | null,
+): string | null {
+  const focused = getFocusedFindingId();
+
+  if (focused !== null) {
+    return focused;
+  }
+
+  const anchored = getQueueAnchorFindingId?.() ?? null;
+
+  if (anchored === null || anchored.trim().length === 0) {
+    return null;
+  }
+
+  return anchored;
+}
 
 function getFindingCardFromActiveElement(): HTMLElement | null {
   const active = document.activeElement;
@@ -176,6 +202,8 @@ export function useFindingCardShortcuts(options: UseFindingCardShortcutsOptions)
   const focusOptions = defaultFocusFirstFinding
     ? { onFindingFocus, startFromFirstWhenUnfocused: true as const }
     : { onFindingFocus };
+  const getQueueAnchorFindingId = options.getQueueAnchorFindingId;
+  const getPathInspectPanel = options.getPathInspectPanel;
 
   const map = useMemo((): KeyboardShortcutsMap => {
     const navigation: KeyboardShortcutsMap = {
@@ -189,6 +217,30 @@ export function useFindingCardShortcuts(options: UseFindingCardShortcutsOptions)
         description: "Focus previous finding card",
         handler: () => {
           focusAdjacentFindingCard(-1, focusOptions);
+        },
+      },
+      "alt+o": {
+        description: "Focus evidence link for focused finding",
+        handler: () => {
+          const findingId = resolveQueueAnchorFindingId(getQueueAnchorFindingId);
+
+          if (findingId === null) {
+            return;
+          }
+
+          focusGovernanceFindingsQueueEvidence(findingId, getPathInspectPanel?.() ?? null);
+        },
+      },
+      "alt+q": {
+        description: "Return focus to selected finding card",
+        handler: () => {
+          const findingId = resolveQueueAnchorFindingId(getQueueAnchorFindingId);
+
+          if (findingId === null) {
+            return;
+          }
+
+          focusFindingCardRow(findingId);
         },
       },
     };
@@ -230,7 +282,15 @@ export function useFindingCardShortcuts(options: UseFindingCardShortcutsOptions)
       },
       ...navigation,
     };
-  }, [defaultFocusFirstFinding, focusOptions, onAction, mutationsEnabled, onFindingFocus]);
+  }, [
+    defaultFocusFirstFinding,
+    focusOptions,
+    getPathInspectPanel,
+    getQueueAnchorFindingId,
+    onAction,
+    mutationsEnabled,
+    onFindingFocus,
+  ]);
 
   useKeyboardShortcuts(map);
 }

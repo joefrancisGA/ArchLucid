@@ -4,13 +4,9 @@ import {
   isPhiMinimizationFindingId,
   isPhiMinimizationSampleFinding,
   phiMinimizationApprovalNarrative,
-  phiMinimizationControlNarrative,
   phiMinimizationRecommendedActionFallback,
 } from "@/lib/findings/finding-display-from-inspect";
-import {
-  resolveBuyerShowcaseResidualRiskNextReviewIso,
-  BUYER_SHOWCASE_RESIDUAL_RISK_OWNER,
-} from "@/lib/buyer/buyer-polish-copy";
+import { resolveBuyerShowcaseResidualRiskNextReviewIso } from "@/lib/buyer/buyer-polish-copy";
 import { buyerFindingSeverityDisplayLabel } from "@/lib/buyer/buyer-finding-severity-display";
 import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
 import type { FindingConfidenceLevel } from "@/types/explanation";
@@ -30,6 +26,7 @@ export type FindingDecisionSummary = {
 
 const NO_RECOMMENDED_ACTION_RECORDED = "No recommended action recorded for this finding.";
 const REMEDIATION_DUE_NOT_STORED = "Remediation due date was not stored.";
+const REMEDIATION_DUE_STORED_EMPTY = "Remediation due date was stored empty.";
 const RISK_OWNER_NOT_ASSIGNED = "Risk owner was not stored";
 const STATUS_NOT_STORED = "Status was not stored";
 const SEVERITY_NOT_STORED = "Severity was not stored";
@@ -66,10 +63,6 @@ export function resolveFindingRiskOwnerLabel(
 
   if (assigned.length > 0) {
     return assigned;
-  }
-
-  if (isPhiMinimizationFindingId(findingId) || (payload !== null && isPhiMinimizationSampleFinding(payload))) {
-    return BUYER_SHOWCASE_RESIDUAL_RISK_OWNER;
   }
 
   return RISK_OWNER_NOT_ASSIGNED;
@@ -138,7 +131,7 @@ export function formatFindingRemediationDueLabel(remediationDueUtc: string | nul
   const trimmed = remediationDueUtc.trim();
 
   if (trimmed.length === 0) {
-    return "";
+    return REMEDIATION_DUE_STORED_EMPTY;
   }
 
   const parsed = new Date(trimmed);
@@ -164,16 +157,6 @@ export function summarizeEvidenceBasis(payload: FindingInspectPayload | null): s
   const citationLabel = evidenceCount === 1 ? "citation" : "citations";
 
   if (evidenceCount === 0) {
-    if (isPhiMinimizationSampleFinding(payload) || isPhiMinimizationFindingId(payload.findingId)) {
-      if (resolveProductionEvalChromeFromStorage()) {
-        if (ruleLabel !== null && ruleLabel.trim().length > 0) {
-          return `Evidence linked to ${ruleLabel} — see evidence trail and finalized review record.`;
-        }
-
-        return "Evidence linked in the finalized review — see evidence trail and finalized review record.";
-      }
-    }
-
     return "0 evidence citations were stored.";
   }
 
@@ -211,14 +194,6 @@ export function fallbackStatus(payload: FindingInspectPayload | null, findingId:
     if (status !== null && status.trim().length > 0) {
       return status;
     }
-
-    if (isPhiMinimizationSampleFinding(payload)) {
-      return "Accepted with monitoring";
-    }
-  }
-
-  if (isPhiMinimizationFindingId(findingId)) {
-    return "Accepted with monitoring";
   }
 
   return STATUS_NOT_STORED;
@@ -259,14 +234,6 @@ export function mitigationPosture(payload: FindingInspectPayload | null, finding
     if (action !== null && action.trim().length > 0) {
       return action;
     }
-
-    if (isPhiMinimizationSampleFinding(payload)) {
-      return phiMinimizationControlNarrative();
-    }
-  }
-
-  if (isPhiMinimizationFindingId(findingId)) {
-    return phiMinimizationControlNarrative();
   }
 
   return NO_RECOMMENDED_ACTION_RECORDED;

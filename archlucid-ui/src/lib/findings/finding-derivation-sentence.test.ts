@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildFindingDerivationSentence,
+  FINDING_DERIVATION_ASSEMBLED_RULE_ONLY_PREFIX,
   FINDING_DERIVATION_NOT_AVAILABLE,
   findingDerivationFromGovernanceQueueRow,
   findingDerivationFromQuickDecisionFinding,
@@ -76,6 +77,41 @@ describe("finding-derivation-sentence (TB-2154)", () => {
     expect(result.sentence).toContain("High severity finding");
   });
 
+  it("labels category-only rows without quoting the category as a rule (P-07)", () => {
+    const result = buildFindingDerivationSentence({
+      categoryLabel: "Security",
+      severityLabel: "High",
+    });
+
+    expect(result.sentence).toContain("Policy area Security. Rule name was not stored.");
+    expect(result.sentence).not.toContain('Policy rule "Security"');
+  });
+
+  it("labels zero evidence refs and trace confidence separately (P-08)", () => {
+    const result = buildFindingDerivationSentence({
+      ruleName: "Ingress baseline",
+      evidenceRefCount: 0,
+      traceConfidenceLabel: "High",
+      severityLabel: "High",
+    });
+
+    expect(result.sentence).toContain("No evidence references were stored");
+    expect(result.sentence).toContain("This is not a cited evidence artifact.");
+    expect(result.sentence).not.toContain("confidence trace evidence");
+    expect(result.sentence).toContain(FINDING_DERIVATION_ASSEMBLED_RULE_ONLY_PREFIX);
+  });
+
+  it("labels a missing rule name with the rule id (P-10)", () => {
+    const result = buildFindingDerivationSentence({
+      ruleId: "sec-base-010",
+      severityLabel: "High",
+      evidenceRefCount: 1,
+    });
+
+    expect(result.sentence).toContain("Rule name was not stored. Rule id sec-base-010");
+    expect(result.sentence).not.toContain('Policy rule "sec-base-010"');
+  });
+
   it("returns honest unavailable copy when synthesis inputs are missing", () => {
     expect(buildFindingDerivationSentence({}).sentence).toBe(FINDING_DERIVATION_NOT_AVAILABLE);
   });
@@ -89,7 +125,7 @@ describe("finding-derivation-sentence (TB-2154)", () => {
   it("derives from governance queue rows and skips decision rows", () => {
     const findingResult = findingDerivationFromGovernanceQueueRow(sampleGovernanceRow());
 
-    expect(findingResult?.sentence).toContain("Security Architecture Baseline");
+    expect(findingResult?.sentence).toContain("Rule name was not stored. Rule id sec-base-010");
     expect(findingResult?.sentence).toContain("2 cited evidence references");
 
     expect(

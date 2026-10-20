@@ -47,15 +47,22 @@ public sealed class SecureNowArchitectMetricsQueryService(
             await LoadSnapshotPathsAsync(scope, toSnapshotId, cancellationToken);
 
         ProjectScopeKey projectScope = scope.ToProjectScopeKey();
+        DateTime windowStart = SecureNowArchitectOutcomeMetricsCalculator.SnapshotAnchorUtc(fromSnapshot);
+        DateTime windowEnd = SecureNowArchitectOutcomeMetricsCalculator.SnapshotAnchorUtc(toSnapshot);
 
-        IReadOnlyList<OperationalSecurityExceptionRecord> scopedExceptions =
-            await exceptionRepository.ListByScopeAsync(projectScope, cancellationToken);
+        int openFindings = await findingRepository.CountOpenOrRecurredInScopeAsync(projectScope, cancellationToken);
 
-        IReadOnlyList<OperationalSecurityFindingRecord> scopedFindings =
-            await findingRepository.ListByScopeAsync(projectScope, status: null, cancellationToken);
+        int exceptionsExpired = await exceptionRepository.CountExpiredBetweenInScopeAsync(
+            projectScope,
+            windowStart,
+            windowEnd,
+            cancellationToken);
 
-        int openFindings = scopedFindings.Count(item =>
-            item.Status is OperationalSecurityFindingStatus.Open or OperationalSecurityFindingStatus.Recurred);
+        int recurrenceCount = await findingRepository.CountOutcomeRecurrencePairsInScopeAsync(
+            projectScope,
+            windowStart,
+            windowEnd,
+            cancellationToken);
 
         SecureNowArchitectOutcomeMetricsResult metrics = SecureNowArchitectOutcomeMetricsCalculator.Calculate(
             new SecureNowArchitectOutcomeMetricsInputs
@@ -64,8 +71,6 @@ public sealed class SecureNowArchitectMetricsQueryService(
                 ToSnapshot = toSnapshot,
                 FromPaths = fromPaths,
                 ToPaths = toPaths,
-                Exceptions = scopedExceptions,
-                Findings = scopedFindings,
                 OpenFindingsCount = openFindings,
             });
 
@@ -79,8 +84,8 @@ public sealed class SecureNowArchitectMetricsQueryService(
             UnrestrictedEgressCapabilityPathsReduced = metrics.UnrestrictedEgressCapabilityPathsReduced,
             AssertedCrownJewelExposurePathsRemoved = metrics.AssertedCrownJewelExposurePathsRemoved,
             SharedControlBlastRadiusPathsRemoved = metrics.SharedControlBlastRadiusPathsRemoved,
-            ExceptionsExpired = metrics.ExceptionsExpired,
-            RemediationRecurrenceCount = metrics.RemediationRecurrenceCount,
+            ExceptionsExpired = exceptionsExpired,
+            RemediationRecurrenceCount = recurrenceCount,
             SupportingOperationalMetrics = new SecureNowArchitectSupportingOperationalMetricsResponse
             {
                 OpenFindings = openFindings,
@@ -93,27 +98,43 @@ public sealed class SecureNowArchitectMetricsQueryService(
         Guid snapshotId,
         CancellationToken cancellationToken)
     {
-        IReadOnlyList<SecurityEvidencePathRecord> paths = await pathRepository.ListBySnapshotAsync(
-            ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), snapshotId),
-            cancellationToken);
+        ProjectSnapshotScopeKey snapshotScope =
+            ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), snapshotId);
 
-        Dictionary<Guid, IReadOnlyList<SecurityEvidencePathHopRecord>> hopsByPathId = new();
+        IReadOnlyList<SecurityEvidencePathRecord> paths =
+            await pathRepository.ListBySnapshotAsync(snapshotScope, cancellationToken);
 
-        foreach (SecurityEvidencePathRecord path in paths)
+        IReadOnlyList<SecurityEvidencePathHopOutcomeMetricReadModel> hopMetrics =
+            await pathRepository.ListHopOutcomeMetricsBySnapshotAsync(snapshotScope, cancellationToken);
+
+        Dictionary<Guid, List<SecurityEvidencePathHopRecord>> hopsByPathId = new();
+
+        foreach (SecurityEvidencePathHopOutcomeMetricReadModel metric in hopMetrics)
         {
-            IReadOnlyList<SecurityEvidencePathHopRecord> hops =
-                await pathRepository.ListHopsByPathInScopeAsync(
-                    scope.ToProjectScopeKey(),
-                    path.PathId,
-                    cancellationToken);
+            if (!hopsByPathId.TryGetValue(metric.PathId, out List<SecurityEvidencePathHopRecord>? hopList))
+            {
+                hopList = [];
+                hopsByPathId[metric.PathId] = hopList;
+            }
 
-            hopsByPathId[path.PathId] = hops;
+            hopList.Add(new SecurityEvidencePathHopRecord
+            {
+                PathId = metric.PathId,
+                EdgeType = metric.EdgeType,
+                FromNodeId = metric.FromNodeId,
+                ToNodeId = metric.ToNodeId,
+            });
         }
+
+        Dictionary<Guid, IReadOnlyList<SecurityEvidencePathHopRecord>> readOnlyHopsByPathId =
+            hopsByPathId.ToDictionary(
+                entry => entry.Key,
+                entry => (IReadOnlyList<SecurityEvidencePathHopRecord>)entry.Value);
 
         return new SecureNowArchitectOutcomeMetricsSnapshotData
         {
             Paths = paths,
-            HopsByPathId = hopsByPathId,
+            HopsByPathId = readOnlyHopsByPathId,
         };
     }
 

@@ -22,4 +22,17 @@ describe("FindingEvidenceGraphOutline", () => {
     expect(view.getByText("API")).toBeTruthy();
     expect(view.getByText("Yes")).toBeTruthy();
   });
+
+  it("labels stored empty node name and type", () => {
+    const emptyLabels: GraphViewModel = {
+      nodeCount: 1,
+      edgeCount: 0,
+      nodes: [{ id: "n1", label: "", type: "" }],
+      edges: [],
+    };
+    const view = render(<FindingEvidenceGraphOutline graph={emptyLabels} graphNodeIdsExamined={[]} />);
+
+    expect(view.getByText("Node name was stored empty.")).toBeTruthy();
+    expect(view.getByText("Node type was stored empty.")).toBeTruthy();
+  });
 });

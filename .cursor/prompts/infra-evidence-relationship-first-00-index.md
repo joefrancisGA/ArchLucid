@@ -49,7 +49,7 @@ Contracts: [`docs/library/INFRA_EVIDENCE_PLANE.md`](../../docs/library/INFRA_EVI
 | **IE-RF-07** | After 01; consume 04–06 | `AzureInventorySecurityEdgeMaterializer` |
 | **IE-RF-08** | After 07 | `DiagramAstFromGraphCompiler` |
 | **IE-RF-09** | After 02/03 | Telemetry / completeness warnings |
-| **IE-RF-10** | After 07 | Optional; Security/reachability only |
+| **IE-RF-10** | After 07 | **Shipped** on trunk — optional `effective-network-controls.json`; do not greenfield |
 | **IE-RF-11** | After 07+08 | IE-ND-01 category helper if present |
 | **IE-RF-12** | Hold | — |
 

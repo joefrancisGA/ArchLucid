@@ -42,6 +42,8 @@ python3 scripts/tests/test_al_bug_audit_proven_rows.py
 export PATH="$HOME/.dotnet:$PATH"
 dotnet build ArchLucid.Core.slnf
 dotnet test ArchLucid.Core.Tests/ArchLucid.Core.Tests.csproj --filter 'FullyQualifiedName~YourTests'
+dotnet test ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj --filter 'FullyQualifiedName~InventoryDiagramExcellence'
+dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj --filter 'FullyQualifiedName~InfraEvidenceMermaidCompleteness'
 pwsh -NoProfile -File scripts/ci/agent-compile-check.ps1 -ProjectPath 'ArchLucid.Core/ArchLucid.Core.csproj'
 ```
 

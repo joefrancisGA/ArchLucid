@@ -46,6 +46,8 @@ public static class GraphEdgeInferenceSources
 
     public const string InventoryNetworkConnection = "inventory-network-connection";
 
+    public const string InventoryApiManagementSubnet = "inventory-api-management-subnet";
+
     public const string InventoryWorkflowAction = "inventory-workflow-action";
 
     public const string InventoryRouteTableRoute = "inventory-route-table-route";
@@ -83,6 +85,12 @@ public static class GraphEdgeInferenceSources
     public const string InventoryAmplsScopedResource = "inventory-ampls-scoped-resource";
 
     public const string InventoryAksServiceLoadBalancer = "inventory-aks-service-lb";
+
+    public const string InventoryFabricCapacityWorkspace = "inventory-fabric-capacity-workspace";
+
+    public const string InventoryStaticSiteBackend = "inventory-static-site-backend";
+
+    public const string InventoryDiagnosticSettingStorage = "inventory-diagnostic-setting-storage";
 
     public const string InventoryServiceConnectorLink = "inventory-service-connector-link";
 
@@ -184,6 +192,8 @@ public static class GraphEdgeInferenceSources
     public const string HumanDeclaredConnection = "human-declared-connection";
 
     public const string OperatorConfirmedConnection = "inventory-operator-confirmed-connection";
+
+    public const string OperatorConfigFile = "inventory-operator-config-file";
 
     public const string InventoryOperatorAttestedDataPlane = "inventory-operator-attested-data-plane";
 

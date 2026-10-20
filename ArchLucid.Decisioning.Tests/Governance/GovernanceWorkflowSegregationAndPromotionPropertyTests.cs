@@ -130,7 +130,7 @@ public sealed class GovernanceWorkflowSegregationAndPromotionPropertyTests
             dryRun: false,
             verbosePromotionValidationErrors: false,
             promotedByDisplay: null,
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*approval request*");
@@ -167,7 +167,7 @@ public sealed class GovernanceWorkflowSegregationAndPromotionPropertyTests
             dryRun: false,
             verbosePromotionValidationErrors: true,
             promotedByDisplay: null,
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*approved*");
@@ -204,7 +204,7 @@ public sealed class GovernanceWorkflowSegregationAndPromotionPropertyTests
             dryRun: false,
             verbosePromotionValidationErrors: true,
             promotedByDisplay: null,
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*manifest version*");
@@ -241,7 +241,7 @@ public sealed class GovernanceWorkflowSegregationAndPromotionPropertyTests
             dryRun: false,
             verbosePromotionValidationErrors: true,
             promotedByDisplay: null,
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*not 'run1'*");

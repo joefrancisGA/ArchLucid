@@ -177,7 +177,10 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID = "infra-diag
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL = "Skip to diagram viewer" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD =
-  "Render inventory diagrams from snapshot evidence. Full subscription keeps virtual machines, databases, and other backbone resources when the full leaf graph is too large. Attachment and platform resources may be hidden." as const;
+  "Render inventory diagrams from snapshot evidence." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXPORT_HONESTY_LINE =
+  "PNG and Mermaid exports are inventory views from the selected snapshot. They are not architecture packages, sponsor briefings, or sealed review records." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SCOPE_LABEL = "Scoped to resource" as const;
 
@@ -263,10 +266,31 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNCONNECTED_SECTION =
   "Stands alone" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION =
-  "Connection state recorded as unknown." as const;
+  "Connection state was not classified." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_EMPTY_DETAIL =
   "No connection state detail was stored." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_LABEL =
+  "Narrow unknown resources" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SCOPE_ALL =
+  "All unknown resources" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SCOPE_STARTING_RG =
+  "Same resource group as starting resource" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SCOPE_DIAGRAM_NEIGHBOR =
+  "On a diagram edge from starting resource" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SEARCH_LABEL =
+  "Search unknown rows" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SUMMARY =
+  "Showing {shown} of {total} unknown resources." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION_COUNT_FILTERED =
+  "{shown} of {total}" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_LEDGER_DISCLOSURE_LABEL =
   "Dropped imports" as const;
@@ -341,7 +365,7 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_MAP_CAPTION =
   "This diagram shows one node per resource group, not every Azure resource. Pick a Resource Group to see resources inside a group." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_BACKBONE_KEEP_CAPTION =
-  "This diagram keeps virtual machines, databases, networks, and other backbone resources. Attachment and platform resources are hidden. Pick a Resource Group to see every resource in one group." as const;
+  "This diagram keeps virtual machines, databases, networks, and other backbone resources. Some components are hidden. Pick a Resource Group to see every resource in one group." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DATA_FLOW_CAPTION_TITLE =
   "Declared pipeline wiring" as const;

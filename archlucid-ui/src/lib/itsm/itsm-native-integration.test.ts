@@ -52,4 +52,27 @@ describe("resolveItsmNativeCreateReadiness", () => {
 
     expect(fetchItsmIntegrationHealth).toHaveBeenCalledTimes(1);
   });
+
+  it("skips Azure Boards settings on the Security product line", async () => {
+    fetchItsmIntegrationHealth.mockResolvedValue({
+      nativeEnabled: true,
+      jira: { locallyConfigured: true, reachable: true, summary: "ready" },
+      serviceNow: { status: "not_configured" },
+    });
+
+    const readiness = await resolveItsmNativeCreateReadiness("security");
+
+    expect(fetchItsmIntegrationHealth).toHaveBeenCalledTimes(1);
+    expect(fetchAzureBoardsSettings).not.toHaveBeenCalled();
+    expect(readiness.azureBoardsReady).toBe(false);
+    expect(readiness.defaultPathReady).toBe(true);
+  });
+
+  it("still fetches Azure Boards settings on the Architecture product line", async () => {
+    const readiness = await resolveItsmNativeCreateReadiness("architecture");
+
+    expect(fetchItsmIntegrationHealth).toHaveBeenCalledTimes(1);
+    expect(fetchAzureBoardsSettings).toHaveBeenCalledTimes(1);
+    expect(readiness.azureBoardsReady).toBe(false);
+  });
 });

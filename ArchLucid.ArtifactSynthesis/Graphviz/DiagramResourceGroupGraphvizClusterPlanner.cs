@@ -161,25 +161,63 @@ public static class DiagramResourceGroupGraphvizClusterPlanner
         return plans;
     }
 
+    /// <summary>
+    /// Cited subnet members that live in another resource group are drawn inside the subnet cluster.
+    /// Their home group must not emit a second node statement.
+    /// </summary>
+    public static HashSet<string> ResolveSubnetMembersOutsideHomeGroup(
+        DiagramAst ast,
+        IReadOnlyList<ClusterPlan> clusters)
+    {
+        ArgumentNullException.ThrowIfNull(ast);
+        ArgumentNullException.ThrowIfNull(clusters);
+
+        HashSet<string> outsideHomeGroup = new(StringComparer.Ordinal);
+
+        foreach (ClusterPlan cluster in clusters)
+        {
+            HashSet<string> homeNodeIds = cluster.Nodes
+                .Select(node => node.NodeId)
+                .ToHashSet(StringComparer.Ordinal);
+
+            foreach (VnetClusterPlan vnetCluster in PlanVnetClusters(ast, cluster))
+            {
+                foreach (SubnetClusterPlan subnetCluster in vnetCluster.SubnetClusters)
+                {
+                    foreach (DiagramNode node in subnetCluster.Nodes)
+                    {
+                        if (!homeNodeIds.Contains(node.NodeId))
+                        {
+                            outsideHomeGroup.Add(node.NodeId);
+                        }
+                    }
+                }
+            }
+        }
+
+        return outsideHomeGroup;
+    }
+
     private static IReadOnlyList<SubnetClusterPlan> PlanSubnetClusters(
         DiagramAst ast,
         string vnetNodeId,
         IReadOnlyList<DiagramNode> vnetMembers)
     {
-        HashSet<string> memberIds = vnetMembers
-            .Select(node => node.NodeId)
-            .ToHashSet(StringComparer.Ordinal);
         List<SubnetClusterPlan> plans = [];
 
         foreach (DiagramNode subnet in vnetMembers.Where(IsSubnet))
         {
-            List<DiagramNode> subnetMembers = vnetMembers
+            // Include cited placement sources even when they sit in another resource group.
+            // Forest subnet frames use the same cited edges.
+            List<DiagramNode> subnetMembers = ast.Nodes
+                .Where(DiagramExecutiveOverflowCanvasExclusion.IsCanvasRenderableNode)
                 .Where(node => string.Equals(node.NodeId, subnet.NodeId, StringComparison.Ordinal)
                                || ast.Edges.Any(edge =>
                                    string.Equals(edge.ToNodeId, subnet.NodeId, StringComparison.Ordinal)
-                                   && memberIds.Contains(edge.FromNodeId)
                                    && string.Equals(edge.FromNodeId, node.NodeId, StringComparison.Ordinal)
                                    && DiagramForestVnetMembership.IsCitedPlacementEdge(edge)))
+                .OrderBy(node => node.OrderKey)
+                .ThenBy(node => node.NodeId, StringComparer.Ordinal)
                 .ToList();
 
             if (subnetMembers.Count < 2)

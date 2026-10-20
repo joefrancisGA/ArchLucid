@@ -61,4 +61,10 @@ public enum AzureInventoryRelationshipArmKind
 
     /// <summary>Azure Monitor private link scope parent resource (NR-38).</summary>
     MonitorPrivateLinkScope = 38,
+
+    /// <summary>Microsoft Fabric capacity (NR-40).</summary>
+    FabricCapacity = 39,
+
+    /// <summary>Static Web App (NR-42).</summary>
+    StaticWebApp = 40,
 }

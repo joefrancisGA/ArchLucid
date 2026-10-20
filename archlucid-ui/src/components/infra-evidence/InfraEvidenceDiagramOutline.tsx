@@ -5,6 +5,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { InfraEvidenceDeclaredConnectionDetailPanel } from "@/components/infra-evidence/InfraEvidenceDeclaredConnectionDetailPanel";
 import { InfraEvidenceInventoryEdgeDetailPanel } from "@/components/infra-evidence/InfraEvidenceInventoryEdgeDetailPanel";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -15,12 +17,23 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_LEDGER_DISCLOSURE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_NODES_DISCLOSURE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_ORPHANED_SECTION,
-  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNATTACHED_NSG_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNCONNECTED_SECTION,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_EMPTY_DETAIL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SCOPE_ALL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SCOPE_DIAGRAM_NEIGHBOR,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SCOPE_STARTING_RG,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SEARCH_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SUMMARY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION_COUNT_FILTERED,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_USED_SECTION,
 } from "@/lib/governance/governance-infrastructure-copy";
+import {
+  filterDiagramOutlineUnknownNodes,
+  resolveDefaultDiagramOutlineUnknownNodeFilterScope,
+  type DiagramOutlineUnknownNodeFilterScope,
+} from "@/lib/infra-evidence/diagram-outline-unknown-node-filter";
 import { formatDiagramArmTypeFriendlyName } from "@/lib/infra-evidence/format-diagram-arm-type-friendly-name";
 import { resolveInfraEvidenceOutlineEdgeToDisplay } from "@/lib/infra-evidence/format-infra-evidence-outline-edge-to-label";
 import {
@@ -47,7 +60,9 @@ import {
   type InfraEvidenceDiagramOutlineEdgeSortKey,
   type InfraEvidenceDiagramOutlineNodeSortKey,
 } from "@/lib/infra-evidence/infra-evidence-diagram-outline-sort";
+import { formatInfraEvidenceDiagramDropGateReasonLabel } from "@/lib/infra-evidence/format-infra-evidence-diagram-drop-gate-reason";
 import {
+  formatInfraEvidenceOutlineProvenanceReviewerBand,
   resolveInfraEvidenceOutlineNodeLabel,
   resolveInfraEvidenceOutlineEdgeLabel,
   type InfraEvidenceDiagramOutlineEdgeSource,
@@ -90,6 +105,16 @@ function resolveNodeProblem(node: InfraEvidenceMermaidOutlineNode): string {
     return "No connection state detail was stored.";
   }
 
+  if (node.connectionState === "Unknown") {
+    const unknownDetails = node.unresolvedRelationshipDetails ?? [];
+
+    if (unknownDetails.length > 0) {
+      return unknownDetails.join(" ");
+    }
+
+    return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION;
+  }
+
   const details = node.unresolvedRelationshipDetails ?? [];
 
   if (details.length > 0) {
@@ -127,14 +152,15 @@ function formatLedgerDropLabel(
   nodes: readonly InfraEvidenceMermaidOutlineNode[],
 ): string {
   const fromLabel = resolveInfraEvidenceOutlineNodeLabel(nodes, drop.from);
+  const reasonLabel = formatInfraEvidenceDiagramDropGateReasonLabel(drop.reason);
 
   if (drop.reason === "nsg-unattached") {
-    return `${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNATTACHED_NSG_LABEL} · ${fromLabel}`;
+    return `${reasonLabel} · ${fromLabel}`;
   }
 
   const toLabel = drop.to == null || drop.to === "_" ? "Destination was not stored" : resolveInfraEvidenceOutlineNodeLabel(nodes, drop.to);
 
-  return `${drop.reason} · ${fromLabel} → ${toLabel}`;
+  return `${reasonLabel} · ${fromLabel} → ${toLabel}`;
 }
 
 type InfraEvidenceDiagramOutlineProps = {
@@ -144,7 +170,27 @@ type InfraEvidenceDiagramOutlineProps = {
   readonly onSelectInventoryEdge?: (edge: InfraEvidenceMermaidOutlineEdge | null) => void;
   readonly defaultNodesOpen?: boolean;
   readonly defaultEdgesOpen?: boolean;
+  /** Inventory graph seed for the starting resource (dependency neighborhood focus). */
+  readonly startingResourceSeedId?: string | null;
+  /** Initial scope for the unknown-node filter (resets when the seed changes). */
+  readonly unknownFilterDefaultScope?: DiagramOutlineUnknownNodeFilterScope;
 };
+
+function formatUnknownFilterSummary(shown: number, total: number): string {
+  return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SUMMARY
+    .replace("{shown}", String(shown))
+    .replace("{total}", String(total));
+}
+
+function formatUnknownSectionCount(shown: number, total: number): string {
+  if (shown === total) {
+    return String(total);
+  }
+
+  return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION_COUNT_FILTERED
+    .replace("{shown}", String(shown))
+    .replace("{total}", String(total));
+}
 
 function formatOutlineCell(value: string | null, missingLabel = "Not recorded"): string {
   if (value == null || value.trim().length === 0) {
@@ -162,7 +208,22 @@ function formatOutlineResourceType(resourceType: string | null): string {
   return formatOutlineCell(formatDiagramArmTypeFriendlyName(resourceType), "Resource type was not stored");
 }
 
-function formatOutlineEdgeSource(source: InfraEvidenceDiagramOutlineEdgeSource): string {
+function formatOutlineEdgeSource(
+  source: InfraEvidenceDiagramOutlineEdgeSource,
+  provenanceKind: string | null = null,
+): string {
+  if (provenanceKind !== null && provenanceKind.trim().length > 0) {
+    const normalized = provenanceKind.trim().toLowerCase();
+
+    if (normalized !== "observedfact" && source === "observed") {
+      return formatInfraEvidenceOutlineProvenanceReviewerBand(provenanceKind);
+    }
+
+    if (source === "missing") {
+      return formatInfraEvidenceOutlineProvenanceReviewerBand(provenanceKind);
+    }
+  }
+
   switch (source) {
     case "missing":
       return "Confidence band was not stored";
@@ -270,6 +331,7 @@ function InfraEvidenceDiagramOutlineSortableHeader<TColumn extends string>(props
 function InfraEvidenceDiagramOutlineNodeTable(props: {
   readonly nodes: readonly InfraEvidenceMermaidOutlineNode[];
   readonly sectionLabel: string;
+  readonly sectionCountLabel?: string;
   readonly sectionTestId: string;
   readonly showProblem?: boolean;
   readonly nodeSortKey: InfraEvidenceDiagramOutlineNodeSortKey;
@@ -281,6 +343,7 @@ function InfraEvidenceDiagramOutlineNodeTable(props: {
   const {
     nodes,
     sectionLabel,
+    sectionCountLabel,
     sectionTestId,
     showProblem = false,
     nodeSortKey,
@@ -290,14 +353,16 @@ function InfraEvidenceDiagramOutlineNodeTable(props: {
     onFocusNeighborhood,
   } = props;
 
+  const countLabel = sectionCountLabel ?? String(nodes.length);
+
   return (
     <section
-      className="flex flex-col gap-2"
+      className="flex flex-col gap-2 border-t border-neutral-200 pt-4 first:border-t-0 first:pt-0 dark:border-neutral-800"
       data-testid={sectionTestId}
-      aria-label={`${sectionLabel} (${nodes.length})`}
+      aria-label={`${sectionLabel} (${countLabel})`}
     >
       <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-        {sectionLabel} ({nodes.length})
+        {sectionLabel} ({countLabel})
       </h3>
       {nodes.length > 0 ? (
         <table className={cn("w-full border-collapse text-left", OPERATOR_TYPOGRAPHY.body)}>
@@ -392,6 +457,8 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
     onSelectInventoryEdge,
     defaultNodesOpen = false,
     defaultEdgesOpen = false,
+    startingResourceSeedId = null,
+    unknownFilterDefaultScope,
   } = props;
   const [nodeSortKey, setNodeSortKey] = useState(DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_NODE_SORT_KEY);
   const [nodeSortDir, setNodeSortDir] = useState<"asc" | "desc">(DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_NODE_SORT_DIR);
@@ -405,6 +472,9 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
   const [declaredConnections, setDeclaredConnections] = useState<SecurityDeclaredConnectionRow[]>([]);
   const [declaredConnectionsLoading, setDeclaredConnectionsLoading] = useState(false);
   const [declaredConnectionsError, setDeclaredConnectionsError] = useState<string | null>(null);
+  const [unknownFilterScope, setUnknownFilterScope] = useState<DiagramOutlineUnknownNodeFilterScope>(() =>
+    unknownFilterDefaultScope ?? resolveDefaultDiagramOutlineUnknownNodeFilterScope(startingResourceSeedId));
+  const [unknownSearchQuery, setUnknownSearchQuery] = useState("");
   const selectedInventoryEdge = selectedInventoryEdgeProp === undefined
     ? localSelectedInventoryEdge
     : selectedInventoryEdgeProp;
@@ -420,6 +490,13 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
     setDeclaredConnections([]);
     setDeclaredConnectionsError(null);
   }, [outline]);
+
+  useEffect(() => {
+    setUnknownFilterScope(
+      unknownFilterDefaultScope ?? resolveDefaultDiagramOutlineUnknownNodeFilterScope(startingResourceSeedId),
+    );
+    setUnknownSearchQuery("");
+  }, [startingResourceSeedId, unknownFilterDefaultScope]);
 
   useEffect(() => {
     if (selectedInventoryEdgeProp == null) {
@@ -564,12 +641,52 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
       .filter((group) => group.rows.length > 0);
   }, [edgeRows]);
   const unknownNodes = stateRows.get("Unknown") ?? [];
+  const filteredUnknownNodes = useMemo(
+    () => sortInfraEvidenceDiagramOutlineNodes(
+      filterDiagramOutlineUnknownNodes({
+        nodes: unknownNodes,
+        outline,
+        startingSeedId: startingResourceSeedId,
+        scope: unknownFilterScope,
+        searchQuery: unknownSearchQuery,
+      }),
+      nodeSortKey,
+      nodeSortDir,
+    ),
+    [
+      nodeSortDir,
+      nodeSortKey,
+      outline,
+      startingResourceSeedId,
+      unknownFilterScope,
+      unknownNodes,
+      unknownSearchQuery,
+    ],
+  );
+  const unknownFilterActive = filteredUnknownNodes.length !== unknownNodes.length;
+  const startingSeedTrimmed = startingResourceSeedId?.trim() ?? "";
   const showEdgesSection = outline.edges.length > 0;
   const ledgerDropsKnown = Array.isArray(outline.ledgerDrops);
   const showLedgerSection = ledgerDropsKnown && outline.ledgerDrops.length > 0;
   const ledgerDropsNotReturned = !ledgerDropsKnown;
 
   const showNeighborhoodActions = onFocusNeighborhood != null;
+  const connectionStateSectionOrder = useMemo((): readonly ConnectionStateKey[] => {
+    const base: readonly ConnectionStateKey[] = [
+      "Connected",
+      "Used",
+      "Orphaned",
+      "Unconnected",
+      "Unknown",
+      "NotStored",
+    ];
+
+    if (startingSeedTrimmed.length > 0 && unknownNodes.length > 0) {
+      return ["Unknown", ...base.filter((state) => state !== "Unknown")];
+    }
+
+    return base;
+  }, [startingSeedTrimmed, unknownNodes.length]);
 
   const handleNodeSort = (column: InfraEvidenceDiagramOutlineNodeSortKey) => {
     const next = toggleInfraEvidenceDiagramOutlineNodeSort(nodeSortKey, nodeSortDir, column);
@@ -660,27 +777,101 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
               ) : null}
               <div className="flex flex-col gap-4">
                 {unknownNodes.length > 0 ? (
-                  <p
-                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                    data-testid="infra-diagrams-unknown-questions"
-                  >
-                    {unknownNodes.length === 1
-                      ? "ArchLucid has a question about 1 resource."
-                      : `ArchLucid has questions about ${unknownNodes.length} resources.`}
-                  </p>
+                  <>
+                    <p
+                      className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                      data-testid="infra-diagrams-unknown-questions"
+                    >
+                      {filteredUnknownNodes.length === 1
+                        ? "ArchLucid has a question about 1 resource."
+                        : `ArchLucid has questions about ${filteredUnknownNodes.length} resources.`}
+                    </p>
+                    <div
+                      className="flex flex-col gap-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-700"
+                      data-testid="infra-diagrams-unknown-filter"
+                    >
+                      <div className="flex flex-wrap items-end gap-3">
+                        <div className="flex min-w-[14rem] flex-col gap-1">
+                          <Label htmlFor="infra-diagrams-unknown-filter-scope">
+                            {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_LABEL}
+                          </Label>
+                          <select
+                            id="infra-diagrams-unknown-filter-scope"
+                            className={cn(
+                              "h-9 rounded-md border border-neutral-200 bg-white px-2 dark:border-neutral-700 dark:bg-neutral-950",
+                              OPERATOR_TYPOGRAPHY.body,
+                            )}
+                            value={unknownFilterScope}
+                            onChange={(event) => {
+                              setUnknownFilterScope(event.target.value as DiagramOutlineUnknownNodeFilterScope);
+                            }}
+                          >
+                            <option value="all">
+                              {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SCOPE_ALL}
+                            </option>
+                            <option value="startingResourceGroup" disabled={startingSeedTrimmed.length === 0}>
+                              {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SCOPE_STARTING_RG}
+                            </option>
+                            <option value="diagramNeighbor" disabled={startingSeedTrimmed.length === 0}>
+                              {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SCOPE_DIAGRAM_NEIGHBOR}
+                            </option>
+                          </select>
+                        </div>
+                        <div className="flex min-w-[14rem] flex-1 flex-col gap-1">
+                          <Label htmlFor="infra-diagrams-unknown-filter-search">
+                            {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SEARCH_LABEL}
+                          </Label>
+                          <Input
+                            id="infra-diagrams-unknown-filter-search"
+                            type="search"
+                            value={unknownSearchQuery}
+                            placeholder="Name, type, or resource group"
+                            onChange={(event) => {
+                              setUnknownSearchQuery(event.target.value);
+                            }}
+                          />
+                        </div>
+                      </div>
+                      {unknownFilterActive ? (
+                        <p
+                          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                          data-testid="infra-diagrams-unknown-filter-summary"
+                        >
+                          {formatUnknownFilterSummary(filteredUnknownNodes.length, unknownNodes.length)}
+                        </p>
+                      ) : null}
+                      {filteredUnknownNodes.length === 0 ? (
+                        <p
+                          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                          data-testid="infra-diagrams-unknown-filter-empty"
+                        >
+                          No unknown rows match this filter. Choose a broader scope or clear the search.
+                        </p>
+                      ) : null}
+                    </div>
+                  </>
                 ) : null}
-                {(["Connected", "Used", "Orphaned", "Unconnected", "Unknown", "NotStored"] as const).map((state) => {
-                  const nodes = stateRows.get(state) ?? [];
+                {connectionStateSectionOrder.map((state) => {
+                  let nodes = stateRows.get(state) ?? [];
+
+                  if (state === "Unknown") {
+                    nodes = filteredUnknownNodes;
+                  }
 
                   if (nodes.length === 0) {
                     return null;
                   }
+
+                  const sectionCountLabel = state === "Unknown" && unknownFilterActive
+                    ? formatUnknownSectionCount(filteredUnknownNodes.length, unknownNodes.length)
+                    : undefined;
 
                   return (
                   <InfraEvidenceDiagramOutlineNodeTable
                     key={state}
                     nodes={nodes}
                     sectionLabel={resolveOutlineConnectionStateSectionLabel(state)}
+                    sectionCountLabel={sectionCountLabel}
                     sectionTestId={`infra-diagrams-${state.toLowerCase()}-nodes-list`}
                     showProblem={state === "Orphaned" || state === "Unknown" || state === "NotStored"}
                     nodeSortKey={nodeSortKey}
@@ -813,7 +1004,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                     <tbody key={group.source} data-testid={`infra-diagrams-edge-source-${group.source}`}>
                       <tr className="border-t border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/60">
                         <th className="px-3 py-2 text-left font-medium" colSpan={4} scope="rowgroup">
-                          {formatOutlineEdgeSource(group.source)} edges ({group.rows.length})
+                          {formatOutlineEdgeSource(group.source, group.rows[0]?.provenanceKind ?? null)} edges ({group.rows.length})
                         </th>
                       </tr>
                       {group.rows.map((edge, index) => {
@@ -844,7 +1035,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                                   setSelectedDeclaredEdge(edge);
                                 }}
                               >
-                                {formatOutlineEdgeSource(edge.source)}
+                                {formatOutlineEdgeSource(edge.source, edge.provenanceKind)}
                               </Button>
                             ) : edge.source === "observed"
                               || edge.source === "probable"
@@ -860,10 +1051,10 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                                   selectInventoryEdge(edge);
                                 }}
                               >
-                                {formatOutlineEdgeSource(edge.source)}
+                                {formatOutlineEdgeSource(edge.source, edge.provenanceKind)}
                               </Button>
                             ) : (
-                              formatOutlineEdgeSource(edge.source)
+                              formatOutlineEdgeSource(edge.source, edge.provenanceKind)
                             )}
                           </td>
                           <td className="px-3 py-2">
@@ -888,7 +1079,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                 </table>
                 {edgeRows.length === 0 ? (
                   <p className={cn("m-0 px-3 py-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                    No edges parsed from the Mermaid source.
+                    No edges were parsed from this diagram source. That is not a stored finding that the architecture has no relationships.
                   </p>
                 ) : null}
               </div>
@@ -906,7 +1097,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
             <ul className={cn("m-0 list-disc pl-5", OPERATOR_TYPOGRAPHY.body)}>
               {outline.dropGateRows.map((row, index) => (
                 <li key={`${row.from}-${row.to}-${row.reason}-${index}`}>
-                  {row.reason}: {resolveInfraEvidenceOutlineNodeLabel(outline.nodes, row.from)} →{" "}
+                  {formatInfraEvidenceDiagramDropGateReasonLabel(row.reason)}: {resolveInfraEvidenceOutlineNodeLabel(outline.nodes, row.from)} →{" "}
                   {row.to === "_" ? "Destination was not stored" : resolveInfraEvidenceOutlineNodeLabel(outline.nodes, row.to)}
                 </li>
               ))}

@@ -134,7 +134,7 @@ describe("FindingInspectEvidenceSection", () => {
     expect(screen.getByRole("heading", { name: "Evidence citations" })).toBeTruthy();
   });
 
-  it("reports missing technical citation values but hides stored empty strings", () => {
+  it("reports missing and stored-empty technical citation values (P-07)", () => {
     const { rerender } = render(
       <FindingInspectEvidenceSection
         runId="run-1"
@@ -158,7 +158,44 @@ describe("FindingInspectEvidenceSection", () => {
       />,
     );
 
-    expect(screen.queryByText("Line range was not stored.")).not.toBeInTheDocument();
-    expect(screen.queryByText("Evidence artifact id was not stored.")).not.toBeInTheDocument();
+    expect(screen.getByText("Line range was stored empty.")).toBeInTheDocument();
+    expect(screen.getByText("Evidence artifact id was stored empty.")).toBeInTheDocument();
+  });
+
+  it("does not use artifact id as link label without a diagram citation (P-08)", () => {
+    render(
+      <FindingInspectEvidenceSection
+        runId="run-1"
+        demoFillGaps={false}
+        reviewContextHref="/architecture/reviews/run-1"
+        reviewContextLabel="Open review summary"
+        evidence={[
+          {
+            artifactId: "diagram-1",
+            lineRange: null,
+            excerpt: "Public ingress on port 443",
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByText("Evidence link was not stored.")).toBeInTheDocument();
+    expect(screen.queryByText("Open diagram-1")).not.toBeInTheDocument();
+  });
+
+  it("does not render demo citation scaffold when evidence is empty (P-09)", () => {
+    render(
+      <FindingInspectEvidenceSection
+        runId="run-1"
+        demoFillGaps={true}
+        reviewContextHref="/architecture/reviews/run-1"
+        reviewContextLabel="Open review"
+        evidence={[]}
+      />,
+    );
+
+    expect(screen.getByText("No evidence citations were stored.")).toBeInTheDocument();
+    expect(screen.queryByText("Claims intake API schema")).not.toBeInTheDocument();
+    expect(screen.queryByText("Open cited evidence")).not.toBeInTheDocument();
   });
 });

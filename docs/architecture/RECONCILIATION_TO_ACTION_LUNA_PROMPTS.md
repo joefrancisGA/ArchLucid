@@ -7,7 +7,7 @@
 
 Paste **one** prompt per Luna session. Do not implement from this index.
 
-DIC-01 through DIC-05 are on `master`. **RTA-01** and **RTA-02** are on `master` (#4511): the sealed workbench reloads a finding by natural key, and Create operational finding is limited to a security discrepancy or a multi-candidate conflict. **RTA-03** and **RTA-04** are implemented on `cursor/rta-luna-prompts-f8f4` and are not on `master`. That branch saves documentation decisions on advisory compare and classifies a subject the page still asks about as still open, no longer in this capture, or evidence changed. Land that branch before pasting **RTA-05**.
+DIC-01 through DIC-05 are on `master`. **RTA-01** through **RTA-07** are on `master` (#4511, #4525, #4530, #4539, #4549): finding reload, security-only finding gate, documentation decisions, later-capture checks, diagram fingerprint scoping, absent-subject list, and sealed-path decisions. **Do not greenfield.**
 
 The latest decision lookup is tenant plus subject only. An inventory subject is a cloud resource id, so a second drawing can inherit a decision for a shared resource. A removed box is never requested, so its decision leaves the screen. Sealed reconcile does not create an advisory comparison row, so it cannot save a decision. A new diagram-document table is not the next step. The parsed nodes and edges already identify the drawing.
 

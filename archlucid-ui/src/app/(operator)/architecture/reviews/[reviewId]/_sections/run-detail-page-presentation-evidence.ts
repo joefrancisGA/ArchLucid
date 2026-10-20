@@ -91,7 +91,8 @@ export function buildRunDetailEvidencePresentation(
     businessOutcome: derivedGapBaseline.businessOutcome,
     peopleAndSystems: derivedGapBaseline.peopleAndSystems,
     ownerLabel: workspaceDerive.deriveReviewOwnerLabel(model.resolvedDetail.run),
-    lastUpdatedLabel: lastEvaluatedUtc !== null ? formatInstantForLocale(lastEvaluatedUtc) : "just now",
+    lastUpdatedLabel:
+      lastEvaluatedUtc !== null ? formatInstantForLocale(lastEvaluatedUtc) : "time was not stored.",
     workspaceStatus: input.workspaceStatus,
     assessmentInProgress: model.showProgressTracker,
     hasArtifacts: model.artifacts.length > 0,

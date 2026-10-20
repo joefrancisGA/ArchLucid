@@ -110,10 +110,16 @@ export function derivePrimaryConcernFinding(
   return sorted[0] ?? null;
 }
 export function derivePrimaryConcernLabel(findings: readonly QuickDecisionFinding[]): string | null {
-  const title = derivePrimaryConcernFinding(findings)?.title ?? null;
+  const primary = derivePrimaryConcernFinding(findings);
 
-  if (title === null) {
+  if (primary === null) {
     return null;
+  }
+
+  const title = primary.title.trim();
+
+  if (title.length === 0) {
+    return "Finding title was not stored.";
   }
 
   return evidenceAbsenceFindingLabel(title);

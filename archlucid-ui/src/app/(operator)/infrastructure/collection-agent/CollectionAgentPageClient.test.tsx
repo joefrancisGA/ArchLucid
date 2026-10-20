@@ -19,7 +19,7 @@ function successfulRun() {
   return {
     agentVersion: "1.0.0",
     errorSummary: null,
-    finishedUtc: "2026-10-11T22:00:00.000Z",
+    finishedUtc: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
     importedSnapshotId: "snapshot-1",
     projectId: "project",
     runId: "run-1",
@@ -38,7 +38,27 @@ describe("collection agent omission copy (P-16, P-17)", () => {
   it("labels missing capture status and start time without Unknown", () => {
     expect(collectionRunStatusLabel(undefined)).toBe("Capture status was not stored.");
     expect(collectionRunStartedUtcDisplay(undefined)).toBe("Start time was not stored.");
+    expect(collectionRunStartedUtcDisplay("")).toBe("Start time was not stored.");
+    expect(collectionRunStartedUtcDisplay("not-a-timestamp")).toBe("Start time could not be read.");
     expect(collectionRunStatusLabel("Running")).toBe("Running");
+  });
+
+  it("does not link View changes when imported snapshot id is empty", () => {
+    useTriggerCollectionRunMutationMock.mockReturnValue({
+      error: null,
+      isPending: false,
+      mutateAsync: vi.fn(),
+    });
+    useCollectionRunsQueryMock.mockReturnValue({
+      data: [{ ...successfulRun(), importedSnapshotId: "" }],
+      isPending: false,
+      isError: false,
+    });
+
+    render(<CollectionAgentPageClient />);
+
+    expect(screen.getByText("Imported snapshot was not stored.")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Open drift for this snapshot" })).not.toBeInTheDocument();
   });
 });
 
@@ -53,6 +73,19 @@ describe("CollectionAgentPageClient", () => {
     });
   });
 
+  it("labels a successful run with missing finish time (P-17)", () => {
+    useCollectionRunsQueryMock.mockReturnValue({
+      data: [{ ...successfulRun(), finishedUtc: null }],
+      isPending: false,
+      isError: false,
+    });
+
+    render(<CollectionAgentPageClient />);
+
+    expect(screen.getByText("Last successful run finish time was not stored.")).toBeInTheDocument();
+    expect(screen.queryByText("No successful run recorded")).not.toBeInTheDocument();
+  });
+
   it("shows collection health and links an imported snapshot to Changes & drift", () => {
     useCollectionRunsQueryMock.mockReturnValue({
       data: [successfulRun()],
@@ -62,10 +95,10 @@ describe("CollectionAgentPageClient", () => {
 
     render(<CollectionAgentPageClient />);
 
-    expect(screen.getByRole("heading", { name: "Collection agent" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Collection Agent" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Run now" })).toBeEnabled();
     expect(screen.getByLabelText("Status: Ready")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "View changes" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Open drift for this snapshot" })).toHaveAttribute(
       "href",
       "/infrastructure/snapshots-drift?snapshotId=snapshot-1",
     );
@@ -80,7 +113,7 @@ describe("CollectionAgentPageClient", () => {
 
     render(<CollectionAgentPageClient />);
 
-    expect(screen.getByText("Daily at 02:00 UTC")).toBeInTheDocument();
+    expect(screen.getByText("Schedule reported on a collection run: Daily at 02:00 UTC")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Run now" })).toBeDisabled();
     expect(screen.getAllByRole("row")[1]).toHaveTextContent("Running");
   });
@@ -122,6 +155,7 @@ describe("CollectionAgentPageClient", () => {
     const { rerender } = render(<CollectionAgentPageClient />);
 
     expect(screen.getByText("No collection runs yet.")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Status: Blocked")).not.toBeInTheDocument();
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
 
     useCollectionRunsQueryMock.mockReturnValue({

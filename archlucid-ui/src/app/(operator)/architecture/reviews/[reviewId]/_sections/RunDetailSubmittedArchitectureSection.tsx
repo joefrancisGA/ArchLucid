@@ -260,7 +260,7 @@ export function RunDetailSubmittedArchitectureSection(
             emptyStateMessage={
               architectureTextWasNotStored
                 ? "Submitted architecture text was not stored."
-                : "Open the Evidence tab to view submitted documents and diagrams."
+                : "Submitted architecture text was stored empty."
             }
           />
         </CollapsibleSection>

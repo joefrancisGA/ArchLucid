@@ -140,4 +140,32 @@ describe("useFindingCardShortcuts", () => {
 
     expect(document.activeElement).toBe(first);
   });
+
+  it("focuses the evidence link on Alt+O and returns to the card on Alt+Q", () => {
+    const onAction = vi.fn();
+
+    renderHook(() =>
+      useFindingCardShortcuts({
+        onAction,
+        getQueueAnchorFindingId: () => "finding-a",
+      }),
+    );
+
+    document.body.innerHTML = `
+      <div data-finding-id="finding-a" tabindex="0">
+        <a data-testid="line-evidence-link" href="/evidence">Open</a>
+      </div>
+      <section tabindex="-1" id="inspect-panel">inspect</section>
+    `;
+
+    document.getElementById("inspect-panel")?.focus();
+
+    fireEvent.keyDown(window, { key: "o", altKey: true });
+
+    expect(document.activeElement?.getAttribute("data-testid")).toBe("line-evidence-link");
+
+    fireEvent.keyDown(window, { key: "q", altKey: true });
+
+    expect(document.activeElement?.getAttribute("data-finding-id")).toBe("finding-a");
+  });
 });

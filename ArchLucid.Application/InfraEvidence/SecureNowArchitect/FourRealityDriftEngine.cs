@@ -51,9 +51,37 @@ public sealed class FourRealityDriftEngine(
             return Failed("Snapshot was not found in the current tenant scope.");
         }
 
-        AzureInventorySnapshotDetailReadModel? priorSnapshot = null;
         Guid? inventoryDiffId = null;
         IReadOnlyList<AzureInventoryChangeRecord> diffChanges = [];
+        Dictionary<Guid, IReadOnlyDictionary<string, string>> priorPropertiesByCloudResourceId = new();
+
+        DiagramInfrastructureReconciliationResult? diagramReconciliation =
+            await TryLoadDiagramReconciliationAsync(scope, snapshotId, cancellationToken);
+
+        IReadOnlyList<SecurityEvidencePathWithHops> pathsWithHops = await pathRepository.ListWithHopsBySnapshotAsync(
+            ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), snapshotId),
+            cancellationToken);
+
+        List<SecurityEvidencePathRecord> sourcePaths = [];
+        Dictionary<Guid, IReadOnlyList<SecurityEvidencePathHopRecord>> hopsByPathId = new();
+
+        foreach (SecurityEvidencePathWithHops pathWithHops in pathsWithHops)
+        {
+            if (pathWithHops.Path.PathKind is not (PathKind.Privilege or PathKind.IntendedReachability))
+            {
+                continue;
+            }
+
+            sourcePaths.Add(pathWithHops.Path);
+            hopsByPathId[pathWithHops.Path.PathId] = pathWithHops.Hops;
+        }
+
+        HashSet<Guid> pathCloudResourceIds = FourRealityDriftAnalyzer.CollectCloudResourceIdsForSourcePaths(
+            currentSnapshot,
+            sourcePaths,
+            hopsByPathId);
+
+        List<Guid> pathCloudResourceIdList = pathCloudResourceIds.ToList();
 
         if (!string.IsNullOrWhiteSpace(currentSnapshot.Header.SubscriptionId))
         {
@@ -65,48 +93,50 @@ public sealed class FourRealityDriftEngine(
 
             if (priorSnapshotId is Guid priorId && priorId != Guid.Empty)
             {
-                priorSnapshot = (await SecureNowAnalysisRun.LoadAsync(snapshotRepository, scope, priorId, cancellationToken))?.Snapshot;
-
                 AzureInventoryDiffSummaryRecord? diffSummary =
                     await diffRepository.TryGetBySnapshotPairAsync(scope, priorId, snapshotId, cancellationToken);
 
                 if (diffSummary is not null)
                 {
                     inventoryDiffId = diffSummary.DiffId;
-                    diffChanges = await diffRepository.ListChangesByDiffIdAsync(
+                    diffChanges = await diffRepository.ListChangesByDiffIdAndCloudResourceIdsAsync(
                         scope,
                         diffSummary.DiffId,
+                        pathCloudResourceIdList,
                         cancellationToken);
                 }
+
+                if (pathCloudResourceIdList.Count > 0)
+                {
+                    (IReadOnlyList<AzureInventoryResourceRecord> priorResources,
+                            IReadOnlyList<AzureInventoryResourcePropertyReadModel> priorProperties) =
+                        await snapshotRepository.ListResourcesAndPropertiesByCloudResourceIdsAsync(
+                            scope,
+                            priorId,
+                            pathCloudResourceIdList,
+                            cancellationToken);
+
+                    foreach (AzureInventoryResourceRecord priorResource in priorResources)
+                    {
+                        if (priorResource.CloudResourceId is not Guid priorCloudResourceId)
+                        {
+                            continue;
+                        }
+
+                        priorPropertiesByCloudResourceId[priorCloudResourceId] =
+                            FourRealityResourceAccessReader.BuildPropertyBag(
+                                priorProperties,
+                                priorResource.ResourceRowId);
+                    }
+                }
             }
-        }
-
-        DiagramInfrastructureReconciliationResult? diagramReconciliation =
-            await TryLoadDiagramReconciliationAsync(scope, snapshotId, cancellationToken);
-
-        IReadOnlyList<SecurityEvidencePathRecord> privilegePaths = await pathRepository.ListBySnapshotAsync(
-            ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), snapshotId),
-            cancellationToken);
-
-        List<SecurityEvidencePathRecord> sourcePaths = privilegePaths
-            .Where(path => path.PathKind is PathKind.Privilege or PathKind.IntendedReachability)
-            .ToList();
-
-        Dictionary<Guid, IReadOnlyList<SecurityEvidencePathHopRecord>> hopsByPathId = new();
-
-        foreach (SecurityEvidencePathRecord sourcePath in sourcePaths)
-        {
-            IReadOnlyList<SecurityEvidencePathHopRecord> hops =
-                await pathRepository.ListHopsByPathAsync(scope.TenantId, sourcePath.PathId, cancellationToken);
-
-            hopsByPathId[sourcePath.PathId] = hops;
         }
 
         IReadOnlyList<FourRealityDriftCandidate> candidates = FourRealityDriftAnalyzer.Analyze(
             new FourRealityDriftAnalysisInputs
             {
                 CurrentSnapshot = currentSnapshot,
-                PriorSnapshot = priorSnapshot,
+                PriorPropertiesByCloudResourceId = priorPropertiesByCloudResourceId,
                 InventoryDiffId = inventoryDiffId,
                 DiffChanges = diffChanges,
                 DiagramReconciliation = diagramReconciliation,
@@ -235,21 +265,12 @@ public sealed class FourRealityDriftEngine(
         Guid snapshotId,
         CancellationToken cancellationToken)
     {
-        IReadOnlyList<Guid> runIds = await reconciliationRepository.ListRunIdsBySnapshotAsync(
-            scope.TenantId,
-            snapshotId,
-            cancellationToken);
+        IReadOnlyList<ArchitectureDiagramReconciliationPersistRecord> records =
+            await reconciliationRepository.ListBySnapshotAsync(scope.TenantId, snapshotId, cancellationToken);
 
-        foreach (Guid runId in runIds)
+        foreach (ArchitectureDiagramReconciliationPersistRecord record in records)
         {
-            ArchitectureDiagramReconciliationPersistRecord? record =
-                await reconciliationRepository.TryGetByRunAndSnapshotAsync(
-                    scope.TenantId,
-                    runId,
-                    snapshotId,
-                    cancellationToken);
-
-            if (record is null || string.IsNullOrWhiteSpace(record.ResultJson))
+            if (string.IsNullOrWhiteSpace(record.ResultJson))
             {
                 continue;
             }
@@ -266,7 +287,7 @@ public sealed class FourRealityDriftEngine(
                     ex,
                     "Failed to deserialize diagram reconciliation for SnapshotId={SnapshotId}, RunId={RunId}.",
                     snapshotId,
-                    runId);
+                    record.RunId);
 
                 continue;
             }

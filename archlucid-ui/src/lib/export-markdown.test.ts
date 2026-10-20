@@ -495,7 +495,29 @@ describe("formatGoldenManifestMarkdown", () => {
       .toContain("Operator summary was not stored.");
     expect(formatGoldenManifestMarkdown(null, {
       manifestSummaryFallback: { ...base, operatorSummary: "" },
-    })).not.toContain("_No operator summary was returned by the API._");
+    })).toContain("Operator summary was stored empty.");
+  });
+
+  it("labels blank summary metadata in fallback export", () => {
+    const summary: ManifestSummary = {
+      manifestId: "m9",
+      runId: "r9",
+      createdUtc: "2026-01-01T00:00:00Z",
+      manifestHash: "",
+      ruleSetId: "",
+      ruleSetVersion: "",
+      status: "",
+      decisionCount: 0,
+      warningCount: 0,
+      unresolvedIssueCount: 0,
+    };
+
+    const md = formatGoldenManifestMarkdown(null, { manifestSummaryFallback: summary });
+
+    expect(md).toContain("Review id was not stored.");
+    expect(md).toContain("Status was not stored.");
+    expect(md).toContain("Policy pack was not stored.");
+    expect(md).toContain("Review record hash was not stored.");
   });
 
   it("fallback measurement floor names skipped actor engines when graph context is provided", () => {

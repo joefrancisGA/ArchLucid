@@ -1,4 +1,6 @@
-import { coerceComplianceRuleKey, inferPolicyPackDisplayNameFromComplianceRuleKey } from "@/lib/policy/policy-pack-rule-key-prefix-catalog";
+import { coerceComplianceRuleKey } from "@/lib/policy/policy-pack-rule-key-prefix-catalog";
+
+export const FINDING_CAUSAL_RULE_NAME_NOT_STORED = "Rule name was not stored.";
 import { firstRecommendationSentence, type QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { parseFindingWireDerivationFields } from "@/lib/findings/finding-derivation-sentence";
 
@@ -27,9 +29,12 @@ export type FindingCausalMiniChainInput = {
   readonly ruleName?: string | null;
   readonly ruleId?: string | null;
   readonly evidenceLabel?: string | null;
+  readonly traceConfidenceLabel?: string | null;
   readonly evidenceRefCount?: number | null;
   readonly recommendation?: string | null;
 };
+
+const TRACE_CONFIDENCE_NOT_ARTIFACT_SUFFIX = "This is not a cited evidence artifact.";
 
 function nonEmpty(value: string | null | undefined): string | null {
   const trimmed = value?.trim() ?? "";
@@ -47,29 +52,38 @@ function resolveRuleValue(input: FindingCausalMiniChainInput): string | null {
   const ruleId = nonEmpty(input.ruleId);
 
   if (ruleId !== null) {
-    return inferPolicyPackDisplayNameFromComplianceRuleKey(ruleId) ?? ruleId;
+    return `${ruleId} · ${FINDING_CAUSAL_RULE_NAME_NOT_STORED}`;
   }
 
   return null;
 }
 
 function resolveEvidenceValue(input: FindingCausalMiniChainInput): string | null {
-  const explicit = nonEmpty(input.evidenceLabel);
-
-  if (explicit !== null) {
-    return explicit;
-  }
-
   const count =
     typeof input.evidenceRefCount === "number" && Number.isFinite(input.evidenceRefCount)
       ? Math.max(0, Math.trunc(input.evidenceRefCount))
       : null;
 
+  const traceConfidence = nonEmpty(input.traceConfidenceLabel);
+  const explicitLabel = nonEmpty(input.evidenceLabel);
+
+  const parts: string[] = [];
+
   if (count !== null && count >= 0) {
-    return `${count} cited evidence reference${count === 1 ? "" : "s"}`;
+    parts.push(`${count} cited evidence reference${count === 1 ? "" : "s"}`);
+  } else if (explicitLabel !== null) {
+    parts.push(explicitLabel);
   }
 
-  return null;
+  if (traceConfidence !== null) {
+    parts.push(`Trace confidence: ${traceConfidence}. ${TRACE_CONFIDENCE_NOT_ARTIFACT_SUFFIX}`);
+  }
+
+  if (parts.length === 0) {
+    return null;
+  }
+
+  return parts.join(" ");
 }
 
 function resolveRecommendationValue(input: FindingCausalMiniChainInput): string | null {
@@ -107,7 +121,7 @@ export function findingCausalMiniChainFromQuickDecisionFinding(
     ruleName: wire.decisionRuleName,
     ruleId: finding.policyRuleId ?? wire.decisionRuleId,
     evidenceRefCount: finding.evidenceRefCount,
-    evidenceLabel: nonEmpty(finding.traceConfidenceLabel),
+    traceConfidenceLabel: finding.traceConfidenceLabel,
     recommendation: finding.recommendation,
   });
 }

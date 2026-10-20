@@ -1,3 +1,4 @@
+using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.ArtifactSynthesis.Sanitization;
 using ArchLucid.Core.Manifest.Sections;
 
@@ -167,22 +168,26 @@ public static class WordDocumentBuilder
 
         foreach (ManifestIssue issue in issues)
         {
-            Run severityRun = new(new Text(SanitizeTableCellText(issue.Severity)));
+            Run severityRun = new(new Text(SanitizeTableCellText(
+                DocxManifestFieldPresentation.FormatManifestTableCell(issue.Severity, "Severity"))));
             if (IsHighSeverity(issue.Severity))
                 severityRun.RunProperties = new RunProperties(
                     new Bold(),
                     new Color { Val = DocxIssueSeverityStyles.HighSeverityColorHex });
 
             string supportingFindings = issue.SupportingFindingIds.Count == 0
-                ? string.Empty
+                ? "No supporting findings were stored."
                 : string.Join(", ", issue.SupportingFindingIds);
 
             table.AppendChild(
                 new TableRow(
                     new TableCell(new Paragraph(severityRun)),
-                    new TableCell(new Paragraph(new Run(new Text(SanitizeTableCellText(issue.IssueType))))),
-                    new TableCell(new Paragraph(new Run(new Text(SanitizeTableCellText(issue.Title))))),
-                    new TableCell(new Paragraph(new Run(new Text(SanitizeTableCellText(issue.Description))))),
+                    new TableCell(new Paragraph(new Run(new Text(SanitizeTableCellText(
+                        DocxManifestFieldPresentation.FormatManifestTableCell(issue.IssueType, "Issue type")))))),
+                    new TableCell(new Paragraph(new Run(new Text(SanitizeTableCellText(
+                        DocxManifestFieldPresentation.FormatManifestTableCell(issue.Title, "Issue title")))))),
+                    new TableCell(new Paragraph(new Run(new Text(SanitizeTableCellText(
+                        DocxManifestFieldPresentation.FormatManifestTableCell(issue.Description, "Issue description")))))),
                     new TableCell(new Paragraph(new Run(new Text(SanitizeTableCellText(supportingFindings)))))));
         }
 

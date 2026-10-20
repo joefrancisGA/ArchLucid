@@ -128,6 +128,20 @@ public class DiagramNode
         set;
     }
 
+    /// <summary>True when this card summarizes collapsed singleton resource groups (IDX-08).</summary>
+    public bool IsCollapsedResourceGroupTail
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Sample member names shown on a collapsed singleton tail card.</summary>
+    public List<string> CollapsedResourceGroupTailMemberNames
+    {
+        get;
+        set;
+    } = [];
+
     /// <summary>Stable one-based marker used to identify this rollup in exports.</summary>
     public int DataFlowRollupOrdinal
     {

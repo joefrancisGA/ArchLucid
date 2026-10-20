@@ -46,6 +46,16 @@ public sealed class AzureInventorySnapshotGraphResolver(
             };
         }
 
+        return ResolveGraphFromSnapshot(snapshot, includeNeverShowArmTypes, retainIdentityDiagramArmTypes);
+    }
+
+    public AzureInventorySnapshotGraphResolveResult ResolveGraphFromSnapshot(
+        AzureInventorySnapshotDetailReadModel snapshot,
+        bool includeNeverShowArmTypes = false,
+        bool retainIdentityDiagramArmTypes = false)
+    {
+        ArgumentNullException.ThrowIfNull(snapshot);
+
         GraphSnapshot graph = BuildGraph(snapshot, includeNeverShowArmTypes, retainIdentityDiagramArmTypes);
 
         return new AzureInventorySnapshotGraphResolveResult
@@ -304,6 +314,8 @@ public sealed class AzureInventorySnapshotGraphResolver(
             nodeIdByArmId,
             edges,
             edgeKeys);
+        AzureInventorySnapshotGraphEdgeRoleDeduplicator.Deduplicate(edges, edgeKeys);
+        AzureInventorySnapshotUncitedCollocationPruner.Prune(nodes, edges, edgeKeys);
 
         DateTime createdUtc = graphSnapshot.Header.CapturedUtc ?? graphSnapshot.Header.CreatedUtc;
 

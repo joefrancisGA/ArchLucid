@@ -105,7 +105,7 @@ public class MermaidDiagramRenderer : IDiagramRenderer
 
         string indentText = new(' ', indent * 4);
         string safeSubgraphId = MermaidIdSanitizer.Sanitize(subgraph.SubgraphId);
-        string safeLabel = EscapeLabel(subgraph.Label);
+        string safeLabel = EscapeLabel(DiagramSubgraphLabelFormatter.FormatForDiagram(subgraph.Label));
         sb.AppendLine($"{indentText}subgraph {safeSubgraphId}[\"{safeLabel}\"]");
 
         foreach (DiagramNode node in ast.Nodes

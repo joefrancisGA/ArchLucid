@@ -30,6 +30,21 @@ public interface IOperationalSecurityExceptionRepository
         Guid tenantId,
         CancellationToken cancellationToken = default);
 
+    async Task<int> CountExpiredBetweenInScopeAsync(
+        ProjectScopeKey scope,
+        DateTime windowStartUtc,
+        DateTime windowEndUtc,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<OperationalSecurityExceptionRecord> rows =
+            await ListByScopeAsync(scope, cancellationToken);
+
+        return rows.Count(item =>
+            item.Status == OperationalSecurityExceptionStatus.Expired
+            && item.ExpirationUtc > windowStartUtc
+            && item.ExpirationUtc <= windowEndUtc);
+    }
+
     async Task<IReadOnlyList<OperationalSecurityExceptionRecord>> ListByScopeAsync(
         ProjectScopeKey scope,
         CancellationToken cancellationToken = default)
@@ -114,6 +129,31 @@ public interface IOperationalSecurityExceptionRepository
             return;
 
         await RevokeAsync(scope.TenantId, mutation.ExceptionId, mutation.RevokedByActorKey, mutation.RevokedUtc, cancellationToken);
+    }
+
+    async Task<RemediationFactoryExceptionMetricsAggregate> GetFactoryExceptionMetricsAggregateInScopeAsync(
+        ProjectScopeKey scope,
+        DateTime utcNow,
+        TimeSpan expiringSoonWindow,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<OperationalSecurityExceptionRecord> exceptions =
+            await ListByScopeAsync(scope, cancellationToken);
+
+        int exceptionsActive = exceptions.Count(item => item.Status == OperationalSecurityExceptionStatus.Active);
+        int exceptionsExpired = exceptions.Count(item => item.Status == OperationalSecurityExceptionStatus.Expired);
+
+        int exceptionsExpiringSoon = exceptions.Count(item =>
+            item.Status == OperationalSecurityExceptionStatus.Active
+            && item.ExpirationUtc <= utcNow.Add(expiringSoonWindow)
+            && item.ExpirationUtc > utcNow);
+
+        return new RemediationFactoryExceptionMetricsAggregate
+        {
+            ExceptionsActive = exceptionsActive,
+            ExceptionsExpired = exceptionsExpired,
+            ExceptionsExpiringSoon = exceptionsExpiringSoon,
+        };
     }
 }
 

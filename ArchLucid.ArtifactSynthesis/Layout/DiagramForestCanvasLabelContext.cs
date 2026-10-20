@@ -304,8 +304,8 @@ public sealed class DiagramForestCanvasLabelContext
                 ? consumerIds.Count
                 : 0;
             result[node.NodeId] = count == 0
-                ? "No consumer found"
-                : $"Used by {count}";
+                ? "No diagram neighbor on this view."
+                : $"{count} diagram neighbors on this view.";
         }
 
         return result;

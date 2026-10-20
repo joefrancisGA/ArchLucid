@@ -10,7 +10,8 @@ import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmpty
 import { InfraEvidenceWorkbenchHeaderActions } from "@/components/infra-evidence/InfraEvidenceWorkbenchHeaderActions";
 import { ShortcutHint } from "@/components/ShortcutHint";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
-import { SECURENOW_NAV_LABELS } from "@/lib/product-line/securenow-nav-labels";
+import { SECURENOW_REMEDIATION_INSTANCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
@@ -133,6 +134,14 @@ import { auditEvidencePathForProductLine } from "@/lib/product-line/securenow-co
 import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  formatRemediationWaveCapLine,
+  formatRemediationWaveMembershipLine,
+  REMEDIATION_WAVES_EMPTY_HELPER,
+  REMEDIATION_WAVES_EMPTY_LABEL,
+  REMEDIATION_WAVES_HEADING,
+  REMEDIATION_WAVES_SECTION_ID,
+} from "@/lib/remediation-wave-list-copy";
 import { cn } from "@/lib/utils";
 
 import { RemediationBreadcrumb } from "./RemediationBreadcrumb";
@@ -214,10 +223,11 @@ export function RemediationWorkbenchClient() {
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const navHref = useMemo(() => remediationInstancesPathForProductLine(productLine), [productLine]);
-  const pageTitle =
-    productLine === "security"
-      ? SECURENOW_NAV_LABELS["/security/remediation-instances"] ?? GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_TITLE
-      : GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_TITLE;
+  const pageTitle = resolveSecureNowPageHeading(
+    productLine,
+    GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_TITLE,
+    SECURENOW_REMEDIATION_INSTANCES_PATH,
+  );
   const searchParams = useSearchParams();
   const boardNavRef = useRef<HTMLDivElement>(null);
   const [focusedBoardIndex, setFocusedBoardIndex] = useState(0);
@@ -1204,7 +1214,7 @@ export function RemediationWorkbenchClient() {
                   </div>
                   <div>
                     <dt className="font-medium">Severity</dt>
-                    <dd>{detail.finding.severity ?? "—"}</dd>
+                    <dd>{detail.finding.severity ?? "Severity was not stored."}</dd>
                   </div>
                   {detail.finding.cloudResourceId != null ? (
                     <div>
@@ -1522,16 +1532,23 @@ export function RemediationWorkbenchClient() {
         </section>
       ) : null}
 
-      <section className={cnCard} aria-label="Wave planner read-only">
-        <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Wave planner (read-only)</h2>
+      <section id={REMEDIATION_WAVES_SECTION_ID} className={cnCard} aria-label={REMEDIATION_WAVES_HEADING}>
+        <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{REMEDIATION_WAVES_HEADING}</h2>
         {wavePlanner.length === 0 ? (
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>No remediation waves yet.</p>
+          <div className="space-y-1">
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{REMEDIATION_WAVES_EMPTY_LABEL}</p>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{REMEDIATION_WAVES_EMPTY_HELPER}</p>
+          </div>
         ) : (
           <ul className="m-0 grid gap-2 pl-5">
             {wavePlanner.map((wave) => (
               <li key={wave.waveId}>
-                {wave.name}: {wave.memberCount}
-                {wave.targetSize != null ? ` / ${wave.targetSize}` : ""} members
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+                  {formatRemediationWaveMembershipLine(wave.name, wave.memberCount)}
+                </p>
+                {wave.targetSize != null ? (
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{formatRemediationWaveCapLine(wave.targetSize)}</p>
+                ) : null}
               </li>
             ))}
           </ul>

@@ -110,6 +110,19 @@ describe("architecture-work-item-model", () => {
     });
 
     expect(missingOwner.owner).toBe("Work item owner was not stored.");
-    expect(emptyOwner.owner).toBe("");
+    expect(emptyOwner.owner).toBe("Work item owner was stored empty.");
+  });
+
+  it("labels an empty finding title on copied work-item lines", () => {
+    const preview = buildArchitectureWorkItemPreview({
+      runId: "run-1",
+      architectureName: "Payments platform",
+      architectureOverview: "Overview",
+      ownerLabel: "Platform team",
+      findings: [finding({ findingId: "f-empty", title: "  " })],
+      siteOrigin: "https://app.archlucid.test",
+    });
+
+    expect(preview.findingsIncluded[0]?.title).toBe("Finding title was not stored.");
   });
 });

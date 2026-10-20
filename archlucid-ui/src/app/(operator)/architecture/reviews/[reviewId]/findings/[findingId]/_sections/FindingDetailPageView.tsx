@@ -1,6 +1,8 @@
 "use client";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { SecurityEvidencePathInspectPanel } from "@/components/security/SecurityEvidencePathInspectPanel";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { findingInspectPrimaryLabels, findingWhyThisMattersText, findingDetailLeadSentence } from "@/lib/findings/finding-display-from-inspect";
 import { buildFindingDerivationSentence } from "@/lib/findings/finding-derivation-sentence";
@@ -9,6 +11,7 @@ import { getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigatio
 import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator/operator-static-demo";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import {
   resolveWorkingBackHref,
   resolveWorkingReviewFindingsBackHref,
@@ -62,6 +65,8 @@ export function FindingDetailPageView(props: Props) {
     parentArchitectureId,
   } = model;
 
+  const { productLine } = useProductLine();
+  const showSecureNowPathInspect = isSecureNowProductLine(productLine);
   const labels = inspectPayload !== null ? findingInspectPrimaryLabels(inspectPayload) : null;
 
   const graphEvidenceHref =
@@ -205,6 +210,9 @@ export function FindingDetailPageView(props: Props) {
         findingsQueueNavHref={findingsQueueNavHref}
       />
       <FindingDetailInspectBody presentation={presentation} />
+      {showSecureNowPathInspect ? (
+        <SecurityEvidencePathInspectPanel findingId={decodedFindingId} />
+      ) : null}
       <FindingDetailActions presentation={presentation} />
     </OperatorPageContainer>
   );

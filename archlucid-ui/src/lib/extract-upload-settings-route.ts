@@ -6,6 +6,7 @@ import {
 import {
   GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
   GOVERNANCE_INFRASTRUCTURE_PATH,
+  SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_LEGACY_PATH,
   SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
   SECURENOW_INFRASTRUCTURE_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
@@ -35,7 +36,8 @@ export function isExtractUploadSettingsRoutePath(pathname: string | null | undef
 
   return bare === EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH
     || bare === GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH
-    || bare === SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH;
+    || bare === SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH
+    || bare === SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_LEGACY_PATH;
 }
 
 /** Nav href for OperatorPageHeader — preserves Infrastructure vs Administration namespace. */

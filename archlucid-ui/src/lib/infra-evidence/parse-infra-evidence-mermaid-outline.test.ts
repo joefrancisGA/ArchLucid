@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  formatInfraEvidenceOutlineProvenanceReviewerBand,
   parseInfraEvidenceMermaidOutline,
   resolveInfraEvidenceOutlineEdgeLabel,
   resolveInfraEvidenceOutlineNodeLabel,
@@ -49,6 +50,15 @@ describe("parseInfraEvidenceMermaidOutline", () => {
     expect(resolveInfraEvidenceOutlineNodeLabel(outline.nodes, "missing")).toBe(
       "Endpoint was not in this diagram outline",
     );
+  });
+
+  it("treats an em dash node label as a missing name (P-05)", () => {
+    expect(
+      resolveInfraEvidenceOutlineNodeLabel(
+        [{ id: "n1", label: "—", resourceType: null, resourceGroup: null, seedNodeId: null }],
+        "n1",
+      ),
+    ).toBe("Node name was not stored");
   });
 
   it("prefers metadata seed ids over mermaid node hashes", () => {
@@ -288,5 +298,12 @@ describe("parseInfraEvidenceMermaidOutline", () => {
       connectionState: "Unknown",
       unresolvedRelationshipDetails: ["missing subnet link"],
     });
+  });
+
+  it("maps provenance tokens to reviewer bands (P-03)", () => {
+    expect(formatInfraEvidenceOutlineProvenanceReviewerBand("ObservedFact")).toBe("Observed");
+    expect(formatInfraEvidenceOutlineProvenanceReviewerBand("DerivedFact")).toBe(
+      'Provenance "DerivedFact" has no reviewer band.',
+    );
   });
 });

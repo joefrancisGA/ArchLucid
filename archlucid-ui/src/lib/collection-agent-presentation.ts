@@ -5,7 +5,7 @@ export const COLLECTION_AGENT_EXPECTED_INTERVAL_MS = 24 * 60 * 60 * 1000;
 
 export type CollectionAgentHealth = {
   readonly kind: EnterpriseStatusKind;
-  readonly label: "Ready" | "Needs attention" | "Blocked";
+  readonly label: "Ready" | "Needs attention" | "Blocked" | "No successful run stored";
   readonly successfulRun: CollectionRun | null;
 };
 
@@ -31,7 +31,7 @@ export function resolveCollectionAgentHealth(
   const latestRun = newestRun(runs);
 
   if (successfulRun === null) {
-    return { kind: "blocked", label: "Blocked", successfulRun: null };
+    return { kind: "blocked", label: "No successful run stored", successfulRun: null };
   }
 
   if (
@@ -44,6 +44,39 @@ export function resolveCollectionAgentHealth(
   }
 
   return { kind: "ready", label: "Ready", successfulRun };
+}
+
+export const COLLECTION_AGENT_STALE_SUCCESS_NEEDS_ATTENTION_DETAIL =
+  "Needs attention because the last success is older than 24 hours. That interval is this page's expectation, not a stored schedule." as const;
+
+export function resolveCollectionAgentStaleSuccessDetail(
+  runs: readonly CollectionRun[],
+  nowMs: number = Date.now(),
+  expectedIntervalMs: number = COLLECTION_AGENT_EXPECTED_INTERVAL_MS,
+): string | null {
+  const health = resolveCollectionAgentHealth(runs, nowMs, expectedIntervalMs);
+
+  if (health.label !== "Needs attention") {
+    return null;
+  }
+
+  const latestRun = newestRun(runs);
+
+  if (
+    latestRun?.status === "Failed"
+    || latestRun?.status === "Rejected"
+    || latestRun?.status === "PartiallySucceeded"
+  ) {
+    return null;
+  }
+
+  const successfulRun = health.successfulRun;
+
+  if (successfulRun !== null && nowMs - runTimeMs(successfulRun) > expectedIntervalMs) {
+    return COLLECTION_AGENT_STALE_SUCCESS_NEEDS_ATTENTION_DETAIL;
+  }
+
+  return null;
 }
 
 export function formatCollectionRunDuration(run: CollectionRun): string {
@@ -123,8 +156,13 @@ export function formatCollectionRunSubscriptionsLabel(run: CollectionRun): strin
     case "empty":
       return "Subscriptions covered were stored as an empty list.";
 
-    case "listed":
-      return String(presentation.subscriptions.length);
+    case "listed": {
+      const countLabel = presentation.subscriptions.length === 1
+        ? "1 subscription covered."
+        : `${presentation.subscriptions.length} subscriptions covered.`;
+
+      return `${countLabel} ${presentation.subscriptions.join(", ")}`;
+    }
 
     default: {
       const _exhaustive: never = presentation;

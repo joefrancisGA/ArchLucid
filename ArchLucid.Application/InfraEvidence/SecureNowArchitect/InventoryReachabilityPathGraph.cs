@@ -129,14 +129,24 @@ internal static class InventoryReachabilityPathGraph
         AzureInventoryVnetCustomDnsIndex customDnsIndex =
             AzureInventoryVnetCustomDnsIndex.Build(virtualNetworkProperties);
 
+        IReadOnlyList<AzureInventoryRelationshipArmTriple> reachabilityRelationships =
+            snapshot.Relationships.Select(static relationship =>
+                new AzureInventoryRelationshipArmTriple(
+                    relationship.FromAzureResourceId,
+                    relationship.ToAzureResourceId,
+                    relationship.InferenceSource)).ToList();
+
         AzureInventoryReachabilityEdgeControlIndex edgeControlIndex =
             AzureInventoryReachabilityEdgeControlIndex.Build(
-                snapshot.Relationships.Select(static relationship =>
-                    new AzureInventoryRelationshipArmTriple(
-                        relationship.FromAzureResourceId,
-                        relationship.ToAzureResourceId,
-                        relationship.InferenceSource)),
+                reachabilityRelationships,
                 reachabilityResourcesByArmId);
+
+        IReadOnlyDictionary<string, string> subnetToFirewallArmId =
+            AzureInventoryReachabilityEdgeControlEvaluator.BuildSubnetToFirewallArmIdMap(
+                reachabilityRelationships,
+                reachabilityResourcesByArmId);
+
+        PrivilegePathGraphEdgeSorter.SortOutgoingEdges(outgoing);
 
         return new InventoryReachabilityPathGraphSnapshot
         {
@@ -151,6 +161,8 @@ internal static class InventoryReachabilityPathGraph
             DnsJoinIndex = dnsJoinIndex,
             CustomDnsIndex = customDnsIndex,
             EdgeControlIndex = edgeControlIndex,
+            ReachabilityResourcesByArmId = reachabilityResourcesByArmId,
+            SubnetToFirewallArmId = subnetToFirewallArmId,
         };
     }
 
@@ -298,4 +310,16 @@ internal sealed class InventoryReachabilityPathGraphSnapshot
         get;
         init;
     }
+
+    public IReadOnlyDictionary<string, AzureInventoryReachabilityResourceProperties> ReachabilityResourcesByArmId
+    {
+        get;
+        init;
+    } = new Dictionary<string, AzureInventoryReachabilityResourceProperties>();
+
+    public IReadOnlyDictionary<string, string> SubnetToFirewallArmId
+    {
+        get;
+        init;
+    } = new Dictionary<string, string>();
 }

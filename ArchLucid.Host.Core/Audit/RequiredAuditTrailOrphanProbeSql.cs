@@ -78,7 +78,7 @@ public static class RequiredAuditTrailOrphanProbeSql
                                                                      WHERE a.EventType = N'ArchitectureIdentity.ShareGranted'
                                                                        AND a.TenantId = s.TenantId
                                                                        AND JSON_VALUE(a.DataJson, '$.architectureId') = LOWER(CAST(s.ArchitectureId AS nvarchar(36)))
-                                                                       AND JSON_VALUE(a.DataJson, '$.userId') = LOWER(CAST(s.UserId AS nvarchar(36))));
+                                                                       AND JSON_VALUE(a.DataJson, '$.targetActorOid') = s.ActorOid);
                                                                """;
 
     /// <summary>Restrict-to-shares architectures missing <c>ArchitectureIdentity.RestrictToSharesEnabled</c> audit (AS-093).</summary>

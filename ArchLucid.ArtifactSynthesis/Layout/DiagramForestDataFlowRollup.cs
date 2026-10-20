@@ -1,3 +1,4 @@
+using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Models;
 
 namespace ArchLucid.ArtifactSynthesis.Layout;
@@ -22,12 +23,14 @@ internal static class DiagramForestDataFlowRollup
             .Select(node => node.NodeId)
             .ToHashSet(StringComparer.Ordinal);
         Dictionary<string, HashSet<string>> neighborIdsByNodeId = BuildNeighborIds(nodes, edges, nodeIds);
+        HashSet<string> hubSpokeRollupExemptNodeIds = ResolveHubSpokeRollupExemptNodeIds(nodes, edges);
         List<DiagramNode> rollupNodes = [];
         Dictionary<string, DiagramNode> rollupByMemberId = new(StringComparer.Ordinal);
         Dictionary<string, DiagramNode> rollupByFirstMemberId = new(StringComparer.Ordinal);
         int rollupOrdinal = 0;
 
         foreach (IGrouping<RollupKey, DiagramNode> group in nodes
+                     .Where(node => !hubSpokeRollupExemptNodeIds.Contains(node.NodeId))
                      .GroupBy(node => BuildKey(node, neighborIdsByNodeId), RollupKeyComparer.Instance))
         {
             List<DiagramNode> members = group.ToList();
@@ -94,6 +97,44 @@ internal static class DiagramForestDataFlowRollup
         resolvedEdges.AddRange(resolvedEdgeByKey.Values);
 
         return new Result(resolvedNodes, resolvedEdges);
+    }
+
+    private static HashSet<string> ResolveHubSpokeRollupExemptNodeIds(
+        IReadOnlyList<DiagramNode> nodes,
+        IReadOnlyList<DiagramEdge> edges)
+    {
+        HashSet<string> exemptNodeIds = new(StringComparer.Ordinal);
+        IEnumerable<IGrouping<string, DiagramNode>> stageGroups = nodes
+            .GroupBy(node => node.SubgraphId ?? string.Empty, StringComparer.Ordinal);
+
+        foreach (IGrouping<string, DiagramNode> stageGroup in stageGroups)
+        {
+            List<DiagramNode> stageNodes = stageGroup.ToList();
+            HashSet<string> stageNodeIds = stageNodes
+                .Select(node => node.NodeId)
+                .ToHashSet(StringComparer.Ordinal);
+            List<DiagramEdge> stageEdges = edges
+                .Where(edge => stageNodeIds.Contains(edge.FromNodeId) && stageNodeIds.Contains(edge.ToNodeId))
+                .ToList();
+            List<List<DiagramNode>> components = DiagramComponentBuilder.BuildConnectedComponents(
+                stageNodes,
+                stageEdges);
+
+            foreach (List<DiagramNode> component in components)
+            {
+                if (!DiagramHubSpokeLayerPlanner.ShouldLayoutHubSpoke(component, stageEdges))
+                {
+                    continue;
+                }
+
+                foreach (DiagramNode member in component)
+                {
+                    exemptNodeIds.Add(member.NodeId);
+                }
+            }
+        }
+
+        return exemptNodeIds;
     }
 
     private static Dictionary<string, HashSet<string>> BuildNeighborIds(
@@ -260,8 +301,8 @@ internal static class DiagramForestDataFlowRollup
         {
             int neighborCount = neighborIdsByNodeId[member.NodeId].Count;
             status = neighborCount == 0
-                ? "No consumer found"
-                : $"Used by {neighborCount}";
+                ? "No diagram neighbor on this view."
+                : $"{neighborCount} diagram neighbors on this view.";
         }
         string resourceGroup = string.IsNullOrWhiteSpace(member.ArmResourceGroup)
             ? "Resource group was not stored."

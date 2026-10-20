@@ -5,6 +5,7 @@ using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
@@ -26,6 +27,94 @@ public sealed class InfraEvidenceDriftWorkbenchQueryServiceTests
 
     private static readonly Guid DiffId = Guid.Parse("11111111-1111-1111-1111-111111111111");
     private static readonly Guid CloudResourceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+
+    [Fact]
+    public async Task ListSnapshotsAsync_batches_reconciliation_run_lookup_for_page()
+    {
+        Guid snapshotA = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa01");
+        Guid snapshotB = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa02");
+        Guid sharedRunId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+
+        Mock<IAzureInventorySnapshotRepository> snapshotRepository = new();
+        snapshotRepository
+            .Setup(repo => repo.ListSnapshotsAsync(Scope, 1, 50, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            (
+                new List<AzureInventorySnapshotRecord>
+                {
+                    new() { SnapshotId = snapshotA, TenantId = Scope.TenantId },
+                    new() { SnapshotId = snapshotB, TenantId = Scope.TenantId },
+                },
+                2));
+
+        Mock<IArchitectureDiagramReconciliationRepository> reconciliation = new();
+        reconciliation
+            .Setup(repo => repo.ListRunIdsBySnapshotIdsAsync(
+                Scope.TenantId,
+                It.Is<IReadOnlyList<Guid>>(ids => ids.Count == 2 && ids.Contains(snapshotA) && ids.Contains(snapshotB)),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new ArchitectureDiagramReconciliationSnapshotRunRecord { SnapshotId = snapshotA, RunId = sharedRunId },
+                new ArchitectureDiagramReconciliationSnapshotRunRecord { SnapshotId = snapshotB, RunId = sharedRunId },
+            ]);
+
+        Mock<IAuthorityQueryService> authorityQuery = new();
+        authorityQuery
+            .Setup(service => service.ListRunManifestCompareSlicesAsync(
+                Scope,
+                It.Is<IReadOnlyList<Guid>>(ids => ids.Count == 1 && ids[0] == sharedRunId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RunManifestCompareSliceDto
+                {
+                    RunId = sharedRunId,
+                    Run = new RunRecord { RunId = sharedRunId },
+                    GoldenManifest = new ArchLucid.Core.Manifest.ManifestDocument
+                    {
+                        RunId = sharedRunId,
+                        ManifestHash = ArchLucid.TestSupport.SealedManifest.SealedManifestHashTestSupport.DefaultHash,
+                    },
+                },
+            ]);
+
+        InfraEvidenceDriftWorkbenchQueryService service = new(
+            snapshotRepository.Object,
+            new Mock<IAzureInventoryDiffRepository>().Object,
+            reconciliation.Object,
+            authorityQuery.Object,
+            ArchLucid.TestSupport.SealedManifest.SealedManifestHashTestSupport.CreateManifestHashService());
+
+        PagedResponse<AzureInventorySnapshotRecord> response =
+            await service.ListSnapshotsAsync(Scope, 1, 50, null, CancellationToken.None);
+
+        response.Items.Should().HaveCount(2);
+        reconciliation.Verify(
+            repo => repo.ListRunIdsBySnapshotAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        reconciliation.Verify(
+            repo => repo.ListRunIdsBySnapshotIdsAsync(
+                Scope.TenantId,
+                It.IsAny<IReadOnlyList<Guid>>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        authorityQuery.Verify(
+            service => service.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        authorityQuery.Verify(
+            service => service.ListRunManifestCompareSlicesAsync(
+                Scope,
+                It.Is<IReadOnlyList<Guid>>(ids => ids.Count == 1 && ids[0] == sharedRunId),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
 
     [Fact]
     public async Task ListChangesForDiffAsync_without_includeUnchanged_loads_all_changes()
@@ -76,39 +165,29 @@ public sealed class InfraEvidenceDriftWorkbenchQueryServiceTests
 
         Mock<IAzureInventorySnapshotRepository> snapshotRepository = new();
         snapshotRepository
-            .Setup(repo => repo.TryGetSnapshotDetailAsync(Scope, snapshotId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new AzureInventorySnapshotDetailReadModel
-            {
-                Header = new AzureInventorySnapshotRecord
+            .Setup(repo => repo.ListResourcesBySnapshotIdAsync(Scope, snapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new AzureInventoryResourceRecord
                 {
+                    ResourceRowId = resourceRowId,
                     SnapshotId = snapshotId,
                     TenantId = Scope.TenantId,
-                    SubscriptionId = "sub",
-                    CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+                    CloudResourceId = cloudResourceId,
+                    AzureResourceId =
+                        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/gw",
+                    ResourceType = "Microsoft.Network/publicIPAddresses",
                 },
-                Resources =
-                [
-                    new AzureInventoryResourceRecord
-                    {
-                        ResourceRowId = resourceRowId,
-                        SnapshotId = snapshotId,
-                        TenantId = Scope.TenantId,
-                        CloudResourceId = cloudResourceId,
-                        AzureResourceId =
-                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/gw",
-                        ResourceType = "Microsoft.Network/publicIPAddresses",
-                    },
-                    new AzureInventoryResourceRecord
-                    {
-                        ResourceRowId = Guid.NewGuid(),
-                        SnapshotId = snapshotId,
-                        TenantId = Scope.TenantId,
-                        AzureResourceId =
-                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationsManagement/solutions/Security",
-                        ResourceType = "Microsoft.OperationsManagement/solutions",
-                    },
-                ],
-            });
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.NewGuid(),
+                    SnapshotId = snapshotId,
+                    TenantId = Scope.TenantId,
+                    AzureResourceId =
+                        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationsManagement/solutions/Security",
+                    ResourceType = "Microsoft.OperationsManagement/solutions",
+                },
+            ]);
 
         InfraEvidenceDriftWorkbenchQueryService service = CreateService(snapshotRepository: snapshotRepository.Object);
 
@@ -165,51 +244,41 @@ public sealed class InfraEvidenceDriftWorkbenchQueryServiceTests
             ChangeType = AzureInventoryChangeType.ResourceAdded,
         };
 
-        AzureInventorySnapshotDetailReadModel snapshotDetail = new()
-        {
-            Header = new AzureInventorySnapshotRecord
+        IReadOnlyList<AzureInventoryResourceRecord> snapshotResources =
+        [
+            new AzureInventoryResourceRecord
             {
+                ResourceRowId = Guid.NewGuid(),
                 SnapshotId = snapshotAId,
                 TenantId = Scope.TenantId,
-                SubscriptionId = "sub",
-                CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+                AzureResourceId = unchangedArmId,
+                ResourceType = "Microsoft.Storage/storageAccounts",
             },
-            Resources =
-            [
-                new AzureInventoryResourceRecord
-                {
-                    ResourceRowId = Guid.NewGuid(),
-                    SnapshotId = snapshotAId,
-                    TenantId = Scope.TenantId,
-                    AzureResourceId = unchangedArmId,
-                    ResourceType = "Microsoft.Storage/storageAccounts",
-                },
-                new AzureInventoryResourceRecord
-                {
-                    ResourceRowId = Guid.NewGuid(),
-                    SnapshotId = snapshotAId,
-                    TenantId = Scope.TenantId,
-                    AzureResourceId = changedArmId,
-                    ResourceType = "Microsoft.Compute/virtualMachines",
-                },
-                new AzureInventoryResourceRecord
-                {
-                    ResourceRowId = Guid.NewGuid(),
-                    SnapshotId = snapshotAId,
-                    TenantId = Scope.TenantId,
-                    AzureResourceId = omittedSolutionArmId,
-                    ResourceType = string.Empty,
-                },
-                new AzureInventoryResourceRecord
-                {
-                    ResourceRowId = Guid.NewGuid(),
-                    SnapshotId = snapshotAId,
-                    TenantId = Scope.TenantId,
-                    AzureResourceId = omittedLinkArmId,
-                    ResourceType = "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
-                },
-            ],
-        };
+            new AzureInventoryResourceRecord
+            {
+                ResourceRowId = Guid.NewGuid(),
+                SnapshotId = snapshotAId,
+                TenantId = Scope.TenantId,
+                AzureResourceId = changedArmId,
+                ResourceType = "Microsoft.Compute/virtualMachines",
+            },
+            new AzureInventoryResourceRecord
+            {
+                ResourceRowId = Guid.NewGuid(),
+                SnapshotId = snapshotAId,
+                TenantId = Scope.TenantId,
+                AzureResourceId = omittedSolutionArmId,
+                ResourceType = string.Empty,
+            },
+            new AzureInventoryResourceRecord
+            {
+                ResourceRowId = Guid.NewGuid(),
+                SnapshotId = snapshotAId,
+                TenantId = Scope.TenantId,
+                AzureResourceId = omittedLinkArmId,
+                ResourceType = "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+            },
+        ];
 
         Mock<IAzureInventoryDiffRepository> diffRepository = new();
         diffRepository
@@ -221,11 +290,11 @@ public sealed class InfraEvidenceDriftWorkbenchQueryServiceTests
 
         Mock<IAzureInventorySnapshotRepository> snapshotRepository = new();
         snapshotRepository
-            .Setup(repo => repo.TryGetSnapshotDetailAsync(Scope, snapshotAId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(snapshotDetail);
+            .Setup(repo => repo.ListResourcesBySnapshotIdAsync(Scope, snapshotAId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(snapshotResources);
         snapshotRepository
-            .Setup(repo => repo.TryGetSnapshotDetailAsync(Scope, snapshotBId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(snapshotDetail);
+            .Setup(repo => repo.ListResourcesBySnapshotIdAsync(Scope, snapshotBId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(snapshotResources);
 
         InfraEvidenceDriftWorkbenchQueryService service = CreateService(
             snapshotRepository: snapshotRepository.Object,
@@ -257,6 +326,9 @@ public sealed class InfraEvidenceDriftWorkbenchQueryServiceTests
                 It.IsAny<int>(),
                 It.IsAny<Guid?>(),
                 It.IsAny<CancellationToken>()),
+            Times.Never);
+        snapshotRepository.Verify(
+            repo => repo.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -303,7 +375,8 @@ public sealed class InfraEvidenceDriftWorkbenchQueryServiceTests
 
     private static InfraEvidenceDriftWorkbenchQueryService CreateService(
         IAzureInventorySnapshotRepository? snapshotRepository = null,
-        IAzureInventoryDiffRepository? diffRepository = null)
+        IAzureInventoryDiffRepository? diffRepository = null,
+        IArchitectureDiagramReconciliationRepository? reconciliationRepository = null)
     {
         Mock<IArchitectureDiagramReconciliationRepository> reconciliation = new();
         reconciliation
@@ -312,11 +385,17 @@ public sealed class InfraEvidenceDriftWorkbenchQueryServiceTests
                 It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(Array.Empty<Guid>());
+        reconciliation
+            .Setup(repo => repo.ListRunIdsBySnapshotIdsAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<IReadOnlyList<Guid>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<ArchitectureDiagramReconciliationSnapshotRunRecord>());
 
         return new InfraEvidenceDriftWorkbenchQueryService(
             snapshotRepository ?? new Mock<IAzureInventorySnapshotRepository>().Object,
             diffRepository ?? new Mock<IAzureInventoryDiffRepository>().Object,
-            reconciliation.Object,
+            reconciliationRepository ?? reconciliation.Object,
             new Mock<IAuthorityQueryService>().Object,
             new Mock<IManifestHashService>().Object);
     }

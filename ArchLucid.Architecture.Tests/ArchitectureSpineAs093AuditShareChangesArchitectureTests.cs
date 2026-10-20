@@ -56,6 +56,9 @@ public sealed class ArchitectureSpineAs093AuditShareChangesArchitectureTests
         source.Should().Contain("ArchitectureRestrictToSharesEnabledMissingAudit");
         source.Should().Contain("ArchitectureIdentity.ShareGranted");
         source.Should().Contain("ArchitectureIdentity.RestrictToSharesEnabled");
+        source.Should().Contain("s.ActorOid");
+        source.Should().Contain("$.targetActorOid");
+        source.Should().NotContain("s.UserId");
     }
 
     private static string FindRepoRoot()

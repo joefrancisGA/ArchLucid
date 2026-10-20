@@ -5,9 +5,9 @@ import { chromium } from "playwright";
 
 const uiRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const baseUrl = process.env.SECURENOW_BASE_URL ?? "http://127.0.0.1:3001";
-const href = "/infrastructure/extract-upload";
+const href = "/infrastructure/manual-upload";
 const outputDir = path.join(uiRoot, "public", "screenshots", "securenow-ui-rate");
-const outputPath = path.join(outputDir, "infrastructure-extract-upload.png");
+const outputPath = path.join(outputDir, "infrastructure-manual-upload.png");
 
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });

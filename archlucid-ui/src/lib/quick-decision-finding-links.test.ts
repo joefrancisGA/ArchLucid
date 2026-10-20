@@ -41,6 +41,12 @@ describe("quickDecisionRecommendationSnippet", () => {
       QUICK_DECISION_RECOMMENDATION_FALLBACK,
     );
   });
+
+  it("labels whitespace recommendations as stored empty", () => {
+    expect(quickDecisionRecommendationSnippet(finding({ recommendation: " " }))).toBe(
+      "Recommended action was stored empty.",
+    );
+  });
 });
 
 describe("quickDecisionWorkItemSeverityLabel", () => {
@@ -48,11 +54,11 @@ describe("quickDecisionWorkItemSeverityLabel", () => {
     expect(quickDecisionWorkItemSeverityLabel(null)).toBe("Severity was not stored");
   });
 
-  it("maps the numeric severity scale to work-item wording", () => {
-    expect(quickDecisionWorkItemSeverityLabel(4)).toBe("High");
-    expect(quickDecisionWorkItemSeverityLabel(3)).toBe("High");
-    expect(quickDecisionWorkItemSeverityLabel(2)).toBe("Medium");
-    expect(quickDecisionWorkItemSeverityLabel(1)).toBe("Low");
+  it("maps the numeric severity scale to the same labels as finding cards", () => {
+    expect(quickDecisionWorkItemSeverityLabel(4)).toBe("4");
+    expect(quickDecisionWorkItemSeverityLabel(3)).toBe("Critical");
+    expect(quickDecisionWorkItemSeverityLabel(2)).toBe("High");
+    expect(quickDecisionWorkItemSeverityLabel(1)).toBe("Medium");
     expect(quickDecisionWorkItemSeverityLabel(0)).toBe("Info");
   });
 });

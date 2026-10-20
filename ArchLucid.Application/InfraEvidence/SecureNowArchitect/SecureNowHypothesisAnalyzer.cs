@@ -34,10 +34,20 @@ internal static class SecureNowHypothesisAnalyzer
                     ? ids
                     : [];
 
-            AddDiagnosticHypotheses(hypotheses, path, hops, citingFindingIds);
+            hypotheses.AddRange(AnalyzeDiagnosticHypothesesForPath(path, hops, citingFindingIds));
         }
 
         hypotheses.AddRange(AnalyzeCommonModeDependencies(paths));
+        return hypotheses;
+    }
+
+    internal static IReadOnlyList<SecureNowHypothesisResponse> AnalyzeDiagnosticHypothesesForPath(
+        SecurityEvidencePathRecord path,
+        IReadOnlyList<SecurityEvidencePathHopRecord> hops,
+        IReadOnlyList<Guid> citingFindingIds)
+    {
+        List<SecureNowHypothesisResponse> hypotheses = [];
+        AddDiagnosticHypotheses(hypotheses, path, hops, citingFindingIds);
         return hypotheses;
     }
 
@@ -92,7 +102,7 @@ internal static class SecureNowHypothesisAnalyzer
         }
     }
 
-    private static IReadOnlyList<SecureNowHypothesisResponse> AnalyzeCommonModeDependencies(
+    internal static IReadOnlyList<SecureNowHypothesisResponse> AnalyzeCommonModeDependencies(
         IReadOnlyList<(
             SecurityEvidencePathRecord Path,
             IReadOnlyList<SecurityEvidencePathHopRecord> Hops)> paths)

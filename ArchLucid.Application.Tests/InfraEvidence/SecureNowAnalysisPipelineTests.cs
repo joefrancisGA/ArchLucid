@@ -197,9 +197,15 @@ public sealed class SecureNowAnalysisPipelineTests(ITestOutputHelper output)
             findings.Setup(r => r.IngestBatchAsync(It.IsAny<ScopeContext>(), It.IsAny<IReadOnlyList<OperationalSecurityFindingIngestItem>>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new OperationalSecurityFindingBatchIngestResult());
 
-            _privilege = new PrivilegePathEngine(snapshots.Object, paths.Object, findings.Object, NullLogger<PrivilegePathEngine>.Instance);
-            _reachability = new IntendedReachabilityEngine(snapshots.Object, paths.Object, findings.Object, NullLogger<IntendedReachabilityEngine>.Instance);
-            _toxic = new ToxicCombinationEngine(snapshots.Object, paths.Object, findings.Object, NullLogger<ToxicCombinationEngine>.Instance);
+            NoOpSecurityEvidencePathSearchCoverageRepository searchCoverage = new();
+            _privilege = new PrivilegePathEngine(snapshots.Object, paths.Object, findings.Object, NullLogger<PrivilegePathEngine>.Instance, searchCoverage);
+            _reachability = new IntendedReachabilityEngine(snapshots.Object, paths.Object, findings.Object, NullLogger<IntendedReachabilityEngine>.Instance, searchCoverage);
+            _toxic = new ToxicCombinationEngine(
+                snapshots.Object,
+                paths.Object,
+                findings.Object,
+                NullLogger<ToxicCombinationEngine>.Instance,
+                searchCoverage);
             _capability = new CapabilityToFlowEngine(snapshots.Object, paths.Object, findings.Object, NullLogger<CapabilityToFlowEngine>.Instance);
             _shared = new SharedControlBlastRadiusEngine(snapshots.Object, paths.Object, findings.Object, NullLogger<SharedControlBlastRadiusEngine>.Instance);
             _drift = new FourRealityDriftEngine(snapshots.Object, diffs.Object, reconciliation.Object, paths.Object, findings.Object, NullLogger<FourRealityDriftEngine>.Instance);

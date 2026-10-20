@@ -65,6 +65,10 @@ public interface IRemediationWaveService
     Task<IReadOnlyList<RemediationWaveRecord>> ListWavesAsync(
         ScopeContext scope,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyDictionary<Guid, int>> GetMemberCountsByScopeAsync(
+        ScopeContext scope,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed class RemediationWaveService(
@@ -143,19 +147,17 @@ public sealed class RemediationWaveService(
             },
             cancellationToken);
 
-        IReadOnlyList<RemediationInstanceRecord> scopedInstances =
-            await instanceRepository.ListByScopeAsync(projectScope, cancellationToken);
+        IReadOnlyDictionary<Guid, RemediationInstanceRecord> approvedInstancesByFindingId =
+            await instanceRepository.ListLatestApprovedByFindingIdsInScopeAsync(
+                projectScope,
+                selected.Select(item => item.FindingId).ToArray(),
+                cancellationToken);
 
         int rank = 1;
 
         foreach (RemediationPrioritizedFinding finding in selected)
         {
-            RemediationInstanceRecord? approvedInstance = scopedInstances
-                .Where(item =>
-                    item.FindingId == finding.FindingId
-                    && item.Status == RemediationInstanceStatus.Approved)
-                .OrderByDescending(item => item.UpdatedUtc)
-                .FirstOrDefault();
+            approvedInstancesByFindingId.TryGetValue(finding.FindingId, out RemediationInstanceRecord? approvedInstance);
 
             await waveRepository.InsertMemberInScopeAsync(
                 projectScope,
@@ -219,6 +221,15 @@ public sealed class RemediationWaveService(
         ArgumentNullException.ThrowIfNull(scope);
 
         return await waveRepository.ListByScopeAsync(scope.ToProjectScopeKey(), cancellationToken);
+    }
+
+    public Task<IReadOnlyDictionary<Guid, int>> GetMemberCountsByScopeAsync(
+        ScopeContext scope,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return waveRepository.CountMembersByWaveInScopeAsync(scope.ToProjectScopeKey(), cancellationToken);
     }
 
     private static RemediationWaveOperationResult Failed(string message) =>

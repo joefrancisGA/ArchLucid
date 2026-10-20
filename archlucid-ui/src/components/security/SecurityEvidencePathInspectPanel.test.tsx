@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { REMEDIATION_FACTORY_PATH_INSPECT_PANEL_ID } from "@/app/(operator)/governance/remediation-factory/remediation-factory-page-copy";
 import { SecurityEvidencePathInspectPanel } from "@/components/security/SecurityEvidencePathInspectPanel";
 import {
   SECURENOW_PATH_INSPECT_EMPTY_NO_PATH,
@@ -58,6 +59,79 @@ function renderPanel(
 }
 
 describe("SecurityEvidencePathInspectPanel", () => {
+  it("shows the path rank reader sentence on the identity header", () => {
+    vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useOperationalSecurityFindingDetailQuery>);
+    vi.mocked(useSecurityEvidencePathDetailQuery).mockReturnValue({
+      data: {
+        pathId: "path-1",
+        snapshotId: "snapshot-1",
+        pathKind: "PrivilegePath",
+        pathConfidenceBand: "HighlyLikely",
+        weakestHopOrdinal: 1,
+        weakestHopReason: "Gap",
+        hops: [],
+        weakestHop: null,
+        explanationTemplate: {
+          actor: null,
+          identity: null,
+          network: null,
+          asset: null,
+          weakControl: null,
+          proposedChange: "",
+          verify: "",
+          architectSentence: null,
+        },
+        relatedCutPoints: [],
+        routing: [],
+      },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathDetailQuery>);
+    vi.mocked(useSecurityEvidencePathRankQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
+
+    renderPanel(null, {
+      pathIdOverride: "path-1",
+      selectedPath: {
+        pathId: "path-1",
+        snapshotId: "snapshot-1",
+        rankOrder: 1,
+        ruleVersion: "SA-09-v1",
+        technicalExposureScore: 0.9,
+        privilegeDepthScore: 0.8,
+        blastRadiusScore: 0.1,
+        businessConsequenceScore: null,
+        confidenceBandScore: 0.6,
+        compositeSortScore: 0.8123,
+        explanationSummary: "SA09-rank-v1: stored summary for disclosure.",
+        pathKind: "PrivilegePath",
+        pathConfidenceBand: "HighlyLikely",
+        computedUtc: "2026-01-01T00:00:00Z",
+        relatedCutPoints: [],
+      },
+    });
+
+    const identity = screen.getByTestId("security-evidence-path-inspect-identity");
+    expect(identity).toHaveTextContent("Exposed on the network. Deep privilege.");
+    expect(identity).not.toHaveTextContent("SA09-rank-v1");
+    expect(identity).not.toHaveTextContent("0.8123");
+
+    fireEvent.click(screen.getByTestId("security-evidence-path-rank-rule-path-1"));
+    expect(identity).toHaveTextContent("SA09-rank-v1: stored summary for disclosure.");
+
+    fireEvent.click(screen.getByTestId("security-evidence-path-rank-sort-key-path-1"));
+    expect(identity).toHaveTextContent(
+      "Composite sort key 0.8123. Ordering only — not a percentage, probability, or live risk score.",
+    );
+  });
+
   it("shows subject identity and compact empty copy when nothing is selected", () => {
     vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
       data: undefined,
@@ -84,6 +158,68 @@ describe("SecurityEvidencePathInspectPanel", () => {
     });
 
     expect(screen.getByTestId("security-evidence-path-inspect-select-prompt")).toBeInTheDocument();
+  });
+
+  it("hides the finding sort key until Show sort key is opened", () => {
+    vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
+      data: { findingId: "finding-1", pathId: "path-1", title: "Path finding" },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useOperationalSecurityFindingDetailQuery>);
+    vi.mocked(useSecurityEvidencePathDetailQuery).mockReturnValue({
+      data: {
+        pathId: "path-1",
+        snapshotId: "snapshot-1",
+        pathKind: "PrivilegePath",
+        pathConfidenceBand: "HighlyLikely",
+        weakestHopOrdinal: 1,
+        weakestHopReason: "Gap",
+        hops: [],
+        weakestHop: null,
+        explanationTemplate: {
+          actor: null,
+          identity: null,
+          network: null,
+          asset: null,
+          weakControl: null,
+          proposedChange: "",
+          verify: "",
+          architectSentence: null,
+        },
+        relatedCutPoints: [],
+        routing: [],
+      },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathDetailQuery>);
+    vi.mocked(useSecurityEvidencePathRankQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
+
+    renderPanel("finding-1", {
+      selectedFinding: {
+        findingId: "finding-1",
+        totalScore: 0.5,
+        explanationSummary: "Sample",
+        breakdownJson: "[]",
+        controlId: "AC-2",
+        patternKey: "storage.encrypt",
+        rankOrder: 3,
+      },
+      selectedPath: null,
+    });
+
+    const identity = screen.getByTestId("security-evidence-path-inspect-identity");
+    expect(identity).toHaveTextContent("Finding rank 3");
+    expect(identity).not.toHaveTextContent("Sort key 0.5000");
+    expect(identity).not.toHaveTextContent("0.5000");
+
+    fireEvent.click(screen.getByTestId("remediation-priority-sort-key-finding-1"));
+    expect(identity).toHaveTextContent(
+      "Sort key 0.5000. Ordering only — not a percentage, probability, or live risk score.",
+    );
   });
 
   it("shows resource-scoped empty copy when finding has no pathId", () => {
@@ -187,6 +323,9 @@ describe("SecurityEvidencePathInspectPanel", () => {
             explanationSummary: "Remove public network path before privilege hop.",
             suggestedPatternKey: "network.restrict-public",
             operationalCostClass: "Low",
+            pathsCollapsedCount: 1,
+            leverageScore: 1,
+            collapsedPathIds: [],
           },
         ],
         routing: [
@@ -251,7 +390,7 @@ describe("SecurityEvidencePathInspectPanel", () => {
       "Rank was not stored",
     );
     expect(screen.getByTestId("security-evidence-path-inspect-subject")).toHaveTextContent(
-      "Control was not stored",
+      "Control id was not stored",
     );
     expect(screen.getByTestId("security-evidence-path-routing")).toHaveTextContent("Owner was not stored");
     expect(screen.getByTestId("security-evidence-path-rank-dimension-blastRadius")).toHaveTextContent(
@@ -272,9 +411,10 @@ describe("SecurityEvidencePathInspectPanel", () => {
     expect(screen.queryByText(/\d+%/)).not.toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-cut-points")).toBeInTheDocument();
     expect(screen.getByText("Where you could break this path.")).toBeInTheDocument();
-    expect(screen.getByTestId("security-evidence-path-rank-lead")).toHaveTextContent(
-      "High privilege depth with public exposure.",
+    expect(screen.getByTestId("security-evidence-path-rank-reader-path-1")).toHaveTextContent(
+      "Exposed on the network. Wide blast radius.",
     );
+    expect(screen.getByTestId("security-evidence-path-rank")).not.toHaveTextContent("0.7123");
     expect(screen.getByTestId("security-evidence-path-band-weakest-hop-limit")).toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-routing")).toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-decision-readiness")).toHaveTextContent("Verify evidence before action");
@@ -494,5 +634,55 @@ describe("SecurityEvidencePathInspectPanel", () => {
 
     expect(screen.getByText("Highly likely")).toBeInTheDocument();
     expect(screen.queryByTestId("security-evidence-path-inspect-empty")).not.toBeInTheDocument();
+  });
+
+  it("puts an optional id on the path inspect section", () => {
+    vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useOperationalSecurityFindingDetailQuery>);
+    vi.mocked(useSecurityEvidencePathDetailQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathDetailQuery>);
+    vi.mocked(useSecurityEvidencePathRankQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
+
+    renderPanel(null, { id: REMEDIATION_FACTORY_PATH_INSPECT_PANEL_ID });
+
+    expect(screen.getByTestId("security-evidence-path-inspect-panel")).toHaveAttribute(
+      "id",
+      "remediation-factory-path-inspect",
+    );
+  });
+
+  it("omits the factory panel id when no id is passed", () => {
+    vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useOperationalSecurityFindingDetailQuery>);
+    vi.mocked(useSecurityEvidencePathDetailQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathDetailQuery>);
+    vi.mocked(useSecurityEvidencePathRankQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
+
+    renderPanel(null);
+
+    expect(screen.getByTestId("security-evidence-path-inspect-panel")).not.toHaveAttribute(
+      "id",
+      REMEDIATION_FACTORY_PATH_INSPECT_PANEL_ID,
+    );
   });
 });

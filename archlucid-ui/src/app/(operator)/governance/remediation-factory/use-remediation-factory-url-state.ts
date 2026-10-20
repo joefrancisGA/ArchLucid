@@ -9,11 +9,13 @@ import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import {
   parseRemediationFactoryFindingIdFromSearch,
   parseRemediationFactoryPathIdFromSearch,
+  parseRemediationFactoryRankedPageFromSearch,
   parseRemediationFactorySnapshotIdFromSearch,
   remediationFactorySelectionHrefFromSearch,
   REMEDIATION_FACTORY_FINDING_ID_PARAM,
   REMEDIATION_FACTORY_FROM_SNAPSHOT_PARAM,
   REMEDIATION_FACTORY_PATH_ID_PARAM,
+  REMEDIATION_FACTORY_RANKED_PAGE_PARAM,
   REMEDIATION_FACTORY_TO_SNAPSHOT_PARAM,
 } from "./remediation-factory-url-state";
 
@@ -41,6 +43,10 @@ export function useRemediationFactoryUrlState(productLine: ProductLineId) {
     () => parseRemediationFactorySnapshotIdFromSearch(searchParams.get(REMEDIATION_FACTORY_TO_SNAPSHOT_PARAM)),
     [searchParams],
   );
+  const rankedPage = useMemo(
+    () => parseRemediationFactoryRankedPageFromSearch(searchParams.get(REMEDIATION_FACTORY_RANKED_PAGE_PARAM)),
+    [searchParams],
+  );
 
   const hasSnapshotPair = fromSnapshotId !== null && toSnapshotId !== null;
 
@@ -50,6 +56,7 @@ export function useRemediationFactoryUrlState(productLine: ProductLineId) {
       readonly pathId?: string | null;
       readonly fromSnapshot?: string | null;
       readonly toSnapshot?: string | null;
+      readonly rankedPage?: number;
     }) => {
       router.replace(remediationFactorySelectionHrefFromSearch(searchString, patch, resolvedPath), {
         scroll: false,
@@ -82,15 +89,24 @@ export function useRemediationFactoryUrlState(productLine: ProductLineId) {
     [syncSelection],
   );
 
+  const setRankedPage = useCallback(
+    (page: number) => {
+      syncSelection({ rankedPage: page });
+    },
+    [syncSelection],
+  );
+
   return {
     findingId,
     pathId,
     fromSnapshotId,
     toSnapshotId,
+    rankedPage,
     hasSnapshotPair,
     selectFinding,
     selectPath,
     setSnapshotPair,
+    setRankedPage,
     syncSelection,
   };
 }

@@ -74,6 +74,7 @@ public static class InventoryDiagramDataFlowTraversalHopClassifier
                 || associationType.Equals(AzureInventoryRelationshipAssociationTypes.SubnetToNsg, StringComparison.OrdinalIgnoreCase)
                 || associationType.Equals(AzureInventoryRelationshipAssociationTypes.NicToNsg, StringComparison.OrdinalIgnoreCase)
                 || associationType.Equals(AzureInventoryRelationshipAssociationTypes.DiagnosticToDestination, StringComparison.OrdinalIgnoreCase)
+                || associationType.Equals(AzureInventoryRelationshipAssociationTypes.DiagnosticSettingToStorage, StringComparison.OrdinalIgnoreCase)
                 || associationType.Equals(AzureInventoryRelationshipAssociationTypes.SubnetToRouteTable, StringComparison.OrdinalIgnoreCase))
             {
                 return true;
@@ -87,6 +88,8 @@ public static class InventoryDiagramDataFlowTraversalHopClassifier
                 || inferenceSource.Equals("inventory-nic-nsg", StringComparison.OrdinalIgnoreCase)
                 || inferenceSource.Equals("inventory-nsg-policy-attachment", StringComparison.OrdinalIgnoreCase)
                 || inferenceSource.Equals("inventory-diagnostic-destination", StringComparison.OrdinalIgnoreCase)
+                // Core cannot reference GraphEdgeInferenceSources; KnowledgeGraph already depends on Core.
+                || inferenceSource.Equals("inventory-diagnostic-setting-storage", StringComparison.OrdinalIgnoreCase)
                 || inferenceSource.Equals("inventory-subnet-route-table", StringComparison.OrdinalIgnoreCase);
         }
 

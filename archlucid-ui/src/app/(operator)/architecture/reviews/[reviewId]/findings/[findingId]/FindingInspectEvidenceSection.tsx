@@ -56,8 +56,18 @@ function evidenceCitationTitle(row: FindingInspectEvidence): string {
   return "Evidence excerpt was not stored.";
 }
 
-function evidenceLinkLabel(row: FindingInspectEvidence, fallbackLabel: string): string {
+const FINDING_INSPECT_EVIDENCE_LINK_NOT_STORED = "Evidence link was not stored." as const;
+
+function evidenceLinkLabel(
+  row: FindingInspectEvidence,
+  fallbackLabel: string,
+  hasDiagramCitation: boolean,
+): string {
   const artifact = row.artifactId?.trim() ?? "";
+
+  if (artifact.length > 0 && !hasDiagramCitation) {
+    return FINDING_INSPECT_EVIDENCE_LINK_NOT_STORED;
+  }
 
   if (artifact.length > 0) {
     return `Open ${artifact}`;
@@ -86,30 +96,6 @@ function EvidenceExcerptBody({ text }: { readonly text: string }): ReactElement 
   return <span className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>{text}</span>;
 }
 
-function DemoEvidenceScaffold(props: {
-  readonly reviewContextHref: string;
-}): ReactElement {
-  return (
-    <ul className={cn("mt-2 list-none space-y-3 p-0", OPERATOR_TYPOGRAPHY.body)}>
-      <li className="rounded-md border border-neutral-200 bg-white/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/60">
-        <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">Claims intake API schema</p>
-        <p className="m-0 mt-2 leading-relaxed text-neutral-800 dark:text-neutral-200">
-          Request schema includes unredacted member ID and date of birth fields referenced by the adjudication
-          subgraph.
-        </p>
-        <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          Linked in the evidence trail and Finalized review record for this review.
-        </p>
-        <div className="mt-2">
-          <Link href={props.reviewContextHref} className={OPERATOR_LINK.optional}>
-            Open cited evidence
-          </Link>
-        </div>
-      </li>
-    </ul>
-  );
-}
-
 function EvidenceCitationList(props: {
   readonly evidence: FindingInspectEvidence[];
   readonly reviewContextHref: string;
@@ -129,7 +115,7 @@ function EvidenceCitationList(props: {
 
   if (evidence.length === 0) {
     return (
-      <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No related graph citations on file.</p>
+      <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No evidence citations were stored.</p>
     );
   }
 
@@ -148,7 +134,9 @@ function EvidenceCitationList(props: {
                 props.pathname,
               )
             : (citationRow?.href ?? reviewContextHref);
-        const linkLabel = citationRow?.label ?? evidenceLinkLabel(row, reviewContextLabel);
+        const linkLabel =
+          citationRow?.label
+          ?? evidenceLinkLabel(row, reviewContextLabel, diagramCitation !== null);
         const citationSlug = evidenceCitationSlug(row, idx);
         const citationOpen = props.openCitationArtifactId === citationSlug;
 
@@ -174,14 +162,18 @@ function EvidenceCitationList(props: {
                 <div className={cn("mt-1 space-y-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   {row.lineRange === null || row.lineRange === undefined ? (
                     <p className="m-0">Line range was not stored.</p>
-                  ) : row.lineRange ? (
+                  ) : row.lineRange.length === 0 ? (
+                    <p className="m-0">Line range was stored empty.</p>
+                  ) : (
                     <p className="m-0">Lines: {row.lineRange}</p>
-                  ) : null}
+                  )}
                   {row.artifactId === null || row.artifactId === undefined ? (
                     <p className="m-0 font-mono">Evidence artifact id was not stored.</p>
-                  ) : row.artifactId ? (
+                  ) : row.artifactId.length === 0 ? (
+                    <p className="m-0 font-mono">Evidence artifact id was stored empty.</p>
+                  ) : (
                     <p className="m-0 font-mono">Artifact id: {row.artifactId}</p>
-                  ) : null}
+                  )}
                 </div>
               </details>
             ) : (
@@ -190,18 +182,28 @@ function EvidenceCitationList(props: {
                   <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     Line range was not stored.
                   </p>
-                ) : row.lineRange ? (
-                  <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Lines: {row.lineRange}</p>
-                ) : null}
+                ) : row.lineRange.length === 0 ? (
+                  <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    Line range was stored empty.
+                  </p>
+                ) : (
+                  <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    Lines: {row.lineRange}
+                  </p>
+                )}
                 {row.artifactId === null || row.artifactId === undefined ? (
                   <p className={cn("m-0 mt-1 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     Evidence artifact id was not stored.
                   </p>
-                ) : row.artifactId ? (
+                ) : row.artifactId.length === 0 ? (
+                  <p className={cn("m-0 mt-1 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    Evidence artifact id was stored empty.
+                  </p>
+                ) : (
                   <p className={cn("m-0 mt-1 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     Artifact id: {row.artifactId}
                   </p>
-                ) : null}
+                )}
               </>
             )}
             <div className="mt-2">
@@ -384,11 +386,9 @@ export function FindingInspectEvidenceSection({
       ) : null}
 
       {evidence.length === 0 ? (
-        demoFillGaps ? (
-          <DemoEvidenceScaffold reviewContextHref={reviewContextHref} />
-        ) : (
-          <EvidenceCitationList {...citationListProps} />
-        )
+        <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          No evidence citations were stored.
+        </p>
       ) : (
         <EvidenceCitationList {...citationListProps} />
       )}

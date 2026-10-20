@@ -65,6 +65,7 @@ import { API_KEYS_PAGE_TITLE } from "@/lib/api-keys-settings-copy";
 import { ALERTS_CONFIGURATION_PAGE_TITLE } from "@/lib/alerts-page-copy";
 import { PRODUCT_LINE_PLAYGROUND_TITLE } from "@/lib/product-line/product-line-copy";
 import { SECURENOW_INFRASTRUCTURE_DRIFT_LABEL } from "@/lib/product-line/securenow-infrastructure-home-copy";
+import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 
 /**
  * Static pathname → announcement title mappings for canonical architect workspace routes only.
@@ -119,7 +120,11 @@ export const ROUTE_TITLES: Record<string, string> = {
   [SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureDiagramReconcile,
   [GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureResources,
   [SECURENOW_INFRASTRUCTURE_RESOURCES_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureResources,
-  [SECURENOW_COLLECTION_AGENT_PATH]: "Collection agent",
+  [SECURENOW_COLLECTION_AGENT_PATH]: resolveSecureNowPageHeading(
+    "security",
+    "Collection Agent",
+    SECURENOW_COLLECTION_AGENT_PATH,
+  ),
   [GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureDeclaredConnections,
   [SECURENOW_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureDeclaredConnections,
   [GOVERNANCE_INFRASTRUCTURE_ASK_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureAsk,

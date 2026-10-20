@@ -156,6 +156,16 @@ public sealed class HostedAzureExtractorClient(
             accessToken.Token,
             cancellationToken).ConfigureAwait(false);
 
+        HostedAzureInventoryStaticSiteAndFabricAssociationCollectResult staticSiteAndFabricAssociations =
+            await HostedAzureInventoryStaticSiteAndFabricAssociationCollector.CollectAsync(
+                _armReadClient,
+                accessToken.Token,
+                resources,
+                _logger,
+                cancellationToken).ConfigureAwait(false);
+
+        networkAssociations.AddRange(staticSiteAndFabricAssociations.Associations);
+
         HostedAzureEffectiveNetworkControlCollectResult effectiveNetworkControls = await HostedAzureEffectiveNetworkControlCollector
             .CollectAsync(_armReadClient, accessToken.Token, resources, _logger, cancellationToken)
             .ConfigureAwait(false);
@@ -178,6 +188,7 @@ public sealed class HostedAzureExtractorClient(
             subscriptionId,
             resources,
             accessToken.Token,
+            request.IncludeAppSettingsHosts,
             cancellationToken).ConfigureAwait(false);
 
         IReadOnlyList<AzureInventoryRecoveryServicesProtectedItemRow> recoveryServicesProtectedItems =
@@ -193,6 +204,7 @@ public sealed class HostedAzureExtractorClient(
             collectionWarnings.Add(AzureInventoryDiagnosticCompletenessWarningCodes.PartialCollection);
         }
 
+        collectionWarnings.AddRange(staticSiteAndFabricAssociations.CollectionWarnings);
         collectionWarnings.AddRange(diagramEnrichment.CollectionWarnings);
         collectionWarnings.AddRange(aksWorkloadImageResult.CollectionWarnings);
 
@@ -410,6 +422,16 @@ public sealed class HostedAzureExtractorClient(
             accessTokenValue,
             cancellationToken).ConfigureAwait(false);
 
+        HostedAzureInventoryStaticSiteAndFabricAssociationCollectResult staticSiteAndFabricAssociations =
+            await HostedAzureInventoryStaticSiteAndFabricAssociationCollector.CollectAsync(
+                _armReadClient,
+                accessTokenValue,
+                resources,
+                _logger,
+                cancellationToken).ConfigureAwait(false);
+
+        networkAssociations.AddRange(staticSiteAndFabricAssociations.Associations);
+
         HostedAzureEffectiveNetworkControlCollectResult effectiveNetworkControls = await HostedAzureEffectiveNetworkControlCollector
             .CollectAsync(_armReadClient, accessTokenValue, resources, _logger, cancellationToken)
             .ConfigureAwait(false);
@@ -432,6 +454,7 @@ public sealed class HostedAzureExtractorClient(
             subscriptionId: null,
             resources,
             accessTokenValue,
+            request.IncludeAppSettingsHosts,
             cancellationToken).ConfigureAwait(false);
 
         IReadOnlyList<AzureInventoryRecoveryServicesProtectedItemRow> recoveryServicesProtectedItems =
@@ -447,6 +470,7 @@ public sealed class HostedAzureExtractorClient(
             collectionWarnings.Add(AzureInventoryDiagnosticCompletenessWarningCodes.PartialCollection);
         }
 
+        collectionWarnings.AddRange(staticSiteAndFabricAssociations.CollectionWarnings);
         collectionWarnings.AddRange(diagramEnrichment.CollectionWarnings);
 
         if (request.IncludeCost)
@@ -541,6 +565,7 @@ public sealed class HostedAzureExtractorClient(
         string? subscriptionId,
         IReadOnlyList<HostedAzureArmResourceRecord> resources,
         string accessToken,
+        bool includeAppSettingsHosts,
         CancellationToken cancellationToken)
     {
         if (_armReadClient is not GetOnlyHostedAzureArmReadClient concreteArmReadClient)
@@ -553,6 +578,7 @@ public sealed class HostedAzureExtractorClient(
             accessToken,
             subscriptionId,
             resources,
+            includeAppSettingsHosts,
             _logger,
             cancellationToken).ConfigureAwait(false);
     }

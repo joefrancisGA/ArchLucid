@@ -6,8 +6,13 @@ import { ROUTE_TITLES } from "@/lib/route-static-titles";
 import { productLineMicrosoftTeamsLabel } from "@/lib/product-line/product-line-display-name";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
+import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 import { SECURENOW_NAV_LABELS } from "@/lib/product-line/securenow-nav-labels";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
+
+function resolveOperatorRouteTitle(title: string, productLineId: ProductLineId, secureNowNavHref: string): string {
+  return resolveSecureNowPageHeading(productLineId, title, secureNowNavHref);
+}
 
 /** Human-readable title for route announcements and accessibility copy. */
 export function getRouteTitle(pathname: string, productLineId: ProductLineId = resolveProductLineIdFromEnv()): string {
@@ -35,15 +40,15 @@ export function getRouteTitle(pathname: string, productLineId: ProductLineId = r
   const hashedCanonical = canonicalizeLegacyOperatorRoutePath(withoutQuery);
 
   if (ROUTE_TITLES[hashedCanonical] !== undefined) {
-    return ROUTE_TITLES[hashedCanonical];
+    return resolveOperatorRouteTitle(ROUTE_TITLES[hashedCanonical], productLineId, lookupPath);
   }
 
   if (ROUTE_TITLES[withoutQuery] !== undefined) {
-    return ROUTE_TITLES[withoutQuery];
+    return resolveOperatorRouteTitle(ROUTE_TITLES[withoutQuery], productLineId, lookupPath);
   }
 
   if (ROUTE_TITLES[lookupPath] !== undefined) {
-    return ROUTE_TITLES[lookupPath];
+    return resolveOperatorRouteTitle(ROUTE_TITLES[lookupPath], productLineId, lookupPath);
   }
 
   if (/^\/architecture\/reviews\/[^/]+$/.test(normalized)) {

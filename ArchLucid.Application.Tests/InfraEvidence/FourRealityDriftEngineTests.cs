@@ -229,8 +229,12 @@ public sealed class FourRealityDriftEngineTests
                 .ReturnsAsync(PriorSnapshotId);
 
             snapshotRepository
-                .Setup(repository => repository.TryGetSnapshotDetailAsync(scope, PriorSnapshotId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(priorSnapshot);
+                .Setup(repository => repository.ListResourcesAndPropertiesByCloudResourceIdsAsync(
+                    scope,
+                    PriorSnapshotId,
+                    It.IsAny<IReadOnlyList<Guid>>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync((priorSnapshot.Resources, priorSnapshot.Properties));
         }
 
         Mock<IAzureInventoryDiffRepository> diffRepository = new();
@@ -252,13 +256,17 @@ public sealed class FourRealityDriftEngineTests
                 });
 
             diffRepository
-                .Setup(repository => repository.ListChangesByDiffIdAsync(scope, DiffId, It.IsAny<CancellationToken>()))
+                .Setup(repository => repository.ListChangesByDiffIdAndCloudResourceIdsAsync(
+                    scope,
+                    DiffId,
+                    It.IsAny<IReadOnlyList<Guid>>(),
+                    It.IsAny<CancellationToken>()))
                 .ReturnsAsync(diffChanges);
         }
 
         Mock<IArchitectureDiagramReconciliationRepository> reconciliationRepository = new();
         reconciliationRepository
-            .Setup(repository => repository.ListRunIdsBySnapshotAsync(scope.TenantId, CurrentSnapshotId, It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.ListBySnapshotAsync(scope.TenantId, CurrentSnapshotId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         OperationalSecurityFindingIngestService ingestService = CreateIngestService(findingRepository);

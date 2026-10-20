@@ -1,4 +1,4 @@
-import { coerceComplianceRuleKey, inferPolicyPackDisplayNameFromComplianceRuleKey } from "@/lib/policy/policy-pack-rule-key-prefix-catalog";
+import { coerceComplianceRuleKey } from "@/lib/policy/policy-pack-rule-key-prefix-catalog";
 import { firstRecommendationSentence, severityBadgeLabel, type QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
@@ -6,6 +6,8 @@ import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/find
 export const FINDING_DERIVATION_NOT_AVAILABLE = "Derivation not available";
 export const FINDING_DERIVATION_ASSEMBLED_PREFIX =
   "Assembled from stored rule and evidence fields, not a stored explanation.";
+export const FINDING_DERIVATION_ASSEMBLED_RULE_ONLY_PREFIX =
+  "Assembled from stored rule fields, not a stored explanation.";
 
 export type FindingDerivationInput = {
   readonly ruleName?: string | null;
@@ -14,8 +16,11 @@ export type FindingDerivationInput = {
   readonly severityLabel?: string | null;
   readonly evidenceRefCount?: number | null;
   readonly evidenceClass?: string | null;
+  readonly traceConfidenceLabel?: string | null;
   readonly reasoningSummary?: string | null;
 };
+
+const TRACE_CONFIDENCE_NOT_ARTIFACT_SUFFIX = "This is not a cited evidence artifact.";
 
 export type FindingDerivationResult = {
   readonly sentence: string;
@@ -35,44 +40,74 @@ function nonEmpty(value: string | null | undefined): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
-function resolveRuleLabel(input: FindingDerivationInput): string | null {
+type ResolvedRulePhrase = {
+  readonly text: string;
+  readonly quotedName: boolean;
+};
+
+function resolveRulePhrase(input: FindingDerivationInput): ResolvedRulePhrase | null {
   const explicitName = nonEmpty(input.ruleName);
 
   if (explicitName !== null) {
-    return explicitName;
+    return { text: explicitName, quotedName: true };
   }
 
   const ruleId = nonEmpty(input.ruleId);
 
   if (ruleId !== null) {
-    return inferPolicyPackDisplayNameFromComplianceRuleKey(ruleId) ?? ruleId;
-  }
-
-  return nonEmpty(input.categoryLabel);
-}
-
-function evidencePhrase(input: FindingDerivationInput): string | null {
-  const count =
-    typeof input.evidenceRefCount === "number" && Number.isFinite(input.evidenceRefCount)
-      ? Math.max(0, Math.trunc(input.evidenceRefCount))
-      : null;
-
-  if (count !== null && count > 0) {
-    return `${count} cited evidence reference${count === 1 ? "" : "s"}`;
-  }
-
-  const evidenceClass = nonEmpty(input.evidenceClass);
-
-  if (evidenceClass !== null) {
-    return `${evidenceClass} evidence`;
+    return { text: `Rule name was not stored. Rule id ${ruleId}`, quotedName: false };
   }
 
   return null;
 }
 
-function assembledSentence(sentence: string): FindingDerivationResult {
+function resolveCategoryOnlyLead(categoryLabel: string | null): string | null {
+  if (categoryLabel === null) {
+    return null;
+  }
+
+  return `Policy area ${categoryLabel}. Rule name was not stored.`;
+}
+
+function citedEvidenceRefCount(input: FindingDerivationInput): number | null {
+  if (typeof input.evidenceRefCount !== "number" || !Number.isFinite(input.evidenceRefCount)) {
+    return null;
+  }
+
+  return Math.max(0, Math.trunc(input.evidenceRefCount));
+}
+
+function evidencePhrase(input: FindingDerivationInput): string | null {
+  const count = citedEvidenceRefCount(input);
+
+  if (count === null) {
+    return null;
+  }
+
+  if (count > 0) {
+    return `${count} cited evidence reference${count === 1 ? "" : "s"}`;
+  }
+
+  return "No evidence references were stored.";
+}
+
+function traceConfidencePhrase(input: FindingDerivationInput): string | null {
+  const traceConfidence = nonEmpty(input.traceConfidenceLabel);
+
+  if (traceConfidence === null) {
+    return null;
+  }
+
+  return `Trace confidence: ${traceConfidence}. ${TRACE_CONFIDENCE_NOT_ARTIFACT_SUFFIX}`;
+}
+
+function assembledSentence(sentence: string, hasPositiveEvidenceRefs: boolean): FindingDerivationResult {
+  const prefix = hasPositiveEvidenceRefs
+    ? FINDING_DERIVATION_ASSEMBLED_PREFIX
+    : FINDING_DERIVATION_ASSEMBLED_RULE_ONLY_PREFIX;
+
   return {
-    sentence: `${FINDING_DERIVATION_ASSEMBLED_PREFIX} ${sentence}`,
+    sentence: `${prefix} ${sentence}`,
     synthesised: true,
   };
 }
@@ -89,27 +124,48 @@ export function buildFindingDerivationSentence(input: FindingDerivationInput): F
     }
   }
 
-  const ruleLabel = resolveRuleLabel(input);
+  const rulePhrase = resolveRulePhrase(input);
+  const categoryLead = rulePhrase === null ? resolveCategoryOnlyLead(nonEmpty(input.categoryLabel)) : null;
   const evidence = evidencePhrase(input);
+  const traceConfidence = traceConfidencePhrase(input);
   const severityLabel = nonEmpty(input.severityLabel);
+  const positiveEvidenceRefs = (citedEvidenceRefCount(input) ?? 0) > 0;
 
-  if (ruleLabel === null && evidence === null) {
+  if (rulePhrase === null && categoryLead === null && evidence === null && traceConfidence === null) {
     return { sentence: FINDING_DERIVATION_NOT_AVAILABLE, synthesised: false };
   }
 
   const severitySuffix =
     severityLabel !== null ? `a ${severityLabel} severity finding` : "this finding";
 
-  if (ruleLabel !== null && evidence !== null) {
-    return assembledSentence(`Policy rule "${ruleLabel}" matched ${evidence} and produced ${severitySuffix}.`);
+  const ruleLead =
+    rulePhrase === null
+      ? categoryLead
+      : rulePhrase.quotedName
+        ? `Policy rule "${rulePhrase.text}"`
+        : rulePhrase.text;
+
+  const evidenceParts = [evidence, traceConfidence].filter((part): part is string => part !== null);
+  const evidenceLead =
+    evidenceParts.length === 0
+      ? null
+      : evidenceParts.length === 1
+        ? evidenceParts[0]
+        : `${evidenceParts[0]} ${evidenceParts[1]}`;
+
+  if (ruleLead !== null && evidenceLead !== null) {
+    return assembledSentence(`${ruleLead} matched ${evidenceLead} and produced ${severitySuffix}.`, positiveEvidenceRefs);
   }
 
-  if (ruleLabel !== null) {
-    return assembledSentence(`Policy rule "${ruleLabel}" produced ${severitySuffix}.`);
+  if (ruleLead !== null) {
+    return assembledSentence(`${ruleLead} produced ${severitySuffix}.`, positiveEvidenceRefs);
   }
 
-  if (evidence !== null) {
-    return assembledSentence(`${evidence.charAt(0).toUpperCase()}${evidence.slice(1)} supported ${severitySuffix}.`);
+  if (evidenceLead !== null) {
+    return assembledSentence(
+      `${evidenceLead.charAt(0).toUpperCase()}${evidenceLead.slice(1)} supported ${severitySuffix}.`,
+      positiveEvidenceRefs,
+    );
   }
 
   return { sentence: FINDING_DERIVATION_NOT_AVAILABLE, synthesised: false };
@@ -141,7 +197,7 @@ export function findingDerivationFromQuickDecisionFinding(finding: QuickDecision
     ruleId: finding.policyRuleId ?? wire.decisionRuleId,
     severityLabel: severityBadgeLabel(finding.severityValue),
     evidenceRefCount: finding.evidenceRefCount,
-    evidenceClass: nonEmpty(finding.traceConfidenceLabel),
+    traceConfidenceLabel: nonEmpty(finding.traceConfidenceLabel),
     reasoningSummary: wire.reasoningSummary,
   });
 }
@@ -162,9 +218,6 @@ export function findingDerivationFromGovernanceQueueRow(
     categoryLabel,
     severityLabel: row.severity,
     evidenceRefCount: row.evidenceRefCount,
-    evidenceClass:
-      row.traceConfidenceLevel !== null && row.traceConfidenceLevel !== undefined
-        ? `${row.traceConfidenceLevel} confidence trace`
-        : null,
+    traceConfidenceLabel: row.traceConfidenceLevel ?? null,
   });
 }

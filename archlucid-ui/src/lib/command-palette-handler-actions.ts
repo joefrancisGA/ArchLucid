@@ -12,6 +12,8 @@ import {
   isCommandPaletteTenantCostSettingsSaveAvailable,
 } from "@/lib/command-palette-work-action-dom";
 import { isExtractUploadSettingsRoutePath } from "@/lib/extract-upload-settings-route";
+import { COMMAND_PALETTE_GOVERNANCE_FINDINGS_PATH_INSPECT_EVENT } from "@/lib/governance/governance-findings-queue-command-palette-events";
+import { isSecureNowFindingsDeskRoutePath } from "@/lib/governance/is-securenow-findings-desk-route-path";
 import { isRemediationFactoryRoutePath } from "@/lib/product-line/securenow-remediation-factory-route";
 import {
   COMMAND_PALETTE_REMEDIATION_FACTORY_EXPLAIN_EVENT,
@@ -66,7 +68,8 @@ export type CommandPaletteHandlerActionId =
   | "action-remediation-factory-next"
   | "action-remediation-factory-prev"
   | "action-remediation-factory-inspect"
-  | "action-remediation-factory-explain";
+  | "action-remediation-factory-explain"
+  | "action-governance-findings-path-inspect";
 
 export type CommandPaletteHandlerAvailabilityContext = {
   readonly reversibleUndoAvailable?: boolean;
@@ -265,6 +268,12 @@ export const COMMAND_PALETTE_HANDLER_ACTIONS: readonly CommandPaletteHandlerActi
     isAvailable: (pathname) => isRemediationFactoryRoutePath(pathname),
   },
   {
+    id: "action-governance-findings-path-inspect",
+    label: "Focus path inspect",
+    searchValue: "action findings queue inspect alt+i path panel assigned compliance",
+    isAvailable: (pathname) => isSecureNowFindingsDeskRoutePath(pathname),
+  },
+  {
     id: "action-remediation-factory-explain",
     label: "Explain selected finding score",
     searchValue: "action remediation factory explain alt+e simulator score",
@@ -296,6 +305,7 @@ const HANDLER_ACTION_EVENTS: Record<CommandPaletteHandlerActionId, string> = {
   "action-remediation-factory-prev": COMMAND_PALETTE_REMEDIATION_FACTORY_PREV_EVENT,
   "action-remediation-factory-inspect": COMMAND_PALETTE_REMEDIATION_FACTORY_INSPECT_EVENT,
   "action-remediation-factory-explain": COMMAND_PALETTE_REMEDIATION_FACTORY_EXPLAIN_EVENT,
+  "action-governance-findings-path-inspect": COMMAND_PALETTE_GOVERNANCE_FINDINGS_PATH_INSPECT_EVENT,
 };
 
 export function dispatchCommandPaletteHandlerAction(actionId: CommandPaletteHandlerActionId): void {

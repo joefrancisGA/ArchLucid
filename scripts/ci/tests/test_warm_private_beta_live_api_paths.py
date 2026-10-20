@@ -15,11 +15,9 @@ class TestWarmPrivateBetaLiveApiPaths(unittest.TestCase):
         script_text = WARM_SCRIPT.read_text(encoding="utf-8")
 
         self.assertIn("LIVE_E2E_PRIVATE_BETA_ACCESS=1", script_text)
+        self.assertIn("Skipping create-run shell warm", script_text)
         self.assertIn("Skipping draft inventory shell warm", script_text)
         self.assertIn("health/ready", script_text)
-        self.assertIn("warm_path_post_optional \\", script_text)
-        self.assertIn("warm_suffix=", script_text)
-        self.assertIn("PrivateBetaPipelineWarm-${warm_suffix}", script_text)
         self.assertIn("HTTP 000", script_text)
         self.assertIn("Skipping remaining warms", script_text)
         self.assertIn("warm_status", script_text)
@@ -29,6 +27,8 @@ class TestWarmPrivateBetaLiveApiPaths(unittest.TestCase):
         self.assertNotIn("Required warm failed because the API is unreachable", script_text)
         self.assertIn("refresh_private_beta_ci_jwt.sh", script_text)
         self.assertNotIn("Skipping draft inventory and create-run shell warm", script_text)
+        self.assertNotIn("ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARM_MAX_TIME", script_text)
+        self.assertNotIn("warm_path_post_optional \\", script_text)
 
     def test_script_syntax_is_valid(self) -> None:
         result = subprocess.run(

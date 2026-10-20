@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  INFRA_DIAGRAMS_DATA_FLOW_HONESTY_PREFIX,
   isInfraEvidenceDataFlowMermaid,
   isInfraEvidenceMermaidMetadataComment,
   parseInfraDiagramsDataFlowCaptionPresentation,
@@ -90,5 +91,17 @@ describe("infra-evidence-data-flow-diagram", () => {
     expect(presentation.honestyCaptions).toEqual([evidenceSentence]);
     expect(presentation.metadataComments).toHaveLength(6);
     expect(presentation.honestyCaptions.join(" ")).not.toMatch(/al-provenance|al-inference|al-seed|adf-external:/u);
+  });
+
+  it("uses the default honesty prefix when no buyer caption comment exists (P-17)", () => {
+    const mermaid = [
+      "flowchart LR",
+      "    %% al-type=microsoft.app/containerapps al-rg=rg-app",
+      "    node1[adf1]",
+    ].join("\n");
+
+    expect(parseInfraDiagramsDataFlowCaptionPresentation(mermaid).honestyCaptions).toEqual([
+      INFRA_DIAGRAMS_DATA_FLOW_HONESTY_PREFIX,
+    ]);
   });
 });

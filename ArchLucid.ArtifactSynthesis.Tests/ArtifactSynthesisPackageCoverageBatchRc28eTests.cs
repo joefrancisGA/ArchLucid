@@ -161,11 +161,11 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28eTests
 
         SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
 
-        artifact.Content.Should().Contain("Architecture overview was not stored.");
-        artifact.Content.Should().Contain("Component breakdown was not stored.");
-        artifact.Content.Should().Contain("Data flow was not stored.");
-        artifact.Content.Should().Contain("Security model was not stored.");
-        artifact.Content.Should().Contain("Operational considerations were not stored.");
+        artifact.Content.Should().NotContain("Architecture overview was not stored.");
+        artifact.Content.Should().NotContain("Component breakdown was not stored.");
+        artifact.Content.Should().NotContain("Data flow was not stored.");
+        artifact.Content.Should().NotContain("Security model was not stored.");
+        artifact.Content.Should().NotContain("Operational considerations were not stored.");
         artifact.Content.Should().NotContain("Not specified.");
     }
 

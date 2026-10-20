@@ -19,13 +19,13 @@ export function formatInfraEvidenceCompletenessSummaryBannerLine(
   const visibleEdgeCount = formatCompletenessCount(summary.visibleEdgeCount, "Visible relationship count");
   const hiddenHops =
     summary.hiddenHopsUsedCount === null
-      ? ""
+      ? " Hidden attachment hop count was not stored."
       : summary.hiddenHopsUsedCount > 0
         ? ` (${summary.hiddenHopsUsedCount} from hidden attachment hops)`
         : "";
   const collocation =
     summary.likelyInCollocationEdgeCount === null
-      ? ""
+      ? " Likely-in collocation count was not stored."
       : summary.likelyInCollocationEdgeCount > 0
         ? ` ${summary.likelyInCollocationEdgeCount} likely-in collocation edges.`
         : "";
@@ -38,5 +38,10 @@ export function formatInfraEvidenceCompletenessSummaryBannerLine(
     return [visibleNodeCount, connectedComponentCount, visibleEdgeCount].filter((part) => part.length > 0).join(" ");
   }
 
-  return `${visibleNodeCount} resources in ${connectedComponentCount} connected components. ${visibleEdgeCount} visible relationships${hiddenHops}.${collocation}`;
+  const missing =
+    summary.missingClasses && summary.missingClasses.length > 0
+      ? ` Missing: ${summary.missingClasses.join("; ")}.`
+      : "";
+
+  return `${visibleNodeCount} resources in ${connectedComponentCount} connected components. ${visibleEdgeCount} visible relationships${hiddenHops}.${collocation}${missing}`;
 }

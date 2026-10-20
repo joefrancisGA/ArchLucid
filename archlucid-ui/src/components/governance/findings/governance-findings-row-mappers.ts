@@ -13,14 +13,43 @@ import type {
 } from "@/lib/api/governance-stickiness-api";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
 import { normalizeFindingConfidenceLevel } from "@/types/explanation";
-import { severityFromTrace } from "@/lib/sponsor/sponsor-finding-severity";
 import type { RunSummary } from "@/types/authority";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import { governanceFindingsDemoPhiRow } from "@/components/governance/findings/governance-findings-demo-rows";
 import { ARCHITECTURE_RISK_REGISTER_OWNER_NOT_STORED } from "@/lib/architecture/architecture-risk-register-csv";
+import {
+  GOVERNANCE_QUEUE_DECISION_CATEGORY_NOT_STORED,
+  GOVERNANCE_QUEUE_DECISION_STATUS_NOT_STORED,
+  GOVERNANCE_QUEUE_DECISION_TITLE_NOT_STORED,
+  GOVERNANCE_QUEUE_FINDING_STATUS_NOT_STORED,
+  GOVERNANCE_QUEUE_FINDING_TITLE_NOT_STORED,
+  GOVERNANCE_QUEUE_REVIEW_NAME_NOT_STORED,
+  GOVERNANCE_QUEUE_RULE_ID_NOT_STORED,
+  GOVERNANCE_QUEUE_SEVERITY_NOT_STORED,
+} from "@/components/governance/findings/governance-findings-row-omission-copy";
 
-const GOVERNANCE_DECISION_ROW_SEVERITY_NOT_STORED = "Severity was not stored." as const;
+function resolveGovernanceQueueReviewLabel(systemName: string, runId: string): string {
+  if (systemName.length > 0) {
+    return systemName;
+  }
+
+  if (runId.length > 0) {
+    return runId;
+  }
+
+  return GOVERNANCE_QUEUE_REVIEW_NAME_NOT_STORED;
+}
+
+function resolveRiskRegisterQueueStatus(statusLabel: string, isStale: boolean): string {
+  const trimmed = statusLabel.trim();
+
+  if (trimmed.length === 0) {
+    return isStale ? `${GOVERNANCE_QUEUE_FINDING_STATUS_NOT_STORED} · stale` : GOVERNANCE_QUEUE_FINDING_STATUS_NOT_STORED;
+  }
+
+  return isStale ? `${trimmed} · stale` : trimmed;
+}
 
 function formatRiskRegisterQueueOwner(ownerUserId: string | null | undefined): string {
   const trimmed = ownerUserId?.trim() ?? "";
@@ -47,18 +76,19 @@ export function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): Gove
       entry.latestDisposition !== null && entry.latestDisposition !== undefined
         ? `Latest disposition: ${entry.latestDisposition}. Owner: ${formatRiskRegisterQueueOwner(entry.ownerUserId)}.`
         : "Open evidence trace to record disposition or a time-bounded waiver.";
-    const runLabel =
-      systemName.length > 0 ? systemName : runId.length > 0 ? runId : "Not returned";
+    const runLabel = resolveGovernanceQueueReviewLabel(systemName, runId);
+    const resolvedTitle = title.length > 0 ? title : GOVERNANCE_QUEUE_FINDING_TITLE_NOT_STORED;
+    const resolvedSeverity = severity.length > 0 ? severity : GOVERNANCE_QUEUE_SEVERITY_NOT_STORED;
 
     return {
       runId,
       runLabel,
       manifestId: (entry.manifestId ?? "").trim(),
       findingId,
-      title,
-      severity,
+      title: resolvedTitle,
+      severity: resolvedSeverity,
       category,
-      status: entry.isStale ? `${statusLabel} · stale` : statusLabel,
+      status: resolveRiskRegisterQueueStatus(statusLabel, entry.isStale),
       recommended,
       recordKind: "finding",
       traceConfidenceLevel: null,
@@ -70,7 +100,7 @@ export function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): Gove
       revisitDueUtc: entry.revisitDueUtc ?? null,
       isStale: entry.isStale,
       evidenceHref: entry.evidenceHref,
-      evidenceRefCount: (entry.evidenceHref ?? "").trim().length > 0 ? 1 : null,
+      evidenceRefCount: null,
       humanReviewStatusLabel: formatFindingHumanReviewStatusLabel(entry.humanReviewStatus),
       itsmLinkedTicketsSummary:
         (entry.itsmLinkedTicketsSummary ?? "").trim().length > 0
@@ -88,7 +118,8 @@ export function decisionRegisterRows(entries: ArchitectureDecisionRegisterEntry[
     const decisionId = entry.decisionId.trim();
     const runId = (entry.runId ?? "").trim();
     const manifestId = (entry.manifestId ?? "").trim();
-    const titleRaw = (entry.title ?? entry.selectedOption ?? decisionId).trim();
+    const titleRaw = (entry.title ?? "").trim();
+    const categoryRaw = (entry.category ?? "").trim();
     const rationale = (entry.rationale ?? "").trim();
     const selectedOption = (entry.selectedOption ?? "").trim();
     const recommended =
@@ -100,13 +131,13 @@ export function decisionRegisterRows(entries: ArchitectureDecisionRegisterEntry[
 
     return {
       runId,
-      runLabel: runId.length > 0 ? runId : "Not returned",
+      runLabel: resolveGovernanceQueueReviewLabel("", runId),
       manifestId,
       findingId: decisionId,
-      title: titleRaw.length > 0 ? titleRaw : decisionId,
-      severity: GOVERNANCE_DECISION_ROW_SEVERITY_NOT_STORED,
-      category: (entry.category ?? "").trim().length > 0 ? entry.category : "Architecture decision",
-      status: "Recorded",
+      title: titleRaw.length > 0 ? titleRaw : GOVERNANCE_QUEUE_DECISION_TITLE_NOT_STORED,
+      severity: GOVERNANCE_QUEUE_SEVERITY_NOT_STORED,
+      category: categoryRaw.length > 0 ? categoryRaw : GOVERNANCE_QUEUE_DECISION_CATEGORY_NOT_STORED,
+      status: GOVERNANCE_QUEUE_DECISION_STATUS_NOT_STORED,
       recommended,
       recordKind: "decision",
       traceConfidenceLevel: null,
@@ -121,7 +152,7 @@ export function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceD
     .filter((t) => (t.findingId ?? "").trim().length > 0)
     .map((t) => {
       const findingId = t.findingId.trim();
-      const titleRaw = (t.findingTitle ?? findingId).trim();
+      const titleRaw = (t.findingTitle ?? "").trim();
       const manifestRaw = isDemoRunIdEligibleForStaticFallback(run.runId)
         ? SHOWCASE_STATIC_DEMO_MANIFEST_ID
         : "";
@@ -135,10 +166,10 @@ export function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceD
         runLabel,
         manifestId: manifestRaw,
         findingId,
-        title: titleRaw.length > 0 ? titleRaw : findingId,
-        severity: severityFromTrace(t.traceConfidenceLabel),
-        category: ruleHint.length > 0 ? ruleHint.replace(/;/g, ", ") : "Not returned",
-        status: "Open",
+        title: titleRaw.length > 0 ? titleRaw : GOVERNANCE_QUEUE_FINDING_TITLE_NOT_STORED,
+        severity: GOVERNANCE_QUEUE_SEVERITY_NOT_STORED,
+        category: ruleHint.length > 0 ? ruleHint.replace(/;/g, ", ") : GOVERNANCE_QUEUE_RULE_ID_NOT_STORED,
+        status: GOVERNANCE_QUEUE_FINDING_STATUS_NOT_STORED,
         recommended:
           ruleHint.length > 0
             ? `Review finding tied to rule ${ruleHint}.`

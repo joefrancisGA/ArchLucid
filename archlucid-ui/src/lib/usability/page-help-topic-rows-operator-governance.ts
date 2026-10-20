@@ -135,23 +135,38 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR_GOVERNANCE: readonly PageHelpTopicRow
   },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
-    topic: { label: GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PAGE_TITLE },
+    topic: {
+      slug: "governance-infrastructure-diagram-reconcile",
+      label: GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PAGE_TITLE,
+    },
   },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
-    topic: { label: OPERATOR_NAV_LINK_LABELS.infrastructureTerraform },
+    topic: {
+      slug: "governance-infrastructure-terraform",
+      label: OPERATOR_NAV_LINK_LABELS.infrastructureTerraform,
+    },
   },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
-    topic: { label: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE },
+    topic: {
+      slug: "governance-infrastructure-diagrams",
+      label: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
+    },
   },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
-    topic: { label: GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_TITLE },
+    topic: {
+      slug: "governance-infrastructure-ask",
+      label: GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_TITLE,
+    },
   },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
-    topic: { label: GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_TITLE },
+    topic: {
+      slug: "governance-infrastructure-remediation",
+      label: GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_TITLE,
+    },
   },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,

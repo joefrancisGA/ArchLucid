@@ -130,8 +130,33 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
         }
 
         [object]$missingLogsResult = Add-ArchLucidAzureAksWorkloadImageProperties -InventoryResources @($cluster)
-        $missingLogsResult.warnings | Should -Contain 'aks-workload-images-not-collected-customer-script'
+        $missingLogsResult.warnings | Should -Contain 'aks-workload-images-not-collected-customer-script:missing-logs:/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ContainerService/managedClusters/aks'
         $cluster.properties.Keys | Where-Object { $_ -like 'container.image[*]' } | Should -BeNullOrEmpty
+    }
+
+    It 'classifies AKS runCommand HTTP 403 as insufficient-rbac warning' {
+        [object]$cluster = [pscustomobject]@{
+            resourceType = 'Microsoft.ContainerService/managedClusters'
+            resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ContainerService/managedClusters/aks'
+            properties = @{}
+        }
+
+        Mock Invoke-AzRestMethod {
+            [CmdletBinding()]
+            param(
+                [string]$Method,
+                [string]$Path,
+                [string]$Payload
+            )
+
+            return [pscustomobject]@{
+                StatusCode = 403
+                Content = '{"error":{"code":"AuthorizationFailed"}}'
+            }
+        }
+
+        [object]$forbiddenResult = Add-ArchLucidAzureAksWorkloadImageProperties -InventoryResources @($cluster)
+        $forbiddenResult.warnings | Should -Contain 'aks-workload-images-not-collected-customer-script:insufficient-rbac:/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ContainerService/managedClusters/aks'
     }
 
     It 'appends api-version to AKS runCommand poll paths' {

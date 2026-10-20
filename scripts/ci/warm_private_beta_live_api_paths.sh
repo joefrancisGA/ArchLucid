@@ -196,20 +196,10 @@ warm_path "auth scope" "${API_URL}/v1/scope"
 warm_path "pending invitations" "${API_URL}/v1/admin/users/invitations"
 
 if [ "${LIVE_E2E_PRIVATE_BETA_ACCESS:-}" = "1" ]; then
-  # Skip create-run warm when the API is not accepting connections (curl HTTP 000).
-  # A hung 120s POST does not help invite-wave Playwright and delays JWT refresh.
-  if curl -fsS --max-time 5 "${API_URL}/health/ready" >/dev/null; then
-    warm_suffix="$(date +%s)-$$"
-    CREATE_BODY="{\"requestId\":\"WARM-PRIVATE-BETA-${warm_suffix}\",\"description\":\"Design a secure Azure RAG system for enterprise internal documents using Azure AI Search, managed identity, private endpoints, SQL metadata storage, and moderate cost sensitivity.\",\"systemName\":\"PrivateBetaPipelineWarm-${warm_suffix}\",\"environment\":\"prod\",\"cloudProvider\":1,\"constraints\":[\"Private endpoints required\",\"Use managed identity\"],\"requiredCapabilities\":[\"Azure AI Search\",\"SQL\",\"Managed Identity\",\"Private Networking\"],\"assumptions\":[],\"priorManifestVersion\":null}"
-    warm_path_post_optional \
-      "create architecture run" \
-      "${API_URL}/v1/architecture/request" \
-      "${CREATE_BODY}" \
-      "${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARM_MAX_TIME:-20}" \
-      "${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARM_ATTEMPTS:-4}"
-  else
-    echo "::warning::Skipping create-run warm; ${API_URL}/health/ready is not reachable." >&2
-  fi
+  # Do not POST /v1/architecture/request from the shell. A 20s curl abort cancels the
+  # inline authority pipeline mid-synthesis (HTTP 499) and the next Playwright createRun
+  # then dies on a blocked AuditEvents INSERT (DATABASE_TIMEOUT / HTTP 503).
+  echo "Skipping create-run shell warm (LIVE_E2E_PRIVATE_BETA_ACCESS=1); Playwright JIT-warms create-run in-spec."
   echo "Skipping draft inventory shell warm (LIVE_E2E_PRIVATE_BETA_ACCESS=1); Playwright stubs draft inventory in-browser."
 else
   # Draft inventory can exceed the UI proxy 60s budget; keep the shell GET short.

@@ -247,15 +247,15 @@ Run **IE-01 → IE-04 → IE-02 → IE-03** before audit selectors or Mermaid-fr
 | **IDF-06** | Graphviz PNG cluster parity from `ArmResourceGroup` | IDF-03 |
 | **IDF-07** | Frame visibility ratchet | IDF-01–06 |
 | **IDF-HOLD** | No nested frames / global gap bump / IDR boxes **from IDF chats** (nesting is **IDX-05 / IDX-06**) | — |
-| **IDX-01** | Recapture nested NIC/PE/Logic App/ADF/diagnostic properties | extractor family on trunk |
-| **IDX-02** | Graph-build hop compose + `(from,to,role)` dedupe for every `DiagramMode` | IDX-01 preferred |
-| **IDX-03** | Cited hops; no same-RG / single-VNet all-to-all | IDX-02 |
-| **IDX-04** | Honest verbs (`in` / `contains` / `peering` / `uses` / …) | IDX-02 (prefer IDX-03) |
-| **IDX-05** | Nested VNet → subnet frames (authorized nesting wave) | IDX-04 preferred |
-| **IDX-06** | Subscription outer frame (subscription-scoped modes only) | IDX-05 |
-| **IDX-07** | Role-aware packing + hubs inside frames | IDX-05 |
-| **IDX-08** | Singleton-RG tail collapse | IDX-06 |
-| **IDX-09** | Duplicate `Microsoft.Web/connections` collapse | IDX-03 |
+| **IDX-01** | Recapture nested NIC/PE/Logic App/ADF/diagnostic properties | **Shipped** on trunk — do not greenfield |
+| **IDX-02** | Graph-build hop compose + `(from,to,role)` dedupe for every `DiagramMode` | **Shipped** on trunk — do not greenfield |
+| **IDX-03** | Cited hops; no same-RG / single-VNet all-to-all | **Shipped** on trunk — do not greenfield |
+| **IDX-04** | Honest verbs (`in` / `contains` / `peering` / `uses` / …) | **Shipped** on trunk |
+| **IDX-05** | Nested VNet → subnet frames (authorized nesting wave) | VNet frames on trunk; deepen subnet layer |
+| **IDX-06** | Subscription outer frame (subscription-scoped modes only) | **Shipped** on trunk |
+| **IDX-07** | Role-aware packing + hubs inside frames | Role columns + hub-spoke on trunk |
+| **IDX-08** | Singleton-RG tail collapse | **Shipped** on trunk |
+| **IDX-09** | Duplicate `Microsoft.Web/connections` collapse | **Shipped** on trunk |
 | **IDX-10** | PE opt-in toggle (`IncludePrivateEndpointNodes`, default off) | IDX-02 |
 | **IDX-11** | Mode-aware completeness strip | IDX-01 |
 | **IDX-12** | Hop-focus neighborhood / selected / resource-group | IDX-02, IDX-03 |
@@ -297,7 +297,7 @@ Run **IE-UX-00 first** after backend batches land; then IE-UX-01–IE-UX-05 in o
 
 **Subnet cards vs subnet analysis (owner 2026-10-03):** run **SB-01**, then **SB-02**, then **SB-03**. **SB-04** after **SB-01** when a Bastion still says its subnet no longer exists: recognize the subnet from the subnet node, the Bastion's link, or the parent virtual network's subnet list. **SB-05** after **SB-04** when the sentence has no subnet name: fetch the full Bastion, store `ipConfiguration.subnet.id`, and copy that id plus the virtual network `subnets` array onto the diagram graph. **SB-01** classifies Bastions against the inventory graph from before peel rank 20, so a hidden subnet is not reported as gone. **SB-02** adds **Show subnets** (unchecked) on the network-structure diagrams. **SB-03** checks that box when the diagram type dropdown changes to Network. Prompts: [`INVENTORY_DIAGRAM_SUBNET_DISPLAY_LUNA_PROMPTS.md`](INVENTORY_DIAGRAM_SUBNET_DISPLAY_LUNA_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/subnet-display-00-index.md`](../../.cursor/prompts/subnet-display-00-index.md). Do **not** implement from the index. Do **not** add a subnet box. Audience is GPT-5.6 Luna.
 
-**Inventory diagrams are framed but not yet excellent (owner 2026-09-21 — recapture, algorithms, nested Azure boxes, all diagram types):** run **IDX-01** first, then **IDX-02**, then **IDX-03**, then **IDX-04**. **IDX-05** after 04 preferred; **IDX-06** after 05; **IDX-07** after 05; **IDX-08** after 06; **IDX-09** after 03; **IDX-10** after 02; **IDX-11** after 01; **IDX-12** after 02+03; **IDX-13** last. **IDX-HOLD** is not implementation. Prompts: [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_EXCELLENCE_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_EXCELLENCE_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/inventory-diagram-excellence-00-index.md`](../../.cursor/prompts/inventory-diagram-excellence-00-index.md). Do **not** implement from this index. Do **not** re-run IDA/IDF/AX-DE/IE-RF as greenfield. Do **not** draw a complete graph. Do **not** show NIC/PE cards by default. Apply every prompt to **all twelve `DiagramMode` values**.
+**Inventory diagram excellence (IDX-01–13):** engineering slices **shipped on trunk** (2026-10). Use prompts for **extend-only** work; run `dotnet test --filter FullyQualifiedName~InventoryDiagramExcellence` before changing forest/Mermaid compile. **IDX-HOLD** is not implementation. Prompts: [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_EXCELLENCE_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_EXCELLENCE_COMPOSER_PROMPTS.md). Index: [`.cursor/prompts/inventory-diagram-excellence-00-index.md`](../../.cursor/prompts/inventory-diagram-excellence-00-index.md). Do **not** re-run IDA/IDF/AX-DE/IE-RF as greenfield. Do **not** draw a complete graph. PE cards stay **opt-in, default off** (all modes including `ResourceGroup`).
 
 **Inventory diagram declared connections look like extract-derived edges (owner 2026-09-16):** run **IDP-01**, then **IDP-02**. **IDP-03** after 01 (prefer after 02). **IDP-04** only when AiInference inventory edges exist **or** the owner names 04. **IDP-HOLD** is not implementation. Prompts: [`INFRA_EVIDENCE_INVENTORY_DIAGRAM_PROVENANCE_COMPOSER_PROMPTS.md`](INFRA_EVIDENCE_INVENTORY_DIAGRAM_PROVENANCE_COMPOSER_PROMPTS.md). Paste one numbered file from [`.cursor/prompts/inventory-diagram-provenance-00-index.md`](../../.cursor/prompts/inventory-diagram-provenance-00-index.md). Do **not** use teal as a provenance stroke. Do **not** restyle architecture-review diagrams or React Flow. Do **not** start IDG/IDR/IDA in an IDP session. IDA-06 peering dash (`6 4`, often unlabeled) is a different language from IDP declared dash (`4 3` + `declared` label).
 

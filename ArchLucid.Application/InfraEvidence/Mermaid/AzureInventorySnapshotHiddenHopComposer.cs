@@ -24,7 +24,7 @@ internal static class AzureInventorySnapshotHiddenHopComposer
             .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
         Dictionary<string, string> nicOwners = BuildNicOwners(edges, nodesById);
 
-        AddNicOwnerEdges(edges, edgeKeys, nicOwners);
+        AddNicOwnerEdges(nodesById, edges, edgeKeys, nicOwners);
         AddPrivateEndpointPlacementEdges(nodes, edges, edgeKeys);
     }
 
@@ -50,6 +50,7 @@ internal static class AzureInventorySnapshotHiddenHopComposer
     }
 
     private static void AddNicOwnerEdges(
+        IReadOnlyDictionary<string, GraphNode> nodesById,
         List<GraphEdge> edges,
         HashSet<string> edgeKeys,
         IReadOnlyDictionary<string, string> nicOwners)
@@ -71,7 +72,33 @@ internal static class AzureInventorySnapshotHiddenHopComposer
                 edge.InferenceSource ?? GraphEdgeInferenceSources.InventoryNicSubnet,
                 label: "in",
                 provenanceKind: edge.ProvenanceKind ?? ProvenanceKind.DerivedFact.ToString());
+
+            string? vnetNodeId = ResolveVnetNodeIdForPlacement(edge.ToNodeId, nodesById, edges);
+
+            if (string.IsNullOrWhiteSpace(vnetNodeId)
+                || string.Equals(vnetNodeId, edge.ToNodeId, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            AzureInventorySnapshotGraphEdgeAppender.TryAdd(
+                edges,
+                edgeKeys,
+                ownerNodeId,
+                vnetNodeId,
+                AzureInventoryRelationshipAssociationTypes.NicToSubnet,
+                edge.InferenceSource ?? GraphEdgeInferenceSources.InventoryNicSubnet,
+                label: "in",
+                provenanceKind: edge.ProvenanceKind ?? ProvenanceKind.DerivedFact.ToString());
         }
+    }
+
+    private static string? ResolveVnetNodeIdForPlacement(
+        string placementNodeId,
+        IReadOnlyDictionary<string, GraphNode> nodesById,
+        IReadOnlyList<GraphEdge> edges)
+    {
+        return ResolvePrivateEndpointVnetNodeId(placementNodeId, nodesById, edges);
     }
 
     private static void AddPrivateEndpointPlacementEdges(

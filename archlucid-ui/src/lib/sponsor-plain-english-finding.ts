@@ -77,7 +77,7 @@ function buildHeadline(title: string | null, severity: string | null): string {
     return `${severity} architecture finding`;
   }
 
-  return "Architecture review finding";
+  return "Finding title was not stored.";
 }
 
 function usableDerivationSentence(derivationSentence: string | null): string | null {

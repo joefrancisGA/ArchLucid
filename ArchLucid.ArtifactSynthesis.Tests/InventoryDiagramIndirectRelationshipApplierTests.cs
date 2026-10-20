@@ -76,7 +76,8 @@ public sealed class InventoryDiagramIndirectRelationshipApplierTests
         ast.Edges.Should().Contain(edge =>
             !edge.IsLayoutOnly
             && edge.Label.Contains("Current", StringComparison.Ordinal)
-            && edge.InferenceSource == GraphEdgeInferenceSources.InventoryPrivateEndpoint);
+            && edge.InferenceSource == GraphEdgeInferenceSources.InventoryPrivateEndpoint
+            && edge.ProvenanceKind == ProvenanceKind.ObservedFact.ToString());
     }
 
     [Fact]

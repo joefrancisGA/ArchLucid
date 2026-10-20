@@ -20,12 +20,15 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         _ = ct;
         StringBuilder sb = new();
 
-        sb.AppendLine($"# Reference Architecture - {manifest.Metadata.Name}");
+        string reviewName = string.IsNullOrWhiteSpace(manifest.Metadata.Name)
+            ? "Review name was not stored."
+            : manifest.Metadata.Name.Trim();
+        sb.AppendLine($"# Reference Architecture - {reviewName}");
         sb.AppendLine();
         sb.AppendLine($"Status: {manifest.Metadata.Status}");
         sb.AppendLine($"Version: {manifest.Metadata.Version}");
         sb.AppendLine();
-
+        ArchitectureMandatedMarkdownSections.Append(sb, manifest);
         sb.AppendLine("## Manifest Metadata");
         sb.AppendLine($"- Rule Set: {manifest.RuleSetId} {manifest.RuleSetVersion}");
         sb.AppendLine($"- Manifest Hash: {manifest.ManifestHash}");
@@ -118,10 +121,6 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
 
         sb.AppendLine();
 
-        sb.AppendLine("## Objective");
-        sb.AppendLine("Objective was not stored.");
-        sb.AppendLine();
-
         sb.AppendLine("## Assumptions");
         foreach (string assumption in manifest.Assumptions)
 
@@ -148,30 +147,10 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
 
         sb.AppendLine();
 
-        sb.AppendLine("## Architecture Overview");
-        sb.AppendLine("Architecture overview was not stored.");
-        sb.AppendLine();
-
-        sb.AppendLine("## Component Breakdown");
-        sb.AppendLine("Component breakdown was not stored.");
-        sb.AppendLine();
-
-        sb.AppendLine("## Data Flow");
-        sb.AppendLine("Data flow was not stored.");
-        sb.AppendLine();
-
-        sb.AppendLine("## Security Model");
-        sb.AppendLine("Security model was not stored.");
-        sb.AppendLine();
-
-        sb.AppendLine("## Operational Considerations");
-        sb.AppendLine("Operational considerations were not stored.");
-        sb.AppendLine();
-
         sb.AppendLine("## Decisions");
         foreach (ResolvedArchitectureDecision decision in manifest.Decisions)
 
-            sb.AppendLine($"- {decision.Category}: {decision.Title} -> {decision.SelectedOption}");
+            sb.AppendLine(FormatDecisionLine(decision));
 
         if (manifest.Decisions.Count == 0)
 
@@ -208,6 +187,15 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
             Content = content,
             ContentHash = ArtifactHashing.ComputeHash(content)
         });
+    }
+
+    private static string FormatDecisionLine(ResolvedArchitectureDecision decision)
+    {
+        string selectedOption = string.IsNullOrWhiteSpace(decision.SelectedOption)
+            ? "Selected option was not stored."
+            : decision.SelectedOption.Trim();
+
+        return $"- {decision.Category}: {decision.Title} -> {selectedOption}";
     }
 
     private static string FormatRequirementLine(string prefix, RequirementCoverageItem item)

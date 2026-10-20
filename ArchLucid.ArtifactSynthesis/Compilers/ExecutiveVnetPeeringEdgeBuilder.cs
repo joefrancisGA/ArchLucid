@@ -2,12 +2,14 @@ using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Inventory;
 
 namespace ArchLucid.ArtifactSynthesis.Compilers;
 
 /// <summary>
-///     Emits visible VNet↔VNet peering edges when the graph stored peering JSON but no <c>PEERS_WITH</c> row.
+///     Emits visible VNet↔VNet peering edges when the graph stored peering JSON but no <c>PEERS_WITH</c> row,
+///     and keeps already-drawn VNet pairs labeled as peering when the stored edge type was blank.
 /// </summary>
 internal static class ExecutiveVnetPeeringEdgeBuilder
 {
@@ -80,14 +82,89 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
                     continue;
                 }
 
-                ast.Edges.Add(new DiagramEdge
-                {
-                    FromNodeId = fromMermaidId,
-                    ToNodeId = toMermaidId,
-                    Label = "peering",
-                });
+                ast.Edges.Add(CreateObservedPeeringEdge(fromMermaidId, toMermaidId));
             }
         }
+
+        EnsureObservedPeeringOnVirtualNetworkPairs(ast);
+    }
+
+    private static void EnsureObservedPeeringOnVirtualNetworkPairs(DiagramAst ast)
+    {
+        Dictionary<string, DiagramNode> nodesById = ast.Nodes
+            .GroupBy(node => node.NodeId, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+
+        foreach (DiagramEdge edge in DiagramEdgeVisibility.VisibleEdges(ast.Edges))
+        {
+            if (!IsVirtualNetworkNode(nodesById, edge.FromNodeId)
+                || !IsVirtualNetworkNode(nodesById, edge.ToNodeId))
+            {
+                continue;
+            }
+
+            if (!ShouldAnnotateAsObservedPeering(edge))
+            {
+                continue;
+            }
+
+            AssignObservedPeeringProvenance(edge);
+        }
+    }
+
+    private static bool ShouldAnnotateAsObservedPeering(DiagramEdge edge)
+    {
+        if (!string.IsNullOrWhiteSpace(edge.ProvenanceKind))
+        {
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(edge.Label)
+            || string.Equals(
+                edge.Label,
+                DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel,
+                StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        return string.Equals(edge.Label, "peering", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(
+                edge.Label,
+                InventoryDiagramRelationshipLabelTexts.Peered,
+                StringComparison.OrdinalIgnoreCase);
+    }
+
+    // ObservedFact keeps DiagramEdgeProvenanceDisplayLabelApplier from replacing the verb
+    // with "Provenance was not stored." when the graph omitted a provenance kind.
+    private static DiagramEdge CreateObservedPeeringEdge(string fromNodeId, string toNodeId)
+    {
+        DiagramEdge edge = new()
+        {
+            FromNodeId = fromNodeId,
+            ToNodeId = toNodeId,
+        };
+        AssignObservedPeeringProvenance(edge);
+        return edge;
+    }
+
+    private static void AssignObservedPeeringProvenance(DiagramEdge edge)
+    {
+        edge.Label = "peering";
+        edge.InferenceSource = GraphEdgeInferenceSources.InventoryVnetPeering;
+        edge.ProvenanceKind = ProvenanceKind.ObservedFact.ToString();
+    }
+
+    private static bool IsVirtualNetworkNode(
+        IReadOnlyDictionary<string, DiagramNode> nodesById,
+        string nodeId)
+    {
+        if (!nodesById.TryGetValue(nodeId, out DiagramNode? node))
+        {
+            return false;
+        }
+
+        return AzureInventoryTopologyCategory.IsVirtualNetworkArmType(node.ArmResourceType ?? string.Empty);
     }
 
     private static string CanonicalPairKey(string fromNodeId, string toNodeId)

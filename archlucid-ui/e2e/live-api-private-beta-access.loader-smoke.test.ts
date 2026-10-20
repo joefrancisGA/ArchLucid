@@ -79,6 +79,10 @@ describe("live-api-private-beta-access loader smoke", () => {
     expect(spec).toContain("fetchAuthMeWithBearer");
     expect(spec).toContain("warmPrivateBetaCreateRunPipeline");
     expect(spec).toContain("test.setTimeout(liveE2ePrivateBetaAccessPlaywrightTimeoutMs())");
+    expect(spec).toContain("test.describe.configure({ timeout: liveE2ePrivateBetaAccessPlaywrightTimeoutMs() })");
+    expect(spec).toMatch(
+      /test\.beforeAll\(async \(\{ request \}\) => \{\s*test\.setTimeout\(liveE2ePrivateBetaAccessPlaywrightTimeoutMs\(\)\)/,
+    );
   });
 
   it("release-gate spine assertions scope repeated honesty-chip test ids", () => {

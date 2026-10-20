@@ -29,41 +29,63 @@ public sealed class SecurityEvidencePathRoutingSyncService(
             return;
         }
 
-        AzureInventorySnapshotDetailReadModel? snapshot =
-            (await SecureNowAnalysisRun.LoadAsync(snapshotRepository, scope, snapshotId, cancellationToken))?.Snapshot;
-
-        if (snapshot is null)
-        {
-            return;
-        }
-
-        IReadOnlyList<SecurityEvidencePathRecord> paths = await pathRepository.ListBySnapshotAsync(
+        IReadOnlyList<SecurityEvidencePathWithHops> pathsWithHops = await pathRepository.ListWithHopsBySnapshotAsync(
             ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), snapshotId),
             cancellationToken);
 
-        if (paths.Count == 0)
+        if (pathsWithHops.Count == 0)
         {
             return;
         }
 
+        List<Guid> cloudResourceIds = pathsWithHops
+            .SelectMany(path => path.Hops)
+            .Where(hop => hop.CloudResourceId is Guid cloudResourceId && cloudResourceId != Guid.Empty)
+            .Select(hop => hop.CloudResourceId!.Value)
+            .Distinct()
+            .ToList();
+
+        IReadOnlyList<AzureInventoryResourceRecord> hopResources =
+            await snapshotRepository.ListResourcesByCloudResourceIdsAsync(
+                scope,
+                snapshotId,
+                cloudResourceIds,
+                cancellationToken);
+
+        List<Guid> resourceRowIds = hopResources
+            .Select(resource => resource.ResourceRowId)
+            .Where(rowId => rowId != Guid.Empty)
+            .Distinct()
+            .ToList();
+
+        IReadOnlyList<AzureInventoryTagReadModel> hopTags =
+            await snapshotRepository.ListTagsByResourceRowIdsAsync(
+                scope,
+                snapshotId,
+                resourceRowIds,
+                cancellationToken);
+
+        SecurityEvidencePathRoutingTagSlice tagSlice = new()
+        {
+            Resources = hopResources,
+            Tags = hopTags,
+        };
+
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
 
-        foreach (SecurityEvidencePathRecord path in paths)
+        foreach (SecurityEvidencePathWithHops pathWithHops in pathsWithHops)
         {
-            IReadOnlyList<SecurityEvidencePathHopRecord> hops =
-                await pathRepository.ListHopsByPathInScopeAsync(scope.ToProjectScopeKey(), path.PathId, cancellationToken);
-
             IReadOnlyList<SecurityEvidencePathRoutingRecord> routingRows =
-                SecurityEvidencePathRoutingMaterializer.MaterializeFromSnapshotTags(
+                SecurityEvidencePathRoutingMaterializer.MaterializeFromRoutingTagSlice(
                     scope.TenantId,
-                    path.PathId,
-                    hops,
-                    snapshot,
+                    pathWithHops.Path.PathId,
+                    pathWithHops.Hops,
+                    tagSlice,
                     utcNow);
 
             await routingRepository.ReplaceRoutingForPathInScopeAsync(
                 scope.ToProjectScopeKey(),
-                path.PathId,
+                pathWithHops.Path.PathId,
                 routingRows,
                 cancellationToken);
         }

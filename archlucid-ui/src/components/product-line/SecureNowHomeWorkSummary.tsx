@@ -9,7 +9,8 @@ import type { InfraEvidenceDiffSummary } from "@/lib/infra-evidence/infra-eviden
 import { fetchRemediationFactorySummary } from "@/lib/infra-evidence/infra-evidence-remediation-api";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { SECURENOW_NAV_LABELS } from "@/lib/product-line/securenow-nav-labels";
+import { SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 import { cn } from "@/lib/utils";
 
 const SNAPSHOT_PAGE_SIZE = 20;
@@ -25,16 +26,6 @@ function errorMessage(error: unknown): string {
   return error instanceof Error && error.message.trim().length > 0
     ? error.message
     : "Could not load this count.";
-}
-
-function newestSnapshotId(rows: readonly { capturedUtc: string | null; snapshotId: string }[]): string | null {
-  return [...rows]
-    .filter((row) => row.capturedUtc !== null)
-    .sort((left, right) => Date.parse(right.capturedUtc ?? "") - Date.parse(left.capturedUtc ?? ""))[0]?.snapshotId ?? null;
-}
-
-function newestDiff(diffs: readonly InfraEvidenceDiffSummary[]): InfraEvidenceDiffSummary | null {
-  return [...diffs].sort((left, right) => Date.parse(right.createdUtc) - Date.parse(left.createdUtc))[0] ?? null;
 }
 
 function knownCountDetail(count: number | null | undefined, zeroCopy: string, knownCopy: (count: number) => string): string {
@@ -78,7 +69,7 @@ export function SecureNowHomeWorkSummary(): React.JSX.Element {
     queryFn: () => fetchInfraEvidenceSnapshots(1, SNAPSHOT_PAGE_SIZE),
     retry: false,
   });
-  const newestSnapshotIdValue = newestSnapshotId(snapshotsQuery.data?.items ?? []);
+  const newestSnapshotIdValue = snapshotsQuery.data?.items[0]?.snapshotId ?? null;
   const diffsQuery = useQuery({
     queryKey: ["securenow", "home", "diffs", newestSnapshotIdValue],
     queryFn: () => fetchInfraEvidenceDiffsForSnapshot(newestSnapshotIdValue ?? ""),
@@ -93,7 +84,11 @@ export function SecureNowHomeWorkSummary(): React.JSX.Element {
     ? undefined
     : factorySummary.openInstancesByStatus.ChangeImplemented;
   const verificationFailures = factorySummary?.openInstancesByStatus.VerificationFailed;
-  const myFindingsLabel = SECURENOW_NAV_LABELS["/security/assigned-to-me"] ?? "My findings";
+  const myFindingsLabel = resolveSecureNowPageHeading(
+    "security",
+    "Assigned to me",
+    SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
+  );
   const assignedDetail = assignedQuery.isPending
     ? "Loading…"
     : knownCountDetail(assignedQuery.data, "None assigned to you", (count) => `${count} assigned to you`);
@@ -104,7 +99,7 @@ export function SecureNowHomeWorkSummary(): React.JSX.Element {
         "No critical exposure",
         (count) => `${count} with critical exposure`,
       );
-  const comparisonDiff = diffsQuery.data === undefined ? null : newestDiff(diffsQuery.data);
+  const comparisonDiff = diffsQuery.data === undefined ? null : diffsQuery.data[0] ?? null;
   const changesDetail = snapshotsQuery.isPending || (newestSnapshotIdValue !== null && diffsQuery.isPending)
     ? "Loading…"
     : comparisonDiff === null

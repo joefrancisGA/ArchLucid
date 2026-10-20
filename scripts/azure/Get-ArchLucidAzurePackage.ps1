@@ -417,7 +417,7 @@ if (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)))
     }
 }
 
-$scriptVersion = "0.4.12"
+$scriptVersion = "0.4.14"
 $schemaVersion = 2
 $collectionTimestamp = (Get-Date).ToUniversalTime().ToString("o")
 $azProfile = Get-Module Az.Resources
@@ -781,6 +781,36 @@ try
             {
                 $networkAssociationRows += $avdArgRow
             }
+        }
+
+        [object]$staticSiteResult = Add-ArchLucidAzureStaticSiteLinkedBackendAssociationRows `
+            -NetworkAssociationRows @($networkAssociationRows) `
+            -InventoryResources @($inventoryForAssociationDerivation)
+
+        $networkAssociationRows = @($staticSiteResult.rows)
+
+        foreach ($staticSiteWarning in @($staticSiteResult.warnings))
+        {
+            Add-ArchLucidExtractorWarning `
+                -Telemetry $telemetry `
+                -Step SecurityInventory `
+                -Message $staticSiteWarning `
+                -Context @{ collector = 'CustomerScript' }
+        }
+
+        [object]$fabricCapacityResult = Add-ArchLucidAzureFabricCapacityWorkspaceAssociationRows `
+            -NetworkAssociationRows @($networkAssociationRows) `
+            -InventoryResources @($inventoryForAssociationDerivation)
+
+        $networkAssociationRows = @($fabricCapacityResult.rows)
+
+        foreach ($fabricWarning in @($fabricCapacityResult.warnings))
+        {
+            Add-ArchLucidExtractorWarning `
+                -Telemetry $telemetry `
+                -Step SecurityInventory `
+                -Message $fabricWarning `
+                -Context @{ collector = 'CustomerScript' }
         }
 
         [object]$federatedCredentialResult = Invoke-ArchLucidSecurityInventoryCompanion `

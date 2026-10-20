@@ -71,7 +71,7 @@ public sealed class DiagramAstGraphvizDotEmitterTests
     {
         DiagramAst ast = new()
         {
-            Title = "Azure inventory (FullSubscription)",
+            Title = "Azure inventory (ResourceGroup)",
             Nodes =
             [
                 new DiagramNode
@@ -115,7 +115,7 @@ public sealed class DiagramAstGraphvizDotEmitterTests
 
         dot.Should().Contain("subgraph cluster_vnet_vnet");
         dot.Should().Contain("label=\"vnet-app\"");
-        dot.Should().NotContain("cluster_subscription");
+        dot.Should().NotContain("cluster_subscription", "resource-group scoped titles omit the subscription outer cluster");
         dot.Should().NotContain("label=\"Subscription\"");
         dot.Should().NotContain("VNet / subnet");
         dot.Should().Contain("vault");
@@ -170,7 +170,8 @@ public sealed class DiagramAstGraphvizDotEmitterTests
         string dot = emitter.Emit(ast);
 
         dot.Should().Contain("Group label was not stored");
-        dot.Should().Contain("label=\" \"");
+        dot.Should().Contain("Group label was stored empty.");
+        dot.Should().NotContain("label=\" \"");
     }
 
     [Fact]

@@ -50,6 +50,24 @@ describe("RunDetailCreateHomeCapturedEvidenceInventory", () => {
     );
 
     expect(screen.getByText("empty.txt")).toBeInTheDocument();
-    expect(screen.queryByText("Evidence item id was not stored.")).not.toBeInTheDocument();
+    expect(screen.getByText("Evidence item id was stored empty.")).toBeInTheDocument();
+  });
+
+  it("labels stored-empty uploaded time", () => {
+    render(
+      <RunDetailCreateHomeCapturedEvidenceInventory
+        runId="run-1"
+        items={[
+          {
+            key: "empty-time",
+            fileName: "brief.md",
+            evidenceItemId: "ev-1",
+            ingestedUtc: "",
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByText("Uploaded time was stored empty.")).toBeInTheDocument();
   });
 });

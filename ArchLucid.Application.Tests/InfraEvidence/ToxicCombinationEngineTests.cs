@@ -569,7 +569,8 @@ public sealed class ToxicCombinationEngineTests
             snapshotRepository.Object,
             pathRepository,
             ingestService,
-            NullLogger<PrivilegePathEngine>.Instance);
+            NullLogger<PrivilegePathEngine>.Instance,
+            new NoOpSecurityEvidencePathSearchCoverageRepository());
     }
 
     private static IntendedReachabilityEngine CreateReachabilityEngine(
@@ -587,7 +588,9 @@ public sealed class ToxicCombinationEngineTests
             snapshotRepository.Object,
             pathRepository,
             ingestService,
-            NullLogger<IntendedReachabilityEngine>.Instance);
+            NullLogger<IntendedReachabilityEngine>.Instance,
+            new NoOpSecurityEvidencePathSearchCoverageRepository());
+
     }
 
     private static ToxicCombinationEngine CreateToxicEngine(
@@ -605,7 +608,8 @@ public sealed class ToxicCombinationEngineTests
             snapshotRepository.Object,
             pathRepository,
             ingestService,
-            NullLogger<ToxicCombinationEngine>.Instance);
+            NullLogger<ToxicCombinationEngine>.Instance,
+            new NoOpSecurityEvidencePathSearchCoverageRepository());
     }
 
     private static OperationalSecurityFindingIngestService CreateIngestService(

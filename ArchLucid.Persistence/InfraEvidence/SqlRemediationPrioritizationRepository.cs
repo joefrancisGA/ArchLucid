@@ -6,7 +6,7 @@ using Dapper;
 
 namespace ArchLucid.Persistence.InfraEvidence;
 
-public sealed class SqlRemediationPrioritizationRepository(ISqlConnectionFactory connectionFactory)
+public sealed partial class SqlRemediationPrioritizationRepository(ISqlConnectionFactory connectionFactory)
     : IRemediationPrioritizationRepository
 {
     public async Task<RemediationPrioritizationWeightsRecord?> TryGetWeightsAsync(
@@ -151,6 +151,95 @@ public sealed class SqlRemediationPrioritizationRepository(ISqlConnectionFactory
                     mutation.ComputedUtc,
                 },
                 cancellationToken: cancellationToken));
+    }
+
+    public async Task UpsertScoresInScopeAsync(
+        ProjectScopeKey scope,
+        IReadOnlyList<RemediationPrioritizationScoreMutation> mutations,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(mutations);
+
+        if (mutations.Count == 0)
+            return;
+
+        const string guardSql = """
+                                SELECT COUNT(1)
+                                FROM dbo.OperationalSecurityFindings
+                                WHERE TenantId = @TenantId
+                                  AND WorkspaceId = @WorkspaceId
+                                  AND ProjectId = @ProjectId
+                                  AND FindingId IN @FindingIds;
+                                """;
+
+        const string mergeSql = """
+                                MERGE dbo.RemediationPrioritizationScores AS target
+                                USING (SELECT @TenantId AS TenantId, @FindingId AS FindingId) AS source
+                                ON target.TenantId = source.TenantId AND target.FindingId = source.FindingId
+                                WHEN MATCHED THEN
+                                    UPDATE SET TotalScore = @TotalScore,
+                                               BreakdownJson = @BreakdownJson,
+                                               ExplanationSummary = @ExplanationSummary,
+                                               RuleVersion = @RuleVersion,
+                                               ComputedUtc = @ComputedUtc
+                                WHEN NOT MATCHED THEN
+                                    INSERT (FindingId, TenantId, TotalScore, BreakdownJson, ExplanationSummary, RuleVersion, ComputedUtc)
+                                    VALUES (@FindingId, @TenantId, @TotalScore, @BreakdownJson, @ExplanationSummary, @RuleVersion, @ComputedUtc);
+                                """;
+
+        List<Guid> findingIds = mutations
+            .Select(item => item.FindingId)
+            .Where(id => id != Guid.Empty)
+            .Distinct()
+            .ToList();
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        int foundCount = await conn.ExecuteScalarAsync<int>(
+            new CommandDefinition(
+                guardSql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    FindingIds = findingIds,
+                },
+                cancellationToken: cancellationToken));
+
+        if (foundCount != findingIds.Count)
+            throw new InvalidOperationException("Scoped prioritization score target finding was not found.");
+
+        using System.Data.IDbTransaction transaction = conn.BeginTransaction();
+
+        try
+        {
+            foreach (RemediationPrioritizationScoreMutation mutation in mutations)
+            {
+                await conn.ExecuteAsync(
+                    new CommandDefinition(
+                        mergeSql,
+                        new
+                        {
+                            scope.TenantId,
+                            mutation.FindingId,
+                            mutation.TotalScore,
+                            mutation.BreakdownJson,
+                            mutation.ExplanationSummary,
+                            mutation.RuleVersion,
+                            mutation.ComputedUtc,
+                        },
+                        transaction: transaction,
+                        cancellationToken: cancellationToken));
+            }
+
+            transaction.Commit();
+        }
+        catch
+        {
+            transaction.Rollback();
+            throw;
+        }
     }
 
     public async Task<RemediationPrioritizationScoreRecord?> TryGetScoreAsync(

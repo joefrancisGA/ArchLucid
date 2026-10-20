@@ -5,30 +5,29 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
-import {
-  ArchitectureDiagramViewer,
-  type ArchitectureDiagramConnectorSelection,
-  type ArchitectureDiagramMermaidViewerProps,
-} from "@/components/architecture/ArchitectureDiagramViewer";
+import { DiagramsWorkbenchSecureNowAwareDiagramViewer } from "@/app/(operator)/governance/infrastructure/diagrams/DiagramsWorkbenchSecureNowAwareDiagramViewer";
+import { DiagramsWorkbenchSecureNowQuestionBarFallback } from "@/app/(operator)/governance/infrastructure/diagrams/DiagramsWorkbenchSecureNowQuestionBarFallback";
+import { type ArchitectureDiagramConnectorSelection } from "@/components/architecture/ArchitectureDiagramViewer";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
+import { InfraDiagramsExportHonestyStrip } from "@/components/infra-evidence/InfraDiagramsExportHonestyStrip";
+import { PageShortcutsDisclosure } from "@/components/usability/PageShortcutsDisclosure";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import {
-  SecureNowQuestionQueueBar,
   SecureNowQuestionQueueProvider,
   SecureNowQuestionQueueSnapshotPromo,
-  useSecureNowQuestionQueue,
-  useSecureNowQuestionSubjectNodeId,
 } from "@/components/infra-evidence/SecureNowQuestionQueue";
 import { InfraEvidenceCompletenessWarningsBanner } from "@/components/infra-evidence/InfraEvidenceCompletenessWarningsBanner";
 import { OperatorInferredConnectionsPanel } from "@/components/infra-evidence/OperatorInferredConnectionsPanel";
 import { InfraEvidenceDataFlowCaptionDisclosure } from "@/components/infra-evidence/InfraEvidenceDataFlowCaptionDisclosure";
 import { InfraEvidenceDiagramOutline } from "@/components/infra-evidence/InfraEvidenceDiagramOutline";
 import { InfraEvidenceDiagramLegend } from "@/components/infra-evidence/InfraEvidenceDiagramLegend";
+import { InfraEvidenceDiagramReadingLegend } from "@/components/infra-evidence/InfraEvidenceDiagramReadingLegend";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -51,6 +50,7 @@ import {
   formatInfraEvidenceMermaidApiError,
   type InfraEvidenceMermaidRenderQuery,
 } from "@/lib/infra-evidence/infra-evidence-mermaid-api";
+import { resolveDiagramOutlineUnknownNodeFilterScopeForWorkbench } from "@/lib/infra-evidence/diagram-outline-unknown-node-filter";
 import {
   INFRA_DIAGRAMS_CLOUD_RESOURCE_ID_PARAM,
   INFRA_DIAGRAMS_MERMAID_MODE_PARAM,
@@ -103,10 +103,7 @@ import {
 import { buildDiagramWalkthrough } from "@/lib/infra-evidence/build-diagram-walkthrough";
 import { filterInfraEvidenceMermaidOutline } from "@/lib/infra-evidence/azure-inventory-never-show-arm-types";
 import { resolveAlwaysExcludedMermaidCollapseEntries } from "@/lib/infra-evidence/infra-evidence-mermaid-collapse-report";
-import {
-  diagramOutlineIncludesFocusResource,
-  resolveDiagramCameraFocusNodeIds,
-} from "@/lib/architecture/architecture-diagram-camera-focus";
+import { resolveDiagramCameraFocusNodeIds } from "@/lib/architecture/architecture-diagram-camera-focus";
 import type {
   InfraEvidenceMermaidFallbackArtifactSummary,
   InfraEvidenceMermaidModePreview,
@@ -114,12 +111,7 @@ import type {
 } from "@/lib/infra-evidence/infra-evidence-mermaid-types";
 import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import { formatInfraEvidenceDiagramsApiError } from "@/lib/infra-evidence/infra-evidence-diagrams-api";
-import {
-  INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED,
-  INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED,
-  INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED,
-  INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE,
-} from "@/lib/infra-evidence/infra-evidence-diagram-copy";
+import { buildInfraMermaidExportLegendCommentLines } from "@/lib/infra-evidence/infra-evidence-png-reading-strip";
 import { formatInfraEvidenceMermaidPngExportError } from "@/lib/infra-evidence/infra-evidence-mermaid-png-export-error";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
@@ -204,6 +196,8 @@ import {
   DESIGN_TOKENS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_SNAPSHOTS_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_SNAPSHOTS_TITLE,
@@ -269,10 +263,17 @@ import { cn } from "@/lib/utils";
 import { DiagramsBreadcrumb } from "./DiagramsBreadcrumb";
 import { DiagramsClaimOrientationStrip } from "./DiagramsClaimOrientationStrip";
 import { useDiagramsWorkbenchShortcuts } from "./use-diagrams-workbench-shortcuts";
+import { diagramsWorkbenchPageShortcutsDisclosureEntries } from "./diagrams-workbench-page-shortcuts-disclosure";
+import { InfraDiagramsSnapshotPickerOptions } from "./InfraDiagramsSnapshotPickerOptions";
+import { resolveInfraDiagramsExportDisabledReason } from "@/lib/infra-evidence/resolve-infra-diagrams-export-disabled-reason";
 
 function resolveInfraDiagramsRenderStatusAnnouncement(status: string | null): string {
   if (status === null) {
     return "Render status was not stored.";
+  }
+
+  if (status.trim().length === 0) {
+    return "Render status was stored empty.";
   }
 
   const normalized = status.trim().toLowerCase();
@@ -293,7 +294,7 @@ function resolveInfraDiagramsRenderStatusAnnouncement(status: string | null): st
     return "Diagram partitioned — pick a view";
   }
 
-  return status;
+  return `Render status ${status} has no reviewer label.`;
 }
 
 const cnCard =
@@ -308,7 +309,7 @@ function resolveInfraDiagramsModeLabel(mode: string, fallbackKey: string, resour
       return `Resource group · ${resourceGroupName}`;
     }
 
-    return "Pick a Resource Group";
+    return "Resource group name was not stored.";
   }
 
   if (fallbackKey.length > 0) {
@@ -321,7 +322,7 @@ function resolveInfraDiagramsModeLabel(mode: string, fallbackKey: string, resour
 }
 
 const INFRA_DIAGRAM_DATA_FLOW_READING_CARD_CAPTION_REST =
-  "The first line is the name. The next line is the type. When a store has no consumer, the status line says No consumer found; when it does, Used by N. Factory, host, and runtime lines describe a Data Factory link. A title that is a count, such as 6 storage accounts, opens the list of names. Click that card again to close the list.";
+  "The first line is the name. The next line is the type. When a store has no diagram neighbor on this view, the status line says No diagram neighbor on this view.; when it does, the line names how many diagram neighbors this view drew. Factory, host, and runtime lines describe a Data Factory link. A title that is a count, such as 6 storage accounts, opens the list of names. Click that card again to close the list.";
 
 const EVIDENCE_FAMILY_FILTER_MODES = new Set(["dataFlow", "executive", "identity", "data"]);
 
@@ -419,8 +420,14 @@ function FallbackCard(props: {
 export function DiagramsWorkbenchClient() {
   const buyerPolishedShell = useProductionEvalChrome();
   const { ianaTimeZoneId } = useIanaTimeZonePreference();
+  const { productLine } = useProductLine();
   const router = useRouter();
   const pathname = usePathname() ?? "";
+  const pageTitle = resolveSecureNowPageHeading(
+    productLine,
+    GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
+    SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
+  );
   const searchParams = useSearchParams();
   const urlSnapshotId = parseInfraDiagramsSnapshotIdFromSearch(searchParams.get(INFRA_DIAGRAMS_SNAPSHOT_ID_PARAM));
   const urlCloudResourceId = parseInfraDiagramsCloudResourceIdFromSearch(
@@ -501,9 +508,7 @@ export function DiagramsWorkbenchClient() {
   );
   const [selectedInventoryEdge, setSelectedInventoryEdge] = useState<InfraEvidenceMermaidOutlineEdge | null>(null);
   const [showPrivateEndpoints, setShowPrivateEndpoints] = useState(urlIncludePrivateEndpoints);
-  const [showNetworkDetails, setShowNetworkDetails] = useState(
-    urlIncludeNetworkDetails || (urlMermaidMode === "full" && urlIncludePrivateEndpoints),
-  );
+  const [showNetworkDetails, setShowNetworkDetails] = useState(urlIncludeNetworkDetails);
   const [includeRecoveryServices, setIncludeRecoveryServices] = useState(urlIncludeRecoveryServices);
   const [includeCrossGroupFanOut, setIncludeCrossGroupFanOut] = useState(urlIncludeCrossGroupFanOut);
   const [showAvdAssets, setShowAvdAssets] = useState(urlIncludeAvdAssets);
@@ -565,10 +570,8 @@ export function DiagramsWorkbenchClient() {
   }, [urlIncludePrivateEndpoints]);
 
   useEffect(() => {
-    setShowNetworkDetails(
-      urlIncludeNetworkDetails || (urlMermaidMode === "full" && urlIncludePrivateEndpoints),
-    );
-  }, [urlIncludeNetworkDetails, urlIncludePrivateEndpoints, urlMermaidMode]);
+    setShowNetworkDetails(urlIncludeNetworkDetails);
+  }, [urlIncludeNetworkDetails]);
 
   useEffect(() => {
     setIncludeRecoveryServices(urlIncludeRecoveryServices);
@@ -788,7 +791,7 @@ export function DiagramsWorkbenchClient() {
     }
 
     if (selectedSnapshotId.length > 0) {
-      return selectedSnapshotId;
+      return `Snapshot label was not stored. Selected id ${selectedSnapshotId}`;
     }
 
     return null;
@@ -901,6 +904,100 @@ export function DiagramsWorkbenchClient() {
     || dependencyNeighborhoodAwaitingSeed
     || resourceGroupPickerAwaitingSelection;
   const mermaidExportDisabled = exportsDisabled || !paintDiagramCanvas;
+
+  const pngExportDisabledReason = useMemo(
+    () =>
+      exportsDisabled
+        ? resolveInfraDiagramsExportDisabledReason({
+            exportBusy,
+            renderInFlight,
+            selectedSnapshotId,
+            deepLinkedSnapshotMissing,
+            diagramsSubscriptionChosen,
+            diagramTypeSelected,
+            dependencyNeighborhoodAwaitingSeed,
+            resourceGroupPickerAwaitingSelection,
+            paintDiagramCanvas,
+            forMermaidExport: false,
+          })
+        : null,
+    [
+      dependencyNeighborhoodAwaitingSeed,
+      deepLinkedSnapshotMissing,
+      diagramTypeSelected,
+      diagramsSubscriptionChosen,
+      exportBusy,
+      exportsDisabled,
+      paintDiagramCanvas,
+      renderInFlight,
+      resourceGroupPickerAwaitingSelection,
+      selectedSnapshotId,
+    ],
+  );
+
+  const mermaidExportDisabledReason = useMemo(
+    () =>
+      mermaidExportDisabled
+        ? resolveInfraDiagramsExportDisabledReason({
+            exportBusy,
+            renderInFlight,
+            selectedSnapshotId,
+            deepLinkedSnapshotMissing,
+            diagramsSubscriptionChosen,
+            diagramTypeSelected,
+            dependencyNeighborhoodAwaitingSeed,
+            resourceGroupPickerAwaitingSelection,
+            paintDiagramCanvas,
+            forMermaidExport: true,
+          })
+        : null,
+    [
+      dependencyNeighborhoodAwaitingSeed,
+      deepLinkedSnapshotMissing,
+      diagramTypeSelected,
+      diagramsSubscriptionChosen,
+      exportBusy,
+      mermaidExportDisabled,
+      paintDiagramCanvas,
+      renderInFlight,
+      resourceGroupPickerAwaitingSelection,
+      selectedSnapshotId,
+    ],
+  );
+
+  const snapshotResolvedForWorkbench = useMemo(
+    () =>
+      !loadingSnapshots
+      && selectedSnapshot != null
+      && selectedSnapshot.snapshotId === selectedSnapshotId
+      && !deepLinkedSnapshotMissing
+      && selectedSnapshotVisibleInSubscriptionFilter,
+    [
+      deepLinkedSnapshotMissing,
+      loadingSnapshots,
+      selectedSnapshot,
+      selectedSnapshotId,
+      selectedSnapshotVisibleInSubscriptionFilter,
+    ],
+  );
+
+  const completenessWarningsScopeLine = useMemo(() => {
+    if (selectedSnapshot == null) {
+      return null;
+    }
+
+    const subscriptionLabel =
+      subscriptionFilterOptions.find((option) => option.value === selectedSubscriptionFilter)?.label
+      ?? selectedSnapshot.subscriptionName?.trim()
+      ?? "Subscription not labeled";
+
+    return `Subscription ${subscriptionLabel} · Snapshot ${formatSnapshotPickerLabel(selectedSnapshot)}`;
+  }, [
+    formatSnapshotPickerLabel,
+    selectedSnapshot,
+    selectedSubscriptionFilter,
+    subscriptionFilterOptions,
+  ]);
 
   const renderStatus = renderResult?.status ?? activeModePreview?.status ?? "";
 
@@ -1107,6 +1204,13 @@ export function DiagramsWorkbenchClient() {
     () => resolveDiagramCameraFocusNodeIds(appliedSeedNodeId, familyFilteredOutline),
     [appliedSeedNodeId, familyFilteredOutline],
   );
+  const unknownFilterDefaultScope = useMemo(
+    () => resolveDiagramOutlineUnknownNodeFilterScopeForWorkbench({
+      startingSeedId: appliedSeedNodeId,
+      dependencyNeighborhoodMode: selectedMode === "dependencyNeighborhood",
+    }),
+    [appliedSeedNodeId, selectedMode],
+  );
 
   const [cameraFocusNonce, setCameraFocusNonce] = useState(0);
 
@@ -1286,7 +1390,7 @@ export function DiagramsWorkbenchClient() {
       mode: selectedMode,
       seedNodeId: null,
       includeNeverShow,
-      includePrivateEndpointNodes: fullSubscription ? false : showPrivateEndpoints,
+      includePrivateEndpointNodes: showPrivateEndpoints,
       includeNetworkDetails: fullSubscription ? showNetworkDetails : false,
       includeRecoveryServices,
       includeCrossGroupFanOut,
@@ -1345,8 +1449,13 @@ export function DiagramsWorkbenchClient() {
 
           if (resolvedSnapshotId.length > 0) {
             const linkedSnapshot = items.find((snapshot) => snapshot.snapshotId === resolvedSnapshotId) ?? null;
+            const resolvedSubscriptionFilter = resolveInfraDiagramsSubscriptionFilterForSnapshot(linkedSnapshot);
 
-            setSelectedSubscriptionFilter(resolveInfraDiagramsSubscriptionFilterForSnapshot(linkedSnapshot));
+            setSelectedSubscriptionFilter(resolvedSubscriptionFilter);
+
+            if (urlSubscriptionFilter.length === 0 && resolvedSubscriptionFilter.length > 0) {
+              syncUrlRef.current({ subscriptionFilter: resolvedSubscriptionFilter });
+            }
           } else if (urlSubscriptionFilter.length > 0) {
             const subscriptionKnown = buildInfraDiagramsSubscriptionFilterOptions(items).some(
               (option) => option.value === urlSubscriptionFilter,
@@ -1383,9 +1492,15 @@ export function DiagramsWorkbenchClient() {
     const linkedSnapshot = snapshots.find((snapshot) => snapshot.snapshotId === urlSnapshotId) ?? null;
 
     if (linkedSnapshot != null) {
-      setSelectedSubscriptionFilter(resolveInfraDiagramsSubscriptionFilterForSnapshot(linkedSnapshot));
+      const resolvedSubscriptionFilter = resolveInfraDiagramsSubscriptionFilterForSnapshot(linkedSnapshot);
+
+      setSelectedSubscriptionFilter(resolvedSubscriptionFilter);
+
+      if (urlSubscriptionFilter.length === 0 && resolvedSubscriptionFilter.length > 0) {
+        syncUrlRef.current({ subscriptionFilter: resolvedSubscriptionFilter });
+      }
     }
-  }, [snapshots, urlSnapshotId]);
+  }, [snapshots, urlSnapshotId, urlSubscriptionFilter]);
 
   const applySubscriptionFilterChange = useCallback(
     (nextSubscriptionFilter: string) => {
@@ -1804,6 +1919,14 @@ export function DiagramsWorkbenchClient() {
         mode: selectedMode,
         outline: familyFilteredOutline,
         completenessWarnings,
+        snapshotLabel:
+          selectedSnapshot != null ? formatSnapshotPickerLabel(selectedSnapshot) : null,
+        ...(isInfraDiagramsResourceGroupMode(selectedMode)
+          ? { resourceGroupScopeName: selectedResourceGroupName }
+          : {}),
+        ...(selectedMode === "dependencyNeighborhood"
+          ? { dependencyNeighborhoodSeedLabel: appliedSeedNodeId }
+          : {}),
       };
 
       if (tooLargeForBrowser) {
@@ -1853,17 +1976,10 @@ export function DiagramsWorkbenchClient() {
 
     downloadBrowserTextFile(
       `infra-evidence-mermaid-${selectedSnapshotId}-${exportModeToken}.mmd`,
-      [
-        `%% ${INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED}`,
-        `%% ${INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED}`,
-        `%% ${INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE}`,
-        `%% ${INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED}`,
-        "",
-        mermaidSource,
-      ].join("\n"),
+      [...buildInfraMermaidExportLegendCommentLines(familyFilteredOutline), "", mermaidSource].join("\n"),
       "text/plain;charset=utf-8",
     );
-  }, [effectiveFallbackKey, mermaidExportDisabled, mermaidSource, selectedMode, selectedSnapshotId]);
+  }, [effectiveFallbackKey, familyFilteredOutline, mermaidExportDisabled, mermaidSource, selectedMode, selectedSnapshotId]);
 
   const focusSubscriptionPicker = useCallback(() => {
     document.getElementById("infra-diagrams-subscription-picker")?.focus();
@@ -1901,7 +2017,7 @@ export function DiagramsWorkbenchClient() {
 
       <OperatorPageHeader
         navHref={pathname}
-        title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE}
+        title={pageTitle}
         subtitle={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD}
         titleTestId="infra-diagrams-page-title"
         metadata={<DiagramsBreadcrumb />}
@@ -1913,9 +2029,7 @@ export function DiagramsWorkbenchClient() {
         data-testid="infra-diagrams-primary-content"
       >
       <SecureNowQuestionQueueProvider
-        snapshotId={
-          selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? selectedSnapshotId : ""
-        }
+        snapshotId={snapshotResolvedForWorkbench ? selectedSnapshotId : ""}
       >
       <InfraEvidenceSelectionAnnouncer message={selectionAnnouncement} testId="infra-diagrams-selection-announcer" />
 
@@ -1927,12 +2041,18 @@ export function DiagramsWorkbenchClient() {
         />
       ) : null}
 
-      {selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? (
+      {snapshotResolvedForWorkbench ? (
         <InfraEvidenceCompletenessWarningsBanner
           warnings={completenessWarnings}
           summary={completenessSummary}
+          scopeLine={completenessWarningsScopeLine}
         />
       ) : null}
+
+      <PageShortcutsDisclosure
+        testId="infra-diagrams-page-shortcuts"
+        entries={diagramsWorkbenchPageShortcutsDisclosureEntries()}
+      />
 
       {selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? (
         <OperatorInferredConnectionsPanel snapshotId={selectedSnapshotId} />
@@ -2032,7 +2152,7 @@ export function DiagramsWorkbenchClient() {
             <div
               className={cn(
                 "col-span-full grid min-w-0 gap-2",
-                showResourceGroupDropdown ? "md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]" : "md:max-w-md",
+                showResourceGroupDropdown ? "md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]" : "",
               )}
             >
               <div className="grid min-w-0 gap-2">
@@ -2092,20 +2212,15 @@ export function DiagramsWorkbenchClient() {
                 value={selectedSnapshotVisibleInSubscriptionFilter ? selectedSnapshotId : ""}
                 onChange={(event) => handleSnapshotChange(event.target.value)}
               >
-                {visibleSnapshots.length === 0 ? (
-                  <option value="">No snapshots available</option>
-                ) : (
-                  <>
-                    {selectedSnapshotId.length === 0 || !selectedSnapshotVisibleInSubscriptionFilter ? (
-                      <option value="">Select a snapshot</option>
-                    ) : null}
-                    {visibleSnapshots.map((snapshot) => (
-                      <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
-                        {formatSnapshotPickerLabel(snapshot)}
-                      </option>
-                    ))}
-                  </>
-                )}
+                <InfraDiagramsSnapshotPickerOptions
+                  loadingSnapshots={loadingSnapshots}
+                  diagramsSubscriptionChosen={diagramsSubscriptionChosen}
+                  snapshotsEmpty={snapshots.length === 0}
+                  visibleSnapshots={visibleSnapshots}
+                  selectedSnapshotId={selectedSnapshotId}
+                  selectedSnapshotVisibleInSubscriptionFilter={selectedSnapshotVisibleInSubscriptionFilter}
+                  formatSnapshotPickerLabel={formatSnapshotPickerLabel}
+                />
               </select>
             </div>
             <div className="grid min-w-0 gap-2">
@@ -2141,7 +2256,7 @@ export function DiagramsWorkbenchClient() {
                   <CopyIdButton value={selectedSnapshot.snapshotId} aria-label="Copy snapshot id" />
                 </div>
                 <StatusTag {...infraEvidenceSnapshotCaptureStatusTagProps(selectedSnapshot.captureStatus)} />
-                <SecureNowQuestionQueueSnapshotPromo />
+                <SecureNowQuestionQueueSnapshotPromo compact />
               </div>
             ) : null}
           </>
@@ -2150,7 +2265,7 @@ export function DiagramsWorkbenchClient() {
             <div
               className={cn(
                 "col-span-full grid min-w-0 gap-2",
-                showResourceGroupDropdown ? "md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]" : "md:max-w-md",
+                showResourceGroupDropdown ? "md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]" : "",
               )}
             >
               <div className="flex min-w-0 flex-col gap-1">
@@ -2212,20 +2327,15 @@ export function DiagramsWorkbenchClient() {
                 value={selectedSnapshotVisibleInSubscriptionFilter ? selectedSnapshotId : ""}
                 onChange={(event) => handleSnapshotChange(event.target.value)}
               >
-                {visibleSnapshots.length === 0 ? (
-                  <option value="">No snapshots available</option>
-                ) : (
-                  <>
-                    {selectedSnapshotId.length === 0 || !selectedSnapshotVisibleInSubscriptionFilter ? (
-                      <option value="">Select a snapshot</option>
-                    ) : null}
-                    {visibleSnapshots.map((snapshot) => (
-                      <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
-                        {formatSnapshotPickerLabel(snapshot)}
-                      </option>
-                    ))}
-                  </>
-                )}
+                <InfraDiagramsSnapshotPickerOptions
+                  loadingSnapshots={loadingSnapshots}
+                  diagramsSubscriptionChosen={diagramsSubscriptionChosen}
+                  snapshotsEmpty={snapshots.length === 0}
+                  visibleSnapshots={visibleSnapshots}
+                  selectedSnapshotId={selectedSnapshotId}
+                  selectedSnapshotVisibleInSubscriptionFilter={selectedSnapshotVisibleInSubscriptionFilter}
+                  formatSnapshotPickerLabel={formatSnapshotPickerLabel}
+                />
               </select>
             </div>
             <div className="flex min-w-0 flex-col gap-1">
@@ -2260,7 +2370,7 @@ export function DiagramsWorkbenchClient() {
                   <CopyIdButton value={selectedSnapshot.snapshotId} aria-label="Copy snapshot id" />
                 </div>
                 <StatusTag {...infraEvidenceSnapshotCaptureStatusTagProps(selectedSnapshot.captureStatus)} />
-                <SecureNowQuestionQueueSnapshotPromo />
+                <SecureNowQuestionQueueSnapshotPromo compact />
               </div>
             ) : null}
           </>
@@ -2305,7 +2415,7 @@ export function DiagramsWorkbenchClient() {
               <span className={OPERATOR_TYPOGRAPHY.body}>Show network details</span>
             </label>
           ) : null}
-          {selectedMode !== "full" && !isInfraDiagramsResourceGroupMode(selectedMode) ? (
+          {selectedMode !== "businessContinuity" ? (
             <label className="flex items-center gap-2">
               <Checkbox
                 checked={showPrivateEndpoints}
@@ -2341,10 +2451,10 @@ export function DiagramsWorkbenchClient() {
               <Checkbox
                 checked={showAvdAssets}
                 data-testid="infra-diagrams-show-avd-assets"
-                aria-label="Show AVD Assets"
+                aria-label="Show AVD assets"
                 onCheckedChange={handleShowAvdAssetsToggle}
               />
-              <span className={OPERATOR_TYPOGRAPHY.body}>Show AVD Assets</span>
+              <span className={OPERATOR_TYPOGRAPHY.body}>Show AVD assets</span>
             </label>
           ) : null}
           {diagramWalkthrough != null ? (
@@ -2621,29 +2731,60 @@ export function DiagramsWorkbenchClient() {
       ) : null}
 
       <section className={cn("flex flex-col gap-3", cnCard)} aria-label="Diagram export actions" data-testid="infra-diagrams-export">
-        <SponsorExportSendHonestyStrip testIdPrefix="infra-diagrams-export" />
+        <InfraDiagramsExportHonestyStrip />
+        <SponsorExportSendHonestyStrip className="max-w-xl" testIdPrefix="infra-diagrams-export" />
+        <InfraEvidenceWorkbenchBuildProvenanceStrip testId="infra-diagrams-build-provenance-limitation" />
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              type="button"
-              variant="default"
-              data-testid="infra-diagrams-export-png"
-              disabled={exportsDisabled}
-              aria-describedby={pngExportError != null ? "infra-diagrams-png-export-error" : undefined}
-              onClick={() => void runPngExport()}
-            >
-              {exportBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : null}
-              Export PNG{tenantBrandActive ? " (branded)" : ""}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              data-testid="infra-diagrams-export-mmd"
-              disabled={mermaidExportDisabled}
-              onClick={runMermaidExport}
-            >
-              Export Mermaid
-            </Button>
+          <div className="flex min-w-0 flex-col gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                variant="default"
+                data-testid="infra-diagrams-export-png"
+                disabled={exportsDisabled}
+                aria-describedby={
+                  pngExportError != null
+                    ? "infra-diagrams-png-export-error"
+                    : pngExportDisabledReason != null
+                      ? "infra-diagrams-export-png-disabled-reason"
+                      : undefined
+                }
+                onClick={() => void runPngExport()}
+              >
+                {exportBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : null}
+                Export PNG{tenantBrandActive ? " (branded)" : ""}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                data-testid="infra-diagrams-export-mmd"
+                disabled={mermaidExportDisabled}
+                aria-describedby={
+                  mermaidExportDisabledReason != null ? "infra-diagrams-export-mmd-disabled-reason" : undefined
+                }
+                onClick={runMermaidExport}
+              >
+                Export Mermaid
+              </Button>
+            </div>
+            {pngExportDisabledReason != null ? (
+              <p
+                id="infra-diagrams-export-png-disabled-reason"
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="infra-diagrams-export-png-disabled-reason"
+              >
+                {pngExportDisabledReason}
+              </p>
+            ) : null}
+            {mermaidExportDisabledReason != null ? (
+              <p
+                id="infra-diagrams-export-mmd-disabled-reason"
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="infra-diagrams-export-mmd-disabled-reason"
+              >
+                {mermaidExportDisabledReason}
+              </p>
+            ) : null}
           </div>
         </div>
         {pngExportError != null ? (
@@ -2663,14 +2804,14 @@ export function DiagramsWorkbenchClient() {
         ) : null}
       </section>
 
-      {selectedSnapshotId.length > 0 ? (
+      {snapshotResolvedForWorkbench ? (
         <div className={cn("flex flex-wrap items-center gap-2", cnCard)} aria-label="Diagram follow-up links">
           <Link
             className={OPERATOR_BODY_INLINE_LINK_CLASS}
             data-testid="infra-diagrams-open-ask"
             href={buildInfrastructureAskHandoffHref(pathname, searchParams.toString(), {
               cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : undefined,
-              snapshotId: selectedSnapshotId,
+              snapshotId: selectedSnapshot?.snapshotId ?? selectedSnapshotId,
               seedNodeId:
                 selectedMode === "dependencyNeighborhood" && appliedSeedNodeId.trim().length > 0
                   ? appliedSeedNodeId.trim()
@@ -2685,7 +2826,12 @@ export function DiagramsWorkbenchClient() {
       ) : null}
 
       {selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? (
-      awaitingDiagramTypeSelection ? (
+      <>
+      <DiagramsWorkbenchSecureNowQuestionBarFallback
+        outline={familyFilteredOutline}
+        paintDiagramCanvas={paintDiagramCanvas}
+      />
+      {awaitingDiagramTypeSelection ? (
         <EnterpriseCompactEmptyState
           title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PROMPT_TITLE}
           description={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PROMPT_BODY}
@@ -2707,6 +2853,8 @@ export function DiagramsWorkbenchClient() {
             <InfraEvidenceDiagramOutline
               outline={visibleSeedCatalogOutline}
               onFocusNeighborhood={handleOutlineFocusNeighborhood}
+              startingResourceSeedId={appliedSeedNodeId.trim().length > 0 ? appliedSeedNodeId.trim() : null}
+              unknownFilterDefaultScope={unknownFilterDefaultScope}
             />
           ) : (
             <EnterpriseCompactEmptyState
@@ -2743,6 +2891,7 @@ export function DiagramsWorkbenchClient() {
               onFocusNeighborhood={handleOutlineFocusNeighborhood}
               selectedInventoryEdge={selectedInventoryEdge}
               onSelectInventoryEdge={setSelectedInventoryEdge}
+              startingResourceSeedId={appliedSeedNodeId.trim().length > 0 ? appliedSeedNodeId.trim() : null}
             />
           ) : null}
         </>
@@ -2754,7 +2903,7 @@ export function DiagramsWorkbenchClient() {
               : dataFlowHasNoResourcesOrConnections
                 ? "This data-flow canvas has no resources and no connections."
                 : dataFlowHasNoConnections
-                ? "This data-flow canvas is empty."
+                ? "No data-flow connections in this snapshot"
                 : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE
           }
           description={
@@ -2854,10 +3003,12 @@ export function DiagramsWorkbenchClient() {
               className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="infra-diagrams-evidence-family-empty"
             >
-              No connectors in this family on this diagram.
+              No connectors in this family on this diagram. Connectors in other families are still listed under All.
             </p>
           ) : null}
+          <InfraEvidenceDiagramReadingLegend mode={selectedMode} />
           <DiagramsWorkbenchSecureNowAwareDiagramViewer
+            embedQuestionBarInViewport={paintDiagramCanvas}
             mermaidSource={displayMermaidSource}
             layoutSvg={displayLayoutSvg.length > 0 ? displayLayoutSvg : null}
             textAlternative={`Inventory diagram for snapshot ${selectedSnapshotDisplayLabel ?? selectedSnapshotId} in ${selectedModeLabel} mode.`}
@@ -2866,6 +3017,7 @@ export function DiagramsWorkbenchClient() {
             scopeContextLine={diagramScopeContextLine}
             canvasStale={renderInFlight}
             viewportControlsLayout="stacked"
+            viewportHint=""
             cameraMaxHeightClassName="max-h-[42rem]"
             focusNodeIds={cameraFocusNodeIds}
             focusNonce={cameraFocusNonce}
@@ -2892,6 +3044,8 @@ export function DiagramsWorkbenchClient() {
               onFocusNeighborhood={handleOutlineFocusNeighborhood}
               selectedInventoryEdge={selectedInventoryEdge}
               onSelectInventoryEdge={setSelectedInventoryEdge}
+              startingResourceSeedId={appliedSeedNodeId.trim().length > 0 ? appliedSeedNodeId.trim() : null}
+              unknownFilterDefaultScope={unknownFilterDefaultScope}
             />
           ) : null}
         </>
@@ -2906,11 +3060,11 @@ export function DiagramsWorkbenchClient() {
             </Button>
           }
         />
-      ) : null
+      ) : null}
+      </>
       ) : null}
 
       <DiagramsClaimOrientationStrip />
-        <InfraEvidenceWorkbenchBuildProvenanceStrip testId="infra-diagrams-build-provenance-limitation" />
       </SecureNowQuestionQueueProvider>
       </main>
 
@@ -2964,54 +3118,5 @@ export function DiagramsWorkbenchClient() {
         </AlertDialogContent>
       </AlertDialog>
     </OperatorPageContainer>
-  );
-}
-
-function DiagramsWorkbenchSecureNowAwareDiagramViewer(
-  props: ArchitectureDiagramMermaidViewerProps,
-): React.JSX.Element {
-  const { drawerOpen, currentQuestion } = useSecureNowQuestionQueue();
-  const questionSubjectNodeId = useSecureNowQuestionSubjectNodeId();
-  const [questionFocusNonce, setQuestionFocusNonce] = useState(0);
-
-  useEffect(() => {
-    if (!drawerOpen || currentQuestion == null) {
-      return;
-    }
-
-    setQuestionFocusNonce((current) => current + 1);
-  }, [currentQuestion?.questionKey, currentQuestion?.resourceId, drawerOpen]);
-
-  const questionCameraFocusNodeIds = useMemo(() => {
-    if (!drawerOpen || questionSubjectNodeId == null) {
-      return [];
-    }
-
-    if (!diagramOutlineIncludesFocusResource(props.outline, questionSubjectNodeId)) {
-      return [];
-    }
-
-    return resolveDiagramCameraFocusNodeIds(questionSubjectNodeId, props.outline);
-  }, [drawerOpen, props.outline, questionSubjectNodeId]);
-
-  const effectiveFocusNodeIds = questionCameraFocusNodeIds.length > 0
-    ? questionCameraFocusNodeIds
-    : props.focusNodeIds;
-  const effectiveFocusNonce = questionCameraFocusNodeIds.length > 0
-    ? questionFocusNonce
-    : props.focusNonce;
-
-  const viewportHeader = drawerOpen
-    ? <SecureNowQuestionQueueBar outline={props.outline ?? null} />
-    : null;
-
-  return (
-    <ArchitectureDiagramViewer
-      {...props}
-      focusNodeIds={effectiveFocusNodeIds}
-      focusNonce={effectiveFocusNonce}
-      questionSubjectNodeId={drawerOpen ? questionSubjectNodeId : null}
-      viewportHeader={viewportHeader}
-    />
   );
 }

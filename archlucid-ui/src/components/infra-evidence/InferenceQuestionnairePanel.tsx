@@ -25,6 +25,54 @@ type InferenceQuestionnairePanelProps = {
 
 type QuestionnaireChoice = "yes" | "no" | "read" | "write" | "nothing" | "skip" | null;
 
+function formatInferenceRuleName(ruleName: string | null | undefined): string {
+  if (ruleName === null || ruleName === undefined) {
+    return "Rule name was not stored";
+  }
+
+  if (ruleName.length === 0) {
+    return "Rule name was stored empty.";
+  }
+
+  return ruleName;
+}
+
+function formatInferenceQuestionText(questionText: string | null | undefined): string {
+  if (questionText === null || questionText === undefined) {
+    return "Question text was not stored";
+  }
+
+  if (questionText.length === 0) {
+    return "Question text was stored empty.";
+  }
+
+  return questionText;
+}
+
+function formatInferenceFromLabel(fromLabel: string | null | undefined): string {
+  if (fromLabel === null || fromLabel === undefined) {
+    return "Source resource was not stored.";
+  }
+
+  if (fromLabel.length === 0) {
+    return "Source resource was stored empty.";
+  }
+
+  return fromLabel;
+}
+
+function formatInferenceToHost(toHost: string | null | undefined): string {
+  if (toHost === null || toHost === undefined) {
+    return "Target host was not stored.";
+  }
+
+  if (toHost.length === 0) {
+    return "Target host was stored empty.";
+  }
+
+  return toHost;
+}
+
 export function InferenceQuestionnairePanel(
   props: InferenceQuestionnairePanelProps,
 ): React.JSX.Element | null {
@@ -198,10 +246,16 @@ export function InferenceQuestionnairePanel(
               Question {currentIndex + 1} of {proposedItems.length}
             </p>
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              {currentItem.ruleName ?? "Rule name was not stored"}
+              {formatInferenceRuleName(currentItem.ruleName)}
             </p>
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="inference-questionnaire-question">
-              {currentItem.questionText ?? "Question text was not stored"}
+              {formatInferenceQuestionText(currentItem.questionText)}
+            </p>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              <span className="font-medium">Source:</span> {formatInferenceFromLabel(currentItem.fromLabel)}
+            </p>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              <span className="font-medium">Target host:</span> {formatInferenceToHost(currentItem.toHost)}
             </p>
 
             {isDataPlaneQuestion ? (
@@ -234,6 +288,7 @@ export function InferenceQuestionnairePanel(
                     variant={choice === "nothing" ? "primary" : "outline"}
                     onClick={() => setChoice("nothing")}
                     data-testid="inference-questionnaire-nothing"
+                    aria-label="Nothing dismisses this question. It does not store a data-plane role."
                   >
                     Nothing
                   </Button>
@@ -265,6 +320,7 @@ export function InferenceQuestionnairePanel(
                 variant={choice === "skip" ? "primary" : "outline"}
                 onClick={() => setChoice("skip")}
                 data-testid="inference-questionnaire-skip"
+                aria-label="Skip is not saved. This question stays unanswered."
               >
                 Skip
               </Button>
@@ -281,7 +337,7 @@ export function InferenceQuestionnairePanel(
                   onChange={(event) => setSelectedCatalog(event.target.value)}
                   data-testid="inference-questionnaire-catalog"
                 >
-                  <option value="">Select a database</option>
+                  <option value="">Database name was not stored.</option>
                   {currentItem.toCatalog != null ? (
                     <option value={currentItem.toCatalog}>{currentItem.toCatalog}</option>
                   ) : null}

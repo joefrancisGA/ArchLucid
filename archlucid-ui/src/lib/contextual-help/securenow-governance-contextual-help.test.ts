@@ -8,14 +8,27 @@ import {
   GOVERNANCE_INFRASTRUCTURE_PATH,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
   SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
+  GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
+  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
+  SECURENOW_INFRASTRUCTURE_ASK_PATH,
+  SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
   SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
+  SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH,
+  SECURENOW_REMEDIATION_INSTANCES_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import {
   SECURENOW_REMEDIATION_FACTORY_PATH,
   SECURENOW_REMEDIATION_PATTERNS_PATH,
 } from "@/lib/governance/governance-route-paths";
-import { GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE } from "@/lib/governance/governance-infrastructure-copy";
+import {
+  GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PAGE_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_TITLE,
+} from "@/lib/governance/governance-infrastructure-copy";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 
 describe("SecureNow governance contextual help rows", () => {
@@ -27,7 +40,7 @@ describe("SecureNow governance contextual help rows", () => {
     expect(entry?.whatIsThisPage).not.toContain("Approval");
     expect(entry?.whatToDoNextAction?.href).not.toContain("approval-queue");
     expect(pageHelpTopicForPathname(SECURENOW_REMEDIATION_FACTORY_PATH, "security")?.slug).toBe(
-      "remediation-factory",
+      "security-evidence-paths",
     );
   });
 
@@ -80,9 +93,94 @@ describe("SecureNow governance contextual help rows", () => {
     const entry = contextualHelpForPathname(SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH, { productLineId: "security" });
 
     expect(entry?.whatIsThisPage).toContain(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE);
+    expect(entry?.whatIsThisPage).toContain("inventory");
     expect(entry?.whatIsThisPage).not.toContain("Approval");
+    expect(entry?.whatIsThisPage).not.toMatch(/architecture.review/i);
+    expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH, "security")?.slug).toBe(
+      "governance-infrastructure-diagrams",
+    );
+    expect(pageHelpTopicForPathname(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH, "security")?.slug).toBe(
+      "governance-infrastructure-diagrams",
+    );
+    expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH, "security")?.slug).not.toBe(
+      "cloud-connections",
+    );
+    expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH, "security")?.slug).not.toBe(
+      "architecture-intelligence",
+    );
     expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH, "security")?.label).toBe(
       GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
+    );
+  });
+
+  it("does not resolve Approval copy for diagram reconcile", () => {
+    const entry = contextualHelpForPathname(SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH, {
+      productLineId: "security",
+    });
+
+    expect(entry?.whatIsThisPage).toContain(GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PAGE_TITLE);
+    expect(entry?.whatIsThisPage).toContain("correspondence");
+    expect(entry?.whatIsThisPage).not.toContain("Approval");
+    expect(entry?.whatIsThisPage).not.toMatch(/start a review with a diagram/i);
+    expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH, "security")?.slug).toBe(
+      "governance-infrastructure-diagram-reconcile",
+    );
+    expect(pageHelpTopicForPathname(GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH, "security")?.slug).toBe(
+      "governance-infrastructure-diagram-reconcile",
+    );
+    expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH, "security")?.slug).not.toBe(
+      "cloud-connections",
+    );
+    expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH, "security")?.slug).not.toBe(
+      "architecture-intelligence",
+    );
+    expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH, "security")?.label).toBe(
+      GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PAGE_TITLE,
+    );
+  });
+
+  it("does not resolve Approval copy for infrastructure Ask", () => {
+    const entry = contextualHelpForPathname(SECURENOW_INFRASTRUCTURE_ASK_PATH, { productLineId: "security" });
+
+    expect(entry?.whatIsThisPage).toContain(GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_TITLE);
+    expect(entry?.whatIsThisPage).toContain("citation");
+    expect(entry?.whatIsThisPage).not.toContain("Approval");
+    expect(entry?.whatToDoNext).not.toMatch(/ask review questions/i);
+    expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_ASK_PATH, "security")?.slug).toBe(
+      "governance-infrastructure-ask",
+    );
+    expect(pageHelpTopicForPathname(GOVERNANCE_INFRASTRUCTURE_ASK_PATH, "security")?.slug).toBe(
+      "governance-infrastructure-ask",
+    );
+    expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_ASK_PATH, "security")?.slug).not.toBe(
+      "cloud-connections",
+    );
+    expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_ASK_PATH, "security")?.slug).not.toBe(
+      "prior-manifest-retrieval",
+    );
+    expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_ASK_PATH, "security")?.label).toBe(
+      GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_TITLE,
+    );
+  });
+
+  it("does not resolve Approval copy for infrastructure remediation instances", () => {
+    const entry = contextualHelpForPathname(SECURENOW_REMEDIATION_INSTANCES_PATH, { productLineId: "security" });
+
+    expect(entry?.whatIsThisPage).toContain("Infrastructure remediation");
+    expect(entry?.whatIsThisPage).toContain("instances and waves");
+    expect(entry?.whatIsThisPage).not.toContain("Approval");
+    expect(entry?.whatToDoNextAction?.href).not.toContain("approval-queue");
+    expect(pageHelpTopicForPathname(SECURENOW_REMEDIATION_INSTANCES_PATH, "security")?.slug).toBe(
+      "governance-infrastructure-remediation",
+    );
+    expect(pageHelpTopicForPathname(GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH, "security")?.slug).toBe(
+      "governance-infrastructure-remediation",
+    );
+    expect(pageHelpTopicForPathname(SECURENOW_REMEDIATION_INSTANCES_PATH, "security")?.slug).not.toBe(
+      "cloud-connections",
+    );
+    expect(pageHelpTopicForPathname(SECURENOW_REMEDIATION_INSTANCES_PATH, "security")?.label).toBe(
+      GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_TITLE,
     );
   });
 
@@ -97,9 +195,17 @@ describe("SecureNow governance contextual help rows", () => {
     expect(terraform?.whatIsThisPage).not.toContain("Approval");
     expect(resources?.whatIsThisPage).toContain("Resource explorer");
     expect(hub?.whatIsThisPage).toContain("Resource evidence hub");
+    expect(pageHelpTopicForPathname(GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH, "security")?.slug).toBe(
+      "governance-infrastructure-terraform",
+    );
+    expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH, "security")?.slug).toBe(
+      "governance-infrastructure-terraform",
+    );
     expect(pageHelpTopicForPathname(GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH, "security")?.slug).not.toBe(
       "cloud-connections",
     );
+    expect(terraform?.whatToDoNext).not.toMatch(/start a review/i);
+    expect(terraform?.whatToDoNextAction?.href).not.toContain("approval-queue");
     expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_RESOURCES_PATH, "security")?.slug).toBe(
       "governance-infrastructure-resources",
     );
@@ -145,12 +251,18 @@ describe("SecureNow governance contextual help rows", () => {
 
   it("keeps remediation factory and infrastructure remediation distinct", () => {
     const factory = contextualHelpForPathname(SECURENOW_REMEDIATION_FACTORY_PATH, { productLineId: "security" });
-    const workbench = contextualHelpForPathname("/governance/infrastructure/remediation", {
+    const workbench = contextualHelpForPathname(SECURENOW_REMEDIATION_INSTANCES_PATH, {
       productLineId: "security",
     });
 
     expect(factory?.whatIsThisPage).toContain("executive metrics");
     expect(workbench?.whatIsThisPage).toContain("instances and waves");
     expect(factory?.whatIsThisPage).not.toBe(workbench?.whatIsThisPage);
+    expect(pageHelpTopicForPathname(SECURENOW_REMEDIATION_INSTANCES_PATH, "security")?.slug).toBe(
+      "governance-infrastructure-remediation",
+    );
+    expect(pageHelpTopicForPathname(SECURENOW_REMEDIATION_FACTORY_PATH, "security")?.slug).not.toBe(
+      "governance-infrastructure-remediation",
+    );
   });
 });

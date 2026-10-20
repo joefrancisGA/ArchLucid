@@ -1,5 +1,6 @@
 "use client";
 
+import { GovernanceAssignedToMePathInspectSection } from "@/app/(operator)/governance/findings/GovernanceAssignedToMePathInspectSection";
 import { GovernanceFindingsQueueOutcomeSection } from "@/app/(operator)/governance/findings/_sections/GovernanceFindingsQueueOutcomeSection";
 import { GovernanceFindingsQueueResultsSection } from "@/app/(operator)/governance/findings/_sections/GovernanceFindingsQueueResultsSection";
 import { GovernanceFindingsQueueScopeSection } from "@/app/(operator)/governance/findings/_sections/GovernanceFindingsQueueScopeSection";
@@ -186,6 +187,11 @@ export function GovernanceFindingsQueueAssignedToMeShell(
       <GovernanceFindingsQueueScopeSection {...props} />
       <GovernanceFindingsQueueToolbarSection {...props} />
       <GovernanceFindingsQueueResultsSection {...props} />
+      <GovernanceAssignedToMePathInspectSection
+        isAssignedToMe={props.isAssignedToMe}
+        rows={props.rows}
+        selectedFindingIds={props.selectedFindingIds}
+      />
       <GovernanceFindingsQueueOutcomeSection {...props} />
     </div>
   );

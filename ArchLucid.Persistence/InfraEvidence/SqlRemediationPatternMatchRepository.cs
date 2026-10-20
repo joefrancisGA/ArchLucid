@@ -267,6 +267,54 @@ public sealed class SqlRemediationPatternMatchRepository(ISqlConnectionFactory c
         return row is null ? null : MapMatchResult(row);
     }
 
+    public async Task<IReadOnlyList<RemediationPatternMatchResultRecord>> ListActiveMatchesForOpenFindingsInScopeAsync(
+        ProjectScopeKey scope,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT m.MatchResultId, m.TenantId, m.FindingId, m.PatternId, m.VersionId, m.PatternKey, m.PatternVersion,
+                                  m.MatchKind, m.MatchSource, m.ExplainText, m.IsActive, m.MatchedUtc
+                           FROM dbo.RemediationPatternMatchResults m
+                           INNER JOIN dbo.OperationalSecurityFindings f
+                               ON f.TenantId = m.TenantId AND f.FindingId = m.FindingId
+                           WHERE m.TenantId = @TenantId
+                             AND f.WorkspaceId = @WorkspaceId
+                             AND f.ProjectId = @ProjectId
+                             AND m.IsActive = 1
+                             AND f.Status IN (@OpenStatus, @RecurredStatus)
+                           ORDER BY m.FindingId, m.MatchedUtc DESC;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<MatchResultRow> rows = await conn.QueryAsync<MatchResultRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    OpenStatus = (int)OperationalSecurityFindingStatus.Open,
+                    RecurredStatus = (int)OperationalSecurityFindingStatus.Recurred,
+                },
+                cancellationToken: cancellationToken));
+
+        List<RemediationPatternMatchResultRecord> results = [];
+        HashSet<Guid> seenFindingIds = [];
+
+        foreach (MatchResultRow row in rows)
+        {
+            if (!seenFindingIds.Add(row.FindingId))
+            {
+                continue;
+            }
+
+            results.Add(MapMatchResult(row));
+        }
+
+        return results;
+    }
+
     public async Task<IReadOnlyList<RemediationPatternMatchResultRecord>> ListByFindingAsync(
         Guid tenantId,
         Guid findingId,

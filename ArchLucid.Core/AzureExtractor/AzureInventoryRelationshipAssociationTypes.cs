@@ -139,6 +139,12 @@ public static class AzureInventoryRelationshipAssociationTypes
 
     public const string ManagedClusterToLoadBalancer = "managedClusterToLoadBalancer";
 
+    public const string FabricCapacityToWorkspace = "fabricCapacityToWorkspace";
+
+    public const string StaticSiteToLinkedBackend = "staticSiteToLinkedBackend";
+
+    public const string DiagnosticSettingToStorage = "diagnosticSettingToStorage";
+
     private static readonly AzureInventoryRelationshipAssociationTypeDefinition[] Catalog =
     [
         Observed(NicToSubnet, AzureInventoryRelationshipArmKind.NetworkInterface, AzureInventoryRelationshipArmKind.Subnet, "CONNECTS_TO", "inventory-nic-subnet"),
@@ -234,6 +240,24 @@ public static class AzureInventoryRelationshipAssociationTypes
             AzureInventoryRelationshipArmKind.LoadBalancer,
             "CONNECTS_TO",
             "inventory-aks-service-lb"),
+        Observed(
+            FabricCapacityToWorkspace,
+            AzureInventoryRelationshipArmKind.FabricCapacity,
+            AzureInventoryRelationshipArmKind.LinkedServiceTarget,
+            "CONNECTS_TO",
+            "inventory-fabric-capacity-workspace"),
+        Observed(
+            StaticSiteToLinkedBackend,
+            AzureInventoryRelationshipArmKind.StaticWebApp,
+            AzureInventoryRelationshipArmKind.Compute,
+            "CONNECTS_TO",
+            "inventory-static-site-backend"),
+        Observed(
+            DiagnosticSettingToStorage,
+            AzureInventoryRelationshipArmKind.Compute,
+            AzureInventoryRelationshipArmKind.StorageAccount,
+            "CONNECTS_TO",
+            "inventory-diagnostic-setting-storage"),
     ];
 
     private static readonly Dictionary<string, AzureInventoryRelationshipAssociationTypeDefinition> Lookup =

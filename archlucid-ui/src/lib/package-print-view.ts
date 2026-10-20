@@ -167,10 +167,14 @@ export function buildPackagePrintFindingsSummary(summary: RunSummary): string {
 
   if (findings !== null) {
     parts.push(`${findings} finding${findings === 1 ? "" : "s"}`);
+  } else {
+    parts.push("Finding count was not stored.");
   }
 
   if (warnings !== null && warnings > 0) {
     parts.push(`${warnings} warning${warnings === 1 ? "" : "s"}`);
+  } else if (warnings === null) {
+    parts.push("Warning count was not stored.");
   }
 
   if (summary.hasFindingsSnapshot === true && findings === null) {

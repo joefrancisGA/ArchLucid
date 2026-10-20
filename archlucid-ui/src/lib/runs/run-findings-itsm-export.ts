@@ -63,6 +63,18 @@ function triggerJsonDownload(json: string, filename: string): void {
   triggerBinaryDownload(json, "application/json;charset=utf-8", filename);
 }
 
+function formatItsmFindingRecommendationCell(recommendation: string | null | undefined): string {
+  if (recommendation === null || recommendation === undefined) {
+    return "Recommended action was not stored.";
+  }
+
+  if (recommendation.trim().length === 0) {
+    return "Recommended action was stored empty.";
+  }
+
+  return recommendation;
+}
+
 function escapeCsvCell(value: string): string {
   if (value.includes(",") || value.includes('"') || value.includes("\n") || value.includes("\r")) {
     return `"${value.replaceAll('"', '""')}"`;
@@ -126,9 +138,7 @@ export function buildQuickDecisionFindingsCsv(
       runId,
       severityLabelFromQuickDecisionFinding(finding),
       escapeCsvCell(finding.title),
-      escapeCsvCell(finding.recommendation.trim().length > 0
-        ? finding.recommendation
-        : "No recommended action recorded for this finding."),
+      escapeCsvCell(formatItsmFindingRecommendationCell(finding.recommendation)),
       finding.confidenceLevel ?? "Confidence level was not stored",
       finding.policyRuleId?.trim() || "Policy rule was not stored",
       "trustLabel" in trustFields && trustFields.trustLabel.trim().length > 0

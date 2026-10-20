@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { architectureNestedFindingsPath } from "@/lib/architecture/architecture-routes";
 import {
   INHABIT_WORKING_NESTED_FINDINGS_EMPTY_TITLE,
+  INHABIT_WORKING_NESTED_FINDINGS_PAGE_SUBTITLE,
   resolveInhabitedFindingsDocumentPresentation,
   resolveInhabitedFindingsEmptyStateCopy,
   resolveIsInhabitedFindingsDocument,
@@ -33,6 +34,7 @@ describe("inhabit findings document presentation (IH-016 / IH-021 / IH-023)", ()
     });
 
     expect(presentation?.pageTitle).toBe("Payments platform");
+    expect(presentation?.pageSubtitle).toBe(INHABIT_WORKING_NESTED_FINDINGS_PAGE_SUBTITLE);
     expect(presentation?.jobSubtitle).toBe("Child review: September review");
     expect(presentation?.suppressPipelineChrome).toBe(true);
   });

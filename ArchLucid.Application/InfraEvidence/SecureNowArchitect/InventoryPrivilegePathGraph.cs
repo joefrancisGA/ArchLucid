@@ -115,6 +115,7 @@ internal static class InventoryPrivilegePathGraph
         }
 
         InventoryPrivilegePathCanReachAppender.Append(snapshot, outgoing);
+        PrivilegePathGraphEdgeSorter.SortOutgoingEdges(outgoing);
 
         return new InventoryPrivilegePathGraphSnapshot
         {

@@ -88,11 +88,11 @@ export function RiskExceptionsTable({
           </EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>
             <span>Expires</span>
-            <span className={cn("ml-2 block font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+            <span
+              className={cn("ml-2 block font-normal", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="risk-exceptions-expires-header-helper"
+            >
               After this time the exception no longer covers the finding.
-            </span>
-            <span className={cn("ml-2 block font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-              The exception stops covering the finding after this time.
             </span>
           </EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>

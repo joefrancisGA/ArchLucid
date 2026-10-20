@@ -21,7 +21,9 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         string? FrameCellId = null,
         int DataFlowColumnIndex = -1,
         string? VnetFrameId = null,
-        bool IsFrameAnchor = false);
+        bool IsFrameAnchor = false,
+        int RoleColumnIndex = -1,
+        bool IsHubSpokeHub = false);
 
     private sealed record VnetPrimaryGroup(
         string NodeId,
@@ -135,7 +137,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                     placement.Height,
                     placement.Metrics,
                     FrameCellId: null,
-                    DataFlowColumnIndex: placement.ColumnIndex))
+                    DataFlowColumnIndex: placement.ColumnIndex,
+                    IsHubSpokeHub: placement.IsHubSpokeHub))
                 .ToList();
         }
         else
@@ -197,7 +200,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
     private static bool IsVnetPrimaryTitle(string title)
     {
         return title.Contains("(FullSubscription)", StringComparison.OrdinalIgnoreCase)
-            || title.Contains("(Network)", StringComparison.OrdinalIgnoreCase);
+            || title.Contains("(Network)", StringComparison.OrdinalIgnoreCase)
+            || title.Contains("(DependencyNeighborhood)", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDataInventoryTitle(string title)
@@ -1244,6 +1248,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
     {
         List<NodePlacement> placements = [];
         double columnX = 0.0d;
+        int roleColumnIndex = 0;
 
         foreach (IGrouping<int, DiagramNode> role in DiagramForestRoleClassifier
                      .Order(nodes)
@@ -1266,11 +1271,13 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                     nodeY,
                     metrics.Width,
                     metrics.Height,
-                    metrics));
+                    metrics,
+                    RoleColumnIndex: roleColumnIndex));
                 nodeY += metrics.Height + options.NodeVerticalGap;
             }
 
             columnX += columnWidth + options.NodeHorizontalGap;
+            roleColumnIndex++;
         }
 
         return placements;
@@ -1282,31 +1289,22 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         DiagramForestLayoutOptions options,
         DiagramForestCanvasLabelContext labelContext)
     {
-        DiagramNode hub = DiagramHubSpokeLayerPlanner.ResolveHub(component, visibleEdges)
-            ?? component.OrderBy(node => node.OrderKey).ThenBy(node => node.NodeId, StringComparer.Ordinal).First();
-        IReadOnlyList<DiagramNode> spokes = DiagramHubSpokeLayerPlanner.OrderSpokes(hub, component, visibleEdges);
-        List<NodePlacement> spokePlacements = [];
-        double spokeY = 0.0d;
-        double spokeColumnWidth = 0.0d;
+        DiagramForestHubSpokeInteriorLayout.InteriorBounds bounds = DiagramForestHubSpokeInteriorLayout.LayoutComponent(
+            component,
+            visibleEdges,
+            options,
+            labelContext);
 
-        foreach (DiagramNode spoke in spokes)
-        {
-            DiagramForestNodeMetrics metrics = DiagramForestNodeMetricsCalculator.Measure(spoke, options, labelContext);
-            spokePlacements.Add(new NodePlacement(spoke, 0, spokeY, metrics.Width, metrics.Height, metrics));
-            spokeColumnWidth = Math.Max(spokeColumnWidth, metrics.Width);
-            spokeY += metrics.Height + options.NodeVerticalGap;
-        }
-
-        DiagramForestNodeMetrics hubMetrics = DiagramForestNodeMetricsCalculator.Measure(hub, options, labelContext);
-        double spokeStackHeight = spokeY > 0.0d ? spokeY - options.NodeVerticalGap : hubMetrics.Height;
-        double hubY = Math.Max(0.0d, (spokeStackHeight - hubMetrics.Height) / 2.0d);
-        double hubX = spokeColumnWidth + options.NodeHorizontalGap;
-        List<NodePlacement> placements = spokePlacements
-            .Select(placement => placement with { X = (spokeColumnWidth - placement.Width) / 2.0d })
+        return bounds.Placements
+            .Select(placement => new NodePlacement(
+                placement.Node,
+                placement.LocalX,
+                placement.LocalY,
+                placement.Width,
+                placement.Height,
+                placement.Metrics,
+                IsHubSpokeHub: placement.IsHubSpokeHub))
             .ToList();
-        placements.Add(new NodePlacement(hub, hubX, hubY, hubMetrics.Width, hubMetrics.Height, hubMetrics));
-
-        return placements;
     }
 
     private static List<NodePlacement> LayoutTopDown(
@@ -1762,6 +1760,16 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 string.Create(
                     CultureInfo.InvariantCulture,
                     $"translate({placement.X:0.###},{placement.Y:0.###})")));
+            if (placement.RoleColumnIndex >= 0)
+            {
+                nodeGroup.Add(new XAttribute("data-role-column", placement.RoleColumnIndex.ToString(CultureInfo.InvariantCulture)));
+            }
+
+            if (placement.IsHubSpokeHub)
+            {
+                nodeGroup.Add(new XAttribute("data-hub-spoke", "hub"));
+            }
+
             root.Add(nodeGroup);
         }
 
@@ -1883,12 +1891,16 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                     StringComparison.Ordinal);
             string kind = isRollup ? "other" : targetVnets.Count > 1 ? "shared" : "remainder";
             string id = isRollup ? "other-resource-groups" : $"{kind}:{frameId}";
+            DiagramNode? neighborhoodAnchor = members.FirstOrDefault()?.Node;
+            string neighborhoodTitle = isRollup
+                ? members[0].Node.Label
+                : neighborhoodAnchor is null
+                    ? frameId
+                    : DiagramForestCollapsedSingletonTailLabels.ResolveResourceGroupCaption(neighborhoodAnchor, frameId);
             NeighborhoodMetadata cell = CreateNeighborhood(
                 id,
                 kind,
-                isRollup
-                    ? members[0].Node.Label
-                    : members.FirstOrDefault()?.Node.ArmResourceGroup ?? frameId,
+                neighborhoodTitle,
                 members,
                 [frameId]);
             neighborhoods.Add(cell);
@@ -2050,7 +2062,10 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 new XAttribute("id", neighborhood.Id),
                 new XAttribute("kind", neighborhood.Kind),
                 new XAttribute("title", neighborhood.Title),
-                new XAttribute("resource-count", neighborhood.Members.Count));
+                new XAttribute(
+                    "resource-count",
+                    DiagramForestCollapsedSingletonTailLabels.ResolveNeighborhoodResourceCount(
+                        neighborhood.Members.Select(member => member.Node).ToList())));
             foreach (NodePlacement member in neighborhood.Members)
             {
                 element.Add(new XElement(

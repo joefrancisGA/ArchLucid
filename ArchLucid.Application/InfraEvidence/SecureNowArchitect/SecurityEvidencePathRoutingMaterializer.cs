@@ -26,14 +26,35 @@ public static class SecurityEvidencePathRoutingMaterializer
         AzureInventorySnapshotDetailReadModel snapshot,
         DateTime utcNow)
     {
-        ArgumentNullException.ThrowIfNull(hops);
         ArgumentNullException.ThrowIfNull(snapshot);
+
+        return MaterializeFromRoutingTagSlice(
+            tenantId,
+            pathId,
+            hops,
+            new SecurityEvidencePathRoutingTagSlice
+            {
+                Resources = snapshot.Resources,
+                Tags = snapshot.Tags,
+            },
+            utcNow);
+    }
+
+    public static IReadOnlyList<SecurityEvidencePathRoutingRecord> MaterializeFromRoutingTagSlice(
+        Guid tenantId,
+        Guid pathId,
+        IReadOnlyList<SecurityEvidencePathHopRecord> hops,
+        SecurityEvidencePathRoutingTagSlice tagSlice,
+        DateTime utcNow)
+    {
+        ArgumentNullException.ThrowIfNull(hops);
+        ArgumentNullException.ThrowIfNull(tagSlice);
 
         Dictionary<SecurityEvidencePathRoutingRole, (string Value, string SourceReference, int Priority)> winners = [];
 
         foreach (Guid cloudResourceId in ExtractCloudResourceIds(hops))
         {
-            AzureInventoryResourceRecord? resource = snapshot.Resources
+            AzureInventoryResourceRecord? resource = tagSlice.Resources
                 .FirstOrDefault(row => row.CloudResourceId == cloudResourceId);
 
             if (resource is null)
@@ -41,7 +62,7 @@ public static class SecurityEvidencePathRoutingMaterializer
                 continue;
             }
 
-            IReadOnlyList<AzureInventoryTagReadModel> resourceTags = snapshot.Tags
+            IReadOnlyList<AzureInventoryTagReadModel> resourceTags = tagSlice.Tags
                 .Where(tag => tag.ResourceRowId == resource.ResourceRowId)
                 .ToList();
 

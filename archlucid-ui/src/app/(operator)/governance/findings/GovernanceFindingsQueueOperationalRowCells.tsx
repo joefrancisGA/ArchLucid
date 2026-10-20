@@ -43,8 +43,35 @@ import {
 } from "@/lib/governance/governance-queue-sticky-identity";
 
 import {
+  GOVERNANCE_QUEUE_DECISION_STATUS_NOT_STORED,
+  GOVERNANCE_QUEUE_DECISION_TITLE_NOT_STORED,
+  GOVERNANCE_QUEUE_FINDING_STATUS_NOT_STORED,
+  GOVERNANCE_QUEUE_FINDING_TITLE_NOT_STORED,
+  GOVERNANCE_QUEUE_SEVERITY_NOT_STORED,
+} from "@/components/governance/findings/governance-findings-row-omission-copy";
+
+import {
   type GovernanceFindingQueueRow,
 } from "./governance-finding-queue-row";
+
+function governanceQueueTitleLabel(row: GovernanceFindingQueueRow): string {
+  if (row.title.trim().length > 0) {
+    return row.title;
+  }
+
+  if (row.recordKind === "decision") {
+    return GOVERNANCE_QUEUE_DECISION_TITLE_NOT_STORED;
+  }
+
+  return GOVERNANCE_QUEUE_FINDING_TITLE_NOT_STORED;
+}
+
+function governanceQueueStatusUsesOmissionCopy(status: string): boolean {
+  return (
+    status === GOVERNANCE_QUEUE_FINDING_STATUS_NOT_STORED
+    || status === GOVERNANCE_QUEUE_DECISION_STATUS_NOT_STORED
+  );
+}
 
 function formatRiskRegisterUtcLabel(
   utc: string | null | undefined,
@@ -92,16 +119,19 @@ export function governanceQueueSeverityCell(
   buyerPolishedShell: boolean,
   severityMeaning?: string,
 ): ReactElement {
-  if (buyerPolishedShell && row.recordKind === "decision") {
+  if (row.recordKind === "decision") {
     return (
       <span className="text-al-text-secondary">
-        <span aria-hidden="true">—</span>
-        <span className="sr-only">Severity does not apply to recorded decision rows.</span>
+        Severity does not apply to recorded decision rows.
       </span>
     );
   }
 
   if (row.recordKind === "finding") {
+    if (row.severity.trim().length === 0 || row.severity === GOVERNANCE_QUEUE_SEVERITY_NOT_STORED) {
+      return <span className="text-al-text-secondary">{GOVERNANCE_QUEUE_SEVERITY_NOT_STORED}</span>;
+    }
+
     return (
       <>
         <SeverityTag severity={row.severity} />
@@ -141,7 +171,7 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
           prefetch={false}
           onClick={onOpenRow}
         >
-          {row.title}
+          {governanceQueueTitleLabel(row)}
         </Link>
         {row.recordKind === "finding" && row.policyRuleId ? (
           <div className="mt-1">
@@ -159,6 +189,7 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
             <FindingDerivationLine
               derivation={findingDerivation}
               evidenceHref={evidenceTraceHref ?? evidenceChipHref}
+              evidenceRefCount={row.evidenceRefCount}
               testId={`governance-table-derivation-${row.findingId}`}
               compact
             />
@@ -224,7 +255,10 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
             {row.runLabel}
           </Link>
         ) : (
-          row.runLabel
+          <span className="space-y-0.5">
+            <span className="block">{row.runLabel}</span>
+            <span className={cn("block", OPERATOR_TYPOGRAPHY.helper)}>Review id was not stored.</span>
+          </span>
         )}
       </EnterpriseTableCell>
       <EnterpriseTableCell className={GOVERNANCE_FINDINGS_QUEUE_SEVERITY_STICKY_CLASS}>
@@ -254,7 +288,11 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
           : "Does not apply to decision rows"}
       </EnterpriseTableCell>
       <EnterpriseTableCell>
-        <StatusTag kind={governanceQueueStatusTagKind(row.status)} label={row.status} />
+        {governanceQueueStatusUsesOmissionCopy(row.status) ? (
+          <span className="text-al-text-secondary">{row.status}</span>
+        ) : (
+          <StatusTag kind={governanceQueueStatusTagKind(row.status)} label={row.status} />
+        )}
         {row.recordKind === "finding" && row.humanReviewStatusLabel ? (
           <div className={cn("mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
             {row.humanReviewStatusLabel}

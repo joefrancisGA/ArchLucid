@@ -7,7 +7,7 @@ using Dapper;
 
 namespace ArchLucid.Persistence.InfraEvidence;
 
-public sealed class SqlSecurityEvidenceCutPointRepository(ISqlConnectionFactory connectionFactory)
+public sealed partial class SqlSecurityEvidenceCutPointRepository(ISqlConnectionFactory connectionFactory)
     : ISecurityEvidenceCutPointRepository
 {
     public async Task<IReadOnlyList<SecurityEvidenceCutPointRecord>> ListBySnapshotAsync(

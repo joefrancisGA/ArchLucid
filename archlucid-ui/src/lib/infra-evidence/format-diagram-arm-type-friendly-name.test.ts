@@ -11,6 +11,12 @@ describe("formatDiagramArmTypeFriendlyName", () => {
     expect(formatDiagramArmTypeFriendlyName("Microsoft.Sql/servers/databases")).toBe("SQL Database");
   });
 
+  it("maps Logic App, connection, and Static Web App types (P-12–P-14)", () => {
+    expect(formatDiagramArmTypeFriendlyName("Microsoft.Logic/workflows")).toBe("Logic App");
+    expect(formatDiagramArmTypeFriendlyName("Microsoft.Web/connections")).toBe("Logic App Connection");
+    expect(formatDiagramArmTypeFriendlyName("Microsoft.Web/staticSites")).toBe("Static Web App");
+  });
+
   it("splits unknown camelCase type segments", () => {
     expect(formatDiagramArmTypeFriendlyName("Microsoft.Example/widgetFarms")).toBe("Widget Farms");
   });

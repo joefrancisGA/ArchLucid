@@ -10,8 +10,10 @@ import {
   OperatorEvidenceLimitsFooter,
   type OperatorEvidenceLimitsExecutionProps,
 } from "@/components/operator/OperatorEvidenceLimitsFooter";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { SecurityEvidencePathInspectPanel } from "@/components/security/SecurityEvidencePathInspectPanel";
 import { resolveFindingsQueueNavHref } from "@/lib/findings/finding-evidence-navigation";
 import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -43,6 +45,7 @@ import {
   resolvePolicyTraceExcerptFromInspect,
 } from "@/lib/findings/finding-policy-evidence-citations";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { StatedConstraintContext } from "@/lib/review-quality/assumption-and-severity";
 import { buildSeverityConstraintNoteForInspectPayload } from "@/lib/review-quality/finding-severity-constraint-note";
@@ -102,7 +105,9 @@ export function FindingInspectView({
   parentArchitectureId = null,
 }: FindingInspectViewProps) {
   const buyerPolishedShell = resolveProductionEvalChromeFromStorage();
+  const { productLine } = useProductLine();
   const { isWorkingMode } = useWorkspaceMode();
+  const showSecureNowPathInspect = isSecureNowProductLine(productLine);
   const findingsQueueNavHref = resolveFindingsQueueNavHref({
     findingsQueueRunId,
     architectureId: parentArchitectureId,
@@ -350,6 +355,10 @@ export function FindingInspectView({
           </>
         )}
       </section>
+
+      {showSecureNowPathInspect ? (
+        <SecurityEvidencePathInspectPanel findingId={decodedFindingId} />
+      ) : null}
 
       <section
         className="space-y-4 rounded-lg border border-neutral-200 bg-neutral-50/60 p-5 dark:border-neutral-800 dark:bg-neutral-900/30"

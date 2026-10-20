@@ -11,6 +11,38 @@ export type ExtractUploadAcceptedPackageRecord = {
   readonly associateRunId?: string | null;
 };
 
+export const EXTRACT_UPLOAD_FILE_NAME_NOT_STORED = "File name was not stored." as const;
+
+export const EXTRACT_UPLOAD_FILE_NAME_STORED_EMPTY = "File name was stored empty." as const;
+
+export const EXTRACT_UPLOAD_LINKED_REVIEW_NOT_STORED = "Linked review was not stored." as const;
+
+export const EXTRACT_UPLOAD_LINKED_REVIEW_STORED_EMPTY = "Linked review was stored empty." as const;
+
+export function formatExtractUploadAcceptedFileLabel(fileLabel: string | null | undefined): string {
+  if (fileLabel === null || fileLabel === undefined) {
+    return EXTRACT_UPLOAD_FILE_NAME_NOT_STORED;
+  }
+
+  if (fileLabel.trim().length === 0) {
+    return EXTRACT_UPLOAD_FILE_NAME_STORED_EMPTY;
+  }
+
+  return fileLabel;
+}
+
+export function formatExtractUploadAcceptedLinkedReview(associateRunId: string | null | undefined): string {
+  if (associateRunId === null || associateRunId === undefined) {
+    return EXTRACT_UPLOAD_LINKED_REVIEW_NOT_STORED;
+  }
+
+  if (associateRunId.trim().length === 0) {
+    return EXTRACT_UPLOAD_LINKED_REVIEW_STORED_EMPTY;
+  }
+
+  return associateRunId;
+}
+
 function resolveStorageKey(): string | null {
   const scope = readOperatorScopeFromStorage();
 
@@ -55,6 +87,13 @@ export function readExtractUploadAcceptedPackageRecord(): ExtractUploadAcceptedP
       return null;
     }
 
+    const fileLabel =
+      parsed.fileLabel === undefined || parsed.fileLabel === null
+        ? null
+        : typeof parsed.fileLabel === "string"
+          ? parsed.fileLabel.trim()
+          : null;
+
     return {
       packageId,
       acceptedAtUtc,
@@ -63,7 +102,7 @@ export function readExtractUploadAcceptedPackageRecord(): ExtractUploadAcceptedP
         typeof parsed.resourceCount === "number" && Number.isFinite(parsed.resourceCount)
           ? parsed.resourceCount
           : null,
-      fileLabel: parsed.fileLabel?.trim(),
+      fileLabel,
       associateRunId: typeof parsed.associateRunId === "string" ? parsed.associateRunId : null,
     };
   } catch {

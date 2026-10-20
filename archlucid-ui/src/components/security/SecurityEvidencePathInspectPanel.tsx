@@ -7,9 +7,12 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { SecurityEvidencePathRankReasonDisclosure } from "@/components/security/SecurityEvidencePathRankReasonDisclosure";
+import { SecurityEvidencePathRankSortKeyDisclosure } from "@/components/security/SecurityEvidencePathRankSortKeyDisclosure";
 import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
+import { ShortcutHint } from "@/components/ShortcutHint";
 import { OperatorAdvisorySimulatorProvenanceBlock } from "@/components/usability/OperatorAdvisorySimulatorProvenanceBlock";
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import {
@@ -76,11 +79,8 @@ import type {
   SecurityEvidencePathWeakestHop,
 } from "@/lib/security-evidence-path-types";
 import { securityEvidencePathHopNodeName } from "@/lib/security-evidence-path-types";
-import { formatRemediationPrioritySortKeyLine } from "@/lib/remediation-priority-score-display";
-import {
-  formatSecurityEvidencePathCompositeSortKeyLine,
-  formatSecurityEvidencePathRankLead,
-} from "@/lib/security-evidence-path-rank-display";
+import { RemediationPrioritySortKeyDisclosure } from "@/app/(operator)/governance/remediation-factory/RemediationPrioritySortKeyDisclosure";
+import { SecurityEvidencePathRankReaderDisclosures } from "@/components/security/SecurityEvidencePathRankReaderDisclosures";
 import { cn } from "@/lib/utils";
 import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 
@@ -283,14 +283,11 @@ function PathRankSection(props: { readonly rank: SecurityEvidencePathRankDetail 
         <StatusTag kind="neutral" label={`Rank ${props.rank.rankOrder}`} />
       </div>
       <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
-        Rank prose is authoritative for why this path sorts here. The composite key is ordering only.
+        Dimension prose below expands the reader sentence. The composite key is ordering only.
       </p>
-      <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)} data-testid="security-evidence-path-rank-lead">
-        {formatSecurityEvidencePathRankLead(props.rank)}
-      </p>
-      <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
-        {formatSecurityEvidencePathCompositeSortKeyLine(props.rank.compositeSortScore)}
-      </p>
+      <div className="mt-2">
+        <SecurityEvidencePathRankReaderDisclosures rank={props.rank} />
+      </div>
       {props.rank.dimensionProse.overall.trim().length > 0 ? (
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{props.rank.dimensionProse.overall}</p>
       ) : null}
@@ -414,22 +411,17 @@ function RecommendedActionSection(props: {
       value: props.path.explanationTemplate?.verify ?? "How to check was not stored.",
     },
   ];
-  const verificationValue = lines[lines.length - 1]?.value ?? "Not cited.";
-  const verificationIsProse = /\s/.test(verificationValue);
-
   const displayForLine = (line: { readonly label: string; readonly value: string }): string => {
     if (line.label === "How to check") {
-      if (line.value.length === 0) {
-        return "";
+      if (line.value.length === 0 || line.value === "How to check was not stored.") {
+        return "How to check was not stored.";
       }
 
       if (line.value === "Not cited.") {
         return "Not cited.";
       }
 
-      if (!verificationIsProse) {
-        return "A check is recorded for this path.";
-      }
+      return line.value;
     }
 
     return line.value;
@@ -490,12 +482,7 @@ function InspectSelectionIdentityHeader(props: {
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
           Path rank {props.pathSummary.rankOrder} · {formatSecurityEvidencePathKindLabel(props.pathSummary.pathKind)}
         </p>
-        {props.pathSummary.explanationSummary.trim().length > 0 ? (
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{props.pathSummary.explanationSummary.trim()}</p>
-        ) : null}
-        <p className={cn("m-0 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)}>
-          {formatSecurityEvidencePathCompositeSortKeyLine(props.pathSummary.compositeSortScore)}
-        </p>
+        <SecurityEvidencePathRankReaderDisclosures rank={props.pathSummary} />
         <Link
           href={infraRemediationFindingIdDisclosureHrefFromSearch(search, !idsOpen, pathname)}
           className={OPERATOR_LINK.inline}
@@ -520,9 +507,12 @@ function InspectSelectionIdentityHeader(props: {
           {props.findingSummary.rankOrder ?? "was not stored"} · control{" "}
           {props.findingSummary.controlId?.trim() || "was not stored"}
         </p>
-        <p className={cn("m-0 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)}>
-          {formatRemediationPrioritySortKeyLine(props.findingSummary.totalScore)}
-        </p>
+        {props.findingId != null ? (
+          <RemediationPrioritySortKeyDisclosure
+            findingId={props.findingId}
+            totalScore={props.findingSummary.totalScore}
+          />
+        ) : null}
         <Link
           href={infraRemediationFindingIdDisclosureHrefFromSearch(search, !idsOpen, pathname)}
           className={OPERATOR_LINK.inline}
@@ -560,9 +550,13 @@ function resolvePathInspectSubjectLabel(input: {
   readonly selectedPath: SecurityEvidencePathRankSummary | null | undefined;
 }): string | null {
   if (input.selectedFinding != null) {
-    const rankHint = input.selectedFinding.controlId ?? input.selectedFinding.patternKey ?? input.selectedFinding.findingId;
+    const rankHint = input.selectedFinding.controlId ?? input.selectedFinding.findingId;
+    const patternLead =
+      input.selectedFinding.patternKey != null && input.selectedFinding.patternKey.trim().length > 0
+        ? "Pattern"
+        : "Pattern was not stored";
 
-    return `Finding ${rankHint} · rank ${input.selectedFinding.rankOrder ?? "Rank was not stored"} · control ${input.selectedFinding.controlId ?? "Control was not stored"} · pattern ${input.selectedFinding.patternKey ?? "Pattern was not stored"}`;
+    return `Finding ${rankHint} · rank ${input.selectedFinding.rankOrder ?? "Rank was not stored"} · control ${input.selectedFinding.controlId ?? "Control id was not stored"} · ${patternLead}`;
   }
 
   if (input.selectedPath != null) {
@@ -577,6 +571,7 @@ function resolvePathInspectSubjectLabel(input: {
 }
 
 export function SecurityEvidencePathInspectPanel(props: {
+  readonly id?: string;
   readonly findingId: string | null;
   readonly pathIdOverride?: string | null;
   readonly panelRef?: Ref<HTMLElement | null>;
@@ -586,6 +581,7 @@ export function SecurityEvidencePathInspectPanel(props: {
   readonly selectedPathSummary?: SecurityEvidencePathRankSummary | null;
   readonly hasInventoryRows?: boolean;
   readonly selectPromptPreset?: EnterpriseCompactEmptyStateProps;
+  readonly showFocusPathInspectShortcutHint?: boolean;
 }) {
   const selectedFinding = props.selectedFinding ?? props.selectedFindingSummary;
   const selectedPath = props.selectedPath ?? props.selectedPathSummary;
@@ -664,6 +660,7 @@ export function SecurityEvidencePathInspectPanel(props: {
 
   return (
     <section
+      id={props.id}
       ref={props.panelRef}
       tabIndex={-1}
       className={cn(
@@ -674,7 +671,17 @@ export function SecurityEvidencePathInspectPanel(props: {
       data-testid="security-evidence-path-inspect-panel"
     >
       <header className="space-y-1">
-        <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{SECURENOW_PATH_INSPECT_PANEL_TITLE}</h2>
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{SECURENOW_PATH_INSPECT_PANEL_TITLE}</h2>
+          {props.showFocusPathInspectShortcutHint ? (
+            <span
+              className={cn("inline-flex items-center gap-1", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="security-evidence-path-inspect-focus-shortcut-hint"
+            >
+              Focus <ShortcutHint shortcut="alt+i" />
+            </span>
+          ) : null}
+        </div>
         <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PATH_INSPECT_PANEL_LEAD}</p>
         {subjectLabel != null ? (
           <p

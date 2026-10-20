@@ -85,6 +85,71 @@ public sealed partial class DocxExportService(
         return LlmArtifactFreeTextSanitizer.Sanitize(text ?? string.Empty);
     }
 
+    private static string FormatTopologyResourceLine(string? resource)
+    {
+        string formatted = DocxManifestFieldPresentation.FormatManifestTableCell(resource, "Resource");
+
+        if (formatted.Contains("was not stored", StringComparison.Ordinal)
+            || formatted.Contains("stored empty", StringComparison.Ordinal))
+        {
+            return formatted;
+        }
+
+        return $"Resource: {SanitizeArtifactText(resource)}";
+    }
+
+    private static string FormatTopologyGapLine(string? gap)
+    {
+        string formatted = DocxManifestFieldPresentation.FormatManifestTableCell(gap, "Gap text");
+
+        if (formatted.Contains("was not stored", StringComparison.Ordinal)
+            || formatted.Contains("stored empty", StringComparison.Ordinal))
+        {
+            return formatted;
+        }
+
+        return $"Gap: {SanitizeArtifactText(gap)}";
+    }
+
+    private static string FormatSecurityGapLine(string? gap)
+    {
+        string formatted = DocxManifestFieldPresentation.FormatManifestTableCell(gap, "Security gap");
+
+        if (formatted.Contains("was not stored", StringComparison.Ordinal)
+            || formatted.Contains("stored empty", StringComparison.Ordinal))
+        {
+            return formatted;
+        }
+
+        return $"Security gap: {SanitizeArtifactText(gap)}";
+    }
+
+    private static string FormatComplianceGapLine(string? gap)
+    {
+        string formatted = DocxManifestFieldPresentation.FormatManifestTableCell(gap, "Compliance gap");
+
+        if (formatted.Contains("was not stored", StringComparison.Ordinal)
+            || formatted.Contains("stored empty", StringComparison.Ordinal))
+        {
+            return formatted;
+        }
+
+        return $"Compliance gap: {SanitizeArtifactText(gap)}";
+    }
+
+    private static string FormatCostNoteLine(string? note)
+    {
+        string formatted = DocxManifestFieldPresentation.FormatManifestTableCell(note, "Cost note");
+
+        if (formatted.Contains("was not stored", StringComparison.Ordinal)
+            || formatted.Contains("stored empty", StringComparison.Ordinal))
+        {
+            return formatted;
+        }
+
+        return $"Cost note: {SanitizeArtifactText(note)}";
+    }
+
     /// <summary>Empty findings aligned with the manifest when the export request has no persisted snapshot.</summary>
     private static FindingsSnapshot CreateFallbackFindings(ManifestDocument manifest)
     {
@@ -150,16 +215,16 @@ public sealed partial class DocxExportService(
             List<(string Name, string Status, string Mandatory, string Notes)> reqRows = [];
             foreach (RequirementCoverageItem item in manifest.Requirements.Covered)
                 reqRows.Add((
-                    SanitizeArtifactText(item.RequirementName),
-                    SanitizeArtifactText(item.CoverageStatus),
+                    DocxManifestFieldPresentation.FormatManifestTableCell(item.RequirementName, "Requirement name"),
+                    DocxManifestFieldPresentation.FormatManifestTableCell(item.CoverageStatus, "Coverage status"),
                     item.IsMandatory ? "Yes" : "No",
-                    SanitizeArtifactText(item.RequirementText)));
+                    DocxManifestFieldPresentation.FormatManifestTableCell(item.RequirementText, "Requirement text")));
             foreach (RequirementCoverageItem item in manifest.Requirements.Uncovered)
                 reqRows.Add((
-                    SanitizeArtifactText(item.RequirementName),
-                    SanitizeArtifactText(item.CoverageStatus),
+                    DocxManifestFieldPresentation.FormatManifestTableCell(item.RequirementName, "Requirement name"),
+                    DocxManifestFieldPresentation.FormatManifestTableCell(item.CoverageStatus, "Coverage status"),
                     item.IsMandatory ? "Yes" : "No",
-                    SanitizeArtifactText(item.RequirementText)));
+                    DocxManifestFieldPresentation.FormatManifestTableCell(item.RequirementText, "Requirement text")));
 
             if (reqRows.Count == 0)
                 WordDocumentBuilder.AddBodyText(body, "No requirements were recorded.");
@@ -175,7 +240,7 @@ public sealed partial class DocxExportService(
         if (manifest.Topology.Resources.Count > 0)
 
             foreach (string resource in manifest.Topology.Resources)
-                WordDocumentBuilder.AddBodyText(body, $"Resource: {SanitizeArtifactText(resource)}");
+                WordDocumentBuilder.AddBodyText(body, FormatTopologyResourceLine(resource));
 
         else
             WordDocumentBuilder.AddBodyText(body, "No concrete topology resources were recorded.");
@@ -185,9 +250,13 @@ public sealed partial class DocxExportService(
             WordDocumentBuilder.AddBodyText(body, "Selected patterns:");
             WordDocumentBuilder.AddBulletList(body, manifest.Topology.SelectedPatterns.Select(SanitizeArtifactText));
         }
+        else
+        {
+            WordDocumentBuilder.AddBodyText(body, "No selected patterns were recorded.");
+        }
 
         foreach (string gap in manifest.Topology.Gaps)
-            WordDocumentBuilder.AddBodyText(body, $"Gap: {SanitizeArtifactText(gap)}");
+            WordDocumentBuilder.AddBodyText(body, FormatTopologyGapLine(gap));
         WordDocumentBuilder.AddSpacer(body);
 
         WordDocumentBuilder.AddHeading(body, "Security Posture");
@@ -200,10 +269,10 @@ public sealed partial class DocxExportService(
             List<(string ControlId, string ControlName, string Status, string Impact)> secRows = manifest.Security
                 .Controls
                 .Select(c => (
-                    SanitizeArtifactText(c.ControlId),
-                    SanitizeArtifactText(c.ControlName),
-                    SanitizeArtifactText(c.Status),
-                    SanitizeArtifactText(c.Impact)))
+                    DocxManifestFieldPresentation.FormatManifestTableCell(c.ControlId, "Control id"),
+                    DocxManifestFieldPresentation.FormatManifestTableCell(c.ControlName, "Control name"),
+                    DocxManifestFieldPresentation.FormatManifestTableCell(c.Status, "Control status"),
+                    DocxManifestFieldPresentation.FormatManifestTableCell(c.Impact, "Impact")))
                 .ToList();
             WordDocumentBuilder.AddFourColumnTable(
                 body,
@@ -212,7 +281,7 @@ public sealed partial class DocxExportService(
         }
 
         foreach (string gap in manifest.Security.Gaps)
-            WordDocumentBuilder.AddBodyText(body, $"Security gap: {SanitizeArtifactText(gap)}");
+            WordDocumentBuilder.AddBodyText(body, FormatSecurityGapLine(gap));
         WordDocumentBuilder.AddSpacer(body);
 
         if (request.IncludeComplianceSection)
@@ -227,10 +296,10 @@ public sealed partial class DocxExportService(
                 List<(string ControlId, string ControlName, string AppliesToCategory, string Status)> compRows =
                     manifest.Compliance.Controls
                         .Select(c => (
-                            SanitizeArtifactText(c.ControlId),
-                            SanitizeArtifactText(c.ControlName),
-                            SanitizeArtifactText(c.AppliesToCategory),
-                            SanitizeArtifactText(c.Status)))
+                            DocxManifestFieldPresentation.FormatManifestTableCell(c.ControlId, "Control id"),
+                            DocxManifestFieldPresentation.FormatManifestTableCell(c.ControlName, "Control name"),
+                            DocxManifestFieldPresentation.FormatManifestTableCell(c.AppliesToCategory, "Category"),
+                            DocxManifestFieldPresentation.FormatManifestTableCell(c.Status, "Status")))
                         .ToList();
                 WordDocumentBuilder.AddFourColumnTable(
                     body,
@@ -239,7 +308,7 @@ public sealed partial class DocxExportService(
             }
 
             foreach (string gap in manifest.Compliance.Gaps)
-                WordDocumentBuilder.AddBodyText(body, $"Compliance gap: {SanitizeArtifactText(gap)}");
+                WordDocumentBuilder.AddBodyText(body, FormatComplianceGapLine(gap));
             WordDocumentBuilder.AddSpacer(body);
         }
 
@@ -252,7 +321,7 @@ public sealed partial class DocxExportService(
             WordDocumentBuilder.AddBodyText(body, $"Cost risk: {SanitizeArtifactText(risk)}");
 
         foreach (string note in manifest.Cost.Notes)
-            WordDocumentBuilder.AddBodyText(body, $"Cost note: {SanitizeArtifactText(note)}");
+            WordDocumentBuilder.AddBodyText(body, FormatCostNoteLine(note));
         WordDocumentBuilder.AddSpacer(body);
 
         WordDocumentBuilder.AddHeading(body, "Assumptions");
@@ -284,7 +353,7 @@ public sealed partial class DocxExportService(
         {
             WordDocumentBuilder.AddHeading(body, "Unresolved Issues");
             if (manifest.UnresolvedIssues.Items.Count == 0)
-                WordDocumentBuilder.AddBodyText(body, "No unresolved issues.");
+                WordDocumentBuilder.AddBodyText(body, "No unresolved issues were recorded.");
             else
                 WordDocumentBuilder.AddIssuesTable(body, manifest.UnresolvedIssues.Items);
             WordDocumentBuilder.AddSpacer(body);
@@ -299,13 +368,21 @@ public sealed partial class DocxExportService(
 
             foreach (ImprovementRecommendation recommendation in improvementPlan.Recommendations.Take(10))
             {
-                WordDocumentBuilder.AddBodyText(body,
-                    SanitizeArtifactText($"{recommendation.Title} [{recommendation.Urgency}]"));
-                WordDocumentBuilder.AddBodyText(body, SanitizeArtifactText($"Rationale: {recommendation.Rationale}"));
-                WordDocumentBuilder.AddBodyText(body,
-                    SanitizeArtifactText($"Suggested Action: {recommendation.SuggestedAction}"));
-                WordDocumentBuilder.AddBodyText(body,
-                    SanitizeArtifactText($"Expected Impact: {recommendation.ExpectedImpact}"));
+                string titleLine =
+                    $"{DocxManifestFieldPresentation.FormatManifestTableCell(recommendation.Title, "Improvement title")} [{DocxManifestFieldPresentation.FormatManifestTableCell(recommendation.Urgency, "Urgency")}]";
+                WordDocumentBuilder.AddBodyText(body, SanitizeArtifactText(titleLine));
+                WordDocumentBuilder.AddBodyText(
+                    body,
+                    SanitizeArtifactText(
+                        $"Rationale: {DocxManifestFieldPresentation.FormatManifestTableCell(recommendation.Rationale, "Rationale")}"));
+                WordDocumentBuilder.AddBodyText(
+                    body,
+                    SanitizeArtifactText(
+                        $"Suggested Action: {DocxManifestFieldPresentation.FormatManifestTableCell(recommendation.SuggestedAction, "Suggested action")}"));
+                WordDocumentBuilder.AddBodyText(
+                    body,
+                    SanitizeArtifactText(
+                        $"Expected Impact: {DocxManifestFieldPresentation.FormatManifestTableCell(recommendation.ExpectedImpact, "Expected impact")}"));
                 WordDocumentBuilder.AddSpacer(body);
             }
 
@@ -320,9 +397,9 @@ public sealed partial class DocxExportService(
         {
             List<(string Category, string Title, string SelectedOption)> decRows = manifest.Decisions
                 .Select(d => (
-                    SanitizeArtifactText(d.Category),
-                    SanitizeArtifactText(d.Title),
-                    SanitizeArtifactText(d.SelectedOption)))
+                    DocxManifestFieldPresentation.FormatManifestTableCell(d.Category, "Decision category"),
+                    DocxManifestFieldPresentation.FormatManifestTableCell(d.Title, "Decision title"),
+                    DocxManifestFieldPresentation.FormatManifestTableCell(d.SelectedOption, "Selected option")))
                 .ToList();
             WordDocumentBuilder.AddThreeColumnTable(
                 body,

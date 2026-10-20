@@ -85,6 +85,8 @@ import {
 } from "@/lib/governance/governance-infrastructure-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 import { infrastructureDriftPathForProductLine, infrastructureTerraformPathForProductLine } from "@/lib/product-line/securenow-infrastructure-routes";
 import { infrastructureResourcesPathForProductLine } from "@/lib/product-line/securenow-infrastructure-resources-route";
 import {
@@ -125,6 +127,11 @@ export function TerraformWorkbenchClient() {
   const terraformPath = useMemo(
     () => infrastructureTerraformPathForProductLine(productLine),
     [productLine],
+  );
+  const pageTitle = resolveSecureNowPageHeading(
+    productLine,
+    GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PAGE_TITLE,
+    SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH,
   );
   const resourcesPath = useMemo(
     () => infrastructureResourcesPathForProductLine(productLine),
@@ -475,7 +482,7 @@ export function TerraformWorkbenchClient() {
 
       <OperatorPageHeader
         navHref={terraformPath}
-        title={GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PAGE_TITLE}
+        title={pageTitle}
         subtitle={GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PAGE_LEAD}
         subtitleTestId="infra-terraform-page-lead"
         claimDiscipline={GOVERNANCE_INFRASTRUCTURE_TERRAFORM_CLAIM_DISCIPLINE}

@@ -91,6 +91,7 @@ partial class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<IArchitectureSealDeltaService, ArchitectureSealDeltaService>();
         services.AddScoped<IArchitectureIdentityBackfillService, ArchitectureIdentityBackfillService>();
         services.AddScoped<IArchitectureVersionService, ArchitectureVersionService>();
+        services.AddScoped<IArchitectureVersionKnowledgeModelPinSync, ArchitectureVersionKnowledgeModelPinSync>();
         services.AddSingleton<IEvidenceGraphMaterializer, EvidenceGraphMaterializer>();
         services.AddScoped<IRunPolicyPackPinService, RunPolicyPackPinService>();
         services.AddScoped<IRunEvidencePackagePinService, RunEvidencePackagePinService>();

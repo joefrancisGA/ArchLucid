@@ -383,6 +383,31 @@ public sealed class SqlRemediationWaveRepository(ISqlConnectionFactory connectio
         return rows.Select(MapMember).ToList();
     }
 
+    public async Task<IReadOnlyDictionary<Guid, int>> CountMembersByWaveInScopeAsync(
+        ProjectScopeKey scope,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT m.WaveId, COUNT(1) AS MemberCount
+                           FROM dbo.RemediationWaveMembers m
+                           INNER JOIN dbo.RemediationWaves w
+                               ON w.TenantId = m.TenantId AND w.WaveId = m.WaveId
+                           WHERE m.TenantId = @TenantId
+                             AND w.WorkspaceId = @WorkspaceId
+                             AND w.ProjectId = @ProjectId
+                           GROUP BY m.WaveId;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<WaveMemberCountRow> rows = await conn.QueryAsync<WaveMemberCountRow>(
+            new CommandDefinition(
+                sql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId },
+                cancellationToken: cancellationToken));
+
+        return rows.ToDictionary(row => row.WaveId, row => row.MemberCount);
+    }
+
     private static RemediationWaveRecord MapWave(WaveRow row) =>
         new()
         {
@@ -411,6 +436,21 @@ public sealed class SqlRemediationWaveRepository(ISqlConnectionFactory connectio
             PriorityScore = row.PriorityScore,
             CreatedUtc = row.CreatedUtc,
         };
+
+    private sealed class WaveMemberCountRow
+    {
+        public Guid WaveId
+        {
+            get;
+            init;
+        }
+
+        public int MemberCount
+        {
+            get;
+            init;
+        }
+    }
 
     private sealed class WaveRow
     {

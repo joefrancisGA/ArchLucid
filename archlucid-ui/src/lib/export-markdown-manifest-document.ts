@@ -13,7 +13,20 @@ function formatRequirementItems(items: unknown, heading: string, lines: string[]
     return;
   }
 
-  if (!Array.isArray(items) || items.length === 0) {
+  if (!Array.isArray(items)) {
+    return;
+  }
+
+  if (items.length === 0) {
+    lines.push(`### ${heading}`);
+    lines.push("");
+    lines.push(
+      heading === "Covered requirements"
+        ? "Covered requirements were stored as an empty list."
+        : "Uncovered requirements were stored as an empty list.",
+    );
+    lines.push("");
+
     return;
   }
 
@@ -195,7 +208,11 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
     } else {
       pushBulletLines(lines, topology.selectedPatterns, undefined);
     }
-    pushBulletLines(lines, topology.resources, undefined);
+    if (topology.resources === null || topology.resources === undefined) {
+      lines.push("Resources were not stored.");
+    } else {
+      pushBulletLines(lines, topology.resources, undefined);
+    }
     if (topology.gaps === null || topology.gaps === undefined) {
       lines.push("Topology gaps were not stored.");
     } else {
@@ -247,6 +264,8 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
           );
         } else if (c.controlName === null || c.controlName === undefined) {
           lines.push("- Control name was not stored.");
+        } else if (c.controlName === "") {
+          lines.push("- Control name was stored empty.");
         }
       }
     }
@@ -289,6 +308,8 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
         if (sid) {
           lines.push(`  - **Service id:** \`${sid}\``);
         }
+      } else if (typeof s.serviceName === "string" && s.serviceName.length === 0) {
+        lines.push("- Service name was stored empty.");
       } else {
         lines.push(`- **${name}**${sid ? ` (\`${sid}\`)` : ""}`);
       }
@@ -325,6 +346,8 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
         if (did) {
           lines.push(`  - **Datastore id:** \`${did}\``);
         }
+      } else if (typeof ds.name === "string" && ds.name.length === 0) {
+        lines.push("- Datastore name was stored empty.");
       } else {
         lines.push(`- **${name}**${did ? ` (\`${did}\`)` : ""}`);
       }
@@ -351,6 +374,15 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
       const missingRelId = r.relationshipId === null || r.relationshipId === undefined;
       const src = normalizeInlineText(r.sourceId);
       const tgt = normalizeInlineText(r.targetId);
+
+      if (r.description === "" && r.sourceId === "" && r.targetId === "") {
+        lines.push(
+          `- Relationship description was stored empty.${relId ? ` (\`${relId}\`)` : ""}${missingRelId ? " Relationship id was not stored." : ""}`,
+        );
+
+        continue;
+      }
+
       const parts = [
         src ?? (r.sourceId === null || r.sourceId === undefined ? "Source was not stored" : null),
         tgt ?? (r.targetId === null || r.targetId === undefined ? "Target was not stored" : null),
@@ -393,6 +425,9 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
       } else if (d.title === null || d.title === undefined) {
         lines.push("#### Decision title was not stored.");
         lines.push("");
+      } else if (d.title === "") {
+        lines.push("#### Decision title was stored empty.");
+        lines.push("");
       } else {
         lines.push("####");
         lines.push("");
@@ -400,6 +435,8 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
 
       if (d.decisionId === null || d.decisionId === undefined) {
         lines.push("- Decision id was not stored.");
+      } else if (d.decisionId === "") {
+        lines.push("- Decision id was stored empty.");
       } else if (did) {
         lines.push(`- **Decision id:** \`${did}\``);
       }
@@ -408,10 +445,14 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
         lines.push(`- **Category:** ${category}`);
       } else if (d.category === null || d.category === undefined) {
         lines.push("- Decision category was not stored.");
+      } else if (d.category === "") {
+        lines.push("- Decision category was stored empty.");
       }
 
       if (d.selectedOption === null || d.selectedOption === undefined) {
         lines.push("- Selected option was not stored.");
+      } else if (d.selectedOption === "") {
+        lines.push("- Selected option was stored empty.");
       } else if (option) {
         lines.push(`- **Selected option:** ${option}`);
       }
@@ -470,6 +511,11 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
 
     const controls = Array.isArray(security.controls) ? security.controls : [];
 
+    if (controls.length === 0 && Array.isArray(security.controls)) {
+      lines.push("Security controls were stored as an empty list.");
+      lines.push("");
+    }
+
     if (controls.length > 0) {
       lines.push("### Controls");
       lines.push("");
@@ -495,6 +541,8 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
           );
         } else if (c.controlName === null || c.controlName === undefined) {
           lines.push("- Control name was not stored.");
+        } else if (c.controlName === "") {
+          lines.push("- Control name was stored empty.");
         }
       }
 

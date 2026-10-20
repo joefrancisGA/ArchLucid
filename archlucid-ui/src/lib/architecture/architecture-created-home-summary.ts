@@ -40,22 +40,22 @@ const MIN_STRONG_OVERVIEW_CHARS = 100;
 const MIN_CLARIFICATION_OVERVIEW_CHARS = 40;
 const MIN_OUTCOME_CHARS = 10;
 
+export const ARCHITECTURE_CREATED_BUSINESS_PURPOSE_NOT_STORED =
+  "Business purpose was not stored." as const;
+
+export const ARCHITECTURE_CREATED_MAJOR_SYSTEMS_NOT_STORED =
+  "Major systems were not stored." as const;
+
+export const ARCHITECTURE_CREATED_PRIMARY_USERS_NOT_STORED =
+  "Primary users were not stored." as const;
+
+export const ARCHITECTURE_CREATED_KEY_INTEGRATIONS_NOT_STORED =
+  "Key integrations were not stored." as const;
+
 export const DEFAULT_GAP_ASSERTION: ArchitectureGapAssertionFlags = {
   businessOutcome: true,
   peopleAndSystems: true,
 };
-
-function firstSentence(text: string): string {
-  const trimmed = text.trim();
-
-  if (trimmed.length === 0) {
-    return "";
-  }
-
-  const match = /^[^.!?\n]+[.!?]?/.exec(trimmed);
-
-  return (match?.[0] ?? trimmed).trim();
-}
 
 function truncateSummary(value: string, maxLength: number): string {
   const trimmed = value.trim();
@@ -103,37 +103,37 @@ export function buildSummaryFields(input: BuildArchitectureCreatedHomeModelInput
   const businessPurpose =
     input.businessOutcome.trim().length > 0
       ? truncateSummary(input.businessOutcome, 220)
-      : truncateSummary(firstSentence(input.architectureOverview), 220);
+      : ARCHITECTURE_CREATED_BUSINESS_PURPOSE_NOT_STORED;
 
-  if (businessPurpose.length > 0) {
-    fields.push({ label: ARCHITECTURE_SUMMARY_LABELS.businessPurpose, value: businessPurpose });
-  }
+  fields.push({ label: ARCHITECTURE_SUMMARY_LABELS.businessPurpose, value: businessPurpose });
 
-  if (humans.length > 0) {
-    fields.push({
-      label: ARCHITECTURE_SUMMARY_LABELS.primaryUsers,
-      value: humans.slice(0, 4).join(", "),
-    });
-  }
+  fields.push({
+    label: ARCHITECTURE_SUMMARY_LABELS.primaryUsers,
+    value:
+      humans.length > 0
+        ? humans.slice(0, 4).join(", ")
+        : ARCHITECTURE_CREATED_PRIMARY_USERS_NOT_STORED,
+  });
 
   if (systems.length > 0) {
     fields.push({
       label: ARCHITECTURE_SUMMARY_LABELS.majorSystems,
       value: systems.slice(0, 4).join(", "),
     });
-  } else if (input.architectureName.trim().length > 0) {
+  } else {
     fields.push({
       label: ARCHITECTURE_SUMMARY_LABELS.majorSystems,
-      value: input.architectureName.trim(),
+      value: ARCHITECTURE_CREATED_MAJOR_SYSTEMS_NOT_STORED,
     });
   }
 
-  if (integrations.length > 0) {
-    fields.push({
-      label: ARCHITECTURE_SUMMARY_LABELS.keyIntegrations,
-      value: integrations.slice(0, 4).join(", "),
-    });
-  }
+  fields.push({
+    label: ARCHITECTURE_SUMMARY_LABELS.keyIntegrations,
+    value:
+      integrations.length > 0
+        ? integrations.slice(0, 4).join(", ")
+        : ARCHITECTURE_CREATED_KEY_INTEGRATIONS_NOT_STORED,
+  });
 
-  return fields.slice(0, 4);
+  return fields;
 }

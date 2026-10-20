@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -11,10 +13,30 @@ import {
 } from "@/components/ui/enterprise-table";
 import { StatusTag } from "@/components/ui/status-tag";
 import type { RemediationPrioritizedFinding } from "@/lib/remediation-factory-types";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
+import { buildRemediationWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-workbench-url";
+import {
+  formatRemediationPriorityWhenBandForRankOrder,
+  REMEDIATION_PRIORITY_WHEN_HEADER_HELPER,
+} from "@/lib/remediation-priority-when-band";
+
+const REMEDIATION_PRIORITY_RANK_NOT_STORED = "Rank was not stored.";
+
+const REMEDIATION_CONTROL_ID_NOT_STORED = "Control id was not stored.";
+
+function formatRemediationPriorityControlId(controlId: string | null | undefined): string {
+  if (controlId === null || controlId === undefined || controlId.trim().length === 0) {
+    return REMEDIATION_CONTROL_ID_NOT_STORED;
+  }
+
+  return controlId;
+}
 import { cn } from "@/lib/utils";
 
-import { RemediationFactoryTableSummaryCell } from "./RemediationFactoryTableSummaryCell";
+import { RemediationFactoryPatternKeyCell } from "./RemediationFactoryPatternKeyCell";
+import { RemediationPriorityReasonCell } from "./RemediationPriorityReasonCell";
+import { RemediationPriorityResourceCell } from "./RemediationPriorityResourceCell";
+import { RemediationPrioritySortKeyDisclosure } from "./RemediationPrioritySortKeyDisclosure";
 
 export function RemediationFactoryPriorityTable(props: {
   readonly rows: ReadonlyArray<RemediationPrioritizedFinding>;
@@ -22,6 +44,7 @@ export function RemediationFactoryPriorityTable(props: {
   readonly onSelect: (findingId: string) => void;
   readonly scopeLabel: string;
   readonly totalCount: number;
+  readonly workbenchSnapshotId: string | null;
 }) {
   const showing = props.rows.length;
 
@@ -35,11 +58,32 @@ export function RemediationFactoryPriorityTable(props: {
           <EnterpriseTableRow>
             <EnterpriseTableHeaderCell>
               <span>Rank</span>
-              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-                1 is the first finding in this queue.
+              <span
+                className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="remediation-factory-priority-rank-header-helper"
+              >
+                This rank is the SecureNow finding queue, not the path list.
+              </span>
+              <span
+                className={cn("ml-2 block font-normal", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="remediation-factory-priority-rank-header-helper"
+              >
+                This rank is the SecureNow finding queue, not the path list.
               </span>
             </EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Score</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Resource</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>When</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                {REMEDIATION_PRIORITY_WHEN_HEADER_HELPER}
+              </span>
+            </EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Score</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                Sort key for this queue. Not a percentage.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>
               <span>Control</span>
               <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
@@ -53,11 +97,12 @@ export function RemediationFactoryPriorityTable(props: {
               </span>
             </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Summary</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Workbench</EnterpriseTableHeaderCell>
           </EnterpriseTableRow>
         </EnterpriseTableHead>
         <EnterpriseTableBody>
-          {props.rows.map((row, index) => {
-            const rankOrder = row.rankOrder ?? index + 1;
+          {props.rows.map((row) => {
+            const storedRankOrder = row.rankOrder;
             const selected = props.selectedFindingId === row.findingId;
 
             return (
@@ -70,15 +115,43 @@ export function RemediationFactoryPriorityTable(props: {
               >
                 <EnterpriseTableCell className="tabular-nums text-right">
                   <span className="inline-flex items-center gap-2">
-                    {rankOrder}
+                    {storedRankOrder ?? REMEDIATION_PRIORITY_RANK_NOT_STORED}
                     {selected ? <StatusTag kind="ready" label="Inspecting" /> : null}
                   </span>
                 </EnterpriseTableCell>
-                <EnterpriseTableCell className="tabular-nums">{row.totalScore.toFixed(4)}</EnterpriseTableCell>
-                <EnterpriseTableCell>{row.controlId ?? "—"}</EnterpriseTableCell>
-                <EnterpriseTableCell>{row.patternKey == null ? "—" : "Pattern"}</EnterpriseTableCell>
+                <RemediationPriorityResourceCell cloudResourceId={row.cloudResourceId} />
+                <EnterpriseTableCell>{formatRemediationPriorityWhenBandForRankOrder(storedRankOrder)}</EnterpriseTableCell>
                 <EnterpriseTableCell>
-                  <RemediationFactoryTableSummaryCell rowKey={row.findingId} summary={row.explanationSummary} />
+                  <RemediationPrioritySortKeyDisclosure findingId={row.findingId} totalScore={row.totalScore} />
+                </EnterpriseTableCell>
+                <EnterpriseTableCell>{formatRemediationPriorityControlId(row.controlId)}</EnterpriseTableCell>
+                <EnterpriseTableCell>
+                  <RemediationFactoryPatternKeyCell
+                    findingId={row.findingId}
+                    patternKey={row.patternKey}
+                    emptyLabel="Name not recorded"
+                  />
+                </EnterpriseTableCell>
+                <RemediationPriorityReasonCell
+                  findingId={row.findingId}
+                  breakdownJson={row.breakdownJson}
+                  explanationSummary={row.explanationSummary}
+                />
+                <EnterpriseTableCell>
+                  <Link
+                    className={OPERATOR_LINK.inline}
+                    data-testid={`remediation-priority-workbench-${row.findingId}`}
+                    href={buildRemediationWorkbenchHref({
+                      findingId: row.findingId,
+                      cloudResourceId: row.cloudResourceId ?? undefined,
+                      snapshotId: props.workbenchSnapshotId ?? undefined,
+                    })}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                    }}
+                  >
+                    Open remediation workbench
+                  </Link>
                 </EnterpriseTableCell>
               </EnterpriseTableInteractiveRow>
             );

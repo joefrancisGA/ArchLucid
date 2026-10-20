@@ -13,6 +13,11 @@ public interface IAzureInventorySnapshotGraphResolver
         bool includeNeverShowArmTypes = false,
         bool retainIdentityDiagramArmTypes = false,
         CancellationToken cancellationToken = default);
+
+    AzureInventorySnapshotGraphResolveResult ResolveGraphFromSnapshot(
+        AzureInventorySnapshotDetailReadModel snapshot,
+        bool includeNeverShowArmTypes = false,
+        bool retainIdentityDiagramArmTypes = false);
 }
 
 public sealed class AzureInventorySnapshotGraphResolveResult

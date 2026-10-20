@@ -17,15 +17,21 @@ public sealed class AzureInventoryReachabilityEdgeControlIndex
     private readonly HashSet<string> _subnetsWithUnmodeledEdgeRoute;
     private readonly HashSet<string> _assetsBehindApplicationGateway;
     private readonly HashSet<string> _assetsBehindFrontDoor;
+    private readonly Dictionary<string, string> _applicationGatewayByBackendArmId;
+    private readonly Dictionary<string, string> _frontDoorByBackendArmId;
 
     private AzureInventoryReachabilityEdgeControlIndex(
         HashSet<string> subnetsWithUnmodeledEdgeRoute,
         HashSet<string> assetsBehindApplicationGateway,
-        HashSet<string> assetsBehindFrontDoor)
+        HashSet<string> assetsBehindFrontDoor,
+        Dictionary<string, string> applicationGatewayByBackendArmId,
+        Dictionary<string, string> frontDoorByBackendArmId)
     {
         _subnetsWithUnmodeledEdgeRoute = subnetsWithUnmodeledEdgeRoute;
         _assetsBehindApplicationGateway = assetsBehindApplicationGateway;
         _assetsBehindFrontDoor = assetsBehindFrontDoor;
+        _applicationGatewayByBackendArmId = applicationGatewayByBackendArmId;
+        _frontDoorByBackendArmId = frontDoorByBackendArmId;
     }
 
     public bool SubnetRequiresEdgeControlEvidence(string subnetArmId) =>
@@ -43,6 +49,56 @@ public sealed class AzureInventoryReachabilityEdgeControlIndex
             ArmResourceIdNormalizer.IsDescendantOf(assetArmId, originArmId)
             || ArmResourceIdNormalizer.IsDescendantOf(originArmId, assetArmId));
 
+    public bool TryGetApplicationGatewayForBackend(string backendArmId, out string applicationGatewayArmId)
+    {
+        string normalizedBackend = ArmResourceIdNormalizer.Normalize(backendArmId);
+
+        if (_applicationGatewayByBackendArmId.TryGetValue(normalizedBackend, out applicationGatewayArmId!))
+        {
+            return true;
+        }
+
+        foreach ((string backend, string gateway) in _applicationGatewayByBackendArmId)
+        {
+            if (ArmResourceIdNormalizer.IsDescendantOf(normalizedBackend, backend)
+                || ArmResourceIdNormalizer.IsDescendantOf(backend, normalizedBackend))
+            {
+                applicationGatewayArmId = gateway;
+
+                return true;
+            }
+        }
+
+        applicationGatewayArmId = string.Empty;
+
+        return false;
+    }
+
+    public bool TryGetFrontDoorForBackend(string backendArmId, out string frontDoorArmId)
+    {
+        string normalizedBackend = ArmResourceIdNormalizer.Normalize(backendArmId);
+
+        if (_frontDoorByBackendArmId.TryGetValue(normalizedBackend, out frontDoorArmId!))
+        {
+            return true;
+        }
+
+        foreach ((string backend, string frontDoor) in _frontDoorByBackendArmId)
+        {
+            if (ArmResourceIdNormalizer.IsDescendantOf(normalizedBackend, backend)
+                || ArmResourceIdNormalizer.IsDescendantOf(backend, normalizedBackend))
+            {
+                frontDoorArmId = frontDoor;
+
+                return true;
+            }
+        }
+
+        frontDoorArmId = string.Empty;
+
+        return false;
+    }
+
     public static AzureInventoryReachabilityEdgeControlIndex Build(
         IEnumerable<AzureInventoryRelationshipArmTriple> relationships,
         IReadOnlyDictionary<string, AzureInventoryReachabilityResourceProperties> resourcesByArmId)
@@ -57,6 +113,8 @@ public sealed class AzureInventoryReachabilityEdgeControlIndex
         HashSet<string> subnetsWithUnmodeledEdgeRoute = new(StringComparer.OrdinalIgnoreCase);
         HashSet<string> assetsBehindApplicationGateway = new(StringComparer.OrdinalIgnoreCase);
         HashSet<string> assetsBehindFrontDoor = new(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, string> applicationGatewayByBackendArmId = new(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, string> frontDoorByBackendArmId = new(StringComparer.OrdinalIgnoreCase);
 
         foreach ((string subnetArmId, string routeTableArmId) in subnetToRouteTable)
         {
@@ -75,21 +133,29 @@ public sealed class AzureInventoryReachabilityEdgeControlIndex
         {
             if (string.Equals(relationship.InferenceSource, InferenceSources.AgwBackend, StringComparison.OrdinalIgnoreCase))
             {
-                assetsBehindApplicationGateway.Add(
-                    ArmResourceIdNormalizer.Normalize(relationship.ToAzureResourceId));
+                string backendArmId = ArmResourceIdNormalizer.Normalize(relationship.ToAzureResourceId);
+                string gatewayArmId = ArmResourceIdNormalizer.Normalize(relationship.FromAzureResourceId);
+
+                assetsBehindApplicationGateway.Add(backendArmId);
+                applicationGatewayByBackendArmId[backendArmId] = gatewayArmId;
             }
 
             if (string.Equals(relationship.InferenceSource, InferenceSources.FrontDoorOrigin, StringComparison.OrdinalIgnoreCase))
             {
-                assetsBehindFrontDoor.Add(
-                    ArmResourceIdNormalizer.Normalize(relationship.ToAzureResourceId));
+                string backendArmId = ArmResourceIdNormalizer.Normalize(relationship.ToAzureResourceId);
+                string frontDoorArmId = ArmResourceIdNormalizer.Normalize(relationship.FromAzureResourceId);
+
+                assetsBehindFrontDoor.Add(backendArmId);
+                frontDoorByBackendArmId[backendArmId] = frontDoorArmId;
             }
         }
 
         return new AzureInventoryReachabilityEdgeControlIndex(
             subnetsWithUnmodeledEdgeRoute,
             assetsBehindApplicationGateway,
-            assetsBehindFrontDoor);
+            assetsBehindFrontDoor,
+            applicationGatewayByBackendArmId,
+            frontDoorByBackendArmId);
     }
 
     private static bool RouteTableRequiresUnmodeledEdgeControl(
@@ -130,9 +196,13 @@ public sealed class AzureInventoryReachabilityEdgeControlIndex
                 return true;
             }
 
-            // Firewall present in snapshot; application rules are still out of scope for SA-05.
             if (nextHopResource.ResourceType.Contains("azureFirewalls", StringComparison.OrdinalIgnoreCase))
             {
+                if (AzureInventoryAzureFirewallNetworkRuleParser.HasNetworkRuleCollections(nextHopResource.Properties))
+                {
+                    return false;
+                }
+
                 return true;
             }
         }

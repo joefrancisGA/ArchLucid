@@ -1,7 +1,11 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
+using ArchLucid.Application.InfraEvidence.Mermaid;
+using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Persistence.Serialization;
@@ -13,9 +17,12 @@ public sealed class SecureNowQuestionDispositionService(
     ISecureNowQuestionDispositionRepository dispositionRepository,
     IAzureInventorySnapshotRepository snapshotRepository,
     IAuditService auditService,
-    IOperatorInferredConnectionRepository? inferredConnectionRepository = null) : ISecureNowQuestionDispositionService
+    IOperatorInferredConnectionRepository? inferredConnectionRepository = null,
+    IEffectiveGovernanceLoader? effectiveGovernanceLoader = null,
+    IAzureInventorySnapshotGraphResolver? graphResolver = null) : ISecureNowQuestionDispositionService
 {
     private readonly SecureNowQuestionCompiler questionCompiler = new();
+    private readonly SecureNowPackQuestionCandidateBuilder packQuestionCandidateBuilder = new();
     private static readonly TimeSpan MaximumDispositionLifetime = TimeSpan.FromDays(90);
     private const int MaximumQuestionKeyLength = 256;
     private static readonly Regex VersionedQuestionKey = new(
@@ -62,7 +69,41 @@ public sealed class SecureNowQuestionDispositionService(
 
         IReadOnlyList<SecureNowDiagramQuestionCandidate> candidates =
             BuildDiagramCandidates(snapshot);
-        return questionCompiler.Compile(scope, snapshot, candidates, inferred, dispositions);
+        IReadOnlyList<SecureNowPackQuestionCandidate> packCandidates =
+            await BuildPackCandidatesAsync(scope, snapshotId, snapshot, cancellationToken);
+
+        return questionCompiler.Compile(
+            scope,
+            snapshot,
+            packCandidates,
+            candidates,
+            inferred,
+            dispositions);
+    }
+
+    private async Task<IReadOnlyList<SecureNowPackQuestionCandidate>> BuildPackCandidatesAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        AzureInventorySnapshotDetailReadModel snapshot,
+        CancellationToken cancellationToken)
+    {
+        if (effectiveGovernanceLoader is null || graphResolver is null)
+            return [];
+
+        PolicyPackContentDocument effectiveContent = await effectiveGovernanceLoader.LoadEffectiveContentAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            cancellationToken);
+
+        AzureInventorySnapshotGraphResolveResult graphResult =
+            graphResolver.ResolveGraphFromSnapshot(snapshot);
+        GraphSnapshot? graph = graphResult.Succeeded ? graphResult.Graph : null;
+
+        return packQuestionCandidateBuilder.Build(
+            effectiveContent,
+            graph,
+            snapshot.Header.SubscriptionId!);
     }
 
     public async Task<IReadOnlyList<SecureNowQuestionDispositionRecord>> ListAsync(
@@ -72,16 +113,16 @@ public sealed class SecureNowQuestionDispositionService(
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        AzureInventorySnapshotDetailReadModel? snapshot =
-            await snapshotRepository.TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
-        if (snapshot is null || string.IsNullOrWhiteSpace(snapshot.Header.SubscriptionId))
+        AzureInventorySnapshotRecord? snapshot =
+            await snapshotRepository.TryGetBySnapshotIdAsync(scope, snapshotId, cancellationToken);
+        if (snapshot is null || string.IsNullOrWhiteSpace(snapshot.SubscriptionId))
             return [];
 
         DateTime now = TimeProvider.System.UtcNowDateTime();
         IReadOnlyList<SecureNowQuestionDispositionRecord> records =
             await dispositionRepository.ListByTenantAndSubscriptionAsync(
                 scope.TenantId,
-                Normalize(snapshot.Header.SubscriptionId),
+                Normalize(snapshot.SubscriptionId),
                 cancellationToken);
 
         return records
@@ -278,11 +319,11 @@ public sealed class SecureNowQuestionDispositionService(
         if (snapshotId == Guid.Empty)
             return false;
 
-        AzureInventorySnapshotDetailReadModel? snapshot =
-            await snapshotRepository.TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+        AzureInventorySnapshotRecord? snapshot =
+            await snapshotRepository.TryGetBySnapshotIdAsync(scope, snapshotId, cancellationToken);
         return snapshot is not null
                && string.Equals(
-                   Normalize(snapshot.Header.SubscriptionId),
+                   Normalize(snapshot.SubscriptionId),
                    Normalize(subscriptionId),
                    StringComparison.Ordinal);
     }

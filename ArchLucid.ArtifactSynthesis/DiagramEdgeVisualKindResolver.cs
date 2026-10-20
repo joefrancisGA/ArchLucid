@@ -26,6 +26,21 @@ public static class DiagramEdgeVisualKindResolver
             return DiagramEdgeVisualKind.Inferred;
         }
 
+        if (string.Equals(provenanceKind, "ObservedFact", StringComparison.OrdinalIgnoreCase))
+        {
+            return DiagramEdgeVisualKind.Observed;
+        }
+
+        if (string.IsNullOrWhiteSpace(provenanceKind) && string.IsNullOrWhiteSpace(inferenceSource))
+        {
+            return DiagramEdgeVisualKind.Unclassified;
+        }
+
+        if (!string.IsNullOrWhiteSpace(provenanceKind))
+        {
+            return DiagramEdgeVisualKind.Unclassified;
+        }
+
         return DiagramEdgeVisualKind.Observed;
     }
 

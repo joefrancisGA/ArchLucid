@@ -35,15 +35,17 @@ public static partial class FakeScenarioFactory
             Confidence = 0.91,
             Findings =
             [
-                new ArchitectureFinding
-                {
-                    FindingId = StableHexId(runId, taskId, "topology-finding-0"),
-                    SourceAgent = AgentType.Topology,
-                    Severity = FindingSeverity.Info,
-                    Category = "Topology",
-                    Message = "Simple managed-service topology selected for initial implementation.",
-                    EvidenceRefs = ["request"]
-                }
+                FakeScenarioFindingKindBProvenance.Attach(
+                    new ArchitectureFinding
+                    {
+                        FindingId = StableHexId(runId, taskId, "topology-finding-0"),
+                        SourceAgent = AgentType.Topology,
+                        Severity = FindingSeverity.Info,
+                        Category = "Topology",
+                        Message = "Simple managed-service topology selected for initial implementation.",
+                        EvidenceRefs = ["request"]
+                    },
+                    FakeScenarioFindingKindBProvenance.ManagedServiceTopologyRuleId)
             ],
             ProposedChanges = new AgentTopologyProposal
             {

@@ -128,9 +128,39 @@ describe("toReviewsHubReviewRowDisplay", () => {
     const workingRow = toReviewsHubReviewRowDisplay(siblings[0], {}, siblings, { isWorkingMode: true });
     const guidedRow = toReviewsHubReviewRowDisplay(siblings[0], {}, siblings, { isWorkingMode: false });
 
-    expect(workingRow.reviewTitlePrimary).toBe("Untitled review");
-    expect(guidedRow.reviewTitlePrimary).toContain("Untitled review ·");
-    expect(guidedRow.reviewTitlePrimary).not.toBe("Untitled review");
+    expect(workingRow.reviewTitlePrimary).toBe("Review title was not stored.");
+    expect(guidedRow.reviewTitlePrimary).toContain("Review title was not stored. ·");
+    expect(guidedRow.reviewTitlePrimary).not.toBe("Review title was not stored.");
+  });
+
+  it("passes null through when wire finding, risk, and evidence counts are missing", () => {
+    const row = toReviewsHubReviewRowDisplay({
+      runId: "no-counts",
+      projectId: "default",
+      createdUtc: "2026-01-20T12:00:00.000Z",
+      hasFindingsSnapshot: true,
+      hasGraphSnapshot: true,
+      hasWarnings: true,
+    } satisfies RunSummary);
+
+    expect(row.findingsCount).toBeNull();
+    expect(row.riskCount).toBeNull();
+    expect(row.evidenceCount).toBeNull();
+  });
+
+  it("keeps stored zero finding and risk counts", () => {
+    const row = toReviewsHubReviewRowDisplay({
+      runId: "zero-counts",
+      projectId: "default",
+      createdUtc: "2026-01-20T12:00:00.000Z",
+      findingCount: 0,
+      warningCount: 0,
+      artifactCount: 0,
+    } satisfies RunSummary);
+
+    expect(row.findingsCount).toBe(0);
+    expect(row.riskCount).toBe(0);
+    expect(row.evidenceCount).toBe(0);
   });
 
   it("labels unlinked jobs honestly in Working inbox rows (AO-49)", () => {

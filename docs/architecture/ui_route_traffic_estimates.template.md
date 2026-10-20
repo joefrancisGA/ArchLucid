@@ -284,7 +284,13 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | EEX | `/help/extraction-fidelity` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | HEF | `/help/false-hard-infeasibility` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | HFI | `/help/first-login-workspace` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| EGO | `/help/governance-infrastructure-ask` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| EGX | `/help/governance-infrastructure-diagram-reconcile` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| OXX | `/help/governance-infrastructure-diagrams` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | HEG | `/help/governance-infrastructure-drift` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HE4 | `/help/governance-infrastructure-remediation` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HGO | `/help/governance-infrastructure-resources` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HE5 | `/help/governance-infrastructure-terraform` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | HEM | `/help/impact-preview` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | EIM | `/help/impact-preview-vs-architecture-envelope` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | HIM | `/help/improvement-planning` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
@@ -329,6 +335,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | NDI | `/infrastructure/diagrams` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | IDR | `/infrastructure/drift` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | INX | `/infrastructure/extract-upload` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
+| INM | `/infrastructure/manual-upload` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | IRE | `/infrastructure/resources` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | ICL | `/infrastructure/resources/[cloudResourceId]` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | INN | `/infrastructure/snapshots-drift` | 0.02% | 0 | 0 | 2 | Marketing | No | None |

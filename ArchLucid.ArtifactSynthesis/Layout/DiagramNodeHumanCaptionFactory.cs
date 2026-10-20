@@ -6,6 +6,9 @@ namespace ArchLucid.ArtifactSynthesis.Layout;
 
 public static class DiagramNodeHumanCaptionFactory
 {
+    public const string ResourceTypeNotStoredCaption = "Resource type was not stored";
+    public const string ResourceGroupNotStoredCaption = "Resource group was not stored.";
+
     public static string? TryFormatDataFlowTypeCaption(DiagramNode node)
     {
         ArgumentNullException.ThrowIfNull(node);
@@ -20,7 +23,7 @@ public static class DiagramNodeHumanCaptionFactory
                 "AzureMySql" => "MySQL link",
                 "Sftp" => "SFTP link",
                 "HttpServer" or "Web" or "RestService" => "HTTP link",
-                _ => $"{linkedServiceType} link",
+                _ => $"Linked service type {linkedServiceType} has no reviewer label.",
             };
         }
 
@@ -41,10 +44,25 @@ public static class DiagramNodeHumanCaptionFactory
 
         if (node.ArmResourceType?.Equals("Microsoft.Web/sites", StringComparison.OrdinalIgnoreCase) == true)
         {
-            return node.ArmResourceKind?.Split(',', 2, StringSplitOptions.TrimEntries)[0]
-                .Equals("functionapp", StringComparison.OrdinalIgnoreCase) == true
-                ? "Function App"
-                : "App Service";
+            string? siteKind = node.ArmResourceKind?.Split(',', 2, StringSplitOptions.TrimEntries)[0];
+
+            if (string.IsNullOrWhiteSpace(siteKind))
+            {
+                return "Site kind was not stored.";
+            }
+
+            if (siteKind.Equals("functionapp", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Function App";
+            }
+
+            if (siteKind.Equals("app", StringComparison.OrdinalIgnoreCase)
+                || siteKind.Equals("api", StringComparison.OrdinalIgnoreCase))
+            {
+                return "App Service";
+            }
+
+            return "Site kind was not stored.";
         }
 
         return DiagramArmTypeFriendlyName.TryFormat(node.ArmResourceType);
@@ -63,6 +81,11 @@ public static class DiagramNodeHumanCaptionFactory
         string combined = string.IsNullOrWhiteSpace(typeCaption)
             ? resourceName
             : $"{resourceName} ({typeCaption})";
+
+        if (!node.IsDataFlowRollup && string.IsNullOrWhiteSpace(typeCaption))
+        {
+            combined = $"{combined} · {ResourceTypeNotStoredCaption}";
+        }
 
         if (node.ParentAttachmentDetails.Count > 0)
         {
@@ -89,9 +112,10 @@ public static class DiagramNodeHumanCaptionFactory
         {
             combined = $"{combined} · Stands alone";
         }
-        else if (node.ConnectionState == InventoryDiagramConnectionState.Unknown)
+        else if (node.ConnectionState == InventoryDiagramConnectionState.Unknown
+            && node.UnresolvedRelationshipDetails.Count == 0)
         {
-            combined = $"{combined} · Needs evidence";
+            combined = $"{combined} · Connection state was not classified.";
         }
 
         if (node.UnresolvedRelationshipDetails.Count > 0)
@@ -106,9 +130,11 @@ public static class DiagramNodeHumanCaptionFactory
         string? resourceGroupCaption = string.IsNullOrWhiteSpace(node.ArmResourceGroup)
             ? null
             : node.ArmResourceGroup.Trim();
-        if (node.IncludeResourceGroupInCaption && resourceGroupCaption is not null)
+        if (node.IncludeResourceGroupInCaption)
         {
-            combined = $"{combined} · {resourceGroupCaption}";
+            combined = resourceGroupCaption is not null
+                ? $"{combined} · {resourceGroupCaption}"
+                : $"{combined} · {ResourceGroupNotStoredCaption}";
         }
         string accessibilityTitle = string.IsNullOrWhiteSpace(resourceGroupCaption)
             ? combined

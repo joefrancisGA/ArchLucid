@@ -11,33 +11,33 @@ namespace ArchLucid.Application.InfraEvidence;
 public static class AzureInventoryDiffUnchangedBuilder
 {
     public static List<AzureInventoryChangeRecord> BuildUnchangedResourceChanges(
-        AzureInventorySnapshotDetailReadModel snapshotA,
-        AzureInventorySnapshotDetailReadModel snapshotB,
+        IReadOnlyList<AzureInventoryResourceRecord> resourcesA,
+        IReadOnlyList<AzureInventoryResourceRecord> resourcesB,
         Guid diffId,
         Guid snapshotAId,
         Guid snapshotBId,
         IReadOnlySet<string> changedAzureResourceIds)
     {
-        ArgumentNullException.ThrowIfNull(snapshotA);
-        ArgumentNullException.ThrowIfNull(snapshotB);
+        ArgumentNullException.ThrowIfNull(resourcesA);
+        ArgumentNullException.ThrowIfNull(resourcesB);
         ArgumentNullException.ThrowIfNull(changedAzureResourceIds);
 
-        Dictionary<string, AzureInventoryResourceRecord> resourcesA =
-            snapshotA.Resources.ToDictionary(resource => resource.AzureResourceId, StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, AzureInventoryResourceRecord> resourcesAMap =
+            resourcesA.ToDictionary(resource => resource.AzureResourceId, StringComparer.OrdinalIgnoreCase);
 
-        Dictionary<string, AzureInventoryResourceRecord> resourcesB =
-            snapshotB.Resources.ToDictionary(resource => resource.AzureResourceId, StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, AzureInventoryResourceRecord> resourcesBMap =
+            resourcesB.ToDictionary(resource => resource.AzureResourceId, StringComparer.OrdinalIgnoreCase);
 
         List<AzureInventoryChangeRecord> unchanged = [];
 
-        foreach (KeyValuePair<string, AzureInventoryResourceRecord> pair in resourcesA)
+        foreach (KeyValuePair<string, AzureInventoryResourceRecord> pair in resourcesAMap)
         {
             if (changedAzureResourceIds.Contains(pair.Key))
             {
                 continue;
             }
 
-            if (!resourcesB.TryGetValue(pair.Key, out AzureInventoryResourceRecord? resourceB))
+            if (!resourcesBMap.TryGetValue(pair.Key, out AzureInventoryResourceRecord? resourceB))
             {
                 continue;
             }

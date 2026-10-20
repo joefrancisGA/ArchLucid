@@ -71,8 +71,16 @@ public sealed class SecurityEvidencePathInspectorQueryService(
         IReadOnlyList<SecurityEvidencePathHopRecord> hops =
             await pathRepository.ListHopsByPathInScopeAsync(scope.ToProjectScopeKey(), pathId, cancellationToken);
 
-        IReadOnlyList<Guid> citingFindingIds =
-            await findingRepository.ListFindingIdsByPathIdInScopeAsync(scope.ToProjectScopeKey(), pathId, cancellationToken);
+        ProjectScopeKey projectScope = scope.ToProjectScopeKey();
+
+        IReadOnlyDictionary<Guid, IReadOnlyList<Guid>> findingIdsBySnapshot =
+            await findingRepository.ListFindingIdsBySnapshotInScopeAsync(projectScope, path.SnapshotId, cancellationToken);
+
+        IReadOnlyList<Guid> citingFindingIds = await ResolveFindingIdsForPathAsync(
+            findingIdsBySnapshot,
+            pathId,
+            projectScope,
+            cancellationToken);
 
         SecurityEvidencePathHopRecord? weakestHopRecord = hops.FirstOrDefault(hop => hop.HopOrdinal == path.WeakestHopOrdinal);
 
@@ -82,47 +90,50 @@ public sealed class SecurityEvidencePathInspectorQueryService(
         IReadOnlyList<SecurityEvidencePathRoutingRecord> routingRows =
             await routingRepository.ListByPathIdInScopeAsync(scope.ToProjectScopeKey(), pathId, cancellationToken);
 
-        IReadOnlyList<SecurityEvidencePathRecord> snapshotPaths =
-            await pathRepository.ListBySnapshotAsync(
-                ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), path.SnapshotId),
-                cancellationToken);
+        ProjectSnapshotScopeKey snapshotScope =
+            ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), path.SnapshotId);
 
-        if (!snapshotPaths.Any(candidate => candidate.PathId == path.PathId))
+        IReadOnlyList<SecurityEvidencePathWithHops> fanOutPathsWithHops =
+            await pathRepository.ListSharedControlFanOutHopsBySnapshotAsync(snapshotScope, cancellationToken);
+
+        List<SecureNowHypothesisResponse> hypotheses = [];
+
+        hypotheses.AddRange(
+            SecureNowHypothesisAnalyzer.AnalyzeDiagnosticHypothesesForPath(path, hops, citingFindingIds));
+
+        List<(SecurityEvidencePathRecord Path, IReadOnlyList<SecurityEvidencePathHopRecord> Hops)> commonModePaths = [];
+        Dictionary<Guid, IReadOnlyList<Guid>> findingIdsByPath = new()
         {
-            snapshotPaths = [path, .. snapshotPaths];
+            [path.PathId] = citingFindingIds,
+        };
+
+        foreach (SecurityEvidencePathWithHops fanOutPath in fanOutPathsWithHops)
+        {
+            if (!findingIdsByPath.ContainsKey(fanOutPath.Path.PathId))
+            {
+                findingIdsByPath[fanOutPath.Path.PathId] = await ResolveFindingIdsForPathAsync(
+                    findingIdsBySnapshot,
+                    fanOutPath.Path.PathId,
+                    projectScope,
+                    cancellationToken);
+            }
+
+            commonModePaths.Add((fanOutPath.Path, fanOutPath.Hops));
         }
 
-        List<(
-            SecurityEvidencePathRecord Path,
-            IReadOnlyList<SecurityEvidencePathHopRecord> Hops)> pathEvidence = [];
-        Dictionary<Guid, IReadOnlyList<Guid>> findingIdsByPath = [];
-
-        foreach (SecurityEvidencePathRecord snapshotPath in snapshotPaths)
+        if (!commonModePaths.Any(item => item.Path.PathId == path.PathId))
         {
-            IReadOnlyList<SecurityEvidencePathHopRecord> snapshotHops =
-                snapshotPath.PathId == path.PathId
-                    ? hops
-                    : await pathRepository.ListHopsByPathInScopeAsync(
-                        scope.ToProjectScopeKey(),
-                        snapshotPath.PathId,
-                        cancellationToken);
-            IReadOnlyList<Guid> snapshotFindingIds =
-                snapshotPath.PathId == path.PathId
-                    ? citingFindingIds
-                    : await findingRepository.ListFindingIdsByPathIdInScopeAsync(
-                        scope.ToProjectScopeKey(),
-                        snapshotPath.PathId,
-                        cancellationToken);
-
-            pathEvidence.Add((snapshotPath, snapshotHops));
-            findingIdsByPath[snapshotPath.PathId] = snapshotFindingIds;
+            commonModePaths.Add((path, hops.Where(hop =>
+                    hop.EdgeType.Equals(
+                        SecureNowArchitectConstants.SharedControlFanOutHopEdgeType,
+                        StringComparison.OrdinalIgnoreCase))
+                .ToList()));
         }
 
-        IReadOnlyList<SecureNowHypothesisResponse> hypotheses =
+        hypotheses.AddRange(
             SecureNowHypothesisAnalyzer
-                .Analyze(pathEvidence, findingIdsByPath)
-                .Where(hypothesis => hypothesis.CitedPathIds.Contains(path.PathId))
-                .ToList();
+                .AnalyzeCommonModeDependencies(commonModePaths)
+                .Where(hypothesis => hypothesis.CitedPathIds.Contains(path.PathId)));
 
         return new SecurityEvidencePathDetailResponse
         {
@@ -143,6 +154,20 @@ public sealed class SecurityEvidencePathInspectorQueryService(
             Routing = routingRows.Select(MapRouting).ToList(),
             Hypotheses = hypotheses,
         };
+    }
+
+    private async Task<IReadOnlyList<Guid>> ResolveFindingIdsForPathAsync(
+        IReadOnlyDictionary<Guid, IReadOnlyList<Guid>> findingIdsBySnapshot,
+        Guid pathId,
+        ProjectScopeKey projectScope,
+        CancellationToken cancellationToken)
+    {
+        if (findingIdsBySnapshot.TryGetValue(pathId, out IReadOnlyList<Guid>? batchedIds))
+        {
+            return batchedIds;
+        }
+
+        return await findingRepository.ListFindingIdsByPathIdInScopeAsync(projectScope, pathId, cancellationToken);
     }
 
     private static SecurityEvidencePathRoutingResponse MapRouting(SecurityEvidencePathRoutingRecord row) =>

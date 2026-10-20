@@ -141,16 +141,18 @@ export function ArchitectureDiagramViewportControls(
           </Button>
         ) : null}
       </div>
-      <p
-        className={cn(
-          'm-0 text-al-text-secondary',
-          OPERATOR_TYPOGRAPHY.helper,
-          isOverlay ? 'pointer-events-auto sr-only' : undefined,
-        )}
-        data-testid="architecture-diagram-viewport-hint"
-      >
-        {props.viewportHint}
-      </p>
+      {props.viewportHint.length > 0 ? (
+        <p
+          className={cn(
+            'm-0 text-al-text-secondary',
+            OPERATOR_TYPOGRAPHY.helper,
+            isOverlay ? 'pointer-events-auto sr-only' : undefined,
+          )}
+          data-testid="architecture-diagram-viewport-hint"
+        >
+          {props.viewportHint}
+        </p>
+      ) : null}
     </div>
   );
 }

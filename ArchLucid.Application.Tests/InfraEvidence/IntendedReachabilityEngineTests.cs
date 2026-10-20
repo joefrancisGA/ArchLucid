@@ -303,6 +303,167 @@ public sealed class IntendedReachabilityEngineTests
     }
 
     [Fact]
+    public void Enumerate_subnet_routed_through_firewall_with_allow_rule_appends_allowed_edge_control_hop()
+    {
+        const string routeTableArm =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/routeTables/rt1";
+        const string firewallArm =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/azureFirewalls/fw1";
+        Guid routeTableRowId = Guid.NewGuid();
+        Guid firewallRowId = Guid.NewGuid();
+        Guid storageRowId = Guid.NewGuid();
+
+        AzureInventorySnapshotDetailReadModel baseSnapshot = BuildPublicStoragePathSnapshot(includeNsgRoute: true);
+        List<AzureInventoryResourceRecord> resources = [..baseSnapshot.Resources];
+        resources.Add(Resource(routeTableArm, "Microsoft.Network/routeTables", routeTableRowId));
+        resources.Add(Resource(firewallArm, "Microsoft.Network/azureFirewalls", firewallRowId));
+        List<AzureInventoryResourcePropertyReadModel> properties = [..baseSnapshot.Properties];
+        properties.Add(new AzureInventoryResourcePropertyReadModel
+        {
+            ResourceRowId = routeTableRowId,
+            PropertyKey = "inventory.policy.route.0.addressPrefix",
+            PropertyValue = "0.0.0.0/0",
+        });
+        properties.Add(new AzureInventoryResourcePropertyReadModel
+        {
+            ResourceRowId = routeTableRowId,
+            PropertyKey = "inventory.policy.route.0.nextHopType",
+            PropertyValue = "VirtualAppliance",
+        });
+        properties.Add(new AzureInventoryResourcePropertyReadModel
+        {
+            ResourceRowId = routeTableRowId,
+            PropertyKey = "inventory.policy.route.0.nextHopArmId",
+            PropertyValue = firewallArm,
+        });
+        properties.Add(new AzureInventoryResourcePropertyReadModel
+        {
+            ResourceRowId = firewallRowId,
+            PropertyKey = AzureInventoryAzureFirewallNetworkRuleParser.NetworkRuleCollectionsPropertyKey,
+            PropertyValue = """
+                [
+                  {
+                    "properties": {
+                      "priority": 200,
+                      "rules": [
+                        {
+                          "properties": {
+                            "name": "allow-internet",
+                            "priority": 100,
+                            "action": { "type": "Allow" },
+                            "sourceAddresses": ["*"],
+                            "destinationAddresses": ["*"],
+                            "destinationPorts": ["*"],
+                            "ipProtocols": ["TCP"]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+                """,
+        });
+        List<AzureInventoryResourceRelationshipReadModel> relationships = [..baseSnapshot.Relationships];
+        relationships.Add(Observed(SubnetArm, routeTableArm, GraphEdgeInferenceSources.InventorySubnetRouteTable));
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = baseSnapshot.Header,
+            Resources = resources,
+            Properties = properties,
+            Relationships = relationships,
+        };
+
+        InventoryReachabilityPathGraphSnapshot graph = InventoryReachabilityPathGraph.Build(snapshot);
+        IReadOnlyList<ReachabilityPathCandidate> candidates =
+            IntendedReachabilityPathEnumerator.Enumerate(graph, new PrivilegePathEngineOptions());
+
+        ReachabilityPathCandidate candidate = candidates.Should().ContainSingle().Subject;
+        candidate.HasInsufficientEvidenceHop.Should().BeFalse();
+        candidate.Hops[^1].EdgeType.Should().Be(SecureNowArchitectConstants.NetworkEdgeControlAllowedHopEdgeType);
+        candidate.Hops.Should().NotContain(hop =>
+            hop.EdgeType == SecureNowArchitectConstants.InsufficientEvidenceNetworkEdgeControlHopEdgeType);
+    }
+
+    [Fact]
+    public void Enumerate_subnet_routed_through_firewall_with_deny_rule_drops_path()
+    {
+        const string routeTableArm =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/routeTables/rt1";
+        const string firewallArm =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/azureFirewalls/fw1";
+        Guid routeTableRowId = Guid.NewGuid();
+        Guid firewallRowId = Guid.NewGuid();
+
+        AzureInventorySnapshotDetailReadModel baseSnapshot = BuildPublicStoragePathSnapshot(includeNsgRoute: true);
+        List<AzureInventoryResourceRecord> resources = [..baseSnapshot.Resources];
+        resources.Add(Resource(routeTableArm, "Microsoft.Network/routeTables", routeTableRowId));
+        resources.Add(Resource(firewallArm, "Microsoft.Network/azureFirewalls", firewallRowId));
+        List<AzureInventoryResourcePropertyReadModel> properties = [..baseSnapshot.Properties];
+        properties.Add(new AzureInventoryResourcePropertyReadModel
+        {
+            ResourceRowId = routeTableRowId,
+            PropertyKey = "inventory.policy.route.0.addressPrefix",
+            PropertyValue = "0.0.0.0/0",
+        });
+        properties.Add(new AzureInventoryResourcePropertyReadModel
+        {
+            ResourceRowId = routeTableRowId,
+            PropertyKey = "inventory.policy.route.0.nextHopType",
+            PropertyValue = "VirtualAppliance",
+        });
+        properties.Add(new AzureInventoryResourcePropertyReadModel
+        {
+            ResourceRowId = routeTableRowId,
+            PropertyKey = "inventory.policy.route.0.nextHopArmId",
+            PropertyValue = firewallArm,
+        });
+        properties.Add(new AzureInventoryResourcePropertyReadModel
+        {
+            ResourceRowId = firewallRowId,
+            PropertyKey = AzureInventoryAzureFirewallNetworkRuleParser.NetworkRuleCollectionsPropertyKey,
+            PropertyValue = """
+                [
+                  {
+                    "properties": {
+                      "priority": 200,
+                      "rules": [
+                        {
+                          "properties": {
+                            "name": "deny-all",
+                            "priority": 100,
+                            "action": { "type": "Deny" },
+                            "sourceAddresses": ["*"],
+                            "destinationAddresses": ["*"],
+                            "destinationPorts": ["*"],
+                            "ipProtocols": ["TCP"]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+                """,
+        });
+        List<AzureInventoryResourceRelationshipReadModel> relationships = [..baseSnapshot.Relationships];
+        relationships.Add(Observed(SubnetArm, routeTableArm, GraphEdgeInferenceSources.InventorySubnetRouteTable));
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = baseSnapshot.Header,
+            Resources = resources,
+            Properties = properties,
+            Relationships = relationships,
+        };
+
+        InventoryReachabilityPathGraphSnapshot graph = InventoryReachabilityPathGraph.Build(snapshot);
+        IReadOnlyList<ReachabilityPathCandidate> candidates =
+            IntendedReachabilityPathEnumerator.Enumerate(graph, new PrivilegePathEngineOptions());
+
+        candidates.Should().BeEmpty();
+    }
+
+    [Fact]
     public void Enumerate_public_asset_behind_agw_without_traversing_agw_appends_edge_control_hop()
     {
         const string agwArm =
@@ -596,7 +757,8 @@ public sealed class IntendedReachabilityEngineTests
             snapshotRepository.Object,
             pathRepository,
             ingestService,
-            NullLogger<IntendedReachabilityEngine>.Instance);
+            NullLogger<IntendedReachabilityEngine>.Instance,
+            new NoOpSecurityEvidencePathSearchCoverageRepository());
     }
 
     private static AzureInventorySnapshotRecord CreateHeader() =>

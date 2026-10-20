@@ -44,7 +44,7 @@ describe("HelpCloudConnectionsGuideView SecureNow shell", () => {
     expect(screen.getByTestId("help-cloud-connections-header-primary-cta")).toHaveTextContent("Extract and upload");
     expect(screen.getByTestId("help-cloud-connections-start-here-primary-cta")).toHaveAttribute(
       "href",
-      "/infrastructure/extract-upload",
+      "/infrastructure/manual-upload",
     );
 
     const providerScope = screen.getByTestId("help-cloud-connections-provider-scope");

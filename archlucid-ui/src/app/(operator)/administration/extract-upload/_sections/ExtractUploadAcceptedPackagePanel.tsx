@@ -11,6 +11,10 @@ import { OperatorMutationInlineError } from "@/components/operator/OperatorMutat
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ExtractUploadAcceptedPackageRecord } from "@/lib/extract-upload-accepted-package-record";
 import {
+  formatExtractUploadAcceptedFileLabel,
+  formatExtractUploadAcceptedLinkedReview,
+} from "@/lib/extract-upload-accepted-package-record";
+import {
   EXTRACT_UPLOAD_ACCEPTED_PACKAGE_PANEL_TITLE,
   EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF,
   EXTRACT_UPLOAD_EVIDENCE_TRAIL_LINK_LABEL,
@@ -136,7 +140,7 @@ export function ExtractUploadAcceptedPackagePanel(
                 File
               </dt>
               <dd className={cn("m-0 mt-0.5", OPERATOR_TYPOGRAPHY.body)} data-testid="extract-upload-accepted-file-label">
-                {record.fileLabel == null ? "File name was not stored" : record.fileLabel}
+                {formatExtractUploadAcceptedFileLabel(record.fileLabel)}
               </dd>
             </div>
             <div>
@@ -144,7 +148,7 @@ export function ExtractUploadAcceptedPackagePanel(
                 Linked review
               </dt>
               <dd className={cn("m-0 mt-0.5", OPERATOR_TYPOGRAPHY.body)} data-testid="extract-upload-accepted-associate-run-id">
-                {record.associateRunId == null ? "Linked review was not stored." : record.associateRunId}
+                {formatExtractUploadAcceptedLinkedReview(record.associateRunId)}
               </dd>
             </div>
           </dl>

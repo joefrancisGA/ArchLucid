@@ -110,11 +110,9 @@ export function ArchitectureCreatedHomeViewport(
           </h1>
           <div className="flex flex-wrap items-center gap-2">
             <StatusTag kind={model.lifecycleStatusTagKind} label={model.lifecycleLabel} />
-            {model.ownerLabel !== null ? (
-              <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                Owner: {model.ownerLabel}
-              </span>
-            ) : null}
+            <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              {model.ownerLabel !== null ? `Owner: ${model.ownerLabel}` : "Owner was not stored."}
+            </span>
             <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Updated {model.lastUpdatedLabel}
             </span>

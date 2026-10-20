@@ -39,7 +39,7 @@ public sealed class DiagramForestLayoutSvgRendererTests
             .Where(element => element.Name.LocalName == "text")
             .Select(element => element.Value)
             .Should()
-            .NotContain("storage-0 · No consumer found");
+            .NotContain("storage-0 · No diagram neighbor on this view.");
 
         DiagramForestLayoutResult export = renderer.Render(
             ast,
@@ -548,15 +548,15 @@ public sealed class DiagramForestLayoutSvgRendererTests
         DiagramForestLayoutResult dataFlowResult = renderer.Render(ast);
 
         dataFlowResult.Succeeded.Should().BeTrue(dataFlowResult.Error);
-        dataFlowResult.Svg.Should().Contain("Used by 2");
-        dataFlowResult.Svg.Should().Contain("No consumer found");
+        dataFlowResult.Svg.Should().Contain("2 diagram neighbors on this view.");
+        dataFlowResult.Svg.Should().Contain("No diagram neighbor on this view.");
 
         ast.Title = "Azure inventory (FullSubscription)";
         DiagramForestLayoutResult fullSubscriptionResult = renderer.Render(ast);
 
         fullSubscriptionResult.Succeeded.Should().BeTrue(fullSubscriptionResult.Error);
-        fullSubscriptionResult.Svg.Should().NotContain("Used by 2");
-        fullSubscriptionResult.Svg.Should().NotContain("No consumer found");
+        fullSubscriptionResult.Svg.Should().NotContain("2 diagram neighbors on this view.");
+        fullSubscriptionResult.Svg.Should().NotContain("No diagram neighbor on this view.");
         fullSubscriptionResult.Svg.Should().NotContain("data-flow-stage-summary");
     }
 
@@ -679,7 +679,7 @@ public sealed class DiagramForestLayoutSvgRendererTests
     }
 
     [Fact]
-    public void Render_network_inventory_adds_vnet_frame_without_subscription_frame()
+    public void Render_network_inventory_adds_subscription_and_vnet_frames()
     {
         DiagramAst ast = new()
         {
@@ -720,8 +720,8 @@ public sealed class DiagramForestLayoutSvgRendererTests
         DiagramForestLayoutResult result = renderer.Render(ast);
 
         result.Succeeded.Should().BeTrue();
-        result.Svg.Should().NotContain("class=\"subscription-frame\"");
-        result.Svg.Should().Contain("class=\"vnet-frame\"");
+        result.Svg.Should().Contain("sub-frame");
+        result.Svg.Should().Contain("vnet-frame");
     }
 
     [Fact]

@@ -185,7 +185,7 @@ internal static class InventoryDiagramDataFlowTraversalHopApplier
                 ToNodeId = toDiagramNodeId,
                 Label = link.Evidence.DiagramLabel,
                 InferenceSource = link.Evidence.InferenceSource,
-                ProvenanceKind = ProvenanceKind.ObservedFact.ToString(),
+                ProvenanceKind = ResolveHopEdgeProvenance(link.Evidence),
             });
         }
     }
@@ -242,7 +242,7 @@ internal static class InventoryDiagramDataFlowTraversalHopApplier
                     ToNodeId = nextDiagramNodeId,
                     Label = link.Evidence.DiagramLabel,
                     InferenceSource = link.Evidence.InferenceSource,
-                    ProvenanceKind = ProvenanceKind.ObservedFact.ToString(),
+                    ProvenanceKind = ResolveHopEdgeProvenance(link.Evidence),
                 });
             }
 
@@ -265,7 +265,7 @@ internal static class InventoryDiagramDataFlowTraversalHopApplier
                     ToNodeId = targetDiagramNodeId,
                     Label = terminalLink?.Evidence.DiagramLabel ?? "Hop label was not stored",
                     InferenceSource = terminalLink?.Evidence.InferenceSource,
-                    ProvenanceKind = ProvenanceKind.ObservedFact.ToString(),
+                    ProvenanceKind = ResolveHopEdgeProvenance(terminalLink?.Evidence),
                 });
             }
         }
@@ -346,17 +346,43 @@ internal static class InventoryDiagramDataFlowTraversalHopApplier
             return null;
         }
 
-        string associationType = edge.EdgeType ?? edge.InferenceSource ?? "traversal-hop";
+        bool hasEdgeType = !string.IsNullOrWhiteSpace(edge.EdgeType);
+        bool hasInferenceSource = !string.IsNullOrWhiteSpace(edge.InferenceSource);
+
+        if (!hasEdgeType && !hasInferenceSource)
+        {
+            return new InventoryDiagramDataFlowTraversalHopEvidence
+            {
+                AssociationType = string.Empty,
+                InferenceSource = edge.InferenceSource,
+                DiagramLabel = "Hop label was not stored",
+            };
+        }
+
+        string associationType = edge.EdgeType ?? edge.InferenceSource ?? string.Empty;
 
         return new InventoryDiagramDataFlowTraversalHopEvidence
         {
             AssociationType = associationType,
             InferenceSource = edge.InferenceSource,
-            DiagramLabel = associationType.Contains("firewall", StringComparison.OrdinalIgnoreCase)
-                || associationType.Contains("route", StringComparison.OrdinalIgnoreCase)
-                ? "Routes through"
-                : "Hop label was not stored",
+            DiagramLabel = "Hop label was not stored",
         };
+    }
+
+    private static string ResolveHopEdgeProvenance(InventoryDiagramDataFlowTraversalHopEvidence? evidence)
+    {
+        if (evidence is null)
+        {
+            return ProvenanceKind.DeterministicInference.ToString();
+        }
+
+        if (string.Equals(evidence.DiagramLabel, "Hop label was not stored", StringComparison.Ordinal)
+            && string.IsNullOrWhiteSpace(evidence.InferenceSource))
+        {
+            return ProvenanceKind.DeterministicInference.ToString();
+        }
+
+        return ProvenanceKind.ObservedFact.ToString();
     }
 
     private static DiagramNode? FindDiagramNodeForGraphNodeId(

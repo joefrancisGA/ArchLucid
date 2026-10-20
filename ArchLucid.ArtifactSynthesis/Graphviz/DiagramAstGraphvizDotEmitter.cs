@@ -21,8 +21,11 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
             .OrderBy(subgraph => subgraph.OrderKey)
             .ThenBy(subgraph => subgraph.SubgraphId, StringComparer.Ordinal)
             .ToList();
+        // Data Flow PNG uses stage swimlanes; RG Visio frames would hide every node from stage subgraph clusters.
         IReadOnlyList<DiagramResourceGroupGraphvizClusterPlanner.ClusterPlan> resourceGroupClusters =
-            DiagramResourceGroupGraphvizClusterPlanner.Plan(ast);
+            IsDataFlowTitle(ast.Title)
+                ? Array.Empty<DiagramResourceGroupGraphvizClusterPlanner.ClusterPlan>()
+                : DiagramResourceGroupGraphvizClusterPlanner.Plan(ast);
         HashSet<string> resourceGroupClusteredNodeIds =
             DiagramResourceGroupGraphvizClusterPlanner.ResolveClusteredNodeIds(resourceGroupClusters);
         HashSet<string> allocatedClusterIds = new(StringComparer.Ordinal);
@@ -49,6 +52,11 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
             builder.AppendLine("        penwidth=2.5;");
         }
 
+        HashSet<string> subnetMembersOutsideHomeGroup =
+            DiagramResourceGroupGraphvizClusterPlanner.ResolveSubnetMembersOutsideHomeGroup(
+                ast,
+                resourceGroupClusters);
+
         foreach (DiagramResourceGroupGraphvizClusterPlanner.ClusterPlan cluster in resourceGroupClusters)
         {
             EmitResourceGroupCluster(
@@ -56,7 +64,8 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
                 cluster,
                 emitSubscriptionCluster ? 2 : 1,
                 ast,
-                allocatedClusterIds);
+                allocatedClusterIds,
+                subnetMembersOutsideHomeGroup);
         }
 
         if (emitSubscriptionCluster)
@@ -177,9 +186,8 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
 
         string indentText = new(' ', indent * 4);
         string clusterId = AllocateClusterId(subgraph.SubgraphId, allocatedClusterIds);
-        string clusterLabel = subgraph.Label is null
-            ? GraphvizIdEscaper.QuoteLabel("Group label was not stored")
-            : GraphvizIdEscaper.QuoteLabel(subgraph.Label);
+        string clusterLabel = GraphvizIdEscaper.QuoteLabel(
+            DiagramSubgraphLabelFormatter.FormatForDiagram(subgraph.Label));
 
         builder.AppendLine($"{indentText}subgraph {clusterId} {{");
         builder.AppendLine($"{indentText}    label={clusterLabel};");
@@ -248,7 +256,8 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
         DiagramResourceGroupGraphvizClusterPlanner.ClusterPlan cluster,
         int indent,
         DiagramAst ast,
-        HashSet<string> allocatedClusterIds)
+        HashSet<string> allocatedClusterIds,
+        HashSet<string> subnetMembersOutsideHomeGroup)
     {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(cluster);
@@ -321,6 +330,7 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
         foreach (DiagramNode node in cluster.Nodes
                      .Where(candidate => candidate is not null)
                      .Where(candidate => !nestedNodeIds.Contains(candidate.NodeId))
+                     .Where(candidate => !subnetMembersOutsideHomeGroup.Contains(candidate.NodeId))
                      .OrderBy(candidate => candidate.OrderKey)
                      .ThenBy(candidate => candidate.NodeId, StringComparer.Ordinal))
         {

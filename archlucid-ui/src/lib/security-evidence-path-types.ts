@@ -35,6 +35,9 @@ export type SecurityEvidencePathCutPoint = {
   explanationSummary: string;
   suggestedPatternKey: string | null;
   operationalCostClass: string;
+  pathsCollapsedCount: number;
+  leverageScore: number | null;
+  collapsedPathIds: ReadonlyArray<string>;
 };
 
 export type SecurityEvidencePathRoutingRow = {
@@ -100,6 +103,22 @@ export type SecurityEvidencePathRankedPage = {
   page: number;
   pageSize: number;
   topCutPoints: ReadonlyArray<SecurityEvidencePathCutPoint>;
+};
+
+export type SecurityEvidencePathReportUnevaluatedGroup = {
+  reasonCode: string;
+  whyText: string;
+  pathCount: number | null;
+  pathIds: ReadonlyArray<string>;
+  engineName: string | null;
+  limitValue: number | null;
+  pathsEmitted: number | null;
+};
+
+export type SecurityEvidencePathAttackPathReport = {
+  snapshotId: string;
+  vulnerableAttackPaths: ReadonlyArray<SecurityEvidencePathRankSummary>;
+  unevaluatedGroups: ReadonlyArray<SecurityEvidencePathReportUnevaluatedGroup>;
 };
 
 export type SecurityEvidencePathRankDetail = {

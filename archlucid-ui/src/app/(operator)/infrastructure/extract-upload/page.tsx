@@ -1,19 +1,8 @@
-import type { Metadata } from "next";
-import { Suspense } from "react";
+import { redirect } from "next/navigation";
 
-import { ExtractUploadSettingsPageClient } from "@/app/(operator)/administration/extract-upload/_sections/ExtractUploadSettingsPageClient";
-import { ExtractUploadSettingsPageLoading } from "@/app/(operator)/administration/extract-upload/_sections/ExtractUploadSettingsPageLoading";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 
-export const metadata: Metadata = {
-  title: OPERATOR_NAV_LINK_LABELS.extractUpload,
-};
-
-/** SecureNow inventory intake — same Extract & upload workspace under Infrastructure nav. */
-export default function SecureNowInfrastructureExtractUploadPage() {
-  return (
-    <Suspense fallback={<ExtractUploadSettingsPageLoading />}>
-      <ExtractUploadSettingsPageClient />
-    </Suspense>
-  );
+/** Preserve the previous SecureNow URL while the canonical route reflects the page name. */
+export default function SecureNowInfrastructureExtractUploadLegacyPage() {
+  redirect(SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH);
 }

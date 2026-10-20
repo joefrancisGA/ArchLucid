@@ -87,6 +87,56 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_GOVERNANCE: readonl
     "releaseApplicability": "infrastructure resource explorer and evidence hub orientation",
   },
   {
+    "slug": "governance-infrastructure-terraform",
+    "title": "Advisory Terraform mapping",
+    "summary": "Review advisory Terraform addresses reconstructed from inventory snapshots before export.",
+    "audience": "operator",
+    "sourcePaths": [
+    ],
+    "lastReviewed": "2026-10-16",
+    "releaseApplicability": "infrastructure Terraform mapping workbench orientation",
+  },
+  {
+    "slug": "governance-infrastructure-diagrams",
+    "title": "Inventory diagrams",
+    "summary": "Render inventory diagrams from snapshots with partitioned fallbacks and PNG export.",
+    "audience": "operator",
+    "sourcePaths": [
+    ],
+    "lastReviewed": "2026-10-16",
+    "releaseApplicability": "infrastructure diagrams workbench orientation",
+  },
+  {
+    "slug": "governance-infrastructure-diagram-reconcile",
+    "title": "Diagram reconciliation",
+    "summary": "Reconcile ingested diagrams against inventory snapshots with explainable correspondence rows.",
+    "audience": "operator",
+    "sourcePaths": [
+    ],
+    "lastReviewed": "2026-10-16",
+    "releaseApplicability": "infrastructure diagram reconciliation workbench orientation",
+  },
+  {
+    "slug": "governance-infrastructure-ask",
+    "title": "Infrastructure Ask",
+    "summary": "Ask grounded questions about inventory evidence with citation-backed answers.",
+    "audience": "operator",
+    "sourcePaths": [
+    ],
+    "lastReviewed": "2026-10-16",
+    "releaseApplicability": "infrastructure Ask workbench orientation",
+  },
+  {
+    "slug": "governance-infrastructure-remediation",
+    "title": "Remediation instances",
+    "summary": "Track remediation instances and waves with advisory-only execute honesty.",
+    "audience": "operator",
+    "sourcePaths": [
+    ],
+    "lastReviewed": "2026-10-16",
+    "releaseApplicability": "infrastructure remediation instances workbench orientation",
+  },
+  {
     "slug": "model-governance",
     "title": "AI and model policy",
     "summary": "Workspace execution profiles, approved model aliases, and profile mappings used on reviews.",
@@ -120,7 +170,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_GOVERNANCE: readonl
   {
     "slug": "security-evidence-paths",
     "title": "Security evidence paths",
-    "summary": "Read architect path summaries, confidence bands, weakest hops, and cut points in the remediation factory Path inspect panel.",
+    "summary": "Read architect path summaries, confidence bands, weakest hops, and cut points in Path inspect on remediation factory, SecureNow Findings, and Assigned to me.",
     "audience": "operator",
     "sourcePaths": [
       "docs/library/customer-facing/SECURITY_EVIDENCE_PATHS_OPERATOR_GUIDE.md",

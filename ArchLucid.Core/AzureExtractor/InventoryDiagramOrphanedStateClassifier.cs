@@ -69,6 +69,36 @@ public static class InventoryDiagramOrphanedStateClassifier
                 ["No stored registry link yet."]);
         }
 
+        if (armResourceType.Equals("Microsoft.DataFactory/factories", StringComparison.OrdinalIgnoreCase))
+        {
+            return InventoryDiagramConnectionStateResult.WithUnresolvedDetails(
+                [InventoryDiagramConnectionPostureCatalog.DataFactoryNoStoredLinkDetail]);
+        }
+
+        if (armResourceType.Equals("Microsoft.Web/connections", StringComparison.OrdinalIgnoreCase))
+        {
+            return InventoryDiagramConnectionStateResult.WithUnresolvedDetails(
+                [InventoryDiagramConnectionPostureCatalog.LogicAppConnectionNotCitedDetail]);
+        }
+
+        if (AzureInventoryMonitorPrivateLinkScopeResourceTypes.IsScopeResourceType(armResourceType))
+        {
+            return InventoryDiagramConnectionStateResult.WithUnresolvedDetails(
+                [InventoryDiagramConnectionPostureCatalog.PrivateLinkScopeNoScopedResourceDetail]);
+        }
+
+        if (armResourceType.Equals("Microsoft.Network/natGateways", StringComparison.OrdinalIgnoreCase))
+        {
+            return InventoryDiagramConnectionStateResult.WithUnresolvedDetails(
+                [InventoryDiagramConnectionPostureCatalog.NatGatewayNoStoredSubnetDetail]);
+        }
+
+        if (AzureInventoryDatabricksAccessConnector.IsAccessConnectorType(armResourceType))
+        {
+            return InventoryDiagramConnectionStateResult.WithUnresolvedDetails(
+                [InventoryDiagramConnectionPostureCatalog.AccessConnectorNoWorkspaceCitationDetail]);
+        }
+
         if (TryClassifyUnconnected(armResourceType)
             || InventoryDiagramSharedServiceCatalog.IsSharedService(armResourceType))
         {

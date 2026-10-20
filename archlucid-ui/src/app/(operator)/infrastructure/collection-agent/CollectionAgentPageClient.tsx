@@ -20,15 +20,26 @@ import {
   formatCollectionRunDuration,
   formatCollectionRunSubscriptionsLabel,
   resolveCollectionAgentHealth,
+  resolveCollectionAgentStaleSuccessDetail,
 } from "@/lib/collection-agent-presentation";
 import type { CollectionRun } from "@/lib/collection-runs-api";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { formatRelativeTime } from "@/lib/relative-time";
 import {
+  SECURENOW_INFRASTRUCTURE_DRIFT_PATH,
+  SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
+} from "@/lib/governance/governance-infrastructure-route-paths";
+import {
   SECURENOW_COLLECTION_AGENT_PATH,
 } from "@/lib/product-line/securenow-collection-agent-route";
-import { SECURENOW_INFRASTRUCTURE_DRIFT_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
+
+const COLLECTION_AGENT_PAGE_TITLE = resolveSecureNowPageHeading(
+  "security",
+  "Collection Agent",
+  SECURENOW_COLLECTION_AGENT_PATH,
+);
 import { OPERATOR_LINK, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { cn } from "@/lib/utils";
@@ -74,25 +85,48 @@ export function collectionRunStatusLabel(status: CollectionRun["status"]): strin
 }
 
 export function collectionRunStartedUtcDisplay(startedUtc: string | undefined): string {
-  if (startedUtc === undefined) {
+  if (startedUtc === undefined || startedUtc.trim().length === 0) {
     return "Start time was not stored.";
   }
 
-  return formatIsoUtcForDisplay(startedUtc);
+  const formatted = formatIsoUtcForDisplay(startedUtc);
+
+  if (formatted === startedUtc && Number.isNaN(Date.parse(startedUtc))) {
+    return "Start time could not be read.";
+  }
+
+  return formatted;
+}
+
+function resolveCollectionRunErrorSummaryPresentation(run: CollectionRun): string | null {
+  if (run.status !== "Failed" && run.status !== "Rejected" && run.status !== "PartiallySucceeded") {
+    return null;
+  }
+
+  if (run.errorSummary === null || run.errorSummary === undefined) {
+    return "Error summary was not stored.";
+  }
+
+  if (run.errorSummary.trim().length === 0) {
+    return "Error summary was stored empty.";
+  }
+
+  return run.errorSummary;
 }
 
 function CollectionRunRow({ run }: { readonly run: CollectionRun }): React.JSX.Element {
   const [expanded, setExpanded] = useState(false);
-  const hasError = run.errorSummary !== null && run.errorSummary !== undefined && run.errorSummary.trim().length > 0;
+  const errorPresentation = resolveCollectionRunErrorSummaryPresentation(run);
+  const expandable = errorPresentation !== null;
 
   return (
     <>
       <EnterpriseTableRow
-        interactive={hasError}
-        aria-expanded={hasError ? expanded : undefined}
-        onClick={hasError ? () => setExpanded((current) => !current) : undefined}
+        interactive={expandable}
+        aria-expanded={expandable ? expanded : undefined}
+        onClick={expandable ? () => setExpanded((current) => !current) : undefined}
         onKeyDown={(event) => {
-          if (hasError && (event.key === "Enter" || event.key === " ")) {
+          if (expandable && (event.key === "Enter" || event.key === " ")) {
             event.preventDefault();
             setExpanded((current) => !current);
           }
@@ -105,7 +139,9 @@ function CollectionRunRow({ run }: { readonly run: CollectionRun }): React.JSX.E
         </EnterpriseTableCell>
         <EnterpriseTableCell>{formatCollectionRunSubscriptionsLabel(run)}</EnterpriseTableCell>
         <EnterpriseTableCell>
-          {run.importedSnapshotId === null || run.importedSnapshotId === undefined ? (
+          {run.importedSnapshotId === null
+            || run.importedSnapshotId === undefined
+            || run.importedSnapshotId.length === 0 ? (
             "Imported snapshot was not stored."
           ) : (
             <Link
@@ -113,15 +149,15 @@ function CollectionRunRow({ run }: { readonly run: CollectionRun }): React.JSX.E
               className={cn(OPERATOR_LINK.inline, "font-medium")}
               onClick={(event) => event.stopPropagation()}
             >
-              View changes
+              Open drift for this snapshot
             </Link>
           )}
         </EnterpriseTableCell>
       </EnterpriseTableRow>
-      {expanded ? (
+      {expanded && errorPresentation !== null ? (
         <EnterpriseTableRow>
           <EnterpriseTableCell colSpan={5}>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{run.errorSummary}</p>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{errorPresentation}</p>
           </EnterpriseTableCell>
         </EnterpriseTableRow>
       ) : null}
@@ -134,15 +170,17 @@ export function CollectionAgentPageClient(): React.JSX.Element {
   const triggerMutation = useTriggerCollectionRunMutation();
   const runs = useMemo(() => sortCollectionRuns(query.data ?? []), [query.data]);
   const health = resolveCollectionAgentHealth(runs);
+  const staleSuccessDetail = resolveCollectionAgentStaleSuccessDetail(runs);
   const activeRun = runs.find((run) => run.status === "Running") ?? null;
   const reportedSchedule = runs.find((run) => run.schedule !== null && run.schedule !== undefined && run.schedule.trim().length > 0)?.schedule;
   const triggerFailure = triggerMutation.error === null || triggerMutation.error === undefined
     ? null
     : toApiLoadFailure(triggerMutation.error);
-  const successfulRunLabel = health.successfulRun === null || health.successfulRun.finishedUtc === null
-    || health.successfulRun.finishedUtc === undefined
+  const successfulRunLabel = health.successfulRun === null
     ? "No successful run recorded"
-    : `Last successful run ${formatRelativeTime(health.successfulRun.finishedUtc)}`;
+    : health.successfulRun.finishedUtc === null || health.successfulRun.finishedUtc === undefined
+      ? "Last successful run finish time was not stored."
+      : `Last successful run ${formatRelativeTime(health.successfulRun.finishedUtc)}`;
 
   if (query.isPending) {
     return <p className={cn("p-6", OPERATOR_TYPOGRAPHY.body)}>Loading collection runs…</p>;
@@ -153,7 +191,7 @@ export function CollectionAgentPageClient(): React.JSX.Element {
 
     return (
       <OperatorPageContainer variant="workflow" className={cn("px-1 py-4 sm:px-0", OPERATOR_LAYOUT.sectionStack)}>
-        <OperatorPageHeader title="Collection agent" subtitle="Whether scheduled collection is running and what it found." />
+        <OperatorPageHeader title={COLLECTION_AGENT_PAGE_TITLE} subtitle="Whether scheduled collection is running and what it found." />
         <div role="alert" className="rounded-md border border-rose-300 bg-rose-50 p-4 text-rose-950 dark:border-rose-700 dark:bg-rose-950/30 dark:text-rose-100">
           {failure.message}
         </div>
@@ -165,7 +203,7 @@ export function CollectionAgentPageClient(): React.JSX.Element {
     <OperatorPageContainer variant="workflow" className={cn("px-1 py-4 sm:px-0", OPERATOR_LAYOUT.sectionStack)}>
       <OperatorPageHeader
         navHref={SECURENOW_COLLECTION_AGENT_PATH}
-        title="Collection agent"
+        title={COLLECTION_AGENT_PAGE_TITLE}
         subtitle="Whether scheduled collection is running and what it found."
         actions={
           <button
@@ -186,15 +224,20 @@ export function CollectionAgentPageClient(): React.JSX.Element {
       <section className="space-y-2" aria-labelledby="collection-agent-health-heading">
         <h2 id="collection-agent-health-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Collection health</h2>
         <div className="flex flex-wrap items-center gap-3">
-          <StatusTag kind={health.kind} label={health.label} />
+          {runs.length > 0 ? <StatusTag kind={health.kind} label={health.label} /> : null}
           <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{successfulRunLabel}</span>
         </div>
+        {staleSuccessDetail !== null ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{staleSuccessDetail}</p>
+        ) : null}
       </section>
 
       <section className="space-y-2" aria-labelledby="collection-agent-schedule-heading">
         <h2 id="collection-agent-schedule-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Schedule</h2>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {reportedSchedule ?? "Collection schedule was not stored."}
+          {reportedSchedule
+            ? `Schedule reported on a collection run: ${reportedSchedule}`
+            : "Collection schedule was not stored."}
         </p>
       </section>
 
@@ -207,7 +250,7 @@ export function CollectionAgentPageClient(): React.JSX.Element {
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             <Link href={inAppHelpHref("cloud-connections-azure")} className={cn(OPERATOR_LINK.inline, "font-medium")}>Collection agent setup help</Link>
             {" · "}
-            <Link href="/infrastructure/extract-upload" className={cn(OPERATOR_LINK.inline, "font-medium")}>Manual upload</Link>
+            <Link href={SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH} className={cn(OPERATOR_LINK.inline, "font-medium")}>Manual upload</Link>
           </p>
         </section>
       ) : (
@@ -228,7 +271,7 @@ export function CollectionAgentPageClient(): React.JSX.Element {
             </EnterpriseTableBody>
           </EnterpriseTable>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Select a failed or rejected run to see its error summary.
+            Select a failed, rejected, or partial run to expand its error summary when one was stored.
           </p>
         </section>
       )}

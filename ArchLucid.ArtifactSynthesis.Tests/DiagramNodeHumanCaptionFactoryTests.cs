@@ -1,5 +1,6 @@
 using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.AzureExtractor;
 
 using FluentAssertions;
 
@@ -36,7 +37,26 @@ public sealed class DiagramNodeHumanCaptionFactoryTests
             Label = "orphan",
         };
 
-        DiagramNodeHumanCaptionFactory.Create(node).CombinedPlainText.Should().Be("orphan");
+        DiagramNodeHumanCaptionFactory.Create(node).CombinedPlainText.Should().Be(
+            "orphan · Resource type was not stored");
+    }
+
+    [Fact]
+    public void Create_appends_resource_group_not_stored_when_caption_requires_group()
+    {
+        DiagramNode node = new()
+        {
+            NodeId = "vm-1",
+            Label = "vm-app",
+            ArmResourceType = "Microsoft.Compute/virtualMachines",
+            IncludeResourceGroupInCaption = true,
+            ArmResourceGroup = "   ",
+        };
+
+        DiagramNodeHumanCaption caption = DiagramNodeHumanCaptionFactory.Create(node);
+
+        caption.CombinedPlainText.Should().Contain("Resource group was not stored.");
+        caption.CombinedPlainText.Should().Contain("vm-app (Virtual machine)");
     }
 
     [Fact]
@@ -70,7 +90,20 @@ public sealed class DiagramNodeHumanCaptionFactoryTests
         DiagramNodeHumanCaption caption = DiagramNodeHumanCaptionFactory.Create(node);
 
         caption.ResourceGroupCaption.Should().BeNull();
-        caption.AccessibilityTitle.Should().Be("vm-app");
-        caption.AccessibilityTitle.Should().NotContain(" · ");
+        caption.AccessibilityTitle.Should().Be("vm-app · Resource type was not stored");
+    }
+
+    [Fact]
+    public void Create_appends_not_classified_for_unknown_connection_state()
+    {
+        DiagramNode node = new()
+        {
+            NodeId = "n1",
+            Label = "resource-a",
+            ConnectionState = InventoryDiagramConnectionState.Unknown,
+        };
+
+        DiagramNodeHumanCaptionFactory.Create(node).CombinedPlainText.Should()
+            .Be("resource-a · Resource type was not stored · Connection state was not classified.");
     }
 }

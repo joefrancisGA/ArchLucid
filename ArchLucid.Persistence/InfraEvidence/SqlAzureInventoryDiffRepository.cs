@@ -12,7 +12,7 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.InfraEvidence;
 
-public sealed class SqlAzureInventoryDiffRepository(ISqlConnectionFactory connectionFactory) : IAzureInventoryDiffRepository
+public sealed partial class SqlAzureInventoryDiffRepository(ISqlConnectionFactory connectionFactory) : IAzureInventoryDiffRepository
 {
     public async Task<AzureInventoryDiffSummaryRecord?> TryGetByDiffIdAsync(
         ScopeContext scope,
@@ -276,6 +276,70 @@ public sealed class SqlAzureInventoryDiffRepository(ISqlConnectionFactory connec
             new CommandDefinition(
                 sql,
                 new { scope.TenantId, DiffId = diffId },
+                cancellationToken: cancellationToken));
+
+        return rows
+            .Select(r => new AzureInventoryChangeRecord
+            {
+                ChangeId = r.ChangeId,
+                DiffId = r.DiffId,
+                SnapshotAId = r.SnapshotAId,
+                SnapshotBId = r.SnapshotBId,
+                CloudResourceId = r.CloudResourceId,
+                AzureResourceId = r.AzureResourceId,
+                ChangeType = (AzureInventoryChangeType)r.ChangeType,
+                Property = r.Property,
+                OldValue = r.OldValue,
+                NewValue = r.NewValue,
+                RiskClassification = r.RiskClassification,
+                ArchitectureSignificance = r.ArchitectureSignificance,
+                SecuritySignificance = r.SecuritySignificance,
+                Confidence = r.Confidence,
+                EvidenceReference = r.EvidenceReference,
+                ProvenanceKind = (ProvenanceKind)r.ProvenanceKind,
+                ChangedByDisplayName = r.ChangedByDisplayName,
+                ChangedByKind = r.ChangedByKind,
+            })
+            .ToList();
+    }
+
+    public async Task<IReadOnlyList<AzureInventoryChangeRecord>> ListChangesByDiffAndCloudResourceAsync(
+        ScopeContext scope,
+        Guid diffId,
+        Guid cloudResourceId,
+        int take,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (diffId == Guid.Empty || cloudResourceId == Guid.Empty || take <= 0)
+            return [];
+
+        const string sql = """
+                           SELECT TOP (@Take)
+                               ChangeId, DiffId, SnapshotAId, SnapshotBId, CloudResourceId, AzureResourceId,
+                               ChangeType, Property, OldValue, NewValue, RiskClassification,
+                               ArchitectureSignificance, SecuritySignificance, Confidence, EvidenceReference,
+                               ProvenanceKind, ChangedByDisplayName, ChangedByKind
+                           FROM dbo.AzureInventoryChanges
+                           WHERE TenantId = @TenantId
+                             AND DiffId = @DiffId
+                             AND CloudResourceId = @CloudResourceId
+                           ORDER BY AzureResourceId, ChangeType, Property;
+                           """;
+
+        using IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<ChangeRow> rows = await conn.QueryAsync<ChangeRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    DiffId = diffId,
+                    CloudResourceId = cloudResourceId,
+                    Take = take,
+                },
                 cancellationToken: cancellationToken));
 
         return rows

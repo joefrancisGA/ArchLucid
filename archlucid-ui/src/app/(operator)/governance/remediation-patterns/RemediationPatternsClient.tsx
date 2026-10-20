@@ -52,8 +52,9 @@ import {
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
 import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH, SECURENOW_REMEDIATION_PATTERNS_PATH } from "@/lib/governance/governance-route-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { operatorFreshnessMetadataWithClockLabel } from "@/lib/operator/operator-last-refreshed-label";
 import { remediationInstancesPathForProductLine } from "@/lib/product-line/securenow-remediation-instances-route";
@@ -73,6 +74,10 @@ import {
   remediationPatternsDataStaleCue,
   resolveRemediationPatternsLastRefreshedAt,
 } from "@/lib/remediation-pattern-freshness";
+import {
+  readRemediationPatternImportPanelOpenFromSession,
+  writeRemediationPatternImportPanelOpenToSession,
+} from "@/lib/remediation-pattern-import-panel-session";
 import {
   approveRemediationPatternVersion,
   importRemediationPatternYaml,
@@ -197,7 +202,6 @@ function PatternContentReviewPanel(props: {
   readonly approvedVersion: RemediationPatternVersionRecord | null;
   readonly onContentViewed: () => void;
 }) {
-  const panelRef = useRef<HTMLDivElement>(null);
   const activeContent = formatRemediationPatternVersionContent(props.activeVersion.contentJson);
   const approvedContent = formatRemediationPatternVersionContent(props.approvedVersion?.contentJson);
   const diffLines =
@@ -205,32 +209,8 @@ function PatternContentReviewPanel(props: {
       ? diffRemediationPatternContent(approvedContent, activeContent)
       : [];
 
-  useEffect(() => {
-    const node = panelRef.current;
-
-    if (node === null || typeof IntersectionObserver === "undefined") {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          props.onContentViewed();
-        }
-      },
-      { threshold: 0.2 },
-    );
-
-    observer.observe(node);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [props]);
-
   return (
     <section
-      ref={panelRef}
       className="space-y-2 rounded border border-border bg-card p-4"
       aria-label="Pattern version content"
       data-testid="remediation-pattern-version-content-panel"
@@ -367,6 +347,11 @@ function VersionHistoryTable(props: {
 export function RemediationPatternsClient() {
   const { productLine } = useProductLine();
   const navHref = remediationPatternsPathForProductLine(productLine);
+  const pageTitle = resolveSecureNowPageHeading(
+    productLine,
+    OPERATOR_NAV_LINK_LABELS.remediationPatterns,
+    SECURENOW_REMEDIATION_PATTERNS_PATH,
+  );
   const pathname = usePathname() ?? navHref;
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -424,7 +409,7 @@ export function RemediationPatternsClient() {
   const freshnessLabel = operatorFreshnessMetadataWithClockLabel({
     prefix: REMEDIATION_PATTERNS_LAST_REFRESHED_PREFIX,
     lastRefreshedAt: refreshing ? null : lastRefreshedAt,
-    refreshingLabel: REMEDIATION_PATTERNS_REFRESHING_LABEL,
+    refreshingLabel: refreshing ? REMEDIATION_PATTERNS_REFRESHING_LABEL : null,
   });
 
   const staleCue = remediationPatternsDataStaleCue(lastRefreshedAt, nowMs);
@@ -438,12 +423,24 @@ export function RemediationPatternsClient() {
   );
 
   const openImportPanel = useCallback((focusTextarea = true) => {
+    writeRemediationPatternImportPanelOpenToSession(true);
     setImportPanelOpen(true);
 
     if (focusTextarea) {
       window.requestAnimationFrame(() => {
         yamlInputRef.current?.focus();
       });
+    }
+  }, []);
+
+  const closeImportPanel = useCallback(() => {
+    writeRemediationPatternImportPanelOpenToSession(false);
+    setImportPanelOpen(false);
+  }, []);
+
+  useEffect(() => {
+    if (readRemediationPatternImportPanelOpenFromSession()) {
+      setImportPanelOpen(true);
     }
   }, []);
 
@@ -812,7 +809,7 @@ export function RemediationPatternsClient() {
       <RemediationPatternsGuards yamlDraft={yamlDraft} />
       <OperatorPageHeader
         navHref={navHref}
-        title={OPERATOR_NAV_LINK_LABELS.remediationPatterns}
+        title={pageTitle}
         subtitle="Create, review, and approve governed remediation patterns."
         claimDiscipline={REMEDIATION_PATTERNS_CLAIM_DISCIPLINE}
         claimDisciplineTestId="remediation-patterns-claim-discipline"
@@ -822,7 +819,7 @@ export function RemediationPatternsClient() {
           <div className="flex flex-wrap items-center gap-2">
             <Button
               type="button"
-              variant="default"
+              variant={patterns.length === 0 && !listQuery.isLoading ? "outline" : "default"}
               data-testid="remediation-patterns-header-import-button"
               onClick={() => openImportPanel(true)}
             >
@@ -910,16 +907,6 @@ export function RemediationPatternsClient() {
                 variant: "primary",
               },
             ]}
-            footer={
-              <Button
-                type="button"
-                variant="outline"
-                data-testid="remediation-patterns-empty-import-button"
-                onClick={() => openImportPanel(true)}
-              >
-                Open YAML import
-              </Button>
-            }
             testId="remediation-patterns-empty"
           />
         ) : showFilteredRegistryEmpty ? (
@@ -1223,7 +1210,7 @@ export function RemediationPatternsClient() {
               variant="outline"
               size="sm"
               data-testid="remediation-pattern-import-panel-close"
-              onClick={() => setImportPanelOpen(false)}
+              onClick={closeImportPanel}
             >
               Close
             </Button>

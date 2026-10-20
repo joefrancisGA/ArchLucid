@@ -87,13 +87,14 @@ public sealed class ReviewClarificationQuestionsControllerTests
     }
 
     [Fact]
-    public async Task ApplyKnowledgeModelClarificationAnswers_returns_bad_request_when_answers_collection_is_null()
+    public async Task ApplyKnowledgeModelClarificationAnswers_returns_bad_request_when_answers_is_null()
     {
         Guid runId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
 
+        Mock<IKnowledgeModelClarificationAnswerApplicator> applicator = new();
+
         ReviewClarificationQuestionsController controller = CreateController(
-            Mock.Of<IReviewClarificationQuestionService>(),
-            Mock.Of<IKnowledgeModelClarificationAnswerApplicator>());
+            clarificationAnswerApplicator: applicator.Object);
 
         ApplyKnowledgeModelClarificationAnswersRequest request = new() { Answers = null! };
 
@@ -104,6 +105,14 @@ public sealed class ReviewClarificationQuestionsControllerTests
 
         ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        applicator.Verify(
+            s => s.ApplyAnswersAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<IReadOnlyDictionary<string, string>>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]

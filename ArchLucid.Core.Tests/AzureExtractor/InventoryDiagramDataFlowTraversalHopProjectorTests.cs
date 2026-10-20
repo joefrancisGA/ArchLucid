@@ -175,6 +175,26 @@ public sealed class InventoryDiagramDataFlowTraversalHopProjectorTests
     }
 
     [Fact]
+    public void CollectTraversalLinks_ignores_diagnostic_setting_to_storage()
+    {
+        GraphSnapshot graph = BuildDiagnosticSettingStorageGraph();
+        IReadOnlyList<InventoryDiagramDataFlowTraversalHopLink> links =
+            InventoryDiagramDataFlowTraversalHopProjector.CollectTraversalLinks(graph);
+
+        links.Should().BeEmpty();
+        InventoryDiagramDataFlowTraversalHopClassifier.IsTraversalHopAssociation(
+                AzureInventoryRelationshipAssociationTypes.DiagnosticSettingToStorage,
+                GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage)
+            .Should()
+            .BeFalse();
+        InventoryDiagramDataFlowTraversalHopClassifier.IsExcludedTraversalAnnotation(
+                AzureInventoryRelationshipAssociationTypes.DiagnosticSettingToStorage,
+                GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage)
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
     public void CollectTraversalLinks_projects_firewall_to_application_and_ingestion_cards_on_its_subnet()
     {
         GraphNode factory = CreateNode("factory-node", FactoryArmId, "Microsoft.DataFactory/factories");
@@ -455,6 +475,26 @@ public sealed class InventoryDiagramDataFlowTraversalHopProjectorTests
         List<GraphEdge> edges =
         [
             CreateEdge("nsg-node", "app-node", AzureInventoryRelationshipAssociationTypes.SubnetToNsg, GraphEdgeInferenceSources.InventorySubnetNsg),
+        ];
+
+        return CreateGraph(nodes, edges);
+    }
+
+    private static GraphSnapshot BuildDiagnosticSettingStorageGraph()
+    {
+        List<GraphNode> nodes =
+        [
+            CreateNode("app-node", AppArmId, "Microsoft.Web/sites"),
+            CreateNode("storage-node", StorageArmId, "Microsoft.Storage/storageAccounts"),
+        ];
+
+        List<GraphEdge> edges =
+        [
+            CreateEdge(
+                "app-node",
+                "storage-node",
+                AzureInventoryRelationshipAssociationTypes.DiagnosticSettingToStorage,
+                GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage),
         ];
 
         return CreateGraph(nodes, edges);
