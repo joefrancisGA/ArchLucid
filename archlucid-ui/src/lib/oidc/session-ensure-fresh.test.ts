@@ -300,6 +300,69 @@ describe("ensureAccessTokenFresh (LK-06 P2 BFF refresh)", () => {
     expect(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY)).toBe(expiresHintAtRefreshStart);
   });
 
+  it("does not write a refreshed expiry hint when identity-less replacement runs during an in-flight BFF refresh", async () => {
+    let releaseRefresh: (() => void) | undefined;
+    const refreshedMs = Date.now() + 3_600_000;
+
+    vi.mocked(bffSessionSync.refreshBffSessionCookie).mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          releaseRefresh = () => {
+            resolve({ ok: true, expiresAtMs: refreshedMs });
+          };
+        }),
+    );
+
+    seedExpiredSessionWithIdentityHints();
+
+    const refreshPromise = ensureAccessTokenFresh();
+
+    await Promise.resolve();
+
+    persistTokenResponse({ access_token: "opaque-identity-less", expires_in: 3600 });
+
+    await Promise.resolve();
+
+    releaseRefresh?.();
+    await refreshPromise;
+
+    expect(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY)).toBeNull();
+    expect(sessionStorage.getItem(OIDC_USER_SUBJECT_KEY)).toBeNull();
+  });
+
+  it("does not clear a replacement sign-in when a pre-sign-out BFF refresh is rejected after identity is restored", async () => {
+    let releaseRefresh: (() => void) | undefined;
+
+    vi.mocked(bffSessionSync.refreshBffSessionCookie).mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          releaseRefresh = () => {
+            resolve({ ok: false, shouldClearSession: true });
+          };
+        }),
+    );
+
+    storePkceState("stale-callback-state", "stale-verifier", "stale-nonce", "primary");
+    seedExpiredSessionWithIdentityHints();
+
+    const refreshPromise = ensureAccessTokenFresh();
+
+    await Promise.resolve();
+
+    clearOidcSession();
+    storePkceState("fresh-callback-state", "fresh-verifier", "fresh-nonce", "primary");
+    persistTokenResponse({ access_token: accessTokenWithSubjectClaim("user-after-sign-out"), expires_in: 3600 });
+
+    await Promise.resolve();
+
+    releaseRefresh?.();
+    await refreshPromise;
+
+    expect(sessionStorage.getItem(OIDC_USER_SUBJECT_KEY)).toBe("user-after-sign-out");
+    expect(Number(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY))).toBeGreaterThan(Date.now());
+    expect(sessionStorage.getItem(OIDC_OAUTH_STATE_KEY)).toBe("fresh-callback-state");
+  });
+
   it("does not clear the BFF cookie when a pre-sign-out refresh succeeds after a replacement sign-in", async () => {
     let releaseRefresh: (() => void) | undefined;
     const refreshedMs = Date.now() + 3_600_000;
