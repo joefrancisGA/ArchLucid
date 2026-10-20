@@ -116,8 +116,9 @@ public sealed class FinalizeReadinessControllerTests
         readiness
             .Setup(service => service.BuildAsync(
                 runIdText,
+                // Moq It.Is builds an expression tree; CS8122 forbids `is` patterns there.
                 It.Is<IReadOnlyList<string>?>(ids =>
-                    ids is not null
+                    ids != null
                     && ids.Count == 2
                     && ids.Contains("assumption-a")
                     && ids.Contains("assumption-b")),

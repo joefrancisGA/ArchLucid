@@ -1189,10 +1189,11 @@ public sealed class GovernanceStickinessControllerTests
                 Scope.WorkspaceId,
                 Scope.ProjectId,
                 It.IsAny<int>(),
+                // Moq It.Is builds an expression tree; CS8122 forbids `is` patterns there.
                 It.Is<ArchitectureRiskRegisterListOptions?>(options =>
-                    options is not null
+                    options != null
                     && options.OpenFindingsOnly
-                    && options.AssignedToUserIds is not null
+                    && options.AssignedToUserIds != null
                     && options.AssignedToUserIds.Contains("reviewer@test")),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(
