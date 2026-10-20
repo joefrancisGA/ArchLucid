@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
+
 2026-10-20 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryAppSettingHostRedactor.TryParseSqlHost` ignoring ADO.NET `Data Source=` SQL connection strings so App Service / Function declared SQL hosts were dropped from `app-settings-hosts.json` companion rows; extend `SqlServerHostRegex` to accept `Data Source` alias; regression `TryParseSettingValue_extracts_sql_host_from_data_source_alias`; app-setting host Core tests 25/25.
 
 2026-10-20 seed hunt (seed-only): `archlucid-core` — cheap-disproof on open DNS/reachability candidates; 85 focused Core tests passed.
@@ -6,7 +8,6 @@
 
 2026-10-20 seed hunt (seed→hit): `securenow-question-queue` — promoted `SecureNowQuestionDispositionService.ReopenAsync` stale answer fields after reopen; regression `Reopen_clears_prior_answer_fields_from_listed_questions`.
 
-﻿> **Scope:**
 
 2026-10-20 seed hunt (seed→hit): `ui-infra-resource-hub` — promoted `ResourceHubClient.loadHub` keeping prior `hub` payload when a reachable `snapshotId`/scope change failed to load captured evidence, so error banner and stale overview tables rendered together; `setHub(null)` on load failure; regression `clears_hub_evidence_when_a_newer_URL_selection_fails_to_load`; 55 scoped `ResourceHubClient` tests passed.
 

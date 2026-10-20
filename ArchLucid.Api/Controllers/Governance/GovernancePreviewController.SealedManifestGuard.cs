@@ -1,6 +1,5 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
-using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.Posture;
 using ArchLucid.Application.Governance.Preview;
 using ArchLucid.Core.Scoping;
@@ -27,15 +26,19 @@ public sealed partial class GovernancePreviewController
                 parsedRunId,
                 cancellationToken);
 
+        // Unknown runs must reach PreviewActivationAsync so the route returns 404, not sealed-manifest 409.
+
         if (detail is null)
             return null;
 
         try
         {
-            PolicyPackSimulateSealedManifestGuard.EnsureRunSealedManifestHashOrThrow(
-                detail.GoldenManifest,
-                parsedRunId.ToString("D"),
-                _manifestHashService);
+            await GovernancePreviewSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                runId,
+                scope,
+                _authorityQueryService,
+                _manifestHashService,
+                cancellationToken);
         }
         catch (ConflictException ex)
         {

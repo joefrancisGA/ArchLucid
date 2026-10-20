@@ -236,18 +236,3 @@ public static class HostedAzureInventoryStaticSiteAndFabricAssociationCollector
             new HostedAzureArmNetworkAssociationRecord(fromResourceId, toResourceId, associationType));
     }
 }
-
-public sealed class HostedAzureInventoryStaticSiteAndFabricAssociationCollectResult
-{
-    public IReadOnlyList<HostedAzureArmNetworkAssociationRecord> Associations
-    {
-        get;
-        init;
-    } = [];
-
-    public IReadOnlyList<string> CollectionWarnings
-    {
-        get;
-        init;
-    } = [];
-}
