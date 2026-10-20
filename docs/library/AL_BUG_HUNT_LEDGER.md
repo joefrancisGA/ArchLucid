@@ -1,5 +1,11 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
+2026-10-20 thorough hunt (hit, lane C): `agent-runtime-evaluation` — skipped picker top `identity-provider-config` (lane-B zone lock); promoted `(candidate)` case-variant `CITATIONS` / `EVIDENCEREFS` on PilotStrict traces — `AgentOutputTraceCitationGate` used case-sensitive top-level reads while other evaluation paths already accept Web/camelCase variants, so valid agent JSON failed citation presence and evidence-ref floor; gate now resolves those properties ordinal-ignore-case; regression `TryEvaluateTrace_pilot_strict_accepts_case_variant_citation_and_evidence_ref_properties`; cheap-disproof closed harness required-key casing sibling (existing `Evaluate_matches_required_json_keys_case_insensitively`); 217 scoped Evaluation tests passed.
+
+- [x] (proven) `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` — case-variant `Citations` top-level property — **hit 2026-10-20 thorough hunt (lane C):** `TryGetPropertyIgnoreCase`; regression `TryEvaluateTrace_pilot_strict_accepts_case_variant_citation_and_evidence_ref_properties`.
+- [x] (proven) `AgentOutputTraceCitationGate.TryCountTopLevelEvidenceRefs` — case-variant `EvidenceRefs` top-level property — **hit 2026-10-20 thorough hunt (lane C):** same regression lock.
+- [x] (valid-no-repro) `AgentOutputEvaluationHarness.Evaluate` — required JSON keys case-sensitive — **cheap-disproof 2026-10-20 thorough hunt (lane C):** ignore-case required keys shipped 2026-10-11; regression `Evaluate_matches_required_json_keys_case_insensitively`.
+
 2026-10-20 thorough hunt (hit, lane C): `agent-runtime-evaluation` — skipped picker top `identity-provider-config` (two prior seed hits); hunted `agent-runtime-evaluation` under lane-C lock; promoted `(candidate)` case-variant `PROPOSEDCHANGES` / finding field keys — `HeuristicAgentOutputSemanticEvaluator` treated topology-only payloads as present via case-insensitive `claims`/`findings` checks but `HeuristicAgentOutputTraceQualityStage` used case-sensitive nested reads, forcing semantic score 0; trace quality stage now resolves agent JSON properties ordinal-ignore-case (aligned with claim evidence stage); regressions `Evaluate_matches_case_variant_proposed_changes_for_topology_surface_ratio` and `Evaluate_matches_case_variant_findings_properties`; 216 scoped Evaluation tests passed.
 
 - [x] (proven) `HeuristicAgentOutputTraceQualityStage.EvaluateProposedChangesSurfaceRatio` — case-variant `PROPOSEDCHANGES` / `ADDEDSERVICES` / `ADDEDRELATIONSHIPS` — **hit 2026-10-20 thorough hunt (lane C):** `TryGetPropertyIgnoreCase` on proposed-change surface reads; regression `Evaluate_matches_case_variant_proposed_changes_for_topology_surface_ratio`.
@@ -20916,11 +20922,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 54
-- **bugs-found:** 33
+- **hunts:** 55
+- **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — heuristic trace quality ignored case-variant proposedChanges and finding fields
+- **last-bug:** 2026-10-20 — PilotStrict citation gate ignored case-variant citations and evidenceRefs
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -20941,8 +20947,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-12 seed hunt (seed-only): reread case-insensitive evaluation parsing, citation gates, heuristic quality scoring, faithfulness judging, and embedding evidence handling. The faithfulness judge-score casing candidate was promoted for a focused repro, but the AgentRuntime test build was blocked before execution by unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors; no candidate was proven and no production change was made.
 
 - [ ] (candidate) `AgentOutputFaithfulnessEvaluator.ReadScore` — a reachable LLM judge response using `FAITHFULNESS_SCORE` or other casing may be treated as missing, so configured faithfulness enforcement is skipped; locus: exact `JsonElement.TryGetProperty` score reads; input: external keyed judge JSON.
-- [ ] (candidate) `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` — a reachable real-agent result using `Citations` casing may be treated as citation-free and rejected under PilotStrict despite containing a usable citation; locus: exact top-level citation property read; input: untrusted agent-result JSON.
-- [ ] (candidate) `AgentOutputTraceCitationGate.TryCountTopLevelEvidenceRefs` — a reachable real-agent result using `EvidenceRefs` casing may fail the configured PilotStrict evidence-reference floor despite usable references; locus: exact top-level evidence-reference property read; input: untrusted agent-result JSON.
+- [x] (proven) `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` — case-variant `Citations` — **hit 2026-10-20 thorough hunt (lane C):** see zone header regression `TryEvaluateTrace_pilot_strict_accepts_case_variant_citation_and_evidence_ref_properties`.
+- [x] (proven) `AgentOutputTraceCitationGate.TryCountTopLevelEvidenceRefs` — case-variant `EvidenceRefs` — **hit 2026-10-20 thorough hunt (lane C):** same regression lock.
 - [x] (proven) `HeuristicAgentOutputTraceQualityStage.EvaluateFindings` — case-variant finding fields — **hit 2026-10-20 thorough hunt (lane C):** see zone header regression `Evaluate_matches_case_variant_findings_properties`.
 
 2026-10-11 seed hunt (seed-only): re-read the selected evaluation quality-gate, JSON grounding, semantic-judge, and trace-quality paths; 213 scoped Evaluation tests passed. No distinct reachable wrong outcome met the promotion bar after the recent case-insensitive JSON fixes and existing candidate review.

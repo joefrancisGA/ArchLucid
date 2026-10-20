@@ -1042,6 +1042,65 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
         r.EvaluationReason.Should().Contain("missing_or_empty_citations");
     }
 
+    [Fact]
+    public async Task TryEvaluateTrace_pilot_strict_accepts_case_variant_citation_and_evidence_ref_properties()
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+            PilotStrictMinEvidenceRefCount = 1,
+            StructuralRejectBelow = 0,
+            SemanticRejectBelow = 0,
+            StructuralWarnBelow = 1,
+            SemanticWarnBelow = 1
+        };
+
+        Mock<IAgentOutputQualityGate> gate = new();
+        gate.Setup(g => g.Evaluate(It.IsAny<AgentOutputEvaluationScore>(), It.IsAny<AgentOutputSemanticScore>()))
+            .Returns(AgentOutputQualityGateOutcome.Accepted);
+
+        DelegatingStructuralEvaluator structural = new((_, _, _) => new AgentOutputEvaluationScore
+        {
+            TraceId = "t1",
+            AgentType = AgentType.Topology,
+            StructuralCompletenessRatio = 1.0,
+            IsJsonParseFailure = false,
+            MissingKeys = []
+        });
+
+        DelegatingSemanticEvaluator semantic = new((_, _, _) => new AgentOutputSemanticScore { OverallSemanticScore = 1.0 });
+
+        const string json = """
+                              {
+                                  "CITATIONS": [{ "source": "doc" }],
+                                  "EVIDENCEREFS": ["ev-1"]
+                              }
+                              """;
+
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "t1",
+            RunId = "r",
+            TaskId = "task",
+            AgentType = AgentType.Topology,
+            ParseSucceeded = true,
+            ParsedResultJson = json
+        };
+
+        AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? r =
+            await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
+                trace,
+                options,
+                structural,
+                semantic,
+                gate.Object,
+                CancellationToken.None);
+
+        r.Should().NotBeNull();
+        r!.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Accepted);
+    }
+
     [Theory]
     [InlineData("{\"citations\":[{\"source\":\"doc\"}]}")]
     [InlineData("{\"evidenceRefs\":\"not-an-array\", \"citations\":[{\"source\":\"doc\"}]}")]
