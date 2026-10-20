@@ -1,5 +1,11 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
+2026-10-20 thorough hunt (hit, lane C): `agent-runtime-evaluation` — skipped picker top `identity-provider-config` (lane-B lock; did not create or modify that lock); promoted `(candidate)` non-finite `calibratedConfidence` — `AgentOutputQualityGate.Evaluate` treated `NaN`/infinity as passing threshold comparisons, so a persisted non-finite calibrated score could accept an otherwise sub-floor semantic result; gate now rejects non-finite semantic inputs before floor checks; regression `Evaluate_rejects_when_calibrated_confidence_is_non_finite`; cheap-disproof closed harness/reference-case required-key casing siblings (ignore-case sets shipped) and LLM judge out-of-range clamp (saturated score-validation class); 223 scoped Evaluation tests passed.
+
+- [x] (proven) `AgentOutputQualityGate.Evaluate` — non-finite `calibratedConfidence` bypasses reject/warn comparisons — **hit 2026-10-20 thorough hunt (lane C):** reject before floor checks; regression `Evaluate_rejects_when_calibrated_confidence_is_non_finite`.
+- [x] (valid-no-repro) `AgentOutputEvaluationHarness.Evaluate` / reference-case required JSON keys — **cheap-disproof 2026-10-20 thorough hunt (lane C):** `StringComparer.OrdinalIgnoreCase` name sets; regression `Evaluate_matches_required_json_keys_case_insensitively`.
+- [x] (valid-no-repro) `AgentOutputLlmSemanticJudge.TryParseJudgeResponse` — out-of-range `overallQuality` clamped — **cheap-disproof 2026-10-20 thorough hunt (lane C):** intentional clamp after finite parse; overlaps saturated external judge score-validation class.
+
 2026-10-20 thorough hunt (hit, lane C): `agent-runtime-evaluation` — owner-directed audit closing the **case-sensitive agent-output JSON property read** defect class after two prior partial hits; routed every evaluation-boundary `JsonElement` property lookup in the zone through shared `AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase` (removed eight duplicate private helpers; fixed remaining case-sensitive reads in `AgentResultEmbeddingFaithfulnessScorer` and `AgentOutputFaithfulnessEvaluator.ReadScore`); regression locks per site (`AgentOutputJsonPropertyReaderTests`, existing heuristic/citation/coverage/faithfulness/LLM-judge case-variant tests, `TryComputeMeanCosineAsync_reads_case_variant_claims_array`, `TryEvaluateAsync_parses_case_variant_faithfulness_score_property`); **class closed** — do not reopen casing-only agent-output JSON property hunts in this zone; 220 scoped Evaluation tests passed.
 
 - [x] (proven) `AgentOutputJsonPropertyReader` — consolidated ordinal-ignore-case reads for all agent-output JSON property lookups in `ArchLucid.AgentRuntime/Evaluation` — **hit 2026-10-20 thorough hunt (lane C):** single shared helper; site regressions listed in zone header.
@@ -20934,11 +20940,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 56
-- **bugs-found:** 35
+- **hunts:** 57
+- **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — consolidated agent-output JSON property casing reads
+- **last-bug:** 2026-10-20 — quality gate accepted non-finite calibrated confidence
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -20986,7 +20992,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AgentOutputReferenceCaseRunEvaluator.EvaluateCaseRules` — a reachable reference-trace JSON payload with `findings: [null]` deserialized a null `ArchitectureFinding`, then category coverage dereferenced `f.Category` and threw instead of recording a failed case — **hit 2026-10-10 seed hunt:** skip null finding entries before category normalization; regression `EvaluateTraceAsync_treats_null_finding_as_failed_case_instead_of_throwing`.
 - [x] (proven) `AgentOutputReferenceCaseRunEvaluator.EvaluateCaseRules` — a reachable reference-trace JSON payload with `findings: [null]` counted the null slot toward `MinimumFindingCount`, so a case requiring one finding could pass with no valid finding — **hit 2026-10-10 seed hunt:** count only non-null findings before applying the minimum; regression `ComputeAnyPassingReferenceCase_does_not_count_null_finding_toward_minimum`.
 
-- [ ] (candidate) `AgentOutputQualityGate.Evaluate` — a non-finite calibrated confidence can bypass both reject and warning comparisons because `NaN < floor` is false — locus: `AgentOutputQualityGate.cs` ~25–43; input: evaluator supplies `double.NaN` as calibrated confidence for an otherwise low-scoring result.
+- [x] (proven) `AgentOutputQualityGate.Evaluate` — non-finite calibrated confidence bypass — **hit 2026-10-20 thorough hunt (lane C):** regression `Evaluate_rejects_when_calibrated_confidence_is_non_finite`.
 - [x] (proven) `AgentOutputEvaluationRecorder.EvaluateOneAsync` / `RunAgentOutputPilotEvidenceAggregator.WouldPilotStrictBlockSponsorEvidenceAsync` — duplicate persisted `AgentResult` rows for one retried task used the first result for mode/prompt selection while the latest trace represented another duplicate; **hit 2026-10-10 seed hunt:** shared latest-result selection by creation time; regression `EvaluateAndRecordMetricsAsync_attaches_latest_trace_metrics_to_latest_agent_result`.
 - [x] (proven) `AgentOutputReferenceCaseRunEvaluator.EvaluateCaseRules` / `AgentOutputEvaluationHarness.Evaluate` — required JSON-key checks compare ordinal names, so a configuration key such as `Findings` can falsely fail against Web/camelCase serialized `findings`; **hit 2026-10-11 seed hunt:** required-key matching now uses ordinal-ignore-case comparison; regressions `ComputeAnyPassingReferenceCase_matches_required_json_keys_case_insensitively` and `Evaluate_matches_required_json_keys_case_insensitively`.
 - [x] (proven) `AgentEvaluationConfidencePipeline.BuildRunContextAsync` — duplicate persisted results supplied the first-row structural execution mode while calibrated confidence used the latest-row overwrite, so confidence enrichment evaluated one retry with mixed-attempt metadata — **hit 2026-10-10 seed hunt:** reuse `AgentResultLatestForTaskSelector` when building the structural-mode lookup; regression `TryEnrichCoreAsync_uses_latest_agent_result_execution_mode_for_duplicate_task_results`.
