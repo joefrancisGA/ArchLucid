@@ -1,3 +1,5 @@
+2026-10-20 seed hunt (seed→hit): `securenow-question-queue` — promoted `SecureNowQuestionDispositionService.ReopenAsync` stale answer fields after reopen; regression `Reopen_clears_prior_answer_fields_from_listed_questions`.
+
 ﻿> **Scope:**
 
 2026-10-20 seed hunt (seed→hit): `ui-infra-resource-hub` — promoted `ResourceHubClient.loadHub` keeping prior `hub` payload when a reachable `snapshotId`/scope change failed to load captured evidence, so error banner and stale overview tables rendered together; `setHub(null)` on load failure; regression `clears_hub_evidence_when_a_newer_URL_selection_fails_to_load`; 55 scoped `ResourceHubClient` tests passed.
@@ -42140,6 +42142,8 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-20 seed hunt (seed→hit): promoted `SecureNowQuestionDispositionService.ReopenAsync` retaining prior `AnswerCode`/`AnswerText` after operators reopened an answered question via `POST /reopen`; `ListQuestionsAsync` returned `Open` with stale answer metadata joined from the disposition row; clear answer fields on reopen; regression `Reopen_clears_prior_answer_fields_from_listed_questions`; Application SecureNowQuestion filter 31/31.
+
 2026-10-14 seed hunt (seed→hit): promoted `securenow-question-queue-api.mapQuestion` blank `answerCodes` entries; reachable list responses with `""` or whitespace-only codes rendered bogus action buttons; filter to non-blank strings in `mapQuestion`; regression `drops blank answer code entries from list responses` in `securenow-question-queue-api.test.ts`; queue UI vitest 20/20 and Application SecureNowQuestion filter 29/29.
 
 2026-10-14 seed hunt (seed→hit): promoted `BuildDiagramCandidates` suppressing unknown-evidence questions when a relationship cited a peer outside the snapshot; only treat inventory relationships with both endpoints present in the snapshot as cited connections; regression `Unknown_evidence_question_is_emitted_when_relationship_peer_is_not_in_snapshot`; Application SecureNowQuestion filter 29/29 and queue UI vitest 20/20.
@@ -42190,11 +42194,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 41
-- **bugs-found:** 20
+- **hunts:** 42
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — blank answer codes rendered bogus queue buttons
+- **last-hunt:** 2026-10-20
+- **last-bug:** 2026-10-20 — reopen left stale answer fields on open questions
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -42262,7 +42266,7 @@ ABQ-09 churn hotspot.
 - [x] (proven) `SecureNowQuestionCompiler.Compile` / `SecureNowQuestionDispositionService.WriteAsync` / `SqlSecureNowQuestionDispositionRepository.ComputeIdentityHash` — reachable API ignore mutations differing only by `QuestionKey` casing could persist distinct disposition rows while compilation used a case-insensitive disposition dictionary and threw listing questions — **hit 2026-10-13 seed hunt:** normalize question keys on write and in identity hashes, and group duplicate dispositions by case-insensitive identity keeping the newest row; regressions `Question_key_is_case_insensitive_on_ignore` and `Dispositions_with_question_keys_differing_only_by_case_compile_without_failure`.
 - [x] (proven) `SecureNowQuestionQueueProvider` — while a new `snapshotId` request was in flight, the old question remained actionable, so a queue mutation could submit the old question identity under the new snapshot; fixed by clearing queue state on snapshot change, requiring `questionsLoaded`, and rejecting mismatched `currentQuestion.snapshotId`; regression `does not persist a question from the previous snapshot while the next snapshot is loading`.
 - (candidate) `securenow-question-queue-api.answerSecureNowQuestion` / `ignoreSecureNowQuestion` / `reopenSecureNowQuestion` — mutation helpers declare a full `SecureNowQuestion` response although the controller returns `SecureNowQuestionDispositionResponse` without display fields; a future reachable caller consuming the mutation response could replace queue state with an incomplete question object. Current provider reloads and ignores the response, so this remains a bounded contract-drift candidate.
-
+- [x] (proven) `SecureNowQuestionDispositionService.ReopenAsync` / `SecureNowQuestionCompiler.AddQuestion` — a reachable `POST /reopen` after `POST /answer` set `Status` to `Open` but copied prior `AnswerCode` and `AnswerText`, so `ListQuestionsAsync` still joined stale answer metadata; fixed by clearing answer fields on reopen; regression `Reopen_clears_prior_answer_fields_from_listed_questions`.
 
 ## Zone: infra-evidence-diagrams
 

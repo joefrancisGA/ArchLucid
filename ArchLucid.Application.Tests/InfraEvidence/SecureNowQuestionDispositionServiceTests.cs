@@ -213,6 +213,40 @@ public async Task Foreign_snapshot_cannot_read_or_write()
     }
 
     [Fact]
+    public async Task Reopen_clears_prior_answer_fields_from_listed_questions()
+    {
+        InMemoryDispositionRepository repository = new();
+        SecureNowQuestionDispositionService sut = CreateSut(repository, includeQuestion: true);
+        SecureNowQuestionDispositionWriteRequest request =
+            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resource");
+
+        await sut.AnswerAsync(Scope, SnapshotId, request, "actor");
+        SecureNowQuestionDispositionMutationResult reopened = await sut.ReopenAsync(
+            Scope,
+            SnapshotId,
+            new SecureNowQuestionDispositionReopenRequest
+            {
+                SubscriptionId = request.SubscriptionId,
+                ResourceId = request.ResourceId,
+                QuestionKey = request.QuestionKey,
+                Reason = "Evidence changed.",
+            },
+            "reviewer");
+
+        reopened.Succeeded.Should().BeTrue();
+        reopened.Record!.Status.Should().Be(SecureNowQuestionDispositionStatus.Open);
+        reopened.Record.AnswerCode.Should().BeNull();
+        reopened.Record.AnswerText.Should().BeNull();
+
+        IReadOnlyList<SecureNowQuestionRecord> listed =
+            await sut.ListQuestionsAsync(Scope, SnapshotId);
+        SecureNowQuestionRecord question = listed.Should().ContainSingle().Subject;
+        question.Status.Should().Be(SecureNowQuestionDispositionStatus.Open);
+        question.AnswerCode.Should().BeNull();
+        question.AnswerText.Should().BeNull();
+    }
+
+    [Fact]
     public async Task Question_key_requires_a_positive_version()
     {
         InMemoryDispositionRepository repository = new();

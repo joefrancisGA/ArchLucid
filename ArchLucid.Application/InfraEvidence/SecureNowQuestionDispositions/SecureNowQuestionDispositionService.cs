@@ -204,8 +204,8 @@ public sealed class SecureNowQuestionDispositionService(
             Source = existing.Source,
             ScopeKind = existing.ScopeKind,
             Status = SecureNowQuestionDispositionStatus.Open,
-            AnswerCode = existing.AnswerCode,
-            AnswerText = existing.AnswerText,
+            AnswerCode = null,
+            AnswerText = null,
             Reason = existing.Reason,
             ExpirationUtc = existing.ExpirationUtc > now
                 ? existing.ExpirationUtc
