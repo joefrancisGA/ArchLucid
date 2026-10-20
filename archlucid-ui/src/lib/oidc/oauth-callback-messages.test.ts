@@ -52,6 +52,12 @@ describe("readOAuthJsonErrorDescription", () => {
 
     expect(readOAuthJsonErrorDescription(detail)).toBe(detail);
   });
+
+  it("preserves regional-indicator flag emoji in token error_description copy", () => {
+    const detail = "🇺🇸";
+
+    expect(readOAuthJsonErrorDescription(detail)).toBe(detail);
+  });
 });
 
 describe("decodeOAuthErrorDescription", () => {
@@ -80,6 +86,10 @@ describe("decodeOAuthErrorDescription", () => {
     const detail = "دسترسی\u200cرد";
 
     expect(decodeOAuthErrorDescription(detail)).toBe(detail);
+  });
+
+  it("preserves regional-indicator flag emoji in authorize error descriptions", () => {
+    expect(decodeOAuthErrorDescription("🇺🇸")).toBe("🇺🇸");
   });
 
   it("collapses percent-encoded line breaks to spaces for single-line callback copy", () => {
@@ -171,6 +181,10 @@ describe("humanizeAuthorizeCallbackError", () => {
     const detail = "👨\u200d👩\u200d👧";
 
     expect(humanizeAuthorizeCallbackError("access_denied", detail)).toContain(detail);
+  });
+
+  it("includes regional-indicator flag detail on access_denied authorize callback copy", () => {
+    expect(humanizeAuthorizeCallbackError("access_denied", "🇺🇸")).toBe("Sign-in stopped: 🇺🇸");
   });
 
   it("maps interaction and consent cases", () => {

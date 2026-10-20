@@ -195,6 +195,10 @@ function containsReadableOAuthDetailCharacters(text: string): boolean {
   return /[\p{L}\p{N}\p{Extended_Pictographic}]/u.test(text);
 }
 
+function containsRegionalIndicatorFlagSequence(text: string): boolean {
+  return /(?:\p{Regional_Indicator}{2})+/u.test(text);
+}
+
 /** True when an OAuth `error` query/code value is not underscore/invisible padding. */
 export function isReadableOAuthErrorCode(errorCode: string): boolean {
   const formatted = formatErrorCodeForReading(errorCode);
@@ -219,6 +223,10 @@ function isReadableOAuthErrorDetail(detail: string): boolean {
 
   // Emoji-only glyphs (e.g. 🔒) are not actionable detail; ZWJ sequences (family emoji) are.
   if (detail.includes("\u200d") && containsReadableOAuthDetailCharacters(normalized)) {
+    return true;
+  }
+
+  if (containsRegionalIndicatorFlagSequence(normalized)) {
     return true;
   }
 
