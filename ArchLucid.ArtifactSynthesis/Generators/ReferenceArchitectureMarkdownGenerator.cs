@@ -28,7 +28,7 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine($"Status: {manifest.Metadata.Status}");
         sb.AppendLine($"Version: {manifest.Metadata.Version}");
         sb.AppendLine();
-
+        ArchitectureMandatedMarkdownSections.Append(sb, manifest);
         sb.AppendLine("## Manifest Metadata");
         sb.AppendLine($"- Rule Set: {manifest.RuleSetId} {manifest.RuleSetVersion}");
         sb.AppendLine($"- Manifest Hash: {manifest.ManifestHash}");
