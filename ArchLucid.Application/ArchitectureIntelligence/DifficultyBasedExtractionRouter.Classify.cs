@@ -151,10 +151,19 @@ public sealed partial class DifficultyBasedExtractionRouter
         && previous != '.'
         && previous != '/'
         && previous != ':'
-        && previous != '@';
+        && previous != '@'
+        && previous != '?'
+        && previous != '&'
+        && previous != '#'
+        && previous != '=';
 
     private static bool IsValidMarkerEndBoundary(char next) =>
-        !char.IsLetterOrDigit(next) && next != '-' && next != '_' && next != '@' && next != '/';
+        !char.IsLetterOrDigit(next)
+        && next != '-'
+        && next != '_'
+        && next != '@'
+        && next != '/'
+        && next != '=';
 
     private static bool ContainsAny(string sourceText, params string[] needles)
     {

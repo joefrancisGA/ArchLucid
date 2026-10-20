@@ -191,6 +191,18 @@ public sealed class DifficultyBasedExtractionRouterTests
     }
 
     [Fact]
+    public void Extract_does_not_emit_ownership_gap_for_query_string_owner_parameter_with_unowned()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "Callback https://api.example/notify?owner=security-team handles paging. Legacy racks remain unowned.",
+            "src-query-owner-param");
+
+        elements.Should().NotContain(element =>
+            element.Kind == ArchitectureElementKind.OperationalOwnership
+            && element.Name.Contains("Unowned component", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void Extract_does_not_emit_transition_for_as_isolated_substring_with_target_state()
     {
         IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(

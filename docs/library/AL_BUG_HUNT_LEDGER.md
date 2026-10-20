@@ -13210,6 +13210,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: extraction-router
+
+2026-10-20 seed hunt (seed→hit, lane C): URL query `owner=` false bounded token; query-string start/end boundary exclusions; regression `Extract_does_not_emit_ownership_gap_for_query_string_owner_parameter_with_unowned`; 56 scoped router tests passed.
+
 2026-10-20 thorough hunt (hit): email domain `owner` false token via `@` start boundary; regression `Extract_does_not_emit_ownership_gap_for_email_domain_owner_label_with_unowned`; 33 scoped router tests passed (`RunAnalyzers=false`).
 
 - [x] (proven) `FindBoundedMarkerIndex` / `IsValidMarkerStartBoundary` — `ops@owner.example.com` false `owner` match with `unowned` — **hit 2026-10-20 thorough hunt (lane C):** `@` excluded from marker start boundaries; regression `Extract_does_not_emit_ownership_gap_for_email_domain_owner_label_with_unowned`.
@@ -13247,11 +13250,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Classify.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Extract.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.LifecycleHelpers.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 38
-- **bugs-found:** 19
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-12
-- **last-bug:** 2026-09-27 — DNS/path dot false positive for `owner` token
+- **hunts:** 39
+- **bugs-found:** 20
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-20
+- **last-bug:** 2026-10-20 — URL query `owner=` false bounded token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
