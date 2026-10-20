@@ -1529,11 +1529,15 @@ public sealed class InfraEvidenceCompositionModuleTests
     public async Task InMemory_composition_structured_diagram_ingest_fails_closed_without_sealed_run_even_with_empty_sources()
     {
         ScopeContext scope = CreateDefaultScope();
+        Guid runId = Guid.Parse("11111111-1111-1111-1111-111111111111");
 
         IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
         ServiceCollection services = CreateCompositionServices(configuration, scope);
         services.AddHttpContextAccessor();
         _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterRunWithoutSealedGoldenManifestGuardServices(
+            services,
+            runId);
 
         await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
         {
@@ -1547,7 +1551,7 @@ public sealed class InfraEvidenceCompositionModuleTests
 
         Func<Task> act = () => ingestService.IngestAsync(
             scope,
-            Guid.NewGuid(),
+            runId,
             new StructuredDiagramIngestRequest { Sources = [] },
             CancellationToken.None);
 
@@ -1558,11 +1562,15 @@ public sealed class InfraEvidenceCompositionModuleTests
     public async Task InMemory_composition_vision_diagram_ingest_fails_closed_without_sealed_run()
     {
         ScopeContext scope = CreateDefaultScope();
+        Guid runId = Guid.Parse("22222222-2222-2222-2222-222222222222");
 
         IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
         ServiceCollection services = CreateCompositionServices(configuration, scope);
         services.AddHttpContextAccessor();
         _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterRunWithoutSealedGoldenManifestGuardServices(
+            services,
+            runId);
 
         await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
         {
@@ -1576,7 +1584,7 @@ public sealed class InfraEvidenceCompositionModuleTests
 
         Func<Task> act = () => ingestService.IngestAsync(
             scope,
-            Guid.NewGuid(),
+            runId,
             new VisionDiagramIngestRequest
             {
                 Format = "png",
