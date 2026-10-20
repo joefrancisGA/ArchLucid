@@ -5664,4 +5664,5 @@
 {"at":"2026-10-20T18:23:10.146456Z","zoneId":"api-tenancy-workspaces","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-20T18:29:28.2201561Z","zoneId":"api-tenancy-workspaces","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-20T18:35:51.9061977Z","zoneId":"api-tenancy-workspaces","outcome":"seed-only","productLine":"archlucid-shared"}
-{"at":"2026-10-20T18:41:38.8947340Z","zoneId":"api-tenancy-workspaces","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-20T18:41:38.894734Z","zoneId":"api-tenancy-workspaces","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-20T18:47:08.8626413Z","zoneId":"security-analyzers","outcome":"hit","productLine":"archlucid-shared"}

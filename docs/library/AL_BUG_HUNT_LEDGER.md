@@ -1,3 +1,11 @@
+2026-10-20 thorough hunt (hit): `security-analyzers` — proved `RequireAuthorizationAnalyzer.AnalyzeNamedType` ignored `MethodKind.ExplicitInterfaceImplementation` actions, so a controller whose only endpoint was an explicit `IAuthorizedApi.Get` with `[Authorize]` on the interface method still received type-level AL0001; analyze explicit interface implementations and inherit interface authorization via existing `MethodInheritsAuthorizeOrAllowAnonymousFromInterfaces`; regression `Does_not_report_explicit_interface_implementation_when_interface_method_has_Authorize`; cheap-disproof closed four open `(candidate)` rows; 93 scoped analyzer tests passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `MutatingControllerAuditAnalyzer.MethodInheritsTrackedVerbFromInterfaces` — `[HttpMethod(Method = "POST")]` on interface member only — **cheap-disproof 2026-10-20 thorough hunt #41:** `MethodHasTrackedVerbAttribute` already reads `NamedArguments` for interface-inherited verbs the same as declared actions; repro attempt would mirror `AL0003_reports_when_HttpPost_is_declared_on_implemented_interface`.
+- [x] (valid-no-repro) `RequireAuthorizationAnalyzer` — `[AllowAnonymous]` on interface type with empty grandchild controller — **cheap-disproof 2026-10-20 thorough hunt #41:** `InterfaceTypeHasAuthorizeOrAllowAnonymous` + inherited `ActionHasAuthorization` already cover grandchild empty types; regression `Does_not_report_grandchild_controller_when_interface_type_has_AllowAnonymous`.
+- [x] (proven) `RequireAuthorizationAnalyzer.AnalyzeNamedType` — explicit interface implementation ignored for AL0001 — **hit 2026-10-20 thorough hunt #41:** only `MethodKind.Ordinary` public actions were scanned; explicit interface endpoints reported false type-level AL0001 despite interface `[Authorize]`; fixed by treating `MethodKind.ExplicitInterfaceImplementation` as declared API actions; regression `Does_not_report_explicit_interface_implementation_when_interface_method_has_Authorize`.
+- [x] (valid-no-repro) `MutatingControllerAuditAnalyzer.AnalyzeReferencedBaseActions` — referenced base + interface verb metadata false-negative — **cheap-disproof 2026-10-20 thorough hunt #41:** referenced-base traversal calls `MethodSpecifiesTrackedVerb`, which already walks interface verbs; existing referenced-base regressions cover multi-level inheritance.
+- [x] (valid-no-repro) `TenantIdentityBoundaryAnalyzer.AnalyzeIdentifierName` — `ref`/`scoped ref` banned parameters — **cheap-disproof 2026-10-20 thorough hunt #41:** parameter `IdentifierName` binds `IParameterSymbol` regardless of ref modifiers; regression `Reports_ref_ClaimsPrincipal_parameter_in_inner_layer_assembly`.
+
 2026-10-20 seed hunt (seed-only): `api-tenancy-workspaces` — re-read zone `ArchLucid.Api/Controllers/Tenancy` (`TenantWorkspacesController`, `TenantIntegrationsOperationsController`, `TenantUsageStatusController`, `TenantHomepageSettingsController`) after run #39; promoted `RestoreProjectAsync` missing `FindWorkspace(scope.WorkspaceId)` preflight vs list/recycle for hunt-ready repro; cheap-disproof closed (route `workspaceId` must equal JWT `scope.WorkspaceId` before restore, equivalent guard); no hunt-ready row in sibling controllers; 69 scoped `TenantWorkspaces` + 3 `TenantIntegrationsOperations` tests passed.
 
 - (candidate) `TenantWorkspacesController.RestoreProjectAsync` — workspace inventory preflight uses route `workspaceId` only — locus: `FindWorkspace(workspaces, workspaceId)`; input: `(valid-no-repro)` route/scope mismatch already returns 404 before restore.
@@ -10130,7 +10138,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **hunts:** 37
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-16
+- **last-hunt:** 2026-10-20
 - **last-bug:** 2026-10-09 — nested local functions and expression-bodied properties bypassed ARCH006
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -18118,13 +18126,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 32
-- **bugs-found:** 29
+- **hunts:** 33
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-16
-- **last-bug:** 2026-10-09 — AL0001 on a derived controller whose inherited action is authorized on an interface
+- **last-hunt:** 2026-10-20
+- **last-bug:** 2026-10-20 — AL0001 false positive on explicit interface implementation with interface [Authorize]
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 2026-10-16 seed hunt (seed-only): re-read the three analyzer implementations; cheap-disproved interface `[AllowAnonymous]` inherited-action AL0001 symmetry gap; regression lock `Does_not_report_derived_controller_when_inherited_action_is_allow_anonymous_on_interface`; seeded five `(candidate)` rows; 90 scoped analyzer tests passed (`RunAnalyzers=false`).
 
 2026-10-09 seed hunt (seed→hit): concrete inherited-action scan ignored interface `[Authorize]`/`[AllowAnonymous]` that declared actions and the abstract empty-type helper already accepted; empty derived controllers reported AL0001 for a base action authorized on its implemented interface; inherited actions now use `ActionHasAuthorization`; regression `Does_not_report_derived_controller_when_inherited_action_is_authorized_on_interface`; 89 scoped analyzer tests passed (`RunAnalyzers=false`).
@@ -18235,11 +18243,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (valid-no-repro) `RequireAuthorizationAnalyzer.ActionHasAuthorization` — interface `[AllowAnonymous]` on inherited actions for empty derived controllers — **cheap-disproof 2026-10-16 seed hunt:** `MethodInheritsAuthorizeOrAllowAnonymousFromInterfaces` already maps interface member auth to implementing actions; regression `Does_not_report_derived_controller_when_inherited_action_is_allow_anonymous_on_interface`.
 
-- [ ] (candidate) `MutatingControllerAuditAnalyzer.MethodInheritsTrackedVerbFromInterfaces` — `[HttpMethod(Method = "POST")]` declared only on an `IMutatingApi` interface member (no `[HttpPost]`); `ArchLucid.Api` controller implements `Post` without `IAuditService.LogAsync` may skip AL0003 if interface named-property verbs are not inherited the same way as constructor-literal `[HttpMethod("POST")]`.
-- [ ] (candidate) `RequireAuthorizationAnalyzer.MethodInheritsAuthorizeOrAllowAnonymousFromInterfaces` — `[AllowAnonymous]` on interface type (not method) with abstract `SharedController : ControllerBase, IAnonymousApi` and empty `DerivedController : SharedController`; type-level interface auth may not satisfy inherited-action scan for grandchild controllers.
-- [ ] (candidate) `RequireAuthorizationAnalyzer.MethodInheritsAuthorizeOrAllowAnonymousFromInterfaces` — explicit interface implementation `IAuthorizedApi.Get()` where `[Authorize]` is only on the interface method and the explicit impl declares no auth attributes; `ExplicitInterfaceImplementations` walk may miss implicit-name matches.
-- [ ] (candidate) `MutatingControllerAuditAnalyzer.AnalyzeReferencedBaseActions` — referenced assembly exposes a `[HttpPost]` action through a base class that implements an interface verb in metadata only; current-compilation derived controller with no declared verbs may false-negative AL0003 when shadowing checks disagree with interface inheritance.
-- [ ] (candidate) `TenantIdentityBoundaryAnalyzer.AnalyzeIdentifierName` — `ref`/`scoped ref` parameters typed as `HttpContext` or `ClaimsPrincipal` in inner-layer assemblies (`ArchLucid.Application`); modifier syntax may bind a different `ISymbol` than unmodified parameters and skip ARCH001.
 
 
 ---
