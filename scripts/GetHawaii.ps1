@@ -5,6 +5,13 @@
 .DESCRIPTION
     This is the repeatable equivalent of the recommended Hawaii command:
     browser authentication, explicit tenant selection, and no Cost Management query.
+    Output defaults to ./securenow-azure-package.zip (same as Invoke-SecureNowAzurePackage.ps1).
+
+.EXAMPLE
+    .\scripts\GetHawaii.ps1
+
+.EXAMPLE
+    .\scripts\Invoke-SecureNowAzurePackage.ps1 -SubscriptionId '<guid>' -AuthenticationMethod Browser
 #>
 #Requires -Version 7.0
 
@@ -14,14 +21,14 @@ param()
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-[string]$extractorScript = Join-Path $PSScriptRoot 'azure/Run-SecureNowAzureExtractor.ps1'
+[string]$cliScript = Join-Path $PSScriptRoot 'Invoke-SecureNowAzurePackage.ps1'
 
-if (-not (Test-Path -LiteralPath $extractorScript))
+if (-not (Test-Path -LiteralPath $cliScript))
 {
-    throw "Missing SecureNow extractor script at '$extractorScript'."
+    throw "Missing SecureNow Azure package CLI at '$cliScript'."
 }
 
-& $extractorScript `
+& $cliScript `
     -TenantId '13af8028-bc99-4f21-a8df-6072feb323be' `
     -SubscriptionId '0966098b-4d6c-4f09-af1b-965bc2a2ad1d' `
     -AuthenticationMethod Browser `
