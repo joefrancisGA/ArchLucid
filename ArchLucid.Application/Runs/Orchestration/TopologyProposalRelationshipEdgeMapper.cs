@@ -191,7 +191,17 @@ public static class TopologyProposalRelationshipEdgeMapper
                     out string canonicalNodeId))
                 resolvedNodeId = canonicalNodeId;
 
-            endpointKeyToNodeId.TryAdd(trimmedKey, resolvedNodeId);
+            if (GraphAzureInventoryReconciliationAnalyzer.LooksLikeArmResourceId(trimmedKey))
+            {
+                TopologyProposalEndpointArmKeys.AddArmResourceIdResolutionAliases(
+                    endpointKeyToNodeId,
+                    trimmedKey,
+                    resolvedNodeId);
+            }
+            else
+            {
+                endpointKeyToNodeId.TryAdd(trimmedKey, resolvedNodeId);
+            }
 
             string? normalizedSyntheticKey =
                 TopologyProposalRelationshipEndpointIndex.NormalizeSyntheticEndpointReference(trimmedKey);

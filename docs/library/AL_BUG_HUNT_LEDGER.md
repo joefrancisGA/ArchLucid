@@ -1,3 +1,5 @@
+2026-10-20 seed hunt (seed→hit): `arm-terraform-source-ids` — declared ARM `endpointAliases` keys with trailing slashes missed canonical relationship lookup; regression `MapRelationships_resolves_declared_alias_when_alias_key_is_arm_id_with_trailing_slash`.
+
 2026-10-20 seed hunt (seed→hit): `securenow-question-queue` — promoted `SecureNowQuestionDispositionService.ReopenAsync` stale answer fields after reopen; regression `Reopen_clears_prior_answer_fields_from_listed_questions`.
 
 ﻿> **Scope:**
@@ -7089,12 +7091,14 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: arm-terraform-source-ids
 
+2026-10-20 seed hunt (seed→hit): promoted declared `endpointAliases` ARM keys with trailing slashes not indexed under `NormalizeArmResourceId`, so relationships using the canonical ARM path missed rename aliases and graph merge dropped edges; register ARM alias keys via `TopologyProposalEndpointArmKeys.AddArmResourceIdResolutionAliases`; regression `MapRelationships_resolves_declared_alias_when_alias_key_is_arm_id_with_trailing_slash`; 993 scoped edge-mapper/graph-merge tests passed.
+
 - **id:** arm-terraform-source-ids
 
 2026-10-09 seed hunt (seed-only): re-read the selected edge mapper, endpoint index, and focused tests; no row was promoted because the focused test run was blocked before execution by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
 - [ ] (candidate) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys` — an ARM `SourceId` with a provider-emitted slash variant is stored as a raw resolution alias when `TryReadTopologyResourceId(node)` is absent, while relationship lookup normalizes ARM paths only after the raw lookup — locus: source-id versus extracted ARM-id alias population; input: Azure inventory resource id with a duplicate or trailing slash.
-- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — declared ARM endpoint aliases are trimmed but not inserted under their normalized ARM identity, so an alias-key path variant can miss even though the graph node’s canonical ARM id is indexed — locus: `endpointAliases` merge before `TryResolveNodeId`; input: rename alias keyed by an ARM resource id with a trailing slash from an ARM relationship payload.
+- [x] (proven) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — declared `endpointAliases` ARM keys with trailing slashes were trimmed but not registered under `NormalizeArmResourceId`, so relationships using the canonical ARM path missed rename aliases and graph merge dropped edges — **hit 2026-10-20 seed hunt:** register ARM alias keys via `TopologyProposalEndpointArmKeys.AddArmResourceIdResolutionAliases`; regression `MapRelationships_resolves_declared_alias_when_alias_key_is_arm_id_with_trailing_slash`.
 - [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` — ARM endpoint normalization is applied only when `LooksLikeArmResourceId` recognizes the candidate, so a subscription-relative or provider-case variant outside that recognizer can fall through despite an equivalent graph source id — locus: ARM recognizer gate before `NormalizeArmResourceId`; input: ARM relationship endpoint emitted without the leading slash or with provider-segment casing from inventory reconciliation.
 - [ ] (candidate) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys` — the ARM resolution helper and Terraform leaf helper are both fed from separate node fields, so a topology resource with a Terraform `SourceId` and an ARM `armResourceId` can expose neither identity when the extracted ARM property is empty — locus: dual-source identity extraction; input: Terraform declaration overlay whose linked Azure inventory node has an empty or missing resource-id property.
 - [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.MapRelationships` — relationship rows with an enum value outside the intended `AuthenticatesWith` branch are all mapped to `ConnectsTo`, potentially committing an unsupported agent relationship under a generic edge type — locus: `MapRelationshipType` default mapping; input: new or unknown relationship enum value deserialized from an agent proposal payload.
@@ -7189,11 +7193,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 95
-- **bugs-found:** 72
+- **hunts:** 96
+- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-10
-- **last-bug:** 2026-10-10 — regression: unique indexed Terraform instance did not resolve from its root address
+- **last-hunt:** 2026-10-20
+- **last-bug:** 2026-10-20 — declared ARM alias keys with trailing slash missed canonical relationship lookup
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
