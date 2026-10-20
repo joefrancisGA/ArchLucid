@@ -7719,3 +7719,4 @@
 {"at": "2026-10-20T06:27:06.131563Z", "zoneId": "host-composition", "outcome": "hit", "productLine": "archlucid-shared", "paths": ["ArchLucid.Host.Composition/Metering/ApiRequestUsageEventBatchFlushHostedService.cs"], "severity": "medium", "defectClass": "state-machine-gap"}
 {"at": "2026-10-20T06:32:33.819980Z", "zoneId": "ui-governance-findings-queue", "outcome": "hit", "productLine": "archlucid-shared", "paths": ["archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsQueueDesktopTable.tsx"], "severity": "medium"}
 {"at":"2026-10-20T06:40:43.7567530Z","zoneId":"application-agents","outcome":"hit","productLine":"archlucid-shared"}
+{"outcome":"hit","zoneId":"ui-infra-resource-hub","productLine":"securenow","at":"2026-10-20T06:48:56.1720694Z"}

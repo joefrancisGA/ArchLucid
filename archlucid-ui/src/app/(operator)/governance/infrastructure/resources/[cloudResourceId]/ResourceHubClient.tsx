@@ -438,6 +438,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       }
 
       setLoadError(formatInfraEvidenceHubApiError(error));
+      setHub(null);
     } finally {
 
       if (requestGeneration !== loadRequestGeneration.current) {

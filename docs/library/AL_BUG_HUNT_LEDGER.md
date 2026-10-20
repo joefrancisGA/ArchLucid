@@ -1,5 +1,7 @@
 ﻿> **Scope:**
 
+2026-10-20 seed hunt (seed→hit): `ui-infra-resource-hub` — promoted `ResourceHubClient.loadHub` keeping prior `hub` payload when a reachable `snapshotId`/scope change failed to load captured evidence, so error banner and stale overview tables rendered together; `setHub(null)` on load failure; regression `clears_hub_evidence_when_a_newer_URL_selection_fails_to_load`; 55 scoped `ResourceHubClient` tests passed.
+
 2026-10-20 seed hunt (seed→hit): `application-agents` — promoted `ExternalSubprocessorEngineAcknowledgmentService.HasWorkspaceAcknowledgmentAsync` treating tenant setting `TenantSettingKeys.ExternalSubprocessorEngineAcknowledged` with surrounding whitespace as not acknowledged; compare `stored?.Trim()` to `Acknowledged`; regression `HasWorkspaceAcknowledgmentAsync_returns_true_when_stored_value_has_surrounding_whitespace`; `ExternalSubprocessorEngineAcknowledgmentServiceTests` 2/2.
 
 2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `PolicyPackDryRunRedactAuditStage.TryLogAuditAsync` and `PolicyPackGovernanceDryRunService.TryLogProposedPackDryRunAuditAsync` logging `GovernanceDryRunRequested` without `ExplicitActor`, so `AuditService` overwrote `ActorUserId` with `ClaimTypes.NameIdentifier` instead of canonical `jwt:{tid}:{oid}` keys on `GovernanceController` policy-pack dry-run routes; inject `IActorContext`, set `ExplicitActor = true` with `GetActorId()` / `GetActor()` on both audit events; regressions `EvaluateAsync_sets_explicit_actor_for_stable_actor_user_id_when_display_differs` in `PolicyPackDryRunServiceTests` and `PolicyPackGovernanceDryRunServiceTests`; policy pack dry-run suites 35/35; cheap-disproof closed prior ledger rows: tenancy `LogAsync` paths already set `ExplicitActor`, approval submit idempotency replay skips action by design (`IdempotencyFilter`), environment catalog identical replace skips duplicate audit by design (`isIdenticalRetry`); seeded five follow-on `(candidate)` rows.
@@ -41632,11 +41634,13 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 40
-- **bugs-found:** 20
+- **hunts:** 41
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-12
-- **last-bug:** 2026-10-12 — stale resource-hub request overwrote newer URL selection
+- **last-hunt:** 2026-10-20
+- **last-bug:** 2026-10-20 — stale hub evidence after failed scope reload
+2026-10-20 seed hunt (seed→hit): promoted failed reload stale hub candidate; regression `clears_hub_evidence_when_a_newer_URL_selection_fails_to_load`; 55 scoped ResourceHubClient tests passed.
+
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -41644,7 +41648,7 @@ ABQ-09 churn hotspot.
 
 - **2026-10-12 seed hunt (seed→hit):** `ResourceHubClient.loadHub` accepted a slower response for the prior URL selection after a reachable `runId` change, overwriting the newer hub title and evidence state. Added a request-generation gate around hub, error, and loading updates; regression `does not let a stale resource request overwrite a newer URL selection` failed before the fix and the three focused ResourceHubClient suites passed 53/53.
 
-- [ ] (candidate) `ResourceHubClient.loadHub` / hub rendering — changing the reachable `snapshotId` or audit scope starts a new request but retains the previous `hub` while that request fails, so the page may show prior-scope evidence under the new URL alongside a load error; input is reachable from explorer/workbench navigation followed by a failed captured-evidence request.
+- [x] (proven) `ResourceHubClient.loadHub` / hub rendering — changing the reachable `snapshotId` or audit scope started a new request but retained the previous `hub` while that request failed, so prior-scope evidence rendered under the new URL alongside a load error — **hit 2026-10-20 seed hunt:** `setHub(null)` on load failure; regression `clears_hub_evidence_when_a_newer_URL_selection_fails_to_load`.
 - [ ] (candidate) `ResourceHubClient.resolvedAuditLineage` — a complete reachable audit scope whose `(assessmentId, auditEvidenceSnapshotId, controlId)` is absent from `auditLineageLink.matches` falls back to the payload’s default control label instead of degrading the selected scope, so the audit banner/tab can label a different control than the URL-selected scope; input is reachable from a stale or cross-resource workbench URL.
 
 2026-10-10 seed hunt (seed-only): reread `ResourceHubClient.tsx` and its focused component tests; no candidate met the same-run failing-repro promotion bar. The focused UI test run was blocked before execution by the existing duplicate `CreateEmptyAgentResultRepository` member `CS0111` in the shared .NET test project. Seeded bounded candidates for resource-title trailing segments, duplicate RBAC/network row keys, and tab navigation carrying stale technical-disclosure state; no production or regression code was changed.
