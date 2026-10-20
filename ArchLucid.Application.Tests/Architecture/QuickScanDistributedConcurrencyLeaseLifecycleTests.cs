@@ -581,6 +581,55 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
     }
 
     [Fact]
+    public async Task Renewal_loop_re_reads_lease_renewal_interval_after_options_change()
+    {
+        InMemoryQuickScanDistributedConcurrencyStore inner = new();
+        CountingRenewLeaseStore store = new(inner);
+        Guid leaseId = Guid.NewGuid();
+
+        QuickScanConcurrencyAdmitResult direct = await inner.TryAdmitAsync(
+            BuildAdmitRequest(leaseId, Guid.NewGuid(), "held", maxConcurrent: 1, maxQueued: 0));
+        direct.Outcome.Should().Be(QuickScanConcurrencyAdmitOutcome.DirectLease);
+
+        QuickScanSafetyOptions options = new()
+        {
+            Concurrency = new QuickScanSafetyConcurrencyLimits
+            {
+                LeaseDurationSeconds = 120,
+                LeaseRenewalIntervalSeconds = 2,
+            },
+        };
+
+        Mock<IOptionsMonitor<QuickScanSafetyOptions>> safetyOptions = new();
+        safetyOptions.Setup(o => o.CurrentValue).Returns(() => options);
+
+        QuickScanDistributedConcurrencyAdmissionResult admission = QuickScanDistributedConcurrencyAdmissionResult.Permit(
+            leaseId,
+            store,
+            Mock.Of<IQuickScanTelemetry>(),
+            new QuickScanGuardContext
+            {
+                ClientIp = "203.0.113.10",
+                SessionId = "session",
+                PayloadFingerprint = "trace",
+                UseDistributedConcurrencyLimit = true,
+            },
+            safetyOptions.Object,
+            TimeProvider.System,
+            CancellationToken.None);
+
+        await Task.Delay(100);
+        options.Concurrency.LeaseRenewalIntervalSeconds = 1;
+        await Task.Delay(TimeSpan.FromSeconds(3.5));
+
+        store.RenewCallCount.Should().BeGreaterThanOrEqualTo(
+            3,
+            "live lease renewal interval changes must apply on the next delay, not keep the interval captured at permit start");
+
+        await admission.DisposeAsync();
+    }
+
+    [Fact]
     public async Task WaitForAdmissionAsync_uses_current_max_concurrent_limit_when_promoting_after_options_change()
     {
         InMemoryQuickScanDistributedConcurrencyStore inner = new();
@@ -2498,6 +2547,39 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
             TimeSpan leaseDuration,
             CancellationToken cancellationToken = default) =>
             inner.RenewLeaseAsync(leaseId, utcNow, leaseDuration, cancellationToken);
+    }
+
+    private sealed class CountingRenewLeaseStore(InMemoryQuickScanDistributedConcurrencyStore inner)
+        : IQuickScanDistributedConcurrencyStore
+    {
+        public int RenewCallCount { get; private set; }
+
+        public Task<QuickScanConcurrencyAdmitResult> TryAdmitAsync(
+            QuickScanConcurrencyAdmitRequest request,
+            CancellationToken cancellationToken = default) =>
+            inner.TryAdmitAsync(request, cancellationToken);
+
+        public Task<QuickScanConcurrencyPromoteResult> TryPromoteAsync(
+            QuickScanConcurrencyPromoteRequest request,
+            CancellationToken cancellationToken = default) =>
+            inner.TryPromoteAsync(request, cancellationToken);
+
+        public Task ReleaseLeaseAsync(Guid leaseId, CancellationToken cancellationToken = default) =>
+            inner.ReleaseLeaseAsync(leaseId, cancellationToken);
+
+        public Task AbandonQueueEntryAsync(Guid queueEntryId, CancellationToken cancellationToken = default) =>
+            inner.AbandonQueueEntryAsync(queueEntryId, cancellationToken);
+
+        public async Task RenewLeaseAsync(
+            Guid leaseId,
+            DateTimeOffset utcNow,
+            TimeSpan leaseDuration,
+            CancellationToken cancellationToken = default)
+        {
+            RenewCallCount++;
+
+            await inner.RenewLeaseAsync(leaseId, utcNow, leaseDuration, cancellationToken).ConfigureAwait(false);
+        }
     }
 
     private sealed class ThrowingRenewLeaseStore(InMemoryQuickScanDistributedConcurrencyStore inner)

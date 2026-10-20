@@ -15,21 +15,19 @@ internal static class QuickScanDistributedConcurrencyLeaseRenewal
         TimeProvider timeProvider,
         CancellationTokenSource executeCancellationSource)
     {
-        QuickScanSafetyConcurrencyLimits limits = safetyOptions.CurrentValue.Concurrency;
-        int leaseDurationSeconds = limits.LeaseDurationSeconds;
-        int renewalIntervalSeconds = Math.Min(
-            limits.LeaseRenewalIntervalSeconds,
-            Math.Max(1, leaseDurationSeconds - 1));
-        TimeSpan renewalInterval = TimeSpan.FromSeconds(renewalIntervalSeconds);
-        TimeSpan leaseDuration = TimeSpan.FromSeconds(leaseDurationSeconds);
         CancellationToken cancellationToken = executeCancellationSource.Token;
-
-        using PeriodicTimer timer = new(renewalInterval);
 
         try
         {
-            do
+            while (cancellationToken.IsCancellationRequested is false)
             {
+                QuickScanSafetyConcurrencyLimits limits = safetyOptions.CurrentValue.Concurrency;
+                int leaseDurationSeconds = limits.LeaseDurationSeconds;
+                int renewalIntervalSeconds = Math.Min(
+                    limits.LeaseRenewalIntervalSeconds,
+                    Math.Max(1, leaseDurationSeconds - 1));
+                TimeSpan leaseDuration = TimeSpan.FromSeconds(leaseDurationSeconds);
+                TimeSpan renewalInterval = TimeSpan.FromSeconds(renewalIntervalSeconds);
 
                 try
                 {
@@ -45,8 +43,21 @@ internal static class QuickScanDistributedConcurrencyLeaseRenewal
 
                     break;
                 }
+
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    break;
+                }
+
+                try
+                {
+                    await Task.Delay(renewalInterval, timeProvider, cancellationToken).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
             }
-            while (await timer.WaitForNextTickAsync(cancellationToken).ConfigureAwait(false));
         }
         catch (OperationCanceledException)
         {
