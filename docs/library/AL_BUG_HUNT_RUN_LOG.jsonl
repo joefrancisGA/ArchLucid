@@ -5724,9 +5724,6 @@
 {"at":"2026-10-20T21:42:01.4421497Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/lib/oidc/session-ensure-fresh.test.ts)"]}
 {"at":"2026-10-20T21:40:27Z","zoneId":"security-analyzers","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(ArchLucid.Analyzers.Tests/RequireAuthorizationAnalyzerTests.cs)"]}
 {"at":"2026-10-20T21:40:27.8574696Z","zoneId":"security-analyzers","outcome":"seed-only","productLine":"archlucid-shared"}
-<<<<<<< HEAD
-{"at":"2026-10-20T21:45:11.8729075Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/lib/oidc/session-ensure-fresh.test.ts)"]}
 {"at":"2026-10-20T21:45:22Z","zoneId":"security-analyzers","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(ArchLucid.Analyzers.Tests/RequireAuthorizationAnalyzerTests.cs)"]}
 {"at":"2026-10-20T21:45:22.7670292Z","zoneId":"security-analyzers","outcome":"seed-only","productLine":"archlucid-shared"}
-=======
->>>>>>> c969a83e02 (Fix topology edge mapper ARM alias values with trailing slash.)
+{"at":"2026-10-20T21:47:51.7582932Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
