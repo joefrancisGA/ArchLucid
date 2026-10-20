@@ -1,6 +1,7 @@
 using System.Text;
 
 using ArchLucid.ArtifactSynthesis.Interfaces;
+using ArchLucid.ArtifactSynthesis.Markdown;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Sanitization;
 using ArchLucid.ArtifactSynthesis.Services;
@@ -28,7 +29,7 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine($"Status: {manifest.Metadata.Status}");
         sb.AppendLine($"Version: {manifest.Metadata.Version}");
         sb.AppendLine();
-        ArchitectureMandatedMarkdownSections.Append(sb, manifest);
+        ArchitectureRequiredMarkdownSections.AppendRequiredProductSections(sb, manifest);
         sb.AppendLine("## Manifest Metadata");
         sb.AppendLine($"- Rule Set: {manifest.RuleSetId} {manifest.RuleSetVersion}");
         sb.AppendLine($"- Manifest Hash: {manifest.ManifestHash}");
