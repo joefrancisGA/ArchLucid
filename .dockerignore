@@ -55,6 +55,7 @@ docs/
 !docs/runbooks/
 !docs/onboarding/
 !docs/trust-center.md
+!docs/architecture/data/product-capability-map.json
 
 # CI
 .github/
