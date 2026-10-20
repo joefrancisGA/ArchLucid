@@ -201,11 +201,12 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
                 return;
             }
 
-            // Non-public methods with ASP.NET route markers are not API actions; do not emit a
+            // Non-public and [NonAction] route-marked members are not API actions; do not emit a
             // type-level AL0001 when the controller exposes no public actions (e.g. protected helpers).
             if (!symbol.IsAbstract &&
                 !foundPublicApiAction &&
-                SymbolHasNonPublicRouteAttributedMember(symbol, nonActionAttribute))
+                (SymbolHasNonPublicRouteAttributedMember(symbol, nonActionAttribute) ||
+                 SymbolHasNonActionRouteMarkedPublicMember(symbol, nonActionAttribute)))
             {
                 return;
             }
@@ -533,6 +534,37 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
             INamedTypeSymbol? attributeClass = attribute.AttributeClass;
 
             if (attributeClass is not null && InheritsFromOrEqualsAttribute(attributeClass, attributeType))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool SymbolHasNonActionRouteMarkedPublicMember(
+        INamedTypeSymbol symbol,
+        INamedTypeSymbol? nonActionAttribute)
+    {
+        if (nonActionAttribute is null)
+            return false;
+
+        foreach (ISymbol member in symbol.GetMembers())
+        {
+            if (member is not IMethodSymbol method)
+                continue;
+
+            if (method.IsImplicitlyDeclared || method.IsStatic)
+                continue;
+
+            if (!IsDeclaredControllerApiMethod(method))
+                continue;
+
+            if (!SymbolHasAttribute(method, nonActionAttribute) &&
+                !MethodInheritsAttributeFromOverriddenChain(method, nonActionAttribute))
+            {
+                continue;
+            }
+
+            if (MethodHasAspNetCoreActionMarkerAttribute(method))
                 return true;
         }
 

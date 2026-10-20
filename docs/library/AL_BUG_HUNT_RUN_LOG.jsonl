@@ -5737,3 +5737,4 @@
 {"at":"2026-10-20T21:59:52.9888987Z","zoneId":"security-analyzers","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-20T22:05:47.4148265Z","zoneId":"security-analyzers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs"]}
 {"at":"2026-10-20T22:09:31.1854796Z","zoneId":"retrieval","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Retrieval/"]}
+{"at":"2026-10-20T22:10:20.3915131Z","zoneId":"security-analyzers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs"]}

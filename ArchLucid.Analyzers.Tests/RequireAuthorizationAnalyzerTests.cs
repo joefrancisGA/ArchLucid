@@ -647,6 +647,93 @@ namespace N
     }
 
     [Fact]
+    public async Task Does_not_report_type_level_AL0001_when_only_NonAction_route_marked_public_helpers_exist()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Mvc;
+
+    public sealed class NonActionRouteHelperController : ControllerBase
+    {
+        [NonAction]
+        [HttpGet]
+        public IActionResult BuildTemplate() => Ok();
+    }
+}
+""";
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task Does_not_report_type_level_AL0001_when_only_private_route_marked_actions_exist()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Mvc;
+
+    public sealed class PrivateRouteController : ControllerBase
+    {
+        [HttpPost]
+        private IActionResult Post() => Ok();
+    }
+}
+""";
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task Reports_nested_controller_inside_static_outer_class_without_authorization()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Mvc;
+
+    public static class StaticOuter
+    {
+        public sealed class NestedController : ControllerBase
+        {
+            [HttpGet]
+            public IActionResult {|#0:Get|}() => Ok();
+        }
+    }
+}
+""";
+
+        DiagnosticResult expectedNested = CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+            .WithLocation(0)
+            .WithArguments("StaticOuter.NestedController.Get()");
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expectedNested },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
     public async Task Reports_inherited_unauthorized_base_post_on_concrete_leaf_of_abstract_with_only_authorized_declared_action()
     {
         const string testCode = AspNetCoreStubs +
