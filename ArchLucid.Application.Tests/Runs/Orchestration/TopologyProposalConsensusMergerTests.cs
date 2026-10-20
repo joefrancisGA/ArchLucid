@@ -515,6 +515,78 @@ public sealed class TopologyProposalConsensusMergerTests
     }
 
     [Fact]
+    public void Merge_does_not_intersect_relationships_when_models_reference_different_for_each_terraform_keys()
+    {
+        const string indexedRoot = "azurerm_key_vault.kv";
+
+        static List<ManifestService> Services() =>
+        [
+            new ManifestService
+            {
+                ServiceName = "vault-a",
+                ServiceId = $"{indexedRoot}[\"env-a\"]",
+                ServiceType = ServiceType.Api,
+                RuntimePlatform = RuntimePlatform.AppService,
+            },
+            new ManifestService
+            {
+                ServiceName = "vault-b",
+                ServiceId = $"{indexedRoot}[\"env-b\"]",
+                ServiceType = ServiceType.Api,
+                RuntimePlatform = RuntimePlatform.AppService,
+            },
+        ];
+
+        static List<ManifestDatastore> Datastores() =>
+        [
+            new ManifestDatastore
+            {
+                DatastoreName = "sql",
+                DatastoreId = "ds-sql",
+                DatastoreType = DatastoreType.Sql,
+                RuntimePlatform = RuntimePlatform.SqlServer,
+            },
+        ];
+
+        AgentTopologyProposal primary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices = Services(),
+            AddedDatastores = Datastores(),
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = $"{indexedRoot}[\"env-a\"]",
+                    TargetId = "ds-sql",
+                    RelationshipType = RelationshipType.ReadsFrom,
+                },
+            ],
+        };
+
+        AgentTopologyProposal secondary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices = Services(),
+            AddedDatastores = Datastores(),
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = $"{indexedRoot}[\"env-b\"]",
+                    TargetId = "ds-sql",
+                    RelationshipType = RelationshipType.ReadsFrom,
+                },
+            ],
+        };
+
+        TopologyProposalConsensusMergeResult result = TopologyProposalConsensusMerger.Merge(primary, secondary);
+
+        result.MergedProposal.AddedRelationships.Should().BeEmpty();
+        result.DisagreementCount.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
     public void Merge_does_not_intersect_relationships_when_models_reference_different_indexed_terraform_instances()
     {
         const string indexedRoot = "azurerm_app_service.main";

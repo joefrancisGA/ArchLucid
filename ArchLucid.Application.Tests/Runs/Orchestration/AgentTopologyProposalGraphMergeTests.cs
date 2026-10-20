@@ -5971,6 +5971,29 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [SkippableFact]
+    public void WouldChangeGraphForCommit_true_when_topology_fan_out_adds_edges_for_unindexed_terraform_root()
+    {
+        const string rootTerraformAddress = "azurerm_app_service.main";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-0", label: "api-0", sourceId: $"module.wrapper.{rootTerraformAddress}[0]"),
+            ComputeNode(nodeId: "svc-1", label: "api-1", sourceId: $"module.wrapper.{rootTerraformAddress}[1]"),
+            DataNode());
+
+        AgentResult topology = TopologyResult(
+            RelationshipProposal(Relationship(sourceId: rootTerraformAddress, targetId: TargetLabel)),
+            resultId: "r1",
+            taskId: "t1",
+            runId: "run-1");
+
+        AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(graph, [topology]).Should().BeTrue();
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().HaveCount(2);
+    }
+
+    [SkippableFact]
     public void WouldChangeGraphForCommit_true_when_topology_adds_arm_relationship_on_graph_nodes_with_tf_id_properties_only()
     {
         const string appArmId =

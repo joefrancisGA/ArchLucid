@@ -217,6 +217,9 @@ public static class TopologyProposalRelationshipEdgeMapper
     {
         string trimmed = aliasTargetNodeId.Trim();
 
+        if (GraphAzureInventoryReconciliationAnalyzer.LooksLikeArmResourceId(trimmed))
+            return GraphAzureInventoryReconciliationAnalyzer.NormalizeArmResourceId(trimmed);
+
         return TopologyProposalRelationshipEndpointIndex.NormalizeSyntheticEndpointReference(trimmed)
                ?? trimmed;
     }
@@ -294,8 +297,25 @@ public static class TopologyProposalRelationshipEdgeMapper
         if (!endpointKeyToNodeId.TryGetValue(endpointKey, out nodeId!))
             return false;
 
-        nodeId = FollowEndpointAliasChain(nodeId, endpointKeyToNodeId);
+        nodeId = ResolveAliasChainTerminal(nodeId, endpointKeyToNodeId);
         return true;
+    }
+
+    private static string ResolveAliasChainTerminal(
+        string aliasTarget,
+        Dictionary<string, string> endpointKeyToNodeId)
+    {
+        string current = FollowEndpointAliasChain(aliasTarget, endpointKeyToNodeId);
+
+        if (!GraphAzureInventoryReconciliationAnalyzer.LooksLikeArmResourceId(current))
+            return current;
+
+        string normalizedArmId = GraphAzureInventoryReconciliationAnalyzer.NormalizeArmResourceId(current);
+
+        if (endpointKeyToNodeId.TryGetValue(normalizedArmId, out string? mappedNodeId))
+            return ResolveAliasChainTerminal(mappedNodeId, endpointKeyToNodeId);
+
+        return normalizedArmId;
     }
 
     private static string FollowEndpointAliasChain(
