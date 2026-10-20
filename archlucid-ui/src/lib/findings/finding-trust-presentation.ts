@@ -104,7 +104,11 @@ function refineUngroundedKind(
     return "heuristic";
   }
 
-  if ((evidenceRefCount ?? 0) <= 0 && confidence === "Low") {
+  if (evidenceRefCount === null || evidenceRefCount === undefined) {
+    return "heuristic";
+  }
+
+  if (evidenceRefCount <= 0 && confidence === "Low") {
     return "heuristic";
   }
 

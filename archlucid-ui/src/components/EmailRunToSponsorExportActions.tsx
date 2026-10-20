@@ -16,6 +16,7 @@ import {
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { cn } from "@/lib/utils";
 import { whyDisabledSampleReviewExport } from "@/lib/why-disabled-cta";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
@@ -222,7 +223,7 @@ export function EmailRunToSponsorExportActions({
               dateTime={sentToSponsorUtc}
               className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
             >
-              Recorded at {sentToSponsorUtc}
+              Recorded at {formatInstantForLocale(sentToSponsorUtc)}
             </time>
           </span>
         ) : (

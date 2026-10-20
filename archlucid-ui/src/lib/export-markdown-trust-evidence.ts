@@ -88,8 +88,14 @@ export function formatTrustEvidenceCardMarkdown(card: RunTrustEvidenceCard): str
   lines.push("### Evidence routes (API-relative paths)");
   lines.push("");
 
-  for (const l of card.links ?? []) {
-    lines.push(`- ${l.label}: \`${l.path}\``);
+  if (card.links === null || card.links === undefined) {
+    lines.push("Evidence route links were not stored.");
+  } else if (card.links.length === 0) {
+    lines.push("No evidence route links were stored.");
+  } else {
+    for (const l of card.links) {
+      lines.push(`- ${l.label}: \`${l.path}\``);
+    }
   }
 
   return lines.join("\n");

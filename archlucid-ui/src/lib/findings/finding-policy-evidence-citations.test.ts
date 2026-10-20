@@ -128,6 +128,29 @@ describe("finding-policy-evidence-citations", () => {
     ).toBe("Subnet allows public ingress on port 443");
   });
 
+  it("labels omitted evidenceRefCount without synthetic linked-reference rows (P-04)", () => {
+    const finding: QuickDecisionFinding = {
+      findingId: "f-omitted",
+      title: "Gap",
+      recommendation: "Review.",
+      severityValue: 2,
+      findingOrder: 0,
+      aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+      isMuted: false,
+      muteReason: null,
+      enforcementTier: "PolicyViolation",
+      policyRuleId: "sec-base-010",
+      evidenceRefSnippets: [],
+      evidenceRefCount: null,
+    };
+
+    const model = buildFindingPolicyEvidenceCitationsFromQuickDecision("run-9", finding);
+
+    expect(model.evidence).toHaveLength(1);
+    expect(model.evidence[0]?.label).toBe("Evidence reference count was not stored.");
+    expect(model.evidence[0]?.label).not.toContain("linked evidence reference");
+  });
+
   it("labels missing evidence excerpt explicitly", () => {
     expect(
       findingInspectEvidenceCitationLabel({
