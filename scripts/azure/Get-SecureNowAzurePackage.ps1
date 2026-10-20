@@ -2,6 +2,11 @@
 .SYNOPSIS
     Collects read-only Azure ARM inventory and Azure Policy compliance states for SecureNow ingestion (schema-versioned ZIP).
 
+.DESCRIPTION
+    -OutputPath is optional. When omitted or blank, the ZIP is written to ./securenow-azure-package.zip
+    under the current working directory. Prefer scripts/Invoke-SecureNowAzurePackage.ps1 (or
+    scripts/azure/Run-SecureNowAzureExtractor.ps1) for module install, sign-in, and subscription selection.
+
 .NOTES
     - SecureNow consumer-branded variant of Get-ArchLucidAzurePackage.ps1. Internal helper modules retain ArchLucid.* identifiers per platform policy.
     - No SecureNow credentials run in this tenant. Output is uploaded by you to SecureNow.
@@ -32,8 +37,8 @@ param(
     [Parameter(Mandatory = $false)]
     [string] $ResourceGroupScope = "",
 
-    [Parameter(Mandatory = $true)]
-    [string] $OutputPath,
+    [Parameter(Mandatory = $false)]
+    [string] $OutputPath = "",
 
     [Parameter(Mandatory = $false)]
     [switch] $IncludeCost,
@@ -128,6 +133,9 @@ function Write-ArchLucidResourcesJsonStream([string] $Path, $Resources)
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.ExtractorProgressHeartbeat.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.ExtractorJson.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.SecurityInventory.helpers.ps1')
+
+# Default ZIP when -OutputPath is omitted: ./securenow-azure-package.zip (cwd).
+$OutputPath = Resolve-SecureNowAzureExtractorOutputPath -OutputPath $OutputPath
 
 Set-ArchLucidExtractorConsoleBrandName -BrandName 'SecureNow Azure extractor'
 
