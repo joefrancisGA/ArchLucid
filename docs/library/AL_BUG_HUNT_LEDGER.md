@@ -1,3 +1,18 @@
+2026-10-20 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `persistNonSensitiveSessionHints` id_token `sub`; access JWT without `sub` (scope-only) still paired with id_token on real OIDC token responses; subject hint was read only from access payload so `OIDC_USER_SUBJECT_KEY` stayed empty; now falls back to id_token `sub`; regression `stores subject hints from id_token when the access JWT omits sub`; cheap-disproof closed five run #75 material `(candidate)` rows; seeded five new material `(candidate)` rows; 298 vitest tests in `src/lib/oidc` passed.
+
+- [x] (proven) `session.ts` `persistNonSensitiveSessionHints` — id_token subject fallback — **hit 2026-10-20 seed hunt #76:** scope-only access JWT dropped `sub` persistence; `readNormalizedSubjectFromPayload` on id_token; `session.test.ts` regression.
+- [x] (invalid) `persistNonSensitiveSessionHints` — opaque access_token expiry without identity — **cheap-disproof 2026-10-20 seed hunt #76:** intentional test-fixture behavior when `decodeJwtPayload` returns null.
+- [x] (invalid) `ensureAccessTokenFresh` — ok write without identity re-check — **cheap-disproof 2026-10-20 seed hunt #76:** #69–#70 hint guards; identity required before refresh (#73).
+- [x] (invalid) `pulseBffSessionActivity` — CSRF missing after clear — **cheap-disproof 2026-10-20 seed hunt #76:** returns `ignored`; `clearOidcSession` already cleared client hints.
+- [x] (invalid) `consumePostSignInReturnUrl` — unsafe return URL — **cheap-disproof 2026-10-20 seed hunt #76:** `isSafeReturnPath` gate; unrelated to subject persistence.
+- [x] (invalid) `refreshBffSessionCookie` — offline soft-fail — **cheap-disproof 2026-10-20 seed hunt #76:** catch returns `shouldClearSession: false` by design; pulse/401 paths handle hard logout.
+
+- (candidate) `persistNonSensitiveSessionHints` — access `sub` preferred over conflicting id_token `sub` — locus: fallback order; input: mismatched subjects on split tokens.
+- (candidate) `CallbackClient.tsx` — nonce check skipped when id_token omitted — locus: `tokens.id_token` branch; input: code exchange returns access-only response.
+- (candidate) `signOutAndRedirectHome` — RP logout URL fetch uses cookie cleared by parallel tab — locus: `resolveRpLogoutUrlFromBffSession`; input: concurrent sign-out (environmental).
+- (candidate) `storePostSignInReturnUrl` — open redirect via encoded slash — locus: `isSafeReturnPath`; input: `%2f%2fevil.com` paths (existing tests may cover).
+- (candidate) `ensureAccessTokenFresh` — shared in-flight refresh after identity cleared mid-tab — locus: deduped promise; input: #73 gate blocks new refresh without hints.
+
 2026-10-20 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `persistNonSensitiveSessionHints` identity-less JWT; replacement access token with decodable empty payload cleared subject/display but still wrote future `expires_at_ms` (#74 gated readers only); now drops expiry hint when JWT payload parses but no identity hints remain; extended regression `clears stale identity hints when a replacement token has no identity claims`; cheap-disproof closed five run #74 material `(candidate)` rows; seeded five new material `(candidate)` rows; 297 vitest tests in `src/lib/oidc` passed.
 
 - [x] (proven) `session.ts` `persistNonSensitiveSessionHints` — identity-less JWT persist — **hit 2026-10-20 seed hunt #75:** empty JWT claims left orphan `expires_at_ms` in sessionStorage; skip expiry write when parsed payload has no identity hints; `session.test.ts` regression.
