@@ -81,6 +81,10 @@ public sealed class IdentityProviderActivationService(
             request.MetadataXml,
             sameProtocol ? existing?.MetadataXml : null);
 
+        IdentityProviderActivationSamlMetadataGuards.EnsurePresentWhenRequired(
+            parsedProtocol,
+            metadataXml,
+            existing is null);
         IdentityProviderActivationSamlMetadataGuards.EnsureValidWhenProvided(parsedProtocol, metadataXml);
 
         TenantIdentityProviderConfigurationRecord record = new()

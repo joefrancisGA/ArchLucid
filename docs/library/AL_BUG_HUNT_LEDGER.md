@@ -5,6 +5,10 @@
 - [x] (proven) `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` — case-variant `Citations` top-level property — **hit 2026-10-20 thorough hunt (lane C):** `TryGetPropertyIgnoreCase`; regression `TryEvaluateTrace_pilot_strict_accepts_case_variant_citation_and_evidence_ref_properties`.
 - [x] (proven) `AgentOutputTraceCitationGate.TryCountTopLevelEvidenceRefs` — case-variant `EvidenceRefs` top-level property — **hit 2026-10-20 thorough hunt (lane C):** same regression lock.
 - [x] (valid-no-repro) `AgentOutputEvaluationHarness.Evaluate` — required JSON keys case-sensitive — **cheap-disproof 2026-10-20 thorough hunt (lane C):** ignore-case required keys shipped 2026-10-11; regression `Evaluate_matches_required_json_keys_case_insensitively`.
+2026-10-20 seed hunt (seed→hit, lane B): `identity-provider-config` — picker seed hunt under lane-B lock; promoted greenfield SAML `ActivateAsync` with issuer and claim mapping but no `MetadataXml` (discovery already requires metadata); `IdentityProviderActivationSamlMetadataGuards.EnsurePresentWhenRequired` when tenant has no prior configuration row; regression `ActivateAsync_rejects_saml_activate_without_metadata_on_greenfield_tenant`; cheap-disproof closed seed `(candidate)` empty metadata URL on discover (URL required before fetch); 69 scoped activation/controller tests passed (`RunAnalyzers=false`).
+
+- [x] (proven) `IdentityProviderActivationService.ActivateAsync` — greenfield SAML without substantive `MetadataXml` — **hit 2026-10-20 seed hunt (lane B):** `EnsurePresentWhenRequired` when `existing is null`; regression above.
+- [x] (valid-no-repro) `IdentityProviderDiscoveryService.DiscoverAsync` — empty `metadataUrl` reaches HTTP fetch — **cheap-disproof 2026-10-20 seed hunt (lane B):** `string.IsNullOrWhiteSpace(metadataUrl)` returns `DiscoverySucceeded: false` before `GetAsync` (`IdentityProviderDiscoveryService.cs`).
 
 2026-10-20 thorough hunt (hit, lane C): `agent-runtime-evaluation` — skipped picker top `identity-provider-config` (two prior seed hits); hunted `agent-runtime-evaluation` under lane-C lock; promoted `(candidate)` case-variant `PROPOSEDCHANGES` / finding field keys — `HeuristicAgentOutputSemanticEvaluator` treated topology-only payloads as present via case-insensitive `claims`/`findings` checks but `HeuristicAgentOutputTraceQualityStage` used case-sensitive nested reads, forcing semantic score 0; trace quality stage now resolves agent JSON properties ordinal-ignore-case (aligned with claim evidence stage); regressions `Evaluate_matches_case_variant_proposed_changes_for_topology_surface_ratio` and `Evaluate_matches_case_variant_findings_properties`; 216 scoped Evaluation tests passed.
 
@@ -14953,6 +14957,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: identity-provider-config
 
+2026-10-20 seed hunt (seed→hit, lane B): greenfield SAML activate without `MetadataXml`; `EnsurePresentWhenRequired` on first tenant configuration row; regression `ActivateAsync_rejects_saml_activate_without_metadata_on_greenfield_tenant`; 69 scoped activation/controller tests passed.
+
 2026-10-20 seed hunt (seed→hit): promoted SAML `MetadataXml` acceptance on activate — `IdentityProviderActivationService` persisted non-XML or non-metadata strings for SAML tenants while discovery parses metadata; validate with `SamlMetadataDiscoveryParser.Parse` before upsert; regression `ActivateAsync_rejects_malformed_saml_metadata_xml`; cheap-disproof closed five ledger `(candidate)` rows (discover HTTP 200 envelope, blank metadataUrl diagnostic, claim-mapping JSON size without SQL repro, test-login null-mapping sandbox guard, preserved oversize Key Vault secret rejected by `EnsureKeyVaultSecretNameFits`); 53 scoped `IdentityProviderActivationServiceTests` passed.
 
 2026-10-20 seed hunt (seed→hit): promoted duplicate `ClaimMapping.Mappings` `IdpValue` rows — activation and sandbox test-login accepted case-insensitive duplicates while `ResolveRoles` kept only the first mapping, so operators could persist ambiguous SSO role assignments; shared `EnsureNoDuplicateIdpMappingValues` guard on activate and test-login; regressions `ActivateAsync_rejects_duplicate_idp_value_mappings` and `Execute_returns_failure_when_claim_mapping_contains_duplicate_idp_values`; 68 scoped activation/sandbox tests passed.
@@ -14973,11 +14979,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 62
-- **bugs-found:** 44
+- **hunts:** 63
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — SAML activation accepted malformed MetadataXml
+- **last-bug:** 2026-10-20 — greenfield SAML activation without MetadataXml
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

@@ -623,7 +623,8 @@ public sealed class IdentityProviderActivationServiceTests
             {
                 Protocol = protocol,
                 IssuerUri = "https://idp.example/",
-                ClaimMapping = ValidClaimMapping()
+                ClaimMapping = ValidClaimMapping(),
+                MetadataXml = expected == TenantIdentityProtocol.Saml ? ValidSamlMetadataXml : null,
             },
             CancellationToken.None);
 
@@ -763,6 +764,26 @@ public sealed class IdentityProviderActivationServiceTests
 
         await act.Should().ThrowAsync<ArgumentException>()
             .WithMessage("*valid SAML metadata*");
+    }
+
+    [Fact]
+    public async Task ActivateAsync_rejects_saml_activate_without_metadata_on_greenfield_tenant()
+    {
+        IdentityProviderActivationService sut = new(new InMemoryTenantIdentityProviderConfigurationRepository());
+
+        Func<Task> act = () => sut.ActivateAsync(
+            Guid.Parse("17171717-1717-1717-1717-171717171717"),
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "saml",
+                IssuerUri = "https://idp.example/saml",
+                ClaimMapping = ValidClaimMapping(),
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*MetadataXml*");
     }
 
     [Theory]

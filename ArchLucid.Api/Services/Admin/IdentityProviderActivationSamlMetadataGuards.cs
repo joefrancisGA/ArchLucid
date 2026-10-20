@@ -8,6 +8,23 @@ namespace ArchLucid.Api.Services.Admin;
 /// </summary>
 internal static class IdentityProviderActivationSamlMetadataGuards
 {
+    internal static void EnsurePresentWhenRequired(
+        TenantIdentityProtocol protocol,
+        string? resolvedMetadataXml,
+        bool isGreenfieldTenantActivation)
+    {
+        if (protocol != TenantIdentityProtocol.Saml)
+            return;
+
+        if (!isGreenfieldTenantActivation)
+            return;
+
+        if (IdentityProviderSubstantiveTextValidation.HasSubstantiveText(resolvedMetadataXml))
+            return;
+
+        throw new ArgumentException("MetadataXml is required for SAML activation.");
+    }
+
     internal static void EnsureValidWhenProvided(TenantIdentityProtocol protocol, string? metadataXml)
     {
         if (protocol != TenantIdentityProtocol.Saml || metadataXml is null)
