@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
+
 2026-10-20 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready orphan `expires_at_ms` on `getAccessTokenExpiresAtMs`; #73 gated `isLikelySignedIn` / refresh but expiry warning consumers still read raw `expires_at_ms` without identity (e.g. identity-less `persistTokenResponse`); now returns 0 when subject/display hints absent; regressions `does not treat a future expires_at_ms hint alone as signed in` (extended), `returns zero expiry for consumers when identity hints are missing`; cheap-disproof closed five run #73 material `(candidate)` rows; seeded five new material `(candidate)` rows; 297 vitest tests in `src/lib/oidc` passed.
 
 - [x] (proven) `session.ts` `getAccessTokenExpiresAtMs` — expiry-only hints — **hit 2026-10-20 seed hunt #74:** future `expires_at_ms` without identity still surfaced to expiry UX; align with identity gate; `session.test.ts` regressions.
@@ -549,7 +551,6 @@
 2026-10-20 seed hunt (seed→hit): `api-tenancy-workspaces` — promoted `TenantWorkspacesController.ListAsync` / `ListRecycleBinAsync` echoing `Name`/`DisplayName` from the first duplicate workspace inventory row while `DefaultProjectId` already resolved from a later scoped or fallback metadata row; `ResolveScopedWorkspaceInventoryRow` / `ResolveWorkspaceInventoryRowForScope` align display row with default-resolution semantics; regressions `ListAsync_returns_metadata_row_name_when_duplicate_inventory_row_pins_active_project` and extended `ListAsync_prefers_scope_project_default_when_duplicate_inventory_rows_disagree` name assertions; 60 scoped `TenantWorkspaces` tests passed; cheap-disproof closed `ProjectCrud` delete/restore name-only drift (display not returned on those routes), saturated null-deref on sibling controllers.
 
 
-> **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
 2026-10-20 seed hunt (seed→hit): `api-tenancy-workspaces` — promoted `TenantWorkspacesController.ListAsync` returning a sibling project as `DefaultProjectId` when duplicate workspace inventory rows disagreed but both defaults were active (first inventory row won over JWT-scoped project); prefer `scope.ProjectId` when it is a valid pinned default across duplicate rows; regression `ListAsync_prefers_scope_project_default_when_duplicate_inventory_rows_disagree`; 59 scoped `TenantWorkspaces` tests passed; cheap-disproof closed recycle-bin purge pinning (already aggregates all rows), `CorePilotTeamChecklistController` null list (saturated null-deref).
 
