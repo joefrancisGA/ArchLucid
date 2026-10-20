@@ -195,7 +195,7 @@ public sealed class TenantWorkspacesControllerTests
     }
 
     [Fact]
-    public async Task RestoreProjectAsync_returns_not_found_when_soft_deleted_row_lacks_deleted_utc()
+    public async Task RestoreProjectAsync_returns_no_content_when_soft_deleted_row_lacks_deleted_utc_and_restore_succeeds()
     {
         ScopeContext scope = new()
         {
@@ -271,15 +271,14 @@ public sealed class TenantWorkspacesControllerTests
         IActionResult result =
             await sut.RestoreProjectAsync(scope.WorkspaceId, scope.ProjectId, CancellationToken.None);
 
-        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
-        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        result.Should().BeOfType<NoContentResult>();
         projectsMock.Verify(
             r => r.TryRestoreAsync(
                 scope.TenantId,
                 scope.WorkspaceId,
                 scope.ProjectId,
                 It.IsAny<CancellationToken>()),
-            Times.Never);
+            Times.Once);
     }
 
     [Fact]
