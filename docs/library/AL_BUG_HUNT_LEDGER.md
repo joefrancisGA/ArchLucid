@@ -1,3 +1,17 @@
+2026-10-20 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `persistNonSensitiveSessionHints` identity-less JWT; replacement access token with decodable empty payload cleared subject/display but still wrote future `expires_at_ms` (#74 gated readers only); now drops expiry hint when JWT payload parses but no identity hints remain; extended regression `clears stale identity hints when a replacement token has no identity claims`; cheap-disproof closed five run #74 material `(candidate)` rows; seeded five new material `(candidate)` rows; 297 vitest tests in `src/lib/oidc` passed.
+
+- [x] (proven) `session.ts` `persistNonSensitiveSessionHints` — identity-less JWT persist — **hit 2026-10-20 seed hunt #75:** empty JWT claims left orphan `expires_at_ms` in sessionStorage; skip expiry write when parsed payload has no identity hints; `session.test.ts` regression.
+- [x] (invalid) `useOidcSessionKeepalive` — parallel refresh vs pulse — **cheap-disproof 2026-10-20 seed hunt #75:** #69–#71 generation/hint guards; no failing race repro.
+- [x] (invalid) `OidcTokenExpiryWarningGuard` — raw expiry read — **cheap-disproof 2026-10-20 seed hunt #75:** out-of-zone; #74 `getAccessTokenExpiresAtMs` gate covers consumer.
+- [x] (invalid) `ensureAccessTokenFresh` — soft-fail with subject-only — **cheap-disproof 2026-10-20 seed hunt #75:** transient soft-fail retains hints by design; pulse unauthorized path clears separately.
+- [x] (invalid) `clearOidcSession` — orphan refresh same generation — **cheap-disproof 2026-10-20 seed hunt #75:** `clearOidcSession` always bumps `refreshSessionGeneration`.
+
+- (candidate) `persistNonSensitiveSessionHints` — opaque non-JWT access_token still writes expiry without identity — locus: `decodeJwtPayload` null; input: `access_token: "tok"` test fixtures (intentional).
+- (candidate) `ensureAccessTokenFresh` — refresh ok writes expiry without re-checking identity after BFF success — locus: ok branch setItem; input: identity cleared mid-flight before ok (generation/hint guards).
+- (candidate) `pulseBffSessionActivity` — ignored when CSRF missing after session clear — locus: `readBffCsrfTokenFromDocument`; input: sign-out clears CSRF before keepalive tick.
+- (candidate) `consumePostSignInReturnUrl` — unsafe path stripped but expiry orphan remains — locus: return URL store vs #75 expiry drop (orthogonal).
+- (candidate) `refreshBffSessionCookie` — network throw during near-expiry refresh — locus: catch soft-fail; input: offline tab with identity + expired hint.
+
 2026-10-20 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready orphan `expires_at_ms` on `getAccessTokenExpiresAtMs`; #73 gated `isLikelySignedIn` / refresh but expiry warning consumers still read raw `expires_at_ms` without identity (e.g. identity-less `persistTokenResponse`); now returns 0 when subject/display hints absent; regressions `does not treat a future expires_at_ms hint alone as signed in` (extended), `returns zero expiry for consumers when identity hints are missing`; cheap-disproof closed five run #73 material `(candidate)` rows; seeded five new material `(candidate)` rows; 297 vitest tests in `src/lib/oidc` passed.
 
 - [x] (proven) `session.ts` `getAccessTokenExpiresAtMs` — expiry-only hints — **hit 2026-10-20 seed hunt #74:** future `expires_at_ms` without identity still surfaced to expiry UX; align with identity gate; `session.test.ts` regressions.
