@@ -241,7 +241,8 @@ public sealed class IdentityProviderActivationServiceTests
             {
                 Protocol = "oidc",
                 IssuerUri = "https://idp.example/oidc",
-                ClaimMapping = mapping
+                ClaimMapping = mapping,
+                KeyVaultSecretName = "tenant-idp-client-secret",
             },
             CancellationToken.None);
 
@@ -819,6 +820,41 @@ public sealed class IdentityProviderActivationServiceTests
 
         await act.Should().ThrowAsync<ArgumentException>()
             .WithMessage("*MetadataXml*");
+    }
+
+    [Fact]
+    public async Task ActivateAsync_rejects_protocol_switch_to_oidc_without_key_vault_secret()
+    {
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        IdentityProviderActivationService sut = new(repository);
+        Guid tenantId = Guid.Parse("19191919-1919-1919-1919-191919191919");
+        IdentityClaimRoleMappingRequest mapping = ValidClaimMapping();
+
+        await sut.ActivateAsync(
+            tenantId,
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "saml",
+                IssuerUri = "https://idp.example/saml",
+                ClaimMapping = mapping,
+                MetadataXml = ValidSamlMetadataXml,
+            },
+            CancellationToken.None);
+
+        Func<Task> act = () => sut.ActivateAsync(
+            tenantId,
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = mapping,
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*KeyVaultSecretName*");
     }
 
     [Theory]

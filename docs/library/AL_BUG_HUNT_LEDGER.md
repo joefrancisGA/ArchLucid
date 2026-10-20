@@ -1,5 +1,9 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
+2026-10-20 seed hunt (seed→hit, lane B): `identity-provider-config` — picker seed hunt; promoted protocol switch SAML→OIDC without `KeyVaultSecretName` (symmetric to SAML metadata on protocol change); `IdentityProviderActivationOidcKeyVaultGuards.EnsurePresentWhenRequired` when activating OIDC from a non-OIDC row; regression `ActivateAsync_rejects_protocol_switch_to_oidc_without_key_vault_secret`; updated `ActivateAsync_protocol_switch_clears_saml_metadata_xml_when_omitted`; 71 scoped activation/controller tests passed (`RunAnalyzers=false`).
+
+- [x] (proven) `IdentityProviderActivationService.ActivateAsync` — protocol switch to OIDC without substantive `KeyVaultSecretName` — **hit 2026-10-20 seed hunt (lane B):** `requiresOidcKeyVaultSecretName` guard; regression above.
+
 2026-10-20 thorough hunt (hit, lane C): `agent-runtime-evaluation` — skipped picker top `identity-provider-config` (lane-B lock; did not create or modify that lock); promoted `(candidate)` non-finite `calibratedConfidence` — `AgentOutputQualityGate.Evaluate` treated `NaN`/infinity as passing threshold comparisons, so a persisted non-finite calibrated score could accept an otherwise sub-floor semantic result; gate now rejects non-finite semantic inputs before floor checks; regression `Evaluate_rejects_when_calibrated_confidence_is_non_finite`; cheap-disproof closed harness/reference-case required-key casing siblings (ignore-case sets shipped) and LLM judge out-of-range clamp (saturated score-validation class); 223 scoped Evaluation tests passed.
 
 - [x] (proven) `AgentOutputQualityGate.Evaluate` — non-finite `calibratedConfidence` bypasses reject/warn comparisons — **hit 2026-10-20 thorough hunt (lane C):** reject before floor checks; regression `Evaluate_rejects_when_calibrated_confidence_is_non_finite`.
@@ -14973,6 +14977,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: identity-provider-config
 
+2026-10-20 seed hunt (seed→hit, lane B): protocol switch to OIDC without `KeyVaultSecretName`; `requiresOidcKeyVaultSecretName` when activating OIDC from a non-OIDC row; regression `ActivateAsync_rejects_protocol_switch_to_oidc_without_key_vault_secret`; 71 scoped activation/controller tests passed.
+
 2026-10-20 seed hunt (seed→hit, lane B): protocol switch to SAML without `MetadataXml`; `requiresSamlMetadata` when first row or non-SAML predecessor; regression `ActivateAsync_rejects_protocol_switch_to_saml_without_metadata`; 70 scoped activation/controller tests passed.
 
 2026-10-20 seed hunt (seed→hit, lane B): greenfield SAML activate without `MetadataXml`; `EnsurePresentWhenRequired` on first tenant configuration row; regression `ActivateAsync_rejects_saml_activate_without_metadata_on_greenfield_tenant`; 69 scoped activation/controller tests passed.
@@ -14997,11 +15003,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 64
-- **bugs-found:** 46
+- **hunts:** 65
+- **bugs-found:** 47
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — protocol switch to SAML without MetadataXml
+- **last-bug:** 2026-10-20 — protocol switch to OIDC without KeyVaultSecretName
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

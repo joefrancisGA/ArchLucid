@@ -90,6 +90,19 @@ public sealed class IdentityProviderActivationService(
             requiresSamlMetadata);
         IdentityProviderActivationSamlMetadataGuards.EnsureValidWhenProvided(parsedProtocol, metadataXml);
 
+        string? keyVaultSecretName = ResolveKeyVaultSecretName(
+            request.KeyVaultSecretName,
+            sameProtocol ? existing?.KeyVaultSecretName : null);
+
+        bool requiresOidcKeyVaultSecretName = existing is not null
+            && parsedProtocol == TenantIdentityProtocol.Oidc
+            && existing.Protocol != TenantIdentityProtocol.Oidc;
+
+        IdentityProviderActivationOidcKeyVaultGuards.EnsurePresentWhenRequired(
+            parsedProtocol,
+            keyVaultSecretName,
+            requiresOidcKeyVaultSecretName);
+
         TenantIdentityProviderConfigurationRecord record = new()
         {
             TenantId = tenantId,
@@ -97,9 +110,7 @@ public sealed class IdentityProviderActivationService(
             IssuerUri = canonicalIssuerUri,
             MetadataXml = metadataXml,
             ClaimMappingJson = claimMappingJson,
-            KeyVaultSecretName = ResolveKeyVaultSecretName(
-                request.KeyVaultSecretName,
-                sameProtocol ? existing?.KeyVaultSecretName : null),
+            KeyVaultSecretName = keyVaultSecretName,
             UpdatedUtc = TimeProvider.System.GetUtcNow(),
             UpdatedByActorId = trimmedActorId,
             IsActive = true
