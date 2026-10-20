@@ -126,7 +126,7 @@ describe("getAccessTokenForApi / isLikelySignedIn expiry parsing (LK-06 P2)", ()
     expect(getAccessTokenExpiresAtMs()).toBe(0);
   });
 
-  it("treats display-name identity as signed in when expiry is inside the refresh skew window", () => {
+  it("treats identity hints as signed in until expires_at_ms even inside the refresh skew window", () => {
     sessionStorage.setItem(OIDC_DISPLAY_NAME_KEY, "Jane Operator");
     sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(Date.now() + 45_000));
 
