@@ -167,6 +167,18 @@ public sealed class DifficultyBasedExtractionRouterTests
     }
 
     [Fact]
+    public void Extract_does_not_emit_ownership_gap_for_email_domain_owner_label_with_unowned()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "Escalation goes to ops@owner.example.com while legacy subnets remain unowned.",
+            "src-email-owner-domain");
+
+        elements.Should().NotContain(element =>
+            element.Kind == ArchitectureElementKind.OperationalOwnership
+            && element.Name.Contains("Unowned component", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void Extract_does_not_emit_ownership_gap_for_path_owner_segment_with_unowned()
     {
         IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(

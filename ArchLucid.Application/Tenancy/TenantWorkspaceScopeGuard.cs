@@ -59,17 +59,3 @@ public static class TenantWorkspaceScopeGuard
         return workspaces.Any(workspace => workspace.WorkspaceId == workspaceId);
     }
 }
-
-public enum TenantWorkspaceScopeOutcome
-{
-    Success,
-    TenantNotFound,
-    WorkspaceNotFound,
-}
-
-public sealed record TenantWorkspaceScopeResult
-{
-    public required TenantWorkspaceScopeOutcome Outcome { get; init; }
-
-    public ScopeContext? Scope { get; init; }
-}

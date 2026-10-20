@@ -102,30 +102,39 @@ function removeOidcKeys(keys: readonly string[]): void {
   }
 }
 
+function readNormalizedSubjectFromPayload(payload: Record<string, unknown> | null): string | null {
+  if (payload === null || typeof payload.sub !== "string") {
+    return null;
+  }
+
+  const normalizedSubject = normalizeOidcConfigurationString(payload.sub);
+
+  if (normalizedSubject.length === 0) {
+    return null;
+  }
+
+  return normalizedSubject;
+}
+
 function persistNonSensitiveSessionHints(tokens: OidcTokenResponse, expiresAtMs: number): void {
   removeOidcKeys([OIDC_DISPLAY_NAME_KEY, OIDC_USER_SUBJECT_KEY]);
 
   const accessPayload = decodeJwtPayload(tokens.access_token);
+  const idPayload = tokens.id_token ? decodeJwtPayload(tokens.id_token) : null;
   const displayNameFromAccess = pickDisplayNameFromPayload(accessPayload);
-  const displayNameFromId =
-    displayNameFromAccess ??
-    (tokens.id_token ? pickDisplayNameFromPayload(decodeJwtPayload(tokens.id_token)) : null);
+  const displayNameFromId = displayNameFromAccess ?? pickDisplayNameFromPayload(idPayload);
 
   if (displayNameFromId) {
     sessionStorage.setItem(OIDC_DISPLAY_NAME_KEY, displayNameFromId);
   }
 
-  const subject = accessPayload?.sub;
+  const normalizedSubject = readNormalizedSubjectFromPayload(accessPayload) ?? readNormalizedSubjectFromPayload(idPayload);
 
-  if (typeof subject === "string") {
-    const normalizedSubject = normalizeOidcConfigurationString(subject);
-
-    if (normalizedSubject.length > 0) {
-      sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, normalizedSubject);
-    }
+  if (normalizedSubject !== null) {
+    sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, normalizedSubject);
   }
 
-  if (accessPayload !== null && !hasOidcSessionIdentityHints()) {
+  if (!hasOidcSessionIdentityHints()) {
     sessionStorage.removeItem(OIDC_EXPIRES_AT_MS_KEY);
 
     return;
@@ -192,8 +201,26 @@ export function persistTokenResponse(tokens: OidcTokenResponse): void {
 
   const expiresInSec = resolveExpiresInSeconds(tokens.expires_in);
   const expiresAtMs = Date.now() + expiresInSec * 1000;
+  const hadIdentityHintsBeforePersist = hasOidcSessionIdentityHints();
 
   persistNonSensitiveSessionHints(normalizedTokens, expiresAtMs);
+
+  if (!hasOidcSessionIdentityHints()) {
+    // Invalidate in-flight BFF sync so a late POST cannot resurrect the HttpOnly cookie.
+    refreshSessionGeneration += 1;
+    refreshInFlight = null;
+    latestTokenSyncRequest = null;
+    void clearBffSessionCookie();
+
+    return;
+  }
+
+  if (!hadIdentityHintsBeforePersist) {
+    // A replacement sign-in after mid-flight hint loss must ignore stale BFF refresh results.
+    refreshSessionGeneration += 1;
+    refreshInFlight = null;
+  }
+
   const generationAtPersist = refreshSessionGeneration;
   latestTokenSyncGeneration = generationAtPersist;
   const request: TokenSyncRequest = {
@@ -432,12 +459,17 @@ export async function ensureAccessTokenFresh(): Promise<void> {
         const result = await refreshBffSessionCookie();
 
         if (generationAtStart !== refreshSessionGeneration) {
+          // The refresh POST may have completed after identity-less persist or sign-out cleared the cookie.
+          if (result.ok && !hasOidcSessionIdentityHints()) {
+            void clearBffSessionCookie();
+          }
+
           return;
         }
 
         if (result.ok) {
           // A concurrent sign-in may have refreshed session hints while refresh was in flight.
-          if (expiresAtHintAtStart === getExpiresAtMs()) {
+          if (expiresAtHintAtStart === getExpiresAtMs() && hasOidcSessionIdentityHints()) {
             sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(result.expiresAtMs));
           }
 
@@ -447,7 +479,12 @@ export async function ensureAccessTokenFresh(): Promise<void> {
         if (result.shouldClearSession) {
           // A concurrent sign-in may have refreshed session hints while refresh was in flight.
           if (expiresAtHintAtStart === getExpiresAtMs()) {
-            clearOidcSession();
+            if (hasOidcSessionIdentityHints()) {
+              clearOidcSession();
+            } else {
+              sessionStorage.removeItem(OIDC_EXPIRES_AT_MS_KEY);
+              void clearBffSessionCookie();
+            }
           }
         }
       } finally {
@@ -495,13 +532,13 @@ export function isLikelySignedIn(): boolean {
     return false;
   }
 
-  const exp = getExpiresAtMs();
-
   if (!hasOidcSessionIdentityHints()) {
     return false;
   }
 
-  return exp > 0 && Date.now() < exp - EXPIRY_SKEW_MS;
+  const exp = getExpiresAtMs();
+
+  return exp > 0 && Date.now() < exp;
 }
 
 /**

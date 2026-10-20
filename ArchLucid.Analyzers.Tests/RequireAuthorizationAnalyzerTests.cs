@@ -780,6 +780,156 @@ namespace N
     }
 
     [Fact]
+    public async Task Reports_empty_abstract_middle_inheriting_unauthorized_explicit_when_base_has_sibling_authorize_marker()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    [Authorize]
+    public interface IAuthorizedMarker
+    {
+    }
+
+    public interface IUnsecuredApi
+    {
+        IActionResult Post();
+    }
+
+    public abstract class {|#0:SharedBase|} : ControllerBase, IAuthorizedMarker, IUnsecuredApi
+    {
+        [HttpPost]
+        IActionResult IUnsecuredApi.Post() => Ok();
+    }
+
+    public abstract class {|#1:EmptyMiddle|} : SharedBase
+    {
+    }
+}
+""";
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            ExpectedDiagnostics =
+            {
+                CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+                    .WithLocation(0)
+                    .WithArguments("SharedBase"),
+                CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+                    .WithLocation(1)
+                    .WithArguments("EmptyMiddle"),
+            },
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task Reports_inherited_unauthorized_explicit_interface_when_base_also_implements_allow_anonymous_marker_interface()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    [AllowAnonymous]
+    public interface IAnonymousMarker
+    {
+    }
+
+    public interface IUnsecuredApi
+    {
+        IActionResult Post();
+    }
+
+    public abstract class {|#0:SharedBase|} : ControllerBase, IAnonymousMarker, IUnsecuredApi
+    {
+        [HttpPost]
+        IActionResult IUnsecuredApi.{|#1:Post|}() => Ok();
+    }
+
+    public sealed class {|#2:DerivedController|} : SharedBase
+    {
+    }
+}
+""";
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            ExpectedDiagnostics =
+            {
+                CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+                    .WithLocation(0)
+                    .WithArguments("SharedBase"),
+                CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+                    .WithLocation(2)
+                    .WithArguments("SharedBase.IUnsecuredApi.Post()"),
+            },
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task Reports_inherited_unauthorized_explicit_interface_when_base_also_implements_authorized_marker_interface()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    [Authorize]
+    public interface IAuthorizedMarker
+    {
+    }
+
+    public interface IUnsecuredApi
+    {
+        IActionResult Post();
+    }
+
+    public abstract class {|#0:SharedBase|} : ControllerBase, IAuthorizedMarker, IUnsecuredApi
+    {
+        [HttpPost]
+        IActionResult IUnsecuredApi.{|#1:Post|}() => Ok();
+    }
+
+    public sealed class {|#2:DerivedController|} : SharedBase
+    {
+    }
+}
+""";
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            ExpectedDiagnostics =
+            {
+                CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+                    .WithLocation(0)
+                    .WithArguments("SharedBase"),
+                CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+                    .WithLocation(2)
+                    .WithArguments("SharedBase.IUnsecuredApi.Post()"),
+            },
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
     public async Task Reports_inherited_unauthorized_explicit_interface_action_for_empty_derived_controller()
     {
         const string testCode = AspNetCoreStubs +
@@ -855,6 +1005,139 @@ namespace N
             CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
                 .WithLocation(0)
                 .WithArguments("MixedController.IUnsecuredApi.Post()");
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            ExpectedDiagnostics = { expectedDiagnostic },
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task Reports_unsecured_explicit_interface_when_implemented_interface_inherits_authorized_marker_interface()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    [Authorize]
+    public interface IAuthorizedRoot
+    {
+    }
+
+    public interface IUnsecuredApi : IAuthorizedRoot
+    {
+        IActionResult Post();
+    }
+
+    public sealed class InheritedMarkerController : ControllerBase, IUnsecuredApi
+    {
+        [HttpPost]
+        IActionResult IUnsecuredApi.{|#0:Post|}() => Ok();
+    }
+}
+""";
+
+        DiagnosticResult expectedDiagnostic =
+            CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+                .WithLocation(0)
+                .WithArguments("InheritedMarkerController.IUnsecuredApi.Post()");
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            ExpectedDiagnostics = { expectedDiagnostic },
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task Reports_inherited_unauthorized_action_when_derived_declares_only_undecorated_public_helper()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Mvc;
+
+    public abstract class {|#2:SharedUnauthenticatedGetController|} : ControllerBase
+    {
+        [HttpGet]
+        public IActionResult InheritedGet() => Ok();
+    }
+
+    public sealed class {|#1:DerivedWithUndecoratedHelperOnlyController|} : SharedUnauthenticatedGetController
+    {
+        public IActionResult {|#0:Helper|}() => Ok();
+    }
+}
+""";
+
+        DiagnosticResult expectedOnHelper =
+            CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+                .WithLocation(0)
+                .WithArguments("DerivedWithUndecoratedHelperOnlyController.Helper()");
+
+        DiagnosticResult expectedOnInherited =
+            CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+                .WithLocation(1)
+                .WithArguments("SharedUnauthenticatedGetController.InheritedGet()");
+
+        DiagnosticResult expectedOnAbstractBase =
+            CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+                .WithLocation(2)
+                .WithArguments("SharedUnauthenticatedGetController");
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expectedOnHelper, expectedOnInherited, expectedOnAbstractBase },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task Reports_unsecured_explicit_interface_when_sibling_interface_has_type_level_Authorize()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    [Authorize]
+    public interface IAuthorizedMarker
+    {
+    }
+
+    public interface IUnsecuredApi
+    {
+        IActionResult Post();
+    }
+
+    public sealed class DualInterfaceController : ControllerBase, IAuthorizedMarker, IUnsecuredApi
+    {
+        [HttpPost]
+        IActionResult IUnsecuredApi.{|#0:Post|}() => Ok();
+    }
+}
+""";
+
+        DiagnosticResult expectedDiagnostic =
+            CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+                .WithLocation(0)
+                .WithArguments("DualInterfaceController.IUnsecuredApi.Post()");
 
         await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
         {

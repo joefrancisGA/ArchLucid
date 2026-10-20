@@ -26,9 +26,14 @@ public static class GovernanceDispositionSealedManifestGuard
         RunDetailDto? detail =
             await authorityQueryService.GetRunDetailForManifestCompareAsync(scope, runId, cancellationToken);
 
-        // Unknown runs must reach callers so HTTP routes can return 404 instead of sealed-manifest 409.
+        // Missing runs fail closed so ingest and other shared callers cannot persist against an unknown runId.
+        // Stickiness HTTP maps unknown runs to 404 by loading the run itself before calling the sync helper.
+
         if (detail is null)
-            return;
+        {
+            throw new ConflictException(
+                $"Governance disposition blocked for run '{runId:D}': committed golden manifest is missing.");
+        }
 
         EnsureRunSealedManifestHashOrThrow(detail.GoldenManifest, runId.ToString("D"), manifestHashService);
     }
