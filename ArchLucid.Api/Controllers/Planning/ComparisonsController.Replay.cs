@@ -6,6 +6,7 @@ using ArchLucid.Api.Services;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Decisioning.CareerArtifacts;
 
 using FluentValidation.Results;
 
@@ -110,6 +111,10 @@ public sealed partial class ComparisonsController
         {
             return MapComparisonReplaySealedManifestConflict(ex);
         }
+        catch (CareerArtifactExportBlockedException ex)
+        {
+            return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
+        }
 
         if (result is null)
         {
@@ -177,6 +182,10 @@ public sealed partial class ComparisonsController
         catch (ConflictException ex)
         {
             return MapComparisonReplaySealedManifestConflict(ex);
+        }
+        catch (CareerArtifactExportBlockedException ex)
+        {
+            return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
         }
 
         ReplayComparisonResultHeaders.ApplyMetadata(Response, result);
@@ -250,6 +259,10 @@ public sealed partial class ComparisonsController
         catch (ConflictException ex)
         {
             return MapComparisonReplaySealedManifestConflict(ex);
+        }
+        catch (CareerArtifactExportBlockedException ex)
+        {
+            return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
         }
 
         if (zipResult is null)

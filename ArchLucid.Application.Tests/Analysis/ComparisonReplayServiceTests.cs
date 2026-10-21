@@ -1,8 +1,10 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Exports;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.CareerArtifacts;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Queries;
 
@@ -293,6 +295,36 @@ public sealed class ComparisonReplayServiceTests
     }
 
     [Fact]
+    public async Task ReplayAsync_export_diff_artifact_throws_when_career_posture_blocks_metadata_read()
+    {
+        ExportRecordDiffResult diff = SampleExportDiff();
+        ComparisonRecord record = ExportDiffRecord("diff-career-artifact", diff);
+        Mock<IComparisonRecordRepository> repo = SetupRepo(record);
+        Guid leftRunGuid = Guid.Parse(diff.LeftRunId);
+        Mock<IRunExportCareerPostureGate> careerGate = new();
+        careerGate
+            .Setup(g => g.EnsureAllowsExportRecordMetadataOrThrowAsync(
+                leftRunGuid,
+                It.IsAny<ScopeContext>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new CareerArtifactExportBlockedException(
+                SimulatorCareerHonestyPresenter.SimulatorRehearsalBlockedMessage,
+                CareerArtifactCompletenessValidator.SimulatorRehearsalCode));
+        Mock<IExportRecordDiffSummaryFormatter> formatter = new();
+        ComparisonReplayService sut = CreateSut(
+            comparisonRepo: repo.Object,
+            diffFormatter: formatter.Object,
+            careerGate: careerGate.Object);
+
+        Func<Task> act = () => sut.ReplayAsync(
+            new ReplayComparisonRequest { ComparisonRecordId = "diff-career-artifact", ReplayMode = "artifact" },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<CareerArtifactExportBlockedException>();
+        formatter.Verify(f => f.FormatMarkdown(It.IsAny<ExportRecordDiffResult>()), Times.Never);
+    }
+
+    [Fact]
     public async Task ReplayAsync_export_diff_regenerate()
     {
         ExportRecordDiffResult stored = SampleExportDiff();
@@ -528,7 +560,8 @@ public sealed class ComparisonReplayServiceTests
         IRunExportRecordRepository? runExports = null,
         IAuthorityQueryService? authorityQuery = null,
         IManifestHashService? manifestHash = null,
-        IScopeContextProvider? scopeProvider = null)
+        IScopeContextProvider? scopeProvider = null,
+        IRunExportCareerPostureGate? careerGate = null)
     {
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext());
@@ -553,7 +586,8 @@ public sealed class ComparisonReplayServiceTests
             runExports ?? Mock.Of<IRunExportRecordRepository>(),
             authorityQuery ?? authority.Object,
             manifestHash ?? Mock.Of<IManifestHashService>(),
-            scopeProvider ?? scope.Object);
+            scopeProvider ?? scope.Object,
+            careerGate ?? Mock.Of<IRunExportCareerPostureGate>());
     }
 
     private static IComparisonDriftAnalyzer CreateDefaultDriftAnalyzer()

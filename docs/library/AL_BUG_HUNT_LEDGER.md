@@ -21807,6 +21807,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: application-analysis
 
+2026-10-21 seed hunt (seed→hit): `ComparisonReplayService.ReplayExportDiffAsync` (export-record-diff comparison replay) skipped `IRunExportCareerPostureGate` while `RunExportQueryFacade.CompareExportRecordsAsync` blocked simulator-rehearsal metadata reads; gate both run ids before artifact/regenerate/verify export-diff replay; `ComparisonsController` replay routes map `CareerArtifactExportBlockedException`; regression `ReplayAsync_export_diff_artifact_throws_when_career_posture_blocks_metadata_read`; 45 scoped ArchitectureAnalysis/CompareQuality tests passed.
+
+- [x] (proven) `ComparisonReplayService.ReplayExportDiffAsync` — export-record-diff replay bypassed `IRunExportCareerPostureGate` on artifact/regenerate paths (reachable `POST /v1/planning/comparisons/{id}/replay` with `ComparisonTypes.ExportRecordDiff`) — regression above.
+
 2026-10-21 seed hunt (seed→hit): export compare/replay career posture gate parity with GetExportRecord; regression `CompareExportRecordsAsync_throws_when_career_posture_blocks_metadata_read`.
 - [x] (proven) `RunExportQueryFacade.CompareExportRecordsAsync` — reachable `GET /v1/architecture/review/exports/compare` bypassed `IRunExportCareerPostureGate` while `GetExportRecordAsync` blocked metadata for simulator-rehearsal runs — regression above.
 
@@ -21816,13 +21820,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 58
-- **bugs-found:** 56
+- **hunts:** 59
+- **bugs-found:** 57
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — export compare/replay skipped career metadata gate
+- **last-bug:** 2026-10-21 — export-record-diff comparison replay skipped career metadata gate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+- [x] (proven) `ComparisonReplayService.ReplayExportDiffAsync` — export-record-diff replay bypassed career metadata gate — **hit 2026-10-21 seed hunt:** regression `ReplayAsync_export_diff_artifact_throws_when_career_posture_blocks_metadata_read`.
 
 - [x] (proven) `ComparisonAuditService.RecordEndToEndAsync` — canonical record columns but dashed `LeftRunId`/`RightRunId` inside `PayloadJson` broke verify replay — **hit 2026-10-16 seed hunt:** regression `CompareQuality_RecordEndToEndAsync_payload_run_ids_match_canonical_record_columns_when_report_uses_dashed_guids`.
 
