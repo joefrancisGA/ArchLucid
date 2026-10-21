@@ -25,11 +25,20 @@ internal class ScimBearerAuthenticationHandler(
         if (!Request.Headers.TryGetValue("Authorization", out StringValues header))
             return AuthenticateResult.Fail("Missing Authorization header.");
 
-        if (!TryReadBearerToken(header, out string token))
+        if (!TryEnumerateBearerTokens(header, out IEnumerable<string> bearerTokens))
             return AuthenticateResult.Fail("Authorization must use Bearer scheme.");
 
-        ScimBearerAuthenticationResult? auth =
-            await _authenticator.TryAuthenticateAsync(token, Context.RequestAborted);
+        ScimBearerAuthenticationResult? auth = null;
+
+        foreach (string token in bearerTokens)
+        {
+            auth = await _authenticator.TryAuthenticateAsync(token, Context.RequestAborted);
+
+            if (auth is not null)
+            {
+                break;
+            }
+        }
 
         if (auth is null)
             return AuthenticateResult.Fail("Invalid or revoked SCIM token.");
@@ -46,8 +55,10 @@ internal class ScimBearerAuthenticationHandler(
         return AuthenticateResult.Success(new AuthenticationTicket(principal, ScimBearerDefaults.AuthenticationScheme));
     }
 
-    private static bool TryReadBearerToken(StringValues authorizationHeader, out string bearerToken)
+    private static bool TryEnumerateBearerTokens(StringValues authorizationHeader, out IEnumerable<string> bearerTokens)
     {
+        List<string> tokens = [];
+
         foreach (string? headerValue in authorizationHeader)
         {
 
@@ -73,14 +84,19 @@ internal class ScimBearerAuthenticationHandler(
                     continue;
                 }
 
-                bearerToken = candidate;
-
-                return true;
+                tokens.Add(candidate);
             }
         }
 
-        bearerToken = string.Empty;
+        if (tokens.Count == 0)
+        {
+            bearerTokens = [];
 
-        return false;
+            return false;
+        }
+
+        bearerTokens = tokens;
+
+        return true;
     }
 }

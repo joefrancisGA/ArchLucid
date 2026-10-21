@@ -7541,7 +7541,7 @@
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.RelationshipValidation.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalTerraformSourceIdHeuristics.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalConsensusMerger.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
 - **hunts:** 67
-- **last-hunt:** 2026-10-20
+- **last-hunt:** 2026-10-21
 - **bugs-found:** 53
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-20 — Tenant value report DOCX omitted artifact-text sanitization
@@ -12828,7 +12828,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
 - **hunts:** 69
 - **last-hunt:** 2026-10-12
-- **bugs-found:** 24
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-10 — Unicode priority text falsely matched a standalone Security dimension
 - **related-pd-tb:** none
@@ -15946,13 +15946,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: saml-jwt-bearer
+2026-10-21 thorough hunt (hit): `saml-jwt-bearer` — promoted comma-folded `Authorization` with revoked/invalid first Bearer segment and valid second segment (`ScimBearerAuthenticationHandler.TryEnumerateBearerTokens` stopped after first token); authenticate each parsed Bearer until `IScimBearerTokenAuthenticator` succeeds; regression `HandleAuthenticateAsync_succeeds_when_comma_folded_header_lists_revoked_token_before_valid_one`; cheap-disproof closed open `(candidate)` rows (SamlSpConfigurationDiagnostics “No root validUntil” copy is intentional when attribute absent; `RecentAuthenticationEvaluator` `iat` Integer64 without `auth_time` already honored via `long.TryParse` + `HasRecentAuthentication_returns_true_when_later_iat_is_fresh_among_multiple_values_without_auth_time`; duplicate `archlucid_auth_ver` not injectable on signed JWT principals; `SamlMetadataDiscoveryParser` multi-`EntityDescriptor` throw intentional); `ScimBearerAuthenticationHandlerTests` 3/3 + `ScimBearer` Application tests 2/2 + scoped SAML/JWT/SCIM Api filter 98 passed (4 SQL/integration baseline failures on Linux VM); seeded five follow-on `(candidate)` rows.
+
 2026-10-20 seed hunt (seed->hit): promoted ScimBearerAuthenticationHandler.TryReadBearerToken comma-folded Authorization header parse; regression HandleAuthenticateAsync_succeeds_when_duplicate_bearer_credentials_are_comma_folded_in_one_header; ScimBearerAuthenticationHandlerTests 2/2; seeded five follow-on (candidate) rows.
 
-- (candidate) ScimBearerAuthenticationHandler.TryReadBearerToken - first comma-separated Bearer segment when first token is revoked.
-- (candidate) SamlSpConfigurationDiagnostics validUntil pass copy says No root validUntil when nested-only expiry absent.
-- (candidate) RecentAuthenticationEvaluator iat Integer64 without auth_time on cookie principals.
-- (candidate) PlatformUserAuthVersionJwtBearerPostConfigure duplicate archlucid_auth_ver on constructed principals.
-- (candidate) SamlMetadataDiscoveryParser multi-EntityDescriptor federation throw is intentional.
+- [x] (proven) `ScimBearerAuthenticationHandler` — comma-folded header with invalid first Bearer segment — **hit 2026-10-21:** only first segment was authenticated; fixed by trying each Bearer until success.
+- [x] (valid-no-repro) `SamlSpConfigurationDiagnostics` validUntil pass copy says “No root validUntil” when nested-only expiry absent — **cheap-disproof 2026-10-21:** informational pass when root attribute missing; parser separately surfaces nested expiry in operational checks.
+- [x] (valid-no-repro) `RecentAuthenticationEvaluator` `iat` Integer64 without `auth_time` on cookie principals — **cheap-disproof 2026-10-21:** `long.TryParse` accepts Integer64-shaped values; existing regression `HasRecentAuthentication_returns_true_when_later_iat_is_fresh_among_multiple_values_without_auth_time`.
+- [x] (invalid) `PlatformUserAuthVersionJwtBearerPostConfigure` duplicate `archlucid_auth_ver` on constructed principals — **cheap-disproof 2026-10-21:** JWT pipeline supplies single claim; validator not reachable with attacker-injected duplicate on signed tokens.
+- [x] (invalid) `SamlMetadataDiscoveryParser` multi-`EntityDescriptor` federation throw — **cheap-disproof 2026-10-21:** intentional discovery guard; not a runtime auth bypass.
+
+- (candidate) `ScimBearerAuthenticationHandler` — comma-folded header lists non-Bearer credential before valid Bearer segment (proxy appends `Basic` then `Bearer`).
+- (candidate) `LocalTrialJwtIssuer` — trial access token `sub` without platform-user GUID still accepted when `JwtLocalIssuer` matches development bypass path.
+- (candidate) `ArchLucidSamlInboundClaimsNormalizer` — promotes workspace scope when inbound `tenant_id` source claim is empty string vs absent.
+- (candidate) `ScimBearerTokenAuthenticator` — revoked token row still authenticates when Argon verify uses wrong pepper version (migration window).
+- (candidate) `SamlMetadataValidUntilParser` — `validUntil` on `KeyDescriptor` ignored when entity-level attribute is later but signing cert `NotAfter` is earlier.
 
 2026-10-16 thorough hunt (hit): duplicate Authorization header SCIM bearer parse; ScimBearer handler tests + scoped SAML/JWT/SCIM filter.
 
@@ -15963,11 +15971,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 25
+- **hunts:** 26
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — SCIM Bearer auth failed when duplicate Authorization credentials were comma-folded into one header
+- **last-bug:** 2026-10-21 — SCIM Bearer auth failed when comma-folded Authorization listed a revoked Bearer before a valid one
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
