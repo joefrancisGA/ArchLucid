@@ -861,6 +861,59 @@ public sealed class IdentityProviderActivationServiceTests
     }
 
     [Fact]
+    public async Task ActivateAsync_does_not_persist_saml_metadata_xml_on_greenfield_oidc_activation()
+    {
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        IdentityProviderActivationService sut = new(repository);
+        Guid tenantId = Guid.Parse("a1000000-0000-0000-0000-000000000099");
+
+        TenantIdentityProviderConfigurationRecord record = await sut.ActivateAsync(
+            tenantId,
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = ValidClaimMapping(),
+                MetadataXml = ValidSamlMetadataXml,
+            },
+            CancellationToken.None);
+
+        record.Protocol.Should().Be(TenantIdentityProtocol.Oidc);
+        record.MetadataXml.Should().BeNull();
+
+        TenantIdentityProviderConfigurationRecord? loaded = await repository.TryGetAsync(tenantId, CancellationToken.None);
+        loaded!.MetadataXml.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task ActivateAsync_does_not_persist_oidc_key_vault_secret_on_greenfield_saml_activation()
+    {
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        IdentityProviderActivationService sut = new(repository);
+        Guid tenantId = Guid.Parse("a1000000-0000-0000-0000-000000000098");
+
+        TenantIdentityProviderConfigurationRecord record = await sut.ActivateAsync(
+            tenantId,
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "saml",
+                IssuerUri = "https://idp.example/saml",
+                ClaimMapping = ValidClaimMapping(),
+                MetadataXml = ValidSamlMetadataXml,
+                KeyVaultSecretName = "stale-oidc-secret-from-wizard",
+            },
+            CancellationToken.None);
+
+        record.Protocol.Should().Be(TenantIdentityProtocol.Saml);
+        record.KeyVaultSecretName.Should().BeNull();
+
+        TenantIdentityProviderConfigurationRecord? loaded = await repository.TryGetAsync(tenantId, CancellationToken.None);
+        loaded!.KeyVaultSecretName.Should().BeNull();
+    }
+
+    [Fact]
     public async Task ActivateAsync_rejects_protocol_switch_to_oidc_without_key_vault_secret()
     {
         InMemoryTenantIdentityProviderConfigurationRepository repository = new();

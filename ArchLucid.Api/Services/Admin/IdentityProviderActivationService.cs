@@ -85,6 +85,11 @@ public sealed class IdentityProviderActivationService(
             request.KeyVaultSecretName,
             sameProtocol ? existing?.KeyVaultSecretName : null);
 
+        IdentityProviderActivationProtocolFieldGuards.NormalizeResolvedFieldsForProtocol(
+            parsedProtocol,
+            ref metadataXml,
+            ref keyVaultSecretName);
+
         IdentityProviderActivationProtocolFieldGuards.EnsureActivateFields(
             parsedProtocol,
             metadataXml,
