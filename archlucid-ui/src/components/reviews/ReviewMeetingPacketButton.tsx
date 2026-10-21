@@ -5,7 +5,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type ReactElement, type SetStateAction } from "react";
 
 import { buildReviewWorkspaceRouteHref } from "@/lib/architecture/review-workspace-route";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 
 import { Button } from "@/components/ui/button";
 import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
@@ -125,11 +125,11 @@ export function ReviewMeetingPacketButton(props: ReviewMeetingPacketButtonProps)
   const syncMeetingPacketOpenToUrl = useCallback(
     (nextOpen: boolean) => {
       commitHrefIfChanged(
-        reviewMeetingPacketPanelsHrefFromSearch(readWindowLocationSearch(), nextOpen, pathname),
+        reviewMeetingPacketPanelsHrefFromSearch(searchParams.toString(), nextOpen, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setOpen = useCallback(
