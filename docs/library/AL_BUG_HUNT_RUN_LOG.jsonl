@@ -5943,3 +5943,4 @@
 {"at":"2026-10-21T15:27:35.0527988Z","zoneId":"ui-marketing-surfaces","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(marketing)/quick-scan/use-quick-scan-client.ts"]}
 {"at":"2026-10-21T15:28:13.3082143Z","zoneId":"core-findings-advice","outcome":"hit","productLine":"archlucid-shared"}
 {"outcome":"hit","zoneId":"core-configuration-summary","kind":"seed","ts":"2026-10-21T15:18:41.265Z"}
+{"at":"2026-10-21T15:33:17.9876755Z","zoneId":"weekly-digest-email","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Application/Notifications/Email/)"]}

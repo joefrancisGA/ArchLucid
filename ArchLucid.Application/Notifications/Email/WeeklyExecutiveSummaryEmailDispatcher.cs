@@ -63,7 +63,7 @@ public sealed class WeeklySponsorReportEmailDispatcher(
         if (string.IsNullOrWhiteSpace(summaryMarkdown))
             throw new ArgumentException("Summary markdown is required.", nameof(summaryMarkdown));
 
-        string normalizedIsoWeekKey = isoWeekIdempotencyKey.Trim();
+        string normalizedIsoWeekKey = WeeklyDigestIsoWeekIdempotencyKeyValidator.NormalizeOrThrow(isoWeekIdempotencyKey);
         string normalizedWeekLabel = weekLabel.Trim();
         string displayWeekLabel = EmailHeaderFragmentSanitizer.Sanitize(normalizedWeekLabel);
         string normalizedRunIdHex = EmailHeaderFragmentSanitizer.Sanitize(runIdHex.Trim());
