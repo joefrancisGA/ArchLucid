@@ -2,6 +2,7 @@ using ArchLucid.Application.Agents.Evidence;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.AgentEvaluation;
@@ -21,6 +22,81 @@ namespace ArchLucid.Application.Tests.Agents.Evidence;
 [Trait("Suite", "Core")]
 public sealed class TopologyProposalDualModelConsensusCrossAgentOrderTests
 {
+    [Fact]
+    public async Task EnrichAsync_runs_dual_model_consensus_when_topology_row_omits_envelope_agent_type_but_findings_declare_topology()
+    {
+        AgentTopologyProposal primaryTopology = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "api",
+                    ServiceId = "svc-api",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+                new ManifestService
+                {
+                    ServiceName = "worker",
+                    ServiceId = "svc-worker",
+                    ServiceType = ServiceType.Worker,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+        };
+
+        AgentTopologyProposal secondaryTopology = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "api",
+                    ServiceId = "svc-api",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+        };
+
+        List<AgentResult> results =
+        [
+            new AgentResult
+            {
+                RunId = "run-1",
+                TaskId = "topology-task",
+                ProposedChanges = primaryTopology,
+                Findings =
+                [
+                    new ArchitectureFinding
+                    {
+                        SourceAgent = AgentType.Topology,
+                        FindingId = "finding-typed",
+                        Message = "Declare private endpoints for storage.",
+                        Category = "Network",
+                        Severity = FindingSeverity.Warning,
+                    },
+                ],
+            },
+        ];
+
+        results[0].AgentType.Should().Be(default(AgentType));
+
+        TopologyProposalDualModelConsensusEnricher consensus = CreateConsensusEnricher(secondaryTopology);
+        await consensus.EnrichAsync(
+            "run-1",
+            new ArchitectureRequest { RequestId = "req", Description = new string('x', 12) },
+            new AgentEvidencePackage(),
+            results,
+            CancellationToken.None);
+
+        AgentTopologyProposal topologyAfter = (AgentTopologyProposal)results[0].ProposedChanges!;
+        topologyAfter.AddedServices.Should().ContainSingle().Which.ServiceId.Should().Be("svc-api");
+    }
+
     [Fact]
     public async Task EnrichAsync_prunes_sibling_relationships_when_dual_model_consensus_removes_topology_endpoint()
     {

@@ -904,6 +904,8 @@
 - (candidate) `TenantIdentityBoundaryAnalyzer` — banned type in `typeof` inside attribute argument on inner-layer DTO — locus: `IsInTypeOf` exemption; input: `[Custom(typeof(ClaimsPrincipal))]` on application model.
 - (candidate) `RequireAuthorizationAnalyzer` — nested controller type inside primary-constructor controller — locus: nested `RegisterSymbolAction` independence; input: outer unauthorized nested authorized endpoints.
 
+2026-10-21 seed hunt (seed→hit): `application-agents` — lock `application-agents` pushed and verified on `origin/bugsmash` before work (lane C `2026-10-21T17:32:13Z`); skipped `ui-*` zones (lane B UI codemod); promoted `TopologyProposalDualModelConsensusEnricher` skipping dual-model consensus when persisted topology rows omitted top-level `AgentType` but typed findings declared `SourceAgent.Topology` (parity gap vs calibration/IaC/curated-evidence resolver paths); resolve topology row selection and prune skip via `AgentResultEnvelopeAgentTypeResolver`; regression `EnrichAsync_runs_dual_model_consensus_when_topology_row_omits_envelope_agent_type_but_findings_declare_topology`; 120 scoped `Application.Tests.Agents` tests passed; lock released after push.
+
 2026-10-21 seed hunt (seed→hit): `application-agents` — promoted `AgentCuratedEvidenceProposer.BuildUserPrompt` emitting `AgentType: 0` when persisted envelopes omitted top-level `AgentType` but typed findings declared `SourceAgent` (parity gap vs confidence calibration and IaC stub clone); resolve via `AgentResultEnvelopeAgentTypeResolver`; regression `BuildUserPrompt_uses_finding_source_agent_when_envelope_agent_type_missing`; 10 `AgentCuratedEvidenceProposerTests` passed.
 
 2026-10-21 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceStickinessController.EnsureRecurrenceScheduleSourceRunSealedManifestAllowedAsync` calling `RecurrenceScheduleCreateSealedManifestHashGuard` (fail-closed on null manifest-compare detail) before facade run lookup, so `POST /v1/governance/recurrence-schedules` with an out-of-scope `sourceRunId` returned HTTP 409 instead of 404; delegate to `EnsureGovernanceDispositionRunSealedManifestAllowedAsync` (null-detail skip parity with risk-exception create); regression `CreateRecurrenceSchedule_returns_not_found_for_missing_run_before_sealed_manifest_check`; 3 scoped CreateRecurrenceSchedule not_found tests passed.
@@ -42738,6 +42740,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 ---
 ## Zone: application-agents
 
+2026-10-21 seed hunt (seed→hit): topology dual-model consensus skipped when envelope `AgentType` default but findings declared topology `SourceAgent`; resolver parity; regression `EnrichAsync_runs_dual_model_consensus_when_topology_row_omits_envelope_agent_type_but_findings_declare_topology`.
+
+- [x] (proven) `TopologyProposalDualModelConsensusEnricher` — dual-model consensus and sibling prune topology skip used raw `AgentResult.AgentType` so persisted topology rows with default envelope type but typed findings never ran secondary merge — **hit 2026-10-21 seed hunt lane C:** `AgentResultEnvelopeAgentTypeResolver.ResolveAgentType`; regression above. [class:state-machine-gap]
+
 2026-10-21 seed hunt (seed→hit): curated evidence proposal prompt agent type from finding SourceAgent when envelope field missing; regression above.
 
 - [x] (proven) `AgentCuratedEvidenceProposer.BuildUserPrompt` — post-execution curated evidence LLM prompt used `AgentType: 0` when `AgentResult.AgentType` was default but typed findings carried `SourceAgent` — regression `BuildUserPrompt_uses_finding_source_agent_when_envelope_agent_type_missing`.
@@ -42752,11 +42758,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 43
-- **bugs-found:** 41
+- **hunts:** 44
+- **bugs-found:** 42
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **last-bug:** 2026-10-21 — topology dual-model consensus resolver parity on persisted envelopes
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
 
