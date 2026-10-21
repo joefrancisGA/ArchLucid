@@ -413,6 +413,9 @@ describe("DiagramsWorkbenchClient", () => {
     expect(caption.querySelectorAll(".font-semibold")[1]?.textContent).toBe("observed");
     const readingCardCaption = screen.getByText(/Reading a card:/).closest("p");
     expect(readingCardCaption?.textContent ?? "").toMatch(/No diagram neighbor on this view/);
+    expect(readingCardCaption?.textContent ?? "").toMatch(
+      /opens the list of names\. Click that card again to close the list\./,
+    );
     expect(readingCardCaption?.querySelector(".font-semibold")?.textContent).toBe("Reading a card:");
   });
 
