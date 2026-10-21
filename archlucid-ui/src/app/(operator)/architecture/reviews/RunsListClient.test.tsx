@@ -246,13 +246,15 @@ describe("RunsListClient inspector", () => {
     expect(within(screen.getByTestId(`runs-row-${sampleRun.runId}`)).getByTestId("run-provenance-inline")).toBeInTheDocument();
   });
 
-  it("renders primary title as Untitled review when description is empty", () => {
+  it("renders primary title when description is whitespace-only", () => {
     const untitled: RunSummary = {
       ...sampleRun,
       description: "   ",
     };
     render(<RunsListClient runs={[untitled]} projectId="default" page={1} pageSize={20} totalCount={1} />);
-    expect(within(screen.getByTestId(`runs-row-${untitled.runId}`)).getByText("Untitled review")).toBeInTheDocument();
+    expect(
+      within(screen.getByTestId(`runs-row-${untitled.runId}`)).getByText("Review description was not stored."),
+    ).toBeInTheDocument();
   });
 
   it("partitions multiple runs into ordered queue sections", () => {
@@ -712,6 +714,56 @@ describe("RunsListClient inspector", () => {
 
     expect(rowOrder()[0]).toBe(`runs-row-${olderRun.runId}`);
     expect(screen.getByTestId("runs-list-sort-created-asc")).toHaveAttribute("aria-current", "page");
+  });
+
+  it("re-applies buyer scope when scope= changes via popstate before useSearchParams catches up", () => {
+    buyerPolishedShellVitestOverride.value = true;
+    runsListWorkspaceModeHarness.mode = "guided";
+
+    const inFlight: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000aa",
+      hasGoldenManifest: false,
+    };
+    const committed: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      hasGoldenManifest: true,
+    };
+
+    renderRunsList(
+      <RunsListClient runs={[inFlight, committed]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+    );
+
+    expect(screen.getByTestId(`runs-row-${inFlight.runId}`)).toBeInTheDocument();
+    expect(screen.getByTestId(`runs-row-${committed.runId}`)).toBeInTheDocument();
+
+    runsListSearchParamsHarness.state.committedQuery = "scope=finalized";
+    fireEvent.popState(window);
+
+    expect(screen.queryByTestId(`runs-row-${inFlight.runId}`)).toBeNull();
+    expect(screen.getByTestId(`runs-row-${committed.runId}`)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /show:\s*finalized packages/i })).toHaveAttribute("aria-current", "page");
+  });
+
+  it("hides orphan-candidates banner when filter= clears via popstate before useSearchParams catches up", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    renderRunsList(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+      "filter=orphan-candidates",
+    );
+
+    expect(screen.getByTestId("runs-list-orphan-candidates-filter-banner")).toBeInTheDocument();
+
+    runsListSearchParamsHarness.state.committedQuery = "";
+    fireEvent.popState(window);
+
+    expect(screen.queryByTestId("runs-list-orphan-candidates-filter-banner")).toBeNull();
   });
 
   it("closes stale inspector preview when inspectorRunId changes to an unknown run without popstate", () => {
