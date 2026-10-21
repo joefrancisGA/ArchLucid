@@ -100163,6 +100163,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — oversized `ClaimMappingJson` — **cheap-disproof 2026-10-21 #81:** SQL MERGE boundary; no in-memory guard required.
 - [x] (valid-no-repro) `IdentityProviderConfigurationController.TestLogin` — empty `SampleClaimValues` — **cheap-disproof 2026-10-21 #81:** sandbox `Success:false` contract; activate does not read sample claims.
 - [x] (valid-no-repro) `IdentityProviderConfigurationController.ActivateAsync` — audit omits SAML `metadataXml` — **cheap-disproof 2026-10-21 #81:** intentional audit summary; GET configuration returns full row.
+
+2026-10-21 seed hunt (seed-only) #82: re-read `IdentityProviderConfigurationController` and `IdentityProviderActivationService` after #81 GET issuer-length parity; promoted GET `KeyVaultSecretName` length parity — **cheap-disproof:** saturated `[fail-open-validation]` (sibling to proven discover/test-login/GET issuer rows); defer consolidated wizard response validation (ABQ-01/04); no failing repro shipped; seeded five new `(candidate)` rows; 100 scoped activation/controller/matrix tests passed.
+
+- (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` — GET may return OIDC `KeyVaultSecretName` longer than NVARCHAR(256) for legacy rows — locus: `PrepareConfigurationResponse` omits `EnsureKeyVaultSecretNameFits`; input: direct repository upsert of 257-char name; reachability: `GET /v1/admin/identity/configuration` then activate resubmit (blocked from hit: saturated validation class).
+- (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` — GET returns malformed `ClaimMappingJson` verbatim — locus: read path has no schema re-validation; input: corrupt JSON in `TenantIdentityProviderConfigurations`; reachability: wizard `parsePersistedClaimMappingJson` on reload.
+- (candidate) `IdentityProviderActivationService.ActivateAsync` — `EnsureIssuerUriFits` runs before optional-field resolution — locus: validation order vs stale cross-protocol body fields; input: protocol switch with long discarded SAML `MetadataXml`; reachability: OpenAPI activate after OIDC→SAML UI flow (expect valid-no-repro via normalize strip).
+- (candidate) `IdentityProviderConfigurationController.DiscoverAsync` — failed discovery still returns HTTP 200 envelope — locus: intentional wizard contract; input: bad `metadataUrl`; reachability: `POST /v1/admin/identity/discover` (prior valid-no-repro).
+- (candidate) `IdentityProviderActivationService.ActivateAsync` — `UpdatedUtc` uses `TimeProvider.System` — locus: non-injectable clock; input: N/A for defect repro; reachability: unit tests only (design note, not hunt-ready).
 ## Zone: identity-provider-config
 2026-10-20 seed hunt (seed->hit): promoted GET /v1/admin/identity/configuration returning legacy MetadataXml on OIDC rows (and KeyVaultSecretName on SAML) after activate began stripping cross-protocol fields; PrepareConfigurationResponse omits protocol-inapplicable columns on read; regression GetConfigurationAsync_omits_metadata_xml_when_stored_protocol_is_oidc; 16 scoped IdentityProviderConfigurationControllerTests passed.
 
@@ -100185,7 +100193,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 81
+- **hunts:** 82
 - **bugs-found:** 57
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
@@ -100601,7 +100609,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 81
+- **hunts:** 82
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-16
@@ -122003,7 +122011,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 81
+- **hunts:** 82
 - **last-hunt:** 2026-10-20
 - **bugs-found:** 57
 - **consecutive-dry-hunts:** 0
@@ -127524,7 +127532,7 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 81
+- **hunts:** 82
 - **bugs-found:** 60
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
