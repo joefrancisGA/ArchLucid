@@ -36488,10 +36488,11 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 59
-- **bugs-found:** 38
+- **hunts:** 60
+- **bugs-found:** 39
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
+- **last-hunt:** 2026-10-21
+2026-10-21 seed hunt (seed→hit): ApiRequestUsageEventBatchFlushHostedService outer disabled loop now flushes requeued API usage before idle delay; regression ExecuteAsync_flushes_requeued_events_when_metering_stays_disabled; 4 metering tests passed.
 - **last-bug:** 2026-10-20 — API usage flush skipped when metering disabled mid-run
 - **code-changed-since:** no
 - **related-pd-tb:** none
@@ -36586,6 +36587,7 @@ heap-disproved mermaid typed-topology candidate.
 2026-09-12 seed hunt #2176 (seed-only): reseeded host-composition with `-Hint host composition`; no new hunt-ready rows.
 
 ### Hypotheses
+- [x] (proven) ApiRequestUsageEventBatchFlushHostedService.ExecuteAsync — requeued API usage while metering stayed disabled was not flushed until StopAsync (outer loop only delayed) — hit 2026-10-21; regression ExecuteAsync_flushes_requeued_events_when_metering_stays_disabled.
 
 - [x] (proven) `ApiRequestUsageEventBatchFlushHostedService.ReturnBatchToBuffer` — a failed persist called `ApiRequestUsageEventBuffer.Enqueue`, which no-ops when `MeteringOptions.Enabled` is false, so events already dequeued while metering was on were dropped after a disable or options reload. `Requeue` writes them back. Regression `StopAsync_keeps_dequeued_usage_events_when_persist_fails_after_metering_disabled`. [class:state-machine-gap]
 - [x] (proven) `ApiRequestUsageEventBatchFlushHostedService.FlushPendingAsync` — API request metering dequeued `UsageEvent` rows from `ApiRequestUsageEventBuffer` and then swallowed a failed `IUsageMeteringService.RecordBatchAsync`, so a transient store error dropped the batch. Failed batches are returned to the buffer and the flush stops so the next interval can retry. Regression `StopAsync_keeps_dequeued_usage_events_when_batch_persist_fails`.

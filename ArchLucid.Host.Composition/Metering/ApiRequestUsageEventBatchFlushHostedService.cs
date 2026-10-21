@@ -39,6 +39,7 @@ public sealed class ApiRequestUsageEventBatchFlushHostedService(
 
             if (!options.Enabled)
             {
+                await FlushPendingAsync(options.ApiRequestBatchMaxSize, stoppingToken).ConfigureAwait(false);
                 await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken).ConfigureAwait(false);
                 continue;
             }
