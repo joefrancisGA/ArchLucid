@@ -1,6 +1,8 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 2026-10-21 thorough hunt (hit, lane B): `host-composition` — lock `host-composition` pushed and verified on `origin/bugsmash` before work; promoted picker `(candidate)` on `InMemoryValueReportJobQueue.RunJobAsync` / `WriteDistributedState` — completed async value-report jobs logged a warning when distributed poll-state `Set` failed but left the in-process entry `Completed`, so the enqueueing replica returned DOCX bytes while a peer replica kept reading stale `Pending` from cache; `TryWriteDistributedState` returns success/failure and completion now transitions to `Failed` with retryable copy plus best-effort failed-state write when completed persistence fails; regression `TryPoll_on_peer_instance_reports_failure_when_completed_state_cannot_be_persisted`; cheap-disproof closed three sibling candidates (`PollingCollectionRunDiscovery` null artifact skip is intentional missing `packageBlobPath`; `GraphProjectionCacheInvalidationSubscriberHostedService` malformed payload ignore is defensive; `SqlStorageProviderRegistrar` empty blob reader when client missing matches SQL-only host contract); scoped picker filter `FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions` 470 passed (`RunAnalyzers=false`).
 
+2026-10-21 seed hunt (seed→hit, lane C): `persistence-identity` — lock verified on origin; promoted hourly OTP **request** rate-limit parity gap: invalidated lockout challenges still counted toward `MaxCodeRequestsPerEmailPerHour` while `GetLatestRequestUtcByEmailAsync` already ignored them, blocking a fresh sign-in code after lockout when cap is 1; `CountsTowardRequestRateLimit` and Dapper hourly SQL now exclude `InvalidatedUtc` rows; regressions `CountRecentRequestsByEmail_ignores_invalidated_unused_challenges` and `RequestCodeAsync_allows_new_code_after_lockout_when_hourly_cap_is_one`; scoped persistence identity + EmailOtp coverage 27 passed (1 SQL skipped), EmailOtpAuthServiceTests lockout regression passed (`RunAnalyzers=false`).
+
 2026-10-21 thorough hunt (dry, lane C): `topology-proposal-merge` — lock verified on origin before hunt; cheap-disproof closed five follow-on `(candidate)` rows from 2026-10-20 hit (quoted `for_each` vs unquoted graph index, renamed-api vs synthetic `svc-api` consensus intersection, compliance after topology sanitize, `tf.resource_id` trailing-slash resolution aliases, Cost-then-Critic datastore rename without Cost rename declaration); regressions `Merge_intersects_relationships_when_one_model_uses_renamed_api_label_and_other_uses_synthetic_svc_id`, `AddGraphNodeResolutionKeys_maps_canonical_arm_when_tf_resource_id_property_has_trailing_slash`, and `WithMergedTopologyProposals_adds_edges_when_critic_uses_datastore_rename_after_cost_relationship_without_rename_declaration`; reaffirmed `MapRelationships_resolves_relationship_when_for_each_key_uses_quoted_string_and_graph_uses_unquoted_index` and `FilterValidatedProposals_WhenInventoryExists_AllowsCostRelationshipOnlyProposalsReferencingTopologyRenameAliasFromPriorResult`; seeded five follow-on `(candidate)` rows; 1,623 scoped topology merge/endpoint/edge-mapper tests passed (`RunAnalyzers=false`).
 
 2026-10-20 seed hunt (seed-only): `security-analyzers` — re-read run #84 `(candidate)` rows; promoted no new hunt-ready row; cheap-disproof closed `InheritedPublicApiActionsAreAllAuthorized` parity (`IAuthorizedMarker : IUnsecuredApi` still reports via inherited explicit narrowing), type-level `MutatingAuditExcluded` on marker interface (exclusion checks interface methods only), `ValueTask<ClaimsPrincipal>` return (`AnalyzeGenericName`/`IsOrUsesBannedType` generic args; regression `Reports_ValueTask_of_ClaimsPrincipal_return_in_inner_layer_assembly`), `[AllowAnonymous]` on explicit-only abstract base (covered by `Reports_inherited_unauthorized_explicit_interface_when_base_also_implements_allow_anonymous_marker_interface`), and explicit `LogAsync` via local function (`ExplicitInterfaceLocalFunctionAuditedController`); seeded five new `(candidate)` rows; 118 scoped analyzer tests passed (`RunAnalyzers=false`).
@@ -22651,6 +22653,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: persistence-identity
 
+2026-10-21 seed hunt (seed→hit, lane C): invalidated OTP challenges excluded from hourly request counts; 27 scoped persistence tests + EmailOtp auth regression.
+
 2026-09-14 seed hunt #2912 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
 
 2026-09-14 seed hunt #2907 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
@@ -24453,11 +24457,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 927
-- **bugs-found:** 24
+- **hunts:** 928
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — expired unused OTP challenge hid a later verification lockout from the hourly count
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-21 — hourly OTP request rate limits ignored invalidated challenges
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -24509,6 +24513,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-13 seed hunt #2384 (seed-only): reseeded persistence-identity; duplicate-insert parity family exhausted; no new hunt-ready rows.
 
 ### Hypotheses
+- [x] (proven) `EmailOtpChallengeRepositoryCore.CountsTowardRequestRateLimit` — invalidated lockout rows still counted toward hourly OTP send caps — **hit 2026-10-21 seed hunt (lane C):** exclude `InvalidatedUtc` in core + SQL; regressions `CountRecentRequestsByEmail_ignores_invalidated_unused_challenges` and `RequestCodeAsync_allows_new_code_after_lockout_when_hourly_cap_is_one`.
 
 - [x] (invalid) Identity lookup by email returns a user from another tenant — `IAuthenticationIdentityRepository` has no email lookup; sign-in domain routing uses global domain keys by design.
 - [x] (invalid) Link/unlink writes succeed without scoping to the caller tenant — persistence repos are record-oriented; caller tenant enforcement lives in application services.
@@ -24557,6 +24562,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-12 seed hunt #1920 (seed-only): reseeded persistence-identity; scoped identity repository tests passed; no new hunt-ready defect proven this pass.
 ---
+
+- (candidate) `DapperEmailOtpChallengeRepository.GetLatestRequestUtcByEmailAsync` — SQL `ORDER BY CreatedUtc DESC` without tie-break when two active challenges share the same `CreatedUtc` — locus: TOP (1) selection; input: concurrent inserts with identical timestamp from bulk migration replay.
+- (candidate) `EmailOtpChallengeRepositoryCore.MatchesFailedVerificationByEmail` — lockout-invalidated row still counts when a newer active challenge exists but is expired — locus: `emailHasActiveChallenge` probe uses only unexpired actives; input: expired active plus lockout-invalidated predecessor within hourly verification window.
+- (candidate) `DapperAuthenticationIdentityRepository.Lookup` — normalized email lookup case-folding diverges from `IdentityEmailNormalizer` for IDN domains — locus: SQL `NormalizedEmail` compare; input: sign-in email with mixed-script homoglyph rejected at app layer but alternate normalization in legacy row.
+- (candidate) `InMemoryPlatformUserRepository` — concurrent `TryAdd` duplicate external id returns stale row instead of conflict — locus: `ConcurrentDictionary` add path; input: parallel self-service trial sign-ups sharing external subject.
+- (candidate) `SqlTenantIdentityProviderConfigurationRepository` — MERGE without rowversion check allows silent overwrite when admin saves stale ETag — locus: optimistic concurrency; input: two admin saves with same provider id from SSO wizard tabs.
+
 
 ## Zone: retrieval
 

@@ -75,7 +75,7 @@ internal static class EmailOtpChallengeRepositoryCore
         && CountsTowardRequestRateLimit(row, nowUtc);
 
     private static bool CountsTowardRequestRateLimit(EmailOtpChallengeRecord row, DateTimeOffset nowUtc) =>
-        row.CompletedUtc is null && row.ExpiresUtc > nowUtc;
+        row.CompletedUtc is null && row.InvalidatedUtc is null && row.ExpiresUtc > nowUtc;
 
     public static bool MatchesFailedVerificationByEmail(
         EmailOtpChallengeRecord row,
