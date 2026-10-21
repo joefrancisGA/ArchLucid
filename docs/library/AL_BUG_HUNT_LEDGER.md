@@ -1,3 +1,10 @@
+2026-10-21 thorough hunt (dry, lane C): `api-governance-tenancy-controllers` — lock `api-governance-tenancy-controllers` pushed and verified on `origin/bugsmash` before work (`dee13d7e5c` content after push; lane C `2026-10-21T17:03:47Z`); skipped `ui-*` zones (lane B URL helper sweep); selected least-recent unlocked non-UI zone with open candidate rows (`2026-10-21T02:33:42Z`); exercised zone-head sealed-manifest / tenancy candidates — risk revoke/renew and recurrence already delegate to `EnsureGovernanceDispositionRunSealedManifestAllowedAsync` (null manifest-compare detail skips guard); pre-commit checklist loads `IRunRepository` before sealed guard (404 before 409); approval lineage guard returns null when approval missing; project delete audit uses `User?.Identity?.Name ?? actorUserId`; scoped stickiness not-found/sealed regressions **9/9**; no new defect.
+
+- [x] (valid-no-repro) `GovernanceStickinessController` revoke/renew risk exception sealed guard — **cheap-disproof 2026-10-21 lane C:** same null-detail skip as create/recurrence (2026-10-20/21 hits).
+- [x] (valid-no-repro) `GovernancePreCommitSimulationController.SealedManifestGuard` — **cheap-disproof 2026-10-21 lane C:** `GetChecklistAsync` 404 when `IRunRepository.GetByIdAsync` null before guard.
+- [x] (valid-no-repro) `GovernanceController` approval lineage sealed guard — **cheap-disproof 2026-10-21 lane C:** `EnsureSealedManifestReadAllowedForApprovalRequestAsync` returns null when approval missing.
+- [x] (invalid) `TenantWorkspacesController` project CRUD audit `ActorUserName` — **cheap-disproof 2026-10-21 lane C:** `DeleteProjectAsync` already falls back to `actorUserId`.
+
 2026-10-21 thorough hunt (hit, lane B): `ui-governance-findings-queue` — lock `ui-governance-findings-queue` pushed and verified on `origin/bugsmash` before work; selected least-recent unlocked beta-reachable zone with open `(candidate)` rows (`2026-10-21T15:10:21Z`), skipping zones hunted in the last hour; extended `operator-url-selection-switch` `governance-findings-queue-navigation` to strip stale `governanceFindingsResourceGroupKey` on NL facet, assigned-to-me sort, and bulk-selection href writers (parity with register-filter hit); regressions `governance-findings-queue-navigation-url.test.ts`; cheap-disproof closed two sibling rows (`GovernanceFindingsQueueToolbarSection` resyncs `governanceFindingsMoreFiltersOpen` from `useSearchParams` on soft navigation; `governanceFindingsWorkspaceSavedViewHref` already deletes resource-group disclosure); scoped governance findings URL vitest 8/8; lock released after push.
 
 - [x] (proven) `governanceFindingsNlFacetsHrefFromSearch` / `governanceAssignedToMeSortHrefFromSearch` / `governanceFindingsBulkSelectionHrefFromSearch` — stale resource-group disclosure survived queue navigation — **hit 2026-10-21 thorough hunt lane B:** `governance-findings-queue-navigation` switch; regressions above.
@@ -40617,19 +40624,19 @@ heap-disproved mermaid typed-topology candidate.
 
 - [x] (proven) `TenantWorkspacesController.DeleteProjectAsync` — `ListActiveByTenantAsync` null on cross-workspace default-metadata pin guard threw before soft-delete — regression above.
 
-- (candidate) `GovernanceStickinessController` — revoke/renew risk exception sealed guard vs purged manifest-compare run — locus: `EnsureRiskExceptionRunSealedManifestAllowedAsync`; input: cheap-disproof after disposition guard null-detail skip.
-- (candidate) `GovernancePreCommitSimulationController.SealedManifestGuard` — missing run id returns 409 before checklist 404 — locus: pre-commit routes; input: `(valid-no-repro)` run repository preflight precedes guard.
-- (candidate) `GovernanceController` — approval lineage/rationale per-request sealed guard when manifest missing — locus: `EnsureSealedManifestReadAllowedForApprovalRequestAsync`; input: verify 404 vs 409 semantics.
+- [x] (valid-no-repro) `GovernanceStickinessController` revoke/renew sealed guard — **closed 2026-10-21 lane C:** null-detail skip on trunk.
+- [x] (valid-no-repro) `GovernancePreCommitSimulationController` — **closed 2026-10-21 lane C:** run repository 404 precedes sealed guard.
+- [x] (valid-no-repro) `GovernanceController` approval sealed guard — **closed 2026-10-21 lane C:** null approval skips guard.
 - (candidate) `GovernanceController` insights GET routes — scope posture sealed guard vs empty committed-run catalog — locus: remaining insights list endpoints; input: verify intended fail-closed posture.
-- (candidate) `TenantWorkspacesController` project CRUD — audit `ActorUserName` when `Identity.Name` null — locus: soft-delete/restore audits; input: service principal without display name claim.
+- [x] (invalid) `TenantWorkspacesController` audit name — **closed 2026-10-21 lane C:** `?? actorUserId` fallback present.
 
 2026-10-20 seed hunt (seed→hit): promoted insights dashboard/drift scope posture sealed-manifest over-block; regressions `GetDashboard_reaches_facade_when_scope_posture_sealed_manifest_would_conflict` and `GetComplianceDriftTrend_reaches_facade_when_scope_posture_sealed_manifest_would_conflict`.
 
 - [x] (proven) `GovernanceController.GetDashboard` / `GetComplianceDriftTrend` — scope `EnsureGovernanceInsightsScopeSealedManifestReadAllowedAsync` blocked aggregated insights reads with HTTP 409 when latest committed run failed sealed-hash verification — regressions above.
 
 - [x] (invalid) `TenantWorkspacesController.DeleteProjectAsync` — `ListActiveByTenantAsync` null without coalesce — **hit 2026-10-20 seed hunt #5:** fixed with `?? Array.Empty`; regression `DeleteProjectAsync_returns_no_content_when_active_list_is_null_and_foreign_workspace_pins_project_metadata`.
-- (candidate) `GovernanceStickinessController` — revoke/renew risk exception sealed guard vs purged manifest-compare run — locus: `EnsureRiskExceptionRunSealedManifestAllowedAsync`; input: cheap-disproof after disposition guard null-detail skip.
-- (candidate) `GovernancePreCommitSimulationController.SealedManifestGuard` — missing run id returns 409 before checklist 404 — locus: pre-commit routes; input: `(valid-no-repro)` run repository preflight precedes guard.
+- [x] (valid-no-repro) `GovernanceStickinessController` revoke/renew sealed guard — **closed 2026-10-21 lane C:** null-detail skip on trunk.
+- [x] (valid-no-repro) `GovernancePreCommitSimulationController` — **closed 2026-10-21 lane C:** run repository 404 precedes sealed guard.
 - (candidate) `GovernancePreviewController.Preview` — run-scoped sealed guard vs missing manifest-compare run — locus: preview POST; input: cheap-disproof after null-detail skip.
 - (candidate) `GovernanceController` — approval lineage/rationale still use per-request sealed guard when manifest missing — locus: `EnsureSealedManifestReadAllowedForApprovalRequestAsync`; input: verify 404 vs 409 semantics.
 
@@ -40639,18 +40646,18 @@ heap-disproved mermaid typed-topology candidate.
 
 - (candidate) `GovernanceController` insights GET routes — scope posture sealed guard vs empty committed-run catalog — locus: insights list endpoints; input: verify intended fail-closed posture.
 - (candidate) `TenantWorkspacesController.DeleteProjectAsync` — `ListActiveByTenantAsync` null without coalesce — locus: default-project metadata branch; input: align with `RestoreProjectAsync` / `ListAsync`.
-- (candidate) `GovernanceStickinessController` — revoke/renew risk exception sealed guard vs purged manifest-compare run — locus: `EnsureRiskExceptionRunSealedManifestAllowedAsync`; input: cheap-disproof after disposition guard null-detail skip.
-- (candidate) `GovernancePreCommitSimulationController.SealedManifestGuard` — missing run id returns 409 before checklist 404 — locus: pre-commit routes; input: `(valid-no-repro)` run repository preflight precedes guard.
+- [x] (valid-no-repro) `GovernanceStickinessController` revoke/renew sealed guard — **closed 2026-10-21 lane C:** null-detail skip on trunk.
+- [x] (valid-no-repro) `GovernancePreCommitSimulationController` — **closed 2026-10-21 lane C:** run repository 404 precedes sealed guard.
 - (candidate) `GovernancePreviewController.Preview` — run-scoped sealed guard vs missing manifest-compare run — locus: preview POST; input: cheap-disproof after null-detail skip.
 
 2026-10-20 seed hunt (seed→hit): promoted compare-environments scope posture sealed-manifest over-block; regression `CompareEnvironments_reaches_service_when_scope_posture_sealed_manifest_would_conflict`.
 
 - [x] (proven) `GovernancePreviewController.CompareEnvironments` — scope `EnsureGovernancePreviewScopeSealedManifestReadAllowedAsync` blocked read-only environment comparison with HTTP 409 when latest committed run failed sealed-hash verification unrelated to source/target activation manifests — regression above.
 
-- (candidate) `GovernanceStickinessController` — revoke/renew risk exception sealed guard vs purged manifest-compare run — locus: `EnsureRiskExceptionRunSealedManifestAllowedAsync`; input: cheap-disproof after disposition guard null-detail skip.
+- [x] (valid-no-repro) `GovernanceStickinessController` revoke/renew sealed guard — **closed 2026-10-21 lane C:** null-detail skip on trunk.
 - (candidate) `TenantWorkspacesController.DeleteProjectAsync` — `ListActiveByTenantAsync` null without coalesce — locus: default-project metadata branch; input: align with `RestoreProjectAsync` / `ListAsync` (`?? Array.Empty`).
 - (candidate) `GovernanceController.BatchReviewApprovalRequests` — batch path lacks idempotency key — locus: batch-review POST; input: `(valid-no-repro)` by design.
-- (candidate) `GovernancePreCommitSimulationController.SealedManifestGuard` — missing run id returns 409 before checklist 404 — locus: pre-commit routes; input: `(valid-no-repro)` run repository preflight precedes guard.
+- [x] (valid-no-repro) `GovernancePreCommitSimulationController` — **closed 2026-10-21 lane C:** run repository 404 precedes sealed guard.
 - (candidate) `GovernancePreviewController.Preview` — scope sealed guard vs missing activation on preview POST — locus: preview activation; input: verify intended fail-closed posture.
 
 2026-10-20 seed hunt (seed→hit): promoted stickiness disposition sealed-manifest guard returning HTTP 409 for unknown runs before not-found handlers; skip when manifest-compare detail is null; regression `CreateRiskException_returns_not_found_for_missing_run_before_sealed_manifest_check`; cheap-disproof closed pre-commit checklist missing-run candidate (run repository preflight already precedes sealed guard).
@@ -40755,7 +40762,7 @@ heap-disproved mermaid typed-topology candidate.
 
 - (candidate) `GovernanceController.ApprovalRequests` batch review — idempotency replay audit actor parity — locus: batch approve path; input: repeated batch submit with same idempotency key.
 - (candidate) `GovernanceWorkflowIntegrationEventSupport.TryPublishApprovalRejectedAsync` — rejection payload `reviewedBy` display only — locus: integration outbox payload; input: reject route with jwt actor key in persistence.
-- (candidate) `TenantWorkspacesController` project CRUD — audit `ActorUserName` when `Identity.Name` null — locus: soft-delete/restore audits; input: service principal without display name claim.
+- [x] (invalid) `TenantWorkspacesController` audit name — **closed 2026-10-21 lane C:** `?? actorUserId` fallback present.
 - (candidate) `GovernanceWorkflowSubmitStage` — persisted `RequestedBy` without `RequestedByActorKey` on idempotent replay — locus: submit persistence; input: approval submit body omitting actor key.
 
 - [x] (proven) `GovernanceMutationCorrectionService.RecordAsync` — `GovernanceMutationCorrectionRecorded` audits omitted `ExplicitActor` — **hit 2026-10-16 seed hunt:** `ExplicitActor = true` preserves jwt actor key through `AuditService`; regression `RecordAsync_sets_explicit_actor_for_stable_actor_user_id`.
