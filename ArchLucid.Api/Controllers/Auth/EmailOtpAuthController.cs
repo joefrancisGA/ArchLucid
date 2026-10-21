@@ -120,14 +120,18 @@ public sealed class EmailOtpAuthController(
         Guid workspaceId = result.WorkspaceId ?? Guid.Empty;
         (Guid defaultTenantId, Guid defaultWorkspaceId, Guid projectId) = TrialLocalJwtScopeDefaults.Resolve();
 
-        if (tenantId == Guid.Empty)
+        // Multi-workspace users must pick a scope explicitly; only brand-new workspace creation seeds trial defaults.
+        if (result.NextStep == EmailOtpAuthNextStep.CreateWorkspace)
         {
-            tenantId = defaultTenantId;
-        }
+            if (tenantId == Guid.Empty)
+            {
+                tenantId = defaultTenantId;
+            }
 
-        if (workspaceId == Guid.Empty)
-        {
-            workspaceId = defaultWorkspaceId;
+            if (workspaceId == Guid.Empty)
+            {
+                workspaceId = defaultWorkspaceId;
+            }
         }
 
         int lifetimeMinutes = Math.Clamp(_emailOtpOptions.AccessTokenLifetimeMinutes, 5, 24 * 60);
