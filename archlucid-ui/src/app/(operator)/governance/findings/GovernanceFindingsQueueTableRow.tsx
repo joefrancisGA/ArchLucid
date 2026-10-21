@@ -36,6 +36,7 @@ import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-fi
 
 import {
   formatGovernanceQueueRecordKind,
+  governanceFindingQueueRowHasPolicyRuleId,
   governanceFindingQueueRowHasStoredRunId,
   type GovernanceFindingQueueRow,
 } from "./governance-finding-queue-row";
@@ -148,10 +149,10 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
             ) : (
               <span className="text-al-text-primary">{row.title}</span>
             )}
-            {row.recordKind === "finding" && row.policyRuleId ? (
+            {row.recordKind === "finding" && governanceFindingQueueRowHasPolicyRuleId(row) ? (
               <div className="mt-1">
                 <FindingPolicyTraceabilityBadges
-                  {...buildPolicyTraceabilityLinksFromRuleId(row.policyRuleId, row.category || row.policyRuleId)}
+                  {...buildPolicyTraceabilityLinksFromRuleId(row.policyRuleId!, row.category || row.policyRuleId!)}
                 />
               </div>
             ) : row.category && row.recordKind === "finding" ? (

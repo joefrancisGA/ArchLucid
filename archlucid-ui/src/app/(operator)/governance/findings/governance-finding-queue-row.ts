@@ -55,6 +55,11 @@ export function governanceFindingQueueRowHasStoredRunId(row: GovernanceFindingQu
   return row.runId.trim().length > 0;
 }
 
+/** Optional API policy rule keys must be non-empty after trim before traceability chrome renders. */
+export function governanceFindingQueueRowHasPolicyRuleId(row: GovernanceFindingQueueRow): boolean {
+  return row.policyRuleId != null && row.policyRuleId.trim().length > 0;
+}
+
 export function formatGovernanceQueueRecordKind(
   kind: GovernanceFindingQueueRecordKind,
   buyerPolishedShell: boolean,

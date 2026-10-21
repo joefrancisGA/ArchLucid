@@ -33,6 +33,7 @@ import {
   governanceQueueSeverityCell,
 } from "./GovernanceFindingsQueueOperationalRowCells";
 import {
+  governanceFindingQueueRowHasPolicyRuleId,
   governanceFindingQueueRowHasStoredRunId,
   type GovernanceFindingQueueRow,
 } from "./governance-finding-queue-row";
@@ -108,7 +109,7 @@ export function GovernanceFindingsQueueAssignedToMeRowCells(props: GovernanceFin
         ) : (
           <span className="text-al-text-primary">{row.title}</span>
         )}
-        {row.policyRuleId != null && row.policyRuleId.trim().length > 0 ? (
+        {governanceFindingQueueRowHasPolicyRuleId(row) ? (
           <div className="mt-1 text-xs text-al-text-secondary" data-testid={`governance-table-control-${row.findingId}`}>
             Framework control: {row.policyRuleId}
           </div>

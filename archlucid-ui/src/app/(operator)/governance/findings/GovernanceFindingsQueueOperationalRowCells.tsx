@@ -51,6 +51,7 @@ import {
 } from "@/components/governance/findings/governance-findings-row-omission-copy";
 
 import {
+  governanceFindingQueueRowHasPolicyRuleId,
   governanceFindingQueueRowHasStoredRunId,
   type GovernanceFindingQueueRow,
 } from "./governance-finding-queue-row";
@@ -181,10 +182,10 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
         ) : (
           <span className="text-al-text-primary">{governanceQueueTitleLabel(row)}</span>
         )}
-        {row.recordKind === "finding" && row.policyRuleId ? (
+        {row.recordKind === "finding" && governanceFindingQueueRowHasPolicyRuleId(row) ? (
           <div className="mt-1">
             <FindingPolicyTraceabilityBadges
-              {...buildPolicyTraceabilityLinksFromRuleId(row.policyRuleId, row.category || row.policyRuleId)}
+              {...buildPolicyTraceabilityLinksFromRuleId(row.policyRuleId!, row.category || row.policyRuleId!)}
             />
           </div>
         ) : row.category && row.recordKind === "finding" ? (
