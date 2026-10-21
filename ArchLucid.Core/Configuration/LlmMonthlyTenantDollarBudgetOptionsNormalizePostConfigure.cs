@@ -16,23 +16,7 @@ public sealed class LlmMonthlyTenantDollarBudgetOptionsNormalizePostConfigure
 
     private static void NormalizeByPlanKeys(LlmMonthlyTenantDollarBudgetOptions options)
     {
-        Dictionary<string, LlmMonthlyTenantPlanBudgetOptions>? byPlan = options.ByPlan;
-
-        if (byPlan is not { Count: > 0 })
-            return;
-
-        Dictionary<string, LlmMonthlyTenantPlanBudgetOptions> normalized =
-            new(StringComparer.OrdinalIgnoreCase);
-
-        foreach (KeyValuePair<string, LlmMonthlyTenantPlanBudgetOptions> entry in byPlan)
-        {
-
-            if (string.IsNullOrWhiteSpace(entry.Key))
-                continue;
-
-            normalized[entry.Key.Trim()] = entry.Value;
-        }
-
-        options.ByPlan = normalized;
+        options.ByPlan = ConfigurationDictionaryBindingKeyNormalizer.NormalizeTrimmedKeys(options.ByPlan)
+            ?? options.ByPlan;
     }
 }

@@ -2,6 +2,8 @@ using ArchLucid.Core.Configuration;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Options;
+
 namespace ArchLucid.Core.Tests.Configuration;
 
 [Trait("Suite", "Configuration")]
@@ -74,6 +76,33 @@ public sealed class LlmCostEstimationEffectiveRatesTests
 
         ok.Should().BeTrue();
         inputRate.Should().Be(3m);
+    }
+
+    [Fact]
+    public void TryResolve_uses_deployment_overlay_when_deployments_key_has_bounding_whitespace()
+    {
+        LlmCostEstimationOptions options = new()
+        {
+            InputUsdPerMillionTokens = 3m,
+            OutputUsdPerMillionTokens = 15m,
+            Deployments = new Dictionary<string, LlmDeploymentUsdRates>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["  dep-a  "] = new LlmDeploymentUsdRates { InputUsdPerMillionTokens = 9m },
+            },
+        };
+
+        new LlmCostEstimationOptionsNormalizePostConfigure().PostConfigure(Options.DefaultName, options);
+
+        bool ok = LlmCostEstimationEffectiveRates.TryResolve(
+            options,
+            NoOpLlmCostEstimationUsdRateOverride.Instance,
+            "dep-a",
+            out decimal inputRate,
+            out _,
+            out _);
+
+        ok.Should().BeTrue();
+        inputRate.Should().Be(9m);
     }
 
     private sealed class FixedUsdRateOverride(decimal input, decimal output) : ILlmCostEstimationUsdRateOverride
