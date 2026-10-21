@@ -46,6 +46,13 @@ public static class MarketplacePlanIdMapper
         "denied",
     };
 
+    private static readonly HashSet<string> EnterpriseNegationBridgeTokens = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "for",
+        "of",
+        "to",
+    };
+
     /// <summary>
     ///     Maps Azure Marketplace <c>planId</c> text to persisted <see cref="TenantTier" /> storage codes (
     ///     <c>Standard</c> vs <c>Enterprise</c>).
@@ -77,6 +84,14 @@ public static class MarketplacePlanIdMapper
 
             if (IsEnterpriseNegationToken(previousToken))
                 continue;
+
+            if (previousToken is not null
+                && EnterpriseNegationBridgeTokens.Contains(previousToken)
+                && i >= 2
+                && IsEnterpriseNegationToken(tokens[i - 2]))
+            {
+                continue;
+            }
 
             if (IsEnterpriseNegationToken(nextToken))
                 continue;

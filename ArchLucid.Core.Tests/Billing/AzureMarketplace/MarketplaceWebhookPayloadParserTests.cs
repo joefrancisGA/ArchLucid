@@ -309,6 +309,17 @@ public sealed class MarketplaceWebhookPayloadParserTests
             .Be(nameof(TenantTier.Standard));
     }
 
+    [Theory]
+    [InlineData("contoso-not-for-enterprise-standard")]
+    [InlineData("not-for-enterprise-plan")]
+    [InlineData("partner_not_for_enterprise_monthly")]
+    public void TierStorageCodeFromPlanId_does_not_false_positive_on_negation_bridge_before_enterprise(string planId)
+    {
+        MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId(planId)
+            .Should()
+            .Be(nameof(TenantTier.Standard));
+    }
+
     [Fact]
     public void TierStorageCodeFromPlanId_still_maps_enterprise_when_stripe_token_precedes_enterprise()
     {
