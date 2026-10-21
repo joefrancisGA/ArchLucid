@@ -5902,3 +5902,4 @@
 {"at":"2026-10-21T13:38:16.9148796Z","zoneId":"persistence-identity","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T13:42:21.4752229Z","zoneId":"application-pilots","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T13:44:46.9768927Z","zoneId":"tenant-settings-sql","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-21T13:46:13.7081307Z","zoneId":"encoding-mojibake-guard","outcome":"hit","productLine":"archlucid-shared"}
