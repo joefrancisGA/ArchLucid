@@ -7596,7 +7596,7 @@
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
 - **hunts:** 67
 - **last-hunt:** 2026-10-21
-- **bugs-found:** 53
+- **bugs-found:** 54
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-20 — Tenant value report DOCX omitted artifact-text sanitization
 - **related-pd-tb:** none
@@ -14796,6 +14796,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-21 seed hunt (seed-only) #74: cheap-disproof closed four open candidates (SAML metadata refresh on omit; OIDC audit secret name; whitespace metadata clear; test-login issuer canonicalization); seeded five new candidates; 80 scoped activation/controller tests passed.
 
+
+2026-10-21 seed hunt (seed->hit): IdentityProviderActivationService.ActivateAsync validated KeyVaultSecretName length before protocol-specific field stripping, so SAML activation rejected stale OIDC wizard payloads longer than NVARCHAR(256) even though the secret name is discarded; validate length only after normalize when target protocol is OIDC; regression ActivateAsync_ignores_stale_oidc_key_vault_secret_name_longer_than_column_on_saml_activation; cheap-disproof closed five short (candidate) rows from #74; 97 scoped activation/controller/matrix tests passed.
 ## Zone: identity-provider-config
 2026-10-20 seed hunt (seed->hit): promoted GET /v1/admin/identity/configuration returning legacy MetadataXml on OIDC rows (and KeyVaultSecretName on SAML) after activate began stripping cross-protocol fields; PrepareConfigurationResponse omits protocol-inapplicable columns on read; regression GetConfigurationAsync_omits_metadata_xml_when_stored_protocol_is_oidc; 16 scoped IdentityProviderConfigurationControllerTests passed.
 
@@ -14823,19 +14825,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `IdentityProviderConfigurationController.ActivateAsync` — audit includes OIDC Key Vault secret name — **cheap-disproof 2026-10-21 #74** (intentional forensics).
 - [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — whitespace-only metadata on SAML reactivate — **cheap-disproof 2026-10-21 #74** (`ActivateAsync_rejects_saml_reactivate_that_would_clear_metadata_via_whitespace`).
 - [x] (valid-no-repro) `IdentityProviderConfigurationController.TestLogin` — test-login canonical issuer not persisted until activate — **cheap-disproof 2026-10-21 #74** (`GetConfigurationAsync_returns_canonical_issuer_uri_for_stored_row`).
-- [ ] (candidate) Discover response list reference sharing on thumbprints.
-- [ ] (candidate) Failed discover returns shared service instance.
-- [ ] (candidate) ActivateAsync returns upserted record reference (in-memory).
-- [ ] (candidate) Activate catches only ArgumentException.
-- [ ] (candidate) Claim mapping serialized before cross-protocol field strip on request.
-- **id:** identity-provider-config
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.WithCanonicalWizardUris` — discover response list reference sharing on thumbprints — **cheap-disproof 2026-10-21 #75** (low-severity aliasing; success path already clones envelope; saturated `[other]`).
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.WithCanonicalWizardUris` — failed discover returns shared service instance — **cheap-disproof 2026-10-21 #75** (saturated `[other]`).
+- [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — returns same object reference stored by in-memory repository — **cheap-disproof 2026-10-21 #75** (HTTP activate returns DTO; GET detach already proven).
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.ActivateAsync` — catches only `ArgumentException` — **cheap-disproof 2026-10-21 #75** (activation service maps validation to `ArgumentException`; unexpected faults remain 500).
+- [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — claim mapping serialized before cross-protocol field strip — **cheap-disproof 2026-10-21 #75** (strip applies to metadata/key vault refs, not claim mapping JSON).
+- [x] (proven) `IdentityProviderActivationService.ActivateAsync` — SAML activation rejected stale `KeyVaultSecretName` longer than NVARCHAR(256) before the field was stripped — regression `ActivateAsync_ignores_stale_oidc_key_vault_secret_name_longer_than_column_on_saml_activation`.- **id:** identity-provider-config
 - **status:** open
 - **impact:** high
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 74
-- **bugs-found:** 53
+- **hunts:** 75
+- **bugs-found:** 54
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-21 — discover returned shared discovery service response instance
@@ -49425,7 +49427,7 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
 - **hunts:** 67
 - **last-hunt:** 2026-10-21
-- **bugs-found:** 53
+- **bugs-found:** 54
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-20 — Tenant value report DOCX omitted artifact-text sanitization
 - **related-pd-tb:** none
@@ -92989,7 +92991,7 @@ ABQ-09 churn hotspot.
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
 - **hunts:** 67
 - **last-hunt:** 2026-10-21
-- **bugs-found:** 53
+- **bugs-found:** 54
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-20 — Tenant value report DOCX omitted artifact-text sanitization
 - **related-pd-tb:** none

@@ -914,6 +914,30 @@ public sealed class IdentityProviderActivationServiceTests
     }
 
     [Fact]
+    public async Task ActivateAsync_ignores_stale_oidc_key_vault_secret_name_longer_than_column_on_saml_activation()
+    {
+        // SAML activation strips KeyVaultSecretName; stale wizard payloads must not fail length checks on a discarded field.
+        IdentityProviderActivationService sut = new(new InMemoryTenantIdentityProviderConfigurationRepository());
+        string staleSecretName = new('k', IdentityProviderPersistedFieldLimits.KeyVaultSecretNameMaxLength + 1);
+
+        TenantIdentityProviderConfigurationRecord record = await sut.ActivateAsync(
+            Guid.Parse("a1000000-0000-0000-0000-000000000099"),
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "saml",
+                IssuerUri = "https://idp.example/saml",
+                ClaimMapping = ValidClaimMapping(),
+                MetadataXml = ValidSamlMetadataXml,
+                KeyVaultSecretName = staleSecretName,
+            },
+            CancellationToken.None);
+
+        record.Protocol.Should().Be(TenantIdentityProtocol.Saml);
+        record.KeyVaultSecretName.Should().BeNull();
+    }
+
+    [Fact]
     public async Task ActivateAsync_rejects_protocol_switch_to_oidc_without_key_vault_secret()
     {
         InMemoryTenantIdentityProviderConfigurationRepository repository = new();

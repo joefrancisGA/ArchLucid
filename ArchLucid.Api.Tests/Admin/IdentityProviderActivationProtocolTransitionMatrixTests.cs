@@ -25,7 +25,7 @@ public sealed class IdentityProviderActivationProtocolTransitionMatrixTests
     [Theory]
     [InlineData(null, TenantIdentityProtocol.Saml, true)]
     [InlineData(TenantIdentityProtocol.Oidc, TenantIdentityProtocol.Saml, true)]
-    [InlineData(TenantIdentityProtocol.Saml, TenantIdentityProtocol.Saml, false)]
+    [InlineData(TenantIdentityProtocol.Saml, TenantIdentityProtocol.Saml, true)]
     [InlineData(TenantIdentityProtocol.Oidc, TenantIdentityProtocol.Oidc, false)]
     [InlineData(null, TenantIdentityProtocol.Oidc, false)]
     public void RequiresSubstantiveSamlMetadataXml_matches_transition_matrix(

@@ -81,7 +81,7 @@ public sealed class IdentityProviderActivationService(
             request.MetadataXml,
             sameProtocol ? existing?.MetadataXml : null);
 
-        string? keyVaultSecretName = ResolveKeyVaultSecretName(
+        string? keyVaultSecretName = ResolveOptionalPersistedField(
             request.KeyVaultSecretName,
             sameProtocol ? existing?.KeyVaultSecretName : null);
 
@@ -89,6 +89,9 @@ public sealed class IdentityProviderActivationService(
             parsedProtocol,
             ref metadataXml,
             ref keyVaultSecretName);
+
+        if (parsedProtocol == TenantIdentityProtocol.Oidc)
+            IdentityProviderPersistedFieldLimits.EnsureKeyVaultSecretNameFits(keyVaultSecretName);
 
         IdentityProviderActivationProtocolFieldGuards.EnsureActivateFields(
             parsedProtocol,
@@ -118,18 +121,6 @@ public sealed class IdentityProviderActivationService(
         await _repository.UpsertAsync(record, cancellationToken).ConfigureAwait(false);
 
         return record;
-    }
-
-    /// <summary>
-    ///     Resolves the secret name, then rejects a value the NVARCHAR(256) column cannot store.
-    /// </summary>
-    private static string? ResolveKeyVaultSecretName(string? requestValue, string? existingValue)
-    {
-        string? resolved = ResolveOptionalPersistedField(requestValue, existingValue);
-
-        IdentityProviderPersistedFieldLimits.EnsureKeyVaultSecretNameFits(resolved);
-
-        return resolved;
     }
 
     /// <summary>
