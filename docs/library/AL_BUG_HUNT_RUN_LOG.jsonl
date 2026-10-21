@@ -5850,3 +5850,4 @@
 {"at":"2026-10-21T05:59:13.258091Z","zoneId":"ui-webhooks-settings","outcome":"dry","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx","archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts"]}
 {"at":"2026-10-21T05:59:13.8083026Z","zoneId":"ui-webhooks-settings","outcome":"dry","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/app/(operator)/integrations/webhooks/)"]}
 {"at":"2026-10-21T06:02:23.254Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailWorkspaceChrome.tsx"]}
+{"at":"2026-10-21T06:02:20.9022897Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared"}
