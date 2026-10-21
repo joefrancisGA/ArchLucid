@@ -104,7 +104,8 @@ export function ReviewWorkbenchSelectionProvider(props: ReviewWorkbenchSelection
   }, []);
 
   useEffect(() => {
-    reconcileSelectedFindingId(readReviewDetailFindingIdFromWindowLocation());
+    // Next.js client navigations update useSearchParams before window.location.search catches up.
+    reconcileSelectedFindingId(searchParamFindingId);
   }, [searchParamFindingId, reconcileSelectedFindingId]);
 
   const setHighlightedNodeId = useCallback((nodeId: string | null) => {

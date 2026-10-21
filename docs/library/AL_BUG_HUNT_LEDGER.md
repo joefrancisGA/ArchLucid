@@ -41604,7 +41604,7 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - [ ] (candidate) `RunFindingExplainabilityTable` — explainability row expansion query sync only on `popstate` — locus: finding explainability table; input: soft navigation sets explainability open param.
 - [ ] (candidate) `RunExplanationSection` — provenance disclosure `runExplanationProvenanceOpen` sync only on `popstate` — locus: run explanation section; input: soft navigation with provenance open query on overview tab.
 - [x] (valid-no-repro) `use-review-detail-workspace-tabs` — **cheap-disproof 2026-10-21 seed hunt:** reconciles `reviewTab` from `useSearchParams`; regression `follows reviewTab query changes without a popstate event`.
-- [ ] (candidate) `ReviewWorkbenchSelectionContext` — selected finding id from URL sync only on `popstate` — locus: workbench selection provider; input: soft navigation updates `findingId` query on inspect workspace.
+- [x] (proven) `ReviewWorkbenchSelectionContext` — stale `window.location` on `searchParamFindingId` effect — **hit 2026-10-21 seed hunt:** see zone header.
 
 2026-10-16 seed hunt (seed→hit): promoted operator technical disclosure `runTechnicalDetailsOpen` soft-navigation sync.
 
@@ -41811,11 +41811,11 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 43
-- **bugs-found:** 34
+- **hunts:** 44
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — finding explainability explainId soft-navigation sync
+- **last-bug:** 2026-10-21 — workbench findingId when useSearchParams leads window.location
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.

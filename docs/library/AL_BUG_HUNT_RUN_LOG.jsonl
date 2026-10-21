@@ -5798,3 +5798,4 @@
 {"at":"2026-10-21T03:15:34.6179165Z","zoneId":"knowledge-graph-provenance","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.KnowledgeGraph/","ArchLucid.Provenance/"]}
 {"at":"2026-10-21T03:21:20.7341779Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/reviews/","archlucid-ui/src/components/runs/RunExplanationSection.tsx"]}
 {"at":"2026-10-21T03:26:11.3489460Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T03:33:03.5326340Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/reviews/ReviewWorkbenchSelectionContext.tsx"]}
