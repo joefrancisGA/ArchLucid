@@ -141,67 +141,17 @@ public sealed partial class LlmCompletionAccountingClient
             }
             else
             {
-                _ = reasoningTok;
-
-                _quotaTracker.RecordUsage(scope.TenantId, promptTok, completionTok);
-
-                if (_useJudgeDailyCapOnly)
-                {
-                    await _judgeDailyBudgetTracker!
-                        .RecordUsageAsync(
-                            scope.TenantId,
-                            providerKind,
-                            promptTok,
-                            completionTok,
-                            dailyReserved,
-                            CancellationToken.None)
-                        .ConfigureAwait(false);
-                }
-                else
-                {
-                    await _dailyTenantBudgetTracker
-                        .RecordUsageAndMaybeWarnAsync(
-                            scope.TenantId,
-                            providerKind,
-                            _scopeProvider,
-                            _auditService,
-                            promptTok,
-                            completionTok,
-                            dailyReserved,
-                            CancellationToken.None)
-                        .ConfigureAwait(false);
-                }
-
-                await _monthlyDollarBudgetTracker
-                    .RecordUsageAndMaybeWarnAsync(
-                        scope.TenantId,
+                await SettleMeasuredCompletionUsageAsync(
+                        scope,
                         providerKind,
-                        _scopeProvider,
-                        _auditService,
                         promptTok,
                         completionTok,
+                        reasoningTok,
+                        cachedPromptTok,
+                        dailyReserved,
                         monthlyReserved,
                         overageActive,
-                        CancellationToken.None)
-                    .ConfigureAwait(false);
-
-                await _telemetry
-                    .RecordTokenUsageAsync(scope, promptTok, completionTok, cachedPromptTok, CancellationToken.None)
-                    .ConfigureAwait(false);
-
-                decimal? estimatedUsd = _costEstimator.EstimateUsd(promptTok, completionTok);
-
-                await _aiBudgetPreCallGuard
-                    .RecordCompletionAsync(
-                        scope.TenantId,
-                        AmbientAiUsageFeatureScope.Current,
-                        providerKind,
-                        promptTok,
-                        completionTok,
-                        estimatedUsd,
-                        correlationId: null,
-                        actorUserId: null,
-                        CancellationToken.None)
+                        _useJudgeDailyCapOnly)
                     .ConfigureAwait(false);
             }
         }

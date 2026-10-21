@@ -271,6 +271,54 @@ public sealed class LlmCompletionAccountingClientTests
     }
 
     [Fact]
+    public async Task CompleteJsonAsync_when_reasoning_only_usage_settles_monthly_dollar_budget()
+    {
+        Guid tenant = Guid.NewGuid();
+        InMemoryLlmTenantBudgetRepository monthlyRepo = new();
+        Mock<ILlmCostEstimator> costEstimator = new();
+        costEstimator
+            .Setup(e => e.EstimateUsd(0, 0, 40, It.IsAny<string?>(), It.IsAny<string?>()))
+            .Returns(0.25m);
+
+        Mock<IAgentCompletionClient> inner = new();
+        inner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("stub", "stub"));
+        inner
+            .Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .Returns(() =>
+            {
+                AzureOpenAiCompletionClient.SeedLastCompletionTokenUsageForTests(0, 0, reasoningTokens: 40);
+
+                return Task.FromResult("{}");
+            });
+
+        LlmMonthlyTenantDollarBudgetOptions monthlyOpts = new()
+        {
+            Enabled = true,
+            IncludedUsdPerUtcMonth = 50m,
+            HardCutoffUsdPerUtcMonth = 75m,
+        };
+
+        LlmCompletionAccountingClient sut = CreateClient(
+            inner.Object,
+            tenant,
+            monthlyBudgetOptions: monthlyOpts,
+            monthlyBudgetRepository: monthlyRepo,
+            costEstimator: costEstimator.Object);
+
+        await sut.CompleteJsonAsync("s", "u", cancellationToken: CancellationToken.None);
+
+        DateTime utc = DateTime.UtcNow;
+        string periodKey = string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:0000}-{1:00}", utc.Year, utc.Month);
+        LlmTenantBudgetStateReadModel row =
+            await monthlyRepo.GetOrCreateAsync(tenant, LlmBudgetPeriod.Monthly, periodKey, CancellationToken.None);
+
+        row.CommittedUsd.Should().Be(0.25m);
+        costEstimator.Verify(
+            e => e.EstimateUsd(0, 0, 40, It.IsAny<string?>(), It.IsAny<string?>()),
+            Times.AtLeastOnce);
+    }
+
+    [Fact]
     public async Task CompleteJsonAsync_when_cached_input_tokens_are_seeded_records_cached_prompt_counter()
     {
         ArchLucidInstrumentation.TestingResetProviderPromptCacheAggregates();
@@ -327,7 +375,8 @@ public sealed class LlmCompletionAccountingClientTests
         LlmDailyTenantTokenWindowOptions? dailyBudgetOptions = null,
         ILlmTenantBudgetRepository? dailyBudgetRepository = null,
         LlmMonthlyTenantDollarBudgetOptions? monthlyBudgetOptions = null,
-        ILlmTenantBudgetRepository? monthlyBudgetRepository = null)
+        ILlmTenantBudgetRepository? monthlyBudgetRepository = null,
+        ILlmCostEstimator? costEstimator = null)
     {
         LlmTokenQuotaOptions quotaOptsBinding =
             clientQuotaOptions ?? new LlmTokenQuotaOptions { Enabled = false };
@@ -349,8 +398,20 @@ public sealed class LlmCompletionAccountingClientTests
         metering.Setup(m => m.RecordAsync(It.IsAny<UsageEvent>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        Mock<ILlmCostEstimator> costEstimator = new();
-        costEstimator.Setup(e => e.EstimateUsd(It.IsAny<int>(), It.IsAny<int>())).Returns(0m);
+        ILlmCostEstimator costEstimatorBinding;
+
+        if (costEstimator is not null)
+        {
+            costEstimatorBinding = costEstimator;
+        }
+        else
+        {
+            Mock<ILlmCostEstimator> costEstimatorMock = new();
+            costEstimatorMock
+                .Setup(e => e.EstimateUsd(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>(), It.IsAny<string?>()))
+                .Returns(0m);
+            costEstimatorBinding = costEstimatorMock.Object;
+        }
 
         LlmDailyTenantTokenWindowOptions dailyOptsBinding =
             dailyBudgetOptions ?? new LlmDailyTenantTokenWindowOptions { Enabled = false };
@@ -366,7 +427,7 @@ public sealed class LlmCompletionAccountingClientTests
             monthlyBudgetRepository ?? new InMemoryLlmTenantBudgetRepository();
         LlmMonthlyTenantDollarBudgetTracker monthlyTracker = new(
             new FixedValueOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions>(monthlyOptsBinding),
-            costEstimator.Object,
+            costEstimatorBinding,
             monthlyRepoBinding,
             new InMemoryLlmMonthlyTenantBudgetReservationStore(monthlyRepoBinding, TimeProvider.System),
             new NoOpLlmTenantWalletService(),
@@ -382,7 +443,7 @@ public sealed class LlmCompletionAccountingClientTests
             new FixedValueOptionsMonitor<LlmTelemetryOptions>(new LlmTelemetryOptions()),
             new FixedValueOptionsMonitor<LlmTelemetryLabelOptions>(new LlmTelemetryLabelOptions()),
             metering.Object,
-            costEstimator.Object,
+            costEstimatorBinding,
             new FixedValueOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions>(monthlyOptsBinding),
             NullLogger<LlmCompletionAccountingTelemetry>.Instance);
 
@@ -398,7 +459,7 @@ public sealed class LlmCompletionAccountingClientTests
             dailyTracker,
             new FixedValueOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions>(monthlyOptsBinding),
             monthlyTracker,
-            costEstimator.Object,
+            costEstimatorBinding,
             new NoOpAiBudgetPreCallGuard(),
             new NoOpDemoAiPromptCache(),
             new FixedValueOptionsMonitor<AiUsageControlsOptions>(new AiUsageControlsOptions()),

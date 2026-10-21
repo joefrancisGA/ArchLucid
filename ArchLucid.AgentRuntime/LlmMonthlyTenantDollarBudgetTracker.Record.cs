@@ -23,6 +23,7 @@ public sealed partial class LlmMonthlyTenantDollarBudgetTracker
         IAuditService? auditService,
         int promptTokens,
         int completionTokens,
+        int reasoningTokens,
         decimal? pendingReservedUsd,
         bool overageActive,
         CancellationToken cancellationToken = default)
@@ -30,9 +31,17 @@ public sealed partial class LlmMonthlyTenantDollarBudgetTracker
         if (tenantId == Guid.Empty || providerKind.IsExcludedFromBudgetTracking())
             return;
 
+        LlmCompletionUsageBillingNormalization.BillableTokenCounts billable =
+            LlmCompletionUsageBillingNormalization.NormalizeForCostEstimate(
+                promptTokens,
+                completionTokens,
+                reasoningTokens);
+
         if (overageActive)
         {
-            decimal? walletUsd = _costEstimator.EstimateUsd(promptTokens, completionTokens);
+            decimal? walletUsd = LlmCompletionUsageBillingNormalization.HasMeasurableUsage(billable)
+                ? _costEstimator.EstimateUsd(billable.Prompt, billable.Output, billable.Reasoning)
+                : null;
 
             if (walletUsd is > 0m)
             {
@@ -54,10 +63,10 @@ public sealed partial class LlmMonthlyTenantDollarBudgetTracker
         if (!opts.Enabled || opts.IncludedUsdPerUtcMonth < 0.01m || opts.HardCutoffUsdPerUtcMonth < 0.01m)
             return;
 
-        if (promptTokens < 1 && completionTokens < 1)
+        if (!LlmCompletionUsageBillingNormalization.HasMeasurableUsage(billable))
             return;
 
-        decimal? addUsd = _costEstimator.EstimateUsd(promptTokens, completionTokens);
+        decimal? addUsd = _costEstimator.EstimateUsd(billable.Prompt, billable.Output, billable.Reasoning);
 
         if (addUsd is null or <= 0m)
             return;

@@ -121,6 +121,7 @@ public sealed class LlmDailyTenantBudgetTracker(
         IAuditService? auditService,
         int promptTokens,
         int completionTokens,
+        int reasoningTokens,
         long? pendingReserved,
         CancellationToken cancellationToken = default)
     {
@@ -132,10 +133,14 @@ public sealed class LlmDailyTenantBudgetTracker(
         if (!opts.Enabled || opts.HardCutoffTokensPerUtcDay < 1)
             return;
 
-        if (promptTokens < 1 && completionTokens < 1)
+        if (!LlmCompletionUsageBillingNormalization.HasDailyMeasurableUsage(
+                promptTokens,
+                completionTokens,
+                reasoningTokens))
             return;
 
-        long added = Math.Max(0, promptTokens) + (long)Math.Max(0, completionTokens);
+        long added = Math.Max(0, promptTokens)
+            + LlmCompletionUsageBillingNormalization.DailyOutputTokenPressure(completionTokens, reasoningTokens);
         DateOnly today = TimeProvider.System.UtcToday();
         string periodKey = DailyPeriodKey(today);
         long max = opts.HardCutoffTokensPerUtcDay;
