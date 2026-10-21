@@ -1,4 +1,6 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
+2026-10-21 seed hunt (seed→hit, lane C): `run-execute-ownership` — lock `run-execute-ownership` pushed and verified on `origin/bugsmash` (no other origin locks); skipped `ui-*` and zones hunted in the last hour; selected oldest eligible non-UI zone (`run-execute-ownership`); promoted `(candidate)` post-acquire drain rollback — `AcquireAsync` passed caller cancellation into `TryReleaseAsync`, so a cancelled client could skip SQL rollback after drain admission; drain rollback now uses `CancellationToken.None`; regression `AcquireAsync_when_drain_begins_after_acquire_rolls_back_sql_with_non_cancellable_release_when_caller_token_is_cancelled`; Release build ArchLucid.Application + ArchLucid.Application.Tests; scoped ownership/orchestrator filter 69/70 (excluded hung `AcquireAsync_when_concurrent_repository_success_and_tryadd_loses_rolls_back_sql_lease` on VM); lock released after push.
+
 2026-10-21 thorough hunt (hit, lane C): `core-explanation-json` — shipped scalar object-shaped `evidenceRefs` reader fix (whitespace-only `text` + readable `id` now maps `id`; in-array blank-text+id poison unchanged via `blankTextWithIdIsInArrayPoison`); regression `TryNormalizeStructuredJson_maps_object_shaped_evidence_ref_id_when_text_property_is_whitespace_only`; cheap-disproof closed picker fractional-reasoning `(candidate)` (invalid, parity with 2026-10-21 dry); ArchLucid.Core `RunExplanation` filter 215/215; Release build ArchLucid.Core + ArchLucid.Core.Tests.
 
 2026-10-21 seed hunt (seed→hit, lane C): `tenant-erasure` — lock `tenant-erasure` pushed and verified on `origin/bugsmash` before work; skipped `ui-*` and zones hunted in the last hour; selected least-recent unlocked non-UI zone (`2026-10-21T05:07:13Z`); promoted first-time `TryOffboardTenantAsync` audit path — quarantine restore after pre-audit read but before `TenantErasureOffboarded` append could still emit platform audit with stale offboard timestamps; added immediate pre-append tenant re-read (parity with approve/legal-hold commands); regression `TryOffboardTenantAsync_returns_null_without_audit_when_quarantine_restored_after_pre_audit_read_before_first_offboard_audit_append`; `dotnet build` Release ArchLucid.Application + ArchLucid.Application.Tests; Application `TenantErasure` 36/36, Api `TenantErasure` 33/33; lock released after push.
@@ -44639,8 +44641,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 58
-- **bugs-found:** 27
+- **hunts:** 59
+- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind

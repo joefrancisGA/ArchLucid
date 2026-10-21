@@ -88,8 +88,9 @@ public sealed class RunExecuteOwnershipLeaseService(
 
             if (_drainGate.IsDraining)
             {
+                // Roll back the SQL row even when the caller token is already cancelled (TB-961 drain admission).
                 await _leaseRepository
-                    .TryReleaseAsync(runId, holderInstanceId, cancellationToken)
+                    .TryReleaseAsync(runId, holderInstanceId, CancellationToken.None)
                     .ConfigureAwait(false);
 
                 throw new ConflictException(

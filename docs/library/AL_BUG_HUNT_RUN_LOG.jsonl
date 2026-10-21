@@ -6017,3 +6017,4 @@
 {"at":"2026-10-21T19:38:43.8760624Z","zoneId":"host-core-jobs","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Host.Core/Jobs/BackgroundJobQueueProcessorHostedService.cs)"]}
 {"at":"2026-10-21T19:47:00.0730490Z","zoneId":"tenant-erasure","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Application/Tenancy/TenantErasureCommandService.cs)"]}
 {"at":"2026-10-21T19:54:57.1063052Z","zoneId":"core-explanation-json","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T20:07:41.0402123Z","zoneId":"run-execute-ownership","outcome":"hit","productLine":"archlucid-shared"}
