@@ -11,6 +11,8 @@ using ArchLucid.Provenance;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Logging.Abstractions;
+
 using Moq;
 
 namespace ArchLucid.Application.Tests.Provenance;
@@ -43,7 +45,7 @@ public sealed class ProvenanceGraphAccessServiceTests
             });
 
         Mock<IProvenanceBuilder> builder = new();
-        ProvenanceGraphAccessService sut = new(repo.Object, builder.Object, TimeProvider.System);
+        ProvenanceGraphAccessService sut = new(repo.Object, builder.Object, TimeProvider.System, NullLogger<ProvenanceGraphAccessService>.Instance);
 
         DecisionProvenanceGraph? graph = await sut.ResolveGraphAsync(scope, detail, CancellationToken.None);
 
@@ -69,7 +71,7 @@ public sealed class ProvenanceGraphAccessServiceTests
         Mock<IProvenanceBuilder> builder = new();
         builder.Setup(b => b.Build(It.IsAny<ProvenanceBuildInput>())).Returns(built);
 
-        ProvenanceGraphAccessService sut = new(repo.Object, builder.Object, TimeProvider.System);
+        ProvenanceGraphAccessService sut = new(repo.Object, builder.Object, TimeProvider.System, NullLogger<ProvenanceGraphAccessService>.Instance);
         await sut.TryMaterializeSnapshotAsync(scope, detail, CancellationToken.None);
 
         repo.Verify(
@@ -123,7 +125,7 @@ public sealed class ProvenanceGraphAccessServiceTests
         Mock<IProvenanceBuilder> builder = new();
         builder.Setup(b => b.Build(It.IsAny<ProvenanceBuildInput>())).Returns(rebuiltGraph);
 
-        ProvenanceGraphAccessService sut = new(repo.Object, builder.Object, TimeProvider.System);
+        ProvenanceGraphAccessService sut = new(repo.Object, builder.Object, TimeProvider.System, NullLogger<ProvenanceGraphAccessService>.Instance);
 
         DecisionProvenanceGraph? graph = await sut.ResolveGraphAsync(scope, detail, CancellationToken.None);
 

@@ -1,3 +1,4 @@
+using ArchLucid.Core.Artifacts;
 using ArchLucid.Persistence.BlobStore;
 
 using Dapper;
@@ -71,6 +72,21 @@ internal static partial class ArtifactBundleRelationalRead
 
         if (notes.Count > 0)
             trace.Notes = notes;
+
+        SynthesizedArtifactBundleCanonicalizationResult canonical =
+            SynthesizedArtifactBundleCanonicalizer.Canonicalize(artifacts);
+
+        artifacts = canonical.Artifacts.ToList();
+
+        if (canonical.Conflicts.Count > 0)
+        {
+            foreach (SynthesizedArtifactBundleConflict conflict in canonical.Conflicts)
+            {
+                string hashList = string.Join(", ", conflict.ContentHashes);
+                trace.Notes.Add(
+                    $"ArtifactBundleDuplicateArtifactId[{conflict.ArtifactId:N}]: conflicting ContentHash values ({hashList}) collapsed to canonical row.");
+            }
+        }
 
         return new ArtifactBundle
         {

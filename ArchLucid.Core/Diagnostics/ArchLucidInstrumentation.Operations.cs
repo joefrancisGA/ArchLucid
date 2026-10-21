@@ -156,6 +156,16 @@ public static partial class ArchLucidInstrumentation
 
     
     /// <summary>
+    ///     Artifact bundle rows collapsed because the same <c>ArtifactId</c> appeared with conflicting <c>ContentHash</c>
+    ///     values (data-integrity signal; typically legacy <c>ArtifactsJson</c> payloads).
+    /// </summary>
+    public static readonly Counter<long> ProvenanceArtifactBundleDuplicateArtifactIdConflictTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_provenance_artifact_bundle_duplicate_artifact_id_conflict_total",
+            description: "Duplicate artifact bundle rows with conflicting content hashes canonicalized.");
+
+    
+    /// <summary>
     ///     Observed latency for named SQL/query gates (TECH_BACKLOG TB-003 parity with CI allowlist; label <c>query_name</c>).
     /// </summary>
     public static readonly Histogram<double> QueryNamedLatencyMilliseconds =
@@ -199,6 +209,15 @@ public static partial class ArchLucidInstrumentation
     public static void RecordProvenanceSnapshotWrite()
     {
         ProvenanceSnapshotWritesTotal.Add(1);
+    }
+
+    /// <summary>Records duplicate artifact id / content-hash conflicts collapsed during canonicalization.</summary>
+    public static void RecordProvenanceArtifactBundleDuplicateArtifactIdConflicts(int conflictCount)
+    {
+        if (conflictCount <= 0)
+            return;
+
+        ProvenanceArtifactBundleDuplicateArtifactIdConflictTotal.Add(conflictCount);
     }
 
     /// <summary>Records one provenance read satisfied from a fresh snapshot.</summary>

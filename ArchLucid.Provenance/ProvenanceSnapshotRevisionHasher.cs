@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 
 using ArchLucid.Contracts.Persistence.DecisionTraces;
+using ArchLucid.Core.Artifacts;
 
 namespace ArchLucid.Provenance;
 
@@ -36,7 +37,7 @@ public static class ProvenanceSnapshotRevisionHasher
         if (artifacts.Count == 0)
             return string.Empty;
 
-        IEnumerable<string> parts = ProvenanceArtifactBundleCanonicalizer
+        IEnumerable<string> parts = SynthesizedArtifactBundleCanonicalizer
             .DistinctByArtifactId(artifacts)
             .OrderBy(static artifact => artifact.ArtifactId)
             .Select(static artifact =>

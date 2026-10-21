@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Persistence.DecisionTraces;
+using ArchLucid.Core.Artifacts;
 using ArchLucid.Decisioning.Models;
 namespace ArchLucid.Provenance;
 
@@ -202,7 +203,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         return result;
 
         IEnumerable<SynthesizedArtifact> DistinctArtifacts() =>
-            ProvenanceArtifactBundleCanonicalizer.DistinctByArtifactId(artifacts);
+            SynthesizedArtifactBundleCanonicalizer.DistinctByArtifactId(artifacts);
 
         ProvenanceNode CreateFindingNode(Finding finding)
         {
