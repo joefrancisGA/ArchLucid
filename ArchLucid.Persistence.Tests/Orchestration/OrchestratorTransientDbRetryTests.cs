@@ -1268,7 +1268,7 @@ public sealed class OrchestratorTransientDbRetryTests
     }
 
     [SkippableFact]
-    public async Task ExecuteAsync_retries_when_first_populated_aggregate_on_inner_chain_hides_later_mixed_aggregate()
+    public async Task ExecuteAsync_does_not_retry_when_first_populated_aggregate_on_inner_chain_hides_later_mixed_aggregate()
     {
         int attempts = 0;
         SqlException fkViolation = SqlExceptionTestFactory.Create(547);
@@ -1286,7 +1286,7 @@ public sealed class OrchestratorTransientDbRetryTests
             CancellationToken.None);
 
         await act.Should().ThrowAsync<InvalidOperationException>();
-        attempts.Should().Be(4, "TryGetParallelPersistInners stops at the first populated aggregate on the inner chain");
+        attempts.Should().Be(1);
     }
 
     [SkippableFact]
