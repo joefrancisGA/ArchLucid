@@ -168,6 +168,10 @@ public sealed partial class AgentOutputLlmSemanticJudge
             if (double.IsNaN(q) || double.IsInfinity(q))
                 return null;
 
+            // Scores outside the judge contract are malformed output, not low/high confidence.
+            if (q < 0.0 || q > 1.0)
+                return null;
+
             q = Math.Clamp(q, 0.0, 1.0);
             string? rationale = ReadRationale(root);
 

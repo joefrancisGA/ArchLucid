@@ -81,6 +81,22 @@ public sealed class AgentOutputLlmSemanticJudgeTests
     }
 
     [Fact]
+    public async Task TryJudgeAsync_rejects_overall_quality_outside_judge_range()
+    {
+        Mock<IAgentCompletionClient> client = new();
+        client
+            .Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("""{"overallQuality":2.0,"rationale":"malformed"}""");
+
+        AgentOutputLlmSemanticJudge judge = CreateJudge(client.Object, enabled: true, mode: "Real");
+
+        AgentOutputLlmJudgeParsedResult? result =
+            await judge.TryJudgeAsync("trace-1", """{"claims":[]}""", AgentType.Topology, CancellationToken.None);
+
+        result.Should().BeNull();
+    }
+
+    [Fact]
     public async Task TryJudgeAsync_parses_completion_json_keys_without_case_sensitivity()
     {
         Mock<IAgentCompletionClient> client = new();
