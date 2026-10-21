@@ -1,4 +1,5 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
+2026-10-21 thorough hunt (dry, lane C): `review-recurrence` — lock `review-recurrence` pushed and verified on origin before work; re-read `ArchitectureReviewRecurrenceNextRunCalculator` and `GovernanceStickinessFacade.PreviewRecurrenceScheduleRuns`; re-confirmed large `count` allocation remains caller-bounded (1–20) before `ComputeNextRunsUtc`; no open `(candidate)` or `(hunt-ready)` rows in zone catalog; scoped `ArchitectureReviewRecurrenceNextRunCalculatorTests` 47/47; no production change.
 ﻿> **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 2026-10-21 thorough hunt (dry, lane B): `auth-return-path` — lock pushed before work; repro-first on five open `(candidate)` rows (paragraph separator, form feed, query `%5C%2F`, fragment `%2E%2E`, small commercial-at homoglyph); BMP NFKC compatibility scan on accepted single-codepoint prefixes found no protocol-relative or `@` normalization bypass beyond prior ledger rows; regressions `TryNormalize_accepts_percent_encoded_paragraph_separator_in_path_segment`, `TryNormalize_rejects_percent_encoded_form_feed_in_path_segment_after_decode`, `TryNormalize_rejects_encoded_backslash_slash_pair_in_query`, `TryNormalize_accepts_percent_encoded_dot_dot_literals_only_in_fragment`, `TryNormalize_rejects_percent_encoded_small_commercial_at_in_path_portion`; scoped `FullyQualifiedName~AuthSignInReturnPathGuardTests` 201/201; no production change.
 
@@ -11852,7 +11853,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
 - **hunts:** 39
 - **bugs-found:** 19
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-12
 - **last-bug:** 2026-10-09 — wallet GET still required admin because Authorize attributes stack
 - **related-pd-tb:** none
@@ -12172,12 +12173,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: review-recurrence
 
+2026-10-21 thorough hunt (dry, lane C): `review-recurrence` — lock verified on origin; facade preview count 1–20; calculator paths unchanged; 47/47 scoped tests; no production change.
+
 2026-10-11 seed hunt (seed-only): repeated the selected recurrence calculator review against its complete focused suite; production delegation, UTC normalization, strict advancement, and bounded preview inputs remain covered, with no fresh reachable mechanism-backed hypothesis. The focused suite passed 47/47; no production or regression code changed.
 
 2026-10-11 seed hunt (seed-only): re-read `ArchitectureReviewRecurrenceNextRunCalculator` and its production caller boundary; the scheduler implementation returns UTC-normalized occurrences, the facade bounds reachable preview counts, and no fresh mechanism-backed candidate met the promotion bar. The focused recurrence suite passed 47/47; no production or regression code changed.
 
-- **hunts:** 35
-- **last-hunt:** 2026-10-10
+- **hunts:** 36
+- **last-hunt:** 2026-10-21
 
 2026-10-11 seed hunt (seed-only): `review-recurrence` — re-read the unchanged calculator and focused tests, including all public single-run/batch inputs and the scheduler delegation boundary. The focused suite passed 47/47; no fresh reachable mechanism-backed hypothesis emerged and no production or regression code changed.
 
@@ -12198,7 +12201,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
 - **bugs-found:** 5
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-bug:** 2026-08-24 — preview path skipped single-run normalization (reference-equality / Unspecified kind)
 - **related-pd-tb:** none
 - **code-changed-since:** no
