@@ -1,3 +1,5 @@
+2026-10-21 seed hunt (seed-only, lane D): `chatops-delivery` — lock `chatops-delivery` pushed and verified on `origin/bugsmash` before work (skipped picker top `core-configuration-summary` hunted today; avoided `cli-draft-new` lock); re-read `AuthorityRunCommittedChatOpsHook` and `AuthorityRunCompletedChatOpsIntegrationEventHandler` plus scoped hook/handler tests; cheap-disproof closed all-target-failure retry semantics, partial sibling success, non-HTTPS skip, and future `schemaVersion` rows from ledger; no hunt-ready promotion; seeded three `(candidate)` rows; scoped `FullyQualifiedName~AuthorityRunCommittedChatOps|FullyQualifiedName~AuthorityRunCompletedChatOps` 22/22; lock released after push.
+
 2026-10-21 seed hunt (seed-only, lane D): `authority-pipeline-payload` — lock `authority-pipeline-payload` pushed and verified on `origin/bugsmash` before work (skipped picker top `core-configuration-summary` hunted today; avoided `agent-runtime-evaluation` lock); re-read `AuthorityPipelineWorkPayload.cs`, `AuthorityPipelineWorkPayloadJson.cs`, and focused JSON/null-element regressions; cheap-disproof on null `contextIngestionRequest` (processor marks processed without dead-letter per `AuthorityPipelineWorkProcessor`), orchestrator serialize without pre-materialize (worker `EnsureMutableCollections` on deserialize), and compact/path reference NBSP/combining-mark classes already closed; no hunt-ready promotion; seeded three `(candidate)` rows at zone head; scoped picker test filter 39/39; lock released after push.
 
 2026-10-21 seed hunt (seed→hit, lane D): `scim-users` — lock `scim-users` pushed and verified on `origin/bugsmash` before work (`be718ccc09`; skipped picker top `core-configuration-summary` hunted today; avoided `cli-tenant-isolation` lock); promoted reachable `GET /scim/v2/Users?filter=active eq "1"` — SQL translator treated any non-`true` literal as inactive (`active eq "1"` queried `Active=0`) while PATCH already accepts numeric booleans; shared `ScimActiveFilterLiteralParser` for SQL and in-memory list evaluation; regressions `ListAsync_active_eq_numeric_one_returns_only_active_users` and `BuildWhere_active_eq_numeric_one_targets_active_bit_one`; cheap-disproof closed open `(candidate)` rows (`startIndex` malformed query binds 400 before action; PATCH `displayName` JSON null clears via `ResolvePatchDisplayName`); scoped `FullyQualifiedName~ScimUsers` 37/37 + SQL translator 5/5; lock released after push.
@@ -44583,20 +44585,25 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 ## Zone: chatops-delivery
 
 - **id:** chatops-delivery
-- **status:** cooling
+- **status:** open
 - **impact:** medium
 - **aliases:** chatops webhook; authority commit notification; slack teams delivery
 - **paths:** ArchLucid.Notifications/AuthorityRunCommittedChatOpsHook.cs; ArchLucid.Notifications/AuthorityRunCompletedChatOpsIntegrationEventHandler.cs
 - **test-filter:** FullyQualifiedName~AuthorityRunCommittedChatOps|FullyQualifiedName~AuthorityRunCompletedChatOps
-- **hunts:** 3
+- **hunts:** 4
 - **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-13
+- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-09-08 — ChatOps hook swallowed all-target delivery failures so Service Bus completed without retry
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 2026-09-13 seed hunt #2264 (seed-only): reseeded chatops-delivery with `-Hint webhook`; no new hunt-ready rows.
+
+
+- [ ] (candidate) `AuthorityRunCompletedChatOpsIntegrationEventHandler.HandleAsync` — `FindingCount` uses `payload.Findings?.Count` without filtering blank `findingId` rows — locus: notice mapping before `NotifyAsync`; input: Service Bus JSON `findings` array containing `null` or `{ "findingId": "" }` elements; mechanism: ChatOps headline overstates finding count vs deep links (publisher `BuildAuthorityRunCompletedFindingLinks` omits blank ids).
+- [ ] (candidate) `AuthorityRunCommittedChatOpsHook.NotifyAsync` — all enabled targets misconfigured (invalid HTTPS URI) completes without throw — locus: `DeliverIfEnabledAsync` returns before `markAttempted`; input: `SlackNotifyOnAuthorityRunCompleted=true` with blank/HTTP webhook URI and Teams disabled; mechanism: integration event acked while operators expect Slack notification (ops misconfiguration class).
+- [ ] (candidate) `AuthorityRunCommittedChatOpsHook.AdaptMessageForTarget` — Slack path relies on downstream `ChatOpsIncomingWebhookBodies.ForSlack` to escape `Title` while hook only pre-escapes `Body` — locus: Slack branch of `AdaptMessageForTarget`; input: future `SeverityLabel` or custom title sources with mrkdwn metacharacters; mechanism: zone-local regression if delivery ever bypasses `ForSlack` title escape.
 
 ### Hypotheses
 
