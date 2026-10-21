@@ -50,11 +50,13 @@ internal sealed class ScopeResolutionGuardMiddleware(
 
     private static bool ShouldSkip(HttpContext context)
     {
-        PathString pathString = NormalizeProbePath(context.Request.Path);
-        string path = pathString.Value ?? string.Empty;
+        PathString rawPath = context.Request.Path;
 
-        if (PathContainsParentSegment(path))
+        if (ApiPathSkipSafety.BlocksPathBasedSkip(rawPath.Value))
             return false;
+
+        PathString pathString = NormalizeProbePath(rawPath);
+        string path = pathString.Value ?? string.Empty;
 
         if (path.Contains("/internal/", StringComparison.OrdinalIgnoreCase))
             return true;
@@ -136,17 +138,5 @@ internal sealed class ScopeResolutionGuardMiddleware(
             return new PathString("/");
 
         return new PathString("/" + string.Join('/', segments));
-    }
-
-    private static bool PathContainsParentSegment(string path)
-    {
-        foreach (string segment in path.Split('/'))
-        {
-
-            if (string.Equals(segment, "..", StringComparison.Ordinal))
-                return true;
-        }
-
-        return false;
     }
 }

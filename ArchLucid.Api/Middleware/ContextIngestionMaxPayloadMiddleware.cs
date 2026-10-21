@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Security;
 using ArchLucid.Core.Configuration;
 
 using Microsoft.Extensions.Options;
@@ -57,6 +58,9 @@ internal sealed class ContextIngestionMaxPayloadMiddleware(
         string? p = path.Value;
 
         if (string.IsNullOrEmpty(p))
+            return false;
+
+        if (ApiPathSkipSafety.BlocksPathBasedSkip(p))
             return false;
 
         return p.Contains("/architecture/request", StringComparison.OrdinalIgnoreCase) ||

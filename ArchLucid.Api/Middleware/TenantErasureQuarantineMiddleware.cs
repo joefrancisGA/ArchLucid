@@ -1,4 +1,5 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Security;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
@@ -53,6 +54,13 @@ internal sealed class TenantErasureQuarantineMiddleware(RequestDelegate next)
         PathString rawPath = path;
         path = NormalizeRequestPath(path);
 
+        // Lifecycle erasure routes intentionally accept dot-segment and duplicate-slash normalization.
+        if (path.StartsWithSegments("/v1/tenant/erasure", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (ApiPathSkipSafety.BlocksPathBasedSkip(rawPath.Value))
+            return false;
+
         if (path == "/" || path.StartsWithSegments("/robots.txt", StringComparison.OrdinalIgnoreCase) ||
             path.StartsWithSegments("/sitemap.xml", StringComparison.OrdinalIgnoreCase))
             return true;
@@ -61,8 +69,7 @@ internal sealed class TenantErasureQuarantineMiddleware(RequestDelegate next)
             path.StartsWithSegments("/version", StringComparison.OrdinalIgnoreCase) ||
             path.StartsWithSegments("/openapi", StringComparison.OrdinalIgnoreCase) ||
             path.StartsWithSegments("/swagger", StringComparison.OrdinalIgnoreCase) ||
-            path.StartsWithSegments("/scalar", StringComparison.OrdinalIgnoreCase) ||
-            path.StartsWithSegments("/v1/tenant/erasure", StringComparison.OrdinalIgnoreCase))
+            path.StartsWithSegments("/scalar", StringComparison.OrdinalIgnoreCase))
             return true;
 
         if (path.StartsWithSegments("/v1/register", StringComparison.OrdinalIgnoreCase))

@@ -1,3 +1,4 @@
+using ArchLucid.Api.Security;
 using ArchLucid.Core.Metering;
 using ArchLucid.Core.Scoping;
 
@@ -43,8 +44,9 @@ internal sealed class ApiRequestMeteringMiddleware(
         if (!path.StartsWith("/v", StringComparison.OrdinalIgnoreCase))
             return;
 
-        if (path.Contains("/health", StringComparison.OrdinalIgnoreCase) ||
-            path.Contains("/swagger", StringComparison.OrdinalIgnoreCase))
+        if (!ApiPathSkipSafety.BlocksPathBasedSkip(path)
+            && (path.Contains("/health", StringComparison.OrdinalIgnoreCase)
+                || path.Contains("/swagger", StringComparison.OrdinalIgnoreCase)))
             return;
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
