@@ -5917,3 +5917,4 @@
 {"at":"2026-10-21T14:29:45.9676985Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Configuration/"]}
 {"at":"2026-10-21T14:33:00.8327248Z","zoneId":"host-core-coordination","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-21T14:33:41.3476203Z","zoneId":"core-configuration-summary","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/Configuration/"]}
+{"at":"2026-10-21T14:32:00.0000000Z","zoneId":"api-null-collection-properties","outcome":"hit","productLine":"archlucid-shared"}

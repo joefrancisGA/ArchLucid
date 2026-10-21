@@ -9,7 +9,8 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 namespace ArchLucid.Api.Filters;
 
 /// <summary>
-///     Rejects <c>[FromBody]</c> models that contain null entries inside collection properties with HTTP 400
+///     Rejects <c>[FromBody]</c> models with null non-nullable collection properties or null entries inside
+///     collection properties with HTTP 400
 ///     <see cref="ProblemTypes.ValidationFailed" /> before controller code runs.
 /// </summary>
 public sealed class ApiRequestNullCollectionElementsFilter : IAsyncActionFilter

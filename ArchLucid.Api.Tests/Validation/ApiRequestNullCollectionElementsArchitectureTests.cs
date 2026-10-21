@@ -52,7 +52,8 @@ public sealed class ApiRequestNullCollectionElementsArchitectureTests
 
         foreach (Type requestType in requestTypes)
         {
-            foreach ((Type _, string propertyPath) in ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths(requestType))
+            foreach ((Type _, string propertyPath, PropertyInfo _) in ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths(
+                         requestType))
             {
                 object? probe = ApiRequestNullCollectionProbeFactory.TryCreateWithNullCollectionElement(requestType, propertyPath);
 
@@ -70,5 +71,46 @@ public sealed class ApiRequestNullCollectionElementsArchitectureTests
         }
 
         skipped.Count.Should().BeLessThan(25, "unexpected number of collection probes could not be constructed: " + string.Join(", ", skipped));
+    }
+
+    [Fact]
+    public void All_from_body_non_nullable_collection_properties_are_rejected_when_property_is_null()
+    {
+        Assembly apiAssembly = typeof(RunCoverageController).Assembly;
+        IReadOnlyList<Type> requestTypes = ApiRequestBodyTypeCatalog.DiscoverFromBodyRequestTypes(apiAssembly);
+
+        requestTypes.Should().NotBeEmpty();
+
+        List<string> skipped = [];
+        List<string> proven = [];
+
+        foreach (Type requestType in requestTypes)
+        {
+            foreach ((Type _, string propertyPath, PropertyInfo property) in ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths(
+                         requestType))
+            {
+
+                if (ApiRequestBodyTypeCatalog.CollectionPropertyAllowsNull(property))
+                    continue;
+
+                object? probe = ApiRequestNullCollectionProbeFactory.TryCreateWithNullCollectionProperty(requestType, propertyPath);
+
+                if (probe is null)
+                {
+                    skipped.Add($"{requestType.Name}.{propertyPath}");
+
+                    continue;
+                }
+
+                ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(probe)
+                    .Should()
+                    .BeTrue($"null collection property probe for {requestType.Name}.{propertyPath} must trip the guard");
+
+                proven.Add($"{requestType.Name}.{propertyPath}");
+            }
+        }
+
+        proven.Should().NotBeEmpty("at least one non-nullable collection property must be probeable for null");
+        skipped.Count.Should().BeLessThan(120, "unexpected number of null-property probes could not be constructed: " + string.Join(", ", skipped));
     }
 }

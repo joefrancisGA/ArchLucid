@@ -1,8 +1,10 @@
 using System.Reflection;
 
+using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Filters;
 using ArchLucid.Api.Models.Coverage;
+using ArchLucid.Core.Configuration.Summary;
 using ArchLucid.Host.Core.ProblemDetails;
 
 using FluentAssertions;
@@ -30,9 +32,49 @@ public sealed class ApiRequestNullCollectionElementsFilterTests
             Entries = new RunCoverageAcknowledgementEntryRequest[] { null! },
         };
 
-        ActionExecutingContext executing = BuildBodyExecutingContext(
+        MethodInfo coverageMethod = typeof(RunCoverageController).GetMethod(
             nameof(RunCoverageController.PutAcknowledgedCoverage),
-            body);
+            BindingFlags.Instance | BindingFlags.Public)
+            ?? throw new InvalidOperationException(nameof(RunCoverageController.PutAcknowledgedCoverage));
+
+        ActionExecutingContext executing = BuildBodyExecutingContext(
+            coverageMethod,
+            body,
+            "/v1/runs/test/coverage/acknowledgement");
+        bool next = false;
+
+        await sut.OnActionExecutionAsync(
+            executing,
+            () =>
+            {
+                next = true;
+
+                return Task.FromResult(new ActionExecutedContext(executing, [], new object()));
+            });
+
+        next.Should().BeFalse();
+        ObjectResult result = executing.Result.Should().BeOfType<ObjectResult>().Subject;
+        result.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>()
+            .Which.Type.Should().Be(ProblemTypes.ValidationFailed);
+    }
+
+    [Fact]
+    public async Task OnActionExecutionAsync_rejects_from_body_with_null_non_nullable_collection_property()
+    {
+        ApiRequestNullCollectionElementsFilter sut = new();
+        WorkspaceAllowedEngineSetUpdateRequest body = new()
+        {
+            AllowedAliasIds = null!,
+            DefaultAliasId = "gpt-4",
+        };
+
+        MethodInfo method = typeof(SettingsController).GetMethod(
+            nameof(SettingsController.PutAllowedEngineSet),
+            BindingFlags.Instance | BindingFlags.Public)
+            ?? throw new InvalidOperationException(nameof(SettingsController.PutAllowedEngineSet));
+
+        ActionExecutingContext executing = BuildBodyExecutingContext(method, body, "/v1/admin/settings/allowed-engine-set");
         bool next = false;
 
         await sut.OnActionExecutionAsync(
@@ -57,9 +99,12 @@ public sealed class ApiRequestNullCollectionElementsFilterTests
         ApiRequestNullCollectionElementsFilter sut = new();
         PutRunCoverageAcknowledgementRequest body = new() { Entries = [] };
 
-        ActionExecutingContext executing = BuildBodyExecutingContext(
+        MethodInfo method = typeof(RunCoverageController).GetMethod(
             nameof(RunCoverageController.PutAcknowledgedCoverage),
-            body);
+            BindingFlags.Instance | BindingFlags.Public)
+            ?? throw new InvalidOperationException(nameof(RunCoverageController.PutAcknowledgedCoverage));
+
+        ActionExecutingContext executing = BuildBodyExecutingContext(method, body, "/v1/runs/test/coverage/acknowledgement");
         bool next = false;
 
         await sut.OnActionExecutionAsync(
@@ -75,11 +120,8 @@ public sealed class ApiRequestNullCollectionElementsFilterTests
         executing.Result.Should().BeNull();
     }
 
-    private static ActionExecutingContext BuildBodyExecutingContext(string actionName, object body)
+    private static ActionExecutingContext BuildBodyExecutingContext(MethodInfo method, object body, string path)
     {
-        MethodInfo method = typeof(RunCoverageController).GetMethod(actionName, BindingFlags.Instance | BindingFlags.Public)
-            ?? throw new InvalidOperationException(actionName);
-
         ParameterInfo bodyParameter = method.GetParameters().Single(static parameter =>
             parameter.GetCustomAttribute<FromBodyAttribute>() is not null);
 
@@ -92,12 +134,12 @@ public sealed class ApiRequestNullCollectionElementsFilterTests
 
         ControllerActionDescriptor descriptor = new()
         {
-            ControllerTypeInfo = typeof(RunCoverageController).GetTypeInfo(),
+            ControllerTypeInfo = method.DeclaringType!.GetTypeInfo(),
             MethodInfo = method,
             Parameters = [parameterDescriptor],
         };
 
-        DefaultHttpContext httpContext = new() { Request = { Path = "/v1/runs/test/coverage/acknowledgement" } };
+        DefaultHttpContext httpContext = new() { Request = { Path = path } };
 
         ActionContext actionContext = new(
             httpContext,
