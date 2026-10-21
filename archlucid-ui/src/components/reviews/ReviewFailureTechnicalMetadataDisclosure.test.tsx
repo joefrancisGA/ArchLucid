@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { createElement, useSyncExternalStore, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -28,12 +28,15 @@ const searchParamsHarness = vi.hoisted(() => {
   };
 });
 
+const pathnameMock = vi.hoisted(() => ({ value: "/architecture/reviews/run-b" }));
+
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/architecture/reviews/run-abc",
+  usePathname: () => pathnameMock.value,
   useSearchParams: () => new URLSearchParams(searchParamsHarness.state.query),
 }));
 
 import { ReviewFailureTechnicalMetadataDisclosure } from "@/components/reviews/ReviewFailureTechnicalMetadataDisclosure";
+import { REVIEW_FAILURE_TECHNICAL_METADATA_OPEN_PARAM } from "@/lib/reviews/review-failure-technical-metadata-disclosure-url";
 
 function SearchParamsRerenderHost({ children }: { readonly children: ReactNode }) {
   useSyncExternalStore(
@@ -56,7 +59,30 @@ const failureProps = {
 describe("ReviewFailureTechnicalMetadataDisclosure", () => {
   beforeEach(() => {
     searchParamsHarness.reset();
-    window.history.replaceState({}, "", "/architecture/reviews/run-abc");
+    pathnameMock.value = "/architecture/reviews/run-b";
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-a?reviewTab=findings&q=stale-payment",
+    );
+  });
+
+  it("opens failure technical metadata from useSearchParams when window.location.search lags after soft navigation", async () => {
+    searchParamsHarness.state.query = "reviewTab=overview";
+
+    render(
+      <SearchParamsRerenderHost>
+        <ReviewFailureTechnicalMetadataDisclosure {...failureProps} runId="run-b" />
+      </SearchParamsRerenderHost>,
+    );
+
+    fireEvent.click(screen.getByText("Technical failure detail"));
+
+    await waitFor(() => {
+      expect(window.location.pathname + window.location.search).toBe(
+        `/architecture/reviews/run-b?reviewTab=overview&${REVIEW_FAILURE_TECHNICAL_METADATA_OPEN_PARAM}=1`,
+      );
+    });
   });
 
   it("follows reviewFailureTechnicalMetadataOpen query changes without a popstate event", () => {
@@ -74,7 +100,7 @@ describe("ReviewFailureTechnicalMetadataDisclosure", () => {
     window.history.replaceState(
       {},
       "",
-      "/architecture/reviews/run-abc?reviewFailureTechnicalMetadataOpen=1",
+      "/architecture/reviews/run-b?reviewFailureTechnicalMetadataOpen=1",
     );
     rerender(
       <SearchParamsRerenderHost>
@@ -85,7 +111,7 @@ describe("ReviewFailureTechnicalMetadataDisclosure", () => {
     expect(details()).toHaveAttribute("open");
 
     searchParamsHarness.applyQuery("");
-    window.history.replaceState({}, "", "/architecture/reviews/run-abc");
+    window.history.replaceState({}, "", "/architecture/reviews/run-b");
     rerender(
       <SearchParamsRerenderHost>
         <ReviewFailureTechnicalMetadataDisclosure {...failureProps} />

@@ -11,7 +11,7 @@ import {
   type ReviewFailureTechnicalMetadataInput,
 } from "@/lib/format-review-failure-technical-metadata";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
 import type { RunSummary } from "@/types/authority";
 import { cn } from "@/lib/utils";
@@ -46,11 +46,11 @@ export function ReviewFailureTechnicalMetadataDisclosure(
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
       commitHrefIfChanged(
-        reviewFailureTechnicalMetadataDisclosureHrefFromSearch(readWindowLocationSearch(), detailsOpen, pathname),
+        reviewFailureTechnicalMetadataDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setOpen = useCallback(

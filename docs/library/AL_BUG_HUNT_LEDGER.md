@@ -41662,6 +41662,10 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 ---
 
 ## Zone: ui-review-detail-workspace
+2026-10-21 seed hunt (seed→hit): promoted `ReviewFailureTechnicalMetadataDisclosure` — `syncOpenToUrl` built hrefs from `readWindowLocationSearch()`, so after cross-review soft navigation expanding Technical failure detail could write the prior review's findings toolbar query onto the next review when setting `reviewFailureTechnicalMetadataOpen=1`; base href writes on `useSearchParams`; regression `opens failure technical metadata from useSearchParams when window.location.search lags after soft navigation`; failure technical metadata vitest 2/2.
+
+- [x] (proven) `ReviewFailureTechnicalMetadataDisclosure` — stale toolbar params on failure technical metadata open after soft navigation — **hit 2026-10-21 seed hunt:** `reviewFailureTechnicalMetadataDisclosureHrefFromSearch(searchParams.toString(), …)`; regression above.
+
 2026-10-21 seed hunt (seed→hit): promoted `ReviewCliReproduceSection` — `syncOpenToUrl` built hrefs from `readWindowLocationSearch()`, so after cross-review soft navigation expanding Reproduce via CLI could write the prior review's findings toolbar query onto the next review when setting `reviewCliReproduceOpen=1`; base href writes on `useSearchParams`; regression `opens CLI reproduce from useSearchParams when window.location.search lags after soft navigation`; CLI reproduce url-sync vitest 2/2.
 
 - [x] (proven) `ReviewCliReproduceSection` — stale toolbar params on CLI reproduce open after soft navigation — **hit 2026-10-21 seed hunt:** `reviewCliReproduceDisclosureHrefFromSearch(searchParams.toString(), …)`; regression above.
@@ -41958,11 +41962,11 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 62
-- **bugs-found:** 53
+- **hunts:** 63
+- **bugs-found:** 54
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — ReviewCliReproduceSection reviewCliReproduceOpen href soft-nav sync
+- **last-bug:** 2026-10-21 — ReviewFailureTechnicalMetadataDisclosure reviewFailureTechnicalMetadataOpen href soft-nav sync
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.
