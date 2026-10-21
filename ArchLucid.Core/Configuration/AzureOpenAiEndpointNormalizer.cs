@@ -14,6 +14,7 @@ public static class AzureOpenAiEndpointNormalizer
         ArgumentException.ThrowIfNullOrWhiteSpace(endpoint);
 
         string trimmed = endpoint.Trim();
+        trimmed = EnsureHttpsSchemeForAzureOpenAiHosts(trimmed);
         trimmed = EnsureHttpsSchemeWhenMissing(trimmed);
 
         if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri? uri))
@@ -33,20 +34,32 @@ public static class AzureOpenAiEndpointNormalizer
         return EnsureTrailingSlash(trimmed);
     }
 
+    private static string EnsureHttpsSchemeForAzureOpenAiHosts(string value)
+    {
+        if (!value.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
+            return value;
+
+        if (!ContainsAzureOpenAiHostMarker(value))
+            return value;
+
+        return "https://" + value["http://".Length..];
+    }
+
     private static string EnsureHttpsSchemeWhenMissing(string value)
     {
         if (value.Contains("://", StringComparison.Ordinal))
             return value;
 
-        if (value.Contains("openai.azure.com", StringComparison.OrdinalIgnoreCase)
-            || value.Contains("cognitiveservices.azure.com", StringComparison.OrdinalIgnoreCase)
-            || value.Contains("services.ai.azure.com", StringComparison.OrdinalIgnoreCase))
-        {
+        if (ContainsAzureOpenAiHostMarker(value))
             return "https://" + value;
-        }
 
         return value;
     }
+
+    private static bool ContainsAzureOpenAiHostMarker(string value) =>
+        value.Contains("openai.azure.com", StringComparison.OrdinalIgnoreCase)
+        || value.Contains("cognitiveservices.azure.com", StringComparison.OrdinalIgnoreCase)
+        || value.Contains("services.ai.azure.com", StringComparison.OrdinalIgnoreCase);
 
     private static string EnsureTrailingSlash(string value)
     {

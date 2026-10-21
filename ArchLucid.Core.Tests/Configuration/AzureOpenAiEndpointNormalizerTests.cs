@@ -46,4 +46,13 @@ public sealed class AzureOpenAiEndpointNormalizerTests
 
         new Uri(normalized).Host.Should().Be("oai-archlucid-dev.openai.azure.com");
     }
+
+    [SkippableFact]
+    public void NormalizeForChatCompletions_upgrades_http_to_https_for_openai_azure_host()
+    {
+        string normalized = AzureOpenAiEndpointNormalizer.NormalizeForChatCompletions(
+            "http://oai-archlucid-dev.openai.azure.com");
+
+        normalized.Should().Be("https://oai-archlucid-dev.openai.azure.com/");
+    }
 }

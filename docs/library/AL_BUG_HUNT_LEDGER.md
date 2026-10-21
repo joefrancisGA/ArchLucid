@@ -31070,6 +31070,8 @@ Split from retired `archlucid-core` (ABQ-08).
 
 ---
 ## Zone: core-configuration-summary
+2026-10-21 seed hunt (seed->hit): promoted HTTP AzureOpenAI endpoint binding; NormalizeForChatCompletions preserved http:// for openai.azure.com hosts; EnsureHttpsSchemeForAzureOpenAiHosts upgrades http to https for Azure OpenAI host markers; regression NormalizeForChatCompletions_upgrades_http_to_https_for_openai_azure_host; cheap-disproof closed five open dictionary-trim and password-@ candidates; 5 AzureOpenAiEndpointNormalizer tests passed (RunAnalyzers=false).
+
 2026-10-21 seed hunt (seed->hit): promoted scheme-less user:pass@host connection strings in config summary effective values; ConfigurationEmbeddedCredentialMaterialDetector only scanned userinfo after ://; ContainsSchemeLessUserInfoCredentials closes the gap; matrix case dbuser:dbpass@db.example.com:5432/app; 24 scoped tests passed (RunAnalyzers=false).
 2026-10-21 seed hunt (seed->hit): promoted AzureOpenAI endpoint without URL scheme; NormalizeForChatCompletions returned scheme-less host so new Uri(...) in completion client could not target Azure OpenAI; EnsureHttpsSchemeWhenMissing prepends https for Azure OpenAI host markers; regression NormalizeForChatCompletions_prepends_https_when_azure_openai_endpoint_omits_scheme; cheap-disproof closed five stale candidates; 4 AzureOpenAiEndpointNormalizer tests passed (RunAnalyzers=false).
 2026-10-21 seed hunt (seed-only): re-read Configuration after AgentModelTiers/Deployments dictionary normalizer consolidation; saturated [class:other] blocks another trim-only hit; cheap-disproof closed five open stale candidates; no new hunt-ready row promoted; seeded five non-trim follow-on candidates; scoped Configuration sample 29 passed (RunAnalyzers=false).
@@ -31089,11 +31091,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 55
-- **bugs-found:** 37
+- **hunts:** 56
+- **bugs-found:** 38
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - redact scheme-less userinfo in config summary effective values
+- **last-bug:** 2026-10-21 - upgrade http Azure OpenAI endpoints to https
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -31102,11 +31104,17 @@ Split from retired `archlucid-core` (ABQ-08).
 Split from retired `archlucid-core` (ABQ-08).
 
 ### Hypotheses
-- (candidate) `AgentOutputQualityGateEffectiveFloorsResolver.Resolve` / `PerAgentTypeFloors` — configuration keys with bounding whitespace may miss `agentType.ToString()` lookups; input: `ArchLucid:AgentOutput:QualityGate:PerAgentTypeFloors: Topology:SemanticRejectBelow` with spaces in section key (appsettings).
-- (candidate) `ScimOptions.GroupRoleMappingOverrides` — override map keys with bounding whitespace may miss trimmed SCIM `externalId`/`displayName` lookups; input: `Scim:GroupRoleMappingOverrides: CustomAdmins ` value from configuration.
-- (candidate) `AgentPromptCatalogOptions.Versions` — release label map keys with bounding whitespace may miss `AgentTypeKeys.FromEnum` dispatch keys; input: `AgentPrompts:Versions: topology` with leading space in key segment.
-- (candidate) `AiUsageControlsOptions.PublicDemoFeatureDailyLimitUsd` — per-feature USD cap keys with bounding whitespace may miss `feature.ToString()` lookups in budget guard; input: `ArchLucid:AiUsage:PublicDemoFeatureDailyLimitUsd: QuickScan` key spacing from env.
-- (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — Redis-style `:password@host:port` without scheme may still leak when password contains `@`; input: effective value on non-sensitive catalog path with embedded `@` in password segment.
+- (candidate) `ConfigurationDictionaryBindingKeyNormalizer` batch — remaining configuration-bound dictionaries (`PerAgentTypeFloors`, `GroupRoleMappingOverrides`, `AgentPromptCatalogOptions.Versions`, ITSM inbound maps) still lack post-configure trim registration; input: appsettings keys with bounding whitespace on any of those sections.
+- (candidate) `AzureOpenAiEndpointNormalizer` — `https://` Foundry project URLs with non-default path segments may be collapsed to classic host without preserving required path/query; input: `AzureOpenAI:Endpoint` bound to a cognitiveservices host with custom `/openai/deployments/...` path.
+- (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — semicolon-free `host,port=6379,password=secret` tuples without `password=` key name may bypass delimiter-agnostic scan; input: non-sensitive effective value using comma-only Azure Redis shorthand.
+- (candidate) `ConfigurationKeyRequirement.WhenProduction` — `Environment` configuration key alias may disagree with `ASPNETCORE_ENVIRONMENT` when only `DOTNET_ENVIRONMENT` is set in container hosts; input: `DOTNET_ENVIRONMENT=Production` without ASP.NET env vars.
+- (candidate) `ProductLineDeploymentOptions.TryParseDeploymentKind` — `securenow`/`archlucid` deployment aliases documented in UI may not parse while `security`/`architecture` do; input: `ProductLine:Deployment=securenow` from operator env.
+- [x] (valid-no-repro) `AgentOutputQualityGateEffectiveFloorsResolver` / `PerAgentTypeFloors` whitespace keys — real mismatch, but fix is consolidated dictionary post-configure (`[class:other]` saturated); defer batch registration.
+- [x] (valid-no-repro) `ScimOptions.GroupRoleMappingOverrides` whitespace keys — mapper trims SCIM ids; config-key trim belongs in shared dictionary post-configure batch, not a one-off synonym.
+- [x] (valid-no-repro) `AgentPromptCatalogOptions.Versions` whitespace keys — same dictionary-key trim class; catalog uses case-insensitive keys without leading-space trim.
+- [x] (valid-no-repro) `AiUsageControlsOptions.PublicDemoFeatureDailyLimitUsd` whitespace keys — lookup in `AiBudgetPreCallGuard` trims feature token; config-key trim deferred to batch post-configure.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` password with `@` — `default:secr@et@redis.cache.windows.net:6380` already redacts via first-`@` scheme-less userinfo heuristic.
+- [x] (proven) `AzureOpenAiEndpointNormalizer.NormalizeForChatCompletions` — `AzureOpenAI:Endpoint` bound as `http://{resource}.openai.azure.com` left insecure scheme so Azure OpenAI TLS endpoints failed — **hit 2026-10-21 seed hunt (seed->hit):** `EnsureHttpsSchemeForAzureOpenAiHosts` upgrades `http` to `https` for Azure OpenAI host markers; regression `NormalizeForChatCompletions_upgrades_http_to_https_for_openai_azure_host`. [class:fail-open-validation]
 - [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector.ContainsSchemeLessUserInfoCredentials` — scheme-less `user:pass@host:port/db` effective values on non-sensitive catalog paths leaked in operator config summary because userinfo scan required `://` — **hit 2026-10-21 seed hunt (seed->hit):** detect `user:pass@` before `@` without scheme; matrix case `dbuser:dbpass@db.example.com:5432/app`. [class:fail-open-validation]
 - [x] (proven) `LlmMonthlyTenantDollarBudgetOptionsNormalizePostConfigure` / `LlmMonthlyTenantDollarBudgetOptions.ByPlan` - configuration-bound ByPlan keys with bounding whitespace never matched trimmed tenant plan ids, so per-plan included/hard-cutoff USD overlays were skipped - **hit 2026-10-21 seed hunt (seed->hit):** post-configure trim on ByPlan keys; regression `ResolveHardCutoffUsdPerUtcMonth_uses_plan_overlay_when_by_plan_key_has_bounding_whitespace`. [class:other]
 
