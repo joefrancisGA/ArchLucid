@@ -6011,3 +6011,4 @@
 {"at":"2026-10-21T18:45:52.5972390Z","zoneId":"email-otp-auth","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T18:59:14.8449426Z","zoneId":"api-policy-packs","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T19:08:28.0346681Z","zoneId":"securenow-question-queue","outcome":"hit","productLine":"securenow","paths":["ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/"]}
+{"at":"2026-10-21T19:13:12.6153918Z","zoneId":"extraction-router","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.MarkerBoundaries.cs"]}
