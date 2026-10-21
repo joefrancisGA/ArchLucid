@@ -5969,3 +5969,4 @@
 {"at":"2026-10-21T16:37:50.6306753Z","zoneId":"api-key-auth","outcome":"dry","productLine":"archlucid-shared","paths":["@(ArchLucid.Api/Authentication,ArchLucid.Api/Services/Admin,ArchLucid.Api/Controllers/Admin)"]}
 {"at":"2026-10-21T16:41:30.9205819Z","zoneId":"alert-simulation","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Alerts/Simulation/"]}
 {"at":"2026-10-21T16:44:36.9952249Z","zoneId":"security-analyzers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Analyzers/"]}
+{"at":"2026-10-21T16:47:12.8105688Z","zoneId":"infra-evidence-diagrams","outcome":"hit","productLine":"securenow","paths":["@(ArchLucid.Application/InfraEvidence/Mermaid/,archlucid-ui/src/lib/infra-evidence/)"]}
