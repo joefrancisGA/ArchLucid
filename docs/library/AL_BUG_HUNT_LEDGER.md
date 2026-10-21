@@ -1,4 +1,6 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
+2026-10-21 seed hunt (seed-only, lane C): `api-tenancy-workspaces` — lock `api-tenancy-workspaces` pushed and verified on `origin/bugsmash` (sole lock); skipped `ui-*` and zones hunted in the last hour; selected oldest eligible non-UI zone (`api-tenancy-workspaces`); cheap-disproof closed stale `(candidate)` caller-default empty-catalog row (proven 2026-10-21 lane B); promoted `DeleteProjectAsync` foreign-pin guard requiring `projectIsActiveInCallerWorkspace` before `ForeignWorkspaceMetadataProtectsFromRetentionPurge` — empty/null active catalog skips block while populated catalog blocks (`DeleteProjectAsync_returns_bad_request_when_another_workspace_pins_project_as_default_metadata` vs `DeleteProjectAsync_returns_no_content_when_active_list_is_null_and_foreign_workspace_pins_project_metadata` documents intentional idempotent path); no failing repro without breaking foreign-pin idempotent delete; seeded five `(candidate)` rows; Release build ArchLucid.Api; scoped `TenantWorkspaces` filter 62/62; lock released after push.
+
 2026-10-21 seed hunt (seed→hit, lane C): `run-execute-ownership` — lock `run-execute-ownership` pushed and verified on `origin/bugsmash` (no other origin locks); skipped `ui-*` and zones hunted in the last hour; selected oldest eligible non-UI zone (`run-execute-ownership`); promoted `(candidate)` post-acquire drain rollback — `AcquireAsync` passed caller cancellation into `TryReleaseAsync`, so a cancelled client could skip SQL rollback after drain admission; drain rollback now uses `CancellationToken.None`; regression `AcquireAsync_when_drain_begins_after_acquire_rolls_back_sql_with_non_cancellable_release_when_caller_token_is_cancelled`; Release build ArchLucid.Application + ArchLucid.Application.Tests; scoped ownership/orchestrator filter 69/70 (excluded hung `AcquireAsync_when_concurrent_repository_success_and_tryadd_loses_rolls_back_sql_lease` on VM); lock released after push.
 
 2026-10-21 thorough hunt (hit, lane C): `core-explanation-json` — shipped scalar object-shaped `evidenceRefs` reader fix (whitespace-only `text` + readable `id` now maps `id`; in-array blank-text+id poison unchanged via `blankTextWithIdIsInArrayPoison`); regression `TryNormalizeStructuredJson_maps_object_shaped_evidence_ref_id_when_text_property_is_whitespace_only`; cheap-disproof closed picker fractional-reasoning `(candidate)` (invalid, parity with 2026-10-21 dry); ArchLucid.Core `RunExplanation` filter 215/215; Release build ArchLucid.Core + ArchLucid.Core.Tests.
@@ -42576,6 +42578,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ---
 ## Zone: api-tenancy-workspaces
+- (candidate) `TenantWorkspacesController.DeleteProjectAsync` — foreign-workspace default pin guard skipped when `ListActiveByTenantAsync` returns empty catalog but SQL row is still active — locus: `else if (ForeignWorkspacePinsProjectAsDefault)` + `projectIsActiveInCallerWorkspace` gate; input: reachable only when active catalog read is stale empty while `TrySoftDeleteAsync` would delete a live row; needs contract for fail-closed vs idempotent foreign-pin retry.
+- (candidate) `TenantWorkspacesController.DeleteProjectAsync` — foreign-workspace default pin guard skipped when `ListActiveByTenantAsync` returns null — locus: foreign branch `?? Array.Empty` before activity check; input: parity tension with caller-pin null fail-closed (`DeleteProjectAsync_returns_bad_request_when_deleting_caller_default_and_active_list_is_null`) vs `DeleteProjectAsync_returns_no_content_when_active_list_is_null_and_foreign_workspace_pins_project_metadata`.
+- (candidate) `TenantCatalogMigrationStatusController.GetCatalogMigrationStatusAsync` — tenant GET without workspace inventory preflight — locus: `GetByIdAsync` then migration service; input: tenant missing returns 404 after service read ordering (cheap-disproof pending explicit migration-service throw contract).
+- (candidate) `CorePilotTeamChecklistController.GetAsync` — `ICorePilotTeamChecklistRepository.ListAsync` null before projection — locus: `rows.Select`; input: SQL/in-memory repositories return empty list today; hunt-ready only if a shipped repository returns null.
+- (candidate) `TenantHomepageSettingsController.PutAsync` — `SelectedRunId` required rejects nullable clear-body contract — locus: `Guid.Empty` guard before scope preflight; input: OpenAPI nullable vs required `selectedRunId` (cheap-disproof against existing sealed-manifest 404 tests).
+
 
 2026-10-21 thorough hunt (hit): lane B; DeleteProject empty active catalog fail-closed; 62/62 TenantWorkspaces tests.
 
@@ -42591,7 +42599,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 32
+- **hunts:** 33
 - **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
