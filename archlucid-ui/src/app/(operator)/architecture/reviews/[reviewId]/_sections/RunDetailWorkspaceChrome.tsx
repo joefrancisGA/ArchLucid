@@ -48,7 +48,7 @@ import {
   parseRunDetailRecordMetadataOpenFromSearch,
   runDetailRecordMetadataHrefFromSearch,
 } from "@/lib/runs/run-detail-record-metadata-url";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 
 type ReviewMetadataField = {
   readonly key: string;
@@ -212,11 +212,11 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
   const syncRecordMetadataOpenToUrl = useCallback(
     (open: boolean) => {
       commitHrefIfChanged(
-        runDetailRecordMetadataHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        runDetailRecordMetadataHrefFromSearch(searchParams.toString(), open, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setRecordMetadataOpen = useCallback(
