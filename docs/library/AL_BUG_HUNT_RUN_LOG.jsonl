@@ -5945,3 +5945,4 @@
 {"outcome":"hit","zoneId":"core-configuration-summary","kind":"seed","ts":"2026-10-21T15:18:41.265Z"}
 {"at":"2026-10-21T15:33:17.9876755Z","zoneId":"weekly-digest-email","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Application/Notifications/Email/)"]}
 {"at":"2026-10-21T15:35:11.0739339Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T15:34:54.8380820Z","zoneId":"ui-host-gate","outcome":"hit","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/lib/host-gate.ts,archlucid-ui/src/lib/canonicalize-legacy-operator-route-path.ts)"],"severity":"medium","defectClass":"other"}

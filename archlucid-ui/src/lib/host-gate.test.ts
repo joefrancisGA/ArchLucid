@@ -23,6 +23,13 @@ import {
   RETIRED_ONBOARDING_START_BOOKMARK_PATH,
   RETIRED_OPERATE_ARCHITECTURE_GRAPH_BOOKMARK_PATH,
 } from "@/lib/ui-route-traffic-retired-redirect-shims";
+import {
+  LEGACY_ALERT_RULES_PATH,
+  LEGACY_ARCHITECTURE_EXECUTIVE_DASHBOARD_PATH,
+  LEGACY_EXECUTIVE_DASHBOARD_PATH,
+  LEGACY_INTERNAL_OPERATIONS_ROOT_PATH,
+  LEGACY_OPERATE_INTEGRATION_EVENTS_DLQ_PATH,
+} from "@/lib/canonicalize-legacy-operator-route-path";
 
 const ENV_KEYS = [
   "ARCHLUCID_PUBLIC_SITE_URL",
@@ -76,6 +83,12 @@ describe("host-gate path classifiers", () => {
     expect(isOperatorPath("/admin/users")).toBe(true);
     expect(isOperatorPath("/health")).toBe(true);
     expect(isOperatorPath("/replay")).toBe(true);
+    expect(isOperatorPath(LEGACY_ALERT_RULES_PATH)).toBe(true);
+    expect(isOperatorPath(LEGACY_INTERNAL_OPERATIONS_ROOT_PATH)).toBe(true);
+    expect(isOperatorPath(`${LEGACY_INTERNAL_OPERATIONS_ROOT_PATH}/recommendation-learning`)).toBe(true);
+    expect(isOperatorPath(LEGACY_OPERATE_INTEGRATION_EVENTS_DLQ_PATH)).toBe(true);
+    expect(isOperatorPath(LEGACY_EXECUTIVE_DASHBOARD_PATH)).toBe(true);
+    expect(isOperatorPath(LEGACY_ARCHITECTURE_EXECUTIVE_DASHBOARD_PATH)).toBe(true);
     expect(isMarketingOnlyPath(LEGACY_ALERT_ROUTING_PATH)).toBe(false);
   });
 
@@ -237,6 +250,22 @@ describe("decideHostGateRedirect", () => {
         search: "",
       }),
     ).toEqual({ kind: "redirect", location: "https://app.archlucid.net/dashboard" });
+  });
+
+  it("redirects marketing-host legacy governance alert-rules bookmarks to the app origin", () => {
+    process.env.ARCHLUCID_PUBLIC_SITE_URL = "https://archlucid.net";
+    process.env.ARCHLUCID_APP_SITE_URL = "https://app.archlucid.net";
+
+    expect(
+      decideHostGateRedirect({
+        hostHeader: "archlucid.net",
+        pathname: LEGACY_ALERT_RULES_PATH,
+        search: "?tab=notifications",
+      }),
+    ).toEqual({
+      kind: "redirect",
+      location: `https://app.archlucid.net${LEGACY_ALERT_RULES_PATH}?tab=notifications`,
+    });
   });
 
   it("matches split hosts that differ only by port (local dual-origin)", () => {

@@ -15652,21 +15652,24 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: ui-host-gate
 
 - **id:** ui-host-gate
-- **status:** cooling
+- **status:** open
 - **impact:** medium
 - **aliases:** host gate; split site host
 - **paths:** archlucid-ui/src/lib/host-gate.ts
 - **test-filter:** host-gate
-- **hunts:** 3
-- **bugs-found:** 2
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23
+- **hunts:** 4
+- **bugs-found:** 3
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-21 — legacy bookmarks (/alert-rules, executive dashboards, internal-operations, DLQ) missing from split-host operator prefixes
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
+
+2026-10-21 seed hunt (seed→hit, lane C): re-read `host-gate.ts` vs `canonicalizeLegacyOperatorRoutePath`; proved six legacy bookmarks canonicalized on the app host were absent from `LEGACY_OPERATOR_PATH_PREFIXES`, so split-site marketing requests stayed `next` and served marketing 404 chrome; aligned prefixes via exported legacy path constants; regressions `host-gate.test.ts` (15); scoped host-gate vitest passed.
 ### Hypotheses
 
+- [x] (proven) Split-host marketing host omits canonicalized legacy bookmark prefixes — **hit 2026-10-21 seed hunt (lane C):** `/alert-rules`, `/internal-operations`, `/operate/integration-events/dlq`, `/executive/dashboard`, `/architecture/executive-dashboard` were not in `LEGACY_OPERATOR_PATH_PREFIXES`; fixed by importing shared legacy path constants from `canonicalize-legacy-operator-route-path.ts`; regression matrix in `host-gate.test.ts`.
 - [x] (proven) Operator path is treated as marketing on the public host (or the reverse) — **hit 2026-08-23:** `/dashboard`, `/portfolio`, `/admin/*`, and other legacy bookmarks were absent from `LEGACY_OPERATOR_PATH_PREFIXES`, so split-host marketing requests stayed `next` instead of redirecting to the app origin.
 - [x] (proven) Retired bookmark is not redirected and 404s instead of the shim — **hit 2026-08-23:** `/alert-routing` and hard-retired executive-dashboard bookmarks were not classified as operator paths; marketing host served its own 404 chrome instead of forwarding to the app 404 shim.
 - [x] Split-site origin check allows the operator app origin as a public page Î“Ã‡Ã¶ fixed: `normalizeRequestHost` no longer strips ports; request Host must match `URL.host` from configured origins (localhost:3000 vs :3001)

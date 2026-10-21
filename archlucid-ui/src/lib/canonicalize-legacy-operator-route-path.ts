@@ -71,7 +71,8 @@ import {
   INTERNAL_TRIAL_FUNNEL_PATH,
 } from "@/lib/internal-ops-route-paths";
 
-const LEGACY_ALERT_RULES_PATH = "/alert-rules";
+/** Retired governance bookmark — canonicalize to {@link GOVERNANCE_ALERT_RULES_PATH}; split-host must hand off to app origin. */
+export const LEGACY_ALERT_RULES_PATH = "/alert-rules";
 const LEGACY_CLOUD_CONNECTIONS_PATH = "/settings/cloud-connections";
 const LEGACY_IDENTITY_PROVIDERS_PATH = "/settings/identity-providers";
 const LEGACY_IDENTITY_SSO_WIZARD_PATH = "/settings/identity/sso-wizard";
@@ -82,14 +83,16 @@ const LEGACY_MANIFESTS_PATH = "/manifests";
 const LEGACY_SETTINGS_ROLES_PATH = "/settings/roles";
 const LEGACY_SETTINGS_AI_USAGE_PATH = "/settings/ai-usage";
 const LEGACY_ADMIN_ROOT_PATH = "/admin";
-const LEGACY_INTERNAL_OPERATIONS_ROOT_PATH = "/internal-operations";
-const LEGACY_OPERATE_INTEGRATION_EVENTS_DLQ_PATH = "/operate/integration-events/dlq";
-const LEGACY_INTERNAL_INTEGRATION_EVENTS_DLQ_PATH = "/internal/integration-events/dlq";
+/** Retired internal ops bookmark root — split-host must hand off to app origin. */
+export const LEGACY_INTERNAL_OPERATIONS_ROOT_PATH = "/internal-operations";
+export const LEGACY_OPERATE_INTEGRATION_EVENTS_DLQ_PATH = "/operate/integration-events/dlq";
+export const LEGACY_INTERNAL_INTEGRATION_EVENTS_DLQ_PATH = "/internal/integration-events/dlq";
 const LEGACY_REPLAY_PATH = "/replay";
 const LEGACY_INTERNAL_REPLAY_PATH = "/internal/replay";
 const LEGACY_INSIGHTS_EXECUTIVE_SUMMARY_PATH = "/insights/executive-summary";
-const LEGACY_ARCHITECTURE_EXECUTIVE_DASHBOARD_PATH = "/architecture/executive-dashboard";
-const LEGACY_EXECUTIVE_DASHBOARD_PATH = "/executive/dashboard";
+/** Retired sponsor dashboard bookmarks — canonicalize to sponsor dashboard; split-host must hand off. */
+export const LEGACY_ARCHITECTURE_EXECUTIVE_DASHBOARD_PATH = "/architecture/executive-dashboard";
+export const LEGACY_EXECUTIVE_DASHBOARD_PATH = "/executive/dashboard";
 const LEGACY_DASHBOARD_PATH = "/dashboard";
 const LEGACY_PORTFOLIO_PATH = "/portfolio";
 const LEGACY_SPONSOR_REPORT_BOOKMARK_PATH = "/sponsor-report";
