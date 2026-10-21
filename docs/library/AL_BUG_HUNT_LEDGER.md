@@ -41591,6 +41591,9 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 ---
 
 ## Zone: ui-review-detail-workspace
+2026-10-21 seed hunt (seed→hit): promoted `useReviewFindingsLastVisitRestore` — last-visit restore treated stale `window.location.search` as authoritative when `runId` changed, so soft navigation to another review skipped restoring that run's stored findings toolbar state while the address bar still carried the prior review's band param; gate restore and build href from `useSearchParams`; regression `restores last-visit filters when runId changes before window.location.search catches up`; last-visit hook vitest 6/6.
+
+- [x] (proven) `useReviewFindingsLastVisitRestore` — skipped last-visit restore on cross-review soft navigation — **hit 2026-10-21 seed hunt:** use router search params for toolbar-param detection and href base; regression above.
 2026-10-21 seed hunt (seed→hit): promoted `RunDetailFindingsWorkspace` — the `runId` reset effect read `window.location.search` while Next.js had already updated `useSearchParams`, so client navigation to another review reapplied the prior review's `findingsBand` when the address bar lagged; reset classification band and list view from derived `useSearchParams` values on `runId` change; regression `resets classification band from useSearchParams when runId changes before window.location.search catches up`; findings workspace url-sync vitest 2/2.
 
 - [x] (proven) `RunDetailFindingsWorkspace` — stale classification band after cross-review soft navigation — **hit 2026-10-21 seed hunt:** `runId` effect uses `urlClassificationBand` / `urlListView` instead of `window.location.search`; regression above.
@@ -41828,11 +41831,11 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 47
-- **bugs-found:** 38
+- **hunts:** 48
+- **bugs-found:** 39
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — RunDetailFindingsWorkspace findingsBand on runId change
+- **last-bug:** 2026-10-21 — useReviewFindingsLastVisitRestore cross-review restore
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.
