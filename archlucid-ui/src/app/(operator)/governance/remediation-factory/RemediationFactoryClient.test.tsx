@@ -397,6 +397,58 @@ describe("RemediationFactoryClient", () => {
     );
   });
 
+  it("maps rank 26 to Later on the priority queue", () => {
+    mockRankedFindingsQuery({
+      data: [
+        {
+          findingId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          rankOrder: 26,
+          totalScore: 0.42,
+          explanationSummary: "Rule=IE15-priority-v1; Total=0.4200; Factors=11",
+          breakdownJson: "[]",
+          cloudResourceId: null,
+          controlId: "AC-2",
+          patternKey: null,
+        },
+      ],
+    });
+
+    render(<RemediationFactoryClient />);
+
+    const priorityRow = screen.getByTestId("remediation-priority-row-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    expect(priorityRow).toHaveTextContent("26");
+    expect(priorityRow).toHaveTextContent("Later");
+  });
+
+  it("derives the when band from row order when rank order is missing", () => {
+    mockRankedFindingsQuery({
+      data: [
+        {
+          findingId: "11111111-1111-1111-1111-111111111111",
+          totalScore: 0.9,
+          explanationSummary: "",
+          breakdownJson: "[]",
+          controlId: "AC-1",
+          patternKey: null,
+        },
+        {
+          findingId: "22222222-2222-2222-2222-222222222222",
+          totalScore: 0.8,
+          explanationSummary: "",
+          breakdownJson: "[]",
+          controlId: "AC-2",
+          patternKey: null,
+        },
+      ],
+    });
+
+    render(<RemediationFactoryClient />);
+
+    const secondRow = screen.getByTestId("remediation-priority-row-22222222-2222-2222-2222-222222222222");
+    expect(secondRow).toHaveTextContent("2");
+    expect(secondRow).toHaveTextContent("This week");
+  });
+
   it("opens the path rule line and sort key", () => {
     render(<RemediationFactoryClient />);
 
