@@ -73,11 +73,13 @@ public class SpecialistReviewFinding
     }
 
     /// <summary>Severity label: Critical, High, Medium, or Low.</summary>
+    private string severity = string.Empty;
+
     public string Severity
     {
-        get;
-        set;
-    } = null!;
+        get => severity;
+        set => severity = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     /// <summary>Lifecycle slice the finding targets when known (TB-2339 item 43).</summary>
     public ArchitectureLifecycleScope LifecycleScope

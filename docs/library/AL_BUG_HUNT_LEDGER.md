@@ -32974,10 +32974,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 140
-- **bugs-found:** 120
+- **hunts:** 141
+- **bugs-found:** 121
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
+- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-15 — Evolution / clarification contract JSON null lists
 - **related-pd-tb:** none
 - **code-changed-since:** yes
