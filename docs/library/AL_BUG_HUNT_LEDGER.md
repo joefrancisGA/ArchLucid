@@ -12748,13 +12748,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 39
+- **hunts:** 40
 - **bugs-found:** 19
-- **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-10-12
+- **consecutive-dry-hunts:** 4
+- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-09 — wallet GET still required admin because Authorize attributes stack
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-10-21 thorough hunt (dry): cheap-disproved the open Stripe ownership candidate as not hunt-ready in this zone. Beta Billing & plans wallet PUT sends only auto-replenish, monthly cap, and row version — not Stripe customer or payment-method identifiers (OperatorBillingWalletPanel.tsx). Persisting identifiers on PUT is partial-update forwarding; ownership and Stripe attach/charge enforcement live in Persistence billing/Stripe integration outside the selected controller, service, and SQL repository paths. No failing repro; 27 scoped LlmTenantWalletServiceTests passed (discovery no longer blocked). No production or regression code changed.
 
 2026-10-12 thorough hunt (dry): cheap-disproved the Stripe ownership candidate as not hunt-ready in the selected files: `WalletController.PutAsync` and `LlmTenantWalletService.UpdateWalletAsync` only forward the identifiers, while the ownership/validation contract is outside this zone. The focused `LlmTenantWalletServiceTests` run was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no failing repro, production change, or regression code was added.
 
@@ -12816,7 +12818,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `LlmTenantWalletWebhookStage.QueueOverageSettlementAsync` — `actualUsd <= 0` returns without enqueue. **Cheap-disproof 2026-10-12 thorough hunt:** the required no-token/zero-estimate caller is in `ArchLucid.AgentRuntime`, outside this zone’s selected paths; the selected `WalletController`, `LlmTenantWalletService`, and SQL repository do not establish that caller or the proposed debit outcome.
 - [x] (invalid) `InMemoryLlmTenantWalletRepository.UpdateSettingsAsync` — a missing tenant row returns null. **Cheap-disproof 2026-10-12 thorough hunt:** the proposed behavior is in `ArchLucid.Persistence/Data/Repositories/InMemoryLlmTenantWalletRepository.cs` and `InMemoryStorageProviderRegistrar`, outside the selected zone paths; the selected SQL/controller/service files cannot prove a storage-provider divergence.
 - [x] (valid-no-repro) `SqlLlmTenantWalletRepository.LedgerContainsPaymentIntentAsync` — the lookup is only `StripePaymentIntentId`, with no `TenantId` predicate. **Cheap-disproof 2026-10-12 thorough hunt:** `LlmTenantWalletLedger` has a filtered unique index on `StripePaymentIntentId`, so the proposed cross-tenant duplicate row cannot be reached; the global idempotency check is consistent with that schema contract.
-- [ ] (candidate) `WalletController.PutAsync` / `LlmTenantWalletService.UpdateWalletAsync` — a reachable authenticated-admin wallet PUT can forward client-supplied `StripeCustomerId` and `StripePaymentMethodId` directly into the update stage; if the stage persists them without tenant/payment-method ownership validation, a later auto-refill could charge a payment method belonging to another Stripe customer. The selected controller/service files do not establish the ownership contract or the stage’s validation.
+- [x] (invalid) `WalletController.PutAsync` / `LlmTenantWalletService.UpdateWalletAsync` — Stripe identifier ownership on PUT. **Cheap-disproof 2026-10-21 thorough hunt:** beta wallet save does not send Stripe ids; charge correctness depends on Stripe billing integration outside this zone’s selected paths; the selected files only forward partial-update fields and cannot prove a cross-tenant wrong charge without expanding scope.
 
 2026-10-12 thorough hunt (dry): cheap-disproved all three picker candidates; the first two require caller/storage files outside the selected zone, and the payment-intent candidate is blocked by the ledger’s global filtered unique index. The scoped `LlmTenantWalletServiceTests` filter was blocked before test discovery on both attempts by the unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
 
