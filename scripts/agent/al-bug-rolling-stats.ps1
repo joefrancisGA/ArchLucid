@@ -35,6 +35,12 @@
 .PARAMETER RunLogPath
   Optional override for the JSONL log path.
 
+.PARAMETER Set
+  Record and report against zone set 1, 2, 3, or 4. The set run log is the default path.
+
+.PARAMETER SetConfigPath
+  Override scripts/agent/al-bug-zone-sets.json (tests).
+
 .EXAMPLE
   .\scripts\agent\al-bug-rolling-stats.ps1 -RecordHunt -HuntZoneId 'topology-proposal-merge' -HuntOutcome dry -Rolling24h
 #>
@@ -75,6 +81,10 @@ param(
 
     [string] $RunLogPath,
 
+    [int] $Set = 0,
+
+    [string] $SetConfigPath,
+
     [int] $PruneEntriesOlderThanDays,
 
     [switch] $AllowLineCountDecrease
@@ -90,6 +100,14 @@ if (-not (Test-Path -LiteralPath $runLogUtilsScript)) {
 }
 
 . $runLogUtilsScript
+
+$zoneSetScript = Join-Path $PSScriptRoot 'al-bug-zone-set.ps1'
+
+if (-not (Test-Path -LiteralPath $zoneSetScript)) {
+    throw "Missing zone set helper: '$zoneSetScript'."
+}
+
+. $zoneSetScript
 
 function Get-RepoRoot {
     param([string] $ExplicitRoot)
@@ -447,10 +465,35 @@ if ($RecordHunt) {
 }
 
 $resolvedRoot = Get-RepoRoot -ExplicitRoot $RepoRoot
+
+if ($Set -ne 0 -and ($Set -lt 1 -or $Set -gt 4)) {
+    throw "Zone set must be 1, 2, 3, or 4. Received $Set."
+}
+
+$requestedSet = $null
+
+if ($Set -gt 0) {
+    $requestedSet = Get-AlBugZoneSet -Id $Set -ConfigPath $SetConfigPath -RepoRoot $resolvedRoot
+
+    if ($RecordHunt) {
+        $owner = Get-AlBugZoneSetForZoneId -ZoneId $HuntZoneId -ConfigPath $SetConfigPath -RepoRoot $resolvedRoot
+
+        if ($null -eq $owner -or [int]$owner.id -ne $Set) {
+            $ownerLabel = if ($null -eq $owner) { 'no set' } else { "set $($owner.id) ($($owner.command))" }
+            throw "Hunt zone '$HuntZoneId' belongs to $ownerLabel. This record is for set $Set ($($requestedSet.command))."
+        }
+    }
+}
+
 $resolvedLog = $RunLogPath
 
 if ([string]::IsNullOrWhiteSpace($resolvedLog)) {
-    $resolvedLog = Get-DefaultHuntRunLogPath -Root $resolvedRoot
+    if ($null -ne $requestedSet) {
+        $resolvedLog = Join-Path $resolvedRoot ($requestedSet.runLog -replace '/', [IO.Path]::DirectorySeparatorChar)
+    }
+    else {
+        $resolvedLog = Get-DefaultHuntRunLogPath -Root $resolvedRoot
+    }
 }
 elseif (-not [IO.Path]::IsPathRooted($resolvedLog)) {
     $resolvedLog = Join-Path $resolvedRoot ($resolvedLog -replace '/', [IO.Path]::DirectorySeparatorChar)

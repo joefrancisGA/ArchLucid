@@ -10,7 +10,10 @@ from dataclasses import dataclass
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-LEDGER_PATH = REPO_ROOT / "docs/library/AL_BUG_HUNT_LEDGER.md"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from al_bug_ledger import DEFAULT_LEDGER_PATH, load_ledger_text  # noqa: E402
+
+LEDGER_PATH = DEFAULT_LEDGER_PATH
 
 RETIRED_COUNTER_ALLOWLIST = frozenset(
     {
@@ -186,7 +189,7 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    ledger_text = args.ledger.read_text(encoding="utf-8")
+    ledger_text = load_ledger_text(args.ledger)
     zones = parse_zone_counters(ledger_text)
     violations, retired, baselined = lint_ledger(ledger_text)
     duplicates = duplicate_counter_zone_ids(ledger_text)

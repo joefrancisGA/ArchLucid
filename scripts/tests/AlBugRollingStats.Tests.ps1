@@ -168,3 +168,27 @@ Describe 'al-bug-rolling-stats.ps1' {
         $stillHasLegacy | Should -Not -BeNullOrEmpty
     }
 }
+
+Describe 'al-bug zone set run logs' {
+    It 'records into the requested run log and refuses a zone from another set' {
+        [string]$config = Join-Path $TestDrive 'zone-set-stats.json'
+        [string]$log = Join-Path $TestDrive 'set-1.jsonl'
+        @'
+{
+  "sets": [
+    {"id": 1, "title": "A", "command": "/al-bug1", "branch": "bugsmash-1", "ledger": "docs/library/AL_BUG_HUNT_LEDGER_1.md", "runLog": "docs/library/AL_BUG_HUNT_RUN_LOG_1.jsonl", "zones": ["zone-a"]},
+    {"id": 2, "title": "B", "command": "/al-bug2", "branch": "bugsmash-2", "ledger": "docs/library/AL_BUG_HUNT_LEDGER_2.md", "runLog": "docs/library/AL_BUG_HUNT_RUN_LOG_2.jsonl", "zones": ["zone-b"]},
+    {"id": 3, "title": "C", "command": "/al-bug3", "branch": "bugsmash-3", "ledger": "docs/library/AL_BUG_HUNT_LEDGER_3.md", "runLog": "docs/library/AL_BUG_HUNT_RUN_LOG_3.jsonl", "zones": []},
+    {"id": 4, "title": "D", "command": "/al-bug4", "branch": "bugsmash-4", "ledger": "docs/library/AL_BUG_HUNT_LEDGER_4.md", "runLog": "docs/library/AL_BUG_HUNT_RUN_LOG_4.jsonl", "zones": []}
+  ]
+}
+'@ | Set-Content -LiteralPath $config -Encoding UTF8
+
+        & $script:statsScript -Set 1 -SetConfigPath $config -RunLogPath $log -RecordHunt -HuntZoneId 'zone-a' -HuntOutcome dry -AtUtc '2026-08-02T00:00:00Z' | Out-Null
+
+        Test-Path -LiteralPath $log | Should -BeTrue
+        (Get-Content -LiteralPath $log -Raw -Encoding UTF8) | Should -Match 'zone-a'
+
+        { & $script:statsScript -Set 1 -SetConfigPath $config -RunLogPath $log -RecordHunt -HuntZoneId 'zone-b' -HuntOutcome dry -AtUtc '2026-08-02T00:00:00Z' } | Should -Throw
+    }
+}

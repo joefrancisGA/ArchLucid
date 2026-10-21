@@ -11,11 +11,11 @@ if str(_AGENT_DIR) not in sys.path:
     sys.path.insert(0, str(_AGENT_DIR))
 
 from al_bug_escape_log import DEFAULT_ESCAPE_LOG_PATH, validate_escape_log  # noqa: E402
-from al_bug_ledger import DEFAULT_LEDGER_PATH  # noqa: E402
+from al_bug_ledger import load_ledger_text  # noqa: E402
 
 
 def main() -> int:
-    ledger_text = DEFAULT_LEDGER_PATH.read_text(encoding="utf-8")
+    ledger_text = load_ledger_text()
     errors = validate_escape_log(DEFAULT_ESCAPE_LOG_PATH, ledger_text)
 
     if errors:

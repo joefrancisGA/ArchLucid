@@ -10,6 +10,10 @@ Distinct from **`/al-defect`** (production defect intake + `PD-###` log) and **`
 
 **Default git target:** **`bugsmash`** (user may override by naming another branch in the same message).
 
+**Parallel sets:** `/al-bug1` through `/al-bug4` each hunt one zone set, edit that set's ledger and run log, and push `bugsmash-1` through `bugsmash-4`. Membership is `scripts/agent/al-bug-zone-sets.json`. Do not run this unscoped `/al-bug` command beside a set command. Unscoped `/al-bug` still pushes `bugsmash`.
+
+Picker JSON fields `set`, `ledgerPath`, `runLogPath`, and `targetBranch` are the files and branch for the picked zone. Edit `ledgerPath`. Do not prepend new hunt notes to the index `docs/library/AL_BUG_HUNT_LEDGER.md`.
+
 **Every invocation is one of two kinds.** After the picker preview, announce the kind in chat **before** reading files or writing tests, then finish that kind. Do not silently skim and move on.
 
 | Kind | When | What you must do |
@@ -87,7 +91,7 @@ Before hunting, editing production code, or claiming a bug, sync the integration
 
 Add `-TargetBranch <name>` only when the user overrode the branch in the same message.
 
-The script fetches `origin/bugsmash`, checks out `bugsmash`, and `git pull --rebase origin bugsmash`. If the remote branch does not exist yet, it creates local `bugsmash` from `origin/master`.
+The script fetches `origin/bugsmash`, checks out `bugsmash`, and `git pull --rebase origin bugsmash`. If the remote branch does not exist yet, it creates local `bugsmash` from `origin/master`. `/al-bug1` through `/al-bug4` pass `-TargetBranch bugsmash-N`. A missing `bugsmash-N` remote is created from `origin/bugsmash`.
 
 ---
 
@@ -114,7 +118,7 @@ Rules:
   - `This /al-bug run is a **thorough defect hunt** for zone \`<zoneId>\`. Cheap-disproof and failing-repro attempts run to completion even if other /al-bug messages are queued.`
 - If JSON `exhaustedAll` is `true`, **stop** — report that every zone is exhausted without git churn. Do not invent a new zone.
 - If `--status`, print the preview and **stop** (do not hunt; do not write the ledger).
-- The script does **not** write the ledger. After the hunt, you edit `AL_BUG_HUNT_LEDGER.md`.
+- The script does **not** write the ledger. After the hunt, edit the picker JSON `ledgerPath` (the set ledger that owns the zone).
 
 ### Exhaustion (leave the zone when all hold)
 
@@ -322,7 +326,7 @@ git log origin/bugsmash -1 --oneline
 
 ## Phase 4 — Report back (always)
 
-After a hit, dry hunt, or seed-only pass, **edit** `docs/library/AL_BUG_HUNT_LEDGER.md` for the picked zone (`hunts`, `bugs-found`, `last-hunt`, `consecutive-dry-hunts`, hypothesis tags, `status`). Include that file in the same ship when the hunt produced a product fix; for a dry or seed-only hunt, ship the ledger update only.
+After a hit, dry hunt, or seed-only pass, **edit** the picker JSON `ledgerPath` for the picked zone (`hunts`, `bugs-found`, `last-hunt`, `consecutive-dry-hunts`, hypothesis tags, `status`). Include that file in the same ship when the hunt produced a product fix; for a dry or seed-only hunt, ship the ledger update only. Unscoped `/al-bug` still records `docs/library/AL_BUG_HUNT_RUN_LOG.jsonl` and pushes `bugsmash`. `/al-bug1` through `/al-bug4` record that set's run log and push that set's branch.
 
 Then **record the outcome** and print rolling **24-hour** yield (do **not** record for `--status` preview-only runs):
 
@@ -338,7 +342,7 @@ Then **record the outcome** and print rolling **24-hour** yield (do **not** reco
 - **`dry`** — hunt-ready hypotheses tested; no failing repro.
 - **`seed-only`** — seed hunt with no failing repro; does **not** count as a dry run in 24h stats.
 
-Include `docs/library/AL_BUG_HUNT_RUN_LOG.jsonl` in the same commit as the ledger update (always, for every completed hunt).
+Include the picker JSON `runLogPath` in the same commit as the ledger update (always, for every completed hunt).
 
 Replacement hypotheses after a miss must cite a **different mechanism** plus **reachability**, not the same template with new nouns. Do not template-seed an `unseeded` zone with three harm-class rows.
 
@@ -384,8 +388,11 @@ Copy the **total** and **per-product-line** bugs found / dry runs from the `-Rol
 - `docs/architecture/AL_BUG_QUALITY_COMPOSER_PROMPTS.md` — Composer set **ABQ-01–45** (01–35 shipped; paste **36–45** one `.cursor/prompts/al-bug-quality-NN-*.md` per session; do not implement quality reforms by running `/al-bug`)
 - `.cursor/commands/al-bug.md` — this workflow
 - `.cursor/skills/al-bug/SKILL.md` — skill pointer + hunt heuristics
-- `docs/library/AL_BUG_HUNT_LEDGER.md` — zone yield, hypotheses, exhaustion
-- `docs/library/AL_BUG_HUNT_RUN_LOG.jsonl` — append-only hunt outcome log (UTC timestamps)
+- `docs/library/AL_BUG_HUNT_LEDGER.md` — set catalog and historical diary
+- `docs/library/AL_BUG_HUNT_LEDGER_1.md` through `AL_BUG_HUNT_LEDGER_4.md` — zone bodies for `/al-bug1` through `/al-bug4`
+- `docs/library/AL_BUG_HUNT_RUN_LOG.jsonl` — unscoped `/al-bug` outcome log
+- `docs/library/AL_BUG_HUNT_RUN_LOG_1.jsonl` through `AL_BUG_HUNT_RUN_LOG_4.jsonl` — per-set outcome logs
+- `scripts/agent/al-bug-zone-sets.json` — set membership, branch, ledger, and run log
 - `scripts/agent/al-bug-pick-zone.ps1` — deterministic next-zone picker
 - `scripts/agent/al-bug-rolling-stats.ps1` — rolling 24h hunt yield log + preview
 - `scripts/agent/al-bug-sync-branch.ps1` — fetch, checkout, and pull `bugsmash`

@@ -20,7 +20,7 @@ _AGENT_DIR = Path(__file__).resolve().parent
 if str(_AGENT_DIR) not in sys.path:
     sys.path.insert(0, str(_AGENT_DIR))
 
-from al_bug_ledger import DEFAULT_LEDGER_PATH, ProvenRow, collect_proven_rows
+from al_bug_ledger import DEFAULT_LEDGER_PATH, ProvenRow, collect_proven_rows, load_ledger_text
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_REPORT_PATH = REPO_ROOT / "docs/library/AL_BUG_PROVEN_REVERT_AUDIT.md"
@@ -416,7 +416,7 @@ def main() -> int:
         ]
         selected = rows
     else:
-        ledger_text = args.ledger.read_text(encoding="utf-8")
+        ledger_text = load_ledger_text(args.ledger)
         rows = collect_proven_rows(ledger_text)
         selected = select_rows(rows, args.zone, since, args.limit)
 

@@ -11,7 +11,7 @@ _AGENT_DIR = Path(__file__).resolve().parent
 if str(_AGENT_DIR) not in sys.path:
     sys.path.insert(0, str(_AGENT_DIR))
 
-from al_bug_ledger import DEFAULT_LEDGER_PATH, parse_zone_paths, parse_zones  # noqa: E402
+from al_bug_ledger import DEFAULT_LEDGER_PATH, load_ledger_text, parse_zone_paths, parse_zones  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -74,7 +74,7 @@ def main() -> int:
     parser.add_argument("--warn", action="store_true", help="Print ghosts but exit 0 (CI default until clean).")
     args = parser.parse_args()
 
-    ledger_text = args.ledger.read_text(encoding="utf-8")
+    ledger_text = load_ledger_text(args.ledger)
     ghosts = lint_zone_paths(ledger_text, args.repo_root)
     if ghosts:
         print("Ghost zone path prefixes (no file or directory under repo root):")

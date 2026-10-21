@@ -13,7 +13,13 @@ _AGENT_DIR = Path(__file__).resolve().parent
 if str(_AGENT_DIR) not in sys.path:
     sys.path.insert(0, str(_AGENT_DIR))
 
-from al_bug_ledger import DEFAULT_LEDGER_PATH, parse_zone_impacts, parse_zones  # noqa: E402
+from al_bug_ledger import (  # noqa: E402
+    DEFAULT_LEDGER_PATH,
+    load_ledger_text,
+    parse_zone_impacts,
+    parse_zones,
+    set_ledger_paths,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 PROVEN_ADDED = re.compile(r"^\+\s*-\s+\[[xX]\]\s+\(proven\)\s+(.+)$")
@@ -101,8 +107,12 @@ def load_diff(diff_path: Path | None, diff_ref: str | None) -> str:
     if diff_path is not None:
         return diff_path.read_text(encoding="utf-8")
     if diff_ref:
+        ledger_args = [str(DEFAULT_LEDGER_PATH.relative_to(REPO_ROOT))]
+        ledger_args.extend(
+            str(path.relative_to(REPO_ROOT)) for path in set_ledger_paths() if path.is_file()
+        )
         completed = subprocess.run(
-            ["git", "diff", diff_ref, "--", str(DEFAULT_LEDGER_PATH.relative_to(REPO_ROOT))],
+            ["git", "diff", diff_ref, "--", *ledger_args],
             cwd=REPO_ROOT,
             capture_output=True,
             text=True,
@@ -123,7 +133,7 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    ledger_text = args.ledger.read_text(encoding="utf-8")
+    ledger_text = load_ledger_text(args.ledger)
     diff_text = load_diff(args.diff, args.diff_ref if args.diff is None else None)
     if not diff_text.strip():
         return 0
