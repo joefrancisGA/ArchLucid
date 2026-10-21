@@ -3,7 +3,7 @@
 import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import {
   readRoomElicitationFromSearchParams,
   reviewRoomElicitationHrefFromSearch,
@@ -37,11 +37,11 @@ export function useReviewDetailWorkspaceRoomElicitation(): UseReviewDetailWorksp
   const syncRoomElicitationToUrl = useCallback(
     (active: boolean) => {
       // replaceState does not emit popstate. The room panel reads roomElicitation from that event.
-      commitHrefIfChanged(reviewRoomElicitationHrefFromSearch(readWindowLocationSearch(), active, pathname), {
+      commitHrefIfChanged(reviewRoomElicitationHrefFromSearch(searchParams.toString(), active, pathname), {
         notify: true,
       });
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setRoomElicitation = useCallback(

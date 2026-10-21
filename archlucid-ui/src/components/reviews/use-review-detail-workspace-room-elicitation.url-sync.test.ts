@@ -1,4 +1,4 @@
-import { renderHook } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
 import { createElement, useSyncExternalStore, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -31,8 +31,10 @@ const roomSearchParamsHarness = vi.hoisted(() => {
   };
 });
 
+const pathnameMock = vi.hoisted(() => ({ value: "/architecture/reviews/run-b" }));
+
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/architecture/reviews/run-a",
+  usePathname: () => pathnameMock.value,
   useSearchParams: () => new URLSearchParams(roomSearchParamsHarness.state.query),
 }));
 
@@ -49,7 +51,12 @@ function RoomSearchParamsRerenderHost({ children }: { readonly children: ReactNo
 describe("useReviewDetailWorkspaceRoomElicitation URL sync", () => {
   beforeEach(() => {
     roomSearchParamsHarness.reset();
-    window.history.replaceState({}, "", "/architecture/reviews/run-a?reviewTab=overview");
+    pathnameMock.value = "/architecture/reviews/run-b";
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-a?reviewTab=findings&q=stale-payment",
+    );
   });
 
   it("follows roomElicitation query changes without a popstate event", () => {
@@ -68,5 +75,21 @@ describe("useReviewDetailWorkspaceRoomElicitation URL sync", () => {
     rerender();
 
     expect(result.current.roomElicitationActive).toBe(true);
+  });
+
+  it("enters room elicitation from useSearchParams when window.location.search lags after soft navigation", () => {
+    roomSearchParamsHarness.state.query = "reviewTab=overview";
+
+    const { result } = renderHook(() => useReviewDetailWorkspaceRoomElicitation(), {
+      wrapper: RoomSearchParamsRerenderHost,
+    });
+
+    act(() => {
+      result.current.enterRoomElicitation();
+    });
+
+    expect(window.location.pathname + window.location.search).toBe(
+      `/architecture/reviews/run-b?reviewTab=overview&${REVIEW_ROOM_ELICITATION_PARAM}=1`,
+    );
   });
 });

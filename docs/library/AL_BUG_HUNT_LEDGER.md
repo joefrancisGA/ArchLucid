@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
+﻿> **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 2026-10-21 thorough hunt (hit, lane C): `ui-help-docs` — promoted `mergeDocIndex` path-only dedupe dropped fetched doc-index rows whose url differed from a static quick link only by `?` or `#` (e.g. `/architecture/reviews?tab=active` vs static `/architecture/reviews`), so operators lost deep-link cards with distinct titles; `docIndexFetchedUrlHasDeepLinkSuffix` skips normalized-path suppression for relative deep links while exact `category|title|url` dedupe remains; regressions `renders fetched doc-index deep links when only query/hash differs` + `does not duplicate a static quick link when fetched index repeats the same title and path`; cheap-disproof closed percent-encoding href vs dedupe, React list `key` collision after merge collapse, interior double-space filter typo, and `refetchOnMount` undefined-after-gc. Scoped `HelpDocsClient` vitest 52/52.
 2026-10-21 seed hunt (seed→hit): `email-otp-auth` — lane B; promoted `EmailOtpRequestFlow.ExecuteAsync` returning `NeutralResult()` when `TrySendSignInCodeAsync` returned false, leaving `EmailDeliverySucceeded` null so `EmailOtpAuthController` could not surface explicit delivery failure (`EmailDeliverySucceeded == false`) to omit `ChallengeId` and let clients retry; delivery failure now returns `EmailDeliverySucceeded = false` with the neutral message; regression `RequestCodeAsync_returns_neutral_message_when_email_delivery_fails` (failed first expecting false); Application OTP tests 46/46, API EmailOtp controller tests 12/12; seeded five follow-on `(candidate)` rows.
 
@@ -41613,6 +41613,10 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 ---
 
 ## Zone: ui-review-detail-workspace
+2026-10-21 seed hunt (seed→hit): promoted `useReviewDetailWorkspaceRoomElicitation` — `syncRoomElicitationToUrl` built hrefs from `readWindowLocationSearch()`, so after cross-review soft navigation entering room elicitation could write the prior review's findings toolbar query onto the next review when setting `roomElicitation=1`; base href writes on `useSearchParams`; regression `enters room elicitation from useSearchParams when window.location.search lags after soft navigation`; room elicitation url-sync vitest 2/2.
+
+- [x] (proven) `useReviewDetailWorkspaceRoomElicitation` — stale toolbar params on room elicitation enter after soft navigation — **hit 2026-10-21 seed hunt:** `reviewRoomElicitationHrefFromSearch(searchParams.toString(), …)`; regression above.
+
 2026-10-21 seed hunt (seed→hit): promoted `useReviewDetailWorkspacePresenter` — `enterPresenter` / `exitPresenter` built hrefs from `window.location.search`, so after cross-review soft navigation Present could write the prior review's findings toolbar query onto the next review when setting `presenter=1`; base href writes on `useSearchParams`; regression `enters presenter mode from useSearchParams when window.location.search lags after soft navigation`; presenter hook vitest 1/1.
 
 - [x] (proven) `useReviewDetailWorkspacePresenter` — stale toolbar params on Present after soft navigation — **hit 2026-10-21 seed hunt:** `reviewPresenterModeHrefFromSearch(searchParams.toString(), …)`; regression above.
@@ -41868,11 +41872,11 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 52
-- **bugs-found:** 43
+- **hunts:** 53
+- **bugs-found:** 44
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — useReviewDetailWorkspacePresenter Present href soft-nav sync
+- **last-bug:** 2026-10-21 — useReviewDetailWorkspaceRoomElicitation room elicitation href soft-nav sync
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.
