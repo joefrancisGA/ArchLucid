@@ -49,6 +49,7 @@ public sealed class ApplicationPackageCoverageBatch7Tests
             offboarded,
             offboarded,
             offboarded,
+            offboarded,
             withLegalHold,
             withLegalHold,
             offboarded,
