@@ -5,7 +5,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import {
   SPONSOR_REHEARSAL_PREVIEW_OPEN_PARAM,
   parseSponsorRehearsalPreviewOpenFromSearch,
@@ -44,11 +44,11 @@ export function SponsorRehearsalPreviewPanel(
   const syncPanelOpenToUrl = useCallback(
     (open: boolean) => {
       commitHrefIfChanged(
-        sponsorRehearsalPreviewDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        sponsorRehearsalPreviewDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setPanelOpen = useCallback(

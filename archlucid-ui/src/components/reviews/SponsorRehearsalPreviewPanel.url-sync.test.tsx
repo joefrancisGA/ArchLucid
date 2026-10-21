@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { createElement, useSyncExternalStore, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -32,8 +32,10 @@ const searchParamsHarness = vi.hoisted(() => {
   };
 });
 
+const pathnameMock = vi.hoisted(() => ({ value: "/architecture/reviews/run-b" }));
+
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/architecture/reviews/run-abc",
+  usePathname: () => pathnameMock.value,
   useSearchParams: () => new URLSearchParams(searchParamsHarness.state.query),
 }));
 
@@ -50,7 +52,30 @@ function SearchParamsRerenderHost({ children }: { readonly children: ReactNode }
 describe("SponsorRehearsalPreviewPanel URL sync", () => {
   beforeEach(() => {
     searchParamsHarness.reset();
-    window.history.replaceState({}, "", "/architecture/reviews/run-abc?reviewTab=overview");
+    pathnameMock.value = "/architecture/reviews/run-b";
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-a?reviewTab=findings&q=stale-payment",
+    );
+  });
+
+  it("opens sponsor rehearsal preview from useSearchParams when window.location.search lags after soft navigation", async () => {
+    searchParamsHarness.state.query = "reviewTab=overview";
+
+    render(
+      <SearchParamsRerenderHost>
+        <SponsorRehearsalPreviewPanel input={{}} />
+      </SearchParamsRerenderHost>,
+    );
+
+    fireEvent.click(screen.getByText("Preview as sponsor"));
+
+    await waitFor(() => {
+      expect(window.location.pathname + window.location.search).toBe(
+        `/architecture/reviews/run-b?reviewTab=overview&${SPONSOR_REHEARSAL_PREVIEW_OPEN_PARAM}=1`,
+      );
+    });
   });
 
   it("follows sponsorRehearsalPreviewOpen query changes without a popstate event", async () => {
@@ -67,7 +92,7 @@ describe("SponsorRehearsalPreviewPanel URL sync", () => {
     window.history.replaceState(
       {},
       "",
-      `/architecture/reviews/run-abc?reviewTab=overview&${SPONSOR_REHEARSAL_PREVIEW_OPEN_PARAM}=1`,
+      `/architecture/reviews/run-b?reviewTab=overview&${SPONSOR_REHEARSAL_PREVIEW_OPEN_PARAM}=1`,
     );
     rerender(
       <SearchParamsRerenderHost>
