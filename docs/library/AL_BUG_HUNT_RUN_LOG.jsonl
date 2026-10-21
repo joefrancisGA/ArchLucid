@@ -5856,3 +5856,4 @@
 {"at":"2026-10-21T06:13:51.1336544Z","zoneId":"archlucid-contracts","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T06:23:12.729Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailFindingsWorkspace.tsx"]}
 {"at":"2026-10-21T06:25:52.6423197Z","zoneId":"arm-terraform-source-ids","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-21T06:32:35.574Z","zoneId":"archlucid-contracts","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Contracts/ArchitectureIntelligence/SpecialistReviewFinding.cs"]}

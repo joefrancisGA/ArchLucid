@@ -24,11 +24,13 @@ public class SpecialistReviewFinding
         set => title = ContractCollectionDefaults.CoalesceRequired(value);
     }
 
+    private string rationale = string.Empty;
+
     public string Rationale
     {
-        get;
-        set;
-    } = null!;
+        get => rationale;
+        set => rationale = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     public ReviewConclusion Conclusion
     {
