@@ -5926,3 +5926,4 @@
 {"at":"2026-10-21T15:05:00.0000000Z","zoneId":"control-phrase-matching","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T14:54:43.6696686Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Configuration/"]}
 {"at":"2026-10-21T15:12:00.0000000Z","zoneId":"content-safety-admission","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T15:01:14.4286452Z","zoneId":"ui-infra-resource-hub","outcome":"hit","productLine":"securenow","paths":["archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx"],"defectClass":"state-machine-gap"}

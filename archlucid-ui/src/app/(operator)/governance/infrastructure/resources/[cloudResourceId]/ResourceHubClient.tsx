@@ -514,9 +514,12 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
         && match.auditEvidenceSnapshotId === resolvedAuditSnapshotId
         && match.controlId === resolvedControlId,
     );
-    const labelParts = activeMatch != null
-      ? [activeMatch.controlNumber, activeMatch.controlTitle]
-      : [hub.auditLineageLink.controlNumber, hub.auditLineageLink.controlTitle];
+
+    if (activeMatch == null) {
+      return null;
+    }
+
+    const labelParts = [activeMatch.controlNumber, activeMatch.controlTitle];
 
     const filteredLabelParts = labelParts.filter((part) => part != null && part.trim().length > 0);
 
@@ -576,6 +579,23 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   );
 
   const auditScopeActive = parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams) != null;
+
+  const hasUnlinkedAuditScopeInUrl = useMemo(() => {
+    const auditScope = parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams);
+
+    if (auditScope == null || hub?.auditLineageLink.available !== true) {
+      return false;
+    }
+
+    return !hub.auditLineageLink.matches.some(
+      (match) =>
+        match.assessmentId === auditScope.assessmentId
+        && match.auditEvidenceSnapshotId === auditScope.auditEvidenceSnapshotId
+        && match.controlId === auditScope.controlId,
+    );
+  }, [hub, searchParams]);
+
+  const showStaleAuditScopeBanner = hasStaleAuditUrlParams || hasUnlinkedAuditScopeInUrl;
 
   const auditScopeChipHref = useMemo(() => {
     if (!auditScopeActive) {
@@ -825,7 +845,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
         </section>
       )}
 
-      {auditScopeActive && workbenchLinkAuditContext != null ? (
+      {auditScopeActive && workbenchLinkAuditContext != null && !hasUnlinkedAuditScopeInUrl ? (
         <InfraEvidenceAuditScopeBar
           cloudResourceId={cloudResourceId}
           auditScope={{
@@ -845,7 +865,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
         />
       ) : null}
 
-      {hasStaleAuditUrlParams ? (
+      {showStaleAuditScopeBanner ? (
         <InfraAuditLineageUnavailableBanner
           degradedReason="Audit scope in the URL could not be resolved for this resource."
           testId="infra-resource-hub-stale-audit-scope"

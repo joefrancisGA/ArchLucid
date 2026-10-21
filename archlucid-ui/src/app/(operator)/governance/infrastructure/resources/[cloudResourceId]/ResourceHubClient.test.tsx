@@ -886,4 +886,18 @@ describe("ResourceHubClient", () => {
     expect(await screen.findByText("Resource group was not stored.")).toBeInTheDocument();
     expect(screen.getByText("Azure region was not stored.")).toBeInTheDocument();
   });
+
+  it("surfaces stale audit banner when URL audit scope is not linked in hub matches", async () => {
+    searchParams = new URLSearchParams(
+      "tab=audit&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+    );
+
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-stale-audit-scope")).toBeInTheDocument();
+    expect(
+      screen.queryByText("AE-10 chain of custody for AC-2 · Account management."),
+    ).not.toBeInTheDocument();
+  });
+
 });

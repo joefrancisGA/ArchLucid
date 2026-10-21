@@ -1,3 +1,13 @@
+2026-10-21 seed hunt (seed→hit, lane C): `ui-infra-resource-hub` — lock `ui-infra-resource-hub` pushed and verified on `origin/bugsmash` before work (`3423a6dc2f`; released mistaken `ui-oidc` / `persistence-billing-stripe` locks — both hunted today); promoted `ResourceHubClient.resolvedAuditLineage` — complete audit URL scope missing from `auditLineageLink.matches` still fell back to hub default control label and rendered AE-10 chain-of-custody copy for the wrong control; `hasUnlinkedAuditScopeInUrl` shows the stale audit banner and hides the scope bar; `resolvedAuditLineage` returns null when no exact match; regression `surfaces stale audit banner when URL audit scope is not linked in hub matches`; seeded five follow-on `(candidate)` rows; scoped ResourceHubClient vitest 56/56.
+
+- [x] (proven) `ResourceHubClient.resolvedAuditLineage` — URL audit scope absent from hub matches showed hub default control label — **hit 2026-10-21 seed hunt lane C:** unlinked-scope banner + null lineage; regression above.
+
+- (candidate) `ResourceHubClient` RBAC assignments table — React key `${principalId}-${roleDefinitionId}` collides when scope differs — locus: overview RBAC table row key; input: duplicate principal/role with distinct scopes.
+- (candidate) `ResourceHubClient` network relationships table — row key omits `relationshipType` — locus: overview network table; input: same endpoints with different relationship types.
+- (candidate) `sanitizeResourceHubQueryForTab` — non-terraform `infraResourceHubTechnicalKey` values persist across tab changes — locus: tab URL sanitizer; input: `armResourcePath` disclosure open then switch to findings tab.
+- (candidate) `ResourceHubClient` audit other-controls list — picker value is `controlId` only when duplicate ids span assessments — locus: inline audit control picker; input: same control id on two assessments in matches.
+- (candidate) `ResourceHubClient.resourceTitle` — `cloudResourceId` route param with encoded slash segments — locus: title derivation when configuration id absent; input: percent-encoded ARM path in route segment.
+
 2026-10-21 seed hunt (seed→hit, lane C): `ui-operator-routes` — lock `ui-operator-routes` pushed and verified on `origin/bugsmash` before work (`fe1a2ec260`); reseeded after 628 commits since 2026-09-30; promoted `SearchPageClient` URL-scoped auto-search — `lastAutoSearchedQuery` keyed query text only, so changing `runId` while `q` unchanged skipped `onSearch` and left prior review's retrieval hits on screen; scope ref tracks `{ runId, query }`; regression `re-runs retrieval when runId changes but the query string stays the same`; seeded five follow-on `(candidate)` rows; scoped SearchPageClient + PlanningPageClient + RemediationPatternsClient vitest 18/18.
 
 - [x] (proven) `SearchPageClient` — scoped `runId` URL change with unchanged `q` skipped auto retrieval — **hit 2026-10-21 seed hunt lane C:** `lastAutoSearchedScope` pairs run + query; regression above.
@@ -46102,11 +46112,11 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 41
-- **bugs-found:** 21
+- **hunts:** 42
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — stale hub evidence after failed scope reload
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-21 — unlinked audit URL scope showed hub default control label
 2026-10-20 seed hunt (seed→hit): promoted failed reload stale hub candidate; regression `clears_hub_evidence_when_a_newer_URL_selection_fails_to_load`; 55 scoped ResourceHubClient tests passed.
 
 - **related-pd-tb:** none
