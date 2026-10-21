@@ -7,6 +7,10 @@
 - (candidate) `sanitizeResourceHubQueryForTab` — non-terraform `infraResourceHubTechnicalKey` values persist across tab changes — locus: tab URL sanitizer; input: `armResourcePath` disclosure open then switch to findings tab.
 - (candidate) `ResourceHubClient` audit other-controls list — picker value is `controlId` only when duplicate ids span assessments — locus: inline audit control picker; input: same control id on two assessments in matches.
 - (candidate) `ResourceHubClient.resourceTitle` — `cloudResourceId` route param with encoded slash segments — locus: title derivation when configuration id absent; input: percent-encoded ARM path in route segment.
+2026-10-21 structural hunt (hit, lane B): `content-safety-admission` — lock `content-safety-admission` retained on `origin/bugsmash`; centralized `ArchitectureRequestAgentReachableStringPaths` + documented `ArchitectureRequestContentSafetyScanExemptions`; `DefaultRequestContentSafetyPrecheck` scans catalog (including `IntakeTransparencyTrail` asserted/inferred values and responder labels previously omitted); architecture matrix `ArchitectureRequestContentSafetyFieldCoverageArchitectureTests` probes every non-exempt path with `ArchitectureRequestContentSafetyProbeFactory`; scoped `FullyQualifiedName~ArchitectureRequestContentSafetyFieldCoverageArchitectureTests|FullyQualifiedName~DefaultRequestContentSafetyPrecheckTests` 13/13 (`RunAnalyzers=false`); lock released after push (`DEFECT_FOUND: true` for unscanned intake transparency trail prose).
+
+- [x] (proven) `DefaultRequestContentSafetyPrecheck` — unscanned `IntakeTransparencyTrail` asserted/inferred values and responder labels — **hit 2026-10-21 structural lane B:** catalog-driven scan; architecture field-coverage matrix.
+
 
 2026-10-21 seed hunt (seed→hit, lane C): `ui-operator-routes` — lock `ui-operator-routes` pushed and verified on `origin/bugsmash` before work (`fe1a2ec260`); reseeded after 628 commits since 2026-09-30; promoted `SearchPageClient` URL-scoped auto-search — `lastAutoSearchedQuery` keyed query text only, so changing `runId` while `q` unchanged skipped `onSearch` and left prior review's retrieval hits on screen; scope ref tracks `{ runId, query }`; regression `re-runs retrieval when runId changes but the query string stays the same`; seeded five follow-on `(candidate)` rows; scoped SearchPageClient + PlanningPageClient + RemediationPatternsClient vitest 18/18.
 
@@ -46958,4 +46962,3 @@ ABQ-09 churn hotspot.
 - [x] (proven) **Defect class:** null elements inside request body collections — **closed 2026-10-21:** `ApiRequestNullCollectionElementsFilter` + guard; architecture reflection coverage over `[FromBody]` DTO collection properties.
 
 ---
-
