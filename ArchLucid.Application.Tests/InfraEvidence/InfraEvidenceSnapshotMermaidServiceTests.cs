@@ -295,7 +295,8 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
                 includeRecoveryServices: true,
                 cancellationToken: CancellationToken.None,
                 includeCrossGroupFanOut: true,
-                includeAvdAssets: true);
+                includeAvdAssets: true,
+                includeNetworkDetails: true);
 
         result.Succeeded.Should().BeTrue();
         observedOptions.Should().NotBeEmpty();
@@ -303,7 +304,8 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
             options != null
             && options.IncludeRecoveryServices
             && options.IncludeCrossGroupFanOut
-            && options.IncludeAvdAssets);
+            && options.IncludeAvdAssets
+            && options.IncludeNetworkDetails);
     }
 
     [Fact]
