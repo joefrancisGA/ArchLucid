@@ -43,6 +43,7 @@ public sealed class ArchitectureReviewExportServiceTests
             RequestId = "req-x",
             Status = ArchitectureRunStatus.Committed,
             CurrentManifestVersion = "v9",
+            StructuralExecutionMode = StructuralExecutionMode.Real,
             CreatedUtc = DateTime.UtcNow,
             CompletedUtc = DateTime.UtcNow
         };
@@ -90,7 +91,7 @@ public sealed class ArchitectureReviewExportServiceTests
                 tenantRepository ?? Mock.Of<ITenantRepository>(),
                 explanation,
                 tenantReviewBoardCoverLogoStore: null,
-                SealedExportReceiptTestSupport.CreateCareerExportHonestyConfiguration(),
+                SealedExportReceiptTestSupport.CreateSuccessfulExportHonestyConfiguration(),
                 new ArchitectureReviewDocxBuilder(),
                 new ArchitectureReviewPdfBuilder(),
                 Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
@@ -110,7 +111,7 @@ public sealed class ArchitectureReviewExportServiceTests
             tenantRepository ?? Mock.Of<ITenantRepository>(),
             explanation,
             tenantReviewBoardCoverLogoStore: null,
-            SealedExportReceiptTestSupport.CreateCareerExportHonestyConfiguration(),
+            SealedExportReceiptTestSupport.CreateSuccessfulExportHonestyConfiguration(),
             new ArchitectureReviewDocxBuilder(),
             new ArchitectureReviewPdfBuilder(),
             Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
