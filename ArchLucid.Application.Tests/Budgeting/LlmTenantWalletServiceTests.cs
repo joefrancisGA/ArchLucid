@@ -110,6 +110,35 @@ public sealed class LlmTenantWalletServiceTests
     }
 
     [SkippableFact]
+    public async Task UpdateWalletAsync_rejects_stripe_customer_id_that_guard_blocks()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+
+        Mock<IStripeWalletPaymentIdentifierGuard> guard = new();
+        guard
+            .Setup(g => g.AllowsWalletUpdateAsync(
+                tenantId,
+                "cus_other_tenant",
+                "pm_victim",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        LlmTenantWalletService service = CreateService(repository, new Mock<IStripeWalletGateway>().Object, stripePaymentIdentifierGuard: guard.Object);
+
+        LlmTenantWalletView? updated = await service.UpdateWalletAsync(
+            tenantId,
+            new LlmTenantWalletUpdateCommand
+            {
+                StripeCustomerId = "cus_other_tenant",
+                StripePaymentMethodId = "pm_victim",
+            },
+            CancellationToken.None);
+
+        updated.Should().BeNull();
+    }
+
+    [SkippableFact]
     public async Task UpdateWalletAsync_preserves_stripe_customer_when_put_sends_empty_string_customer_id()
     {
         InMemoryLlmTenantWalletRepository repository = new();
@@ -1024,7 +1053,8 @@ public sealed class LlmTenantWalletServiceTests
         ILlmTenantWalletRepository repository,
         IStripeWalletGateway stripeGateway,
         LlmWalletSettlementQueue? queue = null,
-        TimeProvider? timeProvider = null)
+        TimeProvider? timeProvider = null,
+        IStripeWalletPaymentIdentifierGuard? stripePaymentIdentifierGuard = null)
     {
         LlmWalletSettlementQueue settlementQueue = queue ?? new LlmWalletSettlementQueue();
         Mock<IAuditService> audit = new();
@@ -1039,10 +1069,22 @@ public sealed class LlmTenantWalletServiceTests
             settlementQueue,
             NullLogger<LlmTenantWalletRefillStage>.Instance);
 
+        IStripeWalletPaymentIdentifierGuard guard = stripePaymentIdentifierGuard ?? new AllowAllStripeWalletPaymentIdentifierGuard();
+
         return new LlmTenantWalletService(
-            new LlmTenantWalletConsumeStage(repository, settlementQueue, NullLogger<LlmTenantWalletConsumeStage>.Instance),
+            new LlmTenantWalletConsumeStage(repository, settlementQueue, guard, NullLogger<LlmTenantWalletConsumeStage>.Instance),
             refillStage,
             new LlmTenantWalletWebhookStage(settlementQueue, refillStage));
+    }
+
+    private sealed class AllowAllStripeWalletPaymentIdentifierGuard : IStripeWalletPaymentIdentifierGuard
+    {
+        public Task<bool> AllowsWalletUpdateAsync(
+            Guid tenantId,
+            string? stripeCustomerId,
+            string? stripePaymentMethodId,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult(true);
     }
 
     private static LlmTenantWalletService CreateService(InMemoryLlmTenantWalletRepository repository) =>

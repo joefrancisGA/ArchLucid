@@ -20,12 +20,16 @@ public sealed partial class StripeBillingProvider(
     IBillingWebhookReplayGuard webhookReplayGuard,
     StripeBillingSubscriptionWebhookProcessor subscriptionWebhookProcessor,
     ILlmTenantWalletStripeWebhookProcessor walletWebhookProcessor,
-    ILlmTenantWalletRepository walletRepository) : IBillingProvider
+    ILlmTenantWalletRepository walletRepository,
+    IStripeLinkedCustomerResolver linkedCustomerResolver) : IBillingProvider
 {
     private readonly IOptionsMonitor<BillingOptions> _billingOptions =
         billingOptions ?? throw new ArgumentNullException(nameof(billingOptions));
 
     private readonly IBillingLedger _ledger = ledger ?? throw new ArgumentNullException(nameof(ledger));
+
+    private readonly IStripeLinkedCustomerResolver _linkedCustomerResolver =
+        linkedCustomerResolver ?? throw new ArgumentNullException(nameof(linkedCustomerResolver));
 
     private readonly StripeBillingSubscriptionWebhookProcessor _subscriptionWebhookProcessor =
         subscriptionWebhookProcessor ?? throw new ArgumentNullException(nameof(subscriptionWebhookProcessor));
@@ -40,15 +44,4 @@ public sealed partial class StripeBillingProvider(
         walletRepository ?? throw new ArgumentNullException(nameof(walletRepository));
 
     public string ProviderName => BillingProviderNames.Stripe;
-
-    private static bool MetadataMatchesTenant(IReadOnlyDictionary<string, string>? metadata, Guid tenantId)
-    {
-        if (metadata is null)
-            return false;
-
-        if (!metadata.TryGetValue("tenant_id", out string? raw) || string.IsNullOrWhiteSpace(raw))
-            return false;
-
-        return Guid.TryParse(raw.Trim(), out Guid parsedTenantId) && parsedTenantId == tenantId;
-    }
 }

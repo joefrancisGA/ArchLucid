@@ -67,7 +67,8 @@ public sealed class StripeBillingProviderWalletWebhookTests
       replayGuard.Object,
       subscriptionProcessor,
       walletProcessor.Object,
-      walletRepository.Object);
+      walletRepository.Object,
+      new StripeLinkedCustomerResolver(ledger.Object, monitor));
 
     const string eventId = "evt_wallet_missing_tenant";
     PaymentIntent intent = new()
@@ -161,7 +162,8 @@ public sealed class StripeBillingProviderWalletWebhookTests
       replayGuard.Object,
       subscriptionProcessor,
       walletProcessor.Object,
-      walletRepository.Object);
+      walletRepository.Object,
+      new StripeLinkedCustomerResolver(ledger.Object, monitor));
 
     PaymentIntent intent = new()
     {
@@ -250,7 +252,8 @@ public sealed class StripeBillingProviderWalletWebhookTests
       replayGuard.Object,
       subscriptionProcessor,
       walletProcessor.Object,
-      walletRepository.Object);
+      walletRepository.Object,
+      new StripeLinkedCustomerResolver(ledger.Object, monitor));
 
     PaymentIntent intent = new()
     {
@@ -394,7 +397,8 @@ public sealed class StripeBillingProviderWalletWebhookTests
       replayGuard.Object,
       subscriptionProcessor,
       walletProcessor.Object,
-      walletRepository.Object);
+      walletRepository.Object,
+      new StripeLinkedCustomerResolver(ledger.Object, monitor));
 
     Event stripeEvent = new()
     {
@@ -469,7 +473,8 @@ public sealed class StripeBillingProviderWalletWebhookTests
       replayGuard.Object,
       subscriptionProcessor,
       walletProcessor.Object,
-      walletRepository.Object);
+      walletRepository.Object,
+      new StripeLinkedCustomerResolver(ledger.Object, monitor));
 
     PaymentIntent intent = new()
     {
@@ -561,7 +566,8 @@ public sealed class StripeBillingProviderWalletWebhookTests
       replayGuard.Object,
       subscriptionProcessor,
       walletProcessor.Object,
-      walletRepository.Object);
+      walletRepository.Object,
+      new StripeLinkedCustomerResolver(ledger.Object, monitor));
 
     Guid tenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
     PaymentIntent intent = new()
@@ -658,7 +664,8 @@ public sealed class StripeBillingProviderWalletWebhookTests
       replayGuard.Object,
       subscriptionProcessor,
       walletProcessor.Object,
-      walletRepository.Object);
+      walletRepository.Object,
+      new StripeLinkedCustomerResolver(ledger.Object, monitor));
 
     Guid tenantId = Guid.Parse("cccccccc-dddd-eeee-ffff-111111111111");
     Guid correlationId = Guid.Parse("dddddddd-eeee-ffff-1111-222222222222");
@@ -757,7 +764,8 @@ public sealed class StripeBillingProviderWalletWebhookTests
       replayGuard.Object,
       subscriptionProcessor,
       walletProcessor.Object,
-      walletRepository.Object);
+      walletRepository.Object,
+      new StripeLinkedCustomerResolver(ledger.Object, monitor));
 
     Guid tenantId = Guid.Parse("11111111-2222-3333-4444-555555555555");
     PaymentIntent intent = new()
@@ -868,7 +876,8 @@ public sealed class StripeBillingProviderWalletWebhookTests
       replayGuard.Object,
       subscriptionProcessor,
       walletProcessor.Object,
-      walletRepository.Object);
+      walletRepository.Object,
+      new StripeLinkedCustomerResolver(ledger.Object, monitor));
 
     Guid tenantId = Guid.Parse("aaaaaaaa-1111-2222-3333-444444444444");
     PaymentIntent intent = new()
@@ -959,7 +968,8 @@ public sealed class StripeBillingProviderWalletWebhookTests
       replayGuard.Object,
       subscriptionProcessor,
       walletProcessor.Object,
-      walletRepository.Object);
+      walletRepository.Object,
+      new StripeLinkedCustomerResolver(ledger.Object, monitor));
 
     Guid tenantId = Guid.Parse("bbbbbbbb-cccc-dddd-eeee-ffffffffffff");
     PaymentIntent intent = new()
@@ -1057,7 +1067,8 @@ public sealed class StripeBillingProviderWalletWebhookTests
       replayGuard.Object,
       subscriptionProcessor,
       walletProcessor.Object,
-      walletRepository.Object);
+      walletRepository.Object,
+      new StripeLinkedCustomerResolver(ledger.Object, monitor));
 
     Guid tenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
     PaymentIntent intent = new()
@@ -1157,7 +1168,8 @@ public sealed class StripeBillingProviderWalletWebhookTests
       replayGuard.Object,
       subscriptionProcessor,
       walletProcessor.Object,
-      walletRepository.Object);
+      walletRepository.Object,
+      new StripeLinkedCustomerResolver(ledger.Object, monitor));
 
     Guid tenantId = Guid.Parse("bbbbbbbb-cccc-dddd-eeee-ffffffffffff");
     string paddedTenantId = $" {tenantId:D} ";
@@ -1260,7 +1272,8 @@ public sealed class StripeBillingProviderWalletWebhookTests
       replayGuard.Object,
       subscriptionProcessor,
       walletProcessor.Object,
-      walletRepository.Object);
+      walletRepository.Object,
+      new StripeLinkedCustomerResolver(ledger.Object, monitor));
 
     Event walletSignedEvent = new()
     {
@@ -1345,7 +1358,8 @@ public sealed class StripeBillingProviderWalletWebhookTests
       replayGuard.Object,
       subscriptionProcessor,
       walletProcessor.Object,
-      walletRepository.Object);
+      walletRepository.Object,
+      new StripeLinkedCustomerResolver(ledger.Object, monitor));
 
     Event stripeEvent = new()
     {
@@ -1421,7 +1435,8 @@ public sealed class StripeBillingProviderWalletWebhookTests
       replayGuard.Object,
       subscriptionProcessor,
       walletProcessor.Object,
-      walletRepository.Object);
+      walletRepository.Object,
+      new StripeLinkedCustomerResolver(ledger.Object, monitor));
 
     Event stripeEvent = new()
     {

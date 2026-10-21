@@ -16379,6 +16379,27 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ---
 
+---
+
+## Zone: persistence-billing-stripe
+
+- **id:** persistence-billing-stripe
+- **status:** open
+- **impact:** high
+- **aliases:** persistence billing stripe; stripe wallet integration; stripe billing persistence
+- **paths:** ArchLucid.Persistence/Billing/Stripe/; ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/Wallet/LlmTenantWalletConsumeStage.cs
+- **test-filter:** FullyQualifiedName~StripeWalletPaymentIdentifierGuard|FullyQualifiedName~UpdateWalletAsync_rejects_stripe_customer_id_that_guard_blocks
+- **hunts:** 1
+- **bugs-found:** 1
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-21 — wallet PUT accepted foreign Stripe customer/payment-method ids for auto-refill
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+2026-10-21 thorough hunt (hit, lane C): lock verified on origin; promoted cross-tenant wallet PUT Stripe identifier abuse — `PUT /v1/billing/wallet` could persist another tenant's `StripeCustomerId`/`StripePaymentMethodId` from a direct API call, so auto-refill (`StripeWalletGateway.ChargeRefillAsync`) could charge a victim customer while crediting the caller tenant. Added `IStripeWalletPaymentIdentifierGuard` + `StripeWalletPaymentIdentifierGuard` (linked customer from billing ledger + Stripe payment-method attachment check) and `IStripeLinkedCustomerResolver` shared with portal checkout; wallet updates fail closed when identifiers do not match the tenant-linked customer. Regressions `UpdateWalletAsync_rejects_stripe_customer_id_that_guard_blocks`, `AllowsWalletUpdate_false_when_customer_id_differs_from_linked_customer`. 28 Application wallet tests + 2 guard tests passed.
+
+
 ## Zone: billing-webhooks
 
 - **id:** billing-webhooks
