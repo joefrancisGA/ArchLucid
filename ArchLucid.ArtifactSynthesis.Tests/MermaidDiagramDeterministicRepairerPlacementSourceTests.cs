@@ -45,6 +45,65 @@ public sealed class MermaidDiagramDeterministicRepairerPlacementSourceTests
     }
 
     [Fact]
+    public void Repair_keeps_data_flow_rollup_metadata_for_forest_layout()
+    {
+        DiagramAst repaired = Repair(new DiagramAst
+        {
+            Title = "Azure inventory (DataFlow)",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "rollup-card",
+                    Label = "Repeated storage accounts",
+                    NodeType = "TopologyResource",
+                    IsDataFlowRollup = true,
+                    DataFlowRollupOrdinal = 2,
+                    DataFlowRollupMemberIds = ["storage-a", "storage-b"],
+                    DataFlowRollupMemberNames = ["stg-a", "stg-b"],
+                    DataFlowRollupStatusLine = "2 consumers",
+                },
+            ],
+        });
+
+        DiagramNode node = repaired.Nodes.Should().ContainSingle().Subject;
+        node.IsDataFlowRollup.Should().BeTrue();
+        node.DataFlowRollupOrdinal.Should().Be(2);
+        node.DataFlowRollupMemberIds.Should().Equal("storage-a", "storage-b");
+        node.DataFlowRollupMemberNames.Should().Equal("stg-a", "stg-b");
+        node.DataFlowRollupStatusLine.Should().Be("2 consumers");
+
+        DiagramForestLayoutResult result = new DiagramForestLayoutSvgRenderer().Render(repaired);
+
+        result.Succeeded.Should().BeTrue(result.Error);
+        result.Svg.Should().Contain("data-member-ids=\"storage-a|storage-b\"");
+    }
+
+    [Fact]
+    public void Repair_keeps_collapsed_resource_group_tail_metadata()
+    {
+        DiagramAst repaired = Repair(new DiagramAst
+        {
+            Title = "Azure inventory (FullSubscription)",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "rg-tail",
+                    Label = "3 singleton resource groups",
+                    NodeType = "TopologyResource",
+                    IsCollapsedResourceGroupTail = true,
+                    CollapsedResourceGroupTailMemberNames = ["rg-a", "rg-b", "rg-c"],
+                },
+            ],
+        });
+
+        DiagramNode node = repaired.Nodes.Should().ContainSingle().Subject;
+        node.IsCollapsedResourceGroupTail.Should().BeTrue();
+        node.CollapsedResourceGroupTailMemberNames.Should().Equal("rg-a", "rg-b", "rg-c");
+    }
+
+    [Fact]
     public void Repair_keeps_questionable_attention_for_forest_layout()
     {
         DiagramAst repaired = Repair(new DiagramAst

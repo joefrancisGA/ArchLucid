@@ -70,6 +70,13 @@ public sealed class MermaidDiagramDeterministicRepairer : IMermaidDiagramDetermi
                 NsgInboundRuleChips = node.NsgInboundRuleChips
                     .Select(chip => new DiagramNsgInboundRuleChip(chip.Text, chip.IsRisky))
                     .ToList(),
+                IsDataFlowRollup = node.IsDataFlowRollup,
+                IsCollapsedResourceGroupTail = node.IsCollapsedResourceGroupTail,
+                CollapsedResourceGroupTailMemberNames = node.CollapsedResourceGroupTailMemberNames.ToList(),
+                DataFlowRollupOrdinal = node.DataFlowRollupOrdinal,
+                DataFlowRollupMemberIds = node.DataFlowRollupMemberIds.ToList(),
+                DataFlowRollupMemberNames = node.DataFlowRollupMemberNames.ToList(),
+                DataFlowRollupStatusLine = node.DataFlowRollupStatusLine,
             });
         }
 

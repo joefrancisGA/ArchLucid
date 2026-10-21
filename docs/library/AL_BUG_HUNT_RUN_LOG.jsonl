@@ -5929,3 +5929,4 @@
 {"at":"2026-10-21T15:01:14.4286452Z","zoneId":"ui-infra-resource-hub","outcome":"hit","productLine":"securenow","paths":["archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx"],"defectClass":"state-machine-gap"}
 {"at":"2026-10-21T15:04:02.2755240Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Configuration/"]}
 {"at":"2026-10-21T15:35:00.0000000Z","zoneId":"content-safety-admission","outcome":"hit","productLine":"archlucid-shared","note":"structural field-coverage matrix; IntakeTransparencyTrail prose scanned"}
+{"at":"2026-10-21T15:45:00.0000000Z","zoneId":"artifact-synthesis","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.ArtifactSynthesis/Mermaid/MermaidDiagramDeterministicRepairer.cs"]}
