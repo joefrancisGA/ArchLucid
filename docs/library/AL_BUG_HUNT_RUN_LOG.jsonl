@@ -5788,3 +5788,4 @@
 {"at":"2026-10-21T02:33:42.3653864Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Api/Http/Governance,ArchLucid.Api/Controllers/Governance,ArchLucid.Architecture.Tests/GovernanceScopePostureSealedManifestEndpointArchitectureTests.cs)"]}
 {"at":"2026-10-21T02:38:48.2532592Z","zoneId":"application-agents","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Application/Agents)"]}
 {"at":"2026-10-21T02:45:46.6114914Z","zoneId":"architecture-intelligence-orchestrator","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/ArchitectureIntelligence/"]}
+{"at":"2026-10-21T02:47:57.6814821Z","zoneId":"api-policy-packs","outcome":"hit","productLine":"archlucid-shared"}
