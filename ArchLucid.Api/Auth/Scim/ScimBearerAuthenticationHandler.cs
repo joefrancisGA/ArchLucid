@@ -17,6 +17,9 @@ internal class ScimBearerAuthenticationHandler(
     IScimBearerTokenAuthenticator authenticator)
     : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
 {
+    /// <summary>Max Bearer credentials honored per request (HTTP combination + comma folding).</summary>
+    internal const int MaxBearerCredentialsPerRequest = 2;
+
     private readonly IScimBearerTokenAuthenticator _authenticator =
         authenticator ?? throw new ArgumentNullException(nameof(authenticator));
 
@@ -25,28 +28,45 @@ internal class ScimBearerAuthenticationHandler(
         if (!Request.Headers.TryGetValue("Authorization", out StringValues header))
             return AuthenticateResult.Fail("Missing Authorization header.");
 
-        if (!TryEnumerateBearerTokens(header, out IEnumerable<string> bearerTokens))
+        AuthorizationBearerParseResult parseResult = TryParseBearerCredentials(header);
+
+        if (parseResult.ErrorMessage is not null)
+            return AuthenticateResult.Fail(parseResult.ErrorMessage);
+
+        if (parseResult.BearerTokens.Count == 0)
             return AuthenticateResult.Fail("Authorization must use Bearer scheme.");
 
-        ScimBearerAuthenticationResult? auth = null;
+        List<ScimBearerAuthenticationResult> successfulAuths = [];
+        HashSet<string> distinctTokens = new(StringComparer.Ordinal);
 
-        foreach (string token in bearerTokens)
+        foreach (string token in parseResult.BearerTokens)
         {
-            auth = await _authenticator.TryAuthenticateAsync(token, Context.RequestAborted);
+
+            if (!distinctTokens.Add(token))
+            {
+                continue;
+            }
+            ScimBearerAuthenticationResult? auth =
+                await _authenticator.TryAuthenticateAsync(token, Context.RequestAborted);
 
             if (auth is not null)
             {
-                break;
+                successfulAuths.Add(auth);
             }
         }
 
-        if (auth is null)
+        if (successfulAuths.Count == 0)
             return AuthenticateResult.Fail("Invalid or revoked SCIM token.");
+
+        if (successfulAuths.Select(static a => a.TenantId).Distinct().Count() > 1)
+            return AuthenticateResult.Fail("Authorization presents conflicting tenant credentials.");
+
+        ScimBearerAuthenticationResult selectedAuth = successfulAuths[0];
 
         Claim[] claims =
         [
-            new("tenant_id", auth.TenantId.ToString("D")),
-            new("scim_token_id", auth.TokenRowId.ToString("D"))
+            new("tenant_id", selectedAuth.TenantId.ToString("D")),
+            new("scim_token_id", selectedAuth.TokenRowId.ToString("D"))
         ];
 
         ClaimsIdentity identity = new(claims, ScimBearerDefaults.AuthenticationScheme);
@@ -55,9 +75,15 @@ internal class ScimBearerAuthenticationHandler(
         return AuthenticateResult.Success(new AuthenticationTicket(principal, ScimBearerDefaults.AuthenticationScheme));
     }
 
-    private static bool TryEnumerateBearerTokens(StringValues authorizationHeader, out IEnumerable<string> bearerTokens)
+    private readonly record struct AuthorizationBearerParseResult(
+        IReadOnlyList<string> BearerTokens,
+        string? ErrorMessage);
+
+    private static AuthorizationBearerParseResult TryParseBearerCredentials(StringValues authorizationHeader)
     {
         List<string> tokens = [];
+        bool sawBearerCredential = false;
+        bool sawNonBearerCredential = false;
 
         foreach (string? headerValue in authorizationHeader)
         {
@@ -72,31 +98,40 @@ internal class ScimBearerAuthenticationHandler(
             foreach (string segment in headerValue.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
             {
 
-                if (!segment.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                if (segment.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
                 {
+                    sawBearerCredential = true;
+
+                    string candidate = segment["Bearer ".Length..].Trim();
+
+                    if (string.IsNullOrWhiteSpace(candidate))
+                    {
+                        continue;
+                    }
+
+                    tokens.Add(candidate);
+
                     continue;
                 }
 
-                string candidate = segment["Bearer ".Length..].Trim();
-
-                if (string.IsNullOrWhiteSpace(candidate))
-                {
-                    continue;
-                }
-
-                tokens.Add(candidate);
+                sawNonBearerCredential = true;
             }
         }
 
-        if (tokens.Count == 0)
+        if (sawBearerCredential && sawNonBearerCredential)
         {
-            bearerTokens = [];
-
-            return false;
+            return new AuthorizationBearerParseResult(
+                [],
+                "Authorization mixes Bearer credentials with other schemes.");
         }
 
-        bearerTokens = tokens;
+        if (tokens.Count > MaxBearerCredentialsPerRequest)
+        {
+            return new AuthorizationBearerParseResult(
+                [],
+                "Authorization presents too many Bearer credentials.");
+        }
 
-        return true;
+        return new AuthorizationBearerParseResult(tokens, null);
     }
 }

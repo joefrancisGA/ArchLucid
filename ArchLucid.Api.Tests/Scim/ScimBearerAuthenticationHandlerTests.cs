@@ -113,6 +113,81 @@ public sealed class ScimBearerAuthenticationHandlerTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task HandleAuthenticateAsync_fails_when_comma_folded_header_mixes_basic_and_bearer_schemes()
+    {
+        Mock<IScimBearerTokenAuthenticator> authenticator = new();
+
+        DefaultHttpContext http = new();
+        http.Request.Headers.Authorization = $"Basic dGVzdDp0ZXN0, Bearer {ValidToken}";
+
+        ScimBearerAuthenticationHandlerTestDouble handler = CreateHandler(authenticator.Object, http);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeFalse();
+        result.Failure?.Message.Should().Contain("mixes Bearer");
+        authenticator.Verify(
+            a => a.TryAuthenticateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task HandleAuthenticateAsync_fails_when_more_than_two_bearer_credentials_are_present()
+    {
+        Mock<IScimBearerTokenAuthenticator> authenticator = new();
+
+        DefaultHttpContext http = new();
+        http.Request.Headers.Authorization = $"Bearer one, Bearer two, Bearer three";
+
+        ScimBearerAuthenticationHandlerTestDouble handler = CreateHandler(authenticator.Object, http);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeFalse();
+        result.Failure?.Message.Should().Contain("too many Bearer");
+        authenticator.Verify(
+            a => a.TryAuthenticateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task HandleAuthenticateAsync_fails_when_two_valid_bearer_tokens_resolve_to_different_tenants()
+    {
+        const string tokenTenantA = "archlucid_scim.tenant_a.secret";
+        const string tokenTenantB = "archlucid_scim.tenant_b.secret";
+        Guid tenantA = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid tenantB = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+        Mock<IScimBearerTokenAuthenticator> authenticator = new();
+        authenticator
+            .Setup(a => a.TryAuthenticateAsync(tokenTenantA, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ScimBearerAuthenticationResult
+                {
+                    TenantId = tenantA,
+                    TokenRowId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                });
+        authenticator
+            .Setup(a => a.TryAuthenticateAsync(tokenTenantB, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ScimBearerAuthenticationResult
+                {
+                    TenantId = tenantB,
+                    TokenRowId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+                });
+
+        DefaultHttpContext http = new();
+        http.Request.Headers.Authorization = $"Bearer {tokenTenantA}, Bearer {tokenTenantB}";
+
+        ScimBearerAuthenticationHandlerTestDouble handler = CreateHandler(authenticator.Object, http);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeFalse();
+        result.Failure?.Message.Should().Contain("conflicting tenant");
+    }
+
     private static ScimBearerAuthenticationHandlerTestDouble CreateHandler(
         IScimBearerTokenAuthenticator authenticator,
         HttpContext httpContext)
