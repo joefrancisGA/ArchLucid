@@ -5799,4 +5799,4 @@
 {"at":"2026-10-21T03:21:20.7341779Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/reviews/","archlucid-ui/src/components/runs/RunExplanationSection.tsx"]}
 {"at":"2026-10-21T03:26:11.3489460Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T03:33:03.5326340Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/reviews/ReviewWorkbenchSelectionContext.tsx"]}
-{"at":"2026-10-21T03:38:58.9888150Z","zoneId":"application-billing-logic","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T03:40:15.1290324Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/reviews/ReviewAskDock.tsx"]}

@@ -132,15 +132,15 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
 
       disabledCleanupAttemptedRef.current = false;
 
-      if (openRef.current === urlAskDockOpen) {
-        return;
+      if (openRef.current !== urlAskDockOpen) {
+        openRef.current = urlAskDockOpen;
+        setOpenState(urlAskDockOpen);
       }
-
-      openRef.current = urlAskDockOpen;
-      setOpenState(urlAskDockOpen);
 
       if (urlAskThreadId.length > 0) {
         setThreadIdState((current) => (current === urlAskThreadId ? current : urlAskThreadId));
+      } else {
+        setThreadIdState((current) => (current === null ? current : null));
       }
     };
 
@@ -173,6 +173,8 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
 
     if (urlAskThreadId.length > 0) {
       setThreadIdState((current) => (current === urlAskThreadId ? current : urlAskThreadId));
+    } else {
+      setThreadIdState((current) => (current === null ? current : null));
     }
   }, [askDockDisabled, syncAskDockToUrl, urlAskDockOpen, urlAskThreadId]);
 

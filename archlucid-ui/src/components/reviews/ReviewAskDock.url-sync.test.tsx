@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { createElement, useSyncExternalStore, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -36,12 +36,15 @@ const searchParamsHarness = vi.hoisted(() => {
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/architecture/reviews/run-abc",
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
   useSearchParams: () => new URLSearchParams(searchParamsHarness.state.query),
 }));
 
+const askStreamMock = vi.hoisted(() => vi.fn(async () => ({ response: null, error: null })));
+
 vi.mock("@/hooks/useAskStream", () => ({
   useAskStream: () => ({
-    ask: vi.fn(),
+    ask: askStreamMock,
     isStreaming: false,
     tokens: "",
     reset: vi.fn(),
@@ -65,6 +68,7 @@ function SearchParamsRerenderHost({ children }: { readonly children: ReactNode }
 describe("ReviewAskDock URL sync", () => {
   beforeEach(() => {
     searchParamsHarness.reset();
+    askStreamMock.mockClear();
     window.history.replaceState({}, "", "/architecture/reviews/run-abc?reviewTab=overview");
   });
 
@@ -121,5 +125,39 @@ describe("ReviewAskDock URL sync", () => {
     await waitFor(() => {
       expect(window.location.search).toContain(`${REVIEW_ASK_DOCK_THREAD_PARAM}=thread-after-soft-nav`);
     });
+  });
+
+  it("clears ask thread state when askThread is removed from useSearchParams while the dock stays open", async () => {
+    const threadQuery = `reviewTab=overview&${REVIEW_ASK_DOCK_OPEN_PARAM}=1&${REVIEW_ASK_DOCK_THREAD_PARAM}=thread-soft-nav`;
+    searchParamsHarness.applyQuery(threadQuery);
+    window.history.replaceState({}, "", `/architecture/reviews/run-abc?${threadQuery}`);
+
+    const { rerender } = render(
+      <SearchParamsRerenderHost>
+        <ReviewAskDock runId="run-abc" reviewTitle="Claims API" />
+      </SearchParamsRerenderHost>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("review-ask-dock-panel")).toBeInTheDocument();
+    });
+
+    searchParamsHarness.applyQuery(`reviewTab=overview&${REVIEW_ASK_DOCK_OPEN_PARAM}=1`);
+    rerender(
+      <SearchParamsRerenderHost>
+        <ReviewAskDock runId="run-abc" reviewTitle="Claims API" />
+      </SearchParamsRerenderHost>,
+    );
+
+    fireEvent.click(screen.getByTestId("review-ask-dock-submit"));
+
+    await waitFor(() => {
+      expect(askStreamMock).toHaveBeenCalled();
+    });
+
+    const lastAskRequest = askStreamMock.mock.calls.at(-1)?.[0] as { runId: string; threadId?: string };
+
+    expect(lastAskRequest.runId).toBe("run-abc");
+    expect(lastAskRequest.threadId).toBeUndefined();
   });
 });
