@@ -31151,6 +31151,7 @@ Split from retired `archlucid-core` (ABQ-08).
 
 2026-10-21 seed hunt (seed->hit): promoted PerAgentTypeFloors dictionary key trim; configuration-bound agent-type keys with bounding whitespace missed AgentOutputQualityGateEffectiveFloorsResolver lookups; AgentOutputQualityGateOptionsNormalizePostConfigure + host IPostConfigureOptions registration; regressions PostConfigure_trims_per_agent_type_floors_keys_from_configuration_binding and Resolve_uses_per_agent_floors_when_config_bound_key_has_bounding_whitespace; 2 tests passed (RunAnalyzers=false).
 2026-10-21 seed hunt (seed->hit): promoted Scim GroupRoleMappingOverrides whitespace keys; GroupToRoleMapper trims SCIM group ids but bound dictionary keys did not; ScimOptionsNormalizePostConfigure + host registration; regressions PostConfigure_trims_group_role_mapping_override_keys_from_configuration_binding and PostConfigure_trims_group_role_mapping_override_values_from_configuration_binding; cheap-disproof closed blob URL AccountKey semicolon (matrix); removed malformed jsonl row; 2 ScimOptionsNormalizePostConfigure tests passed (RunAnalyzers=false).
+2026-10-21 seed hunt (seed->hit): promoted AgentPromptCatalogOptions.Versions whitespace keys; CachedAgentSystemPromptCatalog resolves AgentTypeKeys without trimming dictionary keys; AgentPromptCatalogOptionsNormalizePostConfigure + host registration; regression PostConfigure_trims_agent_prompt_version_keys_from_configuration_binding; cheap-disproof closed JSON null array (Resolve_redacts_json_effective_values_when_json_array_contains_null_then_password_pair) and SaaS WhenProduction (catalog Production-only); 1 AgentPromptCatalog test passed (RunAnalyzers=false).
 ## Zone: core-configuration-summary
 2026-10-21 seed hunt (seed->hit): promoted substring Azure OpenAI host marker false positive; EnsureHttpsSchemeForAzureOpenAiHosts upgraded http://evil.example.com?mirror=openai.azure.com because query contained host marker; TryGetEndpointHost + IsAzureOpenAiHost use authority host only; regression NormalizeForChatCompletions_does_not_upgrade_http_when_only_query_contains_azure_openai_host_marker; cheap-disproof closed four ledger candidates; 6 AzureOpenAiEndpointNormalizer tests passed (RunAnalyzers=false).
 
@@ -31176,11 +31177,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 61
-- **bugs-found:** 43
+- **hunts:** 62
+- **bugs-found:** 44
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - Scim GroupRoleMappingOverrides keys trimmed on bind
+- **last-bug:** 2026-10-21 - AgentPrompts Versions keys trimmed on bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -31191,11 +31192,13 @@ Split from retired `archlucid-core` (ABQ-08).
 ### Hypotheses
 
 - [x] (proven) ConfigurationKeyRequirement.IsProduction / ARCHLUCID_ENVIRONMENT — WhenProduction ignored ARCHLUCID_ENVIRONMENT=Production in IConfiguration when ASP.NET environment was Development — hit 2026-10-21 seed hunt (seed->hit): IsArchLucidProductionEnvironment; regression ConfigurationKeyRequirement_WhenProduction_uses_archlucid_environment_from_configuration_when_aspnet_env_not_production. [class:state-machine-gap]
-- (candidate) ConfigurationKeyRequirement.IsProduction — ASPNETCORE_ENVIRONMENT=SaaS does not mark WhenProduction; input: hosted SaaS profile with unset ARCHLUCID.
+- [x] (invalid) `ConfigurationKeyRequirement.IsProduction` — `WhenProduction` catalog keys target ASP.NET/ARCHLUCID `Production` only; `SaaS` is production-like for Quick Scan guardrails, not Stripe/webhook required-key checks.
 - [x] (proven) `AgentOutputQualityGateOptionsNormalizePostConfigure` / `PerAgentTypeFloors` — configuration-bound agent-type keys with bounding whitespace missed per-agent quality gate floors — **hit 2026-10-21 seed hunt (seed->hit):** shared `ConfigurationDictionaryBindingKeyNormalizer` post-configure + host registration; regressions `PostConfigure_trims_per_agent_type_floors_keys_from_configuration_binding` and `Resolve_uses_per_agent_floors_when_config_bound_key_has_bounding_whitespace`. [class:other]
 - [x] (proven) `ScimOptionsNormalizePostConfigure` / `ScimOptions.GroupRoleMappingOverrides` — configuration-bound group override keys with bounding whitespace missed `GroupToRoleMapper` lookups — **hit 2026-10-21 seed hunt (seed->hit):** shared dictionary post-configure + host registration; regressions `PostConfigure_trims_group_role_mapping_override_keys_from_configuration_binding` and `PostConfigure_trims_group_role_mapping_override_values_from_configuration_binding`. [class:other]
 - [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — semicolon-delimited `AccountKey=` after absolute blob URL already redacts via pair-delimiter scan; matrix case `https://account.blob.core.windows.net/c;AccountKey=secret`.
-- (candidate) ConfigurationEffectiveValueResolver — JSON array effective value with null string elements; input: [null,"Password=secret"] on non-sensitive catalog path.- (candidate) `ConfigurationDictionaryBindingKeyNormalizer` batch — remaining configuration-bound dictionaries still lack post-configure trim registration; input: appsettings keys with bounding whitespace on PerAgentTypeFloors / SCIM / AgentPrompts sections.
+- [x] (valid-no-repro) `ConfigurationEffectiveValueResolver` — JSON array with `null` then credential string element redacts via `ConfigurationSensitiveConfigValueScanner`; regression `Resolve_redacts_json_effective_values_when_json_array_contains_null_then_password_pair.
+- [x] (proven) `AgentPromptCatalogOptionsNormalizePostConfigure` / `AgentPromptCatalogOptions.Versions` — configuration-bound agent type keys with bounding whitespace missed prompt release label overlays — **hit 2026-10-21 seed hunt (seed->hit):** shared dictionary post-configure + host registration; regression `PostConfigure_trims_agent_prompt_version_keys_from_configuration_binding`. [class:other]
+- (candidate) ConfigurationDictionaryBindingKeyNormalizer batch — remaining configuration-bound dictionaries still lack post-configure trim registration; input: appsettings keys with bounding whitespace on PerAgentTypeFloors / SCIM / AgentPrompts sections.
 - [x] (proven) `ConfigurationKeyRequirement.IsProduction` — `DOTNET_ENVIRONMENT` bound only via environment variable, not `IConfiguration`, when ASP.NET caller environment is unset — **hit 2026-10-21 seed hunt (seed->hit):** read `c["DOTNET_ENVIRONMENT"]` after env vars when resolving WhenProduction; regression `ConfigurationKeyRequirement_WhenProduction_uses_dotnet_environment_from_configuration_when_caller_env_unset`. [class:state-machine-gap]
 - [x] (invalid) `AzureOpenAiEndpointNormalizer` — `notopenai.azure.com` typo host — `EndsWith(".openai.azure.com")` requires a leading dot before `openai`; hostname does not match.
 - [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — scheme-less values still scan first `@` for `user:pass@` userinfo; query-only `@` without leading userinfo is not ADO.NET connection-string shape.

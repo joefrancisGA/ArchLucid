@@ -33,6 +33,7 @@ partial class AgentLlmSupportCompositionModule
     {
         services.Configure<AgentPromptCatalogOptions>(
             configuration.GetSection(AgentPromptCatalogOptions.SectionName));
+        services.AddSingleton<IPostConfigureOptions<AgentPromptCatalogOptions>, AgentPromptCatalogOptionsNormalizePostConfigure>();
         services.Configure<PromptVariantOptions>(configuration.GetSection(PromptVariantOptions.SectionPath));
         services.AddSingleton<CachedAgentSystemPromptCatalog>();
         services.AddSingleton<IPromptVariantRegistry, SqlPromptVariantRegistry>();
