@@ -195,14 +195,23 @@ public sealed class IdentityProviderConfigurationController(
                 ProblemTypes.ResourceNotFound);
         }
 
-        return Ok(WithCanonicalConfigurationIssuer(record));
+        return Ok(PrepareConfigurationResponse(record));
     }
 
-    private static TenantIdentityProviderConfigurationRecord WithCanonicalConfigurationIssuer(
+    private static TenantIdentityProviderConfigurationRecord PrepareConfigurationResponse(
         TenantIdentityProviderConfigurationRecord record)
     {
-        if (!IdentityProviderUriValidator.TryGetCanonicalAbsoluteHttpOrHttps(record.IssuerUri, out string canonicalIssuer)
-            || string.Equals(record.IssuerUri, canonicalIssuer, StringComparison.Ordinal))
+        string? metadataXml = record.Protocol == TenantIdentityProtocol.Saml ? record.MetadataXml : null;
+        string? keyVaultSecretName = record.Protocol == TenantIdentityProtocol.Oidc ? record.KeyVaultSecretName : null;
+
+        string issuerUri = record.IssuerUri;
+
+        if (IdentityProviderUriValidator.TryGetCanonicalAbsoluteHttpOrHttps(record.IssuerUri, out string canonicalIssuer))
+            issuerUri = canonicalIssuer;
+
+        if (string.Equals(issuerUri, record.IssuerUri, StringComparison.Ordinal)
+            && metadataXml == record.MetadataXml
+            && keyVaultSecretName == record.KeyVaultSecretName)
         {
             return record;
         }
@@ -211,10 +220,10 @@ public sealed class IdentityProviderConfigurationController(
         {
             TenantId = record.TenantId,
             Protocol = record.Protocol,
-            IssuerUri = canonicalIssuer,
-            MetadataXml = record.MetadataXml,
+            IssuerUri = issuerUri,
+            MetadataXml = metadataXml,
             ClaimMappingJson = record.ClaimMappingJson,
-            KeyVaultSecretName = record.KeyVaultSecretName,
+            KeyVaultSecretName = keyVaultSecretName,
             UpdatedUtc = record.UpdatedUtc,
             UpdatedByActorId = record.UpdatedByActorId,
             IsActive = record.IsActive,

@@ -321,6 +321,37 @@ public sealed class IdentityProviderConfigurationControllerTests
     }
 
     [Fact]
+    public async Task GetConfigurationAsync_omits_metadata_xml_when_stored_protocol_is_oidc()
+    {
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+
+        await repository.UpsertAsync(
+            new TenantIdentityProviderConfigurationRecord
+            {
+                TenantId = tenantId,
+                Protocol = TenantIdentityProtocol.Oidc,
+                IssuerUri = "https://idp.example/",
+                MetadataXml = "<EntityDescriptor />",
+                ClaimMappingJson = """{"roleClaimName":"groups","mappings":[]}""",
+                UpdatedUtc = DateTimeOffset.UtcNow,
+                UpdatedByActorId = "admin@test",
+                IsActive = true,
+            },
+            CancellationToken.None);
+
+        IdentityProviderConfigurationController controller = CreateController(configurationRepository: repository);
+
+        IActionResult result = await controller.GetConfigurationAsync(CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        TenantIdentityProviderConfigurationRecord body =
+            ok.Value.Should().BeOfType<TenantIdentityProviderConfigurationRecord>().Subject;
+
+        body.MetadataXml.Should().BeNull();
+    }
+
+    [Fact]
     public async Task DiscoverAsync_returns_canonical_issuer_and_jwks_uris()
     {
         Mock<IIdentityProviderDiscoveryService> discovery = new();
