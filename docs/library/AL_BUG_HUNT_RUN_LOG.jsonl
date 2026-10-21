@@ -5967,3 +5967,4 @@
 {"at":"2026-10-21T16:36:00.3010608Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T16:37:11.4038119Z","zoneId":"core-safety-network","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/Safety/,ArchLucid.Core/Http/"]}
 {"at":"2026-10-21T16:37:50.6306753Z","zoneId":"api-key-auth","outcome":"dry","productLine":"archlucid-shared","paths":["@(ArchLucid.Api/Authentication,ArchLucid.Api/Services/Admin,ArchLucid.Api/Controllers/Admin)"]}
+{"at":"2026-10-21T16:41:30.9205819Z","zoneId":"alert-simulation","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Alerts/Simulation/"]}
