@@ -463,6 +463,45 @@ public sealed class IdentityProviderConfigurationControllerTests
     }
 
     [Fact]
+    public async Task DiscoverAsync_rejects_canonical_issuer_uri_longer_than_persisted_column()
+    {
+        string issuerUri = "https://idp.example/" + new string(
+            'a',
+            IdentityProviderPersistedFieldLimits.IssuerUriMaxLength - "https://idp.example/".Length + 1);
+
+        Mock<IIdentityProviderDiscoveryService> discovery = new();
+        discovery
+            .Setup(d => d.DiscoverAsync(It.IsAny<IdentityProviderDiscoverRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new IdentityProviderDiscoverResponse
+            {
+                Protocol = "oidc",
+                IssuerUri = issuerUri,
+                DiscoverySucceeded = true,
+                DiagnosticSummary = "ok",
+            });
+
+        IdentityProviderConfigurationController controller = CreateController(discoveryService: discovery.Object);
+
+        IActionResult result = await controller.DiscoverAsync(
+            new IdentityProviderDiscoverRequest
+            {
+                Protocol = "oidc",
+                MetadataUrl = "https://idp.example/.well-known/openid-configuration",
+            },
+            CancellationToken.None);
+
+        ObjectResult objectResult = result.Should().BeOfType<ObjectResult>().Subject;
+        objectResult.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        objectResult.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>();
+
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            (Microsoft.AspNetCore.Mvc.ProblemDetails)objectResult.Value!;
+
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
+        problem.Detail.Should().Contain("IssuerUri");
+    }
+
+    [Fact]
     public void TestLogin_passes_canonical_issuer_uri_to_sandbox_service()
     {
         IdentityProviderTestLoginRequest? captured = null;

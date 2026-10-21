@@ -70,7 +70,23 @@ public sealed class IdentityProviderConfigurationController(
         IdentityProviderDiscoverResponse response =
             await _discoveryService.DiscoverAsync(request, cancellationToken).ConfigureAwait(false);
 
-        return Ok(WithCanonicalWizardUris(response));
+        response = WithCanonicalWizardUris(response);
+
+        if (response.DiscoverySucceeded
+            && !string.IsNullOrWhiteSpace(response.IssuerUri)
+            && IdentityProviderUriValidator.TryGetCanonicalAbsoluteHttpOrHttps(response.IssuerUri, out string canonicalIssuerUri))
+        {
+            try
+            {
+                IdentityProviderPersistedFieldLimits.EnsureIssuerUriFits(canonicalIssuerUri);
+            }
+            catch (ArgumentException ex)
+            {
+                return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+            }
+        }
+
+        return Ok(response);
     }
 
     [HttpPost("test-login")]

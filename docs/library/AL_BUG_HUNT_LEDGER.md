@@ -100139,6 +100139,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-20 seed hunt (seed-only): identity-provider-config — re-read IdentityProviderConfigurationController discover/test-login/activate/get-configuration paths and IdentityProviderActivationService activation persistence after recent field-limit and camelCase claim-mapping hits; no row met the hunt-ready bar for a failing repro in the selected files. Seeded five bounded (candidate) rows for discover request validation parity, empty metadata URL handling, claim-mapping JSON size, test-login guard delegation, and legacy oversize Key Vault secret names on same-protocol re-activate. Scoped IdentityProviderActivationServiceTests passed 51/51 and IdentityProviderConfigurationControllerTests passed 15/15. No production change.
 
+
+2026-10-21 seed hunt (seed->hit) #79: DiscoverAsync returned HTTP 200 with canonical issuer URIs longer than migration 183 NVARCHAR(2048) while test-login and activate already reject them; DiscoverAsync now calls IdentityProviderPersistedFieldLimits.EnsureIssuerUriFits after WithCanonicalWizardUris; regression DiscoverAsync_rejects_canonical_issuer_uri_longer_than_persisted_column; 99 scoped activation/controller/matrix tests passed.
+
+- [x] (proven) `IdentityProviderConfigurationController.DiscoverAsync` — discover success returned issuer URIs longer than the persisted column while activate rejected them — regression `DiscoverAsync_rejects_canonical_issuer_uri_longer_than_persisted_column`.
 ## Zone: identity-provider-config
 2026-10-20 seed hunt (seed->hit): promoted GET /v1/admin/identity/configuration returning legacy MetadataXml on OIDC rows (and KeyVaultSecretName on SAML) after activate began stripping cross-protocol fields; PrepareConfigurationResponse omits protocol-inapplicable columns on read; regression GetConfigurationAsync_omits_metadata_xml_when_stored_protocol_is_oidc; 16 scoped IdentityProviderConfigurationControllerTests passed.
 
@@ -100165,7 +100169,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 51
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — discover returned shared discovery service response instance
+- **last-bug:** 2026-10-21 — discover accepted issuer URIs longer than persisted column
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -103367,7 +103371,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
 - **hunts:** 943
-- **bugs-found:** 55
+- **bugs-found:** 56
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-12
 - **last-bug:** 2026-10-06 — export replay and run-summary routes omitted CareerArtifactExportBlocked 409 mapping
@@ -108618,7 +108622,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 78
+- **hunts:** 79
 - **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
@@ -121981,7 +121985,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
 - **hunts:** 69
 - **last-hunt:** 2026-10-20
-- **bugs-found:** 55
+- **bugs-found:** 56
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-20 — Probable provenance edges omitted display label when verb blank
 - **related-pd-tb:** none
@@ -122795,7 +122799,7 @@ heap-disproved mermaid typed-topology candidate.
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
 - **hunts:** 62
-- **bugs-found:** 55
+- **bugs-found:** 56
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-16
 - **last-bug:** 2026-10-16 — archive-by-ids null RunIds caused 500 instead of validation
