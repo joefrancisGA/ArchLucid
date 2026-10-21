@@ -109,6 +109,14 @@ public static class ConfigurationKeyRequirement
 
     private static bool IsProduction(string? envFromCaller, IConfiguration c)
     {
+        if (IsAspNetCoreProductionEnvironment(envFromCaller, c))
+            return true;
+
+        return IsArchLucidProductionEnvironment(c);
+    }
+
+    private static bool IsAspNetCoreProductionEnvironment(string? envFromCaller, IConfiguration c)
+    {
         string? env = envFromCaller?.Trim();
         if (string.IsNullOrEmpty(env))
         {
@@ -126,6 +134,19 @@ public static class ConfigurationKeyRequirement
         }
 
         return string.Equals(env, "Production", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsArchLucidProductionEnvironment(IConfiguration c)
+    {
+        string? archLucidEnv = Environment.GetEnvironmentVariable("ARCHLUCID_ENVIRONMENT");
+
+        if (string.IsNullOrWhiteSpace(archLucidEnv))
+            archLucidEnv = c["ARCHLUCID_ENVIRONMENT"];
+
+        if (string.IsNullOrWhiteSpace(archLucidEnv))
+            return false;
+
+        return string.Equals(archLucidEnv.Trim(), "Production", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDefaultSql(IConfiguration c)

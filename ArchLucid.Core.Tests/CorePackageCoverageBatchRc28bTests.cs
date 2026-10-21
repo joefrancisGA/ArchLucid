@@ -124,6 +124,25 @@ public sealed class CorePackageCoverageBatchRc28bTests
         reason.Should().Contain("Production");
     }
 
+    [Fact]
+    public void ConfigurationKeyRequirement_WhenProduction_uses_archlucid_environment_from_configuration_when_aspnet_env_not_production()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["ARCHLUCID_ENVIRONMENT"] = "Production",
+                    ["ASPNETCORE_ENVIRONMENT"] = "Development",
+                })
+            .Build();
+        ConfigurationKeyEntry prod = new("s", "p", ["e"], null, "r", "d", ConfigKeyRequirementKind.WhenProduction);
+
+        ConfigurationKeyRequirement.IsKeyRequired(prod, configuration, aspNetCoreEnvironment: "Development", out string reason)
+            .Should()
+            .BeTrue();
+        reason.Should().Contain("Production");
+    }
+
     [Theory]
     [InlineData("AWS::EC2::Instance", RuntimePlatform.Ec2)]
     [InlineData("AWS::Lambda::Function", RuntimePlatform.Lambda)]

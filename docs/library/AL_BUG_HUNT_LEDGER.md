@@ -31122,6 +31122,8 @@ Split from retired `archlucid-core` (ABQ-08).
 
 2026-10-21 seed hunt (seed->hit): promoted ConfigurationKeyRequirement.IsProduction DOTNET_ENVIRONMENT gap; WhenProduction keys stayed optional when only IConfiguration bound DOTNET_ENVIRONMENT=Production and caller/process env unset; IsProduction now reads c[DOTNET_ENVIRONMENT] like ASPNETCORE_ENVIRONMENT; regression ConfigurationKeyRequirement_WhenProduction_uses_dotnet_environment_from_configuration_when_caller_env_unset; cheap-disproof closed notopenai.azure.com EndsWith typo (requires leading dot), scheme-less query-only @ (first-@ userinfo still applies); 8 ConfigurationKeyRequirement tests passed (RunAnalyzers=false).
 
+2026-10-21 seed hunt (seed->hit): promoted WhenProduction vs ARCHLUCID_ENVIRONMENT; catalog documents Production keys when ARCHLUCID_ENVIRONMENT=Production but IsProduction ignored config-bound value; IsArchLucidProductionEnvironment aligns with QuickScan classifier; regression ConfigurationKeyRequirement_WhenProduction_uses_archlucid_environment_from_configuration_when_aspnet_env_not_production; repaired malformed AL_BUG_HUNT_RUN_LOG.jsonl row; 9 ConfigurationKeyRequirement tests passed (RunAnalyzers=false).
+
 ## Zone: core-configuration-summary
 2026-10-21 seed hunt (seed->hit): promoted substring Azure OpenAI host marker false positive; EnsureHttpsSchemeForAzureOpenAiHosts upgraded http://evil.example.com?mirror=openai.azure.com because query contained host marker; TryGetEndpointHost + IsAzureOpenAiHost use authority host only; regression NormalizeForChatCompletions_does_not_upgrade_http_when_only_query_contains_azure_openai_host_marker; cheap-disproof closed four ledger candidates; 6 AzureOpenAiEndpointNormalizer tests passed (RunAnalyzers=false).
 
@@ -31147,11 +31149,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 58
-- **bugs-found:** 40
+- **hunts:** 59
+- **bugs-found:** 41
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - WhenProduction reads DOTNET_ENVIRONMENT from IConfiguration
+- **last-bug:** 2026-10-21 - WhenProduction reads ARCHLUCID_ENVIRONMENT from IConfiguration
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -31164,7 +31166,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `ConfigurationKeyRequirement.IsProduction` — `DOTNET_ENVIRONMENT` bound only via environment variable, not `IConfiguration`, when ASP.NET caller environment is unset — **hit 2026-10-21 seed hunt (seed->hit):** read `c["DOTNET_ENVIRONMENT"]` after env vars when resolving WhenProduction; regression `ConfigurationKeyRequirement_WhenProduction_uses_dotnet_environment_from_configuration_when_caller_env_unset`. [class:state-machine-gap]
 - [x] (invalid) `AzureOpenAiEndpointNormalizer` — `notopenai.azure.com` typo host — `EndsWith(".openai.azure.com")` requires a leading dot before `openai`; hostname does not match.
 - [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — scheme-less values still scan first `@` for `user:pass@` userinfo; query-only `@` without leading userinfo is not ADO.NET connection-string shape.
-- (candidate) `SelfServiceAbuseOptions.ConsumerEmailDomainsCsv` — interior Unicode homoglyph domains may bypass `ToLowerInvariant` consumer-mail blocklist; input: `Auth:SelfServiceAbuse:ConsumerEmailDomainsCsv` with Cyrillic lookalike gmail domain.
+- [x] (valid-no-repro) `SelfServiceAbuseOptions.ConsumerEmailDomainsCsv` — homoglyph bypass requires IDN lookalike in the signup email domain string, not the configured blocklist CSV; blocklist entries are operator-supplied literals compared after `ToLowerInvariant` on the registrable domain from the mailbox address.
 - [x] (valid-no-repro) `AzureOpenAiEndpointNormalizer` Foundry project URL path collapse — `*.services.ai.azure.com` mapping to classic `openai.azure.com` host is intentional for SDK client shape.
 - [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` comma Redis shorthand — matrix already covers `contoso.redis.cache.windows.net:6380,password=secret`.
 - [x] (invalid) `ProductLineDeploymentOptions.TryParseDeploymentKind` `securenow` alias — catalog/OpenAPI document `architecture`/`security`/`both` only; no `securenow` config path.
