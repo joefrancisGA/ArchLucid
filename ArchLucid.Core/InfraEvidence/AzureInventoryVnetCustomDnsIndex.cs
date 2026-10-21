@@ -187,8 +187,47 @@ public sealed class AzureInventoryVnetCustomDnsIndex
                 && TryReadDnsServerFromNumericElement(serverElement, out string numericServer))
             {
                 dnsServers.Add(ResolveFlattenedDnsServerValue(numericServer));
+                continue;
+            }
+
+            if (serverElement.ValueKind == JsonValueKind.Object
+                && TryReadDnsServerFromObjectElement(serverElement, out string objectServer))
+            {
+                dnsServers.Add(ResolveFlattenedDnsServerValue(objectServer));
             }
         }
+    }
+
+    private static bool TryReadDnsServerFromObjectElement(JsonElement serverElement, out string dnsServer)
+    {
+        dnsServer = string.Empty;
+
+        if (serverElement.ValueKind is not JsonValueKind.Object)
+        {
+            return false;
+        }
+
+        foreach (string propertyName in new[] { "ipAddress", "address", "value" })
+        {
+
+            if (!TryGetPropertyIgnoreCase(serverElement, propertyName, out JsonElement addressElement))
+            {
+                continue;
+            }
+
+            if (addressElement.ValueKind is JsonValueKind.String)
+            {
+                string? address = addressElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(address))
+                {
+                    dnsServer = address.Trim();
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private static bool TryAppendDnsServersFromNumericOctetArray(JsonElement serversElement, List<string> dnsServers)
