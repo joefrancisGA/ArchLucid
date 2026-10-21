@@ -114,6 +114,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
             });
 
         // Findings → Decisions (decision supported by findings)
+
         foreach (IGrouping<string, ResolvedArchitectureDecision> decisionGroup in manifest.Decisions.GroupBy(
                      d => NormalizeId(d.DecisionId),
                      StringComparer.OrdinalIgnoreCase))
@@ -137,11 +138,14 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         }
 
         // Graph nodes → Findings (finding influenced by graph context)
+
         foreach (IGrouping<string, Finding> findingGroup in findings.Findings.GroupBy(
                      f => NormalizeId(f.FindingId),
                      StringComparer.OrdinalIgnoreCase))
         {
+
             string fk = $"finding:{findingGroup.Key}";
+
             if (!nodeMap.TryGetValue(fk, out Guid findingNodeId))
                 continue;
 
@@ -149,24 +153,33 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                          .SelectMany(f => f.RelatedNodeIds)
                          .Select(NormalizeId)
                          .Distinct(StringComparer.OrdinalIgnoreCase))
+
             {
+
                 string gk = $"graph:{relatedId}";
+
                 if (!graphNodeIds.Contains(relatedId) || !nodeMap.TryGetValue(gk, out Guid graphNid))
                     continue;
 
                 AddEdge(graphNid, findingNodeId, ProvenanceEdgeType.InfluencedByGraphNode);
             }
+
         }
 
+
         // Rules → Decisions (rules that fired in this trace influenced decisions — v1: cross-product of applied rules × decisions)
+
         foreach (string dk in DistinctDecisionKeys())
         {
             if (!nodeMap.TryGetValue(dk, out Guid decisionNid))
                 continue;
 
+
             foreach (string ruleId in trace.AppliedRuleIds.Select(NormalizeId).Distinct(StringComparer.OrdinalIgnoreCase))
             {
+
                 string rk = $"rule:{ruleId}";
+
                 if (!nodeMap.TryGetValue(rk, out Guid ruleNid))
                     continue;
 
@@ -174,24 +187,36 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
             }
         }
 
+
+
         // Decisions → Artifacts (bundle payloads may repeat the same artifact row)
+
         foreach (SynthesizedArtifact a in DistinctArtifacts())
         {
             string ak = $"artifact:{a.ArtifactId:N}";
+
             if (!nodeMap.TryGetValue(ak, out Guid artifactNid))
                 continue;
 
+
             foreach (string dId in a.ContributingDecisionIds.Select(NormalizeId).Distinct(StringComparer.OrdinalIgnoreCase))
+
             {
+
                 string dk = $"decision:{dId}";
+
                 if (!nodeMap.TryGetValue(dk, out Guid decisionNid))
+
                     continue;
 
                 AddEdge(decisionNid, artifactNid, ProvenanceEdgeType.ContributedToArtifact);
             }
+
         }
 
+
         // Decisions → Manifest
+
         foreach (string dk in DistinctDecisionKeys())
         {
             if (!nodeMap.TryGetValue(dk, out Guid decisionNid))

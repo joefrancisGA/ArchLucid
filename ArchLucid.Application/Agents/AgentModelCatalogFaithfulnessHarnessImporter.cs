@@ -79,6 +79,7 @@ public sealed class AgentModelCatalogFaithfulnessHarnessImporter(
 
         // An empty approved-task list is a valid catalog row. Returning it unchanged makes
         // POST import-faithfulness-harness look successful when no evaluation was stored.
+
         if (taskTypes.Count == 0)
         {
             throw new InvalidOperationException(

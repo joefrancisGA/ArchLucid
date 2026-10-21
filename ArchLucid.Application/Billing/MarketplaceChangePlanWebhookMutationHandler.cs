@@ -30,6 +30,7 @@ public sealed class MarketplaceChangePlanWebhookMutationHandler(
     {
         ArgumentNullException.ThrowIfNull(rawBody);
         BillingOptions snapshot = _billingOptions.CurrentValue;
+
         if (!BillingPlanMutationPolicy.WebhookPlanMutationsEnabled(snapshot))
         {
             if (_logger.IsEnabled(LogLevel.Information))

@@ -134,6 +134,7 @@ public sealed class RunExportQueryFacade(
     {
         (ExportRecordLoadOutcome outcome, RunExportRecord? left, RunExportRecord? right, string? missingId) =
             await LoadPairAsync(leftExportRecordId, rightExportRecordId, cancellationToken);
+
         if (outcome is not ExportRecordLoadOutcome.Success)
             return new ExportRecordDiffQueryResult { Outcome = outcome, MissingId = missingId };
 
@@ -171,7 +172,9 @@ public sealed class RunExportQueryFacade(
     public async Task<ExportRecordDiffSummaryQueryResult> CompareExportRecordsSummaryAsync(string leftExportRecordId, string rightExportRecordId, bool persist, CancellationToken cancellationToken = default)
     {
         (ExportRecordLoadOutcome outcome, RunExportRecord? left, RunExportRecord? right, string? missingId) =
+
             await LoadPairAsync(leftExportRecordId, rightExportRecordId, cancellationToken);
+
         if (outcome is not ExportRecordLoadOutcome.Success)
             return new ExportRecordDiffSummaryQueryResult { Outcome = outcome, MissingId = missingId };
 
@@ -203,7 +206,9 @@ public sealed class RunExportQueryFacade(
         await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(right!.RunId, cancellationToken);
 
         ExportRecordDiffResult diff = await _exportRecordDiffService.CompareAsync(left!, right!, cancellationToken);
+
         string summary = _exportRecordDiffSummaryFormatter.FormatMarkdown(diff);
+
         if (!persist)
             return new ExportRecordDiffSummaryQueryResult { Outcome = ExportRecordLoadOutcome.Success, SummaryMarkdown = summary };
 
@@ -232,7 +237,9 @@ public sealed class RunExportQueryFacade(
 
         await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.RunId, cancellationToken);
 
+
         ReplayExportResult result = await _exportReplayService.ReplayAsync(request, cancellationToken);
+
         if (request.RecordReplayExport && !string.IsNullOrWhiteSpace(result.RecordedReplayExportRecordId))
         {
             Guid? auditRunId = Guid.TryParse(result.RunId, out Guid parsedRunId) ? parsedRunId : null;
@@ -248,23 +255,34 @@ public sealed class RunExportQueryFacade(
 
     private async Task<(ExportRecordLoadOutcome Outcome, RunExportRecord? Left, RunExportRecord? Right, string? MissingId)> LoadPairAsync(
         string leftExportRecordId, string rightExportRecordId, CancellationToken cancellationToken)
+
     {
         if (string.IsNullOrWhiteSpace(leftExportRecordId))
+
+
             return (ExportRecordLoadOutcome.LeftIdRequired, null, null, null);
+
         if (string.IsNullOrWhiteSpace(rightExportRecordId))
             return (ExportRecordLoadOutcome.RightIdRequired, null, null, null);
+
         RunExportRecord? left = await LoadScopedExportRecordAsync(leftExportRecordId, cancellationToken);
+
         if (left is null)
             return (ExportRecordLoadOutcome.LeftNotFound, null, null, leftExportRecordId);
         RunExportRecord? right = await LoadScopedExportRecordAsync(rightExportRecordId, cancellationToken);
         return right is null
             ? (ExportRecordLoadOutcome.RightNotFound, left, null, rightExportRecordId)
             : (ExportRecordLoadOutcome.Success, left, right, null);
+
     }
 
+
     private async Task<RunExportRecord?> LoadScopedExportRecordAsync(string exportRecordId, CancellationToken cancellationToken)
+
     {
+
         RunExportRecord? record = await _runExportRecordRepository.GetByIdAsync(exportRecordId, cancellationToken);
+
         if (record is null)
             return null;
         return await _runDetailQueryService.GetRunDetailAsync(record.RunId, cancellationToken) is null ? null : record;

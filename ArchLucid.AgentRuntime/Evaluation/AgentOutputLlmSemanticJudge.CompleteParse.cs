@@ -169,6 +169,7 @@ public sealed partial class AgentOutputLlmSemanticJudge
                 return null;
 
             // Scores outside the judge contract are malformed output, not low/high confidence.
+
             if (q < 0.0 || q > 1.0)
                 return null;
 

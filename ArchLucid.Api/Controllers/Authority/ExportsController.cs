@@ -195,8 +195,11 @@ public sealed partial class ExportsController(
             request ??= new PersistComparisonRequest();
             ExportRecordDiffSummaryQueryResult result = await _runExportQueryFacade.CompareExportRecordsSummaryAsync(
                 leftExportRecordId, rightExportRecordId, request.Persist, cancellationToken);
+
             if (result.Outcome is not ExportRecordLoadOutcome.Success)
+
                 return MapExportRecordLoadOutcome(result.Outcome, result.MissingId);
+
             if (!string.IsNullOrWhiteSpace(result.ComparisonRecordId))
                 Response.Headers[ArchLucidHttpHeaders.ComparisonRecordId] = result.ComparisonRecordId;
             return Ok(new ExportRecordDiffSummaryResponse { Format = "markdown", Summary = result.SummaryMarkdown! });

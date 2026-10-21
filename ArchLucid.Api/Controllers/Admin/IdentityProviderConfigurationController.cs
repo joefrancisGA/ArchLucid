@@ -268,6 +268,7 @@ public sealed class IdentityProviderConfigurationController(
             return response;
 
         string? issuerUri = response.IssuerUri;
+
         if (!string.IsNullOrWhiteSpace(issuerUri)
             && IdentityProviderUriValidator.TryGetCanonicalAbsoluteHttpOrHttps(issuerUri, out string canonicalIssuer))
         {
@@ -275,6 +276,7 @@ public sealed class IdentityProviderConfigurationController(
         }
 
         string? jwksUri = response.JwksUri;
+
         if (!string.IsNullOrWhiteSpace(jwksUri)
             && IdentityProviderUriValidator.TryGetCanonicalAbsoluteHttpOrHttps(jwksUri, out string canonicalJwks))
         {

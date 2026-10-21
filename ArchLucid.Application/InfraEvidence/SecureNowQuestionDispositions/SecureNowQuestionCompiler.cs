@@ -47,6 +47,7 @@ public sealed class SecureNowQuestionCompiler
                      .ThenBy(candidate => NormalizeQuestionKey(candidate.QuestionKey), StringComparer.Ordinal))
         {
             string questionKey = NormalizeQuestionKey(packCandidate.QuestionKey);
+
             if (questionKey.Length == 0)
                 continue;
 
@@ -130,7 +131,9 @@ public sealed class SecureNowQuestionCompiler
 
             string questionKey = candidate.IsOrphanIntent
                 ? "orphan-still-needed@v1"
+
                 : "unknown-evidence@v1";
+
             if (candidate.IsUnknownEvidence
                 && string.IsNullOrWhiteSpace(candidate.ProblemText))
                 continue;
@@ -174,8 +177,11 @@ public sealed class SecureNowQuestionCompiler
         DateTime now,
         IReadOnlyDictionary<string, AzureInventoryResourceRecord> resourcesById,
         string? preferredResourceType = null)
+
     {
+
         string identity = Identity(question.SubscriptionId, question.ResourceId, question.QuestionKey);
+
         if (!emitted.Add(identity))
             return;
 

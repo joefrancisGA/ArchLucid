@@ -176,6 +176,7 @@ public sealed class AgentOutputFaithfulnessEvaluator(
                 return null;
 
             // Scores outside the judge contract are malformed output, not low/high confidence.
+
             if (score < 0.0 || score > 1.0)
                 return null;
 

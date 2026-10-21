@@ -28,7 +28,7 @@ public static partial class StructuredExplanationParser
 
             if (arrayElement.ValueKind == JsonValueKind.Object)
             {
-                string? objectEntry = TryReadStringListEntry(arrayElement, propertyName);
+                string? objectEntry = TryReadStringListEntry(arrayElement, propertyName, parentArrayLength: 1, parentArrayIndex: 0);
 
                 return string.IsNullOrWhiteSpace(objectEntry) ? null : [objectEntry.Trim()];
             }
@@ -43,9 +43,10 @@ public static partial class StructuredExplanationParser
         }
 
         List<string> values = [];
+        JsonElement[] arrayItems = arrayElement.EnumerateArray().ToArray();
 
-        foreach (JsonElement item in arrayElement.EnumerateArray())
-            CollectStringListEntries(item, values, propertyName);
+        for (int index = 0; index < arrayItems.Length; index++)
+            CollectStringListEntries(arrayItems[index], values, propertyName, arrayItems.Length, index);
 
         return values;
     }
@@ -53,17 +54,21 @@ public static partial class StructuredExplanationParser
     private static void CollectStringListEntries(
         JsonElement item,
         List<string> values,
-        string listPropertyName)
+        string listPropertyName,
+        int parentArrayLength = 1,
+        int parentArrayIndex = 0)
     {
         if (item.ValueKind == JsonValueKind.Array)
         {
-            foreach (JsonElement inner in item.EnumerateArray())
-                CollectStringListEntries(inner, values, listPropertyName);
+            JsonElement[] nestedItems = item.EnumerateArray().ToArray();
+
+            for (int index = 0; index < nestedItems.Length; index++)
+                CollectStringListEntries(nestedItems[index], values, listPropertyName, nestedItems.Length, index);
 
             return;
         }
 
-        string? raw = TryReadStringListEntry(item, listPropertyName);
+        string? raw = TryReadStringListEntry(item, listPropertyName, parentArrayLength, parentArrayIndex);
 
         if (string.IsNullOrWhiteSpace(raw))
             return;
@@ -71,7 +76,11 @@ public static partial class StructuredExplanationParser
         values.Add(raw.Trim());
     }
 
-    private static string? TryReadStringListEntry(JsonElement item, string listPropertyName)
+    private static string? TryReadStringListEntry(
+        JsonElement item,
+        string listPropertyName,
+        int parentArrayLength = 1,
+        int parentArrayIndex = 0)
     {
         if (item.ValueKind == JsonValueKind.String)
             return item.GetString();
@@ -82,7 +91,13 @@ public static partial class StructuredExplanationParser
         if (item.ValueKind == JsonValueKind.Object)
         {
             if (listPropertyName.Equals("evidenceRefs", StringComparison.OrdinalIgnoreCase))
-                return RunExplanationAggregateJsonReader.TryReadEvidenceRefObjectStringProperty(item);
+            {
+                bool allowIdWhenBlankTextKeyPresent = parentArrayLength == 1;
+
+                return RunExplanationAggregateJsonReader.TryReadEvidenceRefObjectStringProperty(
+                    item,
+                    allowIdWhenBlankTextKeyPresent);
+            }
 
             return RunExplanationAggregateJsonReader.TryReadProseListObjectStringProperty(item);
         }

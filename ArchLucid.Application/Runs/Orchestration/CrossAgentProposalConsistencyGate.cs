@@ -266,6 +266,7 @@ public static class CrossAgentProposalConsistencyGate
                 relationship.TargetId);
 
             // Defer relationships that reference endpoints outside this batch to merge-gate graph validation.
+
             if (!sourceDeclaredInBatch || !targetDeclaredInBatch)
             {
                 retained.Add(relationship);

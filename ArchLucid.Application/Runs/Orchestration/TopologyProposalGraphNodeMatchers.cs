@@ -68,6 +68,7 @@ internal static class TopologyProposalGraphNodeMatchers
 
             // tf show JSON stamps the Terraform address on Label (declaration id on SourceId); agents often key
             // ServiceId to that address, which the merge gate already indexed via Label.
+
             if (TopologyProposalRelationshipEndpointIndex.ManifestEndpointReferencesEqual(nodeLabel, serviceId))
                 return true;
 
@@ -88,6 +89,7 @@ internal static class TopologyProposalGraphNodeMatchers
             }
 
             // Merge gate indexes both svc- and ds- synthetics for a label; overlays may put ds-{label} on ServiceId.
+
             if (nodeLabel is not null
                 && string.Equals(
                     serviceId,
@@ -132,6 +134,7 @@ internal static class TopologyProposalGraphNodeMatchers
                 return true;
 
             // Same tf show JSON shape as services: Terraform address on Label, declaration id on SourceId.
+
             if (TopologyProposalRelationshipEndpointIndex.ManifestEndpointReferencesEqual(nodeLabel, datastoreId))
                 return true;
 
@@ -152,6 +155,7 @@ internal static class TopologyProposalGraphNodeMatchers
             }
 
             // Symmetric to services: merge gate may accept svc-{label} on DatastoreId for a compute overlay key.
+
             if (nodeLabel is not null
                 && string.Equals(
                     datastoreId,

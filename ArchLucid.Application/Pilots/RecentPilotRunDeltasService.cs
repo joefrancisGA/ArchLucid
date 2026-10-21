@@ -112,6 +112,7 @@ public sealed class RecentPilotRunDeltasService(
     internal static double? ComputeMedian(IEnumerable<double> values)
     {
         double[] sorted = values.OrderBy(v => v).ToArray();
+
         if (sorted.Length == 0)
             return null;
         int mid = sorted.Length / 2;

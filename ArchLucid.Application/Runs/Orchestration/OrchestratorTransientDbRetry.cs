@@ -103,6 +103,7 @@ public static class OrchestratorTransientDbRetry
             IReadOnlyCollection<Exception> nestedInners = nested.Flatten().InnerExceptions;
 
             // Empty aggregate shells appear on some repository wrapper chains; skip them so a deeper mixed aggregate still fail-fasts.
+
             if (nestedInners.Count == 0)
                 continue;
 

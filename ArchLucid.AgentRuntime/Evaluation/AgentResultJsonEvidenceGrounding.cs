@@ -18,6 +18,7 @@ internal static class AgentResultJsonEvidenceGrounding
                 return !string.IsNullOrWhiteSpace(claimText);
 
             case JsonValueKind.Object:
+
                 foreach (string prop in new[] { "detail", "text", "evidence", "statement", "claim" })
                 {
                     if (!AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(claim, prop, out JsonElement p)

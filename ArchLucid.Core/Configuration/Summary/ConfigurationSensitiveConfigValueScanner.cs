@@ -36,6 +36,7 @@ internal static class ConfigurationSensitiveConfigValueScanner
         switch (element.ValueKind)
         {
             case JsonValueKind.Object:
+
                 foreach (JsonProperty property in element.EnumerateObject())
                 {
                     if (ConfigurationSensitiveConfigPathMatcher.IsSensitiveConfigPropertyName(property.Name))
@@ -46,7 +47,9 @@ internal static class ConfigurationSensitiveConfigValueScanner
                 }
 
                 return false;
+
             case JsonValueKind.Array:
+
                 foreach (JsonElement item in element.EnumerateArray())
                 {
                     if (ContainsCredentialProperties(item))

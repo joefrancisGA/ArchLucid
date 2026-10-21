@@ -26,6 +26,7 @@ public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepo
         lock (_gate)
         {
             _items.Add(version);
+
             if (_items.Count > MaxEntries)
                 _items.RemoveRange(0, _items.Count - MaxEntries);
         }
@@ -39,7 +40,9 @@ public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepo
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
+
             int idx = _items.FindIndex(x => x.PolicyPackVersionId == version.PolicyPackVersionId);
+
             if (idx >= 0)
                 _items[idx] = version;
         }
