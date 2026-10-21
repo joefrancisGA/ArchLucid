@@ -5952,3 +5952,4 @@
 {"at":"2026-10-21T15:48:58.2721584Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T15:48:15.9265881Z","zoneId":"cli-tenant-isolation","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs)"],"severity":"high","defectClass":"other"}
 {"at":"2026-10-21T15:54:51.4189535Z","zoneId":"scim-users","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Scim/ScimUsersController.cs,ArchLucid.Persistence/Scim/SqlScimUserFilterTranslator.cs,ArchLucid.Core/Scim/Filtering/ScimFilterInMemoryEvaluator.cs"]}
+{"at":"2026-10-21T15:57:32.1903458Z","zoneId":"agent-runtime-evaluation","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.AgentRuntime/Evaluation/FindingClaimCoverageEvaluator.cs)"]}

@@ -103,6 +103,27 @@ public sealed class FindingClaimCoverageEvaluatorTests
     }
 
     [Fact]
+    public void Evaluate_WhitespaceOnlyEvidenceRefs_CountsAsUnsupported()
+    {
+        List<ArchitectureFinding> findings =
+        [
+            new()
+            {
+                FindingId = "f-blank-refs",
+                Category = "Topology",
+                Message = "m1",
+                EvidenceRefs = ["", "   "],
+            },
+        ];
+
+        FindingClaimCoverageReport report = _sut.Evaluate(findings);
+
+        report.SupportedFindingCount.Should().Be(0);
+        report.CoverageRatio.Should().Be(0.0);
+        report.UnsupportedFindingIds.Should().ContainSingle().Which.Should().Be("f-blank-refs");
+    }
+
+    [Fact]
     public void Evaluate_HighConfidenceFindingWithNoRefs_IsUnsupported()
     {
         List<ArchitectureFinding> findings =
