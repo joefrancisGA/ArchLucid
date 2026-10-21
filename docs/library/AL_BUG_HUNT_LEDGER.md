@@ -41585,6 +41585,10 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 ---
 
 ## Zone: ui-review-detail-workspace
+2026-10-21 seed hunt (seed→hit): promoted `ReviewAskDock` — `askThread` reconciliation only applied when the param was non-empty, so soft navigation that cleared `askThread` while the dock stayed open left stale thread state and Ask reused the prior thread; clear thread state when `useSearchParams` omits `askThread`; regression `clears ask thread state when askThread is removed from useSearchParams while the dock stays open`; `ReviewAskDock.url-sync.test.tsx` 3/3.
+
+- [x] (proven) `ReviewAskDock` — stale `askThread` when param cleared on soft navigation — **hit 2026-10-21 seed hunt:** reconcile empty `askThread` from `useSearchParams`; regression above.
+
 2026-10-21 seed hunt (seed→hit): promoted `(candidate)` `RunFindingExplainabilityTable` — `explainId` / `reasonId` deep links synced only on `popstate`, so per-finding explainability and reasoning dialogs stayed closed or stale after Next.js soft navigation; reconcile from `useSearchParams` and close dialogs when params clear; regressions `follows explainId query changes without a popstate event` and `closes explainability dialog when explainId is cleared without a popstate event`; seeded five follow-on `(candidate)` rows.
 
 - [x] (proven) `RunFindingExplainabilityTable` — `explainId` / `reasonId` ignored on Next.js soft navigation — **hit 2026-10-21 seed hunt:** reconcile from `useSearchParams`; regressions above.
@@ -41811,11 +41815,11 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 44
-- **bugs-found:** 35
+- **hunts:** 45
+- **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — workbench findingId when useSearchParams leads window.location
+- **last-bug:** 2026-10-21 — ReviewAskDock askThread cleared on soft navigation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.
