@@ -56,11 +56,11 @@ export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactE
   const syncShareMenuOpenToUrl = useCallback(
     (nextOpen: boolean) => {
       commitHrefIfChanged(
-        reviewHeaderShareMenuHrefFromSearch(window.location.search.slice(1), nextOpen, pathname),
+        reviewHeaderShareMenuHrefFromSearch(searchParams.toString(), nextOpen, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setOpen = useCallback(

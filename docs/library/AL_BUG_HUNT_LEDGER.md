@@ -41619,6 +41619,10 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 ---
 
 ## Zone: ui-review-detail-workspace
+2026-10-21 seed hunt (seed→hit): promoted `ReviewHeaderShareMenu` — `syncShareMenuOpenToUrl` built hrefs from `window.location.search`, so after cross-review soft navigation opening Share & export could write the prior review's findings toolbar query onto the next review when setting `shareMenuOpen=1`; base href writes on `useSearchParams`; regression `opens share menu from useSearchParams when window.location.search lags after soft navigation`; share menu url-sync vitest 2/2.
+
+- [x] (proven) `ReviewHeaderShareMenu` — stale toolbar params on share menu open after soft navigation — **hit 2026-10-21 seed hunt:** `reviewHeaderShareMenuHrefFromSearch(searchParams.toString(), …)`; regression above.
+
 2026-10-21 seed hunt (seed→hit): promoted `ReviewAskDock` — `syncAskDockToUrl` built hrefs from `window.location.search`, so after cross-review soft navigation opening Ask could write the prior review's findings toolbar query onto the next review when setting `askDock=1`; base href writes on `useSearchParams`; regression `opens ask dock from useSearchParams when window.location.search lags after soft navigation`; ask dock url-sync vitest 4/4.
 
 - [x] (proven) `ReviewAskDock` — stale toolbar params on Ask dock open after soft navigation — **hit 2026-10-21 seed hunt:** `reviewAskDockHrefFromSearch(searchParams.toString(), …)`; regression above.
@@ -41882,11 +41886,11 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 54
-- **bugs-found:** 45
+- **hunts:** 55
+- **bugs-found:** 46
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — ReviewAskDock askDock href soft-nav sync
+- **last-bug:** 2026-10-21 — ReviewHeaderShareMenu shareMenuOpen href soft-nav sync
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.
