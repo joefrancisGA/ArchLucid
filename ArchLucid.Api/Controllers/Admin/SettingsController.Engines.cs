@@ -37,7 +37,9 @@ public sealed partial class SettingsController
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        if (request.AllowedAliasIds.Count == 0 || string.IsNullOrWhiteSpace(request.DefaultAliasId))
+        if (request.AllowedAliasIds is null
+            || request.AllowedAliasIds.Count == 0
+            || string.IsNullOrWhiteSpace(request.DefaultAliasId))
         {
             return this.BadRequestProblem(
                 "AllowedAliasIds and DefaultAliasId are required.",

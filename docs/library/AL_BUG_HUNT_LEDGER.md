@@ -8,6 +8,7 @@
 - [x] (valid-no-repro) `acceptPostAuthInvitation` — `confirmEmailMismatch` vs unsafe `returnUrl` query ordering — **cheap-disproof 2026-10-21 lane C:** invite accept callers pass `resolveSafeReturnPath`; open redirect not reachable from UI.
 
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
+2026-10-21 seed hunt (seed→hit, lane B): `api-authority-admin-controllers` — lock `api-authority-admin-controllers` pushed and verified on `origin/bugsmash` before work; promoted gap on `SettingsController.PutAllowedEngineSet` — JSON `"allowedAliasIds": null` deserialized to a null collection and `request.AllowedAliasIds.Count` threw before validation; null guard before count check; regression `PutAllowedEngineSet_returns_bad_request_when_allowed_alias_ids_collection_is_null`; cheap-disproof closed picker `RunCoverageController.PutAcknowledgedCoverage` null entry candidate (existing per-row null guard); scoped new test + `AdminControllerTests.ArchiveRunsByIds` parity 2 passed (`RunAnalyzers=false`).
 2026-10-21 seed hunt (seed→hit, lane B): `core-authority-runs` — lock `core-authority-runs` pushed and verified on `origin/bugsmash` before work (lane C holds `persistence-billing-stripe`); promoted `(candidate)` on `AuthorityPipelineConcurrencyOptions.LeaseRecognitionHorizon` — negative config moved `staleBeforeUtc` into the future in `SqlTenantAuthorityPipelineConcurrencyGate`, treating active tenant execution leases as orphaned; getter now clamps below zero to `TimeSpan.Zero`; regression `AuthorityPipeline_Concurrency_clamps_negative_lease_recognition_horizon_to_zero`; scoped `FullyQualifiedName~RunAuthority|FullyQualifiedName~AuthorityPipeline` 47 passed (`RunAnalyzers=false`).
 2026-10-21 seed hunt (seed→hit, lane B): `finding-inspect-sql` — lock `finding-inspect-sql` pushed and verified on `origin/bugsmash` before work; promoted relational `FindingSemanticSupportBandOverlays` overlay token with leading U+200B before `Supported` — `ResolveInspectSemanticSupportBand` used `Trim`+`Enum.TryParse` only, so parse failed and inspect fell back to typed payload `Unsupported`; `NormalizeInspectEnumToken` strips leading/trailing format/control characters before overlay parse; regression `ResolveInspectSemanticSupportBand_parses_overlay_after_leading_invisible_format_characters`; scoped inspect-read filter 426 passed (`RunAnalyzers=false`).
 2026-10-21 seed hunt (seed-only, lane B): `quick-scan-distributed-concurrency` — lock `quick-scan-distributed-concurrency` pushed and verified on `origin/bugsmash` before work (skipped picker top `core-configuration-summary` already hit today; `llm-wallet` locked by lane C); re-read `QuickScanDistributedConcurrencyService`, `QuickScanDistributedConcurrencyLeaseRenewal`, admit-limit refresh decorator, in-memory and Dapper stores after 2026-10-20 renewal-interval options refresh; no hunt-ready row promoted; reaffirmed `Renewal_loop_re_reads_lease_renewal_interval_after_options_change` and post-admit cancel/cleanup regressions; seeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~QuickScanDistributedConcurrency` 45 passed (`RunAnalyzers=false`).
@@ -39985,11 +39986,11 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 62
-- **bugs-found:** 55
+- **hunts:** 63
+- **bugs-found:** 56
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-16
-- **last-bug:** 2026-10-16 — archive-by-ids null RunIds caused 500 instead of validation
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-21 — allowed-engine-set null AllowedAliasIds caused 500 instead of validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -40026,7 +40027,7 @@ heap-disproved mermaid typed-topology candidate.
 - [x] (proven) `AdminController.ArchiveRunsByIds` — JSON `"runIds": null` dereferenced `body.RunIds.Count` and threw `NullReferenceException` instead of `400 ValidationFailed` — **hit 2026-10-16 seed hunt:** null-coalesce guard before count check; regression `ArchiveRunsByIds_returns_bad_request_when_run_ids_collection_is_null`
 - [ ] (candidate) `AdminController.SuppressIntegrationOutboxDeadLetter` — `IntegrationOutboxDeadLetterSuppressRequest` body optional fields when body is `{}` vs null — locus: `SuppressIntegrationOutboxDeadLetterAsync(outboxId, body, ...)` ~92; input: suppress without JSON body on POST; wrong outcome: unhandled null vs intentional default suppress reason.
 - [ ] (candidate) `CollectionRunsController.TriggerAsync` — `request` omitted with valid `Idempotency-Key` — locus: `request?.SubscriptionIds ?? []` ~67; input: empty body trigger; wrong outcome: silent empty subscription list vs explicit validation when SecureNow expects at least one subscription.
-- [ ] (candidate) `RunCoverageController.PutAcknowledgedCoverage` — `request.Entries` contains null row elements after JSON array with `null` entries — locus: foreach validation loop ~71; input: `[{ "policyPackId": "...", "excluded": true }, null]`; wrong outcome: `NullReferenceException` during surrogate validation instead of `400`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null entry elements in `Entries` array — **cheap-disproof 2026-10-21 lane B:** foreach returns `400 ValidationFailed` when `row is null` (~73).
 - [ ] (candidate) `AuthorityQueryController.RecordRunOperatorGovernanceDisposition` — `Disposition` enum string case / unknown value before service — locus: `RecordRunOperatorGovernanceDisposition` POST ~171; input: disposition value outside contract casing; wrong outcome: `500` from downstream `InvalidOperationException` vs `400 ValidationFailed` at controller edge.
 - [ ] (candidate) `IdentityProviderConfigurationController.ActivateAsync` — `request` with null `Issuer` after partial JSON bind — locus: activation validate path; input: `{ "protocol": "oidc", "issuer": null }`; wrong outcome: persistence or audit throws instead of validation problem.
 
