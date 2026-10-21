@@ -32,52 +32,16 @@ public sealed class MermaidDiagramDeterministicRepairer : IMermaidDiagramDetermi
             }
 
             nodeIdMap[node.NodeId] = sanitizedId;
-            repairedNodes.Add(new DiagramNode
-            {
-                NodeId = sanitizedId,
-                Label = TruncateLabel(MermaidDiagramRenderer.EscapeLabel(node.Label)),
-                NodeType = node.NodeType,
-                SubgraphId = string.IsNullOrWhiteSpace(node.SubgraphId)
-                    ? null
-                    : MermaidIdSanitizer.Sanitize(node.SubgraphId),
-                OrderKey = node.OrderKey,
-                CloudResourceId = node.CloudResourceId,
-                ArmResourceId = node.ArmResourceId,
-                SeedNodeId = node.SeedNodeId,
-                ArmResourceType = node.ArmResourceType,
-                ArmResourceKind = node.ArmResourceKind,
-                ExternalLinkedServiceType = node.ExternalLinkedServiceType,
-                ExternalFactoryName = node.ExternalFactoryName,
-                ExternalFactoryNames = node.ExternalFactoryNames.ToList(),
-                ExternalTargetHost = node.ExternalTargetHost,
-                ExternalTargetHosts = node.ExternalTargetHosts.ToList(),
-                ExternalIntegrationRuntime = node.ExternalIntegrationRuntime,
-                ExternalIntegrationRuntimes = node.ExternalIntegrationRuntimes.ToList(),
-                ExternalHostInKeyVault = node.ExternalHostInKeyVault,
-                ArmResourceGroup = node.ArmResourceGroup,
-                IncludeResourceGroupInCaption = node.IncludeResourceGroupInCaption,
-                HasPrivateEndpointAccess = node.HasPrivateEndpointAccess,
-                HasPublicInternetExposure = node.HasPublicInternetExposure,
-                IsExecutiveOverflow = node.IsExecutiveOverflow,
-                IsUnresolvedPolicyOutlineOnly = node.IsUnresolvedPolicyOutlineOnly,
-                ParentAttachmentDetails = node.ParentAttachmentDetails.ToList(),
-                ConnectionState = node.ConnectionState,
-                ConnectionStateMessage = node.ConnectionStateMessage,
-                QuestionableAttention = node.QuestionableAttention,
-                UnresolvedRelationshipDetails = node.UnresolvedRelationshipDetails.ToList(),
-                IsAvdCollapsedBoundary = node.IsAvdCollapsedBoundary,
-                DataFlowTraversalHopEvidenceDetails = node.DataFlowTraversalHopEvidenceDetails.ToList(),
-                NsgInboundRuleChips = node.NsgInboundRuleChips
-                    .Select(chip => new DiagramNsgInboundRuleChip(chip.Text, chip.IsRisky))
-                    .ToList(),
-                IsDataFlowRollup = node.IsDataFlowRollup,
-                IsCollapsedResourceGroupTail = node.IsCollapsedResourceGroupTail,
-                CollapsedResourceGroupTailMemberNames = node.CollapsedResourceGroupTailMemberNames.ToList(),
-                DataFlowRollupOrdinal = node.DataFlowRollupOrdinal,
-                DataFlowRollupMemberIds = node.DataFlowRollupMemberIds.ToList(),
-                DataFlowRollupMemberNames = node.DataFlowRollupMemberNames.ToList(),
-                DataFlowRollupStatusLine = node.DataFlowRollupStatusLine,
-            });
+            repairedNodes.Add(DiagramNodeStructuralCopy.With(
+                node,
+                clone =>
+                {
+                    clone.NodeId = sanitizedId;
+                    clone.Label = TruncateLabel(MermaidDiagramRenderer.EscapeLabel(node.Label));
+                    clone.SubgraphId = string.IsNullOrWhiteSpace(node.SubgraphId)
+                        ? null
+                        : MermaidIdSanitizer.Sanitize(node.SubgraphId);
+                }));
         }
 
         HashSet<string> seenEdges = new(StringComparer.Ordinal);
@@ -105,48 +69,39 @@ public sealed class MermaidDiagramDeterministicRepairer : IMermaidDiagramDetermi
                 continue;
             }
 
-            repairedEdges.Add(new DiagramEdge
-            {
-                FromNodeId = fromId,
-                ToNodeId = toId,
-                Label = label,
-                // Layout-only ~~~ links must stay invisible after repair; dropping this
-                // flag turns packing edges into unlabeled visible arrows.
-                IsLayoutOnly = edge.IsLayoutOnly,
-                // Forest membership cites the inference source. A repaired label of "in"
-                // with a null source is not a VNet placement.
-                InferenceSource = edge.InferenceSource,
-                ProvenanceKind = edge.ProvenanceKind,
-                DeclaredConnectionId = edge.DeclaredConnectionId,
-                IsDataFlowNsgBlocked = edge.IsDataFlowNsgBlocked,
-                DataFlowNsgAnnotationLabels = edge.DataFlowNsgAnnotationLabels.ToList(),
-                DataFlowNsgSupportingRuleDetails = edge.DataFlowNsgSupportingRuleDetails.ToList(),
-            });
+            repairedEdges.Add(DiagramEdgeStructuralCopy.With(
+                edge,
+                clone =>
+                {
+                    clone.FromNodeId = fromId;
+                    clone.ToNodeId = toId;
+                    clone.Label = label;
+                }));
         }
 
         List<DiagramSubgraph> repairedSubgraphs = ast.Subgraphs
-            .Select(subgraph => new DiagramSubgraph
-            {
-                SubgraphId = MermaidIdSanitizer.Sanitize(subgraph.SubgraphId),
-                Label = TruncateLabel(MermaidDiagramRenderer.EscapeLabel(subgraph.Label)),
-                ParentSubgraphId = string.IsNullOrWhiteSpace(subgraph.ParentSubgraphId)
-                    ? null
-                    : MermaidIdSanitizer.Sanitize(subgraph.ParentSubgraphId),
-                OrderKey = subgraph.OrderKey,
-            })
+            .Select(subgraph => DiagramSubgraphStructuralCopy.With(
+                subgraph,
+                clone =>
+                {
+                    clone.SubgraphId = MermaidIdSanitizer.Sanitize(subgraph.SubgraphId);
+                    clone.Label = TruncateLabel(MermaidDiagramRenderer.EscapeLabel(subgraph.Label));
+                    clone.ParentSubgraphId = string.IsNullOrWhiteSpace(subgraph.ParentSubgraphId)
+                        ? null
+                        : MermaidIdSanitizer.Sanitize(subgraph.ParentSubgraphId);
+                }))
             .ToList();
 
         collapseReport = new MermaidDiagramCollapseReport { Entries = collapseEntries };
 
-        return new DiagramAst
-        {
-            Title = ast.Title,
-            Nodes = repairedNodes,
-            Edges = repairedEdges,
-            Subgraphs = repairedSubgraphs,
-            FlowchartDirection = ast.FlowchartDirection,
-            CaptionLines = ast.CaptionLines.ToList(),
-        };
+        return DiagramAstStructuralCopy.With(
+            ast,
+            repaired =>
+            {
+                repaired.Nodes = repairedNodes;
+                repaired.Edges = repairedEdges;
+                repaired.Subgraphs = repairedSubgraphs;
+            });
     }
 
     private static string TruncateLabel(string label)

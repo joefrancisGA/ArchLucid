@@ -363,53 +363,11 @@ internal static class DiagramForestDataFlowRollup
             : nodeId;
     }
 
-    private static DiagramEdge CloneEdge(DiagramEdge source, string fromNodeId, string toNodeId)
-    {
-        return new DiagramEdge
-        {
-            FromNodeId = fromNodeId,
-            ToNodeId = toNodeId,
-            Label = source.Label,
-            IsLayoutOnly = source.IsLayoutOnly,
-            ProvenanceKind = source.ProvenanceKind,
-            InferenceSource = source.InferenceSource,
-            DeclaredConnectionId = source.DeclaredConnectionId,
-            IsDataFlowNsgBlocked = source.IsDataFlowNsgBlocked,
-            DataFlowNsgAnnotationLabels = [.. source.DataFlowNsgAnnotationLabels],
-            DataFlowNsgSupportingRuleDetails = [.. source.DataFlowNsgSupportingRuleDetails],
-        };
-    }
+    private static DiagramEdge CloneEdge(DiagramEdge source, string fromNodeId, string toNodeId) =>
+        DiagramForestDataFlowRollupStructuralCopy.CloneEdge(source, fromNodeId, toNodeId);
 
-    private static DiagramEdge MergeParallelRollupEdges(DiagramEdge existing, DiagramEdge incoming)
-    {
-        List<string> mergedLabels = existing.DataFlowNsgAnnotationLabels
-            .Concat(incoming.DataFlowNsgAnnotationLabels)
-            .Where(label => !string.IsNullOrWhiteSpace(label))
-            .Select(label => label.Trim())
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .OrderBy(label => label, StringComparer.OrdinalIgnoreCase)
-            .ToList();
-        List<string> mergedRuleDetails = existing.DataFlowNsgSupportingRuleDetails
-            .Concat(incoming.DataFlowNsgSupportingRuleDetails)
-            .Where(detail => !string.IsNullOrWhiteSpace(detail))
-            .Select(detail => detail.Trim())
-            .Distinct(StringComparer.Ordinal)
-            .ToList();
-
-        return new DiagramEdge
-        {
-            FromNodeId = existing.FromNodeId,
-            ToNodeId = existing.ToNodeId,
-            Label = existing.Label,
-            IsLayoutOnly = existing.IsLayoutOnly,
-            ProvenanceKind = existing.ProvenanceKind,
-            InferenceSource = existing.InferenceSource,
-            DeclaredConnectionId = existing.DeclaredConnectionId,
-            IsDataFlowNsgBlocked = existing.IsDataFlowNsgBlocked || incoming.IsDataFlowNsgBlocked,
-            DataFlowNsgAnnotationLabels = mergedLabels,
-            DataFlowNsgSupportingRuleDetails = mergedRuleDetails,
-        };
-    }
+    private static DiagramEdge MergeParallelRollupEdges(DiagramEdge existing, DiagramEdge incoming) =>
+        DiagramForestDataFlowRollupStructuralCopy.MergeParallelRollupEdges(existing, incoming);
 
     private sealed record RollupKey(string Stage, string Type, string Neighbors);
 
