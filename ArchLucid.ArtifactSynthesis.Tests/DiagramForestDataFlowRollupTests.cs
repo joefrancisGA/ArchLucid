@@ -342,4 +342,130 @@ public sealed class DiagramForestDataFlowRollupTests
                 options => options.WithStrictOrdering());
         rollup.NsgInboundRuleChips.Single(chip => chip.Text == "in 443/TCP · Internet").IsRisky.Should().BeTrue();
     }
+
+    [Fact]
+    public void Apply_source_stage_rolls_up_same_connector_type_even_when_neighbors_differ()
+    {
+        const string sourceStageId = "data-arch-source";
+        List<DiagramNode> nodes =
+        [
+            ..Enumerable.Range(0, 4).Select(index => new DiagramNode
+            {
+                NodeId = $"sftp-{index}",
+                Label = $"sftp-{index}",
+                NodeType = "TopologyResource",
+                SubgraphId = sourceStageId,
+                OrderKey = index,
+                ExternalLinkedServiceType = "Sftp",
+            }),
+            ..Enumerable.Range(0, 4).Select(index => new DiagramNode
+            {
+                NodeId = $"consumer-{index}",
+                Label = $"consumer-{index}",
+                NodeType = "TopologyResource",
+                SubgraphId = "data-arch-integration",
+                OrderKey = index + 10,
+                ArmResourceType = "Microsoft.DataFactory/factories",
+            }),
+        ];
+        List<DiagramEdge> edges =
+        [
+            ..Enumerable.Range(0, 4).Select(index => new DiagramEdge
+            {
+                FromNodeId = $"sftp-{index}",
+                ToNodeId = $"consumer-{index}",
+                Label = "reads",
+            }),
+        ];
+
+        DiagramForestDataFlowRollup.Result result = DiagramForestDataFlowRollup.Apply(nodes, edges);
+
+        DiagramNode rollup = result.Nodes.Single(node => node.IsDataFlowRollup);
+        rollup.SubgraphId.Should().Be(sourceStageId);
+        rollup.DataFlowRollupMemberIds.Should().HaveCount(4);
+        rollup.DataFlowRollupMemberNames.Should().HaveCount(4);
+    }
+
+    [Fact]
+    public void Apply_source_stage_keeps_three_same_type_cards_separate()
+    {
+        const string sourceStageId = "data-arch-source";
+        const string consumerId = "consumer";
+        List<DiagramNode> nodes =
+        [
+            ..Enumerable.Range(0, 3).Select(index => new DiagramNode
+            {
+                NodeId = $"sftp-{index}",
+                Label = $"sftp-{index}",
+                NodeType = "TopologyResource",
+                SubgraphId = sourceStageId,
+                OrderKey = index,
+                ExternalLinkedServiceType = "Sftp",
+            }),
+            new DiagramNode
+            {
+                NodeId = consumerId,
+                Label = consumerId,
+                NodeType = "TopologyResource",
+                SubgraphId = "data-arch-integration",
+                OrderKey = 10,
+                ArmResourceType = "Microsoft.DataFactory/factories",
+            },
+        ];
+        List<DiagramEdge> edges =
+        [
+            ..Enumerable.Range(0, 3).Select(index => new DiagramEdge
+            {
+                FromNodeId = $"sftp-{index}",
+                ToNodeId = consumerId,
+                Label = "reads",
+            }),
+        ];
+
+        DiagramForestDataFlowRollup.Result result = DiagramForestDataFlowRollup.Apply(nodes, edges);
+
+        result.Nodes.Should().NotContain(node => node.IsDataFlowRollup);
+        result.Nodes.Should().HaveCount(4);
+    }
+
+    [Fact]
+    public void Apply_storage_stage_keeps_four_cards_with_different_neighbors_separate()
+    {
+        const string storageStageId = "data-arch-storage";
+        List<DiagramNode> nodes =
+        [
+            ..Enumerable.Range(0, 4).Select(index => new DiagramNode
+            {
+                NodeId = $"storage-{index}",
+                Label = $"storage-{index}",
+                NodeType = "TopologyResource",
+                SubgraphId = storageStageId,
+                OrderKey = index,
+                ArmResourceType = "Microsoft.Storage/storageAccounts",
+            }),
+            ..Enumerable.Range(0, 4).Select(index => new DiagramNode
+            {
+                NodeId = $"consumer-{index}",
+                Label = $"consumer-{index}",
+                NodeType = "TopologyResource",
+                SubgraphId = "data-arch-application",
+                OrderKey = index + 10,
+                ArmResourceType = "Microsoft.Web/sites",
+            }),
+        ];
+        List<DiagramEdge> edges =
+        [
+            ..Enumerable.Range(0, 4).Select(index => new DiagramEdge
+            {
+                FromNodeId = $"storage-{index}",
+                ToNodeId = $"consumer-{index}",
+                Label = "uses",
+            }),
+        ];
+
+        DiagramForestDataFlowRollup.Result result = DiagramForestDataFlowRollup.Apply(nodes, edges);
+
+        result.Nodes.Should().NotContain(node => node.IsDataFlowRollup);
+        result.Nodes.Should().HaveCount(8);
+    }
 }
