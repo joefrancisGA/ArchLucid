@@ -1071,6 +1071,12 @@ describe("wave24 filter url helpers", () => {
     expect(policyPackSelectionHrefFromSearch("tab=my-packs", "pack-1")).toBe(
       "/governance/policy-packs?tab=my-packs&packId=pack-1",
     );
+    expect(
+      policyPackSelectionHrefFromSearch(
+        "tab=my-packs&packId=p1&diff=1&compareLeft=left-1&compareRight=right-2",
+        "pack-2",
+      ),
+    ).toBe("/governance/policy-packs?tab=my-packs&packId=pack-2");
     expect(parsePolicyPackCatalogEntryFromSearch("cat-9")).toBe("cat-9");
     expect(policyPackCatalogEntryHrefFromSearch("tab=catalog", "cat-9")).toBe(
       "/governance/policy-packs?tab=catalog&catalogEntry=cat-9",

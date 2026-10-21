@@ -1,3 +1,17 @@
+2026-10-21 thorough hunt (hit, lane B): `ui-operator-routes` — lock `ui-operator-routes` pushed and verified on `origin/bugsmash` before work (`bfd9622d3a`); selected least-recent unlocked beta-reachable zone with open `(candidate)` rows (`2026-10-21T14:50:17Z` per run log), skipping zones hunted in the last hour (e.g. `security-analyzers`, `alert-simulation`, `core-safety-network`) and `infra-evidence-diagrams` lock; promoted reachable `policyPackSelectionHrefFromSearch` — deep-linked `diff`/`compareLeft`/`compareRight` survived pack selection navigation so pack B could open with pack A version-diff chrome; strip version-compare params on every pack selection href; regression in `wave11-filter-url-helpers` policy pack selection test; cheap-disproof closed four sibling `(candidate)` rows (`SearchPageClient` debounced `q` effect depends on `searchParams` and reschedules when `runId` clears; `useFirstPilotIntakeWizard` already swaps inherited title when `priorRunId` changes and scope listener only refreshes write destination by design; `RunDetailFindingsWorkspace` keeps `findingsClassificationBand` in URL with explicit checklist hint when decision-grade filters to zero rows; `useDecisionRegisterPage` confidence debounce reads live `searchParams` each tick); seeded five follow-on `(candidate)` rows; scoped `SearchPageClient` + `use-first-pilot-intake-wizard` vitest 12/12 and policy pack URL vitest 1/1; lock released after push.
+
+- [x] (proven) `policyPackSelectionHrefFromSearch` — version diff query params survived `packId` switch — **hit 2026-10-21 thorough hunt lane B:** strip `diff`/`compareLeft`/`compareRight` on selection href; regression above.
+- [x] (valid-no-repro) `SearchPageClient` — debounced `q` writer reinjects stale `runId` after scope clear — **cheap-disproof 2026-10-21 thorough hunt lane B:** `useEffect` deps include `searchParams`; pending timeout cleared on `runId` removal before replace.
+- [x] (valid-no-repro) `useFirstPilotIntakeWizard` — operator scope switch leaves stale prior-run title prefill — **cheap-disproof 2026-10-21 thorough hunt lane B:** `priorTitlePrefilledForRunIdRef` + `setRunTitle` swap when `priorRunIdForTitlePrefill` changes; scope event only updates write-destination label.
+- [x] (valid-no-repro) `RunDetailFindingsWorkspace` — classification band URL stale when band filters to zero rows — **cheap-disproof 2026-10-21 thorough hunt lane B:** intentional deep-link band with `run-detail-findings-checklist-remains-hint` when decision-grade empty but checklist rows exist.
+- [x] (valid-no-repro) `useDecisionRegisterPage` — debounced confidence URL races back navigation — **cheap-disproof 2026-10-21 thorough hunt lane B:** debounced replace uses current `searchParams.toString()`; `urlMinConfidence`/`urlMaxConfidence` effects resync state from URL on navigation.
+
+- [ ] (candidate) `policyPackCatalogEntryHrefFromSearch` — catalog entry selection leaves `diff`/`compareLeft`/`compareRight` when browsing catalog templates while my-packs diff was open — locus: `policy-pack-catalog-entry-url.ts`; input: open version diff on pack A then pick catalog entry B.
+- [ ] (candidate) `usePolicyPacksCreatePublish` — `policyPackAuthoringInputModeHrefFromSearch` may preserve stale `packId` when switching authoring `inputMode` after clearing pack selection — locus: authoring input mode URL writer; input: clear `packId` then toggle visual/json mode.
+- [ ] (candidate) `SearchPageClient` — `setRunId` no-op on empty trim prevents clearing review scope from in-page control — locus: `setRunId` early return; input: operator needs to clear scoped retrieval without manual URL edit (reachability: review picker only sets non-empty ids).
+- [ ] (candidate) `useDecisionRegisterPage` — category debounce uses `searchParams.toString()` while confidence debounce chains split query fragments — locus: parallel 250ms effects; input: simultaneous category + confidence edits may drop unrelated params (reachability: rapid filter edits).
+- [ ] (candidate) `PlanningPageClient` / improvement planning routes — theme or filter URL params may survive `runId` scope chip changes — locus: operator planning URL helpers under `(operator)/insights/`; input: scoped planning view then switch `runId` without clearing facet params.
+
 2026-10-21 thorough hunt (hit, lane C): `infra-evidence-diagrams` — lock `infra-evidence-diagrams` pushed and verified on `origin/bugsmash` before work (`cfa6a75a03`; lane C `2026-10-21T16:42:55Z`); confirmed no hunt logged after lock; selected least-recent unlocked zone with open `(candidate)` rows (`2026-10-21T01:28:06Z`), skipping zones hunted in the last hour; promoted `(candidate)` `MergeDisplayCompileOptions` — `IncludeAvdAssets` used `??` so architecture (and other modes) with `includeCrossGroupFanOut=true` built compile options with explicit `IncludeAvdAssets=false`, dropping reachable `includeAvdAssets=true` from diagrams workbench/API; aligned with network-details merge using `||`; regression `Render_architecture_keeps_avd_assets_when_cross_group_fan_out_is_set`; cheap-disproof closed four sibling `(candidate)` rows (family chips, graphviz PNG path, businessContinuity parser contract, legend filter); scoped `InfraEvidenceSnapshotMermaidServiceTests` 37/37 intent (32 passed, 5 golden-fixture tests fail in cloud VM without fixtures — unchanged on trunk); lock released after push.
 
 - [x] (proven) `MergeDisplayCompileOptions` — `IncludeAvdAssets` dropped when compile options carried explicit false from cross-group fan-out — **hit 2026-10-21 thorough hunt lane C:** `includeAvdAssets || (options?.IncludeAvdAssets ?? false)`; regression above.
@@ -181,11 +195,11 @@
 
 - [x] (proven) `SearchPageClient` — scoped `runId` URL change with unchanged `q` skipped auto retrieval — **hit 2026-10-21 seed hunt lane C:** `lastAutoSearchedScope` pairs run + query; regression above.
 
-- (candidate) `usePolicyPacksCreatePublish` — `policyPackSelectionHrefFromSearch` leaves `diff`/`compareLeft`/`compareRight` when switching `packId` — locus: pack selection URL writer; input: deep-linked version diff on pack A then select pack B without closing diff.
-- (candidate) `SearchPageClient` — debounced `q` URL writer reinjects stale `runId` after operator clears review scope — locus: `searchReviewEvidenceQueryHrefFromSearch` + `scopedRunId` reader; input: clear `runId` param while debounced query sync pending.
-- (candidate) `useFirstPilotIntakeWizard` — operator scope switch does not invalidate `useRunSummaryQuery` prior-run title prefill — locus: `ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT` only refreshes write destination; input: revised-clone title inherited from prior tenant's run summary after scope change.
-- (candidate) `RunDetailFindingsWorkspace` — classification band URL survives when band chip filters list to zero rows without clearing `findingsClassificationBand` — locus: band filter vs URL sync; input: deep-link `decision-grade` when only checklist findings exist.
-- (candidate) `useDecisionRegisterPage` — debounced confidence min/max URL writer races client navigation removing `minConfidence` — locus: 250ms `router.replace` effect; input: clear confidence filter via back navigation within debounce window.
+- [x] (proven) `policyPackSelectionHrefFromSearch` — version diff params survived pack switch — **hit 2026-10-21 thorough hunt lane B:** see head block above.
+- [x] (valid-no-repro) `SearchPageClient` — debounced `q` reinjects stale `runId` — **cheap-disproof 2026-10-21 thorough hunt lane B:** see head block above.
+- [x] (valid-no-repro) `useFirstPilotIntakeWizard` — scope switch stale prior-run title — **cheap-disproof 2026-10-21 thorough hunt lane B:** see head block above.
+- [x] (valid-no-repro) `RunDetailFindingsWorkspace` — classification band URL when zero rows — **cheap-disproof 2026-10-21 thorough hunt lane B:** see head block above.
+- [x] (valid-no-repro) `useDecisionRegisterPage` — confidence debounce vs back navigation — **cheap-disproof 2026-10-21 thorough hunt lane B:** see head block above.
 
 2026-10-21 seed hunt (seed→hit, lane C): `application-governance-policy` — lock `application-governance-policy` pushed and verified on `origin/bugsmash` before work (skipped picker top `core-configuration-summary` already hit today; avoided lane B `api-null-collection-properties`); promoted hunt-ready `GovernanceDigestDecisionNeededComposer.BuildDecisionNeededMarkdownAsync` FYI remediated counter — raw 30-day trail counted every `Remediated` event, so a finding reopened to `NeedsEvidence` still inflated FYI copy; latest-per-finding via `CrossReviewLatestDispositionMap.SelectLatestEvents`; regression `BuildDecisionNeededMarkdownAsync_fyi_remediated_count_ignores_superseded_remediated_events`; scoped `FullyQualifiedName~GovernanceDigestDecisionNeededComposerTests` 5/5 (`RunAnalyzers=false`).
 
@@ -43755,11 +43769,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 31
+- **hunts:** 32
 - **last-hunt:** 2026-10-21
-- **bugs-found:** 26
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-21 — search review evidence auto-search skipped when `runId` changed but `q` unchanged
+- **last-bug:** 2026-10-21 — policy pack selection URL kept stale version-diff params when switching `packId`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
