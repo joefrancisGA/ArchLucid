@@ -5883,3 +5883,4 @@
 {"at":"2026-10-21T08:07:37.6174052Z","zoneId":"ui-review-intake-wizards","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/new/"]}
 {"at":"2026-10-21T08:10:20.4196296Z","zoneId":"identity-provider-config","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-21T08:33:10.3530405Z","zoneId":"identity-provider-config","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T08:47:51.9215571Z","zoneId":"identity-provider-config","outcome":"seed-only","productLine":"archlucid-shared"}

@@ -14798,6 +14798,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 
 2026-10-21 seed hunt (seed->hit): IdentityProviderActivationService.ActivateAsync validated KeyVaultSecretName length before protocol-specific field stripping, so SAML activation rejected stale OIDC wizard payloads longer than NVARCHAR(256) even though the secret name is discarded; validate length only after normalize when target protocol is OIDC; regression ActivateAsync_ignores_stale_oidc_key_vault_secret_name_longer_than_column_on_saml_activation; cheap-disproof closed five short (candidate) rows from #74; 97 scoped activation/controller/matrix tests passed.
+
+2026-10-21 seed hunt (seed-only) #76: re-read activation/controller after #75 KeyVault normalize-order fix; promoted OIDC activate with invalid stale MetadataXml (OpenAPI body) — normalize clears before EnsureValidWhenProvided (no failing repro); no other hunt-ready row; seeded five (candidate) rows; fixed ledger proven-line newline splice; 97 scoped activation/controller/matrix tests passed.
 ## Zone: identity-provider-config
 2026-10-20 seed hunt (seed->hit): promoted GET /v1/admin/identity/configuration returning legacy MetadataXml on OIDC rows (and KeyVaultSecretName on SAML) after activate began stripping cross-protocol fields; PrepareConfigurationResponse omits protocol-inapplicable columns on read; regression GetConfigurationAsync_omits_metadata_xml_when_stored_protocol_is_oidc; 16 scoped IdentityProviderConfigurationControllerTests passed.
 
@@ -14830,13 +14832,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — returns same object reference stored by in-memory repository — **cheap-disproof 2026-10-21 #75** (HTTP activate returns DTO; GET detach already proven).
 - [x] (valid-no-repro) `IdentityProviderConfigurationController.ActivateAsync` — catches only `ArgumentException` — **cheap-disproof 2026-10-21 #75** (activation service maps validation to `ArgumentException`; unexpected faults remain 500).
 - [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — claim mapping serialized before cross-protocol field strip — **cheap-disproof 2026-10-21 #75** (strip applies to metadata/key vault refs, not claim mapping JSON).
-- [x] (proven) `IdentityProviderActivationService.ActivateAsync` — SAML activation rejected stale `KeyVaultSecretName` longer than NVARCHAR(256) before the field was stripped — regression `ActivateAsync_ignores_stale_oidc_key_vault_secret_name_longer_than_column_on_saml_activation`.- **id:** identity-provider-config
+- [x] (proven) `IdentityProviderActivationService.ActivateAsync` — SAML activation rejected stale `KeyVaultSecretName` longer than NVARCHAR(256) before the field was stripped — regression `ActivateAsync_ignores_stale_oidc_key_vault_secret_name_longer_than_column_on_saml_activation`.
+- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — OIDC activate with malformed `MetadataXml` in POST `/v1/admin/identity/activate` body (`metadataXml: "not-xml"`) — locus: `NormalizeResolvedFieldsForProtocol` before `EnsureValidWhenProvided`; wrong outcome: HTTP 400 MetadataXml validation; reachability: OpenAPI optional field on activate (wizard sends null via `use-sso-wizard-page.ts`).
+- [ ] (candidate) `IdentityProviderConfigurationController.WithCanonicalWizardUris` — consecutive failed discover responses share discovery service instance when `DiscoverySucceeded` is false — locus: early `return response`; wrong outcome: mutating first response body affects second; reachability: POST discover wizard retries; note: saturated `[other]` detach class.
+- [ ] (candidate) `IdentityProviderConfigurationController.TestLogin` vs `IdentityProviderActivationService.ActivateAsync` — test-login does not receive `metadataXml`/`keyVaultSecretName` so wizard cannot preview cross-protocol stale-field activate failures — locus: `IdentityProviderTestLoginRequest` shape; wrong outcome: test-login success then activate 400 on stale fields; reachability: SSO wizard `runActivate` sends `metadataXml: null` and trimmed key vault (`use-sso-wizard-page.ts`).
+- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — same-protocol SAML reactivate with omitted `MetadataXml` skips `EnsureValidWhenProvided` when `RequiresSubstantiveSamlMetadataXml` returns true but resolved metadata is substantive from storage — locus: `EnsurePresentWhenRequired` + preserved XML; wrong outcome: invalid XML in DB re-persisted without re-parse; reachability: omitted field on same-protocol activate (regression `ActivateAsync_rejects_saml_reactivate_that_preserves_invalid_metadata_xml_from_storage` may already cover).
+- [ ] (candidate) `IdentityProviderConfigurationController.ActivateAsync` — audit `DataJson` uses `record.Protocol` switch but omits `metadataXml` for SAML forensics — locus: audit anonymous object; wrong outcome: operators cannot correlate SAML activation audit to metadata presence; reachability: intentional summary vs GET configuration (likely valid-no-repro).
+- **id:** identity-provider-config
 - **status:** open
 - **impact:** high
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 75
+- **hunts:** 76
 - **bugs-found:** 54
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
