@@ -62,6 +62,8 @@ partial class AgentLlmSupportCompositionModule
         services.AddScoped<ILlmJudgeBudgetTracker>(static sp => sp.GetRequiredService<LlmJudgeDailyTokenBudgetTracker>());
         services.Configure<LlmMonthlyTenantDollarBudgetOptions>(
             configuration.GetSection(LlmMonthlyTenantDollarBudgetOptions.SectionName));
+        services.AddSingleton<IPostConfigureOptions<LlmMonthlyTenantDollarBudgetOptions>,
+            LlmMonthlyTenantDollarBudgetOptionsNormalizePostConfigure>();
         services.AddScoped<LlmMonthlyTenantDollarBudgetTracker>();
         services.Configure<LlmTelemetryOptions>(configuration.GetSection(LlmTelemetryOptions.SectionName));
         services.Configure<RetrievalTelemetryOptions>(configuration.GetSection(RetrievalTelemetryOptions.SectionName));

@@ -31007,7 +31007,8 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-09-26 seed hunt #31 (seed→hit): reseeded core-azure-extractor after workflow JSON reference hit; proved restore point collection `source.id` JSON reference gap; seeded route table explicit next-hop JSON reference candidate; 1397 scoped `AzureExtractor` tests passed.
 
 ---
-## Zone: core-configuration-summary
+## Zone: core-configuration-summary2026-10-21 seed hunt (seed->hit): promoted LlmMonthlyTenantDollarBudgetOptions.ByPlan whitespace-key parity gap; configuration-bound ByPlan keys with bounding whitespace missed ResolveHardCutoffUsdPerUtcMonth lookups; added LlmMonthlyTenantDollarBudgetOptionsNormalizePostConfigure and host registration; regression ResolveHardCutoffUsdPerUtcMonth_uses_plan_overlay_when_by_plan_key_has_bounding_whitespace; 2 LlmMonthlyTenantDollarBudgetOptionsTests passed (RunAnalyzers=false).
+
 
 2026-10-21 seed hunt (seed→hit): lane B; pipe-delimited `password=` on non-sensitive scalars leaked because pair scan resumed only after `;` or `,`; delimiter set now includes `|`; regression `Resolve_redacts_plain_scalar_connection_string_when_password_uses_pipe_delimiter`; 1093 scoped Configuration tests passed.
 
@@ -31018,11 +31019,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 49
-- **bugs-found:** 32
+- **hunts:** 50
+- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — trim Billing:AzureMarketplace:PlanIdTierMap keys after configuration bind
+- **last-bug:** 2026-10-21 - trim LlmMonthlyTenantDollarBudget ByPlan keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -31031,6 +31032,14 @@ Split from retired `archlucid-core` (ABQ-08).
 Split from retired `archlucid-core` (ABQ-08).
 
 ### Hypotheses
+- [x] (proven) `LlmMonthlyTenantDollarBudgetOptionsNormalizePostConfigure` / `LlmMonthlyTenantDollarBudgetOptions.ByPlan` - configuration-bound ByPlan keys with bounding whitespace never matched trimmed tenant plan ids, so per-plan included/hard-cutoff USD overlays were skipped - **hit 2026-10-21 seed hunt (seed->hit):** post-configure trim on ByPlan keys; regression `ResolveHardCutoffUsdPerUtcMonth_uses_plan_overlay_when_by_plan_key_has_bounding_whitespace`. [class:other]
+
+- (candidate) `AzureMarketplaceBillingOptions.ValidAudiences` - null elements in bound ValidAudiences array may break marketplace webhook JWT validation - locus: validator/JWT handler; input: Billing:AzureMarketplace:ValidAudiences:1 null from appsettings.
+- (candidate) `StripeBillingOptions` - bounding whitespace on PriceIdTeam breaks Stripe price resolution - locus: checkout price lookup; input: Billing:Stripe:PriceIdTeam with surrounding spaces from configuration.
+- (candidate) `FallbackLlmConfigurationResolver` - endpoint rows whose deployment names differ only by surrounding spaces may collapse unpredictably - locus: resolver row selection; input: duplicate trim-colliding DeploymentName values in FallbackLlm:Endpoints.
+- (candidate) `EmailOtpAuthOptionsValidator` vs QuickScanSafetyProductionLikeHostClassification - production-like scope may disagree when ASP.NET environment is Development but ARCHLUCID_ENVIRONMENT=Staging - locus: host classification; input: staging slot profile.
+- (candidate) `ConfluencePublishingSpaceKeyResolver` - ProjectSpaceKeys values with bounding whitespace may bypass intended space mapping - locus: NormalizeSpaceKey; input: Integrations:ConfluencePublishing:ProjectSpaceKeys entry with surrounding spaces.
+
 - [x] (proven) `BillingOptionsNormalizePostConfigure` / `AzureMarketplaceBillingOptions.PlanIdTierMap` — configuration-bound map keys with bounding whitespace never matched trimmed marketplace `planId` values, so Enterprise plans defaulted to Standard — **hit 2026-10-21 seed hunt (seed→hit):** post-configure trim on keys and tier values; regressions `PostConfigure_trims_plan_id_tier_map_keys_from_configuration_binding` and `ResolveTierStorageCode_maps_enterprise_when_plan_id_tier_map_key_has_bounding_whitespace`. [class:other]
 
 - [x] (proven) `ConfigurationSensitiveConfigValueScanner.ContainsCredentialConnectionPair` — Azure Cache for Redis comma-delimited `password=` on non-sensitive effective values leaked because pair scan resumed only after `;` — **hit 2026-10-13 thorough hunt:** advance pair boundaries on `,` as well as `;`; regression `Resolve_redacts_plain_scalar_redis_comma_delimited_connection_string`.
@@ -31340,7 +31349,7 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-21 — NFC vs NFD framing answer values split review-cache `ContentHash`
+- **last-bug:** 2026-10-21 - trim LlmMonthlyTenantDollarBudget ByPlan keys after configuration bind
 
 - **id:** core-requests-constraints
 - **split-from:** archlucid-core
@@ -31502,7 +31511,7 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — negative lease recognition horizon pushed SQL stale cutoff into the future
+- **last-bug:** 2026-10-21 - trim LlmMonthlyTenantDollarBudget ByPlan keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -34004,7 +34013,7 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **bugs-found:** 49
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - whitespace-only evidence ref `text` hid readable `id` when `text` key present
+- **last-bug:** 2026-10-21 - trim LlmMonthlyTenantDollarBudget ByPlan keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -34338,7 +34347,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **bugs-found:** 121
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — Specialist review finding JSON null rationale
+- **last-bug:** 2026-10-21 - trim LlmMonthlyTenantDollarBudget ByPlan keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -34409,7 +34418,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **test-filter:** FullyQualifiedName~Contracts
 - **hunts:** 142
 - **bugs-found:** 122- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21- **last-bug:** 2026-10-21 — Specialist review finding JSON null rationale
+- **last-hunt:** 2026-10-21- **last-bug:** 2026-10-21 - trim LlmMonthlyTenantDollarBudget ByPlan keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -38072,7 +38081,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **hunts:** 56
 - **bugs-found:** 47
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — in-memory graph snapshot capacity eviction dropped newer CreatedUtc
+- **last-bug:** 2026-10-21 - trim LlmMonthlyTenantDollarBudget ByPlan keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -40213,7 +40222,7 @@ heap-disproved mermaid typed-topology candidate.
 - **last-hunt:** 2026-10-21
 - **bugs-found:** 526
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-21 — recurrence schedule create sealed guard blocked missing runs with HTTP 409
+- **last-bug:** 2026-10-21 - trim LlmMonthlyTenantDollarBudget ByPlan keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -41837,8 +41846,8 @@ heap-disproved mermaid typed-topology candidate.
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — publish/assign forwarded padded semver after FluentValidation trim
-- **last-bug:** 2026-10-21 — validate-trim/forward-raw semver class closed via PolicyPackSemVerVersion
+- **last-bug:** 2026-10-21 - trim LlmMonthlyTenantDollarBudget ByPlan keys after configuration bind
+- **last-bug:** 2026-10-21 - trim LlmMonthlyTenantDollarBudget ByPlan keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -41999,7 +42008,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — decisions-needed summary returned waiver totals without sealing active exception runs
+- **last-bug:** 2026-10-21 - trim LlmMonthlyTenantDollarBudget ByPlan keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -42346,7 +42355,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **bugs-found:** 41
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — curated evidence prompt AgentType from finding SourceAgent
+- **last-bug:** 2026-10-21 - trim LlmMonthlyTenantDollarBudget ByPlan keys after configuration bind
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
 
@@ -42683,7 +42692,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **bugs-found:** 105
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-21 — NFC vs NFD framing answer values split review-cache `ContentHash`
+- **last-bug:** 2026-10-21 - trim LlmMonthlyTenantDollarBudget ByPlan keys after configuration bind
 
 2026-10-13 seed hunt (seed→hit): reseeded catalog migration after offboard-before-insert fix; proved `CompleteAsync` closed migration when tenant entered erasure quarantine after verification; re-read before `CompleteAsync`; regression `CompleteAsync_returns_in_erasure_quarantine_when_offboarded_before_complete`; 170 scoped tenancy tests passed.
 
@@ -44095,7 +44104,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — selective execute skipped ReadyForCommit demotion when eligibility snapshot was stale
+- **last-bug:** 2026-10-21 - trim LlmMonthlyTenantDollarBudget ByPlan keys after configuration bind
 - **code-changed-since:** no
 - **related-pd-tb:** none
 
@@ -44413,7 +44422,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — NFC vs NFD framing answer values split review-cache `ContentHash`
+- **last-bug:** 2026-10-21 - trim LlmMonthlyTenantDollarBudget ByPlan keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -44932,7 +44941,7 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **bugs-found:** 63
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - RunDetailFindingsWorkspace classification band href soft-nav sync
+- **last-bug:** 2026-10-21 - trim LlmMonthlyTenantDollarBudget ByPlan keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -44956,7 +44965,7 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **bugs-found:** 60
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - RunDetailWorkspaceHeader record metadata href soft-nav sync
+- **last-bug:** 2026-10-21 - trim LlmMonthlyTenantDollarBudget ByPlan keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -45661,7 +45670,7 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **bugs-found:** 38
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — operational queue policyRuleId whitespace guard
+- **last-bug:** 2026-10-21 - trim LlmMonthlyTenantDollarBudget ByPlan keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -46539,7 +46548,7 @@ ABQ-09 churn hotspot.
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — reopen left stale disposition reason on Open listed questions
+- **last-bug:** 2026-10-21 - trim LlmMonthlyTenantDollarBudget ByPlan keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -46681,7 +46690,7 @@ ABQ-09 churn hotspot.
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — diagrams workbench mode preview ignored display flags
+- **last-bug:** 2026-10-21 - trim LlmMonthlyTenantDollarBudget ByPlan keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -46850,7 +46859,7 @@ ABQ-09 churn hotspot.
 - **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — central guard for null collection elements in FromBody models
+- **last-bug:** 2026-10-21 - trim LlmMonthlyTenantDollarBudget ByPlan keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
