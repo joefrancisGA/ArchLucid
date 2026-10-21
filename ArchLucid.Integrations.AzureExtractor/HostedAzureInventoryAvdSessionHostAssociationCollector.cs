@@ -13,7 +13,7 @@ public static class HostedAzureInventoryAvdSessionHostAssociationCollector
 {
     private const string SessionHostsApiVersion = "2024-04-03";
 
-    public static async Task<IReadOnlyList<HostedAzureArmNetworkAssociationRecord>> CollectAsync(
+    public static async Task<HostedAzureInventoryAvdSessionHostAssociationCollectResult> CollectAsync(
         GetOnlyHostedAzureArmReadClient armReadClient,
         string accessToken,
         IReadOnlyList<HostedAzureArmResourceRecord> resources,
@@ -26,6 +26,7 @@ public static class HostedAzureInventoryAvdSessionHostAssociationCollector
         ArgumentNullException.ThrowIfNull(logger);
 
         List<HostedAzureArmNetworkAssociationRecord> rows = [];
+        List<string> collectionWarnings = [];
         HashSet<string> seenKeys = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (HostedAzureArmResourceRecord resource in resources)
@@ -53,8 +54,8 @@ public static class HostedAzureInventoryAvdSessionHostAssociationCollector
                     listResult,
                     resource.ResourceId.Trim(),
                     "AVD session host",
-                    null,
-                    null);
+                    collectionWarnings,
+                    AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
 
                 foreach (JsonElement sessionHost in listResult.Values)
                 {
@@ -81,7 +82,11 @@ public static class HostedAzureInventoryAvdSessionHostAssociationCollector
             }
         }
 
-        return rows;
+        return new HostedAzureInventoryAvdSessionHostAssociationCollectResult
+        {
+            Associations = rows,
+            CollectionWarnings = collectionWarnings,
+        };
     }
 
     private static void AddRow(

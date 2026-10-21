@@ -25,7 +25,7 @@ public static class HostedAzureInventoryDiagramEnrichmentCollector
 
         List<string> collectionWarnings = [];
 
-        IReadOnlyList<AzureInventoryEventGridSubscriptionRow> eventGridSubscriptions =
+        HostedAzureInventoryEventGridSubscriptionCollectResult eventGridSubscriptionsResult =
             await HostedAzureInventoryEventGridSubscriptionCollector.CollectAsync(
                 armReadClient,
                 accessToken,
@@ -33,6 +33,8 @@ public static class HostedAzureInventoryDiagramEnrichmentCollector
                 resources,
                 logger,
                 cancellationToken).ConfigureAwait(false);
+
+        collectionWarnings.AddRange(eventGridSubscriptionsResult.CollectionWarnings);
 
         HostedAzureInventoryLogicAppConnectionCollectResult logicAppConnectionsResult =
             await HostedAzureInventoryLogicAppConnectionCollector.CollectAsync(
@@ -42,13 +44,15 @@ public static class HostedAzureInventoryDiagramEnrichmentCollector
                 logger,
                 cancellationToken).ConfigureAwait(false);
 
-        IReadOnlyList<AzureInventoryMessagingAssociationRow> messagingAssociations =
+        HostedAzureInventoryMessagingAssociationCollectResult messagingAssociationsResult =
             await HostedAzureInventoryMessagingAssociationCollector.CollectAsync(
                 armReadClient,
                 accessToken,
                 resources,
                 logger,
                 cancellationToken).ConfigureAwait(false);
+
+        collectionWarnings.AddRange(messagingAssociationsResult.CollectionWarnings);
 
         HostedAzureInventoryPaasChildCollectResult paasChildResult =
             await HostedAzureInventoryPaasChildCollector.CollectAsync(
@@ -60,13 +64,15 @@ public static class HostedAzureInventoryDiagramEnrichmentCollector
 
         collectionWarnings.AddRange(paasChildResult.CollectionWarnings);
 
-        IReadOnlyList<AzureInventoryServiceConnectorLinkRow> serviceConnectorLinks =
+        HostedAzureInventoryServiceConnectorCollectResult serviceConnectorLinksResult =
             await HostedAzureInventoryServiceConnectorCollector.CollectAsync(
                 armReadClient,
                 accessToken,
                 resources,
                 logger,
                 cancellationToken).ConfigureAwait(false);
+
+        collectionWarnings.AddRange(serviceConnectorLinksResult.CollectionWarnings);
 
         HostedAzureInventoryAppSettingHostCollectResult containerAppAppSettingHostResult =
             await HostedAzureInventoryAppSettingHostCollector.CollectAsync(
@@ -99,11 +105,11 @@ public static class HostedAzureInventoryDiagramEnrichmentCollector
 
         return new HostedAzureDiagramEnrichmentCollectResult
         {
-            EventGridSubscriptions = eventGridSubscriptions,
+            EventGridSubscriptions = eventGridSubscriptionsResult.Subscriptions,
             LogicAppConnections = logicAppConnectionsResult.Connections,
-            MessagingAssociations = messagingAssociations,
+            MessagingAssociations = messagingAssociationsResult.Associations,
             PaasChildAssociations = paasChildResult.Associations,
-            ServiceConnectorLinks = serviceConnectorLinks,
+            ServiceConnectorLinks = serviceConnectorLinksResult.Links,
             AppSettingHosts = appSettingHosts,
             CollectionWarnings = collectionWarnings,
         };
