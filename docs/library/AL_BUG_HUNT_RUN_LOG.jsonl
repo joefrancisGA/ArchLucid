@@ -5807,3 +5807,4 @@
 {"at":"2026-10-21T04:03:17.9673857Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/hooks/use-review-findings-last-visit.ts"]}
 {"at":"2026-10-21T04:08:12.5505142Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/hooks/use-review-findings-last-visit.ts"]}
 {"at":"2026-10-21T04:09:49.812858Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/reviews/ReviewDetailSiblingInFlightQueue.tsx","archlucid-ui/src/lib/operations/map-in-flight-desk-rows.ts"]}
+{"at":"2026-10-21T04:10:12.2319273Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/reviews/,archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/"]}
