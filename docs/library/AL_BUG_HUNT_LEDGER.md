@@ -1,4 +1,5 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
+2026-10-21 seed hunt (seed→hit, lane C): `finding-disposition` — lock `finding-disposition` pushed and verified on `origin/bugsmash` before work; skipped `ui-*` and zones hunted in the last hour; selected least-recent unlocked non-UI zone (`2026-10-21T04:41:58Z`); cheap-disproof closed stale email/impact-preview/concurrent-trail candidates; promoted `FindingDispositionService.ListHistoryAsync` using ordinal `ListByFindingAsync` so disposition history was empty when the query finding id differed only by casing from the stored trail row (reachable via ITSM inbound sync and other direct `IFindingDispositionService` callers); route history through case-insensitive `ListForFindingIdsSinceUtcAsync`; regression `ListHistoryAsync_returns_history_when_finding_id_differs_only_by_casing`; `dotnet build` ArchLucid.Application + ArchLucid.Application.Tests; scoped `FindingDisposition` filter 65/65; lock released after push.
 
 2026-10-21 thorough hunt (hit, lane C): `extraction-router` — lock `extraction-router` pushed and verified on `origin/bugsmash` before work; skipped `ui-*` and zones hunted in the last hour; selected least-recent unlocked non-UI zone (`2026-10-21T04:23:59Z`); cheap-disproof closed stale email-domain `@` candidate (proven 2026-10-20); promoted `FindBoundedOwnershipMarkerIndex` — architecture prose with XML-like `<owner>security</owner>` element tags treated `owner` as a bounded ownership token alongside separate `unowned` mention, emitting false operational-ownership gap; treat angle brackets like other label/code delimiters; matrix case `xml-owner-element`; `dotnet build` ArchLucid.Application + ArchLucid.Application.Tests; scoped `DifficultyBasedExtractionRouter` filter 78/78; lock released after push.
 
@@ -9824,7 +9825,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
 - **hunts:** 73
 - **bugs-found:** 12
-- **consecutive-dry-hunts:** 6
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-04 — semantic support judge persisted before commit-blocking gates
 - **related-pd-tb:** TB-2226
@@ -13210,15 +13211,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: finding-disposition
 
+2026-10-21 seed hunt (seed→hit, lane C): `ListHistoryAsync` returned empty history when finding id casing differed from stored trail rows; case-insensitive lookup via `ListForFindingIdsSinceUtcAsync`; regression `ListHistoryAsync_returns_history_when_finding_id_differs_only_by_casing`; FindingDisposition filter 65/65.
+
 2026-09-12 seed hunt #2014 (seed-only): reseeded finding-disposition; no new hunt-ready rows.
 
 
-- [ ] (candidate) `FindingDispositionService.RecordAsync` — sequential case-only finding id variants (`Finding-A` then `finding-a`) are not deduped like bulk batches (`HashSet` OrdinalIgnoreCase only in `RecordBulkAsync`) — locus: `RecordAsync` vs bulk guard; input: direct `IFindingDispositionService` caller; wrong outcome: two disposition pointer chains for one inspect finding when persistence collation is case-sensitive; reachability: HTTP/facade path normalizes via inspect (#819); repro requires non-facade caller or CS collation store.
-- [ ] (candidate) `FindingDispositionValidation.ValidateWorkingRemediatedImpactPreviewAttestation` — honors client `ImpactPreviewCompleted=true` without server-side preview completion artifact — locus: lines 194-197; input: Working desk remediated POST with boolean only; wrong outcome: LP-14 preview gate bypass for API clients; reachability: OpenAPI `RecordFindingDispositionRequest.impactPreviewCompleted` mapped through stickiness facade; mechanism: attestation is request-field honesty unless override path used.
-- [ ] (candidate) `ConcurrentFindingReviewTrailRepository.ListByFindingAsync` — Ordinal finding id equality diverges from SQL Server CI `FindingId` lookups — locus: test double line 30; input: disposition recorded as `Finding-A`, history query `finding-a`; wrong outcome: empty in-memory history while production SQL returns rows; reachability: unit tests and local demos using concurrent trail double.
+- [x] (valid-no-repro) `FindingDispositionService.RecordAsync` — sequential case-only finding id variants (`Finding-A` then `finding-a`) are not deduped like bulk batches (`HashSet` OrdinalIgnoreCase only in `RecordBulkAsync`) — locus: `RecordAsync` vs bulk guard; input: direct `IFindingDispositionService` caller; wrong outcome: two disposition pointer chains for one inspect finding when persistence collation is case-sensitive; reachability: HTTP/facade path normalizes via inspect (#819); repro requires non-facade caller or CS collation store.
+- [x] (valid-no-repro) `FindingDispositionValidation.ValidateWorkingRemediatedImpactPreviewAttestation` — honors client `ImpactPreviewCompleted=true` without server-side preview completion artifact — locus: lines 194-197; input: Working desk remediated POST with boolean only; wrong outcome: LP-14 preview gate bypass for API clients; reachability: OpenAPI `RecordFindingDispositionRequest.impactPreviewCompleted` mapped through stickiness facade; mechanism: attestation is request-field honesty unless override path used.
+- [x] (invalid) `ConcurrentFindingReviewTrailRepository.ListByFindingAsync` — Ordinal finding id equality diverges from SQL Server CI `FindingId` lookups — locus: test double line 30; input: disposition recorded as `Finding-A`, history query `finding-a`; wrong outcome: empty in-memory history while production SQL returns rows; reachability: unit tests and local demos using concurrent trail double.
 
 ### Hypotheses
 
+- [x] (proven) `FindingDispositionService.ListHistoryAsync` — trail lookup used `ListByFindingAsync` with ordinal finding-id equality, so history was empty when the query id differed only by casing from stored disposition events (reachable from direct service callers such as ITSM inbound sync); fixed by loading history through `ListForFindingIdsSinceUtcAsync` with case-insensitive id matching; regression `ListHistoryAsync_returns_history_when_finding_id_differs_only_by_casing`.
 - [x] (invalid) Disposition writes succeed for a finding that belongs to another tenant — trail append uses `scope.TenantId`; no cross-tenant leak path in zone files.
 - [x] (valid-no-repro) Validation accepts a closed finding as still actionable — disposition is append-only by design (`FINDING_CONCURRENT_DISPOSITION_CONFLICT_CONTRACT.md`); no finding-state gate in validation.
 - [x] (invalid) Required rationale is skipped when the disposition kind is reject — `RejectedAsNotApplicable` requires rationale in `FindingDispositionValidation.Validate`.
@@ -13238,8 +13242,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 46
-- **bugs-found:** 15
+- **hunts:** 47
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-12 — bulk disposition duplicate guard used Ordinal so case-variant finding ids double-appended via direct service callers

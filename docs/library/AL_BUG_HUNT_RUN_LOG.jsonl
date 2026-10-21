@@ -6012,3 +6012,4 @@
 {"at":"2026-10-21T18:59:14.8449426Z","zoneId":"api-policy-packs","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T19:08:28.0346681Z","zoneId":"securenow-question-queue","outcome":"hit","productLine":"securenow","paths":["ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/"]}
 {"at":"2026-10-21T19:13:12.6153918Z","zoneId":"extraction-router","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.MarkerBoundaries.cs"]}
+{"at":"2026-10-21T19:19:51.1644482Z","zoneId":"finding-disposition","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Governance/FindingDisposition/"]}
