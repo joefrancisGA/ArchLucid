@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const HELP_DECISION_REGISTER_SOURCES_OPEN_PARAM = "helpDecisionRegisterSourcesOpen";
 
 export function parseHelpDecisionRegisterSourcesOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function helpDecisionRegisterSourcesDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(HELP_DECISION_REGISTER_SOURCES_OPEN_PARAM);
-  } else {
-    params.set(HELP_DECISION_REGISTER_SOURCES_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, HELP_DECISION_REGISTER_SOURCES_OPEN_PARAM);
 }

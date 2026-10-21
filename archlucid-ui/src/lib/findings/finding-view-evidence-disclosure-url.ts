@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const FINDING_VIEW_EVIDENCE_OPEN_PARAM = "findingViewEvidenceOpen";
 
 export function parseFindingViewEvidenceOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function findingViewEvidenceDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(FINDING_VIEW_EVIDENCE_OPEN_PARAM);
-  } else {
-    params.set(FINDING_VIEW_EVIDENCE_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, FINDING_VIEW_EVIDENCE_OPEN_PARAM);
 }

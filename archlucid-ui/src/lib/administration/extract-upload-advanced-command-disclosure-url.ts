@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const EXTRACT_UPLOAD_ADVANCED_COMMAND_OPEN_PARAM = "extractUploadAdvancedCommandOpen";
 
 export function parseExtractUploadAdvancedCommandOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function extractUploadAdvancedCommandDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(EXTRACT_UPLOAD_ADVANCED_COMMAND_OPEN_PARAM);
-  } else {
-    params.set(EXTRACT_UPLOAD_ADVANCED_COMMAND_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, EXTRACT_UPLOAD_ADVANCED_COMMAND_OPEN_PARAM);
 }

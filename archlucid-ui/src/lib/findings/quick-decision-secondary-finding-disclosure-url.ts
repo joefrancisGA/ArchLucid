@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const QUICK_DECISION_SECONDARY_FINDING_FINDING_ID_PARAM = "quickDecisionSecondaryFindingFindingId";
 
 export function parseQuickDecisionSecondaryFindingFindingIdFromSearch(raw: string | null | undefined): string {
@@ -13,16 +14,16 @@ export function quickDecisionSecondaryFindingDisclosureHrefFromSearch(
   findingId: string | null,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = (findingId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = (findingId ?? "").trim();
 
-  if (trimmed.length === 0) {
-    params.delete(QUICK_DECISION_SECONDARY_FINDING_FINDING_ID_PARAM);
-  } else {
-    params.set(QUICK_DECISION_SECONDARY_FINDING_FINDING_ID_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(QUICK_DECISION_SECONDARY_FINDING_FINDING_ID_PARAM);
+    } else {
+      params.set(QUICK_DECISION_SECONDARY_FINDING_FINDING_ID_PARAM, trimmed);
+    }
+    },
+  });
 }

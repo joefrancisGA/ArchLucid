@@ -1,5 +1,6 @@
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 import {
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
   DEFAULT_IMPACT_PREVIEW_COMPARISON_SCOPE,
   type ImpactPreviewComparisonScope,
 } from "@/lib/impact-preview-page-types";
@@ -66,17 +67,17 @@ export function impactPreviewComparisonScopeHrefFromSearch(
   scope: ImpactPreviewComparisonScope,
   pathname: string = IMPACT_PREVIEW_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (scopeKeysEqual(scope, DEFAULT_IMPACT_PREVIEW_COMPARISON_SCOPE)) {
-    params.delete(IMPACT_PREVIEW_COMPARISON_SCOPE_PARAM);
-  } else {
-    params.set(IMPACT_PREVIEW_COMPARISON_SCOPE_PARAM, enabledScopeKeys(scope).join(","));
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (scopeKeysEqual(scope, DEFAULT_IMPACT_PREVIEW_COMPARISON_SCOPE)) {
+      params.delete(IMPACT_PREVIEW_COMPARISON_SCOPE_PARAM);
+    } else {
+      params.set(IMPACT_PREVIEW_COMPARISON_SCOPE_PARAM, enabledScopeKeys(scope).join(","));
+    }
+    },
+  });
 }
 
 export function impactPreviewComparisonScopeToggleHrefFromSearch(

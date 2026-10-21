@@ -1,3 +1,4 @@
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 export const PROV_GRAPH_LEGEND_OPEN_PARAM = "provGraphLegendOpen";
 export const PROV_GRAPH_EXPANDED_PARAM = "provGraphExpanded";
 
@@ -35,6 +36,7 @@ export function provenanceGraphViewportHrefFromSearch(
   pathname: string,
 ): string {
   const params = new URLSearchParams(currentSearch);
+  applyOperatorUrlSelectionSwitch(params, { kind: "disclosure-only" });
 
   if (options.syncLegend) {
     if (options.legendOpen) {

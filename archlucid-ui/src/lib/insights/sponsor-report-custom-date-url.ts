@@ -1,4 +1,5 @@
 import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const SPONSOR_REPORT_FROM_PARAM = "from";
 export const SPONSOR_REPORT_TO_PARAM = "to";
@@ -25,23 +26,23 @@ export function sponsorReportCustomDateHrefFromSearch(
   toUtc: string,
   pathname: string = SPONSOR_REPORT_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const from = parseSponsorReportCustomDateFromSearch(fromUtc);
-  const to = parseSponsorReportCustomDateFromSearch(toUtc);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const from = parseSponsorReportCustomDateFromSearch(fromUtc);
+    const to = parseSponsorReportCustomDateFromSearch(toUtc);
 
-  if (from.length === 0) {
-    params.delete(SPONSOR_REPORT_FROM_PARAM);
-  } else {
-    params.set(SPONSOR_REPORT_FROM_PARAM, from);
-  }
+    if (from.length === 0) {
+      params.delete(SPONSOR_REPORT_FROM_PARAM);
+    } else {
+      params.set(SPONSOR_REPORT_FROM_PARAM, from);
+    }
 
-  if (to.length === 0) {
-    params.delete(SPONSOR_REPORT_TO_PARAM);
-  } else {
-    params.set(SPONSOR_REPORT_TO_PARAM, to);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (to.length === 0) {
+      params.delete(SPONSOR_REPORT_TO_PARAM);
+    } else {
+      params.set(SPONSOR_REPORT_TO_PARAM, to);
+    }
+    },
+  });
 }

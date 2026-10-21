@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const REVIEW_FINDINGS_OWNER_FILTER_PARAM = "owner";
 export const REVIEW_FINDINGS_DOMAIN_FILTER_PARAM = "domain";
 
@@ -22,18 +23,18 @@ export function reviewFindingsOwnerFilterHrefFromSearch(
   pathname: string,
   owner: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = owner.trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = owner.trim();
 
-  if (trimmed.length === 0) {
-    params.delete(REVIEW_FINDINGS_OWNER_FILTER_PARAM);
-  } else {
-    params.set(REVIEW_FINDINGS_OWNER_FILTER_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(REVIEW_FINDINGS_OWNER_FILTER_PARAM);
+    } else {
+      params.set(REVIEW_FINDINGS_OWNER_FILTER_PARAM, trimmed);
+    }
+    },
+  });
 }
 
 export function reviewFindingsDomainFilterHrefFromSearch(
@@ -41,18 +42,18 @@ export function reviewFindingsDomainFilterHrefFromSearch(
   pathname: string,
   domain: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = domain.trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = domain.trim();
 
-  if (trimmed.length === 0) {
-    params.delete(REVIEW_FINDINGS_DOMAIN_FILTER_PARAM);
-  } else {
-    params.set(REVIEW_FINDINGS_DOMAIN_FILTER_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(REVIEW_FINDINGS_DOMAIN_FILTER_PARAM);
+    } else {
+      params.set(REVIEW_FINDINGS_DOMAIN_FILTER_PARAM, trimmed);
+    }
+    },
+  });
 }
 
 export function reviewFindingsToolbarClearOwnerHrefFromSearch(

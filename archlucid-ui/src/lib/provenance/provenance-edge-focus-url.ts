@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const PROVENANCE_EDGE_FOCUS_PARAM = "provEdgeId";
 export const PROVENANCE_EDGES_EXPANDED_PARAM = "edgesExpanded";
 
@@ -29,22 +30,22 @@ export function provenanceEdgeFocusHrefFromSearch(
   state: ProvenanceEdgeFocusUrlState,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const edgeId = (state.edgeId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const edgeId = (state.edgeId ?? "").trim();
 
-  if (edgeId.length === 0) {
-    params.delete(PROVENANCE_EDGE_FOCUS_PARAM);
-  } else {
-    params.set(PROVENANCE_EDGE_FOCUS_PARAM, edgeId);
-  }
+    if (edgeId.length === 0) {
+      params.delete(PROVENANCE_EDGE_FOCUS_PARAM);
+    } else {
+      params.set(PROVENANCE_EDGE_FOCUS_PARAM, edgeId);
+    }
 
-  if (!state.edgesExpanded) {
-    params.delete(PROVENANCE_EDGES_EXPANDED_PARAM);
-  } else {
-    params.set(PROVENANCE_EDGES_EXPANDED_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!state.edgesExpanded) {
+      params.delete(PROVENANCE_EDGES_EXPANDED_PARAM);
+    } else {
+      params.set(PROVENANCE_EDGES_EXPANDED_PARAM, "1");
+    }
+    },
+  });
 }

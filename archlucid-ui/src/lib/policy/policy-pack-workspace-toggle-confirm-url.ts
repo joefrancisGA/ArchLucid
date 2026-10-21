@@ -1,4 +1,5 @@
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const POLICY_PACK_TOGGLE_ASSIGNMENT_ID_PARAM = "packToggleAssignmentId";
 export const POLICY_PACK_TOGGLE_NEXT_PARAM = "packToggleNext";
@@ -41,18 +42,18 @@ export function policyPackWorkspaceToggleConfirmHrefFromSearch(
   state: PolicyPackWorkspaceToggleConfirmUrlState,
   pathname: string = GOVERNANCE_POLICY_PACKS_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const assignmentId = (state.assignmentId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const assignmentId = (state.assignmentId ?? "").trim();
 
-  if (assignmentId.length === 0 || state.next === null) {
-    params.delete(POLICY_PACK_TOGGLE_ASSIGNMENT_ID_PARAM);
-    params.delete(POLICY_PACK_TOGGLE_NEXT_PARAM);
-  } else {
-    params.set(POLICY_PACK_TOGGLE_ASSIGNMENT_ID_PARAM, assignmentId);
-    params.set(POLICY_PACK_TOGGLE_NEXT_PARAM, state.next);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (assignmentId.length === 0 || state.next === null) {
+      params.delete(POLICY_PACK_TOGGLE_ASSIGNMENT_ID_PARAM);
+      params.delete(POLICY_PACK_TOGGLE_NEXT_PARAM);
+    } else {
+      params.set(POLICY_PACK_TOGGLE_ASSIGNMENT_ID_PARAM, assignmentId);
+      params.set(POLICY_PACK_TOGGLE_NEXT_PARAM, state.next);
+    }
+    },
+  });
 }

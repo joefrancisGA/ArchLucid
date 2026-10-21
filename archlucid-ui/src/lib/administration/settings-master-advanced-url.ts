@@ -1,4 +1,5 @@
 import { ADMINISTRATION_SETTINGS_PATH } from "@/lib/administration/settings-master-search-url";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const SETTINGS_MASTER_ADVANCED_OPEN_PARAM = "settingsMasterAdvancedOpen";
 
@@ -17,15 +18,15 @@ export function settingsMasterAdvancedHrefFromSearch(
   open: boolean,
   pathname: string = ADMINISTRATION_SETTINGS_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!open) {
-    params.delete(SETTINGS_MASTER_ADVANCED_OPEN_PARAM);
-  } else {
-    params.set(SETTINGS_MASTER_ADVANCED_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!open) {
+      params.delete(SETTINGS_MASTER_ADVANCED_OPEN_PARAM);
+    } else {
+      params.set(SETTINGS_MASTER_ADVANCED_OPEN_PARAM, "1");
+    }
+    },
+  });
 }

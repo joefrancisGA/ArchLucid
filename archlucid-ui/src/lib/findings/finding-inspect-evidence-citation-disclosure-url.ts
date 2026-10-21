@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const FINDING_INSPECT_EVIDENCE_CITATION_ARTIFACT_ID_PARAM = "findingInspectEvidenceCitationArtifactId";
 
 export function parseFindingInspectEvidenceCitationArtifactIdFromSearch(raw: string | null | undefined): string {
@@ -13,16 +14,16 @@ export function findingInspectEvidenceCitationDisclosureHrefFromSearch(
   artifactId: string | null,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = (artifactId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = (artifactId ?? "").trim();
 
-  if (trimmed.length === 0) {
-    params.delete(FINDING_INSPECT_EVIDENCE_CITATION_ARTIFACT_ID_PARAM);
-  } else {
-    params.set(FINDING_INSPECT_EVIDENCE_CITATION_ARTIFACT_ID_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(FINDING_INSPECT_EVIDENCE_CITATION_ARTIFACT_ID_PARAM);
+    } else {
+      params.set(FINDING_INSPECT_EVIDENCE_CITATION_ARTIFACT_ID_PARAM, trimmed);
+    }
+    },
+  });
 }

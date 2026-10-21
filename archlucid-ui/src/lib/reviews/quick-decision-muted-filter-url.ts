@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const QUICK_DECISION_SHOW_MUTED_PARAM = "showMuted";
 
 export function parseQuickDecisionShowMutedFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function quickDecisionMutedFilterHrefFromSearch(
   showMuted: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!showMuted) {
-    params.delete(QUICK_DECISION_SHOW_MUTED_PARAM);
-  } else {
-    params.set(QUICK_DECISION_SHOW_MUTED_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, showMuted, pathname, QUICK_DECISION_SHOW_MUTED_PARAM);
 }

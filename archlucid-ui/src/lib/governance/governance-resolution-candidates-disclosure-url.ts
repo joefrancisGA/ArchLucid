@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const GOVERNANCE_RESOLUTION_CANDIDATES_ITEM_KEY_PARAM = "governanceResolutionCandidatesItemKey";
 
 export function parseGovernanceResolutionCandidatesItemKeyFromSearch(raw: string | null | undefined): string {
@@ -13,16 +14,16 @@ export function governanceResolutionCandidatesDisclosureHrefFromSearch(
   itemKey: string | null,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = (itemKey ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = (itemKey ?? "").trim();
 
-  if (trimmed.length === 0) {
-    params.delete(GOVERNANCE_RESOLUTION_CANDIDATES_ITEM_KEY_PARAM);
-  } else {
-    params.set(GOVERNANCE_RESOLUTION_CANDIDATES_ITEM_KEY_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(GOVERNANCE_RESOLUTION_CANDIDATES_ITEM_KEY_PARAM);
+    } else {
+      params.set(GOVERNANCE_RESOLUTION_CANDIDATES_ITEM_KEY_PARAM, trimmed);
+    }
+    },
+  });
 }

@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const WORKSPACE_AI_PROBE_DEBUG_METADATA_OPEN_PARAM = "workspaceAiProbeDebugMetadataOpen";
 
 export function parseWorkspaceAiProbeDebugMetadataOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function workspaceAiProbeDebugMetadataDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(WORKSPACE_AI_PROBE_DEBUG_METADATA_OPEN_PARAM);
-  } else {
-    params.set(WORKSPACE_AI_PROBE_DEBUG_METADATA_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, WORKSPACE_AI_PROBE_DEBUG_METADATA_OPEN_PARAM);
 }

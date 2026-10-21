@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const IMPACT_PREVIEW_HOW_IT_WORKS_OPEN_PARAM = "impactPreviewHowItWorksOpen";
 
 export function parseImpactPreviewHowItWorksOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function impactPreviewHowItWorksDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(IMPACT_PREVIEW_HOW_IT_WORKS_OPEN_PARAM);
-  } else {
-    params.set(IMPACT_PREVIEW_HOW_IT_WORKS_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, IMPACT_PREVIEW_HOW_IT_WORKS_OPEN_PARAM);
 }

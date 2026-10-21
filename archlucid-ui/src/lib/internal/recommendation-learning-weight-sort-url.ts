@@ -1,5 +1,6 @@
 import { RECOMMENDATION_LEARNING_CANONICAL_PATH } from "@/types/recommendation-learning-operational";
 import type { RecommendationLearningWeightDelta } from "@/types/recommendation-learning-operational";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const RECOMMENDATION_LEARNING_WEIGHT_SORT_PARAM = "sort";
 export const RECOMMENDATION_LEARNING_WEIGHT_SORT_DIR_PARAM = "dir";
@@ -58,21 +59,21 @@ export function recommendationLearningWeightSortHrefFromSearch(
   sortAsc: boolean,
   pathname: string = RECOMMENDATION_LEARNING_CANONICAL_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (sortKey === DEFAULT_RECOMMENDATION_LEARNING_WEIGHT_SORT_KEY) {
-    params.delete(RECOMMENDATION_LEARNING_WEIGHT_SORT_PARAM);
-  } else {
-    params.set(RECOMMENDATION_LEARNING_WEIGHT_SORT_PARAM, sortKey);
-  }
+    if (sortKey === DEFAULT_RECOMMENDATION_LEARNING_WEIGHT_SORT_KEY) {
+      params.delete(RECOMMENDATION_LEARNING_WEIGHT_SORT_PARAM);
+    } else {
+      params.set(RECOMMENDATION_LEARNING_WEIGHT_SORT_PARAM, sortKey);
+    }
 
-  if (sortAsc === DEFAULT_RECOMMENDATION_LEARNING_WEIGHT_SORT_ASC) {
-    params.delete(RECOMMENDATION_LEARNING_WEIGHT_SORT_DIR_PARAM);
-  } else {
-    params.set(RECOMMENDATION_LEARNING_WEIGHT_SORT_DIR_PARAM, sortAsc ? "asc" : "desc");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (sortAsc === DEFAULT_RECOMMENDATION_LEARNING_WEIGHT_SORT_ASC) {
+      params.delete(RECOMMENDATION_LEARNING_WEIGHT_SORT_DIR_PARAM);
+    } else {
+      params.set(RECOMMENDATION_LEARNING_WEIGHT_SORT_DIR_PARAM, sortAsc ? "asc" : "desc");
+    }
+    },
+  });
 }

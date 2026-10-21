@@ -1,4 +1,5 @@
 import {
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
   architectureNestedFindingsPath,
   resolveArchitectureReviewHref,
   reviewDetailPath,
@@ -27,17 +28,7 @@ export function reviewRoomElicitationHrefFromSearch(
   roomElicitationActive: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!roomElicitationActive) {
-    params.delete(REVIEW_ROOM_ELICITATION_PARAM);
-  } else {
-    params.set(REVIEW_ROOM_ELICITATION_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, roomElicitationActive, pathname, REVIEW_ROOM_ELICITATION_PARAM);
 }
 
 /** Deep link into linked review room elicitation from architecture draft desk (DR-16 / AO-38). */

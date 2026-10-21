@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const POLICY_PACK_GENERIC_TECHNICAL_OPEN_PARAM = "policyPackGenericTechnicalOpen";
 
 export function parsePolicyPackGenericTechnicalOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function policyPackGenericTechnicalDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(POLICY_PACK_GENERIC_TECHNICAL_OPEN_PARAM);
-  } else {
-    params.set(POLICY_PACK_GENERIC_TECHNICAL_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, POLICY_PACK_GENERIC_TECHNICAL_OPEN_PARAM);
 }

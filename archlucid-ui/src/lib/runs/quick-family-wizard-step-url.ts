@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const NEW_RUN_WIZARD_PATH = "/architecture/reviews/new" as const;
 
 export const QUICK_FAMILY_WIZARD_STEP_PARAM = "qsStep";
@@ -31,15 +32,15 @@ export function quickFamilyWizardStepHrefFromSearch(
   stepIndex: number,
   pathname: string = NEW_RUN_WIZARD_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (stepIndex <= 0) {
-    params.delete(QUICK_FAMILY_WIZARD_STEP_PARAM);
-  } else {
-    params.set(QUICK_FAMILY_WIZARD_STEP_PARAM, String(stepIndex));
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (stepIndex <= 0) {
+      params.delete(QUICK_FAMILY_WIZARD_STEP_PARAM);
+    } else {
+      params.set(QUICK_FAMILY_WIZARD_STEP_PARAM, String(stepIndex));
+    }
+    },
+  });
 }

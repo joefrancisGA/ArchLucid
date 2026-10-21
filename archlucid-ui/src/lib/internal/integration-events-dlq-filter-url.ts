@@ -1,4 +1,5 @@
 import { INTERNAL_INTEGRATION_EVENTS_DLQ_PATH } from "@/lib/internal-ops-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const INTEGRATION_EVENTS_DLQ_EVENT_TYPE_PARAM = "eventType";
 export const INTEGRATION_EVENTS_DLQ_TENANT_PARAM = "tenant";
@@ -30,18 +31,18 @@ export function integrationEventsDlqEventTypeHrefFromSearch(
   eventType: string,
   pathname: string = INTERNAL_INTEGRATION_EVENTS_DLQ_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = eventType.trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = eventType.trim();
 
-  if (trimmed.length === 0 || trimmed === "all") {
-    params.delete(INTEGRATION_EVENTS_DLQ_EVENT_TYPE_PARAM);
-  } else {
-    params.set(INTEGRATION_EVENTS_DLQ_EVENT_TYPE_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0 || trimmed === "all") {
+      params.delete(INTEGRATION_EVENTS_DLQ_EVENT_TYPE_PARAM);
+    } else {
+      params.set(INTEGRATION_EVENTS_DLQ_EVENT_TYPE_PARAM, trimmed);
+    }
+    },
+  });
 }
 
 export function integrationEventsDlqTenantHrefFromSearch(
@@ -49,29 +50,29 @@ export function integrationEventsDlqTenantHrefFromSearch(
   tenant: string,
   pathname: string = INTERNAL_INTEGRATION_EVENTS_DLQ_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = tenant.trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = tenant.trim();
 
-  if (trimmed.length === 0) {
-    params.delete(INTEGRATION_EVENTS_DLQ_TENANT_PARAM);
-  } else {
-    params.set(INTEGRATION_EVENTS_DLQ_TENANT_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(INTEGRATION_EVENTS_DLQ_TENANT_PARAM);
+    } else {
+      params.set(INTEGRATION_EVENTS_DLQ_TENANT_PARAM, trimmed);
+    }
+    },
+  });
 }
 
 export function integrationEventsDlqClearFiltersHrefFromSearch(
   currentSearch: string,
   pathname: string = INTERNAL_INTEGRATION_EVENTS_DLQ_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  params.delete(INTEGRATION_EVENTS_DLQ_EVENT_TYPE_PARAM);
-  params.delete(INTEGRATION_EVENTS_DLQ_TENANT_PARAM);
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    params.delete(INTEGRATION_EVENTS_DLQ_EVENT_TYPE_PARAM);
+    params.delete(INTEGRATION_EVENTS_DLQ_TENANT_PARAM);
+    },
+  });
 }

@@ -1,4 +1,5 @@
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const SIGNED_RECORDS_LIST_CURSOR_PARAM = "cursor";
 
@@ -15,18 +16,18 @@ export function signedRecordsListCursorHrefFromSearch(
   cursor: string,
   pathname: string = SIGNED_RECORDS_LIST_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = cursor.trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = cursor.trim();
 
-  if (trimmed.length === 0) {
-    params.delete(SIGNED_RECORDS_LIST_CURSOR_PARAM);
-  } else {
-    params.set(SIGNED_RECORDS_LIST_CURSOR_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(SIGNED_RECORDS_LIST_CURSOR_PARAM);
+    } else {
+      params.set(SIGNED_RECORDS_LIST_CURSOR_PARAM, trimmed);
+    }
+    },
+  });
 }
 
 export function signedRecordsListClearCursorHrefFromSearch(

@@ -1,4 +1,5 @@
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const GRAPH_NEIGHBORHOOD_DEPTH_PARAM = "depth";
 
@@ -27,16 +28,16 @@ export function graphNeighborhoodDepthHrefFromSearch(
   depth: number,
   pathname: string = EVIDENCE_GRAPH_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const clamped = Math.min(MAX_GRAPH_NEIGHBORHOOD_DEPTH, Math.max(MIN_GRAPH_NEIGHBORHOOD_DEPTH, Math.floor(depth)));
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const clamped = Math.min(MAX_GRAPH_NEIGHBORHOOD_DEPTH, Math.max(MIN_GRAPH_NEIGHBORHOOD_DEPTH, Math.floor(depth)));
 
-  if (clamped === DEFAULT_GRAPH_NEIGHBORHOOD_DEPTH) {
-    params.delete(GRAPH_NEIGHBORHOOD_DEPTH_PARAM);
-  } else {
-    params.set(GRAPH_NEIGHBORHOOD_DEPTH_PARAM, String(clamped));
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (clamped === DEFAULT_GRAPH_NEIGHBORHOOD_DEPTH) {
+      params.delete(GRAPH_NEIGHBORHOOD_DEPTH_PARAM);
+    } else {
+      params.set(GRAPH_NEIGHBORHOOD_DEPTH_PARAM, String(clamped));
+    }
+    },
+  });
 }

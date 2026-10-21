@@ -1,4 +1,5 @@
 import type { SpecialtyReviewTemplateId } from "@/lib/specialty-review-templates";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const SPECIALTY_WALKTHROUGH_TEMPLATE_PREVIEW_PARAM = "templatePreview";
 
@@ -25,15 +26,15 @@ export function specialtyWalkthroughTemplatePreviewHrefFromSearch(
   templateId: SpecialtyReviewTemplateId | null,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (templateId === null) {
-    params.delete(SPECIALTY_WALKTHROUGH_TEMPLATE_PREVIEW_PARAM);
-  } else {
-    params.set(SPECIALTY_WALKTHROUGH_TEMPLATE_PREVIEW_PARAM, templateId);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (templateId === null) {
+      params.delete(SPECIALTY_WALKTHROUGH_TEMPLATE_PREVIEW_PARAM);
+    } else {
+      params.set(SPECIALTY_WALKTHROUGH_TEMPLATE_PREVIEW_PARAM, templateId);
+    }
+    },
+  });
 }

@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const FINDINGS_ITSM_PRE_FINALIZE_EXPORT_OPEN_PARAM = "findingsItsmPreFinalizeExportOpen";
 
 export function parseFindingsItsmPreFinalizeExportOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function findingsItsmPreFinalizeExportDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(FINDINGS_ITSM_PRE_FINALIZE_EXPORT_OPEN_PARAM);
-  } else {
-    params.set(FINDINGS_ITSM_PRE_FINALIZE_EXPORT_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, FINDINGS_ITSM_PRE_FINALIZE_EXPORT_OPEN_PARAM);
 }

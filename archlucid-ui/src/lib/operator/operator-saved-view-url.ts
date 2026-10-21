@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const OPERATOR_SAVED_VIEW_ID_PARAM = "viewId";
 export const OPERATOR_SAVED_VIEW_DELETE_CONFIRM_PARAM = "savedViewDeleteConfirm";
 
@@ -41,22 +42,22 @@ export function operatorSavedViewPanelsHrefFromSearch(
   state: OperatorSavedViewUrlState,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = (state.viewId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = (state.viewId ?? "").trim();
 
-  if (trimmed.length === 0) {
-    params.delete(OPERATOR_SAVED_VIEW_ID_PARAM);
-  } else {
-    params.set(OPERATOR_SAVED_VIEW_ID_PARAM, trimmed);
-  }
+    if (trimmed.length === 0) {
+      params.delete(OPERATOR_SAVED_VIEW_ID_PARAM);
+    } else {
+      params.set(OPERATOR_SAVED_VIEW_ID_PARAM, trimmed);
+    }
 
-  if (!state.deleteConfirmOpen) {
-    params.delete(OPERATOR_SAVED_VIEW_DELETE_CONFIRM_PARAM);
-  } else {
-    params.set(OPERATOR_SAVED_VIEW_DELETE_CONFIRM_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!state.deleteConfirmOpen) {
+      params.delete(OPERATOR_SAVED_VIEW_DELETE_CONFIRM_PARAM);
+    } else {
+      params.set(OPERATOR_SAVED_VIEW_DELETE_CONFIRM_PARAM, "1");
+    }
+    },
+  });
 }

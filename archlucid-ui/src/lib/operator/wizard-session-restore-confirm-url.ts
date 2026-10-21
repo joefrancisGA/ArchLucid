@@ -1,4 +1,5 @@
 import type { WizardSessionId } from "@/lib/wizard-session-persistence";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const WIZARD_SESSION_RESTORE_CONFIRM_PARAM = "wizardRestoreConfirm";
 export const WIZARD_SESSION_RESTORE_ID_PARAM = "wizardRestoreId";
@@ -31,18 +32,18 @@ export function wizardSessionRestoreConfirmHrefFromSearch(
   state: WizardSessionRestoreConfirmUrlState,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const wizardId = (state.wizardId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const wizardId = (state.wizardId ?? "").trim();
 
-  if (!state.confirmOpen || wizardId.length === 0) {
-    params.delete(WIZARD_SESSION_RESTORE_CONFIRM_PARAM);
-    params.delete(WIZARD_SESSION_RESTORE_ID_PARAM);
-  } else {
-    params.set(WIZARD_SESSION_RESTORE_CONFIRM_PARAM, "1");
-    params.set(WIZARD_SESSION_RESTORE_ID_PARAM, wizardId);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!state.confirmOpen || wizardId.length === 0) {
+      params.delete(WIZARD_SESSION_RESTORE_CONFIRM_PARAM);
+      params.delete(WIZARD_SESSION_RESTORE_ID_PARAM);
+    } else {
+      params.set(WIZARD_SESSION_RESTORE_CONFIRM_PARAM, "1");
+      params.set(WIZARD_SESSION_RESTORE_ID_PARAM, wizardId);
+    }
+    },
+  });
 }

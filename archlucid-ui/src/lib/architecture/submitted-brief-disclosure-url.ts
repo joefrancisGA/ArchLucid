@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const SUBMITTED_BRIEF_OPEN_PARAM = "submittedBriefOpen";
 
 export function parseSubmittedBriefOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function submittedBriefDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(SUBMITTED_BRIEF_OPEN_PARAM);
-  } else {
-    params.set(SUBMITTED_BRIEF_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, SUBMITTED_BRIEF_OPEN_PARAM);
 }

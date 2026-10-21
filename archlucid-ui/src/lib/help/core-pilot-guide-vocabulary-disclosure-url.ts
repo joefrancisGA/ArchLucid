@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const CORE_PILOT_GUIDE_VOCABULARY_OPEN_PARAM = "corePilotGuideVocabularyOpen";
 
 export function parseCorePilotGuideVocabularyOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function corePilotGuideVocabularyDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(CORE_PILOT_GUIDE_VOCABULARY_OPEN_PARAM);
-  } else {
-    params.set(CORE_PILOT_GUIDE_VOCABULARY_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, CORE_PILOT_GUIDE_VOCABULARY_OPEN_PARAM);
 }

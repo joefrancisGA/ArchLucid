@@ -1,5 +1,6 @@
 import { INTERNAL_TRIAL_FUNNEL_PATH } from "@/lib/internal-ops-route-paths";
 import type { TrialFunnelPeriodDays } from "@/lib/trial-funnel-metric-contract";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const TRIAL_FUNNEL_RANGE_PARAM = "range";
 export const TRIAL_FUNNEL_STAGE_PARAM = "stage";
@@ -75,17 +76,17 @@ export function trialFunnelPeriodHrefFromSearch(
   periodDays: TrialFunnelPeriodDays,
   pathname: string = INTERNAL_TRIAL_FUNNEL_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (periodDays === DEFAULT_TRIAL_FUNNEL_PERIOD_DAYS) {
-    params.delete(TRIAL_FUNNEL_RANGE_PARAM);
-  } else {
-    params.set(TRIAL_FUNNEL_RANGE_PARAM, String(periodDays));
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (periodDays === DEFAULT_TRIAL_FUNNEL_PERIOD_DAYS) {
+      params.delete(TRIAL_FUNNEL_RANGE_PARAM);
+    } else {
+      params.set(TRIAL_FUNNEL_RANGE_PARAM, String(periodDays));
+    }
+    },
+  });
 }
 
 export function trialFunnelStageHrefFromSearch(
@@ -93,17 +94,17 @@ export function trialFunnelStageHrefFromSearch(
   stage: string,
   pathname: string = INTERNAL_TRIAL_FUNNEL_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (stage === "all") {
-    params.delete(TRIAL_FUNNEL_STAGE_PARAM);
-  } else {
-    params.set(TRIAL_FUNNEL_STAGE_PARAM, stage);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (stage === "all") {
+      params.delete(TRIAL_FUNNEL_STAGE_PARAM);
+    } else {
+      params.set(TRIAL_FUNNEL_STAGE_PARAM, stage);
+    }
+    },
+  });
 }
 
 export function parseTrialFunnelAttentionOnlyFromSearch(raw: string | null | undefined): boolean {
@@ -161,17 +162,17 @@ export function trialFunnelAttentionHrefFromSearch(
   attentionOnly: boolean,
   pathname: string = INTERNAL_TRIAL_FUNNEL_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!attentionOnly) {
-    params.delete(TRIAL_FUNNEL_ATTENTION_PARAM);
-  } else {
-    params.set(TRIAL_FUNNEL_ATTENTION_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!attentionOnly) {
+      params.delete(TRIAL_FUNNEL_ATTENTION_PARAM);
+    } else {
+      params.set(TRIAL_FUNNEL_ATTENTION_PARAM, "1");
+    }
+    },
+  });
 }
 
 export function trialFunnelCompareHrefFromSearch(
@@ -179,17 +180,17 @@ export function trialFunnelCompareHrefFromSearch(
   comparePrevious: boolean,
   pathname: string = INTERNAL_TRIAL_FUNNEL_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!comparePrevious) {
-    params.delete(TRIAL_FUNNEL_COMPARE_PARAM);
-  } else {
-    params.set(TRIAL_FUNNEL_COMPARE_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!comparePrevious) {
+      params.delete(TRIAL_FUNNEL_COMPARE_PARAM);
+    } else {
+      params.set(TRIAL_FUNNEL_COMPARE_PARAM, "1");
+    }
+    },
+  });
 }
 
 export function trialFunnelCohortSortHrefFromSearch(
@@ -198,21 +199,21 @@ export function trialFunnelCohortSortHrefFromSearch(
   sortAsc: boolean,
   pathname: string = INTERNAL_TRIAL_FUNNEL_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (sortKey === DEFAULT_TRIAL_FUNNEL_COHORT_SORT_KEY) {
-    params.delete(TRIAL_FUNNEL_SORT_PARAM);
-  } else {
-    params.set(TRIAL_FUNNEL_SORT_PARAM, sortKey);
-  }
+    if (sortKey === DEFAULT_TRIAL_FUNNEL_COHORT_SORT_KEY) {
+      params.delete(TRIAL_FUNNEL_SORT_PARAM);
+    } else {
+      params.set(TRIAL_FUNNEL_SORT_PARAM, sortKey);
+    }
 
-  if (sortAsc === DEFAULT_TRIAL_FUNNEL_COHORT_SORT_ASC) {
-    params.delete(TRIAL_FUNNEL_SORT_DIR_PARAM);
-  } else {
-    params.set(TRIAL_FUNNEL_SORT_DIR_PARAM, sortAsc ? "asc" : "desc");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (sortAsc === DEFAULT_TRIAL_FUNNEL_COHORT_SORT_ASC) {
+      params.delete(TRIAL_FUNNEL_SORT_DIR_PARAM);
+    } else {
+      params.set(TRIAL_FUNNEL_SORT_DIR_PARAM, sortAsc ? "asc" : "desc");
+    }
+    },
+  });
 }

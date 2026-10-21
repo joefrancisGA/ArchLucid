@@ -1,5 +1,6 @@
 import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
 import type {
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
   PatternAdoptionSignal,
   PatternDataSourceFilter,
   PatternDomainFilter,
@@ -109,18 +110,18 @@ export function patternLibrarySearchHrefFromSearch(
   query: string,
   pathname: string = PATTERN_LIBRARY_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = query.trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = query.trim();
 
-  if (trimmed.length === 0) {
-    params.delete(PATTERN_LIBRARY_SEARCH_PARAM);
-  } else {
-    params.set(PATTERN_LIBRARY_SEARCH_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(PATTERN_LIBRARY_SEARCH_PARAM);
+    } else {
+      params.set(PATTERN_LIBRARY_SEARCH_PARAM, trimmed);
+    }
+    },
+  });
 }
 
 export function patternLibraryClearSearchHrefFromSearch(
@@ -135,17 +136,17 @@ export function patternLibraryDomainHrefFromSearch(
   domain: PatternDomainFilter,
   pathname: string = PATTERN_LIBRARY_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (domain === "All domains") {
-    params.delete(PATTERN_LIBRARY_DOMAIN_PARAM);
-  } else {
-    params.set(PATTERN_LIBRARY_DOMAIN_PARAM, domain);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (domain === "All domains") {
+      params.delete(PATTERN_LIBRARY_DOMAIN_PARAM);
+    } else {
+      params.set(PATTERN_LIBRARY_DOMAIN_PARAM, domain);
+    }
+    },
+  });
 }
 
 export function patternLibraryPlatformHrefFromSearch(
@@ -153,17 +154,17 @@ export function patternLibraryPlatformHrefFromSearch(
   platform: PatternPlatformFilter,
   pathname: string = PATTERN_LIBRARY_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (platform === "All platforms") {
-    params.delete(PATTERN_LIBRARY_PLATFORM_PARAM);
-  } else {
-    params.set(PATTERN_LIBRARY_PLATFORM_PARAM, platform);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (platform === "All platforms") {
+      params.delete(PATTERN_LIBRARY_PLATFORM_PARAM);
+    } else {
+      params.set(PATTERN_LIBRARY_PLATFORM_PARAM, platform);
+    }
+    },
+  });
 }
 
 export function parsePatternLibraryTypeFromSearch(raw: string | null | undefined): PatternTypeFilter {
@@ -201,17 +202,17 @@ export function patternLibraryTypeHrefFromSearch(
   patternType: PatternTypeFilter,
   pathname: string = PATTERN_LIBRARY_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (patternType === "All types") {
-    params.delete(PATTERN_LIBRARY_TYPE_PARAM);
-  } else {
-    params.set(PATTERN_LIBRARY_TYPE_PARAM, patternType);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (patternType === "All types") {
+      params.delete(PATTERN_LIBRARY_TYPE_PARAM);
+    } else {
+      params.set(PATTERN_LIBRARY_TYPE_PARAM, patternType);
+    }
+    },
+  });
 }
 
 export function patternLibraryRiskHrefFromSearch(
@@ -219,17 +220,17 @@ export function patternLibraryRiskHrefFromSearch(
   risk: PatternRiskSignal | "All risks",
   pathname: string = PATTERN_LIBRARY_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (risk === "All risks") {
-    params.delete(PATTERN_LIBRARY_RISK_PARAM);
-  } else {
-    params.set(PATTERN_LIBRARY_RISK_PARAM, risk);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (risk === "All risks") {
+      params.delete(PATTERN_LIBRARY_RISK_PARAM);
+    } else {
+      params.set(PATTERN_LIBRARY_RISK_PARAM, risk);
+    }
+    },
+  });
 }
 
 export function parsePatternLibraryAdoptionFromSearch(
@@ -267,17 +268,17 @@ export function patternLibraryAdoptionHrefFromSearch(
   adoption: PatternAdoptionSignal | "All adoption",
   pathname: string = PATTERN_LIBRARY_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (adoption === "All adoption") {
-    params.delete(PATTERN_LIBRARY_ADOPTION_PARAM);
-  } else {
-    params.set(PATTERN_LIBRARY_ADOPTION_PARAM, adoption);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (adoption === "All adoption") {
+      params.delete(PATTERN_LIBRARY_ADOPTION_PARAM);
+    } else {
+      params.set(PATTERN_LIBRARY_ADOPTION_PARAM, adoption);
+    }
+    },
+  });
 }
 
 export function patternLibraryTimeRangeHrefFromSearch(
@@ -285,17 +286,17 @@ export function patternLibraryTimeRangeHrefFromSearch(
   timeRange: PatternTimeRangeFilter,
   pathname: string = PATTERN_LIBRARY_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (timeRange === "All time") {
-    params.delete(PATTERN_LIBRARY_TIME_PARAM);
-  } else {
-    params.set(PATTERN_LIBRARY_TIME_PARAM, timeRange);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (timeRange === "All time") {
+      params.delete(PATTERN_LIBRARY_TIME_PARAM);
+    } else {
+      params.set(PATTERN_LIBRARY_TIME_PARAM, timeRange);
+    }
+    },
+  });
 }
 
 export function parsePatternLibraryGovernanceFromSearch(
@@ -333,17 +334,17 @@ export function patternLibraryGovernanceHrefFromSearch(
   governance: PatternGovernanceSignal | "All policy areas",
   pathname: string = PATTERN_LIBRARY_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (governance === "All policy areas") {
-    params.delete(PATTERN_LIBRARY_GOVERNANCE_PARAM);
-  } else {
-    params.set(PATTERN_LIBRARY_GOVERNANCE_PARAM, governance);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (governance === "All policy areas") {
+      params.delete(PATTERN_LIBRARY_GOVERNANCE_PARAM);
+    } else {
+      params.set(PATTERN_LIBRARY_GOVERNANCE_PARAM, governance);
+    }
+    },
+  });
 }
 
 export function patternLibraryDataSourceHrefFromSearch(
@@ -351,15 +352,15 @@ export function patternLibraryDataSourceHrefFromSearch(
   dataSource: PatternDataSourceFilter,
   pathname: string = PATTERN_LIBRARY_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (dataSource === "All sources") {
-    params.delete(PATTERN_LIBRARY_SOURCE_PARAM);
-  } else {
-    params.set(PATTERN_LIBRARY_SOURCE_PARAM, dataSource);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (dataSource === "All sources") {
+      params.delete(PATTERN_LIBRARY_SOURCE_PARAM);
+    } else {
+      params.set(PATTERN_LIBRARY_SOURCE_PARAM, dataSource);
+    }
+    },
+  });
 }

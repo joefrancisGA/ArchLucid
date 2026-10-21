@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const SPONSOR_WORKSPACE_HEALTH_SESSION_SCOPE_OPEN_PARAM = "sponsorWorkspaceHealthSessionScopeOpen";
 
 export function parseSponsorWorkspaceHealthSessionScopeOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function sponsorWorkspaceHealthSessionScopeDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(SPONSOR_WORKSPACE_HEALTH_SESSION_SCOPE_OPEN_PARAM);
-  } else {
-    params.set(SPONSOR_WORKSPACE_HEALTH_SESSION_SCOPE_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, SPONSOR_WORKSPACE_HEALTH_SESSION_SCOPE_OPEN_PARAM);
 }

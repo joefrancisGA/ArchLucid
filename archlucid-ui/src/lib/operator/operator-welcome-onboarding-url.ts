@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const OPERATOR_WELCOME_OPEN_PARAM = "welcomeOpen";
 
 export function parseOperatorWelcomeOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,17 +16,7 @@ export function operatorWelcomeOnboardingHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(OPERATOR_WELCOME_OPEN_PARAM);
-  } else {
-    params.set(OPERATOR_WELCOME_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, OPERATOR_WELCOME_OPEN_PARAM);
 }
 
 /** True when the current query already encodes `open` — skip a no-op App Router replace. */

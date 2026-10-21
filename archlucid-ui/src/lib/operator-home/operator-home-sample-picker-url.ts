@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const OPERATOR_HOME_SAMPLE_PICKER_OPEN_PARAM = "samplePickerOpen";
 
 export function parseOperatorHomeSamplePickerOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function operatorHomeSamplePickerHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(OPERATOR_HOME_SAMPLE_PICKER_OPEN_PARAM);
-  } else {
-    params.set(OPERATOR_HOME_SAMPLE_PICKER_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, OPERATOR_HOME_SAMPLE_PICKER_OPEN_PARAM);
 }

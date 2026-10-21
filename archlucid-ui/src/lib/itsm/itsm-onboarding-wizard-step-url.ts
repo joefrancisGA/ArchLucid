@@ -1,4 +1,5 @@
 import type { ItsmOnboardingWizardStep } from "@/lib/itsm/itsm-native-create-readiness";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const ITSM_ONBOARDING_WIZARD_PATH = "/internal/integrations/itsm" as const;
 
@@ -34,15 +35,15 @@ export function itsmOnboardingWizardStepHrefFromSearch(
   step: ItsmOnboardingWizardStep | null,
   pathname: string = ITSM_ONBOARDING_WIZARD_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (step === null || step === "prerequisites") {
-    params.delete(ITSM_ONBOARDING_WIZARD_STEP_PARAM);
-  } else {
-    params.set(ITSM_ONBOARDING_WIZARD_STEP_PARAM, step);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (step === null || step === "prerequisites") {
+      params.delete(ITSM_ONBOARDING_WIZARD_STEP_PARAM);
+    } else {
+      params.set(ITSM_ONBOARDING_WIZARD_STEP_PARAM, step);
+    }
+    },
+  });
 }

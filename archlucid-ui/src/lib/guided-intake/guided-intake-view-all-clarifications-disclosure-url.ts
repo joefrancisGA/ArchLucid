@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const GUIDED_INTAKE_VIEW_ALL_CLARIFICATIONS_OPEN_PARAM = "guidedIntakeViewAllClarificationsOpen";
 
 export function parseGuidedIntakeViewAllClarificationsOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function guidedIntakeViewAllClarificationsDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(GUIDED_INTAKE_VIEW_ALL_CLARIFICATIONS_OPEN_PARAM);
-  } else {
-    params.set(GUIDED_INTAKE_VIEW_ALL_CLARIFICATIONS_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, GUIDED_INTAKE_VIEW_ALL_CLARIFICATIONS_OPEN_PARAM);
 }

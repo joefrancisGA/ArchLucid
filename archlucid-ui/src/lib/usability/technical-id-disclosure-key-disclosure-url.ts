@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const TECHNICAL_ID_DISCLOSURE_KEY_PARAM = "technicalIdDisclosureKey";
 
 export function parseTechnicalIdDisclosureKeyFromSearch(raw: string | null | undefined): string | null {
@@ -15,15 +16,15 @@ export function technicalIdDisclosureKeyDisclosureHrefFromSearch(
   disclosureKey: string | null,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (disclosureKey === null || disclosureKey.trim().length === 0) {
-    params.delete(TECHNICAL_ID_DISCLOSURE_KEY_PARAM);
-  } else {
-    params.set(TECHNICAL_ID_DISCLOSURE_KEY_PARAM, disclosureKey.trim());
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (disclosureKey === null || disclosureKey.trim().length === 0) {
+      params.delete(TECHNICAL_ID_DISCLOSURE_KEY_PARAM);
+    } else {
+      params.set(TECHNICAL_ID_DISCLOSURE_KEY_PARAM, disclosureKey.trim());
+    }
+    },
+  });
 }

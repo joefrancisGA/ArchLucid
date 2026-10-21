@@ -5,6 +5,7 @@ import {
   DECISION_REGISTER_TO_PARAM,
 } from "@/lib/governance/decision-register-custom-date-url";
 import {
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
   DEFAULT_DECISION_REGISTER_DATE_PRESET,
   type DecisionRegisterDatePreset,
 } from "@/app/(operator)/governance/decision-register/decision-register-date-range";
@@ -34,18 +35,18 @@ export function decisionRegisterDatePresetHrefFromSearch(
   preset: DecisionRegisterDatePreset,
   pathname: string = GOVERNANCE_DECISION_REGISTER_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (preset === DEFAULT_DECISION_REGISTER_DATE_PRESET) {
-    params.delete(DECISION_REGISTER_DATE_RANGE_PARAM);
-  } else {
-    params.set(DECISION_REGISTER_DATE_RANGE_PARAM, preset);
-  }
+    if (preset === DEFAULT_DECISION_REGISTER_DATE_PRESET) {
+      params.delete(DECISION_REGISTER_DATE_RANGE_PARAM);
+    } else {
+      params.set(DECISION_REGISTER_DATE_RANGE_PARAM, preset);
+    }
 
-  params.delete(DECISION_REGISTER_FROM_PARAM);
-  params.delete(DECISION_REGISTER_TO_PARAM);
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    params.delete(DECISION_REGISTER_FROM_PARAM);
+    params.delete(DECISION_REGISTER_TO_PARAM);
+    },
+  });
 }

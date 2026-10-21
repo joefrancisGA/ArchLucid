@@ -1,4 +1,5 @@
 import { SETTINGS_BILLING_PATH } from "@/lib/billing-and-plans-help-route";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const BILLING_CHECKOUT_CONFIRM_PARAM = "checkoutConfirm";
 
@@ -17,15 +18,15 @@ export function billingCheckoutConfirmHrefFromSearch(
   confirmOpen: boolean,
   pathname: string = SETTINGS_BILLING_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!confirmOpen) {
-    params.delete(BILLING_CHECKOUT_CONFIRM_PARAM);
-  } else {
-    params.set(BILLING_CHECKOUT_CONFIRM_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!confirmOpen) {
+      params.delete(BILLING_CHECKOUT_CONFIRM_PARAM);
+    } else {
+      params.set(BILLING_CHECKOUT_CONFIRM_PARAM, "1");
+    }
+    },
+  });
 }

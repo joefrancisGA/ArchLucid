@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const PRODUCT_CONCEPTS_GLOSSARY_OPEN_PARAM = "productConceptsGlossaryOpen";
 
 export function parseProductConceptsGlossaryOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function productConceptsGlossaryHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(PRODUCT_CONCEPTS_GLOSSARY_OPEN_PARAM);
-  } else {
-    params.set(PRODUCT_CONCEPTS_GLOSSARY_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, PRODUCT_CONCEPTS_GLOSSARY_OPEN_PARAM);
 }

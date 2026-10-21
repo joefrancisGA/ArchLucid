@@ -1,4 +1,5 @@
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export type SignedRecordsListIntegrityFilter = "all" | "sealed" | "needs-attention" | "unavailable";
 
@@ -27,15 +28,15 @@ export function signedRecordsListIntegrityHrefFromSearch(
   integrity: SignedRecordsListIntegrityFilter,
   pathname: string = SIGNED_RECORDS_LIST_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (integrity === "all") {
-    params.delete(SIGNED_RECORDS_LIST_INTEGRITY_PARAM);
-  } else {
-    params.set(SIGNED_RECORDS_LIST_INTEGRITY_PARAM, integrity);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (integrity === "all") {
+      params.delete(SIGNED_RECORDS_LIST_INTEGRITY_PARAM);
+    } else {
+      params.set(SIGNED_RECORDS_LIST_INTEGRITY_PARAM, integrity);
+    }
+    },
+  });
 }

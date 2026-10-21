@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const SIGNED_RECORDS_LIST_SEAL_DETAILS_RUN_ID_PARAM = "signedRecordsListSealDetailsRunId";
 
 export function parseSignedRecordsListSealDetailsRunIdFromSearch(raw: string | null | undefined): string {
@@ -13,16 +14,16 @@ export function signedRecordsListSealDetailsDisclosureHrefFromSearch(
   runId: string | null,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = (runId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = (runId ?? "").trim();
 
-  if (trimmed.length === 0) {
-    params.delete(SIGNED_RECORDS_LIST_SEAL_DETAILS_RUN_ID_PARAM);
-  } else {
-    params.set(SIGNED_RECORDS_LIST_SEAL_DETAILS_RUN_ID_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(SIGNED_RECORDS_LIST_SEAL_DETAILS_RUN_ID_PARAM);
+    } else {
+      params.set(SIGNED_RECORDS_LIST_SEAL_DETAILS_RUN_ID_PARAM, trimmed);
+    }
+    },
+  });
 }

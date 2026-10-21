@@ -1,4 +1,5 @@
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const SETTINGS_ROLES_MATRIX_CONFIRM_KIND_PARAM = "rolesMatrixConfirm";
 export const SETTINGS_ROLES_MATRIX_CONFIRM_ROLE_NAME_PARAM = "rolesMatrixRoleName";
@@ -43,18 +44,18 @@ export function settingsRolesMatrixConfirmHrefFromSearch(
   state: SettingsRolesMatrixConfirmUrlState,
   pathname: string = SETTINGS_USERS_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const roleName = (state.roleName ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const roleName = (state.roleName ?? "").trim();
 
-  if (state.kind === null || roleName.length === 0) {
-    params.delete(SETTINGS_ROLES_MATRIX_CONFIRM_KIND_PARAM);
-    params.delete(SETTINGS_ROLES_MATRIX_CONFIRM_ROLE_NAME_PARAM);
-  } else {
-    params.set(SETTINGS_ROLES_MATRIX_CONFIRM_KIND_PARAM, state.kind);
-    params.set(SETTINGS_ROLES_MATRIX_CONFIRM_ROLE_NAME_PARAM, roleName);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (state.kind === null || roleName.length === 0) {
+      params.delete(SETTINGS_ROLES_MATRIX_CONFIRM_KIND_PARAM);
+      params.delete(SETTINGS_ROLES_MATRIX_CONFIRM_ROLE_NAME_PARAM);
+    } else {
+      params.set(SETTINGS_ROLES_MATRIX_CONFIRM_KIND_PARAM, state.kind);
+      params.set(SETTINGS_ROLES_MATRIX_CONFIRM_ROLE_NAME_PARAM, roleName);
+    }
+    },
+  });
 }

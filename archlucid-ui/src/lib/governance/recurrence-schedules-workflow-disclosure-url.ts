@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const RECURRENCE_SCHEDULES_WORKFLOW_OPEN_PARAM = "recurrenceSchedulesWorkflowOpen";
 
 export function parseRecurrenceSchedulesWorkflowOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function recurrenceSchedulesWorkflowDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(RECURRENCE_SCHEDULES_WORKFLOW_OPEN_PARAM);
-  } else {
-    params.set(RECURRENCE_SCHEDULES_WORKFLOW_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, RECURRENCE_SCHEDULES_WORKFLOW_OPEN_PARAM);
 }

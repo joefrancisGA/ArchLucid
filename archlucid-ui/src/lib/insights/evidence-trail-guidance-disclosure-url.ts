@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const EVIDENCE_TRAIL_GUIDANCE_OPEN_PARAM = "evidenceTrailGuidanceOpen";
 
 export function parseEvidenceTrailGuidanceOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function evidenceTrailGuidanceDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(EVIDENCE_TRAIL_GUIDANCE_OPEN_PARAM);
-  } else {
-    params.set(EVIDENCE_TRAIL_GUIDANCE_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, EVIDENCE_TRAIL_GUIDANCE_OPEN_PARAM);
 }

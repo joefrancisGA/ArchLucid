@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 const GUIDED_INTAKE_STEP_PARAM = "intakeStep";
 
 const GUIDED_INTAKE_MAX_STEP_INDEX = 2;
@@ -31,15 +32,15 @@ export function guidedIntakeStepHrefFromSearch(
   stepIndex: number,
   pathname: string = "/architecture/reviews/new",
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (stepIndex <= 0) {
-    params.delete(GUIDED_INTAKE_STEP_PARAM);
-  } else {
-    params.set(GUIDED_INTAKE_STEP_PARAM, String(stepIndex));
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (stepIndex <= 0) {
+      params.delete(GUIDED_INTAKE_STEP_PARAM);
+    } else {
+      params.set(GUIDED_INTAKE_STEP_PARAM, String(stepIndex));
+    }
+    },
+  });
 }

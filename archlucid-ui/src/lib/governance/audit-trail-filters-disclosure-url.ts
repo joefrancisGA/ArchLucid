@@ -1,4 +1,5 @@
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 
 export const AUDIT_TRAIL_ADVANCED_FILTERS_PARAM = "advanced";
 export const AUDIT_TRAIL_PRIMARY_FILTERS_PARAM = "primaryFilters";
@@ -32,6 +33,7 @@ export function auditTrailFiltersDisclosureHrefFromSearch(
   pathname: string = GOVERNANCE_AUDIT_PATH,
 ): string {
   const params = new URLSearchParams(currentSearch);
+  applyOperatorUrlSelectionSwitch(params, { kind: "disclosure-only" });
 
   if (patch.advancedAuditFiltersOpen !== undefined) {
     if (!patch.advancedAuditFiltersOpen) {

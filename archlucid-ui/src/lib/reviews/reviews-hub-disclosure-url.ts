@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const REVIEWS_HUB_MORE_WAYS_OPEN_PARAM = "reviewsHubMoreWaysOpen";
 export const REVIEWS_HUB_MEDIAN_DELTA_OPEN_PARAM = "reviewsHubMedianDeltaOpen";
 export const REVIEWS_HUB_REVIEW_CYCLE_DELTA_OPEN_PARAM = "reviewsHubReviewCycleDeltaOpen";
@@ -35,27 +36,27 @@ export function reviewsHubDisclosureHrefFromSearch(
   state: ReviewsHubDisclosureUrlState,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!state.moreWaysOpen) {
-    params.delete(REVIEWS_HUB_MORE_WAYS_OPEN_PARAM);
-  } else {
-    params.set(REVIEWS_HUB_MORE_WAYS_OPEN_PARAM, "1");
-  }
+    if (!state.moreWaysOpen) {
+      params.delete(REVIEWS_HUB_MORE_WAYS_OPEN_PARAM);
+    } else {
+      params.set(REVIEWS_HUB_MORE_WAYS_OPEN_PARAM, "1");
+    }
 
-  if (!state.medianDeltaOpen) {
-    params.delete(REVIEWS_HUB_MEDIAN_DELTA_OPEN_PARAM);
-  } else {
-    params.set(REVIEWS_HUB_MEDIAN_DELTA_OPEN_PARAM, "1");
-  }
+    if (!state.medianDeltaOpen) {
+      params.delete(REVIEWS_HUB_MEDIAN_DELTA_OPEN_PARAM);
+    } else {
+      params.set(REVIEWS_HUB_MEDIAN_DELTA_OPEN_PARAM, "1");
+    }
 
-  if (!state.reviewCycleDeltaOpen) {
-    params.delete(REVIEWS_HUB_REVIEW_CYCLE_DELTA_OPEN_PARAM);
-  } else {
-    params.set(REVIEWS_HUB_REVIEW_CYCLE_DELTA_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!state.reviewCycleDeltaOpen) {
+      params.delete(REVIEWS_HUB_REVIEW_CYCLE_DELTA_OPEN_PARAM);
+    } else {
+      params.set(REVIEWS_HUB_REVIEW_CYCLE_DELTA_OPEN_PARAM, "1");
+    }
+    },
+  });
 }

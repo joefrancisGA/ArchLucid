@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const FINDINGS_WHAT_IF_PARAM = "whatIf";
 export const FINDINGS_WHAT_IF_IDS_PARAM = "whatIfIds";
 
@@ -38,23 +39,23 @@ export function findingsWhatIfAnalysisHrefFromSearch(
   state: FindingsWhatIfAnalysisUrlState,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const ids = state.findingIds.map((id) => id.trim()).filter((id) => id.length > 0);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const ids = state.findingIds.map((id) => id.trim()).filter((id) => id.length > 0);
 
-  if (!state.enabled) {
-    params.delete(FINDINGS_WHAT_IF_PARAM);
-    params.delete(FINDINGS_WHAT_IF_IDS_PARAM);
-  } else {
-    params.set(FINDINGS_WHAT_IF_PARAM, "1");
-
-    if (ids.length === 0) {
+    if (!state.enabled) {
+      params.delete(FINDINGS_WHAT_IF_PARAM);
       params.delete(FINDINGS_WHAT_IF_IDS_PARAM);
     } else {
-      params.set(FINDINGS_WHAT_IF_IDS_PARAM, ids.join(","));
+      params.set(FINDINGS_WHAT_IF_PARAM, "1");
+
+      if (ids.length === 0) {
+        params.delete(FINDINGS_WHAT_IF_IDS_PARAM);
+      } else {
+        params.set(FINDINGS_WHAT_IF_IDS_PARAM, ids.join(","));
+      }
     }
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    },
+  });
 }

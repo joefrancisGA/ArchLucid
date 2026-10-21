@@ -1,5 +1,6 @@
 import { ALERTS_INBOX_ALL_STATUSES_VALUE } from "@/app/(operator)/governance/alerts/_sections/load-alerts-inbox-page-model";
 import { GOVERNANCE_ALERTS_PATH } from "@/lib/governance/governance-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const ALERTS_INBOX_STATUS_PARAM = "status";
 
@@ -38,16 +39,16 @@ export function parseAlertsInboxStatusFromSearch(raw: string | null | undefined)
 }
 
 export function alertsInboxStatusHrefFromSearch(currentSearch: string, status: string): string {
-  const params = new URLSearchParams(currentSearch);
-  params.delete("cursor");
+  return buildOperatorHrefFromSearch(currentSearch, GOVERNANCE_ALERTS_PATH, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    params.delete("cursor");
 
-  if (status === "Open") {
-    params.delete(ALERTS_INBOX_STATUS_PARAM);
-  } else {
-    params.set(ALERTS_INBOX_STATUS_PARAM, status);
-  }
-
-  const query = params.toString();
-
-  return query.length === 0 ? GOVERNANCE_ALERTS_PATH : `${GOVERNANCE_ALERTS_PATH}?${query}`;
+    if (status === "Open") {
+      params.delete(ALERTS_INBOX_STATUS_PARAM);
+    } else {
+      params.set(ALERTS_INBOX_STATUS_PARAM, status);
+    }
+    },
+  });
 }

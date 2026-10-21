@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const HELP_DOC_SEARCH_CONCEPTS_OPEN_PARAM = "helpConceptsOpen";
 export const HELP_DOC_SEARCH_FEEDBACK_OPEN_PARAM = "helpFeedbackOpen";
 
@@ -31,21 +32,21 @@ export function helpDocSearchNestedPanelsHrefFromSearch(
   state: HelpDocSearchNestedPanelsUrlState,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!state.conceptsOpen) {
-    params.delete(HELP_DOC_SEARCH_CONCEPTS_OPEN_PARAM);
-  } else {
-    params.set(HELP_DOC_SEARCH_CONCEPTS_OPEN_PARAM, "1");
-  }
+    if (!state.conceptsOpen) {
+      params.delete(HELP_DOC_SEARCH_CONCEPTS_OPEN_PARAM);
+    } else {
+      params.set(HELP_DOC_SEARCH_CONCEPTS_OPEN_PARAM, "1");
+    }
 
-  if (!state.feedbackOpen) {
-    params.delete(HELP_DOC_SEARCH_FEEDBACK_OPEN_PARAM);
-  } else {
-    params.set(HELP_DOC_SEARCH_FEEDBACK_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!state.feedbackOpen) {
+      params.delete(HELP_DOC_SEARCH_FEEDBACK_OPEN_PARAM);
+    } else {
+      params.set(HELP_DOC_SEARCH_FEEDBACK_OPEN_PARAM, "1");
+    }
+    },
+  });
 }

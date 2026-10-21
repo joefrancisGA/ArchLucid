@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const ONBOARDING_TOUR_OPEN_PARAM = "onboardingTourOpen";
 export const ONBOARDING_TOUR_STEP_PARAM = "onboardingTourStep";
 
@@ -45,22 +46,22 @@ export function onboardingTourOverlayHrefFromSearch(
   state: OnboardingTourOverlayUrlState,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!state.open) {
-    params.delete(ONBOARDING_TOUR_OPEN_PARAM);
-    params.delete(ONBOARDING_TOUR_STEP_PARAM);
-  } else {
-    params.set(ONBOARDING_TOUR_OPEN_PARAM, "1");
-
-    if (state.stepIndex <= 0) {
+    if (!state.open) {
+      params.delete(ONBOARDING_TOUR_OPEN_PARAM);
       params.delete(ONBOARDING_TOUR_STEP_PARAM);
     } else {
-      params.set(ONBOARDING_TOUR_STEP_PARAM, String(state.stepIndex));
+      params.set(ONBOARDING_TOUR_OPEN_PARAM, "1");
+
+      if (state.stepIndex <= 0) {
+        params.delete(ONBOARDING_TOUR_STEP_PARAM);
+      } else {
+        params.set(ONBOARDING_TOUR_STEP_PARAM, String(state.stepIndex));
+      }
     }
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    },
+  });
 }

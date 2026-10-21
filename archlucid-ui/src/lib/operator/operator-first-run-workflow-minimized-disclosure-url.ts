@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const OPERATOR_FIRST_RUN_WORKFLOW_MINIMIZED_OPEN_PARAM = "operatorFirstRunWorkflowMinimizedOpen";
 
 export function parseOperatorFirstRunWorkflowMinimizedOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function operatorFirstRunWorkflowMinimizedDisclosureHrefFromSearch(
   minimized: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!minimized) {
-    params.delete(OPERATOR_FIRST_RUN_WORKFLOW_MINIMIZED_OPEN_PARAM);
-  } else {
-    params.set(OPERATOR_FIRST_RUN_WORKFLOW_MINIMIZED_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, minimized, pathname, OPERATOR_FIRST_RUN_WORKFLOW_MINIMIZED_OPEN_PARAM);
 }

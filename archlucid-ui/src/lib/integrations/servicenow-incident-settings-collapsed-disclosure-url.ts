@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const SERVICENOW_INCIDENT_SETTINGS_COLLAPSED_OPEN_PARAM = "serviceNowIncidentSettingsCollapsedOpen";
 
 export function parseServiceNowIncidentSettingsCollapsedOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function serviceNowIncidentSettingsCollapsedDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(SERVICENOW_INCIDENT_SETTINGS_COLLAPSED_OPEN_PARAM);
-  } else {
-    params.set(SERVICENOW_INCIDENT_SETTINGS_COLLAPSED_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, SERVICENOW_INCIDENT_SETTINGS_COLLAPSED_OPEN_PARAM);
 }

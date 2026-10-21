@@ -1,4 +1,5 @@
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const POLICY_PACK_AUTHORING_ADVANCED_PARAM = "advanced";
 export const POLICY_PACK_AUTHORING_TOOLS_PARAM = "tools";
@@ -33,21 +34,21 @@ export function policyPackAuthoringDisclosuresHrefFromSearch(
   state: PolicyPackAuthoringDisclosuresUrlState,
   pathname: string = GOVERNANCE_POLICY_PACKS_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!state.advancedOpen) {
-    params.delete(POLICY_PACK_AUTHORING_ADVANCED_PARAM);
-  } else {
-    params.set(POLICY_PACK_AUTHORING_ADVANCED_PARAM, "1");
-  }
+    if (!state.advancedOpen) {
+      params.delete(POLICY_PACK_AUTHORING_ADVANCED_PARAM);
+    } else {
+      params.set(POLICY_PACK_AUTHORING_ADVANCED_PARAM, "1");
+    }
 
-  if (!state.toolsOpen) {
-    params.delete(POLICY_PACK_AUTHORING_TOOLS_PARAM);
-  } else {
-    params.set(POLICY_PACK_AUTHORING_TOOLS_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!state.toolsOpen) {
+      params.delete(POLICY_PACK_AUTHORING_TOOLS_PARAM);
+    } else {
+      params.set(POLICY_PACK_AUTHORING_TOOLS_PARAM, "1");
+    }
+    },
+  });
 }

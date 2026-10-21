@@ -153,6 +153,14 @@ describe("operator URL selection switch matrix", () => {
     expect(href).toContain("runId=run-new");
   });
 
+  it("disclosure-only switch is a no-op", () => {
+    const params = new URLSearchParams("diff=1");
+
+    applyOperatorUrlSelectionSwitch(params, { kind: "disclosure-only" });
+
+    expect(params.get("diff")).toBe("1");
+  });
+
   it("applyOperatorUrlSelectionSwitch documents each switch kind", () => {
     const params = new URLSearchParams({
       ...STALE_POLICY_PACK_VERSION_COMPARE,

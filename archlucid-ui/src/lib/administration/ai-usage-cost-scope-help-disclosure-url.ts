@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const AI_USAGE_COST_SCOPE_HELP_OPEN_PARAM = "aiUsageCostScopeHelpOpen";
 
 export function parseAiUsageCostScopeHelpOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function aiUsageCostScopeHelpDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(AI_USAGE_COST_SCOPE_HELP_OPEN_PARAM);
-  } else {
-    params.set(AI_USAGE_COST_SCOPE_HELP_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, AI_USAGE_COST_SCOPE_HELP_OPEN_PARAM);
 }

@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const ASSURANCE_STATUS_VOCABULARY_OPEN_PARAM = "assuranceStatusVocabularyOpen";
 
 export function parseAssuranceStatusVocabularyOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function assuranceStatusVocabularyDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(ASSURANCE_STATUS_VOCABULARY_OPEN_PARAM);
-  } else {
-    params.set(ASSURANCE_STATUS_VOCABULARY_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, ASSURANCE_STATUS_VOCABULARY_OPEN_PARAM);
 }

@@ -29,6 +29,7 @@ export const POLICY_PACK_VERSION_COMPARE_QUERY_PARAMS = [
 export type PolicyPacksHubTabId = "my-packs" | "catalog" | "generator" | "author";
 
 export type OperatorUrlSelectionSwitch =
+  | { readonly kind: "disclosure-only" }
   | { readonly kind: "policy-pack-selection" }
   | { readonly kind: "policy-pack-catalog-entry" }
   | { readonly kind: "policy-packs-tab"; readonly tab: PolicyPacksHubTabId }
@@ -121,6 +122,8 @@ export function applyOperatorUrlSelectionSwitch(
   selectionSwitch: OperatorUrlSelectionSwitch,
 ): void {
   switch (selectionSwitch.kind) {
+    case "disclosure-only":
+      break;
     case "policy-pack-selection":
     case "policy-pack-catalog-entry":
     case "policy-pack-authoring-input-mode":

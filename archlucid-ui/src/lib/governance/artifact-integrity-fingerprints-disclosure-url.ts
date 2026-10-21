@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const ARTIFACT_INTEGRITY_FINGERPRINTS_OPEN_PARAM = "artifactIntegrityFingerprintsOpen";
 
 export function parseArtifactIntegrityFingerprintsOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function artifactIntegrityFingerprintsDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(ARTIFACT_INTEGRITY_FINGERPRINTS_OPEN_PARAM);
-  } else {
-    params.set(ARTIFACT_INTEGRITY_FINGERPRINTS_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, ARTIFACT_INTEGRITY_FINGERPRINTS_OPEN_PARAM);
 }

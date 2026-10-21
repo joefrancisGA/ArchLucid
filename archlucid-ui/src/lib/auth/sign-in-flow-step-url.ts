@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const SIGN_IN_PATH = "/auth/signin" as const;
 
 export const SIGN_IN_FLOW_STEP_PARAM = "step";
@@ -27,15 +28,15 @@ export function signInFlowStepHrefFromSearch(
   step: SignInFlowStepUrlValue | null,
   pathname: string = SIGN_IN_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (step === null || step === "options") {
-    params.delete(SIGN_IN_FLOW_STEP_PARAM);
-  } else {
-    params.set(SIGN_IN_FLOW_STEP_PARAM, step);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (step === null || step === "options") {
+      params.delete(SIGN_IN_FLOW_STEP_PARAM);
+    } else {
+      params.set(SIGN_IN_FLOW_STEP_PARAM, step);
+    }
+    },
+  });
 }

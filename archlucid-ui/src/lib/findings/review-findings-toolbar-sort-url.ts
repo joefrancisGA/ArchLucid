@@ -1,4 +1,5 @@
 import type { RunDetailFindingsSortKind } from "@/components/findings/run-detail-findings-toolbar-presentation";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const REVIEW_FINDINGS_TOOLBAR_SORT_PARAM = "findingsSort";
 
@@ -27,15 +28,15 @@ export function reviewFindingsToolbarSortHrefFromSearch(
   pathname: string,
   sort: RunDetailFindingsSortKind,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (sort === DEFAULT_REVIEW_FINDINGS_TOOLBAR_SORT) {
-    params.delete(REVIEW_FINDINGS_TOOLBAR_SORT_PARAM);
-  } else {
-    params.set(REVIEW_FINDINGS_TOOLBAR_SORT_PARAM, sort);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (sort === DEFAULT_REVIEW_FINDINGS_TOOLBAR_SORT) {
+      params.delete(REVIEW_FINDINGS_TOOLBAR_SORT_PARAM);
+    } else {
+      params.set(REVIEW_FINDINGS_TOOLBAR_SORT_PARAM, sort);
+    }
+    },
+  });
 }

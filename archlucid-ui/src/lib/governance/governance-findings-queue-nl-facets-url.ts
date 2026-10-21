@@ -78,6 +78,7 @@ export function governanceFindingsNlSeverityHrefFromSearch(
   pathname: string = GOVERNANCE_FINDINGS_PATH,
 ): string {
   const params = new URLSearchParams(currentSearch);
+  applyOperatorUrlSelectionSwitch(params, { kind: "governance-findings-queue-navigation" });
 
   if (severity === null) {
     params.delete(GOVERNANCE_FINDINGS_NL_SEVERITY_PARAM);
@@ -96,6 +97,7 @@ export function governanceFindingsNlStatusHrefFromSearch(
   pathname: string = GOVERNANCE_FINDINGS_PATH,
 ): string {
   const params = new URLSearchParams(currentSearch);
+  applyOperatorUrlSelectionSwitch(params, { kind: "governance-findings-queue-navigation" });
 
   if (status === null) {
     params.delete(GOVERNANCE_FINDINGS_NL_STATUS_PARAM);
@@ -114,6 +116,7 @@ export function governanceFindingsNlTitleHrefFromSearch(
   pathname: string = GOVERNANCE_FINDINGS_PATH,
 ): string {
   const params = new URLSearchParams(currentSearch);
+  applyOperatorUrlSelectionSwitch(params, { kind: "governance-findings-queue-navigation" });
   const normalized = titleKeywords.map((keyword) => keyword.trim()).filter((keyword) => keyword.length > 0);
 
   if (normalized.length === 0) {

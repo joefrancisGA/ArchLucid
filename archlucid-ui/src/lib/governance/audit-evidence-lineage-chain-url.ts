@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const AUDIT_EVIDENCE_LINEAGE_CHAIN_OPEN_PARAM = "lineageChainOpen";
 
 export function parseAuditEvidenceLineageChainOpenFromSearch(raw: string | null | undefined): boolean {
@@ -31,11 +32,11 @@ export function auditEvidenceLineageChainHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  params.set(AUDIT_EVIDENCE_LINEAGE_CHAIN_OPEN_PARAM, open ? "1" : "0");
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    params.set(AUDIT_EVIDENCE_LINEAGE_CHAIN_OPEN_PARAM, open ? "1" : "0");
+    },
+  });
 }

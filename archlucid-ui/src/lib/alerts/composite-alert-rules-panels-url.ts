@@ -1,4 +1,5 @@
 import { GOVERNANCE_ALERT_RULES_PATH } from "@/lib/governance/governance-route-paths";
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 
 export const COMPOSITE_ALERT_RULES_CREATE_PARAM = "create";
 export const COMPOSITE_ALERT_RULES_CREATE_CONFIRM_PARAM = "compositeCreateConfirm";
@@ -29,6 +30,7 @@ export function compositeAlertRulesPanelsHrefFromSearch(
   pathname: string = GOVERNANCE_ALERT_RULES_PATH,
 ): string {
   const params = new URLSearchParams(currentSearch);
+  applyOperatorUrlSelectionSwitch(params, { kind: "disclosure-only" });
 
   if (patch.showCreatePanel !== undefined) {
     if (!patch.showCreatePanel) {

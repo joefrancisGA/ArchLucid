@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const RUNS_ROW_BASELINE_MENU_RUN_ID_PARAM = "runsRowBaselineMenuRunId";
 
 export function parseRunsRowBaselineMenuRunIdFromSearch(raw: string | null | undefined): string {
@@ -13,16 +14,16 @@ export function runsRowBaselineMenuDisclosureHrefFromSearch(
   runId: string | null,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = (runId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = (runId ?? "").trim();
 
-  if (trimmed.length === 0) {
-    params.delete(RUNS_ROW_BASELINE_MENU_RUN_ID_PARAM);
-  } else {
-    params.set(RUNS_ROW_BASELINE_MENU_RUN_ID_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(RUNS_ROW_BASELINE_MENU_RUN_ID_PARAM);
+    } else {
+      params.set(RUNS_ROW_BASELINE_MENU_RUN_ID_PARAM, trimmed);
+    }
+    },
+  });
 }

@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 /** Review-detail findings presentation: dense table (default Working) or card stack. */
 export type ReviewFindingsListViewKind = "table" | "cards";
 
@@ -26,11 +27,12 @@ export function reviewFindingsListViewHrefFromSearch(
   view: ReviewFindingsListViewKind,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  params.set(REVIEW_FINDINGS_LIST_VIEW_PARAM, view);
-  const query = params.toString();
-
-  return query.length === 0 ? pathname : `${pathname}?${query}`;
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    params.set(REVIEW_FINDINGS_LIST_VIEW_PARAM, view);
+    },
+  });
 }
 
 export function defaultReviewFindingsListView(workingMode: boolean): ReviewFindingsListViewKind {

@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const PILOT_SCORECARD_METHODOLOGY_OPEN_PARAM = "pilotScorecardMethodologyOpen";
 
 export function parsePilotScorecardMethodologyOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function pilotScorecardMethodologyDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(PILOT_SCORECARD_METHODOLOGY_OPEN_PARAM);
-  } else {
-    params.set(PILOT_SCORECARD_METHODOLOGY_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, PILOT_SCORECARD_METHODOLOGY_OPEN_PARAM);
 }

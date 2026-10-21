@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const AZURE_BOARDS_DEFAULT_BEHAVIOR_COLLAPSED_OPEN_PARAM = "azureBoardsDefaultBehaviorCollapsedOpen";
 
 export function parseAzureBoardsDefaultBehaviorCollapsedOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function azureBoardsDefaultBehaviorCollapsedDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(AZURE_BOARDS_DEFAULT_BEHAVIOR_COLLAPSED_OPEN_PARAM);
-  } else {
-    params.set(AZURE_BOARDS_DEFAULT_BEHAVIOR_COLLAPSED_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, AZURE_BOARDS_DEFAULT_BEHAVIOR_COLLAPSED_OPEN_PARAM);
 }

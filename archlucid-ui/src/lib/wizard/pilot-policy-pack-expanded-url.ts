@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const PILOT_POLICY_PACK_EXPANDED_PARAM = "pilotPolicyPackExpanded";
 
 export function parsePilotPolicyPackExpandedFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function pilotPolicyPackExpandedHrefFromSearch(
   expanded: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!expanded) {
-    params.delete(PILOT_POLICY_PACK_EXPANDED_PARAM);
-  } else {
-    params.set(PILOT_POLICY_PACK_EXPANDED_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, expanded, pathname, PILOT_POLICY_PACK_EXPANDED_PARAM);
 }

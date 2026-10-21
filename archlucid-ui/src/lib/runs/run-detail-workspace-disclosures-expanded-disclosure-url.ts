@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const RUN_DETAIL_WORKSPACE_DISCLOSURES_EXPANDED_PARAM = "runDetailWorkspaceDisclosuresExpanded";
 
 export function parseRunDetailWorkspaceDisclosuresExpandedFromSearch(raw: string | null | undefined): boolean | null {
@@ -23,17 +24,17 @@ export function runDetailWorkspaceDisclosuresExpandedHrefFromSearch(
   expanded: boolean | null,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (expanded === null) {
-    params.delete(RUN_DETAIL_WORKSPACE_DISCLOSURES_EXPANDED_PARAM);
-  } else if (expanded) {
-    params.set(RUN_DETAIL_WORKSPACE_DISCLOSURES_EXPANDED_PARAM, "1");
-  } else {
-    params.set(RUN_DETAIL_WORKSPACE_DISCLOSURES_EXPANDED_PARAM, "0");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (expanded === null) {
+      params.delete(RUN_DETAIL_WORKSPACE_DISCLOSURES_EXPANDED_PARAM);
+    } else if (expanded) {
+      params.set(RUN_DETAIL_WORKSPACE_DISCLOSURES_EXPANDED_PARAM, "1");
+    } else {
+      params.set(RUN_DETAIL_WORKSPACE_DISCLOSURES_EXPANDED_PARAM, "0");
+    }
+    },
+  });
 }

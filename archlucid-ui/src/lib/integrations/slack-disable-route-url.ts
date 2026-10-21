@@ -1,4 +1,5 @@
 import { INTEGRATIONS_SLACK_PATH } from "@/lib/integrations-nav-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const SLACK_DISABLE_ID_PARAM = "slackDisableId";
 
@@ -15,16 +16,16 @@ export function slackDisableRouteHrefFromSearch(
   routingSubscriptionId: string | null,
   pathname: string = INTEGRATIONS_SLACK_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const disableId = (routingSubscriptionId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const disableId = (routingSubscriptionId ?? "").trim();
 
-  if (disableId.length === 0) {
-    params.delete(SLACK_DISABLE_ID_PARAM);
-  } else {
-    params.set(SLACK_DISABLE_ID_PARAM, disableId);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (disableId.length === 0) {
+      params.delete(SLACK_DISABLE_ID_PARAM);
+    } else {
+      params.set(SLACK_DISABLE_ID_PARAM, disableId);
+    }
+    },
+  });
 }

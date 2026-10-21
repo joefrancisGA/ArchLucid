@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const GLOBAL_SEARCH_BAR_OPEN_PARAM = "globalSearchOpen";
 
 export function parseGlobalSearchBarOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,17 +16,7 @@ export function globalSearchBarOverlayHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(GLOBAL_SEARCH_BAR_OPEN_PARAM);
-  } else {
-    params.set(GLOBAL_SEARCH_BAR_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, GLOBAL_SEARCH_BAR_OPEN_PARAM);
 }
 
 export function currentPathnameWithSearch(pathname: string, currentSearch: string): string {

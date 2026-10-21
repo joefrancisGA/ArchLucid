@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const MANIFEST_VERIFICATION_APPENDIX_OPEN_PARAM = "manifestVerificationAppendixOpen";
 
 export function parseManifestVerificationAppendixOpenFromSearch(raw: string | null | undefined): boolean | null {
@@ -19,15 +20,5 @@ export function manifestVerificationAppendixDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(MANIFEST_VERIFICATION_APPENDIX_OPEN_PARAM);
-  } else {
-    params.set(MANIFEST_VERIFICATION_APPENDIX_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, MANIFEST_VERIFICATION_APPENDIX_OPEN_PARAM);
 }

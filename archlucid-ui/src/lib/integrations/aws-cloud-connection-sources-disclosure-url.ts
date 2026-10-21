@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const AWS_CLOUD_CONNECTION_SOURCES_OPEN_PARAM = "awsCloudConnectionSourcesOpen";
 
 export function parseAwsCloudConnectionSourcesOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function awsCloudConnectionSourcesDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(AWS_CLOUD_CONNECTION_SOURCES_OPEN_PARAM);
-  } else {
-    params.set(AWS_CLOUD_CONNECTION_SOURCES_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, AWS_CLOUD_CONNECTION_SOURCES_OPEN_PARAM);
 }

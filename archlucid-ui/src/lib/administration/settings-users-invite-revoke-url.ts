@@ -1,4 +1,5 @@
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const SETTINGS_USERS_REVOKE_INVITE_ID_PARAM = "revokeInviteId";
 
@@ -15,16 +16,16 @@ export function settingsUsersInviteRevokeHrefFromSearch(
   invitationId: string | null,
   pathname: string = SETTINGS_USERS_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = (invitationId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = (invitationId ?? "").trim();
 
-  if (trimmed.length === 0) {
-    params.delete(SETTINGS_USERS_REVOKE_INVITE_ID_PARAM);
-  } else {
-    params.set(SETTINGS_USERS_REVOKE_INVITE_ID_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(SETTINGS_USERS_REVOKE_INVITE_ID_PARAM);
+    } else {
+      params.set(SETTINGS_USERS_REVOKE_INVITE_ID_PARAM, trimmed);
+    }
+    },
+  });
 }

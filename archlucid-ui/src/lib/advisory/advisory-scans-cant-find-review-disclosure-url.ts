@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const ADVISORY_SCANS_CANT_FIND_REVIEW_OPEN_PARAM = "advisoryScansCantFindReviewOpen";
 
 export function parseAdvisoryScansCantFindReviewOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function advisoryScansCantFindReviewDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(ADVISORY_SCANS_CANT_FIND_REVIEW_OPEN_PARAM);
-  } else {
-    params.set(ADVISORY_SCANS_CANT_FIND_REVIEW_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, ADVISORY_SCANS_CANT_FIND_REVIEW_OPEN_PARAM);
 }

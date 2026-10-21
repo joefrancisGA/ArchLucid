@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const RUN_DELIVERABLES_OPEN_PARAM = "runDeliverablesOpen";
 
 export function parseRunDeliverablesOpenFromSearch(raw: string | null | undefined): boolean | null {
@@ -19,15 +20,5 @@ export function runDetailDeliverablesDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(RUN_DELIVERABLES_OPEN_PARAM);
-  } else {
-    params.set(RUN_DELIVERABLES_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, RUN_DELIVERABLES_OPEN_PARAM);
 }

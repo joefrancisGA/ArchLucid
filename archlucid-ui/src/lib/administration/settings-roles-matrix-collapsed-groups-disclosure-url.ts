@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const SETTINGS_ROLES_MATRIX_COLLAPSED_GROUPS_PARAM = "settingsRolesMatrixCollapsedGroups";
 
 export function parseSettingsRolesMatrixCollapsedGroupsFromSearch(
@@ -24,15 +25,15 @@ export function settingsRolesMatrixCollapsedGroupsDisclosureHrefFromSearch(
   collapsedGroups: readonly string[],
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (collapsedGroups.length === 0) {
-    params.delete(SETTINGS_ROLES_MATRIX_COLLAPSED_GROUPS_PARAM);
-  } else {
-    params.set(SETTINGS_ROLES_MATRIX_COLLAPSED_GROUPS_PARAM, collapsedGroups.join(","));
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (collapsedGroups.length === 0) {
+      params.delete(SETTINGS_ROLES_MATRIX_COLLAPSED_GROUPS_PARAM);
+    } else {
+      params.set(SETTINGS_ROLES_MATRIX_COLLAPSED_GROUPS_PARAM, collapsedGroups.join(","));
+    }
+    },
+  });
 }

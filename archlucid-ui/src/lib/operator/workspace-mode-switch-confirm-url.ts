@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const WORKSPACE_MODE_SWITCH_CONFIRM_PARAM = "workspaceSwitchConfirm";
 
 export function parseWorkspaceModeSwitchConfirmOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function workspaceModeSwitchConfirmHrefFromSearch(
   confirmOpen: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!confirmOpen) {
-    params.delete(WORKSPACE_MODE_SWITCH_CONFIRM_PARAM);
-  } else {
-    params.set(WORKSPACE_MODE_SWITCH_CONFIRM_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, confirmOpen, pathname, WORKSPACE_MODE_SWITCH_CONFIRM_PARAM);
 }

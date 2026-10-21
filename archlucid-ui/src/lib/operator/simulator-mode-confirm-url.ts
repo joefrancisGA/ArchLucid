@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const SIMULATOR_MODE_CONFIRM_OPEN_PARAM = "simulatorModeConfirmOpen";
 
 export function parseSimulatorModeConfirmOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function simulatorModeConfirmHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(SIMULATOR_MODE_CONFIRM_OPEN_PARAM);
-  } else {
-    params.set(SIMULATOR_MODE_CONFIRM_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, SIMULATOR_MODE_CONFIRM_OPEN_PARAM);
 }

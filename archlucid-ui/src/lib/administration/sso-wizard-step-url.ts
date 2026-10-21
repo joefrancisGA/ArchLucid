@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const SSO_WIZARD_PATH = "/administration/identity/sso-wizard" as const;
 
 export const SSO_WIZARD_STEP_PARAM = "step";
@@ -61,21 +62,21 @@ export function ssoWizardHrefFromSearch(
   state: SsoWizardUrlState,
   pathname: string = SSO_WIZARD_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (state.stepIndex <= 0) {
-    params.delete(SSO_WIZARD_STEP_PARAM);
-  } else {
-    params.set(SSO_WIZARD_STEP_PARAM, String(state.stepIndex));
-  }
+    if (state.stepIndex <= 0) {
+      params.delete(SSO_WIZARD_STEP_PARAM);
+    } else {
+      params.set(SSO_WIZARD_STEP_PARAM, String(state.stepIndex));
+    }
 
-  if (!state.cancelConfirmOpen) {
-    params.delete(SSO_WIZARD_CANCEL_CONFIRM_PARAM);
-  } else {
-    params.set(SSO_WIZARD_CANCEL_CONFIRM_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!state.cancelConfirmOpen) {
+      params.delete(SSO_WIZARD_CANCEL_CONFIRM_PARAM);
+    } else {
+      params.set(SSO_WIZARD_CANCEL_CONFIRM_PARAM, "1");
+    }
+    },
+  });
 }

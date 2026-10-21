@@ -1,4 +1,5 @@
 import { ACCOUNT_SECURITY_PATH } from "@/lib/account-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const ACCOUNT_SECURITY_REMOVE_METHOD_PARAM = "removeMethod";
 export const ACCOUNT_SECURITY_LINK_PROPOSAL_PARAM = "linkProposal";
@@ -29,23 +30,23 @@ export function accountSecurityRemoveLinkHrefFromSearch(
   state: AccountSecurityRemoveLinkUrlState,
   pathname: string = ACCOUNT_SECURITY_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const removeMethodIdentityId = (state.removeMethodIdentityId ?? "").trim();
-  const linkProposalId = (state.linkProposalId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const removeMethodIdentityId = (state.removeMethodIdentityId ?? "").trim();
+    const linkProposalId = (state.linkProposalId ?? "").trim();
 
-  if (removeMethodIdentityId.length === 0) {
-    params.delete(ACCOUNT_SECURITY_REMOVE_METHOD_PARAM);
-  } else {
-    params.set(ACCOUNT_SECURITY_REMOVE_METHOD_PARAM, removeMethodIdentityId);
-  }
+    if (removeMethodIdentityId.length === 0) {
+      params.delete(ACCOUNT_SECURITY_REMOVE_METHOD_PARAM);
+    } else {
+      params.set(ACCOUNT_SECURITY_REMOVE_METHOD_PARAM, removeMethodIdentityId);
+    }
 
-  if (linkProposalId.length === 0) {
-    params.delete(ACCOUNT_SECURITY_LINK_PROPOSAL_PARAM);
-  } else {
-    params.set(ACCOUNT_SECURITY_LINK_PROPOSAL_PARAM, linkProposalId);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (linkProposalId.length === 0) {
+      params.delete(ACCOUNT_SECURITY_LINK_PROPOSAL_PARAM);
+    } else {
+      params.set(ACCOUNT_SECURITY_LINK_PROPOSAL_PARAM, linkProposalId);
+    }
+    },
+  });
 }

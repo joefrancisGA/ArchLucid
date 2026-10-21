@@ -1,6 +1,7 @@
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 
 import {
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
   defaultAuditTrailViewMode,
   type AuditTrailViewMode,
 } from "@/lib/audit-trail-view-mode";
@@ -32,16 +33,16 @@ export function auditTrailViewModeHrefFromSearch(
   buyerPolishedShell: boolean,
   pathname: string = GOVERNANCE_AUDIT_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const defaultMode = defaultAuditTrailViewMode(buyerPolishedShell);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const defaultMode = defaultAuditTrailViewMode(buyerPolishedShell);
 
-  if (viewMode === defaultMode) {
-    params.delete(AUDIT_TRAIL_VIEW_PARAM);
-  } else {
-    params.set(AUDIT_TRAIL_VIEW_PARAM, viewMode);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (viewMode === defaultMode) {
+      params.delete(AUDIT_TRAIL_VIEW_PARAM);
+    } else {
+      params.set(AUDIT_TRAIL_VIEW_PARAM, viewMode);
+    }
+    },
+  });
 }

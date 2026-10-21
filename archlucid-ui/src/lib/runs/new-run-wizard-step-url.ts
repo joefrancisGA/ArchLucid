@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 const NEW_RUN_WIZARD_STEP_PARAM = "step";
 
 export function parseNewRunWizardStepFromSearch(raw: string | null | undefined): number | null {
@@ -29,15 +30,15 @@ export function newRunWizardStepHrefFromSearch(
   stepIndex: number,
   pathname: string = "/architecture/reviews/new",
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (stepIndex <= 0) {
-    params.delete(NEW_RUN_WIZARD_STEP_PARAM);
-  } else {
-    params.set(NEW_RUN_WIZARD_STEP_PARAM, String(stepIndex));
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (stepIndex <= 0) {
+      params.delete(NEW_RUN_WIZARD_STEP_PARAM);
+    } else {
+      params.set(NEW_RUN_WIZARD_STEP_PARAM, String(stepIndex));
+    }
+    },
+  });
 }

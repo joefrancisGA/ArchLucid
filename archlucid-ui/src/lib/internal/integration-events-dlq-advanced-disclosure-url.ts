@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const INTEGRATION_EVENTS_DLQ_ADVANCED_KEY_PARAM = "integrationEventsDlqAdvancedKey";
 
 export function parseIntegrationEventsDlqAdvancedKeyFromSearch(raw: string | null | undefined): string {
@@ -13,16 +14,16 @@ export function integrationEventsDlqAdvancedDisclosureHrefFromSearch(
   outboxId: string | null,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = (outboxId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = (outboxId ?? "").trim();
 
-  if (trimmed.length === 0) {
-    params.delete(INTEGRATION_EVENTS_DLQ_ADVANCED_KEY_PARAM);
-  } else {
-    params.set(INTEGRATION_EVENTS_DLQ_ADVANCED_KEY_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(INTEGRATION_EVENTS_DLQ_ADVANCED_KEY_PARAM);
+    } else {
+      params.set(INTEGRATION_EVENTS_DLQ_ADVANCED_KEY_PARAM, trimmed);
+    }
+    },
+  });
 }

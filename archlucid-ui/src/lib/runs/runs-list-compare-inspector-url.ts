@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const RUNS_LIST_PATH = "/architecture/reviews" as const;
 
 export const RUNS_LIST_INSPECTOR_RUN_PARAM = "inspectorRunId";
@@ -38,23 +39,23 @@ export function runsListCompareInspectorHrefFromSearch(
   state: RunsListCompareInspectorUrlState,
   pathname: string = RUNS_LIST_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const inspectorRunId = (state.inspectorRunId ?? "").trim();
-  const compareRunIds = state.compareRunIds.map((id) => id.trim()).filter((id) => id.length > 0);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const inspectorRunId = (state.inspectorRunId ?? "").trim();
+    const compareRunIds = state.compareRunIds.map((id) => id.trim()).filter((id) => id.length > 0);
 
-  if (inspectorRunId.length === 0) {
-    params.delete(RUNS_LIST_INSPECTOR_RUN_PARAM);
-  } else {
-    params.set(RUNS_LIST_INSPECTOR_RUN_PARAM, inspectorRunId);
-  }
+    if (inspectorRunId.length === 0) {
+      params.delete(RUNS_LIST_INSPECTOR_RUN_PARAM);
+    } else {
+      params.set(RUNS_LIST_INSPECTOR_RUN_PARAM, inspectorRunId);
+    }
 
-  if (compareRunIds.length === 0) {
-    params.delete(RUNS_LIST_COMPARE_RUNS_PARAM);
-  } else {
-    params.set(RUNS_LIST_COMPARE_RUNS_PARAM, compareRunIds.join(","));
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (compareRunIds.length === 0) {
+      params.delete(RUNS_LIST_COMPARE_RUNS_PARAM);
+    } else {
+      params.set(RUNS_LIST_COMPARE_RUNS_PARAM, compareRunIds.join(","));
+    }
+    },
+  });
 }

@@ -1,4 +1,5 @@
 import type { ArchitectureDiagramElementKind } from "@/lib/architecture/architecture-diagram-provenance";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const ARCHITECTURE_DIAGRAM_KIND_PARAM = "diagKind";
 export const ARCHITECTURE_DIAGRAM_ID_PARAM = "diagId";
@@ -51,25 +52,25 @@ export function architectureDiagramSelectionHrefFromSearch(
   state: ArchitectureDiagramSelectionUrlState,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const elementId = (state.elementId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const elementId = (state.elementId ?? "").trim();
 
-  if (state.elementKind === null || elementId.length === 0) {
-    params.delete(ARCHITECTURE_DIAGRAM_KIND_PARAM);
-    params.delete(ARCHITECTURE_DIAGRAM_ID_PARAM);
-    params.delete(ARCHITECTURE_DIAGRAM_EDIT_PARAM);
-  } else {
-    params.set(ARCHITECTURE_DIAGRAM_KIND_PARAM, state.elementKind);
-    params.set(ARCHITECTURE_DIAGRAM_ID_PARAM, elementId);
-
-    if (!state.editorOpen) {
+    if (state.elementKind === null || elementId.length === 0) {
+      params.delete(ARCHITECTURE_DIAGRAM_KIND_PARAM);
+      params.delete(ARCHITECTURE_DIAGRAM_ID_PARAM);
       params.delete(ARCHITECTURE_DIAGRAM_EDIT_PARAM);
     } else {
-      params.set(ARCHITECTURE_DIAGRAM_EDIT_PARAM, "1");
+      params.set(ARCHITECTURE_DIAGRAM_KIND_PARAM, state.elementKind);
+      params.set(ARCHITECTURE_DIAGRAM_ID_PARAM, elementId);
+
+      if (!state.editorOpen) {
+        params.delete(ARCHITECTURE_DIAGRAM_EDIT_PARAM);
+      } else {
+        params.set(ARCHITECTURE_DIAGRAM_EDIT_PARAM, "1");
+      }
     }
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    },
+  });
 }

@@ -3,6 +3,7 @@ import {
   type AzureExtractorDemoScenarioId,
 } from "@/lib/arch-lucid-azure-extractor-demo-scenarios";
 import {
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
   isAzureLabDemoScenarioId,
   type AzureLabDemoScenarioId,
 } from "@/lib/azure-lab-inventory-demo-scenarios";
@@ -34,15 +35,15 @@ export function extractUploadDemoScenarioHrefFromSearch(
   scenarioId: ExtractUploadDemoScenarioId | null,
   pathname: string = EXTRACT_UPLOAD_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (scenarioId === null) {
-    params.delete(EXTRACT_UPLOAD_DEMO_SCENARIO_PARAM);
-  } else {
-    params.set(EXTRACT_UPLOAD_DEMO_SCENARIO_PARAM, scenarioId);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (scenarioId === null) {
+      params.delete(EXTRACT_UPLOAD_DEMO_SCENARIO_PARAM);
+    } else {
+      params.set(EXTRACT_UPLOAD_DEMO_SCENARIO_PARAM, scenarioId);
+    }
+    },
+  });
 }

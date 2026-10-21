@@ -1,4 +1,5 @@
 import { CLOUD_CONNECTIONS_GCP_PATH } from "@/lib/cloud-connections-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const GCP_CONNECTION_WIZARD_STEP_PARAM = "gcpStep";
 
@@ -33,15 +34,15 @@ export function gcpConnectionWizardStepHrefFromSearch(
   stepIndex: number,
   pathname: string = CLOUD_CONNECTIONS_GCP_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (stepIndex <= 0) {
-    params.delete(GCP_CONNECTION_WIZARD_STEP_PARAM);
-  } else {
-    params.set(GCP_CONNECTION_WIZARD_STEP_PARAM, String(stepIndex));
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (stepIndex <= 0) {
+      params.delete(GCP_CONNECTION_WIZARD_STEP_PARAM);
+    } else {
+      params.set(GCP_CONNECTION_WIZARD_STEP_PARAM, String(stepIndex));
+    }
+    },
+  });
 }

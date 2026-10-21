@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const LAYER_HEADER_COLLAPSIBLE_GUIDANCE_OPEN_PARAM = "layerHeaderCollapsibleGuidanceOpen";
 
 export function parseLayerHeaderCollapsibleGuidanceOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function layerHeaderCollapsibleGuidanceDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(LAYER_HEADER_COLLAPSIBLE_GUIDANCE_OPEN_PARAM);
-  } else {
-    params.set(LAYER_HEADER_COLLAPSIBLE_GUIDANCE_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, LAYER_HEADER_COLLAPSIBLE_GUIDANCE_OPEN_PARAM);
 }

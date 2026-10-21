@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const CLOUD_CONNECTIONS_HUB_VOCABULARY_OPEN_PARAM = "cloudConnectionsHubVocabularyOpen";
 
 export function parseCloudConnectionsHubVocabularyOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function cloudConnectionsHubVocabularyDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(CLOUD_CONNECTIONS_HUB_VOCABULARY_OPEN_PARAM);
-  } else {
-    params.set(CLOUD_CONNECTIONS_HUB_VOCABULARY_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, CLOUD_CONNECTIONS_HUB_VOCABULARY_OPEN_PARAM);
 }

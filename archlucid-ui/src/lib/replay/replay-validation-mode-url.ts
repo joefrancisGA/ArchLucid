@@ -1,5 +1,6 @@
 import { INTERNAL_REPLAY_PATH } from "@/lib/internal-ops-route-paths";
 import {
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
   isReplayValidationModeId,
   REPLAY_VALIDATION_MODES,
   type ReplayValidationModeId,
@@ -28,15 +29,15 @@ export function replayValidationModeHrefFromSearch(
   mode: ReplayValidationModeId,
   pathname: string = INTERNAL_REPLAY_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (mode === DEFAULT_REPLAY_VALIDATION_MODE) {
-    params.delete(REPLAY_VALIDATION_MODE_PARAM);
-  } else {
-    params.set(REPLAY_VALIDATION_MODE_PARAM, mode);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (mode === DEFAULT_REPLAY_VALIDATION_MODE) {
+      params.delete(REPLAY_VALIDATION_MODE_PARAM);
+    } else {
+      params.set(REPLAY_VALIDATION_MODE_PARAM, mode);
+    }
+    },
+  });
 }

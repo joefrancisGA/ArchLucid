@@ -1,6 +1,7 @@
 import type { ConnectorPurposeGroupId } from "@/lib/connector-operations-present";
 import { CONNECTOR_PURPOSE_GROUPS } from "@/lib/connector-operations-present";
 import { ADMINISTRATION_CONNECTION_STATUS_PATH } from "@/lib/integrations-nav-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const CONNECTOR_OPERATIONS_CATEGORY_PARAM = "category";
 
@@ -29,15 +30,15 @@ export function connectorOperationsCategoryHrefFromSearch(
   category: ConnectorPurposeGroupId | null,
   pathname: string = ADMINISTRATION_CONNECTION_STATUS_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (category === null) {
-    params.delete(CONNECTOR_OPERATIONS_CATEGORY_PARAM);
-  } else {
-    params.set(CONNECTOR_OPERATIONS_CATEGORY_PARAM, category);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (category === null) {
+      params.delete(CONNECTOR_OPERATIONS_CATEGORY_PARAM);
+    } else {
+      params.set(CONNECTOR_OPERATIONS_CATEGORY_PARAM, category);
+    }
+    },
+  });
 }

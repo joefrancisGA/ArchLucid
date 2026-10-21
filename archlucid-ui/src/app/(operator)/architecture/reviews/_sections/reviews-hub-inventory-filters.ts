@@ -14,6 +14,7 @@ import {
 } from "./reviews-hub-copy";
 import { toReviewsHubReviewRowDisplay } from "./reviews-hub-package-display";
 import type { ReviewsHubOverallStatus } from "./reviews-hub-review-status";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export type ReviewFilterId =
   | "all"
@@ -112,12 +113,13 @@ export function reviewsHubInventoryClearFiltersHrefFromSearch(
   currentSearch: string,
   pathname: string = "/architecture/reviews",
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  params.delete("filter");
-  params.delete(REVIEWS_HUB_INVENTORY_SEARCH_PARAM);
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    params.delete("filter");
+    params.delete(REVIEWS_HUB_INVENTORY_SEARCH_PARAM);
+    },
+  });
 }
 
 export function resolveInventoryFilterCountRuns(

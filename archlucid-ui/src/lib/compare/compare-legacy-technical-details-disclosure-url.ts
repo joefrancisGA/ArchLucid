@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const COMPARE_LEGACY_TECHNICAL_DETAILS_OPEN_PARAM = "compareLegacyTechnicalDetailsOpen";
 
 export function parseCompareLegacyTechnicalDetailsOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function compareLegacyTechnicalDetailsDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(COMPARE_LEGACY_TECHNICAL_DETAILS_OPEN_PARAM);
-  } else {
-    params.set(COMPARE_LEGACY_TECHNICAL_DETAILS_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, COMPARE_LEGACY_TECHNICAL_DETAILS_OPEN_PARAM);
 }

@@ -1,4 +1,5 @@
 import { INTERNAL_TENANTS_PATH } from "@/lib/internal-ops-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const ADMIN_TENANT_ID_PARAM = "tenantId";
 export const ADMIN_TENANT_ACTION_PARAM = "tenantAction";
@@ -41,18 +42,18 @@ export function adminTenantsActionHrefFromSearch(
   state: AdminTenantsActionUrlState,
   pathname: string = INTERNAL_TENANTS_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const tenantId = (state.tenantId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const tenantId = (state.tenantId ?? "").trim();
 
-  if (tenantId.length === 0 || state.action === null) {
-    params.delete(ADMIN_TENANT_ID_PARAM);
-    params.delete(ADMIN_TENANT_ACTION_PARAM);
-  } else {
-    params.set(ADMIN_TENANT_ID_PARAM, tenantId);
-    params.set(ADMIN_TENANT_ACTION_PARAM, state.action);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (tenantId.length === 0 || state.action === null) {
+      params.delete(ADMIN_TENANT_ID_PARAM);
+      params.delete(ADMIN_TENANT_ACTION_PARAM);
+    } else {
+      params.set(ADMIN_TENANT_ID_PARAM, tenantId);
+      params.set(ADMIN_TENANT_ACTION_PARAM, state.action);
+    }
+    },
+  });
 }

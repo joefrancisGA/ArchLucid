@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const TIER2_CONNECTION_WIZARD_STEP_PARAM = "step";
 
 const TIER2_CONNECTION_WIZARD_MAX_STEP_INDEX = 3;
@@ -31,15 +32,15 @@ export function tier2ConnectionWizardStepHrefFromSearch(
   stepIndex: number,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (stepIndex <= 0) {
-    params.delete(TIER2_CONNECTION_WIZARD_STEP_PARAM);
-  } else {
-    params.set(TIER2_CONNECTION_WIZARD_STEP_PARAM, String(stepIndex));
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (stepIndex <= 0) {
+      params.delete(TIER2_CONNECTION_WIZARD_STEP_PARAM);
+    } else {
+      params.set(TIER2_CONNECTION_WIZARD_STEP_PARAM, String(stepIndex));
+    }
+    },
+  });
 }

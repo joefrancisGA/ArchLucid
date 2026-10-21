@@ -1,6 +1,7 @@
 import type { PilotOutcomesPeriodPresetId } from "@/lib/pilot-outcomes-period-presets";
 import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 import {
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
   SPONSOR_REPORT_FROM_PARAM,
   SPONSOR_REPORT_TO_PARAM,
 } from "@/lib/insights/sponsor-report-custom-date-url";
@@ -39,20 +40,20 @@ export function sponsorReportPeriodHrefFromSearch(
   period: PilotOutcomesPeriodPresetId,
   pathname: string = SPONSOR_REPORT_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (period === DEFAULT_SPONSOR_REPORT_PERIOD) {
-    params.delete(SPONSOR_REPORT_PERIOD_PARAM);
-  } else {
-    params.set(SPONSOR_REPORT_PERIOD_PARAM, period);
-  }
+    if (period === DEFAULT_SPONSOR_REPORT_PERIOD) {
+      params.delete(SPONSOR_REPORT_PERIOD_PARAM);
+    } else {
+      params.set(SPONSOR_REPORT_PERIOD_PARAM, period);
+    }
 
-  if (period !== "custom") {
-    params.delete(SPONSOR_REPORT_FROM_PARAM);
-    params.delete(SPONSOR_REPORT_TO_PARAM);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (period !== "custom") {
+      params.delete(SPONSOR_REPORT_FROM_PARAM);
+      params.delete(SPONSOR_REPORT_TO_PARAM);
+    }
+    },
+  });
 }

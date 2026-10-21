@@ -1,4 +1,5 @@
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const AUDIT_TRAIL_FROM_PARAM = "from";
 export const AUDIT_TRAIL_TO_PARAM = "to";
@@ -25,23 +26,23 @@ export function auditTrailCustomDateHrefFromSearch(
   toUtc: string,
   pathname: string = GOVERNANCE_AUDIT_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const from = parseAuditTrailCustomDateFromSearch(fromUtc);
-  const to = parseAuditTrailCustomDateFromSearch(toUtc);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const from = parseAuditTrailCustomDateFromSearch(fromUtc);
+    const to = parseAuditTrailCustomDateFromSearch(toUtc);
 
-  if (from.length === 0) {
-    params.delete(AUDIT_TRAIL_FROM_PARAM);
-  } else {
-    params.set(AUDIT_TRAIL_FROM_PARAM, from);
-  }
+    if (from.length === 0) {
+      params.delete(AUDIT_TRAIL_FROM_PARAM);
+    } else {
+      params.set(AUDIT_TRAIL_FROM_PARAM, from);
+    }
 
-  if (to.length === 0) {
-    params.delete(AUDIT_TRAIL_TO_PARAM);
-  } else {
-    params.set(AUDIT_TRAIL_TO_PARAM, to);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (to.length === 0) {
+      params.delete(AUDIT_TRAIL_TO_PARAM);
+    } else {
+      params.set(AUDIT_TRAIL_TO_PARAM, to);
+    }
+    },
+  });
 }

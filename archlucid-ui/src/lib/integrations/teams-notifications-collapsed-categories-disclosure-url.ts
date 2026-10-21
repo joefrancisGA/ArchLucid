@@ -1,5 +1,6 @@
 import type { TeamsNotificationCategory } from "@/lib/teams-integration-notification-catalog";
 import { TEAMS_NOTIFICATION_CATEGORIES } from "@/lib/teams-integration-notification-catalog";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const TEAMS_NOTIFICATIONS_COLLAPSED_CATEGORIES_PARAM = "teamsNotificationsCollapsedCategories";
 
@@ -31,15 +32,15 @@ export function teamsNotificationsCollapsedCategoriesDisclosureHrefFromSearch(
   collapsedCategoryIds: readonly TeamsNotificationCategory["id"][],
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (collapsedCategoryIds.length === 0) {
-    params.delete(TEAMS_NOTIFICATIONS_COLLAPSED_CATEGORIES_PARAM);
-  } else {
-    params.set(TEAMS_NOTIFICATIONS_COLLAPSED_CATEGORIES_PARAM, collapsedCategoryIds.join(","));
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (collapsedCategoryIds.length === 0) {
+      params.delete(TEAMS_NOTIFICATIONS_COLLAPSED_CATEGORIES_PARAM);
+    } else {
+      params.set(TEAMS_NOTIFICATIONS_COLLAPSED_CATEGORIES_PARAM, collapsedCategoryIds.join(","));
+    }
+    },
+  });
 }

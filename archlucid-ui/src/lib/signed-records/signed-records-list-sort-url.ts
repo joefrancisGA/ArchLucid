@@ -1,4 +1,5 @@
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const SIGNED_RECORDS_LIST_SORT_PARAM = "sort";
 export const SIGNED_RECORDS_LIST_SORT_DIR_PARAM = "dir";
@@ -47,21 +48,21 @@ export function signedRecordsListSortHrefFromSearch(
   sortAsc: boolean,
   pathname: string = SIGNED_RECORDS_LIST_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (sortKey === DEFAULT_SIGNED_RECORDS_LIST_SORT_KEY) {
-    params.delete(SIGNED_RECORDS_LIST_SORT_PARAM);
-  } else {
-    params.set(SIGNED_RECORDS_LIST_SORT_PARAM, sortKey);
-  }
+    if (sortKey === DEFAULT_SIGNED_RECORDS_LIST_SORT_KEY) {
+      params.delete(SIGNED_RECORDS_LIST_SORT_PARAM);
+    } else {
+      params.set(SIGNED_RECORDS_LIST_SORT_PARAM, sortKey);
+    }
 
-  if (sortAsc === DEFAULT_SIGNED_RECORDS_LIST_SORT_ASC) {
-    params.delete(SIGNED_RECORDS_LIST_SORT_DIR_PARAM);
-  } else {
-    params.set(SIGNED_RECORDS_LIST_SORT_DIR_PARAM, sortAsc ? "asc" : "desc");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (sortAsc === DEFAULT_SIGNED_RECORDS_LIST_SORT_ASC) {
+      params.delete(SIGNED_RECORDS_LIST_SORT_DIR_PARAM);
+    } else {
+      params.set(SIGNED_RECORDS_LIST_SORT_DIR_PARAM, sortAsc ? "asc" : "desc");
+    }
+    },
+  });
 }

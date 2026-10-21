@@ -1,4 +1,5 @@
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const GRAPH_LOAD_REQUESTED_PARAM = "load";
 
@@ -17,15 +18,15 @@ export function graphLoadRequestedHrefFromSearch(
   loadRequested: boolean,
   pathname: string = EVIDENCE_GRAPH_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (loadRequested) {
-    params.set(GRAPH_LOAD_REQUESTED_PARAM, "1");
-  } else {
-    params.delete(GRAPH_LOAD_REQUESTED_PARAM);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (loadRequested) {
+      params.set(GRAPH_LOAD_REQUESTED_PARAM, "1");
+    } else {
+      params.delete(GRAPH_LOAD_REQUESTED_PARAM);
+    }
+    },
+  });
 }

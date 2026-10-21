@@ -1,6 +1,7 @@
 import { parseArchitectureNestedRoute } from "@/lib/architecture/working-architecture-draft-routes";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import type { ArchitectureIdentityChildReviewSummary } from "@/types/architecture-identity";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const WORKING_SEARCH_ARCHITECTURE_SCOPE_ALL = "all";
 
@@ -74,15 +75,14 @@ export function workingSearchArchitectureScopeHrefFromSearch(
   architectureId: string | null,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (architectureId === null) {
-    params.set("architectureId", WORKING_SEARCH_ARCHITECTURE_SCOPE_ALL);
-  } else {
-    params.set("architectureId", architectureId);
-  }
-
-  const query = params.toString();
-
-  return query.length === 0 ? pathname : `${pathname}?${query}`;
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    if (architectureId === null) {
+      params.set("architectureId", WORKING_SEARCH_ARCHITECTURE_SCOPE_ALL);
+    } else {
+      params.set("architectureId", architectureId);
+    }
+    },
+  });
 }

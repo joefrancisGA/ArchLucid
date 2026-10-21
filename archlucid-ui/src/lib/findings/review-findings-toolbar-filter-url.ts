@@ -1,4 +1,5 @@
 import {
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
   FILTER_OPTIONS,
   type RunDetailFindingsFilterKind,
 } from "@/components/findings/run-detail-findings-toolbar-presentation";
@@ -28,17 +29,16 @@ export function reviewFindingsToolbarFilterHrefFromSearch(
   pathname: string,
   filter: RunDetailFindingsFilterKind,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (filter === "all") {
-    params.delete(REVIEW_FINDINGS_TOOLBAR_FILTER_PARAM);
-  } else {
-    params.set(REVIEW_FINDINGS_TOOLBAR_FILTER_PARAM, filter);
-  }
-
-  const query = params.toString();
-
-  return query.length === 0 ? pathname : `${pathname}?${query}`;
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    if (filter === "all") {
+      params.delete(REVIEW_FINDINGS_TOOLBAR_FILTER_PARAM);
+    } else {
+      params.set(REVIEW_FINDINGS_TOOLBAR_FILTER_PARAM, filter);
+    }
+    },
+  });
 }
 
 /** Persists toolbar filter in the address bar without a Next.js soft navigation. */

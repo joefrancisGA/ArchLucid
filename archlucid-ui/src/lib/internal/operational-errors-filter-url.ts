@@ -1,4 +1,5 @@
 import { INTERNAL_OPERATIONAL_ERRORS_PATH } from "@/lib/internal-ops-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const OPERATIONAL_ERRORS_CATEGORY_PARAM = "category";
 export const OPERATIONAL_ERRORS_STATUS_PARAM = "status";
@@ -41,17 +42,17 @@ export function operationalErrorsCategoryHrefFromSearch(
   category: string,
   pathname: string = INTERNAL_OPERATIONAL_ERRORS_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (category === "all") {
-    params.delete(OPERATIONAL_ERRORS_CATEGORY_PARAM);
-  } else {
-    params.set(OPERATIONAL_ERRORS_CATEGORY_PARAM, category);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (category === "all") {
+      params.delete(OPERATIONAL_ERRORS_CATEGORY_PARAM);
+    } else {
+      params.set(OPERATIONAL_ERRORS_CATEGORY_PARAM, category);
+    }
+    },
+  });
 }
 
 export function operationalErrorsStatusHrefFromSearch(
@@ -59,17 +60,17 @@ export function operationalErrorsStatusHrefFromSearch(
   status: string,
   pathname: string = INTERNAL_OPERATIONAL_ERRORS_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (status === "all") {
-    params.delete(OPERATIONAL_ERRORS_STATUS_PARAM);
-  } else {
-    params.set(OPERATIONAL_ERRORS_STATUS_PARAM, status);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (status === "all") {
+      params.delete(OPERATIONAL_ERRORS_STATUS_PARAM);
+    } else {
+      params.set(OPERATIONAL_ERRORS_STATUS_PARAM, status);
+    }
+    },
+  });
 }
 
 export function parseOperationalErrorsTenantFromSearch(raw: string | null | undefined): string {
@@ -93,18 +94,18 @@ export function operationalErrorsTenantHrefFromSearch(
   tenant: string,
   pathname: string = INTERNAL_OPERATIONAL_ERRORS_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = tenant.trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = tenant.trim();
 
-  if (trimmed.length === 0) {
-    params.delete(OPERATIONAL_ERRORS_TENANT_PARAM);
-  } else {
-    params.set(OPERATIONAL_ERRORS_TENANT_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(OPERATIONAL_ERRORS_TENANT_PARAM);
+    } else {
+      params.set(OPERATIONAL_ERRORS_TENANT_PARAM, trimmed);
+    }
+    },
+  });
 }
 
 export function operationalErrorsCorrelationHrefFromSearch(
@@ -112,16 +113,16 @@ export function operationalErrorsCorrelationHrefFromSearch(
   correlation: string,
   pathname: string = INTERNAL_OPERATIONAL_ERRORS_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = correlation.trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = correlation.trim();
 
-  if (trimmed.length === 0) {
-    params.delete(OPERATIONAL_ERRORS_CORRELATION_PARAM);
-  } else {
-    params.set(OPERATIONAL_ERRORS_CORRELATION_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(OPERATIONAL_ERRORS_CORRELATION_PARAM);
+    } else {
+      params.set(OPERATIONAL_ERRORS_CORRELATION_PARAM, trimmed);
+    }
+    },
+  });
 }

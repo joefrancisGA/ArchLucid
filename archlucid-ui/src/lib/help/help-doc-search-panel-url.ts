@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const HELP_DOC_SEARCH_OPEN_PARAM = "helpSearchOpen";
 export const HELP_DOC_SEARCH_QUERY_PARAM = "helpSearchQ";
 
@@ -29,23 +30,23 @@ export function helpDocSearchPanelHrefFromSearch(
   state: HelpDocSearchPanelUrlState,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const query = state.query.trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const query = state.query.trim();
 
-  if (!state.open) {
-    params.delete(HELP_DOC_SEARCH_OPEN_PARAM);
-    params.delete(HELP_DOC_SEARCH_QUERY_PARAM);
-  } else {
-    params.set(HELP_DOC_SEARCH_OPEN_PARAM, "1");
-
-    if (query.length === 0) {
+    if (!state.open) {
+      params.delete(HELP_DOC_SEARCH_OPEN_PARAM);
       params.delete(HELP_DOC_SEARCH_QUERY_PARAM);
     } else {
-      params.set(HELP_DOC_SEARCH_QUERY_PARAM, query);
+      params.set(HELP_DOC_SEARCH_OPEN_PARAM, "1");
+
+      if (query.length === 0) {
+        params.delete(HELP_DOC_SEARCH_QUERY_PARAM);
+      } else {
+        params.set(HELP_DOC_SEARCH_QUERY_PARAM, query);
+      }
     }
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    },
+  });
 }

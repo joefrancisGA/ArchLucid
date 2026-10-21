@@ -2,6 +2,7 @@ import type { ArchitectureDraftCustomerStatus } from "@/lib/architecture/archite
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import {
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
   ARCHITECTURES_HUB_FILTER_ALL_LABEL,
   ARCHITECTURES_HUB_FILTER_ARCHIVED_LABEL,
   ARCHITECTURES_HUB_FILTER_DRAFT_LABEL,
@@ -85,36 +86,36 @@ export function architecturesHubFilterHrefFromSearch(
   filter: ArchitectureHubFilterId,
   pathname: string = ARCHITECTURES_LIST_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (filter === "all") {
-    params.delete(ARCHITECTURES_HUB_FILTER_PARAM);
-  } else {
-    params.set(ARCHITECTURES_HUB_FILTER_PARAM, filter);
+    if (filter === "all") {
+      params.delete(ARCHITECTURES_HUB_FILTER_PARAM);
+    } else {
+      params.set(ARCHITECTURES_HUB_FILTER_PARAM, filter);
+    }
+
+    const query = params.toString();
+
+    return query.length === 0 ? pathname : `${pathname}?${query}`;
   }
 
-  const query = params.toString();
+  export function architecturesHubSearchHrefFromSearch(
+    currentSearch: string,
+    query: string,
+    pathname: string = ARCHITECTURES_LIST_PATH,
+  ): string {
+    const params = new URLSearchParams(currentSearch);
+    const trimmed = query.trim();
 
-  return query.length === 0 ? pathname : `${pathname}?${query}`;
-}
-
-export function architecturesHubSearchHrefFromSearch(
-  currentSearch: string,
-  query: string,
-  pathname: string = ARCHITECTURES_LIST_PATH,
-): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = query.trim();
-
-  if (trimmed.length === 0) {
-    params.delete(ARCHITECTURES_HUB_SEARCH_PARAM);
-  } else {
-    params.set(ARCHITECTURES_HUB_SEARCH_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(ARCHITECTURES_HUB_SEARCH_PARAM);
+    } else {
+      params.set(ARCHITECTURES_HUB_SEARCH_PARAM, trimmed);
+    }
+    },
+  });
 }
 
 export function architecturesHubClearSearchHrefFromSearch(
@@ -129,17 +130,17 @@ export function architecturesHubSortHrefFromSearch(
   sort: ArchitectureHubSortId,
   pathname: string = ARCHITECTURES_LIST_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (sort === DEFAULT_ARCHITECTURES_HUB_SORT) {
-    params.delete(ARCHITECTURES_HUB_SORT_PARAM);
-  } else {
-    params.set(ARCHITECTURES_HUB_SORT_PARAM, sort);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (sort === DEFAULT_ARCHITECTURES_HUB_SORT) {
+      params.delete(ARCHITECTURES_HUB_SORT_PARAM);
+    } else {
+      params.set(ARCHITECTURES_HUB_SORT_PARAM, sort);
+    }
+    },
+  });
 }
 
 export function architecturesHubFilterEmptyReason(filter: ArchitectureHubFilterId): string {

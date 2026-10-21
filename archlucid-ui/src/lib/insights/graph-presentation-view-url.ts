@@ -1,5 +1,6 @@
 import type { EvidenceTrailPresentationView } from "@/app/(operator)/insights/evidence-graph/_sections/graph-page-helpers";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const GRAPH_PRESENTATION_PARAM = "presentation";
 
@@ -26,15 +27,15 @@ export function graphPresentationViewHrefFromSearch(
   presentation: EvidenceTrailPresentationView | null,
   pathname: string = EVIDENCE_GRAPH_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (presentation === null) {
-    params.delete(GRAPH_PRESENTATION_PARAM);
-  } else {
-    params.set(GRAPH_PRESENTATION_PARAM, presentation);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (presentation === null) {
+      params.delete(GRAPH_PRESENTATION_PARAM);
+    } else {
+      params.set(GRAPH_PRESENTATION_PARAM, presentation);
+    }
+    },
+  });
 }

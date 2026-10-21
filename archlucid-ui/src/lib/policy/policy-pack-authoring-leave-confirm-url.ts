@@ -1,4 +1,5 @@
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const POLICY_PACK_AUTHORING_LEAVE_CONFIRM_PARAM = "packAuthoringLeaveConfirm";
 
@@ -17,15 +18,15 @@ export function policyPackAuthoringLeaveConfirmHrefFromSearch(
   confirmOpen: boolean,
   pathname: string = GOVERNANCE_POLICY_PACKS_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!confirmOpen) {
-    params.delete(POLICY_PACK_AUTHORING_LEAVE_CONFIRM_PARAM);
-  } else {
-    params.set(POLICY_PACK_AUTHORING_LEAVE_CONFIRM_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!confirmOpen) {
+      params.delete(POLICY_PACK_AUTHORING_LEAVE_CONFIRM_PARAM);
+    } else {
+      params.set(POLICY_PACK_AUTHORING_LEAVE_CONFIRM_PARAM, "1");
+    }
+    },
+  });
 }

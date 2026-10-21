@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const SERVICENOW_INTEGRATION_SOURCES_OPEN_PARAM = "servicenowIntegrationSourcesOpen";
 
 export function parseServicenowIntegrationSourcesOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function servicenowIntegrationSourcesDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(SERVICENOW_INTEGRATION_SOURCES_OPEN_PARAM);
-  } else {
-    params.set(SERVICENOW_INTEGRATION_SOURCES_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, SERVICENOW_INTEGRATION_SOURCES_OPEN_PARAM);
 }

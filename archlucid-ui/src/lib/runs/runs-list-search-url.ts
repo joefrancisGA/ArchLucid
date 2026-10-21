@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const RUNS_LIST_SEARCH_PARAM = "q";
 
 export function parseRunsListSearchQuery(raw: string | null | undefined): string {
@@ -13,18 +14,18 @@ export function runsListSearchHrefFromSearch(
   query: string,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = query.trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = query.trim();
 
-  if (trimmed.length === 0) {
-    params.delete(RUNS_LIST_SEARCH_PARAM);
-  } else {
-    params.set(RUNS_LIST_SEARCH_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(RUNS_LIST_SEARCH_PARAM);
+    } else {
+      params.set(RUNS_LIST_SEARCH_PARAM, trimmed);
+    }
+    },
+  });
 }
 
 export function runsListClearSearchHrefFromSearch(currentSearch: string, pathname: string): string {

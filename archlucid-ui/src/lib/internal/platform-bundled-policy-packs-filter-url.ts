@@ -1,6 +1,7 @@
 import { INTERNAL_PLATFORM_BUNDLED_POLICY_PACKS_PATH } from "@/lib/internal-ops-route-paths";
 import type { PlatformBundledPolicyPackCategory } from "@/lib/platform-bundled-policy-packs-display";
 import { PLATFORM_BUNDLED_POLICY_PACK_CATEGORY_OPTIONS } from "@/lib/platform-bundled-policy-packs-display";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const PLATFORM_BUNDLED_POLICY_PACKS_SEARCH_PARAM = "q";
 export const PLATFORM_BUNDLED_POLICY_PACKS_CATEGORY_PARAM = "category";
@@ -36,18 +37,18 @@ export function platformBundledPolicyPacksSearchHrefFromSearch(
   query: string,
   pathname: string = INTERNAL_PLATFORM_BUNDLED_POLICY_PACKS_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = query.trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = query.trim();
 
-  if (trimmed.length === 0) {
-    params.delete(PLATFORM_BUNDLED_POLICY_PACKS_SEARCH_PARAM);
-  } else {
-    params.set(PLATFORM_BUNDLED_POLICY_PACKS_SEARCH_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(PLATFORM_BUNDLED_POLICY_PACKS_SEARCH_PARAM);
+    } else {
+      params.set(PLATFORM_BUNDLED_POLICY_PACKS_SEARCH_PARAM, trimmed);
+    }
+    },
+  });
 }
 
 export function platformBundledPolicyPacksCategoryHrefFromSearch(
@@ -55,15 +56,15 @@ export function platformBundledPolicyPacksCategoryHrefFromSearch(
   category: PlatformBundledPolicyPackCategory,
   pathname: string = INTERNAL_PLATFORM_BUNDLED_POLICY_PACKS_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (category === "all") {
-    params.delete(PLATFORM_BUNDLED_POLICY_PACKS_CATEGORY_PARAM);
-  } else {
-    params.set(PLATFORM_BUNDLED_POLICY_PACKS_CATEGORY_PARAM, category);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (category === "all") {
+      params.delete(PLATFORM_BUNDLED_POLICY_PACKS_CATEGORY_PARAM);
+    } else {
+      params.set(PLATFORM_BUNDLED_POLICY_PACKS_CATEGORY_PARAM, category);
+    }
+    },
+  });
 }

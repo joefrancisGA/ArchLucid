@@ -1,4 +1,5 @@
 import { resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const INFRA_RESOURCE_HUB_TECHNICAL_KEY_PARAM = "infraResourceHubTechnicalKey";
 
@@ -50,16 +51,16 @@ export function infraResourceHubTechnicalDisclosureHrefFromSearch(
   technicalKey: string | null,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = (technicalKey ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "infra-resource-hub-run-scope" },
+    mutate: (params) => {
+    const trimmed = (technicalKey ?? "").trim();
 
-  if (trimmed.length === 0 || !INFRA_RESOURCE_HUB_TECHNICAL_KEYS.includes(trimmed as InfraResourceHubTechnicalKey)) {
-    params.delete(INFRA_RESOURCE_HUB_TECHNICAL_KEY_PARAM);
-  } else {
-    params.set(INFRA_RESOURCE_HUB_TECHNICAL_KEY_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0 || !INFRA_RESOURCE_HUB_TECHNICAL_KEYS.includes(trimmed as InfraResourceHubTechnicalKey)) {
+      params.delete(INFRA_RESOURCE_HUB_TECHNICAL_KEY_PARAM);
+    } else {
+      params.set(INFRA_RESOURCE_HUB_TECHNICAL_KEY_PARAM, trimmed);
+    }
+    },
+  });
 }

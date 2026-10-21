@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const HELP_GOVERNANCE_APPROVAL_SOURCES_OPEN_PARAM = "helpGovernanceApprovalSourcesOpen";
 
 export function parseHelpGovernanceApprovalSourcesOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function helpGovernanceApprovalSourcesDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(HELP_GOVERNANCE_APPROVAL_SOURCES_OPEN_PARAM);
-  } else {
-    params.set(HELP_GOVERNANCE_APPROVAL_SOURCES_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, HELP_GOVERNANCE_APPROVAL_SOURCES_OPEN_PARAM);
 }

@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const WIZARD_INVENTORY_OPEN_PARAM = "wizardInventoryOpen";
 
 export function parseWizardInventoryOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function wizardStepCloudInventoryHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(WIZARD_INVENTORY_OPEN_PARAM);
-  } else {
-    params.set(WIZARD_INVENTORY_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, WIZARD_INVENTORY_OPEN_PARAM);
 }

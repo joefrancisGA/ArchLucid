@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const REVIEW_DELIVERABLE_OPEN_PARAM = "deliverableOpen";
 export const REVIEW_DELIVERABLE_AUDIENCE_PARAM = "deliverableAudience";
 
@@ -43,22 +44,22 @@ export function reviewExportDeliverablePanelsHrefFromSearch(
   state: ReviewExportDeliverablePanelsUrlState,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!state.open) {
-    params.delete(REVIEW_DELIVERABLE_OPEN_PARAM);
-    params.delete(REVIEW_DELIVERABLE_AUDIENCE_PARAM);
-  } else {
-    params.set(REVIEW_DELIVERABLE_OPEN_PARAM, "1");
-
-    if (state.audience === null) {
+    if (!state.open) {
+      params.delete(REVIEW_DELIVERABLE_OPEN_PARAM);
       params.delete(REVIEW_DELIVERABLE_AUDIENCE_PARAM);
     } else {
-      params.set(REVIEW_DELIVERABLE_AUDIENCE_PARAM, state.audience);
+      params.set(REVIEW_DELIVERABLE_OPEN_PARAM, "1");
+
+      if (state.audience === null) {
+        params.delete(REVIEW_DELIVERABLE_AUDIENCE_PARAM);
+      } else {
+        params.set(REVIEW_DELIVERABLE_AUDIENCE_PARAM, state.audience);
+      }
     }
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    },
+  });
 }

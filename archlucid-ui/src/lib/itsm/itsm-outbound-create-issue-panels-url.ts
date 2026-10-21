@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const ITSM_OUTBOUND_CREATE_OPEN_PARAM = "itsmCreateOpen";
 export const ITSM_OUTBOUND_CREATE_FINDING_ID_PARAM = "itsmCreateFindingId";
 
@@ -29,18 +30,18 @@ export function itsmOutboundCreateIssuePanelsHrefFromSearch(
   state: ItsmOutboundCreateIssuePanelsUrlState,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const findingId = (state.findingId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const findingId = (state.findingId ?? "").trim();
 
-  if (!state.open || findingId.length === 0) {
-    params.delete(ITSM_OUTBOUND_CREATE_OPEN_PARAM);
-    params.delete(ITSM_OUTBOUND_CREATE_FINDING_ID_PARAM);
-  } else {
-    params.set(ITSM_OUTBOUND_CREATE_OPEN_PARAM, "1");
-    params.set(ITSM_OUTBOUND_CREATE_FINDING_ID_PARAM, findingId);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!state.open || findingId.length === 0) {
+      params.delete(ITSM_OUTBOUND_CREATE_OPEN_PARAM);
+      params.delete(ITSM_OUTBOUND_CREATE_FINDING_ID_PARAM);
+    } else {
+      params.set(ITSM_OUTBOUND_CREATE_OPEN_PARAM, "1");
+      params.set(ITSM_OUTBOUND_CREATE_FINDING_ID_PARAM, findingId);
+    }
+    },
+  });
 }

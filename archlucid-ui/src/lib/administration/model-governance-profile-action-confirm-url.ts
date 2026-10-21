@@ -1,5 +1,6 @@
 import { isModelExecutionProfile } from "@/lib/model-execution-profile";
 import { MODEL_GOVERNANCE_SETTINGS_CANONICAL_PATH } from "@/lib/model-governance-settings-evidence-copy";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const MODEL_GOVERNANCE_PROFILE_ACTION_PARAM = "modelProfileAction";
 export const MODEL_GOVERNANCE_PROFILE_ID_PARAM = "modelProfileId";
@@ -44,24 +45,24 @@ export function modelGovernanceProfileActionConfirmHrefFromSearch(
   state: ModelGovernanceProfileActionConfirmUrlState,
   pathname: string = MODEL_GOVERNANCE_SETTINGS_CANONICAL_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const action = state.action;
-  const profileId = (state.profileId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const action = state.action;
+    const profileId = (state.profileId ?? "").trim();
 
-  if (action === null) {
-    params.delete(MODEL_GOVERNANCE_PROFILE_ACTION_PARAM);
-    params.delete(MODEL_GOVERNANCE_PROFILE_ID_PARAM);
-  } else {
-    params.set(MODEL_GOVERNANCE_PROFILE_ACTION_PARAM, action);
-
-    if (action === "select" && profileId.length > 0 && isModelExecutionProfile(profileId)) {
-      params.set(MODEL_GOVERNANCE_PROFILE_ID_PARAM, profileId);
-    } else {
+    if (action === null) {
+      params.delete(MODEL_GOVERNANCE_PROFILE_ACTION_PARAM);
       params.delete(MODEL_GOVERNANCE_PROFILE_ID_PARAM);
+    } else {
+      params.set(MODEL_GOVERNANCE_PROFILE_ACTION_PARAM, action);
+
+      if (action === "select" && profileId.length > 0 && isModelExecutionProfile(profileId)) {
+        params.set(MODEL_GOVERNANCE_PROFILE_ID_PARAM, profileId);
+      } else {
+        params.delete(MODEL_GOVERNANCE_PROFILE_ID_PARAM);
+      }
     }
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    },
+  });
 }

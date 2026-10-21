@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const JIRA_CONNECTION_TEST_COLLAPSED_OPEN_PARAM = "jiraConnectionTestCollapsedOpen";
 
 export function parseJiraConnectionTestCollapsedOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function jiraConnectionTestCollapsedDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(JIRA_CONNECTION_TEST_COLLAPSED_OPEN_PARAM);
-  } else {
-    params.set(JIRA_CONNECTION_TEST_COLLAPSED_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, JIRA_CONNECTION_TEST_COLLAPSED_OPEN_PARAM);
 }

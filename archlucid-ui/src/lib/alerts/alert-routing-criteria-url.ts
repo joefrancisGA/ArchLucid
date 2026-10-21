@@ -1,3 +1,4 @@
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 export const ALERT_ROUTING_ADVANCED_OPEN_PARAM = "alertRoutingAdvancedOpen";
 export const ALERT_ROUTING_EXACT_SEVERITIES_OPEN_PARAM = "alertRoutingExactSeveritiesOpen";
 
@@ -30,6 +31,7 @@ export function alertRoutingCriteriaHrefFromSearch(
   pathname: string,
 ): string {
   const params = new URLSearchParams(currentSearch);
+  applyOperatorUrlSelectionSwitch(params, { kind: "disclosure-only" });
 
   if (!options.showAdvancedCategories) {
     params.delete(ALERT_ROUTING_ADVANCED_OPEN_PARAM);

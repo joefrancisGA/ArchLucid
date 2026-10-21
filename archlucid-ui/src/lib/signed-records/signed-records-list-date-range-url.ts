@@ -1,4 +1,5 @@
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const SIGNED_RECORDS_LIST_DATE_RANGE_PARAM = "range";
 
@@ -27,17 +28,17 @@ export function signedRecordsListDateRangeHrefFromSearch(
   preset: SignedRecordsListDateRangePreset | null,
   pathname: string = SIGNED_RECORDS_LIST_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (preset === null) {
-    params.delete(SIGNED_RECORDS_LIST_DATE_RANGE_PARAM);
-  } else {
-    params.delete("from");
-    params.delete("to");
-    params.set(SIGNED_RECORDS_LIST_DATE_RANGE_PARAM, preset);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (preset === null) {
+      params.delete(SIGNED_RECORDS_LIST_DATE_RANGE_PARAM);
+    } else {
+      params.delete("from");
+      params.delete("to");
+      params.set(SIGNED_RECORDS_LIST_DATE_RANGE_PARAM, preset);
+    }
+    },
+  });
 }

@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const FINDING_KEYBOARD_TRIAGE_FINDING_ID_PARAM = "kbDispFindingId";
 export const FINDING_KEYBOARD_TRIAGE_ACTION_PARAM = "kbDispAction";
 
@@ -75,18 +76,18 @@ export function findingKeyboardTriageConfirmHrefFromSearch(
   state: FindingKeyboardTriageConfirmUrlState,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const findingId = (state.findingId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const findingId = (state.findingId ?? "").trim();
 
-  if (findingId.length === 0 || state.action === null) {
-    params.delete(FINDING_KEYBOARD_TRIAGE_FINDING_ID_PARAM);
-    params.delete(FINDING_KEYBOARD_TRIAGE_ACTION_PARAM);
-  } else {
-    params.set(FINDING_KEYBOARD_TRIAGE_FINDING_ID_PARAM, findingId);
-    params.set(FINDING_KEYBOARD_TRIAGE_ACTION_PARAM, state.action);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (findingId.length === 0 || state.action === null) {
+      params.delete(FINDING_KEYBOARD_TRIAGE_FINDING_ID_PARAM);
+      params.delete(FINDING_KEYBOARD_TRIAGE_ACTION_PARAM);
+    } else {
+      params.set(FINDING_KEYBOARD_TRIAGE_FINDING_ID_PARAM, findingId);
+      params.set(FINDING_KEYBOARD_TRIAGE_ACTION_PARAM, state.action);
+    }
+    },
+  });
 }

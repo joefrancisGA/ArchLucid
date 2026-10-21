@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const TRY_CLI_DEMO_OPEN_PARAM = "tryCliDemoOpen";
 
 export function parseTryCliDemoOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function tryCliDemoDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(TRY_CLI_DEMO_OPEN_PARAM);
-  } else {
-    params.set(TRY_CLI_DEMO_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, TRY_CLI_DEMO_OPEN_PARAM);
 }

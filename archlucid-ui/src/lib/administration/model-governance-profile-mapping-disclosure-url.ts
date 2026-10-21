@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const MODEL_GOVERNANCE_PROFILE_MAPPING_PROFILE_PARAM = "modelGovernanceProfileMappingProfile";
 
 export function parseModelGovernanceProfileMappingProfileFromSearch(raw: string | null | undefined): string {
@@ -13,16 +14,16 @@ export function modelGovernanceProfileMappingDisclosureHrefFromSearch(
   profile: string | null,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = (profile ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = (profile ?? "").trim();
 
-  if (trimmed.length === 0) {
-    params.delete(MODEL_GOVERNANCE_PROFILE_MAPPING_PROFILE_PARAM);
-  } else {
-    params.set(MODEL_GOVERNANCE_PROFILE_MAPPING_PROFILE_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(MODEL_GOVERNANCE_PROFILE_MAPPING_PROFILE_PARAM);
+    } else {
+      params.set(MODEL_GOVERNANCE_PROFILE_MAPPING_PROFILE_PARAM, trimmed);
+    }
+    },
+  });
 }

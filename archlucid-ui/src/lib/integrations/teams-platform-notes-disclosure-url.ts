@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const TEAMS_PLATFORM_NOTES_OPEN_PARAM = "teamsPlatformNotesOpen";
 
 export function parseTeamsPlatformNotesOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function teamsPlatformNotesDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(TEAMS_PLATFORM_NOTES_OPEN_PARAM);
-  } else {
-    params.set(TEAMS_PLATFORM_NOTES_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, TEAMS_PLATFORM_NOTES_OPEN_PARAM);
 }

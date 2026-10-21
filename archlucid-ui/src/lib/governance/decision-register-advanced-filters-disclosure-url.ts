@@ -1,4 +1,5 @@
 import { GOVERNANCE_DECISION_REGISTER_PATH } from "@/lib/governance/governance-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const DECISION_REGISTER_ADVANCED_FILTERS_OPEN_PARAM = "decisionRegisterAdvancedFiltersOpen";
 
@@ -17,15 +18,15 @@ export function decisionRegisterAdvancedFiltersDisclosureHrefFromSearch(
   open: boolean,
   pathname: string = GOVERNANCE_DECISION_REGISTER_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!open) {
-    params.delete(DECISION_REGISTER_ADVANCED_FILTERS_OPEN_PARAM);
-  } else {
-    params.set(DECISION_REGISTER_ADVANCED_FILTERS_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!open) {
+      params.delete(DECISION_REGISTER_ADVANCED_FILTERS_OPEN_PARAM);
+    } else {
+      params.set(DECISION_REGISTER_ADVANCED_FILTERS_OPEN_PARAM, "1");
+    }
+    },
+  });
 }

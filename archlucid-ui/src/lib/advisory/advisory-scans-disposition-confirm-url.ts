@@ -1,4 +1,5 @@
 import { GOVERNANCE_ADVISORY_SCANS_PATH } from "@/lib/governance/governance-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const ADVISORY_SCANS_DISP_REC_ID_PARAM = "dispRecId";
 export const ADVISORY_SCANS_DISP_ACTION_PARAM = "dispAction";
@@ -75,18 +76,18 @@ export function advisoryScansDispositionConfirmHrefFromSearch(
   state: AdvisoryScansDispositionConfirmUrlState,
   pathname: string = GOVERNANCE_ADVISORY_SCANS_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const recommendationId = (state.recommendationId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const recommendationId = (state.recommendationId ?? "").trim();
 
-  if (recommendationId.length === 0 || state.action === null) {
-    params.delete(ADVISORY_SCANS_DISP_REC_ID_PARAM);
-    params.delete(ADVISORY_SCANS_DISP_ACTION_PARAM);
-  } else {
-    params.set(ADVISORY_SCANS_DISP_REC_ID_PARAM, recommendationId);
-    params.set(ADVISORY_SCANS_DISP_ACTION_PARAM, state.action);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (recommendationId.length === 0 || state.action === null) {
+      params.delete(ADVISORY_SCANS_DISP_REC_ID_PARAM);
+      params.delete(ADVISORY_SCANS_DISP_ACTION_PARAM);
+    } else {
+      params.set(ADVISORY_SCANS_DISP_REC_ID_PARAM, recommendationId);
+      params.set(ADVISORY_SCANS_DISP_ACTION_PARAM, state.action);
+    }
+    },
+  });
 }

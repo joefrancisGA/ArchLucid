@@ -3,6 +3,7 @@ import {
   type ArchitectureIntelligenceReviewTier,
 } from "@/lib/architecture/architecture-intelligence-review-tier";
 import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture/architecture-intelligence-route";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const ARCHITECTURE_INTELLIGENCE_TIER_PARAM = "tier";
 
@@ -27,15 +28,15 @@ export function architectureIntelligenceTierHrefFromSearch(
   tier: ArchitectureIntelligenceReviewTier | null,
   pathname: string = ARCHITECTURE_INTELLIGENCE_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (tier === null || tier === "Standard") {
-    params.delete(ARCHITECTURE_INTELLIGENCE_TIER_PARAM);
-  } else {
-    params.set(ARCHITECTURE_INTELLIGENCE_TIER_PARAM, tier);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (tier === null || tier === "Standard") {
+      params.delete(ARCHITECTURE_INTELLIGENCE_TIER_PARAM);
+    } else {
+      params.set(ARCHITECTURE_INTELLIGENCE_TIER_PARAM, tier);
+    }
+    },
+  });
 }

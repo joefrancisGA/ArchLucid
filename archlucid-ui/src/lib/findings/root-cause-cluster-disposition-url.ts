@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const ROOT_CAUSE_CLUSTER_KEY_PARAM = "clusterKey";
 export const ROOT_CAUSE_CLUSTER_DISP_PARAM = "clusterDisp";
 
@@ -55,18 +56,18 @@ export function rootCauseClusterDispositionHrefFromSearch(
   state: RootCauseClusterDispositionUrlState,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const clusterKey = (state.clusterKey ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const clusterKey = (state.clusterKey ?? "").trim();
 
-  if (clusterKey.length === 0 || state.disposition === null) {
-    params.delete(ROOT_CAUSE_CLUSTER_KEY_PARAM);
-    params.delete(ROOT_CAUSE_CLUSTER_DISP_PARAM);
-  } else {
-    params.set(ROOT_CAUSE_CLUSTER_KEY_PARAM, clusterKey);
-    params.set(ROOT_CAUSE_CLUSTER_DISP_PARAM, rootCauseClusterDispositionToUrlValue(state.disposition));
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (clusterKey.length === 0 || state.disposition === null) {
+      params.delete(ROOT_CAUSE_CLUSTER_KEY_PARAM);
+      params.delete(ROOT_CAUSE_CLUSTER_DISP_PARAM);
+    } else {
+      params.set(ROOT_CAUSE_CLUSTER_KEY_PARAM, clusterKey);
+      params.set(ROOT_CAUSE_CLUSTER_DISP_PARAM, rootCauseClusterDispositionToUrlValue(state.disposition));
+    }
+    },
+  });
 }

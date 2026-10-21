@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const SHELL_TOP_BAR_MORE_OPEN_PARAM = "shellMoreOpen";
 
 export function parseShellTopBarMoreOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function shellTopBarMoreMenuHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(SHELL_TOP_BAR_MORE_OPEN_PARAM);
-  } else {
-    params.set(SHELL_TOP_BAR_MORE_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, SHELL_TOP_BAR_MORE_OPEN_PARAM);
 }

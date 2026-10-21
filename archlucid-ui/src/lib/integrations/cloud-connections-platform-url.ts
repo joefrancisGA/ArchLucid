@@ -1,5 +1,6 @@
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import type { CloudProviderId } from "@/lib/cloud-platform-scope-storage";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const CLOUD_CONNECTIONS_PLATFORM_PARAM = "platform";
 
@@ -28,15 +29,15 @@ export function cloudConnectionsPlatformHrefFromSearch(
   platform: CloudConnectionsPlatformFilter,
   pathname: string = CLOUD_CONNECTIONS_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (platform === "all") {
-    params.delete(CLOUD_CONNECTIONS_PLATFORM_PARAM);
-  } else {
-    params.set(CLOUD_CONNECTIONS_PLATFORM_PARAM, platform);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (platform === "all") {
+      params.delete(CLOUD_CONNECTIONS_PLATFORM_PARAM);
+    } else {
+      params.set(CLOUD_CONNECTIONS_PLATFORM_PARAM, platform);
+    }
+    },
+  });
 }

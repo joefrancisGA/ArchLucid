@@ -1,4 +1,5 @@
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const GOVERNANCE_FINDINGS_HIDE_GENERIC_PARAM = "hideGeneric";
 
@@ -17,15 +18,15 @@ export function governanceFindingsHideGenericHrefFromSearch(
   hideGeneric: boolean,
   pathname: string = GOVERNANCE_FINDINGS_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "governance-findings-queue-navigation" },
+    mutate: (params) => {
 
-  if (!hideGeneric) {
-    params.delete(GOVERNANCE_FINDINGS_HIDE_GENERIC_PARAM);
-  } else {
-    params.set(GOVERNANCE_FINDINGS_HIDE_GENERIC_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!hideGeneric) {
+      params.delete(GOVERNANCE_FINDINGS_HIDE_GENERIC_PARAM);
+    } else {
+      params.set(GOVERNANCE_FINDINGS_HIDE_GENERIC_PARAM, "1");
+    }
+    },
+  });
 }

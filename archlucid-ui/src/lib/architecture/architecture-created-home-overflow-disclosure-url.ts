@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const ARCHITECTURE_CREATED_HOME_OVERFLOW_OPEN_PARAM = "architectureCreatedHomeOverflowOpen";
 
 export function parseArchitectureCreatedHomeOverflowOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function architectureCreatedHomeOverflowDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(ARCHITECTURE_CREATED_HOME_OVERFLOW_OPEN_PARAM);
-  } else {
-    params.set(ARCHITECTURE_CREATED_HOME_OVERFLOW_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, ARCHITECTURE_CREATED_HOME_OVERFLOW_OPEN_PARAM);
 }

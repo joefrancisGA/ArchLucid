@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const JIRA_PLATFORM_NOTES_OPEN_PARAM = "jiraPlatformNotesOpen";
 
 export function parseJiraPlatformNotesOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function jiraPlatformNotesDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(JIRA_PLATFORM_NOTES_OPEN_PARAM);
-  } else {
-    params.set(JIRA_PLATFORM_NOTES_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, JIRA_PLATFORM_NOTES_OPEN_PARAM);
 }

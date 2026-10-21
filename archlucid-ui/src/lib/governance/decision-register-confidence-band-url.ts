@@ -1,4 +1,5 @@
 import { GOVERNANCE_DECISION_REGISTER_PATH } from "@/lib/governance/governance-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const DECISION_REGISTER_MIN_CONFIDENCE_PARAM = "minConfidence";
 export const DECISION_REGISTER_MAX_CONFIDENCE_PARAM = "maxConfidence";
@@ -24,18 +25,18 @@ export function decisionRegisterMinConfidenceHrefFromSearch(
   minConfidence: string,
   pathname: string = GOVERNANCE_DECISION_REGISTER_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = minConfidence.trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = minConfidence.trim();
 
-  if (trimmed.length === 0) {
-    params.delete(DECISION_REGISTER_MIN_CONFIDENCE_PARAM);
-  } else {
-    params.set(DECISION_REGISTER_MIN_CONFIDENCE_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(DECISION_REGISTER_MIN_CONFIDENCE_PARAM);
+    } else {
+      params.set(DECISION_REGISTER_MIN_CONFIDENCE_PARAM, trimmed);
+    }
+    },
+  });
 }
 
 export function decisionRegisterMaxConfidenceHrefFromSearch(
@@ -43,16 +44,16 @@ export function decisionRegisterMaxConfidenceHrefFromSearch(
   maxConfidence: string,
   pathname: string = GOVERNANCE_DECISION_REGISTER_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = maxConfidence.trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = maxConfidence.trim();
 
-  if (trimmed.length === 0) {
-    params.delete(DECISION_REGISTER_MAX_CONFIDENCE_PARAM);
-  } else {
-    params.set(DECISION_REGISTER_MAX_CONFIDENCE_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(DECISION_REGISTER_MAX_CONFIDENCE_PARAM);
+    } else {
+      params.set(DECISION_REGISTER_MAX_CONFIDENCE_PARAM, trimmed);
+    }
+    },
+  });
 }

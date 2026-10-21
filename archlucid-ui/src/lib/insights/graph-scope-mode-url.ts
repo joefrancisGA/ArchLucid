@@ -3,6 +3,7 @@ import {
 } from "@/app/(operator)/insights/evidence-graph/_sections/graph-page-helpers";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const OPERATOR_GRAPH_SCOPE_MODE_OPTIONS: ReadonlyArray<{ readonly mode: GraphMode; readonly label: string }> = [
   { mode: "provenance-full", label: `${BUYER_SURFACE_VOCABULARY.evidenceGraph} (provenance)` },
@@ -41,15 +42,15 @@ export function graphScopeModeHrefFromSearch(
   mode: GraphMode,
   pathname: string = EVIDENCE_GRAPH_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (mode === DEFAULT_GRAPH_SCOPE_MODE) {
-    params.delete(GRAPH_SCOPE_MODE_PARAM);
-  } else {
-    params.set(GRAPH_SCOPE_MODE_PARAM, mode);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (mode === DEFAULT_GRAPH_SCOPE_MODE) {
+      params.delete(GRAPH_SCOPE_MODE_PARAM);
+    } else {
+      params.set(GRAPH_SCOPE_MODE_PARAM, mode);
+    }
+    },
+  });
 }

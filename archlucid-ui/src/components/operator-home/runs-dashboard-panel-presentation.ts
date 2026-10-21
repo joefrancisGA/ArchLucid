@@ -1,5 +1,6 @@
 import { OPERATOR_HOME_GOVERNANCE_WARNINGS_PARAM } from "@/lib/operator/operator-home-metric-hrefs";
 import type { RunsDashboardTabId } from "@/components/operator-home/runs-dashboard-load-phase";
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 
 export const RUNS_DASHBOARD_PANEL_DEFAULT_PROJECT_ID = "default";
 
@@ -26,6 +27,7 @@ export function homeGovernanceWarningsQueryEnabled(searchParams: URLSearchParams
 
 export function homeGovernanceWarningsHrefFromSearch(currentSearch: string): string {
   const params = new URLSearchParams(currentSearch);
+  applyOperatorUrlSelectionSwitch(params, { kind: "disclosure-only" });
   params.set(OPERATOR_HOME_GOVERNANCE_WARNINGS_PARAM, "1");
   const query = params.toString();
 
@@ -34,6 +36,7 @@ export function homeGovernanceWarningsHrefFromSearch(currentSearch: string): str
 
 export function homeGovernanceWarningsClearHrefFromSearch(currentSearch: string): string {
   const params = new URLSearchParams(currentSearch);
+  applyOperatorUrlSelectionSwitch(params, { kind: "disclosure-only" });
   params.delete(OPERATOR_HOME_GOVERNANCE_WARNINGS_PARAM);
   const query = params.toString();
 
@@ -73,6 +76,8 @@ export function runsDashboardHomeHrefFromSearch(
   },
 ): string {
   const params = new URLSearchParams(currentSearch);
+
+  applyOperatorUrlSelectionSwitch(params, { kind: "disclosure-only" });
 
   if (updates.tab !== undefined) {
 

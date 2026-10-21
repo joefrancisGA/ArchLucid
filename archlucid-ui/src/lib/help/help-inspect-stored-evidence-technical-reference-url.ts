@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const HELP_INSPECT_STORED_EVIDENCE_TECHNICAL_REFERENCE_OPEN_PARAM =
   "helpInspectStoredEvidenceTechnicalReferenceOpen";
 
@@ -18,15 +19,5 @@ export function helpInspectStoredEvidenceTechnicalReferenceHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(HELP_INSPECT_STORED_EVIDENCE_TECHNICAL_REFERENCE_OPEN_PARAM);
-  } else {
-    params.set(HELP_INSPECT_STORED_EVIDENCE_TECHNICAL_REFERENCE_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, HELP_INSPECT_STORED_EVIDENCE_TECHNICAL_REFERENCE_OPEN_PARAM);
 }

@@ -1,4 +1,5 @@
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const POLICY_PACK_VERSION_DIFF_PARAM = "diff";
 export const POLICY_PACK_COMPARE_LEFT_PARAM = "compareLeft";
@@ -33,32 +34,32 @@ export function policyPackVersionCompareHrefFromSearch(
   state: PolicyPackVersionCompareUrlState,
   pathname: string = GOVERNANCE_POLICY_PACKS_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (state.showVersionDiff) {
-    params.set(POLICY_PACK_VERSION_DIFF_PARAM, "1");
-  } else {
-    params.delete(POLICY_PACK_VERSION_DIFF_PARAM);
-    params.delete(POLICY_PACK_COMPARE_LEFT_PARAM);
-    params.delete(POLICY_PACK_COMPARE_RIGHT_PARAM);
-  }
+    if (state.showVersionDiff) {
+      params.set(POLICY_PACK_VERSION_DIFF_PARAM, "1");
+    } else {
+      params.delete(POLICY_PACK_VERSION_DIFF_PARAM);
+      params.delete(POLICY_PACK_COMPARE_LEFT_PARAM);
+      params.delete(POLICY_PACK_COMPARE_RIGHT_PARAM);
+    }
 
-  const left = state.compareLeftId.trim();
-  const right = state.compareRightId.trim();
+    const left = state.compareLeftId.trim();
+    const right = state.compareRightId.trim();
 
-  if (state.showVersionDiff && left.length > 0) {
-    params.set(POLICY_PACK_COMPARE_LEFT_PARAM, left);
-  } else {
-    params.delete(POLICY_PACK_COMPARE_LEFT_PARAM);
-  }
+    if (state.showVersionDiff && left.length > 0) {
+      params.set(POLICY_PACK_COMPARE_LEFT_PARAM, left);
+    } else {
+      params.delete(POLICY_PACK_COMPARE_LEFT_PARAM);
+    }
 
-  if (state.showVersionDiff && right.length > 0) {
-    params.set(POLICY_PACK_COMPARE_RIGHT_PARAM, right);
-  } else {
-    params.delete(POLICY_PACK_COMPARE_RIGHT_PARAM);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (state.showVersionDiff && right.length > 0) {
+      params.set(POLICY_PACK_COMPARE_RIGHT_PARAM, right);
+    } else {
+      params.delete(POLICY_PACK_COMPARE_RIGHT_PARAM);
+    }
+    },
+  });
 }

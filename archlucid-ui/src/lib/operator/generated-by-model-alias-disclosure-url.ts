@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const GENERATED_BY_MODEL_ALIAS_OPEN_PARAM = "generatedByModelAliasOpen";
 
 export function parseGeneratedByModelAliasOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function generatedByModelAliasDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(GENERATED_BY_MODEL_ALIAS_OPEN_PARAM);
-  } else {
-    params.set(GENERATED_BY_MODEL_ALIAS_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, GENERATED_BY_MODEL_ALIAS_OPEN_PARAM);
 }

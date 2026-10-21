@@ -1,4 +1,5 @@
 import { SCIM_PROVISIONING_CANONICAL_PATH } from "@/lib/scim-provisioning-evidence-copy";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const SCIM_TOKEN_CREATE_PARAM = "scimCreate";
 export const SCIM_TOKEN_REVOKE_PARAM = "scimRevokeId";
@@ -31,22 +32,22 @@ export function scimProvisioningTokenHrefFromSearch(
   state: ScimProvisioningTokenUrlState,
   pathname: string = SCIM_PROVISIONING_CANONICAL_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const revokeTokenId = (state.revokeTokenId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const revokeTokenId = (state.revokeTokenId ?? "").trim();
 
-  if (!state.createOpen) {
-    params.delete(SCIM_TOKEN_CREATE_PARAM);
-  } else {
-    params.set(SCIM_TOKEN_CREATE_PARAM, "1");
-  }
+    if (!state.createOpen) {
+      params.delete(SCIM_TOKEN_CREATE_PARAM);
+    } else {
+      params.set(SCIM_TOKEN_CREATE_PARAM, "1");
+    }
 
-  if (revokeTokenId.length === 0) {
-    params.delete(SCIM_TOKEN_REVOKE_PARAM);
-  } else {
-    params.set(SCIM_TOKEN_REVOKE_PARAM, revokeTokenId);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (revokeTokenId.length === 0) {
+      params.delete(SCIM_TOKEN_REVOKE_PARAM);
+    } else {
+      params.set(SCIM_TOKEN_REVOKE_PARAM, revokeTokenId);
+    }
+    },
+  });
 }
