@@ -1,12 +1,7 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
-2026-10-21 seed hunt (seed→hit): `api-policy-packs` — lane B; promoted `PolicyPacksController.Publish` validating semver after trim but forwarding padded `request.Version` to `PublishVersionAsync`, so reachable publish bodies such as `" 1.0.0 "` could miss the version row despite passing validation (same class as GetVersion/PromoteCatalogEntry). Controller now forwards `request.Version.Trim()`; regression `Publish_forwards_trimmed_version_to_facade`. Scoped `PolicyPacksController` filter: 83 passed.
-
-- [x] (proven) `PolicyPacksController.Publish` — trimmed-valid semver forwarded untrimmed to facade — **hit 2026-10-21 lane B seed hunt:** `Version = request.Version.Trim()` on publish body; regression above.
-
 
 2026-10-21 seed hunt (seed→hit): `application-analysis` — promoted `RunExportQueryFacade.CompareExportRecordsAsync` / `CompareExportRecordsSummaryAsync` / `ReplayExportAsync` skipping `IRunExportCareerPostureGate` while `GetExportRecordAsync` blocked simulator-rehearsal runs, so export compare and replay could read metadata when single-record GET returned 409; shared `EnsureCareerAllowsExportRecordMetadataOrThrowAsync`; `ExportsController` compare routes map `CareerArtifactExportBlockedException`; regression `CompareExportRecordsAsync_throws_when_career_posture_blocks_metadata_read`; 5 `RunExportQueryFacadeTests` passed.
 
-2026-10-21 thorough hunt (hit, lane C follow-up): `ui-review-detail-workspace` — `RunDetailCreateHomeEvidenceCaptureRegion` infinite reconcile when parents passed fresh `artifacts={[]}` / catalog refs each render (value-stable inventory keys); `RunDetailNextReviewFooterClient` guarded async `setRuns` after unmount; isolated vitest `test:review-detail-workspace` (`pool: forks`, `maxWorkers: 4`); `WorkspaceAiAvailabilityPanel` checked-at `aria-label` asserts exact `formatInstantInPreferredTimeZone` in `America/New_York`; scoped review-detail vitest **542/542 passed**, 0 failures.
 2026-10-21 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryAppSettingHostRedactor.TryParseSqlHost` omitting Npgsql/PostgreSQL `Host=` on App Service connection strings; regex now accepts `Host=` alongside `Server=` and `Data Source=`; regression `TryParseSettingValue_extracts_sql_host_from_postgresql_host_alias`; 26 scoped `AzureInventoryAppSettingHost*` tests passed.
 2026-10-21 tooling (hit): `al-bug-rolling-stats.ps1` — `-RecordHunt` read the JSONL, applied `Prune-HuntRunLog` (30-day retention), then rewrote the file with `Set-Content`, dropping ~89 historical lines and breaking append-only expectations; `-RecordHunt` now appends one JSON line via `Add-HuntRunLogEntryLine` with a post-append line-count check; optional `-PruneEntriesOlderThanDays` uses `Rewrite-HuntRunLogWithLineCountGuard` (temp file, aborts unless `-AllowLineCountDecrease`); regression `RecordHunt never decreases physical line count even when older rows exist` in `AlBugRollingStats.Tests.ps1` (50 Pester tests passed). Verified `AL_BUG_HUNT_RUN_LOG.jsonl` on bugsmash: 5778 lines >= 5768 before 2026-10-21 UTC runs.
 
@@ -7581,6 +7576,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-13 seed hunt #2302 (seed-only): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; no new hunt-ready rows.
 
 ### Hypotheses
+
+- [x] (proven) `PolicyPacksController.Publish` — OpenAPI publish body with surrounding whitespace in `Version` passed FluentValidation but forwarded untrimmed to `PublishVersionAsync` — **hit 2026-10-21 seed hunt:** forward `request.Version.Trim()`; regression `Publish_forwards_trimmed_version_to_facade`.
+- [x] (proven) `PolicyPacksController.Assign` — OpenAPI assign body with surrounding whitespace in `Version` passed FluentValidation but forwarded untrimmed to `AssignAsync` — **hit 2026-10-21 seed hunt:** forward `request.Version.Trim()`; regression `Assign_forwards_trimmed_version_to_facade`.
 
 
 - [ ] (candidate) IdentityProviderConfigurationController.DiscoverAsync — forwards the OpenAPI discover body to _discoveryService without IdentityProviderProtocolParser validation at the controller layer; input: POST /v1/admin/identity/discover with an unsupported protocol token from the SSO wizard; wrong outcome: discovery diagnostic shape may disagree with test-login/activate HTTP 400 validation envelopes.
@@ -38979,6 +38977,8 @@ heap-disproved mermaid typed-topology candidate.
 2026-09-01 thorough hunt #416 (dry): twelve stale hunt-ready rows closed as valid-no-repro on master after combined PR #1046; eight regression tests passed; cheap-disproved workspace list and resolution optional-projectId candidates; ledger pushed to master to clear picker backlog.
 ## Zone: api-policy-packs
 
+2026-10-21 seed hunt (seed→hit): promoted padded semver on `POST …/publish` and `POST …/assign` passing FluentValidation via `BePolicyPackSemVerVersion` trim but forwarding untrimmed `Version` to `IPolicyPackHttpFacade`; controller now forwards `request.Version.Trim()`; regressions `Publish_forwards_trimmed_version_to_facade` and `Assign_forwards_trimmed_version_to_facade`; 84 scoped `PolicyPacksController` tests passed.
+
 - **id:** api-policy-packs
 - **split-from:** api-governance-tenancy-controllers
 - **status:** open
@@ -38990,13 +38990,11 @@ heap-disproved mermaid typed-topology candidate.
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — Publish forwarded untrimmed semver after trim-aware validation
+- **last-bug:** 2026-10-21 — publish/assign forwarded padded semver after FluentValidation trim
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 Split from retired `api-governance-tenancy-controllers` (ABQ-08).
-
-2026-10-21 seed hunt (seed→hit): lane B; `Publish` trim-forward parity with GetVersion/PromoteCatalogEntry; 83 scoped tests passed.
 
 2026-10-20 seed hunt (seed->hit): simulate sealed-manifest guard no longer maps unknown runs to HTTP 409 before facade scope/run-not-found handling; 82 scoped tests passed.
 

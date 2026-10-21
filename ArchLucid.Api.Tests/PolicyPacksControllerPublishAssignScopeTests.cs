@@ -59,6 +59,66 @@ public sealed class PolicyPacksControllerPublishAssignScopeTests
     }
 
     [Fact]
+    public async Task Publish_forwards_trimmed_version_to_facade()
+    {
+        Guid packId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        httpFacade
+            .Setup(f => f.PublishVersionAsync(
+                packId,
+                It.Is<PolicyPackPublishBody>(body => body.Version == "2.0.0"),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(PolicyPackHttpResult<PolicyPackVersion>.Success(
+                new PolicyPackVersion { PolicyPackId = packId, Version = "2.0.0" }));
+
+        PolicyPacksController sut = PolicyPacksControllerTestSupport.CreateController(httpFacade);
+
+        PublishPolicyPackVersionRequest request = new()
+        {
+            Version = " 2.0.0 ",
+            ContentJson = """{"complianceRuleIds":[]}""",
+        };
+
+        IActionResult result = await sut.Publish(packId, request, CancellationToken.None);
+
+        result.Should().BeOfType<OkObjectResult>();
+        httpFacade.VerifyAll();
+    }
+
+    [Fact]
+    public async Task Assign_forwards_trimmed_version_to_facade()
+    {
+        Guid packId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        httpFacade
+            .Setup(f => f.AssignAsync(
+                packId,
+                It.Is<PolicyPackAssignBody>(body => body.Version == "2.0.0"),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPackAssignHttpResult
+            {
+                Outcome = PolicyPackHttpOutcome.Success,
+                Assignment = new PolicyPackAssignment { PolicyPackId = packId, PolicyPackVersion = "2.0.0" },
+            });
+
+        PolicyPacksController sut = PolicyPacksControllerTestSupport.CreateController(httpFacade);
+
+        AssignPolicyPackRequest request = new()
+        {
+            Version = " 2.0.0 ",
+            ScopeLevel = "Project",
+            IsPinned = false,
+        };
+
+        IActionResult result = await sut.Assign(packId, request, CancellationToken.None);
+
+        result.Should().BeOfType<OkObjectResult>();
+        httpFacade.VerifyAll();
+    }
+
+    [Fact]
     public async Task Publish_returns_bad_request_when_platform_default_pack_cannot_be_republished()
     {
         Guid packId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

@@ -58,7 +58,7 @@ public sealed partial class PolicyPacksController
                 policyPackId,
                 new PolicyPackAssignBody
                 {
-                    Version = request.Version,
+                    Version = request.Version.Trim(),
                     ScopeLevel = request.ScopeLevel,
                     IsPinned = request.IsPinned,
                     IsOrganizationRequired = request.IsOrganizationRequired,
