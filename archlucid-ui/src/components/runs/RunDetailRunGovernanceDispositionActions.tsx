@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type ReactElement, type SetStateAction } from "react";
 
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
@@ -24,6 +24,7 @@ import { runOperatorGovernanceDispositionMutationBlockedReason } from "@/lib/run
 import { awaitMinimumVisibleDuration } from "@/lib/await-minimum-visible-duration";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
+  RUN_GOVERNANCE_DISP_DECISION_PARAM,
   runGovernanceDispositionConfirmHrefFromSearch,
   runGovernanceDispositionFromUrlValue,
   runGovernanceDispositionToUrlValue,
@@ -50,7 +51,18 @@ export function RunDetailRunGovernanceDispositionActions(
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const pathname = usePathname() ?? "";
   const router = useRouter();
-  const [pending, setPendingState] = useState<PendingDecision | null>(null);
+  const searchParams = useSearchParams();
+  const urlDispDecisionRaw = searchParams.get(RUN_GOVERNANCE_DISP_DECISION_PARAM);
+  const urlPendingDecision = ((): PendingDecision | null => {
+    const parsed = parseRunGovernanceDispositionDecisionFromSearch(urlDispDecisionRaw);
+
+    if (parsed === null) {
+      return null;
+    }
+
+    return runGovernanceDispositionFromUrlValue(parsed);
+  })();
+  const [pending, setPendingState] = useState<PendingDecision | null>(urlPendingDecision);
   const pendingRef = useRef(pending);
   pendingRef.current = pending;
   const [rationale, setRationale] = useState("");
@@ -128,6 +140,15 @@ export function RunDetailRunGovernanceDispositionActions(
       window.removeEventListener("popstate", syncPendingFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    if (pendingRef.current === urlPendingDecision) {
+      return;
+    }
+
+    pendingRef.current = urlPendingDecision;
+    setPendingState(urlPendingDecision);
+  }, [urlPendingDecision]);
 
   if (buyerPolishedShell)
     return null;
