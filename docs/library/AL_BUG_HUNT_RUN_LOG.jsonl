@@ -6019,3 +6019,4 @@
 {"at":"2026-10-21T19:54:57.1063052Z","zoneId":"core-explanation-json","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T20:07:41.0402123Z","zoneId":"run-execute-ownership","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T20:11:20.3700291Z","zoneId":"api-tenancy-workspaces","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-21T20:22:54.2690475Z","zoneId":"saml-jwt-bearer","outcome":"seed-only","productLine":"archlucid-shared"}
