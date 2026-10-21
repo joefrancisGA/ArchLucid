@@ -157,6 +157,30 @@ describe("SignupForm", () => {
     expect(message).not.toMatch(/industry/i);
   });
 
+  it("deriveSignupFormReadinessMessage surfaces unsupported-character guidance for organization name", () => {
+    const message = deriveSignupFormReadinessMessage({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso\u0000Trial",
+    });
+
+    expect(message).toMatch(/unsupported characters/i);
+    expect(message).toMatch(/organization name/i);
+    expect(message).not.toMatch(/200 characters/i);
+  });
+
+  it("deriveSignupFormReadinessMessage surfaces unsupported-character guidance for full name", () => {
+    const message = deriveSignupFormReadinessMessage({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops\u0000User",
+      organizationName: "Contoso Trial Org",
+    });
+
+    expect(message).toMatch(/unsupported characters/i);
+    expect(message).toMatch(/full name/i);
+    expect(message).not.toMatch(/200 characters/i);
+  });
+
   it.each(["Healthcare\u0000Ops", "Healthcare\u202eOps"])(
     "signupFormSchema rejects control and bidi-format characters in Other industry specification",
     (industryVerticalOther) => {
@@ -2044,6 +2068,20 @@ describe("SignupForm", () => {
     });
 
     expect(screen.getByTestId("signup-form-readiness")).toHaveTextContent(/industry/i);
+  });
+
+  it("shows unsupported-character readiness when organization name contains control characters", async () => {
+    render(<SignupForm />);
+    fireEvent.change(screen.getByLabelText(/Work email/i), { target: { value: "ops@example.com" } });
+    fireEvent.change(screen.getByLabelText(/Full name/i), { target: { value: "Ops User" } });
+    fireEvent.change(screen.getByLabelText(/Organization name/i), { target: { value: "Contoso\u0000Trial" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeDisabled();
+    });
+
+    expect(screen.getByTestId("signup-form-readiness")).toHaveTextContent(/unsupported characters/i);
+    expect(screen.getByTestId("signup-form-readiness")).toHaveTextContent(/organization name/i);
   });
 
   it("shows overlong industry readiness when Other specification exceeds 200 characters", async () => {
