@@ -20,7 +20,7 @@ public sealed partial class InMemoryValueReportJobQueue
         AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(2)
     };
 
-    private void WriteDistributedState(Guid jobId, JobEntry entry)
+    private bool TryWriteDistributedState(Guid jobId, JobEntry entry)
     {
         try
         {
@@ -38,11 +38,15 @@ public sealed partial class InMemoryValueReportJobQueue
             byte[] payload = JsonSerializer.SerializeToUtf8Bytes(state, SerializerOptions);
 
             _pollStateCache.Set(GetCacheKey(jobId), payload, CacheEntryOptions);
+
+            return true;
         }
         catch (Exception ex)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
                 _logger.LogWarning(ex, "Failed to persist value report job {JobId} to distributed cache.", jobId);
+
+            return false;
         }
     }
 
