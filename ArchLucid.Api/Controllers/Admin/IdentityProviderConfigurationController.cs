@@ -96,6 +96,15 @@ public sealed class IdentityProviderConfigurationController(
                 ProblemTypes.ValidationFailed);
         }
 
+        try
+        {
+            IdentityProviderPersistedFieldLimits.EnsureIssuerUriFits(canonicalIssuerUri);
+        }
+        catch (ArgumentException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         IdentityProviderTestLoginResponse response = _testLoginService.Execute(
             new IdentityProviderTestLoginRequest

@@ -1,14 +1,4 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
-2026-10-21 thorough hunt (hit, lane B): `api-authority-admin-controllers` — lock `api-authority-admin-controllers` pushed before work; code-read promoted open `(candidate)` on `RunCoverageController.PutAcknowledgedCoverage` — JSON `entries` array with a `null` element reached `foreach` validation and threw `NullReferenceException` instead of `400 ValidationFailed` (same class as 2026-10-04 null `Answers` on clarification apply); null-row guard before exclusion-reason checks; regression `PutAcknowledgedCoverage_returns_bad_request_when_entries_collection_contains_null_element`; cheap-disproof closed four sibling `(candidate)` rows (`SuppressIntegrationOutboxDeadLetter` empty body — intentional default reason; `CollectionRunsController.TriggerAsync` empty subscription list — documented contract; `RecordRunOperatorGovernanceDisposition` unknown enum — model binder returns 400 before controller; `IdentityProviderConfigurationController.ActivateAsync` null issuer — activation service validation path); scoped Authority/Admin filter 24 unit tests passed (5 SQL integration blocked — no SQL Server); lock released after push.
-
-- [x] (proven) `RunCoverageController.PutAcknowledgedCoverage` — null element inside non-null `Entries` collection — **hit 2026-10-21 lane B:** guard before per-row validation; regression above.
-- [x] (valid-no-repro) `AdminController.SuppressIntegrationOutboxDeadLetter` — POST without JSON body — **cheap-disproof 2026-10-21 lane B:** optional body binds null suppress reason with documented default; no NRE on route.
-- [x] (valid-no-repro) `CollectionRunsController.TriggerAsync` — empty body yields empty `SubscriptionIds` — **cheap-disproof 2026-10-21 lane B:** intentional all-subscriptions trigger; not a validation gap at controller edge.
-- [x] (valid-no-repro) `AuthorityQueryController.RecordRunOperatorGovernanceDisposition` — unknown disposition casing — **cheap-disproof 2026-10-21 lane B:** ASP.NET Core enum model binding returns 400 before action body.
-- [x] (valid-no-repro) `IdentityProviderConfigurationController.ActivateAsync` — `{ "issuer": null }` — **cheap-disproof 2026-10-21 lane B:** activation validate path returns validation problem before SQL MERGE.
-
-2026-10-21 maintenance (lane B): `ui-review-intake-wizards` — lock `ui-review-intake-wizards` held; greened `archlucid-ui` `src/app/(operator)/architecture/reviews/new` vitest baseline **71 failed → 0** (**238/238** pass): shared URL navigation harness for `commitHrefIfChanged`/`useSearchParams`, scope-confirm vitest mock sets derived bullets, new-run wizard session+`step` URL reset helpers, deferred-import contract updates, `System Name` label alignment, Socratic workspace-availability hoisted mock, evidence-upload tests mock `uploadWizardPendingInventoryEvidence` + partial tier1 zip reader; FirstPilot upload-failure test matches deferred post-create upload (toast + navigate); product fix `GuidedIntakeRequestError` shows non-API `Error.message` for failed admission/patch; lock released after push.
-
 2026-10-21 thorough hunt (hit, lane B): `ui-review-intake-wizards` — lock `ui-review-intake-wizards` pushed before work; code-read promoted `useFirstPilotIntakeWizard` one-shot `priorPackagePrefillAppliedRef` leaving quick-start `runTitle` / `inheritedPriorTitle` from the first `rerun=` after the operator picks a different revised-clone prior run (parity gap vs semantic-summary rerun handling); track prefilled run id + title and refresh when `rerun=` changes while preserving operator-edited titles; regression `prefills_the_run_title_from_the_new_prior_run_when_rerun=_changes_after_the_first_title_loaded`; cheap-disproof closed four open `(candidate)` rows (mixed-upload PDF replace mid-flight — generation guards; submit `uploadPendingEvidence` after failed quick-start — direct upload sets uploading; template-restore vs query-prefill — automation contract; guided intake `popstate` step race — existing url-sync tests); `use-first-pilot-intake-wizard.test.ts` 9/9; scoped `reviews/new` vitest 167 passed (71 pre-existing baseline failures); seeded five follow-on `(candidate)` rows.
 
 - (candidate) `useFirstPilotIntakeWizard` — stale inherited title when `rerun=` changes before the new run summary query resolves — locus: title prefill effect vs react-query placeholder data; input: swap rerun while summary fetch pending.
@@ -7606,7 +7596,7 @@
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
 - **hunts:** 67
 - **last-hunt:** 2026-10-21
-- **bugs-found:** 54
+- **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-20 — Tenant value report DOCX omitted artifact-text sanitization
 - **related-pd-tb:** none
@@ -14812,6 +14802,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-21 seed hunt (seed-only) #76: re-read activation/controller after #75 KeyVault normalize-order fix; promoted OIDC activate with invalid stale MetadataXml (OpenAPI body) — normalize clears before EnsureValidWhenProvided (no failing repro); no other hunt-ready row; seeded five (candidate) rows; fixed ledger proven-line newline splice; 97 scoped activation/controller/matrix tests passed.
 
 2026-10-21 seed hunt (seed-only) #77: cheap-disproof closed five #76 candidates (OIDC stale metadata, failed-discover detach, test-login shape, SAML invalid-metadata preserve, audit summary); no promotion met hunt-ready bar for failing repro; seeded five new candidates; 97 scoped activation/controller/matrix tests passed.
+
+2026-10-21 seed hunt (seed->hit) #78: TestLogin accepted canonical issuer URIs longer than migration 183 NVARCHAR(2048) while ActivateAsync rejected them; TestLogin now calls IdentityProviderPersistedFieldLimits.EnsureIssuerUriFits after canonicalization; regression TestLogin_rejects_canonical_issuer_uri_longer_than_persisted_column; cheap-disproof closed five #77 candidates; 98 scoped activation/controller/matrix tests passed.
 ## Zone: identity-provider-config
 2026-10-20 seed hunt (seed->hit): promoted GET /v1/admin/identity/configuration returning legacy MetadataXml on OIDC rows (and KeyVaultSecretName on SAML) after activate began stripping cross-protocol fields; PrepareConfigurationResponse omits protocol-inapplicable columns on read; regression GetConfigurationAsync_omits_metadata_xml_when_stored_protocol_is_oidc; 16 scoped IdentityProviderConfigurationControllerTests passed.
 
@@ -14850,19 +14842,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `IdentityProviderConfigurationController.TestLogin` vs activate stale protocol fields — **cheap-disproof 2026-10-21 #77** (intentional API shapes; wizard activate payload in `use-sso-wizard-page.ts`).
 - [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — SAML reactivate preserves invalid stored metadata without re-parse — **cheap-disproof 2026-10-21 #77** (`ActivateAsync_rejects_saml_reactivate_that_preserves_invalid_metadata_xml_from_storage` re-parses preserved XML).
 - [x] (valid-no-repro) `IdentityProviderConfigurationController.ActivateAsync` — audit `DataJson` omits SAML `metadataXml` — **cheap-disproof 2026-10-21 #77** (intentional audit summary; GET configuration for full row).
-- [ ] (candidate) `IdentityProviderConfigurationController.DiscoverAsync` — forwards discover body to `_discoveryService` without controller-level `IdentityProviderProtocolParser` validation — locus: `DiscoverAsync` after null-body check; input: POST `/v1/admin/identity/discover` with `protocol: "ldap"`; wrong outcome: HTTP 400 like `TestLogin_rejects_invalid_protocol`; reachability: OpenAPI discover request (service returns `DiscoverySucceeded: false` envelope today).
-- [ ] (candidate) `IdentityProviderConfigurationController.DiscoverAsync` — no controller guard for blank `metadataUrl` before discovery — locus: `DiscoverAsync` delegate; input: `metadataUrl: "   "`; wrong outcome: HTTP 400 ProblemDetails; reachability: SSO discover step (`IdentityProviderDiscoveryService` trims and returns failed envelope).
-- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — `ClaimMappingJson` serialized without explicit size guard before SQL MERGE — locus: `JsonSerializer.Serialize` before upsert; input: activate with very large `claimMapping.mappings` from OpenAPI; wrong outcome: SQL/command failure instead of validation 400; reachability: wizard/API activate body (in-memory tests may not repro).
-- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — `sameProtocol` uses `existing?.Protocol == parsedProtocol` without checking `IsActive` — locus: optional-field preserve branch; input: tenant row with `IsActive: false` then same-protocol activate omitting `keyVaultSecretName`; wrong outcome: stale inactive-row secret preserved unexpectedly; reachability: persisted `TenantIdentityProviderConfigurations` row.
-- [ ] (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` — returns stored `ClaimMappingJson` without re-running `IdentityClaimRoleMappingResolver.ValidateMapping` — locus: `PrepareConfigurationResponse`; input: row downgraded in DB with unsupported `archLucidRole` token; wrong outcome: GET 200 with mapping activate would reject; reachability: GET `/v1/admin/identity/configuration` after manual/legacy row edit.
-- **id:** identity-provider-config
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.DiscoverAsync` — invalid discover protocol returns HTTP 200 failed envelope — **cheap-disproof 2026-10-21 #78** (wizard contract; service validates).
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.DiscoverAsync` — blank `metadataUrl` — **cheap-disproof 2026-10-21 #78** (`IdentityProviderDiscoveryService` trims and returns failed envelope).
+- [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — oversized `ClaimMappingJson` — **cheap-disproof 2026-10-21 #78** (no in-memory repro; SQL MERGE boundary).
+- [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — `sameProtocol` ignores `IsActive` when preserving optional fields — **cheap-disproof 2026-10-21 #78** (reactivation intentionally preserves stored protocol fields).
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.GetConfigurationAsync` — GET does not re-validate claim mapping — **cheap-disproof 2026-10-21 #78** (read path; activate enforces).
+- [x] (proven) `IdentityProviderConfigurationController.TestLogin` — sandbox test-login accepted issuer URIs longer than the persisted column while activate rejected them — regression `TestLogin_rejects_canonical_issuer_uri_longer_than_persisted_column`.- **id:** identity-provider-config
 - **status:** open
 - **impact:** high
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 77
-- **bugs-found:** 54
+- **hunts:** 78
+- **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-21 — discover returned shared discovery service response instance
@@ -36703,7 +36695,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
 - **hunts:** 69
 - **last-hunt:** 2026-10-20
-- **bugs-found:** 54
+- **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-20 — Probable provenance edges omitted display label when verb blank
 - **related-pd-tb:** none
@@ -37517,10 +37509,10 @@ heap-disproved mermaid typed-topology candidate.
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
 - **hunts:** 62
-- **bugs-found:** 54
+- **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — PutAcknowledgedCoverage null Entries element caused 500 instead of validation
+- **last-hunt:** 2026-10-16
+- **last-bug:** 2026-10-16 — archive-by-ids null RunIds caused 500 instead of validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -37529,7 +37521,7 @@ heap-disproved mermaid typed-topology candidate.
 - [x] (proven) `AdminController.ArchiveRunsByIds` — JSON `"runIds": null` dereferenced `body.RunIds.Count` and threw `NullReferenceException` instead of `400 ValidationFailed` — **hit 2026-10-16 seed hunt:** null-coalesce guard before count check; regression `ArchiveRunsByIds_returns_bad_request_when_run_ids_collection_is_null`
 - [ ] (candidate) `AdminController.SuppressIntegrationOutboxDeadLetter` — `IntegrationOutboxDeadLetterSuppressRequest` body optional fields when body is `{}` vs null — locus: `SuppressIntegrationOutboxDeadLetterAsync(outboxId, body, ...)` ~92; input: suppress without JSON body on POST; wrong outcome: unhandled null vs intentional default suppress reason.
 - [ ] (candidate) `CollectionRunsController.TriggerAsync` — `request` omitted with valid `Idempotency-Key` — locus: `request?.SubscriptionIds ?? []` ~67; input: empty body trigger; wrong outcome: silent empty subscription list vs explicit validation when SecureNow expects at least one subscription.
-- [x] (proven) `RunCoverageController.PutAcknowledgedCoverage` — `request.Entries` contains null row elements after JSON array with `null` entries — **hit 2026-10-21 lane B:** null-row guard before exclusion-reason validation; regression `PutAcknowledgedCoverage_returns_bad_request_when_entries_collection_contains_null_element`.
+- [ ] (candidate) `RunCoverageController.PutAcknowledgedCoverage` — `request.Entries` contains null row elements after JSON array with `null` entries — locus: foreach validation loop ~71; input: `[{ "policyPackId": "...", "excluded": true }, null]`; wrong outcome: `NullReferenceException` during surrogate validation instead of `400`.
 - [ ] (candidate) `AuthorityQueryController.RecordRunOperatorGovernanceDisposition` — `Disposition` enum string case / unknown value before service — locus: `RecordRunOperatorGovernanceDisposition` POST ~171; input: disposition value outside contract casing; wrong outcome: `500` from downstream `InvalidOperationException` vs `400 ValidationFailed` at controller edge.
 - [ ] (candidate) `IdentityProviderConfigurationController.ActivateAsync` — `request` with null `Issuer` after partial JSON bind — locus: activation validate path; input: `{ "protocol": "oidc", "issuer": null }`; wrong outcome: persistence or audit throws instead of validation problem.
 
@@ -49452,7 +49444,7 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
 - **hunts:** 67
 - **last-hunt:** 2026-10-21
-- **bugs-found:** 54
+- **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-20 — Tenant value report DOCX omitted artifact-text sanitization
 - **related-pd-tb:** none
@@ -78425,7 +78417,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
 - **hunts:** 69
 - **last-hunt:** 2026-10-20
-- **bugs-found:** 54
+- **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-20 — Probable provenance edges omitted display label when verb blank
 - **related-pd-tb:** none
@@ -79239,7 +79231,7 @@ heap-disproved mermaid typed-topology candidate.
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
 - **hunts:** 62
-- **bugs-found:** 54
+- **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-16
 - **last-bug:** 2026-10-16 — archive-by-ids null RunIds caused 500 instead of validation
@@ -93016,7 +93008,7 @@ ABQ-09 churn hotspot.
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
 - **hunts:** 67
 - **last-hunt:** 2026-10-21
-- **bugs-found:** 54
+- **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-20 — Tenant value report DOCX omitted artifact-text sanitization
 - **related-pd-tb:** none
@@ -121988,7 +121980,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
 - **hunts:** 69
 - **last-hunt:** 2026-10-20
-- **bugs-found:** 54
+- **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-20 — Probable provenance edges omitted display label when verb blank
 - **related-pd-tb:** none
@@ -122802,7 +122794,7 @@ heap-disproved mermaid typed-topology candidate.
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
 - **hunts:** 62
-- **bugs-found:** 54
+- **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-16
 - **last-bug:** 2026-10-16 — archive-by-ids null RunIds caused 500 instead of validation

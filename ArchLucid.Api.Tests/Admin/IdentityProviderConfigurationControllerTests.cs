@@ -553,6 +553,34 @@ public sealed class IdentityProviderConfigurationControllerTests
         captured!.Protocol.Should().Be("saml");
     }
 
+    [Fact]
+    public void TestLogin_rejects_canonical_issuer_uri_longer_than_persisted_column()
+    {
+        IdentityProviderConfigurationController controller = CreateController();
+        string issuerUri = "https://idp.example/" + new string(
+            'a',
+            IdentityProviderPersistedFieldLimits.IssuerUriMaxLength - "https://idp.example/".Length + 1);
+
+        IActionResult result = controller.TestLogin(
+            new IdentityProviderTestLoginRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = issuerUri,
+                ClaimMapping = ValidClaimMapping(),
+                SampleClaimValues = ["al-admins"],
+            });
+
+        ObjectResult objectResult = result.Should().BeOfType<ObjectResult>().Subject;
+        objectResult.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        objectResult.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>();
+
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            (Microsoft.AspNetCore.Mvc.ProblemDetails)objectResult.Value!;
+
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
+        problem.Detail.Should().Contain("IssuerUri");
+    }
+
     [Theory]
     [InlineData("file:///etc/passwd")]
     [InlineData("javascript:alert('xss')")]

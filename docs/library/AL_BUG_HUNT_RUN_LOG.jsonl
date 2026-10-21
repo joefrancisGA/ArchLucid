@@ -5885,5 +5885,4 @@
 {"at":"2026-10-21T08:33:10.3530405Z","zoneId":"identity-provider-config","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T08:47:51.9215571Z","zoneId":"identity-provider-config","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-21T08:58:26.5555361Z","zoneId":"identity-provider-config","outcome":"seed-only","productLine":"archlucid-shared"}
-{"at":"2026-10-21T08:52:36.7016220Z","zoneId":"ui-review-intake-wizards","outcome":"dry","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/new"]}
-{"at":"2026-10-21T09:10:51.2082038Z","zoneId":"api-authority-admin-controllers","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T09:13:27.1051679Z","zoneId":"identity-provider-config","outcome":"hit","productLine":"archlucid-shared"}
