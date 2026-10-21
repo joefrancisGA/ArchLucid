@@ -1,3 +1,13 @@
+2026-10-21 seed hunt (seed→hit, lane C): `ui-operator-routes` — lock `ui-operator-routes` pushed and verified on `origin/bugsmash` before work (`fe1a2ec260`); reseeded after 628 commits since 2026-09-30; promoted `SearchPageClient` URL-scoped auto-search — `lastAutoSearchedQuery` keyed query text only, so changing `runId` while `q` unchanged skipped `onSearch` and left prior review's retrieval hits on screen; scope ref tracks `{ runId, query }`; regression `re-runs retrieval when runId changes but the query string stays the same`; seeded five follow-on `(candidate)` rows; scoped SearchPageClient + PlanningPageClient + RemediationPatternsClient vitest 18/18.
+
+- [x] (proven) `SearchPageClient` — scoped `runId` URL change with unchanged `q` skipped auto retrieval — **hit 2026-10-21 seed hunt lane C:** `lastAutoSearchedScope` pairs run + query; regression above.
+
+- (candidate) `usePolicyPacksCreatePublish` — `policyPackSelectionHrefFromSearch` leaves `diff`/`compareLeft`/`compareRight` when switching `packId` — locus: pack selection URL writer; input: deep-linked version diff on pack A then select pack B without closing diff.
+- (candidate) `SearchPageClient` — debounced `q` URL writer reinjects stale `runId` after operator clears review scope — locus: `searchReviewEvidenceQueryHrefFromSearch` + `scopedRunId` reader; input: clear `runId` param while debounced query sync pending.
+- (candidate) `useFirstPilotIntakeWizard` — operator scope switch does not invalidate `useRunSummaryQuery` prior-run title prefill — locus: `ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT` only refreshes write destination; input: revised-clone title inherited from prior tenant's run summary after scope change.
+- (candidate) `RunDetailFindingsWorkspace` — classification band URL survives when band chip filters list to zero rows without clearing `findingsClassificationBand` — locus: band filter vs URL sync; input: deep-link `decision-grade` when only checklist findings exist.
+- (candidate) `useDecisionRegisterPage` — debounced confidence min/max URL writer races client navigation removing `minConfidence` — locus: 250ms `router.replace` effect; input: clear confidence filter via back navigation within debounce window.
+
 2026-10-21 seed hunt (seed→hit, lane C): `application-governance-policy` — lock `application-governance-policy` pushed and verified on `origin/bugsmash` before work (skipped picker top `core-configuration-summary` already hit today; avoided lane B `api-null-collection-properties`); promoted hunt-ready `GovernanceDigestDecisionNeededComposer.BuildDecisionNeededMarkdownAsync` FYI remediated counter — raw 30-day trail counted every `Remediated` event, so a finding reopened to `NeedsEvidence` still inflated FYI copy; latest-per-finding via `CrossReviewLatestDispositionMap.SelectLatestEvents`; regression `BuildDecisionNeededMarkdownAsync_fyi_remediated_count_ignores_superseded_remediated_events`; scoped `FullyQualifiedName~GovernanceDigestDecisionNeededComposerTests` 5/5 (`RunAnalyzers=false`).
 
 - [x] (proven) `GovernanceDigestDecisionNeededComposer.BuildDecisionNeededMarkdownAsync` — FYI remediated count ignored superseded Remediated rows — **hit 2026-10-21 seed hunt lane C:** latest-disposition parity with decisions-needed summary; regression above.
@@ -43475,11 +43485,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 30
-- **last-hunt:** 2026-09-30
-- **bugs-found:** 25
-- **consecutive-dry-hunts:** 8
-- **last-bug:** 2026-09-28 — improvement planning stale `theme` URL when theme id missing from loaded themes
+- **hunts:** 31
+- **last-hunt:** 2026-10-21
+- **bugs-found:** 26
+- **consecutive-dry-hunts:** 0
+- **last-bug:** 2026-10-21 — search review evidence auto-search skipped when `runId` changed but `q` unchanged
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
