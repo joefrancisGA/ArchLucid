@@ -2036,6 +2036,54 @@ public sealed class OrchestratorTransientDbRetryTests
     }
 
     [SkippableFact]
+    public async Task ExecuteAsync_retries_when_top_level_aggregate_lists_nested_all_transient_aggregate_and_transient_sql_sibling()
+    {
+        int attempts = 0;
+        SqlException siblingDeadlock = SqlExceptionTestFactory.Create(1205);
+        SqlException nestedFirst = SqlExceptionTestFactory.Create(1205);
+        SqlException nestedSecond = SqlExceptionTestFactory.Create(1204);
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                {
+                    throw new AggregateException(
+                        siblingDeadlock,
+                        new AggregateException(nestedFirst, nestedSecond));
+                }
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_retries_when_top_level_aggregate_lists_empty_shell_and_transient_sql_sibling()
+    {
+        int attempts = 0;
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw new AggregateException(new AggregateException(), deadlock);
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
     public void Third_orchestrator_retry_delay_with_max_negative_jitter_stays_positive()
     {
         TimeSpan baseDelay = TimeSpan.FromSeconds(2);

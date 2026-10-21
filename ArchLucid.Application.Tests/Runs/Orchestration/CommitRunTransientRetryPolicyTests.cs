@@ -269,6 +269,26 @@ public sealed class CommitRunTransientRetryPolicyTests
     }
 
     [Fact]
+    public void Manifest_reconcile_poll_delay_is_not_scheduled_after_final_poll_index()
+    {
+        for (int poll = 1; poll <= CommitRunTransientRetryPolicy.ManifestReconcilePollAttempts; poll++)
+        {
+            bool shouldScheduleInterPollDelay = poll < CommitRunTransientRetryPolicy.ManifestReconcilePollAttempts;
+
+            if (shouldScheduleInterPollDelay)
+            {
+                CommitRunTransientRetryPolicy.ManifestReconcilePollDelay(poll)
+                    .Should()
+                    .BeGreaterThan(TimeSpan.Zero);
+            }
+            else
+            {
+                poll.Should().Be(CommitRunTransientRetryPolicy.ManifestReconcilePollAttempts);
+            }
+        }
+    }
+
+    [Fact]
     public void Layered_outer_delays_and_inner_polly_backoff_are_not_one_serial_chain()
     {
         TimeSpan interAttemptDelayTotal = Enumerable
