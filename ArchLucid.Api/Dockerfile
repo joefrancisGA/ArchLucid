@@ -23,7 +23,8 @@
 # Hadolint — base name can expand empty. Optional overrides:
 #   --build-arg DOTNET_SDK_IMAGE=... --build-arg DOTNET_ASPNET_IMAGE=... (omit or set a non-empty tag)
 ARG DOTNET_SDK_IMAGE=mcr.microsoft.com/dotnet/sdk:10.0.201-alpine3.23
-ARG DOTNET_ASPNET_IMAGE=mcr.microsoft.com/dotnet/aspnet:10.0-alpine3.23
+# Pin runtime patch (Trivy / CVE-2026-70188 fixed in 10.0.13; floating 10.0-alpine* can lag).
+ARG DOTNET_ASPNET_IMAGE=mcr.microsoft.com/dotnet/aspnet:10.0.13-alpine3.23
 FROM ${DOTNET_SDK_IMAGE} AS restore
 
 WORKDIR /src
