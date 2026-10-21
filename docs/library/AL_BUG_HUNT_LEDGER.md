@@ -17,6 +17,14 @@
 - [x] (proven) **Defect class:** null non-nullable collection properties on `[FromBody]` DTOs (`"allowedAliasIds": null`) causing `NullReferenceException` before validation — **closed 2026-10-21 lane B:** same global filter/guard as null elements; architecture null-property matrix + guard tests.
 
 2026-10-21 seed hunt (seed→hit, lane B): `api-authority-admin-controllers` — lock `api-authority-admin-controllers` pushed and verified on `origin/bugsmash` before work; promoted gap on `SettingsController.PutAllowedEngineSet` — JSON `"allowedAliasIds": null` deserialized to a null collection and `request.AllowedAliasIds.Count` threw before validation; null guard before count check; regression `PutAllowedEngineSet_returns_bad_request_when_allowed_alias_ids_collection_is_null`; cheap-disproof closed picker `RunCoverageController.PutAcknowledgedCoverage` null entry candidate (existing per-row null guard); scoped new test + `AdminControllerTests.ArchiveRunsByIds` parity 2 passed (`RunAnalyzers=false`).
+2026-10-21 seed hunt (seed→hit, lane C): `architecture-recommendation` — lock `architecture-recommendation` pushed and verified on `origin/bugsmash` before work; promoted hunt-ready `ArchitectureRecommendationTradeOffBuilder.PriorityListPrefersDimension` — priority text `Security over Cost` matched both dimension tokens via word boundaries, so security/cost trade-offs balanced despite explicit operator precedence; `TryResolveExplicitDimensionPrecedence` honors `Security|Cost|Reliability` `over` and `before` clauses before substring matching; regressions `BuildRecommendations_prefers_security_first_when_priority_says_security_over_cost` and `BuildRecommendations_prefers_cost_first_when_priority_says_cost_before_security`; cheap-disproof closed four sibling `(candidate)` rows (provisional model gate lives in `ClosedLoopReviewStage`; DataArchitecture trade-off pair not in contract; null finding list throws by design; duplicate findings differ by `FindingId` in stable id); scoped Alternatives/ProposedChange/TradeOff filter 61 passed (`RunAnalyzers=false`).
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.PriorityListPrefersDimension` — `Security over Cost` balanced both dimensions — **hit 2026-10-21 lane C:** explicit `over`/`before` precedence; regressions above.
+- [x] (valid-no-repro) `ArchitectureRecommendationEngine.BuildRecommendations` — provisional model not consulted — **cheap-disproof 2026-10-21 lane C:** `ClosedLoopReviewStage` + `SpecialistReviewProvisionalGating` downgrade fails while framing incomplete before recommendation stage.
+- [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security + DataArchitecture pair — **cheap-disproof 2026-10-21 lane C:** only Security/Cost, Security/Reliability, Reliability/Cost synthesized by design.
+- [x] (valid-no-repro) `ArchitectureRecommendationEngine.BuildRecommendations` — null finding in list — **cheap-disproof 2026-10-21 lane C:** `ArgumentNullException.ThrowIfNull(finding)` fail-fast on caller contract.
+- [x] (valid-no-repro) `ArchitectureRecommendationEngine.BuildRecommendations` — duplicate findings same title — **cheap-disproof 2026-10-21 lane C:** `ArchitectureRecommendationStableId.FromFinding` includes `FindingId`; distinct ids remain distinct recommendations.
+
 2026-10-21 seed hunt (seed-only, lane C): `host-core-coordination` — lock `host-core-coordination` pushed and verified on `origin/bugsmash` before work (commit `76abf19001`; continued after prior session lock); cheap-disproof closed five open `(candidate)` rows (parallel-batch cancel leaves leased siblings — at-least-once lease re-drive per `TRANSACTIONAL_OUTBOX_REPLAY_VS_IDEMPOTENCY_CONTRACT.md` §3–§5; failure-handler cancel during hook after backoff/DLQ persist — terminal SQL state already recorded, hooks best-effort except cooperative cancel; `maxBatch=0` normalizer — no production caller passes zero, `RecoverableOutboxProcessorBase` clamps concurrency to ≥1; post-commit manifest-compare null skip — `GetRunDetailForManifestCompareAsync` returns null only when run/manifest missing, transient repository faults throw; export push `HttpRequestException` — intentional retry path for HTTP upload failures, `InvalidOperationException` covers destination-policy rejection at processor boundary); no hunt-ready promotion; seeded five follow-on `(candidate)` rows; scoped coordination/outbox filter 21 Host.Core + 36 Host.Composition passed (`WarningsNotAsErrors=ARCH006;ARCH006a;ARCH006b`).
 
 - [x] (valid-no-repro) `RecoverableOutboxProcessorBase.ProcessPendingBatchAsync` — parallel cancel leaves leased siblings — **cheap-disproof 2026-10-21 lane C:** shared outbox lease re-drive on expiry matches Oct 2026-10-05 thorough closure; not a shell defect.
@@ -12804,7 +12812,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **hunts:** 39
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-12
+- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-09 — wallet GET still required admin because Authorize attributes stack
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -13705,11 +13713,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 69
+- **hunts:** 70
 - **last-hunt:** 2026-10-12
-- **bugs-found:** 25
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-10 — Unicode priority text falsely matched a standalone Security dimension
+- **last-bug:** 2026-10-21 — explicit Security over Cost priority balanced trade-off incorrectly
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -13727,11 +13735,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-11 seed hunt (seed-only): re-read the selected recommendation engine and trade-off builder after the explicit-priority negation fixes; upstream provisional gating prevents the strongest model-state concern from being reachable as a wrong outcome, and the selected contract does not require every dimension pair to receive a trade-off. The exact Alternatives/ProposedChange filter passed 45/45; retained two bounded candidates and made no production or regression code change.
 
-- [ ] (candidate) `ArchitectureRecommendationEngine.BuildRecommendations` — the supplied `ArchitectureKnowledgeModel.IsProvisionalSynthesis` is not consulted at this locus, so a direct caller passing a provisional model with a Fail finding could emit a remediation recommendation instead of evidence-first output — input: the `context.Model` passed by `ClosedLoopRecommendationStage` while framing is incomplete; upstream `ClosedLoopReviewStage` currently gates those findings, so caller/contract evidence is still needed.
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — only Security/Cost, Security/Reliability, and Reliability/Cost pairs are synthesized, so a reachable Security plus DataArchitecture finding pair receives no competing-dimension trade-off — input: specialist review findings with `QualityDimension.Security` and `QualityDimension.DataArchitecture`; no selected contract currently states that every dimension pair must produce a trade-off.
-- [ ] (candidate) `ArchitectureRecommendationEngine.BuildRecommendations` — a reachable null entry inside the `findings` list throws through `IsActionableFinding` instead of being skipped or reported as invalid input; the list is caller-provided, but collection-element nullability is not established by the selected contract.
-- [ ] (candidate) `ArchitectureRecommendationEngine.BuildRecommendations` — duplicate actionable findings with the same title/dimension can emit duplicate recommendations with separate stable identities; the selected engine does not deduplicate findings before creating recommendations, but no caller contract establishes whether duplicate specialist rows are valid.
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.PriorityListPrefersDimension` — when declared priorities mention both dimensions in different entries, the resolver balances instead of honoring list order; `DeclaredPriorities` is reachable operator input, but precedence semantics are not established by the selected contract.
+2026-10-21 seed hunt (seed→hit, lane C): promoted explicit `over`/`before` declared-priority precedence for security/cost/reliability trade-offs; scoped Alternatives/ProposedChange/TradeOff tests 61/61; no further promotion in same run.
+
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — compound priorities such as `Cost-effective security program` still match both `Cost` and `Security` tokens and balance — input: single freeform priority mentioning both dimensions without `over`/`before`; reachability: operator framing text; wrong outcome: balanced resolution when sponsor intent may be security-weighted.
+- [ ] (candidate) `ClosedLoopDeclaredPrioritiesNormalizer.Normalize` — alphabetical ordering of distinct priority strings changes display order on `ArchitectureRecommendation.Dependencies` — input: `["Security focus", "Cost control"]`; wrong outcome: dependencies list shows Cost before Security; reachability: snapshot normalization before closed-loop execution.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture actionable findings produce no trade-off object — input: mixed-dimension review package; contract gap only unless product requires all pairs.
+- [ ] (candidate) `ArchitectureRecommendationEngine.BuildRecommendations` — direct engine callers bypass `ClosedLoopReviewStage` provisional gating — input: provisional model with Fail findings; upstream stage normally downgrades; contract-dependent.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` — `FindRecommendationForTradeOff` falls back to first recommendation for a dimension when titles diverge — input: multiple actionable findings per dimension with distinct titles; reachability: duplicate specialist rows in one review.
 
 2026-10-11 seed hunt (seed→hit): `ArchitectureRecommendationTradeOffBuilder` treated the reachable operator priority `Security is not a priority for phase one` as Security-first because postpositive negation was not recognized; added generalized `is not`/`isn't` priority and prioritization matching; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_says_security_is_not_a_priority`; the exact Alternatives/ProposedChange filter passed 45/45 and the TradeOffBuilder suite passed 14/14.
 
