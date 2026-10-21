@@ -29,6 +29,27 @@ public sealed class MarketplacePlanIdTierResolverTests
         sut.ResolveTierStorageCode(planId).Should().Be(expectedTier);
     }
 
+    [Fact]
+    public void ResolveTierStorageCode_maps_enterprise_when_plan_id_tier_map_key_has_bounding_whitespace()
+    {
+        BillingOptions billing = new()
+        {
+            AzureMarketplace = new AzureMarketplaceBillingOptions
+            {
+                PlanIdTierMap = new Dictionary<string, string>
+                {
+                    ["  contoso-enterprise  "] = nameof(TenantTier.Enterprise),
+                },
+            },
+        };
+
+        new BillingOptionsNormalizePostConfigure().PostConfigure(Options.DefaultName, billing);
+
+        MarketplacePlanIdTierResolver sut = CreateResolver(billing.AzureMarketplace.PlanIdTierMap!);
+
+        sut.ResolveTierStorageCode("contoso-enterprise").Should().Be(nameof(TenantTier.Enterprise));
+    }
+
     [Theory]
     [InlineData(null)]
     [InlineData("")]

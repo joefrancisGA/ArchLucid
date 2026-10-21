@@ -180,6 +180,6 @@ public sealed class AzureMarketplaceBillingOptions
     public Dictionary<string, string>? PlanIdTierMap
     {
         get;
-        init;
+        set;
     }
 }

@@ -11,6 +11,8 @@ using ArchLucid.Persistence.Billing;
 using ArchLucid.Persistence.Billing.AzureMarketplace;
 using ArchLucid.Persistence.Billing.Stripe;
 
+using Microsoft.Extensions.Options;
+
 namespace ArchLucid.Host.Composition.Startup;
 
 public static partial class ServiceCollectionExtensions
@@ -18,6 +20,7 @@ public static partial class ServiceCollectionExtensions
     internal static void RegisterBilling(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<BillingOptions>(configuration.GetSection(BillingOptions.SectionName));
+        services.AddSingleton<IPostConfigureOptions<BillingOptions>, BillingOptionsNormalizePostConfigure>();
         services.Configure<BillingUnitRatesOptions>(configuration.GetSection(BillingUnitRatesOptions.SectionPath));
         services.AddScoped<ITenantCostEstimateService, TenantCostEstimateService>();
         services

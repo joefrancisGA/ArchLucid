@@ -1,18 +1,5 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
-2026-10-21 thorough hunt (hit): `retrieval` — lane B; two reachable `RetrievalDocument` rows with the same `DocumentId` in one `IndexDocumentsAsync` call generated colliding `{documentId}-chunk-{ordinal}` chunk ids so the later document silently overwrote the earlier via upsert; `RetrievalIndexingScopeValidator.ValidateDocuments` now rejects duplicate document ids in a batch; regressions `ValidateDocuments_duplicate_document_id_throws` and `IndexDocumentsAsync_rejects_duplicate_document_id_in_one_batch`. Scoped Retrieval/Indexing filter: 372 passed.
-
-- [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — duplicate `DocumentId` in one batch collides chunk ids and overwrites prior vectors — **hit 2026-10-21 lane B:** batch uniqueness validation in `RetrievalIndexingScopeValidator`; regressions above.
-
-2026-10-21 tooling (hit): `/al-bug` zone picker on Linux — hand-appended `AL_BUG_HUNT_RUN_LOG.jsonl` rows used legacy `recordedAt` while `al-bug-pick-zone.ps1` read `$entry.at`, throwing `property 'at' cannot be found`; `Get-RunLogEntryIsoTimestamp` in `al-bug-run-log-utils.ps1` accepts `at` or `recordedAt` and throws a repair message when missing; normalized two legacy log lines; `AlBugPickZone.Tests.ps1` 43 passed; picker `-Preview` smoke green.
-
-2026-10-21 thorough hunt (dry): `topology-proposal-merge` — lane B; manual zone (picker host error on `property 'at'`); cheap-disproof closed four open `(candidate)` rows: critic bypass pre-registration (Critic uses overlay validation and shared `accumulatedEndpointKeys`), chained rename alias (`TryResolveNodeId` / index regressions), ARM-vs-rename consensus intersection (map lookup before ARM branch in `CanonicalizeConsensusRelationshipEndpoint`), topology extension on inventoried graph (`allowTopologyExtension` gated on agent-proposed topology nodes). No failing repro. Scoped merge/graph/edge-mapper/consensus filter: 2186 passed. No production change.
-
-- [x] (invalid) `AgentTopologyProposalMergeGate.FilterValidatedProposals` — critic batch bypasses endpoint pre-registration — **cheap-disproof 2026-10-21 lane B:** Critic is overlay-validated; merge order Topology→Cost→Compliance→Critic.
-- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — chained rename alias — **cheap-disproof 2026-10-21 lane B:** no failing repro; existing mapper/index coverage.
-- [x] (valid-no-repro) `TopologyProposalConsensusMerger.CanonicalizeConsensusRelationshipEndpoint` — ARM id vs rename label intersect — **cheap-disproof 2026-10-21 lane B:** canonical map consulted before ARM normalization.
-- [x] (invalid) `AgentTopologyProposalMergeGate.FilterValidatedProposals` — unsupported topology extension after overlay — **cheap-disproof 2026-10-21 lane B:** extension requires `HasAgentProposedTopologyNodes` or empty inventory.
-
 2026-10-21 seed hunt (seed→hit): `cloud-extractors` — lane B; promoted `ListChildJsonElementsAsync` dropping `partialCollection` from `ListJsonElementsAtRelativePathAsync` so Event Grid, messaging, AVD session hosts, and Service Connector child listings looked complete after mid-pagination ARM failures (PaaS paths already use `ListChildResourcesWithStatusAsync` + `partial-child-enumeration` on trunk); `ListChildJsonElementsAsync` now returns `HostedAzureArmChildCollectionReadResult` and collectors log Warning on partial retain; regression `ListChildJsonElementsAsync_marks_partial_when_later_page_fails` (reuses upstream `CollectAsync_warns_when_sql_database_list_is_partially_collected`). Scoped Aws/Gcp/Azure extractor filter: 211 passed.
 
 - [x] (proven) `ListChildJsonElementsAsync` — partial ARM child pagination retained rows but callers never observed `PartialCollection` — **hit 2026-10-21 lane B seed hunt:** return `HostedAzureArmChildCollectionReadResult`; wire non-PaaS AX-DE collectors; regression above.
@@ -22764,8 +22751,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: retrieval
 
-2026-10-21 thorough hunt (hit): lane B; duplicate `DocumentId` within one indexing batch collided on `{documentId}-chunk-{ordinal}` and let upsert overwrite the first document's vectors; `ValidateDocuments` enforces at-most-once document ids per batch; regressions `ValidateDocuments_duplicate_document_id_throws` and `IndexDocumentsAsync_rejects_duplicate_document_id_in_one_batch`; 372 scoped Retrieval/Indexing tests passed.
-
 2026-10-11 seed hunt (seed-only): re-read retrieval indexing, scope validation, in-memory vector cleanup, Azure filter construction, embedding normalization, and graph-neighbor bounds; no new row met the full hunt-ready bar. The exact Retrieval/Indexing filter passed 364/364. Seeded three bounded candidates for zero-cap configuration semantics, zero-neighbor graph bounds, and chunk-ID-only cleanup scope; no production or regression change.
 
 2026-10-11 thorough hunt (hit): proved two independent configuration/input defects. `AcceptedManifestTrainingDataExporter` coerced `MaxManifestsPerExport = 0` to one and emitted training data; the clamp now permits zero. `PolicyPackCorpusIndexer` preserved an explicit blank `rulePackId` instead of falling back to the pack directory; null, empty, and whitespace IDs now use the fallback. Regressions `ExportAsync_with_zero_manifest_limit_exports_no_manifests` and `BuildDocumentsAsync_blank_rule_pack_id_falls_back_to_pack_directory_name`; 364 scoped Retrieval/Indexing tests passed.
@@ -22917,9 +22902,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `SimpleTextChunker.Chunk` / `StructureAwareTextChunker.Chunk` — a reachable non-positive `maxChars` argument can return no chunks or throw for non-empty content instead of rejecting invalid chunk configuration; direct `ITextChunker` callers can supply the input, but production option reachability and intended failure semantics are not established.
 - [x] (valid-no-repro) `RetrievalIndexingService.IndexDocumentsAsync` — two reachable `RetrievalDocument` entries with the same `DocumentId` in one batch generate colliding `{documentId}-chunk-{ordinal}` ids and let the later document overwrite the earlier one; batch uniqueness is not enforced in the selected path.
 - [x] (valid-no-repro) `InMemoryVectorIndex.UpsertChunksAsync` — two reachable chunks with the same `ChunkId` but different scope/content are applied sequentially and the later row replaces the earlier row; global chunk-id uniqueness is not established for all indexing callers.
-- [ ] (candidate) `SimpleTextChunker.Chunk` / `StructureAwareTextChunker.Chunk` — a reachable non-positive `maxChars` argument can return no chunks or throw for non-empty content instead of rejecting invalid chunk configuration; direct `ITextChunker` callers can supply the input, but production option reachability and intended failure semantics are not established.
-- [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — duplicate `DocumentId` in one batch collides chunk ids and overwrites prior vectors — **hit 2026-10-21 lane B:** `RetrievalIndexingScopeValidator.ValidateDocuments` rejects duplicate document ids; regressions `ValidateDocuments_duplicate_document_id_throws` and `IndexDocumentsAsync_rejects_duplicate_document_id_in_one_batch`.
-- [ ] (candidate) `InMemoryVectorIndex.UpsertChunksAsync` — two reachable chunks with the same `ChunkId` but different scope/content are applied sequentially and the later row replaces the earlier row; global chunk-id uniqueness is not established for all indexing callers.
 
 2026-09-12 thorough hunt #1961 (hit): proved Louvain edge/node casing mismatch; cheap-disproof closed PolicyPackChunker colon-split on shipped templates; scoped Louvain tests passed.
 
@@ -28871,13 +28853,13 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 48
-- **bugs-found:** 31
+- **hunts:** 49
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-16
-- **last-bug:** 2026-10-16 — cognitiveservices endpoint query slash + ArchLucid:Secrets metadata over-redaction
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-21 — trim Billing:AzureMarketplace:PlanIdTierMap keys after configuration bind
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-16 thorough hunt (hit): proved `AzureOpenAiEndpointNormalizer.EnsureTrailingSlash` appended `/` after query strings on non-classic Azure OpenAI hosts; `EnsureTrailingSlash` now ends the path before the query; proved `ArchLucid:Secrets:*` metadata paths redacted because segment `Secrets` matched embedded `Secret`; negated plural `Secrets` section segment; cheap-disproved Quick Scan merge identity-cap candidate; 1087 scoped Configuration tests passed (`RunAnalyzers=false`).
 
@@ -28964,6 +28946,7 @@ Split from retired `archlucid-core` (ABQ-08).
 Split from retired `archlucid-core` (ABQ-08).
 
 ### Hypotheses
+- [x] (proven) `BillingOptionsNormalizePostConfigure` / `AzureMarketplaceBillingOptions.PlanIdTierMap` — configuration-bound map keys with bounding whitespace never matched trimmed marketplace `planId` values, so Enterprise plans defaulted to Standard — **hit 2026-10-21 seed hunt (seed→hit):** post-configure trim on keys and tier values; regressions `PostConfigure_trims_plan_id_tier_map_keys_from_configuration_binding` and `ResolveTierStorageCode_maps_enterprise_when_plan_id_tier_map_key_has_bounding_whitespace`. [class:other]
 
 - [x] (proven) `ConfigurationSensitiveConfigValueScanner.ContainsCredentialConnectionPair` — Azure Cache for Redis comma-delimited `password=` on non-sensitive effective values leaked because pair scan resumed only after `;` — **hit 2026-10-13 thorough hunt:** advance pair boundaries on `,` as well as `;`; regression `Resolve_redacts_plain_scalar_redis_comma_delimited_connection_string`.
 - [x] (proven) `AzureOpenAiOptions.UseJsonSchemaResponseFormat` — property initializer was `true` while `ConfigurationKeyCatalog` and `docs/library/CONFIGURATION_REFERENCE.md` record default `false` for unset `AzureOpenAI:UseJsonSchemaResponseFormat`; **hit 2026-10-12 thorough hunt:** an unset key instantiated the option with schema output enabled, so the host could request schema-file-dependent structured output by default. Changed the initializer to `false`; regression `UseJsonSchemaResponseFormat_defaults_to_false_when_configuration_is_unset`.
