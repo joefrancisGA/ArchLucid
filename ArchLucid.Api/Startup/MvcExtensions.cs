@@ -40,6 +40,7 @@ internal static class MvcExtensions
                 options.Filters.Add<OpenApiUndeclaredQueryParameterFilter>();
                 options.Filters.Add<TrialLimitExceededAuditFilter>();
                 options.Filters.Add<RouteTenantScopeBindingFilter>();
+                options.Filters.Add<ApiRequestNullCollectionElementsFilter>();
             })
             .AddJsonOptions(options => ArchLucid.Api.Serialization.ArchLucidApiJsonSerializerOptions.Configure(options.JsonSerializerOptions));
 

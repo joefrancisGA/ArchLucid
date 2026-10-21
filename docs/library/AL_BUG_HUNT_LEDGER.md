@@ -1,4 +1,8 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
+2026-10-21 structural hunt (hit, lane B): `api-request-null-collection-elements` — lock pushed and verified on `origin/bugsmash` before work; central `ApiRequestNullCollectionElementsFilter` + `ApiRequestNullCollectionElementsGuard` reject null elements inside `[FromBody]` collection properties with HTTP 400 `ValidationFailed` before controller actions (closes recurring class: `RunCoverageController` entries, clarification `Answers` 2026-10-04, topology entries run 193, `ArchiveRunsByIds` null collection); per-controller guards retained; architecture test enumerates all API `[FromBody]` collection property paths with null-element probes; filter + guard tests + `RunCoverageControllerTests` 13/13 scoped; lock released after push.
+
+- [x] (proven) **Defect class:** null elements inside JSON request body collections (`[{...}, null]`) causing `NullReferenceException` in controller validation loops — **closed 2026-10-21 lane B:** global MVC filter on all `[FromBody]` models; `ApiRequestNullCollectionElementsArchitectureTests` + `ApiRequestNullCollectionElementsFilterTests`.
+
 2026-10-21 thorough hunt (hit, lane B): `ui-review-intake-wizards` — lock `ui-review-intake-wizards` pushed before work; code-read promoted `useFirstPilotIntakeWizard` one-shot `priorPackagePrefillAppliedRef` leaving quick-start `runTitle` / `inheritedPriorTitle` from the first `rerun=` after the operator picks a different revised-clone prior run (parity gap vs semantic-summary rerun handling); track prefilled run id + title and refresh when `rerun=` changes while preserving operator-edited titles; regression `prefills_the_run_title_from_the_new_prior_run_when_rerun=_changes_after_the_first_title_loaded`; cheap-disproof closed four open `(candidate)` rows (mixed-upload PDF replace mid-flight — generation guards; submit `uploadPendingEvidence` after failed quick-start — direct upload sets uploading; template-restore vs query-prefill — automation contract; guided intake `popstate` step race — existing url-sync tests); `use-first-pilot-intake-wizard.test.ts` 9/9; scoped `reviews/new` vitest 167 passed (71 pre-existing baseline failures); seeded five follow-on `(candidate)` rows.
 
 - (candidate) `useFirstPilotIntakeWizard` — stale inherited title when `rerun=` changes before the new run summary query resolves — locus: title prefill effect vs react-query placeholder data; input: swap rerun while summary fetch pending.
@@ -129019,3 +129023,24 @@ ABQ-09 churn hotspot.
 2026-10-21 seed hunt (seed→hit, lane C): `ui-review-detail-workspace` — promoted `(candidate)` sibling in-flight queue: `ReviewDetailSiblingInFlightQueue.filterSiblingInFlightRows` matched only flat `/architecture/reviews/{runId}` desk hrefs, so AO-08 nested in-flight rows (`buildInFlightDeskHref` + `architectureId`) were dropped and Working mode showed “no other packages” while siblings ran; `extractReviewRunIdFromInFlightDeskHref` on `map-in-flight-desk-rows`; regressions `lists siblings when in-flight rows use nested architecture review desk hrefs (AO-08)` + href extractor unit test; review-detail zone vitest 566/566 (190 files). Remaining `(candidate)`: pipeline banner, AI availability panel, keyboard triage, segment error, artifacts exports DOCX link, below-fold deferred import strings, decision delta badges, governance CTA hrefs, sponsor citations, architect section order, bundle deferred import graph, print client session activity.
 2026-10-21 structural follow-up (lane C): `ui-review-detail-workspace` — closed bug class **flat vs nested AO-08 review route parsing** (presenter redirect race + sibling in-flight filter): added shared `review-workspace-route` parse/build helpers (`parseReviewWorkspaceRouteFromHref`, `buildReviewWorkspaceRouteHref`, `readReviewWorkspaceRunIdFromHref`, `isReviewWorkspaceRoutePath`) with matrix tests (flat, nested, query, trailing slash, encoded ids, legacy `/runs/` segment, intake `/new`); replaced ad-hoc `architecture/reviews` href parsers in in-flight desk rows, continue-last recent views, telemetry normalizer, nav pre-commit gate, app-shell footer visibility, sponsor redirect, orientation filter, and review workspace pathname fallbacks; removed `extractReviewRunIdFromInFlightDeskHref`. Review-detail zone vitest (see run).
 2026-10-21 thorough hunt (dry, lane C): `extraction-router` — re-attempted open `(candidate)` email-domain `ops@owner.example.com` paired with separate `unowned` (`FindBoundedMarkerIndex` / `@` start boundary); failing repro not found — `Extract_does_not_emit_ownership_gap_for_email_domain_owner_label_with_unowned` and `DifficultyBasedExtractionRouterOwnershipMarkerBoundaryMatrixTests` email-domain row already encode the fix via `FindBoundedOwnershipMarkerIndex`; classified `(valid-no-repro)`. Scoped `FullyQualifiedName~DifficultyBasedExtractionRouter` tests 77/77. No production change.
+
+## Zone: api-request-null-collection-elements
+
+- **id:** api-request-null-collection-elements
+- **status:** open
+- **impact:** high
+- **aliases:** null collection elements; request body validation
+- **paths:** ArchLucid.Api/Filters/ApiRequestNullCollectionElementsFilter.cs; ArchLucid.Api/Validation/ApiRequestNullCollectionElementsGuard.cs; ArchLucid.Api/Http/ApiRequestBodyTypeCatalog.cs; ArchLucid.Api/Startup/MvcExtensions.cs
+- **test-filter:** FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests
+- **hunts:** 1
+- **bugs-found:** 1
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-21 — central guard for null collection elements in FromBody models
+- **related-pd-tb:** none
+- **code-changed-since:** no
+
+2026-10-21 structural hunt (hit, lane B): shipped global guard; defect class marked closed in ledger preamble; no new unguarded 500 repro beyond already-fixed controller paths.
+
+- [x] (proven) **Defect class:** null elements inside request body collections — **closed 2026-10-21:** `ApiRequestNullCollectionElementsFilter` + guard; architecture reflection coverage over `[FromBody]` DTO collection properties.
+
