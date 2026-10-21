@@ -1,15 +1,5 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
-2026-10-21 seed hunt (seed→hit): `infra-evidence-diagrams` — lane B; `GET .../mermaid/preview` accepted recovery/cross-group/AVD/private-endpoint flags on the service but omitted `includeNetworkDetails`, and the diagrams workbench called preview without any display toggles so mode-picker metrics stayed stale after Show network details / recovery / fan-out changes. Preview now accepts `includeNetworkDetails`; `fetchInfraEvidenceMermaidPreview` forwards display query params; workbench refetches preview when display toggles change. Regressions `Preview_applies_all_requested_display_flags_to_mode_renders` (network details) and `fetchInfraEvidenceMermaidPreview forwards diagram display flags on preview requests`. Scoped InfraEvidence parser/preview/completeness filter: 24 passed; vitest `infra-evidence-mermaid-api-query.test.ts`: 2 passed.
-
-- [x] (proven) `InfraEvidenceSnapshotsController.GetMermaidPreview` / `DiagramsWorkbenchClient` preview load — display toggles did not affect mode preview renders — **hit 2026-10-21 seed hunt:** wire `includeNetworkDetails` on preview API and forward all display flags from workbench preview fetches; regressions above.
-
-2026-10-21 thorough hunt (hit): `core-tenancy-commercial` — lane B structural follow-up; retired plan-id **tier inference** (delimiter token / negation / bridge heuristics on `enterprise` substrings) in favor of explicit `Billing:AzureMarketplace:PlanIdTierMap` bound from Partner Center offer plans; `IMarketplacePlanIdTierResolver` / `MarketplacePlanIdTierResolver` defaults unknown ids to `Standard` with Warning log and `archlucid_marketplace_unknown_plan_ids_total` (never Enterprise by inference); removed `MarketplacePlanIdMapper`; regressions `MarketplacePlanIdTierResolverTests` matrix (known, unknown, adversarial `not-for-enterprise` / `non-enterprise` / `enterprise-trial` and case/separator variants). Scoped `CommercialTenant`/`MarketplacePlanIdTierResolver`/`CommercialPackagingTierResolver` filter: 37 passed; `MarketplaceChangePlanWebhookMutationHandlerTests`: 4 passed; Persistence marketplace webhook tests: 9 passed.
-
-- [x] (proven) **Bug class closed — plan-id tier inference** (`MarketplacePlanIdMapper` substring/negation heuristics) — **structural remediation 2026-10-21:** explicit configured map only; unknown → Standard + telemetry; heuristics removed.
-- [x] (invalid) `MarketplacePlanIdMapper.PlanIdContainsEnterpriseTierToken` — negation adverb two tokens before `enterprise` via `for` bridge — **superseded 2026-10-21:** bridge guard and entire inference class retired for configured `PlanIdTierMap`.
-- [x] (invalid) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — unknown `planId` strings default to `Standard` — **revalidated 2026-10-21:** now explicit resolver default with warning/metric (not substring fallback).
-
 2026-10-21 seed hunt (seed→hit): `application-billing-logic` — promoted `AdminFleetLlmCogsService.CostRatesConfigured` requiring both positive global input and output USD rates while `LlmCostEstimationEffectiveRates` still prices when only `Billing:LlmCostEstimation:InputUsdPerMillionTokens` is set and output is zeroed for catalog fallback; fleet rows falsely reported `missing-cost-rates`. Treat any positive global input, output, or reasoning rate (or per-deployment override) as configured; regression `BuildDashboardAsync_treats_positive_global_input_rate_as_configured_when_output_is_zeroed_for_default_fallback`. Seeded five follow-on `(candidate)` rows. 46 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed.
 
 - [x] (proven) `AdminFleetLlmCogsService.CostRatesConfigured` — global input-only override with zeroed output reported missing fleet COGS rates — **hit 2026-10-21 seed hunt:** aligned configured check with `LlmCostEstimationEffectiveRates`; regression `BuildDashboardAsync_treats_positive_global_input_rate_as_configured_when_output_is_zeroed_for_default_fallback`.
@@ -36828,10 +36818,11 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 146
-- **bugs-found:** 92
+- **hunts:** 147
+- **bugs-found:** 93
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
+- **last-hunt:** 2026-10-21
+2026-10-21 seed hunt (seed→hit): cloud-extractors — Paas child listings dropped PartialCollection via ListChildJsonElementsAsync; fixed with ListChildResourcesWithStatusAsync and partial-child-enumeration warnings; regression CollectAsync_warns_when_sql_database_list_is_partially_collected.
 - **last-bug:** 2026-10-20 — Child ARM listing partial enumeration omitted completeness warnings
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -36859,6 +36850,12 @@ heap-disproved mermaid typed-topology candidate.
 2026-10-03 seed hunt (hit): promoted the subscription policy-assignment pagination candidate; `ListPolicyAssignmentsAtRestPathAsync` validated only the subscription, so an ARM `nextLink` into `policyDefinitions` was followed and could merge another collection's rows. Fixed with exact listing-path validation for subscription and management-group policy assignments; regression `ListSubscriptionPolicyAssignmentsAsync_rejects_next_link_for_different_policy_collection`; 1 focused Azure extractor test passed.
 
 ### Hypotheses
+- [x] (proven) HostedAzureInventoryPaasChildCollector — SQL/Cosmos/storage ARM child listings omitted partial-child-enumeration warnings when pagination stopped mid-stream (ListChildJsonElementsAsync dropped PartialCollection) — hit 2026-10-21; regression CollectAsync_warns_when_sql_database_list_is_partially_collected.
+- [ ] (candidate) HostedAzureInventoryAvdSessionHostAssociationCollector — sessionHosts ListChildJsonElementsAsync may omit partial-enumeration signal on mid-pagination ARM stop.
+- [ ] (candidate) HostedAzureInventoryMessagingAssociationCollector — Event Hub/Service Bus child listings may omit partial-enumeration warnings on mid-pagination stop.
+- [ ] (candidate) HostedAzureInventoryEventGridSubscriptionCollector — subscriptions child listings may omit partial-enumeration warnings on mid-pagination stop.
+- [ ] (candidate) HostedAzureInventoryServiceConnectorCollector — linkers child listing may omit partial-enumeration warnings on mid-pagination stop.
+- [ ] (candidate) ListChildJsonElementsAsync — still discards PartialCollection for remaining internal callers.
 - [x] (valid-no-repro) `GetOnlyHostedAzureArmReadClient.ListVaultProtectedItemsAsync` — reachable follow-up HTTP failure retains items but returns `Succeeded = true`, so `HostedAzureInventoryRecoveryServicesCollector` may omit backup/site-recovery completeness failure rows while pagination was truncated — locus: final `HostedAzureVaultProtectedItemListResult` when `items.Count > 0` after mid-pagination break; input: mock page-1 item plus page-2 HTTP 500 (see `ListVaultBackupProtectedItemsAsync_retains_items_when_later_page_fails`). — **cheap-disproof 2026-10-20 thorough hunt:** see dry chronicle same day.
 - [x] (valid-no-repro) `GetOnlyHostedAzureArmReadClient.ListSubscriptionRoleEligibilitySchedulesAsync` — reachable first-page HTTP 503 on `roleEligibilitySchedules` breaks with an empty list and debug log while `ListSubscriptionRoleAssignmentsAtListingPathAsync` throws via `ShouldBreakForPaginationHttpFailure` when no rows were collected — locus: non-success branch without `EnsureSuccessStatusCode` on first page; input: subscription pull with mocked `503` on eligibility listing only. — **cheap-disproof 2026-10-20 thorough hunt:** see dry chronicle same day.
 - [x] (valid-no-repro) `AwsResourceExplorerInventoryCollector.CollectAsync` — reachable `AmazonServiceException` on a follow-up `SearchAsync` call propagates and fails the extract instead of returning resources already collected from earlier pages — locus: pagination loop without catch around SDK calls; input: first page succeeds, second call throws throttling. — **cheap-disproof 2026-10-20 thorough hunt:** see dry chronicle same day.
@@ -37007,6 +37004,12 @@ heap-disproved mermaid typed-topology candidate.
 2026-09-12 seed hunt #2177 (seed-only): reseeded cloud-extractors with `-Hint cloud extractors -Refresh`; no new hunt-ready rows.
 
 ### Hypotheses
+- [x] (proven) HostedAzureInventoryPaasChildCollector — SQL/Cosmos/storage ARM child listings omitted partial-child-enumeration warnings when pagination stopped mid-stream (ListChildJsonElementsAsync dropped PartialCollection) — hit 2026-10-21; regression CollectAsync_warns_when_sql_database_list_is_partially_collected.
+- [ ] (candidate) HostedAzureInventoryAvdSessionHostAssociationCollector — sessionHosts ListChildJsonElementsAsync may omit partial-enumeration signal on mid-pagination ARM stop.
+- [ ] (candidate) HostedAzureInventoryMessagingAssociationCollector — Event Hub/Service Bus child listings may omit partial-enumeration warnings on mid-pagination stop.
+- [ ] (candidate) HostedAzureInventoryEventGridSubscriptionCollector — subscriptions child listings may omit partial-enumeration warnings on mid-pagination stop.
+- [ ] (candidate) HostedAzureInventoryServiceConnectorCollector — linkers child listing may omit partial-enumeration warnings on mid-pagination stop.
+- [ ] (candidate) ListChildJsonElementsAsync — still discards PartialCollection for remaining internal callers.
 
 - [x] (proven) AWS STS AssumeRole hardcoded to commercial `us-east-1` — **hit 2026-08-24:** `HostedAwsExtractorClient.AssumeRoleAsync` ignored connection `RegionEndpoint` and always constructed `AmazonSecurityTokenServiceClient(RegionEndpoint.USEast1)`; regression in `Create_uses_connection_region_for_sts_endpoint`
 - [x] (proven) GCP WIF audience `https://` provider double-prefixed — **hit 2026-08-24:** `GcpWorkloadIdentityCredentialFactory.NormalizeAudience` prepended `//iam.googleapis.com/` to full `https://iam.googleapis.com/...` URLs; regression in `NormalizeAudience_normalizes_https_iam_googleapis_com_prefix`
@@ -43094,8 +43097,6 @@ ABQ-09 churn hotspot.
 2026-10-08 seed hunt (hit): Full subscription Show network details was dropped before compile. Merge kept a false default when another display flag built compile options, and the peel-budget options copy omitted IncludeNetworkDetails on every render. Regression `Render_full_subscription_keeps_network_details_when_another_display_flag_is_set` passed with the preview-flag regression.
 
 ### Hypotheses
-
-- [x] (proven) `fetchInfraEvidenceMermaidPreview` — preview HTTP call ignored workbench display toggles — **hit 2026-10-21 seed hunt:** preview client + workbench now pass display flags; API exposes `includeNetworkDetails`.
 
 - [x] (proven) `InfraEvidenceSnapshotMermaidService.TryGetPreviewAsync` — a reachable preview request with `includeRecoveryServices=true`, `includeCrossGroupFanOut=true`, or `includeAvdAssets=true` rendered modes without those compile options because only `includePrivateEndpointNodes` was forwarded; fixed by merging all display flags into preview compile options; regression `Preview_applies_all_requested_display_flags_to_mode_renders`
 - [x] (proven) `InfraEvidenceDiagramOutline` — selected edge detail state survived a changed `outline` prop, leaving stale declared/inventory evidence visible after a snapshot or mode change; fixed by clearing selected edges and connection state when the outline changes; regression `clears a selected edge detail panel when the outline changes`
