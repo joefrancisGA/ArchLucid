@@ -5,12 +5,20 @@ import { formatRelativeTime } from "@/lib/relative-time";
 /** Shown before the first successful load completes (TB-2111 — shared across operator headers). */
 export const OPERATOR_NOT_REFRESHED_LABEL = "Not refreshed yet" as const;
 
+function isRenderableRefreshedInstant(lastRefreshedAt: Date): boolean {
+  return !Number.isNaN(lastRefreshedAt.getTime());
+}
+
 /**
  * Visible freshness label for operator page headers. Relative age keeps second-precision
  * locale timestamps — machine detail on buyer-facing surfaces — out of the header line.
  */
 export function operatorLastRefreshedLabel(lastRefreshedAt: Date | null | undefined): string {
   if (lastRefreshedAt === null || lastRefreshedAt === undefined) {
+    return OPERATOR_NOT_REFRESHED_LABEL;
+  }
+
+  if (!isRenderableRefreshedInstant(lastRefreshedAt)) {
     return OPERATOR_NOT_REFRESHED_LABEL;
   }
 
@@ -35,7 +43,11 @@ export function operatorFreshnessMetadataLabel(args: OperatorFreshnessMetadataAr
     return args.refreshingLabel;
   }
 
-  if (args.lastRefreshedAt === null || args.lastRefreshedAt === undefined) {
+  if (
+    args.lastRefreshedAt === null
+    || args.lastRefreshedAt === undefined
+    || !isRenderableRefreshedInstant(args.lastRefreshedAt)
+  ) {
     return OPERATOR_NOT_REFRESHED_LABEL;
   }
 
@@ -53,7 +65,11 @@ export function operatorFreshnessMetadataWithClockLabel(
     return args.refreshingLabel;
   }
 
-  if (args.lastRefreshedAt === null || args.lastRefreshedAt === undefined) {
+  if (
+    args.lastRefreshedAt === null
+    || args.lastRefreshedAt === undefined
+    || !isRenderableRefreshedInstant(args.lastRefreshedAt)
+  ) {
     return OPERATOR_NOT_REFRESHED_LABEL;
   }
 
@@ -87,6 +103,10 @@ export function operatorLastRefreshedExactLabel(
   lastRefreshedAt: Date | null | undefined,
 ): string | undefined {
   if (lastRefreshedAt === null || lastRefreshedAt === undefined) {
+    return undefined;
+  }
+
+  if (!isRenderableRefreshedInstant(lastRefreshedAt)) {
     return undefined;
   }
 
@@ -139,6 +159,10 @@ export function operatorLastRefreshedClockLabel(
   lastRefreshedAt: Date | null | undefined,
 ): string | null {
   if (lastRefreshedAt === null || lastRefreshedAt === undefined) {
+    return null;
+  }
+
+  if (!isRenderableRefreshedInstant(lastRefreshedAt)) {
     return null;
   }
 

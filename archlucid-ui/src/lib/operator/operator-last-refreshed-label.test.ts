@@ -77,6 +77,10 @@ describe("operatorLastRefreshedLabel", () => {
     expect(label).toMatch(/minute/);
     expect(label).not.toMatch(/\d{1,2}:\d{2}:\d{2}/);
   });
+
+  it("treats an invalid Date like a missing refresh instead of throwing", () => {
+    expect(operatorLastRefreshedLabel(new Date(Number.NaN))).toBe(OPERATOR_NOT_REFRESHED_LABEL);
+  });
 });
 
 describe("operatorFreshnessMetadataLabel", () => {
