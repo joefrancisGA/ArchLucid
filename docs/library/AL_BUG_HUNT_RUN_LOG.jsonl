@@ -5940,3 +5940,4 @@
 {"at":"2026-10-21T15:22:31.3178754Z","zoneId":"ui-operator-lib","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T15:24:25.8694877Z","zoneId":"ui-claim-discipline-policy","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T15:26:25.7656950Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T15:27:35.0527988Z","zoneId":"ui-marketing-surfaces","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(marketing)/quick-scan/use-quick-scan-client.ts"]}
