@@ -1,4 +1,5 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
+2026-10-21 seed hunt (seed→hit, lane B): `finding-inspect-sql` — lock `finding-inspect-sql` pushed and verified on `origin/bugsmash` before work; promoted relational `FindingSemanticSupportBandOverlays` overlay token with leading U+200B before `Supported` — `ResolveInspectSemanticSupportBand` used `Trim`+`Enum.TryParse` only, so parse failed and inspect fell back to typed payload `Unsupported`; `NormalizeInspectEnumToken` strips leading/trailing format/control characters before overlay parse; regression `ResolveInspectSemanticSupportBand_parses_overlay_after_leading_invisible_format_characters`; scoped inspect-read filter 426 passed (`RunAnalyzers=false`).
 2026-10-21 seed hunt (seed-only, lane B): `quick-scan-distributed-concurrency` — lock `quick-scan-distributed-concurrency` pushed and verified on `origin/bugsmash` before work (skipped picker top `core-configuration-summary` already hit today; `llm-wallet` locked by lane C); re-read `QuickScanDistributedConcurrencyService`, `QuickScanDistributedConcurrencyLeaseRenewal`, admit-limit refresh decorator, in-memory and Dapper stores after 2026-10-20 renewal-interval options refresh; no hunt-ready row promoted; reaffirmed `Renewal_loop_re_reads_lease_renewal_interval_after_options_change` and post-admit cancel/cleanup regressions; seeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~QuickScanDistributedConcurrency` 45 passed (`RunAnalyzers=false`).
 2026-10-21 thorough hunt (hit, lane B): `encoding-mojibake-guard` — lock `encoding-mojibake-guard` pushed and verified on `origin/bugsmash` before work; swept Application + UI `src` for live UTF-8 mojibake (`Â·`, `Â§`, `â€¦`, `Ã¢â‚¬â€`, smart-quote sequences) in user-facing strings; repaired sponsor first-value markdown (`FirstValueReportBuilder` § reference), ROI summary + finding waiver loading copy, help search excerpts (`help-index.generated.ts`), and ui-route-traffic owner notes; structural closure: `scripts/ci/assert_no_utf8_mojibake_in_user_source.py` + allowlist + CI step + unit tests; regression guard exits zero on repo trees; scoped `python3 -m unittest discover -s scripts/ci/tests -p test_assert_no_utf8_mojibake_in_user_source.py` 2 passed.
 2026-10-21 seed hunt (seed-only, lane C): `tenant-settings-sql` — lock verified on origin; cheap-disproof closed five open `(candidate)` rows (write-in-flight cache race, post-commit stale read during in-flight bypass, cross-process generation reset, cache-key delimiter collision, cancel-after-SQL-read boundary); regression `TenantSettings_TryGetAsync_throws_when_setting_key_whitespace_only_without_poisoning_cache`; reaffirmed existing `TenantSettings_TryGetAsync_reflects_*` concurrency suite; seeded five follow-on `(candidate)` rows; 44 scoped `SqlTenantSettingsRepository` + `TenantSettings_` tests passed (`RunAnalyzers=false`).
@@ -12203,13 +12204,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 86
-- **bugs-found:** 25
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-12
-- **last-bug:** 2026-10-11 — Dapper inspect trace-rule retrieval ignored substantive rules after invisible prefix entries
+- **hunts:** 87
+- **bugs-found:** 26
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-21 — semantic support band overlay with leading format char fell back to typed payload
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-21 seed hunt (seed→hit, lane B): see ledger header.
 
 2026-10-03 seed hunt (seed-only): re-read scoped finding selection, tenant predicates, child joins, typed-payload fallbacks, enum/byte mapping, and disposition projections; no fresh reachable mechanism-backed candidate met the hunt-ready bar; 419 focused tests passed.
 
@@ -12218,6 +12221,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-03 seed hunt (seed-only): reread the selected inspect SQL, repository mapping, and enum-normalization paths; no new hunt-ready defect was proven. Added two candidates for unnormalized persisted metadata fields; the scoped test build was blocked by existing ARCH006/ARCH006a analyzer errors outside this zone.
 
 ### Hypotheses
+
+- [x] (proven) `FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand` — leading format character on overlay band made `Enum.TryParse` fail and preferred typed payload over relational overlay — **hit 2026-10-21 lane B:** `NormalizeInspectEnumToken`; regression `ResolveInspectSemanticSupportBand_parses_overlay_after_leading_invisible_format_characters`.
 
 - [x] (invalid) `FindingInspectReadSql.FollowUpBatch` trace-rule `SortOrder` ties — **cheap-disproof 2026-10-05 seed hunt:** baseline schema `PK_FindingTraceRulesApplied (FindingRecordId, SortOrder)` prevents duplicate sort orders per finding record; `TOP 1 … ORDER BY tra.SortOrder` is deterministic.
 - [x] (invalid) `FindingInspectReadSql.FollowUpBatch` related-node `SortOrder` ties — **cheap-disproof 2026-10-05 seed hunt:** baseline schema `PK_FindingRelatedNodes (FindingRecordId, SortOrder)` prevents duplicate sort orders per finding record; `ORDER BY frn.SortOrder` is deterministic.
