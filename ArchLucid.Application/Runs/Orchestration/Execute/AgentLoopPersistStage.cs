@@ -1,3 +1,4 @@
+using ArchLucid.Application.Agents;
 using ArchLucid.Application.Agents.Evidence;
 using ArchLucid.Contracts.Common;using ArchLucid.Application.Decisions;using ArchLucid.Application.Common;using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
@@ -42,7 +43,8 @@ public sealed class AgentLoopPersistStage(
 
     private async Task SeedTopologyAsync(string runId, ArchitectureRequest request, IReadOnlyList<AgentResult> results, CancellationToken ct)
     {
-        var topology = results.FirstOrDefault(r => r.AgentType == AgentType.Topology);
+        AgentResult? topology = results.FirstOrDefault(
+            static r => AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(r) == AgentType.Topology);
         if (topology is null) return;
         await TryCaptureAsync(topologySeeder.SeedFromTopologyResultAsync(runId, request, topology, ct), runId, "Technology Ledger topology proposal seeding");
     }

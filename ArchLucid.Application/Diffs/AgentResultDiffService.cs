@@ -1,3 +1,4 @@
+using ArchLucid.Application.Agents;
 using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Findings;
@@ -33,8 +34,9 @@ public sealed class AgentResultDiffService(ICrossReviewFindingCorrelationService
 
         AgentResultDiffResult result = new() { LeftRunId = leftRunId, RightRunId = rightRunId };
 
-        List<AgentType> allAgentTypes = leftResults.Select(r => r.AgentType)
-            .Union(rightResults.Select(r => r.AgentType))
+        List<AgentType> allAgentTypes = leftResults
+            .Select(static r => AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(r))
+            .Union(rightResults.Select(static r => AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(r)))
             .Distinct()
             .OrderBy(x => x)
             .ToList();
@@ -42,12 +44,12 @@ public sealed class AgentResultDiffService(ICrossReviewFindingCorrelationService
         foreach (AgentType agentType in allAgentTypes)
         {
             AgentResult? left = leftResults
-                .Where(r => r.AgentType == agentType)
+                .Where(r => AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(r) == agentType)
                 .OrderByDescending(r => r.CreatedUtc)
                 .FirstOrDefault();
 
             AgentResult? right = rightResults
-                .Where(r => r.AgentType == agentType)
+                .Where(r => AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(r) == agentType)
                 .OrderByDescending(r => r.CreatedUtc)
                 .FirstOrDefault();
 

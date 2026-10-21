@@ -1,3 +1,4 @@
+using ArchLucid.Application.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
@@ -154,7 +155,7 @@ public static partial class AgentTopologyProposalMergeGate
             ResultId = source.ResultId,
             TaskId = source.TaskId,
             RunId = source.RunId,
-            AgentType = source.AgentType,
+            AgentType = AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(source),
             Claims = source.Claims,
             EvidenceRefs = source.EvidenceRefs,
             Confidence = source.Confidence,

@@ -1,3 +1,4 @@
+using ArchLucid.Application.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
@@ -41,7 +42,7 @@ public static class AgentTopologyProposalGraphMerge
             return graph;
 
         validatedResults = validatedResults
-            .OrderBy(static result => GetMergeOrder(result.AgentType))
+            .OrderBy(static result => GetMergeOrder(AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result)))
             .ToList();
 
         HashSet<string> seenTopologyKeys = new(StringComparer.OrdinalIgnoreCase);
@@ -61,7 +62,9 @@ public static class AgentTopologyProposalGraphMerge
 
         foreach (AgentResult result in validatedResults)
         {
-            if (!ContributesProposalEndpointAliases(result.AgentType))
+            AgentType agentType = AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result);
+
+            if (!ContributesProposalEndpointAliases(agentType))
                 continue;
 
             AgentTopologyProposal? proposal = result.ProposedChanges;
@@ -69,7 +72,7 @@ public static class AgentTopologyProposalGraphMerge
             if (proposal is null)
                 continue;
 
-            bool materializeNodes = result.AgentType == AgentType.Topology
+            bool materializeNodes = agentType == AgentType.Topology
                 || (graph.Nodes.Count == 0 && added.Count == 0);
             string? reasoning = result.ReasoningTrace?.Trim();
             Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase);
@@ -133,7 +136,7 @@ public static class AgentTopologyProposalGraphMerge
 
         foreach (AgentResult result in validatedResults)
         {
-            if (!MaterializesProposalRelationships(result.AgentType))
+            if (!MaterializesProposalRelationships(AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result)))
                 continue;
 
             AgentTopologyProposal? proposal = result.ProposedChanges;

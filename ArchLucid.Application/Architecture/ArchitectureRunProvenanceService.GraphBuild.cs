@@ -1,8 +1,10 @@
 using System.Globalization;
 
+using ArchLucid.Application.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Findings;
@@ -107,13 +109,14 @@ public sealed partial class ArchitectureRunProvenanceService
 
         foreach (AgentResult result in detail.Results.OrderBy(r => r.CreatedUtc).ThenBy(r => r.ResultId, StringComparer.Ordinal))
         {
+            AgentType agentType = AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result);
             string resultNodeId = $"result:{result.ResultId}";
             AddNode(new ArchitectureLinkageNode
             {
                 Id = resultNodeId,
                 Type = ArchitectureLinkageKinds.Nodes.AgentResult,
                 ReferenceId = result.ResultId,
-                Name = $"{result.AgentType} result",
+                Name = $"{agentType} result",
                 Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
                     ["confidence"] = result.Confidence.ToString("F2", CultureInfo.InvariantCulture),
@@ -126,7 +129,7 @@ public sealed partial class ArchitectureRunProvenanceService
             {
                 TimestampUtc = result.CreatedUtc,
                 Kind = ArchitectureLinkageKinds.Timeline.ResultRecorded,
-                Label = $"Agent result recorded ({result.AgentType})",
+                Label = $"Agent result recorded ({agentType})",
                 ReferenceId = result.ResultId
             });
             foreach (ArchitectureFinding finding in result.Findings)

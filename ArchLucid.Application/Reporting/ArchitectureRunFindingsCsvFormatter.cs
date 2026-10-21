@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 
+using ArchLucid.Application.Agents;
 using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Agents;
@@ -180,7 +181,8 @@ public static class ArchitectureRunFindingsCsvFormatter
                 ExportFormatterService.EscapeCsvField(finding.FindingId),
                 ExportFormatterService.EscapeCsvField(result.ResultId),
                 ExportFormatterService.EscapeCsvField(result.TaskId),
-                ExportFormatterService.EscapeCsvField(result.AgentType.ToString()),
+                ExportFormatterService.EscapeCsvField(
+                    AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result).ToString()),
                 ExportFormatterService.EscapeCsvField(finding.Severity.ToString()),
                 ExportFormatterService.EscapeCsvField(finding.Category),
                 ExportFormatterService.EscapeCsvField(finding.Message),

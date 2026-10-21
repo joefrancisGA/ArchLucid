@@ -904,6 +904,8 @@
 - (candidate) `TenantIdentityBoundaryAnalyzer` — banned type in `typeof` inside attribute argument on inner-layer DTO — locus: `IsInTypeOf` exemption; input: `[Custom(typeof(ClaimsPrincipal))]` on application model.
 - (candidate) `RequireAuthorizationAnalyzer` — nested controller type inside primary-constructor controller — locus: nested `RegisterSymbolAction` independence; input: outer unauthorized nested authorized endpoints.
 
+2026-10-21 follow-up (class closure, lane C): `application-agents` — lock `application-agents` pushed and verified on `origin/bugsmash` before work (lane C `2026-10-21T17:42:00Z`); closed persisted-envelope `AgentType` bypass class after topology consensus hit — routed remaining `AgentResult` reads in `ArchLucid.Application` through `AgentResultEnvelopeAgentTypeResolver` (merge gates, graph merge, structural post-process, execute persist topology seed, kernel completeness, diff/export/provenance, submit validation); architecture ratchet `AgentResultEnvelopeAgentTypeDirectComparisonArchitectureTests`; 121 scoped `Application.Tests.Agents` passed; no additional live bypass beyond class; lock released after push.
+
 2026-10-21 seed hunt (seed→hit): `application-agents` — lock `application-agents` pushed and verified on `origin/bugsmash` before work (lane C `2026-10-21T17:32:13Z`); skipped `ui-*` zones (lane B UI codemod); promoted `TopologyProposalDualModelConsensusEnricher` skipping dual-model consensus when persisted topology rows omitted top-level `AgentType` but typed findings declared `SourceAgent.Topology` (parity gap vs calibration/IaC/curated-evidence resolver paths); resolve topology row selection and prune skip via `AgentResultEnvelopeAgentTypeResolver`; regression `EnrichAsync_runs_dual_model_consensus_when_topology_row_omits_envelope_agent_type_but_findings_declare_topology`; 120 scoped `Application.Tests.Agents` tests passed; lock released after push.
 
 2026-10-21 seed hunt (seed→hit): `application-agents` — promoted `AgentCuratedEvidenceProposer.BuildUserPrompt` emitting `AgentType: 0` when persisted envelopes omitted top-level `AgentType` but typed findings declared `SourceAgent` (parity gap vs confidence calibration and IaC stub clone); resolve via `AgentResultEnvelopeAgentTypeResolver`; regression `BuildUserPrompt_uses_finding_source_agent_when_envelope_agent_type_missing`; 10 `AgentCuratedEvidenceProposerTests` passed.
@@ -42740,6 +42742,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 ---
 ## Zone: application-agents
 
+2026-10-21 follow-up (class closure): persisted `AgentResult.AgentType` direct reads in application agent orchestration — resolver routing + architecture ratchet `Application_and_agents_code_routes_envelope_agent_type_through_resolver`.
+
+- [x] (proven-class) `AgentResult` envelope `AgentType` — direct `result.AgentType` / `r.AgentType` comparisons bypassed finding `SourceAgent` backfill — **follow-up 2026-10-21 lane C:** `AgentResultEnvelopeAgentTypeResolver` everywhere in `ArchLucid.Application` except resolver; architecture test above.
+
 2026-10-21 seed hunt (seed→hit): topology dual-model consensus skipped when envelope `AgentType` default but findings declared topology `SourceAgent`; resolver parity; regression `EnrichAsync_runs_dual_model_consensus_when_topology_row_omits_envelope_agent_type_but_findings_declare_topology`.
 
 - [x] (proven) `TopologyProposalDualModelConsensusEnricher` — dual-model consensus and sibling prune topology skip used raw `AgentResult.AgentType` so persisted topology rows with default envelope type but typed findings never ran secondary merge — **hit 2026-10-21 seed hunt lane C:** `AgentResultEnvelopeAgentTypeResolver.ResolveAgentType`; regression above. [class:state-machine-gap]
@@ -42758,7 +42764,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 44
+- **hunts:** 45
 - **bugs-found:** 42
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21

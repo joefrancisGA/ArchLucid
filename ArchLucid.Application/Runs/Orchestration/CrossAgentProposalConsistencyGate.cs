@@ -1,3 +1,4 @@
+using ArchLucid.Application.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
@@ -15,7 +16,7 @@ public static class CrossAgentProposalConsistencyGate
 
         List<AgentResult> ordered = results
             .Where(static result => result is not null)
-            .OrderBy(static result => GetMergeOrder(result.AgentType))
+            .OrderBy(static result => GetMergeOrder(AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result)))
             .ToList();
 
         HashSet<string> declaredBatchEndpointKeys = CollectDeclaredBatchEndpointKeys(ordered);

@@ -1,3 +1,4 @@
+using ArchLucid.Application.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Drafts;
@@ -21,7 +22,7 @@ public static class AgentProposalStructuralPostProcessor
             if (result is null || result.ProposedChanges is null)
                 continue;
 
-            ApplyToProposal(result.AgentType, result.ProposedChanges);
+            ApplyToProposal(AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result), result.ProposedChanges);
         }
     }
 
@@ -186,7 +187,11 @@ public static class AgentProposalStructuralPostProcessor
             if (result is null || result.ProposedChanges is null)
                 continue;
 
-            ApplyBriefGroundingToProposal(result.AgentType, result.ProposedChanges, rules, dropLog);
+            ApplyBriefGroundingToProposal(
+                AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result),
+                result.ProposedChanges,
+                rules,
+                dropLog);
         }
     }
 

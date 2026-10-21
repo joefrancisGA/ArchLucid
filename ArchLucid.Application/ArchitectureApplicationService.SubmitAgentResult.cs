@@ -1,4 +1,5 @@
 // stryker disable all
+using ArchLucid.Application.Agents;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Diagnostics;
 using ArchLucid.Contracts.Agents;
@@ -59,9 +60,11 @@ public sealed partial class ArchitectureApplicationService
             return new SubmitResultResult(false, null, $"Task '{result.TaskId}' was not found for run '{runId}'.",
                 ApplicationServiceFailureKind.ResourceNotFound);
 
-        if (task.AgentType != result.AgentType)
+        AgentType resolvedAgentType = AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result);
+
+        if (task.AgentType != resolvedAgentType)
             return new SubmitResultResult(false, null,
-                $"Result AgentType '{result.AgentType}' does not match task AgentType '{task.AgentType}' for task '{result.TaskId}'.",
+                $"Result AgentType '{resolvedAgentType}' does not match task AgentType '{task.AgentType}' for task '{result.TaskId}'.",
                 ApplicationServiceFailureKind.BadRequest);
 
         if (existingResults.Any(r => string.Equals(r.TaskId, result.TaskId, StringComparison.Ordinal)))
@@ -85,7 +88,7 @@ public sealed partial class ArchitectureApplicationService
             }
 
             if (logger.IsEnabled(LogLevel.Information))
-                logger.LogInformationAgentResultSubmitted(runId, result.ResultId, result.AgentType, newStatus);
+                logger.LogInformationAgentResultSubmitted(runId, result.ResultId, resolvedAgentType, newStatus);
             return new SubmitResultResult(true, result.ResultId, null);
         }
         catch (AgentResultDuplicateConflictException ex)

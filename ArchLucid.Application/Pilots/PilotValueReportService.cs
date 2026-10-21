@@ -1,3 +1,4 @@
+using ArchLucid.Application.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;
@@ -156,7 +157,7 @@ public sealed class PilotValueReportService(
             AddFindings(detail, severities);
 
             foreach (AgentResult r in detail.Results)
-                agentTypes.Add(r.AgentType.ToString());
+                agentTypes.Add(AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(r).ToString());
 
             DateTime? committedUtc = detail.Manifest?.Metadata.CreatedUtc;
 
