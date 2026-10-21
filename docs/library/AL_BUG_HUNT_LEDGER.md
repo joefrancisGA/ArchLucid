@@ -1,6 +1,7 @@
 2026-10-21 thorough hunt (seed→hit, lane C): `ui-marketing-surfaces` — lock `ui-marketing-surfaces` pushed and verified on `origin/bugsmash` before work (`fa04b705cc`; skipped picker top `core-configuration-summary` hunted today); promoted hunt-ready `useQuickScanClient.onSubmit` — overlapping sample fetch and AI POST shared `result` but only sample loads used `sampleRequestGenerationRef`, so a slow sample response after a successful analysis replaced real output with illustrative JSON; bump generation when analysis POST starts; regression `does not let a stale sample response overwrite a completed AI analysis`; cheap-disproof closed four sibling `(candidate)` rows (double `showSampleResult` already generation-guarded; empty showcase slug telemetry; artifact nav missing-id no-op; volatile session id intentional); scoped `use-quick-scan-client` vitest 5/5; lock released after push.
 
 - [x] (proven) `useQuickScanClient.onSubmit` — stale sample response overwrote completed AI analysis — **hit 2026-10-21 thorough hunt lane C:** invalidate in-flight samples on submit; regression above.
+2026-10-21 thorough hunt (hit, lane D): `core-findings-advice` — lock `core-findings-advice` pushed and verified on `origin/bugsmash` before work (skipped picker top `core-configuration-summary` hunted today; avoided `ui-claim-discipline-policy` lock); reseeded `InsightDensityTextSimilarity.Tokenize` — narrow no-break space (U+202F) and NBSP (U+00A0) left glued resource tokens so near-duplicate findings under-penalized duplication vs space-separated peers; split on both; regression `Jaccard_similarity_treats_narrow_no_break_space_separated_resource_tokens_as_space_separated_peers`; scoped GenericArchitectureAdvicePatterns + DeterministicInsightDensityGate 1743/1743 (`RunAnalyzers=false`); lock released after push.
 
 2026-10-21 thorough hunt (hit, lane D): `ui-operator-lib` — lock `ui-operator-lib` pushed and verified on `origin/bugsmash` before work (skipped picker top `core-configuration-summary` hunted today); promoted hunt-ready `operatorLastRefreshedLabel` — invalid `Date` instances reached `toISOString()` and threw `RangeError`, breaking operator header freshness when a bad parsed timestamp slipped through loaded data; `isRenderableRefreshedInstant` fail-closed to `OPERATOR_NOT_REFRESHED_LABEL` across freshness helpers; regression `treats an invalid Date like a missing refresh instead of throwing`; scoped `operator-last-refreshed-label` vitest 18/18; lock released after push.
 
@@ -31381,6 +31382,8 @@ Split from retired `archlucid-core` (ABQ-08).
 ---
 ## Zone: core-findings-advice
 
+2026-10-21 thorough hunt (hit, lane D): narrow no-break space / NBSP token delimiter parity; 1743 scoped tests passed.
+
 2026-10-14 thorough hunt (hit): cheap-disproof closed five picker `(candidate)` rows with failing repros; en-dash (`U+2013`) resource tokens split for Jaccard parity; `ConflictFindingPattern` extended for `failed to comply` and `does not comply with the constraint`; `EnglishNegationTokenizer` adds `prevented from` and `disallowed from`; 1687 scoped `GenericArchitectureAdvicePatterns` tests passed.
 
 2026-10-13 thorough hunt (hit): proved Unicode bullet resource-token parity, `out of compliance with` / `fails to comply with` conflict wording, and `barred from` / `excluded from` negation parity; seeded five follow-on `(candidate)` rows; 1703 scoped tests passed.
@@ -31392,10 +31395,10 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** findings advice; generic architecture advice; split from archlucid-core
 - **paths:** ArchLucid.Core/Findings/
 - **test-filter:** FullyQualifiedName~GenericArchitectureAdvicePatterns
-- **hunts:** 29
-- **bugs-found:** 29
+- **hunts:** 30
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-14
+- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-14 — en-dash Jaccard parity, compliance tense variants, prohibitive-from negation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
