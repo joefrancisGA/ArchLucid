@@ -5978,3 +5978,4 @@
 {"at":"2026-10-21T16:54:58.8054617Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T16:58:13.3980696Z","zoneId":"ui-operator-routes","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/operator/operator-url-selection-switch.ts"],"defectClass":"state-machine-gap"}
 {"at":"2026-10-21T16:58:52.6432574Z","zoneId":"retrieval","outcome":"dry","productLine":"archlucid-shared","paths":["@(ArchLucid.Retrieval/)"]}
+{"at":"2026-10-21T17:01:24.5240185Z","zoneId":"ui-governance-findings-queue","outcome":"hit","productLine":"securenow","paths":["archlucid-ui/src/lib/governance/governance-findings-queue-nl-facets-url.ts"],"defectClass":"state-machine-gap"}
