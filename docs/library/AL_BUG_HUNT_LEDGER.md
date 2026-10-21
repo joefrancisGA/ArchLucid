@@ -42445,6 +42445,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 ## Zone: ui-governance-findings-queue
 
+2026-10-21 thorough hunt (hit): `GovernanceFindingsQueueOperationalRowCells` and buyer-polished `GovernanceFindingsQueueTableRow` treated whitespace-only optional `policyRuleId` as present, skipping the policy-area fallback while assigned-to-me rows already trimmed the key; shared `governanceFindingQueueRowHasPolicyRuleId` guard; regression `does not render policy traceability badges when policyRuleId is whitespace-only`; operational row + desktop-table regressions 16/16.
+
+- [x] (proven) `GovernanceFindingsQueueOperationalRowCells` / `GovernanceFindingsQueueTableRow` — whitespace-only `policyRuleId` blocked policy-area fallback — **hit 2026-10-21 thorough hunt:** `governanceFindingQueueRowHasPolicyRuleId`; regression above.
+
+2026-10-21 thorough hunt (dry): cheap-disproved the four open candidates (derivation disclosure compares trimmed URL ids; bulk selections re-intersect when loaded ids arrive; scope banner requires `scopedRunFilterActive`; assigned-to-me refresh hint is intentional during reload). No additional failing repro.
 2026-10-13 seed hunt (seed→hit): `GovernanceFindingsQueueAssignedToMeRowCells` and buyer-polished `GovernanceFindingsQueueTableRow` always linked the review column when `runId` was whitespace-only, producing `/architecture/reviews/%20%20%20` while tenant operational rows already render plain text for blank run ids. Assigned-to-me and buyer-polished paths now match the operational guard. Regression `renders assigned-to-me review label without link when run id is blank` failed first and passed after the fix. Desktop-table suite passed 10/10; `GovernanceFindingsQueueClient.test.tsx` retained 11 passed and 11 known baseline failures.
 
 2026-10-12 seed hunt (seed-only): re-read the selected queue client, assigned-to-me chrome, toolbar/scope/results sections, and focused tests after the contextual-help fix; no fresh mechanism-backed candidate met the promotion bar. The full findings route scope passed 49 tests and retained 11 known external-store/update-depth and workspace-label baseline failures. No production or regression change.
@@ -42491,11 +42496,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 58
-- **bugs-found:** 37
+- **hunts:** 59
+- **bugs-found:** 38
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — keyboard Enter navigated findings with blank run id
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-21 — operational queue policyRuleId whitespace guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -42518,10 +42523,10 @@ ABQ-09 churn hotspot.
 - [x] (proven) `GovernanceFindingsQueueAssignedToMeRowCells` / buyer-polished `GovernanceFindingsQueueTableRow` — assigned-to-me and buyer-polished review columns linked `runLabel` even when `runId` was whitespace-only, yielding a broken `/architecture/reviews/` href while operational rows already render plain text — **hit 2026-10-13 seed hunt:** `runId.trim().length > 0` guard before review links; regression `renders assigned-to-me review label without link when run id is blank`.
 
 - [x] (proven) `GovernanceFindingsQueueDesktopTable` keyboard activation — Enter on rows with whitespace-only `runId` navigated to broken inspect href — **hit 2026-10-20 thorough hunt:** skip `router.push` when `runId.trim()` is empty; regression `does not keyboard-navigate findings when run id is blank`.
-- [ ] (candidate) `GovernanceFindingsQueueAssignedToMeRowCells` derivation disclosure — URL sync uses raw `row.findingId` while scope filters may hide rows whose ids contain encoded characters.
-- [ ] (candidate) `useGovernanceFindingsQueueBulkActions` — URL bulk selections restored before queue rows load may briefly intersect an empty loaded-id set on first paint.
-- [ ] (candidate) `GovernanceFindingsQueueScopeSection` — architecture-scoped run sets vs single `runId` scope banner may both render when URL carries conflicting scope params.
-- [ ] (candidate) `GovernanceFindingsAssignedToMeChrome` — refresh hint remains visible while `assignedToMeRefreshing` is true during failed reload, with no distinct error-state copy in the chrome strip.
+- [x] (valid-no-repro) `GovernanceFindingsQueueAssignedToMeRowCells` derivation disclosure — URL sync uses raw `row.findingId` while scope filters may hide rows whose ids contain encoded characters. — **cheap-disproof 2026-10-21 thorough hunt:** `parseGovernanceFindingDerivationIdFromSearch` trims before compare.
+- [x] (valid-no-repro) `useGovernanceFindingsQueueBulkActions` — URL bulk selections restored before queue rows load may briefly intersect an empty loaded-id set on first paint. — **cheap-disproof 2026-10-21 thorough hunt:** selection effect re-runs when `availableFindingIds` updates; regression `drops URL selections that are absent from the active queue`.
+- [x] (valid-no-repro) `GovernanceFindingsQueueScopeSection` — architecture-scoped run sets vs single `runId` scope banner may both render when URL carries conflicting scope params. — **cheap-disproof 2026-10-21 thorough hunt:** run banner requires `scopedRunFilterActive`; inhabited nested findings suppress run-scope chrome.
+- [x] (valid-no-repro) `GovernanceFindingsAssignedToMeChrome` — refresh hint remains visible while `assignedToMeRefreshing` is true during failed reload, with no distinct error-state copy in the chrome strip. — **cheap-disproof 2026-10-21 thorough hunt:** no product contract requires distinct error copy in the refresh strip.
 
 - [x] (proven) `GovernanceFindingsQueueTableRow` / `GovernanceFindingsQueueOperationalRowCells` — a reachable tenant finding opened from the grouped or flat desktop queue did not invoke `GovernanceFindingsList.markGovernanceRowSeen`, so its last-visited watermark was not updated and the new-since-last-visit marker could remain — **hit 2026-10-12 seed hunt:** forward `onOpenRow` into operational cells and invoke it from the finding link; regression `marks grouped rows opened through the supplied callback`.
 
