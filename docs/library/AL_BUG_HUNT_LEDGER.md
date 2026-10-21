@@ -1,3 +1,7 @@
+2026-10-21 thorough hunt (hit, lane D): `ui-architecture-intelligence` — lock `ui-architecture-intelligence` pushed and verified on `origin/bugsmash` before work (`08875d9010`; skipped picker top `core-configuration-summary` hunted today; avoided `ui-host-gate` lock); promoted reachable `runReasoningWithOptions` — architecture-intelligence run POST that omitted `runId` called `setActiveRunId(null)` and cleared `contextRunId` deep-link scope while reasoning results stayed mounted, dropping the run-scope banner and review checklist “picked” state; only update active run id when the response carries a non-empty trimmed id (mirror continue path); regression `keeps contextRunId scope banner when reasoning response omits runId`; cheap-disproof closed whitespace-only `contextRunId` stale-state hypothesis (URL-scope reset effect already clears); scoped `ArchitectureIntelligencePageClient` vitest 56/56; lock released after push.
+
+- [x] (proven) `useArchitectureIntelligenceActions.runReasoningWithOptions` — omitted response `runId` cleared deep-linked review scope — **hit 2026-10-21 thorough hunt lane D:** guard `setActiveRunId`; regression above.
+
 2026-10-21 thorough hunt (hit, lane D): `weekly-digest-email` — lock `weekly-digest-email` pushed and verified on `origin/bugsmash` before work; promoted hunt-ready `WeeklySponsorReportEmailDispatcher` / `WeeklySponsorSummaryEmailDispatcher` — interior CR/LF/LS/PS in `isoWeekIdempotencyKey` survived `.Trim()` and created distinct `weekly-sponsor-*` ledger scopes, allowing duplicate weekly sends for the same ISO week; `WeeklyDigestIsoWeekIdempotencyKeyValidator.NormalizeOrThrow`; regressions `throws_for_iso_week_key_with_embedded_line_break` (report + summary); scoped `DigestEmailDispatcherIdempotencyTests` passed; lock released after push.
 
 2026-10-21 thorough hunt (seed→hit, lane C): `ui-marketing-surfaces` — lock `ui-marketing-surfaces` pushed and verified on `origin/bugsmash` before work (`fa04b705cc`; skipped picker top `core-configuration-summary` hunted today); promoted hunt-ready `useQuickScanClient.onSubmit` — overlapping sample fetch and AI POST shared `result` but only sample loads used `sampleRequestGenerationRef`, so a slow sample response after a successful analysis replaced real output with illustrative JSON; bump generation when analysis POST starts; regression `does not let a stale sample response overwrite a completed AI analysis`; cheap-disproof closed four sibling `(candidate)` rows (double `showSampleResult` already generation-guarded; empty showcase slug telemetry; artifact nav missing-id no-op; volatile session id intentional); scoped `use-quick-scan-client` vitest 5/5; lock released after push.
@@ -15684,6 +15688,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-architecture-intelligence
 
+2026-10-21 thorough hunt (hit, lane D): proved `runReasoningWithOptions` cleared `activeRunId` when the run POST omitted `runId`, removing the scope banner for `contextRunId` deep links while reasoning results remained; fixed by skipping `setActiveRunId` unless the response includes a non-empty trimmed id; regression `keeps contextRunId scope banner when reasoning response omits runId`; 56 scoped ArchitectureIntelligence page-client tests passed.
+
 2026-10-11 seed hunt (seed→hit): re-read `ArchitectureIntelligencePageClient` and both focused page-client suites; proved that a source-context refetch failure hid prior reasoning results but left the Publish to findings/advisory button enabled. Added `productContextLoadFailed` to the publish gate; regression `does not show reasoning results when product context load failure panel is visible` now also asserts the publish button is disabled. The focused suites passed 55/55.
 
 2026-10-11 thorough hunt (dry): cheap-disproof closed the two remaining candidates. The failed-context action controls intentionally remain available for freeform/fixture recovery, while retry increments `productContextReloadNonce` and the inbound-run reset clears prior reasoning state before successful hydration. The focused suites passed 55/55; no production or regression code changed.
@@ -15696,11 +15702,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 39
-- **bugs-found:** 26
+- **hunts:** 40
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-12
-- **last-bug:** 2026-10-11 — source-context failure left the analysis checklist marked complete
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-21 — omitted run POST `runId` cleared deep-linked review scope
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15716,6 +15722,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `useArchitectureIntelligenceActions.runReasoningWithOptions` — architecture-intelligence run POST without `runId` cleared `activeRunId` and dropped scope chrome for `contextRunId` deep links; fixed by only calling `setActiveRunId` when the response carries a non-empty trimmed id; regression `keeps contextRunId scope banner when reasoning response omits runId`.
 - [x] (proven) `ArchitectureIntelligencePageClient` publish action during source-context failure — a reachable source-context 503 after reasoning completed hid the reasoning results but left `runState.kind === "reasoning"` and the publish button enabled; fixed by requiring `!productContextLoadFailed`; regression `does not show reasoning results when product context load failure panel is visible` now asserts the publish button is disabled.
 - [x] (proven) `ArchitectureIntelligencePageClient` analysis checklist during source-context failure — a reachable source-context 503 hid the reasoning workspace but `analysisComplete` still read `runState.kind === "reasoning"`, so “Start analysis” displayed Done; fixed by requiring `showReasoningWorkspace`; regression `does not show reasoning results when product context load failure panel is visible` asserts In progress.
 - [x] (valid-no-repro) `ArchitectureIntelligencePageClient` action controls during a failed deep-linked context load — **cheap-disproof 2026-10-11 thorough hunt:** the failure panel explicitly restores freeform intake and golden-fixture recovery, so run/golden controls remain available for operator-supplied replacement input; existing failure-state coverage exercises the recovery form.

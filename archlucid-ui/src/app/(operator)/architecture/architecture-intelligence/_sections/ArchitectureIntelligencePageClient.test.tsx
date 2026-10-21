@@ -3065,6 +3065,51 @@ describe("ArchitectureIntelligencePageClient", () => {
       );
     });
   });
+  it("keeps contextRunId scope banner when reasoning response omits runId", async () => {
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "contextRunId") {
+        return "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? "GET";
+
+        if (method === "POST" && url.includes("/architecture-intelligence/run")) {
+          return okJsonFetchResponse({
+            model: { elements: [] },
+            specialistReviews: [{ findings: [] }],
+            recommendations: [],
+            mustNotFailViolations: [],
+          });
+        }
+
+        return okJsonFetchResponse({});
+      }),
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    fireEvent.change(screen.getByTestId("architecture-intelligence-description"), {
+      target: { value: "Architecture scoped to context review A." },
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-intelligence-run-button"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-reasoning-results")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-run-scope-banner")).toHaveTextContent(
+      "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    );
+  });
+
   it("clears reasoning results when contextRunId switches to another review", async () => {
     let currentContextRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
 
