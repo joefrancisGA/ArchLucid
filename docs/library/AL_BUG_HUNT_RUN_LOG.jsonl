@@ -5975,3 +5975,4 @@
 {"at":"2026-10-21T16:52:23.4535338Z","zoneId":"infra-evidence-diagrams","outcome":"dry","productLine":"securenow","paths":["@(ArchLucid.Application/InfraEvidence/Mermaid/)"]}
 {"at":"2026-10-21T16:54:23.9195190Z","zoneId":"ui-infra-resource-hub","outcome":"hit","productLine":"securenow","paths":["archlucid-ui/src/lib/infra-evidence/infra-evidence-hub-tab-query.ts"],"defectClass":"state-machine-gap"}
 {"at":"2026-10-21T16:55:42.4486454Z","zoneId":"cloud-extractors","outcome":"dry","productLine":"archlucid-shared","paths":["@(ArchLucid.Integrations.AzureExtractor/,ArchLucid.Integrations.AwsExtractor/,ArchLucid.Integrations.GcpExtractor/)"]}
+{"at":"2026-10-21T16:54:58.8054617Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared"}
