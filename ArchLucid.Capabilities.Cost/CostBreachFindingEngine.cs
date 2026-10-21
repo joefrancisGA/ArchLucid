@@ -42,7 +42,7 @@ public sealed class CostBreachFindingEngine : IFindingEngine
     private static Finding? TryCreateBreachFinding(GraphNode node, FindingSeverity? severityOverride)
     {
         if (!node.Properties.TryGetValue("maxMonthlyCost", out string? maxCostRaw)
-            || !decimal.TryParse(maxCostRaw, out decimal maxMonthlyCost))
+            || !CostGraphDecimalParser.TryParse(maxCostRaw, out decimal maxMonthlyCost))
         {
             return null;
         }
@@ -134,11 +134,6 @@ public sealed class CostBreachFindingEngine : IFindingEngine
         return null;
     }
 
-    private static decimal? TryParseDecimal(string? raw)
-    {
-        if (string.IsNullOrWhiteSpace(raw))
-            return null;
-
-        return decimal.TryParse(raw, out decimal value) ? value : null;
-    }
+    private static decimal? TryParseDecimal(string? raw) =>
+        CostGraphDecimalParser.TryParse(raw, out decimal value) ? value : null;
 }

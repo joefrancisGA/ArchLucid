@@ -1,3 +1,5 @@
+2026-10-21 seed hunt (seed→hit, lane B): `capabilities-cost-mcp` — lock `capabilities-cost-mcp` pushed and verified on `origin/bugsmash` before work (skipped picker top `core-configuration-summary` hunted today; avoided `worker-host` lock); promoted reachable `CostBreachFindingEngine` / `CostConstraintFindingEngine` graph property parsing — invariant-culture decimals from materializers (`6200.50`) failed `decimal.TryParse` under non-invariant thread cultures (e.g. `fr-FR`), silently skipping breach findings; shared `CostGraphDecimalParser` with `CultureInfo.InvariantCulture`; regression `AnalyzeAsync_parses_invariant_graph_decimals_under_non_invariant_thread_culture`; scoped `Capabilities.Cost` 20/20 + MCP retrieval 4/4; lock released after push.
+
 2026-10-21 seed hunt (seed-only, lane D): `chatops-delivery` — lock `chatops-delivery` pushed and verified on `origin/bugsmash` before work (skipped picker top `core-configuration-summary` hunted today; avoided `cli-draft-new` lock); re-read `AuthorityRunCommittedChatOpsHook` and `AuthorityRunCompletedChatOpsIntegrationEventHandler` plus scoped hook/handler tests; cheap-disproof closed all-target-failure retry semantics, partial sibling success, non-HTTPS skip, and future `schemaVersion` rows from ledger; no hunt-ready promotion; seeded three `(candidate)` rows; scoped `FullyQualifiedName~AuthorityRunCommittedChatOps|FullyQualifiedName~AuthorityRunCompletedChatOps` 22/22; lock released after push.
 2026-10-21 seed hunt (seed-only, lane C): `worker-host` — lock `worker-host` pushed and verified on `origin/bugsmash` before work (`fe0cb1bd9f`; skipped picker top `core-configuration-summary` hunted today; avoided `chatops-delivery` lock); re-read `ArchLucid.Worker/Program.cs`, `WorkerHostPipelineExtensions`, `WorkerProcessHostingRoleConfiguration`, and worker startup tests; cheap-disproof closed five open `(candidate)` rows at zone head (bootstrap-before-pipeline is intentional liveness semantics — `Worker_host_health_live_returns_ok_when_pipeline_is_mapped`; graceful shutdown drain registered via `AddArchLucidGracefulShutdown` — `Worker_composition_registers_worker_host_drain_gate`; env vars after overlays beat SaaS JSON — `Worker_host_environment_variables_override_saas_overlay_from_content_root`; Serilog before `ValidateOrThrow` matches API ordering without secret emission; health/metrics middleware order matches documented probe contract — `Worker_host_health_live_succeeds_on_plain_http_urls_in_non_development`); no hunt-ready promotion; seeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~Worker_` 29/29 (`RunAnalyzers=false`); lock released after push.
 
@@ -43905,18 +43907,21 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 ## Zone: capabilities-cost-mcp
 
 - **id:** capabilities-cost-mcp
-- **status:** cooling
+- **status:** open
 - **impact:** medium
 - **aliases:** capabilities cost; MCP server; cost estimation
 - **paths:** ArchLucid.Capabilities.Cost/; ArchLucid.Mcp/
 - **test-filter:** FullyQualifiedName~Capabilities.Cost|FullyQualifiedName~Mcp
-- **hunts:** 3
-- **bugs-found:** 1
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23
+- **hunts:** 4
+- **bugs-found:** 2
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-21 — invariant-culture cost graph decimal parsing
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+
+- [x] (proven) `CostBreachFindingEngine` / `CostConstraintFindingEngine` — graph cost properties persisted with invariant culture were parsed with current-culture `decimal.TryParse`, skipping breach/constraint findings on hosts using non-invariant cultures — **hit 2026-10-21 seed hunt lane B:** `CostGraphDecimalParser`; regression `AnalyzeAsync_parses_invariant_graph_decimals_under_non_invariant_thread_culture`.
 
 ### Hypotheses
 
