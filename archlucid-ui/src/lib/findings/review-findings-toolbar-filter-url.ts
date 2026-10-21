@@ -1,5 +1,5 @@
-import {
 import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
+import {
   FILTER_OPTIONS,
   type RunDetailFindingsFilterKind,
 } from "@/components/findings/run-detail-findings-toolbar-presentation";

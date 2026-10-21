@@ -1,5 +1,5 @@
-import type {
 import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
+import type {
   FindingEvidenceGraphPresentationMode,
   FindingEvidenceGraphViewMode,
 } from "@/lib/findings/finding-evidence-graph-highlight";

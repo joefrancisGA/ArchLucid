@@ -121,6 +121,7 @@ public sealed class EmailOtpAuthController(
         (Guid defaultTenantId, Guid defaultWorkspaceId, Guid projectId) = TrialLocalJwtScopeDefaults.Resolve();
 
         // Multi-workspace users must pick a scope explicitly; only brand-new workspace creation seeds trial defaults.
+
         if (result.NextStep == EmailOtpAuthNextStep.CreateWorkspace)
         {
             if (tenantId == Guid.Empty)

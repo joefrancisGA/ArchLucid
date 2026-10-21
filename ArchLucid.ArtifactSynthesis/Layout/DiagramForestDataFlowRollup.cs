@@ -34,6 +34,7 @@ internal static class DiagramForestDataFlowRollup
                      .GroupBy(node => BuildKey(node, neighborIdsByNodeId), RollupKeyComparer.Instance))
         {
             List<DiagramNode> members = group.ToList();
+
             if (members.Count < MinimumMembersToRollUp)
             {
                 continue;
@@ -59,6 +60,7 @@ internal static class DiagramForestDataFlowRollup
 
         List<DiagramNode> resolvedNodes = [];
         HashSet<string> emittedRollupIds = new(StringComparer.Ordinal);
+
         foreach (DiagramNode node in nodes)
         {
             if (!rollupByMemberId.TryGetValue(node.NodeId, out DiagramNode? rollup))
@@ -75,16 +77,19 @@ internal static class DiagramForestDataFlowRollup
 
         List<DiagramEdge> resolvedEdges = [];
         Dictionary<string, DiagramEdge> resolvedEdgeByKey = new(StringComparer.Ordinal);
+
         foreach (DiagramEdge edge in edges)
         {
             string fromNodeId = ResolveNodeId(edge.FromNodeId, rollupByMemberId);
             string toNodeId = ResolveNodeId(edge.ToNodeId, rollupByMemberId);
+
             if (string.Equals(fromNodeId, toNodeId, StringComparison.Ordinal))
             {
                 continue;
             }
 
             string edgeKey = $"{fromNodeId}\u001f{toNodeId}\u001f{edge.Label}\u001f{edge.IsLayoutOnly}";
+
             if (!resolvedEdgeByKey.TryGetValue(edgeKey, out DiagramEdge? existing))
             {
                 resolvedEdgeByKey[edgeKey] = CloneEdge(edge, fromNodeId, toNodeId);

@@ -301,6 +301,7 @@ public sealed class NestedBlockLocalRunsRepository
     public void Load(IDbConnection connection, bool includeArchived)
     {
         string sql;
+
         if (includeArchived)
         {
             sql = "SELECT RunId FROM dbo.Runs WHERE ArchivedUtc IS NULL";

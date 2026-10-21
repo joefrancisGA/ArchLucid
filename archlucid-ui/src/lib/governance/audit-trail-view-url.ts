@@ -1,7 +1,7 @@
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 
-import {
 import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
+import {
   defaultAuditTrailViewMode,
   type AuditTrailViewMode,
 } from "@/lib/audit-trail-view-mode";

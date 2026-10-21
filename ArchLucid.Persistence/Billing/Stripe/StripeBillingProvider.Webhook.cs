@@ -242,6 +242,7 @@ public sealed partial class StripeBillingProvider
 
         // StripeObjectConverter yields null on data.object when JSON omits the Stripe "object" discriminator.
         // EventConverter still stores data.object on RawObject; deserialize as Session so metadata activation works.
+
         if (stripeEvent.Data?.RawObject is JToken token)
             return token.ToObject<Session>(Newtonsoft.Json.JsonSerializer.Create(StripeConfiguration.SerializerSettings));
 

@@ -66,6 +66,7 @@ public sealed class RunExecuteOwnershipLeaseService(
 
         // Admit before SQL. A private dictionary on each scoped service let two requests
         // on one replica both renew the same holder id.
+
         if (!_activeHolders.TryAdmit(runId, holderInstanceId))
         {
             throw new ConflictException(
@@ -185,6 +186,7 @@ public sealed class RunExecuteOwnershipLeaseService(
         holderInstanceIds.Add(_processInstanceId.Value);
 
         int released = 0;
+
         foreach (string holderInstanceId in holderInstanceIds)
         {
             released += await _leaseRepository

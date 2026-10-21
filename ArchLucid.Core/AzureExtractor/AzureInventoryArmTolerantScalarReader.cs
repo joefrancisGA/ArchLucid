@@ -1,6 +1,8 @@
 using System.Globalization;
 using System.Text.Json;
 
+using ArchLucid.Core.Json;
+
 namespace ArchLucid.Core.AzureExtractor;
 
 /// <summary>
@@ -36,7 +38,7 @@ public static class AzureInventoryArmTolerantScalarReader
 
         if (element.ValueKind is JsonValueKind.String)
         {
-            return TryParseBooleanString(element.GetString(), out value);
+            return JsonBooleanStringReader.TryParseBooleanString(element.GetString(), out value);
         }
 
         if (element.ValueKind is JsonValueKind.Number
@@ -248,43 +250,9 @@ public static class AzureInventoryArmTolerantScalarReader
         return element.GetRawText();
     }
 
-    private static bool TryParseBooleanString(string? raw, out bool value)
-    {
-        value = default;
-
-        if (string.IsNullOrWhiteSpace(raw))
-        {
-            return false;
-        }
-
-        if (raw.Equals("true", StringComparison.OrdinalIgnoreCase)
-            || raw.Equals("1", StringComparison.Ordinal)
-            || raw.Equals("yes", StringComparison.OrdinalIgnoreCase)
-            || raw.Equals("on", StringComparison.OrdinalIgnoreCase)
-            || raw.Equals("enabled", StringComparison.OrdinalIgnoreCase))
-        {
-            value = true;
-
-            return true;
-        }
-
-        if (raw.Equals("false", StringComparison.OrdinalIgnoreCase)
-            || raw.Equals("0", StringComparison.Ordinal)
-            || raw.Equals("no", StringComparison.OrdinalIgnoreCase)
-            || raw.Equals("off", StringComparison.OrdinalIgnoreCase)
-            || raw.Equals("disabled", StringComparison.OrdinalIgnoreCase))
-        {
-            value = false;
-
-            return true;
-        }
-
-        return false;
-    }
-
     private static bool TryNormalizeBooleanString(string? raw, out string? value)
     {
-        if (!TryParseBooleanString(raw, out bool parsed))
+        if (!JsonBooleanStringReader.TryParseBooleanString(raw, out bool parsed))
         {
             value = null;
 

@@ -88,6 +88,7 @@ public sealed partial class GovernanceDigestDecisionNeededComposer(
         {
             hasDecisionContent = true;
             decisionNeeded.AppendLine("### Approvals pending");
+
             foreach (GovernanceApprovalRequest approval in pending.Take(10))
 
                 decisionNeeded.AppendLine($"- `{approval.ApprovalRequestId:N}` — run `{approval.RunId:N}` → {approval.TargetEnvironment}");
@@ -100,6 +101,7 @@ public sealed partial class GovernanceDigestDecisionNeededComposer(
             hasDecisionContent = true;
             decisionNeeded.AppendLine();
             decisionNeeded.AppendLine("### Stale risks");
+
             foreach (ArchitectureRiskRegisterEntry entry in stale.Take(10))
 
                 decisionNeeded.AppendLine($"- **{entry.Title}** ({entry.Severity}) — {entry.StatusLabel} — [{entry.FindingId}]({entry.EvidenceHref})");
@@ -116,6 +118,7 @@ public sealed partial class GovernanceDigestDecisionNeededComposer(
             hasDecisionContent = true;
             decisionNeeded.AppendLine();
             decisionNeeded.AppendLine("### Unowned high-severity risks");
+
             foreach (ArchitectureRiskRegisterEntry entry in unownedHigh)
 
                 decisionNeeded.AppendLine($"- **{entry.Title}** — assign owner — [{entry.FindingId}]({entry.EvidenceHref})");
@@ -131,6 +134,7 @@ public sealed partial class GovernanceDigestDecisionNeededComposer(
             hasDecisionContent = true;
             decisionNeeded.AppendLine();
             decisionNeeded.AppendLine("### Findings awaiting evidence");
+
             foreach (FindingReviewEventRecord reviewEvent in needsEvidence)
 
                 decisionNeeded.AppendLine($"- `{reviewEvent.FindingId}` — {reviewEvent.EvidenceRequestText ?? "Evidence requested"}");
@@ -148,6 +152,7 @@ public sealed partial class GovernanceDigestDecisionNeededComposer(
             hasDecisionContent = true;
             decisionNeeded.AppendLine();
             decisionNeeded.AppendLine("### Deferred findings due for revisit");
+
             foreach (FindingReviewEventRecord reviewEvent in deferredDue)
 
                 decisionNeeded.AppendLine($"- `{reviewEvent.FindingId}` — due {reviewEvent.RevisitDueUtc:u}");

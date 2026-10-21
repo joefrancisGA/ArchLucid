@@ -16,6 +16,7 @@ public static partial class FakeAgentResultFactory
         ArgumentNullException.ThrowIfNull(taskId);
         ArgumentNullException.ThrowIfNull(request);
         List<string> requiredControls = ["Managed Identity", "Key Vault", "Private Endpoints"];
+
         if (!request.RequiredCapabilities.Any(ControlPhraseMatcher.ConstraintRequiresPrivateNetworking))
             return new AgentResult
             {
@@ -63,6 +64,7 @@ public static partial class FakeAgentResultFactory
                 },
                 CreatedUtc = TimeProvider.System.UtcNowDateTime()
             };
+
         if (!requiredControls.Contains("Private Networking", StringComparer.OrdinalIgnoreCase))
             requiredControls.Add("Private Networking");
         return new AgentResult

@@ -1,6 +1,6 @@
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
-import {
 import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
+import {
   DEFAULT_IMPACT_PREVIEW_COMPARISON_SCOPE,
   type ImpactPreviewComparisonScope,
 } from "@/lib/impact-preview-page-types";

@@ -49,31 +49,30 @@ export function helpGlossaryCategoryHrefFromSearch(
   return buildOperatorHrefFromSearch(currentSearch, pathname, {
     selectionSwitch: { kind: "disclosure-only" },
     mutate: (params) => {
+      if (category === "all") {
+        params.delete(HELP_GLOSSARY_CATEGORY_PARAM);
+      } else {
+        params.set(HELP_GLOSSARY_CATEGORY_PARAM, category);
+      }
+    },
+  });
+}
 
-    if (category === "all") {
-      params.delete(HELP_GLOSSARY_CATEGORY_PARAM);
-    } else {
-      params.set(HELP_GLOSSARY_CATEGORY_PARAM, category);
-    }
+export function helpGlossarySearchHrefFromSearch(
+  currentSearch: string,
+  query: string,
+  pathname: string = HELP_GLOSSARY_PATH,
+): string {
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+      const trimmed = query.trim();
 
-    const query = params.toString();
-
-    return query.length === 0 ? pathname : `${pathname}?${query}`;
-  }
-
-  export function helpGlossarySearchHrefFromSearch(
-    currentSearch: string,
-    query: string,
-    pathname: string = HELP_GLOSSARY_PATH,
-  ): string {
-    const params = new URLSearchParams(currentSearch);
-    const trimmed = query.trim();
-
-    if (trimmed.length === 0) {
-      params.delete(HELP_GLOSSARY_SEARCH_PARAM);
-    } else {
-      params.set(HELP_GLOSSARY_SEARCH_PARAM, trimmed);
-    }
+      if (trimmed.length === 0) {
+        params.delete(HELP_GLOSSARY_SEARCH_PARAM);
+      } else {
+        params.set(HELP_GLOSSARY_SEARCH_PARAM, trimmed);
+      }
     },
   });
 }

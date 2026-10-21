@@ -31802,24 +31802,11 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-20
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
-
-- **id:** core-requests-constraints
-- **split-from:** archlucid-core
-- **status:** open
-- **impact:** medium
-- **aliases:** request constraints; split from archlucid-core
-- **paths:** ArchLucid.Core/Requests/
-- **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 34
-- **bugs-found:** 35
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-13 — spaced ASCII solidus broke multi-word constraint phrases
 
 2026-10-21 seed hunt (seed→hit, lane C): promoted spaced comma/semicolon phrase normalization; 912 scoped RequestConstraint tests passed.
 

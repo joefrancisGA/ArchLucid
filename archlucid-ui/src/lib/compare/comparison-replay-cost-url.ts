@@ -1,6 +1,6 @@
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
-import {
 import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
+import {
   isReplayValidationModeId,
   type ReplayValidationModeId,
 } from "@/lib/replay-validation-workflow";

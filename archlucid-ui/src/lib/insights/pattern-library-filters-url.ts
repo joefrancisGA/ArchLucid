@@ -1,6 +1,6 @@
 import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
-import type {
 import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
+import type {
   PatternAdoptionSignal,
   PatternDataSourceFilter,
   PatternDomainFilter,

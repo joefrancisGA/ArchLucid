@@ -31,6 +31,7 @@ public sealed class AgentLoopPersistStage(
         await SeedTopologyAsync(prepared.RunId, prepared.Request, results, cancellationToken);
         var evaluations = await evaluationService.EvaluateAsync(prepared.RunId, prepared.Request, prepared.Evidence, prepared.Tasks, results, cancellationToken);
         await persistenceStage.PersistExecutePhaseAsync(prepared.Evidence, results, evaluations, cancellationToken);
+
         if (ArchitectureRunExecuteRunIdHelper.TryParseRunGuid(prepared.RunId, out Guid runId))
             logger.LogInformationAgentExecutionStateTransition(runId, "agent_results_persisting", "execute_complete", prepared.ScheduledTaskIds);
         results = await qualityGateStage.RunQualityGateTraceEvaluationLoopAsync(prepared.RunId, prepared.Actor, prepared.Request, prepared.Evidence, prepared.Tasks, results, cancellationToken);
@@ -45,6 +46,7 @@ public sealed class AgentLoopPersistStage(
     {
         AgentResult? topology = results.FirstOrDefault(
             static r => AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(r) == AgentType.Topology);
+
         if (topology is null) return;
         await TryCaptureAsync(topologySeeder.SeedFromTopologyResultAsync(runId, request, topology, ct), runId, "Technology Ledger topology proposal seeding");
     }

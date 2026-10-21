@@ -85,6 +85,7 @@ public sealed class TrialTenantBootstrapService(
                         result.TenantId,
                         auditActorEmail);
                 }
+
                 if (!await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken))
                 {
                     if (!await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken))
@@ -215,6 +216,7 @@ public sealed class TrialTenantBootstrapService(
                         ex,
                         "Trial bootstrap failed for tenant {TenantId}; tenant row exists without trial metadata.",
                         result.TenantId);
+
                 if (!await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken))
                 {
                     if (!await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken))

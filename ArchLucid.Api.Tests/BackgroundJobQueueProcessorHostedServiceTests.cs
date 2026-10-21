@@ -89,6 +89,7 @@ public sealed class BackgroundJobQueueProcessorHostedServiceTests
             .ReturnsAsync(() =>
             {
                 pulls++;
+
                 if (pulls == 1)
                     return Azure.Response.FromValue(new[] { queueMessage }, new Mock<Azure.Response>().Object);
                 cts.Cancel();
