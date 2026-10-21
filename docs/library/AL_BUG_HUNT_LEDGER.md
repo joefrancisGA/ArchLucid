@@ -35888,7 +35888,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
 - **hunts:** 56
 - **bugs-found:** 47
-- **hunts:** 56
 - **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-21 — in-memory graph snapshot capacity eviction dropped newer CreatedUtc
 - **related-pd-tb:** none
@@ -77610,7 +77609,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
 - **hunts:** 56
 - **bugs-found:** 47
-- **hunts:** 56
 - **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-21 — in-memory graph snapshot capacity eviction dropped newer CreatedUtc
 - **related-pd-tb:** none
@@ -121201,7 +121199,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
 - **hunts:** 56
 - **bugs-found:** 47
-- **hunts:** 56
 - **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-21 — in-memory graph snapshot capacity eviction dropped newer CreatedUtc
 - **related-pd-tb:** none
