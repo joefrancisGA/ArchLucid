@@ -654,6 +654,8 @@
 
 2026-10-20 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernancePreviewController.CompareEnvironments` running scope posture sealed-manifest guard before `CompareEnvironmentsAsync`, so read-only environment comparison returned HTTP 409 when the latest committed project run failed hash verification even though comparison only loads active activation manifests inside the service; remove scope guard from compare-environments (per-activation sealing remains in `GovernancePreviewService`); regression `CompareEnvironments_reaches_service_when_scope_posture_sealed_manifest_would_conflict`.
 
+2026-10-21 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceCoverageController.GetScopeCoverage` running scope posture sealed-manifest guard before `ICoverageQueryService.GetByScopeAsync`, so GET governance coverage returned HTTP 409 when the latest committed project run failed hash verification unrelated to coverage assignment metadata; remove scope guard (parity with dashboard/compare-environments; preview POST keeps preview-specific guard); regression `GetScopeCoverage_reaches_query_service_when_scope_posture_sealed_manifest_would_conflict`; `GovernanceCoverageControllerScopeTests` 11/11; `TenantWorkspacesController` 61/61.
+
 2026-10-20 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceStickinessController.EnsureGovernanceDispositionRunSealedManifestAllowedAsync` and `GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync` treating manifest-compare miss as HTTP 409 before `RunNotFoundException` mapping on `POST /v1/governance/risk-exceptions`; skip sealed-hash guard when `GetRunDetailForManifestCompareAsync` returns null (preview/policy-pack simulate parity); regression `CreateRiskException_returns_not_found_for_missing_run_before_sealed_manifest_check`; cheap-disproof closed `GovernancePreCommitSimulationController` missing-run candidate (run repository preflight before sealed guard).
 
 2026-10-20 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryAppSettingHostRedactor.TryParseSqlHost` ignoring ADO.NET `Data Source=` SQL connection strings so App Service / Function declared SQL hosts were dropped from `app-settings-hosts.json` companion rows; extend `SqlServerHostRegex` to accept `Data Source` alias; regression `TryParseSettingValue_extracts_sql_host_from_data_source_alias`; app-setting host Core tests 25/25.
@@ -37354,6 +37356,10 @@ heap-disproved mermaid typed-topology candidate.
 ---
 
 ## Zone: api-governance-tenancy-controllers
+2026-10-21 seed hunt (seed→hit): promoted `GovernanceCoverageController.GetScopeCoverage` scope posture sealed-manifest over-block before coverage assignment read; regression `GetScopeCoverage_reaches_query_service_when_scope_posture_sealed_manifest_would_conflict`.
+
+- [x] (proven) `GovernanceCoverageController.GetScopeCoverage` — scope `EnsureGovernanceScopeSealedManifestReadAllowedAsync` blocked GET coverage summary with HTTP 409 when latest committed run failed sealed-hash verification unrelated to assignment query — regression above.
+
 2026-10-20 seed hunt (seed→hit): promoted `TenantWorkspacesController.DeleteProjectAsync` null `ListActiveByTenantAsync` on default-metadata pin guard (NRE); regression `DeleteProjectAsync_returns_no_content_when_active_list_is_null_and_foreign_workspace_pins_project_metadata`.
 
 - [x] (proven) `TenantWorkspacesController.DeleteProjectAsync` — `ListActiveByTenantAsync` null on cross-workspace default-metadata pin guard threw before soft-delete — regression above.

@@ -125,12 +125,6 @@ public sealed partial class GovernanceCoverageController(
         if (scopeProblem is not null)
             return scopeProblem;
 
-        IActionResult? sealedGuardResult =
-            await EnsureGovernanceScopeSealedManifestReadAllowedAsync(scope, cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
         CoverageSummary summary;
 
         try
