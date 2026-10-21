@@ -77,7 +77,8 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   const { status: llmBudgetStatus, blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
   const { isSimulator } = useAgentExecutionMode();
   const exampleTemplatePrefillAppliedRef = useRef(false);
-  const priorPackagePrefillAppliedRef = useRef(false);
+  const priorTitlePrefilledForRunIdRef = useRef<string | null>(null);
+  const priorTitlePrefilledValueRef = useRef<string | null>(null);
   const priorRunIdFromSearch = useMemo(() => readPriorRunIdFromSearch(searchParams), [searchParams]);
   const isSecondReviewContinuation = searchParams?.get("intent")?.trim() === "revised-clone";
   const priorRunIdForTitlePrefill = isSecondReviewContinuation ? priorRunIdFromSearch : null;
@@ -245,23 +246,47 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   });
 
   useEffect(() => {
-    if (
-      priorRunIdForTitlePrefill === null ||
-      priorPackagePrefillAppliedRef.current ||
-      priorSummaryQuery.data === undefined
-    ) {
+    if (priorRunIdForTitlePrefill === null) {
+      setInheritedPriorTitle(null);
+      priorTitlePrefilledForRunIdRef.current = null;
+      priorTitlePrefilledValueRef.current = null;
+
       return;
     }
 
-    priorPackagePrefillAppliedRef.current = true;
+    if (priorSummaryQuery.data === undefined) {
+      return;
+    }
+
     const inheritedTitle = priorPackageInheritedTitle(priorSummaryQuery.data);
 
     if (inheritedTitle.length === 0) {
       return;
     }
 
+    const previousPrefilledRunId = priorTitlePrefilledForRunIdRef.current;
+    const previousPrefilledTitle = priorTitlePrefilledValueRef.current;
+
+    priorTitlePrefilledForRunIdRef.current = priorRunIdForTitlePrefill;
+    priorTitlePrefilledValueRef.current = inheritedTitle;
+
     setInheritedPriorTitle(inheritedTitle);
-    setRunTitle((current) => (current.trim().length > 0 ? current : inheritedTitle));
+    setRunTitle((current) => {
+      if (current.trim().length === 0) {
+        return inheritedTitle;
+      }
+
+      if (
+        previousPrefilledRunId !== null &&
+        previousPrefilledRunId !== priorRunIdForTitlePrefill &&
+        previousPrefilledTitle !== null &&
+        current === previousPrefilledTitle
+      ) {
+        return inheritedTitle;
+      }
+
+      return current;
+    });
   }, [priorRunIdForTitlePrefill, priorSummaryQuery.data]);
 
   useEffect(() => {
