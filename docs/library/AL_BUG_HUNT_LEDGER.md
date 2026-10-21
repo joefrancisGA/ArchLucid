@@ -11,6 +11,7 @@
 - [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — when `runId` is not parseable as `Guid`, authority lifecycle phase `Complete` gate is skipped — locus: `Guid.TryParse` guard (~103–118); input: internal caller passing non-Guid run id that repository still resolves elsewhere.
 - [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — multiple architecture-version pin violations surface only `architectureVersionPinReasons[0]` in the thrown `ConflictException` — locus: throw ~136; input: architecture request failing two independent pin checks in one commit.
 - [ ] (candidate) `CommitOutputIntegrityService.LoadAcknowledgedAssumptionIdsAsync` — non-Guid `runId` omits persisted assumption acknowledgements and uses request-body ids only — locus: early return ~244–245; input: finalize commit where persisted TB-2345 acks exist but run id format prevents Guid parse.
+2026-10-21 seed hunt (seed→hit, lane B): `core-costing` — lock `core-costing` pushed and verified on `origin/bugsmash` before work (skipped picker top `core-configuration-summary` hunted today; no other lane locks); promoted reachable `InfrastructureCostSummaryNotes` — zero-dollar retail/illustrative lines still produced estimate rows but `TotalUsdPerMonth <= 0` gate returned the empty-topology copy; gate on `Lines.Count == 0` instead; regressions `ComposeRetailBlendNote_zero_total_with_retail_lines_does_not_claim_no_topology_rows` and `ComposeIllustrativeOnlyNote_zero_total_with_lines_does_not_claim_no_topology_rows`; scoped `FullyQualifiedName~Costing` 288/294 passed (6 known retired week-UOM baseline failures); lock released after push.
 
 2026-10-21 seed hunt (seed→hit, lane B): `capabilities-cost-mcp` — lock `capabilities-cost-mcp` pushed and verified on `origin/bugsmash` before work (skipped picker top `core-configuration-summary` hunted today; avoided `worker-host` lock); promoted reachable `CostBreachFindingEngine` / `CostConstraintFindingEngine` graph property parsing — invariant-culture decimals from materializers (`6200.50`) failed `decimal.TryParse` under non-invariant thread cultures (e.g. `fr-FR`), silently skipping breach findings; shared `CostGraphDecimalParser` with `CultureInfo.InvariantCulture`; regression `AnalyzeAsync_parses_invariant_graph_decimals_under_non_invariant_thread_culture`; scoped `Capabilities.Cost` 20/20 + MCP retrieval 4/4; lock released after push.
 
@@ -32246,6 +32247,9 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-09-07 thorough hunt #1216 (dry): cheap-disproved octal/hex IPv4 bypass and Safety-interface DNS-parity meta hypothesis; added encoding regression tests.
 
 ---
+
+- [x] (proven) `InfrastructureCostSummaryNotes.ComposeRetailBlendNote` / `ComposeIllustrativeOnlyNote` — zero-dollar estimate lines still returned the empty-topology headline because the gate used `TotalUsdPerMonth <= 0` — **hit 2026-10-21 seed hunt lane B:** empty check uses `Lines.Count == 0`; regressions `ComposeRetailBlendNote_zero_total_with_retail_lines_does_not_claim_no_topology_rows` and `ComposeIllustrativeOnlyNote_zero_total_with_lines_does_not_claim_no_topology_rows`.
+
 ## Zone: core-costing
 
 2026-10-12 seed hunt (seed-only): re-read `ArchLucid.Core/Costing/` and focused costing tests; no new reachable pricing, parser, normalization, or cancellation boundary met the hunt-ready bar. The scoped Costing filter passed 286 tests and retained 6 explicitly invalid extra-`k` week-UOM baseline failures. No production or regression change.
@@ -34099,8 +34103,8 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 949
-- **bugs-found:** 226
+951
+- **bugs-found:** 227
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-12
 - **last-bug:** 2026-10-10 — live pricing cancellation was swallowed as illustrative fallback

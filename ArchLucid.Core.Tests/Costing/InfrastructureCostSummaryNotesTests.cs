@@ -205,4 +205,50 @@ public sealed class InfrastructureCostSummaryNotesTests
 
         note.Should().Contain("Azure Retail");
     }
+
+    [Fact]
+    public void ComposeRetailBlendNote_zero_total_with_retail_lines_does_not_claim_no_topology_rows()
+    {
+        InfrastructureCostEstimateTotals totals = new(
+            [
+                new InfrastructureCostLine(
+                    "topology",
+                    "free-tier",
+                    RuntimePlatform.Functions,
+                    "Azure Functions",
+                    0m,
+                    InfrastructureCostPriceSource.RetailApi),
+            ],
+            0m,
+            AnyRetailPricing: true,
+            AllRetailPricing: true);
+
+        string note = InfrastructureCostSummaryNotes.ComposeRetailBlendNote(totals);
+
+        note.Should().NotContain("No billable topology rows");
+        note.Should().Contain("Azure Retail");
+    }
+
+    [Fact]
+    public void ComposeIllustrativeOnlyNote_zero_total_with_lines_does_not_claim_no_topology_rows()
+    {
+        InfrastructureCostEstimateTotals totals = new(
+            [
+                new InfrastructureCostLine(
+                    "topology",
+                    "free-tier",
+                    RuntimePlatform.AppService,
+                    "Azure App Service",
+                    0m,
+                    InfrastructureCostPriceSource.Estimated),
+            ],
+            0m,
+            AnyRetailPricing: false,
+            AllRetailPricing: false);
+
+        string note = InfrastructureCostSummaryNotes.ComposeIllustrativeOnlyNote(totals);
+
+        note.Should().NotContain("No billable topology rows");
+        note.Should().Contain("Illustrative Azure");
+    }
 }
