@@ -18,9 +18,14 @@ import {
   useReviewFindingsLastVisitRestore,
 } from "@/hooks/use-review-findings-last-visit";
 
+const navHarness = vi.hoisted(() => ({
+  pathname: "/architecture/reviews/run-1",
+  searchParams: new URLSearchParams(""),
+}));
+
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/architecture/reviews/run-1",
-  useSearchParams: () => new URLSearchParams(window.location.search),
+  usePathname: () => navHarness.pathname,
+  useSearchParams: () => navHarness.searchParams,
 }));
 
 function RestoreProbe(props: { readonly runId: string }) {
@@ -55,6 +60,8 @@ describe("useReviewFindingsLastVisitRestore", () => {
   afterEach(() => {
     clearReviewFindingsLastVisitStorage();
     resetReviewFindingsLastVisitRestoreStateForTests();
+    navHarness.pathname = "/architecture/reviews/run-1";
+    navHarness.searchParams = new URLSearchParams("");
     window.history.replaceState({}, "", "/");
   });
 
@@ -68,6 +75,7 @@ describe("useReviewFindingsLastVisitRestore", () => {
     });
 
     window.history.replaceState({}, "", "/architecture/reviews/run-1?reviewTab=findings");
+    navHarness.searchParams = new URLSearchParams("reviewTab=findings");
 
     const { unmount } = render(<RestoreProbe runId="run-1" />);
 
@@ -78,6 +86,7 @@ describe("useReviewFindingsLastVisitRestore", () => {
     unmount();
     replaceState.mockClear();
     window.history.replaceState({}, "", "/architecture/reviews/run-1?reviewTab=findings");
+    navHarness.searchParams = new URLSearchParams("reviewTab=findings");
     replaceState.mockClear();
 
     render(<RestoreProbe runId="run-1" />);
@@ -95,6 +104,7 @@ describe("useReviewFindingsLastVisitRestore", () => {
     });
 
     window.history.replaceState({}, "", "/architecture/reviews/run-1?reviewTab=findings");
+    navHarness.searchParams = new URLSearchParams("reviewTab=findings");
 
     render(<ToolbarRestoreProbe />);
 
@@ -106,6 +116,7 @@ describe("useReviewFindingsLastVisitRestore", () => {
     const replaceState = vi.spyOn(window.history, "replaceState");
 
     window.history.replaceState({}, "", "/architecture/reviews/run-1?reviewTab=findings");
+    navHarness.searchParams = new URLSearchParams("reviewTab=findings");
 
     patchReviewFindingsLastVisit("run-1", {
       filter: "high",
@@ -147,6 +158,30 @@ describe("useReviewFindingsLastVisitRestore", () => {
     expect(href).toContain("findingsFilter=medium");
     expect(href).toContain("q=sql");
     expect(href).toContain("hideGeneric=1");
+  });
+
+  it("restores last-visit filters when runId changes before window.location.search catches up", () => {
+    patchReviewFindingsLastVisit("run-2", {
+      filter: "high",
+    });
+
+    navHarness.pathname = "/architecture/reviews/run-2";
+    navHarness.searchParams = new URLSearchParams("reviewTab=findings");
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-1?reviewTab=findings&findingsBand=checklist",
+    );
+
+    const replaceState = vi.spyOn(window.history, "replaceState");
+
+    render(<RestoreProbe runId="run-2" />);
+
+    expect(replaceState).toHaveBeenCalled();
+    const nextHref = String(replaceState.mock.calls[0]?.[2] ?? "");
+    expect(nextHref).toContain("findingsFilter=high");
+
+    replaceState.mockRestore();
   });
 
   it("reviewFindingsLastVisitHasUrlParams is false for tab-only URLs", () => {

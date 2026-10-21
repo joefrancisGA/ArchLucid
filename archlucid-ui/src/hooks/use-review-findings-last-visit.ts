@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import type {
   RunDetailFindingsFilterKind,
@@ -33,6 +33,8 @@ export function resetReviewFindingsLastVisitRestoreStateForTests(): void {
 export function useReviewFindingsLastVisitRestore(options: UseReviewFindingsLastVisitRestoreOptions): void {
   const { runId, enabled } = options;
   const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const routerSearch = searchParams.toString();
 
   useEffect(() => {
     if (!enabled || pathname.length === 0 || reviewFindingsLastVisitRestoredRunIds.has(runId)) {
@@ -44,17 +46,16 @@ export function useReviewFindingsLastVisitRestore(options: UseReviewFindingsLast
         return;
       }
 
-      const windowSearchParams = new URLSearchParams(window.location.search);
+      const routerSearchParams = new URLSearchParams(routerSearch);
 
-      if (reviewFindingsLastVisitHasUrlParams(windowSearchParams)) {
+      if (reviewFindingsLastVisitHasUrlParams(routerSearchParams)) {
         reviewFindingsLastVisitRestoredRunIds.add(runId);
 
         return;
       }
 
       const lastVisit = readReviewFindingsLastVisit(runId);
-      const windowSearch = windowSearchParams.toString();
-      const nextHref = buildReviewFindingsLastVisitHref(pathname, windowSearch, lastVisit);
+      const nextHref = buildReviewFindingsLastVisitHref(pathname, routerSearch, lastVisit);
 
       // Mark restored before notifying so the popstate listener does not re-enter this restore.
       reviewFindingsLastVisitRestoredRunIds.add(runId);
@@ -68,7 +69,7 @@ export function useReviewFindingsLastVisitRestore(options: UseReviewFindingsLast
       window.removeEventListener("popstate", restoreFromLastVisitIfNeeded);
       reviewFindingsLastVisitRestoredRunIds.delete(runId);
     };
-  }, [enabled, pathname, runId]);
+  }, [enabled, pathname, routerSearch, runId]);
 }
 
 export type UseReviewFindingsLastVisitPersistOptions = {
