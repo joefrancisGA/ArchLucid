@@ -204,7 +204,8 @@ public static class AzureExtractorPackageInventoryReader
         IReadOnlyDictionary<string, string> properties = ReadProperties(row);
         bool isUnknown = (row.TryGetProperty("isUnknownType", out JsonElement unknownFlag)
                           || row.TryGetProperty("IsUnknownType", out unknownFlag))
-                         && unknownFlag.ValueKind is JsonValueKind.True;
+                         && AzureInventoryArmTolerantScalarReader.TryReadBoolean(unknownFlag, out bool unknownParsed)
+                         && unknownParsed;
 
         return new AzureExtractorExtendedResourceRow
         {
@@ -601,22 +602,10 @@ public static class AzureExtractorPackageInventoryReader
 
         foreach (JsonProperty property in properties.EnumerateObject())
         {
-            string serialized = property.Value.ValueKind switch
-            {
-                JsonValueKind.String => property.Value.GetString() ?? string.Empty,
-                JsonValueKind.Number => property.Value.GetRawText(),
-                JsonValueKind.True => "true",
-                JsonValueKind.False => "false",
-                JsonValueKind.Null => string.Empty,
-                JsonValueKind.Object or JsonValueKind.Array =>
-                    AzureExtractorSensitivePropertyRedactor.RedactStructuredJson(property.Value),
-                _ => property.Value.GetRawText(),
-            };
+            string serialized = AzureInventoryArmTolerantScalarReader.TryFormatPropertyBagScalar(property.Value)
+                ?? string.Empty;
 
-            if (property.Value.ValueKind is JsonValueKind.String
-                    or JsonValueKind.Number
-                    or JsonValueKind.True
-                    or JsonValueKind.False
+            if (AzureInventoryArmTolerantScalarReader.IsSupportedScalarValueKind(property.Value)
                 && AzureExtractorSensitivePropertyRedactor.IsSensitiveKey(property.Name))
                 serialized = AzureExtractorSensitivePropertyRedactor.RedactValue(serialized);
 

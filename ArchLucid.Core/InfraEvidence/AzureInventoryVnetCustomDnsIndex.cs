@@ -1,6 +1,8 @@
 using System.Globalization;
 using System.Text.Json;
 
+using ArchLucid.Core.AzureExtractor;
+
 namespace ArchLucid.Core.InfraEvidence;
 
 /// <summary>
@@ -200,34 +202,10 @@ public sealed class AzureInventoryVnetCustomDnsIndex
 
     private static bool TryReadDnsServerFromObjectElement(JsonElement serverElement, out string dnsServer)
     {
-        dnsServer = string.Empty;
+        string? resolved = AzureInventoryArmTolerantScalarReader.TryReadStringOrObjectScalar(serverElement);
+        dnsServer = resolved ?? string.Empty;
 
-        if (serverElement.ValueKind is not JsonValueKind.Object)
-        {
-            return false;
-        }
-
-        foreach (string propertyName in new[] { "ipAddress", "address", "value" })
-        {
-
-            if (!TryGetPropertyIgnoreCase(serverElement, propertyName, out JsonElement addressElement))
-            {
-                continue;
-            }
-
-            if (addressElement.ValueKind is JsonValueKind.String)
-            {
-                string? address = addressElement.GetString();
-
-                if (!string.IsNullOrWhiteSpace(address))
-                {
-                    dnsServer = address.Trim();
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        return !string.IsNullOrWhiteSpace(dnsServer);
     }
 
     private static bool TryAppendDnsServersFromNumericOctetArray(JsonElement serversElement, List<string> dnsServers)

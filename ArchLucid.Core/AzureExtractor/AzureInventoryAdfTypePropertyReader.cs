@@ -45,12 +45,11 @@ public static class AzureInventoryAdfTypePropertyReader
             return null;
         }
 
-        if (value.ValueKind is not JsonValueKind.String and not JsonValueKind.Number and not JsonValueKind.True and not JsonValueKind.False)
+        if (!AzureInventoryArmTolerantScalarReader.IsSupportedScalarValueKind(value)
+            || !AzureInventoryArmTolerantScalarReader.TryReadInvariantScalarText(value, out string? text))
         {
             return null;
         }
-
-        string? text = value.ValueKind is JsonValueKind.String ? value.GetString() : value.GetRawText().Trim('"');
 
         if (string.IsNullOrWhiteSpace(text))
         {
