@@ -20,6 +20,7 @@
 - [x] (valid-no-repro) `RequireAuthorizationAnalyzer` — protected `[HttpGet]` route helper — **cheap-disproof 2026-10-21 thorough hunt lane B:** regression `Does_not_report_type_level_AL0001_when_only_non_public_route_marked_actions_exist`.
 - [x] (valid-no-repro) `MutatingControllerAuditAnalyzer` — `[AcceptVerbs(\"post\")]` case — **cheap-disproof 2026-10-21 thorough hunt lane B:** `IsMutatingHttpMethodName` ordinal ignore case; regression above.
 - [x] (valid-no-repro) `TenantIdentityBoundaryAnalyzer` — `typeof(ClaimsPrincipal)` in attribute argument — **cheap-disproof 2026-10-21 thorough hunt lane B:** `IsInTypeOf` skips `TypeOfExpressionSyntax`; mirror `Does_not_report_typeof_ClaimsPrincipal`.
+2026-10-21 thorough hunt (hit): application-tenancy-lifecycle post-audit expiration metric guard; 234 tests.
 
 2026-10-21 seed hunt (seed-only, lane B): `core-safety-network` — lock `core-safety-network` already on `origin/bugsmash` before work (`0c4cb6c33b`; verified blob `129f2e45907ac137e1169d656b49f05f835e9a30`; all 99 ledger zones already had a `2026-10-21` run-log row so this run finished the lane B lock after lane C same-day seed); re-read `ArchLucid.Core/Safety/` and `ArchLucid.Core/Http/`; cheap-disproof closed five open `(candidate)` rows at zone head (`ContentSafetyBlockSeverityThreshold.Normalize(1)→0` is the documented Azure four-level floor with theory coverage; Core ARM retry `TryLog` omits `Retry-After` by design vs Host retail observability; `FailureRatio`/`MaxRetryAttempts` clamps and ARM-vs-integration constant split are intentional `Normalize`/policy boundaries; decimal-vs-leading-zero IPv4 parsing is TB-274 documented); no hunt-ready promotion; seeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~PrivateNetwork` 80/80 (75 Core + 5 Host composition, `RunAnalyzers=false`) plus `ContentSafetyBlockSeverityThresholdTests` 8/8; lock released after push.
 
@@ -43011,10 +43012,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 120
-- **bugs-found:** 105
+- **hunts:** 121
+- **bugs-found:** 106
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-13
+- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 
 2026-10-13 seed hunt (seed→hit): reseeded catalog migration after offboard-before-insert fix; proved `CompleteAsync` closed migration when tenant entered erasure quarantine after verification; re-read before `CompleteAsync`; regression `CompleteAsync_returns_in_erasure_quarantine_when_offboarded_before_complete`; 170 scoped tenancy tests passed.
@@ -43543,6 +43544,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [ ] (candidate) `TenantErasureCommandService.TryOffboardTenantAsync` — compensating `TryUnsuspendAsync` when erasure offboard revoked between atomic offboard start and side-effect audit — locus: `TenantErasureCommandService` offboard completion paths; input: quarantine restore races first-time offboard audit append.
 
 ---
+
+- [x] (proven) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — post-audit `RecordTrialExpiration` without erasure re-read — **hit 2026-10-21 thorough hunt:** regression `TryAdvanceTenantAsync_skips_expiration_metric_when_offboard_completes_after_audit_before_metric`. [class:state-machine-gap]
 
 ## Zone: host-core-coordination
 
