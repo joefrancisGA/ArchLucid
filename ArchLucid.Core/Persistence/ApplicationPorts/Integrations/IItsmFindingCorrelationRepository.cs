@@ -1,6 +1,6 @@
 ﻿namespace ArchLucid.Persistence.Integrations;
 
-/// <summary>ITSM external ticket â†” ArchLucid finding linkage; uses non-RLS SQL for inbound webhooks.</summary>
+/// <summary>ITSM external ticket ↔ ArchLucid finding linkage; uses non-RLS SQL for inbound webhooks.</summary>
 public interface IItsmFindingCorrelationRepository
 {
     Task<ItsmFindingCorrelationRecord?> TryGetByExternalKeyAsync(

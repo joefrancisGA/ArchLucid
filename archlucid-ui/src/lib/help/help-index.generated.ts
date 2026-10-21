@@ -815,7 +815,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-13",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "Related: [Transactional finalize vs outbox (M-163)](#transactional-finalize-vs-outbox-m-163) Â· [Read-after-write client readiness (M-165)](#read-after-write-client-m-165) Â· [ADR 0004](../architecture/adrs/0004-transactional-outbox-retrieval-indexing.md) Â· [`../library/ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md`](.…"
+    "excerpt": "Related: [Transactional finalize vs outbox (M-163)](#transactional-finalize-vs-outbox-m-163) · [Read-after-write client readiness (M-165)](#read-after-write-client-m-165) · [ADR 0004](../architecture/adrs/0004-transactional-outbox-retrieval-indexing.md) · [`../library/ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md`](.…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -899,7 +899,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "too-strong-vs-safe-10",
     "sectionHeading": "Too strong vs safe",
-    "excerpt": "Talk-track ladder: [SOC 2 / pen-test honest procurement talk-track (M-197)](#soc2-pentest-honest-talk-track-m-197) Â· [Stage 0 claim allowlist (M-189)](#stage-0-claim-allowlist-vs-oversell-m-189)."
+    "excerpt": "Talk-track ladder: [SOC 2 / pen-test honest procurement talk-track (M-197)](#soc2-pentest-honest-talk-track-m-197) · [Stage 0 claim allowlist (M-189)](#stage-0-claim-allowlist-vs-oversell-m-189)."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -1879,7 +1879,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "elevator-pitch-v1-claim-audit-m-246",
     "sectionHeading": "Elevator pitch ArchLucid — cut / hedge / prove (M-246)",
-    "excerpt": "Former standalone body: `docs/go-to-market/ELEVATOR_PITCH_V1_CLAIM_AUDIT_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-245 / M-246 / TB-1367). Complements [`ELEVATOR_PITCH.md`](ELEVATOR_PITCH.md) and KEEP [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md) Â§4 (not folded). N…"
+    "excerpt": "Former standalone body: `docs/go-to-market/ELEVATOR_PITCH_V1_CLAIM_AUDIT_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-245 / M-246 / TB-1367). Complements [`ELEVATOR_PITCH.md`](ELEVATOR_PITCH.md) and KEEP [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md) §4 (not folded). N…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -1893,7 +1893,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "pa-review-16",
     "sectionHeading": "PA review",
-    "excerpt": "1. Open the pitch and mark each absolute as cut, hedge, or prove. 2. Confirm pitch and sponsor brief Â§4 do not diverge on gates/connectors. 3. Confirm a live committed run backs every “prove” line. 4. Treat universal time-savings as a review finding."
+    "excerpt": "1. Open the pitch and mark each absolute as cut, hedge, or prove. 2. Confirm pitch and sponsor brief §4 do not diverge on gates/connectors. 3. Confirm a live committed run backs every “prove” line. 4. Treat universal time-savings as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2691,7 +2691,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "two-requests-do-not-fuse",
     "sectionHeading": "Two requests (do not fuse)",
-    "excerpt": "Fully automated quarantine→purge pipeline remains V2 (`V1_DEFERRED` Â§6m). ArchLucid still has operator/trial hard purge — do not claim “no deletion.”"
+    "excerpt": "Fully automated quarantine→purge pipeline remains V2 (`V1_DEFERRED` §6m). ArchLucid still has operator/trial hard purge — do not claim “no deletion.”"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2705,7 +2705,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "claim-boundary-39",
     "sectionHeading": "Claim boundary",
-    "excerpt": "Do not sell sealed evidence as undeletable after offboard, “complete erasure including Search/backups/telemetry,” fuse Art. 17 with tenant hard purge, claim ArchLucid has no deletion, or claim ArchLucid ships a fully automated Â§6m pipeline. Say sealed-in-life for the app principal; lifecycle hard purge after Admin approval; Sear…"
+    "excerpt": "Do not sell sealed evidence as undeletable after offboard, “complete erasure including Search/backups/telemetry,” fuse Art. 17 with tenant hard purge, claim ArchLucid has no deletion, or claim ArchLucid ships a fully automated §6m pipeline. Say sealed-in-life for the app principal; lifecycle hard purge after Admin approval; Sear…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -3748,7 +3748,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "too-strong-vs-safe-18",
     "sectionHeading": "Too strong vs safe",
-    "excerpt": "Cite: Done TB-239 Â· [`ROI_BASELINE_SEND_POLICY.md`](ROI_BASELINE_SEND_POLICY.md) Â· [Execution-mode honesty (M-128)](#execution-mode-honesty-m-128)."
+    "excerpt": "Cite: Done TB-239 · [`ROI_BASELINE_SEND_POLICY.md`](ROI_BASELINE_SEND_POLICY.md) · [Execution-mode honesty (M-128)](#execution-mode-honesty-m-128)."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -4077,7 +4077,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "pa-claim-honesty-short-rows",
     "sectionHeading": "PA claim-honesty short rows (M-115+)",
-    "excerpt": "Companion one-pagers and full do-not/do-promise table: [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md) Â· [`../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise)."
+    "excerpt": "Companion one-pagers and full do-not/do-promise table: [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md) · [`../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise)."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -4182,7 +4182,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "azure-extractor-infosec-pre-read",
     "sectionHeading": "Azure extractor — InfoSec pre-read",
-    "excerpt": "Audience: Customer security, cloud platform, and procurement reviewers who must approve collecting Azure inventory (scheduled agent or one-time script) and uploading the ZIP to ArchLucid. Status: generally available — aligns with [`V1_SCOPE.md`](../library/V1_SCOPE.md) Â§2.16 and [`trust-center.md`](trust-center.md) Azure connect…"
+    "excerpt": "Audience: Customer security, cloud platform, and procurement reviewers who must approve collecting Azure inventory (scheduled agent or one-time script) and uploading the ZIP to ArchLucid. Status: generally available — aligns with [`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.16 and [`trust-center.md`](trust-center.md) Azure connect…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -4238,7 +4238,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "change-control",
     "sectionHeading": "Change control",
-    "excerpt": "When extractor schema, RBAC posture, or trust-center rows change, update this pre-read and [`trust-center.md`](trust-center.md) Â§ Azure connectivity in the same change."
+    "excerpt": "When extractor schema, RBAC posture, or trust-center rows change, update this pre-read and [`trust-center.md`](trust-center.md) § Azure connectivity in the same change."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -4497,7 +4497,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "control-to-evidence-map",
     "sectionHeading": "Control-to-evidence map",
-    "excerpt": "Not issued (do not imply): SOC 2 Type I/II CPA report Â· third-party penetration test attestation Â· public customer reference."
+    "excerpt": "Not issued (do not imply): SOC 2 Type I/II CPA report · third-party penetration test attestation · public customer reference."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",

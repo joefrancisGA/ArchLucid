@@ -30,7 +30,7 @@ export const HELP_TOPIC_TRAFFIC_ROWS_GOVERNANCE: readonly UiRouteTrafficRow[] = 
     rowId: "H",
     path: "/help/audit-trail",
     section: "Help topic",
-    note: "Audit trail help (Help topic) - HelpAuditTrailGuideView with PageContextualHelpButton (topic map audit-trail; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, primary CTAs to /governance/audit and governance-approval help. Sibling AUD = /governance/audit. Operator orientation Ã¢â‚¬â€ not a signed-record Sources trail. Score 58/100 (2026-08-05) Ã¢â‚¬â€ help-topic ceiling below HEL hub band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    note: "Audit trail help (Help topic) - HelpAuditTrailGuideView with PageContextualHelpButton (topic map audit-trail; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, primary CTAs to /governance/audit and governance-approval help. Sibling AUD = /governance/audit. Operator orientation — not a signed-record Sources trail. Score 58/100 (2026-08-05) — help-topic ceiling below HEL hub band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
     noteMustContain: ["HelpAuditTrailGuideView", "Sources", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Alerts help. Owner backlog shorthand: HA. */
@@ -106,7 +106,7 @@ export const HELP_TOPIC_TRAFFIC_ROWS_GOVERNANCE: readonly UiRouteTrafficRow[] = 
     rowId: "HSE",
     path: "/help/security-trust",
     section: "Help topic",
-    note: "Security and trust help (Help topic) - HelpTopicMarkdownView with PageContextualHelpButton (topic map security-trust; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, curated trust-center markdown. Sibling SEC = /security-trust hub; TXX = /trust. Score 58/100 (2026-08-05) Ã¢â‚¬â€ help-topic ceiling below HEL hub band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    note: "Security and trust help (Help topic) - HelpTopicMarkdownView with PageContextualHelpButton (topic map security-trust; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, curated trust-center markdown. Sibling SEC = /security-trust hub; TXX = /trust. Score 58/100 (2026-08-05) — help-topic ceiling below HEL hub band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
     noteMustContain: ["HelpTopicMarkdownView", "Sources", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Procurement FAQ help. Owner backlog shorthand: PRO. */

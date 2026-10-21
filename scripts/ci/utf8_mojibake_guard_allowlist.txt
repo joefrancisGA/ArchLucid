@@ -1,0 +1,10 @@
+# Glob patterns (posix paths from repo root). Use only for intentional mojibake fixtures/detectors.
+ArchLucid.Application/Bootstrap/Utf8MojibakeRepair.cs
+ArchLucid.Application.Tests/Bootstrap/Utf8MojibakeRepairTests.cs
+ArchLucid.Application/Planning/InferredClarificationAnswerQuality.cs
+ArchLucid.Application.Tests/Integrations/Itsm/ItsmInboundWebhookSyncServiceTests.cs
+ArchLucid.Application.Tests/Pilots/FirstValueReportDeltasSectionFormatterTests.cs
+archlucid-ui/src/lib/utf8-mojibake-repair.ts
+archlucid-ui/src/lib/inferred-clarification-answer-quality.ts
+archlucid-ui/src/lib/universal-intake-answer-inference.test.ts
+archlucid-ui/src/app/(operator)/administration/users/_sections/SettingsRolesInvitePanel.test.tsx

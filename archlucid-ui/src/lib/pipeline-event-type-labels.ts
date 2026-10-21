@@ -61,7 +61,7 @@ export function pipelineEventTypeFriendlyLabel(eventType: string): string {
   return auditEventFriendlyTitle(key);
 }
 
-/** One-line â€œwhy this milestone mattersâ€ for buyer-polished audit cards (falls back to generic). */
+/** One-line "why this milestone matters" for buyer-polished audit cards (falls back to generic). */
 const PIPELINE_EVENT_BUYER_SUBTITLE: Record<string, string> = {
   RunStarted: "Creates the review record and starts the evidence capture timeline.",
   RunCompleted: "Closes the review with a durable outcome snapshot for approval and audit.",

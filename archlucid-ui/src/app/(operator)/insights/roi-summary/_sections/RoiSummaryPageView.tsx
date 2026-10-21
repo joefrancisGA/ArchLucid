@@ -148,7 +148,7 @@ export function RoiSummaryPageView(props: Props) {
       <OperatorPageContainer variant="dashboard" className="space-y-4">
         {layerHeader}
         <ValueReportOutcomesNav />
-        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading ROI summaryâ€¦</p>
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading ROI summary…</p>
       </OperatorPageContainer>
     );
   }

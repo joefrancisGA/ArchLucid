@@ -216,7 +216,7 @@ export function stripFirstValue20ContributorLeakage(markdown: string): string {
   const focused = extractFirstValue20MinutesSection(markdown);
   const withoutSectionHeading = stripFirstValue20ExtractedSectionHeading(focused);
   const withoutMojibake = withoutSectionHeading
-    .replace(/Â§/g, "§")
+    .replace(/§/g, "§")
     .replace(/Â/g, "")
     .replace(
       /For the full phased checklist, continue with §?\s*\*\*Phase A\*\* below\./gi,

@@ -186,7 +186,7 @@ public sealed class FirstValueReportBuilder(
                 cancellationToken).ConfigureAwait(false);
         TenantReportBrandingApplier.AppendFirstValueReportMarkdownPreamble(sb, tenantBranding);
         sb.AppendLine(
-            "This one-page summary is generated from committed run data in ArchLucid. The **computed deltas** below replace the legacy baseline placeholders for the numbers ArchLucid can derive on its own; the qualitative baseline table at the bottom is still operator-filled. See repository `docs/PILOT_ROI_MODEL.md` Â§4 for the full metric catalog.");
+            "This one-page summary is generated from committed run data in ArchLucid. The **computed deltas** below replace the legacy baseline placeholders for the numbers ArchLucid can derive on its own; the qualitative baseline table at the bottom is still operator-filled. See repository `docs/PILOT_ROI_MODEL.md` §4 for the full metric catalog.");
         sb.AppendLine();
         FirstValueReportSponsorStatusSectionFormatter.AppendMarkdownSection(sb, detail, sponsorSafeDisposition, proofCompleteness, deltas, run, roiClaimGate);
         CareerExportCoverageHonestyInput careerExportHonesty = await CareerExportCoverageHonestyMaterialLoader.LoadAsync(

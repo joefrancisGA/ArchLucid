@@ -12,7 +12,7 @@ export const FIRST_REVIEW_GUIDE_TRAFFIC_ROW_ID = "ARF";
 /** Canonical path tracked on the ARF workbook row. */
 export const FIRST_REVIEW_GUIDE_TRAFFIC_PATH = FIRST_REVIEW_GUIDE_PATH;
 
-/** Workbook Section column value Ã¢â‚¬â€ onboarding / first-run product hub. */
+/** Workbook Section column value — onboarding / first-run product hub. */
 export const FIRST_REVIEW_GUIDE_TRAFFIC_SECTION = "Onboarding";
 
 /**

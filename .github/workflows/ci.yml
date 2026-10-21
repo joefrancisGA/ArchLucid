@@ -472,6 +472,11 @@ jobs:
         run: npm run lint:terminology
         working-directory: archlucid-ui
 
+      - name: UTF-8 mojibake guard (user-facing Application + UI src)
+        run: |
+          python3 scripts/ci/assert_no_utf8_mojibake_in_user_source.py
+          python -m unittest discover -s scripts/ci/tests -p "test_assert_no_utf8_mojibake_in_user_source.py"
+
       - name: Check relative markdown links
         continue-on-error: true
         run: python scripts/ci/check_md_links.py
