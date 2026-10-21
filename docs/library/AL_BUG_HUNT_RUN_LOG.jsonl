@@ -5997,3 +5997,4 @@
 {"at":"2026-10-21T17:44:08.2914997Z","zoneId":"application-agents","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Application/Agents/"]}
 {"at":"2026-10-21T17:51:09.7174959Z","zoneId":"architecture-intelligence-orchestrator","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/ArchitectureIntelligence/"]}
 {"at":"2026-10-21T17:51:44.1167111Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T17:57:18.1063804Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.KnowledgeGraph/,ArchLucid.Provenance/"]}
