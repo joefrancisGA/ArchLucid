@@ -29,4 +29,17 @@ describe("fetchInfraEvidenceMermaidRender", () => {
       "/api/proxy/v1/infra-evidence/snapshots/11111111-1111-1111-1111-111111111111/mermaid?mode=executive&hideTiers=storage%2Cworkloads",
     );
   });
+
+  it("forwards display flags on mermaid preview", async () => {
+    const { fetchInfraEvidenceMermaidPreview } = await import("@/lib/infra-evidence/infra-evidence-mermaid-api");
+    await fetchInfraEvidenceMermaidPreview("11111111-1111-1111-1111-111111111111", {
+      includeNetworkDetails: true,
+      includeCrossGroupFanOut: true,
+      includeAvdAssets: true,
+    });
+
+    expect(proxyJsonGetMock).toHaveBeenCalledWith(
+      "/api/proxy/v1/infra-evidence/snapshots/11111111-1111-1111-1111-111111111111/mermaid/preview?includeNetworkDetails=true&includeCrossGroupFanOut=true&includeAvdAssets=true",
+    );
+  });
 });
