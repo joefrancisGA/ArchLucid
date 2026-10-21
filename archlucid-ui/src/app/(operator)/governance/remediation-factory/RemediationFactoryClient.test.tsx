@@ -389,12 +389,13 @@ describe("RemediationFactoryClient", () => {
 
     expect(screen.queryByTestId("remediation-priority-resource-id-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")).not.toBeInTheDocument();
 
-    const measurementHelpLink = screen.getByTestId("remediation-metrics-measurement-help-link");
-    expect(measurementHelpLink).toHaveTextContent("How these counts are measured");
-    expect(measurementHelpLink).toHaveAttribute(
-      "href",
-      "/help/security-evidence-paths#how-these-counts-are-measured",
-    );
+    const measurementToggle = screen.getByTestId("remediation-metrics-measurement-help-link");
+    expect(measurementToggle).toHaveTextContent("How these counts are measured");
+    expect(measurementToggle).toHaveAttribute("aria-expanded", "false");
+
+    fireEvent.click(measurementToggle);
+
+    expect(screen.getByTestId("remediation-metrics-measurement-body")).toHaveTextContent("IE15-priority-v1");
   });
 
   it("opens the path rule line and sort key", () => {
