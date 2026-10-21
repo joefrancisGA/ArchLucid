@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { createElement, useSyncExternalStore, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -67,6 +67,47 @@ describe("WorkspaceAiAvailabilityPanel URL sync", () => {
   beforeEach(() => {
     searchParamsHarness.reset();
     window.history.replaceState({}, "", "/architecture/reviews/run-abc?reviewTab=overview");
+  });
+
+  it("writes workspace AI probe diagnostics disclosure from useSearchParams when window.location.search lags after soft navigation", async () => {
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-abc?reviewTab=findings&q=stale-payment",
+    );
+
+    const { rerender } = render(
+      <SearchParamsRerenderHost>
+        <WorkspaceAiAvailabilityPanel
+          workspaceAiSignal={{ label: "Workspace AI", detail: "detail" }}
+          availabilityCheck={{
+            state: { status: "loaded", result: loadedAvailableResult },
+            checkAvailability: vi.fn(),
+          }}
+        />
+      </SearchParamsRerenderHost>,
+    );
+
+    searchParamsHarness.applyQuery("reviewTab=overview");
+    rerender(
+      <SearchParamsRerenderHost>
+        <WorkspaceAiAvailabilityPanel
+          workspaceAiSignal={{ label: "Workspace AI", detail: "detail" }}
+          availabilityCheck={{
+            state: { status: "loaded", result: loadedAvailableResult },
+            checkAvailability: vi.fn(),
+          }}
+        />
+      </SearchParamsRerenderHost>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /AI availability details/i }));
+
+    await waitFor(() => {
+      expect(window.location.pathname + window.location.search).toBe(
+        `/architecture/reviews/run-abc?reviewTab=overview&${WORKSPACE_AI_PROBE_DIAGNOSTICS_OPEN_PARAM}=1`,
+      );
+    });
   });
 
   it("follows workspaceAiProbeDiagnosticsOpen query changes without a popstate event", async () => {
