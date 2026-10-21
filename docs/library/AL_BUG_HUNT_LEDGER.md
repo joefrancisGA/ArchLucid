@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 ﻿> **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
+2026-10-21 seed hunt (seed→hit): `ui-review-detail-workspace` — promoted `TechnologyBaselinePanel` writing technology baseline evidence ref and rationale hrefs from `readWindowLocationSearch()` so soft navigation could preserve stale findings query params when toggling evidence ref; writes now use `searchParams.toString()`; regression `writes technology baseline evidence ref disclosure from useSearchParams when window.location.search lags after soft navigation`; TechnologyBaselinePanel url-sync vitest 3/3.
+
 2026-10-21 seed hunt (seed→hit): `core-explanation-json` — promoted `RunExplanationAggregateJsonReader.TryReadEvidenceRefObjectStringProperty` — structured `evidenceRefs` object with whitespace-only `text` and readable `id` dropped the citation (early `text`-key branch returned null before `id` fallback); independent `text`/`id` resolution with `id` preferred when both readable; regression `TryNormalizeStructuredJson_maps_object_shaped_evidence_ref_id_when_text_property_is_whitespace_only`; ArchLucid.Core `RunExplanation` filter 215/215.
 
 2026-10-21 thorough hunt (dry, lane C): `core-explanation-json` — lock `core-explanation-json` (lane B held `run-execute-ownership` on origin); repro-first on picker fractional-reasoning row and three open aggregate/structured scalar-coercion candidates; `TryReadNonEmptyTextToken` rejects non-whole JSON numbers so `reasoning:[1.5]` is dropped (not preserved as text; parity `TryNormalizeStructuredJson_ignores_fractional_numeric_evidence_ref_entries`); aggregate `"yes"`/`enabled` ratio and boolean count coercion plus structured numeric `evidenceRefs` tokens are intentional lenient compatibility (`FromAggregateJson_maps_string_encoded_boolean_faithfulness_support_ratio_as_hold`, `FromAggregateJson_maps_boolean_citation_count`, `TryNormalizeStructuredJson_coerces_numeric_reasoning_array_entries`; structured `confidence` rejects booleans per proven 2026-10-09 split); ArchLucid.Core `RunExplanation` filter 214/214; repaired concatenated `AL_BUG_HUNT_RUN_LOG.jsonl` line 5836; no production change.
@@ -11833,7 +11835,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `LlmTenantWalletWebhookStage.QueueOverageSettlementAsync` — `actualUsd <= 0` returns without enqueue. **Cheap-disproof 2026-10-12 thorough hunt:** the required no-token/zero-estimate caller is in `ArchLucid.AgentRuntime`, outside this zone’s selected paths; the selected `WalletController`, `LlmTenantWalletService`, and SQL repository do not establish that caller or the proposed debit outcome.
 - [x] (invalid) `InMemoryLlmTenantWalletRepository.UpdateSettingsAsync` — a missing tenant row returns null. **Cheap-disproof 2026-10-12 thorough hunt:** the proposed behavior is in `ArchLucid.Persistence/Data/Repositories/InMemoryLlmTenantWalletRepository.cs` and `InMemoryStorageProviderRegistrar`, outside the selected zone paths; the selected SQL/controller/service files cannot prove a storage-provider divergence.
 - [x] (valid-no-repro) `SqlLlmTenantWalletRepository.LedgerContainsPaymentIntentAsync` — the lookup is only `StripePaymentIntentId`, with no `TenantId` predicate. **Cheap-disproof 2026-10-12 thorough hunt:** `LlmTenantWalletLedger` has a filtered unique index on `StripePaymentIntentId`, so the proposed cross-tenant duplicate row cannot be reached; the global idempotency check is consistent with that schema contract.
-- [x] (valid-no-repro) `WalletController.PutAsync` / `LlmTenantWalletService.UpdateWalletAsync` — a reachable authenticated-admin wallet PUT can forward client-supplied `StripeCustomerId` and `StripePaymentMethodId` directly into the update stage; if the stage persists them without tenant/payment-method ownership validation, a later auto-refill could charge a payment method belonging to another Stripe customer. The selected controller/service files do not establish the ownership contract or the stage’s validation. — **cheap-disproof 2026-10-21 lane C:** reaffirmed 2026-10-12; ownership validation not in zone paths.
+- [ ] (candidate) `WalletController.PutAsync` / `LlmTenantWalletService.UpdateWalletAsync` — a reachable authenticated-admin wallet PUT can forward client-supplied `StripeCustomerId` and `StripePaymentMethodId` directly into the update stage; if the stage persists them without tenant/payment-method ownership validation, a later auto-refill could charge a payment method belonging to another Stripe customer. The selected controller/service files do not establish the ownership contract or the stage’s validation.
 
 2026-10-12 thorough hunt (dry): cheap-disproved all three picker candidates; the first two require caller/storage files outside the selected zone, and the payment-intent candidate is blocked by the ledger’s global filtered unique index. The scoped `LlmTenantWalletServiceTests` filter was blocked before test discovery on both attempts by the unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
 
@@ -41970,17 +41972,19 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - [ ] (candidate) `SponsorRehearsalPreviewPanel` — `sponsorRehearsalPreviewOpen` stale after in-app navigation from run detail — locus: sponsor rehearsal preview; input: workspace deep link toggles preview param.
 - [ ] (candidate) `TechnologyBaselinePanel` — evidence ref entry id from URL sync only on `popstate` for nested disclosure — locus: technology baseline panel; input: soft navigation sets `technologyBaselineEvidenceRefEntryId`.
 - [ ] (candidate) `RunDetailPresenterElicitationBridge` — presenter vs room elicitation mode divergence when only `presenter` query changes — locus: presenter elicitation bridge; input: soft navigation updates `presenter` without `popstate`.
+
+- [x] (proven) `TechnologyBaselinePanel` — evidence ref disclosure href used stale `window.location.search` on write after soft navigation — **hit 2026-10-21 seed hunt:** `searchParams.toString()` for evidence ref and rationale href writes; regression `writes technology baseline evidence ref disclosure from useSearchParams when window.location.search lags after soft navigation`.
 - **id:** ui-review-detail-workspace
 - **status:** open
 - **impact:** high
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 65
-- **bugs-found:** 56
+- **hunts:** 66
+- **bugs-found:** 57
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — ReviewChainOfCustodySection reviewChainOfCustodySectionKey href soft-nav sync
+- **last-bug:** 2026-10-21 - TechnologyBaselinePanel evidence ref href soft-nav sync
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.
