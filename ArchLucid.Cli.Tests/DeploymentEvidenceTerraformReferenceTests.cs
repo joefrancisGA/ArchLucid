@@ -642,6 +642,39 @@ public sealed class DeploymentEvidenceTerraformReferenceTests
         monitoringIndex.Should().BeGreaterThan(terraformIndex);
     }
 
+    [Fact]
+    public void DefaultApplyOrderRoots_exact_path_equality_rejects_prefix_starts_with_matching()
+    {
+        IReadOnlyList<string> roots = DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots();
+
+        IndexOfPath(roots, "infra/terraform").Should().BeGreaterThanOrEqualTo(0);
+        IndexOfPath(roots, "infra/terraform-edge").Should().BeGreaterThanOrEqualTo(0);
+        IndexOfPath(roots, "infra/terraform-foundation").Should().BeGreaterThanOrEqualTo(0);
+
+        "infra/terraform-edge".StartsWith("infra/terraform", StringComparison.Ordinal).Should().BeTrue();
+        IndexOfPath(roots, "infra/terraform").Should().NotBe(IndexOfPath(roots, "infra/terraform-edge"));
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_extract_leaf_paths_omits_metadata_only_rows_for_leaf_planners()
+    {
+        IReadOnlyList<string> roots = DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots();
+
+        roots.Should().HaveCount(20);
+        ExtractLeafPaths(roots).Should().HaveCount(16);
+        ExtractCompositionRootPaths(roots).Should().HaveCount(3);
+        ExtractDefaultPilotProfilePaths(roots).Should().HaveCount(1);
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_first_hosted_leaf_is_not_at_composition_wave_list_index()
+    {
+        IReadOnlyList<string> roots = DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots();
+
+        IndexOfPath(roots, "infra/terraform-private").Should().Be(3);
+        ExtractLeafPaths(roots)[0].Should().Be("infra/terraform-private");
+    }
+
     private static string RequireRepositoryRoot()
     {
         string? repoRoot = CliRepositoryRootResolver.TryResolveRepositoryRoot(AppContext.BaseDirectory);
