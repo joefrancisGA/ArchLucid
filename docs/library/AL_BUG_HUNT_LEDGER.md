@@ -43107,11 +43107,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 128
-- **bugs-found:** 111
+- **hunts:** 129
+- **bugs-found:** 112
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - post-auth welcome demo seed quarantine re-read
+- **last-bug:** 2026-10-21 - email verification failure metric erasure quarantine parity
+
+2026-10-21 seed hunt (seed→hit): `TrialTenantBootstrapService` email-verification blocked path recorded `RecordTrialSignupFailure` after first quarantine read but before second read while audit was already gated — nested metric with audit under second read; regression `TryBootstrapAfterSelfRegistrationAsync_skips_email_verification_failure_metric_when_offboard_completes_after_pre_metric_check_before_audit`; same guard for `trial_bootstrap` catch; 242 scoped tenancy tests passed.
 
 2026-10-21 seed hunt (seed-only): `[state-machine-gap]` saturated — no new dual-path erasure repro promoted; cheap-disproof closed `TenantWorkOwnershipDeletePolicyService` teardown-window candidate (tenant HTTP blocked by erasure middleware; `TrialSeatReservationMiddleware` runs after quarantine per `PipelineExtensions`); added four `(candidate)` rows for non-race lenses.
 
@@ -43670,10 +43672,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `TenantDeletionService.DeleteTenantAsync` — destructive purge without audit when approval cleared after SQL purge — **cheap-disproof 2026-10-21 seed hunt:** regression `DeleteTenantAsync_returns_without_platform_audit_when_erasure_approval_cleared_after_sql_purge` documents intentional skip.
 - [x] (proven) `TrialTenantBootstrapService.TryBootstrapAfterPostAuthWorkspaceAsync` — welcome demo seed when erasure offboard after entry before welcome — **hit 2026-10-21 seed hunt (seed→hit):** pre-welcome `IsTenantInErasureQuarantineAsync` guard (parity with self-registration); regression `TryBootstrapAfterPostAuthWorkspaceAsync_skips_welcome_demo_seed_when_offboard_completes_after_entry_before_welcome`. [class:state-machine-gap]
 
-- (candidate) `TenantTrialFacade.GetTrialStatusAsync` — returns `TenantTrialHttpOutcome.Success` with trial days remaining when `OffboardedUtc` is set — locus: status query after `GetByIdAsync` without quarantine filter; input: `GET` trial status while tenant row still shows active trial fields (reachability: only if caller bypasses erasure middleware).
-- (candidate) `TenantTrialSeatPolicy.RequiresSeatClaim` — omits `OffboardedUtc` predicate while `TrialSeatAccountant` uses policy before `TryClaimTrialSeatAsync` — locus: seat policy helper; input: authenticated tenant request (mitigated: `TenantErasureQuarantineMiddleware` precedes `TrialSeatReservationMiddleware` in `PipelineExtensions`).
-- (candidate) `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` — `RecordTrialSignupFailure` for email-verification block without re-read between first quarantine check and metric — locus: lines 85–87; input: `/v1/register` bootstrap when offboard races verification failure path (audit path has second read; metric may still emit — see test `skips_email_verification_failure_audit_when_offboard_completes_after_failure_metric_before_audit`).
-- (candidate) `WorkspaceModelExecutionProfileService.GetAsync` — malformed `DefaultModelExecutionProfile` tenant setting falls back to workspace default without surfacing parse failure — locus: `AgentModelExecutionProfileParser.TryParse`; input: operator settings API with corrupted setting row (reachability: admin/DB tamper vs tenant-controlled OpenAPI).
+- [x] (invalid) `TenantTrialFacade.GetTrialStatusAsync` — success with `OffboardedUtc` set — **cheap-disproof 2026-10-21 seed hunt:** tenant trial HTTP routes blocked by erasure middleware; no reachable caller without bypass citation.
+- [x] (valid-no-repro) `TenantTrialSeatPolicy.RequiresSeatClaim` — no offboard predicate — **cheap-disproof 2026-10-21 seed hunt:** quarantine middleware runs before seat reservation middleware.
+- [x] (proven) `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` — email-verification `RecordTrialSignupFailure` when erasure offboard between pre-metric and pre-audit quarantine reads — **hit 2026-10-21 seed hunt:** metric nested with audit under second `IsTenantInErasureQuarantineAsync`; regression `TryBootstrapAfterSelfRegistrationAsync_skips_email_verification_failure_metric_when_offboard_completes_after_pre_metric_check_before_audit`. [class:state-machine-gap]
+- [x] (valid-no-repro) `WorkspaceModelExecutionProfileService.GetAsync` — malformed profile falls back — **cheap-disproof 2026-10-21 seed hunt:** conservative fallback on parse failure; no tenant-controlled OpenAPI path cited for corrupted row.
 ## Zone: host-core-coordination
 
 - **id:** host-core-coordination

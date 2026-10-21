@@ -84,10 +84,10 @@ public sealed class TrialTenantBootstrapService(
                 }
                 if (!await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken))
                 {
-                    ArchLucidInstrumentation.RecordTrialSignupFailure("email_verification", "policy_blocked");
-
                     if (!await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken))
                     {
+                        ArchLucidInstrumentation.RecordTrialSignupFailure("email_verification", "policy_blocked");
+
                         await _auditService.LogAsync(
                             new AuditEvent
                             {
@@ -214,10 +214,10 @@ public sealed class TrialTenantBootstrapService(
                         result.TenantId);
                 if (!await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken))
                 {
-                    ArchLucidInstrumentation.RecordTrialSignupFailure("trial_bootstrap", ex.GetType().Name);
-
                     if (!await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken))
                     {
+                        ArchLucidInstrumentation.RecordTrialSignupFailure("trial_bootstrap", ex.GetType().Name);
+
                         await _auditService.LogAsync(
                             new AuditEvent
                             {
