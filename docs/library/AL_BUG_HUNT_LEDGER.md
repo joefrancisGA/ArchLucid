@@ -11798,11 +11798,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 37
-- **bugs-found:** 23
+- **hunts:** 38
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-09 — nested local functions and expression-bodied properties bypassed ARCH006
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-21 — expression-bodied property get accessors bypassed ARCH006 SQL folding
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11833,6 +11833,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **last-bug:** 2026-10-09 — nested local functions and expression-bodied properties bypassed ARCH006
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-21 seed hunt (seed→hit, lane C): lock `tenant-scoped-analyzer` verified on origin (`79112d6c26`); promoted `TryGetPropertySqlExpression` — property-level `=>` SQL was folded but `get =>` accessor bodies were ignored, so `private static string Sql { get => "SELECT … dbo.Runs …"; }` reached Dapper without ARCH006; fold accessor expression bodies; regression `ARCH006_reports_unscoped_sql_for_expression_bodied_property_get_accessor`; 29 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
 
 2026-10-09 seed hunt (seed→hit): promoted nested local functions and expression-bodied properties. A private method `GetRunsSql()` was already folded, but the same arrow body nested inside `Load` was not, and `static string Sql => "SELECT … dbo.Runs …"` was ignored because only property initializers were read. Regressions `ARCH006_reports_unscoped_sql_for_nested_local_function` and `ARCH006_reports_unscoped_sql_for_expression_bodied_property`. 28 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed, and the Persistence build stayed clean.
 
@@ -11865,6 +11867,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-01 seed hunt (seed-only): inspected `RunsListClient.tsx` for URL filter synchronization, inspector/card activation, filtering, sorting, and pagination boundaries; the exact `RunsListClient` filter passed 42 tests and no new reachable mechanism-backed candidate was found or promoted.
 
 ### Hypotheses
+
+- [x] (proven) `TenantScopedSqlExpressionResolver.TryGetPropertySqlExpression` — expression-bodied property getters — **hit 2026-10-21 seed hunt (lane C):** accessor-list `get =>` SQL not resolved; regression `ARCH006_reports_unscoped_sql_for_expression_bodied_property_get_accessor`.
 
 - [x] (proven) `TenantScopedSqlExpressionResolver` — nested local functions and expression-bodied properties bypassed ARCH006 static folding — **hit 2026-10-09 seed hunt (seed→hit):** fold `LocalFunctionStatementSyntax` the same way as parameterless methods, and read `PropertyDeclarationSyntax.ExpressionBody` as well as the initializer; regressions `ARCH006_reports_unscoped_sql_for_nested_local_function` and `ARCH006_reports_unscoped_sql_for_expression_bodied_property`.
 

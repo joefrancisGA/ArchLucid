@@ -5947,3 +5947,4 @@
 {"at":"2026-10-21T15:34:54.8380820Z","zoneId":"ui-host-gate","outcome":"hit","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/lib/host-gate.ts,archlucid-ui/src/lib/canonicalize-legacy-operator-route-path.ts)"],"severity":"medium","defectClass":"other"}
 {"at":"2026-10-21T15:39:53.2025824Z","zoneId":"ui-architecture-intelligence","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/"]}
 {"at":"2026-10-21T15:42:36.8452126Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T15:42:48.9215697Z","zoneId":"tenant-scoped-analyzer","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Analyzers/TenantScopedSqlExpressionResolver.cs)"],"severity":"high","defectClass":"fail-open-validation"}
