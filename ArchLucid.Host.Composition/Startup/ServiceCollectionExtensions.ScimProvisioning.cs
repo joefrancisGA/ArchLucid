@@ -6,6 +6,8 @@ using ArchLucid.Host.Core.Auth.Services;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
 
+using Microsoft.Extensions.Options;
+
 namespace ArchLucid.Host.Composition.Startup;
 
 public static partial class ServiceCollectionExtensions
@@ -16,6 +18,7 @@ public static partial class ServiceCollectionExtensions
         ArchLucidHostingRole hostingRole)
     {
         services.Configure<ScimOptions>(configuration.GetSection(ScimOptions.SectionName));
+        services.AddSingleton<IPostConfigureOptions<ScimOptions>, ScimOptionsNormalizePostConfigure>();
         services.AddSingleton<IGroupToRoleMapper, GroupToRoleMapper>();
         services.AddScoped<IScimTokenIssuer, ScimTokenIssuer>();
         services.AddScoped<IScimBearerTokenAuthenticator, ScimBearerTokenAuthenticator>();
