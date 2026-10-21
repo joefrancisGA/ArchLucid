@@ -30,7 +30,13 @@ public sealed class SecureNowQuestionCompiler
         DateTime now = TimeProvider.System.UtcNowDateTime();
         Dictionary<string, SecureNowQuestionDispositionRecord> dispositionsByIdentity = dispositions
             .GroupBy(
-                record => Identity(record.SubscriptionId, record.ResourceId, record.QuestionKey),
+                record => Identity(
+                    record.SubscriptionId,
+                    SecureNowQuestionDispositionResourceIdResolver.Resolve(
+                        record.SubscriptionId,
+                        record.ResourceId,
+                        record.ScopeKind),
+                    record.QuestionKey),
                 StringComparer.OrdinalIgnoreCase)
             .ToDictionary(
                 group => group.Key,
@@ -180,7 +186,11 @@ public sealed class SecureNowQuestionCompiler
 
     {
 
-        string identity = Identity(question.SubscriptionId, question.ResourceId, question.QuestionKey);
+        string dispositionResourceId = SecureNowQuestionDispositionResourceIdResolver.Resolve(
+            question.SubscriptionId,
+            question.ResourceId,
+            question.ScopeKind);
+        string identity = Identity(question.SubscriptionId, dispositionResourceId, question.QuestionKey);
 
         if (!emitted.Add(identity))
             return;

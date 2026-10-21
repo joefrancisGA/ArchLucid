@@ -170,9 +170,14 @@ public sealed class SecureNowQuestionDispositionService(
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(request);
 
-        string? validationError = ValidateIdentity(
+        string dispositionResourceId = ResolveDispositionResourceId(
             request.SubscriptionId,
             request.ResourceId,
+            SecureNowQuestionScopeKind.Resource);
+
+        string? validationError = ValidateIdentity(
+            request.SubscriptionId,
+            dispositionResourceId,
             request.QuestionKey,
             request.Reason,
             actorKey);
@@ -187,7 +192,7 @@ public sealed class SecureNowQuestionDispositionService(
             await dispositionRepository.TryGetByIdentityAsync(
                 scope.TenantId,
                 Normalize(request.SubscriptionId),
-                NormalizeResourceId(request.ResourceId),
+                dispositionResourceId,
                 NormalizeQuestionKey(request.QuestionKey),
                 cancellationToken);
 
@@ -244,7 +249,16 @@ public sealed class SecureNowQuestionDispositionService(
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(request);
 
-        string? validationError = ValidateWriteRequest(request, actorKey, status);
+        string dispositionResourceId = ResolveDispositionResourceId(
+            request.SubscriptionId,
+            request.ResourceId,
+            request.ScopeKind);
+
+        string? validationError = ValidateWriteRequest(
+            request,
+            actorKey,
+            status,
+            dispositionResourceId);
 
         if (validationError is not null)
             return Failed(validationError);
@@ -272,7 +286,7 @@ public sealed class SecureNowQuestionDispositionService(
             await dispositionRepository.TryGetByIdentityAsync(
                 scope.TenantId,
                 Normalize(request.SubscriptionId),
-                NormalizeResourceId(request.ResourceId),
+                dispositionResourceId,
                 NormalizeQuestionKey(request.QuestionKey),
                 cancellationToken);
 
@@ -284,7 +298,7 @@ public sealed class SecureNowQuestionDispositionService(
             ProjectId = scope.ProjectId,
             SnapshotId = snapshotId,
             SubscriptionId = Normalize(request.SubscriptionId),
-            ResourceId = NormalizeResourceId(request.ResourceId),
+            ResourceId = dispositionResourceId,
             QuestionKey = NormalizeQuestionKey(request.QuestionKey),
             Source = request.Source,
             ScopeKind = request.ScopeKind,
@@ -381,9 +395,17 @@ public sealed class SecureNowQuestionDispositionService(
                 includeInferredConnections,
                 cancellationToken);
 
+        string dispositionResourceId = ResolveDispositionResourceId(
+            request.SubscriptionId,
+            request.ResourceId,
+            request.ScopeKind);
+
         return questions.FirstOrDefault(item =>
             string.Equals(item.SubscriptionId, Normalize(request.SubscriptionId), StringComparison.OrdinalIgnoreCase)
-            && string.Equals(item.ResourceId, NormalizeResourceId(request.ResourceId), StringComparison.OrdinalIgnoreCase)
+            && string.Equals(
+                ResolveDispositionResourceId(item.SubscriptionId, item.ResourceId, item.ScopeKind),
+                dispositionResourceId,
+                StringComparison.OrdinalIgnoreCase)
             && string.Equals(
                 item.QuestionKey,
                 NormalizeQuestionKey(request.QuestionKey),
@@ -393,11 +415,12 @@ public sealed class SecureNowQuestionDispositionService(
     private static string? ValidateWriteRequest(
         SecureNowQuestionDispositionWriteRequest request,
         string actorKey,
-        SecureNowQuestionDispositionStatus status)
+        SecureNowQuestionDispositionStatus status,
+        string dispositionResourceId)
     {
         string? identityError = ValidateIdentity(
             request.SubscriptionId,
-            request.ResourceId,
+            dispositionResourceId,
             request.QuestionKey,
             request.Reason,
             actorKey);
@@ -503,6 +526,12 @@ public sealed class SecureNowQuestionDispositionService(
     private static string Normalize(string? value) => value?.Trim().ToLowerInvariant() ?? string.Empty;
 
     private static string NormalizeResourceId(string? value) => Normalize(value);
+
+    private static string ResolveDispositionResourceId(
+        string subscriptionId,
+        string? resourceId,
+        SecureNowQuestionScopeKind scopeKind) =>
+        SecureNowQuestionDispositionResourceIdResolver.Resolve(subscriptionId, resourceId, scopeKind);
 
     private static string NormalizeQuestionKey(string? questionKey) =>
         questionKey?.Trim().ToLowerInvariant() ?? string.Empty;
