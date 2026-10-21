@@ -4879,4 +4879,27 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
         endpointKeyToNodeId[appArmId.ToUpperInvariant()].Should().Be("svc-1");
         endpointKeyToNodeId[sqlArmId.ToUpperInvariant()].Should().Be("ds-1");
     }
+
+    [Fact]
+    public void AddGraphNodeResolutionKeys_maps_canonical_arm_when_tf_resource_id_property_has_trailing_slash()
+    {
+        const string canonicalArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/api-app";
+        const string slashArmId = canonicalArmId + "/";
+
+        Dictionary<string, string> endpointKeyToNodeId = new(StringComparer.OrdinalIgnoreCase);
+
+        GraphNode node = new()
+        {
+            NodeId = "svc-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "api",
+            Category = GraphTopologyCategories.Compute,
+            Properties = new Dictionary<string, string> { ["tf.resource_id"] = slashArmId }
+        };
+
+        TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys(endpointKeyToNodeId, node);
+
+        endpointKeyToNodeId[canonicalArmId].Should().Be("svc-1");
+    }
 }

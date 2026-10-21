@@ -17633,6 +17633,72 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_adds_edges_when_critic_uses_datastore_rename_after_cost_relationship_without_rename_declaration()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult cost = new()
+        {
+            ResultId = "cost-sql-label",
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = ComputeLabel,
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        AgentResult critic = new()
+        {
+            ResultId = "critic-renamed-sql",
+            AgentType = AgentType.Critic,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Critic,
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "renamed-sql",
+                        DatastoreId = "ds-sql",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer
+                    }
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = ComputeLabel,
+                        TargetId = "renamed-sql",
+                        RelationshipType = RelationshipType.AuthenticatesWith
+                    }
+                ]
+            }
+        };
+
+        AgentResult[] results = [cost, critic];
+        CrossAgentProposalConsistencyGate.ApplyToResults(results);
+
+        IReadOnlyList<AgentResult> kept = AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, results);
+
+        kept.Should().HaveCount(2);
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, results);
+
+        merged.Edges.Should().HaveCount(2);
+        merged.Edges.Should().OnlyContain(e => e.FromNodeId == ComputeNodeId && e.ToNodeId == DataNodeId);
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_returns_same_graph_when_compliance_and_topology_proposals_both_fully_strip_relationships()
     {
         GraphSnapshot graph = Graph(ComputeNode(), DataNode());
