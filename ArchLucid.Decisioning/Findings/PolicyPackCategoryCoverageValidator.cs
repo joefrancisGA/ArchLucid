@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Requests;
 using ArchLucid.Decisioning.Findings;
 
 namespace ArchLucid.Decisioning.Findings;
@@ -35,10 +36,10 @@ public static class PolicyPackCategoryCoverageValidator
 
         foreach (string engineType in successfulEngineTypes)
         {
-            if (engineType.Contains("security", StringComparison.OrdinalIgnoreCase))
+            if (ControlPhraseMatcher.IdentifierMentionsQualityDimension(engineType, ControlPhraseCatalog.Security))
                 coveredCategories.Add("Security");
 
-            if (engineType.Contains("cost", StringComparison.OrdinalIgnoreCase))
+            if (ControlPhraseMatcher.IdentifierMentionsQualityDimension(engineType, ControlPhraseCatalog.Cost))
                 coveredCategories.Add("Cost");
 
             if (engineType.Contains("requirement", StringComparison.OrdinalIgnoreCase))
@@ -96,10 +97,10 @@ public static class PolicyPackCategoryCoverageValidator
 
         foreach (string packId in context.EnabledPolicyPackIds)
         {
-            if (packId.Contains("security", StringComparison.OrdinalIgnoreCase))
+            if (ControlPhraseMatcher.IdentifierMentionsQualityDimension(packId, ControlPhraseCatalog.Security))
                 categories.Add("Security");
 
-            if (packId.Contains("cost", StringComparison.OrdinalIgnoreCase))
+            if (ControlPhraseMatcher.IdentifierMentionsQualityDimension(packId, ControlPhraseCatalog.Cost))
                 categories.Add("Cost");
         }
 

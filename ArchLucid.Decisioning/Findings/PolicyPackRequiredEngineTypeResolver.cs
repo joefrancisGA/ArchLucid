@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Requests;
 
 namespace ArchLucid.Decisioning.Findings;
 
@@ -39,14 +40,14 @@ public static class PolicyPackRequiredEngineTypeResolver
 
     private static IEnumerable<string> DeriveDefaultEngineTypesForCategory(string category)
     {
-        if (category.Contains("security", StringComparison.OrdinalIgnoreCase))
+        if (ControlPhraseMatcher.IdentifierMentionsQualityDimension(category, ControlPhraseCatalog.Security))
         {
             yield return "security-baseline";
             yield return "security-coverage";
             yield return "declaration-security-baseline";
         }
 
-        if (category.Contains("cost", StringComparison.OrdinalIgnoreCase))
+        if (ControlPhraseMatcher.IdentifierMentionsQualityDimension(category, ControlPhraseCatalog.Cost))
         {
             yield return "cost-constraint";
             yield return "cost-breach";

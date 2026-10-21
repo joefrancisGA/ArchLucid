@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Analysis;
+using ArchLucid.Core.Requests;
 using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Contracts.Manifest;
 
@@ -87,7 +87,7 @@ public sealed class DecisionNodeManifestMerger
                     manifest.Governance.RequiredControls.Add(ControlPrivateEndpoints);
                 }
 
-                if (DecisioningTextTokenMatcher.ContainsPattern(selected.Description, "managed identity")
+                if (ControlPhraseMatcher.TextAffirmsManagedIdentity(selected.Description)
                     && !manifest.Governance.RequiredControls.Contains(ControlManagedIdentity,
                         StringComparer.OrdinalIgnoreCase))
                 {
@@ -134,10 +134,7 @@ public sealed class DecisionNodeManifestMerger
             });
     }
 
-    private static bool DescribesPrivateEndpointPromotion(string description)
-    {
-        return DecisioningTextTokenMatcher.ContainsPattern(description, "private endpoints")
-            || DecisioningTextTokenMatcher.ContainsPattern(description, "private endpoint");
-    }
+    private static bool DescribesPrivateEndpointPromotion(string description) =>
+        ControlPhraseMatcher.TextAffirmsPrivateEndpoint(description);
 }
 

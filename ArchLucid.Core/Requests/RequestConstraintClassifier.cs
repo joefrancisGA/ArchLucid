@@ -8,10 +8,6 @@ namespace ArchLucid.Core.Requests;
 /// </summary>
 public static class RequestConstraintClassifier
 {
-    private const string ConstraintManagedIdentity = "managed identity";
-    private const string ConstraintPrivateEndpoint = "private endpoint";
-    private const string ConstraintPrivateNetworking = "private networking";
-    private const string ConstraintEncryption = "encryption";
 
     private const string CapabilitySearch = "search";
     private const string CapabilityOpenAi = "openai";
@@ -22,8 +18,7 @@ public static class RequestConstraintClassifier
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        return request.Constraints.Any(c =>
-            RequestConstraintTokenMatcher.ContainsAffirmativePhrase(c, ConstraintManagedIdentity));
+        return request.Constraints.Any(ControlPhraseMatcher.TextAffirmsManagedIdentity);
     }
 
     /// <summary>
@@ -34,10 +29,7 @@ public static class RequestConstraintClassifier
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        return request.Constraints.Any(c =>
-            RequestConstraintTokenMatcher.ContainsAffirmativePhrase(c, ConstraintPrivateEndpoint) ||
-            RequestConstraintTokenMatcher.ContainsAffirmativePhrase(c, ConstraintPrivateNetworking) ||
-            RequestConstraintTokenMatcher.ContainsAffirmativePrivateWord(c));
+        return request.Constraints.Any(ControlPhraseMatcher.ConstraintRequiresPrivateNetworking);
     }
 
     public static bool HasEncryptionConstraint(ArchitectureRequest request)
@@ -45,7 +37,7 @@ public static class RequestConstraintClassifier
         ArgumentNullException.ThrowIfNull(request);
 
         return request.Constraints.Any(c =>
-            RequestConstraintTokenMatcher.ContainsAffirmativePhrase(c, ConstraintEncryption));
+            ControlPhraseMatcher.ContainsAffirmativePhrase(c, ControlPhraseCatalog.Encryption));
     }
 
     public static bool RequiresSearchCapability(ArchitectureRequest request)
