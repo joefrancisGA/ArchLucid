@@ -43045,6 +43045,8 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-21 seed hunt (seed→hit): promoted `ReopenAsync` leaving prior disposition `Reason` on listed Open questions after answer fields were cleared; reopen now clears stored reason and compiler omits answer/reason metadata unless status is Answered/Ignored; extended regression `Reopen_clears_prior_answer_fields_from_listed_questions`; Application SecureNowQuestion filter 31/31.
+
 2026-10-20 seed hunt (seed→hit): promoted `SecureNowQuestionDispositionService.ReopenAsync` retaining prior `AnswerCode`/`AnswerText` after operators reopened an answered question via `POST /reopen`; `ListQuestionsAsync` returned `Open` with stale answer metadata joined from the disposition row; clear answer fields on reopen; regression `Reopen_clears_prior_answer_fields_from_listed_questions`; Application SecureNowQuestion filter 31/31.
 
 2026-10-14 seed hunt (seed→hit): promoted `securenow-question-queue-api.mapQuestion` blank `answerCodes` entries; reachable list responses with `""` or whitespace-only codes rendered bogus action buttons; filter to non-blank strings in `mapQuestion`; regression `drops blank answer code entries from list responses` in `securenow-question-queue-api.test.ts`; queue UI vitest 20/20 and Application SecureNowQuestion filter 29/29.
@@ -43097,11 +43099,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 43
-- **bugs-found:** 21
+- **hunts:** 44
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — reopen left stale answer fields on open questions
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-21 — reopen left stale disposition reason on Open listed questions
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

@@ -205,9 +205,16 @@ public sealed class SecureNowQuestionCompiler
                 DispositionId = disposition.DispositionId,
                 Status = disposition.Status,
                 ExpirationUtc = disposition.ExpirationUtc,
-                AnswerCode = disposition.AnswerCode,
-                AnswerText = disposition.AnswerText,
-                Reason = disposition.Reason,
+                AnswerCode = disposition.Status == SecureNowQuestionDispositionStatus.Answered
+                    ? disposition.AnswerCode
+                    : null,
+                AnswerText = disposition.Status == SecureNowQuestionDispositionStatus.Answered
+                    ? disposition.AnswerText
+                    : null,
+                Reason = disposition.Status is SecureNowQuestionDispositionStatus.Answered
+                    or SecureNowQuestionDispositionStatus.Ignored
+                    ? disposition.Reason
+                    : null,
             };
         }
 
