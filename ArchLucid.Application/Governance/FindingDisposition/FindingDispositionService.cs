@@ -217,8 +217,13 @@ public sealed class FindingDispositionService(
         if (string.IsNullOrWhiteSpace(findingId))
             throw new ArgumentException("Finding id is required.", nameof(findingId));
 
+        string normalizedFindingId = findingId.Trim();
         IReadOnlyList<FindingReviewEventRecord> events =
-            await _trailRepository.ListByFindingAsync(scope.TenantId, findingId.Trim(), cancellationToken);
+            await _trailRepository.ListForFindingIdsSinceUtcAsync(
+                scope.TenantId,
+                [normalizedFindingId],
+                DateTimeOffset.MinValue,
+                cancellationToken);
 
         List<FindingDispositionEventDto> result = [];
 

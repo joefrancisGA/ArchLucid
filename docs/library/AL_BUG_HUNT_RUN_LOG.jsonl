@@ -6011,3 +6011,16 @@
 {"at":"2026-10-21T22:19:46.0397165Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T22:25:44.8541281Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T22:36:46.0271986Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T18:36:12.7953305Z","zoneId":"api-governance-stickiness","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T18:45:52.5972390Z","zoneId":"email-otp-auth","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T18:59:14.8449426Z","zoneId":"api-policy-packs","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T19:08:28.0346681Z","zoneId":"securenow-question-queue","outcome":"hit","productLine":"securenow","paths":["ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/"]}
+{"at":"2026-10-21T19:13:12.6153918Z","zoneId":"extraction-router","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.MarkerBoundaries.cs"]}
+{"at":"2026-10-21T19:19:51.1644482Z","zoneId":"finding-disposition","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Governance/FindingDisposition/"]}
+{"at":"2026-10-21T19:27:03.4215259Z","zoneId":"billing-webhooks","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Persistence/Billing/Stripe/StripeBillingProvider.Webhook.cs,ArchLucid.Persistence.Tests/Billing/StripeBillingProviderWalletWebhookTests.cs)"]}
+{"at":"2026-10-21T19:38:43.8760624Z","zoneId":"host-core-jobs","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Host.Core/Jobs/BackgroundJobQueueProcessorHostedService.cs)"]}
+{"at":"2026-10-21T19:47:00.0730490Z","zoneId":"tenant-erasure","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Application/Tenancy/TenantErasureCommandService.cs)"]}
+{"at":"2026-10-21T19:54:57.1063052Z","zoneId":"core-explanation-json","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T20:07:41.0402123Z","zoneId":"run-execute-ownership","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T20:11:20.3700291Z","zoneId":"api-tenancy-workspaces","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-21T20:22:54.2690475Z","zoneId":"saml-jwt-bearer","outcome":"seed-only","productLine":"archlucid-shared"}

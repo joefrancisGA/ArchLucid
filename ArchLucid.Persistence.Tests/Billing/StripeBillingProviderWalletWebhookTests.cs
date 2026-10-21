@@ -749,6 +749,9 @@ public sealed class StripeBillingProviderWalletWebhookTests
     walletRepository
       .Setup(r => r.TryInsertStripeWebhookIdempotencyAsync("evt_wallet_idempotent", It.IsAny<string>(), It.IsAny<CancellationToken>()))
       .ReturnsAsync(false);
+    walletRepository
+      .Setup(r => r.LedgerContainsPaymentIntentAsync("pi_idempotent_skip", It.IsAny<CancellationToken>()))
+      .ReturnsAsync(true);
 
     Mock<IBillingWebhookReplayGuard> replayGuard = new();
     replayGuard
@@ -810,6 +813,110 @@ public sealed class StripeBillingProviderWalletWebhookTests
         It.IsAny<Guid>(),
         It.IsAny<CancellationToken>()),
       Times.Never);
+  }
+
+  [Fact]
+  public async Task HandleWebhookAsync_wallet_retries_processor_when_idempotency_row_exists_but_payment_intent_not_credited()
+  {
+    byte[] keyMaterial = new byte[32];
+    Array.Fill(keyMaterial, (byte)18);
+    string signingSecret = "whsec_" + Convert.ToBase64String(keyMaterial);
+
+    BillingOptions billing = new()
+    {
+      Provider = BillingProviderNames.Stripe,
+      Stripe = new StripeBillingOptions { WebhookSigningSecret = signingSecret }
+    };
+
+    TestMonitor<BillingOptions> monitor = new(billing);
+    Mock<IBillingLedger> ledger = new();
+    ledger
+      .Setup(l => l.TryInsertWebhookEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+        It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(false);
+    ledger
+      .Setup(l => l.GetWebhookEventResultStatusAsync("evt_wallet_retry_credit", It.IsAny<CancellationToken>()))
+      .ReturnsAsync("Failed");
+    ledger
+      .Setup(l => l.MarkWebhookProcessedAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .Returns(Task.CompletedTask);
+
+    Mock<ITenantRepository> tenants = new();
+    Mock<IAuditService> audit = new();
+    BillingWebhookTrialActivator activator = new(ledger.Object, tenants.Object, audit.Object);
+    Mock<IMarketplaceChangePlanWebhookMutationHandler> changePlan = new();
+    StripeBillingSubscriptionWebhookProcessor subscriptionProcessor =
+      new(ledger.Object, activator, changePlan.Object, audit.Object);
+
+    Mock<ILlmTenantWalletStripeWebhookProcessor> walletProcessor = new();
+    Mock<ILlmTenantWalletRepository> walletRepository = new();
+    walletRepository
+      .Setup(r => r.TryInsertStripeWebhookIdempotencyAsync("evt_wallet_retry_credit", It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(false);
+    walletRepository
+      .Setup(r => r.LedgerContainsPaymentIntentAsync("pi_retry_credit", It.IsAny<CancellationToken>()))
+      .ReturnsAsync(false);
+
+    Mock<IBillingWebhookReplayGuard> replayGuard = new();
+    replayGuard
+      .Setup(g => g.HasSeenAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(false);
+    replayGuard
+      .Setup(g => g.RememberAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .Returns(Task.CompletedTask);
+
+    StripeBillingProvider sut = new(
+      monitor,
+      ledger.Object,
+      replayGuard.Object,
+      subscriptionProcessor,
+      walletProcessor.Object,
+      walletRepository.Object,
+      new StripeLinkedCustomerResolver(ledger.Object, monitor));
+
+    Guid tenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+    PaymentIntent intent = new()
+    {
+        Id = "pi_retry_credit",
+        Amount = 2500,
+        Metadata = new Dictionary<string, string>
+        {
+            { "purpose", "llm_wallet_refill" },
+            { "tenant_id", tenantId.ToString("D") },
+        },
+    };
+
+    Event stripeEvent = new()
+    {
+        Id = "evt_wallet_retry_credit",
+        Type = "payment_intent.succeeded",
+        ApiVersion = "2025-08-27.basil",
+        Data = new EventData { Object = intent },
+    };
+
+    string json = stripeEvent.ToJson();
+    string signature = BuildStripeV1Signature(signingSecret, json);
+
+    BillingWebhookHandleResult result = await sut.HandleWebhookAsync(
+      new BillingWebhookInbound
+      {
+        RawBody = json,
+        StripeSignatureHeader = signature,
+        StripeWebhookRoute = StripeBillingWebhookRoute.Wallet
+      },
+      CancellationToken.None);
+
+    result.Succeeded.Should().BeTrue();
+    walletProcessor.Verify(
+      p => p.ProcessPaymentIntentEventAsync(
+        "payment_intent.succeeded",
+        "pi_retry_credit",
+        tenantId.ToString("D"),
+        2500L,
+        null,
+        It.IsAny<Guid>(),
+        It.IsAny<CancellationToken>()),
+      Times.Once);
   }
 
   [Fact]

@@ -29,6 +29,10 @@ public sealed class DifficultyBasedExtractionRouterOwnershipMarkerBoundaryMatrix
         { "Policy names 'owner' role separately. Legacy racks remain unowned.", "single-quoted-owner" },
         { "Markdown [owner team] handles paging. Legacy racks remain unowned.", "bracket-owner-label" },
         {
+            "The integration payload uses <owner>security</owner> tags. Legacy racks remain unowned.",
+            "xml-owner-element"
+        },
+        {
             """
             {
               "owner": "security",

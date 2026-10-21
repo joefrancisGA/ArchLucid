@@ -43,6 +43,7 @@ public static class ConfigurationKeyRequirement
             case ConfigKeyRequirementKind.None:
                 return false;
             case ConfigKeyRequirementKind.WhenDefaultSqlStorage:
+
                 if (!IsDefaultSql(c))
                 {
                     return false;
@@ -51,6 +52,7 @@ public static class ConfigurationKeyRequirement
                 reason = "Storage is SQL (or unset, defaulting to SQL).";
                 return true;
             case ConfigKeyRequirementKind.WhenRealLlmNotEcho:
+
                 if (!IsRealMode(c) || IsEchoClient(c))
                 {
                     return false;
@@ -59,6 +61,7 @@ public static class ConfigurationKeyRequirement
                 reason = "AgentExecution:Mode is Real and completion client is not Echo.";
                 return true;
             case ConfigKeyRequirementKind.WhenApiKeyEnabled:
+
                 if (!IsConfigurationBooleanEnabled(c, "Authentication:ApiKey:Enabled"))
                 {
                     return false;
@@ -67,6 +70,7 @@ public static class ConfigurationKeyRequirement
                 reason = "API key authentication is enabled.";
                 return true;
             case ConfigKeyRequirementKind.WhenOtlpEnabled:
+
                 if (!IsConfigurationBooleanEnabled(c, "Observability:Otlp:Enabled"))
                 {
                     return false;
@@ -75,6 +79,7 @@ public static class ConfigurationKeyRequirement
                 reason = "OTLP export is enabled.";
                 return true;
             case ConfigKeyRequirementKind.WhenProduction:
+
                 if (!IsProduction(aspNetCoreEnvironment, c))
                 {
                     return false;
@@ -83,6 +88,7 @@ public static class ConfigurationKeyRequirement
                 reason = "Environment is Production.";
                 return true;
             case ConfigKeyRequirementKind.WhenAcsEmail:
+
                 if (!string.Equals(
                         c["Email:Provider"]?.Trim(),
                         EmailProviderNames.AzureCommunicationServices,
@@ -94,6 +100,7 @@ public static class ConfigurationKeyRequirement
                 reason = "Email:Provider is Azure Communication Services.";
                 return true;
             case ConfigKeyRequirementKind.WhenWorkerRole:
+
                 if (!string.Equals(
                         c["Hosting:Role"]?.Trim(),
                         "Worker",
@@ -120,6 +127,7 @@ public static class ConfigurationKeyRequirement
     private static bool IsAspNetCoreProductionEnvironment(string? envFromCaller, IConfiguration c)
     {
         string? env = envFromCaller?.Trim();
+
         if (string.IsNullOrEmpty(env))
         {
             env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");

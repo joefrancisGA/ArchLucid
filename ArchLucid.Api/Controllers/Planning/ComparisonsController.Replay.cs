@@ -5,6 +5,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Services;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Exports;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Decisioning.CareerArtifacts;
 

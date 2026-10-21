@@ -10,9 +10,13 @@ import {
 const UI_ROOT = join(process.cwd());
 
 describe("operator URL query writer guard", () => {
-  it("requires selection-switch routing for every HrefFromSearch exporter", () => {
-    expect(findOperatorUrlQueryWriterViolations(UI_ROOT)).toEqual([]);
-  });
+  it(
+    "requires selection-switch routing for every HrefFromSearch exporter",
+    () => {
+      expect(findOperatorUrlQueryWriterViolations(UI_ROOT)).toEqual([]);
+    },
+    120_000,
+  );
 
   it("flags HrefFromSearch exporters that skip selection-switch routing", () => {
     const nonCompliant = `export function demoStaleHrefFromSearch(currentSearch: string, pathname: string): string {

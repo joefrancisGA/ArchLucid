@@ -83,6 +83,7 @@ public sealed class ComparisonReplayService(
             ComparisonTypes.ExportRecordDiff => await ReplayExportDiffAsync(record, format, mode, cancellationToken),
             _ => throw new InvalidOperationException($"Replay is not supported for comparison type '{record.ComparisonType}'.")
         };
+
         if (request.PersistReplay)
             // Intentionally persists a *new* comparison record rather than mutating the original.
             // This keeps comparison records immutable and yields an audit trail of replay activity.
@@ -150,6 +151,7 @@ public sealed class ComparisonReplayService(
                                                                $"Comparison record '{record.ComparisonRecordId}' did not contain a valid end-to-end payload.");
                 report = await RegenerateEndToEndAsync(record, cancellationToken);
                 DriftAnalysisResult driftE2E = _driftAnalyzer.Analyze(storedE2E, report);
+
                 if (driftE2E.DriftDetected)
                     throw new ComparisonVerificationFailedException(driftE2E.Summary, driftE2E);
                 break;
@@ -159,6 +161,7 @@ public sealed class ComparisonReplayService(
 
         ReplayComparisonResult result = await BuildEndToEndResultAsync(record, report, format, profile, cancellationToken);
         result.ReplayMode = ComparisonReplayRequestParsing.FormatReplayMode(mode);
+
         if (mode != ComparisonReplayMode.Verify)
             return result;
         result.VerificationPassed = true;
@@ -286,6 +289,7 @@ public sealed class ComparisonReplayService(
                                                         $"Comparison record '{record.ComparisonRecordId}' did not contain a valid export-diff payload.");
                 diff = await RegenerateExportDiffAsync(record, cancellationToken);
                 DriftAnalysisResult driftExport = _driftAnalyzer.Analyze(storedDiff, diff);
+
                 if (driftExport.DriftDetected)
                     throw new ComparisonVerificationFailedException(driftExport.Summary, driftExport);
                 break;
@@ -307,6 +311,7 @@ public sealed class ComparisonReplayService(
                 BinaryContent = bytes,
                 ReplayMode = ComparisonReplayRequestParsing.FormatReplayMode(mode)
             };
+
             if (mode == ComparisonReplayMode.Verify)
             {
                 resultDocx.VerificationPassed = true;
@@ -328,6 +333,7 @@ public sealed class ComparisonReplayService(
             ReplayMode = ComparisonReplayRequestParsing.FormatReplayMode(mode)
         };
         SetRecordMetadata(result, record, null);
+
         if (mode != ComparisonReplayMode.Verify)
             return result;
         result.VerificationPassed = true;

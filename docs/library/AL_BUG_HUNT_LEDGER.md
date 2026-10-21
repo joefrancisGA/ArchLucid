@@ -1,3 +1,30 @@
+> **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
+2026-10-21 seed hunt (seed-only, lane C): `saml-jwt-bearer` — lock `saml-jwt-bearer` pushed and verified on `origin/bugsmash` (sole lock); skipped `ui-*` and zones hunted in the last hour; selected oldest eligible non-UI zone (`saml-jwt-bearer`); cheap-disproof closed open `(candidate)` rows — comma-folded `Basic`+`Bearer` mix fails closed (`HandleAuthenticateAsync_fails_when_comma_folded_header_mixes_basic_and_bearer_schemes`); revoked-then-valid comma-folded Bearer already proven 2026-10-21; `ArchLucidSamlInboundClaimsNormalizer` whitespace-only source values filtered before promote (parity absent vs empty); `SamlMetadataValidUntilParser` ignores `KeyDescriptor` by design for earliest `EntityDescriptor` expiry; no hunt-ready repro promoted; refreshed five `(candidate)` rows; Release build ArchLucid.Api/Core + tests; focused handler/normalizer/JWT/SAML-metadata unit tests 45/45 (broader `Saml` name filter includes SQL integration factories unavailable on VM); lock released after push.
+
+2026-10-21 seed hunt (seed-only, lane C): `api-tenancy-workspaces` — lock `api-tenancy-workspaces` pushed and verified on `origin/bugsmash` (sole lock); skipped `ui-*` and zones hunted in the last hour; selected oldest eligible non-UI zone (`api-tenancy-workspaces`); cheap-disproof closed stale `(candidate)` caller-default empty-catalog row (proven 2026-10-21 lane B); promoted `DeleteProjectAsync` foreign-pin guard requiring `projectIsActiveInCallerWorkspace` before `ForeignWorkspaceMetadataProtectsFromRetentionPurge` — empty/null active catalog skips block while populated catalog blocks (`DeleteProjectAsync_returns_bad_request_when_another_workspace_pins_project_as_default_metadata` vs `DeleteProjectAsync_returns_no_content_when_active_list_is_null_and_foreign_workspace_pins_project_metadata` documents intentional idempotent path); no failing repro without breaking foreign-pin idempotent delete; seeded five `(candidate)` rows; Release build ArchLucid.Api; scoped `TenantWorkspaces` filter 62/62; lock released after push.
+
+2026-10-21 seed hunt (seed→hit, lane C): `run-execute-ownership` — lock `run-execute-ownership` pushed and verified on `origin/bugsmash` (no other origin locks); skipped `ui-*` and zones hunted in the last hour; selected oldest eligible non-UI zone (`run-execute-ownership`); promoted `(candidate)` post-acquire drain rollback — `AcquireAsync` passed caller cancellation into `TryReleaseAsync`, so a cancelled client could skip SQL rollback after drain admission; drain rollback now uses `CancellationToken.None`; regression `AcquireAsync_when_drain_begins_after_acquire_rolls_back_sql_with_non_cancellable_release_when_caller_token_is_cancelled`; Release build ArchLucid.Application + ArchLucid.Application.Tests; scoped ownership/orchestrator filter 69/70 (excluded hung `AcquireAsync_when_concurrent_repository_success_and_tryadd_loses_rolls_back_sql_lease` on VM); lock released after push.
+
+2026-10-21 thorough hunt (hit, lane C): `core-explanation-json` — shipped scalar object-shaped `evidenceRefs` reader fix (whitespace-only `text` + readable `id` now maps `id`; in-array blank-text+id poison unchanged via `blankTextWithIdIsInArrayPoison`); regression `TryNormalizeStructuredJson_maps_object_shaped_evidence_ref_id_when_text_property_is_whitespace_only`; cheap-disproof closed picker fractional-reasoning `(candidate)` (invalid, parity with 2026-10-21 dry); ArchLucid.Core `RunExplanation` filter 215/215; Release build ArchLucid.Core + ArchLucid.Core.Tests.
+
+2026-10-21 seed hunt (seed→hit, lane C): `tenant-erasure` — lock `tenant-erasure` pushed and verified on `origin/bugsmash` before work; skipped `ui-*` and zones hunted in the last hour; selected least-recent unlocked non-UI zone (`2026-10-21T05:07:13Z`); promoted first-time `TryOffboardTenantAsync` audit path — quarantine restore after pre-audit read but before `TenantErasureOffboarded` append could still emit platform audit with stale offboard timestamps; added immediate pre-append tenant re-read (parity with approve/legal-hold commands); regression `TryOffboardTenantAsync_returns_null_without_audit_when_quarantine_restored_after_pre_audit_read_before_first_offboard_audit_append`; `dotnet build` Release ArchLucid.Application + ArchLucid.Application.Tests; Application `TenantErasure` 36/36, Api `TenantErasure` 33/33; lock released after push.
+
+2026-10-21 seed hunt (seed→hit, lane C): `host-core-jobs` — lock `host-core-jobs` pushed and verified on `origin/bugsmash` before work; skipped `ui-*` and zones hunted in the last hour; selected least-recent unlocked non-UI zone (`2026-10-21T04:56:52Z`); promoted `(candidate)` `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — post-retry-backoff re-reads before `SendMessageAsync` treated only `Canceled` as terminal, so a row already `Failed` or `Succeeded` (duplicate queue delivery) could enqueue another retry notification; `ShouldAbortRetryNotification` guards `Failed`/`Succeeded`/`Canceled` after backoff and before send; regression `ProcessOneMessageAsync_does_not_send_retry_notification_when_failed_visible_before_send_after_backoff`; stabilized cancel pre-send regression setup; `dotnet build` Release ArchLucid.Host.Core + ArchLucid.Api.Tests; Host.Core job filter 77/77, `BackgroundJobQueueProcessorHostedService` tests 31/31; lock released after push.
+
+2026-10-21 seed hunt (seed→hit, lane C): `billing-webhooks` — lock `billing-webhooks` pushed and verified on `origin/bugsmash` before work; skipped `ui-*` and zones hunted in the last hour; selected least-recent unlocked non-UI zone (`2026-10-21T04:42:05Z`); cheap-disproof closed Marketplace JWT-before-insert and replay-guard whitespace candidates (guarded per 2026-10-15/#68); promoted wallet route — after a failed delivery left a Stripe event idempotency row without a credited payment intent, Stripe retry skipped `ProcessPaymentIntentEventAsync` yet still marked the billing ledger `Processed`; retry wallet processing when idempotency insert loses race but `LedgerContainsPaymentIntentAsync` is false; regressions `HandleWebhookAsync_wallet_retries_processor_when_idempotency_row_exists_but_payment_intent_not_credited` and updated idempotent-skip test; `dotnet build` ArchLucid.Persistence + ArchLucid.Persistence.Tests (Release); Persistence wallet/replay/marketplace webhook filters 71/71, Application `LlmTenantWalletStripeWebhook` 15/15; lock released after push.
+
+2026-10-21 seed hunt (seed→hit, lane C): `finding-disposition` — lock `finding-disposition` pushed and verified on `origin/bugsmash` before work; skipped `ui-*` and zones hunted in the last hour; selected least-recent unlocked non-UI zone (`2026-10-21T04:41:58Z`); cheap-disproof closed stale email/impact-preview/concurrent-trail candidates; promoted `FindingDispositionService.ListHistoryAsync` using ordinal `ListByFindingAsync` so disposition history was empty when the query finding id differed only by casing from the stored trail row (reachable via ITSM inbound sync and other direct `IFindingDispositionService` callers); route history through case-insensitive `ListForFindingIdsSinceUtcAsync`; regression `ListHistoryAsync_returns_history_when_finding_id_differs_only_by_casing`; `dotnet build` ArchLucid.Application + ArchLucid.Application.Tests; scoped `FindingDisposition` filter 65/65; lock released after push.
+
+2026-10-21 thorough hunt (hit, lane C): `extraction-router` — lock `extraction-router` pushed and verified on `origin/bugsmash` before work; skipped `ui-*` and zones hunted in the last hour; selected least-recent unlocked non-UI zone (`2026-10-21T04:23:59Z`); cheap-disproof closed stale email-domain `@` candidate (proven 2026-10-20); promoted `FindBoundedOwnershipMarkerIndex` — architecture prose with XML-like `<owner>security</owner>` element tags treated `owner` as a bounded ownership token alongside separate `unowned` mention, emitting false operational-ownership gap; treat angle brackets like other label/code delimiters; matrix case `xml-owner-element`; `dotnet build` ArchLucid.Application + ArchLucid.Application.Tests; scoped `DifficultyBasedExtractionRouter` filter 78/78; lock released after push.
+
+2026-10-21 thorough hunt (hit, lane C): `securenow-question-queue` — lock `securenow-question-queue` pushed and verified on `origin/bugsmash` before work; skipped `ui-*` and zones hunted in the last hour; selected least-recent unlocked non-UI zone (`2026-10-21T03:08:54Z`); promoted policy-pack `Must` elicitation rows with empty `ResourceId` (subscription/resource-group scope) — disposition writes required non-empty `ResourceId` while list/compiler identity used empty resource segment, so reachable `POST /answer` returned `ResourceId is required.` and dispositions never joined listed pack questions; `SecureNowQuestionDispositionResourceIdResolver` maps empty resource id to normalized subscription id for subscription/resource-group scope in compiler join and service mutations; regression `Subscription_scope_pack_question_accepts_empty_resource_id_on_answer`; `dotnet build` ArchLucid.Application + ArchLucid.Application.Tests; scoped `SecureNowQuestion` filter 32/32; lock released after push.
+
+2026-10-21 seed hunt (seed→hit, lane C): `api-policy-packs` — lock verified on `origin/bugsmash`; skipped `ui-*` and zones hunted in the last hour; promoted CRUD mutations (`POST` create, `POST` publish, `DELETE`, `POST` duplicate) missing `EnsurePolicyPackMutationSealedManifestAllowedAsync` preflight present on assign/catalog routes, so HTTP 200 could mutate packs while scope posture sealed-manifest preflight would return 409; added `RequiresGovernanceScopePostureSealedManifest` + guard parity; regressions `Create_blocks_mutation_when_latest_committed_run_has_unusable_manifest` and `Publish_blocks_mutation_when_latest_committed_run_has_unusable_manifest`; `dotnet build` ArchLucid.Api + ArchLucid.Api.Tests; scoped `PolicyPacksController` filter 99/99; lock released after push.
+
+2026-10-21 seed hunt (seed→hit, lane C): `email-otp-auth` — lock `email-otp-auth` pushed and verified on `origin/bugsmash` before work; skipped `ui-*` and zones hunted in the last hour; promoted `EmailOtpAuthController.VerifyAsync` applying `TrialLocalJwtScopeDefaults` whenever tenant/workspace were empty, so multi-workspace users with `NextStep=SelectWorkspace` received a trial-scoped JWT instead of empty scope pending explicit workspace pick; trial defaults now apply only for `CreateWorkspace`; regression `VerifyAsync_does_not_apply_trial_scope_defaults_when_next_step_is_select_workspace`; `dotnet build` ArchLucid.Api + ArchLucid.Api.Tests; API EmailOtp filter 14/14, Application EmailOtpAuth filter passed; lock released after push.
+
+2026-10-21 seed hunt (seed→hit, lane C): `api-governance-stickiness` — lock `api-governance-stickiness` pushed and verified on `origin/bugsmash` before work; skipped `ui-*` and zones hunted in the last hour; picker oldest eligible was `api-policy-packs` (semver class closed); promoted `GET /v1/governance/recurrence-schedules` returning HTTP 200 while a schedule `SourceRunId` referenced an older unsealed committed run (parity gap vs `GET /v1/governance/reviews-awaiting-action`); scope posture preflight plus per-row `SourceRunId` sealing before response; regression `ListRecurrenceSchedules_blocks_unsealed_source_run_when_latest_run_is_sealed`; scoped GovernanceStickiness API tests 212/212; repaired `ComparisonsController.Replay` missing `CareerArtifactExportBlockedException` import blocking API test compile; lock released after push.
+
 2026-10-21 thorough hunt (dry, lane C): `api-governance-tenancy-controllers` — lock `api-governance-tenancy-controllers` pushed and verified on `origin/bugsmash` before work (`dee13d7e5c` content after push; lane C `2026-10-21T17:03:47Z`); skipped `ui-*` zones (lane B URL helper sweep); selected least-recent unlocked non-UI zone with open candidate rows (`2026-10-21T02:33:42Z`); exercised zone-head sealed-manifest / tenancy candidates — risk revoke/renew and recurrence already delegate to `EnsureGovernanceDispositionRunSealedManifestAllowedAsync` (null manifest-compare detail skips guard); pre-commit checklist loads `IRunRepository` before sealed guard (404 before 409); approval lineage guard returns null when approval missing; project delete audit uses `User?.Identity?.Name ?? actorUserId`; scoped stickiness not-found/sealed regressions **9/9**; no new defect.
 
 - [x] (valid-no-repro) `GovernanceStickinessController` revoke/renew risk exception sealed guard — **cheap-disproof 2026-10-21 lane C:** same null-detail skip as create/recurrence (2026-10-20/21 hits).
@@ -5429,7 +5456,7 @@
 - **hunts:** 68
 - **last-hunt:** 2026-10-21
 - **bugs-found:** 55
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-20 — Tenant value report DOCX omitted artifact-text sanitization
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -9818,7 +9845,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
 - **hunts:** 73
 - **bugs-found:** 12
-- **consecutive-dry-hunts:** 6
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-04 — semantic support judge persisted before commit-blocking gates
 - **related-pd-tb:** TB-2226
@@ -11829,6 +11856,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-10 seed hunt #1541 (seed→hit): reseeded auth-return-path after #1531; proved remaining slash and dot homoglyph bypasses; 58 scoped AuthSignInReturnPathGuard tests passed.
 
 ## Zone: tenant-erasure
+- [x] (proven) `TenantErasureCommandService.TryOffboardTenantAsync` — `TenantErasureOffboarded` audit after quarantine restore between pre-audit read and append — **hit 2026-10-21 seed hunt lane C:** immediate pre-append re-read; regression above.
+
 
 2026-09-12 seed hunt #2076 (seed-only): reseeded tenant-erasure; 8 scoped tests passed; no new hunt-ready rows
 
@@ -13204,15 +13233,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: finding-disposition
 
+2026-10-21 seed hunt (seed→hit, lane C): `ListHistoryAsync` returned empty history when finding id casing differed from stored trail rows; case-insensitive lookup via `ListForFindingIdsSinceUtcAsync`; regression `ListHistoryAsync_returns_history_when_finding_id_differs_only_by_casing`; FindingDisposition filter 65/65.
+
 2026-09-12 seed hunt #2014 (seed-only): reseeded finding-disposition; no new hunt-ready rows.
 
 
-- [ ] (candidate) `FindingDispositionService.RecordAsync` — sequential case-only finding id variants (`Finding-A` then `finding-a`) are not deduped like bulk batches (`HashSet` OrdinalIgnoreCase only in `RecordBulkAsync`) — locus: `RecordAsync` vs bulk guard; input: direct `IFindingDispositionService` caller; wrong outcome: two disposition pointer chains for one inspect finding when persistence collation is case-sensitive; reachability: HTTP/facade path normalizes via inspect (#819); repro requires non-facade caller or CS collation store.
-- [ ] (candidate) `FindingDispositionValidation.ValidateWorkingRemediatedImpactPreviewAttestation` — honors client `ImpactPreviewCompleted=true` without server-side preview completion artifact — locus: lines 194-197; input: Working desk remediated POST with boolean only; wrong outcome: LP-14 preview gate bypass for API clients; reachability: OpenAPI `RecordFindingDispositionRequest.impactPreviewCompleted` mapped through stickiness facade; mechanism: attestation is request-field honesty unless override path used.
-- [ ] (candidate) `ConcurrentFindingReviewTrailRepository.ListByFindingAsync` — Ordinal finding id equality diverges from SQL Server CI `FindingId` lookups — locus: test double line 30; input: disposition recorded as `Finding-A`, history query `finding-a`; wrong outcome: empty in-memory history while production SQL returns rows; reachability: unit tests and local demos using concurrent trail double.
+- [x] (valid-no-repro) `FindingDispositionService.RecordAsync` — sequential case-only finding id variants (`Finding-A` then `finding-a`) are not deduped like bulk batches (`HashSet` OrdinalIgnoreCase only in `RecordBulkAsync`) — locus: `RecordAsync` vs bulk guard; input: direct `IFindingDispositionService` caller; wrong outcome: two disposition pointer chains for one inspect finding when persistence collation is case-sensitive; reachability: HTTP/facade path normalizes via inspect (#819); repro requires non-facade caller or CS collation store.
+- [x] (valid-no-repro) `FindingDispositionValidation.ValidateWorkingRemediatedImpactPreviewAttestation` — honors client `ImpactPreviewCompleted=true` without server-side preview completion artifact — locus: lines 194-197; input: Working desk remediated POST with boolean only; wrong outcome: LP-14 preview gate bypass for API clients; reachability: OpenAPI `RecordFindingDispositionRequest.impactPreviewCompleted` mapped through stickiness facade; mechanism: attestation is request-field honesty unless override path used.
+- [x] (invalid) `ConcurrentFindingReviewTrailRepository.ListByFindingAsync` — Ordinal finding id equality diverges from SQL Server CI `FindingId` lookups — locus: test double line 30; input: disposition recorded as `Finding-A`, history query `finding-a`; wrong outcome: empty in-memory history while production SQL returns rows; reachability: unit tests and local demos using concurrent trail double.
 
 ### Hypotheses
 
+- [x] (proven) `FindingDispositionService.ListHistoryAsync` — trail lookup used `ListByFindingAsync` with ordinal finding-id equality, so history was empty when the query id differed only by casing from stored disposition events (reachable from direct service callers such as ITSM inbound sync); fixed by loading history through `ListForFindingIdsSinceUtcAsync` with case-insensitive id matching; regression `ListHistoryAsync_returns_history_when_finding_id_differs_only_by_casing`.
 - [x] (invalid) Disposition writes succeed for a finding that belongs to another tenant — trail append uses `scope.TenantId`; no cross-tenant leak path in zone files.
 - [x] (valid-no-repro) Validation accepts a closed finding as still actionable — disposition is append-only by design (`FINDING_CONCURRENT_DISPOSITION_CONFLICT_CONTRACT.md`); no finding-state gate in validation.
 - [x] (invalid) Required rationale is skipped when the disposition kind is reject — `RejectedAsNotApplicable` requires rationale in `FindingDispositionValidation.Validate`.
@@ -13232,8 +13264,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 46
-- **bugs-found:** 15
+- **hunts:** 47
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-09-13
 - **last-bug:** 2026-09-12 — bulk disposition duplicate guard used Ordinal so case-variant finding ids double-appended via direct service callers
@@ -14268,6 +14300,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: extraction-router
 
+2026-10-21 thorough hunt (hit, lane C): XML `<owner>` element tags no longer count as prose ownership tokens when `unowned` appears elsewhere; angle brackets added to ownership label delimiters; ownership boundary matrix case `xml-owner-element`; DifficultyBasedExtractionRouter filter 78/78.
+
 2026-10-20 thorough hunt (hit): email domain `owner` false token via `@` start boundary; regression `Extract_does_not_emit_ownership_gap_for_email_domain_owner_label_with_unowned`; 33 scoped router tests passed (`RunAnalyzers=false`).
 
 - [x] (proven) `FindBoundedMarkerIndex` / `IsValidMarkerStartBoundary` — `ops@owner.example.com` false `owner` match with `unowned` — **hit 2026-10-20 thorough hunt (lane C):** `@` excluded from marker start boundaries; regression `Extract_does_not_emit_ownership_gap_for_email_domain_owner_label_with_unowned`.
@@ -14280,6 +14314,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `as-is`/`to-be` lifecycle token matching — substring inside `as-isolated` triggered ambiguous classification and false dual-lifecycle transition — **hit 2026-09-26 seed hunt (seed→hit):** `Contains` on token markers matched interior substrings; fixed with alphanumeric boundary guards in `ContainsTokenMarker` and `FindTokenMarkerIndex`; regressions `Classify_does_not_treat_as_isolated_substring_as_lifecycle_marker` and `Extract_does_not_emit_transition_for_as_isolated_substring_with_target_state`.
 - [x] (proven) `ContainsPhraseMarker` / lifecycle boundaries — multi-word lifecycle phrases and bare `contradict` matched interior substrings (`recurrent state`, `contradictory`) — **hit 2026-09-26 seed hunt (seed→hit):** after token-boundary fix for `as-is`/`to-be`, phrase markers still used raw `Contains`; fixed with shared `FindBoundedMarkerIndex` and `ContainsContradictMarker`; regressions `Classify_does_not_treat_recurrent_state_substring_as_current_state_marker`, `Classify_does_not_treat_contradictory_substring_as_contradict_marker`, `Extract_does_not_emit_transition_for_recurrent_state_substring_with_target_state`, and `Extract_does_not_emit_contradiction_for_contradictory_substring`.
 - [x] (proven) `RequiresHumanReview` / `Extract` signal heuristics — regulatory markers and extract triggers used raw `Contains` (`phi` in `Delphi`, `public api` in `republic api`, `RTO` in `CARTOON`) — **hit 2026-09-26 seed hunt (seed→hit):** bounded `ContainsHumanReviewMarker` with plural fallback for single-token markers; `Extract` aligned to phrase/token boundary helpers; regressions `Classify_does_not_treat_delphi_substring_as_phi_marker`, `Classify_returns_human_review_for_regulations_plural`, `Extract_does_not_stamp_public_api_substring_in_republic_as_interface`, and `Extract_does_not_emit_recovery_objective_for_rto_substring_in_cartoon`.
+- [x] (proven) `FindBoundedOwnershipMarkerIndex` — XML-like `<owner>` element tags in architecture source prose matched `owner` as a bounded ownership token while a separate `unowned` mention was present, emitting a false operational-ownership gap; fixed by treating `<`/`>` as ownership label delimiters; matrix regression `xml-owner-element`.
 - [x] (proven) `FindBoundedMarkerIndex` / `IsValidMarkerStartBoundary` — email-domain `owner` label false match via `@` start boundary — **hit 2026-10-20 thorough hunt (lane C):** regression `Extract_does_not_emit_ownership_gap_for_email_domain_owner_label_with_unowned`.
 
 2026-10-12 thorough hunt (dry): re-attempted the retained reachable email-domain `owner` boundary repro for `FindBoundedMarkerIndex` / `IsValidMarkerStartBoundary` with `ops@owner.example.com` plus a separate `unowned` mention. The focused test was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no failing repro, production change, or regression was shipped.
@@ -14314,8 +14349,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Classify.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Extract.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.LifecycleHelpers.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 38
-- **bugs-found:** 19
+- **hunts:** 39
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-12
 - **last-bug:** 2026-09-27 — DNS/path dot false positive for `owner` token
@@ -14391,7 +14426,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `as-is`/`to-be` lifecycle token matching — substring inside `as-isolated` triggered ambiguous classification and false dual-lifecycle transition — **hit 2026-09-26 seed hunt (seed→hit):** `Contains` on token markers matched interior substrings; fixed with alphanumeric boundary guards in `ContainsTokenMarker` and `FindTokenMarkerIndex`; regressions `Classify_does_not_treat_as_isolated_substring_as_lifecycle_marker` and `Extract_does_not_emit_transition_for_as_isolated_substring_with_target_state`.
 - [x] (proven) `ContainsPhraseMarker` / lifecycle boundaries — multi-word lifecycle phrases and bare `contradict` matched interior substrings (`recurrent state`, `contradictory`) — **hit 2026-09-26 seed hunt (seed→hit):** after token-boundary fix for `as-is`/`to-be`, phrase markers still used raw `Contains`; fixed with shared `FindBoundedMarkerIndex` and `ContainsContradictMarker`; regressions `Classify_does_not_treat_recurrent_state_substring_as_current_state_marker`, `Classify_does_not_treat_contradictory_substring_as_contradict_marker`, `Extract_does_not_emit_transition_for_recurrent_state_substring_with_target_state`, and `Extract_does_not_emit_contradiction_for_contradictory_substring`.
 - [x] (proven) `RequiresHumanReview` / `Extract` signal heuristics — regulatory markers and extract triggers used raw `Contains` (`phi` in `Delphi`, `public api` in `republic api`, `RTO` in `CARTOON`) — **hit 2026-09-26 seed hunt (seed→hit):** bounded `ContainsHumanReviewMarker` with plural fallback for single-token markers; `Extract` aligned to phrase/token boundary helpers; regressions `Classify_does_not_treat_delphi_substring_as_phi_marker`, `Classify_returns_human_review_for_regulations_plural`, `Extract_does_not_stamp_public_api_substring_in_republic_as_interface`, and `Extract_does_not_emit_recovery_objective_for_rto_substring_in_cartoon`.
-- [ ] (candidate) `FindBoundedMarkerIndex` / `IsValidMarkerStartBoundary` — a reachable email-domain label such as `ops@owner.example.com`, paired with a separate `unowned` mention, can match `owner` because `@` is accepted as a start boundary and emit a false operational-ownership gap; input originates from architecture source prose containing email addresses.
+- [ ] - [x] (proven-stale) `FindBoundedMarkerIndex` / `IsValidMarkerStartBoundary` — email-domain `owner` via `@` start boundary — **proven 2026-10-20**; regression `Extract_does_not_emit_ownership_gap_for_email_domain_owner_label_with_unowned`. (supersedes candidate), paired with a separate `unowned` mention, can match `owner` because `@` is accepted as a start boundary and emit a false operational-ownership gap; input originates from architecture source prose containing email addresses.
 
 ---
 
@@ -16755,6 +16790,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 
 ## Zone: billing-webhooks
+- [x] (proven) `StripeBillingProvider.HandleWalletPaymentIntentEventAsync` — failed wallet retry skipped credit when Stripe idempotency row existed without payment-intent ledger row — **hit 2026-10-21 seed hunt lane C:** consult `LedgerContainsPaymentIntentAsync` before skipping processor; regressions above.
+
 
 - **id:** billing-webhooks
 - **status:** open
@@ -17675,6 +17712,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: saml-jwt-bearer
+- (candidate) `ScimBearerAuthenticationHandler` — separate `Authorization` header values (HTTP field combination) with revoked Bearer in first value and valid Bearer in second — locus: `TryParseBearerCredentials` multi-value loop; input: parity with comma-folded revoked-then-valid regression (verify explicit dual-header regression).
+- (candidate) `ScimBearerAuthenticationHandler` — comma-folded segment using `bearer` lowercase scheme prefix without space after scheme — locus: `StartsWith("Bearer ")` case-insensitive; input: proxy rewrites scheme casing.
+- (candidate) `ArchLucidSamlInboundClaimsNormalizer.PromoteSingleValueIfMissing` — IdP emits two scope source GUIDs differing only by format (N vs D) treated as ambiguous — locus: `Distinct(StringComparer.OrdinalIgnoreCase)` on string values not Guid-normalized; input: reachable duplicate attribute values on SAML assertion.
+- (candidate) `SamlMetadataValidUntilParser` — operational expiry ignores `KeyDescriptor` / signing cert `NotAfter` when entity `validUntil` is later — locus: `ResolveValidUntilAttribute`; input: metadata-only diagnostics not runtime auth bypass.
+- (candidate) `PlatformUserAuthVersionValidator` — non-Guid JWT `sub` skips auth-version stamp enforcement — locus: `Guid.TryParse(subject)` early return; input: intentional opaque CIAM subjects vs platform-user GUID contract.
+
 2026-10-21 thorough hunt (hit): `saml-jwt-bearer` — promoted comma-folded `Authorization` with revoked/invalid first Bearer segment and valid second segment (`ScimBearerAuthenticationHandler.TryEnumerateBearerTokens` stopped after first token); authenticate each parsed Bearer until `IScimBearerTokenAuthenticator` succeeds; regression `HandleAuthenticateAsync_succeeds_when_comma_folded_header_lists_revoked_token_before_valid_one`; cheap-disproof closed open `(candidate)` rows (SamlSpConfigurationDiagnostics “No root validUntil” copy is intentional when attribute absent; `RecentAuthenticationEvaluator` `iat` Integer64 without `auth_time` already honored via `long.TryParse` + `HasRecentAuthentication_returns_true_when_later_iat_is_fresh_among_multiple_values_without_auth_time`; duplicate `archlucid_auth_ver` not injectable on signed JWT principals; `SamlMetadataDiscoveryParser` multi-`EntityDescriptor` throw intentional); `ScimBearerAuthenticationHandlerTests` 3/3 + `ScimBearer` Application tests 2/2 + scoped SAML/JWT/SCIM Api filter 98 passed (4 SQL/integration baseline failures on Linux VM); seeded five follow-on `(candidate)` rows.
 
 2026-10-20 seed hunt (seed->hit): promoted ScimBearerAuthenticationHandler.TryReadBearerToken comma-folded Authorization header parse; regression HandleAuthenticateAsync_succeeds_when_duplicate_bearer_credentials_are_comma_folded_in_one_header; ScimBearerAuthenticationHandlerTests 2/2; seeded five follow-on (candidate) rows.
@@ -17697,7 +17740,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 26
+- **hunts:** 27
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-20
@@ -19826,6 +19869,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: host-core-jobs
+- [x] (proven) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — post-backoff retry notification sent when row already `Failed`/`Succeeded` — **hit 2026-10-21 seed hunt lane C:** `ShouldAbortRetryNotification`; regression above.
+
 
 2026-10-21 seed hunt (seed-only): lane B; cheap-disproof closed five open `(candidate)` rows; no hunt-ready promotion; seeded five follow-on candidates; Host.Core 77/77; Api 97 passed (9 SQL integration unavailable on Linux VM).
 
@@ -19868,7 +19913,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `InMemoryBackgroundJobQueue.ExecuteAsync` — shutdown-interrupted retry backoff terminal without second `_info` read — **cheap-disproof 2026-10-21 lane B seed hunt:** `TryAssignUnlessCanceled` on `Failed` assignment (lines 222–230).
 - [x] (invalid) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` — invalid-payload `row.RetryCount + 1` without re-read — **cheap-disproof 2026-10-21 lane B seed hunt:** single-thread prepare snapshot (2026-10-04 dry).
 
-- (candidate) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — post-backoff pre-send `GetAsync` checks only `Canceled` (not `Failed`/`Succeeded`) before `SendMessageAsync` when a duplicate Azure queue notification for the same `JobId` is still visible after another poll marked the row terminal.
+- [x] (proven) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — post-backoff pre-send `GetAsync` checks only `Canceled` (not `Failed`/`Succeeded`) before `SendMessageAsync` when a duplicate Azure queue notification for the same `JobId` is still visible after another poll marked the row terminal.
 - (candidate) `BackgroundJobRepository.ResetStaleRunningJobsOlderThanAsync` — `Running` row with `RetryCount == MaxRetries` and `MaxRetries > 0` past `ResolveStaleRunningThreshold` (`BackgroundJobs:ProcessorVisibilityMinutes` + 1) should surface `Failed` without queue re-notify; verify poll APIs and `Error` text match exhausted-retry processor terminal semantics.
 - (candidate) `InMemoryBackgroundJobQueue.ExecuteAsync` — queue-writer-rejected retry branch (`_queue.Writer.TryWrite` false, lines 264–287) logs before terminal `Failed` without the paired post-log `_info` re-read used on capacity-exhausted retry terminal (2026-09-27 parity family).
 - (candidate) `BackgroundJobStuckRunningWatchdogBackgroundWork.RunSinglePassAsync` — leader lease lost mid-batch after `ResetStaleRunningJobsOlderThanAsync` leaves trailing reclaimed `JobId` values without `SendJobIdAsync` until the next leader pass (`HostLeaderElection:Enabled` default true).
@@ -31808,24 +31853,11 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-20
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
-
-- **id:** core-requests-constraints
-- **split-from:** archlucid-core
-- **status:** open
-- **impact:** medium
-- **aliases:** request constraints; split from archlucid-core
-- **paths:** ArchLucid.Core/Requests/
-- **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 34
-- **bugs-found:** 35
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-13 — spaced ASCII solidus broke multi-word constraint phrases
 
 2026-10-21 seed hunt (seed→hit, lane C): promoted spaced comma/semicolon phrase normalization; 912 scoped RequestConstraint tests passed.
 
@@ -42592,6 +42624,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ---
 ## Zone: api-tenancy-workspaces
+- (candidate) `TenantWorkspacesController.DeleteProjectAsync` — foreign-workspace default pin guard skipped when `ListActiveByTenantAsync` returns empty catalog but SQL row is still active — locus: `else if (ForeignWorkspacePinsProjectAsDefault)` + `projectIsActiveInCallerWorkspace` gate; input: reachable only when active catalog read is stale empty while `TrySoftDeleteAsync` would delete a live row; needs contract for fail-closed vs idempotent foreign-pin retry.
+- (candidate) `TenantWorkspacesController.DeleteProjectAsync` — foreign-workspace default pin guard skipped when `ListActiveByTenantAsync` returns null — locus: foreign branch `?? Array.Empty` before activity check; input: parity tension with caller-pin null fail-closed (`DeleteProjectAsync_returns_bad_request_when_deleting_caller_default_and_active_list_is_null`) vs `DeleteProjectAsync_returns_no_content_when_active_list_is_null_and_foreign_workspace_pins_project_metadata`.
+- (candidate) `TenantCatalogMigrationStatusController.GetCatalogMigrationStatusAsync` — tenant GET without workspace inventory preflight — locus: `GetByIdAsync` then migration service; input: tenant missing returns 404 after service read ordering (cheap-disproof pending explicit migration-service throw contract).
+- (candidate) `CorePilotTeamChecklistController.GetAsync` — `ICorePilotTeamChecklistRepository.ListAsync` null before projection — locus: `rows.Select`; input: SQL/in-memory repositories return empty list today; hunt-ready only if a shipped repository returns null.
+- (candidate) `TenantHomepageSettingsController.PutAsync` — `SelectedRunId` required rejects nullable clear-body contract — locus: `Guid.Empty` guard before scope preflight; input: OpenAPI nullable vs required `selectedRunId` (cheap-disproof against existing sealed-manifest 404 tests).
+
 
 2026-10-21 thorough hunt (hit): lane B; DeleteProject empty active catalog fail-closed; 62/62 TenantWorkspaces tests.
 
@@ -42607,7 +42645,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 32
+- **hunts:** 33
 - **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
@@ -43461,7 +43499,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - [x] (proven) `TenantCatalogMigrationOrchestrator.CompleteAsync` — completed active migration after erasure offboard — **hit 2026-10-13 seed hunt (seed→hit):** return `InErasureQuarantine` without calling migration `CompleteAsync`; regression `CompleteAsync_returns_in_erasure_quarantine_when_offboarded_before_complete`.
 
-- [ ] (candidate) `TenantErasureCommandService.TryOffboardTenantAsync` — idempotent retry after partial side effects may still append platform audit when quarantine restored between suspend and audit (mirror complete offboard idempotent path).
+- [x] (valid-no-repro) `TenantErasureCommandService.TryOffboardTenantAsync` — idempotent retry after partial side effects may still append platform audit when quarantine restored between suspend and audit — **cheap-disproof 2026-10-21 seed hunt lane C:** `CompleteOffboardSideEffectsAsync` + first-offboard pre-append re-read; regressions `TryOffboardTenantAsync_returns_null_without_audit_when_quarantine_restored_before_idempotent_side_effects` and pre-append restore regression above.
 
 2026-10-13 seed hunt (seed→hit): reseeded erasure offboard idempotent retry after migration start race fix; proved `CompleteOffboardSideEffectsAsync` used stale offboard snapshot after quarantine restore; re-read before suspend/audit; regression `TryOffboardTenantAsync_returns_null_without_audit_when_quarantine_restored_before_idempotent_side_effects`; 169 scoped tenancy tests passed.
 
@@ -44657,8 +44695,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 58
-- **bugs-found:** 27
+- **hunts:** 59
+- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
@@ -47100,6 +47138,8 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-21 thorough hunt (hit, lane C): promoted subscription/resource-group pack elicitation questions with empty listed `ResourceId` — `ValidateIdentity` rejected empty resource id on answer/ignore while compiler disposition identity used an empty resource segment, blocking reachable pack mutations and preventing disposition join; shared `SecureNowQuestionDispositionResourceIdResolver`; regression `Subscription_scope_pack_question_accepts_empty_resource_id_on_answer`; Application SecureNowQuestion filter 32/32.
+
 2026-10-21 seed hunt (seed→hit): promoted `ReopenAsync` leaving prior disposition `Reason` on listed Open questions after answer fields were cleared; reopen now clears stored reason and compiler omits answer/reason metadata unless status is Answered/Ignored; extended regression `Reopen_clears_prior_answer_fields_from_listed_questions`; Application SecureNowQuestion filter 31/31.
 
 - **id:** securenow-question-queue
@@ -47108,8 +47148,8 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 44
-- **bugs-found:** 22
+- **hunts:** 45
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
@@ -47240,6 +47280,7 @@ ABQ-09 churn hotspot.
 - [x] (proven) `SecureNowQuestionCompiler.Compile` / `SecureNowQuestionDispositionService.WriteAsync` / `SqlSecureNowQuestionDispositionRepository.ComputeIdentityHash` — reachable API ignore mutations differing only by `QuestionKey` casing could persist distinct disposition rows while compilation used a case-insensitive disposition dictionary and threw listing questions — **hit 2026-10-13 seed hunt:** normalize question keys on write and in identity hashes, and group duplicate dispositions by case-insensitive identity keeping the newest row; regressions `Question_key_is_case_insensitive_on_ignore` and `Dispositions_with_question_keys_differing_only_by_case_compile_without_failure`.
 - [x] (proven) `SecureNowQuestionQueueProvider` — while a new `snapshotId` request was in flight, the old question remained actionable, so a queue mutation could submit the old question identity under the new snapshot; fixed by clearing queue state on snapshot change, requiring `questionsLoaded`, and rejecting mismatched `currentQuestion.snapshotId`; regression `does not persist a question from the previous snapshot while the next snapshot is loading`.
 - (candidate) `securenow-question-queue-api.answerSecureNowQuestion` / `ignoreSecureNowQuestion` / `reopenSecureNowQuestion` — mutation helpers declare a full `SecureNowQuestion` response although the controller returns `SecureNowQuestionDispositionResponse` without display fields; a future reachable caller consuming the mutation response could replace queue state with an incomplete question object. Current provider reloads and ignores the response, so this remains a bounded contract-drift candidate.
+- [x] (proven) `SecureNowQuestionDispositionService.WriteAsync` / `SecureNowQuestionCompiler` — policy-pack `Must` elicitation questions with subscription or resource-group scope listed empty `ResourceId` but disposition mutations required a non-empty resource id, so reachable answers failed validation and dispositions did not join listed rows; fixed with `SecureNowQuestionDispositionResourceIdResolver` using normalized subscription id for disposition identity; regression `Subscription_scope_pack_question_accepts_empty_resource_id_on_answer`.
 - [x] (proven) `SecureNowQuestionDispositionService.ReopenAsync` / `SecureNowQuestionCompiler.AddQuestion` — a reachable `POST /reopen` after `POST /answer` set `Status` to `Open` but copied prior `AnswerCode` and `AnswerText`, so `ListQuestionsAsync` still joined stale answer metadata; fixed by clearing answer fields on reopen; regression `Reopen_clears_prior_answer_fields_from_listed_questions`.
 
 ## Zone: infra-evidence-diagrams

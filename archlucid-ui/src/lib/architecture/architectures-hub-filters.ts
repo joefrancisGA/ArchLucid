@@ -1,8 +1,8 @@
 import type { ArchitectureDraftCustomerStatus } from "@/lib/architecture/architecture-draft-status";
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
-import {
 import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
+import {
   ARCHITECTURES_HUB_FILTER_ALL_LABEL,
   ARCHITECTURES_HUB_FILTER_ARCHIVED_LABEL,
   ARCHITECTURES_HUB_FILTER_DRAFT_LABEL,
@@ -89,31 +89,38 @@ export function architecturesHubFilterHrefFromSearch(
   return buildOperatorHrefFromSearch(currentSearch, pathname, {
     selectionSwitch: { kind: "disclosure-only" },
     mutate: (params) => {
+      if (filter === "all") {
+        params.delete(ARCHITECTURES_HUB_FILTER_PARAM);
+      } else {
+        params.set(ARCHITECTURES_HUB_FILTER_PARAM, filter);
+      }
+    },
+  });
+}
 
-    if (filter === "all") {
-      params.delete(ARCHITECTURES_HUB_FILTER_PARAM);
-    } else {
-      params.set(ARCHITECTURES_HUB_FILTER_PARAM, filter);
-    }
+export function architecturesHubSearchHrefFromSearch(
+  currentSearch: string,
+  query: string,
+  pathname: string = ARCHITECTURES_LIST_PATH,
+): string {
+<<<<<<< HEAD
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+      const trimmed = query.trim();
 
-    const query = params.toString();
+=======
+  const trimmed = query.trim();
 
-    return query.length === 0 ? pathname : `${pathname}?${query}`;
-  }
-
-  export function architecturesHubSearchHrefFromSearch(
-    currentSearch: string,
-    query: string,
-    pathname: string = ARCHITECTURES_LIST_PATH,
-  ): string {
-    const params = new URLSearchParams(currentSearch);
-    const trimmed = query.trim();
-
-    if (trimmed.length === 0) {
-      params.delete(ARCHITECTURES_HUB_SEARCH_PARAM);
-    } else {
-      params.set(ARCHITECTURES_HUB_SEARCH_PARAM, trimmed);
-    }
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+>>>>>>> 6fffd4ff08 (Fix operator URL codemod syntax damage)
+      if (trimmed.length === 0) {
+        params.delete(ARCHITECTURES_HUB_SEARCH_PARAM);
+      } else {
+        params.set(ARCHITECTURES_HUB_SEARCH_PARAM, trimmed);
+      }
     },
   });
 }

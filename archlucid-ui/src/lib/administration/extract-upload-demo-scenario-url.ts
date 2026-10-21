@@ -2,8 +2,8 @@ import {
   isAzureExtractorDemoScenarioId,
   type AzureExtractorDemoScenarioId,
 } from "@/lib/arch-lucid-azure-extractor-demo-scenarios";
-import {
 import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
+import {
   isAzureLabDemoScenarioId,
   type AzureLabDemoScenarioId,
 } from "@/lib/azure-lab-inventory-demo-scenarios";

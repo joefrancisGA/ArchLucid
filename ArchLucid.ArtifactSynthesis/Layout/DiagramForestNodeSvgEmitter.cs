@@ -75,7 +75,8 @@ public static class DiagramForestNodeSvgEmitter
             + (metrics.DataFlowTypeLine is null ? 0 : options.LineHeight)
             + (metrics.DataFlowDetailLines.Count * options.LineHeight)
             + (metrics.ConsumerStatusLine is null ? 0 : options.LineHeight)
-            + (metrics.ResourceGroupLines.Count * options.LineHeight);
+            + (metrics.ResourceGroupLines.Count * options.LineHeight)
+            + (metrics.DataFlowRollupInvitationLine is null ? 0 : options.LineHeight);
         double contentHeight = Math.Max(options.PictogramSize, textBlockHeight);
         double contentTop = (height - contentHeight) / 2.0;
         double pictogramY = contentTop + ((contentHeight - options.PictogramSize) / 2.0);

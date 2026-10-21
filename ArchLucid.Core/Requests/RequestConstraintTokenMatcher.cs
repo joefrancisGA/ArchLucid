@@ -162,6 +162,7 @@ internal static class RequestConstraintTokenMatcher
     private static bool IsCompoundIdentifierDelimiter(char connector)
     {
         // Compact capability slugs glue tokens with punctuation; natural-language constraints use ASCII spaces (after normalization).
+
         if (connector == ' ')
             return false;
 
@@ -566,6 +567,7 @@ internal static class RequestConstraintTokenMatcher
                 System.Globalization.UnicodeCategory category = char.GetUnicodeCategory(character);
 
                 // Preserve ASCII hyphen for compound identifiers (e.g. managed-identity); map Word-style dashes to spaces.
+
                 if (category is System.Globalization.UnicodeCategory.DashPunctuation && character != '-')
                 {
                     replacement = ' ';

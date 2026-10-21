@@ -214,13 +214,17 @@ public sealed class GovernanceStickinessControllerTests
 
         Mock<IArchitectureReviewRecurrenceScheduleRepository> recurrenceRepository =
             recurrenceRepo ?? new Mock<IArchitectureReviewRecurrenceScheduleRepository>();
-        recurrenceRepository
-            .Setup(r => r.ListByScopeAsync(
-                Scope.TenantId,
-                Scope.WorkspaceId,
-                Scope.ProjectId,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Array.Empty<ArchitectureReviewRecurrenceSchedule>());
+
+        if (recurrenceRepo is null)
+        {
+            recurrenceRepository
+                .Setup(r => r.ListByScopeAsync(
+                    Scope.TenantId,
+                    Scope.WorkspaceId,
+                    Scope.ProjectId,
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(Array.Empty<ArchitectureReviewRecurrenceSchedule>());
+        }
 
         Mock<IArchitectureReviewRecurrenceNextRunCalculator> nextRun =
             recurrenceCalculator ?? new Mock<IArchitectureReviewRecurrenceNextRunCalculator>();
@@ -1488,6 +1492,98 @@ public sealed class GovernanceStickinessControllerTests
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
         recurrenceRepo.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task ListRecurrenceSchedules_blocks_unsealed_source_run_when_latest_run_is_sealed()
+    {
+        Guid latestRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid sourceRunId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        Guid scheduleId = Guid.Parse("44444444-4444-4444-4444-444444444444");
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(service => service.ListRunSummariesKeysetAsync(
+                null,
+                50,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                (
+                    new[]
+                    {
+                        new RunSummary
+                        {
+                            RunId = latestRunId.ToString("N"),
+                            Status = nameof(ArchitectureRunStatus.Committed),
+                            CreatedUtc = DateTime.UtcNow,
+                        },
+                    },
+                    false,
+                    (string?)null));
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(query => query.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                latestRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new RunDetailDto
+                {
+                    Run = new RunRecord { RunId = latestRunId },
+                    GoldenManifest = new ManifestDocument
+                    {
+                        RunId = latestRunId,
+                        ManifestHash = SealedManifestHash,
+                    },
+                });
+        authority
+            .Setup(query => query.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                sourceRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new RunDetailDto
+                {
+                    Run = new RunRecord { RunId = sourceRunId },
+                    GoldenManifest = null,
+                });
+
+        Mock<IManifestHashService> manifestHash = new();
+        manifestHash
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns(SealedManifestHash);
+
+        Mock<IArchitectureReviewRecurrenceScheduleRepository> recurrenceRepo = new();
+        recurrenceRepo
+            .Setup(repository => repository.ListByScopeAsync(
+                Scope.TenantId,
+                Scope.WorkspaceId,
+                Scope.ProjectId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new[]
+                {
+                    new ArchitectureReviewRecurrenceSchedule
+                    {
+                        ScheduleId = scheduleId,
+                        TenantId = Scope.TenantId,
+                        WorkspaceId = Scope.WorkspaceId,
+                        ProjectId = Scope.ProjectId,
+                        SourceRunId = sourceRunId,
+                        Name = "Weekly review",
+                    },
+                });
+
+        GovernanceStickinessController sut = BuildSut(
+            recurrenceRepo: recurrenceRepo,
+            authorityQueryService: authority.Object,
+            manifestHashService: manifestHash.Object,
+            runDetailQueryService: runDetails.Object);
+
+        IActionResult action = await sut.ListRecurrenceSchedules(CancellationToken.None);
+
+        action.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
     }
 
     [Fact]
@@ -5074,6 +5170,13 @@ public sealed class GovernanceStickinessControllerTests
 
         Mock<IArchitectureReviewRecurrenceScheduleRepository> recurrenceRepo = new();
         recurrenceRepo
+            .Setup(r => r.ListByScopeAsync(
+                Scope.TenantId,
+                Scope.WorkspaceId,
+                Scope.ProjectId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<ArchitectureReviewRecurrenceSchedule>());
+        recurrenceRepo
             .Setup(r => r.CreateAsync(It.IsAny<ArchitectureReviewRecurrenceSchedule>(), It.IsAny<CancellationToken>()))
             .Callback<ArchitectureReviewRecurrenceSchedule, CancellationToken>((schedule, _) => captured = schedule)
             .Returns(Task.CompletedTask);
@@ -5116,6 +5219,13 @@ public sealed class GovernanceStickinessControllerTests
         ArchitectureReviewRecurrenceSchedule? captured = null;
 
         Mock<IArchitectureReviewRecurrenceScheduleRepository> recurrenceRepo = new();
+        recurrenceRepo
+            .Setup(r => r.ListByScopeAsync(
+                Scope.TenantId,
+                Scope.WorkspaceId,
+                Scope.ProjectId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<ArchitectureReviewRecurrenceSchedule>());
         recurrenceRepo
             .Setup(r => r.CreateAsync(It.IsAny<ArchitectureReviewRecurrenceSchedule>(), It.IsAny<CancellationToken>()))
             .Callback<ArchitectureReviewRecurrenceSchedule, CancellationToken>((schedule, _) => captured = schedule)

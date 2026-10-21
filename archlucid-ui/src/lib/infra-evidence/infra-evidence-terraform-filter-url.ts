@@ -4,8 +4,8 @@ import {
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import { infrastructureTerraformPathForProductLine } from "@/lib/product-line/securenow-infrastructure-routes";
 import { resolveProductLineId } from "@/lib/product-line/resolve-product-line-id";
-import {
 import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
+import {
   RESOURCE_HUB_ASSESSMENT_ID_PARAM,
   RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM,
   RESOURCE_HUB_CONTROL_ID_PARAM,

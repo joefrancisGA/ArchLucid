@@ -114,6 +114,7 @@ public sealed class InfraEvidenceMermaidDisplayFlagMergeTests
         bool includeRecoveryServices = target == DisplayFlag.RecoveryServices;
         bool includeCrossGroupFanOut = target == DisplayFlag.CrossGroupFanOut || decoyCrossGroup;
         bool includeAvdAssets = target == DisplayFlag.AvdAssets;
+
         if (target == DisplayFlag.AvdAssets)
         {
             includeCrossGroupFanOut = true;

@@ -94,6 +94,30 @@ public sealed class FindingDispositionServiceNotesTests
     }
 
     [Fact]
+    public async Task ListHistoryAsync_returns_history_when_finding_id_differs_only_by_casing()
+    {
+        ConcurrentFindingReviewTrailRepository trailRepository = new();
+        FindingDispositionService sut = CreateService(trailRepository);
+
+        await sut.RecordAsync(
+            new RecordFindingDispositionRequest
+            {
+                FindingId = "Finding-A",
+                Disposition = Disposition.Remediated,
+                Rationale = "Remediation shipped in release 2.4.",
+            },
+            Scope,
+            "alice",
+            CancellationToken.None);
+
+        IReadOnlyList<FindingDispositionEventDto> history =
+            await sut.ListHistoryAsync(Scope, "finding-a", CancellationToken.None);
+
+        history.Should().ContainSingle();
+        history[0].Disposition.Should().Be(Disposition.Remediated);
+    }
+
+    [Fact]
     public async Task ListHistoryAsync_excludes_disposition_events_from_other_project()
     {
         ConcurrentFindingReviewTrailRepository trailRepository = new();
