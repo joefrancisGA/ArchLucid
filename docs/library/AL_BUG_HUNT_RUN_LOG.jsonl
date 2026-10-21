@@ -5846,3 +5846,4 @@
 {"at":"2026-10-21T05:45:01.0429074Z","zoneId":"run-execute-ownership","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/,ArchLucid.Application/Runs/ExecuteOwnership/"]}
 {"at":"2026-10-21T05:47:32.507Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/reviews/WorkspaceAiAvailabilityPanel.tsx"]}
 {"at":"2026-10-21T05:53:55.623Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/reviews/ReviewArchiveControl.tsx"]}
+{"at":"2026-10-21T05:53:34.4151333Z","zoneId":"api-tenancy-workspaces","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Tenancy/"]}

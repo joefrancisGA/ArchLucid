@@ -52,7 +52,7 @@ public sealed partial class TenantWorkspacesController
             IReadOnlyList<ArchitectureProjectRecord>? activeProjects =
                 await _architectureProjectRepository.ListActiveByTenantAsync(scope.TenantId, cancellationToken);
 
-            if (activeProjects is null)
+            if (activeProjects is null || activeProjects.Count == 0)
             {
                 return this.BadRequestProblem(
                     "The workspace default architecture project cannot be deleted. Create another project and re-point the workspace default first.",

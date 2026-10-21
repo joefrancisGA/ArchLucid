@@ -16,6 +16,10 @@
 - [x] (invalid) `RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken` — fractional numeric `reasoning:[1.5]` preserved as text — **cheap-disproof 2026-10-21 lane C:** non-whole JSON numbers fail the reader; whole-number compatibility only; no producer fixture required to disprove the stated mechanism.
 
 2026-10-21 thorough hunt (dry, lane C): `tenant-erasure` — lock `tenant-erasure` (replaced lane B `host-core-jobs` on origin at hunt start); repro-first on seeded register rawPath guard + legal-hold middleware scope; register/`..`/double-slash/`%2e%2e` traversals that normalize to non-register routes stay blocked (`Erasure_quarantine_blocks_offboarded_tenant_when_register_or_erasure_prefix_traversal_normalizes_away_from_skip`, `Erasure_quarantine_blocks_offboarded_tenant_when_register_path_uses_percent_encoded_dot_segments`); dot-segment register URLs fail raw prefix and receive 403 (over-block, not quarantine bypass); active `LegalHoldUntilUtc` without offboard leaves tenant APIs reachable by design (`IsTenantLoginBlocked` + purge/lifecycle gates elsewhere); Application `TenantErasure` 35/35, Api `TenantErasure` 33/33; no production change.
+2026-10-21 thorough hunt (hit): `api-tenancy-workspaces` — lane B; lock pushed before work; promoted `TenantWorkspacesController.DeleteProjectAsync` fail-open when caller workspace pins default project but `ListActiveByTenantAsync` returns empty (not null), allowing soft-delete without active-catalog confirmation while null list already returned 400; empty catalog now fails closed like null; idempotent already-deleted retry uses non-empty active list with sibling project so default is absent from catalog; regression `DeleteProjectAsync_returns_bad_request_when_caller_default_pinned_and_active_catalog_is_empty`; scoped `FullyQualifiedName~TenantWorkspaces` 62/62.
+
+- [x] (proven) `TenantWorkspacesController.DeleteProjectAsync` — caller default delete with empty active catalog — **hit 2026-10-21 lane B:** `activeProjects.Count == 0` guard with null; regression above.
+
 2026-10-21 thorough hunt (hit): `run-execute-ownership` — lane B; lock pushed before work; promoted selective execute ReadyForCommit demotion using stale `ArchitectureRun` eligibility snapshot (`TryDemoteReadyForCommitBeforeSelectiveExecuteAsync` returned early when `currentRun.Status` was not `ReadyForCommit` even though persisted header had flipped to `ReadyForCommit` after live task reload); demotion now keys off `RunRecord.LegacyRunStatus` after reload; regression `TryDemoteReadyForCommitBeforeSelectiveExecuteAsync_demotes_when_live_header_is_ready_for_commit_even_if_stale_snapshot_was_not`; scoped ownership/orchestrator/pre-execute filter 70/70 (`RunConfiguration` single-threaded; `AcquireAsync_when_concurrent_repository_success_and_tryadd_loses_rolls_back_sql_lease` hang under blame-hang on VM — excluded from this pass).
 
 - [x] (proven) `ArchitectureRunExecutePreExecuteStage.TryDemoteReadyForCommitBeforeSelectiveExecuteAsync` — stale eligibility snapshot skipped demotion when header was `ReadyForCommit` — **hit 2026-10-21 lane B:** read persisted `LegacyRunStatus` before demote; regression above.
@@ -39321,6 +39325,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 ---
 ## Zone: api-tenancy-workspaces
 
+2026-10-21 thorough hunt (hit): lane B; DeleteProject empty active catalog fail-closed; 62/62 TenantWorkspaces tests.
+
 2026-10-20 seed hunt (seed→hit): promoted `TenantWorkspacesController.ListAsync` conflicting duplicate-row defaults choosing sibling over JWT-scoped project; `ResolveScopedWorkspaceDefaultProjectId` prefers scoped project when valid; regression `ListAsync_prefers_scope_project_default_when_duplicate_inventory_rows_disagree`.
 
 - [x] (proven) `TenantWorkspacesController.ListAsync` — duplicate inventory rows disagree on active default — regression above.
@@ -39334,7 +39340,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-20 seed hunt (seed→hit): promoted `TenantWorkspacesController.DeleteProjectAsync` duplicate workspace rows pinning caller default on non-first inventory row; `CallerWorkspacePinsProjectAsDefault` / `ForeignWorkspacePinsProjectAsDefault`; regression `DeleteProjectAsync_returns_bad_request_when_duplicate_workspace_row_pins_caller_default_and_active_list_is_null`.
 
 - [x] (proven) `TenantWorkspacesController.DeleteProjectAsync` — duplicate workspace inventory caller-default pin missed by `FindWorkspace` — regression above.
-- (candidate) `TenantWorkspacesController.DeleteProjectAsync` — caller default delete when active list empty but not null — locus: default metadata guard; input: fail-open vs idempotent `AlreadyDeleted` retry tension.
+- [x] (proven) `TenantWorkspacesController.DeleteProjectAsync` — caller default delete when active catalog empty — **hit 2026-10-21 lane B thorough hunt:** fail-closed parity with null catalog; idempotent retry uses sibling-populated active list; regression `DeleteProjectAsync_returns_bad_request_when_caller_default_pinned_and_active_catalog_is_empty`.
 
 2026-10-20 seed hunt (seed→hit): promoted `TenantWorkspacesController` duplicate `WorkspaceId` inventory rows crashing `SingleOrDefault`; `FindWorkspace` helper; regression `ListAsync_returns_ok_when_tenant_inventory_contains_duplicate_workspace_rows`.
 
@@ -39394,10 +39400,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 31
-- **bugs-found:** 11
+- **hunts:** 32
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-15
+- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-20 — workspace list null tenant workspace inventory
 - **related-pd-tb:** none
 - **code-changed-since:** no
