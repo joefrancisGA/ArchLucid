@@ -1,5 +1,13 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 ﻿> **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
+2026-10-21 thorough hunt (dry, lane B): `auth-return-path` — lock pushed before work; repro-first on five open `(candidate)` rows (paragraph separator, form feed, query `%5C%2F`, fragment `%2E%2E`, small commercial-at homoglyph); BMP NFKC compatibility scan on accepted single-codepoint prefixes found no protocol-relative or `@` normalization bypass beyond prior ledger rows; regressions `TryNormalize_accepts_percent_encoded_paragraph_separator_in_path_segment`, `TryNormalize_rejects_percent_encoded_form_feed_in_path_segment_after_decode`, `TryNormalize_rejects_encoded_backslash_slash_pair_in_query`, `TryNormalize_accepts_percent_encoded_dot_dot_literals_only_in_fragment`, `TryNormalize_rejects_percent_encoded_small_commercial_at_in_path_portion`; scoped `FullyQualifiedName~AuthSignInReturnPathGuardTests` 201/201; no production change.
+
+- [x] (valid-no-repro) `TryNormalize` — percent-encoded paragraph separator `%E2%80%A9` in path segment — **cheap-disproof 2026-10-21 lane B:** parity line separator U+2028; not control/open-redirect shape; regression above.
+- [x] (valid-no-repro) `ContainsControlCharacter` — form feed `%0C` after percent decoding — **cheap-disproof 2026-10-21 lane B:** post-decode `char.IsControl` rejection; regression above.
+- [x] (valid-no-repro) `ContainsResidualEncodedTraversal` — encoded backslash plus slash `%5C%2F` in query — **cheap-disproof 2026-10-21 lane B:** conservative full-string backslash rejection after decode; regression above.
+- [x] (valid-no-repro) `ContainsDotDotSegment` — percent-encoded dot pair `%2E%2E` in fragment — **cheap-disproof 2026-10-21 lane B:** path-only `..` guard; fragment literals intentional; regression above.
+- [x] (valid-no-repro) `ContainsAtSignInPath` — percent-encoded small commercial at `%EF%B9%AB` in path — **cheap-disproof 2026-10-21 lane B:** decode loop re-runs homoglyph scan; regression above (pairs with `TryNormalize_rejects_fullwidth_commercial_at_userinfo_homoglyphs`).
+
 2026-10-21 thorough hunt (hit, lane B): `itsm-inbound-webhooks` — lock pushed before work; repro-first on open ServiceNow disposition candidate when human review promotes `incident_state` but disposition map keys only primary `state` token; `ItsmInboundWebhookProcessPipeline` dropped primary `state` after alternate HR promotion so disposition sync never consulted `ServiceNowStateDispositionMap` on `state`; pipeline now falls back to `primaryStatusValue` when HR resolved from alternate; regression `ServiceNow_inbound_uses_primary_state_disposition_when_human_review_promoted_from_incident_state`; cheap-disproof closed four sibling `(candidate)` rows (alternate HR promotion, inspect-null audit, whitespace finding id, Guid.Empty facade); scoped `FullyQualifiedName~ItsmInboundWebhook` 82/82 (71 Application + 11 Persistence).
 
 - [x] (proven) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — ServiceNow disposition map on primary `state` skipped when human review promoted from `incident_state` — **hit 2026-10-21 lane B:** retain `primaryStatusValue` and disposition fallback after alternate HR resolution; regression above.
@@ -10181,7 +10189,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: auth-return-path
 
-**Hunts:** 54 · **Bugs found:** 22 · **Consecutive dry hunts:** 7
+**Hunts:** 55 · **Bugs found:** 22 · **Consecutive dry hunts:** 8
+
+2026-10-21 thorough hunt (dry, lane B): repro-first on five open `(candidate)` rows; BMP NFKC scan; five regressions; scoped 201/201.
+
+- [x] (valid-no-repro) `TryNormalize` — percent-encoded paragraph separator `%E2%80%A9` — **cheap-disproof 2026-10-21 lane B:** regression `TryNormalize_accepts_percent_encoded_paragraph_separator_in_path_segment`.
+- [x] (valid-no-repro) `ContainsControlCharacter` — form feed `%0C` — **cheap-disproof 2026-10-21 lane B:** regression `TryNormalize_rejects_percent_encoded_form_feed_in_path_segment_after_decode`.
+- [x] (valid-no-repro) `ContainsResidualEncodedTraversal` — query `%5C%2F` — **cheap-disproof 2026-10-21 lane B:** regression `TryNormalize_rejects_encoded_backslash_slash_pair_in_query`.
+- [x] (valid-no-repro) `ContainsDotDotSegment` — fragment `%2E%2E` — **cheap-disproof 2026-10-21 lane B:** regression `TryNormalize_accepts_percent_encoded_dot_dot_literals_only_in_fragment`.
+- [x] (valid-no-repro) `ContainsAtSignInPath` — `%EF%B9%AB` small commercial at — **cheap-disproof 2026-10-21 lane B:** regression `TryNormalize_rejects_percent_encoded_small_commercial_at_in_path_portion`.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; reaffirmed paragraph-separator and soft-hyphen handling, query-only protocol-relative scans, control-character rejection, and fragment `://` rejection; 196 scoped `AuthSignInReturnPathGuardTests` passed.
 
@@ -10190,12 +10206,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ContainsProtocolRelativeTraversal` — query-only `//` after decode without scheme — **cheap-disproof 2026-10-08 seed hunt #54:** conservative full-string scan rejects decoded `//`, even when it appears only in query data.
 - [x] (valid-no-repro) `ContainsControlCharacter` — vertical tab `%0B` in path segment — **cheap-disproof 2026-10-08 seed hunt #54:** post-decode `char.IsControl` rejection covers vertical tab.
 - [x] (valid-no-repro) `TryNormalizeRelativePath` — fragment containing `://` without path `@` — **cheap-disproof 2026-10-08 seed hunt #54:** whole-string scheme delimiter rejection is conservative and prevents fragment-based redirect ambiguity.
-
-- [ ] (candidate) `TryNormalize` — percent-encoded paragraph separator `%E2%80%A9` in path segment — locus: percent-decode loop before `TryNormalizeRelativePath`; input: `/reviews%E2%80%A9/1`.
-- [ ] (candidate) `ContainsControlCharacter` — form feed `%0C` after percent decoding — locus: decoded control scan ~75; input: `/reviews/%0Csegment`.
-- [ ] (candidate) `ContainsProtocolRelativeTraversal` — encoded backslash plus slash `%5C%2F` in query — locus: residual traversal scan ~116–123; input: `/reviews?next=%5C%2Fevil.example`.
-- [ ] (candidate) `ContainsDotDotSegment` — percent-encoded dot pair `%2E%2E` in fragment — locus: full decode and path-only traversal split; input: `/reviews#next=%2E%2E/admin`.
-- [ ] (candidate) `ContainsAtSignInPath` — percent-encoded small commercial at `%EF%B9%AB` in path — locus: decoded path userinfo scan; input: `/reviews/%EF%B9%ABevil.example`.
 
 - [x] (valid-no-repro) `TryNormalize` — percent-encoded POP `%E2%81%A9` — **cheap-disproof 2026-10-08 seed hunt #56:** decodes to in-path directional isolate; regression `TryNormalize_decodes_percent_encoded_pop_directional_isolate_in_path_segment`.
 - [x] (valid-no-repro) `ContainsControlCharacter` — `%0D` in path — **cheap-disproof 2026-10-08 seed hunt #56:** post-decode CR rejected; regression `TryNormalize_rejects_percent_encoded_carriage_return_in_path_segment_after_decode`.
@@ -10292,10 +10302,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 56
-- **bugs-found:** 23
-- **consecutive-dry-hunts:** 7
-- **last-hunt:** 2026-10-07
+- **hunts:** 55
+- **bugs-found:** 22
+- **consecutive-dry-hunts:** 8
+- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-09-26 — fullwidth commercial-at homoglyphs evaded userinfo-shaped return-path guard
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
