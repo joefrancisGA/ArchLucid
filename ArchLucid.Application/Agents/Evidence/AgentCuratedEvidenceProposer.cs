@@ -1,6 +1,8 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Agents;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
@@ -97,10 +99,12 @@ public sealed class AgentCuratedEvidenceProposer(
                 .Take(12),
             JsonOptions);
 
+        AgentType agentType = AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result);
+
         return $"""
                 RunId: {runId}
                 System: {request.SystemName}
-                AgentType: {result.AgentType}
+                AgentType: {agentType}
                 Claims: {string.Join("; ", (result.Claims ?? []).Take(6))}
                 EvidenceRefs: {string.Join(", ", (result.EvidenceRefs ?? []).Take(12))}
                 Findings: {findingsSummary}

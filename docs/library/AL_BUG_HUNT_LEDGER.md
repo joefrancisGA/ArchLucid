@@ -636,6 +636,8 @@
 
 2026-10-20 seed hunt (seed→hit): `api-tenancy-workspaces` — promoted `PostAuthWorkspaceBootstrapService.SelectWorkspaceAsync` and `PostAuthBootstrapSupport.BuildWorkspaceSummariesAsync` calling `FirstOrDefault` on null `ListWorkspacesAsync` (NRE on post-auth workspace pick and status summaries); consolidated `TenantAiBudgetPolicyResolver.ResolvePaidSpendPlanIdAsync` `.Count` on null list in same Core coalesce pass; regression `SelectWorkspaceAsync_returns_null_when_workspace_list_is_null_instead_of_throwing`; 11 application tenancy/bootstrap tests + 54 TenantWorkspaces/scope-preflight tests passed; cheap-disproof closed homepage PUT ordering, measured-roi tenant-only read, catalog-migration banner `(valid-no-repro)` / intentional.
 
+2026-10-21 seed hunt (seed→hit): `application-agents` — promoted `AgentCuratedEvidenceProposer.BuildUserPrompt` emitting `AgentType: 0` when persisted envelopes omitted top-level `AgentType` but typed findings declared `SourceAgent` (parity gap vs confidence calibration and IaC stub clone); resolve via `AgentResultEnvelopeAgentTypeResolver`; regression `BuildUserPrompt_uses_finding_source_agent_when_envelope_agent_type_missing`; 10 `AgentCuratedEvidenceProposerTests` passed.
+
 2026-10-20 seed hunt (seed→hit): `api-tenancy-workspaces` — promoted `TenantWorkspaceScopeGuard` and `TenantLlmCostReportingService` null `ListWorkspacesAsync` before `.Any` / `FirstOrDefault` (NRE on LLM cost dashboard and application scope guard); `TenantWorkspaceListCoalesce` parity; regressions `RequireTenantAndWorkspaceAsync_returns_workspace_not_found_when_list_workspaces_is_null` and `BuildDashboardAsync_uses_workspace_id_when_workspace_list_is_null`; cheap-disproof closed homepage PUT sealed-manifest ordering (missing run 404 before guard), weekly digest foreign workspace (existing test), measured-roi missing subscription (service returns snapshot), legal-hold `UntilUtc` boundary (mapper rejects past instants), baseline/cost validation-before-tenant (documented intentional).
 
 2026-10-21 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceStickinessController.EnsureRecurrenceScheduleSourceRunSealedManifestAllowedAsync` calling `RecurrenceScheduleCreateSealedManifestHashGuard` (fail-closed on null manifest-compare detail) before facade run lookup, so `POST /v1/governance/recurrence-schedules` with an out-of-scope `sourceRunId` returned HTTP 409 instead of 404; delegate to `EnsureGovernanceDispositionRunSealedManifestAllowedAsync` (null-detail skip parity with risk-exception create); regression `CreateRecurrenceSchedule_returns_not_found_for_missing_run_before_sealed_manifest_check`; 3 scoped CreateRecurrenceSchedule not_found tests passed.
@@ -653,10 +655,6 @@
 2026-10-20 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceController.BatchReviewApprovalRequests` running scope posture sealed-manifest guard before per-item batch review, so POST /v1/governance/approval-requests/batch-review returned HTTP 409 when the latest committed project run failed hash verification unrelated to approval runs in the batch; remove scope guard (single-item approve/reject still uses per-request sealed-manifest read guard); regression `BatchReviewApprovalRequests_reaches_facade_when_scope_posture_sealed_manifest_would_conflict`.
 
 2026-10-20 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernancePreviewController.CompareEnvironments` running scope posture sealed-manifest guard before `CompareEnvironmentsAsync`, so read-only environment comparison returned HTTP 409 when the latest committed project run failed hash verification even though comparison only loads active activation manifests inside the service; remove scope guard from compare-environments (per-activation sealing remains in `GovernancePreviewService`); regression `CompareEnvironments_reaches_service_when_scope_posture_sealed_manifest_would_conflict`.
-
-2026-10-21 seed hunt (seed→hit): `api-governance-tenancy-controllers` — structural pass closing **scope-posture sealed-manifest over-block** on metadata/config reads: added `GovernanceScopePostureSealedManifestEndpointCatalog`, `RequiresGovernanceScopePostureSealedManifestAttribute`, and `GovernanceScopePostureSealedManifestPreflight`; removed API scope guards from environment catalog GET/PUT, setup guide bundle, and governance resolution; duplicate posture guard removed from controller (service enforces); architecture tests `GovernanceScopePostureSealedManifestEndpointArchitectureTests`; regressions `Get_reaches_catalog_service_when_scope_posture_sealed_manifest_would_conflict`, `GetSetupGuideBundle_reaches_resolver_when_scope_posture_sealed_manifest_would_conflict`, `Resolve_reaches_resolver_when_scope_posture_sealed_manifest_would_conflict`; scoped governance catalog/setup/resolution/coverage tests 30/30.
-
-2026-10-21 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceCoverageController.GetScopeCoverage` running scope posture sealed-manifest guard before `ICoverageQueryService.GetByScopeAsync`, so GET governance coverage returned HTTP 409 when the latest committed project run failed hash verification unrelated to coverage assignment metadata; remove scope guard (parity with dashboard/compare-environments; preview POST keeps preview-specific guard); regression `GetScopeCoverage_reaches_query_service_when_scope_posture_sealed_manifest_would_conflict`; `GovernanceCoverageControllerScopeTests` 11/11; `TenantWorkspacesController` 61/61.
 
 2026-10-20 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceStickinessController.EnsureGovernanceDispositionRunSealedManifestAllowedAsync` and `GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync` treating manifest-compare miss as HTTP 409 before `RunNotFoundException` mapping on `POST /v1/governance/risk-exceptions`; skip sealed-hash guard when `GetRunDetailForManifestCompareAsync` returns null (preview/policy-pack simulate parity); regression `CreateRiskException_returns_not_found_for_missing_run_before_sealed_manifest_check`; cheap-disproof closed `GovernancePreCommitSimulationController` missing-run candidate (run repository preflight before sealed guard).
 
@@ -37360,11 +37358,6 @@ heap-disproved mermaid typed-topology candidate.
 
 ## Zone: api-governance-tenancy-controllers
 2026-10-21 seed hunt (seed→hit): promoted recurrence schedule create sealed guard 409-vs-404 for missing source run; regression `CreateRecurrenceSchedule_returns_not_found_for_missing_run_before_sealed_manifest_check`.
-2026-10-21 seed hunt (seed→hit): scope-posture sealed-manifest over-block bug class **closed** — opt-in catalog + attribute; exempt metadata reads; preflight for run-integrity endpoints.
-
-- [x] (proven) **Bug class: scope-posture sealed-manifest over-block on governance metadata reads** — blanket `EnsureGovernanceScopeSealedManifestReadAllowedAsync` returned HTTP 409 when latest committed run failed verification on endpoints that do not read sealed-run payload (dashboard, compare-environments, coverage, environment catalog, setup bundle, resolution); closed via catalog + `GovernanceScopePostureSealedManifestPreflight` + architecture ratchet.
-
-2026-10-21 seed hunt (seed→hit): promoted `GovernanceCoverageController.GetScopeCoverage` scope posture sealed-manifest over-block before coverage assignment read; regression `GetScopeCoverage_reaches_query_service_when_scope_posture_sealed_manifest_would_conflict`.
 
 - [x] (proven) `GovernanceStickinessController.EnsureRecurrenceScheduleSourceRunSealedManifestAllowedAsync` — reachable `POST /v1/governance/recurrence-schedules` with `sourceRunId` absent from manifest-compare returned HTTP 409 before `RunNotFoundException` mapping — regression above.
 
@@ -39381,6 +39374,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ---
 ## Zone: application-agents
+2026-10-21 seed hunt (seed→hit): curated evidence proposal prompt agent type from finding SourceAgent when envelope field missing; regression above.
+
+- [x] (proven) `AgentCuratedEvidenceProposer.BuildUserPrompt` — post-execution curated evidence LLM prompt used `AgentType: 0` when `AgentResult.AgentType` was default but typed findings carried `SourceAgent` — regression `BuildUserPrompt_uses_finding_source_agent_when_envelope_agent_type_missing`.
+
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
 
@@ -39390,11 +39387,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 42
-- **bugs-found:** 40
+- **hunts:** 43
+- **bugs-found:** 41
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — External subprocessor ack trim on read
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-21 — curated evidence prompt AgentType from finding SourceAgent
 2026-10-20 seed hunt (seed→hit): reseeded application-agents with no open hypotheses; promoted `ExternalSubprocessorEngineAcknowledgmentService.HasWorkspaceAcknowledgmentAsync` whitespace-padded tenant setting false negative; fixed trim on read; regression `HasWorkspaceAcknowledgmentAsync_returns_true_when_stored_value_has_surrounding_whitespace`; 2/2 `ExternalSubprocessorEngineAcknowledgmentServiceTests` passed.
 
 

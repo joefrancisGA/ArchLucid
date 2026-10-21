@@ -1,5 +1,6 @@
 using ArchLucid.Application.Agents.Evidence;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
@@ -43,6 +44,47 @@ public sealed class AgentCuratedEvidenceProposerTests
 
         prompt.Should().Contain("RunId: run");
         prompt.Should().Contain("System: Payments");
+    }
+
+    [Fact]
+    public void BuildUserPrompt_uses_finding_source_agent_when_envelope_agent_type_missing()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req",
+            Description = new string('x', 12),
+            SystemName = "Payments",
+        };
+
+        AgentEvidencePackage evidence = new();
+
+        AgentResult result = new()
+        {
+            RunId = "run",
+            TaskId = "task",
+            Findings =
+            [
+                new ArchitectureFinding
+                {
+                    SourceAgent = AgentType.Topology,
+                    FindingId = "finding-typed",
+                    Message = "Private endpoint required for storage.",
+                    Category = "Network",
+                    Severity = FindingSeverity.Warning,
+                    EvidenceRefs =
+                    [
+                        "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                    ],
+                },
+            ],
+        };
+
+        result.AgentType.Should().Be(default(AgentType));
+
+        string prompt = AgentCuratedEvidenceProposer.BuildUserPrompt("run", request, evidence, result);
+
+        prompt.Should().Contain("AgentType: Topology");
+        prompt.Should().NotContain("AgentType: 0");
     }
 
     [Fact]
