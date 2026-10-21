@@ -843,7 +843,7 @@ public sealed class EmailOtpAuthServiceTests
 
         Assert.Contains("If that address can receive email", result.Message);
         Assert.Null(result.ChallengeId);
-        Assert.NotEqual(false, result.EmailDeliverySucceeded);
+        Assert.False(result.EmailDeliverySucceeded);
 
         audit.Verify(
             service => service.LogAsync(

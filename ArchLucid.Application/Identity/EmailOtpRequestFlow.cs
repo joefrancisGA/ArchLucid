@@ -226,7 +226,11 @@ public sealed class EmailOtpRequestFlow(
 
             ArchLucidInstrumentation.RecordEmailOtpChallengeRequested("delivery_failed");
 
-            return NeutralResult();
+            return new EmailOtpChallengeRequestResult
+            {
+                Message = NeutralSentMessage,
+                EmailDeliverySucceeded = false
+            };
         }
 
         await AuthAuditEmitter.LogIdentityEventAsync(
