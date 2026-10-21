@@ -29,6 +29,7 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     [InlineData("password:super-secret")]
     [InlineData("""password="quoted secret value";other=1""")]
     [InlineData("postgresql://dbuser:dbpass@db.example.com:5432/app")]
+    [InlineData("dbuser:dbpass@db.example.com:5432/app")]
     public void Resolve_redacts_embedded_credential_material_delimiter_agnostic_matrix(string effectiveValue)
     {
         AssertRedacts(effectiveValue);
