@@ -80,4 +80,40 @@ public sealed class TechnologyLedgerTopologyProposalMapperTests
         candidates.Should().OnlyContain(entry => entry.Source == TechnologyLedgerSource.AgentProposed);
         candidates.Should().OnlyContain(entry => entry.Status == TechnologyLedgerStatus.Assumed);
     }
+
+    [Fact]
+    public void MapCandidates_caps_agent_topology_evidence_ref_at_nvarchar_200_when_service_id_is_long()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestId = "r1",
+            SystemName = "Sys",
+            Description = "desc",
+            CloudProvider = CloudProvider.Azure,
+        };
+
+        string longServiceId = new('s', 240);
+        AgentTopologyProposal proposal = new()
+        {
+            ProposalId = "p1",
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceId = longServiceId,
+                    ServiceName = "api",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+        };
+
+        IReadOnlyList<TechnologyLedgerEntry> candidates =
+            TechnologyLedgerTopologyProposalMapper.MapCandidates("run-1", request, proposal, DateTime.UtcNow);
+
+        TechnologyLedgerEntry compute = candidates.Single(entry => entry.Role == TechnologyLedgerRole.ComputeRuntime);
+        compute.EvidenceRef.Should().NotBeNull();
+        compute.EvidenceRef!.Length.Should().BeLessThanOrEqualTo(TechnologyLedgerAgentTopologyEvidenceRef.MaxLength);
+        compute.EvidenceRef.Should().StartWith("agentTopologyProposal:p1:", because: "proposal id stays literal when only sub-key is long");
+    }
 }
