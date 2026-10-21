@@ -1,3 +1,4 @@
+import { isReviewWorkspaceDetailRoutePath } from "@/lib/architecture/review-workspace-route";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import {
   pathMatchesGovernanceAlerts,
@@ -16,7 +17,7 @@ export function isAppShellWorkspaceFooterBuildFingerprintVisible(pathname: strin
     || pathMatchesGovernanceAudit(pathname)
     || pathMatchesGovernanceAlerts(pathname)
     || pathMatchesGovernancePolicyPacks(pathname)
-    || (pathname.startsWith("/architecture/reviews/") && pathname.split("/").filter(Boolean).length >= 2);
+    || isReviewWorkspaceDetailRoutePath(pathname);
 
   if (isBuyerPolishedOperatorShellEnv()) {
     return !hideWorkspaceHealthFooter;

@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { buildReviewWorkspaceRouteHref } from "@/lib/architecture/review-workspace-route";
 import { askReviewQuestionsHref } from "@/lib/ask-review-questions-route";
 import { useAskStream } from "@/hooks/useAskStream";
 import { isApiRequestError } from "@/lib/api-request-error";
@@ -50,7 +51,7 @@ type AskTurn = {
 /** Review-scoped Ask dock: grounded Q&A without leaving the review detail page. */
 export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
   const runId = props.runId.trim();
-  const pathname = usePathname() ?? `/architecture/reviews/${encodeURIComponent(runId)}`;
+  const pathname = usePathname() ?? buildReviewWorkspaceRouteHref({ runId });
   const searchParams = useSearchParams();
   const urlAskDockOpen = parseReviewAskDockOpenFromSearch(
     searchParams.get(REVIEW_ASK_DOCK_OPEN_PARAM),

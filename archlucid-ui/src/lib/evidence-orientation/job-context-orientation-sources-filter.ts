@@ -1,3 +1,5 @@
+import { isReviewWorkspaceRoutePath } from "@/lib/architecture/review-workspace-route";
+import { REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
 
 export const JOB_CONTEXT_ORIENTATION_SOURCES_MAX_LINKS = 3;
@@ -19,7 +21,7 @@ function resolveJobContextKindFromPathname(pathname: string): JobContextKind {
     return "draft";
   }
 
-  if (normalized.startsWith("/architecture/reviews")) {
+  if (isReviewWorkspaceRoutePath(normalized)) {
     return "review";
   }
 
@@ -50,7 +52,7 @@ function scoreLinkForJobContext(link: EvidenceOrientationLink, jobKind: JobConte
   const href = link.href.trim().split("#")[0]?.split("?")[0] ?? link.href.trim();
 
   if (jobKind === "draft") {
-    if (href.startsWith("/architecture/architectures") || href.startsWith("/architecture/reviews/new")) {
+    if (href.startsWith("/architecture/architectures") || href === REVIEWS_NEW_PATH) {
       return 100;
     }
 
@@ -60,7 +62,7 @@ function scoreLinkForJobContext(link: EvidenceOrientationLink, jobKind: JobConte
   }
 
   if (jobKind === "review") {
-    if (href.startsWith("/architecture/reviews")) {
+    if (isReviewWorkspaceRoutePath(href)) {
       return 100;
     }
 

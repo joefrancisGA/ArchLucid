@@ -7,8 +7,8 @@ import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useShellInFlightOperations } from "@/hooks/use-shell-in-flight-operations";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { readReviewWorkspaceRunIdFromHref } from "@/lib/architecture/review-workspace-route";
 import {
-  extractReviewRunIdFromInFlightDeskHref,
   mapInFlightOperationsToDeskRows,
   type InFlightDeskRow,
 } from "@/lib/operations/map-in-flight-desk-rows";
@@ -25,7 +25,7 @@ function filterSiblingInFlightRows(
   const trimmedRunId = currentRunId.trim();
 
   return rows.filter((row) => {
-    const hrefRunId = extractReviewRunIdFromInFlightDeskHref(row.href);
+    const hrefRunId = readReviewWorkspaceRunIdFromHref(row.href) ?? "";
 
     return hrefRunId.length > 0 && hrefRunId !== trimmedRunId;
   });

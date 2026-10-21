@@ -1,9 +1,11 @@
 import { OPERATOR_RECENT_VIEWS_STORAGE_KEY, parseStoredRecentViews } from "@/lib/operator/operator-recent-views";
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
+import {
+  buildReviewWorkspaceRouteHref,
+  readReviewWorkspaceRunIdFromHref,
+} from "@/lib/architecture/review-workspace-route";
 import { resolveWorkingInhabitedFindingsLandingHref } from "@/lib/resolve-working-inhabited-findings-landing-href";
 import type { RunSummary } from "@/types/authority";
-
-const REVIEW_PATH_PREFIX = "/architecture/reviews/";
 
 export type ContinueLastReviewPackageTarget = {
   readonly runId: string;
@@ -16,22 +18,6 @@ export type ResolveContinueLastReviewPackageOptions = {
   readonly workingMode?: boolean;
   readonly draftRegistryEntries?: readonly ArchitectureDraftRegistryEntry[];
 };
-
-function runIdFromRecentHref(href: string): string | null {
-  const path = href.split("?")[0] ?? "";
-
-  if (!path.startsWith(REVIEW_PATH_PREFIX)) {
-    return null;
-  }
-
-  const remainder = path.slice(REVIEW_PATH_PREFIX.length).trim();
-
-  if (remainder.length === 0 || remainder.includes("/")) {
-    return null;
-  }
-
-  return remainder;
-}
 
 function buildContinueLastReviewPackageHref(
   runId: string,
@@ -57,7 +43,7 @@ function buildContinueLastReviewPackageHref(
     });
   }
 
-  return `${REVIEW_PATH_PREFIX}${encodeURIComponent(trimmedRunId)}`;
+  return buildReviewWorkspaceRouteHref({ runId: trimmedRunId });
 }
 
 function readRecentReviewPackageEntry(
@@ -77,7 +63,7 @@ function readRecentReviewPackageEntry(
         continue;
       }
 
-      const runId = runIdFromRecentHref(entry.href);
+      const runId = readReviewWorkspaceRunIdFromHref(entry.href);
 
       if (runId === null) {
         continue;

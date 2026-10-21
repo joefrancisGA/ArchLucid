@@ -1,3 +1,6 @@
+import { isReviewWorkspaceRoutePath } from "@/lib/architecture/review-workspace-route";
+import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
+
 const REVIEWS_LIST_RETURN_HREF_KEY = "archlucid_reviews_list_return_href_v1";
 
 /** Persists the reviews list URL (including filters) so detail breadcrumbs can return to the same view. */
@@ -15,18 +18,18 @@ export function persistReviewsListReturnHref(href: string): void {
 
 export function readReviewsListReturnHref(): string {
   if (typeof window === "undefined") {
-    return "/architecture/reviews";
+    return REVIEWS_LIST_PATH;
   }
 
   try {
     const raw = window.localStorage.getItem(REVIEWS_LIST_RETURN_HREF_KEY)?.trim();
 
-    if (raw !== undefined && raw.length > 0 && raw.startsWith("/architecture/reviews")) {
+    if (raw !== undefined && raw.length > 0 && isReviewWorkspaceRoutePath(raw.split("?")[0] ?? raw)) {
       return raw;
     }
   } catch {
     /* private mode */
   }
 
-  return "/architecture/reviews";
+  return REVIEWS_LIST_PATH;
 }

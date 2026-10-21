@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { Lock, LockOpen } from "lucide-react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { buildReviewWorkspaceRouteHref } from "@/lib/architecture/review-workspace-route";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -61,7 +62,7 @@ export function TechnologyBaselinePanel({
   usedStaticDemoRun,
   warningCountDisplay,
 }: TechnologyBaselinePanelProps): React.JSX.Element {
-  const pathname = usePathname() ?? `/architecture/reviews/${encodeURIComponent(runId)}`;
+  const pathname = usePathname() ?? buildReviewWorkspaceRouteHref({ runId });
   const searchParams = useSearchParams();
   const urlTechEntryFromSearch = parseTechnologyBaselineEntryIdFromSearch(
     searchParams.get(TECHNOLOGY_BASELINE_ENTRY_PARAM),

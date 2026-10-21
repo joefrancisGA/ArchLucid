@@ -1,5 +1,6 @@
 import type { NavLinkItem } from "@/lib/nav-config";
-import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { ARCHITECTURES_LIST_PATH, REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { isReviewWorkspaceRoutePath } from "@/lib/architecture/review-workspace-route";
 import { isEvidenceGraphPath } from "@/lib/evidence-graph-route";
 import { isFirstReviewGuidePath } from "@/lib/first-review-guide-route";
 import { navHrefPathPart } from "@/lib/nav-href-path-part";
@@ -16,7 +17,7 @@ import { isWorkspaceHealthPath } from "@/lib/workspace-health-route";
 export function pathnameEligibleBeforeFirstCommittedArchitectureReview(pathnameOrHref: string): boolean {
   const pathWithoutQuery = navHrefPathPart(pathnameOrHref);
 
-  if (pathWithoutQuery === "/" || pathWithoutQuery === "/architecture/reviews") {
+  if (pathWithoutQuery === "/" || pathWithoutQuery === REVIEWS_LIST_PATH) {
     return true;
   }
 
@@ -24,11 +25,7 @@ export function pathnameEligibleBeforeFirstCommittedArchitectureReview(pathnameO
     return true;
   }
 
-  if (pathWithoutQuery === "/architecture/reviews/new") {
-    return true;
-  }
-
-  if (pathWithoutQuery.startsWith("/architecture/reviews/")) {
+  if (isReviewWorkspaceRoutePath(pathWithoutQuery)) {
     return true;
   }
 
@@ -93,7 +90,7 @@ function preCommitNavLinkSortRank(pathWithoutQuery: string): number {
     return 3;
   }
 
-  if (pathWithoutQuery === "/architecture/reviews" || pathWithoutQuery.startsWith("/architecture/reviews/")) {
+  if (isReviewWorkspaceRoutePath(pathWithoutQuery)) {
     return 4;
   }
 

@@ -2,10 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import type { TrackedInFlightOperation } from "@/lib/operations/in-flight-operations-store";
 
+import { readReviewWorkspaceRunIdFromHref } from "@/lib/architecture/review-workspace-route";
+
 import {
   buildInFlightDeskHref,
   collectInFlightReviewRunIds,
-  extractReviewRunIdFromInFlightDeskHref,
   filterInFlightOperationsForArchitecture,
   IN_FLIGHT_DESK_ANALYSIS_RUNNING_DETAIL,
   isVisibleInFlightDeskOperation,
@@ -62,9 +63,9 @@ describe("map-in-flight-desk-rows (LI-08)", () => {
   });
 
   it("extracts run id from flat and nested in-flight desk hrefs", () => {
-    expect(extractReviewRunIdFromInFlightDeskHref("/architecture/reviews/abc?reviewTab=activity")).toBe("abc");
+    expect(readReviewWorkspaceRunIdFromHref("/architecture/reviews/abc?reviewTab=activity")).toBe("abc");
     expect(
-      extractReviewRunIdFromInFlightDeskHref(
+      readReviewWorkspaceRunIdFromHref(
         "/architecture/architectures/architecture-identity-001/reviews/run-001?reviewTab=activity",
       ),
     ).toBe("run-001");

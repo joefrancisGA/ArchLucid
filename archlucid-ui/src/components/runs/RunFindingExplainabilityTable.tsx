@@ -7,6 +7,10 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import {
+  buildReviewWorkspaceRouteHref,
+  parseReviewWorkspaceRoutePath,
+} from "@/lib/architecture/review-workspace-route";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { CopyTraceRowWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
@@ -119,7 +123,10 @@ export function RunFindingExplainabilityTable({
   rows,
   findingWireSnapshots = null,
 }: RunFindingExplainabilityTableProps) {
-  const pathname = usePathname() ?? `/architecture/reviews/${encodeURIComponent(runId)}`;
+  const pathname =
+    usePathname()
+    ?? buildReviewWorkspaceRouteHref({ runId });
+  const reviewWorkspaceArchitectureId = parseReviewWorkspaceRoutePath(pathname)?.architectureId ?? null;
   const searchParams = useSearchParams();
   const searchParamExplainId = searchParams.get(RUN_FINDINGS_EXPLAIN_ID_PARAM);
   const searchParamReasonId = searchParams.get(RUN_FINDINGS_REASON_ID_PARAM);
@@ -519,7 +526,12 @@ export function RunFindingExplainabilityTable({
                     </Button>
                     <Button type="button" size="sm" variant="outline" className={cn("h-7 px-2", OPERATOR_TYPOGRAPHY.button)} asChild>
                       <Link
-                        href={`/architecture/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(row.findingId)}`}
+                        href={buildReviewWorkspaceRouteHref({
+                          runId,
+                          architectureId: reviewWorkspaceArchitectureId,
+                          findingId: row.findingId,
+                          findingIdOnPath: true,
+                        })}
                         prefetch={false}
                       >
                         Explain

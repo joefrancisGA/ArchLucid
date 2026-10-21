@@ -1,3 +1,4 @@
+import { isReviewWorkspaceRoutePath } from "@/lib/architecture/review-workspace-route";
 import {
   SPONSOR_DASHBOARD_HREF,
   isSponsorDashboardPath,
@@ -69,7 +70,7 @@ export function resolveSponsorRedirectTarget(input: SponsorRedirectInput): strin
     return null;
   }
 
-  if (pathname === "/architecture/reviews" || pathname.startsWith("/architecture/reviews/")) {
+  if (isReviewWorkspaceRoutePath(pathname)) {
     return null;
   }
 
