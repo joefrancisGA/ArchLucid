@@ -37,15 +37,30 @@ public sealed partial class AlertSimulationController
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         StampSimulationScope(scope, request);
 
+        RuleSimulationResult result;
+
         try
         {
-            RuleSimulationResult result = await _simulationService.SimulateAsync(
+            result = await _simulationService.SimulateAsync(
                 scope.TenantId,
                 scope.WorkspaceId,
                 scope.ProjectId,
                 request,
                 ct);
+        }
+        catch (Exception ex) when (IsSealedManifestSimulationBlock(ex))
+        {
+            return MapSealedManifestSimulationBlockOrNull(ex)!;
+        }
+        catch (Exception ex) when (ex is ArgumentException or NullReferenceException or InvalidOperationException or FormatException or JsonException)
+        {
+            return this.BadRequestProblem(
+                "Alert simulation request is invalid or incomplete.",
+                ProblemTypes.ValidationFailed);
+        }
 
+        try
+        {
             await _auditService.LogAsync(
                 new AuditEvent
                 {
@@ -60,18 +75,12 @@ public sealed partial class AlertSimulationController
                     })
                 },
                 ct);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            // Dry-run results must not be discarded when aggregate audit persistence fails after a successful simulation.
+        }
 
-            return Ok(result);
-        }
-        catch (Exception ex) when (IsSealedManifestSimulationBlock(ex))
-        {
-            return MapSealedManifestSimulationBlockOrNull(ex)!;
-        }
-        catch (Exception ex) when (ex is ArgumentException or NullReferenceException or InvalidOperationException or FormatException or JsonException)
-        {
-            return this.BadRequestProblem(
-                "Alert simulation request is invalid or incomplete.",
-                ProblemTypes.ValidationFailed);
-        }
+        return Ok(result);
     }
 }
