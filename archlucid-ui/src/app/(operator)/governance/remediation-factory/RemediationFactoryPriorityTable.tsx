@@ -114,7 +114,7 @@ export function RemediationFactoryPriorityTable(props: {
                     {selected ? <StatusTag kind="ready" label="Inspecting" /> : null}
                   </span>
                 </EnterpriseTableCell>
-                <RemediationPriorityResourceCell cloudResourceId={row.cloudResourceId} />
+                <RemediationPriorityResourceCell findingId={row.findingId} cloudResourceId={row.cloudResourceId} />
                 <EnterpriseTableCell>
                   {formatRemediationPriorityWhenBandForQueueRow(storedRankOrder, oneBasedRowIndex)}
                 </EnterpriseTableCell>

@@ -106,13 +106,20 @@ describe("formatCloudResourceDisplayName", () => {
     ).toBe("gateway-pip");
   });
 
-  it("does not use the ARM id tail when displayName is missing", () => {
+  it("uses the ARM id tail when displayName is missing", () => {
     expect(
       formatCloudResourceDisplayName({
         displayName: null,
         externalResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/Gateway",
       }),
-    ).toBe("Resource name was not stored.");
+    ).toBe("gateway");
+    expect(
+      formatCloudResourceDisplayName({
+        displayName: null,
+        externalResourceId:
+          "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/customerdata",
+      }),
+    ).toBe("customerdata");
   });
 });
 
