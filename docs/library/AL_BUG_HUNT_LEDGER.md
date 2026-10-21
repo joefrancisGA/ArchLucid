@@ -1,3 +1,12 @@
+2026-10-21 seed hunt (seed-only, lane D): `authority-pipeline-payload` — lock `authority-pipeline-payload` pushed and verified on `origin/bugsmash` before work (skipped picker top `core-configuration-summary` hunted today; avoided `agent-runtime-evaluation` lock); re-read `AuthorityPipelineWorkPayload.cs`, `AuthorityPipelineWorkPayloadJson.cs`, and focused JSON/null-element regressions; cheap-disproof on null `contextIngestionRequest` (processor marks processed without dead-letter per `AuthorityPipelineWorkProcessor`), orchestrator serialize without pre-materialize (worker `EnsureMutableCollections` on deserialize), and compact/path reference NBSP/combining-mark classes already closed; no hunt-ready promotion; seeded three `(candidate)` rows at zone head; scoped picker test filter 39/39; lock released after push.
+
+2026-10-21 seed hunt (seed→hit, lane D): `scim-users` — lock `scim-users` pushed and verified on `origin/bugsmash` before work (`be718ccc09`; skipped picker top `core-configuration-summary` hunted today; avoided `cli-tenant-isolation` lock); promoted reachable `GET /scim/v2/Users?filter=active eq "1"` — SQL translator treated any non-`true` literal as inactive (`active eq "1"` queried `Active=0`) while PATCH already accepts numeric booleans; shared `ScimActiveFilterLiteralParser` for SQL and in-memory list evaluation; regressions `ListAsync_active_eq_numeric_one_returns_only_active_users` and `BuildWhere_active_eq_numeric_one_targets_active_bit_one`; cheap-disproof closed open `(candidate)` rows (`startIndex` malformed query binds 400 before action; PATCH `displayName` JSON null clears via `ResolvePatchDisplayName`); scoped `FullyQualifiedName~ScimUsers` 37/37 + SQL translator 5/5; lock released after push.
+
+- [x] (proven) `SqlScimUserFilterTranslator` / `ScimFilterInMemoryEvaluator` — `active eq "1"` matched inactive users — **hit 2026-10-21 seed hunt lane D:** `ScimActiveFilterLiteralParser`; regressions above.
+2026-10-21 thorough hunt (seed→hit, lane C): `agent-runtime-evaluation` — lock `agent-runtime-evaluation` pushed and verified on `origin/bugsmash` before work (`ec06409a55`; skipped picker top `core-configuration-summary` hunted today; `scim-users` locked by another lane); promoted `(candidate)` `FindingClaimCoverageEvaluator.Evaluate` — findings with only whitespace `evidenceRefs` entries counted as supported and inflated Real-task `FindingCitationCoverageRatio`, letting PilotStrict pass citation-coverage floor without usable refs; require at least one non-whitespace reference (parity with top-level evidence-ref floor); regression `Evaluate_WhitespaceOnlyEvidenceRefs_CountsAsUnsupported`; cheap-disproof closed open scalar-coercion and case-variant citation rows already fixed on trunk; scoped `FullyQualifiedName~Evaluation` 228/228 (`RunAnalyzers=false`); lock released after push.
+
+- [x] (proven) `FindingClaimCoverageEvaluator.Evaluate` — whitespace-only finding `evidenceRefs` counted as supported citation coverage — **hit 2026-10-21 thorough hunt lane C:** `Any` non-whitespace ref check; regression above.
+
 2026-10-21 thorough hunt (hit, lane D): `host-infra-evidence-composition` — lock `host-infra-evidence-composition` pushed and verified on `origin/bugsmash` before work (`0adcf8f65d`; skipped picker top `core-configuration-summary` hunted today; avoided `commit-output-integrity` lock); promoted reachable `RepositoryDiagramPeelCatalogProvider.GetCatalogAsync` — first read against an empty peel repository cached the read-time default seed for 15 minutes, so a later `UpsertEntryAsync` left inventory diagram peel budgets stale until process restart; skip caching when repository count is zero and version-scoped cache keys when count is positive; regression `RepositoryDiagramPeelCatalogProvider_refreshes_after_repository_upsert_following_empty_read`; cheap-disproof closed five open `(candidate)` rows (audit diff consumer registers before SecureNow; immutable readability thresholds singleton; tenant-keyed branding cache; `IOptionsMonitor` Graphviz binding; duplicate Register guarded by production single-call); scoped `InfraEvidenceComposition` tests 51/51; lock released after push.
 
 - [x] (proven) `RepositoryDiagramPeelCatalogProvider` — empty-repository default peel snapshot cached across repository upsert — **hit 2026-10-21 thorough hunt lane D:** no cache on count zero + versioned cache key; regression above.
@@ -10115,9 +10124,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 47
+- **hunts:** 48
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-04 — embedded whitespace in compact identifier fields survived materialization
 - **related-pd-tb:** none
@@ -10197,6 +10206,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-13 seed hunt #2313 (seed-only): reseeded authority-pipeline-payload; no new hunt-ready rows.
 
 2026-09-13 seed hunt #2343 (seed-only): reseeded authority-pipeline-payload; no new hunt-ready rows.
+
+
+- [ ] (candidate) `HasSubstantiveDocument` — `content` with embedded U+00A0 between substantive characters survives `HasUsableIdentifierText` because `HasSubstantiveText` skips `char.IsWhiteSpace` — locus: `MaterializeDocumentList` / `HasSubstantiveDocument`; input: deferred outbox JSON `documents[].content` `"visible\u00A0token"` reachable from intake documents on beta architecture requests; mechanism: scope metadata / parser inputs may not normalize NBSP the same as compact identifier fields.
+- [ ] (candidate) `HasSubstantiveInfrastructureDeclaration` — declaration `content` with embedded U+00A0 survives materialization — locus: `HasUsableIdentifierText(declaration.Content)`; input: `infrastructureDeclarations[].content` with `\u00A0` inside JSON body string from beta IaC snippet upload; mechanism: `SourceId` / canonical object keys use `DeclarationId` while body corruption may change parsed resource identity vs prior runs.
+- [ ] (candidate) `AuthorityPipelineWorkPayloadJson.Serialize` — orchestrator enqueues without calling `EnsureMutableCollections` before STJ write — locus: `AuthorityRunOrchestratorExecuteCore` serialize path; input: in-memory `ContextIngestionRequest` with `documents: [null]` or `inlineRequirements: [null]` if a future caller bypasses contract setters; mechanism: worker must always deserialize before handle (verify no in-process handler bypass).
 
 ### Hypotheses
 
