@@ -32,10 +32,14 @@ export function sanitizeResourceHubQueryForTab(
     params.delete(RESOURCE_HUB_SEED_NODE_ID_PARAM);
   }
 
-  if (tab !== "terraform") {
-    const technicalKey = params.get(INFRA_RESOURCE_HUB_TECHNICAL_KEY_PARAM)?.trim() ?? "";
+  const technicalKey = params.get(INFRA_RESOURCE_HUB_TECHNICAL_KEY_PARAM)?.trim() ?? "";
 
-    if (technicalKey === "terraformAddress") {
+  if (technicalKey.length > 0) {
+    const overviewOnlyKeys = new Set(["cloudResourceId", "armResourcePath"]);
+
+    if (tab !== "terraform" && technicalKey === "terraformAddress") {
+      params.delete(INFRA_RESOURCE_HUB_TECHNICAL_KEY_PARAM);
+    } else if (tab !== "overview" && overviewOnlyKeys.has(technicalKey)) {
       params.delete(INFRA_RESOURCE_HUB_TECHNICAL_KEY_PARAM);
     }
   }

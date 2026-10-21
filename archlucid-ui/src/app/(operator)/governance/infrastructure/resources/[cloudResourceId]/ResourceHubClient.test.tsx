@@ -809,6 +809,21 @@ describe("ResourceHubClient", () => {
     );
   });
 
+  it("clears overview arm path technical disclosure key when switching away from overview tab", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&infraResourceHubTechnicalKey=armResourcePath&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
+    );
+    replace.mockClear();
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    fireEvent.click(await screen.findByTestId("infra-resource-hub-tab-findings"));
+
+    expect(replace).toHaveBeenCalledWith(
+      expect.not.stringContaining("infraResourceHubTechnicalKey=armResourcePath"),
+    );
+    expect(replace).toHaveBeenCalledWith(expect.stringContaining("workQueue=open-findings"));
+  });
+
   it("clears terraform technical disclosure key when switching away from terraform tab", async () => {
     searchParams = new URLSearchParams(
       `tab=terraform&infraResourceHubTechnicalKey=terraformAddress&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
