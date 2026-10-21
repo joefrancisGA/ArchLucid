@@ -28,7 +28,10 @@ public static partial class StructuredExplanationParser
 
             if (arrayElement.ValueKind == JsonValueKind.Object)
             {
-                string? objectEntry = TryReadStringListEntry(arrayElement, propertyName);
+                string? objectEntry = TryReadStringListEntry(
+                    arrayElement,
+                    propertyName,
+                    evidenceRefBlankTextWithIdIsInArrayPoison: false);
 
                 return string.IsNullOrWhiteSpace(objectEntry) ? null : [objectEntry.Trim()];
             }
@@ -71,7 +74,10 @@ public static partial class StructuredExplanationParser
         values.Add(raw.Trim());
     }
 
-    private static string? TryReadStringListEntry(JsonElement item, string listPropertyName)
+    private static string? TryReadStringListEntry(
+        JsonElement item,
+        string listPropertyName,
+        bool evidenceRefBlankTextWithIdIsInArrayPoison = true)
     {
         if (item.ValueKind == JsonValueKind.String)
             return item.GetString();
@@ -82,7 +88,11 @@ public static partial class StructuredExplanationParser
         if (item.ValueKind == JsonValueKind.Object)
         {
             if (listPropertyName.Equals("evidenceRefs", StringComparison.OrdinalIgnoreCase))
-                return RunExplanationAggregateJsonReader.TryReadEvidenceRefObjectStringProperty(item);
+            {
+                return RunExplanationAggregateJsonReader.TryReadEvidenceRefObjectStringProperty(
+                    item,
+                    evidenceRefBlankTextWithIdIsInArrayPoison);
+            }
 
             return RunExplanationAggregateJsonReader.TryReadProseListObjectStringProperty(item);
         }

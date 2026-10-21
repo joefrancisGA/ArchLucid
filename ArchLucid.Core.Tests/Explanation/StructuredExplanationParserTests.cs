@@ -441,6 +441,18 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void TryNormalizeStructuredJson_maps_object_shaped_evidence_ref_id_when_text_property_is_whitespace_only()
+    {
+        const string json =
+            """{"reasoning":"Main","evidenceRefs":{"text":"   ","id":"dec-1"}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
     public void TryNormalizeStructuredJson_coerces_string_array_reasoning()
     {
         const string json =

@@ -1453,7 +1453,9 @@ internal static partial class RunExplanationAggregateJsonReader
         return null;
     }
 
-    internal static string? TryReadEvidenceRefObjectStringProperty(JsonElement jsonElement)
+    internal static string? TryReadEvidenceRefObjectStringProperty(
+        JsonElement jsonElement,
+        bool blankTextWithIdIsInArrayPoison = true)
     {
         string? readableText = null;
 
@@ -1479,10 +1481,13 @@ internal static partial class RunExplanationAggregateJsonReader
         if (readableText is not null)
             return readableText;
 
-        // Blank `text` with a non-empty `id` is the in-array poison shape; do not fall back to id.
+        // In-array entries use blank `text` + `id` as poison; scalar object aliases may still expose the id.
 
-        if (ObjectHasCaseInsensitiveProperty(jsonElement, "text"))
+        if (blankTextWithIdIsInArrayPoison
+            && ObjectHasCaseInsensitiveProperty(jsonElement, "text"))
+        {
             return null;
+        }
 
         if (readableId is not null)
             return readableId;
