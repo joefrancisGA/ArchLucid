@@ -14195,6 +14195,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-10-21 seed hunt (seed→hit, lane C): lock `cli-tenant-isolation` verified on origin (`40b4314fa0`); promoted `WriteArtifactsAsync` — `--json-out report.json` (filename only) made `Path.GetDirectoryName` return empty and `Directory.CreateDirectory("")` fail before writing tenant-isolation evidence; skip directory creation when no parent path; regression `WriteArtifactsAsync_writes_filename_only_json_out_to_working_directory`; 59 scoped `TenantIsolationNegativeTest` tests passed.
+
 2026-10-12 seed hunt (seed-only): re-read the selected tenant-isolation command/runner facade, artifact output handling, offline/live verdict delegation, and focused tests. Existing filename-only artifact candidates and replay verdict contracts were not duplicated; no fresh reachable wrong-outcome mechanism met the promotion bar. The focused `TenantIsolationNegativeTestRunnerTests` run was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
 
 2026-10-12 seed hunt (seed-only): re-read the selected command and runner facade; no candidate was promoted after the focused 54/54 test run.
@@ -14268,11 +14270,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 50
-- **bugs-found:** 24
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-12
-- **last-bug:** 2026-10-05 — offline exclude replay false-passed on server-error status with verified-absent outcome copy
+- **hunts:** 51
+- **bugs-found:** 25
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-21 — filename-only --json-out artifact paths threw on CreateDirectory
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
