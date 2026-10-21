@@ -1,4 +1,6 @@
 ﻿> **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
+2026-10-21 seed hunt (seed-only, lane C): `tenant-erasure` — lock pushed before work (replaced mistaken `billing-webhooks` lock; zone hunted today by lane B); re-read `TenantErasureQuarantineMiddleware` and `TenantErasureCommandService`; cheap-disproof closed orphan `(candidate)` idempotent offboard audit after quarantine restore (covered by `CompleteOffboardSideEffectsAsync` post-read + regression `TryOffboardTenantAsync_returns_null_without_audit_when_quarantine_restored_before_idempotent_side_effects`); no new hunt-ready row; Application `TenantErasure` 35/35, Api `TenantErasure` 29/29; seeded three follow-on `(candidate)` rows.
+
 2026-10-21 seed hunt (seed-only): `billing-webhooks` — lane B; cheap-disproof closed five open `(candidate)` rows (Marketplace JWT null before ledger insert, replay-guard whitespace `providerName`, Stripe oversize 413, replay `HasSeenAsync` before ledger insert — all guarded/regression-covered per 2026-10-15 hunt #68); no new hunt-ready mechanism; Persistence webhook filter 24/24, Application `LlmTenantWalletStripeWebhook` 15/15 (`RunAnalyzers=false`); seeded five follow-on `(candidate)` rows.
 
 - [x] (valid-no-repro) `AzureMarketplaceBillingProvider.HandleWebhookAsync` — JWT validation failure before ledger insert — **cheap-disproof 2026-10-21 lane B:** `validated is null` rejects before `TryInsertWebhookEventAsync`; reaffirmed 2026-10-15 regression `HandleWebhookAsync_rejects_before_ledger_insert_when_marketplace_bearer_missing`.
@@ -10665,6 +10667,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-13 seed hunt #2277 (seed-only): reseeded tenant-erasure with `-Hint tenant erasure`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2076 (seed-only): reseeded tenant-erasure; 8 scoped tests passed; no new hunt-ready rows
+
+- [ ] (candidate) `TenantErasureQuarantineMiddleware.Skip` — `/v1/./register/...` normalizes to `/v1/register` but fails the rawPath `StartsWithSegments("/v1/register")` guard, so authenticated quarantined tenants receive 403 on dot-segment register URLs instead of the register skip — locus: `Skip` register branch; input: `/v1/./register/continue` with offboarded tenant; wrong outcome: 403 vs passthrough; reachability: edge authenticated register flows during quarantine (may be intentional).
+- [ ] (candidate) `TenantErasureQuarantineMiddleware.InvokeAsync` — middleware gates only on `TenantErasureEligibility.IsTenantLoginBlocked`, not standalone future `LegalHoldUntilUtc` without offboard — locus: post-tenant read check; input: tenant with legal hold but no `OffboardedUtc`; wrong outcome: tenant APIs remain reachable while hold active; reachability: `TrialLifecycleTransitionEngine` / purge gates elsewhere (verify cross-zone before promoting).
+- [x] (valid-no-repro) `TenantErasureCommandService.TryOffboardTenantAsync` — idempotent retry after partial side effects appends audit when quarantine restored between suspend and audit — **cheap-disproof 2026-10-21 lane C:** `CompleteOffboardSideEffectsAsync` re-reads tenant before suspend/audit; regression `TryOffboardTenantAsync_returns_null_without_audit_when_quarantine_restored_before_idempotent_side_effects`.
 
 ### Hypotheses
 
@@ -40060,7 +40066,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - [x] (proven) `TenantCatalogMigrationOrchestrator.CompleteAsync` — completed active migration after erasure offboard — **hit 2026-10-13 seed hunt (seed→hit):** return `InErasureQuarantine` without calling migration `CompleteAsync`; regression `CompleteAsync_returns_in_erasure_quarantine_when_offboarded_before_complete`.
 
-- [ ] (candidate) `TenantErasureCommandService.TryOffboardTenantAsync` — idempotent retry after partial side effects may still append platform audit when quarantine restored between suspend and audit (mirror complete offboard idempotent path).
+- [x] (valid-no-repro) `TenantErasureCommandService.TryOffboardTenantAsync` — idempotent retry after partial side effects may still append platform audit when quarantine restored between suspend and audit — **cheap-disproof 2026-10-21 lane C:** `CompleteOffboardSideEffectsAsync` re-read guard; regression `TryOffboardTenantAsync_returns_null_without_audit_when_quarantine_restored_before_idempotent_side_effects`.
 
 2026-10-13 seed hunt (seed→hit): reseeded erasure offboard idempotent retry after migration start race fix; proved `CompleteOffboardSideEffectsAsync` used stale offboard snapshot after quarantine restore; re-read before suspend/audit; regression `TryOffboardTenantAsync_returns_null_without_audit_when_quarantine_restored_before_idempotent_side_effects`; 169 scoped tenancy tests passed.
 

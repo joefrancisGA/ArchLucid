@@ -5823,3 +5823,4 @@
 {"at":"2026-10-21T04:42:56.610Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T04:46:34.058Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T04:49:40.764Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T04:51:34.3526931Z","zoneId":"tenant-erasure","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/TenantErasureCommandService.cs;ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs"]}
