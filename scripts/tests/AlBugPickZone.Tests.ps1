@@ -1645,13 +1645,15 @@ Describe 'al-bug-pick-zone.ps1' {
             Should -Not -Throw
     }
 
-    It 'fails loudly when a run log entry has no timestamp field' {
+    It 'skips non-canonical run log rows and still scores canonical rows' {
         [string]$ledger = New-LedgerFixture -Content (Get-TwoZoneLedger)
-        [string]$runLog = Join-Path $TestDrive 'missing-at.jsonl'
-        $line = '{"zoneId":"zone-a","outcome":"dry"}'
-        Set-Content -LiteralPath $runLog -Value $line -Encoding UTF8
+        [string]$runLog = Join-Path $TestDrive 'non-canonical-timestamp.jsonl'
+        $canonical = '{"at":"2026-08-02T00:00:00Z","zoneId":"zone-a","outcome":"dry"}'
+        $nonCanonical = '{"outcome":"hit","zoneId":"zone-b","kind":"seed","ts":"2026-08-02T00:00:00Z"}'
+        Set-Content -LiteralPath $runLog -Value @($canonical, $nonCanonical) -Encoding UTF8
 
-        { Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog } |
-            Should -Throw '*missing a usable timestamp*'
+        $result = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -AtUtc '2026-08-03T00:00:00Z'
+
+        $result.zoneId | Should -Not -BeNullOrEmpty
     }
 }
