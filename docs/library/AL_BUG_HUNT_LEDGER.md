@@ -1,5 +1,25 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
+2026-10-21 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryAppSettingHostRedactor.TryParseSqlHost` omitting Npgsql/PostgreSQL `Host=` on App Service connection strings; regex now accepts `Host=` alongside `Server=` and `Data Source=`; regression `TryParseSettingValue_extracts_sql_host_from_postgresql_host_alias`; 26 scoped `AzureInventoryAppSettingHost*` tests passed.
+2026-10-21 tooling (hit): `al-bug-rolling-stats.ps1` — `-RecordHunt` read the JSONL, applied `Prune-HuntRunLog` (30-day retention), then rewrote the file with `Set-Content`, dropping ~89 historical lines and breaking append-only expectations; `-RecordHunt` now appends one JSON line via `Add-HuntRunLogEntryLine` with a post-append line-count check; optional `-PruneEntriesOlderThanDays` uses `Rewrite-HuntRunLogWithLineCountGuard` (temp file, aborts unless `-AllowLineCountDecrease`); regression `RecordHunt never decreases physical line count even when older rows exist` in `AlBugRollingStats.Tests.ps1` (50 Pester tests passed). Verified `AL_BUG_HUNT_RUN_LOG.jsonl` on bugsmash: 5778 lines >= 5768 before 2026-10-21 UTC runs.
+
+2026-10-21 seed hunt (seed→hit): `core-configuration-summary` — lane B; promoted pipe-delimited `password=` on non-sensitive effective values (`host=…|password=…`) because `ContainsCredentialConnectionPair` only advanced on `;` and `,`; pair scan now treats `|` as a delimiter; regression `Resolve_redacts_plain_scalar_connection_string_when_password_uses_pipe_delimiter`; 1093 scoped Configuration tests passed (`RunAnalyzers=false`).
+
+- [x] (proven) `ConfigurationSensitiveConfigValueScanner.ContainsCredentialConnectionPair` — pipe-delimited credential pairs after a non-credential first pair leaked in operator config summary — **hit 2026-10-21 lane B seed hunt:** advance boundaries on `|`; regression above.
+
+2026-10-21 thorough hunt (hit): `retrieval` — lane B; two reachable `RetrievalDocument` rows with the same `DocumentId` in one `IndexDocumentsAsync` call generated colliding `{documentId}-chunk-{ordinal}` chunk ids so the later document silently overwrote the earlier via upsert; `RetrievalIndexingScopeValidator.ValidateDocuments` now rejects duplicate document ids in a batch; regressions `ValidateDocuments_duplicate_document_id_throws` and `IndexDocumentsAsync_rejects_duplicate_document_id_in_one_batch`. Scoped Retrieval/Indexing filter: 372 passed.
+
+- [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — duplicate `DocumentId` in one batch collides chunk ids and overwrites prior vectors — **hit 2026-10-21 lane B:** batch uniqueness validation in `RetrievalIndexingScopeValidator`; regressions above.
+
+2026-10-21 tooling (hit): `/al-bug` zone picker on Linux — hand-appended `AL_BUG_HUNT_RUN_LOG.jsonl` rows used legacy `recordedAt` while `al-bug-pick-zone.ps1` read `$entry.at`, throwing `property 'at' cannot be found`; `Get-RunLogEntryIsoTimestamp` in `al-bug-run-log-utils.ps1` accepts `at` or `recordedAt` and throws a repair message when missing; normalized two legacy log lines; `AlBugPickZone.Tests.ps1` 43 passed; picker `-Preview` smoke green.
+
+2026-10-21 thorough hunt (dry): `topology-proposal-merge` — lane B; manual zone (picker host error on `property 'at'`); cheap-disproof closed four open `(candidate)` rows: critic bypass pre-registration (Critic uses overlay validation and shared `accumulatedEndpointKeys`), chained rename alias (`TryResolveNodeId` / index regressions), ARM-vs-rename consensus intersection (map lookup before ARM branch in `CanonicalizeConsensusRelationshipEndpoint`), topology extension on inventoried graph (`allowTopologyExtension` gated on agent-proposed topology nodes). No failing repro. Scoped merge/graph/edge-mapper/consensus filter: 2186 passed. No production change.
+
+- [x] (invalid) `AgentTopologyProposalMergeGate.FilterValidatedProposals` — critic batch bypasses endpoint pre-registration — **cheap-disproof 2026-10-21 lane B:** Critic is overlay-validated; merge order Topology→Cost→Compliance→Critic.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — chained rename alias — **cheap-disproof 2026-10-21 lane B:** no failing repro; existing mapper/index coverage.
+- [x] (valid-no-repro) `TopologyProposalConsensusMerger.CanonicalizeConsensusRelationshipEndpoint` — ARM id vs rename label intersect — **cheap-disproof 2026-10-21 lane B:** canonical map consulted before ARM normalization.
+- [x] (invalid) `AgentTopologyProposalMergeGate.FilterValidatedProposals` — unsupported topology extension after overlay — **cheap-disproof 2026-10-21 lane B:** extension requires `HasAgentProposedTopologyNodes` or empty inventory.
+
 2026-10-21 seed hunt (seed→hit): `cloud-extractors` — lane B; promoted `ListChildJsonElementsAsync` dropping `partialCollection` from `ListJsonElementsAtRelativePathAsync` so Event Grid, messaging, AVD session hosts, and Service Connector child listings looked complete after mid-pagination ARM failures (PaaS paths already use `ListChildResourcesWithStatusAsync` + `partial-child-enumeration` on trunk); `ListChildJsonElementsAsync` now returns `HostedAzureArmChildCollectionReadResult` and collectors log Warning on partial retain; regression `ListChildJsonElementsAsync_marks_partial_when_later_page_fails` (reuses upstream `CollectAsync_warns_when_sql_database_list_is_partially_collected`). Scoped Aws/Gcp/Azure extractor filter: 211 passed.
 
 - [x] (proven) `ListChildJsonElementsAsync` — partial ARM child pagination retained rows but callers never observed `PartialCollection` — **hit 2026-10-21 lane B seed hunt:** return `HostedAzureArmChildCollectionReadResult`; wire non-PaaS AX-DE collectors; regression above.
@@ -23455,6 +23475,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: archlucid-core
+2026-10-21 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryAppSettingHostRedactor.TryParseSqlHost` omitting Npgsql/PostgreSQL `Host=` on App Service connection strings; regex now accepts `Host=` alongside `Server=` and `Data Source=`; regression `TryParseSettingValue_extracts_sql_host_from_postgresql_host_alias`; 26 scoped `AzureInventoryAppSettingHost*` tests passed.
 2026-10-20 seed hunt (seed→hit): promoted `AzureInventoryAppSettingHostRedactor.TryParseSqlHost` / `ParseSettingValues` dropping SQL hosts when app setting values use ADO.NET `Data Source=` instead of `Server=`; regex now accepts both aliases; regression `TryParseSettingValue_extracts_sql_host_from_data_source_alias`; 25/25 `AzureInventoryAppSettingHost*` Core tests passed.
 
 2026-10-20 seed hunt (seed-only): re-read ArchLucid.Core reachability, VNet DNS, route-table, and app-setting host parsers after bugsmash churn; cheap-disproof closed duplicate open candidates (numeric `dnsServers` elements, private-endpoint VNet normalization, AGW backend normalization, route-table ARM index normalization) against current code and regressions; no hunt-ready row promoted; 85 focused Core tests passed.
@@ -23614,11 +23635,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 487
-- **last-hunt:** 2026-10-20
-- **bugs-found:** 3521
+- **hunts:** 488
+- **last-hunt:** 2026-10-21
+- **bugs-found:** 3522
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-20 — ADO.NET Data Source SQL host alias omitted from app-setting host extraction
+- **last-bug:** 2026-10-21 — PostgreSQL Host= alias omitted from app-setting SQL host extraction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -23649,6 +23670,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-30 seed hunt (seed-only): re-read the picked zone; it still exposes only the ledger path and no source-backed candidate or hunt-ready row, so no product hypothesis was invented.
 
 ### Hypotheses
+- [x] (proven) `AzureInventoryAppSettingHostRedactor.TryParseSqlHost` — Npgsql `Host=` PostgreSQL connection strings on App Service settings omitted server hostname — **hit 2026-10-21 seed hunt (seed→hit):** extend SQL host regex with `Host=` alias; regression `TryParseSettingValue_extracts_sql_host_from_postgresql_host_alias`. [class:other]
 
 
 - (candidate) `HostedAzureArmChildCollectionReadResult` / `GetOnlyHostedAzureArmReadClient` — child-resource collectors that omit `PartialCollection` when only the final page is truncated may still report full enumeration — locus: pagination stop in `Integrations.AzureExtractor` child reads; input: hosted Static Web App or Fabric capacity child listing stopped by `nextLink` cap.
@@ -28846,6 +28868,8 @@ Split from retired `archlucid-core` (ABQ-08).
 ---
 ## Zone: core-configuration-summary
 
+2026-10-21 seed hunt (seed→hit): lane B; pipe-delimited `password=` on non-sensitive scalars leaked because pair scan resumed only after `;` or `,`; delimiter set now includes `|`; regression `Resolve_redacts_plain_scalar_connection_string_when_password_uses_pipe_delimiter`; 1093 scoped Configuration tests passed.
+
 - **id:** core-configuration-summary
 - **split-from:** archlucid-core
 - **status:** open
@@ -28949,6 +28973,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `BillingOptionsNormalizePostConfigure` / `AzureMarketplaceBillingOptions.PlanIdTierMap` — configuration-bound map keys with bounding whitespace never matched trimmed marketplace `planId` values, so Enterprise plans defaulted to Standard — **hit 2026-10-21 seed hunt (seed→hit):** post-configure trim on keys and tier values; regressions `PostConfigure_trims_plan_id_tier_map_keys_from_configuration_binding` and `ResolveTierStorageCode_maps_enterprise_when_plan_id_tier_map_key_has_bounding_whitespace`. [class:other]
 
 - [x] (proven) `ConfigurationSensitiveConfigValueScanner.ContainsCredentialConnectionPair` — Azure Cache for Redis comma-delimited `password=` on non-sensitive effective values leaked because pair scan resumed only after `;` — **hit 2026-10-13 thorough hunt:** advance pair boundaries on `,` as well as `;`; regression `Resolve_redacts_plain_scalar_redis_comma_delimited_connection_string`.
+- [x] (proven) `ConfigurationSensitiveConfigValueScanner.ContainsCredentialConnectionPair` — pipe-delimited `password=` after a non-credential leading pair leaked on non-sensitive effective values — **hit 2026-10-21 lane B seed hunt:** treat `|` as a pair delimiter; regression `Resolve_redacts_plain_scalar_connection_string_when_password_uses_pipe_delimiter`.
 - [x] (proven) `AzureOpenAiOptions.UseJsonSchemaResponseFormat` — property initializer was `true` while `ConfigurationKeyCatalog` and `docs/library/CONFIGURATION_REFERENCE.md` record default `false` for unset `AzureOpenAI:UseJsonSchemaResponseFormat`; **hit 2026-10-12 thorough hunt:** an unset key instantiated the option with schema output enabled, so the host could request schema-file-dependent structured output by default. Changed the initializer to `false`; regression `UseJsonSchemaResponseFormat_defaults_to_false_when_configuration_is_unset`.
 - [x] (proven) `AzureOpenAiEndpointNormalizer.EnsureTrailingSlash` — a non-foundry, non-`openai.azure.com` absolute endpoint that contains a query receives a trailing `/` after the query. — **hit 2026-10-16 thorough hunt:** insert trailing slash on the path before `?`; regression `NormalizeForChatCompletions_appends_trailing_slash_to_path_before_query_on_cognitiveservices_host`. The cited runbook endpoint `https://oai-archlucid-dev.cognitiveservices.azure.com/` has no query.
 - [x] (invalid) `QuickScanEffectiveLimits.Merge` — when `QuickScanSafetyOptions.Enabled` is true, identity caps such as `Identity.MaxScansPerIpPerHour` are not copied onto the merged `QuickScanOptions`.
