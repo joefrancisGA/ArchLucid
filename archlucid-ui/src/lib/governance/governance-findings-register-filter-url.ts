@@ -3,6 +3,7 @@ import {
   type RiskRegisterFilter,
 } from "@/lib/architecture/architecture-risk-register-page";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM } from "@/lib/governance/governance-findings-resource-group-disclosure-url";
 
 export const GOVERNANCE_FINDINGS_REGISTER_FILTER_PARAM = "filter";
 
@@ -22,6 +23,8 @@ export function governanceFindingsRegisterFilterHrefFromSearch(
   pathname: string = GOVERNANCE_FINDINGS_PATH,
 ): string {
   const params = new URLSearchParams(currentSearch);
+
+  params.delete(GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM);
 
   if (filter === "all") {
     params.delete(GOVERNANCE_FINDINGS_REGISTER_FILTER_PARAM);
