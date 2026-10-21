@@ -29,11 +29,12 @@ vi.mock("@/lib/buyer/buyer-safe-review-navigation", async (importOriginal) => {
 
 vi.mock("@/lib/operator/operator-static-demo", () => ({
   isDemoRunIdEligibleForStaticFallback: () => false,
+  isStaticDemoPayloadFallbackEnabled: () => false,
 }));
 
 const basePayload = {
   findingId: "f-1",
-  typedPayload: { severity: "High" },
+  typedPayload: { title: "Rule A", severity: "High" },
   decisionRuleId: "rule-a",
   decisionRuleName: "Rule A",
   evidence: [{ artifactId: null, lineRange: "12-20", excerpt: "node-x" }],
@@ -91,8 +92,8 @@ describe("FindingInspectFindingBody", () => {
       />,
     );
 
-    expect(screen.getByText("Review rationale (technical)")).toBeTruthy();
-    expect(screen.getByText("Structured evaluation record")).toBeTruthy();
+    expect(screen.getByText("View AI Reasoning")).toBeTruthy();
+    expect(screen.getByText("AI Audit Inspection")).toBeTruthy();
     expect(screen.getByText("step one then step two")).toBeTruthy();
   });
 });

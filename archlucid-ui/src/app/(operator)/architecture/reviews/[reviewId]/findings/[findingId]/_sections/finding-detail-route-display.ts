@@ -291,6 +291,22 @@ export function buyerFindingDecisionImpactCopy(payload: FindingInspectPayload | 
 
 /** Top-of-page next step for buyer-polished finding detail. */
 export function buyerFindingNextStepCopy(payload: FindingInspectPayload | null, findingId: string): string {
+  if (payload !== null) {
+    const action = findingInspectPrimaryLabels(payload).recommendedAction;
+
+    if (action !== null && action.trim().length > 0) {
+      return action;
+    }
+
+    if (isPhiMinimizationSampleFinding(payload)) {
+      return phiMinimizationRecommendedActionFallback();
+    }
+  }
+
+  if (isPhiMinimizationFindingId(findingId)) {
+    return phiMinimizationRecommendedActionFallback();
+  }
+
   return mitigationPosture(payload, findingId);
 }
 

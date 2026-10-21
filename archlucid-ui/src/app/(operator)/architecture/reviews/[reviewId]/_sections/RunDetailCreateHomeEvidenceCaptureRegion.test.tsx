@@ -9,6 +9,8 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({
     refresh: refreshMock,
   }),
+  usePathname: () => "/architecture/reviews/run-abc",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/hooks/use-run-stored-evidence-catalog-query", () => ({

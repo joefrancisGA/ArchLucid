@@ -1,8 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 import { buildEvidenceTraceSources } from "@/lib/evidence-trace-evidence-copy";
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
@@ -16,6 +15,16 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
 vi.mock("@/lib/resolve-production-eval-chrome-from-storage", () => ({
   resolveProductionEvalChromeFromStorage: (): boolean => true,
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/architecture/reviews/run-1/findings/finding-1/evidence-trace",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
@@ -108,9 +117,10 @@ describe("FindingInspectView buyer-polished shell (ERU)", () => {
     expect(orientationTop).toContainElement(sourcesSection);
     expect(orientationTop.compareDocumentPosition(evidenceBody) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(buildEvidenceTraceSources("run-1", "finding-1"))) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(
+      within(sourcesSection),
+      buildEvidenceTraceSources("run-1", "finding-1"),
+      "/architecture/reviews/run-1/findings/finding-1/evidence-trace",
+    );
   });
 });

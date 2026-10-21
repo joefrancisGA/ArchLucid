@@ -37,6 +37,10 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 };
 });
 
+vi.mock("@/lib/resolve-production-eval-chrome-from-storage", () => ({
+  resolveProductionEvalChromeFromStorage: (): boolean => false,
+}));
+
 describe("FindingInspectView", () => {
   it("renders core labeled sections when payload matches route run", () => {
     const { container } = render(
@@ -46,7 +50,7 @@ describe("FindingInspectView", () => {
         failure={null}
         payload={{
           findingId: "f-1",
-          typedPayload: { severity: "High" },
+          typedPayload: { title: "Rule A", severity: "High" },
           decisionRuleId: "rule-a",
           decisionRuleName: "Rule A",
           evidence: [{ artifactId: null, lineRange: "12-20", excerpt: "node-x" }],
@@ -82,7 +86,7 @@ describe("FindingInspectView", () => {
         failure={null}
         payload={{
           findingId: "f-1",
-          typedPayload: { severity: "High" },
+          typedPayload: { title: "Rule A", severity: "High" },
           decisionRuleId: "rule-a",
           decisionRuleName: "Rule A",
           evidence: [{ artifactId: null, lineRange: "12-20", excerpt: "node-x" }],
@@ -110,7 +114,7 @@ describe("FindingInspectView", () => {
         failure={null}
         payload={{
           findingId: "f-1",
-          typedPayload: { severity: "High" },
+          typedPayload: { title: "Rule A", severity: "High" },
           decisionRuleId: "rule-a",
           decisionRuleName: "Rule A",
           evidence: [{ artifactId: null, lineRange: null, excerpt: "node-x" }],
