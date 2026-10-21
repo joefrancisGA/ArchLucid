@@ -20,17 +20,13 @@ public static class AzureInventoryEventGridDestinationExtractor
             return (string.Empty, null, null, null);
         }
 
-        string destinationKind = TryReadString(destinationElement, "endpointType") ?? string.Empty;
-
-        // Event Grid 2022-06-15 list items nest endpointUrl and resourceId under destination.properties.
-        JsonElement destinationProperties = TryReadDestinationProperties(destinationElement);
+        string destinationKind =
+            AzureInventoryArmNestedObjectPropertyReader.TryReadString(destinationElement, "endpointType") ?? string.Empty;
 
         if (destinationKind.Equals("WebHook", StringComparison.OrdinalIgnoreCase))
         {
-            string? endpointUrl = TryReadString(destinationProperties, "endpointUrl")
-                                  ?? TryReadString(destinationProperties, "endpointBaseUrl")
-                                  ?? TryReadString(destinationElement, "endpointUrl")
-                                  ?? TryReadString(destinationElement, "endpointBaseUrl");
+            string? endpointUrl = AzureInventoryArmNestedObjectPropertyReader.TryReadString(destinationElement, "endpointUrl")
+                                  ?? AzureInventoryArmNestedObjectPropertyReader.TryReadString(destinationElement, "endpointBaseUrl");
             string? host = AzureInventoryEventGridWebhookHostExtractor.TryExtractHost(endpointUrl);
 
             if (string.IsNullOrWhiteSpace(host))
@@ -41,8 +37,7 @@ public static class AzureInventoryEventGridDestinationExtractor
             return (destinationKind, null, host, null);
         }
 
-        string? resourceId = TryReadString(destinationProperties, "resourceId")
-                             ?? TryReadString(destinationElement, "resourceId");
+        string? resourceId = AzureInventoryArmNestedObjectPropertyReader.TryReadString(destinationElement, "resourceId");
 
         if (!string.IsNullOrWhiteSpace(resourceId))
         {
@@ -50,26 +45,5 @@ public static class AzureInventoryEventGridDestinationExtractor
         }
 
         return (destinationKind, null, null, null);
-    }
-
-    private static JsonElement TryReadDestinationProperties(JsonElement destinationElement)
-    {
-        if (destinationElement.TryGetProperty("properties", out JsonElement nestedProperties)
-            && nestedProperties.ValueKind is JsonValueKind.Object)
-        {
-            return nestedProperties;
-        }
-
-        return destinationElement;
-    }
-
-    private static string? TryReadString(JsonElement element, string propertyName)
-    {
-        if (!element.TryGetProperty(propertyName, out JsonElement value))
-        {
-            return null;
-        }
-
-        return value.ValueKind is JsonValueKind.String ? value.GetString() : value.GetRawText().Trim('"');
     }
 }

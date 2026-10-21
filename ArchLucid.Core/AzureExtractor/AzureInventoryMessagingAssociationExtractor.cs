@@ -38,9 +38,9 @@ public static class AzureInventoryMessagingAssociationExtractor
             && captureElement.TryGetProperty("destination", out JsonElement destinationElement)
             && destinationElement.ValueKind is JsonValueKind.Object)
         {
-            JsonElement destinationProperties = TryReadDestinationProperties(destinationElement);
-            captureStorageAccountId = TryReadString(destinationProperties, "storageAccountResourceId")
-                                      ?? TryReadString(destinationElement, "storageAccountResourceId");
+            captureStorageAccountId = AzureInventoryArmNestedObjectPropertyReader.TryReadString(
+                destinationElement,
+                "storageAccountResourceId");
         }
 
         row = new AzureInventoryMessagingAssociationRow
@@ -106,17 +106,6 @@ public static class AzureInventoryMessagingAssociationExtractor
         };
 
         return true;
-    }
-
-    private static JsonElement TryReadDestinationProperties(JsonElement destinationElement)
-    {
-        if (destinationElement.TryGetProperty("properties", out JsonElement nestedProperties)
-            && nestedProperties.ValueKind is JsonValueKind.Object)
-        {
-            return nestedProperties;
-        }
-
-        return destinationElement;
     }
 
     private static string? TryReadString(JsonElement element, string propertyName)

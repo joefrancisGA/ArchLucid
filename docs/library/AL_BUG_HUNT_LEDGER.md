@@ -1,4 +1,9 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
+2026-10-21 thorough hunt (hit): `core-azure-extractor` — lane B; closed **ARM nested `properties` bag vs top-level** bug class (Event Grid destination, Event Hub capture, Service Connector `targetService`) by consolidating `AzureInventoryArmNestedObjectPropertyReader` and routing Event Grid, Event Hub capture, and Service Connector reads through it; matrix tests for flat/nested shapes per extractor (`AzureInventoryArmNestedObjectPropertyMatrixTests`). Service Connector nested `targetService.properties.id` was newly proven. Scoped `AzureExtractor` filter: see run log.
+
+- [x] (proven) **Bug class closed** ARM child-object scalar nested under `properties` vs top-level — **2026-10-21 lane B:** shared `AzureInventoryArmNestedObjectPropertyReader`; matrix tests; Service Connector nested target id regression.
+- [x] (proven) `AzureInventoryServiceConnectorLinkExtractor.TryExtract` — `targetService.properties.id` ignored — **hit 2026-10-21 lane B class-closure sweep:** nested-property reader + matrix case.
+
 2026-10-21 seed hunt (seed→hit): `core-azure-extractor` — lane B (picker default `core-tenancy-commercial` held by lane C); promoted Event Hub capture `destination.properties.storageAccountResourceId` nesting — list payloads nest storage id under `destination.properties` like Event Grid 2022-06-15; `TryExtractEventHub` only read top-level `storageAccountResourceId`; now uses nested destination properties with top-level fallback; regression `TryExtractEventHub_reads_capture_storage_from_nested_destination_properties`. Scoped `AzureExtractor` filter: 1573 Core tests passed.
 
 - [x] (proven) `AzureInventoryMessagingAssociationExtractor.TryExtractEventHub` — capture storage id under nested `destination.properties` ignored — **hit 2026-10-21 lane B seed hunt:** `TryReadDestinationProperties` parity with Event Grid; regression above.
@@ -28586,13 +28591,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 57
-- **bugs-found:** 37
+- **hunts:** 58
+- **bugs-found:** 38
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — Event Hub capture storage id nested under destination.properties
+- **last-bug:** 2026-10-21 — ARM nested properties bag class closed; Service Connector targetService nesting
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-21 thorough hunt (class-closure): `AzureInventoryArmNestedObjectPropertyReader` + flat/nested matrix; Service Connector nested target id.
 
 2026-10-21 seed hunt (seed→hit): lane B; Event Hub capture destination.properties nesting; 1573 Core scoped tests passed.
 
