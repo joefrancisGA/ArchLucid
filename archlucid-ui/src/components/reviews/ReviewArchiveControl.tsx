@@ -4,7 +4,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { Button } from "@/components/ui/button";
@@ -84,7 +84,7 @@ export function ReviewArchiveControl(props: ReviewArchiveControlProps): React.JS
     (open: boolean) => {
       commitHrefIfChanged(
         reviewArchiveConfirmHrefFromSearch(
-          readWindowLocationSearch(),
+          searchParams.toString(),
           {
             runId: open ? props.run.runId : null,
             confirmOpen: open,
@@ -94,7 +94,7 @@ export function ReviewArchiveControl(props: ReviewArchiveControlProps): React.JS
         { notify: false },
       );
     },
-    [pathname, props.run.runId],
+    [pathname, props.run.runId, searchParams],
   );
 
   const setConfirmOpen = useCallback(

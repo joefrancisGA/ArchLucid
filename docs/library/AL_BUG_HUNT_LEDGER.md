@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 ﻿> **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
+2026-10-21 seed hunt (seed→hit): `ui-review-detail-workspace` — promoted `ReviewArchiveControl` writing archive confirm href from `readWindowLocationSearch()` so soft navigation could re-attach stale findings query params when opening the archive dialog; writes now use `searchParams.toString()`; regression `writes archive confirm dialog state from useSearchParams when window.location.search lags after soft navigation`; ReviewArchiveControl url-sync vitest 2/2.
+
 2026-10-21 seed hunt (seed→hit): `ui-review-detail-workspace` — promoted `WorkspaceAiAvailabilityPanel` writing workspace AI probe diagnostics and debug-metadata disclosure hrefs from `readWindowLocationSearch()` so soft navigation could re-attach stale findings query params; writes now use `searchParams.toString()`; regression `writes workspace AI probe diagnostics disclosure from useSearchParams when window.location.search lags after soft navigation`; WorkspaceAiAvailabilityPanel url-sync vitest 2/2.
 
 2026-10-21 seed hunt (seed→hit): `ui-review-detail-workspace` — promoted `TechnologyBaselinePanel` writing technology baseline evidence ref and rationale hrefs from `readWindowLocationSearch()` so soft navigation could preserve stale findings query params when toggling evidence ref; writes now use `searchParams.toString()`; regression `writes technology baseline evidence ref disclosure from useSearchParams when window.location.search lags after soft navigation`; TechnologyBaselinePanel url-sync vitest 3/3.
@@ -41984,17 +41986,19 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - [x] (proven) `TechnologyBaselinePanel` — evidence ref disclosure href used stale `window.location.search` on write after soft navigation — **hit 2026-10-21 seed hunt:** `searchParams.toString()` for evidence ref and rationale href writes; regression `writes technology baseline evidence ref disclosure from useSearchParams when window.location.search lags after soft navigation`.
 
 - [x] (proven) `WorkspaceAiAvailabilityPanel` — probe diagnostics disclosure href used stale `window.location.search` on write after soft navigation — **hit 2026-10-21 seed hunt:** `searchParams.toString()` for diagnostics and nested debug-metadata writes; regression `writes workspace AI probe diagnostics disclosure from useSearchParams when window.location.search lags after soft navigation`.
+
+- [x] (proven) `ReviewArchiveControl` — archive confirm href used stale `window.location.search` on write after soft navigation — **hit 2026-10-21 seed hunt:** `searchParams.toString()` for confirm dialog URL; regression `writes archive confirm dialog state from useSearchParams when window.location.search lags after soft navigation`.
 - **id:** ui-review-detail-workspace
 - **status:** open
 - **impact:** high
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 67
-- **bugs-found:** 58
+- **hunts:** 68
+- **bugs-found:** 59
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - WorkspaceAiAvailabilityPanel probe diagnostics href soft-nav sync
+- **last-bug:** 2026-10-21 - ReviewArchiveControl archive confirm href soft-nav sync
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.
