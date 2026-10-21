@@ -41,4 +41,52 @@ public sealed class ApiRequestNullCollectionElementsGuardTests
 
         ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(payload).Should().BeFalse();
     }
+
+    [Fact]
+    public void ContainsNullCollectionElement_allows_null_elements_when_property_annotated_nullable()
+    {
+        NullableStringListRequest request = new()
+        {
+            Tags = new List<string?> { "ok", null },
+        };
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void ContainsNullCollectionElement_rejects_null_elements_when_property_annotated_non_nullable()
+    {
+        NonNullableStringListRequest request = new()
+        {
+            Tags = new List<string> { "ok", null! },
+        };
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void ContainsNullCollectionElement_allows_null_elements_in_nullable_value_type_array()
+    {
+        NullableIntArrayRequest request = new()
+        {
+            Values = new int?[] { 1, null },
+        };
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(request).Should().BeFalse();
+    }
+
+    private sealed class NullableStringListRequest
+    {
+        public List<string?> Tags { get; set; } = [];
+    }
+
+    private sealed class NonNullableStringListRequest
+    {
+        public List<string> Tags { get; set; } = [];
+    }
+
+    private sealed class NullableIntArrayRequest
+    {
+        public int?[] Values { get; set; } = [];
+    }
 }

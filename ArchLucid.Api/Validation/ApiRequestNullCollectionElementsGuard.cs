@@ -8,12 +8,14 @@ namespace ArchLucid.Api.Validation;
 /// </summary>
 public static class ApiRequestNullCollectionElementsGuard
 {
+    private static readonly NullabilityInfoContext NullabilityContext = new();
+
     public const string ValidationMessage =
         "Request body collections must not contain null elements.";
 
     /// <summary>
     ///     Returns true when <paramref name="root" /> contains a null element in any enumerable collection
-    ///     (excluding strings and byte arrays).
+    ///     (excluding strings and byte arrays) whose element type is not annotated nullable.
     /// </summary>
     public static bool ContainsNullCollectionElement(object? root)
     {
@@ -22,33 +24,15 @@ public static class ApiRequestNullCollectionElementsGuard
 
         HashSet<object> visited = new(ReferenceEqualityComparer.Instance);
 
-        return Visit(root, visited);
+        return VisitObject(root, visited);
     }
 
-    private static bool Visit(object? value, HashSet<object> visited)
+    private static bool VisitObject(object value, HashSet<object> visited)
     {
-        if (value is null)
-            return false;
-
         Type type = value.GetType();
 
         if (IsLeafType(type))
             return false;
-
-        if (IsEnumerableCollection(type))
-        {
-            foreach (object? element in (IEnumerable)value)
-            {
-
-                if (element is null)
-                    return true;
-
-                if (Visit(element, visited))
-                    return true;
-            }
-
-            return false;
-        }
 
         if (!type.IsValueType)
         {
@@ -71,7 +55,66 @@ public static class ApiRequestNullCollectionElementsGuard
             if (propertyValue is null)
                 continue;
 
-            if (Visit(propertyValue, visited))
+            if (VisitPropertyValue(propertyValue, property, visited))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool VisitPropertyValue(object value, PropertyInfo property, HashSet<object> visited)
+    {
+        Type runtimeType = value.GetType();
+
+        if (IsEnumerableCollection(runtimeType))
+            return VisitCollection((IEnumerable)value, property, visited);
+
+        if (IsLeafType(runtimeType))
+            return false;
+
+        return VisitObject(value, visited);
+    }
+
+    private static bool VisitCollection(IEnumerable enumerable, PropertyInfo owningProperty, HashSet<object> visited)
+    {
+        bool allowNullElements = AllowsNullElements(NullabilityContext.Create(owningProperty));
+
+        foreach (object? element in enumerable)
+        {
+
+            if (element is null)
+            {
+
+                if (allowNullElements)
+                    continue;
+
+                return true;
+            }
+
+            if (VisitObject(element, visited))
+                return true;
+        }
+
+        return false;
+    }
+
+    internal static bool AllowsNullElements(NullabilityInfo nullability)
+    {
+        NullabilityInfo? elementInfo = nullability.ElementType;
+
+        while (elementInfo is not null)
+        {
+
+            if (elementInfo.ReadState == NullabilityState.Nullable)
+                return true;
+
+            elementInfo = elementInfo.ElementType;
+        }
+
+        foreach (NullabilityInfo genericArgument in nullability.GenericTypeArguments)
+        {
+
+            if (genericArgument.ReadState == NullabilityState.Nullable)
                 return true;
         }
 
