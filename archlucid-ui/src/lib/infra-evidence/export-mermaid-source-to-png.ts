@@ -36,7 +36,8 @@ export function appendDataFlowRollupMemberLegend(svgMarkup: string): string {
   const rowHeight = 16;
   const topPadding = 12;
   const rows = rollups.flatMap((rollup, index) => {
-    const title = rollup.querySelector("title")?.textContent?.trim() ?? "Rollup";
+    const rawTitle = rollup.querySelector("title")?.textContent?.trim() ?? "";
+    const title = rawTitle.length > 0 ? rawTitle : "Resource name was not stored.";
     const members = (rollup.getAttribute("data-member-names") ?? "").split("|").filter(Boolean);
     return [`[${index + 1}] ${title}`, ...members.map((member) => `  ${member}`)];
   });

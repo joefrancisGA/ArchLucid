@@ -125,7 +125,7 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
                 DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel,
                 StringComparison.Ordinal))
         {
-            return true;
+            return false;
         }
 
         return string.Equals(edge.Label, "peering", StringComparison.OrdinalIgnoreCase)

@@ -220,13 +220,13 @@ export function QuickDecisionSummaryFindingRow({
           <span>{snippet}</span>
         </p>
       ) : null}
-      {owner.length > 0 && !workspaceCardMode ? (
+      {!workspaceCardMode ? (
         <p
           className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
           data-testid={`finding-owner-${finding.findingId}`}
         >
           <span className="font-semibold text-neutral-700 dark:text-neutral-300">Owner: </span>
-          {owner}
+          {owner.length > 0 ? owner : "Owner was not stored."}
         </p>
       ) : null}
       <FindingPolicyEvidenceCitationLinks model={citationModel} compact className="mt-2" />

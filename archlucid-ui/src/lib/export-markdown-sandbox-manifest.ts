@@ -43,7 +43,7 @@ export function formatSandboxStyleGoldenManifest(m: Record<string, unknown>): st
     } else if (cloud) {
       lines.push(`- **Cloud:** ${cloud}`);
     } else if (typeof m.cloudProvider === "string") {
-      lines.push("- **Cloud:** ");
+      lines.push("- Cloud was stored empty.");
     }
 
     if (m.status === null || m.status === undefined) {
@@ -51,7 +51,7 @@ export function formatSandboxStyleGoldenManifest(m: Record<string, unknown>): st
     } else if (status) {
       lines.push(`- **Status:** ${status}`);
     } else if (typeof m.status === "string") {
-      lines.push("- **Status:** ");
+      lines.push("- Status was stored empty.");
     }
 
     lines.push("");

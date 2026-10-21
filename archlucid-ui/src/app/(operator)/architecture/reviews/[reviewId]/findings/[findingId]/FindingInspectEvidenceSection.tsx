@@ -47,12 +47,6 @@ function evidenceCitationTitle(row: FindingInspectEvidence): string {
     return excerpt.length > 80 ? `${excerpt.slice(0, 77)}…` : excerpt;
   }
 
-  const artifact = row.artifactId?.trim() ?? "";
-
-  if (artifact.length > 0) {
-    return artifact.replace(/-/g, " ");
-  }
-
   return "Evidence excerpt was not stored.";
 }
 
