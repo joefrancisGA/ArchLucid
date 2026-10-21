@@ -5773,8 +5773,3 @@
 {"at":"2026-10-21T01:44:11.4723088Z","zoneId":"host-composition","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T01:50:29.1932207Z","zoneId":"retrieval","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-21T01:58:07.9301622Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
-{"zoneId":"cloud-extractors","outcome":"hit","lane":"B","kind":"seed hunt","note":"ListChildJsonElementsAsync partialCollection wiring for AX-DE collectors","at":"2026-10-21T01:42:23.0000000Z"}
-{"at":"2026-10-21T01:44:11.4723088Z","zoneId":"host-composition","outcome":"hit","productLine":"archlucid-shared"}
-{"zoneId":"topology-proposal-merge","outcome":"dry","lane":"B","kind":"thorough hunt","note":"cheap-disproof four open candidates","at":"2026-10-21T01:50:37.0000000Z"}
-{"at":"2026-10-21T01:56:30.7334759Z","zoneId":"retrieval","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Retrieval/"]}
-{"at":"2026-10-21T02:10:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Configuration/"]}
