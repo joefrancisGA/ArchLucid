@@ -5861,3 +5861,5 @@
 {"at":"2026-10-21T06:33:01.0130206Z","zoneId":"storage-vs-data-category","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Application/Runs/Orchestration/)"]}
 {"at":"2026-10-21T06:38:46.1287173Z","zoneId":"itsm-inbound-webhooks","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T06:44:07.416Z","zoneId":"archlucid-contracts","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Contracts/ArchitectureIntelligence/SpecialistReviewFinding.cs"]}
+{"at":"2026-10-21T06:49:48.377602Z","zoneId":"context-ingestion","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.ContextIngestion/Parsing/PixelDiagramIntakeStubDetector.cs"]}
+{"at":"2026-10-21T06:49:49.1107899Z","zoneId":"context-ingestion","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.ContextIngestion/)"]}
