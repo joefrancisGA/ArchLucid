@@ -3,8 +3,8 @@ using ArchLucid.Contracts.Billing;
 namespace ArchLucid.Application.Billing;
 
 /// <summary>
-///     One dashboard candidate. Unpriced runs all report zero USD, so ranking uses every measurable token,
-///     including reasoning tokens that are not on <see cref="LlmCostTopRunRowResponse"/>.
+///     One dashboard candidate. Unpriced runs all report zero USD, so ranking uses every measurable token
+///     (prompt, completion, and reasoning) exposed on <see cref="LlmCostTopRunRowResponse"/>.
 /// </summary>
 internal sealed class RankedLlmCostRun(LlmCostTopRunRowResponse row, long measurableTokens)
 {

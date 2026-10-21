@@ -348,6 +348,9 @@ public sealed class TenantLlmCostTopRunRankerTests
         rows[0].RunId.Should().Be(runId.ToString("N"));
         rows[0].LlmCallCount.Should().Be(1);
         rows[0].EstimatedCostUsd.Should().Be(0m);
+        rows[0].ReasoningTokens.Should().Be(300);
+        rows[0].PromptTokens.Should().Be(0);
+        rows[0].CompletionTokens.Should().Be(0);
     }
 
     [Fact]
