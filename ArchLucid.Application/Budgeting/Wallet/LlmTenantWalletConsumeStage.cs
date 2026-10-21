@@ -55,8 +55,8 @@ public sealed class LlmTenantWalletConsumeStage(
                     TenantId = tenantId,
                     AutoReplenishEnabled = command.AutoReplenishEnabled,
                     MonthlyCapUsd = command.MonthlyCapUsd,
-                    StripeCustomerId = command.StripeCustomerId,
-                    StripePaymentMethodId = command.StripePaymentMethodId,
+                    StripeCustomerId = NormalizeOptionalStripeId(command.StripeCustomerId),
+                    StripePaymentMethodId = NormalizeOptionalStripeId(command.StripePaymentMethodId),
                     ExpectedRowVersion = command.ExpectedRowVersion,
                 },
                 cancellationToken)
@@ -142,4 +142,9 @@ public sealed class LlmTenantWalletConsumeStage(
     {
         ArchLucidInstrumentation.RecordLlmWalletBalanceUsd(tenantId, balanceUsd);
     }
+
+    // Partial wallet PUT omits unset fields as null; clients that send "" for an omitted Stripe id
+    // must not clear persisted identifiers (COALESCE/in-memory updates treat empty string as a value).
+    private static string? NormalizeOptionalStripeId(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }
