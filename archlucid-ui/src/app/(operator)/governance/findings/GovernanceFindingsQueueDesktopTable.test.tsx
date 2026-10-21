@@ -153,6 +153,18 @@ describe("GovernanceFindingsQueueDesktopTable", () => {
     expect(routerPushMock).not.toHaveBeenCalled();
   });
 
+  it("renders operational finding title without inspect link when run id is blank", () => {
+    render(
+      <GovernanceFindingsQueueDesktopTable
+        rows={[{ ...sampleRow(0), runId: "   ", title: "PHI minimization risk" }]}
+        buyerPolishedShell={false}
+      />,
+    );
+
+    expect(screen.queryByRole("link", { name: "PHI minimization risk" })).toBeNull();
+    expect(screen.getByText("PHI minimization risk")).toBeInTheDocument();
+  });
+
   it("renders assigned-to-me review label without link when run id is blank", () => {
     render(
       <GovernanceFindingsQueueDesktopTable

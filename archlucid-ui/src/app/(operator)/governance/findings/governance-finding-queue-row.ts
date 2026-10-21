@@ -50,6 +50,11 @@ export type GovernanceFindingQueueRow = {
   semanticSupportBand?: FindingSemanticSupportBandValue | null;
 };
 
+/** Queue rows without a stored review id must not link into review-scoped finding surfaces. */
+export function governanceFindingQueueRowHasStoredRunId(row: GovernanceFindingQueueRow): boolean {
+  return row.runId.trim().length > 0;
+}
+
 export function formatGovernanceQueueRecordKind(
   kind: GovernanceFindingQueueRecordKind,
   buyerPolishedShell: boolean,
