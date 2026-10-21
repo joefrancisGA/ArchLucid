@@ -57,6 +57,12 @@
 
 
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
+2026-10-21 thorough hunt (hit, lane C): `storage-vs-data-category` — lock `storage-vs-data-category` (no other origin zone locks at hunt start); promoted `AgentProposalStructuralPostProcessor` / `CrossAgentProposalConsistencyGate` JSON-null collection elements (`addedServices:[null]` via `ContractJson`) aborted post-execute enrichment with `NullReferenceException` before dedupe/merge; skip null `AgentResult` and null proposal nodes in both gates; regressions `ApplyToProposal_skips_null_added_service_entry_from_deserialized_proposal`, `ApplyToResults_skips_null_agent_result_entry`, `ApplyToResults_skips_null_added_service_entry_from_deserialized_proposal`; Application scoped filter 34/34.
+
+- [x] (proven) `AgentProposalStructuralPostProcessor.ApplyToResults` — JSON-null `AgentResult` element — **hit 2026-10-21 lane C:** skip null results before reading `ProposedChanges`; regression `ApplyToResults_skips_null_agent_result_entry`.
+- [x] (proven) `AgentProposalStructuralPostProcessor.DedupeServices` — JSON-null service entry — **hit 2026-10-21 lane C:** `addedServices:[null]` from `AgentTopologyProposal` deserialize; regression `ApplyToProposal_skips_null_added_service_entry_from_deserialized_proposal`.
+- [x] (proven) `CrossAgentProposalConsistencyGate.ApplyToResults` / `ClaimServices` — JSON-null service entry — **hit 2026-10-21 lane C:** same deserialize path through consistency gate; regression `ApplyToResults_skips_null_added_service_entry_from_deserialized_proposal`.
+
 2026-10-21 thorough hunt (dry, lane C): `ui-webhooks-settings` — lock `ui-webhooks-settings` (lane B held `api-tenancy-workspaces` on origin); repro-first on four open `(candidate)` rows; colon `scopeKey` lacks reachable operator-scope ids with `:` (`sanitizeScopeId` / UUID headers only; `parseOperatorScopeQueryKey` split is a separate contract); latest `loadRequestRef` failure over older success is intentional newest-request policy (`load` guards + overlap regressions); `syncToggleConfirmToUrl` `searchParams` snapshot has no serialized rapid-toggle wrong-outcome vs existing enable/disable URL regressions; global `data-testid` test-button lookup is not a reachable dual-shell invariant (scroll uses `data-webhook-subscription-id`); webhooks folder vitest 62/62; no production change.
 
 - [x] (invalid) `useWebhooksSettingsLoad` — colon-delimited `scopeKey` collision — **cheap-disproof 2026-10-21 lane C:** operator scope ids are sanitized header UUIDs without an established colon alphabet.
@@ -9203,27 +9209,29 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: storage-vs-data-category
 
+2026-10-21 thorough hunt (hit, lane C): JSON-null `addedServices` elements and null `AgentResult` entries no longer abort structural post-processing or cross-agent consistency merge; Application scoped filter 34/34.
+
 - **id:** storage-vs-data-category
 - **status:** open
 - **impact:** medium
 - **aliases:** storage vs data; structural post-processor; consistency gate
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **hunts:** 12
-- **bugs-found:** 0
-- **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-10-10
-- **last-bug:** never
+- **hunts:** 13
+- **bugs-found:** 1
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-21 — JSON-null proposal collection elements aborted post-execute merge
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-10-09 seed hunt (seed-only): re-read `AgentProposalStructuralPostProcessor` and `CrossAgentProposalConsistencyGate` after post-commit churn; no new mechanism-backed hunt-ready row survived cheap disproof in this exhausted zone. Seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
-- [ ] (candidate) `AgentProposalStructuralPostProcessor.ApplyToResults` — a JSON-null `AgentResult` element can be dereferenced before the existing null check on `ProposedChanges` — locus: `AgentProposalStructuralPostProcessor.cs` ~17–26; input: execute payload whose agent-results array contains a null element.
-- [ ] (candidate) `AgentProposalStructuralPostProcessor.DedupeServices` — a JSON-null service entry can reach `TopologyEndpointSources.Service.TryClaim` without an element guard — locus: `AgentProposalStructuralPostProcessor.cs` ~87–104; input: agent proposal with a null item in `addedServices`.
+- [x] (proven) `AgentProposalStructuralPostProcessor.ApplyToResults` — JSON-null `AgentResult` element — **hit 2026-10-21 lane C:** skip null results; regression `ApplyToResults_skips_null_agent_result_entry`.
+- [x] (proven) `AgentProposalStructuralPostProcessor.DedupeServices` — JSON-null service entry — **hit 2026-10-21 lane C:** regression `ApplyToProposal_skips_null_added_service_entry_from_deserialized_proposal`.
 - [ ] (candidate) `AgentProposalStructuralPostProcessor.DedupeDatastores` — a JSON-null datastore entry can reach endpoint claiming without an element guard — locus: `AgentProposalStructuralPostProcessor.cs` ~108–123; input: agent proposal with a null item in `addedDatastores`.
 - [ ] (candidate) `AgentProposalStructuralPostProcessor.FilterRelationships` — a JSON-null relationship element can reach endpoint key checks without an element guard — locus: `AgentProposalStructuralPostProcessor.cs` ~50–76; input: agent proposal with a null item in `addedRelationships`.
-- [ ] (candidate) `CrossAgentProposalConsistencyGate.CollectDeclaredBatchEndpointKeys` — null service/datastore entries can fail batch endpoint collection before later valid agent proposals are merged — locus: `CrossAgentProposalConsistencyGate.cs` ~53–84; input: multi-agent execute payload containing a null topology node alongside valid proposals.
+- [x] (proven) `CrossAgentProposalConsistencyGate` — JSON-null service entry in batch merge — **hit 2026-10-21 lane C:** regression `ApplyToResults_skips_null_added_service_entry_from_deserialized_proposal`.
 
 2026-10-09 seed hunt (seed-only): re-read the same post-processor and consistency-gate paths after the zone was selected again; the existing null-element rows remain unproven and no distinct mechanism met the failing-repro bar. Seeded five additional reachable `(candidate)` rows; no production code changed and no regression was added.
 

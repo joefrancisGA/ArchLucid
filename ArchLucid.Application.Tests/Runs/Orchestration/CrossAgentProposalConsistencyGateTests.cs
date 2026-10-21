@@ -1,7 +1,10 @@
+using System.Text.Json;
+
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Serialization;
 
 using FluentAssertions;
 
@@ -930,5 +933,28 @@ public sealed class CrossAgentProposalConsistencyGateTests
 
         cost.ProposedChanges!.AddedRelationships.Should().ContainSingle();
         cost.ProposedChanges.AddedRelationships![0].SourceId.Should().Be("renamed-api");
+    }
+
+    [Fact]
+    public void ApplyToResults_skips_null_added_service_entry_from_deserialized_proposal()
+    {
+        const string json = """
+            {
+              "proposalId": "p1",
+              "sourceAgent": 1,
+              "addedServices": [null]
+            }
+            """;
+
+        AgentTopologyProposal proposal = JsonSerializer.Deserialize<AgentTopologyProposal>(json, ContractJson.Default)!;
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = proposal,
+        };
+
+        CrossAgentProposalConsistencyGate.ApplyToResults([topology]);
+
+        topology.ProposedChanges!.AddedServices.Should().BeEmpty();
     }
 }
