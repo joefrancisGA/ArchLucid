@@ -694,6 +694,36 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_space()
+    {
+        ClosedLoopReasoningRequest literalSpace = CreateRequest("Same body.");
+        literalSpace.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/arch note.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest encodedSpace = CreateRequest("ignored");
+        encodedSpace.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/arch%20note.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(literalSpace).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(encodedSpace).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_source_content_differs_only_by_utf8_bom_prefix()
     {
         ClosedLoopReasoningRequest withoutBom = CreateRequest("Same body.");
