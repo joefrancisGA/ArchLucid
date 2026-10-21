@@ -5772,3 +5772,4 @@
 {"at":"2026-10-21T00:10:21.9938072Z","zoneId":"orchestrator-transient-retry","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T00:22:29.6208824Z","zoneId":"ui-runs-list","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T00:25:52.0443566Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T00:27:02.5110977Z","zoneId":"tenant-data-export","outcome":"hit","productLine":"archlucid-shared"}

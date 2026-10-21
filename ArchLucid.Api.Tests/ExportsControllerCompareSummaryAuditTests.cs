@@ -181,7 +181,8 @@ public sealed class ExportsControllerCompareSummaryAuditTests
                 lineageVerifier.Object,
                 authorityQuery,
                 manifestHashService,
-                scopeProvider.Object),
+                scopeProvider.Object,
+                Mock.Of<ArchLucid.Application.Exports.IRunExportCareerPostureGate>()),
             authorityQuery,
             scopeProvider.Object,
             manifestHashService);

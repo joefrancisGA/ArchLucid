@@ -1,5 +1,7 @@
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Exports;
+using ArchLucid.Decisioning.CareerArtifacts;
 using ArchLucid.Application.Tests.Exports;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -82,6 +84,50 @@ public sealed class RunExportQueryFacadeTests
     }
 
     [Fact]
+    public async Task GetExportRecordAsync_throws_when_career_posture_blocks_metadata_read()
+    {
+        Guid runGuid = Guid.Parse(RunId);
+        RunExportRecord record = CreateExportRecord();
+        ArchitectureRunDetail scopedDetail = CreateScopedRunDetail();
+        RunDetailDto authorityDetail = CreateAuthorityDetailWithCompleteLifecycle(runGuid);
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(r => r.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(scopedDetail);
+
+        Mock<IRunExportRecordRepository> exportRecords = new();
+        exportRecords
+            .Setup(r => r.GetByIdAsync(ExportRecordId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(record);
+
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runGuid, manifestHashService);
+        authority
+            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(authorityDetail);
+
+        Mock<IRunExportCareerPostureGate> careerGate = new();
+        careerGate
+            .Setup(g => g.EnsureAllowsExportRecordMetadataOrThrowAsync(runGuid, It.IsAny<ScopeContext>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new CareerArtifactExportBlockedException(
+                SimulatorCareerHonestyPresenter.SimulatorRehearsalBlockedMessage,
+                CareerArtifactCompletenessValidator.SimulatorRehearsalCode));
+
+        RunExportQueryFacade sut = CreateFacade(
+            runDetails,
+            exportRecords,
+            authority,
+            manifestHashService,
+            careerGate);
+
+        Func<Task> act = () => sut.GetExportRecordAsync(ExportRecordId, CancellationToken.None);
+
+        await act.Should().ThrowAsync<CareerArtifactExportBlockedException>();
+    }
+
+    [Fact]
     public async Task GetExportRecordAsync_returns_lineage_unverified_when_authority_lifecycle_not_complete()
     {
         Guid runGuid = Guid.Parse(RunId);
@@ -124,7 +170,8 @@ public sealed class RunExportQueryFacadeTests
         Mock<IRunDetailQueryService> runDetails,
         Mock<IRunExportRecordRepository>? exportRecords = null,
         Mock<IAuthorityQueryService>? authority = null,
-        IManifestHashService? manifestHashService = null)
+        IManifestHashService? manifestHashService = null,
+        Mock<IRunExportCareerPostureGate>? careerGate = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext());
@@ -140,7 +187,8 @@ public sealed class RunExportQueryFacadeTests
             Mock.Of<IRunExportLineageVerifier>(),
             (authority ?? new Mock<IAuthorityQueryService>()).Object,
             manifestHashService ?? Mock.Of<IManifestHashService>(),
-            scopeProvider.Object);
+            scopeProvider.Object,
+            (careerGate ?? new Mock<IRunExportCareerPostureGate>()).Object);
     }
 
     private static RunExportQueryFacade CreateFacade(Mock<IRunDetailQueryService> runDetails) =>
@@ -189,5 +237,17 @@ public sealed class RunExportQueryFacadeTests
                 LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
                 GoldenManifestId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
             },
+        };
+
+    private static RunDetailDto CreateAuthorityDetailWithCompleteLifecycle(Guid runGuid) =>
+        new()
+        {
+            Run = new RunRecord
+            {
+                RunId = runGuid,
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                GoldenManifestId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            },
+            GoldenManifest = new ManifestDocument { ManifestHash = "abc123" },
         };
 }

@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Exports;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Metadata;
@@ -25,7 +26,8 @@ public sealed class RunExportQueryFacade(
     IRunExportLineageVerifier runExportLineageVerifier,
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
-    IScopeContextProvider scopeContextProvider) : IRunExportQueryFacade
+    IScopeContextProvider scopeContextProvider,
+    IRunExportCareerPostureGate runExportCareerPostureGate) : IRunExportQueryFacade
 {
     private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
     private readonly IRunExportRecordRepository _runExportRecordRepository = runExportRecordRepository ?? throw new ArgumentNullException(nameof(runExportRecordRepository));
@@ -42,6 +44,9 @@ public sealed class RunExportQueryFacade(
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IRunExportCareerPostureGate _runExportCareerPostureGate =
+        runExportCareerPostureGate ?? throw new ArgumentNullException(nameof(runExportCareerPostureGate));
 
     public async Task<RunExportHistoryQueryResult> GetRunExportHistoryAsync(string runId, CancellationToken cancellationToken = default)
     {
@@ -118,6 +123,16 @@ public sealed class RunExportQueryFacade(
                 Outcome = lifecycleOutcome.Value,
                 MissingId = record.RunId,
             };
+        }
+
+        if (Guid.TryParse(record.RunId, out Guid runGuid))
+        {
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+            await _runExportCareerPostureGate.EnsureAllowsExportRecordMetadataOrThrowAsync(
+                runGuid,
+                scope,
+                cancellationToken);
         }
 
         return new ScopedExportRecordLoadResult { Outcome = ExportRecordLoadOutcome.Success, Record = record };

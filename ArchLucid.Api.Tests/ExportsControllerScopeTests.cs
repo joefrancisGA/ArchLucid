@@ -2,6 +2,8 @@ using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Models;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Exports;
+using ArchLucid.Decisioning.CareerArtifacts;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
@@ -94,6 +96,68 @@ public sealed class ExportsControllerScopeTests
         OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
         RunExportRecordResponse body = ok.Value.Should().BeOfType<RunExportRecordResponse>().Subject;
         body.Record.ExportRecordId.Should().Be(ExportRecordId);
+    }
+
+    [Fact]
+    public async Task GetExportRecord_returns_409_when_career_export_blocked()
+    {
+        Guid runGuid = Guid.Parse(VictimRunId);
+        const string manifestHash = "abc123";
+
+        Mock<IRunExportRecordRepository> exports = new();
+        exports
+            .Setup(r => r.GetByIdAsync(ExportRecordId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunExportRecord { ExportRecordId = ExportRecordId, RunId = VictimRunId });
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(r => r.GetRunDetailAsync(VictimRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new ArchitectureRun { RunId = VictimRunId } });
+
+        Mock<IRunExportLineageVerifier> lineageVerifier = new();
+        lineageVerifier
+            .Setup(v => v.VerifyAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunExportLineageVerificationResult { Status = RunExportLineageVerificationStatus.Match });
+
+        Mock<IAuthorityQueryService> authorityQuery = new();
+        authorityQuery
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord { RunId = runGuid, LegacyRunStatus = "Committed" },
+                GoldenManifest = new ManifestDocument { ManifestHash = manifestHash },
+            });
+        authorityQuery
+            .Setup(q => q.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord { RunId = runGuid, LegacyRunStatus = "Committed" },
+                GoldenManifest = new ManifestDocument { ManifestHash = manifestHash },
+            });
+
+        Mock<IManifestHashService> manifestHashService = new();
+        manifestHashService
+            .Setup(s => s.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns(manifestHash);
+
+        Mock<IRunExportCareerPostureGate> careerGate = new();
+        careerGate
+            .Setup(g => g.EnsureAllowsExportRecordMetadataOrThrowAsync(runGuid, It.IsAny<ScopeContext>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new CareerArtifactExportBlockedException(
+                SimulatorCareerHonestyPresenter.SimulatorRehearsalBlockedMessage,
+                CareerArtifactCompletenessValidator.SimulatorRehearsalCode));
+
+        ExportsController sut = CreateController(
+            exports,
+            runDetails,
+            lineageVerifier: lineageVerifier,
+            authorityQuery: authorityQuery,
+            manifestHashService: manifestHashService,
+            careerGate: careerGate);
+
+        IActionResult result = await sut.GetExportRecord(ExportRecordId, exports.Object, CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
     }
 
     [Fact]
@@ -191,7 +255,8 @@ public sealed class ExportsControllerScopeTests
         Mock<IRunDetailQueryService> runDetails,
         Mock<IRunExportLineageVerifier>? lineageVerifier = null,
         Mock<IAuthorityQueryService>? authorityQuery = null,
-        Mock<IManifestHashService>? manifestHashService = null)
+        Mock<IManifestHashService>? manifestHashService = null,
+        Mock<IRunExportCareerPostureGate>? careerGate = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext());
@@ -207,7 +272,8 @@ public sealed class ExportsControllerScopeTests
             (lineageVerifier ?? new Mock<IRunExportLineageVerifier>()).Object,
             (authorityQuery ?? new Mock<IAuthorityQueryService>()).Object,
             (manifestHashService ?? new Mock<IManifestHashService>()).Object,
-            scopeProvider.Object);
+            scopeProvider.Object,
+            (careerGate ?? new Mock<IRunExportCareerPostureGate>()).Object);
 
         ExportsController controller = new(
             facade,
