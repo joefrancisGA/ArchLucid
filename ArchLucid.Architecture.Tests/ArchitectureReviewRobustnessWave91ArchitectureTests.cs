@@ -24,7 +24,9 @@ public sealed class ArchitectureReviewRobustnessWave91ArchitectureTests
 
         authorityReplay.Should().Contain("MapAuthorityReplaySealedManifestConflict");
         governancePreview.Should().Contain("MapGovernancePreviewSealedManifestConflict");
-        governancePosture.Should().Contain("MapGovernancePostureSealedManifestConflict");
+        governancePosture.Should().Contain("ConflictProblem");
+        ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Http/Governance/GovernanceScopePostureSealedManifestEndpointCatalog.cs")
+            .Should().Contain("GovernancePostureController\", \"GetPosture\", GovernanceScopePostureSealedManifestClassification.EnforcedInApplicationLayer");
         policyPacksCrud.Should().Contain("MapPolicyPackSealedManifestConflict");
         runsExecute.Should().Contain("MapRunsSealedManifestConflict");
         governanceMutationCorrections.Should().Contain("MapGovernanceSealedManifestConflict");

@@ -19,17 +19,21 @@ public sealed class ArchitectureReviewRobustnessWave90ArchitectureTests
         string provenanceGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ProvenanceController.SealedManifestGuard.cs");
         string provenanceQueryGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ProvenanceQueryController.SealedManifestGuard.cs");
         string runComparisonGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunComparisonController.SealedManifestGuard.cs");
-        string resolutionGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceResolutionController.SealedManifestGuard.cs");
-        string setupGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceSetupController.SealedManifestGuard.cs");
-        string environmentCatalogGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceEnvironmentCatalogController.SealedManifestGuard.cs");
+        string scopePostureCatalog = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Http/Governance/GovernanceScopePostureSealedManifestEndpointCatalog.cs");
 
         comparisonGuard.Should().Contain("MapComparisonSealedManifestConflict");
         provenanceGuard.Should().Contain("MapProvenanceSealedManifestConflict");
         provenanceQueryGuard.Should().Contain("MapProvenanceQuerySealedManifestConflict");
         runComparisonGuard.Should().Contain("MapRunComparisonSealedManifestConflict");
-        resolutionGuard.Should().Contain("MapGovernanceResolutionSealedManifestConflict");
-        setupGuard.Should().Contain("MapGovernanceSetupSealedManifestConflict");
-        environmentCatalogGuard.Should().Contain("MapGovernanceEnvironmentCatalogSealedManifestConflict");
+        ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceResolutionController.cs")
+            .Should().Contain("ConflictProblem");
+        scopePostureCatalog.Should().Contain("GovernanceResolutionController\", \"Resolve\", GovernanceScopePostureSealedManifestClassification.ExemptMetadataOrConfigRead");
+        ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceSetupController.cs")
+            .Should().Contain("ConflictProblem");
+        scopePostureCatalog.Should().Contain("GovernanceSetupController\", \"GetSetupGuideBundle\", GovernanceScopePostureSealedManifestClassification.ExemptMetadataOrConfigRead");
+        ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceEnvironmentCatalogController.cs")
+            .Should().Contain("ConflictProblem");
+        scopePostureCatalog.Should().Contain("GovernanceEnvironmentCatalogController\", \"Get\", GovernanceScopePostureSealedManifestClassification.ExemptMetadataOrConfigRead");
     }
 
     [Fact]

@@ -23,7 +23,9 @@ public sealed class ArchitectureReviewRobustnessWave108ArchitectureTests
         agentEvaluation.Should().Contain("MapRunAgentEvaluationSealedManifestConflict");
         provenance.Should().Contain("MapProvenanceSealedManifestConflict");
         provenanceQuery.Should().Contain("MapProvenanceQuerySealedManifestConflict");
-        resolution.Should().Contain("MapGovernanceResolutionSealedManifestConflict");
+        resolution.Should().Contain("ConflictProblem");
+        ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Http/Governance/GovernanceScopePostureSealedManifestEndpointCatalog.cs")
+            .Should().Contain("GovernanceResolutionController\", \"Resolve\", GovernanceScopePostureSealedManifestClassification.ExemptMetadataOrConfigRead");
     }
 
     [Fact]
@@ -33,8 +35,12 @@ public sealed class ArchitectureReviewRobustnessWave108ArchitectureTests
         string environmentCatalog = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceEnvironmentCatalogController.cs");
         string coverageAck = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunCoverageController.Acknowledgement.cs");
 
-        setup.Should().Contain("MapGovernanceSetupSealedManifestConflict");
-        environmentCatalog.Should().Contain("MapGovernanceEnvironmentCatalogSealedManifestConflict");
+        setup.Should().Contain("ConflictProblem");
+        environmentCatalog.Should().Contain("ConflictProblem");
+        ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Http/Governance/GovernanceScopePostureSealedManifestEndpointCatalog.cs")
+            .Should().Contain("GovernanceSetupController\", \"GetSetupGuideBundle\", GovernanceScopePostureSealedManifestClassification.ExemptMetadataOrConfigRead");
+        ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Http/Governance/GovernanceScopePostureSealedManifestEndpointCatalog.cs")
+            .Should().Contain("GovernanceEnvironmentCatalogController\", \"Get\", GovernanceScopePostureSealedManifestClassification.ExemptMetadataOrConfigRead");
         coverageAck.Should().Contain("MapRunCoverageSealedManifestConflict");
     }
 

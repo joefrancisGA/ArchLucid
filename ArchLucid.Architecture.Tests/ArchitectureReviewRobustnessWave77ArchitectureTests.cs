@@ -54,7 +54,9 @@ public sealed class ArchitectureReviewRobustnessWave77ArchitectureTests
         crossTenantGuard.Should().Contain("EnsureAccessiblePortfolioRunsSealedOrThrowAsync");
         stickinessRegisters.Should().Contain("EnsureRegistersSealedManifestAllowedAsync");
         stickinessAttestation.Should().Contain("EnsureRegistersSealedManifestAllowedAsync");
-        stickinessGuard.Should().Contain("GovernancePostureSealedManifestHashGuard");
+        stickinessGuard.Should().Contain("GovernanceScopePostureSealedManifestPreflight");
+        ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Http/Governance/GovernanceScopePostureSealedManifestPreflight.cs")
+            .Should().Contain("GovernancePostureSealedManifestHashGuard");
     }
 
     [Fact]

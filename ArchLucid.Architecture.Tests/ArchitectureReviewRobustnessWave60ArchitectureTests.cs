@@ -16,16 +16,18 @@ public sealed class ArchitectureReviewRobustnessWave60ArchitectureTests
     public void Suggestion705_707_posture_seal_delta_and_export_replay_openapi_409()
     {
         string postureController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs");
-        string postureGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernancePostureController.SealedManifestGuard.cs");
         string architecturesController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/ArchitecturesController.cs");
         string architecturesGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/ArchitecturesController.SealedManifestGuard.cs");
         string sealDeltaGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Architecture/ArchitectureSealDeltaSealedManifestReadGuard.cs");
         string exportsController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ExportsController.cs");
 
         postureController.Should().Contain("GetPosture");
-        postureController.Should().Contain("EnsureGovernancePostureSealedManifestReadAllowedAsync");
+        postureController.Should().NotContain("EnsureGovernancePostureSealedManifestReadAllowedAsync");
         postureController.Should().Contain("Status409Conflict");
-        postureGuard.Should().Contain("GovernancePostureSealedManifestHashGuard");
+        ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Http/Governance/GovernanceScopePostureSealedManifestEndpointCatalog.cs")
+            .Should().Contain("GovernancePostureController\", \"GetPosture\", GovernanceScopePostureSealedManifestClassification.EnforcedInApplicationLayer");
+        ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Governance/Posture/ArchitecturePostureService.cs")
+            .Should().Contain("GovernancePostureSealedManifestHashGuard");
         architecturesController.Should().Contain("GetSealDelta");
         architecturesController.Should().Contain("EnsureArchitectureSealDeltaSealedManifestReadAllowedAsync");
         architecturesGuard.Should().Contain("ArchitectureSealDeltaSealedManifestReadGuard");
@@ -57,8 +59,10 @@ public sealed class ArchitectureReviewRobustnessWave60ArchitectureTests
         authorityQueryGuard.Should().Contain("RunInventorySealedManifestReadGuard");
         runInventoryGuard.Should().Contain("GovernancePostureSealedManifestHashGuard");
         previewController.Should().Contain("EnsureGovernancePreviewRunSealedManifestReadAllowedAsync");
-        previewController.Should().Contain("EnsureGovernancePreviewScopeSealedManifestReadAllowedAsync");
+        previewController.Should().NotContain("EnsureGovernancePreviewScopeSealedManifestReadAllowedAsync");
         previewGuard.Should().Contain("GovernancePreviewSealedManifestHashGuard");
+        ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Http/Governance/GovernanceScopePostureSealedManifestEndpointCatalog.cs")
+            .Should().Contain("GovernancePreviewController\", \"CompareEnvironments\", GovernanceScopePostureSealedManifestClassification.ExemptMetadataOrConfigRead");
         coverageController.Should().Contain("PreviewCoverage");
         coverageController.Should().Contain("EnsureGovernanceCoveragePreviewSealedManifestReadAllowedAsync");
         coverageController.Should().Contain("Status409Conflict");

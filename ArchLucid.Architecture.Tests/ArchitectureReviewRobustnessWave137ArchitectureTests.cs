@@ -23,7 +23,7 @@ public sealed class ArchitectureReviewRobustnessWave137ArchitectureTests
         string architectureRequests = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsController.ArchitectureRequests.cs");
         string governanceCatalog = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceEnvironmentCatalogController.cs");
         string runsGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsController.SealedManifestGuard.cs");
-        string governanceGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceEnvironmentCatalogController.SealedManifestGuard.cs");
+        string scopePostureCatalog = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Http/Governance/GovernanceScopePostureSealedManifestEndpointCatalog.cs");
 
         executeRun.Should().Contain("ExecuteRun");
         executeRun.Should().Contain("ExecuteRunSelective");
@@ -46,11 +46,11 @@ public sealed class ArchitectureReviewRobustnessWave137ArchitectureTests
         architectureRequests.Should().Contain("EnsureArchitectureRequestSealedManifestReadAllowedAsync");
         architectureRequests.Should().Contain("MapRunsSealedManifestConflict");
         governanceCatalog.Should().Contain("Replace");
-        governanceCatalog.Should().Contain("EnsureGovernanceScopeSealedManifestReadAllowedAsync");
-        governanceCatalog.Should().Contain("MapGovernanceEnvironmentCatalogSealedManifestConflict");
+        governanceCatalog.Should().NotContain("EnsureGovernanceScopeSealedManifestReadAllowedAsync");
+        governanceCatalog.Should().Contain("ConflictProblem");
         runsGuard.Should().Contain("EnsureRunSealedManifestReadAllowedAsync");
         runsGuard.Should().Contain("EnsureArchitectureRequestSealedManifestReadAllowedAsync");
-        governanceGuard.Should().Contain("EnsureGovernanceScopeSealedManifestReadAllowedAsync");
+        scopePostureCatalog.Should().Contain("GovernanceEnvironmentCatalogController\", \"Replace\", GovernanceScopePostureSealedManifestClassification.ExemptMetadataOrConfigRead");
     }
 
     [Fact]

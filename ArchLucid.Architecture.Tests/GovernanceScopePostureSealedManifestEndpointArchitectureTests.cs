@@ -8,6 +8,8 @@ using FluentAssertions;
 
 namespace ArchLucid.Architecture.Tests;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class GovernanceScopePostureSealedManifestEndpointArchitectureTests
 {
     private static readonly Assembly ApiAssembly = typeof(RequiresGovernanceScopePostureSealedManifestAttribute).Assembly;

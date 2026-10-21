@@ -33,7 +33,9 @@ public sealed class ArchitectureReviewRobustnessWave135ArchitectureTests
         architectures.Should().Contain("PatchArchitecture");
         architectures.Should().Contain("MapArchitectureSealedManifestConflict");
         architectures.Should().Contain("EnsureArchitectureIdentityMutationSealedManifestAllowedAsync");
-        architectureGuard.Should().Contain("GovernancePostureSealedManifestHashGuard.EnsureLatestCommittedRunSealedOrThrowAsync");
+        architectureGuard.Should().Contain("GovernanceScopePostureSealedManifestPreflight");
+        ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Http/Governance/GovernanceScopePostureSealedManifestPreflight.cs")
+            .Should().Contain("GovernancePostureSealedManifestHashGuard.EnsureLatestCommittedRunSealedOrThrowAsync");
         promotions.Should().Contain("Promote");
         promotions.Should().Contain("Activate");
         promotions.Should().Contain("EnsureSealedManifestReadAllowedAsync");

@@ -33,7 +33,9 @@ public sealed class ArchitectureReviewRobustnessWave140ArchitectureTests
         boardPack.Should().Contain("PostBoardPackPdf");
         boardPack.Should().Contain("EnsureBoardPackSealedManifestReadAllowedAsync");
         boardPack.Should().Contain("MapPilotBoardPackSealedManifestConflict");
-        boardPackGuard.Should().Contain("GovernancePostureSealedManifestHashGuard");
+        boardPackGuard.Should().Contain("GovernanceScopePostureSealedManifestPreflight");
+        ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Http/Governance/GovernanceScopePostureSealedManifestPreflight.cs")
+            .Should().Contain("GovernancePostureSealedManifestHashGuard");
         intelligenceRun.Should().Contain("PostRunAsync");
         intelligenceRun.Should().Contain("PostContinueAsync");
         intelligenceRun.Should().Contain("PostPublishAsync");

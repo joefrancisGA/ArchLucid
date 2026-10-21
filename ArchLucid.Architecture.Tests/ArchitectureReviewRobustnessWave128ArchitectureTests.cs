@@ -16,17 +16,18 @@ public sealed class ArchitectureReviewRobustnessWave128ArchitectureTests
     public void Suggestion1521_1526_posture_seal_delta_export_replay_inventory_preview_and_coverage_runtime_409_mappers()
     {
         string postureController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs");
-        string postureGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernancePostureController.SealedManifestGuard.cs");
         string architecturesController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/ArchitecturesController.cs");
         string exportsController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ExportsController.cs");
         string authorityReadsController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs");
         string authorityQueryList = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityQueryController.List.cs");
         string previewController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernancePreviewController.cs");
         string coverageController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceCoverageController.cs");
+        string scopePostureCatalog = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Http/Governance/GovernanceScopePostureSealedManifestEndpointCatalog.cs");
 
         postureController.Should().Contain("GetPosture");
-        postureController.Should().Contain("MapGovernancePostureSealedManifestConflict");
-        postureGuard.Should().Contain("EnsureGovernancePostureSealedManifestReadAllowedAsync");
+        postureController.Should().Contain("ConflictProblem");
+        postureController.Should().NotContain("EnsureGovernancePostureSealedManifestReadAllowedAsync");
+        scopePostureCatalog.Should().Contain("GovernancePostureController\", \"GetPosture\", GovernanceScopePostureSealedManifestClassification.EnforcedInApplicationLayer");
         architecturesController.Should().Contain("GetSealDelta");
         architecturesController.Should().Contain("MapArchitectureSealedManifestConflict");
         exportsController.Should().Contain("ReplayExportRecord");
