@@ -55,6 +55,59 @@ public sealed class PolicyPacksControllerCatalogMutationSealedManifestTests
     }
 
     [Fact]
+    public async Task Create_blocks_mutation_when_latest_committed_run_has_unusable_manifest()
+    {
+        Mock<IPolicyPackHttpFacade> httpFacade = new();
+        httpFacade
+            .Setup(f => f.CreatePackAsync(It.IsAny<PolicyPackCreateBody>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(PolicyPackHttpResult<PolicyPack>.Success(null!));
+
+        PolicyPacksController sut = CreateControllerWithUnusableCommittedRun(httpFacade);
+
+        IActionResult result = await sut.Create(
+            new CreatePolicyPackRequest
+            {
+                Name = "baseline",
+                Description = "desc",
+                PackType = "TenantCustom",
+                InitialContentJson = "{}",
+            },
+            CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        httpFacade.Verify(
+            facade => facade.CreatePackAsync(It.IsAny<PolicyPackCreateBody>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task Publish_blocks_mutation_when_latest_committed_run_has_unusable_manifest()
+    {
+        Mock<IPolicyPackHttpFacade> httpFacade = new();
+        httpFacade
+            .Setup(f => f.PublishVersionAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<PolicyPackPublishBody>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(PolicyPackHttpResult<PolicyPackVersion>.Success(null!));
+
+        PolicyPacksController sut = CreateControllerWithUnusableCommittedRun(httpFacade);
+
+        IActionResult result = await sut.Publish(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            new PublishPolicyPackVersionRequest { Version = "1.0.0", ContentJson = "{}" },
+            CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        httpFacade.Verify(
+            facade => facade.PublishVersionAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<PolicyPackPublishBody>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task DemoteCatalogEntry_blocks_mutation_when_latest_committed_run_has_unusable_manifest()
     {
         Mock<IPolicyPackHttpFacade> httpFacade = new();

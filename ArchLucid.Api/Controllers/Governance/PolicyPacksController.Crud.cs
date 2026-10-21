@@ -20,6 +20,7 @@ public sealed partial class PolicyPacksController
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost]
     [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
+    [RequiresGovernanceScopePostureSealedManifest("Policy pack creation mutates governance posture.")]
     [ProducesResponseType(typeof(PolicyPack), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
@@ -35,6 +36,11 @@ public sealed partial class PolicyPacksController
 
         if (validationProblem is not null)
             return validationProblem;
+
+        IActionResult? sealedGuardResult = await EnsurePolicyPackMutationSealedManifestAllowedAsync(ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         PolicyPackHttpResult<PolicyPack> result;
 
@@ -67,6 +73,7 @@ public sealed partial class PolicyPacksController
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{policyPackId:guid}/publish")]
     [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
+    [RequiresGovernanceScopePostureSealedManifest("Policy pack publish mutates governance posture.")]
     [ProducesResponseType(typeof(PolicyPackVersion), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
@@ -88,6 +95,11 @@ public sealed partial class PolicyPacksController
 
         if (routeIdProblem is not null)
             return routeIdProblem;
+
+        IActionResult? sealedGuardResult = await EnsurePolicyPackMutationSealedManifestAllowedAsync(ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         PolicyPackSemVerVersion normalizedVersion = PolicyPackSemVerVersion.Parse(request.Version);
         PolicyPackHttpResult<PolicyPackVersion> result;
@@ -133,6 +145,7 @@ public sealed partial class PolicyPacksController
     /// <summary>Soft-deletes a policy pack.</summary>
     [HttpDelete("{policyPackId:guid}")]
     [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
+    [RequiresGovernanceScopePostureSealedManifest("Policy pack delete mutates governance posture.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
@@ -142,6 +155,11 @@ public sealed partial class PolicyPacksController
 
         if (routeIdProblem is not null)
             return routeIdProblem;
+
+        IActionResult? sealedGuardResult = await EnsurePolicyPackMutationSealedManifestAllowedAsync(ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         PolicyPackHttpResult<bool> result;
 
@@ -174,6 +192,7 @@ public sealed partial class PolicyPacksController
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{policyPackId:guid}/duplicate")]
     [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
+    [RequiresGovernanceScopePostureSealedManifest("Policy pack duplicate mutates governance posture.")]
     [ProducesResponseType(typeof(PolicyPack), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
@@ -183,6 +202,11 @@ public sealed partial class PolicyPacksController
 
         if (routeIdProblem is not null)
             return routeIdProblem;
+
+        IActionResult? sealedGuardResult = await EnsurePolicyPackMutationSealedManifestAllowedAsync(ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         PolicyPackHttpResult<PolicyPack> result;
 
