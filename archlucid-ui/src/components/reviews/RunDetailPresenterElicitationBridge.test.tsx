@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { UseReviewPresenterElicitationResult } from "@/hooks/use-review-presenter-elicitation";
@@ -34,7 +34,13 @@ const elicitationMock = vi.hoisted(() => ({
 }));
 
 vi.mock("@/components/WorkspaceModeProvider", () => ({
-  useWorkspaceMode: () => workspaceModeMock,
+  useWorkspaceMode: () => ({
+    mode: workspaceModeMock.mode,
+    mounted: true,
+    accountSyncState: "synced",
+    isWorkingMode: workspaceModeMock.isWorkingMode,
+    setAndPersist: vi.fn(),
+  }),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -73,6 +79,7 @@ describe("RunDetailPresenterElicitationBridge (FD-01)", () => {
     workspaceModeMock.mode = "working";
     routerReplaceMock.mockReset();
     searchParamsMock.value = new URLSearchParams("reviewTab=overview&presenter=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-a?reviewTab=overview&presenter=1");
     elicitationMock.value = {
       primaryQuestion: {
         questionKey: "latency",
@@ -184,6 +191,7 @@ describe("RunDetailPresenterElicitationBridge (FD-01)", () => {
   it("starts room elicitation inline without presenter zoom when roomElicitation=1", () => {
     workspaceModeMock.isWorkingMode = true;
     searchParamsMock.value = new URLSearchParams("reviewTab=overview&roomElicitation=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-a?reviewTab=overview&roomElicitation=1");
 
     render(
       <RunDetailPresenterElicitationBridge
@@ -201,7 +209,7 @@ describe("RunDetailPresenterElicitationBridge (FD-01)", () => {
     expect(screen.getByTestId("review-defensibility-strip")).toBeInTheDocument();
   });
 
-  it("IR-012: redirects presenter deep links to inhabited findings when architecture id is known", () => {
+  it("IR-012: redirects presenter deep links to inhabited findings when architecture id is known", async () => {
     render(
       <RunDetailPresenterElicitationBridge
         runId={RUN_ID}
@@ -211,15 +219,17 @@ describe("RunDetailPresenterElicitationBridge (FD-01)", () => {
       />,
     );
 
-    expect(routerReplaceMock).toHaveBeenCalledWith(
-      "/architecture/architectures/architecture-identity-001/findings?runId=run-a&roomElicitation=1",
-      { scroll: false },
-    );
+    await waitFor(() => {
+      expect(window.location.pathname + window.location.search).toBe(
+        "/architecture/architectures/architecture-identity-001/findings?runId=run-a&roomElicitation=1",
+      );
+    });
     expect(screen.queryByTestId("review-presenter-surface")).toBeNull();
   });
 
-  it("IP-007: redirects room elicitation deep links to inhabited findings when architecture id is known", () => {
+  it("IP-007: redirects room elicitation deep links to inhabited findings when architecture id is known", async () => {
     searchParamsMock.value = new URLSearchParams("reviewTab=overview&roomElicitation=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-a?reviewTab=overview&roomElicitation=1");
 
     render(
       <RunDetailPresenterElicitationBridge
@@ -230,10 +240,11 @@ describe("RunDetailPresenterElicitationBridge (FD-01)", () => {
       />,
     );
 
-    expect(routerReplaceMock).toHaveBeenCalledWith(
-      "/architecture/architectures/architecture-identity-001/findings?runId=run-a&roomElicitation=1",
-      { scroll: false },
-    );
+    await waitFor(() => {
+      expect(window.location.pathname + window.location.search).toBe(
+        "/architecture/architectures/architecture-identity-001/findings?runId=run-a&roomElicitation=1",
+      );
+    });
     expect(screen.queryByTestId("review-room-elicitation-panel")).toBeNull();
   });
 
@@ -291,6 +302,7 @@ describe("RunDetailPresenterElicitationBridge (FD-01)", () => {
   it("does not show elicitation chrome when neither presenter nor room flag is set", () => {
     workspaceModeMock.isWorkingMode = true;
     searchParamsMock.value = new URLSearchParams("reviewTab=overview");
+    window.history.replaceState({}, "", "/architecture/reviews/run-a?reviewTab=overview");
 
     render(
       <RunDetailPresenterElicitationBridge

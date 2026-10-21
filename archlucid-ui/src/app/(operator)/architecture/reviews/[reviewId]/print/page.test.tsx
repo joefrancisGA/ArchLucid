@@ -35,9 +35,12 @@ describe("PackagePrintPage route (TB-2205)", () => {
   });
 
   it("rejects invalid run ids", async () => {
-    await expect(PackagePrintPage({ params: Promise.resolve({ reviewId: "undefined" }) })).rejects.toThrow(
-      "NEXT_NOT_FOUND",
-    );
+    await expect(
+      PackagePrintPage({
+        params: Promise.resolve({ reviewId: "undefined" }),
+        searchParams: Promise.resolve({}),
+      }),
+    ).rejects.toThrow("NEXT_NOT_FOUND");
     expect(notFound).toHaveBeenCalledTimes(1);
   });
 
@@ -56,6 +59,7 @@ describe("PackagePrintPage route (TB-2205)", () => {
 
     const element = await PackagePrintPage({
       params: Promise.resolve({ reviewId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }),
+      searchParams: Promise.resolve({}),
     });
 
     render(element);
@@ -66,7 +70,7 @@ describe("PackagePrintPage route (TB-2205)", () => {
       expect(screen.getByTestId("package-print-page")).toBeInTheDocument();
     });
 
-    expect(screen.getByText(PACKAGE_PRINT_PAGE_TITLE)).toBeInTheDocument();
+    expect(screen.getByTestId("package-print-workspace-header")).toBeInTheDocument();
     expect(screen.getByTestId("package-print-title")).toHaveTextContent("Payments edge");
     expect(getRunSummary).toHaveBeenCalledWith("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
   });

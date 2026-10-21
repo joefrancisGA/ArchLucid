@@ -2,8 +2,6 @@ import { render, within } from "@testing-library/react";
 import { axe, toHaveNoViolations } from "jest-axe";
 import { describe, expect, it, vi } from "vitest";
 
-import { FindingInspectView } from "../FindingInspectView";
-
 expect.extend(toHaveNoViolations);
 
 vi.mock("@/components/operator/OperatorApiProblem", () => ({
@@ -41,6 +39,8 @@ vi.mock("@/lib/resolve-production-eval-chrome-from-storage", () => ({
   resolveProductionEvalChromeFromStorage: (): boolean => false,
 }));
 
+import { FindingInspectView } from "../FindingInspectView";
+
 describe("FindingInspectView", () => {
   it("renders core labeled sections when payload matches route run", () => {
     const { container } = render(
@@ -67,7 +67,7 @@ describe("FindingInspectView", () => {
     const view = within(container);
 
     expect(view.getByRole("heading", { name: "Rule A" })).toBeTruthy();
-    expect(view.getByText("Technical evidence trace")).toBeTruthy();
+    expect(view.getByTestId("evidence-trace-secondary-view-strip")).toBeTruthy();
     expect(view.getByRole("heading", { name: "Why Rule A matters" })).toBeTruthy();
     expect(view.getByRole("heading", { name: "Customer policy & evidence" })).toBeTruthy();
     expect(view.getByRole("heading", { name: "Reasoning summary" })).toBeTruthy();

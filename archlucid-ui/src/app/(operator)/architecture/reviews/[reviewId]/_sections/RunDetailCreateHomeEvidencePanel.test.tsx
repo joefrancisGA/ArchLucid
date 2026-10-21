@@ -24,7 +24,7 @@ describe("RunDetailCreateHomeEvidencePanel", () => {
         items={[]}
         artifacts={[]}
         runId="run-abc"
-        buyerPolished
+        buyerPolished={false}
       />,
     );
 

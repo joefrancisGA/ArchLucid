@@ -238,6 +238,6 @@ describe("PackagePrintPageView (TB-2205)", () => {
     expect(screen.getByTestId("package-print-rehearsal-honesty-title")).toHaveTextContent(
       PACKAGE_PRINT_REHEARSAL_STRIP_TITLE,
     );
-    expect(screen.getByTestId("package-print-rehearsal-honesty-title")).toHaveTextContent(/Rehearsal/i);
+    expect(screen.getByTestId("package-print-rehearsal-honesty-title")).toHaveTextContent(/Practice/i);
   });
 });

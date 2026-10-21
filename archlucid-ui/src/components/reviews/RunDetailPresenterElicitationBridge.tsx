@@ -154,6 +154,10 @@ export function RunDetailPresenterElicitationBridge(
       return;
     }
 
+    if (resolvedParentArchitectureId.length > 0) {
+      return;
+    }
+
     const nextQuestionId = primaryQuestionKey.trim().length > 0 ? primaryQuestionKey : null;
 
     if (syncedPresenterQuestionIdRef.current === nextQuestionId) {
@@ -173,7 +177,7 @@ export function RunDetailPresenterElicitationBridge(
       reviewPresenterElicitationHrefFromSearch(readWindowLocationSearch(), nextQuestionId, pathname),
       { notify: false },
     );
-  }, [pathname, primaryQuestionKey, showElicitation]);
+  }, [pathname, primaryQuestionKey, resolvedParentArchitectureId, showElicitation]);
 
   const presenterFindingTitle = showPresenterSurface ? elicitation.title : undefined;
 
