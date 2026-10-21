@@ -1133,6 +1133,99 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task GetDecisionsNeededSummary_blocks_older_unsealed_waiver_run_when_latest_run_is_sealed()
+    {
+        Guid latestRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid olderRunId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(service => service.ListRunSummariesKeysetAsync(
+                null,
+                50,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                (
+                    new[]
+                    {
+                        new RunSummary
+                        {
+                            RunId = latestRunId.ToString("N"),
+                            Status = nameof(ArchitectureRunStatus.Committed),
+                            CreatedUtc = DateTime.UtcNow,
+                        },
+                    },
+                    false,
+                    (string?)null));
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(query => query.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                latestRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new RunDetailDto
+                {
+                    Run = new RunRecord { RunId = latestRunId },
+                    GoldenManifest = new ManifestDocument
+                    {
+                        RunId = latestRunId,
+                        ManifestHash = SealedManifestHash,
+                    },
+                });
+        authority
+            .Setup(query => query.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                olderRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new RunDetailDto
+                {
+                    Run = new RunRecord { RunId = olderRunId },
+                    GoldenManifest = null,
+                });
+
+        Mock<IManifestHashService> manifestHash = new();
+        manifestHash
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns(SealedManifestHash);
+
+        Mock<IRiskExceptionService> riskExceptions = new();
+        riskExceptions
+            .Setup(service => service.ListActiveAsync(
+                Scope.TenantId,
+                Scope.ProjectId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RiskExceptionRecord
+                {
+                    RiskExceptionId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                    TenantId = Scope.TenantId,
+                    WorkspaceId = Scope.WorkspaceId,
+                    ProjectId = Scope.ProjectId,
+                    FindingId = "finding-older",
+                    RunId = olderRunId,
+                    Status = RiskExceptionStatus.Active,
+                    ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(7),
+                },
+            ]);
+
+        GovernanceStickinessController sut = BuildSut(
+            riskExceptions: riskExceptions,
+            authorityQueryService: authority.Object,
+            manifestHashService: manifestHash.Object,
+            runDetailQueryService: runDetails.Object);
+
+        IActionResult action = await sut.GetDecisionsNeededSummary(
+            projectId: null,
+            cancellationToken: CancellationToken.None);
+
+        action.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+    }
+
+    [Fact]
     public async Task GetAssignedToMeFindingsCount_blocks_older_unsealed_register_row_when_latest_run_is_sealed()
     {
         Guid latestRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");

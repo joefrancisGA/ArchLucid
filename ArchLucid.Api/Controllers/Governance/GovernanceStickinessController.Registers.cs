@@ -203,6 +203,18 @@ public sealed partial class GovernanceStickinessController
         try
         {
             ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+            // Waiver expiry totals come from active exceptions. Seal those runs before returning counts.
+            IReadOnlyList<RiskExceptionRecord> activeWaivers =
+                await _facade.ListRiskExceptionsAsync(projectId, cancellationToken);
+
+            IActionResult? waiverGuardResult = await EnsureRiskExceptionRecordsSealedManifestAllowedAsync(
+                activeWaivers,
+                cancellationToken).ConfigureAwait(false);
+
+            if (waiverGuardResult is not null)
+                return waiverGuardResult;
+
             GovernanceDecisionsNeededSummaryResponse response =
                 await _facade.GetDecisionsNeededSummaryAsync(projectId, cancellationToken);
 
