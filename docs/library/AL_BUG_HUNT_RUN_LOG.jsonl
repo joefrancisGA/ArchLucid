@@ -5812,3 +5812,4 @@
 {"at":"2026-10-21T04:16:17.174Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T04:23:59.2191951Z","zoneId":"extraction-router","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs"]}
 {"at":"2026-10-21T04:26:38.841Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T04:28:48.2787328Z","zoneId":"ui-help-docs","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx"]}
