@@ -68,6 +68,18 @@ describe("diagramOutlineIncludesFocusResource", () => {
       ),
     ).toBe(false);
   });
+
+  it("does not match a short bare slug against a longer unrelated node id", () => {
+    expect(
+      diagramOutlineIncludesFocusResource(
+        {
+          nodes: [{ id: "apigateway", label: "API Gateway", resourceType: null, resourceGroup: null }],
+          edges: [],
+        },
+        "api",
+      ),
+    ).toBe(false);
+  });
 });
 
 describe("inventoryDiagramNodeElementMatchesFocusId", () => {
