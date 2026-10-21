@@ -44,4 +44,19 @@ public sealed class SqlScimUserFilterTranslatorCaseInsensitivityTests
         sql.Should().NotContain($"LOWER({columnSql})");
         sql.Should().NotContain("COLLATE Latin1_General_CS_AS");
     }
+
+    [Fact]
+    public void BuildWhere_active_eq_numeric_one_targets_active_bit_one()
+    {
+        DynamicParameters parameters = new();
+        int next = 0;
+
+        string sql = SqlScimUserFilterTranslator.BuildWhere(
+            new ScimComparisonNode("active", "eq", "1"),
+            parameters,
+            ref next);
+
+        sql.Should().Contain("u.Active = @f1");
+        parameters.Get<int>("f1").Should().Be(1);
+    }
 }

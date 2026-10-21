@@ -34,7 +34,9 @@ internal static class SqlScimUserFilterTranslator
 
         if (string.Equals(c.AttributePath, "active", StringComparison.OrdinalIgnoreCase))
         {
-            bool bit = string.Equals(c.Value, "true", StringComparison.OrdinalIgnoreCase);
+            if (!ScimActiveFilterLiteralParser.TryParseEqualityOperand(c.Value, out bool bit))
+                throw new ScimFilterSqlException($"Invalid active filter value '{c.Value}'.");
+
             string name = NextName(ref nextParam);
             parameters.Add(name, bit ? 1 : 0);
 
