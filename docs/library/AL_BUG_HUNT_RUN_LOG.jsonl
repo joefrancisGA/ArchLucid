@@ -5782,3 +5782,8 @@
 {"at":"2026-10-21T02:22:00.0000000Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Governance/"]}
 {"at":"2026-10-21T02:35:00.0000000Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Analysis/"]}
 {"at":"2026-10-21T02:42:00.0000000Z","zoneId":"application-agents","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Agents/"]}
+{"at":"2026-10-21T02:08:53.9178408Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId],archlucid-ui/src/components/reviews"]}
+{"at":"2026-10-21T02:15:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Configuration/"]}
+{"at":"2026-10-21T02:21:13.4988693Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Api/Controllers/Governance,ArchLucid.Api/Controllers/Tenancy,ArchLucid.Api.Tests/GovernanceCoverageControllerScopeTests.cs,ArchLucid.Api.Tests/TenantWorkspacesControllerTests.cs)"]}
+{"at":"2026-10-21T02:33:42.3653864Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Api/Http/Governance,ArchLucid.Api/Controllers/Governance,ArchLucid.Architecture.Tests/GovernanceScopePostureSealedManifestEndpointArchitectureTests.cs)"]}
+{"at":"2026-10-21T02:38:48.2532592Z","zoneId":"application-agents","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Application/Agents)"]}
