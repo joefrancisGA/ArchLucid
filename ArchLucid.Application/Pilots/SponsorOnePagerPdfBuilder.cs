@@ -335,10 +335,10 @@ public sealed class SponsorOnePagerPdfBuilder(
             }
 
             c.Item().Text($"Manifest version: {chain.ManifestVersion ?? "Manifest version was not stored."}");
-            c.Item().Text($"Findings snapshot: {FormatGuid(chain.FindingsSnapshotId, "Findings snapshot id was not stored.")} Â· context: {FormatGuid(chain.ContextSnapshotId, "Context snapshot id was not stored.")}");
-            c.Item().Text($"Graph snapshot: {FormatGuid(chain.GraphSnapshotId, "Graph snapshot id was not stored.")} Â· decision trace: {FormatGuid(chain.DecisionTraceId, "Decision trace id was not stored.")}");
+            c.Item().Text($"Findings snapshot: {FormatGuid(chain.FindingsSnapshotId, "Findings snapshot id was not stored.")} · context: {FormatGuid(chain.ContextSnapshotId, "Context snapshot id was not stored.")}");
+            c.Item().Text($"Graph snapshot: {FormatGuid(chain.GraphSnapshotId, "Graph snapshot id was not stored.")} · decision trace: {FormatGuid(chain.DecisionTraceId, "Decision trace id was not stored.")}");
             c.Item().Text($"Golden manifest: {FormatGuid(chain.GoldenManifestId, "Golden manifest id was not stored.")}");
-            c.Item().Text($"Related graph nodes: {chain.RelatedGraphNodeIds.Count} Â· agent execution traces: {chain.AgentExecutionTraceIds.Count}");
+            c.Item().Text($"Related graph nodes: {chain.RelatedGraphNodeIds.Count} · agent execution traces: {chain.AgentExecutionTraceIds.Count}");
         });
     }
 

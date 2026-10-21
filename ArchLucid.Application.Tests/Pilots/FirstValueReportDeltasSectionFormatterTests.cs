@@ -53,4 +53,22 @@ public sealed class FirstValueReportDeltasSectionFormatterTests
         markdown.Should().Contain("query cap reached");
         markdown.Should().NotContain("RunDetailsTruncated");
     }
+
+    [Fact]
+    public void AppendElapsedSection_uses_utf8_middle_dot_between_created_and_committed_timestamps()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            RunCreatedUtc = new DateTime(2026, 4, 1, 12, 0, 0, DateTimeKind.Utc),
+            ManifestCommittedUtc = new DateTime(2026, 4, 1, 13, 0, 0, DateTimeKind.Utc),
+            TimeToCommittedManifest = TimeSpan.FromHours(1),
+        };
+
+        StringBuilder sb = new();
+        FirstValueReportDeltasSectionFormatter.AppendElapsedSection(sb, deltas);
+
+        string markdown = sb.ToString();
+        markdown.Should().Contain("Created: `2026-04-01T12:00:00.0000000Z` · Committed:");
+        markdown.Should().NotContain("Â·");
+    }
 }
