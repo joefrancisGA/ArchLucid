@@ -43113,11 +43113,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 131
+- **hunts:** 132
 - **bugs-found:** 113
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-21 - signup baseline persist erasure re-read
+
+2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
 2026-10-21 seed hunt (seed-only): re-read open `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` saturated); closed trial-bootstrap failure metric (nested quarantine guard shipped with email failure metric fix), TrialLimitGate offboard gap (erasure middleware + `TrialLimitFilter`), projection refresh service (orchestrator guards), identity handoff (existing race regressions), slug normalizer (covered by `TenantSlugNormalizerTests`); added five new `(candidate)` rows.
 
@@ -43693,11 +43695,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `TenantMigrationProjectionRefreshService.RefreshAsync` — no tenant offboard check in service — **cheap-disproof 2026-10-21 seed hunt:** `RunProjectionRefreshAsync` re-reads tenant before/after refresh and before audit (`TenantCatalogMigrationOrchestratorTests` projection refresh erasure suite).
 - [x] (valid-no-repro) `TenantTrialIdentityHandoffStage.LinkEntraAsync` — partial payload audit races — **cheap-disproof 2026-10-21 seed hunt:** `TenantTrialIdentityHandoffStageTests` already covers offboard windows before bind, audit, link, and retry idempotency.
 
-- (candidate) `WorkspaceAllowedEngineSetService.TryReadStoredAsync` — malformed or empty `AllowedAliasIds` JSON returns null and `GetAsync` falls back to full catalog default — locus: deserialize branch; input: corrupted `WorkspaceAllowedEngineAliases` tenant setting (reachability: admin settings write path or DB tamper).
-- (candidate) `TenantAgentOutputQualityGateModeService.GetAsync` — unrecognized `AgentOutputQualityGateMode` tenant setting value ignored and host default returned — locus: `TryParseMode` failure branch; input: invalid mode string in tenant settings row.
-- (candidate) `TenantProvisioningService.BuildAlreadyProvisionedResultAsync` — duplicate slug/org match returns existing tenant without checking `OffboardedUtc` — locus: already-provisioned branch; input: `POST /v1/register` when normalized org matches an offboarded tenant row (reachability: registration retry semantics).
-- (candidate) `TrialLimitGate.GuardDeleteAsync` — mirrors write guard without `OffboardedUtc` check — locus: lifecycle delete freeze; input: offboarded tenant with `TrialStatus=ReadOnly` (reachability: DELETE through `TrialLimitFilter` after erasure middleware).
-- (candidate) `TenantFindingEngineControlsService` — tenant settings read path may ignore parse failures for engine control toggles — locus: settings repository + parser; input: operator tenant settings API (compare to `WorkspaceModelExecutionProfileService` fallback pattern).
+- [x] (valid-no-repro) `WorkspaceAllowedEngineSetService.TryReadStoredAsync` — corrupt JSON falls back to catalog default — **cheap-disproof 2026-10-21 seed hunt:** `SetAsync` validates snapshots; only DB tamper reaches corrupt row; conservative expansion is admin/ops concern not tenant OpenAPI.
+- [x] (valid-no-repro) `TenantAgentOutputQualityGateModeService.GetAsync` — invalid mode string ignored — **cheap-disproof 2026-10-21 seed hunt:** `SetAsync` writes formatted modes only; invalid values imply DB tamper; host default is conservative.
+- [x] (valid-no-repro) `TenantProvisioningService.BuildAlreadyProvisionedResultAsync` — duplicate match ignores `OffboardedUtc` — **cheap-disproof 2026-10-21 seed hunt:** `WasAlreadyProvisioned` skips trial bootstrap; erasure middleware blocks tenant login/API for offboarded rows.
+- [x] (valid-no-repro) `TrialLimitGate.GuardDeleteAsync` — no offboard predicate — **cheap-disproof 2026-10-21 seed hunt:** same middleware ordering as `GuardWriteAsync`; no reachable DELETE on erasure-quarantined tenant HTTP.
+- [x] (valid-no-repro) `TenantFindingEngineControlsService.GetAsync` — malformed boolean settings ignored — **cheap-disproof 2026-10-21 seed hunt:** `SetAsync` writes `TenantSettingBooleanParser.Format`; failed `TryParse` leaves override flags false and merges host defaults via `InsightDensityGateEffectiveOptionsMerger`.
+
+- (candidate) `TenantMigrationVerificationProbe.RunAsync` — probe requires `SuspendedUtc` but not `OffboardedUtc` — locus: lines 42–45; input: catalog migration verify when tenant offboarded with suspend flag (reachability: compare `TenantCatalogMigrationOrchestrator` pre-probe guards).
+- (candidate) `TenantTrialSeatSkipCache` — `RememberSeatClaimNotRequired` caches skip for 5 minutes without invalidation on trial activation — locus: `TrialSeatAccountant` negative cache; input: tenant transitions to metered trial within cache TTL (reachability: seat middleware after bootstrap).
+- (candidate) `TrialVerticalWelcomeRequestFactory.Create` — `IndustryVerticalOther` free text ignored; only enum `IndustryVertical` selects pack — locus: `NormalizeVertical`; input: `POST /v1/register` company profile Other + custom text (OpenAPI trial signup).
+- (candidate) `TenantWorkOwnershipDeletePolicyService.GetAllowCreatorDeleteOwnedWorkAsync` — malformed boolean setting returns allow-delete true — locus: `TryParse` fail-open; input: corrupted `AllowCreatorDeleteOwnedWork` row (reachability: settings API uses `Format`; DB tamper only).
+- (candidate) `TenantSuspendCommandService.SuspendAsync` — compensating unsuspend on failed suspend audit vs erasure offboard race — locus: suspend command service; input: operator suspend API during erasure offboard (inspect `TenantSuspendCommandServiceOffboardRaceTests` before promote).
 ## Zone: host-core-coordination
 
 - **id:** host-core-coordination
