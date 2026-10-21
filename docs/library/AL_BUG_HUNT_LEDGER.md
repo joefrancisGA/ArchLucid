@@ -1,9 +1,5 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
-2026-10-21 thorough hunt (hit): `application-pilots` — lane B; promoted tie-break `(candidate)` on `RecentPilotRunDeltasService.GetRecentDeltasAsync` when committed runs share identical `CompletedUtc`/`CreatedUtc`; stable sort used input list order so sponsor recent-deltas panel order varied across `ListRunSummariesAsync` orderings; added `ThenByDescending` on `RunId`; regression `GetRecentDeltasAsync_WhenSortKeysTie_OrdersByRunIdDescendingSoPanelOrderIsStable`. Zone picker filter `BuyerProofPack|BoardPack`: 34 passed; `RecentPilotRunDeltasServiceTests`: 13 passed.
-
-- [x] (proven) `RecentPilotRunDeltasService.GetRecentDeltasAsync` — panel ordering when two committed runs share identical `CreatedUtc` — **hit 2026-10-21:** `OrderByDescending` on completion time only; `ThenByDescending(RunId)` for deterministic API ordering; regression above.
-
 2026-10-21 thorough hunt (dry): `api-key-auth` — lane B; tested stale legacy-route audit `(candidate)` rows against current controller code. Successful rotation already logs `keyId` and `slot` from `response.Slot` (2026-10-11 fix); regression `RotateKeyIdAsync_persisted_audit_uses_canonical_slot_for_padded_route_value` passes for padded `%20readonly%20` routes. Invalid `keyId` values throw from `ParseSlot`, map to 400, and never call `LogAsync`. No production or regression code changed. 73 scoped ApiKey auth/settings unit tests passed (2 `AdminApiKeySettingsEndpointTests` failed fixture setup — no SQL Server in cloud VM).
 
 - [x] (invalid) `AdminApiKeySettingsController.RotateKeyIdAsync` — successful rotation writes raw route `keyId` into audit JSON — **cheap-disproof 2026-10-21:** audit payload uses `response.Slot`; prior hit 2026-10-11; padded-route regression green.
@@ -14529,10 +14525,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 68
+- **hunts:** 69
 - **bugs-found:** 51
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
+- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-20 — GET configuration echoed cross-protocol IdP columns
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -43160,4 +43156,3 @@ ABQ-09 churn hotspot.
 2026-10-11 thorough hunt (dry): `host-core-jobs` — repeated unchanged candidate review after the 45-hunt threshold; no reachable failing repro or hunt-ready promotion. The scoped host-core job suite passed 76/76. No production change.
 2026-10-11 thorough hunt (dry): `host-core-jobs` — repeated unchanged candidate review after the 45-hunt threshold; no reachable failing repro or hunt-ready promotion. The scoped host-core job suite passed 76/76. No production change.
 2026-10-11 seed hunt (seed→hit): `ui-infra-resource-hub` — `ResourceHubClient` supplied `shortcutsTestId` to `InfraEvidenceWorkbenchHeaderActions`, but the shared header action wrapper dropped it, making the shortcut region unqueryable and breaking the focused ResourceHubClient test. The wrapper now applies the supplied test id; the focused ResourceHubClient, working-mode, and buyer-polished suites passed 52/52.
-2026-10-21 thorough hunt (hit, lane C): `ui-review-detail-workspace` — triaged review-detail vitest on `bugsmash` and `origin/master` (both 494 passed / 48 failed / 542 total, 31 files). Fixed largest groups: (1) `RunDetailReviewPackageStampViewport` tests — incomplete `WorkspaceModeProvider` / career-rehearsal hook mocks after `useEffectiveWorkingCareerRehearsalDoor` adoption (7, test drift); (2) buyer-polished RRE/RRF/ERU/APR Sources strips — assert full link catalog without `filterOrientationSourcesForJobContext` + pathname (4, test drift); (3) `buyerFindingNextStepCopy` omitted PHI showcase recommended-action fallback while decision-impact still special-cased (1, product bug); (4) `FavoriteReviewToggle` tests missing `useReviewPinMutation` / operate-capability mocks (2, test drift); (5) incomplete `next/navigation` mocks for create-home capture + malformed report problem (4, test drift); (6) finding inspect/detail fixtures missing `typedPayload.title` and buyer-polished label drift (4, test drift). After: 512 passed / 27 failed. Remaining `(candidate)` backlog groups: `RunDetailPresenterElicitationBridge` presenter surfaces + deep-link router (5, test drift); static import graph `run-detail-bundle-deferred-imports` + `RunDetailBelowFoldSectionsDeferred` + architect section order (3, test drift); create-home evidence panel orientation + activity wiring + empty-state CTAs (4, mixed); governance CTA href/query (2, test drift); print route `page.test` + simulator honesty strip + session activity (4, mixed); bundle section titles + decision delta badges + segment error recovery (4, mixed); pipeline banner / sibling queue / keyboard triage / AI availability panel (4, mixed); sponsor explanation citations (1, test drift).

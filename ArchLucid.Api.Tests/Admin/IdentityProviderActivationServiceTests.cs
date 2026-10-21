@@ -1269,6 +1269,79 @@ public sealed class IdentityProviderActivationServiceTests
     }
 
     [Fact]
+    public async Task ActivateAsync_rejects_saml_reactivate_that_preserves_invalid_metadata_xml_from_storage()
+    {
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        IdentityProviderActivationService sut = new(repository);
+        Guid tenantId = Guid.Parse("18181818-1818-1818-1818-181818181818");
+
+        await repository.UpsertAsync(
+            new TenantIdentityProviderConfigurationRecord
+            {
+                TenantId = tenantId,
+                Protocol = TenantIdentityProtocol.Saml,
+                IssuerUri = "https://idp.example/saml",
+                MetadataXml = "<not-saml-metadata />",
+                ClaimMappingJson = """{"roleClaimName":"groups","mappings":[{"idpValue":"al-admins","archLucidRole":"Admin"}]}""",
+                UpdatedByActorId = "admin@test",
+                IsActive = true,
+                UpdatedUtc = DateTimeOffset.UtcNow,
+            },
+            CancellationToken.None);
+
+        Func<Task> act = () => sut.ActivateAsync(
+            tenantId,
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "saml",
+                IssuerUri = "https://idp.example/saml",
+                ClaimMapping = ValidClaimMapping(),
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*MetadataXml*");
+    }
+
+    [Fact]
+    public async Task ActivateAsync_rejects_preserved_legacy_key_vault_secret_longer_than_persisted_column_on_reactivate()
+    {
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        IdentityProviderActivationService sut = new(repository);
+        Guid tenantId = Guid.Parse("17171717-1717-1717-1717-171717171717");
+        string legacySecret = new('k', IdentityProviderPersistedFieldLimits.KeyVaultSecretNameMaxLength + 1);
+
+        await repository.UpsertAsync(
+            new TenantIdentityProviderConfigurationRecord
+            {
+                TenantId = tenantId,
+                Protocol = TenantIdentityProtocol.Oidc,
+                IssuerUri = "https://idp.example/",
+                ClaimMappingJson = """{"roleClaimName":"groups","mappings":[{"idpValue":"al-admins","archLucidRole":"Admin"}]}""",
+                KeyVaultSecretName = legacySecret,
+                UpdatedByActorId = "admin@test",
+                IsActive = true,
+                UpdatedUtc = DateTimeOffset.UtcNow,
+            },
+            CancellationToken.None);
+
+        Func<Task> act = () => sut.ActivateAsync(
+            tenantId,
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = ValidClaimMapping(),
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*KeyVaultSecretName*");
+    }
+
+    [Fact]
     public async Task ActivateAsync_rejects_key_vault_secret_name_longer_than_persisted_column()
     {
         // Migration 183 stores KeyVaultSecretName as NVARCHAR(256). A longer name reaches SQL and fails the MERGE.
