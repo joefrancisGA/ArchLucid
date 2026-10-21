@@ -31112,6 +31112,9 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-09-26 seed hunt #31 (seed→hit): reseeded core-azure-extractor after workflow JSON reference hit; proved restore point collection `source.id` JSON reference gap; seeded route table explicit next-hop JSON reference candidate; 1397 scoped `AzureExtractor` tests passed.
 
 ---
+
+2026-10-21 seed hunt (seed->hit): promoted ConfigurationKeyRequirement.IsProduction DOTNET_ENVIRONMENT gap; WhenProduction keys stayed optional when only IConfiguration bound DOTNET_ENVIRONMENT=Production and caller/process env unset; IsProduction now reads c[DOTNET_ENVIRONMENT] like ASPNETCORE_ENVIRONMENT; regression ConfigurationKeyRequirement_WhenProduction_uses_dotnet_environment_from_configuration_when_caller_env_unset; cheap-disproof closed notopenai.azure.com EndsWith typo (requires leading dot), scheme-less query-only @ (first-@ userinfo still applies); 8 ConfigurationKeyRequirement tests passed (RunAnalyzers=false).
+
 ## Zone: core-configuration-summary
 2026-10-21 seed hunt (seed->hit): promoted substring Azure OpenAI host marker false positive; EnsureHttpsSchemeForAzureOpenAiHosts upgraded http://evil.example.com?mirror=openai.azure.com because query contained host marker; TryGetEndpointHost + IsAzureOpenAiHost use authority host only; regression NormalizeForChatCompletions_does_not_upgrade_http_when_only_query_contains_azure_openai_host_marker; cheap-disproof closed four ledger candidates; 6 AzureOpenAiEndpointNormalizer tests passed (RunAnalyzers=false).
 
@@ -31137,11 +31140,12 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 57
-- **bugs-found:** 39
+- **hunts:** 58
+- **bugs-found:** 40
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - Azure OpenAI host marker matches authority host only*related-pd-tb:** none
+- **last-bug:** 2026-10-21 - WhenProduction reads DOTNET_ENVIRONMENT from IConfiguration
+- **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-09-13 seed hunt #2278 (seed-only): reseeded core-configuration-summary with `-Hint archlucid-core` `-Refresh`; no new hunt-ready rows.
@@ -31150,9 +31154,9 @@ Split from retired `archlucid-core` (ABQ-08).
 
 ### Hypotheses
 - (candidate) `ConfigurationDictionaryBindingKeyNormalizer` batch — remaining configuration-bound dictionaries still lack post-configure trim registration; input: appsettings keys with bounding whitespace on PerAgentTypeFloors / SCIM / AgentPrompts sections.
-- (candidate) `ConfigurationKeyRequirement.IsProduction` — `DOTNET_ENVIRONMENT` bound only via environment variable, not `IConfiguration`, when ASP.NET caller environment is unset; input: in-memory `DOTNET_ENVIRONMENT=Production` without env vars.
-- (candidate) `AzureOpenAiEndpointNormalizer` — host suffix check accepts typo hosts such as `notopenai.azure.com` because `EndsWith(.openai.azure.com)` matches embedded suffix; input: mis-typed `AzureOpenAI:Endpoint` hostname.
-- (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `user:pass@host/path?token=secret` may skip userinfo when `@` appears only in query on scheme-less values; input: non-sensitive effective value with credentials in query half.
+- [x] (proven) `ConfigurationKeyRequirement.IsProduction` — `DOTNET_ENVIRONMENT` bound only via environment variable, not `IConfiguration`, when ASP.NET caller environment is unset — **hit 2026-10-21 seed hunt (seed->hit):** read `c["DOTNET_ENVIRONMENT"]` after env vars when resolving WhenProduction; regression `ConfigurationKeyRequirement_WhenProduction_uses_dotnet_environment_from_configuration_when_caller_env_unset`. [class:state-machine-gap]
+- [x] (invalid) `AzureOpenAiEndpointNormalizer` — `notopenai.azure.com` typo host — `EndsWith(".openai.azure.com")` requires a leading dot before `openai`; hostname does not match.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — scheme-less values still scan first `@` for `user:pass@` userinfo; query-only `@` without leading userinfo is not ADO.NET connection-string shape.
 - (candidate) `SelfServiceAbuseOptions.ConsumerEmailDomainsCsv` — interior Unicode homoglyph domains may bypass `ToLowerInvariant` consumer-mail blocklist; input: `Auth:SelfServiceAbuse:ConsumerEmailDomainsCsv` with Cyrillic lookalike gmail domain.
 - [x] (valid-no-repro) `AzureOpenAiEndpointNormalizer` Foundry project URL path collapse — `*.services.ai.azure.com` mapping to classic `openai.azure.com` host is intentional for SDK client shape.
 - [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` comma Redis shorthand — matrix already covers `contoso.redis.cache.windows.net:6380,password=secret`.

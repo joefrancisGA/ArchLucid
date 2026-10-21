@@ -122,7 +122,7 @@ public static class ConfigurationKeyRequirement
 
         if (string.IsNullOrEmpty(env))
         {
-            env = c["ASPNETCORE_ENVIRONMENT"] ?? c["Environment"];
+            env = c["ASPNETCORE_ENVIRONMENT"] ?? c["DOTNET_ENVIRONMENT"] ?? c["Environment"];
         }
 
         return string.Equals(env, "Production", StringComparison.OrdinalIgnoreCase);
