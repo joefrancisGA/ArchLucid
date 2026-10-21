@@ -5771,3 +5771,4 @@
 {"at":"2026-10-21T01:35:28.4561425Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared"}
 {"recordedAt": "2026-10-21T01:42:23.0000000Z", "zoneId": "cloud-extractors", "outcome": "hit", "lane": "B", "kind": "seed hunt", "note": "ListChildJsonElementsAsync partialCollection wiring for AX-DE collectors"}
 {"at":"2026-10-21T01:44:11.4723088Z","zoneId":"host-composition","outcome":"hit","productLine":"archlucid-shared"}
+{"recordedAt": "2026-10-21T01:50:37.0000000Z", "zoneId": "topology-proposal-merge", "outcome": "dry", "lane": "B", "kind": "thorough hunt", "note": "cheap-disproof four open candidates"}
