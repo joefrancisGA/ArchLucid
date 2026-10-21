@@ -1,6 +1,10 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
 2026-10-21 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryAppSettingHostRedactor.TryParseSqlHost` omitting Npgsql/PostgreSQL `Host=` on App Service connection strings; regex now accepts `Host=` alongside `Server=` and `Data Source=`; regression `TryParseSettingValue_extracts_sql_host_from_postgresql_host_alias`; 26 scoped `AzureInventoryAppSettingHost*` tests passed.
+2026-10-21 structural follow-up (hit): `core-configuration-summary` — lane B; replaced delimiter-whitelist pair scanning (`;`, `,`, `|`) with `ConfigurationEmbeddedCredentialMaterialDetector` (credential-like keys with `=`/`:` separators, URL userinfo, quoted values, fail-closed empty values); `ConfigurationEmbeddedCredentialRedactionMatrixTests` matrix; **config secret redaction delimiter** bug class **closed**; 1113 scoped Configuration tests passed (`RunAnalyzers=false`).
+
+- [x] (proven) **Bug class: config secret redaction delimiter** — incremental delimiter additions (`;`, `,`, `|`) could not cover all connection-string and URI shapes — **closed 2026-10-21 lane B:** delimiter-agnostic embedded credential detector; matrix regressions in `ConfigurationEmbeddedCredentialRedactionMatrixTests`.
+
 2026-10-21 tooling (hit): `al-bug-rolling-stats.ps1` — `-RecordHunt` read the JSONL, applied `Prune-HuntRunLog` (30-day retention), then rewrote the file with `Set-Content`, dropping ~89 historical lines and breaking append-only expectations; `-RecordHunt` now appends one JSON line via `Add-HuntRunLogEntryLine` with a post-append line-count check; optional `-PruneEntriesOlderThanDays` uses `Rewrite-HuntRunLogWithLineCountGuard` (temp file, aborts unless `-AllowLineCountDecrease`); regression `RecordHunt never decreases physical line count even when older rows exist` in `AlBugRollingStats.Tests.ps1` (50 Pester tests passed). Verified `AL_BUG_HUNT_RUN_LOG.jsonl` on bugsmash: 5778 lines >= 5768 before 2026-10-21 UTC runs.
 
 2026-10-21 seed hunt (seed→hit): `core-configuration-summary` — lane B; promoted pipe-delimited `password=` on non-sensitive effective values (`host=…|password=…`) because `ContainsCredentialConnectionPair` only advanced on `;` and `,`; pair scan now treats `|` as a delimiter; regression `Resolve_redacts_plain_scalar_connection_string_when_password_uses_pipe_delimiter`; 1093 scoped Configuration tests passed (`RunAnalyzers=false`).
@@ -28867,6 +28871,8 @@ Split from retired `archlucid-core` (ABQ-08).
 
 ---
 ## Zone: core-configuration-summary
+
+2026-10-21 structural follow-up (hit): lane B; delimiter-agnostic embedded credential material detector replaces pair-delimiter whack-a-mole; URL userinfo and key/value matrix covered; bug class **config secret redaction delimiter** closed; 1113 scoped Configuration tests passed.
 
 2026-10-21 seed hunt (seed→hit): lane B; pipe-delimited `password=` on non-sensitive scalars leaked because pair scan resumed only after `;` or `,`; delimiter set now includes `|`; regression `Resolve_redacts_plain_scalar_connection_string_when_password_uses_pipe_delimiter`; 1093 scoped Configuration tests passed.
 

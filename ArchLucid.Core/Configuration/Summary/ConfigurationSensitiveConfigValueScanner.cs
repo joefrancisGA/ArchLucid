@@ -18,7 +18,7 @@ internal static class ConfigurationSensitiveConfigValueScanner
             return false;
 
         if (trimmed[0] != '{' && trimmed[0] != '[')
-            return LooksLikeEmbeddedConnectionString(value);
+            return ConfigurationEmbeddedCredentialMaterialDetector.ContainsEmbeddedCredentialMaterial(value);
 
         try
         {
@@ -27,7 +27,7 @@ internal static class ConfigurationSensitiveConfigValueScanner
         }
         catch (JsonException)
         {
-            return LooksLikeEmbeddedConnectionString(value);
+            return ConfigurationEmbeddedCredentialMaterialDetector.ContainsEmbeddedCredentialMaterial(value);
         }
     }
 
@@ -55,109 +55,9 @@ internal static class ConfigurationSensitiveConfigValueScanner
 
                 return false;
             case JsonValueKind.String:
-                return LooksLikeEmbeddedConnectionString(element.GetString());
+                return ConfigurationEmbeddedCredentialMaterialDetector.ContainsEmbeddedCredentialMaterial(element.GetString());
             default:
                 return false;
         }
     }
-
-    private static bool LooksLikeEmbeddedConnectionString(string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return false;
-
-        ReadOnlySpan<char> trimmed = value.AsSpan().Trim();
-
-        if (trimmed.Length < 8 || !trimmed.Contains('='))
-            return false;
-
-        return ContainsCredentialConnectionPair(trimmed);
-    }
-
-    /// <summary>
-    ///     ADO.NET and Azure storage connection strings allow whitespace around <c>=</c>.
-    ///     Pair keys are recognized at the start of the value and after each <c>;</c>, <c>,</c>, or <c>|</c>
-    ///     (Azure Cache for Redis uses comma-delimited pairs; some libpq-style strings use pipe).
-    /// </summary>
-    private static bool ContainsCredentialConnectionPair(ReadOnlySpan<char> trimmed)
-    {
-        int index = 0;
-
-        while (index < trimmed.Length)
-        {
-
-            if (TryMatchCredentialPairAt(trimmed, index))
-                return true;
-
-            ReadOnlySpan<char> remainder = trimmed.Slice(index);
-            int semicolon = remainder.IndexOf(';');
-            int comma = remainder.IndexOf(',');
-            int pipe = remainder.IndexOf('|');
-            int delimiter = NextPairDelimiterOffset(semicolon, comma, pipe);
-
-            if (delimiter < 0)
-                return false;
-
-            index += delimiter + 1;
-
-            while (index < trimmed.Length && char.IsWhiteSpace(trimmed[index]))
-                index++;
-        }
-
-        return false;
-    }
-
-    private static int NextPairDelimiterOffset(int semicolon, int comma, int pipe)
-    {
-        int delimiter = -1;
-
-        if (semicolon >= 0)
-            delimiter = semicolon;
-
-        if (comma >= 0 && (delimiter < 0 || comma < delimiter))
-            delimiter = comma;
-
-        if (pipe >= 0 && (delimiter < 0 || pipe < delimiter))
-            delimiter = pipe;
-
-        return delimiter;
-    }
-
-    private static bool TryMatchCredentialPairAt(ReadOnlySpan<char> value, int index)
-    {
-        ReadOnlySpan<char> rest = value.Slice(index);
-
-        foreach (string key in CredentialConnectionPairKeys)
-        {
-
-            if (!rest.StartsWith(key, StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            int afterKey = key.Length;
-
-            // "Pwd" is a prefix of "Password"; a longer identifier such as Passwordless is not a key.
-
-            if (afterKey < rest.Length && char.IsLetterOrDigit(rest[afterKey]))
-                continue;
-
-            while (afterKey < rest.Length && char.IsWhiteSpace(rest[afterKey]))
-                afterKey++;
-
-            if (afterKey < rest.Length && rest[afterKey] == '=')
-                return true;
-        }
-
-        return false;
-    }
-
-    private static readonly string[] CredentialConnectionPairKeys =
-    [
-        "Password",
-        "Pwd",
-        "AccountKey",
-        "AccessKey",
-        "ApiKey",
-        "ClientSecret",
-        "SharedAccessKey",
-    ];
 }
