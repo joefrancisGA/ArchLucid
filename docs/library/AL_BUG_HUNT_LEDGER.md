@@ -31187,6 +31187,8 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-10-21 seed hunt (seed->hit): promoted Scim GroupRoleMappingOverrides whitespace keys; GroupToRoleMapper trims SCIM group ids but bound dictionary keys did not; ScimOptionsNormalizePostConfigure + host registration; regressions PostConfigure_trims_group_role_mapping_override_keys_from_configuration_binding and PostConfigure_trims_group_role_mapping_override_values_from_configuration_binding; cheap-disproof closed blob URL AccountKey semicolon (matrix); removed malformed jsonl row; 2 ScimOptionsNormalizePostConfigure tests passed (RunAnalyzers=false).
 2026-10-21 seed hunt (seed->hit): promoted AgentPromptCatalogOptions.Versions whitespace keys; CachedAgentSystemPromptCatalog resolves AgentTypeKeys without trimming dictionary keys; AgentPromptCatalogOptionsNormalizePostConfigure + host registration; regression PostConfigure_trims_agent_prompt_version_keys_from_configuration_binding; cheap-disproof closed JSON null array (Resolve_redacts_json_effective_values_when_json_array_contains_null_then_password_pair) and SaaS WhenProduction (catalog Production-only); 1 AgentPromptCatalog test passed (RunAnalyzers=false).
 ## Zone: core-configuration-summary
+2026-10-21 seed hunt (seed->hit): promoted configuration-bound ASPNETCORE_ENVIRONMENT with bounding whitespace; WhenProduction ignored IConfiguration value because IsAspNetCoreProductionEnvironment compared without Trim; regression ConfigurationKeyRequirement_WhenProduction_treats_configuration_bound_aspnet_environment_with_bounding_whitespace_as_production; cheap-disproof closed ITSM inbound map whitespace candidates (lookup trims config keys); 4 WhenProduction tests passed (RunAnalyzers=false).
+
 2026-10-21 seed hunt (seed->hit): promoted AiUsageControlsOptions.PublicDemoFeatureDailyLimitUsd whitespace-key parity; configuration-bound feature cap keys with bounding whitespace missed AiBudgetPreCallGuard TryGetValue(feature.ToString()); AiUsageControlsOptionsNormalizePostConfigure + host registration; regressions PostConfigure_trims_public_demo_feature_daily_limit_usd_keys_from_configuration_binding and EnsureAllowedAsync_PublicDemoBlocksExpensiveFeature_WhenConfigBoundFeatureCapKeyHasBoundingWhitespace; closed stale dictionary-batch candidate; 2 tests passed (RunAnalyzers=false).
 
 2026-10-21 seed hunt (seed->hit): promoted substring Azure OpenAI host marker false positive; EnsureHttpsSchemeForAzureOpenAiHosts upgraded http://evil.example.com?mirror=openai.azure.com because query contained host marker; TryGetEndpointHost + IsAzureOpenAiHost use authority host only; regression NormalizeForChatCompletions_does_not_upgrade_http_when_only_query_contains_azure_openai_host_marker; cheap-disproof closed four ledger candidates; 6 AzureOpenAiEndpointNormalizer tests passed (RunAnalyzers=false).
@@ -31213,11 +31215,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 63
-- **bugs-found:** 45
+- **hunts:** 64
+- **bugs-found:** 46
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - PublicDemo feature daily limit USD keys trimmed on bind
+- **last-bug:** 2026-10-21 - WhenProduction honors trimmed ASPNETCORE_ENVIRONMENT from configuration
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -31442,11 +31444,11 @@ Split from retired `archlucid-core` (ABQ-08).
 
 ---
 
-- (candidate) IntegrationsItsmInboundOptions.JiraStatusHumanReviewMap — appsettings Integrations:ItsmInbound:JiraStatusHumanReviewMap keys with bounding whitespace vs status lookup in ITSM inbound handlers.
-- (candidate) IntegrationsItsmInboundOptions.ServiceNowStateHumanReviewMap — same trim gap for ServiceNow state keys bound from configuration.
-- (candidate) ConfluencePublishingOptions.ProjectSpaceKeys — project id keys with bounding whitespace vs Confluence space resolution.
-- (candidate) IntegrationsItsmInboundOptions.JiraStatusDispositionMap — disposition map keys with bounding whitespace vs webhook status routing.
-- (candidate) IntegrationsItsmInboundOptions.ServiceNowStateDispositionMap — ServiceNow disposition keys with bounding whitespace vs inbound state mapping.
+- [x] (valid-no-repro) IntegrationsItsmInboundOptions.JiraStatusHumanReviewMap whitespace keys — ItsmInboundHumanReviewMapHelper compares kv.Key.Trim() to incoming status; config padding already matches. [class:other]
+- [x] (valid-no-repro) IntegrationsItsmInboundOptions.ServiceNowStateHumanReviewMap whitespace keys — same trim-on-lookup helper as Jira human-review map. [class:other]
+- [x] (valid-no-repro) ConfluencePublishingOptions.ProjectSpaceKeys whitespace keys — ConfluencePublishingSpaceKeyResolver.Resolve trims keys and values on read (proven null-trim 2026-10-09). [class:other]
+- [x] (valid-no-repro) IntegrationsItsmInboundOptions.JiraStatusDispositionMap whitespace keys — ItsmInboundExternalStatusMapper trims dictionary keys during lookup. [class:other]
+- [x] (valid-no-repro) IntegrationsItsmInboundOptions.ServiceNowStateDispositionMap whitespace keys — disposition mapper trims config keys on lookup. [class:other]
 
 
 ## Zone: core-findings-advice

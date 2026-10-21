@@ -5958,3 +5958,4 @@
 {"at":"2026-10-21T16:05:11.4384495Z","zoneId":"cli-draft-new","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Cli/Commands/DraftNewCommandIntakeLoop.cs,ArchLucid.Cli/Commands/DraftNewCommandConnectStage.cs)"]}
 {"at":"2026-10-21T16:08:44.9665178Z","zoneId":"chatops-delivery","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Notifications/AuthorityRunCommittedChatOpsHook.cs,ArchLucid.Notifications/AuthorityRunCompletedChatOpsIntegrationEventHandler.cs"]}
 {"at":"2026-10-21T16:10:37.6124533Z","zoneId":"worker-host","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(ArchLucid.Worker/Program.cs,ArchLucid.Host.Core/Startup/WorkerHostPipelineExtensions.cs)"]}
+{"at":"2026-10-21T16:10:45.6523577Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}

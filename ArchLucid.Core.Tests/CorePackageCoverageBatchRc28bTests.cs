@@ -143,6 +143,20 @@ public sealed class CorePackageCoverageBatchRc28bTests
         reason.Should().Contain("Production");
     }
 
+    [Fact]
+    public void ConfigurationKeyRequirement_WhenProduction_treats_configuration_bound_aspnet_environment_with_bounding_whitespace_as_production()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> { ["ASPNETCORE_ENVIRONMENT"] = " Production " })
+            .Build();
+        ConfigurationKeyEntry prod = new("s", "p", ["e"], null, "r", "d", ConfigKeyRequirementKind.WhenProduction);
+
+        ConfigurationKeyRequirement.IsKeyRequired(prod, configuration, aspNetCoreEnvironment: null, out string reason)
+            .Should()
+            .BeTrue();
+        reason.Should().Contain("Production");
+    }
+
     [Theory]
     [InlineData("AWS::EC2::Instance", RuntimePlatform.Ec2)]
     [InlineData("AWS::Lambda::Function", RuntimePlatform.Lambda)]

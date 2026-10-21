@@ -133,7 +133,10 @@ public static class ConfigurationKeyRequirement
             env = c["ASPNETCORE_ENVIRONMENT"] ?? c["DOTNET_ENVIRONMENT"] ?? c["Environment"];
         }
 
-        return string.Equals(env, "Production", StringComparison.OrdinalIgnoreCase);
+        if (string.IsNullOrWhiteSpace(env))
+            return false;
+
+        return string.Equals(env.Trim(), "Production", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsArchLucidProductionEnvironment(IConfiguration c)
