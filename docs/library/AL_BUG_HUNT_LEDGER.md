@@ -129024,6 +129024,14 @@ ABQ-09 churn hotspot.
 2026-10-21 structural follow-up (lane C): `ui-review-detail-workspace` — closed bug class **flat vs nested AO-08 review route parsing** (presenter redirect race + sibling in-flight filter): added shared `review-workspace-route` parse/build helpers (`parseReviewWorkspaceRouteFromHref`, `buildReviewWorkspaceRouteHref`, `readReviewWorkspaceRunIdFromHref`, `isReviewWorkspaceRoutePath`) with matrix tests (flat, nested, query, trailing slash, encoded ids, legacy `/runs/` segment, intake `/new`); replaced ad-hoc `architecture/reviews` href parsers in in-flight desk rows, continue-last recent views, telemetry normalizer, nav pre-commit gate, app-shell footer visibility, sponsor redirect, orientation filter, and review workspace pathname fallbacks; removed `extractReviewRunIdFromInFlightDeskHref`. Review-detail zone vitest (see run).
 2026-10-21 thorough hunt (dry, lane C): `extraction-router` — re-attempted open `(candidate)` email-domain `ops@owner.example.com` paired with separate `unowned` (`FindBoundedMarkerIndex` / `@` start boundary); failing repro not found — `Extract_does_not_emit_ownership_gap_for_email_domain_owner_label_with_unowned` and `DifficultyBasedExtractionRouterOwnershipMarkerBoundaryMatrixTests` email-domain row already encode the fix via `FindBoundedOwnershipMarkerIndex`; classified `(valid-no-repro)`. Scoped `FullyQualifiedName~DifficultyBasedExtractionRouter` tests 77/77. No production change.
 
+
+2026-10-21 seed hunt (seed-only) #2: re-read `ApiRequestNullCollectionElementsFilter`, `ApiRequestNullCollectionElementsGuard`, `ApiRequestBodyTypeCatalog`, and `MvcExtensions` after lane-B structural hit; promoted bare `[FromBody] IReadOnlyList<T>` architecture gap (catalog enumerates properties only, not collection-root parameters) — runtime guard still trips on deserialized list instances (`Visit` enumerable branch); no failing product repro; seeded five `(candidate)` rows; 13 scoped filter/guard/architecture + `RunCoverageControllerTests` passed.
+
+- (candidate) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — bare `[FromBody] IReadOnlyList<ArchitectureRequest>` on `RunsController.CreateRunBatch` never appears in architecture enumeration — locus: catalog property walk vs parameter type; input: OpenAPI batch POST body `[null]`; reachability: `POST /v1/runs/request/batch` JSON array root.
+- (candidate) `ApiRequestBodyTypeCatalog.DiscoverFromBodyRequestTypes` — SAML2 application-part controllers (when enabled) are outside `RunCoverageController` assembly scan — locus: architecture test assembly pin; input: SAML controller `[FromBody]` collection DTO; reachability: `ArchLucidSaml2HostFlags.IsSaml2Enabled` + `AddApplicationPart` in `MvcExtensions`.
+- (candidate) `ApiRequestNullCollectionProbeFactory` — collection properties typed as `HashSet<>` / `ISet<>` cannot be probed (`List<>` not assignable) — locus: `CreateCollectionWithNullElement` assignability; input: future DTO with set-backed collection property; reachability: OpenAPI generated clients sending `[{...}, null]`.
+- (candidate) `ApiRequestNullCollectionElementsGuard.Visit` — `SkipNullCollectionElementValidationAttribute` is unused in production DTOs today — locus: opt-out attribute with no catalog exclusion; input: property marked skip with null element; reachability: intentional opt-out contract in `SkipNullCollectionElementValidationAttribute` docs.
+- (candidate) `ApiRequestNullCollectionElementsFilter` — `BindingSource.Body` parameters skipped when `ActionArguments` omits key after model-binding failure — locus: filter `TryGetValue` guard; input: malformed JSON preventing body bind; reachability: invalid JSON bodies before action execution.
 ## Zone: api-request-null-collection-elements
 
 - **id:** api-request-null-collection-elements
@@ -129032,7 +129040,7 @@ ABQ-09 churn hotspot.
 - **aliases:** null collection elements; request body validation
 - **paths:** ArchLucid.Api/Filters/ApiRequestNullCollectionElementsFilter.cs; ArchLucid.Api/Validation/ApiRequestNullCollectionElementsGuard.cs; ArchLucid.Api/Http/ApiRequestBodyTypeCatalog.cs; ArchLucid.Api/Startup/MvcExtensions.cs
 - **test-filter:** FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests
-- **hunts:** 1
+- **hunts:** 2
 - **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
