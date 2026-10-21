@@ -1478,11 +1478,12 @@ internal static partial class RunExplanationAggregateJsonReader
         if (readableText is not null)
             return readableText;
 
-        if (readableId is not null)
-            return readableId;
-
+        // Blank `text` with a non-empty `id` is the in-array poison shape; do not fall back to id.
         if (ObjectHasCaseInsensitiveProperty(jsonElement, "text"))
             return null;
+
+        if (readableId is not null)
+            return readableId;
 
         return null;
     }
