@@ -9,7 +9,9 @@ using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -160,6 +162,41 @@ public sealed class GovernanceControllerSimulateTests
 
         action.Should().BeOfType<OkObjectResult>();
         dryRun.VerifyAll();
+    }
+
+    [Fact]
+    public async Task Simulate_returns_conflict_when_scoped_run_has_no_golden_manifest_before_facade()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+
+        Mock<IAuthorityQueryService> authorityQuery = new();
+        authorityQuery
+            .Setup(query => query.GetRunDetailForManifestCompareAsync(
+                Scope,
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord { RunId = runId },
+                GoldenManifest = null,
+            });
+
+        GovernanceController sut = CreateController(
+            policyPackHttpFacade: httpFacade.Object,
+            authorityQueryService: authorityQuery.Object);
+
+        IActionResult action = await sut.Simulate(
+            new PolicyPackSimulateRequest
+            {
+                RunId = runId.ToString("D"),
+                Content = new(),
+            },
+            CancellationToken.None);
+
+        ObjectResult conflict = action.Should().BeOfType<ObjectResult>().Subject;
+        conflict.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        httpFacade.VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -741,7 +778,8 @@ public sealed class GovernanceControllerSimulateTests
         IPolicyPackDryRunService? dryRunService = null,
         IPolicyPackDraftService? draftService = null,
         IPolicyPackGeneratorService? generatorService = null,
-        ITenantRepository? tenantRepository = null)
+        ITenantRepository? tenantRepository = null,
+        IAuthorityQueryService? authorityQueryService = null)
     {
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
@@ -755,7 +793,8 @@ public sealed class GovernanceControllerSimulateTests
             policyPackGeneratorService: generatorService ?? Mock.Of<IPolicyPackGeneratorService>(),
             tenantRepository: tenantRepository ?? Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
                 Scope.TenantId,
-                It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(new TenantRecord { Id = Scope.TenantId, Name = "contoso" })));
+                It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(new TenantRecord { Id = Scope.TenantId, Name = "contoso" })),
+            authorityQueryService: authorityQueryService ?? Mock.Of<IAuthorityQueryService>());
 
         return controller;
     }

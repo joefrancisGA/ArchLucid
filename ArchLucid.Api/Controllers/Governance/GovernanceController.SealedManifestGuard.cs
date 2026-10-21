@@ -13,6 +13,43 @@ namespace ArchLucid.Api.Controllers.Governance;
 
 public sealed partial class GovernanceController
 {
+    private async Task<IActionResult?> EnsureGovernanceSimulateRunSealedManifestAllowedAsync(
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            return null;
+
+        string normalizedRunId = GovernanceRunIdNormalizer.Normalize(runId);
+
+        if (!Guid.TryParse(normalizedRunId, out Guid runGuid) || runGuid == Guid.Empty)
+            return null;
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        RunDetailDto? detail = await _authorityQueryService.GetRunDetailForManifestCompareAsync(
+            scope,
+            runGuid,
+            cancellationToken);
+
+        if (detail is null)
+            return null;
+
+        try
+        {
+            PolicyPackSimulateSealedManifestGuard.EnsureRunSealedManifestHashOrThrow(
+                detail.GoldenManifest,
+                runGuid.ToString("D"),
+                _manifestHashService);
+        }
+        catch (ConflictException ex)
+        {
+            return MapGovernanceSealedManifestConflict(ex);
+        }
+
+        return null;
+    }
+
     private async Task<IActionResult?> EnsureSealedManifestReadAllowedAsync(
         string runId,
         CancellationToken cancellationToken)

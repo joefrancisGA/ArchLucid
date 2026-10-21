@@ -56,7 +56,7 @@ public sealed partial class GovernanceController
         if (validationProblem is not null)
             return validationProblem;
 
-        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(
+        IActionResult? sealedGuardResult = await EnsureGovernanceSimulateRunSealedManifestAllowedAsync(
             normalizedRunId,
             cancellationToken);
 
