@@ -26,7 +26,7 @@ public sealed class StripeWalletPaymentIdentifierGuardTests
         Mock<IOptionsMonitor<BillingOptions>> options = new();
         options.Setup(o => o.CurrentValue).Returns(new BillingOptions
         {
-            Stripe = new StripeBillingOptions { SecretKey = "sk_test_placeholder" },
+            Stripe = new StripeBillingOptions { SecretKey = "test-secret" },
         });
 
         StripeWalletPaymentIdentifierGuard guard = new(resolver.Object, options.Object);
