@@ -49,6 +49,8 @@ describe("remediation-factory-metric-presentation", () => {
     expect(openFindings).toHaveLength(1);
     expect(openFindings[0]?.presentation.scopeNote).toBe("SecureNow findings that are still open.");
     expect(tiles.map((tile) => tile.presentation.scopeNote).join(" ")).not.toContain("IE15-priority-v1");
+    expect(tiles.map((tile) => tile.presentation.scopeNote).join(" ")).not.toContain("factory metrics API");
+    expect(tiles.map((tile) => tile.presentation.scopeNote).join(" ")).not.toContain("may differ");
     expect(tiles.map((tile) => tile.hint ?? "").join(" ")).not.toContain("may differ");
     expect(REMEDIATION_FACTORY_METRICS_MEASUREMENT_BODY).toContain("IE15-priority-v1");
   });

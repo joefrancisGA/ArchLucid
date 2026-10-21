@@ -16,11 +16,10 @@ import type { RemediationPrioritizedFinding } from "@/lib/remediation-factory-ty
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
 import { buildRemediationWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import {
-  formatRemediationPriorityWhenBandForRankOrder,
+  formatRemediationPriorityWhenBandForQueueRow,
   REMEDIATION_PRIORITY_WHEN_HEADER_HELPER,
+  resolveRemediationPriorityQueueRankOrder,
 } from "@/lib/remediation-priority-when-band";
-
-const REMEDIATION_PRIORITY_RANK_NOT_STORED = "Rank was not stored.";
 
 const REMEDIATION_CONTROL_ID_NOT_STORED = "Control id was not stored.";
 
@@ -64,12 +63,6 @@ export function RemediationFactoryPriorityTable(props: {
               >
                 This rank is the SecureNow finding queue, not the path list.
               </span>
-              <span
-                className={cn("ml-2 block font-normal", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="remediation-factory-priority-rank-header-helper"
-              >
-                This rank is the SecureNow finding queue, not the path list.
-              </span>
             </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Resource</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>
@@ -101,8 +94,10 @@ export function RemediationFactoryPriorityTable(props: {
           </EnterpriseTableRow>
         </EnterpriseTableHead>
         <EnterpriseTableBody>
-          {props.rows.map((row) => {
+          {props.rows.map((row, rowIndex) => {
             const storedRankOrder = row.rankOrder;
+            const oneBasedRowIndex = rowIndex + 1;
+            const queueRankOrder = resolveRemediationPriorityQueueRankOrder(storedRankOrder, oneBasedRowIndex);
             const selected = props.selectedFindingId === row.findingId;
 
             return (
@@ -115,12 +110,14 @@ export function RemediationFactoryPriorityTable(props: {
               >
                 <EnterpriseTableCell className="tabular-nums text-right">
                   <span className="inline-flex items-center gap-2">
-                    {storedRankOrder ?? REMEDIATION_PRIORITY_RANK_NOT_STORED}
+                    {storedRankOrder ?? queueRankOrder}
                     {selected ? <StatusTag kind="ready" label="Inspecting" /> : null}
                   </span>
                 </EnterpriseTableCell>
                 <RemediationPriorityResourceCell cloudResourceId={row.cloudResourceId} />
-                <EnterpriseTableCell>{formatRemediationPriorityWhenBandForRankOrder(storedRankOrder)}</EnterpriseTableCell>
+                <EnterpriseTableCell>
+                  {formatRemediationPriorityWhenBandForQueueRow(storedRankOrder, oneBasedRowIndex)}
+                </EnterpriseTableCell>
                 <EnterpriseTableCell>
                   <RemediationPrioritySortKeyDisclosure findingId={row.findingId} totalScore={row.totalScore} />
                 </EnterpriseTableCell>
