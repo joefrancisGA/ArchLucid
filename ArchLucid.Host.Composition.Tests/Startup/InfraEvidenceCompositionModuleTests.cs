@@ -125,6 +125,50 @@ public sealed class InfraEvidenceCompositionModuleTests
     }
 
     [Fact]
+    public async Task RepositoryDiagramPeelCatalogProvider_refreshes_after_repository_upsert_following_empty_read()
+    {
+        ServiceCollection services = [];
+        services.AddMemoryCache();
+        services.AddSingleton<IDiagramPeelCatalogRepository, InMemoryDiagramPeelCatalogRepository>();
+        services.AddSingleton<IDiagramPeelCatalogProvider, RepositoryDiagramPeelCatalogProvider>();
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        IDiagramPeelCatalogProvider peelCatalogProvider =
+            provider.GetRequiredService<IDiagramPeelCatalogProvider>();
+
+        Contracts.InfraEvidence.DiagramPeel.DiagramPeelCatalogSnapshot initialSnapshot =
+            await peelCatalogProvider.GetCatalogAsync(CancellationToken.None);
+
+        initialSnapshot.Entries.Should().NotBeEmpty();
+
+        const string customArmType = "Microsoft.Custom/huntPeelCatalog";
+
+        IDiagramPeelCatalogRepository catalogRepository =
+            provider.GetRequiredService<IDiagramPeelCatalogRepository>();
+
+        await catalogRepository.UpsertEntryAsync(
+            new Contracts.InfraEvidence.DiagramPeel.DiagramPeelCatalogEntry
+            {
+                ArmResourceType = customArmType,
+                PeelRank = 99,
+                IsEnabled = true,
+                Notes = "hunt regression entry",
+            },
+            CancellationToken.None);
+
+        Contracts.InfraEvidence.DiagramPeel.DiagramPeelCatalogSnapshot refreshedSnapshot =
+            await peelCatalogProvider.GetCatalogAsync(CancellationToken.None);
+
+        refreshedSnapshot.Entries.Should().Contain(
+            entry => string.Equals(entry.ArmResourceType, customArmType, StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void InfraEvidenceCompositionModule_wires_mermaid_readability_thresholds_singleton_into_snapshot_mermaid_service()
     {
         ServiceCollection services = [];
