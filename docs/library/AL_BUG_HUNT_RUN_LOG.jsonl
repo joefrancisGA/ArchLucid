@@ -5841,3 +5841,4 @@
 {"at":"2026-10-21T05:38:16.260Z","zoneId":"core-explanation-json","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Explanation/"]}
 {"at":"2026-10-21T05:42:10.129Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/reviews/technology-baseline/TechnologyBaselinePanel.tsx"]}
 {"at":"2026-10-21T05:43:04.8886772Z","zoneId":"llm-wallet","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Budgeting/"]}
+{"at":"2026-10-21T04:59:54.513Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared"}{"at":"2026-10-21T05:44:40.0112731Z","zoneId":"run-execute-ownership","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/,ArchLucid.Application/Runs/ExecuteOwnership/"]}
