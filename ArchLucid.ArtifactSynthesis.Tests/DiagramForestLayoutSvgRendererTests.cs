@@ -28,7 +28,7 @@ public sealed class DiagramForestLayoutSvgRendererTests
 
         onScreen.Succeeded.Should().BeTrue(onScreen.Error);
         onScreen.Svg.Should().Contain("5 storage accounts");
-        onScreen.Svg.Should().Contain("0 used · 5 no consumer found");
+        onScreen.Svg.Should().Contain("0 with a diagram neighbor on this view · 5 with no diagram neighbor on this view");
         onScreen.Svg.Should().Contain("Click to list the 5");
         onScreen.Svg.Should().NotContain("> [1] <");
         onScreen.Svg.Should().Contain("cursor=\"pointer\"");

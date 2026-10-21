@@ -64,7 +64,7 @@ internal static class InventoryDiagramLoadBalancerBackendRelationshipApplier
                     continue;
                 }
 
-                string label = InventoryDiagramRelationshipLabelTexts.FormatSendsTrafficTo(backendTarget.RulePort);
+                string label = InventoryDiagramRelationshipLabelTexts.FormatBackendPoolNames(backendTarget.RulePort);
                 InventoryDiagramRelationshipEdgeHelper.RemoveGenericEdgesBetween(ast, frontDiagramNodeId, backendDiagramNodeId);
                 InventoryDiagramRelationshipEdgeHelper.ReplaceOrAddDirectedEdge(
                     ast,
