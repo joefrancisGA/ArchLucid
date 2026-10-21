@@ -210,10 +210,18 @@ public sealed partial class StripeBillingProvider
             ? parsedCorrelation
             : Guid.NewGuid();
 
-        if (!await _walletRepository.TryInsertStripeWebhookIdempotencyAsync(stripeEvent.Id, stripeEvent.Type, cancellationToken)
-                .ConfigureAwait(false))
+        bool claimedStripeEvent = await _walletRepository
+            .TryInsertStripeWebhookIdempotencyAsync(stripeEvent.Id, stripeEvent.Type, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (!claimedStripeEvent)
         {
-            return;
+            bool paymentIntentAlreadyCredited = await _walletRepository
+                .LedgerContainsPaymentIntentAsync(intent.Id, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (paymentIntentAlreadyCredited)
+                return;
         }
 
         await _walletWebhookProcessor
