@@ -27,15 +27,18 @@ public sealed class AuthorityPipelineConcurrencyOptions
         set;
     }
 
+    private TimeSpan _leaseRecognitionHorizon = TimeSpan.FromHours(48);
+
     /// <summary>
     ///     Lease rows with acquisition timestamps strictly before UTC now minus this horizon are treated as orphaned and
     ///     removed opportunistically; they do not occupy capacity counts.
     /// </summary>
     public TimeSpan LeaseRecognitionHorizon
     {
-        get;
-        set;
-    } = TimeSpan.FromHours(48);
+        get => _leaseRecognitionHorizon < TimeSpan.Zero ? TimeSpan.Zero : _leaseRecognitionHorizon;
+
+        set => _leaseRecognitionHorizon = value;
+    }
 
     /// <summary>
     ///     Delay between retries when polling for SQL-backed capacity (worker / inline wait path).
