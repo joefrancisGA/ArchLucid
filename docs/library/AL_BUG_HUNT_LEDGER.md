@@ -25230,14 +25230,34 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **impact:** high
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
-- **test-filter:** oidc-authority|oidc
-- **hunts:** 82
+- **hunts:** 83
+- **bugs-found:** 76
 - **bugs-found:** 75
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-21 — fractional BFF expires_at_ms client hints
 - **last-bug:** 2026-10-21 — stale longer BFF ok refresh after persist extended expiry hint
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-21 seed hunt (seed->hit): coerceAcceptedOidcEpochMsHint returned fractional epoch-ms from JSON refresh bodies; regression truncates fractional epoch-ms JSON numbers to whole milliseconds; 138 scoped oauth-callback-messages + bff-session-sync + session-ensure-fresh vitest tests passed.
+
+- [x] (proven) coerceAcceptedOidcEpochMsHint fractional BFF expires_at_ms client hints (hit 2026-10-21 seed hunt).
+
+- [x] (valid-no-repro) ensureAccessTokenFresh concurrent refreshInFlight dedupe — **cheap-disproof 2026-10-21 seed hunt:** regression dedupes concurrent BFF refresh attempts.
+- [x] (valid-no-repro) syncTokenToBff late replay on sequence advance — **cheap-disproof 2026-10-21 seed hunt:** regression keeps an older token sync from overwriting a newer same-session sync.
+- [x] (invalid) uildAuthorizeUrl supplemental scope duplication — **cheap-disproof 2026-10-21 seed hunt:** scope string is supplied by initiate-redirect / getOidcScopes; builder does not concatenate scopes.
+- [x] (valid-no-repro) 
+eadSignedInDisplayName ZWSP-only storage — **cheap-disproof 2026-10-21 seed hunt:** 
+ormalizeOidcDisplayString yields empty; function returns null.
+- [x] (valid-no-repro) parseBffExpiresAtMs dual parser parity — **cheap-disproof 2026-10-21 seed hunt:** shared coerce truncates fractional JSON numbers on both string and number paths.
+
+- [ ] (candidate) ensureAccessTokenFresh — rejected BFF refresh after persist moved hint forward still clears session when shouldClearSession — locus: 401 branch expiresAtHintAtStart === getExpiresAtMs(); input: in-flight persist extends hint then stale 401; reachability: expired refresh racing callback persist.
+- [ ] (candidate) persistNonSensitiveSessionHints — expiry hint written before identity validation completes — locus: sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY) ordering; input: opaque access_token without JWT claims after prior user; reachability: client-only opaque token sign-in.
+- [ ] (candidate) loadDiscoveryDocument — cached discovery promise retained when optional logout URL fails validation — locus: parseDiscoveryDocument optional branch; input: discovery JSON with invalid end_session_endpoint; reachability: IdP discovery metadata.
+- [ ] (candidate) postTokenForm — HTML 200 token response throws without buyer-safe boundary — locus: 
+esponse.json() failure path; input: reverse-proxy HTML error on token POST; reachability: misconfigured token endpoint URL in deployment.
+- [ ] (candidate) 
+esolveRpLogoutUrlFromBffSession — empty JSON 200 treated as missing logout URL without telemetry — locus: GET rp-logout-url parse; input: {} body with active BFF session; reachability: sign-out chrome calling RP logout resolver.
 
 2026-10-21 seed hunt (seed->hit): ensureAccessTokenFresh stale longer BFF ok after same-identity persist shortened client hint; regression does not lengthen client expiry when stale ok BFF refresh completes after same-identity persist shortened the hint; 28 session-ensure-fresh vitest tests passed.
 
