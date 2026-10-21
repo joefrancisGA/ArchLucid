@@ -5779,3 +5779,4 @@
 {"at":"2026-10-21T07:50:00Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/findings/use-run-detail-findings-toolbar-state.ts"]}
 {"at":"2026-10-21T00:52:01.7589689Z","zoneId":"api-key-auth","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-21T00:55:52.9480807Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId],archlucid-ui/src/components/reviews)"]}
+{"at":"2026-10-21T00:57:57.6167885Z","zoneId":"application-pilots","outcome":"hit","productLine":"archlucid-shared"}

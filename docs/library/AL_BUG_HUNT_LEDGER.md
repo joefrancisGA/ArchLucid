@@ -1,5 +1,9 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
+2026-10-21 thorough hunt (hit): `application-pilots` — lane B; promoted tie-break `(candidate)` on `RecentPilotRunDeltasService.GetRecentDeltasAsync` when committed runs share identical `CompletedUtc`/`CreatedUtc`; stable sort used input list order so sponsor recent-deltas panel order varied across `ListRunSummariesAsync` orderings; added `ThenByDescending` on `RunId`; regression `GetRecentDeltasAsync_WhenSortKeysTie_OrdersByRunIdDescendingSoPanelOrderIsStable`. Zone picker filter `BuyerProofPack|BoardPack`: 34 passed; `RecentPilotRunDeltasServiceTests`: 13 passed.
+
+- [x] (proven) `RecentPilotRunDeltasService.GetRecentDeltasAsync` — panel ordering when two committed runs share identical `CreatedUtc` — **hit 2026-10-21:** `OrderByDescending` on completion time only; `ThenByDescending(RunId)` for deterministic API ordering; regression above.
+
 2026-10-21 thorough hunt (dry): `api-key-auth` — lane B; tested stale legacy-route audit `(candidate)` rows against current controller code. Successful rotation already logs `keyId` and `slot` from `response.Slot` (2026-10-11 fix); regression `RotateKeyIdAsync_persisted_audit_uses_canonical_slot_for_padded_route_value` passes for padded `%20readonly%20` routes. Invalid `keyId` values throw from `ParseSlot`, map to 400, and never call `LogAsync`. No production or regression code changed. 73 scoped ApiKey auth/settings unit tests passed (2 `AdminApiKeySettingsEndpointTests` failed fixture setup — no SQL Server in cloud VM).
 
 - [x] (invalid) `AdminApiKeySettingsController.RotateKeyIdAsync` — successful rotation writes raw route `keyId` into audit JSON — **cheap-disproof 2026-10-21:** audit payload uses `response.Slot`; prior hit 2026-10-11; padded-route regression green.
