@@ -5,7 +5,7 @@ import { Lock, LockOpen } from "lucide-react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { buildReviewWorkspaceRouteHref } from "@/lib/architecture/review-workspace-route";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorEmptyState, OperatorLoadingNotice, OperatorWarningCallout } from "@/components/operator/OperatorShellMessage";
@@ -78,11 +78,11 @@ export function TechnologyBaselinePanel({
   const syncOpenEvidenceRefEntryIdToUrl = useCallback(
     (entryId: string | null) => {
       commitHrefIfChanged(
-        technologyBaselineEvidenceRefDisclosureHrefFromSearch(readWindowLocationSearch(), entryId, pathname),
+        technologyBaselineEvidenceRefDisclosureHrefFromSearch(searchParams.toString(), entryId, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setOpenEvidenceRefEntryId = useCallback(
@@ -113,11 +113,11 @@ export function TechnologyBaselinePanel({
   const syncTechEntryToUrl = useCallback(
     (entryId: string | null) => {
       commitHrefIfChanged(
-        technologyBaselineRationaleHrefFromSearch(readWindowLocationSearch(), entryId, pathname),
+        technologyBaselineRationaleHrefFromSearch(searchParams.toString(), entryId, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setRationaleDialogEntry = useCallback(
