@@ -11,13 +11,26 @@ namespace ArchLucid.Application.Tenancy;
 public static class TrialVerticalWelcomeRequestFactory
 {
     /// <summary>Builds a deterministic welcome request id for the tenant.</summary>
-    public static ArchitectureRequest Create(Guid tenantId, string? industryVertical)
+    public static ArchitectureRequest Create(
+        Guid tenantId,
+        string? industryVertical,
+        string? industryVerticalOther = null)
     {
         string requestId = FormatRequestId(tenantId);
         string? normalized = NormalizeVertical(industryVertical);
 
         if (normalized is null)
             return CreateDefaultWelcomeRequest(requestId);
+
+        if (string.Equals(normalized, "Other", StringComparison.Ordinal))
+        {
+            string? otherSpecification = NormalizeOtherSpecification(industryVerticalOther);
+
+            if (otherSpecification is not null)
+                return CreateOtherVerticalWelcomeRequest(requestId, otherSpecification);
+
+            return CreateDefaultWelcomeRequest(requestId);
+        }
 
         if (string.Equals(normalized, "Healthcare", StringComparison.Ordinal))
             return CreateHealthcareRequest(requestId);
@@ -55,6 +68,19 @@ public static class TrialVerticalWelcomeRequestFactory
         return industryVertical.Trim();
     }
 
+    private static string? NormalizeOtherSpecification(string? industryVerticalOther)
+    {
+        if (string.IsNullOrWhiteSpace(industryVerticalOther))
+            return null;
+
+        string trimmed = industryVerticalOther.Trim();
+
+        if (trimmed.Length > 200)
+            trimmed = trimmed[..200];
+
+        return trimmed;
+    }
+
     private static ArchitectureRequest CreateDefaultWelcomeRequest(string requestId)
     {
         return new ArchitectureRequest
@@ -62,6 +88,21 @@ public static class TrialVerticalWelcomeRequestFactory
             RequestId = requestId,
             Description =
                 "Design a minimal secure Azure web API with private SQL connectivity and managed identity for secrets — trial welcome pre-seed.",
+            SystemName = "TrialWelcomeApi",
+            Environment = "prod",
+            CloudProvider = CloudProvider.Azure,
+            Constraints = ["Private connectivity", "Managed identity"],
+            RequiredCapabilities = ["Azure SQL", "App Service or Container Apps"]
+        };
+    }
+
+    private static ArchitectureRequest CreateOtherVerticalWelcomeRequest(string requestId, string otherSpecification)
+    {
+        return new ArchitectureRequest
+        {
+            RequestId = requestId,
+            Description =
+                $"Design a minimal secure Azure web API for {otherSpecification} with private SQL connectivity and managed identity for secrets — trial welcome pre-seed.",
             SystemName = "TrialWelcomeApi",
             Environment = "prod",
             CloudProvider = CloudProvider.Azure,

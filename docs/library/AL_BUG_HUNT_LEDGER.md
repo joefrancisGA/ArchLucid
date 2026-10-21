@@ -43105,6 +43105,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-21 seed hunt (seed→hit): `TrialVerticalWelcomeRequestFactory.Create` ignored signup `IndustryVerticalOther` when `IndustryVertical` is `Other`, so trial architecture pre-seed used generic welcome copy; `TrialArchitecturePreseedExecutor` now passes both fields; regressions `Create_with_other_vertical_and_specification_includes_other_text_in_description` and `TryProcessTenantAsync_other_vertical_passes_other_specification_into_welcome_request`; 245 scoped tenancy tests passed.
+
+- [x] (proven) `TrialVerticalWelcomeRequestFactory.Create` — `IndustryVerticalOther` ignored for `Other` signup vertical — **hit 2026-10-21 seed hunt:** optional other specification woven into welcome pre-seed description; executor passes `tenant.IndustryVerticalOther`.
+
 2026-10-21 seed hunt (seed→hit): `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` catch and email-verification failure paths recorded `RecordTrialSignupFailure` then appended `TrialSignupFailed` audit without a post-metric erasure re-read; regression `TryBootstrapAfterSelfRegistrationAsync_skips_trial_bootstrap_failure_audit_when_offboard_completes_after_failure_metric_before_audit` and `TryBootstrapAfterSelfRegistrationAsync_skips_email_verification_failure_audit_when_offboard_completes_after_failure_metric_before_audit`; 239 scoped tenancy tests passed.
 
 - [x] (proven) `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` — `TrialSignupFailed` audit after failure metric when erasure offboard completed between metric and audit — **hit 2026-10-21 seed hunt:** post-metric `IsTenantInErasureQuarantineAsync` before audit; regressions above.
@@ -43115,11 +43119,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 132
-- **bugs-found:** 113
+- **hunts:** 133
+- **bugs-found:** 114
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - signup baseline persist erasure re-read
+- **last-bug:** 2026-10-21 - trial welcome preseed IndustryVerticalOther
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
@@ -43703,11 +43707,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `TrialLimitGate.GuardDeleteAsync` — no offboard predicate — **cheap-disproof 2026-10-21 seed hunt:** same middleware ordering as `GuardWriteAsync`; no reachable DELETE on erasure-quarantined tenant HTTP.
 - [x] (valid-no-repro) `TenantFindingEngineControlsService.GetAsync` — malformed boolean settings ignored — **cheap-disproof 2026-10-21 seed hunt:** `SetAsync` writes `TenantSettingBooleanParser.Format`; failed `TryParse` leaves override flags false and merges host defaults via `InsightDensityGateEffectiveOptionsMerger`.
 
-- (candidate) `TenantMigrationVerificationProbe.RunAsync` — probe requires `SuspendedUtc` but not `OffboardedUtc` — locus: lines 42–45; input: catalog migration verify when tenant offboarded with suspend flag (reachability: compare `TenantCatalogMigrationOrchestrator` pre-probe guards).
-- (candidate) `TenantTrialSeatSkipCache` — `RememberSeatClaimNotRequired` caches skip for 5 minutes without invalidation on trial activation — locus: `TrialSeatAccountant` negative cache; input: tenant transitions to metered trial within cache TTL (reachability: seat middleware after bootstrap).
-- (candidate) `TrialVerticalWelcomeRequestFactory.Create` — `IndustryVerticalOther` free text ignored; only enum `IndustryVertical` selects pack — locus: `NormalizeVertical`; input: `POST /v1/register` company profile Other + custom text (OpenAPI trial signup).
-- (candidate) `TenantWorkOwnershipDeletePolicyService.GetAllowCreatorDeleteOwnedWorkAsync` — malformed boolean setting returns allow-delete true — locus: `TryParse` fail-open; input: corrupted `AllowCreatorDeleteOwnedWork` row (reachability: settings API uses `Format`; DB tamper only).
-- (candidate) `TenantSuspendCommandService.SuspendAsync` — compensating unsuspend on failed suspend audit vs erasure offboard race — locus: suspend command service; input: operator suspend API during erasure offboard (inspect `TenantSuspendCommandServiceOffboardRaceTests` before promote).
+- [x] (valid-no-repro) `TenantMigrationVerificationProbe.RunAsync` — probe requires `SuspendedUtc` but not `OffboardedUtc` — **cheap-disproof 2026-10-21 seed hunt:** `TenantCatalogMigrationOrchestrator.RunVerificationAsync` re-reads tenant and returns quarantine without invoking probe when `OffboardedUtc` is set (`TenantCatalogMigrationOrchestratorTests` offboard-before-probe suite).
+- [x] (valid-no-repro) `TenantTrialSeatSkipCache` — negative cache without trial-activation invalidation — **cheap-disproof 2026-10-21 seed hunt:** bootstrap commits trial seat limits before HTTP returns; skip cache only applies when `RequiresSeatClaim` is false on first read (same lens as 2026-09-26).
+- [x] (proven) `TrialVerticalWelcomeRequestFactory.Create` — `IndustryVerticalOther` ignored for `Other` vertical — **hit 2026-10-21 seed hunt:** see zone header entry.
+- [x] (valid-no-repro) `TenantWorkOwnershipDeletePolicyService.GetAllowCreatorDeleteOwnedWorkAsync` — malformed boolean fail-open — **cheap-disproof 2026-10-21 seed hunt:** `[fail-open-validation]` saturated; writes use `TenantSettingBooleanParser.Format`; malformed row requires DB tamper (#1247).
+- [x] (valid-no-repro) `TenantSuspendCommandService.TrySuspendAsync` — suspend/offboard race — **cheap-disproof 2026-10-21 seed hunt:** `TenantSuspendCommandServiceOffboardRaceTests` already covers offboard before atomic suspend, after suspend, and post-read audit windows.
+
+- (candidate) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — projection refresh after failed verification retry — locus: stage gate vs `LastVerificationFailedUtc`; input: admin retries verify after probe failure while tenant still suspended (reachability: migration operator API).
+- (candidate) `TrialTenantBootstrapService.TryEnqueueTrialArchitecturePreseedAsync` — preseed enqueue without re-read after trial commit — locus: enqueue path after `CommitSelfServiceTrialAsync`; input: erasure offboard between commit and enqueue (reachability: self-service registration worker).
+- (candidate) `TenantTrialSeatReservationMiddleware` — seat claim skipped when `TrialSeatsLimit` null on first request — locus: middleware early exit; input: tenant row between slug reserve and trial commit (reachability: first authenticated API after register).
+- (candidate) `TenantSlugNormalizer.Normalize` — unicode homoglyph slug collision — locus: normalization table; input: registration slug with confusable characters (reachability: `POST /v1/register` slug field).
+- (candidate) `TenantDataRegionResolver.Resolve` — missing region default vs tenant `DataRegion` mismatch on provision — locus: resolver merge; input: registration with explicit non-default region (reachability: registration + provision path).
 ## Zone: host-core-coordination
 
 - **id:** host-core-coordination
