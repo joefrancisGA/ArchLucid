@@ -5769,3 +5769,4 @@
 {"at":"2026-10-21T01:17:18.3233250Z","zoneId":"application-billing-logic","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T01:28:06.6961753Z","zoneId":"infra-evidence-diagrams","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T01:35:28.4561425Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared"}
+{"recordedAt": "2026-10-21T01:42:23.0000000Z", "zoneId": "cloud-extractors", "outcome": "hit", "lane": "B", "kind": "seed hunt", "note": "ListChildJsonElementsAsync partialCollection wiring for AX-DE collectors"}
