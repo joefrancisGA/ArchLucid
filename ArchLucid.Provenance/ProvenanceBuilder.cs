@@ -202,7 +202,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         return result;
 
         IEnumerable<SynthesizedArtifact> DistinctArtifacts() =>
-            artifacts.GroupBy(static artifact => artifact.ArtifactId).Select(static group => group.First());
+            ProvenanceArtifactBundleCanonicalizer.DistinctByArtifactId(artifacts);
 
         ProvenanceNode CreateFindingNode(Finding finding)
         {

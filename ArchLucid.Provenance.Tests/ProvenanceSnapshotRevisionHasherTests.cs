@@ -92,6 +92,37 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     }
 
     [Fact]
+    public void Compute_is_order_invariant_when_bundle_lists_duplicate_artifact_id_with_conflicting_content_hashes()
+    {
+        Guid artifactId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+        SynthesizedArtifact v1 = new()
+        {
+            ArtifactId = artifactId,
+            ArtifactType = "doc",
+            Name = "overview.md",
+            Format = "md",
+            Content = "v1",
+            ContentHash = "hash-v1",
+        };
+
+        SynthesizedArtifact v2 = new()
+        {
+            ArtifactId = artifactId,
+            ArtifactType = "doc",
+            Name = "overview.md",
+            Format = "md",
+            Content = "v2",
+            ContentHash = "hash-v2",
+        };
+
+        string forward = ProvenanceSnapshotRevisionHasher.Compute(CreateInput([v1, v2]), BundleId);
+        string reverse = ProvenanceSnapshotRevisionHasher.Compute(CreateInput([v2, v1]), BundleId);
+
+        reverse.Should().Be(forward);
+    }
+
+    [Fact]
     public void Compute_ignores_duplicate_artifact_rows_with_same_artifact_id()
     {
         SynthesizedArtifact artifact = new()

@@ -36,9 +36,8 @@ public static class ProvenanceSnapshotRevisionHasher
         if (artifacts.Count == 0)
             return string.Empty;
 
-        IEnumerable<string> parts = artifacts
-            .GroupBy(static artifact => artifact.ArtifactId)
-            .Select(static group => group.First())
+        IEnumerable<string> parts = ProvenanceArtifactBundleCanonicalizer
+            .DistinctByArtifactId(artifacts)
             .OrderBy(static artifact => artifact.ArtifactId)
             .Select(static artifact =>
                 $"{artifact.ArtifactId:N}|{artifact.ContentHash ?? string.Empty}");
