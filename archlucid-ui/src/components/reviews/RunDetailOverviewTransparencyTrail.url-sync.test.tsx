@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { createElement, useSyncExternalStore, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -39,8 +39,10 @@ vi.mock("@/components/WorkspaceModeProvider", () => ({
   }),
 }));
 
+const pathnameMock = vi.hoisted(() => ({ value: "/architecture/reviews/run-b" }));
+
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/architecture/reviews/run-abc",
+  usePathname: () => pathnameMock.value,
   useSearchParams: () => new URLSearchParams(searchParamsHarness.state.query),
 }));
 
@@ -68,7 +70,30 @@ describe("RunDetailOverviewTransparencyTrail URL sync", () => {
   beforeEach(() => {
     workspaceModeMock.isWorkingMode = false;
     searchParamsHarness.reset();
-    window.history.replaceState({}, "", "/architecture/reviews/run-abc?reviewTab=overview");
+    pathnameMock.value = "/architecture/reviews/run-b";
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-a?reviewTab=findings&q=stale-payment",
+    );
+  });
+
+  it("opens transparency trail from useSearchParams when window.location.search lags after soft navigation", async () => {
+    searchParamsHarness.state.query = "reviewTab=overview";
+
+    render(
+      <SearchParamsRerenderHost>
+        <RunDetailOverviewTransparencyTrail feasibilityVerdict={sampleVerdict} runCompleted={false} />
+      </SearchParamsRerenderHost>,
+    );
+
+    fireEvent.click(screen.getByText("Transparency trail"));
+
+    await waitFor(() => {
+      expect(window.location.pathname + window.location.search).toBe(
+        `/architecture/reviews/run-b?reviewTab=overview&${TRANSPARENCY_TRAIL_OPEN_PARAM}=1`,
+      );
+    });
   });
 
   it("follows transparencyTrailOpen query changes without a popstate event", async () => {
@@ -85,7 +110,7 @@ describe("RunDetailOverviewTransparencyTrail URL sync", () => {
     window.history.replaceState(
       {},
       "",
-      `/architecture/reviews/run-abc?reviewTab=overview&${TRANSPARENCY_TRAIL_OPEN_PARAM}=1`,
+      `/architecture/reviews/run-b?reviewTab=overview&${TRANSPARENCY_TRAIL_OPEN_PARAM}=1`,
     );
     rerender(
       <SearchParamsRerenderHost>
