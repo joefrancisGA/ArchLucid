@@ -5,6 +5,7 @@ using ArchLucid.Application.Diagrams;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Runs;
+using ArchLucid.Core.Comparison;
 using ArchLucid.Application.Summaries;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -16,6 +17,7 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
+using ArchLucid.TestSupport.SealedManifest;
 
 using FluentAssertions;
 
@@ -423,18 +425,33 @@ public sealed class ManifestsControllerEvidenceScopeTests
             CallerScope.TenantId,
             It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(null));
 
+    private const string SealedManifestHash = SealedManifestHashTestSupport.DefaultHash;
+
     private static ManifestsController CreateController(
         IUnifiedGoldenManifestReader manifestReader,
         IScopeContextProvider scopeProvider,
         IRunRepository runRepository,
         IAgentEvidencePackageRepository evidenceRepository,
         IManifestSummaryGenerator summaryGenerator,
-        ITenantRepository? tenantRepository = null)
+        ITenantRepository? tenantRepository = null,
+        IAuthorityQueryService? authorityQueryService = null,
+        IManifestHashService? manifestHashService = null)
     {
         Mock<IDiagramGenerator> diagramGenerator = new();
         diagramGenerator
             .Setup(g => g.GenerateMermaid(It.IsAny<GoldenManifest>()))
             .Returns("graph LR; A-->B");
+
+        ICompareRunsApplicationFacade compareFacade = new CompareRunsApplicationFacade(
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IRunDetailQueryService>(),
+            runRepository,
+            manifestReader,
+            Mock.Of<IAuthorityCommitProjectionBuilder>(),
+            Mock.Of<IComparisonService>(),
+            Mock.Of<IAgentResultDiffService>(),
+            scopeProvider,
+            Mock.Of<IManifestHashService>());
 
         return new ManifestsController(
                 manifestReader,
@@ -449,9 +466,9 @@ public sealed class ManifestsControllerEvidenceScopeTests
                 Mock.Of<IManifestDiagramService>(),
                 scopeProvider,
                 runRepository,
-                Mock.Of<IAuthorityQueryService>(),
-                Mock.Of<IManifestHashService>(),
-                Mock.Of<ICompareRunsApplicationFacade>(),
+                authorityQueryService ?? SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(SealedManifestHash),
+                manifestHashService ?? SealedManifestHashTestSupport.CreateManifestHashService(SealedManifestHash),
+                compareFacade,
                 tenantRepository ?? TenantExistsRepository())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },

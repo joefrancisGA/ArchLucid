@@ -6,13 +6,16 @@ using ArchLucid.Application;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.User;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.ArtifactSynthesis.Docx.Models;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
@@ -23,9 +26,11 @@ using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Queries;
+using ArchLucid.Application.Tests.Exports;
 
 using FluentAssertions;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -42,8 +47,6 @@ public sealed class DocxExportControllerAuditTests
     {
         Guid runId = Guid.NewGuid();
         Guid manifestId = Guid.NewGuid();
-        Guid? compareWith = Guid.NewGuid();
-
         ManifestHashService manifestHashService = new();
         FeasibilityVerdict verdict = DocxExportControllerTestSupport.CreateFeasibilityVerdictWithTrail();
         ManifestDocument sealedManifest = DocxExportControllerTestSupport.CreateSealedExportManifest(
@@ -61,29 +64,6 @@ public sealed class DocxExportControllerAuditTests
             runId,
             sealedManifest,
             GoldenCorpusHarnessEngineRegistration.RegisteredEngineCount);
-        authority
-            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), compareWith.Value, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RunDetailDto { Run = new RunRecord { RunId = compareWith.Value }, GoldenManifest = sealedManifest });
-        authority
-            .Setup(a => a.GetRunDetailForManifestCompareAsync(
-                It.IsAny<ScopeContext>(),
-                compareWith.Value,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RunDetailDto { Run = new RunRecord { RunId = compareWith.Value }, GoldenManifest = sealedManifest });
-        authority
-            .Setup(a => a.GetRunDetailForExportAsync(
-                It.IsAny<ScopeContext>(),
-                compareWith.Value,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RunDetailDto
-            {
-                Run = new RunRecord { RunId = compareWith.Value },
-                GoldenManifest = sealedManifest,
-                FindingCoverageSummary = new RunFindingCoverageSummary
-                {
-                    EnginesSucceeded = GoldenCorpusHarnessEngineRegistration.RegisteredEngineCount,
-                },
-            });
 
         Mock<IArtifactQueryService> artifacts = new();
         artifacts
@@ -114,7 +94,7 @@ public sealed class DocxExportControllerAuditTests
 
         Mock<IRunDetailQueryService> runDetailQuery = new();
         runDetailQuery
-            .Setup(r => r.GetRunDetailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetRunDetailAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ArchitectureRunDetail
             {
                 Run = new ArchitectureRun
@@ -123,15 +103,13 @@ public sealed class DocxExportControllerAuditTests
                     ContextSnapshotId = "ctx",
                     GraphSnapshotId = Guid.NewGuid(),
                     FindingsSnapshotId = Guid.NewGuid(),
+                    StructuralExecutionMode = StructuralExecutionMode.Real,
                 },
                 AuthorityLifecyclePhase = AuthorityRunLifecyclePhase.Complete,
             });
-
         IConfiguration configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                ["PreCommitGovernance:PreCommitGateEnabled"] = "true",
-            })
+            .AddConfiguration(SealedExportReceiptTestSupport.CreateSuccessfulExportHonestyConfiguration())
+            .AddInMemoryCollection(new Dictionary<string, string?> { ["AgentExecution:Mode"] = "Live" })
             .Build();
 
         DocxExportController sut = new(
@@ -155,7 +133,7 @@ public sealed class DocxExportControllerAuditTests
             ControllerContext = AnalysisReportsControllerAuditTests.CreateControllerContext(),
         };
 
-        IActionResult result = await sut.ExportRunDocx(runId, compareWith, false, false, CancellationToken.None);
+        IActionResult result = await sut.ExportRunDocx(runId, null, false, false, CancellationToken.None);
 
         result.Should().BeOfType<FileContentResult>();
         audit.Verify(
@@ -171,6 +149,7 @@ public sealed class DocxExportControllerAuditTests
         JsonDocument doc = JsonDocument.Parse(
             audit.Invocations[0].Arguments[0] is AuditEvent ev ? ev.DataJson : "{}");
         doc.RootElement.GetProperty("byteCount").GetInt32().Should().Be(payload.Length);
-        doc.RootElement.GetProperty("compareWithRunId").GetGuid().Should().Be(compareWith.Value);
+        doc.RootElement.TryGetProperty("compareWithRunId", out JsonElement compareElement).Should().BeTrue();
+        compareElement.ValueKind.Should().Be(JsonValueKind.Null);
     }
 }

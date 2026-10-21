@@ -9,8 +9,8 @@ using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
@@ -767,6 +767,26 @@ public sealed class GovernanceControllerSimulateTests
         generator.VerifyNoOtherCalls();
     }
 
+    private static ITenantRepository TenantWithWorkspaceRepository()
+    {
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
+
+        return tenants.Object;
+    }
+
     private static ITenantRepository TenantMissingRepository() =>
         Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
             Scope.TenantId,
@@ -791,9 +811,7 @@ public sealed class GovernanceControllerSimulateTests
             policyPackHttpFacade: policyPackHttpFacade ?? Mock.Of<IPolicyPackHttpFacade>(),
             policyPackDraftService: draftService ?? Mock.Of<IPolicyPackDraftService>(),
             policyPackGeneratorService: generatorService ?? Mock.Of<IPolicyPackGeneratorService>(),
-            tenantRepository: tenantRepository ?? Mock.Of<ITenantRepository>(repository => repository.GetByIdAsync(
-                Scope.TenantId,
-                It.IsAny<CancellationToken>()) == Task.FromResult<TenantRecord?>(new TenantRecord { Id = Scope.TenantId, Name = "contoso" })),
+            tenantRepository: tenantRepository ?? TenantWithWorkspaceRepository(),
             authorityQueryService: authorityQueryService ?? Mock.Of<IAuthorityQueryService>());
 
         return controller;

@@ -598,12 +598,14 @@ public sealed class GovernanceControllerDashboardTests
         Guid tenantId = Guid.Parse("cccccccc-dddd-eeee-ffff-000011112222");
 
         Mock<IScopeContextProvider> scope = new();
-        scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = tenantId });
+        scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = tenantId,
+            WorkspaceId = WorkspaceId,
+        });
 
         Mock<ITenantRepository> tenants = new();
-        tenants
-            .Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new TenantRecord { Id = tenantId, Name = "contoso" });
+        SetupTenantExists(tenants, tenantId, WorkspaceId);
 
         return GovernanceControllerTestFactory.Create(
             scopeContextProvider: scope.Object,
