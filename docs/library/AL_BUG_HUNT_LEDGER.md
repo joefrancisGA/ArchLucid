@@ -7584,6 +7584,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-13 seed hunt #2302 (seed-only): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; no new hunt-ready rows.
 
 ### Hypotheses
+- [ ] (candidate) `MarketplacePlanIdTierResolver.NormalizeConfiguredTier` — `PlanIdTierMap` tier values outside `Standard`/`Enterprise`/`Free` downgrade to Standard with a warning only; reachability: mis-keyed `Billing:AzureMarketplace:PlanIdTierMap` entries in appsettings.
+- [ ] (candidate) `BillingOptionsNormalizePostConfigure.NormalizePlanIdTierMap` — configuration keys that differ only by surrounding whitespace collapse to one map entry without surfacing a binding conflict; reachability: duplicated plan-id keys in appsettings JSON.
+- [ ] (candidate) `MarketplacePlanIdTierResolver.ResolveTierStorageCode` — webhook `ChangePlan` payloads with padded `planId` must match trimmed map keys; reachability: Partner Center plan id strings after `MarketplaceWebhookPayloadParser.TryGetPlanId` (resolver already trims plan id; verify parser parity).
 
 - [x] (proven) `PolicyPacksController.Publish` — OpenAPI publish body with surrounding whitespace in `Version` passed FluentValidation but forwarded untrimmed to `PublishVersionAsync` — **hit 2026-10-21 seed hunt:** forward `request.Version.Trim()`; regression `Publish_forwards_trimmed_version_to_facade`.
 - [x] (proven) `PolicyPacksController.Assign` — OpenAPI assign body with surrounding whitespace in `Version` passed FluentValidation but forwarded untrimmed to `AssignAsync` — **hit 2026-10-21 seed hunt:** forward `request.Version.Trim()`; regression `Assign_forwards_trimmed_version_to_facade`.
@@ -29482,6 +29485,8 @@ Split from retired `archlucid-core` (ABQ-08).
 ---
 ## Zone: core-tenancy-commercial
 
+2026-10-21 thorough hunt (dry): cheap-disproof closed Marketplace `PlanIdContainsEnterpriseTierToken` candidate (`MarketplacePlanIdMapper` removed for `MarketplacePlanIdTierResolver` + `PlanIdTierMap` on trunk); closed sales-led Professional under-label candidate as intentional usage inference when no billing row (`CommercialPackagingTierResolver` comment + existing Team default test); no hunt-ready row met the bar; 38 scoped CommercialTenant / packaging / marketplace resolver tests passed.
+
 2026-10-10 thorough hunt (dry): reviewed all five candidates against the scoped Identity/Billing/Budgeting source; closed numeric Marketplace `planId` coercion as supported with no wrong tier outcome, duplicate claim mappings as warned deterministic first-entry behavior, and non-ASCII email-domain acceptance as invalid because the ASCII validator rejects it. The remaining plan-id negation and sales-led billing-row rows lacked the partner/onboarding reachability evidence required for hunt-ready status; no failing repro was established. Relevant Core tests passed 96/96; the picker filter passed 4/4 with analyzers disabled after the baseline ARCH002 error.
 
 2026-10-09 thorough hunt (hit): hourly OTP email batch SQL counted completed and expired challenges; client-IP SQL and in-memory counts already ignored them; regression `Batch_email_count_ignores_completed_and_expired_challenges`; 10 scoped OTP repository tests passed.
@@ -29493,10 +29498,10 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** commercial tenant; billing; budgeting; split from archlucid-core
 - **paths:** ArchLucid.Core/Identity/; ArchLucid.Core/Billing/; ArchLucid.Core/Budgeting/
 - **test-filter:** FullyQualifiedName~CommercialTenant
-- **hunts:** 33
+- **hunts:** 34
 - **bugs-found:** 14
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-10
+- **consecutive-dry-hunts:** 3
+- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-09 — hourly OTP email SQL counted completed and expired challenges
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -29534,9 +29539,9 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — delimited `void-enterprise-*` / `empty-enterprise-*` / `zero-enterprise-*` plan id false-positive Enterprise tier — **hit 2026-10-05 seed hunt (seed→hit):** extend `IsEnterpriseNegationToken` with `void`, `empty`, and `zero`; regression in `TierStorageCodeFromPlanId_does_not_false_positive_on_additional_enterprise_negation_adverbs`
 - [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — delimited `absent-enterprise-*` / `removed-enterprise-*` / `cleared-enterprise-*` plan id false-positive Enterprise tier — **hit 2026-10-05 seed hunt (seed→hit):** extend `IsEnterpriseNegationToken` with `absent`, `removed`, and `cleared`; regression in `TierStorageCodeFromPlanId_does_not_false_positive_on_additional_enterprise_negation_adverbs`
 - [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — delimited `stripped-enterprise-*` / `missing-enterprise-*` / `denied-enterprise-*` plan id false-positive Enterprise tier — **hit 2026-10-05 seed hunt (seed→hit):** add tokens to consolidated `EnterpriseNegationExactTokens`; regression in `TierStorageCodeFromPlanId_does_not_false_positive_on_additional_enterprise_negation_adverbs` plus `TierStorageCodeFromPlanId_still_maps_enterprise_when_stripe_token_precedes_enterprise` (exact-token set must not use careless `strip*` stems)
-- [ ] (candidate) `MarketplacePlanIdMapper.PlanIdContainsEnterpriseTierToken` — delimiter-bounded `enterprise` may still match when a negation adverb appears only two tokens before `enterprise` (e.g. `not-for-enterprise-*` from Marketplace `ChangePlan` `planId` strings); needs partner plan-id citation before hunt-ready.
+- [x] (invalid) `MarketplacePlanIdMapper.PlanIdContainsEnterpriseTierToken` — **cheap-disproof 2026-10-21 thorough hunt:** `MarketplacePlanIdMapper` removed; tier mapping is explicit `Billing:AzureMarketplace:PlanIdTierMap` via `MarketplacePlanIdTierResolver`; adversarial plan ids default to Standard without substring inference (`ResolveTierStorageCode_adversarial_plan_ids_never_infer_enterprise_without_map_entry`).
 - [x] (valid-no-repro) `MarketplaceChangePlanReader.TryGetPlanId` — numeric JSON `planId` values coerce through `TryReadWholeNumberLongToken` and may feed `TierStorageCodeFromPlanId` as digit-only tokens without tier semantics — **cheap-disproof 2026-10-10 thorough hunt:** numeric `planId` is an explicit supported parser shape, digit-only values correctly map to the Standard fallback, and no Marketplace contract in these files assigns tier semantics to numeric identifiers; relevant parser and tier tests passed.
-- [ ] (candidate) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — sales-led Standard tenants without a billing row infer Team from `seatsUsed`/`workspacesUsed` only and may under-label Professional when live usage is still within Team caps but purchased packaging is Professional; needs billing-row absence path proof from tenant onboarding flows.
+- [x] (valid-no-repro) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — sales-led Standard without billing row under-labels Professional while usage fits Team caps — **cheap-disproof 2026-10-21 thorough hunt:** intentional inference path documented in source; Professional packaging without a billing snapshot cannot be distinguished from Team at low usage without checkout SKU metadata (ledger #1319 boundary).
 - [x] (valid-no-repro) `IdentityClaimRoleMappingValidator.Evaluate` — duplicate `IdpValue` mappings emit Warn results but runtime SAML/OIDC role mapping may still apply only the first entry silently — **cheap-disproof 2026-10-10 thorough hunt:** the validator explicitly emits a duplicate warning and the runtime resolver deterministically selects the first case-insensitive mapping; no silent or incorrect role outcome was reproduced.
 - [x] (invalid) `AuthEmailDomainNormalizer.TryNormalize` — internationalized domain labels are lowercased with invariant culture only and may accept non-ASCII labels that DNS verification cannot resolve consistently — **cheap-disproof 2026-10-10 thorough hunt:** `DomainLabelPattern` permits only ASCII letters, digits, and hyphens, so non-ASCII labels are rejected rather than accepted; normalizer tests passed.
 
