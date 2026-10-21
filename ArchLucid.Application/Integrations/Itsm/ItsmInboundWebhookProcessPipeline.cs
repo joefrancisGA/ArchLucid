@@ -84,7 +84,9 @@ public sealed class ItsmInboundWebhookProcessPipeline(
         }
 
         IntegrationsItsmInboundOptions options = _inboundOptions.CurrentValue;
+        string primaryStatusValue = payload.StatusValue.Trim();
         string effectiveStatusValue = payload.StatusValue;
+        bool humanReviewResolvedFromAlternate = false;
         (string humanReview, bool mapped) = statusMapper.MapToHumanReview(payload.StatusValue, options);
 
         if (!mapped && !string.IsNullOrWhiteSpace(payload.AlternateStatusValue))
@@ -92,7 +94,10 @@ public sealed class ItsmInboundWebhookProcessPipeline(
             (humanReview, mapped) = statusMapper.MapToHumanReview(payload.AlternateStatusValue, options);
 
             if (mapped)
+            {
                 effectiveStatusValue = payload.AlternateStatusValue.Trim();
+                humanReviewResolvedFromAlternate = true;
+            }
         }
 
         if (!mapped)
@@ -245,6 +250,20 @@ public sealed class ItsmInboundWebhookProcessPipeline(
                 {
                     mappedDisposition = alternateDisposition;
                     dispositionStatusLabel = alternateStatus;
+                }
+            }
+
+            if (mappedDisposition is null
+                && humanReviewResolvedFromAlternate
+                && !string.IsNullOrWhiteSpace(primaryStatusValue)
+                && !string.Equals(primaryStatusValue, effectivePayload.StatusValue, StringComparison.OrdinalIgnoreCase))
+            {
+                FindingDisposition? primaryDisposition = statusMapper.TryMapToDisposition(primaryStatusValue, options);
+
+                if (primaryDisposition is not null)
+                {
+                    mappedDisposition = primaryDisposition;
+                    dispositionStatusLabel = primaryStatusValue;
                 }
             }
 

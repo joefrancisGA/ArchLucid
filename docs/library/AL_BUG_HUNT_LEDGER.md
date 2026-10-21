@@ -1,5 +1,13 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 ﻿> **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
+2026-10-21 thorough hunt (hit, lane B): `itsm-inbound-webhooks` — lock pushed before work; repro-first on open ServiceNow disposition candidate when human review promotes `incident_state` but disposition map keys only primary `state` token; `ItsmInboundWebhookProcessPipeline` dropped primary `state` after alternate HR promotion so disposition sync never consulted `ServiceNowStateDispositionMap` on `state`; pipeline now falls back to `primaryStatusValue` when HR resolved from alternate; regression `ServiceNow_inbound_uses_primary_state_disposition_when_human_review_promoted_from_incident_state`; cheap-disproof closed four sibling `(candidate)` rows (alternate HR promotion, inspect-null audit, whitespace finding id, Guid.Empty facade); scoped `FullyQualifiedName~ItsmInboundWebhook` 82/82 (71 Application + 11 Persistence).
+
+- [x] (proven) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — ServiceNow disposition map on primary `state` skipped when human review promoted from `incident_state` — **hit 2026-10-21 lane B:** retain `primaryStatusValue` and disposition fallback after alternate HR resolution; regression above.
+- [x] (invalid) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — alternate `incident_state` promotes human review before correlation — **cheap-disproof 2026-10-21 lane B:** intentional ~90–96 promotion; regression `ServiceNow_inbound_uses_incident_state_when_state_is_unmapped_but_incident_state_resolves`.
+- [x] (valid-no-repro) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — `GetInspectAsync` null with correlation yields `finding_not_found` audit — **cheap-disproof 2026-10-21 lane B:** intentional ack-with-audit contract; pairs with `When_correlated_finding_row_missing_is_acknowledged_with_tenant_scoped_audit`.
+- [x] (valid-no-repro) `ItsmInboundWebhookSyncSupport.ValidateCorrelationFindingId` — whitespace-only `FindingId` rejects `finding_id_invalid_length` — **cheap-disproof 2026-10-21 lane B:** `Trim()` then length 0 guard returns `Accepted=false` before disposition sync.
+- [x] (valid-no-repro) `ItsmInboundWebhookFacade.ProcessAsync` — `TenantId == Guid.Empty` returns validation failed — **cheap-disproof 2026-10-21 lane B:** guard at facade entry; controller integration `Jira_tenant_scoped_route_with_empty_guid_returns_400`.
+
 2026-10-21 seed hunt (seed→hit): `ui-review-detail-workspace` — promoted `RunDetailFindingsWorkspace` writing classification band href from `readWindowLocationSearch()` so soft navigation could re-attach stale findings toolbar query when changing classification band chip; writes now use `searchParams.toString()`; regression `writes classification band from useSearchParams when window.location.search lags after soft navigation`; findings workspace url-sync vitest 3/3.
 
 2026-10-21 seed hunt (seed→hit): `ui-review-detail-workspace` — promoted `RunDetailDetailedOutcomeCardsDisclosure` writing detailed outcome cards disclosure href from `readWindowLocationSearch()` so soft navigation could re-attach stale findings toolbar query when expanding Detailed outcome cards; writes now use `searchParams.toString()`; regression `writes detailed outcome cards disclosure from useSearchParams when window.location.search lags after soft navigation`; outcome cards disclosure url-sync vitest 2/2.
@@ -18312,7 +18320,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: itsm-inbound-webhooks
 
-**Hunts:** 30 · **Bugs found:** 19 · **Consecutive dry hunts:** 8
+**Hunts:** 31 · **Bugs found:** 20 · **Consecutive dry hunts:** 0
+
+2026-10-21 thorough hunt (hit, lane B): repro-first on ServiceNow disposition when human review promotes `incident_state` but disposition map keys primary `state`; fixed primary-token disposition fallback after alternate HR promotion; regression `ServiceNow_inbound_uses_primary_state_disposition_when_human_review_promoted_from_incident_state`; scoped 82/82.
+
+- [x] (proven) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — ServiceNow disposition map on primary `state` skipped when human review promoted from `incident_state` — **hit 2026-10-21 lane B:** `primaryStatusValue` disposition fallback after alternate HR resolution.
+- [x] (invalid) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — alternate `incident_state` promotes human review before correlation — **cheap-disproof 2026-10-21 lane B:** by design; regression `ServiceNow_inbound_uses_incident_state_when_state_is_unmapped_but_incident_state_resolves`.
+- [x] (valid-no-repro) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — `GetInspectAsync` null with correlation yields `finding_not_found` audit — **cheap-disproof 2026-10-21 lane B:** intentional ack-with-audit.
+- [x] (valid-no-repro) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — disposition sync falls back to `AlternateStatusValue` when primary status does not map to disposition but alternate does — **cheap-disproof 2026-10-21 lane B:** regression `ServiceNow_inbound_uses_incident_state_disposition_when_primary_state_maps_human_review_only`.
+- [x] (valid-no-repro) `ItsmInboundWebhookSyncSupport.ValidateCorrelationFindingId` — whitespace-only `FindingId` rejects `finding_id_invalid_length` — **cheap-disproof 2026-10-21 lane B:** trim then length guard.
+- [x] (valid-no-repro) `ItsmInboundWebhookFacade.ProcessAsync` — `TenantId == Guid.Empty` returns validation failed — **cheap-disproof 2026-10-21 lane B:** facade guard + API `Jira_tenant_scoped_route_with_empty_guid_returns_400`.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `ItsmInboundWebhookReplayEventIdTests`, `ItsmInboundServiceNowPayloadReaderTests`, `ItsmInboundWebhookFacadeTests`, `ItsmInboundWebhookSyncSupportTests`, and `ItsmInboundJiraPayloadReaderTests`; 81 scoped `ItsmInboundWebhook` tests passed (70 Application + 11 Persistence).
 
@@ -18321,12 +18338,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ItsmInboundWebhookFacade.TryVerifyWebhookSecurity` — `sha256=` prefixed HMAC vs legacy raw hex both accepted but `VendorToken` still required — **cheap-disproof 2026-10-08 seed hunt #30:** prefix-aware HMAC verify still gates on vendor token first; regression `ProcessAsync_accepts_sha256_prefixed_hmac_when_vendor_token_matches`.
 - [x] (invalid) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — tenant-scoped `authenticatedTenantId` mismatch vs correlation row tenant may still ack without mutation when correlation lookup is unscoped — **cheap-disproof 2026-10-08 seed hunt #30:** authenticated tenant routes call `TryGetByExternalKeyForTenantAsync`; regression `TryResolveCorrelationAsync_uses_tenant_scoped_lookup_when_authenticated_tenant_id_is_present` (pairs with `Jira_tenant_scoped_webhook_does_not_mutate_correlation_owned_by_another_tenant`).
 - [x] (valid-no-repro) `ItsmInboundJiraPayloadReader.TryReadJiraStatusName` — status names with only whitespace after trim fail `TryRead` before mapper sees empty human review guard — **cheap-disproof 2026-10-08 seed hunt #30:** `string.IsNullOrWhiteSpace(statusNameRaw)` rejects at reader; regression `TryRead_returns_false_when_status_name_is_whitespace_only`.
-
-- [ ] (candidate) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — when primary `state` is unmapped but `AlternateStatusValue` maps to human review, pipeline promotes alternate before correlation — locus: ~90–96; input: ServiceNow webhook with divergent `state`/`incident_state` where only the incident token maps.
-- [ ] (candidate) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — `GetInspectAsync` returns null while correlation row exists yields `Accepted=true` with `finding_not_found` rejected audit — locus: ~180–191; input: stale correlation whose finding inspect row was removed.
-- [ ] (candidate) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — disposition sync falls back to `AlternateStatusValue` when primary status does not map to disposition but alternate does — locus: ~238–248; input: ServiceNow labels where human-review maps on primary but disposition mapping exists only on alternate token.
-- [ ] (candidate) `ItsmInboundWebhookSyncSupport.ValidateCorrelationFindingId` — whitespace-only `FindingId` on correlation row rejects with `finding_id_invalid_length` without touching disposition sync — locus: ~106–108; input: corrupted correlation row with whitespace finding id.
-- [ ] (candidate) `ItsmInboundWebhookFacade.ProcessAsync` — `TenantId == Guid.Empty` on tenant-scoped facade request returns `ValidationFailed` before vendor token compare — locus: ~33–39; input: `ItsmInboundWebhookProcessRequest` with empty tenant guid from misbound route.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `ItsmInboundWebhookReplayEventIdTests`, `WebhookSecretsTests`, `ItsmInboundWebhookSyncServiceTests`, `ItsmInboundServiceNowStatusMapperTests`; 78 scoped `ItsmInboundWebhook` tests passed (67 Application + 11 Persistence).
 
@@ -18390,10 +18401,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 30
-- **bugs-found:** 19
-- **consecutive-dry-hunts:** 7
-- **last-hunt:** 2026-10-07
+- **hunts:** 31
+- **bugs-found:** 20
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-09-30 — delayed replay eviction callback removed a reclaimed event claim
 - **related-pd-tb:** none
 - **code-changed-since:** no
