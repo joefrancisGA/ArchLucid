@@ -6,6 +6,7 @@ using ArchLucid.Application.Tests.Identity;
 using ArchLucid.Core.Admin;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Identity;
 using ArchLucid.Persistence.Admin;
 using ArchLucid.Persistence.Identity;
 
