@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { listRunsByProjectPaged } from "@/lib/api";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
@@ -24,6 +24,7 @@ export function RunDetailNextReviewFooterClient(
   props: RunDetailNextReviewFooterClientProps,
 ): React.JSX.Element | null {
   const [runs, setRuns] = useState<readonly RunSummary[]>([]);
+  const mountedRef = useRef(true);
 
   const loadRuns = useCallback(async () => {
     const scopeHeaders = getEffectiveBrowserProxyScopeHeaders();
@@ -33,7 +34,9 @@ export function RunDetailNextReviewFooterClient(
       const showcaseSpinePaged = tryShowcaseSpineRunSummariesPaged(projectId, props.runId);
 
       if (showcaseSpinePaged !== null) {
-        setRuns(showcaseSpinePaged.items);
+        if (mountedRef.current) {
+          setRuns(showcaseSpinePaged.items);
+        }
 
         return;
       }
@@ -44,19 +47,31 @@ export function RunDetailNextReviewFooterClient(
       const coerced = coerceRunSummaryPaged(raw, { page: 1 });
 
       if (!coerced.ok) {
-        setRuns([]);
+        if (mountedRef.current) {
+          setRuns([]);
+        }
 
         return;
       }
 
-      setRuns(enrichRunsListWithStaticDemoFallback(coerced.value.items, projectId));
+      if (mountedRef.current) {
+        setRuns(enrichRunsListWithStaticDemoFallback(coerced.value.items, projectId));
+      }
     } catch {
-      setRuns([]);
+      if (mountedRef.current) {
+        setRuns([]);
+      }
     }
-  }, []);
+  }, [props.runId]);
 
   useEffect(() => {
+    mountedRef.current = true;
+
     void loadRuns();
+
+    return () => {
+      mountedRef.current = false;
+    };
   }, [loadRuns]);
 
   const nextReview = useMemo(() => {

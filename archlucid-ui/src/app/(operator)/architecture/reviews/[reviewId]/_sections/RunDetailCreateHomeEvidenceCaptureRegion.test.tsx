@@ -13,13 +13,20 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
-vi.mock("@/hooks/use-run-stored-evidence-catalog-query", () => ({
-  useRunStoredEvidenceCatalogQuery: () => ({
-    catalog: [],
-    isLoading: false,
-    isError: false,
-  }),
-}));
+const emptyStoredEvidenceCatalog: never[] = [];
+
+vi.mock("@/hooks/use-run-stored-evidence-catalog-query", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/hooks/use-run-stored-evidence-catalog-query")>();
+
+  return {
+    ...actual,
+    useRunStoredEvidenceCatalogQuery: () => ({
+      catalog: emptyStoredEvidenceCatalog,
+      isLoading: false,
+      isError: false,
+    }),
+  };
+});
 
 vi.mock("@/lib/runs/run-stored-evidence-file-api", () => ({
   downloadRunStoredEvidenceFile: vi.fn(),
