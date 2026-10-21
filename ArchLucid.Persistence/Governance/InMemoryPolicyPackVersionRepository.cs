@@ -1,5 +1,6 @@
 using System.Data;
 
+using ArchLucid.Contracts.Governance.PolicyPacks;
 
 namespace ArchLucid.Persistence.Governance;
 
@@ -52,10 +53,11 @@ public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepo
         CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
+        string versionKey = PolicyPackSemVerVersion.NormalizeLookupKey(version);
         lock (_gate)
         {
             PolicyPackVersion? row = _items.FirstOrDefault(x => x.PolicyPackId == policyPackId &&
-                                                                string.Equals(x.Version, version,
+                                                                string.Equals(x.Version, versionKey,
                                                                     StringComparison.OrdinalIgnoreCase));
             return Task.FromResult(row);
         }
@@ -67,13 +69,13 @@ public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepo
         string contentJson,
         CancellationToken ct)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(version);
+        string versionKey = PolicyPackSemVerVersion.NormalizeLookupKey(version);
         ct.ThrowIfCancellationRequested();
 
         lock (_gate)
         {
             int idx = _items.FindIndex(x => x.PolicyPackId == policyPackId &&
-                                            string.Equals(x.Version, version, StringComparison.OrdinalIgnoreCase));
+                                            string.Equals(x.Version, versionKey, StringComparison.OrdinalIgnoreCase));
 
             if (idx >= 0)
             {
@@ -90,7 +92,7 @@ public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepo
             {
                 PolicyPackVersionId = Guid.NewGuid(),
                 PolicyPackId = policyPackId,
-                Version = version,
+                Version = versionKey,
                 ContentJson = contentJson,
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                 IsPublished = true

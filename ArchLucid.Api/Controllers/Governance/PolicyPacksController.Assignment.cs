@@ -50,6 +50,7 @@ public sealed partial class PolicyPacksController
         if (sealedGuardResult is not null)
             return sealedGuardResult;
 
+        PolicyPackSemVerVersion normalizedVersion = PolicyPackSemVerVersion.Parse(request.Version);
         PolicyPackAssignHttpResult result;
 
         try
@@ -58,7 +59,7 @@ public sealed partial class PolicyPacksController
                 policyPackId,
                 new PolicyPackAssignBody
                 {
-                    Version = request.Version.Trim(),
+                    Version = normalizedVersion.Value,
                     ScopeLevel = request.ScopeLevel,
                     IsPinned = request.IsPinned,
                     IsOrganizationRequired = request.IsOrganizationRequired,

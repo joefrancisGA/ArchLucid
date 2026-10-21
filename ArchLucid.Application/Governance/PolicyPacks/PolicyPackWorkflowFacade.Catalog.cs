@@ -169,7 +169,8 @@ public sealed partial class PolicyPackWorkflowFacade
         if (!IsPackVisibleInScope(pack, scope))
             return new PolicyPackVersionLookupResult(PolicyPackVersionLookupOutcome.PackNotFound, null);
 
-        PolicyPackVersion? row = await _versionRepository.GetByPackAndVersionAsync(policyPackId, packVersion.Trim(), ct);
+        string versionKey = PolicyPackSemVerVersion.NormalizeLookupKey(packVersion);
+        PolicyPackVersion? row = await _versionRepository.GetByPackAndVersionAsync(policyPackId, versionKey, ct);
 
         if (row is null)
             return new PolicyPackVersionLookupResult(PolicyPackVersionLookupOutcome.VersionNotFound, null);

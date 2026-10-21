@@ -58,11 +58,11 @@ public sealed class CachingPolicyPackVersionRepository(
         string version,
         CancellationToken ct)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(version);
+        string versionKey = PolicyPackSemVerVersion.NormalizeLookupKey(version);
 
         return _hotPathReadCache.GetOrCreateAsync(
-            HotPathCacheKeys.PolicyPackVersion(policyPackId, version),
-            innerCt => _inner.GetByPackAndVersionAsync(policyPackId, version, innerCt),
+            HotPathCacheKeys.PolicyPackVersion(policyPackId, versionKey),
+            innerCt => _inner.GetByPackAndVersionAsync(policyPackId, versionKey, innerCt),
             ct,
             absoluteExpirationSecondsOverride: VersionAbsoluteExpirationSeconds);
     }
@@ -74,10 +74,12 @@ public sealed class CachingPolicyPackVersionRepository(
         string contentJson,
         CancellationToken ct)
     {
-        (PolicyPackVersion published, string? previous) =
-            await _inner.UpsertPublishedVersionAsync(policyPackId, version, contentJson, ct);
+        string versionKey = PolicyPackSemVerVersion.NormalizeLookupKey(version);
 
-        await HotPathCacheEviction.RemovePolicyPackVersionAsync(_hotPathReadCache, policyPackId, version, ct);
+        (PolicyPackVersion published, string? previous) =
+            await _inner.UpsertPublishedVersionAsync(policyPackId, versionKey, contentJson, ct);
+
+        await HotPathCacheEviction.RemovePolicyPackVersionAsync(_hotPathReadCache, policyPackId, versionKey, ct);
 
         return (published, previous);
     }

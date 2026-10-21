@@ -43,7 +43,7 @@ public sealed partial class PolicyPackHttpFacade
         {
             version = await _workflow.TryPublishVersionAsync(
                 policyPackId,
-                request.Version.Trim(),
+                PolicyPackSemVerVersion.Parse(request.Version).Value,
                 request.ContentJson,
                 ct).ConfigureAwait(false);
         }
@@ -80,7 +80,7 @@ public sealed partial class PolicyPackHttpFacade
 
         await EnsureMutationSealedManifestOrThrowAsync(ct).ConfigureAwait(false);
 
-        string versionKey = request.Version.Trim();
+        string versionKey = PolicyPackSemVerVersion.Parse(request.Version).Value;
         string scopeLevel = string.IsNullOrWhiteSpace(request.ScopeLevel) ? "Project" : request.ScopeLevel;
 
         PolicyPackAssignWorkflowResult assignResult = await _workflow.TryAssignAsync(
@@ -259,15 +259,16 @@ public sealed partial class PolicyPackHttpFacade
             };
         }
 
+        PolicyPackSemVerVersion normalizedPackVersion = PolicyPackSemVerVersion.Parse(packVersion);
         PolicyPackVersionLookupResult lookup =
-            await _workflow.TryGetVersionAsync(policyPackId, packVersion, ct).ConfigureAwait(false);
+            await _workflow.TryGetVersionAsync(policyPackId, normalizedPackVersion.Value, ct).ConfigureAwait(false);
 
         return new PolicyPackVersionHttpResult
         {
             Outcome = lookup.Outcome,
             Version = lookup.Version,
             PolicyPackId = policyPackId,
-            PackVersion = packVersion.Trim(),
+            PackVersion = normalizedPackVersion.Value,
         };
     }
 

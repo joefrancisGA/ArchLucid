@@ -17,6 +17,20 @@ public sealed class InMemoryPolicyPackVersionRepositoryTests
     }
 
     [SkippableFact]
+    public async Task GetByPackAndVersionAsync_finds_row_when_query_has_surrounding_whitespace()
+    {
+        InMemoryPolicyPackVersionRepository sut = new();
+        Guid packId = Guid.NewGuid();
+
+        await sut.UpsertPublishedVersionAsync(packId, "1.0.0", "{}", CancellationToken.None);
+
+        PolicyPackVersion? found = await sut.GetByPackAndVersionAsync(packId, " 1.0.0 ", CancellationToken.None);
+
+        found.Should().NotBeNull();
+        found!.Version.Should().Be("1.0.0");
+    }
+
+    [SkippableFact]
     public async Task GetByPackAndVersionAsync_finds_row_with_version_casing_only_difference()
     {
         InMemoryPolicyPackVersionRepository sut = new();

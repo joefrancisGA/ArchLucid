@@ -1,7 +1,7 @@
 using System.Text.Json;
-using System.Text.RegularExpressions;
 
 using ArchLucid.Api.Controllers.Governance;
+using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 namespace ArchLucid.Api.Validators;
@@ -17,21 +17,9 @@ namespace ArchLucid.Api.Validators;
 /// </remarks>
 public static class PolicyPackRequestValidationRules
 {
-    public const int PackVersionMaxLength = 50;
+    public const int PackVersionMaxLength = PolicyPackSemVerVersion.MaxLength;
 
-    public const string PackVersionSemVerMessage =
-        "Version must be SemVer 2 style (e.g. 1.0.0, 2.1.0-rc.1, optional leading 'v').";
-
-    /// <summary>SemVer 2-style <c>MAJOR.MINOR.PATCH</c> with optional pre-release / build; optional leading <c>v</c>.</summary>
-    /// <remarks>
-    ///     Uses compiled <see cref="Regex" /> instead of source-generated regex so the project compiles when the
-    ///     <c>GeneratedRegex</c> analyzer output is not merged before partial-method validation (CS8795).
-    /// </remarks>
-#pragma warning disable SYSLIB1045 // Prefer GeneratedRegex — suppressed: partial implementation not emitted in all build/IDE paths
-    private static readonly Regex PolicyPackVersionSemVer = new(
-        @"^v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$",
-        RegexOptions.CultureInvariant | RegexOptions.Compiled);
-#pragma warning restore SYSLIB1045
+    public const string PackVersionSemVerMessage = PolicyPackSemVerVersion.SemVerMessage;
 
     /// <summary>Allowed <see cref="CreatePolicyPackRequest.PackType" /> values (case-insensitive set).</summary>
 #pragma warning disable IDE0028 // Simplify collection initialization
@@ -52,10 +40,8 @@ public static class PolicyPackRequestValidationRules
     ///     Slightly stricter than full SemVer grammar in edge cases; aligned with integration tests and problem-detail
     ///     messages.
     /// </remarks>
-    public static bool BePolicyPackSemVerVersion(string? value)
-    {
-        return !string.IsNullOrWhiteSpace(value) && PolicyPackVersionSemVer.IsMatch(value.Trim());
-    }
+    public static bool BePolicyPackSemVerVersion(string? value) =>
+        PolicyPackSemVerVersion.TryParse(value, out _);
 
     /// <summary>
     ///     Returns <c>true</c> for null/whitespace, or for text that parses as a single JSON value/object/array.

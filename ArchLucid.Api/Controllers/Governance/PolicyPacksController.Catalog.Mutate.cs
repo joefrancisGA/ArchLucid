@@ -43,7 +43,9 @@ public sealed partial class PolicyPacksController
         if (sealedGuardResult is not null)
             return sealedGuardResult;
 
-        string? normalizedVersion = request.Version?.Trim();
+        string? normalizedVersion = request.Version is null
+            ? null
+            : PolicyPackSemVerVersion.Parse(request.Version).Value;
 
         PolicyPackHttpResult<PolicyPackCatalogEntryDetail> result;
         try

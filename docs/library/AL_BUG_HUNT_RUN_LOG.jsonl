@@ -5790,3 +5790,4 @@
 {"at":"2026-10-21T02:45:46.6114914Z","zoneId":"architecture-intelligence-orchestrator","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/ArchitectureIntelligence/"]}
 {"at":"2026-10-21T02:47:57.6814821Z","zoneId":"api-policy-packs","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T02:57:05.0494894Z","zoneId":"api-policy-packs","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Governance/PolicyPacksController"]}
+{"at":"2026-10-21T02:56:39.7630615Z","zoneId":"api-policy-packs","outcome":"hit","productLine":"archlucid-shared"}

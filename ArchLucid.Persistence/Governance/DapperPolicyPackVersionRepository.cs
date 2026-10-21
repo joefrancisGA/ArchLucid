@@ -1,6 +1,7 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
@@ -124,7 +125,7 @@ public sealed class DapperPolicyPackVersionRepository(
         string version,
         CancellationToken ct)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(version);
+        string versionKey = PolicyPackSemVerVersion.NormalizeLookupKey(version);
 
         const string sql = """
                            SELECT PolicyPackVersionId, PolicyPackId, [Version] AS Version, ContentJson, CreatedUtc, IsPublished
@@ -140,7 +141,7 @@ public sealed class DapperPolicyPackVersionRepository(
                 cancellationToken: ct))).ToList();
 
         return rows.FirstOrDefault(row =>
-            string.Equals(row.Version, version, StringComparison.OrdinalIgnoreCase));
+            string.Equals(row.Version, versionKey, StringComparison.OrdinalIgnoreCase));
     }
 
     /// <inheritdoc />
@@ -153,7 +154,7 @@ public sealed class DapperPolicyPackVersionRepository(
         string contentJson,
         CancellationToken ct)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(version);
+        string versionKey = PolicyPackSemVerVersion.NormalizeLookupKey(version);
 
         const string selectSql = """
                                  SELECT PolicyPackVersionId, PolicyPackId, [Version] AS Version, ContentJson, CreatedUtc, IsPublished
@@ -215,7 +216,7 @@ public sealed class DapperPolicyPackVersionRepository(
                     cancellationToken: ct))).ToList();
 
             PolicyPackVersion? existing = existingRows.FirstOrDefault(row =>
-                string.Equals(row.Version, version, StringComparison.OrdinalIgnoreCase));
+                string.Equals(row.Version, versionKey, StringComparison.OrdinalIgnoreCase));
 
             if (existing is not null)
             {
@@ -235,7 +236,7 @@ public sealed class DapperPolicyPackVersionRepository(
             {
                 PolicyPackVersionId = Guid.NewGuid(),
                 PolicyPackId = policyPackId,
-                Version = version,
+                Version = versionKey,
                 ContentJson = contentJson,
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                 IsPublished = true
@@ -248,7 +249,7 @@ public sealed class DapperPolicyPackVersionRepository(
                     {
                         inserted.PolicyPackVersionId,
                         inserted.PolicyPackId,
-                        inserted.Version,
+                        Version = versionKey,
                         inserted.ContentJson,
                         inserted.CreatedUtc,
                         inserted.IsPublished,
