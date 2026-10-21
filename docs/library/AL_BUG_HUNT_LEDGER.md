@@ -41613,6 +41613,10 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 ---
 
 ## Zone: ui-review-detail-workspace
+2026-10-21 seed hunt (seed→hit): promoted `useReviewDetailWorkspacePresenter` — `enterPresenter` / `exitPresenter` built hrefs from `window.location.search`, so after cross-review soft navigation Present could write the prior review's findings toolbar query onto the next review when setting `presenter=1`; base href writes on `useSearchParams`; regression `enters presenter mode from useSearchParams when window.location.search lags after soft navigation`; presenter hook vitest 1/1.
+
+- [x] (proven) `useReviewDetailWorkspacePresenter` — stale toolbar params on Present after soft navigation — **hit 2026-10-21 seed hunt:** `reviewPresenterModeHrefFromSearch(searchParams.toString(), …)`; regression above.
+
 2026-10-21 seed hunt (seed→hit): promoted `RunDetailPresenterElicitationBridge` — `presenterQuestionId` sync compared `window.location.search` only, so cross-review soft navigation skipped writing the primary question id when the router cleared the param but the stale address bar still matched the same question key; reconcile from `useSearchParams`, base href writes on router query, reset sync ref on `runId`, and gate writes to presenter mode only; regression `writes presenterQuestionId from the router query when runId changes before window.location.search catches up`; presenter bridge vitest 11/11.
 
 - [x] (proven) `RunDetailPresenterElicitationBridge` — stale `presenterQuestionId` skip on cross-review soft navigation — **hit 2026-10-21 seed hunt:** compare and write from `useSearchParams`; regression above.
@@ -41864,11 +41868,11 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 51
-- **bugs-found:** 42
+- **hunts:** 52
+- **bugs-found:** 43
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — RunDetailPresenterElicitationBridge presenterQuestionId soft-nav sync
+- **last-bug:** 2026-10-21 — useReviewDetailWorkspacePresenter Present href soft-nav sync
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.
