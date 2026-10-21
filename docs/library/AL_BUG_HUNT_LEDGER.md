@@ -18340,7 +18340,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: itsm-inbound-webhooks
 
-**Hunts:** 33 · **Bugs found:** 21 · **Consecutive dry hunts:** 0
+**Hunts:** 34 · **Bugs found:** 22 · **Consecutive dry hunts:** 0
+
+2026-10-21 seed hunt (hit): promoted dual-path `CreateStatusPayload` vs `CreateSyncedAuditPayload` — ServiceNow replay-ignored (and related status detail) audits omitted divergent `incident_state` after synced-audit fix; `CreateStatusPayload` / `CreateFindingNotFoundPayload` now reuse `CreateServiceNowStatusDetail`; regression `ServiceNow_replay_ignored_audit_includes_divergent_incident_state`; scoped `FullyQualifiedName~ItsmInboundWebhook` 83/83.
+
+- [x] (proven) `ItsmInboundWebhookProcessPipeline.CreateStatusPayload` — replay-ignored ServiceNow detail omitted `incidentState` — **hit 2026-10-21:** shared `CreateServiceNowStatusDetail` with synced audit shape.
 
 2026-10-21 seed hunt (hit): promoted `CreateSyncedAuditPayload` candidate — ServiceNow synced audits omitted divergent `incident_state` / primary `state` when disposition used alternate tokens; audit JSON now includes `incidentState` and `primaryState` when they differ from effective `state`; regressions extended on `ServiceNow_inbound_uses_incident_state_disposition_when_primary_state_maps_human_review_only` and `ServiceNow_inbound_uses_primary_state_disposition_when_human_review_promoted_from_incident_state`; cheap-disproof closed four sibling `(candidate)` rows; scoped `FullyQualifiedName~ItsmInboundWebhook` 82/82.
 
@@ -18429,11 +18433,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 33
-- **bugs-found:** 21
+- **hunts:** 34
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — ServiceNow synced audit omitted divergent incident_state
+- **last-bug:** 2026-10-21 — ServiceNow replay-ignored audit omitted divergent incident_state
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

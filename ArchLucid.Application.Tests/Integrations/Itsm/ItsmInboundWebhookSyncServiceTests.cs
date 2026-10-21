@@ -1277,6 +1277,61 @@ public sealed class ItsmInboundWebhookSyncServiceTests
     }
 
     [Fact]
+    public async Task ServiceNow_replay_ignored_audit_includes_divergent_incident_state()
+    {
+        Mock<IItsmFindingCorrelationRepository> correlations = new();
+        correlations
+            .Setup(c => c.TryGetByExternalKeyAsync("ServiceNow", ServiceNowSysId1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ItsmFindingCorrelationRecord
+                {
+                    TenantId = TenantA,
+                    WorkspaceId = WorkspaceA,
+                    ProjectId = ProjectA,
+                    FindingId = "f-sn-replay"
+                });
+        correlations
+            .Setup(c => c.FindingRecordExistsAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        correlations
+            .Setup(c => c.UpdateHumanReviewStatusForFindingAsync(
+                TenantA,
+                "f-sn-replay",
+                nameof(FindingHumanReviewStatus.Pending),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
+        Mock<IItsmInboundWebhookReplayGuard> replayGuard = new();
+        replayGuard
+            .SetupSequence(g => g.TryClaimAsync(TenantA, "ServiceNow", "deliv-sn-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true)
+            .ReturnsAsync(false);
+        ItsmInboundWebhookSyncService sut = CreateSutWithInboundOptions(correlations, new IntegrationsItsmInboundOptions(), replayGuard: replayGuard);
+
+        const string json = $$"""{"sys_id":"{{ServiceNowSysId1}}","state":"1","incident_state":"6"}""";
+        using JsonDocument doc = JsonDocument.Parse(json);
+
+        ItsmInboundWebhookProcessResult first =
+            await sut.TryProcessServiceNowIncidentUpdateAsync(doc.RootElement, CancellationToken.None, deliveryId: "deliv-sn-1");
+        ItsmInboundWebhookProcessResult second =
+            await sut.TryProcessServiceNowIncidentUpdateAsync(doc.RootElement, CancellationToken.None, deliveryId: "deliv-sn-1");
+
+        second.ReplayIgnored.Should().BeTrue();
+        using JsonDocument replayAudit = JsonDocument.Parse(second.DurableAuditEvent!.DataJson!);
+        JsonElement detail = replayAudit.RootElement.GetProperty("detail");
+        detail.GetProperty("state").GetString().Should().Be("1");
+        detail.GetProperty("incidentState").GetString().Should().Be("6");
+        correlations.Verify(
+            c => c.UpdateHumanReviewStatusForFindingAsync(
+                TenantA,
+                "f-sn-replay",
+                nameof(FindingHumanReviewStatus.Pending),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task Jira_replay_of_same_delivery_id_is_accepted_without_second_mutation()
     {
         Mock<IItsmFindingCorrelationRepository> correlations = new();

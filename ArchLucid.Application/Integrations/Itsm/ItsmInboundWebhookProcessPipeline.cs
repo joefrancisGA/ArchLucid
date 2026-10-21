@@ -116,7 +116,7 @@ public sealed class ItsmInboundWebhookProcessPipeline(
                     Guid.Empty,
                     Guid.Empty,
                     descriptor.UnknownStatusReasonCode,
-                    CreateStatusPayload(descriptor.ProviderName, payload)));
+                    CreateStatusPayload(descriptor.ProviderName, payload, primaryStatusValue)));
         }
 
         if (humanReview.Length == 0)
@@ -162,7 +162,7 @@ public sealed class ItsmInboundWebhookProcessPipeline(
                     row.WorkspaceId,
                     row.ProjectId,
                     "finding_not_found",
-                    CreateFindingNotFoundPayload(descriptor.ProviderName, effectivePayload, row.FindingId)));
+                    CreateFindingNotFoundPayload(descriptor.ProviderName, effectivePayload, row.FindingId, primaryStatusValue)));
         }
 
         string replayEventId = ItsmInboundWebhookReplayEventId.Resolve(
@@ -193,7 +193,7 @@ public sealed class ItsmInboundWebhookProcessPipeline(
                     row.WorkspaceId,
                     row.ProjectId,
                     "finding_not_found",
-                    CreateFindingNotFoundPayload(descriptor.ProviderName, effectivePayload, row.FindingId)));
+                    CreateFindingNotFoundPayload(descriptor.ProviderName, effectivePayload, row.FindingId, primaryStatusValue)));
         }
 
         try
@@ -216,7 +216,7 @@ public sealed class ItsmInboundWebhookProcessPipeline(
                     row.WorkspaceId,
                     row.ProjectId,
                     "sealed_manifest_unverified",
-                    new { findingId = row.FindingId, status = CreateStatusPayload(descriptor.ProviderName, effectivePayload), detail = ex.Message }));
+                    new { findingId = row.FindingId, status = CreateStatusPayload(descriptor.ProviderName, effectivePayload, primaryStatusValue), detail = ex.Message }));
         }
 
         if (!await _support.TryClaimReplayAsync(row.TenantId, descriptor.ProviderName, replayEventId, ct).ConfigureAwait(false))
@@ -229,7 +229,7 @@ public sealed class ItsmInboundWebhookProcessPipeline(
                     row.WorkspaceId,
                     row.ProjectId,
                     replayEventId,
-                    CreateStatusPayload(descriptor.ProviderName, effectivePayload)),
+                    CreateStatusPayload(descriptor.ProviderName, effectivePayload, primaryStatusValue)),
                 ReplayIgnored: true);
         }
 
@@ -350,23 +350,23 @@ public sealed class ItsmInboundWebhookProcessPipeline(
                 reasonCode,
                 CreateRejectPayload(descriptor.ProviderName, externalKey, message)));
 
-    private static object CreateStatusPayload(string providerName, ItsmInboundPayloadReadResult payload) =>
+    private static object CreateStatusPayload(
+        string providerName,
+        ItsmInboundPayloadReadResult payload,
+        string primaryStatusValue) =>
         providerName == "Jira"
             ? new
             {
                 issueKey = payload.ExternalKey,
                 statusName = payload.StatusValue
             }
-            : new
-            {
-                externalKey = payload.ExternalKey,
-                state = payload.StatusValue
-            };
+            : CreateServiceNowStatusDetail(payload, primaryStatusValue);
 
     private static object CreateFindingNotFoundPayload(
         string providerName,
         ItsmInboundPayloadReadResult payload,
-        string findingId) =>
+        string findingId,
+        string primaryStatusValue) =>
         providerName == "Jira"
             ? new
             {
@@ -377,9 +377,26 @@ public sealed class ItsmInboundWebhookProcessPipeline(
             : new
             {
                 externalKey = payload.ExternalKey,
-                state = payload.StatusValue,
+                state = payload.StatusValue.Trim(),
+                primaryState = SelectServiceNowAuditPrimaryState(primaryStatusValue, payload.StatusValue.Trim()),
+                incidentState = SelectServiceNowAuditIncidentState(payload.AlternateStatusValue),
                 findingId
             };
+
+    private static object CreateServiceNowStatusDetail(
+        ItsmInboundPayloadReadResult payload,
+        string primaryStatusValue)
+    {
+        string effectiveState = payload.StatusValue.Trim();
+
+        return new
+        {
+            externalKey = payload.ExternalKey,
+            state = effectiveState,
+            primaryState = SelectServiceNowAuditPrimaryState(primaryStatusValue, effectiveState),
+            incidentState = SelectServiceNowAuditIncidentState(payload.AlternateStatusValue),
+        };
+    }
 
     private static object CreateRejectPayload(string providerName, string externalKey, string message) =>
         providerName == "Jira"
@@ -422,16 +439,12 @@ public sealed class ItsmInboundWebhookProcessPipeline(
             };
         }
 
-        string effectiveState = payload.StatusValue.Trim();
-        string? auditPrimaryState = SelectServiceNowAuditPrimaryState(primaryStatusValue, effectiveState);
-        string? auditIncidentState = SelectServiceNowAuditIncidentState(payload.AlternateStatusValue);
-
         return new
         {
             externalKey = payload.ExternalKey,
-            state = effectiveState,
-            primaryState = auditPrimaryState,
-            incidentState = auditIncidentState,
+            state = payload.StatusValue.Trim(),
+            primaryState = SelectServiceNowAuditPrimaryState(primaryStatusValue, payload.StatusValue.Trim()),
+            incidentState = SelectServiceNowAuditIncidentState(payload.AlternateStatusValue),
             replayEventId,
             humanReviewStatus = humanReview,
             rowsUpdated = updated,
