@@ -117,9 +117,10 @@ public sealed class AzRolesCommandTests
                 await Program.RunAsync(["--json", "az-roles", "--subscription", "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
                     "--assignee", "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"]);
 
-            exit.Should().Be(CliExitCode.Success);
+            // Parse stdout before any FluentAssertions Should() — the library prints a license banner to Console.Out on first use.
             JsonObject root = JsonNode.Parse(outWriter.ToString())!.AsObject();
 
+            exit.Should().Be(CliExitCode.Success);
             root["ok"]!.GetValue<bool>().Should().BeTrue();
             root["bashScript"]!.GetValue<string>().Should().Contain("az role assignment create");
             root["powershellScript"]!.GetValue<string>().Should().Contain("az role assignment create");
