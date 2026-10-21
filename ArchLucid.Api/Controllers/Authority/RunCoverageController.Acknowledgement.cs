@@ -70,6 +70,13 @@ public sealed partial class RunCoverageController
         {
             foreach (RunCoverageAcknowledgementEntryRequest row in request.Entries)
             {
+                if (row is null)
+                {
+                    return this.BadRequestProblem(
+                        "Each coverage acknowledgement entry is required.",
+                        ProblemTypes.ValidationFailed);
+                }
+
                 if (row.ExclusionReason is not null
                     && DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength(row.ExclusionReason))
                 {
