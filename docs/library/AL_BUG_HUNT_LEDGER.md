@@ -41585,6 +41585,10 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 ---
 
 ## Zone: ui-review-detail-workspace
+2026-10-21 seed hunt (seed→hit): promoted `(candidate)` `RunFindingExplainabilityTable` — `explainId` / `reasonId` deep links synced only on `popstate`, so per-finding explainability and reasoning dialogs stayed closed or stale after Next.js soft navigation; reconcile from `useSearchParams` and close dialogs when params clear; regressions `follows explainId query changes without a popstate event` and `closes explainability dialog when explainId is cleared without a popstate event`; seeded five follow-on `(candidate)` rows.
+
+- [x] (proven) `RunFindingExplainabilityTable` — `explainId` / `reasonId` ignored on Next.js soft navigation — **hit 2026-10-21 seed hunt:** reconcile from `useSearchParams`; regressions above.
+
 2026-10-21 seed hunt (seed→hit): promoted ledger `(candidate)` `RunExplanationSection` `runExplanationProvenanceOpen` syncing only on `popstate`; provenance metadata `<details>` stayed closed on Next.js soft navigation; reconcile from `useSearchParams`; regression `follows runExplanationProvenanceOpen query changes without a popstate event`; cheap-disproof closed `use-review-detail-workspace-tabs`, `RunDetailRunGovernanceDispositionActions`, and `ReviewWorkbenchSelectionContext` (already reconcile from `useSearchParams`); seeded five follow-on `(candidate)` rows.
 
 - [x] (proven) `RunExplanationSection` — `runExplanationProvenanceOpen` ignored on Next.js soft navigation — **hit 2026-10-21 seed hunt:** reconcile provenance disclosure from `useSearchParams`; regression `follows runExplanationProvenanceOpen query changes without a popstate event`.
@@ -41807,11 +41811,11 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 42
-- **bugs-found:** 33
-- **hunts:** 42
+- **hunts:** 43
+- **bugs-found:** 34
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — run explanation provenance disclosure ignored soft navigation
+- **last-bug:** 2026-10-21 — finding explainability explainId soft-navigation sync
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.

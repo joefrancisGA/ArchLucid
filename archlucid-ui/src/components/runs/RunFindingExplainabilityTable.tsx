@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
@@ -32,6 +32,8 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   parseRunFindingsExplainIdFromSearch,
   parseRunFindingsReasonIdFromSearch,
+  RUN_FINDINGS_EXPLAIN_ID_PARAM,
+  RUN_FINDINGS_REASON_ID_PARAM,
   runFindingsExplainabilityHrefFromSearch,
 } from "@/lib/runs/run-findings-explainability-url";
 import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
@@ -118,6 +120,9 @@ export function RunFindingExplainabilityTable({
   findingWireSnapshots = null,
 }: RunFindingExplainabilityTableProps) {
   const pathname = usePathname() ?? `/architecture/reviews/${encodeURIComponent(runId)}`;
+  const searchParams = useSearchParams();
+  const searchParamExplainId = searchParams.get(RUN_FINDINGS_EXPLAIN_ID_PARAM);
+  const searchParamReasonId = searchParams.get(RUN_FINDINGS_REASON_ID_PARAM);
   const readExplainabilityFromUrl = (): {
     explainId: string;
     reasonId: string;
@@ -239,10 +244,8 @@ export function RunFindingExplainabilityTable({
     [syncExplainabilityToUrl],
   );
 
-  useEffect(() => {
-    const syncExplainabilityFromUrl = (): void => {
-      const { explainId, reasonId } = readExplainabilityFromUrl();
-
+  const applyExplainabilityFromParsedUrl = useCallback(
+    (explainId: string, reasonId: string): void => {
       if (explainId.length > 0) {
         if (!openRef.current) {
           openRef.current = true;
@@ -253,6 +256,11 @@ export function RunFindingExplainabilityTable({
           activeFindingIdRef.current = explainId;
           setActiveFindingIdState(explainId);
         }
+      } else if (openRef.current || activeFindingIdRef.current !== null) {
+        openRef.current = false;
+        setOpenState(false);
+        activeFindingIdRef.current = null;
+        setActiveFindingIdState(null);
       }
 
       if (reasonId.length > 0) {
@@ -276,7 +284,21 @@ export function RunFindingExplainabilityTable({
             setReasoningTitle(title);
           }
         }
+      } else if (reasoningOpenRef.current || reasoningFindingIdRef.current !== null) {
+        reasoningOpenRef.current = false;
+        setReasoningOpenState(false);
+        reasoningFindingIdRef.current = null;
+        setReasoningFindingIdState(null);
+        setReasoningTitle("");
       }
+    },
+    [rows],
+  );
+
+  useEffect(() => {
+    const syncExplainabilityFromUrl = (): void => {
+      const { explainId, reasonId } = readExplainabilityFromUrl();
+      applyExplainabilityFromParsedUrl(explainId, reasonId);
     };
 
     syncExplainabilityFromUrl();
@@ -285,7 +307,13 @@ export function RunFindingExplainabilityTable({
     return () => {
       window.removeEventListener("popstate", syncExplainabilityFromUrl);
     };
-  }, [rows]);
+  }, [applyExplainabilityFromParsedUrl]);
+
+  useEffect(() => {
+    const explainId = parseRunFindingsExplainIdFromSearch(searchParamExplainId);
+    const reasonId = parseRunFindingsReasonIdFromSearch(searchParamReasonId);
+    applyExplainabilityFromParsedUrl(explainId, reasonId);
+  }, [applyExplainabilityFromParsedUrl, searchParamExplainId, searchParamReasonId]);
 
   const sortedRows = useMemo(() => {
     const copy = [...rows];
