@@ -29,7 +29,11 @@ public sealed class RecentPilotRunDeltasService(
     {
         int requested = Math.Clamp(count, IRecentPilotRunDeltasService.MinCount, IRecentPilotRunDeltasService.MaxCount);
         IReadOnlyList<RunSummary> all = await _runDetailQueryService.ListRunSummariesAsync(cancellationToken);
-        List<RunSummary> committed = all.Where(IsCommitted).OrderByDescending(r => r.CompletedUtc ?? r.CreatedUtc).ToList();
+        List<RunSummary> committed = all
+            .Where(IsCommitted)
+            .OrderByDescending(r => r.CompletedUtc ?? r.CreatedUtc)
+            .ThenByDescending(r => r.RunId, StringComparer.Ordinal)
+            .ToList();
         List<RecentPilotRunDeltaSummaryResponse> rows = [];
 
         foreach (RunSummary summary in committed)
@@ -108,6 +112,7 @@ public sealed class RecentPilotRunDeltasService(
     internal static double? ComputeMedian(IEnumerable<double> values)
     {
         double[] sorted = values.OrderBy(v => v).ToArray();
+
         if (sorted.Length == 0)
             return null;
         int mid = sorted.Length / 2;

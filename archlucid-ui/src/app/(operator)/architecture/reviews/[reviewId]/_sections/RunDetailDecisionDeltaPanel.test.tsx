@@ -12,6 +12,7 @@ import type { RunDetailDecisionDeltaView } from "@/lib/runs/run-detail-decision-
 describe("RunDetailDecisionDeltaPanel", () => {
   it("renders top material findings with rule badges", () => {
     const trustPresentation = deriveFindingTrustPresentation({
+      trustLabel: "DeterministicRule",
       policyRuleId: "net-base-001",
       evidenceRefCount: 1,
     });

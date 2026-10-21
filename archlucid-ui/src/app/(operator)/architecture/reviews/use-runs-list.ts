@@ -89,7 +89,7 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   const { runs, projectId, page, pageSize, totalCount, nextCursor = null } = props;
   const pathname = usePathname() ?? "/architecture/reviews";
   const searchParams = useSearchParams();
-  const listContextFilter = searchParams.get("filter");
+  const urlListContextFilter = searchParams.get("filter");
   const urlBuyerPackageScope = parseBuyerPackageScopeFilter(searchParams.get("scope"));
   const urlFilterText = parseRunsListSearchQuery(searchParams.get("q"));
   const urlSortOrder = sortOrderFromRunsListSort(parseRunsListSortFromSearch(searchParams.get("sort")));
@@ -120,7 +120,13 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   const [filterText, setFilterTextState] = useState(urlFilterText);
   const filterTextRef = useRef(filterText);
   filterTextRef.current = filterText;
-  const buyerPackageScope = urlBuyerPackageScope;
+  const [buyerPackageScope, setBuyerPackageScopeState] =
+    useState<BuyerPackageScopeFilter>(urlBuyerPackageScope);
+  const buyerPackageScopeRef = useRef(buyerPackageScope);
+  buyerPackageScopeRef.current = buyerPackageScope;
+  const [listContextFilter, setListContextFilterState] = useState<string | null>(urlListContextFilter);
+  const listContextFilterRef = useRef(listContextFilter);
+  listContextFilterRef.current = listContextFilter;
   const [sortOrder, setSortOrderState] = useState<SortOrder>(urlSortOrder);
   const sortOrderRef = useRef(sortOrder);
   sortOrderRef.current = sortOrder;
@@ -144,6 +150,24 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     filterTextRef.current = urlFilterText;
     setFilterTextState(urlFilterText);
   }, [urlFilterText]);
+
+  useEffect(() => {
+    if (buyerPackageScopeRef.current === urlBuyerPackageScope) {
+      return;
+    }
+
+    buyerPackageScopeRef.current = urlBuyerPackageScope;
+    setBuyerPackageScopeState(urlBuyerPackageScope);
+  }, [urlBuyerPackageScope]);
+
+  useEffect(() => {
+    if (listContextFilterRef.current === urlListContextFilter) {
+      return;
+    }
+
+    listContextFilterRef.current = urlListContextFilter;
+    setListContextFilterState(urlListContextFilter);
+  }, [urlListContextFilter]);
 
   useEffect(() => {
     if (sortOrderRef.current === urlSortOrder) {
@@ -193,6 +217,48 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
 
     return () => {
       window.removeEventListener("popstate", syncFilterTextFromUrl);
+    };
+  }, []);
+
+  useEffect(() => {
+    const syncBuyerPackageScopeFromUrl = (): void => {
+      const next = parseBuyerPackageScopeFilter(
+        new URLSearchParams(readWindowLocationSearch()).get("scope"),
+      );
+
+      if (buyerPackageScopeRef.current === next) {
+        return;
+      }
+
+      buyerPackageScopeRef.current = next;
+      setBuyerPackageScopeState(next);
+    };
+
+    syncBuyerPackageScopeFromUrl();
+    window.addEventListener("popstate", syncBuyerPackageScopeFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncBuyerPackageScopeFromUrl);
+    };
+  }, []);
+
+  useEffect(() => {
+    const syncListContextFilterFromUrl = (): void => {
+      const next = new URLSearchParams(readWindowLocationSearch()).get("filter");
+
+      if (listContextFilterRef.current === next) {
+        return;
+      }
+
+      listContextFilterRef.current = next;
+      setListContextFilterState(next);
+    };
+
+    syncListContextFilterFromUrl();
+    window.addEventListener("popstate", syncListContextFilterFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncListContextFilterFromUrl);
     };
   }, []);
 

@@ -1413,6 +1413,25 @@ export function DiagramsWorkbenchClient() {
     showPrivateEndpoints,
   ]);
 
+  const mermaidPreviewQuery = useMemo(
+    () => ({
+      includeNeverShow,
+      includePrivateEndpointNodes: showPrivateEndpoints,
+      includeNetworkDetails: showNetworkDetails,
+      includeRecoveryServices,
+      includeCrossGroupFanOut,
+      includeAvdAssets: showAvdAssets,
+    }),
+    [
+      includeCrossGroupFanOut,
+      includeNeverShow,
+      includeRecoveryServices,
+      showAvdAssets,
+      showNetworkDetails,
+      showPrivateEndpoints,
+    ],
+  );
+
   const retryLoad = useCallback(() => {
     setLoadError(null);
     setLoadGeneration((current) => current + 1);
@@ -1640,7 +1659,7 @@ export function DiagramsWorkbenchClient() {
       setLoadError(null);
 
       try {
-        const preview = await fetchInfraEvidenceMermaidPreview(selectedSnapshotId);
+        const preview = await fetchInfraEvidenceMermaidPreview(selectedSnapshotId, mermaidPreviewQuery);
 
         if (!cancelled) {
           setModePreviews(preview.modes ?? []);
@@ -1664,7 +1683,7 @@ export function DiagramsWorkbenchClient() {
     return () => {
       cancelled = true;
     };
-  }, [deepLinkedSnapshotMissing, loadGeneration, selectedSnapshotId]);
+  }, [deepLinkedSnapshotMissing, loadGeneration, mermaidPreviewQuery, selectedSnapshotId]);
 
   useEffect(() => {
     const prefetchSnapshotId = visibleSnapshots[0]?.snapshotId ?? "";
@@ -1680,7 +1699,7 @@ export function DiagramsWorkbenchClient() {
 
     async function loadSubscriptionResourceGroups() {
       try {
-        const preview = await fetchInfraEvidenceMermaidPreview(resourceGroupSnapshotId);
+        const preview = await fetchInfraEvidenceMermaidPreview(resourceGroupSnapshotId, mermaidPreviewQuery);
         const previewArtifacts = (preview.modes ?? []).flatMap((modePreview) => modePreview.fallbackArtifacts ?? []);
         const artifacts = resolveInfraDiagramsResourceGroupFallbackArtifacts(previewArtifacts);
 
@@ -1699,7 +1718,13 @@ export function DiagramsWorkbenchClient() {
     return () => {
       cancelled = true;
     };
-  }, [diagramsSubscriptionChosen, selectedSnapshotId, selectedSubscriptionFilter, visibleSnapshots]);
+  }, [
+    diagramsSubscriptionChosen,
+    mermaidPreviewQuery,
+    selectedSnapshotId,
+    selectedSubscriptionFilter,
+    visibleSnapshots,
+  ]);
 
   useEffect(() => {
     if (selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing) {

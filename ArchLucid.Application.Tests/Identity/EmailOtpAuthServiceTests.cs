@@ -843,13 +843,91 @@ public sealed class EmailOtpAuthServiceTests
 
         Assert.Contains("If that address can receive email", result.Message);
         Assert.Null(result.ChallengeId);
-        Assert.NotEqual(false, result.EmailDeliverySucceeded);
+        Assert.False(result.EmailDeliverySucceeded);
 
         audit.Verify(
             service => service.LogAsync(
                 It.Is<AuditEvent>(evt => evt.EventType == AuditEventTypes.EmailOtpSuspiciousBehaviorDetected),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task RequestCodeAsync_delivery_failure_response_shape_matches_for_unknown_email_and_platform_user()
+    {
+        EmailOtpAuthService sut = CreateSut(
+            out _,
+            out InMemoryPlatformUserRepository users,
+            out _,
+            out _,
+            out _,
+            out _,
+            out Mock<IEmailOtpEmailNotifier> notifier,
+            out _);
+
+        await users.InsertAsync(
+            new PlatformUserInsert
+            {
+                Id = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                PrimaryEmail = "known-user@example.com",
+                NormalizedPrimaryEmail = "known-user@example.com",
+            },
+            CancellationToken.None);
+
+        notifier
+            .Setup(n => n.TrySendSignInCodeAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        EmailOtpChallengeRequestResult unknownEmail = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = "never-seen@example.com" },
+            CancellationToken.None);
+
+        EmailOtpChallengeRequestResult knownUser = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = "known-user@example.com" },
+            CancellationToken.None);
+
+        Assert.Equal(unknownEmail.Message, knownUser.Message);
+        Assert.Null(unknownEmail.ChallengeId);
+        Assert.Null(knownUser.ChallengeId);
+        Assert.Equal(unknownEmail.EmailDeliverySucceeded, knownUser.EmailDeliverySucceeded);
+        Assert.False(unknownEmail.EmailDeliverySucceeded);
+    }
+
+    [Fact]
+    public async Task RequestCodeAsync_success_delivery_response_shape_matches_for_unknown_email_and_platform_user()
+    {
+        EmailOtpAuthService sut = CreateSut(
+            out _,
+            out InMemoryPlatformUserRepository users,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _);
+
+        await users.InsertAsync(
+            new PlatformUserInsert
+            {
+                Id = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                PrimaryEmail = "existing@example.com",
+                NormalizedPrimaryEmail = "existing@example.com",
+            },
+            CancellationToken.None);
+
+        EmailOtpChallengeRequestResult unknownEmail = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = "brand-new@example.com" },
+            CancellationToken.None);
+
+        EmailOtpChallengeRequestResult knownUser = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = "existing@example.com" },
+            CancellationToken.None);
+
+        Assert.Equal(unknownEmail.Message, knownUser.Message);
+        Assert.NotNull(unknownEmail.ChallengeId);
+        Assert.NotNull(knownUser.ChallengeId);
+        Assert.True(unknownEmail.EmailDeliverySucceeded);
+        Assert.True(knownUser.EmailDeliverySucceeded);
     }
 
     [Fact]
@@ -2494,30 +2572,5 @@ public sealed class EmailOtpAuthServiceTests
         }
 
         throw new InvalidOperationException("Test helper could not recover OTP code.");
-    }
-}
-
-internal sealed class InMemoryTenantIdentityProviderConfigurationRepository : ITenantIdentityProviderConfigurationRepository
-{
-    private readonly Dictionary<Guid, TenantIdentityProviderConfigurationRecord> _byTenant = [];
-
-    public void Seed(TenantIdentityProviderConfigurationRecord record) => _byTenant[record.TenantId] = record;
-
-    public Task<TenantIdentityProviderConfigurationRecord?> TryGetAsync(Guid tenantId, CancellationToken cancellationToken)
-    {
-        _ = cancellationToken;
-
-        _byTenant.TryGetValue(tenantId, out TenantIdentityProviderConfigurationRecord? record);
-
-        return Task.FromResult(record);
-    }
-
-    public Task UpsertAsync(TenantIdentityProviderConfigurationRecord record, CancellationToken cancellationToken)
-    {
-        _ = cancellationToken;
-
-        _byTenant[record.TenantId] = record;
-
-        return Task.CompletedTask;
     }
 }

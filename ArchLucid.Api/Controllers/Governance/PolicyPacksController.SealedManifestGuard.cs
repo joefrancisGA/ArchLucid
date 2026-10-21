@@ -1,8 +1,8 @@
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Governance;
-using ArchLucid.Application.Governance.Posture;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Queries;
 
@@ -20,23 +20,13 @@ public sealed partial class PolicyPacksController
         if (scope is null)
             return null;
 
-        try
-        {
-            await GovernancePostureSealedManifestHashGuard.EnsureLatestCommittedRunSealedOrThrowAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
-                _runDetailQueryService,
-                _authorityQueryService,
-                _manifestHashService,
-                cancellationToken);
-        }
-        catch (ConflictException ex)
-        {
-            return MapPolicyPackSealedManifestConflict(ex);
-        }
-
-        return null;
+        return await GovernanceScopePostureSealedManifestPreflight.TryGetConflictResultAsync(
+            this,
+            scope,
+            _runDetailQueryService,
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken);
     }
 
     private async Task<IActionResult?> EnsurePolicyPackSimulateRunSealedManifestAllowedAsync(

@@ -93,19 +93,30 @@ public static class OrchestratorTransientDbRetry
             return inners.Count > 0;
         }
 
+        List<Exception> collectedInners = [];
+
         for (Exception? current = ex.InnerException; current is not null; current = current.InnerException)
         {
             if (current is not AggregateException nested)
                 continue;
 
-            inners = nested.Flatten().InnerExceptions;
+            IReadOnlyCollection<Exception> nestedInners = nested.Flatten().InnerExceptions;
 
             // Empty aggregate shells appear on some repository wrapper chains; skip them so a deeper mixed aggregate still fail-fasts.
-            if (inners.Count > 0)
-                return true;
+
+            if (nestedInners.Count == 0)
+                continue;
+
+            collectedInners.AddRange(nestedInners);
         }
 
-        inners = Array.Empty<Exception>();
-        return false;
+        if (collectedInners.Count == 0)
+        {
+            inners = Array.Empty<Exception>();
+            return false;
+        }
+
+        inners = collectedInners;
+        return true;
     }
 }

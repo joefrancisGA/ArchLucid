@@ -121,6 +121,60 @@ public sealed class ApiRequestUsageEventBatchFlushHostedServiceTests
     }
 
     [Fact]
+    public async Task ExecuteAsync_flushes_requeued_events_when_metering_stays_disabled()
+    {
+        UsageEvent usageEvent = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"),
+            Kind = UsageMeterKind.ApiRequest,
+            Quantity = 1,
+            RecordedUtc = DateTimeOffset.Parse("2026-10-21T01:00:00Z"),
+            IdempotencyKey = "request-disabled-outer-loop",
+        };
+
+        MeteringOptions meteringOptions = new() { Enabled = false };
+        MutableMeteringOptionsMonitor monitor = new(meteringOptions);
+        ServiceCollection services = new();
+        Mock<IUsageMeteringService> metering = new();
+        metering
+            .Setup(candidate => candidate.RecordBatchAsync(
+                It.IsAny<IReadOnlyList<UsageEvent>>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        services.AddSingleton(metering.Object);
+        ServiceProvider provider = services.BuildServiceProvider();
+        ApiRequestUsageEventBuffer buffer = new(monitor);
+        buffer.Requeue(usageEvent);
+
+        ApiRequestUsageEventBatchFlushHostedService service = new(
+            buffer,
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            monitor,
+            NullLogger<ApiRequestUsageEventBatchFlushHostedService>.Instance);
+
+        using CancellationTokenSource runCts = new();
+        await service.StartAsync(runCts.Token);
+
+        await Task.Delay(TimeSpan.FromMilliseconds(1_500));
+
+        metering.Verify(
+            candidate => candidate.RecordBatchAsync(
+                It.Is<IReadOnlyList<UsageEvent>>(batch => batch.Count == 1),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        runCts.Cancel();
+
+        try
+        {
+            await service.StopAsync(CancellationToken.None);
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    [Fact]
     public async Task StopAsync_keeps_dequeued_usage_events_when_persist_fails_after_metering_disabled()
     {
         // Events already accepted while metering was on must survive a failed flush after Enabled flips off.

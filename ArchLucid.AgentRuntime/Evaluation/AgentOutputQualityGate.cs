@@ -31,6 +31,9 @@ public sealed class AgentOutputQualityGate(IOptions<AgentOutputQualityGateOption
         double structural = structuralScore.StructuralCompletenessRatio;
         double semantic = calibratedConfidence ?? semanticScore.OverallSemanticScore;
 
+        if (double.IsNaN(semantic) || double.IsInfinity(semantic))
+            return AgentOutputQualityGateOutcome.Rejected;
+
         if (structural < sRej || semantic < semRej)
             return AgentOutputQualityGateOutcome.Rejected;
 

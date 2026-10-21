@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import type { TrackedInFlightOperation } from "@/lib/operations/in-flight-operations-store";
 
+import { readReviewWorkspaceRunIdFromHref } from "@/lib/architecture/review-workspace-route";
+
 import {
   buildInFlightDeskHref,
   collectInFlightReviewRunIds,
@@ -58,6 +60,15 @@ describe("map-in-flight-desk-rows (LI-08)", () => {
     expect(href).toBe(
       "/architecture/architectures/architecture-identity-001/reviews/run-001?reviewTab=activity",
     );
+  });
+
+  it("extracts run id from flat and nested in-flight desk hrefs", () => {
+    expect(readReviewWorkspaceRunIdFromHref("/architecture/reviews/abc?reviewTab=activity")).toBe("abc");
+    expect(
+      readReviewWorkspaceRunIdFromHref(
+        "/architecture/architectures/architecture-identity-001/reviews/run-001?reviewTab=activity",
+      ),
+    ).toBe("run-001");
   });
 
   it("AO-21: filters in-flight rows to one architecture identity", () => {

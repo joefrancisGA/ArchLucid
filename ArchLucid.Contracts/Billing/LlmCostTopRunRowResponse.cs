@@ -27,6 +27,12 @@ public sealed class LlmCostTopRunRowResponse
         init;
     }
 
+    public long ReasoningTokens
+    {
+        get;
+        init;
+    }
+
     public int LlmCallCount
     {
         get;

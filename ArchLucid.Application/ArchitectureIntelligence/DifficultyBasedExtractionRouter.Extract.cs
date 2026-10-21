@@ -118,8 +118,8 @@ public sealed partial class DifficultyBasedExtractionRouter
                 "Public endpoint mention detected."));
         }
 
-        if (ContainsTokenMarker(sourceText, "owner")
-            && ContainsTokenMarker(sourceText, "unowned"))
+        if (ContainsOwnershipMarker(sourceText, "owner")
+            && ContainsOwnershipMarker(sourceText, "unowned"))
         {
             elements.Add(CreateElement(
                 ArchitectureElementKind.OperationalOwnership,

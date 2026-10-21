@@ -54,6 +54,10 @@ scripts/git-hooks/** text eol=lf
 # Generated PDFs (for example docs/book's draft). text=auto can misdetect them as text and rewrite line endings.
 *.pdf   binary
 
+# Parallel /al-bug lanes append hunt outcomes; union merge keeps both sides' lines instead of conflict markers.
+docs/library/AL_BUG_HUNT_RUN_LOG.jsonl merge=union
+docs/library/AL_BUG_HUNT_LEDGER.md merge=union
+
 ###############################################################################
 # diff behavior for common document formats
 # 

@@ -126,6 +126,12 @@ public sealed class TenantTrialConversionStage(
             },
             cancellationToken).ConfigureAwait(false);
 
+        TenantRecord? tenantBeforeConversionMetric =
+            await _tenantRepository.GetByIdAsync(tenant.Id, cancellationToken).ConfigureAwait(false);
+
+        if (tenantBeforeConversionMetric is null || tenantBeforeConversionMetric.OffboardedUtc is not null)
+            return new TenantTrialConvertResult { Outcome = TenantTrialHttpOutcome.Success };
+
         ArchLucidInstrumentation.RecordTrialConversion(
             TrialLifecycleStatus.Active,
             tier?.ToString() ?? "unspecified");

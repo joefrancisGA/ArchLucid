@@ -1,24 +1,7 @@
 import { asNonemptyReadonlyArray } from "@/lib/continue-last-list-guard";
+import { readReviewWorkspaceRunIdFromHref } from "@/lib/architecture/review-workspace-route";
 import { OPERATOR_RECENT_VIEWS_STORAGE_KEY, parseStoredRecentViews } from "@/lib/operator/operator-recent-views";
 import type { RunSummary } from "@/types/authority";
-
-const REVIEW_PATH_PREFIX = "/architecture/reviews/";
-
-function runIdFromRecentHref(href: string): string | null {
-  const path = href.split("?")[0] ?? "";
-
-  if (!path.startsWith(REVIEW_PATH_PREFIX)) {
-    return null;
-  }
-
-  const remainder = path.slice(REVIEW_PATH_PREFIX.length).trim();
-
-  if (remainder.length === 0 || remainder.includes("/")) {
-    return null;
-  }
-
-  return remainder;
-}
 
 function readRecentReviewRunId(): string | null {
   if (typeof window === "undefined") {
@@ -30,7 +13,7 @@ function readRecentReviewRunId(): string | null {
     const state = parseStoredRecentViews(raw);
 
     for (const entry of state.entries) {
-      const runId = runIdFromRecentHref(entry.href);
+      const runId = readReviewWorkspaceRunIdFromHref(entry.href);
 
       if (runId !== null) {
         return runId;

@@ -50,6 +50,7 @@ public static class HostedAzureInventoryPaasChildCollector
                     resource.ResourceId.Trim(),
                     rows,
                     seenKeys,
+                    collectionWarnings,
                     logger,
                     cancellationToken).ConfigureAwait(false);
 
@@ -64,6 +65,7 @@ public static class HostedAzureInventoryPaasChildCollector
                     resource.ResourceId.Trim(),
                     rows,
                     seenKeys,
+                    collectionWarnings,
                     logger,
                     cancellationToken).ConfigureAwait(false);
 
@@ -78,6 +80,7 @@ public static class HostedAzureInventoryPaasChildCollector
                     resource.ResourceId.Trim(),
                     rows,
                     seenKeys,
+                    collectionWarnings,
                     logger,
                     cancellationToken).ConfigureAwait(false);
 
@@ -101,20 +104,32 @@ public static class HostedAzureInventoryPaasChildCollector
         string serverResourceId,
         List<AzureInventoryPaasChildAssociationRow> rows,
         HashSet<string> seenKeys,
+        List<string> collectionWarnings,
         ILogger logger,
         CancellationToken cancellationToken)
     {
         try
         {
-            IReadOnlyList<JsonElement> databases = await armReadClient.ListChildJsonElementsAsync(
-                accessToken,
-                serverResourceId,
-                "databases",
-                SqlApiVersion,
-                "SQL database",
-                cancellationToken).ConfigureAwait(false);
+            HostedAzureArmChildCollectionReadResult listResult = await armReadClient
+                .ListChildResourcesWithStatusAsync(
+                    accessToken,
+                    serverResourceId,
+                    "databases",
+                    SqlApiVersion,
+                    cancellationToken)
+                .ConfigureAwait(false);
 
-            foreach (JsonElement database in databases)
+            if (listResult.StatusCode < 200 || listResult.StatusCode >= 300)
+            {
+                return;
+            }
+
+            if (listResult.PartialCollection)
+            {
+                collectionWarnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
+            }
+
+            foreach (JsonElement database in listResult.Values)
             {
                 if (!AzureInventoryPaasChildAssociationExtractor.TryExtractChild(
                         serverResourceId,
@@ -155,20 +170,32 @@ public static class HostedAzureInventoryPaasChildCollector
         string accountResourceId,
         List<AzureInventoryPaasChildAssociationRow> rows,
         HashSet<string> seenKeys,
+        List<string> collectionWarnings,
         ILogger logger,
         CancellationToken cancellationToken)
     {
         try
         {
-            IReadOnlyList<JsonElement> databases = await armReadClient.ListChildJsonElementsAsync(
-                accessToken,
-                accountResourceId,
-                "sqlDatabases",
-                CosmosApiVersion,
-                "Cosmos SQL database",
-                cancellationToken).ConfigureAwait(false);
+            HostedAzureArmChildCollectionReadResult listResult = await armReadClient
+                .ListChildResourcesWithStatusAsync(
+                    accessToken,
+                    accountResourceId,
+                    "sqlDatabases",
+                    CosmosApiVersion,
+                    cancellationToken)
+                .ConfigureAwait(false);
 
-            foreach (JsonElement database in databases)
+            if (listResult.StatusCode < 200 || listResult.StatusCode >= 300)
+            {
+                return;
+            }
+
+            if (listResult.PartialCollection)
+            {
+                collectionWarnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
+            }
+
+            foreach (JsonElement database in listResult.Values)
             {
                 if (!AzureInventoryPaasChildAssociationExtractor.TryExtractChild(
                         accountResourceId,
@@ -204,6 +231,7 @@ public static class HostedAzureInventoryPaasChildCollector
         string storageAccountResourceId,
         List<AzureInventoryPaasChildAssociationRow> rows,
         HashSet<string> seenKeys,
+        List<string> collectionWarnings,
         ILogger logger,
         CancellationToken cancellationToken)
     {
@@ -213,17 +241,28 @@ public static class HostedAzureInventoryPaasChildCollector
         {
             string blobServiceResourceId = $"{storageAccountResourceId.Trim()}/blobServices/default";
 
-            IReadOnlyList<JsonElement> containers = await armReadClient.ListChildJsonElementsAsync(
-                accessToken,
-                blobServiceResourceId,
-                "containers",
-                StorageApiVersion,
-                "Storage blob container",
-                cancellationToken).ConfigureAwait(false);
+            HostedAzureArmChildCollectionReadResult listResult = await armReadClient
+                .ListChildResourcesWithStatusAsync(
+                    accessToken,
+                    blobServiceResourceId,
+                    "containers",
+                    StorageApiVersion,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            if (listResult.StatusCode < 200 || listResult.StatusCode >= 300)
+            {
+                return truncated;
+            }
+
+            if (listResult.PartialCollection)
+            {
+                collectionWarnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
+            }
 
             int count = 0;
 
-            foreach (JsonElement container in containers)
+            foreach (JsonElement container in listResult.Values)
             {
                 if (count >= MaxStorageChildrenPerAccount)
                 {
@@ -274,19 +313,4 @@ public static class HostedAzureInventoryPaasChildCollector
             rows.Add(row);
         }
     }
-}
-
-public sealed class HostedAzureInventoryPaasChildCollectResult
-{
-    public IReadOnlyList<AzureInventoryPaasChildAssociationRow> Associations
-    {
-        get;
-        init;
-    } = [];
-
-    public IReadOnlyList<string> CollectionWarnings
-    {
-        get;
-        init;
-    } = [];
 }

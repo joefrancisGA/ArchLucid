@@ -58,6 +58,7 @@ public sealed partial class ArchitecturesController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [MutatingAuditExcluded("Audit: ArchitectureShareAuditSupport logs ArchitectureShareGranted via LogOrThrowAsync.")]
+    [RequiresGovernanceScopePostureSealedManifest("Share grant mutates architecture identity under committed run.")]
     public Task<IActionResult> PutArchitectureShare(
         Guid architectureId,
         [FromBody] PutArchitectureShareRequest? body,
@@ -140,6 +141,7 @@ public sealed partial class ArchitecturesController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [MutatingAuditExcluded("Audit: ArchitectureShareAuditSupport logs ArchitectureShareRevoked via LogOrThrowAsync.")]
+    [RequiresGovernanceScopePostureSealedManifest("Share revoke mutates architecture identity under committed run.")]
     public Task<IActionResult> RevokeArchitectureShare(
         Guid architectureId,
         string targetActorOid,
@@ -213,6 +215,7 @@ public sealed partial class ArchitecturesController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [MutatingAuditExcluded("Audit: ArchitectureShareAuditSupport logs restrict-to-shares changes via LogOrThrowAsync.")]
+    [RequiresGovernanceScopePostureSealedManifest("Restrict-to-shares mutates architecture identity under committed run.")]
     public async Task<IActionResult> PatchArchitectureRestrictToShares(
         Guid architectureId,
         [FromBody] PatchArchitectureRestrictToSharesRequest? body,

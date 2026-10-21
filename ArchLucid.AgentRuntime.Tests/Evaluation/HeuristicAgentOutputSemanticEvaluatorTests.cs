@@ -91,6 +91,49 @@ public sealed class HeuristicAgentOutputSemanticEvaluatorTests
     }
 
     [SkippableFact]
+    public void Evaluate_matches_case_variant_proposed_changes_for_topology_surface_ratio()
+    {
+        const string json = """
+                            {
+                                "claims": [],
+                                "findings": [],
+                                "PROPOSEDCHANGES": {
+                                    "ADDEDSERVICES": [{ "id": "s1" }],
+                                    "ADDEDDATASTORES": [{ "id": "d1" }],
+                                    "ADDEDRELATIONSHIPS": []
+                                }
+                            }
+                            """;
+
+        AgentOutputSemanticScore score = _sut.Evaluate("t1", json, AgentType.Topology);
+
+        score.OverallSemanticScore.Should().BeApproximately(2.0 / 3.0, 0.001);
+        score.HeuristicOverallScore.Should().BeApproximately(score.OverallSemanticScore, 0.001);
+    }
+
+    [SkippableFact]
+    public void Evaluate_matches_case_variant_findings_properties()
+    {
+        const string json = """
+                            {
+                                "claims": [],
+                                "FINDINGS": [
+                                    {
+                                        "SEVERITY": "High",
+                                        "DESCRIPTION": "A sufficiently detailed finding",
+                                        "RECOMMENDATION": "Fix this now"
+                                    }
+                                ]
+                            }
+                            """;
+
+        AgentOutputSemanticScore score = _sut.Evaluate("t1", json, AgentType.Compliance);
+
+        score.FindingsQualityRatio.Should().Be(1.0);
+        score.OverallSemanticScore.Should().Be(1.0);
+    }
+
+    [SkippableFact]
     public void Evaluate_findings_with_mixed_completeness_returns_expected_ratio()
     {
         const string json = """

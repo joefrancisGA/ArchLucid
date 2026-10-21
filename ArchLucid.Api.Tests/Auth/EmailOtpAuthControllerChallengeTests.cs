@@ -10,6 +10,8 @@ using ArchLucid.Core.Identity;
 using ArchLucid.Persistence.Admin;
 using ArchLucid.Persistence.Identity;
 
+using IdpConfigStore = ArchLucid.Persistence.Identity.InMemoryTenantIdentityProviderConfigurationRepository;
+
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
@@ -49,7 +51,7 @@ public sealed class EmailOtpAuthControllerChallengeTests
                 AuthSignInRoutingServiceTestSupport.Create(
                     new InMemoryTenantSignInEmailDomainRepository(),
                     new InMemoryTenantSignInEmailDomainRecoveryAdminRepository(),
-                    new InMemoryTenantIdentityProviderConfigurationRepository(),
+                    new IdpConfigStore(),
                     new InMemoryUserInvitationRepository(),
                     new InMemoryPlatformTenantAuthRecoveryGrantRepository(),
                     TimeProvider.System)),
@@ -143,27 +145,113 @@ public sealed class EmailOtpAuthControllerChallengeTests
         ObjectResult badRequest = actionResult.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
     }
-}
 
-internal sealed class InMemoryTenantIdentityProviderConfigurationRepository : ITenantIdentityProviderConfigurationRepository
-{
-    private readonly Dictionary<Guid, TenantIdentityProviderConfigurationRecord> _byTenant = [];
-
-    public Task<TenantIdentityProviderConfigurationRecord?> TryGetAsync(Guid tenantId, CancellationToken cancellationToken)
+    [Fact]
+    public async Task RequestChallengeAsync_omits_challenge_id_when_email_delivery_failed()
     {
-        _ = cancellationToken;
+        Guid leakedChallengeId = Guid.NewGuid();
 
-        _byTenant.TryGetValue(tenantId, out TenantIdentityProviderConfigurationRecord? record);
+        Mock<IEmailOtpAuthService> emailOtpAuth = new();
+        emailOtpAuth
+            .Setup(service => service.RequestCodeAsync(
+                It.IsAny<Application.Identity.EmailOtpChallengeRequest>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new EmailOtpChallengeRequestResult
+                {
+                    Message = "If that address can receive email, we sent a sign-in code.",
+                    ChallengeId = leakedChallengeId,
+                    EmailDeliverySucceeded = false
+                });
 
-        return Task.FromResult(record);
+        EmailOtpAuthController controller = new(
+            Options.Create(new EmailOtpAuthOptions { Enabled = true }),
+            emailOtpAuth.Object,
+            Mock.Of<ILocalTrialJwtIssuer>())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+
+        IActionResult actionResult = await controller.RequestChallengeAsync(
+            new ArchLucid.Api.Models.Auth.EmailOtpChallengeRequest { Email = "user@example.com" },
+            CancellationToken.None);
+
+        OkObjectResult ok = actionResult.Should().BeOfType<OkObjectResult>().Subject;
+        EmailOtpChallengeResponse body = ok.Value.Should().BeOfType<EmailOtpChallengeResponse>().Subject;
+
+        body.ChallengeId.Should().BeNull();
+        body.EmailDeliverySucceeded.Should().BeFalse();
     }
 
-    public Task UpsertAsync(TenantIdentityProviderConfigurationRecord record, CancellationToken cancellationToken)
+    [Fact]
+    public async Task RequestChallengeAsync_delivery_failure_api_envelope_matches_for_unknown_and_existing_user_emails()
     {
-        _ = cancellationToken;
+        Mock<IEmailOtpEmailNotifier> notifier = new();
+        notifier
+            .Setup(n => n.TrySendSignInCodeAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
 
-        _byTenant[record.TenantId] = record;
+        EmailOtpAuthOptions options = new() { Enabled = true, ResendCooldownSeconds = 0 };
 
-        return Task.CompletedTask;
+        InMemoryPlatformUserRepository users = new();
+        await users.InsertAsync(
+            new PlatformUserInsert
+            {
+                Id = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                PrimaryEmail = "existing@example.com",
+                NormalizedPrimaryEmail = "existing@example.com",
+            },
+            CancellationToken.None);
+
+        EmailOtpAuthService emailOtpAuth = new(
+            Options.Create(options),
+            new InMemoryEmailOtpChallengeRepository(),
+            new EmailOtpSignInDomainPolicyService(
+                AuthSignInRoutingServiceTestSupport.Create(
+                    new InMemoryTenantSignInEmailDomainRepository(),
+                    new InMemoryTenantSignInEmailDomainRecoveryAdminRepository(),
+                    new IdpConfigStore(),
+                    new InMemoryUserInvitationRepository(),
+                    new InMemoryPlatformTenantAuthRecoveryGrantRepository(),
+                    TimeProvider.System)),
+            notifier.Object,
+            new PlatformIdentityService(
+                users,
+                new InMemoryAuthenticationIdentityRepository(),
+                new InMemoryWorkspaceMembershipRepository(),
+                Mock.Of<IAuditService>(),
+                TimeProvider.System),
+            new InMemoryAuthenticationIdentityRepository(),
+            new InMemoryWorkspaceMembershipRepository(),
+            new InMemoryUserInvitationRepository(),
+            new PermissiveEmailOtpBotChallengeVerifier(Options.Create(options)),
+            Mock.Of<IAuditService>(),
+            TimeProvider.System);
+
+        EmailOtpAuthController controller = new(
+            Options.Create(options),
+            emailOtpAuth,
+            Mock.Of<ILocalTrialJwtIssuer>())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+
+        OkObjectResult unknownResult = (OkObjectResult)await controller.RequestChallengeAsync(
+            new ArchLucid.Api.Models.Auth.EmailOtpChallengeRequest { Email = "never-seen@example.com" },
+            CancellationToken.None);
+
+        OkObjectResult existingResult = (OkObjectResult)await controller.RequestChallengeAsync(
+            new ArchLucid.Api.Models.Auth.EmailOtpChallengeRequest { Email = "existing@example.com" },
+            CancellationToken.None);
+
+        EmailOtpChallengeResponse unknownBody = unknownResult.Value.Should().BeOfType<EmailOtpChallengeResponse>().Subject;
+        EmailOtpChallengeResponse existingBody = existingResult.Value.Should().BeOfType<EmailOtpChallengeResponse>().Subject;
+
+        unknownBody.Message.Should().Be(existingBody.Message);
+        unknownBody.ChallengeId.Should().BeNull();
+        existingBody.ChallengeId.Should().BeNull();
+        unknownBody.EmailDeliverySucceeded.Should().BeFalse();
+        existingBody.EmailDeliverySucceeded.Should().BeFalse();
+        unknownBody.SsoRequired.Should().Be(existingBody.SsoRequired);
     }
 }

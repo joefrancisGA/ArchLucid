@@ -17,7 +17,7 @@ public static class AgentProposalStructuralPostProcessor
 
         foreach (AgentResult result in results)
         {
-            if (result.ProposedChanges is null)
+            if (result is null || result.ProposedChanges is null)
                 continue;
 
             ApplyToProposal(result.AgentType, result.ProposedChanges);
@@ -55,6 +55,9 @@ public static class AgentProposalStructuralPostProcessor
 
         foreach (ManifestRelationship relationship in relationships)
         {
+            if (relationship is null)
+                continue;
+
             if (ShouldRetainDeclaredProposalRelationship(relationship, declaredEndpointKeys))
                 retained.Add(relationship);
         }
@@ -66,8 +69,12 @@ public static class AgentProposalStructuralPostProcessor
         ManifestRelationship relationship,
         HashSet<string> declaredEndpointKeys)
     {
-        bool sourceDeclared = declaredEndpointKeys.Contains(relationship.SourceId);
-        bool targetDeclared = declaredEndpointKeys.Contains(relationship.TargetId);
+        bool sourceDeclared = TopologyProposalRelationshipEndpointIndex.DeclaredEndpointKeySetContains(
+            declaredEndpointKeys,
+            relationship.SourceId);
+        bool targetDeclared = TopologyProposalRelationshipEndpointIndex.DeclaredEndpointKeySetContains(
+            declaredEndpointKeys,
+            relationship.TargetId);
 
         if (!sourceDeclared || !targetDeclared)
             return true;
@@ -90,6 +97,9 @@ public static class AgentProposalStructuralPostProcessor
 
         foreach (ManifestService service in services)
         {
+            if (service is null)
+                continue;
+
             if (TopologyEndpointSources.Service.TryClaim(service, seenEndpointKeys))
             {
                 deduped.Add(service);
@@ -113,6 +123,9 @@ public static class AgentProposalStructuralPostProcessor
 
         foreach (ManifestDatastore datastore in datastores)
         {
+            if (datastore is null)
+                continue;
+
             if (TopologyEndpointSources.Datastore.TryClaim(datastore, seenEndpointKeys))
             {
                 deduped.Add(datastore);
@@ -169,7 +182,7 @@ public static class AgentProposalStructuralPostProcessor
 
         foreach (AgentResult result in results)
         {
-            if (result.ProposedChanges is null)
+            if (result is null || result.ProposedChanges is null)
                 continue;
 
             ApplyBriefGroundingToProposal(result.AgentType, result.ProposedChanges, rules, dropLog);
@@ -192,6 +205,9 @@ public static class AgentProposalStructuralPostProcessor
 
         foreach (ManifestService service in beforeServices)
         {
+            if (service is null)
+                continue;
+
             if (TryDescribeBriefGroundingDrop(service.ServiceName, rules, applyHttpsRule: true, out string? reason))
             {
                 dropLog.Add($"Dropped service '{service.ServiceName}' for agent {agentType}: {reason}.");
@@ -208,6 +224,9 @@ public static class AgentProposalStructuralPostProcessor
 
         foreach (ManifestDatastore datastore in beforeDatastores)
         {
+            if (datastore is null)
+                continue;
+
             if (TryDescribeBriefGroundingDrop(
                     datastore.DatastoreName,
                     rules,
@@ -254,10 +273,21 @@ public static class AgentProposalStructuralPostProcessor
 
         foreach (ManifestRelationship relationship in relationships)
         {
-            bool sourceDeclared = declaredEndpointKeysBefore.Contains(relationship.SourceId);
-            bool targetDeclared = declaredEndpointKeysBefore.Contains(relationship.TargetId);
-            bool sourceRetained = declaredEndpointKeysAfter.Contains(relationship.SourceId);
-            bool targetRetained = declaredEndpointKeysAfter.Contains(relationship.TargetId);
+            if (relationship is null)
+                continue;
+
+            bool sourceDeclared = TopologyProposalRelationshipEndpointIndex.DeclaredEndpointKeySetContains(
+                declaredEndpointKeysBefore,
+                relationship.SourceId);
+            bool targetDeclared = TopologyProposalRelationshipEndpointIndex.DeclaredEndpointKeySetContains(
+                declaredEndpointKeysBefore,
+                relationship.TargetId);
+            bool sourceRetained = TopologyProposalRelationshipEndpointIndex.DeclaredEndpointKeySetContains(
+                declaredEndpointKeysAfter,
+                relationship.SourceId);
+            bool targetRetained = TopologyProposalRelationshipEndpointIndex.DeclaredEndpointKeySetContains(
+                declaredEndpointKeysAfter,
+                relationship.TargetId);
 
             // An external id was never a proposal node. That must not keep an edge whose other
             // end was a service or datastore that brief grounding just removed.

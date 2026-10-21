@@ -3,9 +3,9 @@ import { OPERATOR_RECENT_VIEWS_STORAGE_KEY, parseStoredRecentViews } from "@/lib
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import type { SignedRecordsListRow } from "@/app/(operator)/governance/sealed-records/_sections/signed-records-list-row";
 import { isSignedRecordsListRowOpenable } from "@/app/(operator)/governance/sealed-records/_sections/signed-records-list-row";
+import { readReviewWorkspaceRunIdFromHref } from "@/lib/architecture/review-workspace-route";
 
 const SIGNED_RECORDS_DETAIL_PREFIX = `${SIGNED_RECORDS_LIST_PATH}/`;
-const REVIEW_PATH_PREFIX = "/architecture/reviews/";
 
 function manifestIdFromRecentHref(href: string): string | null {
   const path = href.split("?")[0] ?? "";
@@ -15,22 +15,6 @@ function manifestIdFromRecentHref(href: string): string | null {
   }
 
   const remainder = path.slice(SIGNED_RECORDS_DETAIL_PREFIX.length).trim();
-
-  if (remainder.length === 0 || remainder.includes("/")) {
-    return null;
-  }
-
-  return remainder;
-}
-
-function runIdFromRecentHref(href: string): string | null {
-  const path = href.split("?")[0] ?? "";
-
-  if (!path.startsWith(REVIEW_PATH_PREFIX)) {
-    return null;
-  }
-
-  const remainder = path.slice(REVIEW_PATH_PREFIX.length).trim();
 
   if (remainder.length === 0 || remainder.includes("/")) {
     return null;
@@ -72,7 +56,7 @@ function readRecentSignedRecordRunId(): string | null {
     const state = parseStoredRecentViews(raw);
 
     for (const entry of state.entries) {
-      const runId = runIdFromRecentHref(entry.href);
+      const runId = readReviewWorkspaceRunIdFromHref(entry.href);
 
       if (runId !== null) {
         return runId;

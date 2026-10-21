@@ -1,3 +1,4 @@
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
@@ -88,6 +89,7 @@ public sealed partial class PolicyPacksController
         if (routeIdProblem is not null)
             return routeIdProblem;
 
+        PolicyPackSemVerVersion normalizedVersion = PolicyPackSemVerVersion.Parse(request.Version);
         PolicyPackHttpResult<PolicyPackVersion> result;
 
         try
@@ -96,7 +98,7 @@ public sealed partial class PolicyPacksController
                 policyPackId,
                 new PolicyPackPublishBody
                 {
-                    Version = request.Version,
+                    Version = normalizedVersion.Value,
                     ContentJson = request.ContentJson,
                 },
                 ct).ConfigureAwait(false);

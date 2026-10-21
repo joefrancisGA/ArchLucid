@@ -118,12 +118,6 @@ public sealed partial class GovernanceResolutionController(
             if (scopeProblem is not null)
                 return scopeProblem;
 
-            IActionResult? sealedGuardResult =
-                await EnsureGovernanceScopeSealedManifestReadAllowedAsync(scope, ct);
-
-            if (sealedGuardResult is not null)
-                return sealedGuardResult;
-
             EffectiveGovernanceResolutionResult result = await resolver.ResolveAsync(
                 scope.TenantId,
                 scope.WorkspaceId,
@@ -175,7 +169,7 @@ public sealed partial class GovernanceResolutionController(
         }
         catch (ConflictException ex)
         {
-            return MapGovernanceResolutionSealedManifestConflict(ex);
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
     }
 

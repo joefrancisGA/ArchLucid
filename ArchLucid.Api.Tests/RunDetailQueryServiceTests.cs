@@ -376,10 +376,11 @@ public sealed class RunDetailQueryServiceTests
     }
 
     [SkippableFact]
-    public async Task GetRunDetailAsync_NullOrWhitespaceRunId_Throws()
+    public async Task GetRunDetailAsync_NullOrWhitespaceRunId_ReturnsNull()
     {
-        Func<Task> act = () => _sut.GetRunDetailAsync(string.Empty);
-        await act.Should().ThrowAsync<ArgumentException>();
+        ArchitectureRunDetail? result = await _sut.GetRunDetailAsync(string.Empty);
+
+        result.Should().BeNull();
     }
 
     [SkippableFact]

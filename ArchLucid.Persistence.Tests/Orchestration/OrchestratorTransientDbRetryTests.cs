@@ -1268,7 +1268,7 @@ public sealed class OrchestratorTransientDbRetryTests
     }
 
     [SkippableFact]
-    public async Task ExecuteAsync_retries_when_first_populated_aggregate_on_inner_chain_hides_later_mixed_aggregate()
+    public async Task ExecuteAsync_does_not_retry_when_first_populated_aggregate_on_inner_chain_hides_later_mixed_aggregate()
     {
         int attempts = 0;
         SqlException fkViolation = SqlExceptionTestFactory.Create(547);
@@ -1286,7 +1286,7 @@ public sealed class OrchestratorTransientDbRetryTests
             CancellationToken.None);
 
         await act.Should().ThrowAsync<InvalidOperationException>();
-        attempts.Should().Be(4, "TryGetParallelPersistInners stops at the first populated aggregate on the inner chain");
+        attempts.Should().Be(1);
     }
 
     [SkippableFact]
@@ -2027,6 +2027,54 @@ public sealed class OrchestratorTransientDbRetryTests
 
                 if (attempts == 1)
                     throw new AggregateException(wrapper);
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_retries_when_top_level_aggregate_lists_nested_all_transient_aggregate_and_transient_sql_sibling()
+    {
+        int attempts = 0;
+        SqlException siblingDeadlock = SqlExceptionTestFactory.Create(1205);
+        SqlException nestedFirst = SqlExceptionTestFactory.Create(1205);
+        SqlException nestedSecond = SqlExceptionTestFactory.Create(1204);
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                {
+                    throw new AggregateException(
+                        siblingDeadlock,
+                        new AggregateException(nestedFirst, nestedSecond));
+                }
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_retries_when_top_level_aggregate_lists_empty_shell_and_transient_sql_sibling()
+    {
+        int attempts = 0;
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw new AggregateException(new AggregateException(), deadlock);
 
                 return Task.CompletedTask;
             },

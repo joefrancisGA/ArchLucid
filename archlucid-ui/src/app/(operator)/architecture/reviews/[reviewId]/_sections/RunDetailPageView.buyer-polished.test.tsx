@@ -2,8 +2,7 @@ import { render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 import {
   REVIEW_DETAIL_FIRST_VIEWPORT_ID,
   REVIEW_DETAIL_PRIMARY_CONTENT_ID,
@@ -26,6 +25,10 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/architecture/reviews/run-1",
   useSearchParams: () => new URLSearchParams("reviewTab=overview"),
   useRouter: () => ({ replace: vi.fn(), push: vi.fn(), refresh: vi.fn() }),
+}));
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
 }));
 
 vi.mock("next/link", () => ({
@@ -76,6 +79,7 @@ vi.mock("./run-detail-page-view-deferred-chunks", () => ({
   RunDetailBuyerPilotConversionSectionDeferred: () => null,
   RunDetailFirstWeekRouteGuidanceDeferred: () => <div data-testid="first-week-route-guidance" />,
   OperatorWelcomeOnboardingDeferred: () => null,
+  RunDetailWorkspaceStickyActionsResolvedDeferred: () => null,
 }));
 
 vi.mock("@/components/architecture/WorkingNestedArchitectureIdentityChromeMount", () => ({
@@ -206,9 +210,10 @@ describe("RunDetailPageViewShell buyer-polished shell (RRE)", () => {
     expect(orientationTop).toContainElement(sourcesSection);
     expect(orientationTop.compareDocumentPosition(workspaceTabs) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(buildReviewWorkspaceSources("run-1"))) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(
+      within(sourcesSection),
+      buildReviewWorkspaceSources("run-1"),
+      "/architecture/reviews/run-1",
+    );
   });
 });

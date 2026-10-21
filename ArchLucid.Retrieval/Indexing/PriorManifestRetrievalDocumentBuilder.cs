@@ -19,6 +19,7 @@ public static class PriorManifestRetrievalDocumentBuilder
         ArgumentNullException.ThrowIfNull(manifest);
 
         List<RetrievalDocument> documents = [];
+        int emittedDecisionOrdinal = 0;
 
         for (int decisionIndex = 0; decisionIndex < manifest.Decisions.Count; decisionIndex++)
         {
@@ -28,7 +29,7 @@ public static class PriorManifestRetrievalDocumentBuilder
                 continue;
 
             string decisionId = string.IsNullOrWhiteSpace(decision.DecisionId)
-                ? $"generated-{manifest.ManifestId:N}-{decisionIndex}"
+                ? $"generated-{manifest.ManifestId:N}-{emittedDecisionOrdinal}"
                 : decision.DecisionId.Trim();
 
             string rationale = string.IsNullOrWhiteSpace(decision.Rationale) ? string.Empty : decision.Rationale.Trim();
@@ -53,6 +54,8 @@ public static class PriorManifestRetrievalDocumentBuilder
                 createdUtc: createdUtc,
                 decisionId: decisionId,
                 findingId: null));
+
+            emittedDecisionOrdinal++;
         }
 
         TopologySection topology = manifest.Topology;
@@ -103,27 +106,20 @@ public static class PriorManifestRetrievalDocumentBuilder
         ArgumentNullException.ThrowIfNull(findings);
 
         List<RetrievalDocument> documents = [];
-
-        int findingIndex = 0;
+        int emittedFindingOrdinal = 0;
 
         foreach (Finding finding in findings)
         {
             if (finding.IsMuted)
-            {
-                findingIndex++;
                 continue;
-            }
 
             string message = ResolveFindingMessage(finding);
 
             if (string.IsNullOrWhiteSpace(message))
-            {
-                findingIndex++;
                 continue;
-            }
 
             string findingId = string.IsNullOrWhiteSpace(finding.FindingId)
-                ? $"generated-{runId:N}-{findingIndex}"
+                ? $"generated-{runId:N}-{emittedFindingOrdinal}"
                 : finding.FindingId.Trim();
 
             string content =
@@ -147,7 +143,7 @@ public static class PriorManifestRetrievalDocumentBuilder
                 decisionId: null,
                 findingId: findingId));
 
-            findingIndex++;
+            emittedFindingOrdinal++;
         }
 
         return documents;

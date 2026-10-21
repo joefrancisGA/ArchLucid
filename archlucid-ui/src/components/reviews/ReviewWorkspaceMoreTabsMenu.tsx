@@ -14,7 +14,7 @@ import {
   REVIEW_WORKSPACE_MORE_TABS_OPEN_PARAM,
   reviewWorkspaceMoreTabsHrefFromSearch,
 } from "@/lib/reviews/review-workspace-more-tabs-url";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -40,11 +40,11 @@ export function ReviewWorkspaceMoreTabsMenu(props: ReviewWorkspaceMoreTabsMenuPr
 
   const syncMoreTabsOpenToUrl = useCallback(
     (nextOpen: boolean) => {
-      commitHrefIfChanged(reviewWorkspaceMoreTabsHrefFromSearch(readWindowLocationSearch(), nextOpen, pathname), {
+      commitHrefIfChanged(reviewWorkspaceMoreTabsHrefFromSearch(searchParams.toString(), nextOpen, pathname), {
         notify: false,
       });
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setOpen = useCallback(

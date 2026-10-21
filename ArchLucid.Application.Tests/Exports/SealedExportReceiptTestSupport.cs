@@ -37,6 +37,10 @@ internal static class SealedExportReceiptTestSupport
         return traces.Object;
     }
 
+    /// <summary>
+    ///     Pre-commit gate off — use when asserting <see cref="CareerArtifactCompletenessValidator.PreCommitGateCode"/> blocks.
+    ///     Happy-path export tests should use <see cref="CreateSuccessfulExportHonestyConfiguration"/>.
+    /// </summary>
     internal static IConfiguration CreateCareerExportHonestyConfiguration()
     {
         Dictionary<string, string?> values = new(StringComparer.OrdinalIgnoreCase)

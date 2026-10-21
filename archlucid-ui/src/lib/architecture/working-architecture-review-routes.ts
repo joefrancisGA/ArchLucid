@@ -5,7 +5,7 @@ import {
   resolveArchitectureReviewHref,
   reviewDetailPath,
 } from "@/lib/architecture/architecture-routes";
-import { parseArchitectureNestedRoute } from "@/lib/architecture/working-architecture-draft-routes";
+import { parseReviewWorkspaceRoutePath } from "@/lib/architecture/review-workspace-route";
 import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
 
 /** Resolves architecture id from explicit run metadata or nested pathname (AO-33). */
@@ -20,10 +20,11 @@ export function resolveReviewWorkspaceArchitectureId(
   }
 
   const path = pathname?.split("?")[0] ?? "";
-  const nested = parseArchitectureNestedRoute(path);
+  const parsed = parseReviewWorkspaceRoutePath(path);
+  const architectureId = parsed?.architectureId?.trim() ?? "";
 
-  if (nested?.childKind === "reviews" && (nested.architectureId?.trim() ?? "").length > 0) {
-    return nested.architectureId.trim();
+  if (architectureId.length > 0) {
+    return architectureId;
   }
 
   return null;

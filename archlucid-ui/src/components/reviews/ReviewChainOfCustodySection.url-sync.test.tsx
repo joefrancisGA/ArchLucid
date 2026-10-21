@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { createElement, useSyncExternalStore, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -32,8 +32,10 @@ const searchParamsHarness = vi.hoisted(() => {
   };
 });
 
+const pathnameMock = vi.hoisted(() => ({ value: "/architecture/reviews/run-b" }));
+
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/architecture/reviews/run-abc",
+  usePathname: () => pathnameMock.value,
   useSearchParams: () => new URLSearchParams(searchParamsHarness.state.query),
 }));
 
@@ -56,7 +58,42 @@ const sampleRun = {
 describe("ReviewChainOfCustodySection URL sync", () => {
   beforeEach(() => {
     searchParamsHarness.reset();
-    window.history.replaceState({}, "", "/architecture/reviews/run-abc?reviewTab=overview");
+    pathnameMock.value = "/architecture/reviews/run-b";
+    window.history.replaceState(
+      {},
+      "",
+      `/architecture/reviews/run-a?reviewTab=findings&q=stale-payment&${REVIEW_CHAIN_OF_CUSTODY_SECTION_KEY_PARAM}=what-ran`,
+    );
+  });
+
+  it("writes chain of custody section key from useSearchParams when window.location.search lags after soft navigation", async () => {
+    const { rerender } = render(
+      <SearchParamsRerenderHost>
+        <ReviewChainOfCustodySection run={sampleRun} manifestId={null} triggerSource="ui" />
+      </SearchParamsRerenderHost>,
+    );
+
+    searchParamsHarness.applyQuery(
+      `reviewTab=overview&${REVIEW_CHAIN_OF_CUSTODY_SECTION_KEY_PARAM}=what-ran`,
+    );
+    rerender(
+      <SearchParamsRerenderHost>
+        <ReviewChainOfCustodySection run={sampleRun} manifestId={null} triggerSource="ui" />
+      </SearchParamsRerenderHost>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("What ran").closest("details")).toHaveAttribute("open");
+      expect(screen.getByText("Who and when").closest("details")).not.toHaveAttribute("open");
+    });
+
+    fireEvent.click(screen.getByText("Who and when"));
+
+    await waitFor(() => {
+      expect(window.location.pathname + window.location.search).toBe(
+        `/architecture/reviews/run-b?reviewTab=overview&${REVIEW_CHAIN_OF_CUSTODY_SECTION_KEY_PARAM}=who-and-when`,
+      );
+    });
   });
 
   it("follows reviewChainOfCustodySectionKey query changes without a popstate event", async () => {
@@ -77,7 +114,7 @@ describe("ReviewChainOfCustodySection URL sync", () => {
     window.history.replaceState(
       {},
       "",
-      `/architecture/reviews/run-abc?reviewTab=overview&${REVIEW_CHAIN_OF_CUSTODY_SECTION_KEY_PARAM}=what-ran`,
+      `/architecture/reviews/run-b?reviewTab=overview&${REVIEW_CHAIN_OF_CUSTODY_SECTION_KEY_PARAM}=what-ran`,
     );
     rerender(
       <SearchParamsRerenderHost>

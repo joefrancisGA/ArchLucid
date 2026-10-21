@@ -124,12 +124,12 @@ public sealed class AdminFleetLlmCogsService(
         if (options is null || !options.Enabled)
             return false;
 
-        if (options.InputUsdPerMillionTokens > 0m && options.OutputUsdPerMillionTokens > 0m)
-            return true;
+        // EffectiveRates falls back to catalog defaults for any non-positive global I/O slot; a single positive
+        // global rate still means estimation is intentionally configured (including reasoning-only rollback).
 
-        // Reasoning-only deployments can price traces while global input/output are zeroed for rollback.
-
-        if (options.ReasoningUsdPerMillionTokens > 0m)
+        if (options.InputUsdPerMillionTokens > 0m
+            || options.OutputUsdPerMillionTokens > 0m
+            || options.ReasoningUsdPerMillionTokens > 0m)
             return true;
 
         if (options.Deployments is null || options.Deployments.Count == 0)

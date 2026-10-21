@@ -44,6 +44,24 @@ describe("GovernanceFindingsQueueAssignedToMeRowCells", () => {
     expect(screen.getByTestId("governance-table-control-finding-1")).toHaveTextContent("Framework control: SC-28");
   });
 
+  it("renders finding title without inspect link when run id is blank", () => {
+    render(
+      <table>
+        <tbody>
+          <tr>
+            <GovernanceFindingsQueueAssignedToMeRowCells
+              row={baseRow({ runId: "   ", title: "Encrypt storage at rest" })}
+              showNewSinceLastVisit={false}
+            />
+          </tr>
+        </tbody>
+      </table>,
+    );
+
+    expect(screen.queryByRole("link", { name: "Encrypt storage at rest" })).toBeNull();
+    expect(screen.getByText("Encrypt storage at rest")).toBeInTheDocument();
+  });
+
   it("does not show framework control when policyRuleId is absent", () => {
     render(
       <table>

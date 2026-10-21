@@ -70,6 +70,26 @@ public static class RetrievalIndexingScopeValidator
         ArgumentNullException.ThrowIfNull(documents);
         ArgumentNullException.ThrowIfNull(ambientScope);
 
+        if (documents.Count > 1)
+        {
+            HashSet<string> seenDocumentIds = new(StringComparer.Ordinal);
+
+            foreach (RetrievalDocument document in documents)
+            {
+                ArgumentNullException.ThrowIfNull(document);
+
+                if (string.IsNullOrWhiteSpace(document.DocumentId))
+                    continue;
+
+                if (!seenDocumentIds.Add(document.DocumentId))
+                {
+                    throw new InvalidOperationException(
+                        $"Retrieval indexing batch contains duplicate DocumentId '{document.DocumentId}'. "
+                        + "Each document id may appear at most once per IndexDocumentsAsync call.");
+                }
+            }
+        }
+
         foreach (RetrievalDocument document in documents)
         {
             ValidateDocument(document, ambientScope);

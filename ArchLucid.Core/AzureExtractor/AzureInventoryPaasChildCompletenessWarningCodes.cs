@@ -6,4 +6,6 @@ namespace ArchLucid.Core.AzureExtractor;
 public static class AzureInventoryPaasChildCompletenessWarningCodes
 {
     public const string StorageChildrenTruncated = "storage-children-truncated";
+
+    public const string PartialChildEnumeration = "partial-child-enumeration";
 }

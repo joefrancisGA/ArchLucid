@@ -107,8 +107,12 @@ public static class TopologyProposalRelationshipEdgeMapper
 
             TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys(endpointKeyToNodeId, node);
 
+            string canonicalSourceId =
+                TopologyProposalRelationshipEndpointIndex.CanonicalizeTerraformEndpointReferenceForLookup(
+                    node.SourceId ?? string.Empty);
+
             string? terraformEndpointIdentity =
-                TopologyProposalTerraformSourceIdHeuristics.TryNormalizeTerraformEndpointIdentity(node.SourceId);
+                TopologyProposalTerraformSourceIdHeuristics.TryNormalizeTerraformEndpointIdentity(canonicalSourceId);
 
             if (terraformEndpointIdentity is null)
                 continue;
@@ -217,6 +221,9 @@ public static class TopologyProposalRelationshipEdgeMapper
     {
         string trimmed = aliasTargetNodeId.Trim();
 
+        if (GraphAzureInventoryReconciliationAnalyzer.LooksLikeArmResourceId(trimmed))
+            return GraphAzureInventoryReconciliationAnalyzer.NormalizeArmResourceId(trimmed);
+
         return TopologyProposalRelationshipEndpointIndex.NormalizeSyntheticEndpointReference(trimmed)
                ?? trimmed;
     }
@@ -239,16 +246,17 @@ public static class TopologyProposalRelationshipEdgeMapper
             return false;
         }
 
-        string trimmedCandidate = candidate.Trim();
+        string trimmedCandidate =
+            TopologyProposalRelationshipEndpointIndex.CanonicalizeTerraformEndpointReferenceForLookup(candidate.Trim());
 
-        if (endpointKeyToNodeId.TryGetValue(trimmedCandidate, out nodeId!))
+        if (TryResolveMappedNodeId(trimmedCandidate, endpointKeyToNodeId, out nodeId))
             return true;
 
         string? normalizedSynthetic =
             TopologyProposalRelationshipEndpointIndex.NormalizeSyntheticEndpointReference(trimmedCandidate);
 
         if (normalizedSynthetic is not null
-            && endpointKeyToNodeId.TryGetValue(normalizedSynthetic, out nodeId!))
+            && TryResolveMappedNodeId(normalizedSynthetic, endpointKeyToNodeId, out nodeId))
         {
             return true;
         }
@@ -257,7 +265,7 @@ public static class TopologyProposalRelationshipEdgeMapper
             TopologyProposalTerraformSourceIdHeuristics.TryNormalizeTerraformEndpointIdentity(trimmedCandidate);
 
         if (terraformEndpointIdentity is not null
-            && endpointKeyToNodeId.TryGetValue(terraformEndpointIdentity, out nodeId!))
+            && TryResolveMappedNodeId(terraformEndpointIdentity, endpointKeyToNodeId, out nodeId))
         {
             return true;
         }
@@ -268,18 +276,74 @@ public static class TopologyProposalRelationshipEdgeMapper
                 unindexedTerraformEndpointIdentities,
                 indexedTerraformEndpointIdentities,
                 out nodeId!))
+        {
+            nodeId = FollowEndpointAliasChain(nodeId, endpointKeyToNodeId);
             return true;
+        }
 
         if (GraphAzureInventoryReconciliationAnalyzer.LooksLikeArmResourceId(trimmedCandidate)
-            && endpointKeyToNodeId.TryGetValue(
+            && TryResolveMappedNodeId(
                 GraphAzureInventoryReconciliationAnalyzer.NormalizeArmResourceId(trimmedCandidate),
-                out nodeId!))
+                endpointKeyToNodeId,
+                out nodeId))
         {
             return true;
         }
 
         nodeId = string.Empty;
         return false;
+    }
+
+    private static bool TryResolveMappedNodeId(
+        string endpointKey,
+        Dictionary<string, string> endpointKeyToNodeId,
+        out string nodeId)
+    {
+        if (!endpointKeyToNodeId.TryGetValue(endpointKey, out nodeId!))
+            return false;
+
+        nodeId = ResolveAliasChainTerminal(nodeId, endpointKeyToNodeId);
+        return true;
+    }
+
+    private static string ResolveAliasChainTerminal(
+        string aliasTarget,
+        Dictionary<string, string> endpointKeyToNodeId)
+    {
+        string current = FollowEndpointAliasChain(aliasTarget, endpointKeyToNodeId);
+
+        if (!GraphAzureInventoryReconciliationAnalyzer.LooksLikeArmResourceId(current))
+            return current;
+
+        string normalizedArmId = GraphAzureInventoryReconciliationAnalyzer.NormalizeArmResourceId(current);
+
+        if (endpointKeyToNodeId.TryGetValue(normalizedArmId, out string? mappedNodeId))
+            return ResolveAliasChainTerminal(mappedNodeId, endpointKeyToNodeId);
+
+        return normalizedArmId;
+    }
+
+    private static string FollowEndpointAliasChain(
+        string resolvedNodeId,
+        Dictionary<string, string> endpointKeyToNodeId)
+    {
+        string current = resolvedNodeId.Trim();
+        HashSet<string> visited = new(StringComparer.OrdinalIgnoreCase) { current };
+
+        while (endpointKeyToNodeId.TryGetValue(current, out string? next))
+        {
+            string trimmedNext = next.Trim();
+
+            if (string.Equals(current, trimmedNext, StringComparison.OrdinalIgnoreCase))
+                break;
+
+            if (!visited.Add(trimmedNext))
+                break;
+
+            current = trimmedNext;
+        }
+
+        return current;
     }
 
     private static bool TryResolveStrippedTerraformInstanceKey(

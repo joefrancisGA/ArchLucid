@@ -10,7 +10,7 @@ vi.mock("next/navigation", async (importOriginal) => {
     ...actual,
   useSearchParams: () => new URLSearchParams(),
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn(), back: vi.fn(), forward: vi.fn() }),
-  usePathname: () => "",
+  usePathname: () => "/architecture/reviews/new",
   redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
@@ -54,6 +54,7 @@ vi.mock("@/lib/api", () => ({
 }));
 
 import { NewRunWizardClient } from "./NewRunWizardClient";
+import { NEW_RUN_WIZARD_SYSTEM_NAME_LABEL } from "./new-run-wizard-test-helpers";
 
 describe("NewRunWizardClient (SECOND_RUN paste)", () => {
   beforeEach(() => {
@@ -91,7 +92,7 @@ components = ["api"]
     });
 
     await waitFor(() => {
-      expect(screen.getByTestId("new-run-wizard-step-line")).toHaveTextContent(/Step 2: Evidence \(optional\)/);
+      expect(screen.getByTestId("new-run-wizard-step-line")).toHaveTextContent(/Step 2: Add evidence \(optional\)/);
     });
 
     await waitFor(() => {
@@ -104,7 +105,7 @@ components = ["api"]
     fireEvent.click(screen.getByTestId("wizard-evidence-upload-skip-demo"));
 
     await waitFor(() => {
-      expect(screen.getByLabelText("System name")).toHaveValue("Pasted.Service");
+      expect(screen.getByLabelText(NEW_RUN_WIZARD_SYSTEM_NAME_LABEL)).toHaveValue("Pasted.Service");
     });
   });
 });

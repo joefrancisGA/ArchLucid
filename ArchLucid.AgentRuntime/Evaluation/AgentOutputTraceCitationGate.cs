@@ -57,7 +57,7 @@ internal static class AgentOutputTraceCitationGate
             if (doc.RootElement.ValueKind != JsonValueKind.Object)
                 return false;
 
-            return doc.RootElement.TryGetProperty("citations", out JsonElement citationsElement)
+            return AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(doc.RootElement, "citations", out JsonElement citationsElement)
                    && citationsElement.ValueKind == JsonValueKind.Array
                    && citationsElement.EnumerateArray().Any(static citation =>
                        citation.ValueKind == JsonValueKind.Object
@@ -73,7 +73,7 @@ internal static class AgentOutputTraceCitationGate
 
     private static int TryCountTopLevelEvidenceRefs(JsonElement root)
     {
-        if (!root.TryGetProperty("evidenceRefs", out JsonElement refsElement) ||
+        if (!AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(root, "evidenceRefs", out JsonElement refsElement) ||
             refsElement.ValueKind != JsonValueKind.Array)
             return 0;
 

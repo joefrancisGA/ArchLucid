@@ -38,7 +38,9 @@ public sealed class ArchitectureReviewRobustnessWave74ArchitectureTests
         stickinessSchedules.Should().Contain("UpdateRecurrenceSchedule");
         stickinessSchedules.Should().Contain("EnsureRecurrenceScheduleSourceRunSealedManifestAllowedAsync");
         stickinessSchedules.Should().Contain("EnsureRecurrenceScheduleUpdateSealedManifestAllowedAsync");
-        stickinessGuard.Should().Contain("RecurrenceScheduleCreateSealedManifestHashGuard");
+        stickinessGuard.Should().Contain("EnsureRecurrenceScheduleSourceRunSealedManifestAllowedAsync");
+        ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.Recurrence.cs")
+            .Should().Contain("RecurrenceScheduleCreateSealedManifestHashGuard");
         artifactDownload.Should().Contain("DownloadRunExport");
         artifactDownload.Should().Contain("DownloadRunDecisionReceipt");
         artifactDownload.Should().Contain("EnsureRunSealedManifestHashOrConflictAsync");
@@ -54,7 +56,9 @@ public sealed class ArchitectureReviewRobustnessWave74ArchitectureTests
         policyAssignment.Should().Contain("Assign");
         policyAssignment.Should().Contain("ArchiveAssignment");
         policyAssignment.Should().Contain("EnsurePolicyPackMutationSealedManifestAllowedAsync");
-        policyGuard.Should().Contain("GovernancePostureSealedManifestHashGuard");
+        policyGuard.Should().Contain("GovernanceScopePostureSealedManifestPreflight");
+        ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Http/Governance/GovernanceScopePostureSealedManifestPreflight.cs")
+            .Should().Contain("GovernancePostureSealedManifestHashGuard");
         consultingDocx.Should().Contain("DownloadConsultingDocx");
         consultingDocx.Should().Contain("EnsureRunAnalysisSealedManifestAllowedAsync");
         analysisGuard.Should().Contain("ArchitectureAnalysisSealedManifestHashGuard");

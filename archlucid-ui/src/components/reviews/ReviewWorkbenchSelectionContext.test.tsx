@@ -147,4 +147,33 @@ describe("ReviewWorkbenchSelectionProvider", () => {
 
     expect(result.current).toBe("finding-b");
   });
+
+  it("follows findingId from useSearchParams when window.location.search is still stale", () => {
+    searchParamsHarness.applyQuery("reviewTab=findings&findingId=finding-a");
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-abc?reviewTab=findings&findingId=finding-a",
+    );
+
+    function Wrapper({ children }: { readonly children: ReactNode }) {
+      return (
+        <SearchParamsRerenderHost>
+          <ReviewWorkbenchSelectionProvider>{children}</ReviewWorkbenchSelectionProvider>
+        </SearchParamsRerenderHost>
+      );
+    }
+
+    const { result, rerender } = renderHook(
+      () => useReviewWorkbenchSelection()?.selectedFindingId ?? null,
+      { wrapper: Wrapper },
+    );
+
+    expect(result.current).toBe("finding-a");
+
+    searchParamsHarness.applyQuery("reviewTab=findings&findingId=finding-b");
+    rerender();
+
+    expect(result.current).toBe("finding-b");
+  });
 });

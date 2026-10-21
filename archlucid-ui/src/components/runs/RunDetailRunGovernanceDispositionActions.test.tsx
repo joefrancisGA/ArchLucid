@@ -20,7 +20,9 @@ vi.mock("@/lib/demo-ui-env", () => ({
 }));
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/architecture/reviews/run-1",
   useRouter: () => ({ refresh: routerRefresh }),
+  useSearchParams: () => new URLSearchParams(""),
 }));
 
 describe("RunDetailRunGovernanceDispositionActions", () => {

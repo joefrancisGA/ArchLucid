@@ -5,6 +5,7 @@ import { Share2, Users } from "lucide-react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type ReactElement, type SetStateAction } from "react";
 
+import { buildReviewWorkspaceRouteHref } from "@/lib/architecture/review-workspace-route";
 import { buildReviewMeetingPacketSteps, type ReviewMeetingPacketStep } from "@/components/reviews/ReviewMeetingPacketButton";
 import { ShareableReviewLinkButton } from "@/components/usability/ShareableReviewLinkButton";
 import { WorkingReviewCopyLinkButton } from "@/components/reviews/WorkingReviewCopyLinkButton";
@@ -42,7 +43,7 @@ export type ReviewHeaderShareMenuProps = {
 
 /** Consolidated share and export affordances on the review detail header. */
 export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactElement {
-  const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
+  const pathname = usePathname() ?? buildReviewWorkspaceRouteHref({ runId: props.runId });
   const searchParams = useSearchParams();
   const urlShareMenuOpen = parseReviewHeaderShareMenuOpenFromSearch(
     searchParams.get(REVIEW_HEADER_SHARE_MENU_OPEN_PARAM),
@@ -55,11 +56,11 @@ export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactE
   const syncShareMenuOpenToUrl = useCallback(
     (nextOpen: boolean) => {
       commitHrefIfChanged(
-        reviewHeaderShareMenuHrefFromSearch(window.location.search.slice(1), nextOpen, pathname),
+        reviewHeaderShareMenuHrefFromSearch(searchParams.toString(), nextOpen, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setOpen = useCallback(

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 
@@ -20,8 +20,11 @@ import {
   type ArchitectureFindingsDualPaneFindingRef} from "@/lib/architecture/architecture-findings-dual-pane";
 import { buildFindingDiagramSpotlight } from "@/lib/architecture/build-finding-diagram-spotlight";
 import {
+  ARCHITECTURE_DIAGRAM_FINDING_PARAM,
   architectureDiagramFindingHrefFromSearch,
+  parseArchitectureDiagramFindingIdFromSearch,
   readArchitectureDiagramFindingIdFromWindowLocation} from "@/lib/architecture/architecture-findings-dual-pane-url";
+import { REVIEW_DETAIL_FINDING_PARAM } from "@/lib/review-detail-workspace-tabs";
 import { useWorkingBackLocator } from "@/hooks/use-working-back-locator";
 import { useReviewWorkbenchSelection } from "@/components/reviews/ReviewWorkbenchSelectionContext";
 import {
@@ -58,6 +61,15 @@ export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPane
     reviewId: props.runId,
     architectureId: props.architectureId});
   const pathname = usePathname() ?? workingBackLocator.reviewJobHref;
+  const searchParams = useSearchParams();
+  const searchParamFindingId = useMemo(
+    () =>
+      parseArchitectureDiagramFindingIdFromSearch(
+        searchParams.get(REVIEW_DETAIL_FINDING_PARAM),
+        searchParams.get(ARCHITECTURE_DIAGRAM_FINDING_PARAM),
+      ),
+    [searchParams],
+  );
   const workbenchSelection = useReviewWorkbenchSelection();
   const setSelectedFindingId = workbenchSelection?.setSelectedFindingId;
   const reconcileSelectedFindingId = workbenchSelection?.reconcileSelectedFindingId;
@@ -110,6 +122,11 @@ export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPane
       window.removeEventListener("popstate", syncFindingIdFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    // Next.js client navigations update useSearchParams before window.location.search catches up.
+    setUrlFindingId((current) => (current === searchParamFindingId ? current : searchParamFindingId));
+  }, [props.runId, searchParamFindingId]);
 
   useEffect(() => {
     const resolvedFindingId = urlFindingId.trim();

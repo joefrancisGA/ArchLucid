@@ -78,7 +78,8 @@ public sealed class ExportsControllerReplayExportAuditTests
             lineageVerifier.Object,
             authorityQuery,
             manifestHashService,
-            scopeProvider.Object);
+            scopeProvider.Object,
+            Mock.Of<ArchLucid.Application.Exports.IRunExportCareerPostureGate>());
 
         ExportsController sut = new(facade, authorityQuery, scopeProvider.Object, manifestHashService);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
@@ -151,7 +152,8 @@ public sealed class ExportsControllerReplayExportAuditTests
             lineageVerifier.Object,
             authorityQuery,
             manifestHashService,
-            scopeProvider.Object);
+            scopeProvider.Object,
+            Mock.Of<ArchLucid.Application.Exports.IRunExportCareerPostureGate>());
 
         ExportsController sut = new(
             facade,

@@ -32,7 +32,11 @@ import {
   GovernanceFindingsQueueDueCell,
   governanceQueueSeverityCell,
 } from "./GovernanceFindingsQueueOperationalRowCells";
-import type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
+import {
+  governanceFindingQueueRowHasPolicyRuleId,
+  governanceFindingQueueRowHasStoredRunId,
+  type GovernanceFindingQueueRow,
+} from "./governance-finding-queue-row";
 
 export type GovernanceFindingsQueueAssignedToMeRowCellsProps = {
   readonly row: GovernanceFindingQueueRow;
@@ -43,6 +47,10 @@ export type GovernanceFindingsQueueAssignedToMeRowCellsProps = {
 export function GovernanceFindingsQueueAssignedToMeRowCells(props: GovernanceFindingsQueueAssignedToMeRowCellsProps): ReactElement {
   const { row, showNewSinceLastVisit, onOpenRow } = props;
   const findingDerivation = findingDerivationFromGovernanceQueueRow(row);
+  const hasStoredRunId = governanceFindingQueueRowHasStoredRunId(row);
+  const findingInspectHref = hasStoredRunId
+    ? governanceFindingInspectHref(row.runId, row.findingId)
+    : null;
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
@@ -87,17 +95,21 @@ export function GovernanceFindingsQueueAssignedToMeRowCells(props: GovernanceFin
             <NewSinceLastVisitMarker testId={`governance-table-row-new-${row.findingId}`} />
           </span>
         ) : null}
-        <Link
-          className={OPERATOR_LINK.inline}
-          href={governanceFindingInspectHref(row.runId, row.findingId)}
-          prefetch={false}
-          onClick={() => {
-            onOpenRow?.();
-          }}
-        >
-          {row.title}
-        </Link>
-        {row.policyRuleId != null && row.policyRuleId.trim().length > 0 ? (
+        {findingInspectHref !== null ? (
+          <Link
+            className={OPERATOR_LINK.inline}
+            href={findingInspectHref}
+            prefetch={false}
+            onClick={() => {
+              onOpenRow?.();
+            }}
+          >
+            {row.title}
+          </Link>
+        ) : (
+          <span className="text-al-text-primary">{row.title}</span>
+        )}
+        {governanceFindingQueueRowHasPolicyRuleId(row) ? (
           <div className="mt-1 text-xs text-al-text-secondary" data-testid={`governance-table-control-${row.findingId}`}>
             Framework control: {row.policyRuleId}
           </div>
@@ -111,7 +123,7 @@ export function GovernanceFindingsQueueAssignedToMeRowCells(props: GovernanceFin
           >
             <FindingDerivationLine
               derivation={findingDerivation}
-              evidenceHref={governanceFindingInspectHref(row.runId, row.findingId)}
+              evidenceHref={findingInspectHref}
               testId={`governance-table-derivation-line-${row.findingId}`}
               compact
             />

@@ -47,8 +47,9 @@ public sealed class ArchitectureReviewRobustnessWave125ArchitectureTests
         exportGuard.Should().Contain("MapArtifactExportSealedManifestConflict");
         coverageController.Should().Contain("GetScopeCoverage");
         coverageController.Should().Contain("MapGovernanceCoverageSealedManifestConflict");
-        coverageGuard.Should().Contain("EnsureGovernanceScopeSealedManifestReadAllowedAsync");
-        coverageGuard.Should().Contain("MapGovernanceCoverageSealedManifestConflict");
+        string catalog = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Http/Governance/GovernanceScopePostureSealedManifestEndpointCatalog.cs");
+        catalog.Should().Contain("GovernanceCoverageController\", \"GetScopeCoverage\", GovernanceScopePostureSealedManifestClassification.ExemptMetadataOrConfigRead");
+        coverageGuard.Should().NotContain("EnsureGovernanceScopeSealedManifestReadAllowedAsync");
     }
 
     [Fact]

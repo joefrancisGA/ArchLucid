@@ -90,15 +90,16 @@ public sealed class HeuristicAgentOutputSemanticEvaluator : IHeuristicAgentOutpu
         AgentType agentType,
         JsonElement root)
     {
-        bool hasClaims = TryGetPropertyIgnoreCase(root, "claims", out JsonElement c)
+        bool hasClaims = AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(root, "claims", out JsonElement c)
                          && c.ValueKind == JsonValueKind.Array
                          && c.GetArrayLength() > 0;
 
-        bool hasFindings = TryGetPropertyIgnoreCase(root, "findings", out JsonElement f)
+        bool hasFindings = AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(root, "findings", out JsonElement f)
                            && f.ValueKind == JsonValueKind.Array
                            && f.GetArrayLength() > 0;
 
         // Adversarial Critic must surface disagreements as findings; empty findings[] is non-performative (TB-177).
+
         if (agentType == AgentType.Critic && !hasFindings)
             return 0.0;
 
@@ -147,26 +148,5 @@ public sealed class HeuristicAgentOutputSemanticEvaluator : IHeuristicAgentOutpu
             OverallSemanticScore = 0.0,
             HeuristicOverallScore = 0.0
         };
-    }
-
-    private static bool TryGetPropertyIgnoreCase(
-        JsonElement element,
-        string propertyName,
-        out JsonElement value)
-    {
-        if (element.TryGetProperty(propertyName, out value))
-            return true;
-
-        foreach (JsonProperty property in element.EnumerateObject())
-        {
-            if (string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
-            {
-                value = property.Value;
-                return true;
-            }
-        }
-
-        value = default;
-        return false;
     }
 }

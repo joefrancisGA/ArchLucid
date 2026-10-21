@@ -37,31 +37,16 @@ public sealed partial class AlertSimulationController
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         StampSimulationScope(scope, request);
 
+        RuleSimulationResult result;
+
         try
         {
-            RuleSimulationResult result = await _simulationService.SimulateAsync(
+            result = await _simulationService.SimulateAsync(
                 scope.TenantId,
                 scope.WorkspaceId,
                 scope.ProjectId,
                 request,
                 ct);
-
-            await _auditService.LogAsync(
-                new AuditEvent
-                {
-                    EventType = AuditEventTypes.AlertRuleSimulationExecuted,
-                    DataJson = JsonSerializer.Serialize(new
-                    {
-                        request.RuleKind,
-                        result.EvaluatedRunCount,
-                        result.MatchedCount,
-                        result.WouldCreateCount,
-                        result.WouldSuppressCount
-                    })
-                },
-                ct);
-
-            return Ok(result);
         }
         catch (Exception ex) when (IsSealedManifestSimulationBlock(ex))
         {
@@ -73,5 +58,34 @@ public sealed partial class AlertSimulationController
                 "Alert simulation request is invalid or incomplete.",
                 ProblemTypes.ValidationFailed);
         }
+
+        AuditEvent auditEvent = new()
+        {
+            EventType = AuditEventTypes.AlertRuleSimulationExecuted,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            DataJson = JsonSerializer.Serialize(new
+            {
+                request.RuleKind,
+                result.EvaluatedRunCount,
+                result.MatchedCount,
+                result.WouldCreateCount,
+                result.WouldSuppressCount
+            })
+        };
+
+        string auditOperationLabel =
+            $"{AuditEventTypes.AlertRuleSimulationExecuted}:tenant={scope.TenantId}:workspace={scope.WorkspaceId}:project={scope.ProjectId}";
+
+        await DurableAuditLogRetry.TryLogAsync(
+                ct => _auditService.LogAsync(auditEvent, ct),
+                _logger,
+                auditOperationLabel,
+                ct,
+                auditEventTypeForMetrics: AuditEventTypes.AlertRuleSimulationExecuted)
+            .ConfigureAwait(false);
+
+        return Ok(result);
     }
 }

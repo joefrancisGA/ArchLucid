@@ -321,6 +321,114 @@ public sealed class IdentityProviderConfigurationControllerTests
     }
 
     [Fact]
+    public async Task GetConfigurationAsync_rejects_stored_canonical_issuer_uri_longer_than_persisted_column()
+    {
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        string issuerUri = "https://idp.example/" + new string(
+            'a',
+            IdentityProviderPersistedFieldLimits.IssuerUriMaxLength - "https://idp.example/".Length + 1);
+
+        await repository.UpsertAsync(
+            new TenantIdentityProviderConfigurationRecord
+            {
+                TenantId = tenantId,
+                Protocol = TenantIdentityProtocol.Oidc,
+                IssuerUri = issuerUri,
+                ClaimMappingJson = """{"roleClaimName":"groups","mappings":[]}""",
+                UpdatedUtc = DateTimeOffset.UtcNow,
+                UpdatedByActorId = "admin@test",
+                IsActive = true,
+            },
+            CancellationToken.None);
+
+        IdentityProviderConfigurationController controller = CreateController(configurationRepository: repository);
+
+        IActionResult result = await controller.GetConfigurationAsync(CancellationToken.None);
+
+        ObjectResult objectResult = result.Should().BeOfType<ObjectResult>().Subject;
+        objectResult.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        objectResult.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>();
+
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            (Microsoft.AspNetCore.Mvc.ProblemDetails)objectResult.Value!;
+
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
+        problem.Detail.Should().Contain("IssuerUri");
+    }
+
+    [Fact]
+    public async Task GetConfigurationAsync_omits_metadata_xml_when_stored_protocol_is_oidc()
+    {
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+
+        await repository.UpsertAsync(
+            new TenantIdentityProviderConfigurationRecord
+            {
+                TenantId = tenantId,
+                Protocol = TenantIdentityProtocol.Oidc,
+                IssuerUri = "https://idp.example/",
+                MetadataXml = "<EntityDescriptor />",
+                ClaimMappingJson = """{"roleClaimName":"groups","mappings":[]}""",
+                UpdatedUtc = DateTimeOffset.UtcNow,
+                UpdatedByActorId = "admin@test",
+                IsActive = true,
+            },
+            CancellationToken.None);
+
+        IdentityProviderConfigurationController controller = CreateController(configurationRepository: repository);
+
+        IActionResult result = await controller.GetConfigurationAsync(CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        TenantIdentityProviderConfigurationRecord body =
+            ok.Value.Should().BeOfType<TenantIdentityProviderConfigurationRecord>().Subject;
+
+        body.MetadataXml.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GetConfigurationAsync_returns_detached_copy_when_response_matches_stored_row()
+    {
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        string originalIssuer = "https://idp.example/";
+
+        await repository.UpsertAsync(
+            new TenantIdentityProviderConfigurationRecord
+            {
+                TenantId = tenantId,
+                Protocol = TenantIdentityProtocol.Oidc,
+                IssuerUri = originalIssuer,
+                ClaimMappingJson = """{"roleClaimName":"groups","mappings":[]}""",
+                UpdatedUtc = DateTimeOffset.UtcNow,
+                UpdatedByActorId = "admin@test",
+                IsActive = true,
+            },
+            CancellationToken.None);
+
+        IdentityProviderConfigurationController controller = CreateController(configurationRepository: repository);
+
+        IActionResult firstResult = await controller.GetConfigurationAsync(CancellationToken.None);
+
+        OkObjectResult firstOk = firstResult.Should().BeOfType<OkObjectResult>().Subject;
+        TenantIdentityProviderConfigurationRecord firstBody =
+            firstOk.Value.Should().BeOfType<TenantIdentityProviderConfigurationRecord>().Subject;
+
+        IActionResult secondResult = await controller.GetConfigurationAsync(CancellationToken.None);
+
+        OkObjectResult secondOk = secondResult.Should().BeOfType<OkObjectResult>().Subject;
+        TenantIdentityProviderConfigurationRecord secondBody =
+            secondOk.Value.Should().BeOfType<TenantIdentityProviderConfigurationRecord>().Subject;
+
+        firstBody.IssuerUri.Should().Be(originalIssuer);
+        secondBody.IssuerUri.Should().Be(originalIssuer);
+        ReferenceEquals(firstBody, secondBody).Should().BeFalse(
+            "GET configuration must return a detached snapshot, not the repository row instance.");
+    }
+
+    [Fact]
     public async Task DiscoverAsync_returns_canonical_issuer_and_jwks_uris()
     {
         Mock<IIdentityProviderDiscoveryService> discovery = new();
@@ -351,6 +459,83 @@ public sealed class IdentityProviderConfigurationControllerTests
 
         body.IssuerUri.Should().Be("https://idp.example/oidc");
         body.JwksUri.Should().Be("https://idp.example/oidc/jwks");
+    }
+
+    [Fact]
+    public async Task DiscoverAsync_returns_detached_copy_when_discovery_uris_already_canonical()
+    {
+        IdentityProviderDiscoverResponse shared = new()
+        {
+            Protocol = "oidc",
+            IssuerUri = "https://idp.example/oidc",
+            JwksUri = "https://idp.example/oidc/jwks",
+            DiscoverySucceeded = true,
+            DiagnosticSummary = "ok",
+        };
+
+        Mock<IIdentityProviderDiscoveryService> discovery = new();
+        discovery
+            .Setup(d => d.DiscoverAsync(It.IsAny<IdentityProviderDiscoverRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(shared);
+
+        IdentityProviderConfigurationController controller = CreateController(discoveryService: discovery.Object);
+        IdentityProviderDiscoverRequest request = new()
+        {
+            Protocol = "oidc",
+            MetadataUrl = "https://idp.example/.well-known/openid-configuration",
+        };
+
+        IActionResult firstResult = await controller.DiscoverAsync(request, CancellationToken.None);
+        IActionResult secondResult = await controller.DiscoverAsync(request, CancellationToken.None);
+
+        IdentityProviderDiscoverResponse firstBody =
+            firstResult.Should().BeOfType<OkObjectResult>().Subject.Value
+                .Should().BeOfType<IdentityProviderDiscoverResponse>().Subject;
+        IdentityProviderDiscoverResponse secondBody =
+            secondResult.Should().BeOfType<OkObjectResult>().Subject.Value
+                .Should().BeOfType<IdentityProviderDiscoverResponse>().Subject;
+
+        ReferenceEquals(firstBody, secondBody).Should().BeFalse(
+            "Discover must return a detached snapshot, not the discovery service response instance.");
+    }
+
+    [Fact]
+    public async Task DiscoverAsync_rejects_canonical_issuer_uri_longer_than_persisted_column()
+    {
+        string issuerUri = "https://idp.example/" + new string(
+            'a',
+            IdentityProviderPersistedFieldLimits.IssuerUriMaxLength - "https://idp.example/".Length + 1);
+
+        Mock<IIdentityProviderDiscoveryService> discovery = new();
+        discovery
+            .Setup(d => d.DiscoverAsync(It.IsAny<IdentityProviderDiscoverRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new IdentityProviderDiscoverResponse
+            {
+                Protocol = "oidc",
+                IssuerUri = issuerUri,
+                DiscoverySucceeded = true,
+                DiagnosticSummary = "ok",
+            });
+
+        IdentityProviderConfigurationController controller = CreateController(discoveryService: discovery.Object);
+
+        IActionResult result = await controller.DiscoverAsync(
+            new IdentityProviderDiscoverRequest
+            {
+                Protocol = "oidc",
+                MetadataUrl = "https://idp.example/.well-known/openid-configuration",
+            },
+            CancellationToken.None);
+
+        ObjectResult objectResult = result.Should().BeOfType<ObjectResult>().Subject;
+        objectResult.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        objectResult.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>();
+
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            (Microsoft.AspNetCore.Mvc.ProblemDetails)objectResult.Value!;
+
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
+        problem.Detail.Should().Contain("IssuerUri");
     }
 
     [Fact]
@@ -442,6 +627,34 @@ public sealed class IdentityProviderConfigurationControllerTests
 
         captured.Should().NotBeNull();
         captured!.Protocol.Should().Be("saml");
+    }
+
+    [Fact]
+    public void TestLogin_rejects_canonical_issuer_uri_longer_than_persisted_column()
+    {
+        IdentityProviderConfigurationController controller = CreateController();
+        string issuerUri = "https://idp.example/" + new string(
+            'a',
+            IdentityProviderPersistedFieldLimits.IssuerUriMaxLength - "https://idp.example/".Length + 1);
+
+        IActionResult result = controller.TestLogin(
+            new IdentityProviderTestLoginRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = issuerUri,
+                ClaimMapping = ValidClaimMapping(),
+                SampleClaimValues = ["al-admins"],
+            });
+
+        ObjectResult objectResult = result.Should().BeOfType<ObjectResult>().Subject;
+        objectResult.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        objectResult.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>();
+
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            (Microsoft.AspNetCore.Mvc.ProblemDetails)objectResult.Value!;
+
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
+        problem.Detail.Should().Contain("IssuerUri");
     }
 
     [Theory]

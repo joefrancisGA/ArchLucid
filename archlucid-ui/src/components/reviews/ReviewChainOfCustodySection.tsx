@@ -8,7 +8,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import type { RunDetail } from "@/types/authority";
 
 import { runDetailSectionHeadingClass } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/run-detail-section-heading";
@@ -80,11 +80,11 @@ export function ReviewChainOfCustodySection({
   const syncOpenSectionKeyToUrl = useCallback(
     (sectionKey: string | null) => {
       commitHrefIfChanged(
-        reviewChainOfCustodySectionDisclosureHrefFromSearch(readWindowLocationSearch(), sectionKey, pathname),
+        reviewChainOfCustodySectionDisclosureHrefFromSearch(searchParams.toString(), sectionKey, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setOpenSectionKey = useCallback(

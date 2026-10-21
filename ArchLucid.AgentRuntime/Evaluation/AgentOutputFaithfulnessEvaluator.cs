@@ -107,8 +107,8 @@ public sealed class AgentOutputFaithfulnessEvaluator(
             return null;
         }
 
-        string evidenceText = TrimForJudge(index.FullBlob, opts.MaxEvidenceCharacters);
-        string agentJson = TrimForJudge(parsedResultJson, opts.MaxInputCharacters);
+        string evidenceText = AgentOutputJudgePayloadTrimmer.Trim(index.FullBlob, opts.MaxEvidenceCharacters);
+        string agentJson = AgentOutputJudgePayloadTrimmer.Trim(parsedResultJson, opts.MaxInputCharacters);
 
         ResolvedSystemPrompt systemResolved = FaithfulnessJudgePromptResolver.Resolve();
         AgentPromptActivityTags.Apply(systemResolved);
@@ -157,18 +157,6 @@ public sealed class AgentOutputFaithfulnessEvaluator(
         }
     }
 
-    private static string TrimForJudge(string text, int maxChars)
-    {
-        maxChars = Math.Max(4096, maxChars);
-
-        if (text.Length <= maxChars)
-            return text;
-
-        return text.Substring(0, maxChars) +
-               "\n…truncated_total_chars=" +
-               text.Length.ToString(CultureInfo.InvariantCulture);
-    }
-
     private static double? TryParseFaithfulnessResponse(string raw)
     {
         if (string.IsNullOrWhiteSpace(raw))
@@ -188,6 +176,7 @@ public sealed class AgentOutputFaithfulnessEvaluator(
                 return null;
 
             // Scores outside the judge contract are malformed output, not low/high confidence.
+
             if (score < 0.0 || score > 1.0)
                 return null;
 
@@ -201,10 +190,12 @@ public sealed class AgentOutputFaithfulnessEvaluator(
 
     private static double ReadScore(JsonElement root)
     {
-        if (root.TryGetProperty("faithfulnessScore", out JsonElement camel) && TryGetDouble(camel, out double v1))
+        if (AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(root, "faithfulnessScore", out JsonElement camel)
+            && TryGetDouble(camel, out double v1))
             return v1;
 
-        if (root.TryGetProperty("faithfulness_score", out JsonElement snake) && TryGetDouble(snake, out double v2))
+        if (AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(root, "faithfulness_score", out JsonElement snake)
+            && TryGetDouble(snake, out double v2))
             return v2;
 
         return double.NaN;

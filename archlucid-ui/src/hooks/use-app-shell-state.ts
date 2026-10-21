@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState, type SetStateAction } from "r
 import { usePathname, useRouter } from "next/navigation";
 
 import type { HelpTabId } from "@/components/HelpPanel";
+import { isReviewWorkspaceDetailRoutePath } from "@/lib/architecture/review-workspace-route";
 import {
   pathMatchesGovernanceAlerts,
   pathMatchesGovernanceAudit,
@@ -140,7 +141,7 @@ export function useAppShellState() {
     pathMatchesGovernanceAudit(pathname) ||
     pathMatchesGovernanceAlerts(pathname) ||
     pathMatchesGovernancePolicyPacks(pathname) ||
-    (pathname.startsWith("/architecture/reviews/") && pathname.split("/").filter(Boolean).length >= 2);
+    isReviewWorkspaceDetailRoutePath(pathname);
 
   const isAuthRoute = pathname.startsWith("/auth/");
   const isAccessDeniedRoute = pathname === "/403";

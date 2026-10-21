@@ -11,7 +11,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { INTERNAL_REPLAY_PATH } from "@/lib/internal-ops-route-paths";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import {
   RUN_REFINE_WITH_AI_OPEN_PARAM,
   parseRunRefineWithAiOpenFromSearch,
@@ -43,11 +43,11 @@ export function RunDetailOperatorPipelineToolsCollapsible(
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
       commitHrefIfChanged(
-        runDetailRefineWithAiDisclosureHrefFromSearch(readWindowLocationSearch(), detailsOpen, pathname),
+        runDetailRefineWithAiDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setOpen = useCallback(

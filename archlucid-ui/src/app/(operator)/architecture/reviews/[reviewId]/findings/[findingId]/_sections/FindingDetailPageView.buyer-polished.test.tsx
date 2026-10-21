@@ -1,8 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 import { buildFindingDetailOrientationSources } from "@/lib/findings/finding-detail-evidence-copy";
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
@@ -16,6 +15,16 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/architecture/reviews/run-1/findings/finding-1",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
 }));
 
 vi.mock("./FindingDetailOperationalActions", () => ({
@@ -164,11 +173,10 @@ describe("FindingDetailPageView buyer-polished shell (RRF)", () => {
     expect(orientationTop).toContainElement(sourcesSection);
     expect(orientationTop.compareDocumentPosition(decisionSummary) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(
+    expectWhereToGoNextFollowUpLinks(
+      within(sourcesSection),
       buildFindingDetailOrientationSources("run-1", "finding-1"),
-    )) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+      "/architecture/reviews/run-1/findings/finding-1",
+    );
   });
 });

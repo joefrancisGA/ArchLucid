@@ -197,7 +197,7 @@ public sealed class ScopeResolutionGuardMiddlewareTests
     }
 
     [Fact]
-    public async Task InvokeAsync_staging_host_skips_double_slash_health_live_path()
+    public async Task InvokeAsync_staging_host_rejects_double_slash_health_live_path()
     {
         DefaultHttpContext context = CreateContext("//health/live");
         bool nextCalled = false;
@@ -213,14 +213,15 @@ public sealed class ScopeResolutionGuardMiddlewareTests
                 return Task.CompletedTask;
             });
 
-        nextCalled.Should().BeTrue();
+        nextCalled.Should().BeFalse();
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
     }
 
     [Theory]
     [InlineData("/health//live")]
     [InlineData("/health/./live")]
     [InlineData("//health//ready")]
-    public async Task InvokeAsync_staging_host_skips_health_probe_with_empty_or_dot_segments(string path)
+    public async Task InvokeAsync_staging_host_does_not_skip_health_probe_with_empty_or_dot_segments(string path)
     {
         DefaultHttpContext context = CreateContext(path);
         bool nextCalled = false;
@@ -236,13 +237,35 @@ public sealed class ScopeResolutionGuardMiddlewareTests
                 return Task.CompletedTask;
             });
 
-        nextCalled.Should().BeTrue();
+        nextCalled.Should().BeFalse();
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
     }
 
     [Fact]
     public async Task InvokeAsync_staging_host_rejects_empty_segment_on_authorized_health_path()
     {
         DefaultHttpContext context = CreateContext("/health//detailed");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse();
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_does_not_skip_health_live_parent_segment_escape()
+    {
+        DefaultHttpContext context = CreateContext("/health/live/../v1/runs");
         bool nextCalled = false;
 
         await RunMiddlewareAsync(

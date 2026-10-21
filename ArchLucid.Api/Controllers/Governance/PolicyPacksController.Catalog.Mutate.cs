@@ -24,6 +24,7 @@ public sealed partial class PolicyPacksController
     [ProducesResponseType(typeof(PolicyPackCatalogEntryDetail), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [RequiresGovernanceScopePostureSealedManifest("Catalog promotion mutates effective governance catalog.")]
     public async Task<IActionResult> PromoteCatalogEntry(
         [FromBody] PromotePolicyPackCatalogEntryRequest? request,
         CancellationToken ct = default)
@@ -42,7 +43,9 @@ public sealed partial class PolicyPacksController
         if (sealedGuardResult is not null)
             return sealedGuardResult;
 
-        string? normalizedVersion = request.Version?.Trim();
+        string? normalizedVersion = request.Version is null
+            ? null
+            : PolicyPackSemVerVersion.Parse(request.Version).Value;
 
         PolicyPackHttpResult<PolicyPackCatalogEntryDetail> result;
         try
@@ -87,6 +90,7 @@ public sealed partial class PolicyPacksController
     [MutatingAuditExcluded("Audit: IPolicyPackHttpFacade.DemoteCatalogEntryAsync logs PolicyPackCatalogDemoted.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [RequiresGovernanceScopePostureSealedManifest("Catalog demotion mutates effective governance catalog.")]
     public async Task<IActionResult> DemoteCatalogEntry(
         [FromBody] DemotePolicyPackCatalogEntryRequest? request,
         CancellationToken ct = default)

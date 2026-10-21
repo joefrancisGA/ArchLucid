@@ -1,6 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-
 const admitDraftRequest = vi.fn();
 const createDraftRequest = vi.fn();
 const getDraftQuestions = vi.fn();
@@ -8,6 +7,53 @@ const getDraftRequest = vi.fn();
 const patchDraftRequest = vi.fn();
 const initializeArchitectureCreation = vi.fn();
 const searchParamsGet = vi.hoisted(() => vi.fn(() => null as string | null));
+const socraticIntakeUrlHarness = vi.hoisted(() => {
+  const listeners = new Set<() => void>();
+  const state = { query: "" };
+
+  return {
+    state,
+    subscribe(listener: () => void): () => void {
+      listeners.add(listener);
+
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+    applyHref(href: string): void {
+      try {
+        const url = new URL(href, "http://localhost/");
+        state.query = url.search.startsWith("?") ? url.search.slice(1) : url.search;
+        window.history.replaceState(null, "", url.pathname + url.search + url.hash);
+      } catch {
+        const qIndex = href.indexOf("?");
+        state.query = qIndex >= 0 ? href.slice(qIndex + 1) : "";
+      }
+
+      for (const listener of listeners) {
+        listener();
+      }
+    },
+    reset(): void {
+      state.query = "";
+      window.history.replaceState(null, "", "/architecture/reviews/new");
+    },
+  };
+});
+
+vi.mock("@/lib/navigation/replace-if-href-changed", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/navigation/replace-if-href-changed")>();
+
+  return {
+    ...actual,
+    readWindowLocationSearch: () => socraticIntakeUrlHarness.state.query,
+    commitHrefIfChanged: (href: string, _options?: { readonly notify?: boolean }) => {
+      socraticIntakeUrlHarness.applyHref(href);
+
+      return true;
+    },
+  };
+});
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
@@ -15,7 +61,15 @@ vi.mock("next/navigation", async (importOriginal) => {
   return {
     ...actual,
     useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
-    useSearchParams: () => ({ get: (key: string) => searchParamsGet(key) }),
+    usePathname: () => "/architecture/reviews/new",
+    useSearchParams: () => {
+      const params = new URLSearchParams(socraticIntakeUrlHarness.state.query);
+
+      return {
+        get: (key: string) => searchParamsGet(key) ?? params.get(key),
+        toString: () => socraticIntakeUrlHarness.state.query,
+      };
+    },
   };
 });
 
@@ -153,6 +207,7 @@ function confirmStep0Scope(): void {
 
 describe("SocraticIntakeWizard create-architecture intent", () => {
   beforeEach(() => {
+    socraticIntakeUrlHarness.reset();
     admitDraftRequest.mockReset();
     createDraftRequest.mockReset();
     getDraftQuestions.mockReset();

@@ -61,6 +61,36 @@ public sealed class DeploymentEvidenceReportMarkdownTests
     }
 
     [Fact]
+    public void Compose_terraform_section_keeps_heading_citation_and_numbered_list_in_order()
+    {
+        DeploymentEvidenceProbeResult live =
+            new("GET /health/live", 200, true, "HTTP 200", [], "(empty body)");
+
+        DeploymentEvidenceProbeBundle bundle = new([live], allRequiredPassed: true);
+
+        string md = DeploymentEvidenceReportMarkdown.Compose(
+            environmentName: "staging",
+            apiBaseUrl: "https://staging.example.com",
+            apiBaseUrlRedacted: "https://staging.example.com",
+            generatedAtUtc: new DateTime(2026, 5, 6, 12, 0, 0, DateTimeKind.Utc),
+            repositoryRoot: "C:\\repo",
+            gitHeadSha: "deadbeef",
+            gitDirty: false,
+            bundle,
+            cli: null,
+            allowMissingOpenApi: false,
+            syntheticPath: "/version");
+
+        int headingIndex = md.IndexOf("## Terraform roots (expected apply order)", StringComparison.Ordinal);
+        int citationIndex = md.IndexOf(DeploymentEvidenceTerraformReference.DocumentationRelativePath, StringComparison.Ordinal);
+        int firstRootIndex = md.IndexOf("1. infra/terraform-foundation", StringComparison.Ordinal);
+
+        headingIndex.Should().BeGreaterThanOrEqualTo(0);
+        citationIndex.Should().BeGreaterThan(headingIndex);
+        firstRootIndex.Should().BeGreaterThan(citationIndex);
+    }
+
+    [Fact]
     public void Compose_numbered_list_includes_every_default_apply_order_root_line_verbatim()
     {
         DeploymentEvidenceProbeResult live =

@@ -45,6 +45,16 @@ export type InfraEvidenceMermaidRenderQuery = {
   readonly hiddenExecutiveTierKeys?: readonly string[] | null;
 };
 
+export type InfraEvidenceMermaidPreviewQuery = Pick<
+  InfraEvidenceMermaidRenderQuery,
+  | "includeNeverShow"
+  | "includePrivateEndpointNodes"
+  | "includeNetworkDetails"
+  | "includeRecoveryServices"
+  | "includeCrossGroupFanOut"
+  | "includeAvdAssets"
+>;
+
 export type InfraEvidenceMermaidPngDownloadOptions = {
   readonly fallbackMermaidSource?: string | null;
   readonly fallbackSvgMarkup?: string | null;
@@ -110,9 +120,12 @@ function buildMermaidQuery(params: InfraEvidenceMermaidRenderQuery): string {
 
 export async function fetchInfraEvidenceMermaidPreview(
   snapshotId: string,
+  query: InfraEvidenceMermaidPreviewQuery = {},
 ): Promise<InfraEvidenceMermaidPreviewResponse> {
+  const queryString = buildMermaidQuery(query);
+
   return proxyJsonGet<InfraEvidenceMermaidPreviewResponse>(
-    `${SNAPSHOTS_PATH}/${snapshotId}/mermaid/preview`,
+    `${SNAPSHOTS_PATH}/${snapshotId}/mermaid/preview${queryString}`,
   );
 }
 

@@ -5,6 +5,8 @@
 
 .DESCRIPTION
   Appends hunt events to docs/library/AL_BUG_HUNT_RUN_LOG.jsonl (one JSON object per line).
+  -RecordHunt opens the log in append mode and never rewrites or prunes the file.
+  Optional -PruneEntriesOlderThanDays rewrites via a temp file and requires -AllowLineCountDecrease.
   Use after each /al-bug invocation that completes a hunt (hit, dry, or seed-only).
   Do not record for --status preview-only runs.
 
@@ -71,11 +73,23 @@ param(
 
     [string] $RepoRoot,
 
-    [string] $RunLogPath
+    [string] $RunLogPath,
+
+    [int] $PruneEntriesOlderThanDays,
+
+    [switch] $AllowLineCountDecrease
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+
+$runLogUtilsScript = Join-Path $PSScriptRoot 'al-bug-run-log-utils.ps1'
+
+if (-not (Test-Path -LiteralPath $runLogUtilsScript)) {
+    throw "Missing run log helper: '$runLogUtilsScript'."
+}
+
+. $runLogUtilsScript
 
 function Get-RepoRoot {
     param([string] $ExplicitRoot)
@@ -243,7 +257,7 @@ function Get-Rolling24HourHuntStats {
     $archlucidShared = New-ProductLine24HourBucket
 
     foreach ($entry in $Entries) {
-        $at = ConvertTo-UtcDateTime -IsoTimestamp ([string]$entry.at)
+        $at = ConvertTo-UtcDateTime -IsoTimestamp (Get-RunLogEntryIsoTimestamp -Entry $entry)
 
         if ($at -lt $cutoff) {
             continue
@@ -368,44 +382,43 @@ function Write-Rolling24HourHuntPreview {
 function Prune-HuntRunLog {
     param(
         [object[]] $Entries,
-        [datetime] $NowUtc
+        [datetime] $NowUtc,
+        [int] $OlderThanDays = 30
     )
 
-    $retentionCutoff = $NowUtc.AddDays(-30)
+    if ($OlderThanDays -le 0) {
+        return @($Entries)
+    }
+
+    $retentionCutoff = $NowUtc.AddDays(-1 * $OlderThanDays)
 
     return @(
         $Entries | Where-Object {
-            $at = ConvertTo-UtcDateTime -IsoTimestamp ([string]$_.at)
+            $at = ConvertTo-UtcDateTime -IsoTimestamp (Get-RunLogEntryIsoTimestamp -Entry $_)
             $at -ge $retentionCutoff
         }
     )
 }
 
-function Write-HuntRunLog {
+function Convert-HuntRunLogEntriesToJsonLines {
+    param([object[]] $Entries)
+
+    return @(
+        $Entries | ForEach-Object {
+            ($_ | ConvertTo-Json -Compress)
+        }
+    )
+}
+
+function Write-HuntRunLogPruned {
     param(
         [string] $Path,
-        [object[]] $Entries
+        [object[]] $Entries,
+        [switch] $AllowLineCountDecrease
     )
 
-    $parent = Split-Path -Parent $Path
-
-    if (-not (Test-Path -LiteralPath $parent)) {
-        New-Item -ItemType Directory -Path $parent -Force | Out-Null
-    }
-
-    if ($Entries.Count -eq 0) {
-        if (Test-Path -LiteralPath $Path) {
-            Set-Content -LiteralPath $Path -Value '' -Encoding UTF8 -NoNewline
-        }
-
-        return
-    }
-
-    $lines = $Entries | ForEach-Object {
-        ($_ | ConvertTo-Json -Compress)
-    }
-
-    Set-Content -LiteralPath $Path -Value $lines -Encoding UTF8
+    $lines = Convert-HuntRunLogEntriesToJsonLines -Entries $Entries
+    Rewrite-HuntRunLogWithLineCountGuard -Path $Path -NewLines $lines -AllowLineCountDecrease:$AllowLineCountDecrease
 }
 
 if (-not $RecordHunt -and -not $Rolling24h) {
@@ -476,9 +489,26 @@ if ($RecordHunt) {
         $newEntry | Add-Member -NotePropertyName defectClass -NotePropertyValue $DefectClass
     }
 
+    $beforeLineCount = Get-HuntRunLogPhysicalLineCount -Path $resolvedLog
+    $jsonLine = $newEntry | ConvertTo-Json -Compress
+    Add-HuntRunLogEntryLine -Path $resolvedLog -JsonLine $jsonLine
+    $afterLineCount = Get-HuntRunLogPhysicalLineCount -Path $resolvedLog
+
+    if ($afterLineCount -lt ($beforeLineCount + 1)) {
+        throw @"
+AL_BUG_HUNT_RUN_LOG append failed: expected line count >= $($beforeLineCount + 1) but found $afterLineCount.
+"@
+    }
+
     $entries = @($entries) + @($newEntry)
-    $entries = Prune-HuntRunLog -Entries $entries -NowUtc $nowUtc
-    Write-HuntRunLog -Path $resolvedLog -Entries $entries
+}
+
+if ($PruneEntriesOlderThanDays -gt 0) {
+    $entries = Read-HuntRunLog -Path $resolvedLog
+    $pruned = Prune-HuntRunLog -Entries $entries -NowUtc $nowUtc -OlderThanDays $PruneEntriesOlderThanDays
+    $lines = Convert-HuntRunLogEntriesToJsonLines -Entries $pruned
+    Rewrite-HuntRunLogWithLineCountGuard -Path $resolvedLog -NewLines $lines -AllowLineCountDecrease:$AllowLineCountDecrease
+    $entries = $pruned
 }
 
 if ($Rolling24h) {

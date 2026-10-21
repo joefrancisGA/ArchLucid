@@ -12,6 +12,7 @@ internal static partial class RunExplanationAggregateJsonReader
         bool found = false;
 
         foreach (JsonProperty property in element.EnumerateObject())
+
             if (string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
             {
                 // Duplicate JSON properties are accepted by JsonDocument; use the last matching value like common JSON
@@ -1454,38 +1455,37 @@ internal static partial class RunExplanationAggregateJsonReader
 
     internal static string? TryReadEvidenceRefObjectStringProperty(JsonElement jsonElement)
     {
+        string? readableText = null;
+
+        if (TryGetPropertyCaseInsensitivePreferLastNonEmpty(jsonElement, "text", out JsonElement textElement)
+            && TryReadNonEmptyTextToken(textElement, out string? text)
+            && !string.IsNullOrWhiteSpace(text))
+        {
+            readableText = text.Trim();
+        }
+
+        string? readableId = null;
+
+        if (TryGetPropertyCaseInsensitivePreferLastNonEmpty(jsonElement, "id", out JsonElement idElement)
+            && TryReadNonEmptyTextToken(idElement, out string? id)
+            && !string.IsNullOrWhiteSpace(id))
+        {
+            readableId = id.Trim();
+        }
+
+        if (readableText is not null && readableId is not null)
+            return readableId;
+
+        if (readableText is not null)
+            return readableText;
+
+        // Blank `text` with a non-empty `id` is the in-array poison shape; do not fall back to id.
+
         if (ObjectHasCaseInsensitiveProperty(jsonElement, "text"))
-        {
-            if (TryGetPropertyCaseInsensitivePreferLastNonEmpty(jsonElement, "text", out JsonElement textElement)
-                && TryReadNonEmptyTextToken(textElement, out string? text)
-                && !string.IsNullOrWhiteSpace(text))
-            {
-                if (TryGetPropertyCaseInsensitivePreferLastNonEmpty(jsonElement, "id", out JsonElement idElement)
-                    && TryReadNonEmptyTextToken(idElement, out string? id)
-                    && !string.IsNullOrWhiteSpace(id))
-                {
-                    return id.Trim();
-                }
-
-                return text.Trim();
-            }
-
             return null;
-        }
 
-        if (TryGetPropertyCaseInsensitivePreferLastNonEmpty(jsonElement, "id", out JsonElement idOnlyElement)
-            && TryReadNonEmptyTextToken(idOnlyElement, out string? idOnly)
-            && !string.IsNullOrWhiteSpace(idOnly))
-        {
-            return idOnly.Trim();
-        }
-
-        if (TryGetPropertyCaseInsensitivePreferLastNonEmpty(jsonElement, "text", out JsonElement textOnlyElement)
-            && TryReadNonEmptyTextToken(textOnlyElement, out string? textOnly)
-            && !string.IsNullOrWhiteSpace(textOnly))
-        {
-            return textOnly.Trim();
-        }
+        if (readableId is not null)
+            return readableId;
 
         return null;
     }

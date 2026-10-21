@@ -16,24 +16,22 @@ public sealed class ArchitectureReviewRobustnessWave58ArchitectureTests
     public void Suggestion681_683_setup_resolution_and_environment_catalog_openapi_409()
     {
         string setupController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceSetupController.cs");
-        string setupGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceSetupController.SealedManifestGuard.cs");
         string resolutionController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceResolutionController.cs");
-        string resolutionGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceResolutionController.SealedManifestGuard.cs");
         string catalogController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceEnvironmentCatalogController.cs");
-        string catalogGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceEnvironmentCatalogController.SealedManifestGuard.cs");
+        string scopePostureCatalog = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Http/Governance/GovernanceScopePostureSealedManifestEndpointCatalog.cs");
 
         setupController.Should().Contain("GetSetupGuideBundle");
-        setupController.Should().Contain("EnsureGovernanceScopeSealedManifestReadAllowedAsync");
+        setupController.Should().NotContain("EnsureGovernanceScopeSealedManifestReadAllowedAsync");
         setupController.Should().Contain("Status409Conflict");
-        setupGuard.Should().Contain("GovernancePostureSealedManifestHashGuard");
+        scopePostureCatalog.Should().Contain("GovernanceSetupController\", \"GetSetupGuideBundle\", GovernanceScopePostureSealedManifestClassification.ExemptMetadataOrConfigRead");
         resolutionController.Should().Contain("Resolve");
-        resolutionController.Should().Contain("EnsureGovernanceScopeSealedManifestReadAllowedAsync");
+        resolutionController.Should().NotContain("EnsureGovernanceScopeSealedManifestReadAllowedAsync");
         resolutionController.Should().Contain("Status409Conflict");
-        resolutionGuard.Should().Contain("EnsureGovernanceScopeSealedManifestReadAllowedAsync");
+        scopePostureCatalog.Should().Contain("GovernanceResolutionController\", \"Resolve\", GovernanceScopePostureSealedManifestClassification.ExemptMetadataOrConfigRead");
         catalogController.Should().Contain("Get");
-        catalogController.Should().Contain("EnsureGovernanceScopeSealedManifestReadAllowedAsync");
+        catalogController.Should().NotContain("EnsureGovernanceScopeSealedManifestReadAllowedAsync");
         catalogController.Should().Contain("Status409Conflict");
-        catalogGuard.Should().Contain("GovernancePostureSealedManifestHashGuard");
+        scopePostureCatalog.Should().Contain("GovernanceEnvironmentCatalogController\", \"Get\", GovernanceScopePostureSealedManifestClassification.ExemptMetadataOrConfigRead");
     }
 
     [Fact]

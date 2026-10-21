@@ -10,6 +10,7 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Api.Controllers.Alerts;
 
@@ -29,7 +30,8 @@ namespace ArchLucid.Api.Controllers.Alerts;
 public sealed partial class AlertSimulationController(
     IScopeContextProvider scopeProvider,
     IRuleSimulationService simulationService,
-    IAuditService auditService)
+    IAuditService auditService,
+    ILogger<AlertSimulationController> logger)
     : ControllerBase
 {
     private readonly IScopeContextProvider _scopeProvider =
@@ -40,4 +42,7 @@ public sealed partial class AlertSimulationController(
 
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly ILogger<AlertSimulationController> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
 }

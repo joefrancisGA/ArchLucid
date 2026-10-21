@@ -85,10 +85,8 @@ public sealed class BillingProviderRegistryTests
         BillingWebhookTrialActivator activator = new(ledger.Object, new Mock<ITenantRepository>().Object, new Mock<IAuditService>().Object);
         Mock<IMarketplaceWebhookTokenVerifier> verifier = new();
         Mock<IHttpClientFactory> httpFactory = new();
-        MarketplaceChangePlanWebhookMutationHandler changePlanHandler = new(
-            monitor,
-            ledger.Object,
-            NullLogger<MarketplaceChangePlanWebhookMutationHandler>.Instance);
+        MarketplaceChangePlanWebhookMutationHandler changePlanHandler =
+            MarketplaceChangePlanHandlerTestSupport.CreateHandler(monitor, ledger.Object);
         MarketplaceChangeQuantityWebhookMutationHandler changeQtyHandler = new(
             monitor,
             ledger.Object,

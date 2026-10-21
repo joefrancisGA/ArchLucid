@@ -8,10 +8,6 @@ namespace ArchLucid.Core.Billing.AzureMarketplace;
 /// </summary>
 public static class MarketplaceWebhookPayloadParser
 {
-    /// <inheritdoc cref="MarketplacePlanIdMapper.TierStorageCodeFromPlanId" />
-    public static string TierStorageCodeFromPlanId(string? planId) =>
-        MarketplacePlanIdMapper.TierStorageCodeFromPlanId(planId);
-
     /// <inheritdoc cref="MarketplaceChangePlanReader.TryGetPlanId" />
     public static bool TryGetPlanId(JsonElement root, out string? planId) =>
         MarketplaceChangePlanReader.TryGetPlanId(root, out planId);

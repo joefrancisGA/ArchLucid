@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { createElement, useSyncExternalStore, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -42,8 +42,10 @@ vi.mock("@/lib/navigation/replace-if-href-changed", async (importOriginal) => {
   };
 });
 
+const pathnameMock = vi.hoisted(() => ({ value: "/architecture/reviews/run-b" }));
+
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/architecture/reviews/demo-run-id",
+  usePathname: () => pathnameMock.value,
   useSearchParams: () => new URLSearchParams(moreTabsSearchParamsHarness.state.query),
 }));
 
@@ -68,7 +70,36 @@ describe("ReviewWorkspaceMoreTabsMenu", () => {
   beforeEach(() => {
     commitHrefIfChanged.mockClear();
     moreTabsSearchParamsHarness.reset();
-    window.history.replaceState(null, "", "/architecture/reviews/demo-run-id");
+    pathnameMock.value = "/architecture/reviews/run-b";
+    window.history.replaceState(
+      null,
+      "",
+      "/architecture/reviews/run-a?reviewTab=findings&q=stale-payment",
+    );
+  });
+
+  it("opens more tabs menu from useSearchParams when window.location.search lags after soft navigation", async () => {
+    moreTabsSearchParamsHarness.state.query = "reviewTab=overview";
+
+    render(
+      <MoreTabsSearchParamsRerenderHost>
+        <ReviewWorkspaceMoreTabsMenu
+          lifecycle={menuProps.lifecycle}
+          moreTabIds={menuProps.moreTabIds}
+          activeTab={menuProps.activeTab}
+          onTabChange={menuProps.onTabChange}
+        />
+      </MoreTabsSearchParamsRerenderHost>,
+    );
+
+    fireEvent.click(screen.getByTestId("review-detail-workspace-more-tabs"));
+
+    await waitFor(() => {
+      expect(commitHrefIfChanged).toHaveBeenCalledWith(
+        `/architecture/reviews/run-b?reviewTab=overview&${REVIEW_WORKSPACE_MORE_TABS_OPEN_PARAM}=1`,
+        { notify: false },
+      );
+    });
   });
 
   it("does not commit href churn when the menu mounts closed", async () => {
@@ -104,7 +135,7 @@ describe("ReviewWorkspaceMoreTabsMenu", () => {
     window.history.replaceState(
       null,
       "",
-      `/architecture/reviews/demo-run-id?${REVIEW_WORKSPACE_MORE_TABS_OPEN_PARAM}=1`,
+      `/architecture/reviews/run-b?${REVIEW_WORKSPACE_MORE_TABS_OPEN_PARAM}=1`,
     );
     view.rerender(
       <MoreTabsSearchParamsRerenderHost>

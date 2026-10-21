@@ -1,5 +1,6 @@
 namespace ArchLucid.Api.Middleware;
 
+using ArchLucid.Api.Security;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Host.Core.Auth.Services;
 
@@ -58,7 +59,7 @@ internal sealed class ScopeIdentityBindingMiddleware(RequestDelegate next)
 
     private static async Task TryAuthenticateScimBearerForScopeBindingAsync(HttpContext context)
     {
-        if (!context.Request.Path.StartsWithSegments("/scim", StringComparison.OrdinalIgnoreCase))
+        if (!ApiPathSkipSafety.SafeStartsWithSegments(context.Request.Path, "/scim"))
             return;
 
         IServiceProvider? services = context.RequestServices;

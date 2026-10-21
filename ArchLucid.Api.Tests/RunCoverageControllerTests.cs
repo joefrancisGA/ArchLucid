@@ -52,6 +52,31 @@ public sealed class RunCoverageControllerTests
         };
 
     [Fact]
+    public async Task PutAcknowledgedCoverage_returns_bad_request_when_entries_collection_contains_null_element()
+    {
+        RunCoverageController sut = BuildSut();
+
+        IActionResult result = await sut.PutAcknowledgedCoverage(
+            RunGuid,
+            new PutRunCoverageAcknowledgementRequest
+            {
+                Entries = new RunCoverageAcknowledgementEntryRequest[] { null! },
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        _acknowledgementService.Verify(
+            static s => s.PutAcknowledgementAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<RunAcknowledgedCoverageDocument>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task PutAcknowledgedCoverage_returns_bad_request_when_exclusion_reason_exceeds_max_free_text_length()
     {
         string overLimit = new('x', DraftIntakeValidation.MaximumFreeTextIntentLength + 1);

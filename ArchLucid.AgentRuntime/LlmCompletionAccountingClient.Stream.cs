@@ -170,37 +170,17 @@ public sealed partial class LlmCompletionAccountingClient
             return;
         }
 
-        _ = reasoningTok;
-
-        _quotaTracker.RecordUsage(scope.TenantId, promptTok, completionTok);
-
-        await _dailyTenantBudgetTracker
-            .RecordUsageAndMaybeWarnAsync(
-                scope.TenantId,
+        await SettleMeasuredCompletionUsageAsync(
+                scope,
                 providerKind,
-                _scopeProvider,
-                _auditService,
                 promptTok,
                 completionTok,
+                reasoningTok,
+                cachedPromptTok,
                 dailyReserved,
-                CancellationToken.None)
-            .ConfigureAwait(false);
-
-        await _monthlyDollarBudgetTracker
-            .RecordUsageAndMaybeWarnAsync(
-                scope.TenantId,
-                providerKind,
-                _scopeProvider,
-                _auditService,
-                promptTok,
-                completionTok,
                 monthlyReserved,
                 overageActive,
-                CancellationToken.None)
-            .ConfigureAwait(false);
-
-        await _telemetry
-            .RecordTokenUsageAsync(scope, promptTok, completionTok, cachedPromptTok, CancellationToken.None)
+                useJudgeDailyCapOnly: false)
             .ConfigureAwait(false);
     }
 }

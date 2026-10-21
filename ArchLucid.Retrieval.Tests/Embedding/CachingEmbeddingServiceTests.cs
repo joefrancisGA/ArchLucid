@@ -62,6 +62,23 @@ public sealed class CachingEmbeddingServiceTests
     }
 
     [Fact]
+    public async Task EmbedManyAsync_throws_when_inner_returns_fewer_vectors_than_miss_texts()
+    {
+        Mock<IEmbeddingService> inner = new();
+        inner
+            .Setup(s => s.EmbedManyAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([new float[] { 1f }]);
+
+        using MemoryCache memoryCache = new(new MemoryCacheOptions { SizeLimit = 128 });
+        CachingEmbeddingService sut = CreateSut(inner.Object, memoryCache);
+
+        Func<Task> act = () => sut.EmbedManyAsync(["miss-a", "miss-b"], CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*1 vectors for 2 texts*");
+    }
+
+    [Fact]
     public async Task EmbedAsync_does_not_reuse_cache_entry_after_embedding_model_identity_changes()
     {
         Mock<IEmbeddingService> inner = new();
@@ -118,17 +135,5 @@ public sealed class CachingEmbeddingServiceTests
         identity.SetupGet(i => i.ExpectedDimension).Returns(dimension);
 
         return identity;
-    }
-}
-
-internal static class OptionsMonitorTestExtensions
-{
-    public static IOptionsMonitor<T> ToMonitor<T>(this IOptions<T> options)
-        where T : class
-    {
-        Mock<IOptionsMonitor<T>> monitor = new();
-        monitor.SetupGet(m => m.CurrentValue).Returns(options.Value);
-
-        return monitor.Object;
     }
 }

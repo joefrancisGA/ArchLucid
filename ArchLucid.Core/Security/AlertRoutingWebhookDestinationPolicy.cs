@@ -9,7 +9,12 @@ public static class AlertRoutingWebhookDestinationPolicy
         if (string.IsNullOrWhiteSpace(rawUrl))
             return "Webhook URL is required.";
 
-        if (!Uri.TryCreate(rawUrl.Trim(), UriKind.Absolute, out Uri? uri))
+        string trimmed = rawUrl.Trim();
+
+        if (WebhookHttpsUriLineBreakGuard.ContainsForbiddenLineBreakMaterial(trimmed))
+            return "Webhook URL must not include line break characters.";
+
+        if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri? uri))
             return "Webhook URL must be an absolute HTTPS URL.";
 
         if (!string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))

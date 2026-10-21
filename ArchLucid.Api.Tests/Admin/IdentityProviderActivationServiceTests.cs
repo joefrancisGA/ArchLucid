@@ -12,6 +12,13 @@ namespace ArchLucid.Api.Tests.Admin;
 [Trait("Suite", "Core")]
 public sealed class IdentityProviderActivationServiceTests
 {
+    private const string ValidSamlMetadataXml = """
+        <EntityDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata"
+                          entityID="https://idp.example/saml">
+          <IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol" />
+        </EntityDescriptor>
+        """;
+
     [Fact]
     public async Task ActivateAsync_persists_active_tenant_configuration()
     {
@@ -150,7 +157,7 @@ public sealed class IdentityProviderActivationServiceTests
         InMemoryTenantIdentityProviderConfigurationRepository repository = new();
         IdentityProviderActivationService sut = new(repository);
         Guid tenantId = Guid.Parse("22222222-2222-2222-2222-222222222222");
-        const string metadataXml = "<EntityDescriptor entityID=\"https://idp.example/saml\" />";
+        const string metadataXml = ValidSamlMetadataXml;
         IdentityClaimRoleMappingRequest mapping = new()
         {
             RoleClaimName = "groups",
@@ -201,7 +208,7 @@ public sealed class IdentityProviderActivationServiceTests
         InMemoryTenantIdentityProviderConfigurationRepository repository = new();
         IdentityProviderActivationService sut = new(repository);
         Guid tenantId = Guid.Parse("33333333-3333-3333-3333-333333333333");
-        const string metadataXml = "<EntityDescriptor entityID=\"https://idp.example/saml\" />";
+        const string metadataXml = ValidSamlMetadataXml;
         IdentityClaimRoleMappingRequest mapping = new()
         {
             RoleClaimName = "groups",
@@ -234,7 +241,8 @@ public sealed class IdentityProviderActivationServiceTests
             {
                 Protocol = "oidc",
                 IssuerUri = "https://idp.example/oidc",
-                ClaimMapping = mapping
+                ClaimMapping = mapping,
+                KeyVaultSecretName = "tenant-idp-client-secret",
             },
             CancellationToken.None);
 
@@ -285,7 +293,8 @@ public sealed class IdentityProviderActivationServiceTests
             {
                 Protocol = "saml",
                 IssuerUri = "https://idp.example/saml",
-                ClaimMapping = mapping
+                ClaimMapping = mapping,
+                MetadataXml = ValidSamlMetadataXml,
             },
             CancellationToken.None);
 
@@ -616,7 +625,8 @@ public sealed class IdentityProviderActivationServiceTests
             {
                 Protocol = protocol,
                 IssuerUri = "https://idp.example/",
-                ClaimMapping = ValidClaimMapping()
+                ClaimMapping = ValidClaimMapping(),
+                MetadataXml = expected == TenantIdentityProtocol.Saml ? ValidSamlMetadataXml : null,
             },
             CancellationToken.None);
 
@@ -668,7 +678,7 @@ public sealed class IdentityProviderActivationServiceTests
     }
 
     [Fact]
-    public async Task ActivateAsync_clears_key_vault_secret_when_whitespace_only_string_provided()
+    public async Task ActivateAsync_rejects_oidc_reactivate_that_would_clear_key_vault_secret_via_invisible_unicode()
     {
         InMemoryTenantIdentityProviderConfigurationRepository repository = new();
         IdentityProviderActivationService sut = new(repository);
@@ -687,7 +697,43 @@ public sealed class IdentityProviderActivationServiceTests
             },
             CancellationToken.None);
 
-        TenantIdentityProviderConfigurationRecord record = await sut.ActivateAsync(
+        Func<Task> act = () => sut.ActivateAsync(
+            tenantId,
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = mapping,
+                KeyVaultSecretName = "\u200B"
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*KeyVaultSecretName*");
+    }
+
+    [Fact]
+    public async Task ActivateAsync_rejects_oidc_reactivate_that_would_clear_key_vault_secret_via_whitespace()
+    {
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        IdentityProviderActivationService sut = new(repository);
+        Guid tenantId = Guid.Parse("a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0");
+        IdentityClaimRoleMappingRequest mapping = ValidClaimMapping();
+
+        await sut.ActivateAsync(
+            tenantId,
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = mapping,
+                KeyVaultSecretName = "tenant-idp-client-secret"
+            },
+            CancellationToken.None);
+
+        Func<Task> act = () => sut.ActivateAsync(
             tenantId,
             "admin@test",
             new IdentityProviderActivateRequest
@@ -699,11 +745,12 @@ public sealed class IdentityProviderActivationServiceTests
             },
             CancellationToken.None);
 
-        record.KeyVaultSecretName.Should().BeNull();
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*KeyVaultSecretName*");
     }
 
     [Fact]
-    public async Task ActivateAsync_clears_metadata_xml_when_whitespace_only_string_provided()
+    public async Task ActivateAsync_rejects_saml_reactivate_that_would_clear_metadata_via_whitespace()
     {
         InMemoryTenantIdentityProviderConfigurationRepository repository = new();
         IdentityProviderActivationService sut = new(repository);
@@ -718,11 +765,11 @@ public sealed class IdentityProviderActivationServiceTests
                 Protocol = "saml",
                 IssuerUri = "https://idp.example/saml",
                 ClaimMapping = mapping,
-                MetadataXml = "<EntityDescriptor entityID=\"https://idp.example/saml\" />"
+                MetadataXml = ValidSamlMetadataXml
             },
             CancellationToken.None);
 
-        TenantIdentityProviderConfigurationRecord record = await sut.ActivateAsync(
+        Func<Task> act = () => sut.ActivateAsync(
             tenantId,
             "admin@test",
             new IdentityProviderActivateRequest
@@ -734,7 +781,195 @@ public sealed class IdentityProviderActivationServiceTests
             },
             CancellationToken.None);
 
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*MetadataXml*");
+    }
+
+    [Fact]
+    public async Task ActivateAsync_rejects_malformed_saml_metadata_xml()
+    {
+        IdentityProviderActivationService sut = new(new InMemoryTenantIdentityProviderConfigurationRepository());
+
+        Func<Task> act = () => sut.ActivateAsync(
+            Guid.Parse("16161616-1616-1616-1616-161616161616"),
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "saml",
+                IssuerUri = "https://idp.example/saml",
+                ClaimMapping = ValidClaimMapping(),
+                MetadataXml = "not-xml"
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*valid SAML metadata*");
+    }
+
+    [Fact]
+    public async Task ActivateAsync_rejects_saml_activate_without_metadata_on_greenfield_tenant()
+    {
+        IdentityProviderActivationService sut = new(new InMemoryTenantIdentityProviderConfigurationRepository());
+
+        Func<Task> act = () => sut.ActivateAsync(
+            Guid.Parse("17171717-1717-1717-1717-171717171717"),
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "saml",
+                IssuerUri = "https://idp.example/saml",
+                ClaimMapping = ValidClaimMapping(),
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*MetadataXml*");
+    }
+
+    [Fact]
+    public async Task ActivateAsync_rejects_protocol_switch_to_saml_without_metadata()
+    {
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        IdentityProviderActivationService sut = new(repository);
+        Guid tenantId = Guid.Parse("18181818-1818-1818-1818-181818181818");
+
+        await sut.ActivateAsync(
+            tenantId,
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = ValidClaimMapping(),
+                KeyVaultSecretName = "tenant-idp-client-secret",
+            },
+            CancellationToken.None);
+
+        Func<Task> act = () => sut.ActivateAsync(
+            tenantId,
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "saml",
+                IssuerUri = "https://idp.example/saml",
+                ClaimMapping = ValidClaimMapping(),
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*MetadataXml*");
+    }
+
+    [Fact]
+    public async Task ActivateAsync_does_not_persist_saml_metadata_xml_on_greenfield_oidc_activation()
+    {
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        IdentityProviderActivationService sut = new(repository);
+        Guid tenantId = Guid.Parse("a1000000-0000-0000-0000-000000000099");
+
+        TenantIdentityProviderConfigurationRecord record = await sut.ActivateAsync(
+            tenantId,
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = ValidClaimMapping(),
+                MetadataXml = ValidSamlMetadataXml,
+            },
+            CancellationToken.None);
+
+        record.Protocol.Should().Be(TenantIdentityProtocol.Oidc);
         record.MetadataXml.Should().BeNull();
+
+        TenantIdentityProviderConfigurationRecord? loaded = await repository.TryGetAsync(tenantId, CancellationToken.None);
+        loaded!.MetadataXml.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task ActivateAsync_does_not_persist_oidc_key_vault_secret_on_greenfield_saml_activation()
+    {
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        IdentityProviderActivationService sut = new(repository);
+        Guid tenantId = Guid.Parse("a1000000-0000-0000-0000-000000000098");
+
+        TenantIdentityProviderConfigurationRecord record = await sut.ActivateAsync(
+            tenantId,
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "saml",
+                IssuerUri = "https://idp.example/saml",
+                ClaimMapping = ValidClaimMapping(),
+                MetadataXml = ValidSamlMetadataXml,
+                KeyVaultSecretName = "stale-oidc-secret-from-wizard",
+            },
+            CancellationToken.None);
+
+        record.Protocol.Should().Be(TenantIdentityProtocol.Saml);
+        record.KeyVaultSecretName.Should().BeNull();
+
+        TenantIdentityProviderConfigurationRecord? loaded = await repository.TryGetAsync(tenantId, CancellationToken.None);
+        loaded!.KeyVaultSecretName.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task ActivateAsync_ignores_stale_oidc_key_vault_secret_name_longer_than_column_on_saml_activation()
+    {
+        // SAML activation strips KeyVaultSecretName; stale wizard payloads must not fail length checks on a discarded field.
+        IdentityProviderActivationService sut = new(new InMemoryTenantIdentityProviderConfigurationRepository());
+        string staleSecretName = new('k', IdentityProviderPersistedFieldLimits.KeyVaultSecretNameMaxLength + 1);
+
+        TenantIdentityProviderConfigurationRecord record = await sut.ActivateAsync(
+            Guid.Parse("a1000000-0000-0000-0000-000000000099"),
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "saml",
+                IssuerUri = "https://idp.example/saml",
+                ClaimMapping = ValidClaimMapping(),
+                MetadataXml = ValidSamlMetadataXml,
+                KeyVaultSecretName = staleSecretName,
+            },
+            CancellationToken.None);
+
+        record.Protocol.Should().Be(TenantIdentityProtocol.Saml);
+        record.KeyVaultSecretName.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task ActivateAsync_rejects_protocol_switch_to_oidc_without_key_vault_secret()
+    {
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        IdentityProviderActivationService sut = new(repository);
+        Guid tenantId = Guid.Parse("19191919-1919-1919-1919-191919191919");
+        IdentityClaimRoleMappingRequest mapping = ValidClaimMapping();
+
+        await sut.ActivateAsync(
+            tenantId,
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "saml",
+                IssuerUri = "https://idp.example/saml",
+                ClaimMapping = mapping,
+                MetadataXml = ValidSamlMetadataXml,
+            },
+            CancellationToken.None);
+
+        Func<Task> act = () => sut.ActivateAsync(
+            tenantId,
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = mapping,
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*KeyVaultSecretName*");
     }
 
     [Theory]
@@ -803,46 +1038,11 @@ public sealed class IdentityProviderActivationServiceTests
     }
 
     [Fact]
-    public async Task ActivateAsync_clears_key_vault_secret_when_invisible_unicode_only_string_provided()
+    public async Task ActivateAsync_rejects_saml_reactivate_that_would_clear_metadata_via_invisible_unicode()
     {
         InMemoryTenantIdentityProviderConfigurationRepository repository = new();
         IdentityProviderActivationService sut = new(repository);
-        Guid tenantId = Guid.Parse("16161616-1616-1616-1616-161616161616");
-        IdentityClaimRoleMappingRequest mapping = ValidClaimMapping();
-
-        await sut.ActivateAsync(
-            tenantId,
-            "admin@test",
-            new IdentityProviderActivateRequest
-            {
-                Protocol = "oidc",
-                IssuerUri = "https://idp.example/",
-                ClaimMapping = mapping,
-                KeyVaultSecretName = "tenant-idp-client-secret"
-            },
-            CancellationToken.None);
-
-        TenantIdentityProviderConfigurationRecord record = await sut.ActivateAsync(
-            tenantId,
-            "admin@test",
-            new IdentityProviderActivateRequest
-            {
-                Protocol = "oidc",
-                IssuerUri = "https://idp.example/",
-                ClaimMapping = mapping,
-                KeyVaultSecretName = "\u200B"
-            },
-            CancellationToken.None);
-
-        record.KeyVaultSecretName.Should().BeNull();
-    }
-
-    [Fact]
-    public async Task ActivateAsync_clears_metadata_xml_when_invisible_unicode_only_string_provided()
-    {
-        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
-        IdentityProviderActivationService sut = new(repository);
-        Guid tenantId = Guid.Parse("17171717-1717-1717-1717-171717171717");
+        Guid tenantId = Guid.Parse("1a1a1a1a-1a1a-1a1a-1a1a-1a1a1a1a1a1a");
         IdentityClaimRoleMappingRequest mapping = ValidClaimMapping();
 
         await sut.ActivateAsync(
@@ -853,11 +1053,11 @@ public sealed class IdentityProviderActivationServiceTests
                 Protocol = "saml",
                 IssuerUri = "https://idp.example/saml",
                 ClaimMapping = mapping,
-                MetadataXml = "<EntityDescriptor entityID=\"https://idp.example/saml\" />"
+                MetadataXml = ValidSamlMetadataXml
             },
             CancellationToken.None);
 
-        TenantIdentityProviderConfigurationRecord record = await sut.ActivateAsync(
+        Func<Task> act = () => sut.ActivateAsync(
             tenantId,
             "admin@test",
             new IdentityProviderActivateRequest
@@ -869,7 +1069,8 @@ public sealed class IdentityProviderActivationServiceTests
             },
             CancellationToken.None);
 
-        record.MetadataXml.Should().BeNull();
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*MetadataXml*");
     }
 
     [Fact]
@@ -1092,6 +1293,79 @@ public sealed class IdentityProviderActivationServiceTests
     }
 
     [Fact]
+    public async Task ActivateAsync_rejects_saml_reactivate_that_preserves_invalid_metadata_xml_from_storage()
+    {
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        IdentityProviderActivationService sut = new(repository);
+        Guid tenantId = Guid.Parse("18181818-1818-1818-1818-181818181818");
+
+        await repository.UpsertAsync(
+            new TenantIdentityProviderConfigurationRecord
+            {
+                TenantId = tenantId,
+                Protocol = TenantIdentityProtocol.Saml,
+                IssuerUri = "https://idp.example/saml",
+                MetadataXml = "<not-saml-metadata />",
+                ClaimMappingJson = """{"roleClaimName":"groups","mappings":[{"idpValue":"al-admins","archLucidRole":"Admin"}]}""",
+                UpdatedByActorId = "admin@test",
+                IsActive = true,
+                UpdatedUtc = DateTimeOffset.UtcNow,
+            },
+            CancellationToken.None);
+
+        Func<Task> act = () => sut.ActivateAsync(
+            tenantId,
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "saml",
+                IssuerUri = "https://idp.example/saml",
+                ClaimMapping = ValidClaimMapping(),
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*MetadataXml*");
+    }
+
+    [Fact]
+    public async Task ActivateAsync_rejects_preserved_legacy_key_vault_secret_longer_than_persisted_column_on_reactivate()
+    {
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        IdentityProviderActivationService sut = new(repository);
+        Guid tenantId = Guid.Parse("17171717-1717-1717-1717-171717171717");
+        string legacySecret = new('k', IdentityProviderPersistedFieldLimits.KeyVaultSecretNameMaxLength + 1);
+
+        await repository.UpsertAsync(
+            new TenantIdentityProviderConfigurationRecord
+            {
+                TenantId = tenantId,
+                Protocol = TenantIdentityProtocol.Oidc,
+                IssuerUri = "https://idp.example/",
+                ClaimMappingJson = """{"roleClaimName":"groups","mappings":[{"idpValue":"al-admins","archLucidRole":"Admin"}]}""",
+                KeyVaultSecretName = legacySecret,
+                UpdatedByActorId = "admin@test",
+                IsActive = true,
+                UpdatedUtc = DateTimeOffset.UtcNow,
+            },
+            CancellationToken.None);
+
+        Func<Task> act = () => sut.ActivateAsync(
+            tenantId,
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = ValidClaimMapping(),
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*KeyVaultSecretName*");
+    }
+
+    [Fact]
     public async Task ActivateAsync_rejects_key_vault_secret_name_longer_than_persisted_column()
     {
         // Migration 183 stores KeyVaultSecretName as NVARCHAR(256). A longer name reaches SQL and fails the MERGE.
@@ -1187,6 +1461,86 @@ public sealed class IdentityProviderActivationServiceTests
         record.IssuerUri.Should().HaveLength(IdentityProviderPersistedFieldLimits.IssuerUriMaxLength);
         record.KeyVaultSecretName.Should().Be(secretName);
         record.UpdatedByActorId.Should().Be(actorId);
+    }
+
+    [Fact]
+    public async Task ActivateAsync_rejects_duplicate_idp_value_mappings()
+    {
+        IdentityProviderActivationService sut = new(new InMemoryTenantIdentityProviderConfigurationRepository());
+
+        Func<Task> act = () => sut.ActivateAsync(
+            Guid.Parse("15151515-1515-1515-1515-151515151515"),
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = new IdentityClaimRoleMappingRequest
+                {
+                    RoleClaimName = "groups",
+                    Mappings =
+                    [
+                        new IdentityClaimRoleMappingEntryRequest
+                        {
+                            IdpValue = "al-admins",
+                            ArchLucidRole = "Admin"
+                        },
+                        new IdentityClaimRoleMappingEntryRequest
+                        {
+                            IdpValue = "AL-ADMINS",
+                            ArchLucidRole = "Operator"
+                        }
+                    ]
+                }
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*Duplicate IdpValue*");
+    }
+
+    [Fact]
+    public async Task ActivateAsync_does_not_persist_metadata_xml_when_protocol_is_oidc()
+    {
+        IdentityProviderActivationService sut = new(new InMemoryTenantIdentityProviderConfigurationRepository());
+
+        TenantIdentityProviderConfigurationRecord record = await sut.ActivateAsync(
+            Guid.Parse("b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1"),
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = ValidClaimMapping(),
+                MetadataXml = ValidSamlMetadataXml,
+                KeyVaultSecretName = "tenant-idp-client-secret",
+            },
+            CancellationToken.None);
+
+        record.MetadataXml.Should().BeNull();
+        record.KeyVaultSecretName.Should().Be("tenant-idp-client-secret");
+    }
+
+    [Fact]
+    public async Task ActivateAsync_does_not_persist_key_vault_secret_when_protocol_is_saml()
+    {
+        IdentityProviderActivationService sut = new(new InMemoryTenantIdentityProviderConfigurationRepository());
+
+        TenantIdentityProviderConfigurationRecord record = await sut.ActivateAsync(
+            Guid.Parse("c2c2c2c2-c2c2-c2c2-c2c2-c2c2c2c2c2c2"),
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "saml",
+                IssuerUri = "https://idp.example/saml",
+                ClaimMapping = ValidClaimMapping(),
+                MetadataXml = ValidSamlMetadataXml,
+                KeyVaultSecretName = "tenant-idp-client-secret",
+            },
+            CancellationToken.None);
+
+        record.KeyVaultSecretName.Should().BeNull();
+        record.MetadataXml.Should().Be(ValidSamlMetadataXml);
     }
 
     private static IdentityClaimRoleMappingRequest ValidClaimMapping() => new()

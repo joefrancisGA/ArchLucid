@@ -44,7 +44,7 @@ public sealed class InMemoryScimUserRepository : IScimUserRepository
         _ = cancellationToken;
 
         ScimUserRecord? found = _byId.Values.FirstOrDefault(u =>
-            u.TenantId == tenantId && string.Equals(u.ExternalId, externalId, StringComparison.OrdinalIgnoreCase));
+            u.TenantId == tenantId && string.Equals(u.ExternalId, externalId, StringComparison.Ordinal));
 
         return Task.FromResult(found);
     }

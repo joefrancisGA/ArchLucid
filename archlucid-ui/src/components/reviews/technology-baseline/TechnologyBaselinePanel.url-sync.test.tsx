@@ -1,8 +1,9 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { createElement, useSyncExternalStore, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { TECHNOLOGY_BASELINE_EVIDENCE_REF_ENTRY_ID_PARAM } from "@/lib/reviews/technology-baseline-evidence-ref-disclosure-url";
+import { TECHNOLOGY_BASELINE_ENTRY_PARAM } from "@/lib/reviews/technology-baseline-rationale-url";
 
 import { TechnologyBaselinePanel } from "./TechnologyBaselinePanel";
 
@@ -87,6 +88,49 @@ describe("TechnologyBaselinePanel URL sync", () => {
     });
   });
 
+  it("writes technology baseline evidence ref disclosure from useSearchParams when window.location.search lags after soft navigation", async () => {
+    window.history.replaceState(
+      {},
+      "",
+      `/architecture/reviews/${runId}?reviewTab=findings&q=stale-payment`,
+    );
+
+    const { rerender } = render(
+      <SearchParamsRerenderHost>
+        <TechnologyBaselinePanel
+          runId={runId}
+          manifestFinalized={false}
+          buyerPolished={false}
+          usedStaticDemoRun={false}
+          warningCountDisplay={0}
+        />
+      </SearchParamsRerenderHost>,
+    );
+
+    await screen.findByText("Azure SQL Database");
+
+    searchParamsHarness.applyQuery("reviewTab=overview");
+    rerender(
+      <SearchParamsRerenderHost>
+        <TechnologyBaselinePanel
+          runId={runId}
+          manifestFinalized={false}
+          buyerPolished={false}
+          usedStaticDemoRun={false}
+          warningCountDisplay={0}
+        />
+      </SearchParamsRerenderHost>,
+    );
+
+    fireEvent.click(screen.getByText("Evidence ref"));
+
+    await waitFor(() => {
+      expect(window.location.pathname + window.location.search).toBe(
+        `/architecture/reviews/${runId}?reviewTab=overview&${TECHNOLOGY_BASELINE_EVIDENCE_REF_ENTRY_ID_PARAM}=entry-assumed`,
+      );
+    });
+  });
+
   it("follows technologyBaselineEvidenceRefEntryId query changes without a popstate event", async () => {
     const { rerender } = render(
       <SearchParamsRerenderHost>
@@ -127,6 +171,50 @@ describe("TechnologyBaselinePanel URL sync", () => {
 
     await waitFor(() => {
       expect(evidenceDetails()).toHaveAttribute("open");
+    });
+  });
+
+  it("closes the rationale dialog when techEntryId is removed from useSearchParams without a popstate event", async () => {
+    searchParamsHarness.applyQuery(`reviewTab=overview&${TECHNOLOGY_BASELINE_ENTRY_PARAM}=entry-assumed`);
+    window.history.replaceState(
+      {},
+      "",
+      `/architecture/reviews/${runId}?reviewTab=overview&${TECHNOLOGY_BASELINE_ENTRY_PARAM}=entry-assumed`,
+    );
+
+    const { rerender } = render(
+      <SearchParamsRerenderHost>
+        <TechnologyBaselinePanel
+          runId={runId}
+          manifestFinalized={false}
+          buyerPolished={false}
+          usedStaticDemoRun={false}
+          warningCountDisplay={0}
+        />
+      </SearchParamsRerenderHost>,
+    );
+
+    await screen.findByText("Azure SQL Database");
+
+    await waitFor(() => {
+      expect(screen.getByTestId("technology-baseline-rationale-dialog")).toBeInTheDocument();
+    });
+
+    searchParamsHarness.applyQuery("reviewTab=overview");
+    rerender(
+      <SearchParamsRerenderHost>
+        <TechnologyBaselinePanel
+          runId={runId}
+          manifestFinalized={false}
+          buyerPolished={false}
+          usedStaticDemoRun={false}
+          warningCountDisplay={0}
+        />
+      </SearchParamsRerenderHost>,
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("technology-baseline-rationale-dialog")).not.toBeInTheDocument();
     });
   });
 });

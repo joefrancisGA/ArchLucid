@@ -53,10 +53,16 @@ public static partial class TopologyProposalRelationshipEndpointIndex
         if (string.IsNullOrWhiteSpace(endpointKey))
             return false;
 
-        string trimmed = endpointKey.Trim();
+        string trimmed = CanonicalizeTerraformEndpointReferenceForLookup(endpointKey.Trim());
 
         if (knownEndpointKeys.Contains(trimmed))
             return true;
+
+        if (!string.Equals(trimmed, endpointKey.Trim(), StringComparison.OrdinalIgnoreCase)
+            && knownEndpointKeys.Contains(endpointKey.Trim()))
+        {
+            return true;
+        }
 
         string? normalizedSynthetic =
             NormalizeSyntheticEndpointReference(trimmed);
@@ -123,5 +129,5 @@ public static partial class TopologyProposalRelationshipEndpointIndex
     }
 
     private static bool EndpointKeyIsClaimed(string? value, HashSet<string> claimedEndpointKeys) =>
-        !string.IsNullOrWhiteSpace(value) && claimedEndpointKeys.Contains(value.Trim());
+        EndpointKeyIsKnown(value, claimedEndpointKeys);
 }

@@ -77,12 +77,6 @@ public sealed partial class GovernancePostureController(
         if (!GovernanceQueryProjectScope.TryResolve(projectId, scope, out Guid resolvedProjectId))
             return Ok(new ArchitecturePostureSummary());
 
-        IActionResult? sealedGuardResult =
-            await EnsureGovernancePostureSealedManifestReadAllowedAsync(scope, resolvedProjectId, cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
         try
         {
             ArchitecturePostureSummary summary = await postureService.GetSummaryAsync(
@@ -95,7 +89,7 @@ public sealed partial class GovernancePostureController(
         }
         catch (ConflictException ex)
         {
-            return MapGovernancePostureSealedManifestConflict(ex);
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
     }
 }

@@ -76,9 +76,13 @@ public sealed partial class PolicyPackHttpFacade
 
         try
         {
+            string? versionKey = request.Version is null
+                ? null
+                : PolicyPackSemVerVersion.Parse(request.Version).Value;
+
             PolicyPackCatalogEntryDetail? row = await _workflow.TryPromoteCatalogEntryAsync(
                 request.SourcePolicyPackId,
-                request.Version,
+                versionKey,
                 ct).ConfigureAwait(false);
 
             return row is null

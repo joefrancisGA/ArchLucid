@@ -22,6 +22,7 @@ public sealed class ArchitectureReviewRobustnessWave124ArchitectureTests
         string governanceInsights = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceController.Insights.cs");
         string governanceGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceController.SealedManifestGuard.cs");
         string dispositions = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs");
+        string scopePostureCatalog = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Http/Governance/GovernanceScopePostureSealedManifestEndpointCatalog.cs");
 
         runsExportGuard.Should().Contain("EnsureSealedManifestReadAllowedAsync");
         runsExportGuard.Should().Contain("MapRunsExportSealedManifestConflict");
@@ -35,7 +36,9 @@ public sealed class ArchitectureReviewRobustnessWave124ArchitectureTests
         governanceInsights.Should().Contain("GetDashboard");
         governanceInsights.Should().Contain("GetComplianceDriftTrend");
         governanceInsights.Should().Contain("MapGovernanceSealedManifestConflict");
-        governanceGuard.Should().Contain("EnsureGovernanceInsightsScopeSealedManifestReadAllowedAsync");
+        governanceGuard.Should().NotContain("EnsureGovernanceInsightsScopeSealedManifestReadAllowedAsync");
+        scopePostureCatalog.Should().Contain("GovernanceController\", \"GetDashboard\", GovernanceScopePostureSealedManifestClassification.ExemptMetadataOrConfigRead");
+        scopePostureCatalog.Should().Contain("GovernanceController\", \"GetComplianceDriftTrend\", GovernanceScopePostureSealedManifestClassification.ExemptMetadataOrConfigRead");
         dispositions.Should().Contain("ListDispositions");
         dispositions.Should().Contain("MapGovernanceStickinessSealedManifestConflict");
     }

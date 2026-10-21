@@ -70,7 +70,23 @@ public sealed class IdentityProviderConfigurationController(
         IdentityProviderDiscoverResponse response =
             await _discoveryService.DiscoverAsync(request, cancellationToken).ConfigureAwait(false);
 
-        return Ok(WithCanonicalWizardUris(response));
+        response = WithCanonicalWizardUris(response);
+
+        if (response.DiscoverySucceeded
+            && !string.IsNullOrWhiteSpace(response.IssuerUri)
+            && IdentityProviderUriValidator.TryGetCanonicalAbsoluteHttpOrHttps(response.IssuerUri, out string canonicalIssuerUri))
+        {
+            try
+            {
+                IdentityProviderPersistedFieldLimits.EnsureIssuerUriFits(canonicalIssuerUri);
+            }
+            catch (ArgumentException ex)
+            {
+                return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+            }
+        }
+
+        return Ok(response);
     }
 
     [HttpPost("test-login")]
@@ -94,6 +110,15 @@ public sealed class IdentityProviderConfigurationController(
             return this.BadRequestProblem(
                 "IssuerUri must be an absolute HTTP(S) URL.",
                 ProblemTypes.ValidationFailed);
+        }
+
+        try
+        {
+            IdentityProviderPersistedFieldLimits.EnsureIssuerUriFits(canonicalIssuerUri);
+        }
+        catch (ArgumentException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
@@ -195,26 +220,42 @@ public sealed class IdentityProviderConfigurationController(
                 ProblemTypes.ResourceNotFound);
         }
 
-        return Ok(WithCanonicalConfigurationIssuer(record));
+        TenantIdentityProviderConfigurationRecord response = PrepareConfigurationResponse(record);
+
+        if (IdentityProviderUriValidator.TryGetCanonicalAbsoluteHttpOrHttps(response.IssuerUri, out string canonicalIssuerUri))
+        {
+            try
+            {
+                IdentityProviderPersistedFieldLimits.EnsureIssuerUriFits(canonicalIssuerUri);
+            }
+            catch (ArgumentException ex)
+            {
+                return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+            }
+        }
+
+        return Ok(response);
     }
 
-    private static TenantIdentityProviderConfigurationRecord WithCanonicalConfigurationIssuer(
+    private static TenantIdentityProviderConfigurationRecord PrepareConfigurationResponse(
         TenantIdentityProviderConfigurationRecord record)
     {
-        if (!IdentityProviderUriValidator.TryGetCanonicalAbsoluteHttpOrHttps(record.IssuerUri, out string canonicalIssuer)
-            || string.Equals(record.IssuerUri, canonicalIssuer, StringComparison.Ordinal))
-        {
-            return record;
-        }
+        string? metadataXml = record.Protocol == TenantIdentityProtocol.Saml ? record.MetadataXml : null;
+        string? keyVaultSecretName = record.Protocol == TenantIdentityProtocol.Oidc ? record.KeyVaultSecretName : null;
+
+        string issuerUri = record.IssuerUri;
+
+        if (IdentityProviderUriValidator.TryGetCanonicalAbsoluteHttpOrHttps(record.IssuerUri, out string canonicalIssuer))
+            issuerUri = canonicalIssuer;
 
         return new TenantIdentityProviderConfigurationRecord
         {
             TenantId = record.TenantId,
             Protocol = record.Protocol,
-            IssuerUri = canonicalIssuer,
-            MetadataXml = record.MetadataXml,
+            IssuerUri = issuerUri,
+            MetadataXml = metadataXml,
             ClaimMappingJson = record.ClaimMappingJson,
-            KeyVaultSecretName = record.KeyVaultSecretName,
+            KeyVaultSecretName = keyVaultSecretName,
             UpdatedUtc = record.UpdatedUtc,
             UpdatedByActorId = record.UpdatedByActorId,
             IsActive = record.IsActive,
@@ -227,6 +268,7 @@ public sealed class IdentityProviderConfigurationController(
             return response;
 
         string? issuerUri = response.IssuerUri;
+
         if (!string.IsNullOrWhiteSpace(issuerUri)
             && IdentityProviderUriValidator.TryGetCanonicalAbsoluteHttpOrHttps(issuerUri, out string canonicalIssuer))
         {
@@ -234,16 +276,11 @@ public sealed class IdentityProviderConfigurationController(
         }
 
         string? jwksUri = response.JwksUri;
+
         if (!string.IsNullOrWhiteSpace(jwksUri)
             && IdentityProviderUriValidator.TryGetCanonicalAbsoluteHttpOrHttps(jwksUri, out string canonicalJwks))
         {
             jwksUri = canonicalJwks;
-        }
-
-        if (string.Equals(issuerUri, response.IssuerUri, StringComparison.Ordinal)
-            && string.Equals(jwksUri, response.JwksUri, StringComparison.Ordinal))
-        {
-            return response;
         }
 
         return new IdentityProviderDiscoverResponse

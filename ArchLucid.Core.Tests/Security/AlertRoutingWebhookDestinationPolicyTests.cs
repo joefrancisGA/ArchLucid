@@ -47,6 +47,16 @@ public sealed class AlertRoutingWebhookDestinationPolicyTests
         Assert.Null(reason);
     }
 
+    [Theory]
+    [InlineData("https://listener.example/webhook%0D%0AHost:%20evil.test")]
+    [InlineData("https://listener.example/webhook%E2%80%A8Host:%20evil.test")]
+    public void TryGetRejectionReason_rejects_percent_encoded_line_breaks_before_persist(string rawUrl)
+    {
+        string? reason = AlertRoutingWebhookDestinationPolicy.TryGetRejectionReason(rawUrl);
+
+        Assert.Equal("Webhook URL must not include line break characters.", reason);
+    }
+
     [Fact]
     public async Task TryGetRejectionReasonAfterDnsResolveAsync_WhenSyncGuardRejects_SkipsDnsLookup()
     {

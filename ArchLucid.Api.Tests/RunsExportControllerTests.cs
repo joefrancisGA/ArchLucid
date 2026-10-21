@@ -4,7 +4,9 @@ using ArchLucid.Contracts.Exports;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.CareerArtifacts;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.TestSupport.SealedManifest;
 
 using FluentAssertions;
 
@@ -49,5 +51,44 @@ public sealed class RunsExportControllerTests
                 It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task Export_returns_409_when_career_export_blocked()
+    {
+        const string runId = "abc123def4567890abc123def4567890";
+
+        Mock<IArchitectureReviewExportService> exportService = new();
+        exportService
+            .Setup(s => s.GenerateReportAsync(
+                runId,
+                ExportFormat.Docx,
+                It.IsAny<WhitelabelConfiguration?>(),
+                It.IsAny<byte[]?>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new CareerArtifactExportBlockedException(
+                SimulatorCareerHonestyPresenter.SimulatorRehearsalBlockedMessage,
+                CareerArtifactCompletenessValidator.SimulatorRehearsalCode));
+
+        IAuthorityQueryService authorityQuery =
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun();
+        IManifestHashService manifestHashService =
+            SealedManifestHashTestSupport.CreateManifestHashService();
+
+        RunsExportController controller = new(
+            exportService.Object,
+            Mock.Of<IAuditService>(),
+            Mock.Of<IScopeContextProvider>(),
+            authorityQuery,
+            manifestHashService)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+
+        IActionResult action = await controller.Export(runId, "docx", CancellationToken.None);
+
+        ObjectResult blocked = action.Should().BeOfType<ObjectResult>().Subject;
+        blocked.StatusCode.Should().Be(StatusCodes.Status409Conflict);
     }
 }

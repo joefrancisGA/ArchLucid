@@ -37,8 +37,7 @@ public sealed class AuditEventCsvFormatterTests
         string text = await reader.ReadToEndAsync();
 
         string firstLine = text.Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)[0];
-        firstLine.Should().Be(
-            "EventId,OccurredUtc,EventType,ActorUserId,ActorUserName,RunId,ManifestId,CorrelationId,DataJson");
+        firstLine.Should().Be(AuditEventCsvLineFormatter.HeaderLine);
     }
 
     [SkippableFact]

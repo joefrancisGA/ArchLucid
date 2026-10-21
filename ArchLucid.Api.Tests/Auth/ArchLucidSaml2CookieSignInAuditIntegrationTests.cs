@@ -1,5 +1,6 @@
 using System.Security.Claims;
 
+using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Auth.Services;
 
 using ArchLucid.Core.Audit;
@@ -13,6 +14,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -79,6 +81,7 @@ public sealed class ArchLucidSaml2CookieSignInAuditIntegrationTests
     {
         ServiceCollection services = new();
         services.AddSingleton<IAuditService>(audit);
+        services.AddSingleton<IOptions<ArchLucidSamlAuthOptions>>(Options.Create(new ArchLucidSamlAuthOptions()));
 
         return services.BuildServiceProvider();
     }

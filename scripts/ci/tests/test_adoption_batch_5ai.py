@@ -80,7 +80,7 @@ class TestAdoptionBatch5AI(unittest.TestCase):
         )
         text = path.read_text(encoding="utf-8")
         self.assertIn("wizard-evidence-upload-step", text)
-        self.assertIn("uploadAzureExtractorPackage", text)
+        self.assertIn("uploadWizardPendingInventoryEvidence", text)
 
     def test_tb_215_wizard_step_fields_include_evidence_index(self) -> None:
         path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "wizard-step-fields.ts"

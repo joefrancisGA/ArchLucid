@@ -90,10 +90,7 @@ describe("RunDetailArtifactsExportsSection", () => {
     expect(screen.queryByText("Artifacts & exports")).not.toBeInTheDocument();
     expect(screen.getByText(/decisions, findings, and supporting evidence for this review/i)).toBeInTheDocument();
     expect(screen.queryByText(/manifest/i)).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Download architecture review report (DOCX)" })).toHaveAttribute(
-      "href",
-      "/api/proxy/v1/runs/run-1/export/docx",
-    );
+    expect(screen.getByRole("button", { name: "Download architecture review report (DOCX)" })).toBeInTheDocument();
     expect(container.querySelector("details")).toHaveAttribute("open");
   });
 

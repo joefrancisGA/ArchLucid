@@ -147,4 +147,24 @@ Describe 'al-bug-rolling-stats.ps1' {
 
         $parsed.defectClass | Should -Be 'boolean-coercion'
     }
+
+    It 'RecordHunt never decreases physical line count even when older rows exist' {
+        $log = Join-Path $TestDrive 'append-only.jsonl'
+        $old = '{"at":"2020-01-01T00:00:00Z","zoneId":"zone-legacy","outcome":"hit","productLine":"archlucid-shared"}'
+        $recent = '{"at":"2026-08-19T10:00:00Z","zoneId":"zone-recent","outcome":"dry","productLine":"archlucid-shared"}'
+        Set-Content -LiteralPath $log -Value @($old, $recent) -Encoding UTF8
+
+        $before = @(Get-Content -LiteralPath $log -Encoding UTF8).Count
+
+        Invoke-RollingStats -LogPath $log -RecordHunt -HuntZoneId 'zone-new' -HuntOutcome hit -AtUtc '2026-08-19T12:00:00Z' | Out-Null
+        Invoke-RollingStats -LogPath $log -RecordHunt -HuntZoneId 'zone-newer' -HuntOutcome dry -AtUtc '2026-08-19T13:00:00Z' | Out-Null
+
+        $after = @(Get-Content -LiteralPath $log -Encoding UTF8).Count
+        $after | Should -BeGreaterOrEqual ($before + 2)
+        $after | Should -Be ($before + 2)
+
+        $parsedOld = ($old | ConvertFrom-Json)
+        $stillHasLegacy = Get-Content -LiteralPath $log -Encoding UTF8 | Where-Object { $_ -match $parsedOld.zoneId }
+        $stillHasLegacy | Should -Not -BeNullOrEmpty
+    }
 }

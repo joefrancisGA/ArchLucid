@@ -9,14 +9,45 @@ import {
 
 import { RunDetailFindingsWorkspace } from "./RunDetailFindingsWorkspace";
 
-vi.mock("next/navigation", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("next/navigation")>();
+const navigationMocks = vi.hoisted(() => ({
+  searchParams: new URLSearchParams(),
+}));
+
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => navigationMocks.searchParams,
+  useRouter: (): { refresh: () => void } => ({ refresh: (): void => {} }),
+  usePathname: () => "/architecture/reviews/run-empty",
+  redirect: vi.fn(),
+  permanentRedirect: vi.fn(),
+  notFound: vi.fn(),
+}));
+
+vi.mock("@/hooks/useArchitectWorkspaceChrome", () => ({
+  useArchitectWorkspaceChrome: () => false,
+}));
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+
   return {
     ...actual,
-    useRouter: (): { refresh: () => void } => ({ refresh: (): void => {} }),
-    redirect: vi.fn(),
-    permanentRedirect: vi.fn(),
-    notFound: vi.fn(),
+    useWorkspaceMode: () => ({
+      mode: "guided",
+      mounted: true,
+      accountSyncState: "synced",
+      isWorkingMode: false,
+      setAndPersist: vi.fn(),
+    }),
+  };
+});
+
+vi.mock("@/components/findings/RunDetailFindingsCardViewLazy", async () => {
+  const { QuickDecisionSummary } = await import("@/components/QuickDecisionSummary");
+
+  return {
+    RunDetailFindingsCardViewLazy: (props: Record<string, unknown>) => (
+      <QuickDecisionSummary {...props} workspaceCardMode />
+    ),
   };
 });
 

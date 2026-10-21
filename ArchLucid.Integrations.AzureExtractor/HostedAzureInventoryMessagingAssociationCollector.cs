@@ -15,7 +15,7 @@ public static class HostedAzureInventoryMessagingAssociationCollector
 
     private const string ServiceBusApiVersion = "2021-11-01";
 
-    public static async Task<IReadOnlyList<AzureInventoryMessagingAssociationRow>> CollectAsync(
+    public static async Task<HostedAzureInventoryMessagingAssociationCollectResult> CollectAsync(
         GetOnlyHostedAzureArmReadClient armReadClient,
         string accessToken,
         IReadOnlyList<HostedAzureArmResourceRecord> resources,
@@ -28,6 +28,7 @@ public static class HostedAzureInventoryMessagingAssociationCollector
         ArgumentNullException.ThrowIfNull(logger);
 
         List<AzureInventoryMessagingAssociationRow> rows = [];
+        List<string> collectionWarnings = [];
         HashSet<string> seenKeys = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (HostedAzureArmResourceRecord resource in resources)
@@ -45,6 +46,7 @@ public static class HostedAzureInventoryMessagingAssociationCollector
                     resource.ResourceId.Trim(),
                     rows,
                     seenKeys,
+                    collectionWarnings,
                     logger,
                     cancellationToken).ConfigureAwait(false);
 
@@ -59,12 +61,17 @@ public static class HostedAzureInventoryMessagingAssociationCollector
                     resource.ResourceId.Trim(),
                     rows,
                     seenKeys,
+                    collectionWarnings,
                     logger,
                     cancellationToken).ConfigureAwait(false);
             }
         }
 
-        return rows;
+        return new HostedAzureInventoryMessagingAssociationCollectResult
+        {
+            Associations = rows,
+            CollectionWarnings = collectionWarnings,
+        };
     }
 
     private static async Task CollectEventHubChildrenAsync(
@@ -73,12 +80,13 @@ public static class HostedAzureInventoryMessagingAssociationCollector
         string namespaceResourceId,
         List<AzureInventoryMessagingAssociationRow> rows,
         HashSet<string> seenKeys,
+        List<string> collectionWarnings,
         ILogger logger,
         CancellationToken cancellationToken)
     {
         try
         {
-            IReadOnlyList<JsonElement> eventHubs = await armReadClient.ListChildJsonElementsAsync(
+            HostedAzureArmChildCollectionReadResult listResult = await armReadClient.ListChildJsonElementsAsync(
                 accessToken,
                 namespaceResourceId,
                 "eventhubs",
@@ -86,7 +94,15 @@ public static class HostedAzureInventoryMessagingAssociationCollector
                 "Event Hub",
                 cancellationToken).ConfigureAwait(false);
 
-            foreach (JsonElement eventHub in eventHubs)
+            HostedAzureInventoryChildListPartialEnumeration.NotePartialCollection(
+                logger,
+                listResult,
+                namespaceResourceId,
+                "Event Hub",
+                collectionWarnings,
+                AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
+
+            foreach (JsonElement eventHub in listResult.Values)
             {
                 if (!AzureInventoryMessagingAssociationExtractor.TryExtractEventHub(
                         namespaceResourceId,
@@ -118,12 +134,13 @@ public static class HostedAzureInventoryMessagingAssociationCollector
         string namespaceResourceId,
         List<AzureInventoryMessagingAssociationRow> rows,
         HashSet<string> seenKeys,
+        List<string> collectionWarnings,
         ILogger logger,
         CancellationToken cancellationToken)
     {
         try
         {
-            IReadOnlyList<JsonElement> queues = await armReadClient.ListChildJsonElementsAsync(
+            HostedAzureArmChildCollectionReadResult queueListResult = await armReadClient.ListChildJsonElementsAsync(
                 accessToken,
                 namespaceResourceId,
                 "queues",
@@ -131,7 +148,15 @@ public static class HostedAzureInventoryMessagingAssociationCollector
                 "Service Bus queue",
                 cancellationToken).ConfigureAwait(false);
 
-            foreach (JsonElement queue in queues)
+            HostedAzureInventoryChildListPartialEnumeration.NotePartialCollection(
+                logger,
+                queueListResult,
+                namespaceResourceId,
+                "Service Bus queue",
+                collectionWarnings,
+                AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
+
+            foreach (JsonElement queue in queueListResult.Values)
             {
                 if (AzureInventoryMessagingAssociationExtractor.TryExtractServiceBusChild(
                         namespaceResourceId,
@@ -144,7 +169,7 @@ public static class HostedAzureInventoryMessagingAssociationCollector
                 }
             }
 
-            IReadOnlyList<JsonElement> topics = await armReadClient.ListChildJsonElementsAsync(
+            HostedAzureArmChildCollectionReadResult topicListResult = await armReadClient.ListChildJsonElementsAsync(
                 accessToken,
                 namespaceResourceId,
                 "topics",
@@ -152,7 +177,15 @@ public static class HostedAzureInventoryMessagingAssociationCollector
                 "Service Bus topic",
                 cancellationToken).ConfigureAwait(false);
 
-            foreach (JsonElement topic in topics)
+            HostedAzureInventoryChildListPartialEnumeration.NotePartialCollection(
+                logger,
+                topicListResult,
+                namespaceResourceId,
+                "Service Bus topic",
+                collectionWarnings,
+                AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
+
+            foreach (JsonElement topic in topicListResult.Values)
             {
                 if (AzureInventoryMessagingAssociationExtractor.TryExtractServiceBusChild(
                         namespaceResourceId,

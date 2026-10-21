@@ -27,6 +27,39 @@ export type RunDetailCreateHomeEvidenceCaptureRegionProps = {
   readonly artifacts: readonly { readonly artifactId: string; readonly name: string; readonly createdUtc: string }[];
 };
 
+type CreateHomeCatalogEntry = {
+  readonly evidenceItemId: string;
+  readonly originalFileName: string;
+  readonly contentType?: string;
+  readonly createdUtc?: string;
+};
+
+/** Value-stable key so inline array literals do not retrigger inventory reconciliation every render. */
+function runDetailCreateHomeArtifactsInventoryKey(
+  artifacts: RunDetailCreateHomeEvidenceCaptureRegionProps["artifacts"],
+): string {
+  if (artifacts.length === 0) {
+    return "";
+  }
+
+  return artifacts
+    .map((artifact) => `${artifact.artifactId}\u001f${artifact.name}\u001f${artifact.createdUtc}`)
+    .join("\u001e");
+}
+
+function runDetailCreateHomeCatalogInventoryKey(catalog: readonly CreateHomeCatalogEntry[]): string {
+  if (catalog.length === 0) {
+    return "";
+  }
+
+  return catalog
+    .map(
+      (entry) =>
+        `${entry.evidenceItemId}\u001f${entry.originalFileName}\u001f${entry.contentType ?? ""}\u001f${entry.createdUtc ?? ""}`,
+    )
+    .join("\u001e");
+}
+
 export function RunDetailCreateHomeEvidenceCaptureRegion(
   props: RunDetailCreateHomeEvidenceCaptureRegionProps,
 ): ReactElement {
@@ -34,6 +67,8 @@ export function RunDetailCreateHomeEvidenceCaptureRegion(
   const queryClient = useQueryClient();
   const { catalog, isLoading: catalogLoading } = useRunStoredEvidenceCatalogQuery(props.runId);
   const catalogAuthoritative = !catalogLoading && catalog.length > 0;
+  const artifactsInventoryKey = runDetailCreateHomeArtifactsInventoryKey(props.artifacts);
+  const catalogInventoryKey = runDetailCreateHomeCatalogInventoryKey(catalog);
   const catalogItems = useMemo(
     () =>
       deriveCapturedEvidenceFromCatalog(
@@ -44,7 +79,7 @@ export function RunDetailCreateHomeEvidenceCaptureRegion(
           createdUtc: entry.createdUtc,
         })),
       ),
-    [catalog],
+    [catalogInventoryKey],
   );
   const initialCaptured = useMemo(() => {
     const serverItems =
@@ -61,7 +96,7 @@ export function RunDetailCreateHomeEvidenceCaptureRegion(
       readPersistedCapturedEvidenceInventory(props.runId),
       { catalogAuthoritative },
     );
-  }, [catalogAuthoritative, catalogItems, catalogLoading, props.artifacts, props.runId]);
+  }, [catalogAuthoritative, catalogItems, catalogLoading, props.runId, artifactsInventoryKey]);
   const [capturedItems, setCapturedItems] = useState<readonly RunDetailCreateHomeCapturedEvidenceItem[]>(initialCaptured);
   const trackedRunIdRef = useRef(props.runId);
 

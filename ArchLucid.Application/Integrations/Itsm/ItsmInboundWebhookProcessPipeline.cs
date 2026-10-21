@@ -84,7 +84,9 @@ public sealed class ItsmInboundWebhookProcessPipeline(
         }
 
         IntegrationsItsmInboundOptions options = _inboundOptions.CurrentValue;
+        string primaryStatusValue = payload.StatusValue.Trim();
         string effectiveStatusValue = payload.StatusValue;
+        bool humanReviewResolvedFromAlternate = false;
         (string humanReview, bool mapped) = statusMapper.MapToHumanReview(payload.StatusValue, options);
 
         if (!mapped && !string.IsNullOrWhiteSpace(payload.AlternateStatusValue))
@@ -92,7 +94,10 @@ public sealed class ItsmInboundWebhookProcessPipeline(
             (humanReview, mapped) = statusMapper.MapToHumanReview(payload.AlternateStatusValue, options);
 
             if (mapped)
+            {
                 effectiveStatusValue = payload.AlternateStatusValue.Trim();
+                humanReviewResolvedFromAlternate = true;
+            }
         }
 
         if (!mapped)
@@ -111,7 +116,7 @@ public sealed class ItsmInboundWebhookProcessPipeline(
                     Guid.Empty,
                     Guid.Empty,
                     descriptor.UnknownStatusReasonCode,
-                    CreateStatusPayload(descriptor.ProviderName, payload)));
+                    CreateStatusPayload(descriptor.ProviderName, payload, primaryStatusValue)));
         }
 
         if (humanReview.Length == 0)
@@ -157,7 +162,7 @@ public sealed class ItsmInboundWebhookProcessPipeline(
                     row.WorkspaceId,
                     row.ProjectId,
                     "finding_not_found",
-                    CreateFindingNotFoundPayload(descriptor.ProviderName, effectivePayload, row.FindingId)));
+                    CreateFindingNotFoundPayload(descriptor.ProviderName, effectivePayload, row.FindingId, primaryStatusValue)));
         }
 
         string replayEventId = ItsmInboundWebhookReplayEventId.Resolve(
@@ -188,7 +193,7 @@ public sealed class ItsmInboundWebhookProcessPipeline(
                     row.WorkspaceId,
                     row.ProjectId,
                     "finding_not_found",
-                    CreateFindingNotFoundPayload(descriptor.ProviderName, effectivePayload, row.FindingId)));
+                    CreateFindingNotFoundPayload(descriptor.ProviderName, effectivePayload, row.FindingId, primaryStatusValue)));
         }
 
         try
@@ -211,7 +216,7 @@ public sealed class ItsmInboundWebhookProcessPipeline(
                     row.WorkspaceId,
                     row.ProjectId,
                     "sealed_manifest_unverified",
-                    new { findingId = row.FindingId, status = CreateStatusPayload(descriptor.ProviderName, effectivePayload), detail = ex.Message }));
+                    new { findingId = row.FindingId, status = CreateStatusPayload(descriptor.ProviderName, effectivePayload, primaryStatusValue), detail = ex.Message }));
         }
 
         if (!await _support.TryClaimReplayAsync(row.TenantId, descriptor.ProviderName, replayEventId, ct).ConfigureAwait(false))
@@ -224,7 +229,7 @@ public sealed class ItsmInboundWebhookProcessPipeline(
                     row.WorkspaceId,
                     row.ProjectId,
                     replayEventId,
-                    CreateStatusPayload(descriptor.ProviderName, effectivePayload)),
+                    CreateStatusPayload(descriptor.ProviderName, effectivePayload, primaryStatusValue)),
                 ReplayIgnored: true);
         }
 
@@ -245,6 +250,20 @@ public sealed class ItsmInboundWebhookProcessPipeline(
                 {
                     mappedDisposition = alternateDisposition;
                     dispositionStatusLabel = alternateStatus;
+                }
+            }
+
+            if (mappedDisposition is null
+                && humanReviewResolvedFromAlternate
+                && !string.IsNullOrWhiteSpace(primaryStatusValue)
+                && !string.Equals(primaryStatusValue, effectivePayload.StatusValue, StringComparison.OrdinalIgnoreCase))
+            {
+                FindingDisposition? primaryDisposition = statusMapper.TryMapToDisposition(primaryStatusValue, options);
+
+                if (primaryDisposition is not null)
+                {
+                    mappedDisposition = primaryDisposition;
+                    dispositionStatusLabel = primaryStatusValue;
                 }
             }
 
@@ -295,7 +314,14 @@ public sealed class ItsmInboundWebhookProcessPipeline(
                 WorkspaceId = row.WorkspaceId,
                 ProjectId = row.ProjectId,
                 DataJson = JsonSerializer.Serialize(
-                    CreateSyncedAuditPayload(descriptor.ProviderName, effectivePayload, replayEventId, humanReview, updated, dispositionResult))
+                    CreateSyncedAuditPayload(
+                        descriptor.ProviderName,
+                        effectivePayload,
+                        primaryStatusValue,
+                        replayEventId,
+                        humanReview,
+                        updated,
+                        dispositionResult))
             };
 
             return new ItsmInboundWebhookProcessResult(true, auditEvent);
@@ -324,23 +350,23 @@ public sealed class ItsmInboundWebhookProcessPipeline(
                 reasonCode,
                 CreateRejectPayload(descriptor.ProviderName, externalKey, message)));
 
-    private static object CreateStatusPayload(string providerName, ItsmInboundPayloadReadResult payload) =>
+    private static object CreateStatusPayload(
+        string providerName,
+        ItsmInboundPayloadReadResult payload,
+        string primaryStatusValue) =>
         providerName == "Jira"
             ? new
             {
                 issueKey = payload.ExternalKey,
                 statusName = payload.StatusValue
             }
-            : new
-            {
-                externalKey = payload.ExternalKey,
-                state = payload.StatusValue
-            };
+            : CreateServiceNowStatusDetail(payload, primaryStatusValue);
 
     private static object CreateFindingNotFoundPayload(
         string providerName,
         ItsmInboundPayloadReadResult payload,
-        string findingId) =>
+        string findingId,
+        string primaryStatusValue) =>
         providerName == "Jira"
             ? new
             {
@@ -351,9 +377,26 @@ public sealed class ItsmInboundWebhookProcessPipeline(
             : new
             {
                 externalKey = payload.ExternalKey,
-                state = payload.StatusValue,
+                state = payload.StatusValue.Trim(),
+                primaryState = SelectServiceNowAuditPrimaryState(primaryStatusValue, payload.StatusValue.Trim()),
+                incidentState = SelectServiceNowAuditIncidentState(payload.AlternateStatusValue),
                 findingId
             };
+
+    private static object CreateServiceNowStatusDetail(
+        ItsmInboundPayloadReadResult payload,
+        string primaryStatusValue)
+    {
+        string effectiveState = payload.StatusValue.Trim();
+
+        return new
+        {
+            externalKey = payload.ExternalKey,
+            state = effectiveState,
+            primaryState = SelectServiceNowAuditPrimaryState(primaryStatusValue, effectiveState),
+            incidentState = SelectServiceNowAuditIncidentState(payload.AlternateStatusValue),
+        };
+    }
 
     private static object CreateRejectPayload(string providerName, string externalKey, string message) =>
         providerName == "Jira"
@@ -371,6 +414,7 @@ public sealed class ItsmInboundWebhookProcessPipeline(
     private static object CreateSyncedAuditPayload(
         string providerName,
         ItsmInboundPayloadReadResult payload,
+        string primaryStatusValue,
         string replayEventId,
         string humanReview,
         int updated,
@@ -398,7 +442,9 @@ public sealed class ItsmInboundWebhookProcessPipeline(
         return new
         {
             externalKey = payload.ExternalKey,
-            state = payload.StatusValue,
+            state = payload.StatusValue.Trim(),
+            primaryState = SelectServiceNowAuditPrimaryState(primaryStatusValue, payload.StatusValue.Trim()),
+            incidentState = SelectServiceNowAuditIncidentState(payload.AlternateStatusValue),
             replayEventId,
             humanReviewStatus = humanReview,
             rowsUpdated = updated,
@@ -410,5 +456,26 @@ public sealed class ItsmInboundWebhookProcessPipeline(
             currentDisposition = dispositionResult.ConflictDetail?.Disposition.ToString(),
             currentDispositionReviewerUserId = dispositionResult.ConflictDetail?.ReviewerUserId,
         };
+    }
+
+    private static string? SelectServiceNowAuditPrimaryState(string primaryStatusValue, string effectiveState)
+    {
+        if (string.IsNullOrWhiteSpace(primaryStatusValue))
+            return null;
+
+        string primaryTrimmed = primaryStatusValue.Trim();
+
+        if (string.Equals(primaryTrimmed, effectiveState, StringComparison.OrdinalIgnoreCase))
+            return null;
+
+        return primaryTrimmed;
+    }
+
+    private static string? SelectServiceNowAuditIncidentState(string? alternateStatusValue)
+    {
+        if (string.IsNullOrWhiteSpace(alternateStatusValue))
+            return null;
+
+        return alternateStatusValue.Trim();
     }
 }

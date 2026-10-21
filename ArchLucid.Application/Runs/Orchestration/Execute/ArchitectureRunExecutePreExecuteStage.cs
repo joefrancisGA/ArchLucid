@@ -36,8 +36,8 @@ public sealed class ArchitectureRunExecutePreExecuteStage(
         ArchitectureRunStatus currentStatus,
         CancellationToken cancellationToken)
     {
-        if (currentStatus is not ArchitectureRunStatus.ReadyForCommit)
-            return;
+        // Eligibility snapshot may be stale after live task reload; demotion uses the persisted header status.
+        _ = currentStatus;
 
         if (!ArchitectureRunExecuteRunIdHelper.TryParseRunGuid(runId, out Guid runGuid))
             return;
@@ -53,6 +53,9 @@ public sealed class ArchitectureRunExecutePreExecuteStage(
             throw new ConflictException(
                 $"Run '{runId}' is already committed and cannot be selectively re-executed.");
         }
+
+        if (!string.Equals(header.LegacyRunStatus, nameof(ArchitectureRunStatus.ReadyForCommit), StringComparison.OrdinalIgnoreCase))
+            return;
 
         header.LegacyRunStatus = nameof(ArchitectureRunStatus.WaitingForResults);
         await _runRepository.UpdateAsync(header, cancellationToken);

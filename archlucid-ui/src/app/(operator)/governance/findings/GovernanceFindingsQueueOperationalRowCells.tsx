@@ -51,6 +51,8 @@ import {
 } from "@/components/governance/findings/governance-findings-row-omission-copy";
 
 import {
+  governanceFindingQueueRowHasPolicyRuleId,
+  governanceFindingQueueRowHasStoredRunId,
   type GovernanceFindingQueueRow,
 } from "./governance-finding-queue-row";
 
@@ -158,25 +160,32 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
     graphHref ??
     (row.evidenceHref !== undefined && row.evidenceHref.trim().length > 0 ? row.evidenceHref : null);
   const findingDerivation = findingDerivationFromGovernanceQueueRow(row);
-  const evidenceTraceHref =
-    row.recordKind === "finding" ? governanceFindingInspectHref(row.runId, row.findingId) : null;
+  const hasStoredRunId = governanceFindingQueueRowHasStoredRunId(row);
+  const findingInspectHref = hasStoredRunId
+    ? governanceFindingInspectHref(row.runId, row.findingId)
+    : null;
+  const evidenceTraceHref = row.recordKind === "finding" ? findingInspectHref : null;
   const semanticSupportChipFinding = governanceQueueRowToSemanticSupportChipFinding(row);
 
   return (
     <>
       <EnterpriseTableCell className={cn("font-medium text-al-text-primary", GOVERNANCE_FINDINGS_QUEUE_TITLE_STICKY_CLASS)}>
-        <Link
-          className={OPERATOR_LINK.inline}
-          href={governanceFindingInspectHref(row.runId, row.findingId)}
-          prefetch={false}
-          onClick={onOpenRow}
-        >
-          {governanceQueueTitleLabel(row)}
-        </Link>
-        {row.recordKind === "finding" && row.policyRuleId ? (
+        {findingInspectHref !== null ? (
+          <Link
+            className={OPERATOR_LINK.inline}
+            href={findingInspectHref}
+            prefetch={false}
+            onClick={onOpenRow}
+          >
+            {governanceQueueTitleLabel(row)}
+          </Link>
+        ) : (
+          <span className="text-al-text-primary">{governanceQueueTitleLabel(row)}</span>
+        )}
+        {row.recordKind === "finding" && governanceFindingQueueRowHasPolicyRuleId(row) ? (
           <div className="mt-1">
             <FindingPolicyTraceabilityBadges
-              {...buildPolicyTraceabilityLinksFromRuleId(row.policyRuleId, row.category || row.policyRuleId)}
+              {...buildPolicyTraceabilityLinksFromRuleId(row.policyRuleId!, row.category || row.policyRuleId!)}
             />
           </div>
         ) : row.category && row.recordKind === "finding" ? (

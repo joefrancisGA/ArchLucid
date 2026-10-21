@@ -31,6 +31,11 @@ public static class PixelDiagramIntakeStubDetector
             using JsonDocument json = JsonDocument.Parse(document.Content);
             JsonElement root = json.RootElement;
 
+            if (root.ValueKind is not JsonValueKind.Object)
+            {
+                return false;
+            }
+
             if (!root.TryGetProperty("intakeStub", out JsonElement intakeStub))
             {
                 return false;
@@ -76,9 +81,3 @@ public static class PixelDiagramIntakeStubDetector
         }
     }
 }
-
-public sealed record PixelDiagramIntakeStubMetadata(
-    string FileName,
-    string SourceMimeType,
-    string? EvidenceItemId,
-    string? PendingStoredFileMarker);

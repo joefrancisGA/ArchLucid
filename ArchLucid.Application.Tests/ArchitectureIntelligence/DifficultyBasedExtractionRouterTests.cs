@@ -167,11 +167,83 @@ public sealed class DifficultyBasedExtractionRouterTests
     }
 
     [Fact]
+    public void Extract_does_not_emit_ownership_gap_for_email_domain_owner_label_with_unowned()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "Escalation goes to ops@owner.example.com while legacy subnets remain unowned.",
+            "src-email-owner-domain");
+
+        elements.Should().NotContain(element =>
+            element.Kind == ArchitectureElementKind.OperationalOwnership
+            && element.Name.Contains("Unowned component", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void Extract_does_not_emit_ownership_gap_for_path_owner_segment_with_unowned()
     {
         IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
             "The owner/prod slice handles failover. Legacy nodes remain unowned.",
             "src-path-owner-segment");
+
+        elements.Should().NotContain(element =>
+            element.Kind == ArchitectureElementKind.OperationalOwnership
+            && element.Name.Contains("Unowned component", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Extract_does_not_emit_ownership_gap_for_query_string_owner_parameter_with_unowned()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "Callback https://api.example/notify?owner=security-team handles paging. Legacy racks remain unowned.",
+            "src-query-owner-param");
+
+        elements.Should().NotContain(element =>
+            element.Kind == ArchitectureElementKind.OperationalOwnership
+            && element.Name.Contains("Unowned component", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Extract_does_not_emit_ownership_gap_for_parenthetical_owner_label_with_unowned()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "The runbook lists (owner security) as the paging contact. Legacy racks remain unowned.",
+            "src-parenthetical-owner");
+
+        elements.Should().NotContain(element =>
+            element.Kind == ArchitectureElementKind.OperationalOwnership
+            && element.Name.Contains("Unowned component", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Extract_does_not_emit_ownership_gap_for_backtick_owner_label_with_unowned()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "The schema field `owner` documents RACI. Legacy racks remain unowned.",
+            "src-backtick-owner");
+
+        elements.Should().NotContain(element =>
+            element.Kind == ArchitectureElementKind.OperationalOwnership
+            && element.Name.Contains("Unowned component", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Extract_does_not_emit_ownership_gap_for_json_owner_property_with_unowned()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "RACI JSON uses \"owner\": \"platform\" for paging. Legacy racks remain unowned.",
+            "src-json-owner-property");
+
+        elements.Should().NotContain(element =>
+            element.Kind == ArchitectureElementKind.OperationalOwnership
+            && element.Name.Contains("Unowned component", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Extract_does_not_emit_ownership_gap_for_brace_owner_map_entry_with_unowned()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "The runbook map {owner: platform} defines paging. Legacy racks remain unowned.",
+            "src-brace-owner-map");
 
         elements.Should().NotContain(element =>
             element.Kind == ArchitectureElementKind.OperationalOwnership

@@ -5,6 +5,11 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 import { readDeferredChunkImportLoaderSource } from "@/lib/operator/deferred-chunk-import-loader-source.test-helper";
+import {
+  readRegisteredSource,
+  readRunDetailPageViewFamilySource,
+  readRunDetailTabbedWorkspaceFamilySource,
+} from "@/testing/source-scan-harness";
 
 const sectionsDir = dirname(fileURLToPath(import.meta.url));
 
@@ -27,6 +32,18 @@ function readDeferredChunkFamilySource(): string {
 }
 
 const pageViewSource = readFileSync(join(sectionsDir, "RunDetailPageView.tsx"), "utf8");
+const pageViewFamilySource = readRunDetailPageViewFamilySource();
+const pageViewCommittedSource = readRegisteredSource("run-detail-page-view-committed");
+const tabbedWorkspaceFamilySource = readRunDetailTabbedWorkspaceFamilySource();
+const pageViewCreateHomeSource = readRegisteredSource("run-detail-page-view-create-home");
+const deferredCompositionSource = [
+  pageViewFamilySource,
+  pageViewCommittedSource,
+  tabbedWorkspaceFamilySource,
+  pageViewCreateHomeSource,
+  readRegisteredSource("run-detail-evidence-tab-composition"),
+  readRegisteredSource("run-detail-activity-tab-composition"),
+].join("\n");
 
 const deferredChunksSource = readDeferredChunkFamilySource();
 
@@ -139,49 +156,50 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
       expect(pageViewSource).not.toContain(bannedImport);
     }
 
-    expect(pageViewSource).toContain("RunDetailWorkspaceHeaderDeferred");
-    expect(pageViewSource).toContain("RunDetailWorkspaceSummaryStripDeferred");
-    expect(pageViewSource).toContain("RunDetailWorkspaceBlockingBannerDeferred");
-    expect(pageViewSource).toContain("RunDetailReviewPackageDoThisNextResolvedDeferred");
-    expect(pageViewSource).toContain("RunDetailReviewPackageSponsorHandoffGateDeferred");
-    expect(pageViewSource).toContain("RunDetailCreateHomeEvidencePanelDeferred");
-    expect(pageViewSource).toContain("RunDetailCreateHomeActivityPanelDeferred");
-    expect(pageViewSource).toContain("RunDetailActivitySourcesPanelDeferred");
-    expect(pageViewSource).not.toContain("ReviewPackageDoThisNextStripDeferred");
-    expect(pageViewSource).not.toContain("RunDetailWorkspaceStickyActionsDeferred");
-    expect(pageViewSource).not.toContain("ReviewPackagePrimaryActionDeferred");
-    expect(pageViewSource).toContain("RunDetailSponsorBottomLineDeferred");
-    expect(pageViewSource).toContain("RunDetailSectionNavDeferred");
-    expect(pageViewSource).not.toContain("RunDetailTabbedSectionNavDeferred");
-    expect(pageViewSource).toContain("RunDetailManifestSummarySectionDeferred");
-    expect(pageViewSource).toContain("RunDetailSubmittedArchitectureSectionDeferred");
-    expect(pageViewSource).toContain("RunDetailCaptureEvidenceSectionDeferred");
-    expect(pageViewSource).toContain("RunDetailBuyerPilotConversionSectionDeferred");
-    expect(pageViewSource).toContain("RunDetailSponsorReportCtaCardDeferred");
-    expect(pageViewSource).toContain("RunDetailGovernanceDecisionSectionDeferred");
-    expect(pageViewSource).toContain("RunDetailReviewPackageSectionDeferred");
-    expect(pageViewSource).toContain("RunDetailBuyerModeFallbackBannerDeferred");
-    expect(pageViewSource).toContain("RunDetailGovernanceCtaDeferred");
-    expect(pageViewSource).toContain("RunDetailEvidenceTabPanelDeferred");
-    expect(pageViewSource).toContain("RunDetailReviewPackageShareRowDeferred");
-    expect(pageViewSource).toContain("RunDetailDemoMarketingChromeDeferred");
-    expect(pageViewSource).toContain("RunDetailManifestSummaryAlertsDeferred");
-    expect(pageViewSource).toContain("RunDetailRunActionsSectionDeferred");
-    expect(pageViewSource).toContain("HelpPageSituationRegistrarDeferred");
-    expect(pageViewSource).toContain("ReviewGenerationCreatedNoticeDeferred");
-    expect(pageViewSource).toContain("RunDetailBelowFoldSectionsDeferred");
-    expect(pageViewSource).toContain('./RunDetailBelowFoldSectionsDeferred"');
-    expect(pageViewSource).not.toContain("GoldenSponsorPackageWalkthroughDestinationDeferred");
+    expect(deferredCompositionSource).toContain("RunDetailWorkspaceHeaderDeferred");
+    expect(deferredCompositionSource).toContain("RunDetailWorkspaceSummaryStripDeferred");
+    expect(deferredCompositionSource).toContain("RunDetailWorkspaceBlockingBannerDeferred");
+    expect(deferredCompositionSource).toContain("RunDetailReviewPackageDoThisNextResolvedDeferred");
+    expect(deferredCompositionSource).toContain("RunDetailReviewPackageSponsorHandoffGateDeferred");
+    expect(deferredCompositionSource).toContain("RunDetailCreateHomeEvidencePanelDeferred");
+    expect(deferredCompositionSource).toContain("RunDetailCreateHomeActivityPanelDeferred");
+    expect(deferredCompositionSource).toContain("RunDetailActivitySourcesPanelDeferred");
+    expect(deferredCompositionSource).not.toContain("ReviewPackageDoThisNextStripDeferred");
+    expect(deferredCompositionSource).not.toContain("RunDetailWorkspaceStickyActionsDeferred");
+    expect(deferredCompositionSource).not.toContain("ReviewPackagePrimaryActionDeferred");
+    expect(deferredCompositionSource).toContain("RunDetailSponsorBottomLineDeferred");
+    expect(deferredCompositionSource).toContain("RunDetailSectionNavDeferred");
+    expect(deferredCompositionSource).toContain("RunDetailTabbedSectionNavDeferred");
+    expect(deferredCompositionSource).toContain("RunDetailManifestSummarySectionDeferred");
+    expect(deferredCompositionSource).toContain("RunDetailSubmittedArchitectureSectionDeferred");
+    expect(deferredCompositionSource).toContain("RunDetailCaptureEvidenceSectionDeferred");
+    expect(deferredCompositionSource).toContain("RunDetailBuyerPilotConversionSectionDeferred");
+    expect(deferredCompositionSource).toContain("RunDetailSponsorReportCtaCardDeferred");
+    expect(deferredCompositionSource).toContain("RunDetailGovernanceDecisionSectionDeferred");
+    expect(deferredCompositionSource).toContain("RunDetailReviewPackageSectionDeferred");
+    expect(deferredCompositionSource).toContain("RunDetailBuyerModeFallbackBannerDeferred");
+    expect(deferredCompositionSource).toContain("RunDetailGovernanceCtaDeferred");
+    expect(deferredCompositionSource).toContain("RunDetailEvidenceTabPanelDeferred");
+    expect(deferredCompositionSource).toContain("RunDetailReviewPackageShareRowDeferred");
+    expect(deferredCompositionSource).toContain("RunDetailDemoMarketingChromeDeferred");
+    expect(deferredCompositionSource).toContain("RunDetailManifestSummaryAlertsDeferred");
+    expect(deferredCompositionSource).toContain("RunDetailRunActionsSectionDeferred");
+    expect(deferredCompositionSource).toContain("HelpPageSituationRegistrarDeferred");
+    expect(deferredCompositionSource).toContain("ReviewGenerationCreatedNoticeDeferred");
+    expect(deferredCompositionSource).toContain("RunDetailBelowFoldSectionsDeferred");
+    expect(deferredCompositionSource).toContain('./RunDetailBelowFoldSectionsDeferred"');
+    expect(deferredCompositionSource).not.toContain("GoldenSponsorPackageWalkthroughDestinationDeferred");
     expect(deferredChunksSource).toContain('"run-detail-golden-sponsor-walkthrough"');
-    expect(pageViewSource).toContain("RunDetailWorkspaceShell");
-    expect(pageViewSource).not.toContain("./RunDetailWorkspaceChrome");
-    expect(pageViewSource).toContain("ReviewDetailWorkspaceDeferred");
-    expect(pageViewSource).toContain("RunDetailOverviewPanelClientDeferred");
-    expect(pageViewSource).toContain("RunDetailOperatorTechnicalForensicsPanelDeferred");
-    expect(pageViewSource).toContain("RunDetailOutcomeCardsDeferred");
-    expect(pageViewSource).toContain("RunDetailArtifactsExportsSectionDeferred");
-    expect(pageViewSource).toContain("run-detail-page-view-deferred-chunks");
-    expect(pageViewSource).toContain("@/components/resolve-run-detail-last-failure-summary");
+    expect(deferredCompositionSource).toContain("RunDetailWorkspaceShell");
+    expect(deferredCompositionSource).not.toContain("./RunDetailWorkspaceChrome");
+    expect(deferredCompositionSource).toContain("RunDetailPresenterElicitationBridge");
+    expect(deferredChunksSource).toContain("ReviewDetailWorkspaceDeferred");
+    expect(deferredCompositionSource).toContain("RunDetailOverviewPanelClientDeferred");
+    expect(deferredCompositionSource).toContain("RunDetailOperatorTechnicalForensicsPanelDeferred");
+    expect(deferredCompositionSource).toContain("RunDetailOutcomeCardsDeferred");
+    expect(deferredCompositionSource).toContain("RunDetailArtifactsExportsSectionDeferred");
+    expect(deferredCompositionSource).toContain("run-detail-page-view-deferred-chunks");
+    expect(deferredCompositionSource).toContain("@/components/resolve-run-detail-last-failure-summary");
   });
 
   it("dynamic-imports operator forensics and activity-tab chunks", () => {

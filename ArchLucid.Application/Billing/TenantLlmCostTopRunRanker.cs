@@ -100,6 +100,7 @@ public sealed class TenantLlmCostTopRunRanker(
             EstimatedCostUsd = aggregate.EstimatedCostUsd ?? 0m,
             PromptTokens = aggregate.PromptTokens,
             CompletionTokens = aggregate.CompletionTokens,
+            ReasoningTokens = aggregate.ReasoningTokens,
             LlmCallCount = slices.Count,
         };
 

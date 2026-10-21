@@ -876,7 +876,7 @@ describe("HelpDocsClient", () => {
     vi.unstubAllGlobals();
   });
 
-  it("does not duplicate a static quick link when fetched index repeats the path with only a query string", async () => {
+  it("renders fetched doc-index deep links when only query differs from a static quick link path", async () => {
     const data = [
       {
         title: "Reviews list (tracked tab)",
@@ -900,14 +900,14 @@ describe("HelpDocsClient", () => {
 
     await screen.findByRole("link", { name: "Reviews list" });
 
-    await waitFor(() => {
-      expect(screen.queryByRole("link", { name: "Reviews list (tracked tab)" })).toBeNull();
-    });
+    const deepLink = await screen.findByRole("link", { name: "Reviews list (tracked tab)" });
+
+    expect(deepLink).toHaveAttribute("href", "/architecture/reviews?tab=active");
 
     vi.unstubAllGlobals();
   });
 
-  it("does not duplicate a static quick link when fetched index repeats the path with only a hash fragment", async () => {
+  it("renders fetched doc-index deep links when only a hash fragment differs from a static quick link path", async () => {
     const data = [
       {
         title: "Reviews list (hash fragment)",
@@ -931,9 +931,38 @@ describe("HelpDocsClient", () => {
 
     await screen.findByRole("link", { name: "Reviews list" });
 
-    await waitFor(() => {
-      expect(screen.queryByRole("link", { name: "Reviews list (hash fragment)" })).toBeNull();
-    });
+    const deepLink = await screen.findByRole("link", { name: "Reviews list (hash fragment)" });
+
+    expect(deepLink).toHaveAttribute("href", "/architecture/reviews#active");
+
+    vi.unstubAllGlobals();
+  });
+
+  it("does not duplicate a static quick link when fetched index repeats the same title and path", async () => {
+    const data = [
+      {
+        title: "Reviews list",
+        summary: "Duplicate of the static reviews list quick link.",
+        category: "Operations",
+        url: "/architecture/reviews",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    await screen.findByRole("link", { name: "Reviews list" });
+
+    expect(screen.getAllByRole("link", { name: "Reviews list" })).toHaveLength(1);
 
     vi.unstubAllGlobals();
   });

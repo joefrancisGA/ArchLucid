@@ -14,6 +14,7 @@ public static class CrossAgentProposalConsistencyGate
         ArgumentNullException.ThrowIfNull(results);
 
         List<AgentResult> ordered = results
+            .Where(static result => result is not null)
             .OrderBy(static result => GetMergeOrder(result.AgentType))
             .ToList();
 
@@ -73,6 +74,9 @@ public static class CrossAgentProposalConsistencyGate
         {
             foreach (ManifestService service in proposal.AddedServices)
             {
+                if (service is null)
+                    continue;
+
                 TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointKeys(endpointKeys, service);
             }
         }
@@ -81,6 +85,9 @@ public static class CrossAgentProposalConsistencyGate
         {
             foreach (ManifestDatastore datastore in proposal.AddedDatastores)
             {
+                if (datastore is null)
+                    continue;
+
                 TopologyProposalRelationshipEndpointIndex.AddManifestDatastoreEndpointKeys(endpointKeys, datastore);
             }
         }
@@ -108,6 +115,9 @@ public static class CrossAgentProposalConsistencyGate
 
         foreach (ManifestService service in services)
         {
+            if (service is null)
+                continue;
+
             if (TopologyEndpointSources.Service.TryClaim(service, claimedServiceEndpointKeys))
             {
                 accepted.Add(service);
@@ -134,6 +144,9 @@ public static class CrossAgentProposalConsistencyGate
 
         foreach (ManifestDatastore datastore in datastores)
         {
+            if (datastore is null)
+                continue;
+
             if (TopologyEndpointSources.Datastore.TryClaim(datastore, claimedDatastoreEndpointKeys))
             {
                 accepted.Add(datastore);
@@ -220,6 +233,9 @@ public static class CrossAgentProposalConsistencyGate
 
         foreach (ManifestRelationship relationship in relationships)
         {
+            if (relationship is null)
+                continue;
+
             if (ShouldRetainDeclaredProposalRelationship(relationship, declaredEndpointKeys, validationEndpointKeys))
                 retained.Add(relationship);
         }
@@ -239,10 +255,18 @@ public static class CrossAgentProposalConsistencyGate
 
         foreach (ManifestRelationship relationship in relationships)
         {
-            bool sourceDeclaredInBatch = declaredBatchEndpointKeys.Contains(relationship.SourceId);
-            bool targetDeclaredInBatch = declaredBatchEndpointKeys.Contains(relationship.TargetId);
+            if (relationship is null)
+                continue;
+
+            bool sourceDeclaredInBatch = TopologyProposalRelationshipEndpointIndex.DeclaredEndpointKeySetContains(
+                declaredBatchEndpointKeys,
+                relationship.SourceId);
+            bool targetDeclaredInBatch = TopologyProposalRelationshipEndpointIndex.DeclaredEndpointKeySetContains(
+                declaredBatchEndpointKeys,
+                relationship.TargetId);
 
             // Defer relationships that reference endpoints outside this batch to merge-gate graph validation.
+
             if (!sourceDeclaredInBatch || !targetDeclaredInBatch)
             {
                 retained.Add(relationship);
@@ -265,8 +289,12 @@ public static class CrossAgentProposalConsistencyGate
         HashSet<string> declaredEndpointKeys,
         HashSet<string> validationEndpointKeys)
     {
-        bool sourceDeclared = declaredEndpointKeys.Contains(relationship.SourceId);
-        bool targetDeclared = declaredEndpointKeys.Contains(relationship.TargetId);
+        bool sourceDeclared = TopologyProposalRelationshipEndpointIndex.DeclaredEndpointKeySetContains(
+            declaredEndpointKeys,
+            relationship.SourceId);
+        bool targetDeclared = TopologyProposalRelationshipEndpointIndex.DeclaredEndpointKeySetContains(
+            declaredEndpointKeys,
+            relationship.TargetId);
 
         if (!sourceDeclared || !targetDeclared)
             return true;

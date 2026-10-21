@@ -6,6 +6,9 @@ namespace ArchLucid.Persistence.Scim;
 
 internal static class SqlScimUserFilterTranslator
 {
+    // dbo.ScimUsers string columns inherit database default collation (no per-column COLLATE in schema;
+    // ArchLucid SQL is CI, typically SQL_Latin1_General_CP1_CI_AS). userName/displayName use plain compares
+    // so IX_ScimUsers_TenantId_UserName stays sargable. externalId (RFC caseExact=true) uses seek-then-filter.
     public static string BuildWhere(ScimFilterNode? filter, DynamicParameters parameters, ref int nextParam)
     {
         return filter is null ? "1 = 1" : Build(filter, parameters, ref nextParam);
@@ -58,19 +61,54 @@ internal static class SqlScimUserFilterTranslator
 
         parameters.Add(pName, bound);
 
+        bool caseExact = ScimUserFilterAttributeSemantics.IsCaseExact(c.AttributePath);
+        string paramRef = "@" + pName;
+
         return op switch
         {
-            "eq" => $"{col} = @{pName}",
-            "ne" => $"{col} <> @{pName}",
-            "co" => $"{col} LIKE @{pName}",
-            "sw" => $"{col} LIKE @{pName}",
-            "ew" => $"{col} LIKE @{pName}",
-            "gt" => $"{col} > @{pName}",
-            "lt" => $"{col} < @{pName}",
-            "ge" => $"{col} >= @{pName}",
-            "le" => $"{col} <= @{pName}",
+            "eq" => EqualitySql(col, paramRef, caseExact),
+            "ne" => NotEqualSql(col, paramRef, caseExact),
+            "co" => LikeSql(col, paramRef, caseExact),
+            "sw" => LikeSql(col, paramRef, caseExact),
+            "ew" => LikeSql(col, paramRef, caseExact),
+            "gt" => OrderedCompareSql(col, paramRef, ">", caseExact),
+            "lt" => OrderedCompareSql(col, paramRef, "<", caseExact),
+            "ge" => OrderedCompareSql(col, paramRef, ">=", caseExact),
+            "le" => OrderedCompareSql(col, paramRef, "<=", caseExact),
             _ => throw new ScimFilterSqlException($"Unsupported operator '{op}'.")
         };
+    }
+
+    private static string EqualitySql(string col, string paramRef, bool caseExact)
+    {
+        if (caseExact)
+            return SqlScimCaseExactStringSql.Equality(col, paramRef);
+
+        return $"{col} = {paramRef}";
+    }
+
+    private static string NotEqualSql(string col, string paramRef, bool caseExact)
+    {
+        if (caseExact)
+            return SqlScimCaseExactStringSql.NotEqual(col, paramRef);
+
+        return $"{col} <> {paramRef}";
+    }
+
+    private static string LikeSql(string col, string paramRef, bool caseExact)
+    {
+        if (caseExact)
+            return SqlScimCaseExactStringSql.Like(col, paramRef);
+
+        return $"{col} LIKE {paramRef}";
+    }
+
+    private static string OrderedCompareSql(string col, string paramRef, string op, bool caseExact)
+    {
+        if (caseExact)
+            return SqlScimCaseExactStringSql.OrderedCompare(col, paramRef, op);
+
+        return $"{col} {op} {paramRef}";
     }
 
     private static string NextName(ref int nextParam)
@@ -86,12 +124,19 @@ internal static class SqlScimUserFilterTranslator
 
         if (string.Equals(p, "userName", StringComparison.OrdinalIgnoreCase))
             return "u.UserName";
+
         if (string.Equals(p, "displayName", StringComparison.OrdinalIgnoreCase))
+
             return "u.DisplayName";
+
         if (ScimKnownUserFilterPaths.IsEmailsWorkValuePath(p))
+
             return "u.UserName";
+
         if (string.Equals(p, "externalId", StringComparison.OrdinalIgnoreCase))
+
             return "u.ExternalId";
+
         if (string.Equals(p, "active", StringComparison.OrdinalIgnoreCase))
             return "u.Active";
 

@@ -16,17 +16,21 @@ public class SpecialistReviewFinding
         set;
     }
 
+    private string title = string.Empty;
+
     public string Title
     {
-        get;
-        set;
-    } = null!;
+        get => title;
+        set => title = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string rationale = string.Empty;
 
     public string Rationale
     {
-        get;
-        set;
-    } = null!;
+        get => rationale;
+        set => rationale = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     public ReviewConclusion Conclusion
     {
@@ -69,11 +73,13 @@ public class SpecialistReviewFinding
     }
 
     /// <summary>Severity label: Critical, High, Medium, or Low.</summary>
+    private string severity = string.Empty;
+
     public string Severity
     {
-        get;
-        set;
-    } = null!;
+        get => severity;
+        set => severity = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     /// <summary>Lifecycle slice the finding targets when known (TB-2339 item 43).</summary>
     public ArchitectureLifecycleScope LifecycleScope

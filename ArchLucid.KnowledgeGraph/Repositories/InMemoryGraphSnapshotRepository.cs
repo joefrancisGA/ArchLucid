@@ -44,9 +44,15 @@ public class InMemoryGraphSnapshotRepository : IGraphSnapshotRepository
             if (_store.Count <= MaxEntries)
                 return Task.CompletedTask;
 
-            Guid oldest = _store.Keys.First();
-            _store.Remove(oldest);
-            _scopeBySnapshotId.Remove(oldest);
+            GraphSnapshot oldestSnapshot = _store.Values
+                .OrderBy(s => s.CreatedUtc)
+                .ThenBy(s => s.GraphSnapshotId)
+                .First();
+
+            Guid oldestGraphSnapshotId = oldestSnapshot.GraphSnapshotId;
+
+            _store.Remove(oldestGraphSnapshotId);
+            _scopeBySnapshotId.Remove(oldestGraphSnapshotId);
         }
 
         return Task.CompletedTask;

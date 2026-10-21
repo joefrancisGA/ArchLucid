@@ -71,6 +71,35 @@ public sealed class InMemoryGraphSnapshotRepositoryTests
     }
 
     [Fact]
+    public async Task GetLatestByContextSnapshotIdAsync_after_capacity_eviction_retains_newer_snapshot_for_context()
+    {
+        InMemoryGraphSnapshotRepository sut = new();
+        Guid contextId = Guid.NewGuid();
+        DateTime newestCreatedUtc = TimeProvider.System.UtcNowDateTime();
+        DateTime olderCreatedUtc = newestCreatedUtc.AddDays(-1);
+
+        GraphSnapshot newestForContext = CreateSnapshot(contextId, newestCreatedUtc);
+        await sut.SaveAsync(newestForContext, CancellationToken.None);
+
+        for (int i = 0; i < 499; i++)
+        {
+            GraphSnapshot filler = CreateSnapshot(Guid.NewGuid(), newestCreatedUtc.AddMinutes(-i));
+            await sut.SaveAsync(filler, CancellationToken.None);
+        }
+
+        GraphSnapshot olderForSameContext = CreateSnapshot(contextId, olderCreatedUtc);
+        await sut.SaveAsync(olderForSameContext, CancellationToken.None);
+
+        GraphSnapshot? found = await sut.GetLatestByContextSnapshotIdAsync(
+            new ScopeContext(),
+            contextId,
+            CancellationToken.None);
+
+        found.Should().NotBeNull();
+        found!.GraphSnapshotId.Should().Be(newestForContext.GraphSnapshotId);
+    }
+
+    [Fact]
     public async Task ListIndexedEdgesAsync_UnknownGraph_ReturnsEmpty()
     {
         InMemoryGraphSnapshotRepository sut = new();

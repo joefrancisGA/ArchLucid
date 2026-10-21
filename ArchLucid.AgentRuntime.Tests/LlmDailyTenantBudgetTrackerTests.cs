@@ -38,11 +38,7 @@ public sealed class LlmDailyTenantBudgetTrackerTests
             tenant,
             "azure-openai",
             CreateScopeProvider(tenant),
-            null,
-            100,
-            100,
-            reserved,
-            CancellationToken.None);
+            null, 100, 100, 0, reserved, CancellationToken.None);
         await tracker.EnsureWithinBudgetBeforeCallAsync(tenant, "azure-openai", CancellationToken.None);
     }
 
@@ -64,11 +60,7 @@ public sealed class LlmDailyTenantBudgetTrackerTests
             tenant,
             "azure-openai",
             CreateScopeProvider(tenant),
-            null,
-            400,
-            0,
-            null,
-            CancellationToken.None);
+            null, 400, 0, 0, null, CancellationToken.None);
 
         Func<Task> act = async () =>
             await tracker.EnsureWithinBudgetBeforeCallAsync(tenant, "azure-openai", CancellationToken.None);
@@ -96,11 +88,7 @@ public sealed class LlmDailyTenantBudgetTrackerTests
             tenant,
             "azure-openai",
             CreateScopeProvider(tenant),
-            audit.Object,
-            700,
-            0,
-            null,
-            CancellationToken.None);
+            audit.Object, 700, 0, 0, null, CancellationToken.None);
 
         audit.Verify(
             a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
@@ -110,11 +98,7 @@ public sealed class LlmDailyTenantBudgetTrackerTests
             tenant,
             "azure-openai",
             CreateScopeProvider(tenant),
-            audit.Object,
-            150,
-            0,
-            null,
-            CancellationToken.None);
+            audit.Object, 150, 0, 0, null, CancellationToken.None);
 
         audit.Verify(
             a => a.LogAsync(
@@ -126,11 +110,7 @@ public sealed class LlmDailyTenantBudgetTrackerTests
             tenant,
             "azure-openai",
             CreateScopeProvider(tenant),
-            audit.Object,
-            10,
-            0,
-            null,
-            CancellationToken.None);
+            audit.Object, 10, 0, 0, null, CancellationToken.None);
 
         audit.Verify(
             a => a.LogAsync(
@@ -162,7 +142,7 @@ public sealed class LlmDailyTenantBudgetTrackerTests
         for (int i = 0; i < tasks.Length; i++)
         {
             tasks[i] = tracker.RecordUsageAndMaybeWarnAsync(
-                tenant, "azure-openai", scope, null, 1, 1, null, CancellationToken.None);
+                tenant, "azure-openai", scope, null, 1, 1, 0, null, CancellationToken.None);
         }
 
         await Task.WhenAll(tasks);

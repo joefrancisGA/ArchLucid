@@ -9,8 +9,16 @@ vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
     ...actual,
-  useSearchParams: () => searchParamsState.value,
-  redirect: vi.fn(),
+    useSearchParams: () => {
+      const query = window.location.search.startsWith("?")
+        ? window.location.search.slice(1)
+        : window.location.search;
+
+      return new URLSearchParams(query);
+    },
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn(), back: vi.fn(), forward: vi.fn() }),
+    usePathname: () => "/architecture/reviews/new",
+    redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
   };
@@ -45,12 +53,18 @@ vi.mock("@/lib/api", () => ({
 }));
 
 import { NewRunWizardClient } from "./NewRunWizardClient";
+import {
+  NEW_RUN_WIZARD_SYSTEM_NAME_LABEL,
+  prepareNewRunWizardVitestHarness,
+} from "./new-run-wizard-test-helpers";
 
 const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
 
 describe("NewRunWizardClient (preset deeplink query)", { timeout: 60_000 }, () => {
   beforeEach(() => {
+    prepareNewRunWizardVitestHarness();
     searchParamsState.value = new URLSearchParams("preset=greenfield");
+    window.history.replaceState(null, "", `/architecture/reviews/new?${searchParamsState.value.toString()}`);
     window.localStorage.setItem(WIZARD_MODE_STORAGE_KEY, "full");
 
     vi.stubGlobal(
@@ -92,16 +106,17 @@ describe("NewRunWizardClient (preset deeplink query)", { timeout: 60_000 }, () =
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
 
     await waitFor(() => {
-      expect(screen.getByLabelText("System name")).toBeInTheDocument();
+      expect(screen.getByLabelText(NEW_RUN_WIZARD_SYSTEM_NAME_LABEL)).toBeInTheDocument();
     });
 
-    const systemName = screen.getByLabelText("System name") as HTMLInputElement;
+    const systemName = screen.getByLabelText(NEW_RUN_WIZARD_SYSTEM_NAME_LABEL) as HTMLInputElement;
     expect(systemName.value).toBe("CustomerWebApp");
     expect(screen.queryByTestId("new-run-wizard-step-line")).not.toHaveTextContent("Choose starting point");
   });
 
   it("does not auto-select when the preset token is missing or unknown", async () => {
     searchParamsState.value = new URLSearchParams("preset=legacy");
+    window.history.replaceState(null, "", `/architecture/reviews/new?${searchParamsState.value.toString()}`);
     render(<NewRunWizardClient />);
 
     await waitFor(() => {

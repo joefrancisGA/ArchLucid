@@ -39,8 +39,17 @@ vi.mock("@/hooks/use-working-back-locator", () => ({
   }),
 }));
 
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/architecture/reviews/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/print",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
+
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 import { PACKAGE_PRINT_CLAIM_DISCIPLINE, buildPackagePrintSources } from "@/lib/package-print-evidence-copy";
 import {
   PACKAGE_PRINT_FIRST_VIEWPORT_ID,
@@ -96,9 +105,10 @@ describe("PackagePrintPageView buyer-polished shell (APR)", () => {
     expect(orientationTop).toContainElement(sourcesSection);
     expect(orientationTop.compareDocumentPosition(statusTag) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(buildPackagePrintSources(runId))) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(
+      within(sourcesSection),
+      buildPackagePrintSources(runId),
+      `/architecture/reviews/${runId}/print`,
+    );
   });
 });

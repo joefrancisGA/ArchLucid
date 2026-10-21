@@ -9,20 +9,6 @@ using static ArchLucid.Application.InfraEvidence.SecureNowQuestionDispositions.S
 
 namespace ArchLucid.Application.InfraEvidence.SecureNowQuestionDispositions;
 
-public sealed record SecureNowDiagramQuestionCandidate
-{
-    public string SubscriptionId { get; init; } = string.Empty;
-    public string ResourceId { get; init; } = string.Empty;
-    public string QuestionKey { get; init; } = string.Empty;
-    public string QuestionText { get; init; } = string.Empty;
-    public string ProblemText { get; init; } = string.Empty;
-    public string ResourceType { get; init; } = string.Empty;
-    public SecureNowQuestionScopeKind ScopeKind { get; init; } = SecureNowQuestionScopeKind.Resource;
-    public bool IsOrphanIntent { get; init; }
-    public bool IsUnknownEvidence { get; init; }
-    public bool IsKnownMissingAzureObject { get; init; }
-}
-
 public sealed class SecureNowQuestionCompiler
 {
     public IReadOnlyList<SecureNowQuestionRecord> Compile(
@@ -61,6 +47,7 @@ public sealed class SecureNowQuestionCompiler
                      .ThenBy(candidate => NormalizeQuestionKey(candidate.QuestionKey), StringComparer.Ordinal))
         {
             string questionKey = NormalizeQuestionKey(packCandidate.QuestionKey);
+
             if (questionKey.Length == 0)
                 continue;
 
@@ -144,7 +131,9 @@ public sealed class SecureNowQuestionCompiler
 
             string questionKey = candidate.IsOrphanIntent
                 ? "orphan-still-needed@v1"
+
                 : "unknown-evidence@v1";
+
             if (candidate.IsUnknownEvidence
                 && string.IsNullOrWhiteSpace(candidate.ProblemText))
                 continue;
@@ -188,8 +177,11 @@ public sealed class SecureNowQuestionCompiler
         DateTime now,
         IReadOnlyDictionary<string, AzureInventoryResourceRecord> resourcesById,
         string? preferredResourceType = null)
+
     {
+
         string identity = Identity(question.SubscriptionId, question.ResourceId, question.QuestionKey);
+
         if (!emitted.Add(identity))
             return;
 
@@ -205,9 +197,16 @@ public sealed class SecureNowQuestionCompiler
                 DispositionId = disposition.DispositionId,
                 Status = disposition.Status,
                 ExpirationUtc = disposition.ExpirationUtc,
-                AnswerCode = disposition.AnswerCode,
-                AnswerText = disposition.AnswerText,
-                Reason = disposition.Reason,
+                AnswerCode = disposition.Status == SecureNowQuestionDispositionStatus.Answered
+                    ? disposition.AnswerCode
+                    : null,
+                AnswerText = disposition.Status == SecureNowQuestionDispositionStatus.Answered
+                    ? disposition.AnswerText
+                    : null,
+                Reason = disposition.Status is SecureNowQuestionDispositionStatus.Answered
+                    or SecureNowQuestionDispositionStatus.Ignored
+                    ? disposition.Reason
+                    : null,
             };
         }
 

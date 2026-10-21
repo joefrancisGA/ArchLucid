@@ -295,15 +295,53 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
                 includeRecoveryServices: true,
                 cancellationToken: CancellationToken.None,
                 includeCrossGroupFanOut: true,
-                includeAvdAssets: true);
+                includeAvdAssets: true,
+                includeNetworkDetails: true);
 
         result.Succeeded.Should().BeTrue();
         observedOptions.Should().NotBeEmpty();
+        observedOptions.Should().NotContainNulls();
         observedOptions.Should().Contain(options =>
-            options != null
-            && options.IncludeRecoveryServices
+            options!.IncludeRecoveryServices
             && options.IncludeCrossGroupFanOut
-            && options.IncludeAvdAssets);
+            && options.IncludeAvdAssets
+            && options.IncludeNetworkDetails);
+    }
+
+    [Fact]
+    public async Task Preview_applies_include_network_details_to_mode_renders()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot(resourceCount: 3);
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        Mock<IDiagramAstFromGraphCompiler> compiler = new();
+        DiagramAstFromGraphCompiler realCompiler = new();
+        List<DiagramAstCompileOptions?> observedOptions = [];
+
+        compiler
+            .Setup(candidate => candidate.Compile(
+                It.IsAny<GraphSnapshot>(),
+                It.IsAny<DiagramMode>(),
+                It.IsAny<DiagramAstCompileOptions?>()))
+            .Callback((GraphSnapshot _, DiagramMode _, DiagramAstCompileOptions? options) => observedOptions.Add(options))
+            .Returns((GraphSnapshot graph, DiagramMode mode, DiagramAstCompileOptions? options) =>
+                realCompiler.Compile(graph, mode, options));
+
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds(),
+            compiler.Object);
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse> result =
+            await service.TryGetPreviewAsync(
+                CreateScope(),
+                SnapshotId,
+                cancellationToken: CancellationToken.None,
+                includeNetworkDetails: true);
+
+        result.Succeeded.Should().BeTrue();
+        observedOptions.Should().NotBeEmpty();
+        observedOptions.Should().NotContainNulls();
+        observedOptions.Should().OnlyContain(options => options!.IncludeNetworkDetails);
     }
 
     [Fact]

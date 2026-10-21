@@ -13,7 +13,7 @@ public static class HostedAzureInventoryEventGridSubscriptionCollector
 {
     private const string EventGridApiVersion = "2022-06-15";
 
-    public static async Task<IReadOnlyList<AzureInventoryEventGridSubscriptionRow>> CollectAsync(
+    public static async Task<HostedAzureInventoryEventGridSubscriptionCollectResult> CollectAsync(
         GetOnlyHostedAzureArmReadClient armReadClient,
         string accessToken,
         string? subscriptionId,
@@ -27,6 +27,7 @@ public static class HostedAzureInventoryEventGridSubscriptionCollector
         ArgumentNullException.ThrowIfNull(logger);
 
         List<AzureInventoryEventGridSubscriptionRow> rows = [];
+        List<string> collectionWarnings = [];
         HashSet<string> seenKeys = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (HostedAzureArmResourceRecord resource in resources)
@@ -38,7 +39,7 @@ public static class HostedAzureInventoryEventGridSubscriptionCollector
 
             try
             {
-                IReadOnlyList<JsonElement> subscriptions = await armReadClient.ListChildJsonElementsAsync(
+                HostedAzureArmChildCollectionReadResult listResult = await armReadClient.ListChildJsonElementsAsync(
                     accessToken,
                     resource.ResourceId.Trim(),
                     "eventSubscriptions",
@@ -46,7 +47,15 @@ public static class HostedAzureInventoryEventGridSubscriptionCollector
                     "Event Grid subscription",
                     cancellationToken).ConfigureAwait(false);
 
-                AddSubscriptions(resource.ResourceId.Trim(), subscriptions, rows, seenKeys);
+                HostedAzureInventoryChildListPartialEnumeration.NotePartialCollection(
+                    logger,
+                    listResult,
+                    resource.ResourceId.Trim(),
+                    "Event Grid subscription",
+                    collectionWarnings,
+                    AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
+
+                AddSubscriptions(resource.ResourceId.Trim(), listResult.Values, rows, seenKeys);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
@@ -66,7 +75,7 @@ public static class HostedAzureInventoryEventGridSubscriptionCollector
             {
                 string trimmedSubscriptionId = subscriptionId.Trim();
                 string sourceResourceId = $"/subscriptions/{trimmedSubscriptionId}";
-                IReadOnlyList<JsonElement> subscriptions = await armReadClient.ListChildJsonElementsAsync(
+                HostedAzureArmChildCollectionReadResult listResult = await armReadClient.ListChildJsonElementsAsync(
                     accessToken,
                     sourceResourceId,
                     "providers/Microsoft.EventGrid/eventSubscriptions",
@@ -74,7 +83,15 @@ public static class HostedAzureInventoryEventGridSubscriptionCollector
                     "subscription Event Grid subscription",
                     cancellationToken).ConfigureAwait(false);
 
-                AddSubscriptions(sourceResourceId, subscriptions, rows, seenKeys);
+                HostedAzureInventoryChildListPartialEnumeration.NotePartialCollection(
+                    logger,
+                    listResult,
+                    sourceResourceId,
+                    "subscription Event Grid subscription",
+                    collectionWarnings,
+                    AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
+
+                AddSubscriptions(sourceResourceId, listResult.Values, rows, seenKeys);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
@@ -87,7 +104,11 @@ public static class HostedAzureInventoryEventGridSubscriptionCollector
             }
         }
 
-        return rows;
+        return new HostedAzureInventoryEventGridSubscriptionCollectResult
+        {
+            Subscriptions = rows,
+            CollectionWarnings = collectionWarnings,
+        };
     }
 
     private static bool IsEventGridSourceResourceType(string resourceType)

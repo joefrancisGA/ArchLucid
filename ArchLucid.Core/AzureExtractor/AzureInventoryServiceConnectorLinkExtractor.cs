@@ -35,7 +35,10 @@ public static class AzureInventoryServiceConnectorLinkExtractor
             && propertiesElement.TryGetProperty("targetService", out JsonElement targetServiceElement)
             && targetServiceElement.ValueKind is JsonValueKind.Object)
         {
-            targetResourceId = TryReadString(targetServiceElement, "id");
+            targetResourceId = AzureInventoryArmNestedObjectPropertyReader.TryReadString(targetServiceElement, "id")
+                                 ?? AzureInventoryArmNestedObjectPropertyReader.TryReadString(
+                                     targetServiceElement,
+                                     "resourceId");
         }
 
         row = new AzureInventoryServiceConnectorLinkRow

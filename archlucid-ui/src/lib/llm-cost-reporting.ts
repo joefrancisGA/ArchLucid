@@ -25,8 +25,18 @@ export type LlmCostTopRunRow = {
   estimatedCostUsd: number;
   promptTokens: number;
   completionTokens: number;
+  reasoningTokens: number;
   llmCallCount: number;
 };
+
+/** Prompt, completion, and reasoning tokens counted for ranking and operator breakdowns. */
+export function measurableLlmTokens(row: {
+  promptTokens: number;
+  completionTokens: number;
+  reasoningTokens?: number;
+}): number {
+  return row.promptTokens + row.completionTokens + Math.max(0, row.reasoningTokens ?? 0);
+}
 
 export type LlmCostReportingDashboard = {
   daily: LlmCostDailyBucket[];
@@ -253,12 +263,16 @@ function parseTopRunRow(entry: unknown): LlmCostTopRunRow | null {
   const estimatedCostUsd = pickFiniteNumber(o, ["estimatedCostUsd", "estimatedCost", "costUsd", "usd"]);
   const promptTokens = Math.max(0, Math.round(pickFiniteNumber(o, ["promptTokens", "inputTokens"], 0)));
   const completionTokens = Math.max(0, Math.round(pickFiniteNumber(o, ["completionTokens", "outputTokens"], 0)));
+  const reasoningTokens = Math.max(
+    0,
+    Math.round(pickFiniteNumber(o, ["reasoningTokens", "reasoningTokenCount"], 0)),
+  );
   const llmCallCount = Math.max(0, Math.round(pickFiniteNumber(o, ["llmCallCount", "callCount"], 0)));
 
   if (estimatedCostUsd === null || estimatedCostUsd < 0)
     return null;
 
-  return { runId, estimatedCostUsd, promptTokens, completionTokens, llmCallCount };
+  return { runId, estimatedCostUsd, promptTokens, completionTokens, reasoningTokens, llmCallCount };
 }
 
 function pickString(

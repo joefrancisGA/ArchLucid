@@ -61,6 +61,9 @@ public sealed class RouteTenantScopeBindingFilter(IScopeContextProvider scopeCon
 
         string path = context.HttpContext.Request.Path.Value ?? string.Empty;
 
+        if (ApiPathSkipSafety.BlocksPathBasedSkip(path))
+            return false;
+
         if (path.Contains("/internal/", StringComparison.OrdinalIgnoreCase))
             return true;
 

@@ -68,6 +68,58 @@ public sealed class RetrievalIndexingServiceTests
     }
 
     [Fact]
+    public async Task IndexDocumentsAsync_rejects_duplicate_document_id_in_one_batch()
+    {
+        Mock<IEmbeddingService> embeddings = new();
+        embeddings
+            .Setup(e => e.EmbedManyAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyList<string> texts, CancellationToken _) =>
+                texts.Select(_ => new float[4]).ToList());
+
+        Mock<IOptionsMonitor<RetrievalEmbeddingCapOptions>> caps = new();
+        caps.Setup(m => m.CurrentValue).Returns(new RetrievalEmbeddingCapOptions { MaxTextsPerEmbeddingRequest = 16 });
+
+        Mock<IEmbeddingModelIdentity> identity = new();
+        identity.SetupGet(i => i.ModelId).Returns("test-model");
+        identity.SetupGet(i => i.ExpectedDimension).Returns(4);
+
+        InMemoryVectorIndex index = new();
+        RetrievalIndexingService sut = CreateSut(
+            embeddings.Object,
+            identity.Object,
+            index,
+            new InMemoryRetrievalDocumentIndexCatalog(),
+            caps.Object);
+
+        RetrievalDocument first = new()
+        {
+            DocumentId = "dup-doc",
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            CorpusKind = CorpusKind.Conversation,
+            Content = "first body",
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        RetrievalDocument second = new()
+        {
+            DocumentId = "dup-doc",
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            CorpusKind = CorpusKind.Conversation,
+            Content = "second body overwrites first",
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        Func<Task> act = async () => await sut.IndexDocumentsAsync([first, second], CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*duplicate DocumentId*dup-doc*");
+    }
+
+    [Fact]
     public async Task IndexDocumentsAsync_rejects_cross_tenant_document_metadata()
     {
         Mock<IEmbeddingService> embeddings = new();

@@ -78,12 +78,6 @@ public sealed partial class GovernanceSetupController(
             if (scopeProblem is not null)
                 return scopeProblem;
 
-            IActionResult? sealedGuardResult =
-                await EnsureGovernanceScopeSealedManifestReadAllowedAsync(scope, cancellationToken);
-
-            if (sealedGuardResult is not null)
-                return sealedGuardResult;
-
             Task<EffectivePolicyPackSet> effectiveTask = _resolver.ResolveAsync(
                 scope.TenantId,
                 scope.WorkspaceId,
@@ -109,7 +103,7 @@ public sealed partial class GovernanceSetupController(
         }
         catch (ConflictException ex)
         {
-            return MapGovernanceSetupSealedManifestConflict(ex);
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
     }
 }

@@ -61,6 +61,49 @@ public sealed class AgentModelCatalogFaithfulnessHarnessImporterTests
   }
 
   [Fact]
+  public async Task Import_rejects_summary_when_cases_evaluated_is_zero()
+  {
+    InMemoryAgentModelCatalogRepository repository = new();
+    AgentModelCatalogRow seed = new()
+    {
+      AliasId = AgentModelAliasIds.StandardGeneral,
+      ProviderConnectionKind = AgentModelAliasProviderKinds.ArchLucidManagedAzureOpenAi,
+      CapabilityTags = [AgentModelAliasCapabilities.StructuredOutput],
+      ApprovedTaskTypes = [AgentModelTaskTypes.Primary],
+      StructuredOutputLevel = AgentModelStructuredOutputLevel.StrictJsonSchema,
+      DataBoundary = AgentModelDataBoundaryKind.AzureBoundary,
+      LifecycleStatus = AgentModelCatalogLifecycleStatus.Available,
+      Evaluations = []
+    };
+
+    await repository.UpsertAsync(seed, CancellationToken.None);
+
+    AgentModelCatalogFaithfulnessHarnessImporter importer = new(
+      repository,
+      new StubFaithfulnessHarnessSummaryReader(
+        new FaithfulnessHarnessSummary("1.0", 0, 1.0, 0.0, 0.0, 0.0)),
+      new AgentModelCatalogEvaluationRecorder(
+        repository,
+        new NoOpAgentModelCatalogCacheInvalidator(),
+        new NoOpAuditService(),
+        new FixedScopeContextProvider(),
+        new FixedActorContext("operator@test")));
+
+    InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+      importer.ImportForAliasAsync(
+        AgentModelAliasIds.StandardGeneral,
+        "operator@test",
+        CancellationToken.None));
+
+    Assert.Contains("cases", exception.Message, StringComparison.OrdinalIgnoreCase);
+
+    AgentModelCatalogRow? saved = await repository.TryGetAsync(AgentModelAliasIds.StandardGeneral, CancellationToken.None);
+
+    Assert.NotNull(saved);
+    Assert.Empty(saved.Evaluations);
+  }
+
+  [Fact]
   public async Task Import_rejects_alias_when_no_approved_task_type_can_take_harness_evidence()
   {
     InMemoryAgentModelCatalogRepository repository = new();

@@ -11,7 +11,7 @@ import {
 } from "@/lib/runs/run-detail-activity-sources";
 
 const pageViewSource = readFileSync(
-  join(dirname(fileURLToPath(import.meta.url)), "RunDetailPageView.tsx"),
+  join(dirname(fileURLToPath(import.meta.url)), "RunDetailPageViewCreateHome.tsx"),
   "utf8",
 );
 
@@ -45,7 +45,7 @@ describe("create-home Activity tab P0 wiring", () => {
     expect(activityPanelSource).toContain("run-detail-create-home-activity");
     expect(activityPanelSource).toContain("architecture-activity-primary-region");
     expect(activityPanelSource).toContain("architecture-activity-orientation");
-    expect(activityPanelSource).toContain("architecture-activity-technical-detail");
+    expect(activityPanelSource).toContain("RunDetailCreateHomeActivityTechnicalDisclosures");
     expect(activityPanelSource).not.toContain("RunDetailTechnologyBaselineSection");
     expect(activityPanelSource).toContain("run-detail-activity-status-headline");
     expect(activityPanelSource).toContain("buyerAssessmentCopy");

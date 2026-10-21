@@ -41,12 +41,34 @@ internal static partial class TerraformAzurermResourceTypeParser
     ///     Returns the root Terraform resource address suffix (e.g. <c>azurerm_app_service.main</c>)
     ///     when <paramref name="sourceId" /> is module-qualified.
     /// </summary>
+    internal static string CanonicalizeTerraformAddressForLookup(string terraformAddress)
+    {
+        if (string.IsNullOrWhiteSpace(terraformAddress))
+            return terraformAddress;
+
+        string trimmed = terraformAddress.Trim();
+        int bracket = trimmed.LastIndexOf('[');
+
+        if (bracket <= 0 || trimmed[^1] != ']')
+            return trimmed;
+
+        string prefix = trimmed[..bracket];
+        string interior = trimmed[(bracket + 1)..^1].Trim();
+
+        if (interior.Length >= 2 && interior[0] == '"' && interior[^1] == '"')
+            interior = interior[1..^1];
+        else if (interior.Length >= 2 && interior[0] == '\'' && interior[^1] == '\'')
+            interior = interior[1..^1];
+
+        return prefix + "[" + interior + "]";
+    }
+
     internal static string? TryParseLeafResourceAddress(string? sourceId)
     {
         if (string.IsNullOrWhiteSpace(sourceId))
             return null;
 
-        string trimmed = sourceId.Trim();
+        string trimmed = CanonicalizeTerraformAddressForLookup(sourceId.Trim());
         MatchCollection azurermMatches = AzurermToken().Matches(trimmed);
         MatchCollection azureadMatches = AzureadToken().Matches(trimmed);
 
@@ -80,7 +102,7 @@ internal static partial class TerraformAzurermResourceTypeParser
         if (string.IsNullOrWhiteSpace(terraformAddress))
             return null;
 
-        string trimmed = terraformAddress.Trim();
+        string trimmed = CanonicalizeTerraformAddressForLookup(terraformAddress.Trim());
         int bracket = trimmed.LastIndexOf('[');
 
         if (bracket <= 0 || trimmed[^1] != ']')

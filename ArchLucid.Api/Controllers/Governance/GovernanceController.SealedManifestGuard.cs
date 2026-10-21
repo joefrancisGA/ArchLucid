@@ -2,7 +2,6 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs.Finalization;
-using ArchLucid.Application.Governance.Posture;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
@@ -14,6 +13,43 @@ namespace ArchLucid.Api.Controllers.Governance;
 
 public sealed partial class GovernanceController
 {
+    private async Task<IActionResult?> EnsureGovernanceSimulateRunSealedManifestAllowedAsync(
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            return null;
+
+        string normalizedRunId = GovernanceRunIdNormalizer.Normalize(runId);
+
+        if (!Guid.TryParse(normalizedRunId, out Guid runGuid) || runGuid == Guid.Empty)
+            return null;
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        RunDetailDto? detail = await _authorityQueryService.GetRunDetailForManifestCompareAsync(
+            scope,
+            runGuid,
+            cancellationToken);
+
+        if (detail is null)
+            return null;
+
+        try
+        {
+            PolicyPackSimulateSealedManifestGuard.EnsureRunSealedManifestHashOrThrow(
+                detail.GoldenManifest,
+                runGuid.ToString("D"),
+                _manifestHashService);
+        }
+        catch (ConflictException ex)
+        {
+            return MapGovernanceSealedManifestConflict(ex);
+        }
+
+        return null;
+    }
+
     private async Task<IActionResult?> EnsureSealedManifestReadAllowedAsync(
         string runId,
         CancellationToken cancellationToken)
@@ -67,30 +103,6 @@ public sealed partial class GovernanceController
             return null;
 
         return await EnsureSealedManifestReadAllowedAsync(approval.RunId, cancellationToken);
-    }
-
-    private async Task<IActionResult?> EnsureGovernanceInsightsScopeSealedManifestReadAllowedAsync(
-        CancellationToken cancellationToken)
-    {
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-
-        try
-        {
-            await GovernancePostureSealedManifestHashGuard.EnsureLatestCommittedRunSealedOrThrowAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
-                _runDetailQueryService,
-                _authorityQueryService,
-                _manifestHashService,
-                cancellationToken);
-        }
-        catch (ConflictException ex)
-        {
-            return MapGovernanceSealedManifestConflict(ex);
-        }
-
-        return null;
     }
 
     private async Task<IActionResult?> EnsureDryRunRunIdsSealedManifestReadAllowedAsync(

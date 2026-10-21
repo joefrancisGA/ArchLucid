@@ -53,6 +53,48 @@ public sealed class RecentPilotRunDeltasServiceTests
     }
 
     [SkippableFact]
+    public async Task GetRecentDeltasAsync_WhenSortKeysTie_OrdersByRunIdDescendingSoPanelOrderIsStable()
+    {
+        Mock<IRunDetailQueryService> queryService = new();
+        Mock<IPilotRunDeltaComputer> deltaComputer = new();
+
+        DateTime tieUtc = new(2026, 4, 23, 10, 0, 0, DateTimeKind.Utc);
+        RunSummary runA = new()
+        {
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RequestId = "req-a",
+            Status = nameof(ArchitectureRunStatus.Committed),
+            CreatedUtc = tieUtc,
+            CompletedUtc = tieUtc,
+            CurrentManifestVersion = "v1",
+            SystemName = "Demo",
+        };
+        RunSummary runB = new()
+        {
+            RunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            RequestId = "req-b",
+            Status = nameof(ArchitectureRunStatus.Committed),
+            CreatedUtc = tieUtc,
+            CompletedUtc = tieUtc,
+            CurrentManifestVersion = "v1",
+            SystemName = "Demo",
+        };
+
+        queryService
+            .Setup(q => q.ListRunSummariesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync([runA, runB]);
+
+        StubDetailAndDelta(queryService, deltaComputer, runA, findingsCount: 1, secondsToCommit: 30);
+        StubDetailAndDelta(queryService, deltaComputer, runB, findingsCount: 2, secondsToCommit: 30);
+
+        RecentPilotRunDeltasService sut = BuildSut(queryService, deltaComputer);
+
+        RecentPilotRunDeltasResponse response = await sut.GetRecentDeltasAsync(5);
+
+        response.Items.Select(i => i.RunId).Should().Equal(runB.RunId, runA.RunId);
+    }
+
+    [SkippableFact]
     public async Task GetRecentDeltasAsync_FiltersToCommittedRuns_NewestFirst_AndClampsCount()
     {
         Mock<IRunDetailQueryService> queryService = new();

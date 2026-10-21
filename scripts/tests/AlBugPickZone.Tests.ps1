@@ -1634,4 +1634,24 @@ Describe 'al-bug-pick-zone.ps1' {
         @($cooled.escalatedFiles) | Should -Contain $file
         $rotated.zoneId | Should -Be 'zone-other'
     }
+
+    It 'accepts recordedAt as a legacy timestamp alias in the run log' {
+        [string]$ledger = New-LedgerFixture -Content (Get-TwoZoneLedger)
+        [string]$runLog = Join-Path $TestDrive 'recorded-at-alias.jsonl'
+        $line = '{"recordedAt":"2026-08-02T00:00:00Z","zoneId":"zone-a","outcome":"dry"}'
+        Set-Content -LiteralPath $runLog -Value $line -Encoding UTF8
+
+        { Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -AtUtc '2026-08-03T00:00:00Z' } |
+            Should -Not -Throw
+    }
+
+    It 'fails loudly when a run log entry has no timestamp field' {
+        [string]$ledger = New-LedgerFixture -Content (Get-TwoZoneLedger)
+        [string]$runLog = Join-Path $TestDrive 'missing-at.jsonl'
+        $line = '{"zoneId":"zone-a","outcome":"dry"}'
+        Set-Content -LiteralPath $runLog -Value $line -Encoding UTF8
+
+        { Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog } |
+            Should -Throw '*missing a usable timestamp*'
+    }
 }

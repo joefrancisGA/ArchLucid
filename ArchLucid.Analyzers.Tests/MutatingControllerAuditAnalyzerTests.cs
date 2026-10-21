@@ -735,6 +735,43 @@ public sealed class ConcreteAuditedController(ConcreteAuditService auditService)
     }
 
     [Fact]
+    public async Task AL0003_reports_when_AcceptVerbs_mixed_get_and_post_lacks_IAudit_LogAsync()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public sealed class AcceptVerbsMixedVerbsController(IAuditService auditService) : ControllerBase
+{
+    [AcceptVerbs("GET", "POST")]
+    public System.Threading.Tasks.Task<IActionResult> {|#0:Upsert|}(System.Threading.CancellationToken cancellationToken)
+    {
+        return System.Threading.Tasks.Task.FromResult<IActionResult>(Ok());
+    }
+}
+}
+""";
+
+        DiagnosticResult expectedDiagnostic =
+            CSharpAnalyzerVerifier<MutatingControllerAuditAnalyzer, DefaultVerifier>.Diagnostic(
+                    Al0003MutatingControllerAuditDescriptor.Rule)
+                .WithLocation(0)
+                .WithArguments("ArchLucid.Api.Probe.AcceptVerbsMixedVerbsController.Upsert");
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expectedDiagnostic },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
+    [Fact]
     public async Task AL0003_reports_when_AcceptVerbs_post_action_lacks_IAudit_LogAsync()
     {
         const string testCode = AuditAndMvcStubs +
@@ -845,6 +882,179 @@ public sealed class ExplicitInterfaceEmptyBodyController(IAuditService auditServ
                     Al0003MutatingControllerAuditDescriptor.Rule)
                 .WithLocation(0)
                 .WithArguments("ArchLucid.Api.Probe.ExplicitInterfaceEmptyBodyController.ArchLucid.Api.Probe.IMutatingApi.Post");
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expectedDiagnostic },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task AL0003_reports_when_explicit_interface_implementation_has_empty_block_body_without_LogAsync()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public interface IDeleteApi
+{
+    System.Threading.Tasks.Task<IActionResult> Delete(System.Threading.CancellationToken cancellationToken);
+}
+
+public sealed class ExplicitInterfaceEmptyBodyController(IAuditService auditService) : ControllerBase, IDeleteApi
+{
+    [HttpMethod("DELETE")]
+    System.Threading.Tasks.Task<IActionResult> IDeleteApi.{|#0:Delete|}(System.Threading.CancellationToken cancellationToken)
+    {
+    }
+}
+}
+""";
+
+        DiagnosticResult expectedDiagnostic =
+            CSharpAnalyzerVerifier<MutatingControllerAuditAnalyzer, DefaultVerifier>.Diagnostic(
+                    Al0003MutatingControllerAuditDescriptor.Rule)
+                .WithLocation(0)
+                .WithArguments("ArchLucid.Api.Probe.ExplicitInterfaceEmptyBodyController.ArchLucid.Api.Probe.IDeleteApi.Delete");
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics =
+            {
+                expectedDiagnostic,
+                DiagnosticResult.CompilerError("CS0161").WithSpan(93, 59, 93, 65)
+                    .WithArguments(
+                        "ArchLucid.Api.Probe.ExplicitInterfaceEmptyBodyController.ArchLucid.Api.Probe.IDeleteApi.Delete(System.Threading.CancellationToken)")
+            },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task AL0003_reports_when_HttpMethod_patch_on_explicit_interface_implementation()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public interface IPatchApi
+{
+    System.Threading.Tasks.Task<IActionResult> Patch(System.Threading.CancellationToken cancellationToken);
+}
+
+public sealed class ExplicitInterfaceHttpMethodPatchController(IAuditService auditService) : ControllerBase, IPatchApi
+{
+    [HttpMethod("PATCH")]
+    System.Threading.Tasks.Task<IActionResult> IPatchApi.{|#0:Patch|}(System.Threading.CancellationToken cancellationToken)
+    {
+        return System.Threading.Tasks.Task.FromResult<IActionResult>(Ok());
+    }
+}
+}
+""";
+
+        DiagnosticResult expectedDiagnostic =
+            CSharpAnalyzerVerifier<MutatingControllerAuditAnalyzer, DefaultVerifier>.Diagnostic(
+                    Al0003MutatingControllerAuditDescriptor.Rule)
+                .WithLocation(0)
+                .WithArguments("ArchLucid.Api.Probe.ExplicitInterfaceHttpMethodPatchController.ArchLucid.Api.Probe.IPatchApi.Patch");
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expectedDiagnostic },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task AL0003_reports_when_HttpMethod_methods_array_put_on_explicit_interface_implementation()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public interface IPutApi
+{
+    System.Threading.Tasks.Task<IActionResult> Put(System.Threading.CancellationToken cancellationToken);
+}
+
+public sealed class ExplicitInterfaceHttpMethodPutController(IAuditService auditService) : ControllerBase, IPutApi
+{
+    [HttpMethod(Methods = new[] { "PUT" })]
+    System.Threading.Tasks.Task<IActionResult> IPutApi.{|#0:Put|}(System.Threading.CancellationToken cancellationToken)
+    {
+        return System.Threading.Tasks.Task.FromResult<IActionResult>(Ok());
+    }
+}
+}
+""";
+
+        DiagnosticResult expectedDiagnostic =
+            CSharpAnalyzerVerifier<MutatingControllerAuditAnalyzer, DefaultVerifier>.Diagnostic(
+                    Al0003MutatingControllerAuditDescriptor.Rule)
+                .WithLocation(0)
+                .WithArguments("ArchLucid.Api.Probe.ExplicitInterfaceHttpMethodPutController.ArchLucid.Api.Probe.IPutApi.Put");
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expectedDiagnostic },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task AL0003_reports_when_HttpMethod_delete_on_explicit_interface_implementation()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public interface IDeleteApi
+{
+    System.Threading.Tasks.Task<IActionResult> Delete(System.Threading.CancellationToken cancellationToken);
+}
+
+public sealed class ExplicitInterfaceHttpMethodDeleteController(IAuditService auditService) : ControllerBase, IDeleteApi
+{
+    [HttpMethod("DELETE")]
+    System.Threading.Tasks.Task<IActionResult> IDeleteApi.{|#0:Delete|}(System.Threading.CancellationToken cancellationToken)
+    {
+        return System.Threading.Tasks.Task.FromResult<IActionResult>(Ok());
+    }
+}
+}
+""";
+
+        DiagnosticResult expectedDiagnostic =
+            CSharpAnalyzerVerifier<MutatingControllerAuditAnalyzer, DefaultVerifier>.Diagnostic(
+                    Al0003MutatingControllerAuditDescriptor.Rule)
+                .WithLocation(0)
+                .WithArguments("ArchLucid.Api.Probe.ExplicitInterfaceHttpMethodDeleteController.ArchLucid.Api.Probe.IDeleteApi.Delete");
 
         await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
         {
@@ -1248,6 +1458,43 @@ public sealed class HttpMethodPostController(IAuditService auditService) : Contr
                     Al0003MutatingControllerAuditDescriptor.Rule)
                 .WithLocation(0)
                 .WithArguments("ArchLucid.Api.Probe.HttpMethodPostController.Post");
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expectedDiagnostic },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task AL0003_reports_when_HttpMethod_methods_array_includes_post_without_IAudit_LogAsync()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public sealed class HttpMethodMixedVerbsController(IAuditService auditService) : ControllerBase
+{
+    [HttpMethod(Methods = new[] { "GET", "POST" })]
+    public System.Threading.Tasks.Task<IActionResult> {|#0:Upsert|}(System.Threading.CancellationToken cancellationToken)
+    {
+        return System.Threading.Tasks.Task.FromResult<IActionResult>(Ok());
+    }
+}
+}
+""";
+
+        DiagnosticResult expectedDiagnostic =
+            CSharpAnalyzerVerifier<MutatingControllerAuditAnalyzer, DefaultVerifier>.Diagnostic(
+                    Al0003MutatingControllerAuditDescriptor.Rule)
+                .WithLocation(0)
+                .WithArguments("ArchLucid.Api.Probe.HttpMethodMixedVerbsController.Upsert");
 
         await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
         {

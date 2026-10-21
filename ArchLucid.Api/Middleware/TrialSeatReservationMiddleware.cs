@@ -1,4 +1,5 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Security;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -13,6 +14,10 @@ internal sealed class TrialSeatReservationMiddleware(RequestDelegate next)
 {
     private static bool SkipSeatAccounting(PathString path)
     {
+
+        if (ApiPathSkipSafety.BlocksPathBasedSkip(path.Value))
+            return false;
+
         if (path == "/" || path.StartsWithSegments("/robots.txt", StringComparison.OrdinalIgnoreCase) ||
             path.StartsWithSegments("/sitemap.xml", StringComparison.OrdinalIgnoreCase))
 

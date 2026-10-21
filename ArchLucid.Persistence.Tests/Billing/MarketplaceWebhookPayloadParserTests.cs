@@ -1,8 +1,6 @@
 ﻿using System.Text.Json;
 
 using ArchLucid.Core.Billing.AzureMarketplace;
-using ArchLucid.Core.Tenancy;
-
 using FluentAssertions;
 
 namespace ArchLucid.Persistence.Tests.Billing;
@@ -10,14 +8,6 @@ namespace ArchLucid.Persistence.Tests.Billing;
 [Trait("Category", "Unit")]
 public sealed class MarketplaceWebhookPayloadParserTests
 {
-    [Theory]
-    [InlineData("team", nameof(TenantTier.Standard))]
-    [InlineData("Contoso-Enterprise-Plan", nameof(TenantTier.Enterprise))]
-    public void TierStorageCodeFromPlanId_maps_enterprise_substring(string planId, string expected)
-    {
-        MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId(planId).Should().Be(expected);
-    }
-
     [SkippableFact]
     public void ReadQuantity_parses_number_and_string()
     {
@@ -39,7 +29,6 @@ public sealed class MarketplaceWebhookPayloadParserTests
 
         ok.Should().BeTrue();
         planId.Should().Be("Contoso-Enterprise-Plan");
-        MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId(planId).Should().Be(nameof(TenantTier.Enterprise));
     }
 
     [Fact]

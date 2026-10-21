@@ -150,11 +150,13 @@ public sealed class HostedAzureExtractorClient(
 
         networkAssociations.AddRange(HostedAzureInventoryNsgAllowRuleBuilder.Build(resources));
 
-        await AppendAvdSessionHostAssociationsAsync(
-            networkAssociations,
-            resources,
-            accessToken.Token,
-            cancellationToken).ConfigureAwait(false);
+        HostedAzureInventoryAvdSessionHostAssociationCollectResult avdSessionHostAssociations =
+            await CollectAvdSessionHostAssociationsAsync(
+                resources,
+                accessToken.Token,
+                cancellationToken).ConfigureAwait(false);
+
+        networkAssociations.AddRange(avdSessionHostAssociations.Associations);
 
         HostedAzureInventoryStaticSiteAndFabricAssociationCollectResult staticSiteAndFabricAssociations =
             await HostedAzureInventoryStaticSiteAndFabricAssociationCollector.CollectAsync(
@@ -204,6 +206,7 @@ public sealed class HostedAzureExtractorClient(
             collectionWarnings.Add(AzureInventoryDiagnosticCompletenessWarningCodes.PartialCollection);
         }
 
+        collectionWarnings.AddRange(avdSessionHostAssociations.CollectionWarnings);
         collectionWarnings.AddRange(staticSiteAndFabricAssociations.CollectionWarnings);
         collectionWarnings.AddRange(diagramEnrichment.CollectionWarnings);
         collectionWarnings.AddRange(aksWorkloadImageResult.CollectionWarnings);
@@ -416,11 +419,13 @@ public sealed class HostedAzureExtractorClient(
 
         networkAssociations.AddRange(HostedAzureInventoryNsgAllowRuleBuilder.Build(resources));
 
-        await AppendAvdSessionHostAssociationsAsync(
-            networkAssociations,
-            resources,
-            accessTokenValue,
-            cancellationToken).ConfigureAwait(false);
+        HostedAzureInventoryAvdSessionHostAssociationCollectResult avdSessionHostAssociations =
+            await CollectAvdSessionHostAssociationsAsync(
+                resources,
+                accessTokenValue,
+                cancellationToken).ConfigureAwait(false);
+
+        networkAssociations.AddRange(avdSessionHostAssociations.Associations);
 
         HostedAzureInventoryStaticSiteAndFabricAssociationCollectResult staticSiteAndFabricAssociations =
             await HostedAzureInventoryStaticSiteAndFabricAssociationCollector.CollectAsync(
@@ -470,6 +475,7 @@ public sealed class HostedAzureExtractorClient(
             collectionWarnings.Add(AzureInventoryDiagnosticCompletenessWarningCodes.PartialCollection);
         }
 
+        collectionWarnings.AddRange(avdSessionHostAssociations.CollectionWarnings);
         collectionWarnings.AddRange(staticSiteAndFabricAssociations.CollectionWarnings);
         collectionWarnings.AddRange(diagramEnrichment.CollectionWarnings);
 
@@ -541,24 +547,22 @@ public sealed class HostedAzureExtractorClient(
         return resources.Count(static r => !AzureInventoryNeverShowArmTypes.ShouldOmitResource(r.ResourceType, r.ResourceId));
     }
 
-    private async Task AppendAvdSessionHostAssociationsAsync(
-        List<HostedAzureArmNetworkAssociationRecord> networkAssociations,
+    private async Task<HostedAzureInventoryAvdSessionHostAssociationCollectResult> CollectAvdSessionHostAssociationsAsync(
         IReadOnlyList<HostedAzureArmResourceRecord> resources,
         string accessToken,
         CancellationToken cancellationToken)
     {
         if (_armReadClient is not GetOnlyHostedAzureArmReadClient concreteArmReadClient)
         {
-            return;
+            return new HostedAzureInventoryAvdSessionHostAssociationCollectResult();
         }
 
-        networkAssociations.AddRange(
-            await HostedAzureInventoryAvdSessionHostAssociationCollector.CollectAsync(
-                concreteArmReadClient,
-                accessToken,
-                resources,
-                _logger,
-                cancellationToken).ConfigureAwait(false));
+        return await HostedAzureInventoryAvdSessionHostAssociationCollector.CollectAsync(
+            concreteArmReadClient,
+            accessToken,
+            resources,
+            _logger,
+            cancellationToken).ConfigureAwait(false);
     }
 
     private async Task<HostedAzureDiagramEnrichmentCollectResult> CollectDiagramEnrichmentAsync(

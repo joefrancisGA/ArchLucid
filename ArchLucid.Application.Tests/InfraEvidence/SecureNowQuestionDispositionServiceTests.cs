@@ -237,6 +237,7 @@ public async Task Foreign_snapshot_cannot_read_or_write()
         reopened.Record!.Status.Should().Be(SecureNowQuestionDispositionStatus.Open);
         reopened.Record.AnswerCode.Should().BeNull();
         reopened.Record.AnswerText.Should().BeNull();
+        reopened.Record.Reason.Should().BeEmpty();
 
         IReadOnlyList<SecureNowQuestionRecord> listed =
             await sut.ListQuestionsAsync(Scope, SnapshotId);
@@ -244,6 +245,7 @@ public async Task Foreign_snapshot_cannot_read_or_write()
         question.Status.Should().Be(SecureNowQuestionDispositionStatus.Open);
         question.AnswerCode.Should().BeNull();
         question.AnswerText.Should().BeNull();
+        question.Reason.Should().BeNull();
     }
 
     [Fact]

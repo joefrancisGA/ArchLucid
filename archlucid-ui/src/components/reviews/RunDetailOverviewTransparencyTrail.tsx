@@ -37,9 +37,9 @@ export function RunDetailOverviewTransparencyTrail(props: RunDetailOverviewTrans
 
   const syncDetailsOpenToUrl = useCallback(
     (open: boolean) => {
-      commitHrefIfChanged(transparencyTrailHrefFromSearch(window.location.search.slice(1), open, pathname));
+      commitHrefIfChanged(transparencyTrailHrefFromSearch(searchParams.toString(), open, pathname));
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setDetailsOpen = useCallback(

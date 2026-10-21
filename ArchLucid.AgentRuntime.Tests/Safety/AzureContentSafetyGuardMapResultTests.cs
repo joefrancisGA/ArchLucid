@@ -88,6 +88,21 @@ public sealed class AzureContentSafetyGuardMapResultTests
     }
 
     [SkippableFact]
+    public void MapResult_blocks_severity_four_when_configured_threshold_five_is_normalized_before_compare()
+    {
+        AnalyzeTextResult result = ContentSafetyModelFactory.AnalyzeTextResult(
+            [],
+            [ContentSafetyModelFactory.TextCategoriesAnalysis(TextCategory.Hate, 4)]);
+
+        int effectiveThreshold = ContentSafetyBlockSeverityThreshold.Normalize(5);
+
+        ContentSafetyResult mapped = AzureContentSafetyGuard.MapResult(result, effectiveThreshold);
+
+        mapped.IsAllowed.Should().BeFalse();
+        mapped.Severity.Should().Be(4);
+    }
+
+    [SkippableFact]
     public void MapResult_blocks_on_first_category_at_threshold_in_analysis_order()
     {
         AnalyzeTextResult result = ContentSafetyModelFactory.AnalyzeTextResult(

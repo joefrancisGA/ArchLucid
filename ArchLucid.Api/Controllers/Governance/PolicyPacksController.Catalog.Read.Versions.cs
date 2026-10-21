@@ -1,3 +1,4 @@
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Governance;
@@ -55,14 +56,12 @@ public sealed partial class PolicyPacksController
         if (routeIdProblem is not null)
             return routeIdProblem;
 
-        IActionResult? versionProblem =
-            PolicyPacksHttpMapper.ValidatePackVersion(packVersion).ToBadRequestProblemOrNull(this);
+        if (!PolicyPacksHttpMapper.TryParsePackVersion(packVersion, out PolicyPackSemVerVersion normalizedPackVersion, out GovernanceHttpValidation? versionValidation))
+        {
+            return versionValidation!.ToBadRequestProblemOrNull(this)!;
+        }
 
-        if (versionProblem is not null)
-            return versionProblem;
-
-        string normalizedPackVersion = packVersion.Trim();
-        PolicyPackVersionHttpResult result = await _httpFacade.GetVersionAsync(policyPackId, normalizedPackVersion, ct)
+        PolicyPackVersionHttpResult result = await _httpFacade.GetVersionAsync(policyPackId, normalizedPackVersion.Value, ct)
             .ConfigureAwait(false);
 
         return this.MapVersionLookup(result);

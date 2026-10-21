@@ -35,7 +35,9 @@ public sealed class PolicyPackCatalogAdminService(
             pack.ProjectId != scope.ProjectId)
             return null;
 
-        string versionKey = string.IsNullOrWhiteSpace(version) ? pack.CurrentVersion.Trim() : version.Trim();
+        string versionKey = string.IsNullOrWhiteSpace(version)
+            ? PolicyPackSemVerVersion.NormalizeLookupKey(pack.CurrentVersion)
+            : PolicyPackSemVerVersion.Parse(version).Value;
         PolicyPackVersion? versionRow = await _versionRepository.GetByPackAndVersionAsync(sourcePolicyPackId, versionKey, ct);
 
         if (versionRow is null || string.IsNullOrWhiteSpace(versionRow.ContentJson))

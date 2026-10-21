@@ -44,6 +44,8 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
             }
         ];
 
+        int emittedDecisionOrdinal = 0;
+
         for (int decisionIndex = 0; decisionIndex < manifest.Decisions.Count; decisionIndex++)
         {
             ResolvedArchitectureDecision decision = manifest.Decisions[decisionIndex];
@@ -53,7 +55,7 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
 
             // JSON deserialization can leave DecisionId null; the manifest-scoped index keeps retries stable.
             string decisionId = string.IsNullOrWhiteSpace(decision.DecisionId)
-                ? $"generated-{manifest.ManifestId:N}-{decisionIndex}"
+                ? $"generated-{manifest.ManifestId:N}-{emittedDecisionOrdinal}"
                 : decision.DecisionId.Trim();
 
             string rationale = string.IsNullOrWhiteSpace(decision.Rationale) ? string.Empty : decision.Rationale.Trim();
@@ -84,9 +86,12 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
                 CreatedUtc = manifest.CreatedUtc,
                 DecisionId = decisionId
             });
+
+            emittedDecisionOrdinal++;
         }
 
         var topology = manifest.Topology;
+
         if (topology.Services.Count > 0 || topology.Datastores.Count > 0 || topology.Relationships.Count > 0)
         {
             List<string> serviceNames = topology.Services
@@ -134,24 +139,29 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
         Guid projectId,
         IReadOnlyList<SynthesizedArtifact> artifacts)
     {
-        return artifacts.Select(x => new RetrievalDocument
-        {
-            DocumentId = $"artifact-{x.ArtifactId:N}",
-            TenantId = tenantId,
-            WorkspaceId = workspaceId,
-            ProjectId = projectId,
-            RunId = x.RunId,
-            ManifestId = x.ManifestId,
-            CorpusKind = CorpusKind.TenantManifest,
-            SourceType = "Artifact",
-            SourceId = x.ArtifactId.ToString(),
-            Title = x.Name,
-            Content = x.Content,
-            ContentHash = x.ContentHash,
-            CreatedUtc = x.CreatedUtc,
-            DecisionId = null,
-            FindingId = null
-        }).ToList();
+        // Run-completion outbox retries may resend the same ArtifactId; keep the last payload so indexing does not emit duplicate DocumentIds.
+        return artifacts
+            .GroupBy(static x => x.ArtifactId)
+            .Select(static group => group.Last())
+            .Select(x => new RetrievalDocument
+            {
+                DocumentId = $"artifact-{x.ArtifactId:N}",
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
+                RunId = x.RunId,
+                ManifestId = x.ManifestId,
+                CorpusKind = CorpusKind.TenantManifest,
+                SourceType = "Artifact",
+                SourceId = x.ArtifactId.ToString(),
+                Title = x.Name,
+                Content = x.Content,
+                ContentHash = x.ContentHash,
+                CreatedUtc = x.CreatedUtc,
+                DecisionId = null,
+                FindingId = null
+            })
+            .ToList();
     }
 
     /// <inheritdoc />
@@ -230,6 +240,7 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
         DateTime createdUtc)
     {
         List<RetrievalDocument> documents = [];
+        int emittedFindingOrdinal = 0;
 
         for (int findingIndex = 0; findingIndex < findings.Count; findingIndex++)
         {
@@ -246,7 +257,7 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
 
             // JSON deserialization can leave FindingId null; the run-scoped index keeps retries stable.
             string findingId = string.IsNullOrWhiteSpace(finding.FindingId)
-                ? $"generated-{runId:N}-{findingIndex}"
+                ? $"generated-{runId:N}-{emittedFindingOrdinal}"
                 : finding.FindingId.Trim();
 
             string content = $"[{finding.Category}] {finding.Severity}: {message}";
@@ -269,6 +280,8 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
                 CreatedUtc = createdUtc,
                 FindingId = findingId
             });
+
+            emittedFindingOrdinal++;
         }
 
         return documents;

@@ -4,7 +4,8 @@ import { cn } from "@/lib/utils";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type ReactElement, type SetStateAction } from "react";
 
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { buildReviewWorkspaceRouteHref } from "@/lib/architecture/review-workspace-route";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 
 import { Button } from "@/components/ui/button";
 import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
@@ -106,7 +107,7 @@ export function buildReviewMeetingPacketSteps(
 
 /** One-click CAB / meeting packet launcher with ordered exports and deep links. */
 export function ReviewMeetingPacketButton(props: ReviewMeetingPacketButtonProps): ReactElement {
-  const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
+  const pathname = usePathname() ?? buildReviewWorkspaceRouteHref({ runId: props.runId });
   const searchParams = useSearchParams();
   const urlMeetingPacketOpen = parseReviewMeetingPacketOpenFromSearch(
     searchParams.get(REVIEW_MEETING_PACKET_OPEN_PARAM),
@@ -124,11 +125,11 @@ export function ReviewMeetingPacketButton(props: ReviewMeetingPacketButtonProps)
   const syncMeetingPacketOpenToUrl = useCallback(
     (nextOpen: boolean) => {
       commitHrefIfChanged(
-        reviewMeetingPacketPanelsHrefFromSearch(readWindowLocationSearch(), nextOpen, pathname),
+        reviewMeetingPacketPanelsHrefFromSearch(searchParams.toString(), nextOpen, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setOpen = useCallback(

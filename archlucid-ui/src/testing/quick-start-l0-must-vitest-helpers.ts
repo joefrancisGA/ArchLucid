@@ -2,13 +2,13 @@ import { fireEvent, screen } from "@testing-library/react";
 
 /** Marks every L0 MUST clarification unknown so Quick start readiness passes in Vitest. */
 export function satisfyAllQuickStartL0MustQuestions(): void {
-  for (let index = 0; index < 12; index += 1) {
-    const skipButton = screen.queryByTestId("socratic-skip-clarification");
+  for (let index = 0; index < 24; index += 1) {
+    const skipButtons = screen.queryAllByTestId("socratic-skip-clarification");
 
-    if (skipButton === null) {
+    if (skipButtons.length === 0) {
       break;
     }
 
-    fireEvent.click(skipButton);
+    fireEvent.click(skipButtons[0]);
   }
 }

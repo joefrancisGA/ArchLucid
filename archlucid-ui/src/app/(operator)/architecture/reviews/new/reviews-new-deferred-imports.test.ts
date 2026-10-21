@@ -17,6 +17,9 @@ const ownEvidenceSource = readFileSync(join(routeDir, "ReviewsNewOwnEvidenceStar
 const pathSwitcherSource = readFileSync(join(routeDir, "ReviewsNewPathSwitcher.tsx"), "utf8");
 const intentCalloutDeferredSource = readFileSync(join(routeDir, "ReviewsNewDeferredIntentCallout.tsx"), "utf8");
 const newRunWizardClientSource = readFileSync(join(routeDir, "NewRunWizardClient.tsx"), "utf8");
+const newRunWizardClientHookSource = readFileSync(join(routeDir, "use-new-run-wizard-client.tsx"), "utf8");
+const firstPilotIntakeFieldsSource = readFileSync(join(routeDir, "FirstPilotIntakeFields.tsx"), "utf8");
+const reviewsNewRouteBodySource = readFileSync(join(routeDir, "ReviewsNewRouteBody.tsx"), "utf8");
 const newRunWizardDeferredSource = readFileSync(join(routeDir, "NewRunWizardDeferredChunks.tsx"), "utf8");
 const firstPilotSource = readFileSync(join(routeDir, "FirstPilotIntakeWizard.tsx"), "utf8");
 const socraticSource = readFileSync(join(routeDir, "SocraticIntakeWizard.tsx"), "utf8");
@@ -62,8 +65,9 @@ describe("reviews new deferred imports (TB-2371 wave 1)", () => {
       expect(firstPilotSource).not.toContain(bannedImport);
     }
 
-    expect(firstPilotSource).toContain("QuickReviewWizardDeferredPanels");
-    expect(firstPilotSource).toContain("WizardEvidenceUploadZone");
+    expect(firstPilotSource).toContain("FirstPilotIntakeFields");
+    expect(firstPilotIntakeFieldsSource).toContain("QuickReviewWizardDeferredPanels");
+    expect(firstPilotIntakeFieldsSource).toContain("WizardEvidenceUploadZone");
   });
 
   it("keeps decision receipt off SocraticIntakeWizard static import graph", () => {
@@ -103,9 +107,9 @@ describe("reviews new deferred imports (TB-2371 wave 2)", () => {
       expect(newRunWizardClientSource).not.toContain(bannedImport);
     }
 
-    expect(newRunWizardClientSource).toContain("NewRunWizardDeferredChunks");
-    expect(newRunWizardClientSource).toContain("WizardStepAdvanced");
-    expect(newRunWizardClientSource).toContain("WizardStepTrack");
+    expect(newRunWizardClientSource).toContain("useNewRunWizardClient");
+    expect(newRunWizardClientHookSource).toContain("NewRunWizardDeferredChunks");
+    expect(newRunWizardClientHookSource).toContain("WizardStepTrack");
   });
 
   it("dynamic-imports manifest-backed new-run wizard steps via loaders", () => {
@@ -177,7 +181,8 @@ describe("reviews new deferred imports (TB-2371 wave 4)", () => {
 
   it("loads path switcher from manifest on the reviews new page", () => {
     expect(pageSource).not.toContain("next/dynamic");
-    expect(pageSource).toContain("ReviewsNewPathSwitcherDeferred");
+    expect(pageSource).toContain("ReviewsNewRouteBody");
+    expect(reviewsNewRouteBodySource).toContain("ReviewsNewPathSwitcherDeferred");
   });
 
   it("dynamic-imports manifest-backed path-switcher route wizards via loaders", () => {

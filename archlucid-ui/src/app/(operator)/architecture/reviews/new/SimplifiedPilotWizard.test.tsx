@@ -37,6 +37,7 @@ import { showError } from "@/lib/toast";
 
 import { SimplifiedPilotWizard } from "./SimplifiedPilotWizard";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
+import { NEW_RUN_WIZARD_SYSTEM_NAME_LABEL } from "./new-run-wizard-test-helpers";
 
 function makeArchLucidPackageZip(): File {
   const manifest = {
@@ -107,7 +108,7 @@ describe("SimplifiedPilotWizard", () => {
     render(<Harness />);
 
     expect(screen.getByTestId("simplified-pilot-progress")).toHaveTextContent(/step 1 of 4/i);
-    expect(screen.getByLabelText("System name")).toBeInTheDocument();
+    expect(screen.getByLabelText(NEW_RUN_WIZARD_SYSTEM_NAME_LABEL)).toBeInTheDocument();
 
     const description = screen.getByLabelText("Description") as HTMLTextAreaElement;
 
@@ -170,7 +171,7 @@ describe("SimplifiedPilotWizard", () => {
   it("surfaces step validation inline without toast (TB-2113)", async () => {
     render(<Harness />);
 
-    fireEvent.change(screen.getByLabelText("System name"), { target: { value: "" } });
+    fireEvent.change(screen.getByLabelText(NEW_RUN_WIZARD_SYSTEM_NAME_LABEL), { target: { value: "" } });
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
 
     await waitFor(() => {

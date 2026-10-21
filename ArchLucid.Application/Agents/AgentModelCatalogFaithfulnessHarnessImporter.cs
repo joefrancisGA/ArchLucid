@@ -51,6 +51,12 @@ public sealed class AgentModelCatalogFaithfulnessHarnessImporter(
                 "Faithfulness harness summary was not found. Run scripts/ci/eval_agent_faithfulness.py first.");
         }
 
+        if (summary.CasesEvaluated <= 0)
+        {
+            throw new InvalidOperationException(
+                "Faithfulness harness summary reports zero evaluated cases. Re-run scripts/ci/eval_agent_faithfulness.py before import.");
+        }
+
         AgentModelEvaluationStateKind evaluationState =
             summary.PositiveReadinessSupportRatio >= summary.FloorMinSupportRatio
                 ? AgentModelEvaluationStateKind.Evaluated
@@ -73,6 +79,7 @@ public sealed class AgentModelCatalogFaithfulnessHarnessImporter(
 
         // An empty approved-task list is a valid catalog row. Returning it unchanged makes
         // POST import-faithfulness-harness look successful when no evaluation was stored.
+
         if (taskTypes.Count == 0)
         {
             throw new InvalidOperationException(

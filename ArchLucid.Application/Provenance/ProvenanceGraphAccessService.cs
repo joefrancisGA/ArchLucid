@@ -5,9 +5,12 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
+using ArchLucid.Core.Artifacts;
 using ArchLucid.Provenance.Services;
 
 using ContractsDecisionProvenanceSnapshot = ArchLucid.Contracts.Persistence.Data.DecisionProvenanceSnapshot;
+
+using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Provenance;
 
@@ -15,7 +18,8 @@ namespace ArchLucid.Application.Provenance;
 public sealed class ProvenanceGraphAccessService(
     IProvenanceSnapshotRepository snapshotRepository,
     IProvenanceBuilder provenanceBuilder,
-    TimeProvider timeProvider) : IProvenanceGraphAccessService
+    TimeProvider timeProvider,
+    ILogger<ProvenanceGraphAccessService> logger) : IProvenanceGraphAccessService
 {
     private readonly IProvenanceSnapshotRepository _snapshotRepository =
         snapshotRepository ?? throw new ArgumentNullException(nameof(snapshotRepository));
@@ -25,6 +29,9 @@ public sealed class ProvenanceGraphAccessService(
 
     private readonly TimeProvider _timeProvider =
         timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
+
+    private readonly ILogger<ProvenanceGraphAccessService> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <inheritdoc />
     public async Task<DecisionProvenanceGraph?> ResolveGraphAsync(
@@ -122,7 +129,7 @@ public sealed class ProvenanceGraphAccessService(
         }
     }
 
-    private static bool TryCreateBuildInput(RunDetailDto detail, out ProvenanceBuildInput buildInput)
+    private bool TryCreateBuildInput(RunDetailDto detail, out ProvenanceBuildInput buildInput)
     {
         buildInput = null!;
 
@@ -132,7 +139,23 @@ public sealed class ProvenanceGraphAccessService(
             || detail.AuthorityTrace is null)
             return false;
 
-        IReadOnlyList<SynthesizedArtifact> artifacts = detail.ArtifactBundle?.Artifacts ?? [];
+        IReadOnlyList<SynthesizedArtifact> rawArtifacts = detail.ArtifactBundle?.Artifacts ?? [];
+        SynthesizedArtifactBundleCanonicalizationResult canonical =
+            SynthesizedArtifactBundleCanonicalizer.Canonicalize(rawArtifacts);
+
+        foreach (SynthesizedArtifactBundleConflict conflict in canonical.Conflicts)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    "Artifact bundle duplicate ArtifactId {ArtifactId} with conflicting ContentHash values [{ContentHashes}] collapsed for provenance build (RunId={RunId}, BundleId={BundleId}).",
+                    conflict.ArtifactId,
+                    string.Join(", ", conflict.ContentHashes),
+                    detail.Run.RunId,
+                    detail.Run.ArtifactBundleId);
+            }
+        }
+
         buildInput = new ProvenanceBuildInput
         {
             RunId = detail.Run.RunId,
@@ -140,7 +163,7 @@ public sealed class ProvenanceGraphAccessService(
             Graph = detail.GraphSnapshot,
             Manifest = detail.GoldenManifest,
             DecisionTrace = detail.AuthorityTrace,
-            Artifacts = artifacts,
+            Artifacts = canonical.Artifacts,
         };
 
         return true;

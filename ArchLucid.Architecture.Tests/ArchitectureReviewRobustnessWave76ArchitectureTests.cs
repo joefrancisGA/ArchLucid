@@ -32,14 +32,16 @@ public sealed class ArchitectureReviewRobustnessWave76ArchitectureTests
         policySimulate.Should().Contain("Simulate");
         policySimulate.Should().Contain("SimulateBulk");
         policySimulate.Should().Contain("MapPolicyPackSealedManifestConflict");
-        policyGuard.Should().Contain("GovernancePostureSealedManifestHashGuard");
+        policyGuard.Should().Contain("GovernanceScopePostureSealedManifestPreflight");
         findingUnmute.Should().Contain("DeleteMuteAsync");
         findingUnmute.Should().Contain("EnsureFindingMuteRunSealedManifestAllowedAsync");
         findingMuteGuard.Should().Contain("GovernanceDispositionSealedManifestGuard");
         muteRepository.Should().Contain("TryUnmuteAsync");
         pilotDeltas.Should().Contain("GetRecentDeltas");
         pilotDeltas.Should().Contain("EnsurePilotRecentDeltasSealedManifestReadAllowedAsync");
-        pilotGuard.Should().Contain("GovernancePostureSealedManifestHashGuard");
+        pilotGuard.Should().Contain("GovernanceScopePostureSealedManifestPreflight");
+        ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Http/Governance/GovernanceScopePostureSealedManifestPreflight.cs")
+            .Should().Contain("GovernancePostureSealedManifestHashGuard");
         diagramIngest.Should().Contain("Ingest");
         diagramIngest.Should().Contain("EnsureRunSealedManifestAllowedAsync");
         diagramIngestGuard.Should().Contain("GovernanceDispositionSealedManifestGuard");

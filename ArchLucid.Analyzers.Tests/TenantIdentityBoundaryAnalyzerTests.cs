@@ -559,6 +559,127 @@ public sealed class Handler
   }
 
   [Fact]
+  public async Task Reports_Action_of_ClaimsPrincipal_parameter_in_inner_layer_assembly()
+  {
+    const string testCode = """
+
+namespace ArchLucid.Application.Probe;
+
+using System;
+using System.Security.Claims;
+
+public sealed class Handler
+{
+    public void M({|#0:Action|}<ClaimsPrincipal> handler) { }
+}
+""";
+
+    await new CSharpAnalyzerTest<TenantIdentityBoundaryAnalyzer, DefaultVerifier>
+    {
+      TestCode = testCode,
+      ExpectedDiagnostics =
+      {
+        CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+          .WithLocation(0)
+          .WithArguments("System.Action<System.Security.Claims.ClaimsPrincipal>")
+      },
+      ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+      SolutionTransforms = { InnerLayerAssemblyNameTransform }
+    }.RunAsync();
+  }
+
+  [Fact]
+  public async Task Reports_Func_of_ClaimsPrincipal_parameter_in_inner_layer_assembly()
+  {
+    const string testCode = """
+
+namespace ArchLucid.Application.Probe;
+
+using System;
+using System.Security.Claims;
+using System.Threading.Tasks;
+
+public sealed class Handler
+{
+    public void M({|#0:Func|}<ClaimsPrincipal, Task> handler) { }
+}
+""";
+
+    await new CSharpAnalyzerTest<TenantIdentityBoundaryAnalyzer, DefaultVerifier>
+    {
+      TestCode = testCode,
+      ExpectedDiagnostics =
+      {
+        CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+          .WithLocation(0)
+          .WithArguments("System.Func<System.Security.Claims.ClaimsPrincipal, System.Threading.Tasks.Task>")
+      },
+      ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+      SolutionTransforms = { InnerLayerAssemblyNameTransform }
+    }.RunAsync();
+  }
+
+  [Fact]
+  public async Task Reports_IAsyncEnumerable_of_ClaimsPrincipal_parameter_in_inner_layer_assembly()
+  {
+    const string testCode = """
+
+namespace ArchLucid.Application.Probe;
+
+using System.Collections.Generic;
+using System.Security.Claims;
+
+public sealed class Handler
+{
+    public {|#0:IAsyncEnumerable|}<ClaimsPrincipal> StreamUsers() => throw new System.NotImplementedException();
+}
+""";
+
+    await new CSharpAnalyzerTest<TenantIdentityBoundaryAnalyzer, DefaultVerifier>
+    {
+      TestCode = testCode,
+      ExpectedDiagnostics =
+      {
+        CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+          .WithLocation(0)
+          .WithArguments("System.Collections.Generic.IAsyncEnumerable<System.Security.Claims.ClaimsPrincipal>")
+      },
+      ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+      SolutionTransforms = { InnerLayerAssemblyNameTransform }
+    }.RunAsync();
+  }
+
+  [Fact]
+  public async Task Reports_ValueTask_of_ClaimsPrincipal_return_in_inner_layer_assembly()
+  {
+    const string testCode = """
+
+namespace ArchLucid.Application.Probe;
+
+using System.Security.Claims;
+using System.Threading.Tasks;
+
+public sealed class Handler
+{
+    public {|#0:ValueTask|}<ClaimsPrincipal> M() => default;
+}
+""";
+
+    await new CSharpAnalyzerTest<TenantIdentityBoundaryAnalyzer, DefaultVerifier>
+    {
+      TestCode = testCode,
+      ExpectedDiagnostics =
+      {
+        CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+          .WithLocation(0)
+          .WithArguments("System.Threading.Tasks.ValueTask<System.Security.Claims.ClaimsPrincipal>")
+      },
+      ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+      SolutionTransforms = { InnerLayerAssemblyNameTransform }
+    }.RunAsync();
+  }
+
+  [Fact]
   public async Task Reports_array_element_identifier_for_banned_type_in_inner_layer_assembly()
   {
     const string testCode = """

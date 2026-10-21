@@ -89,7 +89,7 @@ describe("RunDetailSegmentError (LW-096)", () => {
     );
     expect(screen.getByTestId("error-recovery-career-honesty-strip")).toBeInTheDocument();
     expect(screen.getByTestId("error-recovery-career-honesty-body")).toHaveTextContent(
-      /does not mark a rehearsal run Career-complete/i,
+      /does not mark a practice run record-complete/i,
     );
 
     const retry = screen.getByTestId("review-detail-segment-error-retry");

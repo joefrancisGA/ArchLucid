@@ -1,3 +1,4 @@
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
@@ -19,6 +20,7 @@ public sealed partial class GovernanceStickinessController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    [RequiresGovernanceScopePostureSealedManifest("Risk register surfaces committed-run disposition rows.")]
     public async Task<IActionResult> GetRiskRegister(
         [FromQuery] Guid? projectId,
         [FromQuery] int maxRows = 200,
@@ -71,6 +73,7 @@ public sealed partial class GovernanceStickinessController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    [RequiresGovernanceScopePostureSealedManifest("Register counts derive from sealed findings inventory.")]
     public async Task<IActionResult> GetAssignedToMeFindingsCount(
         [FromQuery] Guid? projectId,
         CancellationToken cancellationToken = default)
@@ -124,6 +127,7 @@ public sealed partial class GovernanceStickinessController
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    [RequiresGovernanceScopePostureSealedManifest("Review queue reads committed-run examination state.")]
     public async Task<IActionResult> GetReviewsAwaitingAction(CancellationToken cancellationToken = default)
     {
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
@@ -173,6 +177,7 @@ public sealed partial class GovernanceStickinessController
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    [RequiresGovernanceScopePostureSealedManifest("Decision summary aggregates run-linked governance rows.")]
     public async Task<IActionResult> GetDecisionsNeededSummary(
         [FromQuery] Guid? projectId,
         CancellationToken cancellationToken = default)
@@ -198,6 +203,20 @@ public sealed partial class GovernanceStickinessController
         try
         {
             ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+            // Waiver expiry totals come from active exceptions. Fail closed with HTTP 409 when any active
+            // waiver references an unsealed run (same EnsureRiskExceptionRecordsSealedManifestAllowedAsync
+            // path as GET risk-exceptions); do not omit unsealed waivers from totals or return warning counts.
+            IReadOnlyList<RiskExceptionRecord> activeWaivers =
+                await _facade.ListRiskExceptionsAsync(projectId, cancellationToken);
+
+            IActionResult? waiverGuardResult = await EnsureRiskExceptionRecordsSealedManifestAllowedAsync(
+                activeWaivers,
+                cancellationToken).ConfigureAwait(false);
+
+            if (waiverGuardResult is not null)
+                return waiverGuardResult;
+
             GovernanceDecisionsNeededSummaryResponse response =
                 await _facade.GetDecisionsNeededSummaryAsync(projectId, cancellationToken);
 
@@ -235,6 +254,7 @@ public sealed partial class GovernanceStickinessController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    [RequiresGovernanceScopePostureSealedManifest("Bundled registers project sealed findings.")]
     public async Task<IActionResult> GetFindingsRegistersBundle(
         [FromQuery] Guid? projectId,
         [FromQuery] int maxRows = 200,
@@ -285,6 +305,7 @@ public sealed partial class GovernanceStickinessController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    [RequiresGovernanceScopePostureSealedManifest("Decision register lists run-backed disposition rows.")]
     public async Task<IActionResult> GetDecisionRegister(
         [FromQuery] Guid? projectId,
         [FromQuery] int maxRows = 200,

@@ -20859,6 +20859,10 @@
             "format": "int64",
             "type": "integer"
           },
+          "reasoningTokens": {
+            "format": "int64",
+            "type": "integer"
+          },
           "runId": {
             "type": "string"
           }
@@ -165146,6 +165150,14 @@
           {
             "in": "query",
             "name": "includeAvdAssets",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "includeNetworkDetails",
             "schema": {
               "default": false,
               "type": "boolean"

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { createElement, useSyncExternalStore, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -67,6 +67,35 @@ describe("RunDetailOperatorPipelineToolsCollapsible URL sync", () => {
   beforeEach(() => {
     searchParamsHarness.reset();
     window.history.replaceState({}, "", "/architecture/reviews/run-abc?reviewTab=overview");
+  });
+
+  it("writes refine with AI disclosure from useSearchParams when window.location.search lags after soft navigation", async () => {
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-abc?reviewTab=findings&q=stale-payment",
+    );
+
+    const { rerender } = render(
+      <SearchParamsRerenderHost>
+        <RunDetailOperatorPipelineToolsCollapsible runId="run-abc" />
+      </SearchParamsRerenderHost>,
+    );
+
+    searchParamsHarness.applyQuery("reviewTab=overview");
+    rerender(
+      <SearchParamsRerenderHost>
+        <RunDetailOperatorPipelineToolsCollapsible runId="run-abc" />
+      </SearchParamsRerenderHost>,
+    );
+
+    fireEvent.click(screen.getByText("Refine with AI"));
+
+    await waitFor(() => {
+      expect(window.location.pathname + window.location.search).toBe(
+        `/architecture/reviews/run-abc?reviewTab=overview&${RUN_REFINE_WITH_AI_OPEN_PARAM}=1`,
+      );
+    });
   });
 
   it("follows runRefineWithAiOpen query changes without a popstate event", async () => {

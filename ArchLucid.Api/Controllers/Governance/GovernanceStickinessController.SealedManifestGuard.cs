@@ -1,7 +1,8 @@
+using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Governance;
-using ArchLucid.Application.Governance.Posture;
 using ArchLucid.Application.Governance.Stickiness;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
@@ -110,31 +111,10 @@ public sealed partial class GovernanceStickinessController
         return null;
     }
 
-    private async Task<IActionResult?> EnsureRecurrenceScheduleSourceRunSealedManifestAllowedAsync(
+    private Task<IActionResult?> EnsureRecurrenceScheduleSourceRunSealedManifestAllowedAsync(
         Guid sourceRunId,
-        CancellationToken cancellationToken)
-    {
-        if (sourceRunId == Guid.Empty)
-            return null;
-
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-
-        try
-        {
-            await RecurrenceScheduleCreateSealedManifestHashGuard.EnsureSourceRunSealedManifestHashOrThrowAsync(
-                sourceRunId,
-                scope,
-                _authorityQueryService,
-                _manifestHashService,
-                cancellationToken);
-        }
-        catch (ConflictException ex)
-        {
-            return MapGovernanceStickinessSealedManifestConflict(ex);
-        }
-
-        return null;
-    }
+        CancellationToken cancellationToken) =>
+        EnsureGovernanceDispositionRunSealedManifestAllowedAsync(sourceRunId, cancellationToken);
 
     private async Task<IActionResult?> EnsureRecurrenceScheduleUpdateSealedManifestAllowedAsync(
         Guid scheduleId,
@@ -158,25 +138,20 @@ public sealed partial class GovernanceStickinessController
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         Guid resolvedProjectId = projectId ?? scope.ProjectId;
 
-        try
-        {
-            await GovernancePostureSealedManifestHashGuard.EnsureLatestCommittedRunSealedOrThrowAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                resolvedProjectId,
-                _runDetailQueryService,
-                _authorityQueryService,
-                _manifestHashService,
-                cancellationToken);
-        }
-        catch (ConflictException ex)
-        {
-            return MapGovernanceStickinessSealedManifestConflict(ex);
-        }
-
-        return null;
+        return await GovernanceScopePostureSealedManifestPreflight.TryGetConflictResultAsync(
+            this,
+            scope,
+            resolvedProjectId,
+            _runDetailQueryService,
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken);
     }
 
+    /// <summary>
+    ///     Per-waiver run sealing for list and aggregate reads. Returns HTTP 409 when any referenced run is
+    ///     unsealed; callers must not filter rows or return partial aggregates.
+    /// </summary>
     private async Task<IActionResult?> EnsureRiskExceptionRecordsSealedManifestAllowedAsync(
         IReadOnlyList<RiskExceptionRecord> records,
         CancellationToken cancellationToken)

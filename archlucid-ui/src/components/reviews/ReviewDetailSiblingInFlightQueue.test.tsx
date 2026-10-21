@@ -86,6 +86,36 @@ describe("ReviewDetailSiblingInFlightQueue (FD-04)", () => {
     expect(document.body.textContent ?? "").not.toMatch(/progress/i);
   });
 
+  it("lists siblings when in-flight rows use nested architecture review desk hrefs (AO-08)", () => {
+    workspaceModeMock.isWorkingMode = true;
+    inFlightOperationsMock.length = 0;
+    inFlightOperationsMock.push(
+      buildOperation({
+        operationId: "op-a",
+        runId: "run-a",
+        title: "Claims platform review",
+        stepLabel: "Analyzing findings",
+      }),
+      {
+        ...buildOperation({
+          operationId: "op-b",
+          runId: "run-b",
+          title: "Payments API review",
+          stepLabel: "Building graph",
+        }),
+        architectureId: "architecture-identity-001",
+      },
+    );
+
+    render(<ReviewDetailSiblingInFlightQueue runId="run-a" />);
+
+    expect(screen.getByTestId("review-detail-sibling-in-flight-open-op-b")).toHaveAttribute(
+      "href",
+      "/architecture/architectures/architecture-identity-001/reviews/run-b?reviewTab=activity",
+    );
+    expect(screen.queryByTestId("review-detail-sibling-in-flight-open-op-a")).toBeNull();
+  });
+
   it("points at the reviews hub when no sibling packages are in flight", () => {
     workspaceModeMock.isWorkingMode = true;
     inFlightOperationsMock.length = 0;
@@ -101,9 +131,9 @@ describe("ReviewDetailSiblingInFlightQueue (FD-04)", () => {
     render(<ReviewDetailSiblingInFlightQueue runId="run-a" />);
 
     expect(screen.getByTestId("review-detail-sibling-in-flight-empty")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /open the reviews hub/i })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /open architectures/i })).toHaveAttribute(
       "href",
-      "/architecture/reviews",
+      "/architecture/architectures",
     );
   });
 

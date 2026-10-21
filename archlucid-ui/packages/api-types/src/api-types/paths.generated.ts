@@ -89127,6 +89127,7 @@ export interface paths {
                     includeRecoveryServices?: boolean;
                     includeCrossGroupFanOut?: boolean;
                     includeAvdAssets?: boolean;
+                    includeNetworkDetails?: boolean;
                 };
                 header?: {
                     /** @description Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored. */

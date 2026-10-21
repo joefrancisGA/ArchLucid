@@ -2,6 +2,7 @@ using System.Security.Claims;
 
 using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Tests.Exports;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
@@ -31,7 +32,8 @@ public sealed class AnalysisReportsControllerAuditTests
     [SkippableFact]
     public async Task AnalyzeRun_AfterSuccessfulBuild_LogsArchitectureAnalysisReportGeneratedWithDataJson()
     {
-        string runId = Guid.NewGuid().ToString("N");
+        Guid runGuid = Guid.NewGuid();
+        string runId = runGuid.ToString("N");
         ArchitectureRunDetail detail = new() { Run = new ArchitectureRun { RunId = runId } };
 
         ArchitectureAnalysisReport report = new()
@@ -52,6 +54,13 @@ public sealed class AnalysisReportsControllerAuditTests
 
         Mock<IAuditService> audit = new();
 
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runGuid, manifestHashService);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext());
+
         AnalysisReportsController sut = new(
             runDetailQuery.Object,
             analysis.Object,
@@ -62,9 +71,9 @@ public sealed class AnalysisReportsControllerAuditTests
             Mock.Of<IConsultingDocxExportProfileSelector>(),
             Mock.Of<IRunExportAuditService>(),
             Mock.Of<IRunExportRecordRepository>(),
-            Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>(),
-            Mock.Of<IScopeContextProvider>(),
+            authority.Object,
+            manifestHashService,
+            scopeProvider.Object,
             Mock.Of<IBackgroundJobQueue>(),
             audit.Object,
             NullLogger<AnalysisReportsController>.Instance) { ControllerContext = CreateControllerContext() };

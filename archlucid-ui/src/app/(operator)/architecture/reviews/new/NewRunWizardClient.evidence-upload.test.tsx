@@ -6,20 +6,31 @@ const searchParamsState = {
   value: new URLSearchParams(),
 };
 
-const { createArchitectureRunMock, uploadAzureExtractorPackageMock, saveTenantReviewCycleBaselineMock } =
-  vi.hoisted(() => ({
-    createArchitectureRunMock: vi.fn(),
-    uploadAzureExtractorPackageMock: vi.fn(),
-    saveTenantReviewCycleBaselineMock: vi.fn(),
-  }));
+const {
+  createArchitectureRunMock,
+  getRunSummaryMock,
+  uploadWizardPendingInventoryEvidenceMock,
+  saveTenantReviewCycleBaselineMock,
+} = vi.hoisted(() => ({
+  createArchitectureRunMock: vi.fn(),
+  getRunSummaryMock: vi.fn(),
+  uploadWizardPendingInventoryEvidenceMock: vi.fn(),
+  saveTenantReviewCycleBaselineMock: vi.fn(),
+}));
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
     ...actual,
-  useSearchParams: () => searchParamsState.value,
+    useSearchParams: () => {
+      const query = window.location.search.startsWith("?")
+        ? window.location.search.slice(1)
+        : window.location.search;
+
+      return new URLSearchParams(query);
+    },
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn(), back: vi.fn(), forward: vi.fn() }),
-  usePathname: () => "",
+  usePathname: () => "/architecture/reviews/new",
   redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
@@ -44,7 +55,7 @@ vi.mock("next/link", () => ({
 
 vi.mock("@/lib/api", () => ({
   createArchitectureRun: (...args: unknown[]) => createArchitectureRunMock(...args),
-  getRunSummary: vi.fn(),
+  getRunSummary: (...args: unknown[]) => getRunSummaryMock(...args),
   listRunsByProjectPaged: vi.fn().mockResolvedValue({
     items: [],
     totalCount: 0,
@@ -54,9 +65,25 @@ vi.mock("@/lib/api", () => ({
   }),
 }));
 
-vi.mock("@/lib/upload-azure-extractor-package", () => ({
-  uploadAzureExtractorPackage: (...args: unknown[]) => uploadAzureExtractorPackageMock(...args),
-}));
+vi.mock("@/lib/read-tier1-inventory-package-zip", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/read-tier1-inventory-package-zip")>();
+
+  return {
+    ...actual,
+    detectTier1InventoryPlatformFromFile: vi.fn().mockResolvedValue("azure"),
+  };
+});
+
+vi.mock("@/lib/wizard-pending-evidence-upload", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/wizard-pending-evidence-upload")>();
+
+  return {
+    ...actual,
+    uploadWizardPendingInventoryEvidence: (...args: unknown[]) =>
+      uploadWizardPendingInventoryEvidenceMock(...args),
+    uploadWizardPendingDocumentEvidence: vi.fn().mockResolvedValue({ ok: true }),
+  };
+});
 
 vi.mock("@/lib/save-tenant-review-cycle-baseline", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/save-tenant-review-cycle-baseline")>();
@@ -76,9 +103,17 @@ vi.mock("@/app/(operator)/architecture/reviews/new/NewRunWizardDeferredChunks", 
   };
 });
 
+import "./new-run-wizard-test-helpers";
+
+import { detectTier1InventoryPlatformFromFile } from "@/lib/read-tier1-inventory-package-zip";
+
 import { NewRunWizardClient } from "./NewRunWizardClient";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
-import { optIntoAdvancedNewRunWizardConfiguration } from "./new-run-wizard-test-helpers";
+import {
+  NEW_RUN_WIZARD_SYSTEM_NAME_LABEL,
+  optIntoAdvancedNewRunWizardConfiguration,
+  prepareNewRunWizardVitestHarness,
+} from "./new-run-wizard-test-helpers";
 
 const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
 
@@ -110,12 +145,23 @@ describe("NewRunWizardClient (evidence upload step)", { timeout: 60_000 }, () =>
   });
 
   beforeEach(() => {
+    prepareNewRunWizardVitestHarness();
     searchParamsState.value = new URLSearchParams();
     window.localStorage.setItem(WIZARD_MODE_STORAGE_KEY, "full");
     createArchitectureRunMock.mockReset();
-    uploadAzureExtractorPackageMock.mockReset();
+    uploadWizardPendingInventoryEvidenceMock.mockReset();
+    getRunSummaryMock.mockReset();
     saveTenantReviewCycleBaselineMock.mockReset();
     saveTenantReviewCycleBaselineMock.mockResolvedValue({ ok: true });
+    getRunSummaryMock.mockResolvedValue({
+      runId: "evidence-run-1",
+      projectId: "default",
+      createdUtc: "2026-01-01T00:00:00.000Z",
+      hasContextSnapshot: true,
+      hasGraphSnapshot: true,
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+    });
 
     vi.stubGlobal(
       "fetch",
@@ -150,7 +196,7 @@ describe("NewRunWizardClient (evidence upload step)", { timeout: 60_000 }, () =>
   }
 
   async function advanceFromIdentityToReview(): Promise<void> {
-    fireEvent.change(screen.getByLabelText("System name"), { target: { value: "EvidencePilotApp" } });
+    fireEvent.change(screen.getByLabelText(NEW_RUN_WIZARD_SYSTEM_NAME_LABEL), { target: { value: "EvidencePilotApp" } });
     fireEvent.change(screen.getByLabelText("Description"), {
       target: {
         value: "Evidence upload wizard path validates optional Azure extractor ZIP before pipeline tracking.",
@@ -218,10 +264,10 @@ describe("NewRunWizardClient (evidence upload step)", { timeout: 60_000 }, () =>
     fireEvent.click(screen.getByTestId("wizard-evidence-upload-skip-demo"));
 
     await waitFor(() => {
-      expect(screen.getByLabelText("System name")).toBeInTheDocument();
+      expect(screen.getByLabelText(NEW_RUN_WIZARD_SYSTEM_NAME_LABEL)).toBeInTheDocument();
     });
 
-    expect(uploadAzureExtractorPackageMock).not.toHaveBeenCalled();
+    expect(uploadWizardPendingInventoryEvidenceMock).not.toHaveBeenCalled();
   });
 
   it("uploads evidence after review creation when a file was selected", async () => {
@@ -237,14 +283,18 @@ describe("NewRunWizardClient (evidence upload step)", { timeout: 60_000 }, () =>
       expect(screen.getByTestId("wizard-evidence-upload-selected")).toHaveTextContent("evidence.zip");
     });
 
+    await waitFor(() => {
+      expect(vi.mocked(detectTier1InventoryPlatformFromFile)).toHaveBeenCalled();
+    });
+
     await clickPrimaryForward();
 
     await waitFor(() => {
-      expect(screen.getByLabelText("System name")).toBeInTheDocument();
+      expect(screen.getByLabelText(NEW_RUN_WIZARD_SYSTEM_NAME_LABEL)).toBeInTheDocument();
     });
 
     createArchitectureRunMock.mockResolvedValue({ run: { runId: "evidence-run-1" } });
-    uploadAzureExtractorPackageMock.mockResolvedValue({ ok: true, packageId: "pkg-1" });
+    uploadWizardPendingInventoryEvidenceMock.mockResolvedValue({ ok: true });
 
     await advanceFromIdentityToReview();
 
@@ -258,10 +308,11 @@ describe("NewRunWizardClient (evidence upload step)", { timeout: 60_000 }, () =>
     });
 
     await waitFor(() => {
-      expect(uploadAzureExtractorPackageMock).toHaveBeenCalledWith(
+      expect(uploadWizardPendingInventoryEvidenceMock).toHaveBeenCalledWith(
+        "evidence-run-1",
+        "azure",
         expect.objectContaining({ name: "evidence.zip" }),
         expect.objectContaining({
-          runId: "evidence-run-1",
           onUploadProgress: expect.any(Function),
         }),
       );
@@ -288,11 +339,20 @@ describe("NewRunWizardClient (evidence upload step)", { timeout: 60_000 }, () =>
     await clickPrimaryForward();
 
     await waitFor(() => {
-      expect(screen.getByLabelText("System name")).toBeInTheDocument();
+      expect(screen.getByLabelText(NEW_RUN_WIZARD_SYSTEM_NAME_LABEL)).toBeInTheDocument();
     });
 
     createArchitectureRunMock.mockResolvedValue({ run: { runId: "evidence-run-2" } });
-    uploadAzureExtractorPackageMock.mockResolvedValue({
+    getRunSummaryMock.mockResolvedValue({
+      runId: "evidence-run-2",
+      projectId: "default",
+      createdUtc: "2026-01-01T00:00:00.000Z",
+      hasContextSnapshot: true,
+      hasGraphSnapshot: true,
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+    });
+    uploadWizardPendingInventoryEvidenceMock.mockResolvedValue({
       ok: false,
       message: "Upload rejected",
       problem: null,

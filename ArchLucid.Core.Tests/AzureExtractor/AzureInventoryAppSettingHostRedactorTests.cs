@@ -57,6 +57,17 @@ public sealed class AzureInventoryAppSettingHostRedactorTests
     }
 
     [Fact]
+    public void TryParseSettingValue_extracts_sql_host_from_postgresql_host_alias()
+    {
+        AzureInventoryAppSettingHostParsedFields? parsed = AzureInventoryAppSettingHostRedactor.TryParseSettingValue(
+            "Host=prodsql.postgres.database.azure.com;Database=archlucid;Password=s3cret-value");
+
+        parsed.Should().NotBeNull();
+        parsed!.Host.Should().Be("prodsql.postgres.database.azure.com");
+        parsed.Catalog.Should().Be("archlucid");
+    }
+
+    [Fact]
     public void TryParseSettingValue_extracts_sql_host_and_catalog()
     {
         AzureInventoryAppSettingHostParsedFields? parsed = AzureInventoryAppSettingHostRedactor.TryParseSettingValue(

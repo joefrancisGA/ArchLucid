@@ -36,6 +36,8 @@ import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-fi
 
 import {
   formatGovernanceQueueRecordKind,
+  governanceFindingQueueRowHasPolicyRuleId,
+  governanceFindingQueueRowHasStoredRunId,
   type GovernanceFindingQueueRow,
 } from "./governance-finding-queue-row";
 import { GovernanceFindingsQueueAssignedToMeRowCells } from "./GovernanceFindingsQueueAssignedToMeRowCells";
@@ -80,8 +82,11 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
     graphHref ??
     (row.evidenceHref !== undefined && row.evidenceHref.trim().length > 0 ? row.evidenceHref : null);
   const findingDerivation = findingDerivationFromGovernanceQueueRow(row);
-  const evidenceTraceHref =
-    row.recordKind === "finding" ? governanceFindingInspectHref(row.runId, row.findingId) : null;
+  const hasStoredRunId = governanceFindingQueueRowHasStoredRunId(row);
+  const findingInspectHref = hasStoredRunId
+    ? governanceFindingInspectHref(row.runId, row.findingId)
+    : null;
+  const evidenceTraceHref = row.recordKind === "finding" ? findingInspectHref : null;
 
   return (
     <EnterpriseTableRow
@@ -130,20 +135,24 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
                 <NewSinceLastVisitMarker testId={`governance-table-row-new-${row.findingId}`} />
               </span>
             ) : null}
-            <Link
-              className={OPERATOR_LINK.inline}
-              href={governanceFindingInspectHref(row.runId, row.findingId)}
-              prefetch={false}
-              onClick={() => {
-                onOpenRow?.();
-              }}
-            >
-              {row.title}
-            </Link>
-            {row.recordKind === "finding" && row.policyRuleId ? (
+            {findingInspectHref !== null ? (
+              <Link
+                className={OPERATOR_LINK.inline}
+                href={findingInspectHref}
+                prefetch={false}
+                onClick={() => {
+                  onOpenRow?.();
+                }}
+              >
+                {row.title}
+              </Link>
+            ) : (
+              <span className="text-al-text-primary">{row.title}</span>
+            )}
+            {row.recordKind === "finding" && governanceFindingQueueRowHasPolicyRuleId(row) ? (
               <div className="mt-1">
                 <FindingPolicyTraceabilityBadges
-                  {...buildPolicyTraceabilityLinksFromRuleId(row.policyRuleId, row.category || row.policyRuleId)}
+                  {...buildPolicyTraceabilityLinksFromRuleId(row.policyRuleId!, row.category || row.policyRuleId!)}
                 />
               </div>
             ) : row.category && row.recordKind === "finding" ? (

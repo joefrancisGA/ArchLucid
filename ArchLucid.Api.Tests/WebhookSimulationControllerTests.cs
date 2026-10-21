@@ -68,6 +68,33 @@ public sealed class WebhookSimulationControllerTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task SimulateAsync_missing_target_url_returns_400()
+    {
+        Mock<IOutboundWebhookDryRunService> probe = new();
+
+        WebhookSimulationController sut = new(probe.Object, Mock.Of<IAuditService>())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+
+        IActionResult action = await sut.SimulateAsync(
+            new OutboundWebhookDryRunRequest { TargetUrl = null! },
+            CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            bad.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
+        problem.Detail.Should().Contain("TargetUrl");
+
+        probe.Verify(
+            p => p.ProbeAuthorityRunCompletedAsync(It.IsAny<Uri>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     [SkippableFact]
     public async Task SimulateAsync_returns_bad_request_when_body_missing()
     {

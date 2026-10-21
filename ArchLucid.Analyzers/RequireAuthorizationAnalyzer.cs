@@ -88,7 +88,6 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
         bool foundPublicApiAction = false;
         bool reportedAnyMethod = false;
         bool hasAnyDeclaredPublicMethods = false;
-        bool hasDeclaredQualifyingApiActions = false;
         bool hasUnauthorizedDeclaredApiActions = false;
 
         foreach (ISymbol member in symbol.GetMembers())
@@ -118,23 +117,12 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
                  MethodInheritsAttributeFromOverriddenChain(method, nonActionAttribute)))
                 continue;
 
-            hasDeclaredQualifyingApiActions = true;
             foundPublicApiAction = true;
 
-            if (SymbolHasAuthorizeOrAllowAnonymous(method, authorizeAttribute, allowAnonymousAttribute))
+            if (ActionHasAuthorization(method, authorizeAttribute, allowAnonymousAttribute))
+            {
                 continue;
-
-            if (MethodInheritsAuthorizeOrAllowAnonymousFromInterfaces(
-                    method,
-                    authorizeAttribute,
-                    allowAnonymousAttribute))
-                continue;
-
-            if (MethodInheritsAuthorizeOrAllowAnonymousFromOverriddenChain(
-                    method,
-                    authorizeAttribute,
-                    allowAnonymousAttribute))
-                continue;
+            }
 
             Location? location = method.Locations.FirstOrDefault();
 
@@ -152,7 +140,7 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
             reportedAnyMethod = true;
         }
 
-        if (!symbol.IsAbstract && !hasDeclaredQualifyingApiActions)
+        if (!symbol.IsAbstract)
         {
             for (INamedTypeSymbol? baseType = symbol.BaseType;
                  baseType is not null &&
@@ -168,8 +156,10 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
 
                     foundPublicApiAction = true;
 
-                    // Declared actions already accept interface [Authorize]. Inherited actions must use the same check.
-                    if (ActionHasAuthorization(inheritedMethod, authorizeAttribute, allowAnonymousAttribute))
+                    if (InheritedPublicApiActionHasAuthorization(
+                            inheritedMethod,
+                            authorizeAttribute,
+                            allowAnonymousAttribute))
                     {
                         continue;
                     }
@@ -200,6 +190,7 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
         {
             // An abstract controller with no members of its own still inherits actions. The empty-type
             // diagnostic is for controllers that do not already expose an authorized inherited action.
+
             if (symbol.IsAbstract &&
                 InheritedPublicApiActionsAreAllAuthorized(
                     symbol,
@@ -207,6 +198,17 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
                     authorizeAttribute,
                     allowAnonymousAttribute,
                     nonActionAttribute))
+            {
+                return;
+            }
+
+            // Non-public and [NonAction] route-marked members are not API actions; do not emit a
+            // type-level AL0001 when the controller exposes no public actions (e.g. protected helpers).
+
+            if (!symbol.IsAbstract &&
+                !foundPublicApiAction &&
+                (SymbolHasNonPublicRouteAttributedMember(symbol, nonActionAttribute) ||
+                 SymbolHasNonActionRouteMarkedPublicMember(symbol, nonActionAttribute)))
             {
                 return;
             }
@@ -255,7 +257,10 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
 
                 foundInheritedApiAction = true;
 
-                if (!ActionHasAuthorization(inheritedMethod, authorizeAttribute, allowAnonymousAttribute))
+                if (!InheritedPublicApiActionHasAuthorization(
+                        inheritedMethod,
+                        authorizeAttribute,
+                        allowAnonymousAttribute))
                 {
                     return false;
                 }
@@ -322,6 +327,55 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
         return MethodInheritsAuthorizeOrAllowAnonymousFromInterfaces(method, authorizeAttribute, allowAnonymousAttribute);
     }
 
+    private static bool InheritedPublicApiActionHasAuthorization(
+        IMethodSymbol inheritedMethod,
+        INamedTypeSymbol? authorizeAttribute,
+        INamedTypeSymbol? allowAnonymousAttribute)
+    {
+        if (inheritedMethod.MethodKind == MethodKind.ExplicitInterfaceImplementation)
+        {
+            return ExplicitInterfaceImplementationHasAuthorization(
+                inheritedMethod,
+                authorizeAttribute,
+                allowAnonymousAttribute);
+        }
+
+        return ActionHasAuthorization(inheritedMethod, authorizeAttribute, allowAnonymousAttribute);
+    }
+
+    private static bool ExplicitInterfaceImplementationHasAuthorization(
+        IMethodSymbol method,
+        INamedTypeSymbol? authorizeAttribute,
+        INamedTypeSymbol? allowAnonymousAttribute)
+    {
+        if (SymbolHasAuthorizeOrAllowAnonymous(method, authorizeAttribute, allowAnonymousAttribute))
+        {
+            return true;
+        }
+
+        if (MethodInheritsAuthorizeOrAllowAnonymousFromOverriddenChain(method, authorizeAttribute, allowAnonymousAttribute))
+        {
+            return true;
+        }
+
+        foreach (IMethodSymbol interfaceMethod in method.ExplicitInterfaceImplementations)
+        {
+            if (SymbolHasAuthorizeOrAllowAnonymous(interfaceMethod, authorizeAttribute, allowAnonymousAttribute))
+            {
+                return true;
+            }
+
+            INamedTypeSymbol iface = interfaceMethod.ContainingType;
+
+            if (SymbolHasAuthorizeOrAllowAnonymous(iface, authorizeAttribute, allowAnonymousAttribute))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private static bool InheritsFromControllerBase(INamedTypeSymbol type, INamedTypeSymbol controllerBase)
     {
         for (INamedTypeSymbol? current = type.BaseType; current is not null; current = current.BaseType)
@@ -380,21 +434,12 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
         {
             if (SymbolHasAuthorizeOrAllowAnonymous(explicitImplementation, authorizeAttribute, allowAnonymousAttribute))
                 return true;
-
-            if (InterfaceTypeHasAuthorizeOrAllowAnonymous(
-                    explicitImplementation.ContainingType,
-                    authorizeAttribute,
-                    allowAnonymousAttribute))
-                return true;
         }
 
         INamedTypeSymbol containingType = method.ContainingType;
 
         foreach (INamedTypeSymbol iface in containingType.AllInterfaces)
         {
-            if (InterfaceTypeHasAuthorizeOrAllowAnonymous(iface, authorizeAttribute, allowAnonymousAttribute))
-                return true;
-
             foreach (ISymbol member in iface.GetMembers())
             {
                 if (member is not IMethodSymbol interfaceMethod)
@@ -409,26 +454,12 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
                 if (implementation is null || !SymbolEqualityComparer.Default.Equals(implementation, method))
                     continue;
 
+                if (SymbolHasAuthorizeOrAllowAnonymous(iface, authorizeAttribute, allowAnonymousAttribute))
+                    return true;
+
                 if (SymbolHasAuthorizeOrAllowAnonymous(interfaceMethod, authorizeAttribute, allowAnonymousAttribute))
                     return true;
             }
-        }
-
-        return false;
-    }
-
-    private static bool InterfaceTypeHasAuthorizeOrAllowAnonymous(
-        INamedTypeSymbol interfaceType,
-        INamedTypeSymbol? authorizeAttribute,
-        INamedTypeSymbol? allowAnonymousAttribute)
-    {
-        if (SymbolHasAuthorizeOrAllowAnonymous(interfaceType, authorizeAttribute, allowAnonymousAttribute))
-            return true;
-
-        foreach (INamedTypeSymbol inheritedInterface in interfaceType.AllInterfaces)
-        {
-            if (SymbolHasAuthorizeOrAllowAnonymous(inheritedInterface, authorizeAttribute, allowAnonymousAttribute))
-                return true;
         }
 
         return false;
@@ -510,4 +541,90 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
 
         return false;
     }
+
+    private static bool SymbolHasNonActionRouteMarkedPublicMember(
+        INamedTypeSymbol symbol,
+        INamedTypeSymbol? nonActionAttribute)
+    {
+        if (nonActionAttribute is null)
+            return false;
+
+        foreach (ISymbol member in symbol.GetMembers())
+        {
+            if (member is not IMethodSymbol method)
+                continue;
+
+            if (method.IsImplicitlyDeclared || method.IsStatic)
+                continue;
+
+            if (!IsDeclaredControllerApiMethod(method))
+                continue;
+
+            if (!SymbolHasAttribute(method, nonActionAttribute) &&
+                !MethodInheritsAttributeFromOverriddenChain(method, nonActionAttribute))
+            {
+                continue;
+            }
+
+            if (MethodHasAspNetCoreActionMarkerAttribute(method))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool SymbolHasNonPublicRouteAttributedMember(
+        INamedTypeSymbol symbol,
+        INamedTypeSymbol? nonActionAttribute)
+    {
+        foreach (ISymbol member in symbol.GetMembers())
+        {
+            if (member is not IMethodSymbol method)
+                continue;
+
+            if (method.IsImplicitlyDeclared || method.IsStatic)
+                continue;
+
+            if (IsDeclaredControllerApiMethod(method))
+                continue;
+
+            if (nonActionAttribute is not null &&
+                (SymbolHasAttribute(method, nonActionAttribute) ||
+                 MethodInheritsAttributeFromOverriddenChain(method, nonActionAttribute)))
+            {
+                continue;
+            }
+
+            if (MethodHasAspNetCoreActionMarkerAttribute(method))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool MethodHasAspNetCoreActionMarkerAttribute(IMethodSymbol method)
+    {
+        foreach (AttributeData attribute in method.GetAttributes())
+        {
+            INamedTypeSymbol? attributeClass = attribute.AttributeClass;
+
+            for (INamedTypeSymbol? walker = attributeClass; walker is not null; walker = walker.BaseType)
+            {
+                if (IsAspNetCoreActionMarkerAttributeName(walker.Name))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool IsAspNetCoreActionMarkerAttributeName(string attributeMetadataName) =>
+        attributeMetadataName is "HttpGetAttribute"
+            or "HttpPostAttribute"
+            or "HttpPutAttribute"
+            or "HttpDeleteAttribute"
+            or "HttpPatchAttribute"
+            or "RouteAttribute"
+            or "HttpMethodAttribute"
+            or "AcceptVerbsAttribute";
 }

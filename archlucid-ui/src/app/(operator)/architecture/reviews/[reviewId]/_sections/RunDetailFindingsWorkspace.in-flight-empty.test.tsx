@@ -33,6 +33,35 @@ vi.mock("@/lib/use-itsm-native-create-enabled", () => ({
   useItsmNativeCreateEnabled: () => true,
 }));
 
+vi.mock("@/hooks/useArchitectWorkspaceChrome", () => ({
+  useArchitectWorkspaceChrome: () => false,
+}));
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => ({
+      mode: "guided",
+      mounted: true,
+      accountSyncState: "synced",
+      isWorkingMode: false,
+      setAndPersist: vi.fn(),
+    }),
+  };
+});
+
+vi.mock("@/components/findings/RunDetailFindingsCardViewLazy", async () => {
+  const { QuickDecisionSummary } = await import("@/components/QuickDecisionSummary");
+
+  return {
+    RunDetailFindingsCardViewLazy: (props: Record<string, unknown>) => (
+      <QuickDecisionSummary {...props} workspaceCardMode />
+    ),
+  };
+});
+
 describe("RunDetailFindingsWorkspace committed in-flight empty (RS-05)", () => {
   it("shows honest in-progress empty state on committed review detail while analysis runs", () => {
     render(

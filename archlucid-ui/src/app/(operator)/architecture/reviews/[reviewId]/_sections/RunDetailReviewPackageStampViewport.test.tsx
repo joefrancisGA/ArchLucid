@@ -4,7 +4,22 @@ import { describe, expect, it, vi } from "vitest";
 const workspaceModeMock = vi.hoisted(() => ({ isWorkingMode: true }));
 
 vi.mock("@/components/WorkspaceModeProvider", () => ({
-  useWorkspaceMode: () => workspaceModeMock,
+  useWorkspaceMode: () => ({
+    mode: workspaceModeMock.isWorkingMode ? "working" : "guided",
+    mounted: true,
+    accountSyncState: "synced",
+    isWorkingMode: workspaceModeMock.isWorkingMode,
+    setAndPersist: vi.fn(),
+  }),
+  useWorkspaceModeOrDefault: () => (workspaceModeMock.isWorkingMode ? "working" : "guided"),
+}));
+
+vi.mock("@/hooks/use-effective-working-career-rehearsal-door", () => ({
+  useEffectiveWorkingCareerRehearsalDoor: () => ({
+    door: "career",
+    effectiveDoor: "career",
+    mounted: true,
+  }),
 }));
 
 vi.mock("@/components/governance/GovernanceRecordCorrectionDialog", () => ({

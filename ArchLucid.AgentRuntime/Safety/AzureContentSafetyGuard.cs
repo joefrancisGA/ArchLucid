@@ -63,7 +63,10 @@ public sealed class AzureContentSafetyGuard : IContentSafetyGuard
             Response<AnalyzeTextResult> response = await _client.AnalyzeTextAsync(request, cancellationToken)
                 .ConfigureAwait(false);
 
-            return MapResult(response.Value, options.BlockSeverityThreshold);
+            int blockThreshold =
+                ContentSafetyBlockSeverityThreshold.Normalize(options.BlockSeverityThreshold);
+
+            return MapResult(response.Value, blockThreshold);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Tests.Exports;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
@@ -29,6 +30,8 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class ExportReplayServiceReplayAsyncTests
 {
+    private static readonly Guid ReplayRunGuid = Guid.Parse("11111111-2222-3333-4444-555555555555");
+
     private static readonly JsonSerializerOptions PersistJsonOptions = new(JsonSerializerDefaults.Web)
     {
         WriteIndented = true
@@ -359,13 +362,14 @@ public sealed class ExportReplayServiceReplayAsyncTests
 
         Mock<IAuthorityQueryService> authority = new();
         ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, ReplayRunGuid, manifestHashService);
         Mock<IRunDetailQueryService> runDetails = new();
 
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext());
 
         IConfiguration configuration =
-            ArchLucid.Application.Tests.Exports.SealedExportReceiptTestSupport.CreateCareerExportHonestyConfiguration();
+            SealedExportReceiptTestSupport.CreateCareerExportHonestyConfiguration();
 
         return new ExportReplayService(
             repo.Object,
@@ -401,6 +405,7 @@ public sealed class ExportReplayServiceReplayAsyncTests
         audit = new Mock<IRunExportAuditService>();
         authority = new Mock<IAuthorityQueryService>();
         manifestHashService = new ArchLucid.Decisioning.Services.ManifestHashService();
+        SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, ReplayRunGuid, manifestHashService);
         runDetails = new Mock<IRunDetailQueryService>();
 
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -438,7 +443,7 @@ public sealed class ExportReplayServiceReplayAsyncTests
         return new RunExportRecord
         {
             ExportRecordId = Guid.NewGuid().ToString("N"),
-            RunId = "run-replay-test",
+            RunId = ReplayRunGuid.ToString("D"),
             ExportType = exportType,
             Format = "docx",
             FileName = "base.docx",

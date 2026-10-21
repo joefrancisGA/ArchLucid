@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
@@ -16,6 +16,7 @@ import { enterpriseStatusTagClass, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/
 import { isDeterministicExplanationFallback, normalizeFiniteRatio } from "@/types/explanation";
 import {
   parseRunExplanationProvenanceOpenFromSearch,
+  RUN_EXPLANATION_PROVENANCE_OPEN_PARAM,
   runExplanationProvenanceDisclosureHrefFromSearch,
 } from "@/lib/runs/run-explanation-provenance-disclosure-url";
 import {
@@ -196,6 +197,8 @@ export function RunExplanationSection({
 }: RunExplanationSectionProps) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const searchParamProvenanceOpen = searchParams.get(RUN_EXPLANATION_PROVENANCE_OPEN_PARAM);
   const [provenanceOpen, setProvenanceOpenState] = useState(() =>
     parseRunExplanationProvenanceOpenFromSearch(null),
   );
@@ -228,7 +231,7 @@ export function RunExplanationSection({
   useEffect(() => {
     const syncProvenanceOpenFromUrl = (): void => {
       const next = parseRunExplanationProvenanceOpenFromSearch(
-        new URLSearchParams(window.location.search).get("runExplanationProvenanceOpen"),
+        new URLSearchParams(window.location.search).get(RUN_EXPLANATION_PROVENANCE_OPEN_PARAM),
       );
 
       if (provenanceOpenRef.current === next) {
@@ -246,6 +249,17 @@ export function RunExplanationSection({
       window.removeEventListener("popstate", syncProvenanceOpenFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    const next = parseRunExplanationProvenanceOpenFromSearch(searchParamProvenanceOpen);
+
+    if (provenanceOpenRef.current === next) {
+      return;
+    }
+
+    provenanceOpenRef.current = next;
+    setProvenanceOpenState(next);
+  }, [searchParamProvenanceOpen]);
 
   const tocItems = useMemo((): DocumentTocItem[] => {
     if (summary === null) {

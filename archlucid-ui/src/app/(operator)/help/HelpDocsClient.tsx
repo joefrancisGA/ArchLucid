@@ -151,6 +151,16 @@ function helpDocLinkHref(url: string): string {
   return trimmed;
 }
 
+function docIndexFetchedUrlHasDeepLinkSuffix(url: string): boolean {
+  const trimmed = url.trim();
+
+  if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith("//")) {
+    return false;
+  }
+
+  return trimmed.includes("?") || trimmed.includes("#");
+}
+
 function docIndexMergeDedupeKey(url: string): string {
   const trimmed = url.trim();
 
@@ -193,7 +203,9 @@ function mergeDocIndex(staticRows: readonly DocIndexEntry[], fetched: DocIndexEn
     const k = `${e.category}|${e.title}|${e.url}`;
     const mergeDedupeKey = docIndexMergeDedupeKey(e.url);
     const duplicateNormalizedPath =
-      mergeDedupeKey !== "/help" && claimedUrls.has(mergeDedupeKey);
+      mergeDedupeKey !== "/help"
+      && claimedUrls.has(mergeDedupeKey)
+      && !docIndexFetchedUrlHasDeepLinkSuffix(e.url);
 
     if (seenKeys.has(k) || duplicateNormalizedPath) {
       continue;

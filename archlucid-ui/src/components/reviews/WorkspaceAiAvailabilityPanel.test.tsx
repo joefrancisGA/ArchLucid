@@ -1,6 +1,9 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { DEFAULT_IANA_TIME_ZONE_ID } from "@/lib/default-iana-time-zone";
+import { formatInstantInPreferredTimeZone } from "@/lib/locale-datetime";
+
 vi.mock("next/navigation", () => ({
   usePathname: () => "/architecture/reviews/run-1",
   useRouter: () => ({ replace: vi.fn() }),
@@ -21,6 +24,12 @@ vi.mock("@/lib/workspace-ai-availability", async () => {
     fetchWorkspaceAiAvailability: (...args: unknown[]) => fetchWorkspaceAiAvailabilityMock(...args),
   };
 });
+
+const PROBE_AS_OF_UTC = "2026-08-31T18:00:00.000Z";
+const EXPECTED_CHECKED_AT_ARIA_LABEL = `Checked ${formatInstantInPreferredTimeZone(
+  PROBE_AS_OF_UTC,
+  DEFAULT_IANA_TIME_ZONE_ID,
+)}`;
 
 describe("WorkspaceAiAvailabilityPanel", () => {
   beforeEach(() => {
@@ -69,7 +78,7 @@ describe("WorkspaceAiAvailabilityPanel", () => {
       validated: true,
       aiSource: "managed-platform",
       summary: "ArchLucid-managed AI is unavailable — reviews cannot start until platform AI is restored.",
-      asOfUtc: "2026-08-31T18:00:00.000Z",
+      asOfUtc: PROBE_AS_OF_UTC,
       checks: [
         {
           name: "azure_openai_live_completion_probe",
@@ -107,8 +116,8 @@ describe("WorkspaceAiAvailabilityPanel", () => {
     expect(fetchWorkspaceAiAvailabilityMock).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId("review-package-workspace-ai-vendor-error")).toHaveTextContent("HTTP 401");
     expect(screen.getByTestId("review-package-workspace-ai-checked-at")).toHaveAttribute(
-      "title",
-      "Aug 31, 2026, 6:00 PM UTC",
+      "aria-label",
+      EXPECTED_CHECKED_AT_ARIA_LABEL,
     );
     expect(screen.getAllByTestId("review-package-workspace-ai-model")[0]).toHaveTextContent("gpt-4o");
     expect(screen.queryByTestId("review-package-workspace-ai-model-provenance")).not.toBeInTheDocument();
@@ -121,7 +130,7 @@ describe("WorkspaceAiAvailabilityPanel", () => {
       validated: true,
       aiSource: "managed-platform",
       summary: "ArchLucid-managed Azure OpenAI live probe succeeded for deployment 'gpt-4o'.",
-      asOfUtc: "2026-08-31T18:00:00.000Z",
+      asOfUtc: PROBE_AS_OF_UTC,
       checks: [{ name: "azure_openai_live_completion_probe", status: "ok", detail: "Live completion probe succeeded." }],
       debug: { probeDeploymentName: "gpt-4o", probeModelId: "gpt-4o-2024-08-06" },
     });
@@ -164,7 +173,7 @@ describe("WorkspaceAiAvailabilityPanel", () => {
       validated: true,
       aiSource: "managed-platform",
       summary: "ArchLucid-managed Azure OpenAI live probe succeeded for deployment 'gpt-4o'.",
-      asOfUtc: "2026-08-31T18:00:00.000Z",
+      asOfUtc: PROBE_AS_OF_UTC,
       checks: [{ name: "azure_openai_live_completion_probe", status: "ok", detail: "Live completion probe succeeded." }],
       debug: { probeDeploymentName: "gpt-4o" },
     });

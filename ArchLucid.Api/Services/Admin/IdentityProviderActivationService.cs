@@ -63,6 +63,7 @@ public sealed class IdentityProviderActivationService(
 
         IdentityProviderClaimMappingSubstantiveGuards.EnsureNoNullMappingEntries(request.ClaimMapping);
         IdentityProviderClaimMappingSubstantiveGuards.EnsureSubstantiveMappingEntries(request.ClaimMapping);
+        IdentityProviderClaimMappingSubstantiveGuards.EnsureNoDuplicateIdpMappingValues(request.ClaimMapping);
         IdentityProviderClaimMappingSubstantiveGuards.EnsureSubstantiveCustomGroupClaimRegexWhenProvided(request.ClaimMapping);
 
         IdentityClaimRoleMappingDocument mapping = IdentityClaimRoleMappingResolver.ToDocument(request.ClaimMapping);
@@ -76,18 +77,42 @@ public sealed class IdentityProviderActivationService(
 
         bool sameProtocol = existing?.Protocol == parsedProtocol;
 
+        string? metadataXml = ResolveOptionalPersistedField(
+            request.MetadataXml,
+            sameProtocol ? existing?.MetadataXml : null);
+
+        string? keyVaultSecretName = ResolveOptionalPersistedField(
+            request.KeyVaultSecretName,
+            sameProtocol ? existing?.KeyVaultSecretName : null);
+
+        IdentityProviderActivationProtocolFieldGuards.NormalizeResolvedFieldsForProtocol(
+            parsedProtocol,
+            ref metadataXml,
+            ref keyVaultSecretName);
+
+        if (parsedProtocol == TenantIdentityProtocol.Oidc)
+            IdentityProviderPersistedFieldLimits.EnsureKeyVaultSecretNameFits(keyVaultSecretName);
+
+        IdentityProviderActivationProtocolFieldGuards.EnsureActivateFields(
+            parsedProtocol,
+            metadataXml,
+            keyVaultSecretName,
+            existing);
+
+        if (parsedProtocol != TenantIdentityProtocol.Saml)
+            metadataXml = null;
+
+        if (parsedProtocol != TenantIdentityProtocol.Oidc)
+            keyVaultSecretName = null;
+
         TenantIdentityProviderConfigurationRecord record = new()
         {
             TenantId = tenantId,
             Protocol = parsedProtocol,
             IssuerUri = canonicalIssuerUri,
-            MetadataXml = ResolveOptionalPersistedField(
-                request.MetadataXml,
-                sameProtocol ? existing?.MetadataXml : null),
+            MetadataXml = metadataXml,
             ClaimMappingJson = claimMappingJson,
-            KeyVaultSecretName = ResolveKeyVaultSecretName(
-                request.KeyVaultSecretName,
-                sameProtocol ? existing?.KeyVaultSecretName : null),
+            KeyVaultSecretName = keyVaultSecretName,
             UpdatedUtc = TimeProvider.System.GetUtcNow(),
             UpdatedByActorId = trimmedActorId,
             IsActive = true
@@ -96,18 +121,6 @@ public sealed class IdentityProviderActivationService(
         await _repository.UpsertAsync(record, cancellationToken).ConfigureAwait(false);
 
         return record;
-    }
-
-    /// <summary>
-    ///     Resolves the secret name, then rejects a value the NVARCHAR(256) column cannot store.
-    /// </summary>
-    private static string? ResolveKeyVaultSecretName(string? requestValue, string? existingValue)
-    {
-        string? resolved = ResolveOptionalPersistedField(requestValue, existingValue);
-
-        IdentityProviderPersistedFieldLimits.EnsureKeyVaultSecretNameFits(resolved);
-
-        return resolved;
     }
 
     /// <summary>

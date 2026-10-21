@@ -18,9 +18,10 @@ internal static class AgentResultJsonEvidenceGrounding
                 return !string.IsNullOrWhiteSpace(claimText);
 
             case JsonValueKind.Object:
+
                 foreach (string prop in new[] { "detail", "text", "evidence", "statement", "claim" })
                 {
-                    if (!TryGetPropertyIgnoreCase(claim, prop, out JsonElement p)
+                    if (!AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(claim, prop, out JsonElement p)
                         || p.ValueKind != JsonValueKind.String)
                         continue;
 
@@ -63,7 +64,7 @@ internal static class AgentResultJsonEvidenceGrounding
             return false;
 
         category =
-            TryGetPropertyIgnoreCase(finding, "category", out JsonElement cat) && cat.ValueKind == JsonValueKind.String
+            AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(finding, "category", out JsonElement cat) && cat.ValueKind == JsonValueKind.String
                 ? cat.GetString() ?? string.Empty
                 : string.Empty;
 
@@ -71,7 +72,7 @@ internal static class AgentResultJsonEvidenceGrounding
         description = FirstNonEmptyString(finding, MessagePropertyNames);
 
         recommendation =
-            TryGetPropertyIgnoreCase(finding, "recommendation", out JsonElement r) && r.ValueKind == JsonValueKind.String
+            AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(finding, "recommendation", out JsonElement r) && r.ValueKind == JsonValueKind.String
                 ? r.GetString() ?? string.Empty
                 : string.Empty;
 
@@ -85,7 +86,7 @@ internal static class AgentResultJsonEvidenceGrounding
     {
         foreach (string propertyName in propertyNames)
         {
-            if (!TryGetPropertyIgnoreCase(owner, propertyName, out JsonElement property) ||
+            if (!AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(owner, propertyName, out JsonElement property) ||
                 property.ValueKind != JsonValueKind.String)
             {
                 continue;
@@ -104,7 +105,7 @@ internal static class AgentResultJsonEvidenceGrounding
     {
         refs = [];
 
-        if (!TryGetPropertyIgnoreCase(owner, "evidenceRefs", out JsonElement evidenceRefs))
+        if (!AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase(owner, "evidenceRefs", out JsonElement evidenceRefs))
             return true;
 
         if (evidenceRefs.ValueKind != JsonValueKind.Array)
@@ -125,26 +126,5 @@ internal static class AgentResultJsonEvidenceGrounding
         }
 
         return true;
-    }
-
-    private static bool TryGetPropertyIgnoreCase(
-        JsonElement element,
-        string propertyName,
-        out JsonElement value)
-    {
-        if (element.TryGetProperty(propertyName, out value))
-            return true;
-
-        foreach (JsonProperty property in element.EnumerateObject())
-        {
-            if (string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
-            {
-                value = property.Value;
-                return true;
-            }
-        }
-
-        value = default;
-        return false;
     }
 }

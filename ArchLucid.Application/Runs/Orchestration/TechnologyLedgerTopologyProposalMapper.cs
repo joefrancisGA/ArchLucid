@@ -128,7 +128,7 @@ public static class TechnologyLedgerTopologyProposalMapper
             ProviderFamily = providerFamily,
             Status = TechnologyLedgerStatus.Assumed,
             Source = TechnologyLedgerSource.AgentProposed,
-            EvidenceRef = $"agentTopologyProposal:{proposalId}:{stableSubKey}",
+            EvidenceRef = TechnologyLedgerAgentTopologyEvidenceRef.Format(proposalId, stableSubKey),
             Rationale = AgentProposalRationale,
             IsLocked = false,
             CreatedUtc = utcNow,

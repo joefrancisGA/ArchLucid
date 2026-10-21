@@ -401,6 +401,54 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
     }
 
     [Fact]
+    public void TryClaimService_returns_false_when_terraform_instance_key_differs_only_by_string_literal_quotes()
+    {
+        const string rootTerraformAddress = "azurerm_app_service.main";
+
+        HashSet<string> claimed = new(StringComparer.OrdinalIgnoreCase);
+
+        ManifestService unquotedIndex = new()
+        {
+            ServiceName = "api-a",
+            ServiceId = $"{rootTerraformAddress}[0]",
+        };
+
+        TopologyProposalRelationshipEndpointIndex.TryClaimService(unquotedIndex, claimed).Should().BeTrue();
+
+        ManifestService quotedIndex = new()
+        {
+            ServiceName = "api-b",
+            ServiceId = $"{rootTerraformAddress}[\"0\"]",
+        };
+
+        TopologyProposalRelationshipEndpointIndex.TryClaimService(quotedIndex, claimed).Should().BeFalse();
+    }
+
+    [Fact]
+    public void TryClaimDatastore_returns_false_when_terraform_instance_key_differs_only_by_string_literal_quotes()
+    {
+        const string rootTerraformAddress = "azurerm_storage_account.sa";
+
+        HashSet<string> claimed = new(StringComparer.OrdinalIgnoreCase);
+
+        ManifestDatastore unquotedIndex = new()
+        {
+            DatastoreName = "store-a",
+            DatastoreId = $"{rootTerraformAddress}[0]",
+        };
+
+        TopologyProposalRelationshipEndpointIndex.TryClaimDatastore(unquotedIndex, claimed).Should().BeTrue();
+
+        ManifestDatastore quotedIndex = new()
+        {
+            DatastoreName = "store-b",
+            DatastoreId = $"{rootTerraformAddress}[\"0\"]",
+        };
+
+        TopologyProposalRelationshipEndpointIndex.TryClaimDatastore(quotedIndex, claimed).Should().BeFalse();
+    }
+
+    [Fact]
     public void TryClaimDatastore_returns_false_when_name_id_or_synthetic_already_claimed()
     {
         HashSet<string> claimed = new(StringComparer.OrdinalIgnoreCase);
@@ -1723,6 +1771,102 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
             .BeTrue();
 
         nodeId.Should().Be("svc-tf");
+    }
+
+    [Fact]
+    public void TryResolveGraphTopologyNodeIdForService_returns_true_when_service_id_quotes_for_each_key_and_graph_source_id_does_not()
+    {
+        const string rootAddress = "azurerm_app_service.main";
+
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "svc-primary",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = $"{rootAddress}[primary]",
+                Properties = new()
+            }
+        ];
+
+        ManifestService service = new()
+        {
+            ServiceName = "renamed-api",
+            ServiceId = $"{rootAddress}[\"primary\"]",
+        };
+
+        TopologyProposalRelationshipEndpointIndex.TryResolveGraphTopologyNodeIdForService(service, graphNodes, out string nodeId)
+            .Should()
+            .BeTrue();
+
+        nodeId.Should().Be("svc-primary");
+    }
+
+    [Fact]
+    public void EndpointKeyIsKnown_returns_true_when_known_keys_use_unquoted_for_each_and_lookup_uses_quoted_string()
+    {
+        const string rootAddress = "azurerm_app_service.main";
+        HashSet<string> knownKeys = [];
+
+        TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointKeys(
+            knownKeys,
+            new ManifestService
+            {
+                ServiceName = "api",
+                ServiceId = $"{rootAddress}[primary]",
+            });
+
+        TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown($"{rootAddress}[\"primary\"]", knownKeys)
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
+    public void DeclaredEndpointKeySetContains_matches_quoted_and_unquoted_terraform_instance_keys()
+    {
+        const string rootAddress = "azurerm_app_service.main";
+        HashSet<string> declaredKeys = [$"{rootAddress}[primary]"];
+
+        TopologyProposalRelationshipEndpointIndex.DeclaredEndpointKeySetContains(
+                declaredKeys,
+                $"{rootAddress}[\"primary\"]")
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
+    public void TryResolveGraphTopologyNodeIdForDatastore_returns_true_when_datastore_id_quotes_for_each_key_and_graph_source_id_does_not()
+    {
+        const string rootAddress = "azurerm_storage_account.main";
+
+        List<GraphNode> graphNodes =
+        [
+            new()
+            {
+                NodeId = "ds-primary",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "storage",
+                Category = GraphTopologyCategories.Storage,
+                SourceType = "Terraform",
+                SourceId = $"{rootAddress}[primary]",
+                Properties = new()
+            }
+        ];
+
+        ManifestDatastore datastore = new()
+        {
+            DatastoreName = "renamed-storage",
+            DatastoreId = $"{rootAddress}[\"primary\"]",
+        };
+
+        TopologyProposalRelationshipEndpointIndex.TryResolveGraphTopologyNodeIdForDatastore(datastore, graphNodes, out string nodeId)
+            .Should()
+            .BeTrue();
+
+        nodeId.Should().Be("ds-primary");
     }
 
     [Fact]

@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   DEFAULT_FINDING_JOB_VIEW,
@@ -41,6 +41,27 @@ function readCommittedSearchParams(): URLSearchParams {
   return new URLSearchParams(readWindowLocationSearch());
 }
 
+function readToolbarStateFromSearchParams(params: URLSearchParams): {
+  readonly filter: RunDetailFindingsFilterKind;
+  readonly jobView: FindingJobView;
+  readonly searchQuery: string;
+  readonly originFilter: FindingOriginFilter;
+  readonly groundingFilter: FindingGroundingFilter;
+  readonly ownerFilter: string;
+  readonly domainFilter: string;
+  readonly sort: RunDetailFindingsSortKind;
+} {
+  return {
+    filter: resolveReviewFindingsToolbarFilterFromSearchParam(params.get(REVIEW_FINDINGS_TOOLBAR_FILTER_PARAM)),
+    jobView: resolveFindingJobViewFromSearchParam(params.get(REVIEW_FINDINGS_JOB_VIEW_PARAM)),
+    searchQuery: parseReviewFindingsToolbarSearchQuery(params.get("q")),
+    originFilter: parseFindingsOriginFilterFromSearch(params.get("origin")),
+    groundingFilter: parseFindingsGroundingFilterFromSearch(params.get("grounding")),
+    ownerFilter: parseReviewFindingsOwnerFilterFromSearch(params.get("owner")),
+    domainFilter: parseReviewFindingsDomainFilterFromSearch(params.get("domain")),
+    sort: parseReviewFindingsToolbarSortFromSearch(params.get(REVIEW_FINDINGS_TOOLBAR_SORT_PARAM))};
+}
+
 function readToolbarStateFromCommittedUrl(): {
   readonly filter: RunDetailFindingsFilterKind;
   readonly jobView: FindingJobView;
@@ -51,17 +72,7 @@ function readToolbarStateFromCommittedUrl(): {
   readonly domainFilter: string;
   readonly sort: RunDetailFindingsSortKind;
 } {
-  const params = readCommittedSearchParams();
-
-  return {
-    filter: resolveReviewFindingsToolbarFilterFromSearchParam(params.get(REVIEW_FINDINGS_TOOLBAR_FILTER_PARAM)),
-    jobView: resolveFindingJobViewFromSearchParam(params.get(REVIEW_FINDINGS_JOB_VIEW_PARAM)),
-    searchQuery: parseReviewFindingsToolbarSearchQuery(params.get("q")),
-    originFilter: parseFindingsOriginFilterFromSearch(params.get("origin")),
-    groundingFilter: parseFindingsGroundingFilterFromSearch(params.get("grounding")),
-    ownerFilter: parseReviewFindingsOwnerFilterFromSearch(params.get("owner")),
-    domainFilter: parseReviewFindingsDomainFilterFromSearch(params.get("domain")),
-    sort: parseReviewFindingsToolbarSortFromSearch(params.get("findingsSort"))};
+  return readToolbarStateFromSearchParams(readCommittedSearchParams());
 }
 
 export function useRunDetailFindingsToolbarState(options?: {
@@ -89,8 +100,10 @@ export function useRunDetailFindingsToolbarState(options?: {
 } {
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
-  const searchParamSort = parseReviewFindingsToolbarSortFromSearch(
-    searchParams?.get(REVIEW_FINDINGS_TOOLBAR_SORT_PARAM),
+  const searchParamsKey = searchParams.toString();
+  const searchParamToolbarState = useMemo(
+    () => readToolbarStateFromSearchParams(new URLSearchParams(searchParamsKey)),
+    [searchParamsKey],
   );
   const initialFilter = options?.initialFilter ?? "all";
   const [filter, setFilterState] = useState<RunDetailFindingsFilterKind>(initialFilter);
@@ -108,7 +121,7 @@ export function useRunDetailFindingsToolbarState(options?: {
   const [ownerFilter, setOwnerFilterState] = useState("");
   const [domainFilter, setDomainFilterState] = useState("");
   const [searchQuery, setSearchQueryState] = useState("");
-  const [sort, setSortState] = useState<RunDetailFindingsSortKind>(searchParamSort);
+  const [sort, setSortState] = useState<RunDetailFindingsSortKind>(searchParamToolbarState.sort);
   const [originFilter, setOriginFilterState] = useState<FindingOriginFilter>("all");
   const [groundingFilter, setGroundingFilterState] = useState<FindingGroundingFilter>("all");
 
@@ -139,8 +152,17 @@ export function useRunDetailFindingsToolbarState(options?: {
 
   useEffect(() => {
     // Next.js client navigations update useSearchParams without a popstate event.
-    setSortState((current) => (current === searchParamSort ? current : searchParamSort));
-  }, [searchParamSort]);
+    const next = searchParamToolbarState;
+
+    setFilterState((current) => (current === next.filter ? current : next.filter));
+    setJobViewState((current) => (current === next.jobView ? current : next.jobView));
+    setSearchQueryState((current) => (current === next.searchQuery ? current : next.searchQuery));
+    setOriginFilterState((current) => (current === next.originFilter ? current : next.originFilter));
+    setGroundingFilterState((current) => (current === next.groundingFilter ? current : next.groundingFilter));
+    setOwnerFilterState((current) => (current === next.ownerFilter ? current : next.ownerFilter));
+    setDomainFilterState((current) => (current === next.domainFilter ? current : next.domainFilter));
+    setSortState((current) => (current === next.sort ? current : next.sort));
+  }, [searchParamToolbarState]);
 
   useEffect(() => {
     if (pathname.length === 0) {

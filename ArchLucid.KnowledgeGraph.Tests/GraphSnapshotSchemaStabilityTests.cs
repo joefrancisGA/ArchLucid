@@ -38,15 +38,17 @@ public sealed class GraphSnapshotSchemaStabilityTests
 
     private static readonly string[] GraphEdgePropertyNames =
     [
+        "DeclaredConnectionId",
         "EdgeId",
-        "FromNodeId",
-        "ToNodeId",
         "EdgeType",
-        "Label",
-        "Weight",
+        "FromNodeId",
         "InferenceSource",
+        "Label",
         "Properties",
+        "ProvenanceKind",
         "ReasoningTrace",
+        "ToNodeId",
+        "Weight",
     ];
 
     [Fact]
@@ -72,6 +74,7 @@ public sealed class GraphSnapshotSchemaStabilityTests
     [Fact]
     public void GraphEdge_PublicProperties_MatchShippedV1Contract()
     {
+        // Additive SchemaVersion 1 fields from IDP-01–04 (#3379): DeclaredConnectionId, ProvenanceKind.
         AssertPropertySurfaceMatches(typeof(GraphEdge), GraphEdgePropertyNames);
     }
 

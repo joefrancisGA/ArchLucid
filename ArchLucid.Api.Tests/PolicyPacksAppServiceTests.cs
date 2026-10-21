@@ -474,6 +474,9 @@ public sealed class PolicyPacksAppServiceTests
         versions
             .Setup(x => x.GetByPackAndVersionAsync(packId, "1.0.0", It.IsAny<CancellationToken>()))
             .ReturnsAsync((PolicyPackVersion?)null);
+        versions
+            .Setup(x => x.ListByPackAsync(packId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<PolicyPackVersion>());
 
         Mock<IPolicyPackManagementService> management = new(MockBehavior.Strict);
         Mock<IAuditService> audit = new(MockBehavior.Strict);
@@ -848,6 +851,9 @@ public sealed class PolicyPacksAppServiceTests
             .SetupSequence(v => v.GetByPackAndVersionAsync(packId, version, It.IsAny<CancellationToken>()))
             .ReturnsAsync((PolicyPackVersion?)null)
             .ReturnsAsync(published);
+        versions
+            .Setup(v => v.ListByPackAsync(packId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<PolicyPackVersion>());
 
         Mock<IPolicyPackManagementService> management = new();
         management
@@ -891,6 +897,9 @@ public sealed class PolicyPacksAppServiceTests
                     PackType = PolicyPackType.ProjectCustom,
                     IsDeleted = false,
                 });
+        packs
+            .Setup(p => p.ListByScopeAsync(tenantId, workspaceId, projectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<PolicyPack>());
 
         Mock<IPolicyPackVersionRepository> versions = new();
         versions
@@ -1274,17 +1283,33 @@ public sealed class PolicyPacksAppServiceTests
         IPolicyPackRepository? packs = null,
         IPolicyPackVersionRepository? versions = null,
         IPolicyPackAssignmentRepository? assignments = null,
-        IAuditService? audit = null) =>
-        new(
+        IAuditService? audit = null)
+    {
+        Mock<IPolicyPackRepository> defaultPacks = new();
+        defaultPacks
+            .Setup(p => p.ListByScopeAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<PolicyPack>());
+
+        Mock<IPolicyPackVersionRepository> defaultVersions = new();
+        defaultVersions
+            .Setup(v => v.ListByPackAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<PolicyPackVersion>());
+
+        return new(
             management,
-            packs ?? Mock.Of<IPolicyPackRepository>(),
-            versions ?? Mock.Of<IPolicyPackVersionRepository>(),
+            packs ?? defaultPacks.Object,
+            versions ?? defaultVersions.Object,
             assignments ?? Mock.Of<IPolicyPackAssignmentRepository>(),
             audit ?? Mock.Of<IAuditService>(),
             Mock.Of<IIntegrationEventOutboxRepository>(),
             Mock.Of<IIntegrationEventPublisher>(),
             CreateIntegrationEventsOptionsMonitor(),
             NullLogger<PolicyPacksAppService>.Instance);
+    }
 
     private static IOptionsMonitor<IntegrationEventsOptions> CreateIntegrationEventsOptionsMonitor()
     {

@@ -31,7 +31,9 @@ public sealed class ArchitectureReviewRobustnessWave67ArchitectureTests
         architectures.Should().Contain("Status409Conflict");
         architectures.Should().Contain("ConflictException");
         architectureGuard.Should().Contain("EnsureArchitectureIdentityMutationSealedManifestAllowedAsync");
-        architectureGuard.Should().Contain("GovernancePostureSealedManifestHashGuard.EnsureLatestCommittedRunSealedOrThrowAsync");
+        architectureGuard.Should().Contain("GovernanceScopePostureSealedManifestPreflight");
+        ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Http/Governance/GovernanceScopePostureSealedManifestPreflight.cs")
+            .Should().Contain("GovernancePostureSealedManifestHashGuard.EnsureLatestCommittedRunSealedOrThrowAsync");
     }
 
     [Fact]

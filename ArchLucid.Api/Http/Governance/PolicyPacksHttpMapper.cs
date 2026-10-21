@@ -1,7 +1,7 @@
 using ArchLucid.Api.Controllers.Governance;
-using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Validators;
+using ArchLucid.Contracts.Governance.PolicyPacks;
 
 namespace ArchLucid.Api.Http.Governance;
 
@@ -16,29 +16,47 @@ public static class PolicyPacksHttpMapper
         return null;
     }
 
-    public static GovernanceHttpValidation? ValidatePackVersion(string? packVersion)
+    public static bool TryParsePackVersion(
+        string? packVersion,
+        out PolicyPackSemVerVersion normalized,
+        out GovernanceHttpValidation? validationError)
     {
+        normalized = default;
+        validationError = null;
+
         if (string.IsNullOrWhiteSpace(packVersion))
-            return new GovernanceHttpValidation("Version is required.", ProblemTypes.ValidationFailed);
+        {
+            validationError = new GovernanceHttpValidation("Version is required.", ProblemTypes.ValidationFailed);
+            return false;
+        }
 
         string trimmedVersion = packVersion.Trim();
 
-        if (trimmedVersion.Length > PolicyPackRequestValidationRules.PackVersionMaxLength)
+        if (trimmedVersion.Length > PolicyPackSemVerVersion.MaxLength)
         {
-            return new GovernanceHttpValidation(
-                $"Version must be at most {PolicyPackRequestValidationRules.PackVersionMaxLength} characters.",
+            validationError = new GovernanceHttpValidation(
+                $"Version must be at most {PolicyPackSemVerVersion.MaxLength} characters.",
                 ProblemTypes.ValidationFailed);
+
+            return false;
         }
 
-        if (!PolicyPackRequestValidationRules.BePolicyPackSemVerVersion(trimmedVersion))
+        if (!PolicyPackSemVerVersion.TryParse(packVersion, out normalized))
         {
-            return new GovernanceHttpValidation(
+            validationError = new GovernanceHttpValidation(
                 PolicyPackRequestValidationRules.PackVersionSemVerMessage,
                 ProblemTypes.ValidationFailed);
+
+            return false;
         }
 
-        return null;
+        return true;
     }
+
+    public static GovernanceHttpValidation? ValidatePackVersion(string? packVersion) =>
+        TryParsePackVersion(packVersion, out _, out GovernanceHttpValidation? validationError)
+            ? null
+            : validationError;
 
     public static GovernanceHttpValidation? ValidatePromoteCatalogEntry(PromotePolicyPackCatalogEntryRequest request)
     {

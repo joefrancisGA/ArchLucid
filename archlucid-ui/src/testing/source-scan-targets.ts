@@ -25,6 +25,8 @@ export const SOURCE_SCAN_TARGETS = {
     "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailTabbedWorkspaceOverviewShell.tsx",
   "run-detail-evidence-tab-composition":
     "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailEvidenceTabComposition.tsx",
+  "run-detail-activity-tab-composition":
+    "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailActivityTabComposition.tsx",
   "run-detail-page-presentation":
     "src/app/(operator)/architecture/reviews/[reviewId]/_sections/run-detail-page-presentation.ts",
   "run-detail-below-fold":

@@ -93,6 +93,7 @@ public sealed class CorePackageCoverageBatchRc29dTests
         _ = ArchLucidInstrumentation.ProvenanceSnapshotWritesTotal;
         _ = ArchLucidInstrumentation.ProvenanceSnapshotReadHitsTotal;
         _ = ArchLucidInstrumentation.ProvenanceSnapshotRebuildFallbackTotal;
+        _ = ArchLucidInstrumentation.ProvenanceArtifactBundleDuplicateArtifactIdConflictTotal;
         _ = ArchLucidInstrumentation.AzureRetailPricesHeuristicFallbackTotal;
         _ = ArchLucidInstrumentation.RagRetrievalFallbackTotal;
         _ = ArchLucidInstrumentation.RetrievalEmbeddingDimensionMismatchTotal;
@@ -114,6 +115,7 @@ public sealed class CorePackageCoverageBatchRc29dTests
         ArchLucidInstrumentation.RecordProvenanceSnapshotWrite();
         ArchLucidInstrumentation.RecordProvenanceSnapshotReadHit();
         ArchLucidInstrumentation.RecordProvenanceSnapshotRebuildFallback();
+        ArchLucidInstrumentation.RecordProvenanceArtifactBundleDuplicateArtifactIdConflicts(1);
         ArchLucidInstrumentation.RecordAzureRetailPricesHeuristicFallback("Virtual Machines", "D4s_v5");
         ArchLucidInstrumentation.RecordRagRetrievalFallback();
         ArchLucidInstrumentation.RecordRetrievalEmbeddingDimensionMismatch();

@@ -26,10 +26,16 @@ vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
     ...actual,
-  useSearchParams: () => new URLSearchParams(),
-  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn(), back: vi.fn(), forward: vi.fn() }),
-  usePathname: () => "",
-  redirect: vi.fn(),
+    useSearchParams: () => {
+      const query = window.location.search.startsWith("?")
+        ? window.location.search.slice(1)
+        : window.location.search;
+
+      return new URLSearchParams(query);
+    },
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn(), back: vi.fn(), forward: vi.fn() }),
+    usePathname: () => "/architecture/reviews/new",
+    redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
   };
@@ -54,9 +60,14 @@ vi.mock("@/lib/api", () => ({
   }),
 }));
 
+import "./new-run-wizard-test-helpers";
+
 import { NewRunWizardClient } from "./NewRunWizardClient";
-import { optIntoAdvancedNewRunWizardConfiguration } from "./new-run-wizard-test-helpers";
-import { buildWizardSessionStorageKey, WIZARD_SESSION_IDS } from "@/lib/wizard-session-persistence";
+import {
+  NEW_RUN_WIZARD_SYSTEM_NAME_LABEL,
+  optIntoAdvancedNewRunWizardConfiguration,
+  prepareNewRunWizardVitestHarness,
+} from "./new-run-wizard-test-helpers";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 
 const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
@@ -143,7 +154,7 @@ async function selectGreenfieldPreset() {
   });
 
   await waitFor(() => {
-    expect(progressLine()).toHaveTextContent(/Step 2: Evidence \(optional\)/);
+    expect(progressLine()).toHaveTextContent(/Step 2: Add evidence \(optional\)/);
   });
 }
 
@@ -159,8 +170,8 @@ async function selectGreenfieldAndSkipEvidence() {
 describe("NewRunWizardClient", { timeout: 60_000 }, () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    prepareNewRunWizardVitestHarness();
     window.localStorage.removeItem(WIZARD_MODE_STORAGE_KEY);
-    window.sessionStorage.removeItem(buildWizardSessionStorageKey(WIZARD_SESSION_IDS.reviewsNewTemplates));
     vi.stubGlobal(
       "fetch",
       vi.fn(async (input: RequestInfo | URL) => {
@@ -250,13 +261,13 @@ describe("NewRunWizardClient", { timeout: 60_000 }, () => {
     await renderNewRunWizard();
 
     await clickPrimaryForward();
-    expect(progressLine()).toHaveTextContent(/Step 2: Evidence \(optional\)/);
+    expect(progressLine()).toHaveTextContent(/Step 2: Add evidence \(optional\)/);
 
     await clickPrimaryForward();
     expect(progressLine()).toHaveTextContent(/Step 3: Identity & goals/);
 
     fireEvent.click(screen.getByRole("button", { name: "Back" }));
-    expect(progressLine()).toHaveTextContent(/Step 2: Evidence \(optional\)/);
+    expect(progressLine()).toHaveTextContent(/Step 2: Add evidence \(optional\)/);
   });
 
   it("blocks Next and shows an inline system name error when required field is empty", async () => {
@@ -264,15 +275,16 @@ describe("NewRunWizardClient", { timeout: 60_000 }, () => {
 
     await selectGreenfieldAndSkipEvidence();
 
-    const systemName = screen.getByLabelText("System name");
+    const systemName = screen.getByLabelText(NEW_RUN_WIZARD_SYSTEM_NAME_LABEL);
     fireEvent.change(systemName, { target: { value: "" } });
     fireEvent.blur(systemName);
 
     await clickPrimaryForward();
 
     expect(progressLine()).toHaveTextContent(/Step 3: Identity & goals/);
-    const alert = await screen.findByRole("alert");
-    expect(alert).toHaveTextContent(/Required/i);
+    await waitFor(() => {
+      expect(document.getElementById("err-wizard-systemName")).toHaveTextContent(/System name is required/i);
+    });
   });
 
   it("clears the system name error when the user types", async () => {
@@ -280,14 +292,17 @@ describe("NewRunWizardClient", { timeout: 60_000 }, () => {
 
     await selectGreenfieldAndSkipEvidence();
 
-    const systemName = screen.getByLabelText("System name");
+    const systemName = screen.getByLabelText(NEW_RUN_WIZARD_SYSTEM_NAME_LABEL);
     fireEvent.change(systemName, { target: { value: "" } });
     fireEvent.blur(systemName);
-    expect(await screen.findByRole("alert")).toBeInTheDocument();
+    await clickPrimaryForward();
+    await waitFor(() => {
+      expect(document.getElementById("err-wizard-systemName")).toBeInTheDocument();
+    });
 
     fireEvent.change(systemName, { target: { value: "Ab" } });
     await waitFor(() => {
-      expect(screen.queryByRole("alert")).toBeNull();
+      expect(document.getElementById("err-wizard-systemName")).toBeNull();
     });
   });
 
@@ -319,7 +334,9 @@ describe("NewRunWizardClient", { timeout: 60_000 }, () => {
     await clickPrimaryForward();
 
     expect(progressLine()).toHaveTextContent(/Step 3: Identity & goals/);
-    expect(await screen.findByRole("alert")).toHaveTextContent(/valid uuid/i);
+    await waitFor(() => {
+      expect(document.getElementById("err-wizard-priorManifest")).toHaveTextContent(/valid uuid/i);
+    });
   });
 
   it("blocks Next on description when narrative is shorter than the minimum length", async () => {
@@ -334,7 +351,9 @@ describe("NewRunWizardClient", { timeout: 60_000 }, () => {
     await clickPrimaryForward();
 
     expect(progressLine()).toHaveTextContent(/Step 3: Identity & goals/);
-    expect(await screen.findByRole("alert")).toHaveTextContent(/at least 10 characters/i);
+    await waitFor(() => {
+      expect(document.getElementById("err-wizard-description")).toHaveTextContent(/at least 10 characters/i);
+    });
   });
 
   afterEach(() => {

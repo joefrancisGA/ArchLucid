@@ -4,7 +4,8 @@ import { cn } from "@/lib/utils";
 import { Lock, LockOpen } from "lucide-react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { buildReviewWorkspaceRouteHref } from "@/lib/architecture/review-workspace-route";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorEmptyState, OperatorLoadingNotice, OperatorWarningCallout } from "@/components/operator/OperatorShellMessage";
@@ -61,7 +62,7 @@ export function TechnologyBaselinePanel({
   usedStaticDemoRun,
   warningCountDisplay,
 }: TechnologyBaselinePanelProps): React.JSX.Element {
-  const pathname = usePathname() ?? `/architecture/reviews/${encodeURIComponent(runId)}`;
+  const pathname = usePathname() ?? buildReviewWorkspaceRouteHref({ runId });
   const searchParams = useSearchParams();
   const urlTechEntryFromSearch = parseTechnologyBaselineEntryIdFromSearch(
     searchParams.get(TECHNOLOGY_BASELINE_ENTRY_PARAM),
@@ -77,11 +78,11 @@ export function TechnologyBaselinePanel({
   const syncOpenEvidenceRefEntryIdToUrl = useCallback(
     (entryId: string | null) => {
       commitHrefIfChanged(
-        technologyBaselineEvidenceRefDisclosureHrefFromSearch(readWindowLocationSearch(), entryId, pathname),
+        technologyBaselineEvidenceRefDisclosureHrefFromSearch(searchParams.toString(), entryId, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setOpenEvidenceRefEntryId = useCallback(
@@ -112,11 +113,11 @@ export function TechnologyBaselinePanel({
   const syncTechEntryToUrl = useCallback(
     (entryId: string | null) => {
       commitHrefIfChanged(
-        technologyBaselineRationaleHrefFromSearch(readWindowLocationSearch(), entryId, pathname),
+        technologyBaselineRationaleHrefFromSearch(searchParams.toString(), entryId, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setRationaleDialogEntry = useCallback(
@@ -166,7 +167,13 @@ export function TechnologyBaselinePanel({
   }, [urlEvidenceRefFromSearch]);
 
   useEffect(() => {
-    if (urlTechEntryId.length === 0 || entries.length === 0) {
+    if (entries.length === 0) {
+      return;
+    }
+
+    if (urlTechEntryId.length === 0) {
+      setRationaleDialogEntryState((current) => (current === null ? current : null));
+
       return;
     }
 
@@ -174,6 +181,8 @@ export function TechnologyBaselinePanel({
 
     if (matched !== null) {
       setRationaleDialogEntryState(matched);
+    } else {
+      setRationaleDialogEntryState((current) => (current === null ? current : null));
     }
   }, [entries, urlTechEntryId]);
 

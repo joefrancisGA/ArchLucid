@@ -365,6 +365,41 @@ describe("useFirstPilotIntakeWizard prior-run prefill", () => {
 
     expect(result.current.inheritedPriorTitle).toBe("Second review inherited title");
   });
+
+  it("prefills the run title from the new prior run when rerun= changes after the first title loaded", async () => {
+    useRunSummaryQuery.mockImplementation((runId: string) => {
+      if (runId === "run-first") {
+        return { data: { displayName: "First inherited title", description: null } };
+      }
+
+      if (runId === "run-second") {
+        return { data: { displayName: "Second inherited title", description: null } };
+      }
+
+      return { data: undefined };
+    });
+
+    scopeGateSearchParamsHarness.state.query =
+      "intent=revised-clone&rerun=run-first&priorRunId=run-first";
+
+    const { result, rerender } = renderHook(() => useFirstPilotIntakeWizard({}), {
+      wrapper: ScopeGateSearchParamsRerenderHost,
+    });
+
+    await waitFor(() => {
+      expect(result.current.runTitle).toBe("First inherited title");
+    });
+
+    scopeGateSearchParamsHarness.applyHref(
+      "/architecture/reviews/new?intent=revised-clone&rerun=run-second&priorRunId=run-second",
+    );
+    rerender();
+
+    await waitFor(() => {
+      expect(result.current.runTitle).toBe("Second inherited title");
+      expect(result.current.inheritedPriorTitle).toBe("Second inherited title");
+    });
+  });
 });
 
 describe("useFirstPilotIntakeWizard scope gate URL sync", () => {

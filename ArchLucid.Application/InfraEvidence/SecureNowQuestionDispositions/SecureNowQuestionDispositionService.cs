@@ -210,7 +210,7 @@ public sealed class SecureNowQuestionDispositionService(
             Status = SecureNowQuestionDispositionStatus.Open,
             AnswerCode = null,
             AnswerText = null,
-            Reason = existing.Reason,
+            Reason = string.Empty,
             ExpirationUtc = existing.ExpirationUtc > now
                 ? existing.ExpirationUtc
                 : now.Add(MaximumDispositionLifetime),

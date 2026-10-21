@@ -44,6 +44,32 @@ public sealed class PixelDiagramIntakeStubDetectorTests
     }
 
     [Fact]
+    public void TryDetect_ReturnsFalse_WhenStructuredDiagramJsonRootIsNotAnObject()
+    {
+        ContextDocumentReference arrayRoot = new()
+        {
+            Name = "topology.diagram.json",
+            ContentType = SupportedContextDocumentContentTypes.StructuredDiagramJson,
+            Content = "[]",
+        };
+
+        PixelDiagramIntakeStubDetector.TryDetect(arrayRoot, out PixelDiagramIntakeStubMetadata _)
+            .Should()
+            .BeFalse();
+
+        ContextDocumentReference scalarRoot = new()
+        {
+            Name = "topology.diagram.json",
+            ContentType = SupportedContextDocumentContentTypes.StructuredDiagramJson,
+            Content = "\"not-an-object\"",
+        };
+
+        PixelDiagramIntakeStubDetector.TryDetect(scalarRoot, out PixelDiagramIntakeStubMetadata _)
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
     public void TryDetect_ReturnsTrue_ForPixelStub_WhenContentTypeIncludesCharsetParameter()
     {
         ContextDocumentReference document = new()

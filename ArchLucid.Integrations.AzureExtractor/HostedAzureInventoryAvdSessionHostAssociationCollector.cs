@@ -13,7 +13,7 @@ public static class HostedAzureInventoryAvdSessionHostAssociationCollector
 {
     private const string SessionHostsApiVersion = "2024-04-03";
 
-    public static async Task<IReadOnlyList<HostedAzureArmNetworkAssociationRecord>> CollectAsync(
+    public static async Task<HostedAzureInventoryAvdSessionHostAssociationCollectResult> CollectAsync(
         GetOnlyHostedAzureArmReadClient armReadClient,
         string accessToken,
         IReadOnlyList<HostedAzureArmResourceRecord> resources,
@@ -26,6 +26,7 @@ public static class HostedAzureInventoryAvdSessionHostAssociationCollector
         ArgumentNullException.ThrowIfNull(logger);
 
         List<HostedAzureArmNetworkAssociationRecord> rows = [];
+        List<string> collectionWarnings = [];
         HashSet<string> seenKeys = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (HostedAzureArmResourceRecord resource in resources)
@@ -40,7 +41,7 @@ public static class HostedAzureInventoryAvdSessionHostAssociationCollector
 
             try
             {
-                IReadOnlyList<JsonElement> sessionHosts = await armReadClient.ListChildJsonElementsAsync(
+                HostedAzureArmChildCollectionReadResult listResult = await armReadClient.ListChildJsonElementsAsync(
                     accessToken,
                     resource.ResourceId.Trim(),
                     "sessionHosts",
@@ -48,7 +49,15 @@ public static class HostedAzureInventoryAvdSessionHostAssociationCollector
                     "AVD session host",
                     cancellationToken).ConfigureAwait(false);
 
-                foreach (JsonElement sessionHost in sessionHosts)
+                HostedAzureInventoryChildListPartialEnumeration.NotePartialCollection(
+                    logger,
+                    listResult,
+                    resource.ResourceId.Trim(),
+                    "AVD session host",
+                    collectionWarnings,
+                    AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
+
+                foreach (JsonElement sessionHost in listResult.Values)
                 {
                     if (!AzureInventoryAvdSessionHostAssociationExtractor.TryExtractFromJsonElement(
                             sessionHost,
@@ -73,7 +82,11 @@ public static class HostedAzureInventoryAvdSessionHostAssociationCollector
             }
         }
 
-        return rows;
+        return new HostedAzureInventoryAvdSessionHostAssociationCollectResult
+        {
+            Associations = rows,
+            CollectionWarnings = collectionWarnings,
+        };
     }
 
     private static void AddRow(

@@ -20859,6 +20859,10 @@
             "format": "int64",
             "type": "integer"
           },
+          "reasoningTokens": {
+            "format": "int64",
+            "type": "integer"
+          },
           "runId": {
             "type": "string"
           }

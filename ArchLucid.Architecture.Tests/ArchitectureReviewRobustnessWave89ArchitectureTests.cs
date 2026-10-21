@@ -18,7 +18,6 @@ public sealed class ArchitectureReviewRobustnessWave89ArchitectureTests
         string runsExportGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsExportController.SealedManifestGuard.cs");
         string architectureExportGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ArchitectureExportController.SealedManifestGuard.cs");
         string coverageGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceCoverageController.SealedManifestGuard.cs");
-        string postureGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernancePostureController.SealedManifestGuard.cs");
         string previewGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernancePreviewController.SealedManifestGuard.cs");
         string retrievalGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/RetrievalController.SealedManifestGuard.cs");
         string feedbackGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/FindingFeedbackController.SealedManifestGuard.cs");
@@ -26,7 +25,10 @@ public sealed class ArchitectureReviewRobustnessWave89ArchitectureTests
         runsExportGuard.Should().Contain("MapRunsExportSealedManifestConflict");
         architectureExportGuard.Should().Contain("MapArchitectureExportSealedManifestConflict");
         coverageGuard.Should().Contain("MapGovernanceCoverageSealedManifestConflict");
-        postureGuard.Should().Contain("MapGovernancePostureSealedManifestConflict");
+        ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs")
+            .Should().Contain("ConflictProblem");
+        ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Http/Governance/GovernanceScopePostureSealedManifestEndpointCatalog.cs")
+            .Should().Contain("GovernancePostureController\", \"GetPosture\", GovernanceScopePostureSealedManifestClassification.EnforcedInApplicationLayer");
         previewGuard.Should().Contain("MapGovernancePreviewSealedManifestConflict");
         retrievalGuard.Should().Contain("MapRetrievalSealedManifestConflict");
         feedbackGuard.Should().Contain("MapFindingFeedbackSealedManifestConflict");

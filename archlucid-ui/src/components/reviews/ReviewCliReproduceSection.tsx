@@ -8,7 +8,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import {
   REVIEW_CLI_REPRODUCE_OPEN_PARAM,
   parseReviewCliReproduceOpenFromSearch,
@@ -39,11 +39,11 @@ export function ReviewCliReproduceSection({
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
       commitHrefIfChanged(
-        reviewCliReproduceDisclosureHrefFromSearch(readWindowLocationSearch(), detailsOpen, pathname),
+        reviewCliReproduceDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setOpen = useCallback(

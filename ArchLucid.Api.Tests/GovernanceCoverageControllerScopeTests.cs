@@ -1,5 +1,6 @@
 using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Models.Coverage;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Application.Governance.Coverage;
@@ -397,6 +398,59 @@ public sealed class GovernanceCoverageControllerScopeTests
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
         preview.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task GetScopeCoverage_reaches_query_service_when_scope_posture_sealed_manifest_would_conflict()
+    {
+        Guid committedRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        CoverageSummary summary = new() { Assignments = [] };
+
+        Mock<ICoverageQueryService> coverage = new(MockBehavior.Strict);
+        coverage
+            .Setup(service => service.GetByScopeAsync(Scope, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(summary);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(service => service.ListRunSummariesKeysetAsync(
+                It.IsAny<string?>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            (
+                new[]
+                {
+                    new RunSummary
+                    {
+                        RunId = committedRunId.ToString("D"),
+                        Status = nameof(ArchitectureRunStatus.Committed),
+                    },
+                },
+                false,
+                (string?)null));
+
+        GovernanceCoverageController controller = new(
+            coverage.Object,
+            Mock.Of<ICoveragePreviewService>(),
+            Mock.Of<IPolicyPackRepository>(),
+            scopeProvider.Object,
+            TenantExistsRepository(),
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun("stored-hash"),
+            SealedManifestHashTestSupport.CreateManifestHashService("computed-hash"),
+            runDetails.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult action = await controller.GetScopeCoverage(CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        coverage.VerifyAll();
     }
 
     [Fact]

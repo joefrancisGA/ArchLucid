@@ -1,3 +1,4 @@
+using ArchLucid.Api.Security;
 using ArchLucid.Core.ProductCapability;
 
 using Microsoft.AspNetCore.Authorization;
@@ -15,6 +16,9 @@ internal static class ProductLineRouteGatePathClassifier
         ArgumentNullException.ThrowIfNull(catalog);
 
         string path = context.Request.Path.Value ?? string.Empty;
+
+        if (ApiPathSkipSafety.BlocksPathBasedSkip(path))
+            return false;
 
         if (path.Length == 0)
         {

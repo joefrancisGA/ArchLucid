@@ -29,7 +29,7 @@ import {
   workspaceAiAvailableDetail,
   workspaceAiUnavailableDetail,
 } from "@/lib/workspace-ai-availability";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import { cn } from "@/lib/utils";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -349,11 +349,11 @@ function WorkspaceAiProbeDiagnostics(props: {
   const syncDebugMetadataOpenToUrl = useCallback(
     (open: boolean) => {
       commitHrefIfChanged(
-        workspaceAiProbeDebugMetadataDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        workspaceAiProbeDebugMetadataDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
   const setDebugMetadataOpen = useCallback(
     (open: boolean) => {
@@ -498,11 +498,11 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
   const syncProbeDiagnosticsOpenToUrl = useCallback(
     (open: boolean) => {
       commitHrefIfChanged(
-        workspaceAiProbeDiagnosticsDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        workspaceAiProbeDiagnosticsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setProbeDiagnosticsOpen = useCallback(

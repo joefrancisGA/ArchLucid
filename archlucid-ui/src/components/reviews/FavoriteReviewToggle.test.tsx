@@ -1,5 +1,16 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("@/hooks/use-operate-capability", () => ({
+  useOperateCapability: () => false,
+}));
+
+vi.mock("@/hooks/use-review-pin-mutation", () => ({
+  useReviewPinMutation: () => ({
+    pinBusyRunId: null,
+    setRunPinned: vi.fn(async () => true),
+  }),
+}));
 
 import { FavoriteReviewToggle } from "@/components/reviews/FavoriteReviewToggle";
 import {

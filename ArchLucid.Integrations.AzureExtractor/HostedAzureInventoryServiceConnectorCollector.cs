@@ -15,7 +15,7 @@ public static class HostedAzureInventoryServiceConnectorCollector
 
     private const string ServiceLinkerChildCollection = "providers/Microsoft.ServiceLinker/linkers";
 
-    public static async Task<IReadOnlyList<AzureInventoryServiceConnectorLinkRow>> CollectAsync(
+    public static async Task<HostedAzureInventoryServiceConnectorCollectResult> CollectAsync(
         GetOnlyHostedAzureArmReadClient armReadClient,
         string accessToken,
         IReadOnlyList<HostedAzureArmResourceRecord> resources,
@@ -28,6 +28,7 @@ public static class HostedAzureInventoryServiceConnectorCollector
         ArgumentNullException.ThrowIfNull(logger);
 
         List<AzureInventoryServiceConnectorLinkRow> rows = [];
+        List<string> collectionWarnings = [];
         HashSet<string> seenKeys = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (HostedAzureArmResourceRecord resource in resources)
@@ -40,7 +41,7 @@ public static class HostedAzureInventoryServiceConnectorCollector
 
             try
             {
-                IReadOnlyList<JsonElement> linkers = await armReadClient.ListChildJsonElementsAsync(
+                HostedAzureArmChildCollectionReadResult listResult = await armReadClient.ListChildJsonElementsAsync(
                     accessToken,
                     resource.ResourceId.Trim(),
                     ServiceLinkerChildCollection,
@@ -48,7 +49,15 @@ public static class HostedAzureInventoryServiceConnectorCollector
                     "Service Connector linker",
                     cancellationToken).ConfigureAwait(false);
 
-                AddLinkers(resource.ResourceId.Trim(), linkers, rows, seenKeys);
+                HostedAzureInventoryChildListPartialEnumeration.NotePartialCollection(
+                    logger,
+                    listResult,
+                    resource.ResourceId.Trim(),
+                    "Service Connector linker",
+                    collectionWarnings,
+                    AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
+
+                AddLinkers(resource.ResourceId.Trim(), listResult.Values, rows, seenKeys);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
@@ -62,7 +71,11 @@ public static class HostedAzureInventoryServiceConnectorCollector
             }
         }
 
-        return rows;
+        return new HostedAzureInventoryServiceConnectorCollectResult
+        {
+            Links = rows,
+            CollectionWarnings = collectionWarnings,
+        };
     }
 
     private static bool IsServiceConnectorParentResourceType(string resourceType)

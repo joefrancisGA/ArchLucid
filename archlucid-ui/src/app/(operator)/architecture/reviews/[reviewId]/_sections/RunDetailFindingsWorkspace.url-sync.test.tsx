@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { createElement, useSyncExternalStore, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -89,6 +89,44 @@ describe("RunDetailFindingsWorkspace URL sync", () => {
     window.history.replaceState({}, "", "/architecture/reviews/run-1?reviewTab=findings");
   });
 
+  it("writes classification band from useSearchParams when window.location.search lags after soft navigation", async () => {
+    const findings = [
+      finding({
+        findingId: "f-checklist",
+        classification: "ChecklistFinding",
+        severityValue: 1,
+        findingOrder: 0,
+      }),
+    ];
+
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-1?reviewTab=findings&q=stale-payment",
+    );
+
+    const { rerender } = render(
+      <SearchParamsRerenderHost>
+        <RunDetailFindingsWorkspace runId="run-1" findings={findings} packageCommitted={true} />
+      </SearchParamsRerenderHost>,
+    );
+
+    searchParamsHarness.applyQuery("reviewTab=findings");
+    rerender(
+      <SearchParamsRerenderHost>
+        <RunDetailFindingsWorkspace runId="run-1" findings={findings} packageCommitted={true} />
+      </SearchParamsRerenderHost>,
+    );
+
+    fireEvent.click(screen.getByTestId("run-detail-findings-band-checklist"));
+
+    await waitFor(() => {
+      expect(window.location.pathname + window.location.search).toBe(
+        `/architecture/reviews/run-1?reviewTab=findings&${REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM}=checklist`,
+      );
+    });
+  });
+
   it("follows findingsBand query changes without a popstate event", async () => {
     const findings = [
       finding({
@@ -121,6 +159,45 @@ describe("RunDetailFindingsWorkspace URL sync", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("run-detail-findings-band-checklist")).toHaveAttribute("aria-selected", "true");
+    });
+  });
+
+  it("resets classification band from useSearchParams when runId changes before window.location.search catches up", async () => {
+    const findings = [
+      finding({
+        findingId: "f-checklist",
+        classification: "ChecklistFinding",
+        severityValue: 1,
+        findingOrder: 0,
+      }),
+    ];
+
+    searchParamsHarness.applyQuery(`reviewTab=findings&${REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM}=checklist`);
+    window.history.replaceState(
+      {},
+      "",
+      `/architecture/reviews/run-1?reviewTab=findings&${REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM}=checklist`,
+    );
+
+    const { rerender } = render(
+      <SearchParamsRerenderHost>
+        <RunDetailFindingsWorkspace runId="run-1" findings={findings} packageCommitted={true} />
+      </SearchParamsRerenderHost>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("run-detail-findings-band-checklist")).toHaveAttribute("aria-selected", "true");
+    });
+
+    searchParamsHarness.applyQuery("reviewTab=findings");
+    rerender(
+      <SearchParamsRerenderHost>
+        <RunDetailFindingsWorkspace runId="run-2" findings={findings} packageCommitted={true} />
+      </SearchParamsRerenderHost>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("run-detail-findings-band-decision-grade")).toHaveAttribute("aria-selected", "true");
     });
   });
 });

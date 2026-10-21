@@ -91,7 +91,9 @@ public sealed partial class DapperScimUserRepository
                            SELECT u.Id, u.TenantId, u.ExternalId, u.UserName, u.DisplayName, u.Active, u.ResolvedRole,
                                   u.ResolvedRoleOrigin, u.DirectoryRemovedUtc, u.CreatedUtc, u.UpdatedUtc
                            FROM dbo.ScimUsers u
-                           WHERE u.TenantId = @TenantId AND u.ExternalId = @ExternalId;
+                           WHERE u.TenantId = @TenantId
+                             AND u.ExternalId = @ExternalId
+                             AND u.ExternalId COLLATE Latin1_General_CS_AS = @ExternalId COLLATE Latin1_General_CS_AS;
                            """;
 
         UserRow? row = await connection.QuerySingleOrDefaultAsync<UserRow>(
@@ -109,14 +111,14 @@ public sealed partial class DapperScimUserRepository
         ArgumentException.ThrowIfNullOrWhiteSpace(userName);
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        // LOWER matches RFC 7644 case-insensitive string compare even when the database collation is case-sensitive.
+        // userName is RFC 7643 caseExact=false; database default CI collation keeps this sargable on IX_ScimUsers_TenantId_UserName.
         const string sql = """
                            SELECT TOP (1) u.Id, u.TenantId, u.ExternalId, u.UserName, u.DisplayName, u.Active, u.ResolvedRole,
                                   u.ResolvedRoleOrigin, u.DirectoryRemovedUtc, u.CreatedUtc, u.UpdatedUtc
                            FROM dbo.ScimUsers u
                            WHERE u.TenantId = @TenantId
                              AND u.DirectoryRemovedUtc IS NULL
-                             AND LOWER(u.UserName) = LOWER(@UserName);
+                             AND u.UserName = @UserName;
                            """;
 
         UserRow? row = await connection.QuerySingleOrDefaultAsync<UserRow>(

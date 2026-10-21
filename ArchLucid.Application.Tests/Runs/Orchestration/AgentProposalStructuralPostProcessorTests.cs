@@ -1,7 +1,10 @@
+using System.Text.Json;
+
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Serialization;
 
 using FluentAssertions;
 
@@ -409,5 +412,48 @@ public sealed class AgentProposalStructuralPostProcessorTests
 
         proposal.AddedRelationships.Should().ContainSingle();
         proposal.AddedRelationships![0].TargetId.Should().Be("svc-sql");
+    }
+
+    [Fact]
+    public void ApplyToProposal_skips_null_added_service_entry_from_deserialized_proposal()
+    {
+        const string json = """
+            {
+              "proposalId": "p1",
+              "sourceAgent": 1,
+              "addedServices": [null]
+            }
+            """;
+
+        AgentTopologyProposal proposal = JsonSerializer.Deserialize<AgentTopologyProposal>(json, ContractJson.Default)!;
+
+        AgentProposalStructuralPostProcessor.ApplyToProposal(AgentType.Topology, proposal);
+
+        proposal.AddedServices.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ApplyToResults_skips_null_agent_result_entry()
+    {
+        AgentResult valid = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+            },
+        };
+
+        AgentProposalStructuralPostProcessor.ApplyToResults([null!, valid]);
+
+        valid.ProposedChanges!.AddedServices.Should().ContainSingle();
     }
 }

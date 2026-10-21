@@ -50,6 +50,16 @@ export type GovernanceFindingQueueRow = {
   semanticSupportBand?: FindingSemanticSupportBandValue | null;
 };
 
+/** Queue rows without a stored review id must not link into review-scoped finding surfaces. */
+export function governanceFindingQueueRowHasStoredRunId(row: GovernanceFindingQueueRow): boolean {
+  return row.runId.trim().length > 0;
+}
+
+/** Optional API policy rule keys must be non-empty after trim before traceability chrome renders. */
+export function governanceFindingQueueRowHasPolicyRuleId(row: GovernanceFindingQueueRow): boolean {
+  return row.policyRuleId != null && row.policyRuleId.trim().length > 0;
+}
+
 export function formatGovernanceQueueRecordKind(
   kind: GovernanceFindingQueueRecordKind,
   buyerPolishedShell: boolean,

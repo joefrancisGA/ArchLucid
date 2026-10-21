@@ -8,6 +8,7 @@ import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { aiUsageGroupByHrefFromSearch } from "@/lib/administration/ai-usage-dashboard-filter-url";
 import type { AiUsageBreakdownRow } from "@/lib/ai-usage-dashboard-model";
+import { measurableLlmTokens } from "@/lib/llm-cost-reporting";
 import type { AiUsageBreakdownGroupBy } from "@/lib/ai-usage-dashboard-filters";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -108,7 +109,7 @@ export function AiUsageCostBreakdownPanel(props: Props) {
                       {row.usageCount.toLocaleString()}
                     </EnterpriseTableCell>
                     <EnterpriseTableCell className={cn("font-mono tabular-nums text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
-                      {(row.promptTokens + row.completionTokens).toLocaleString()}
+                      {measurableLlmTokens(row).toLocaleString()}
                     </EnterpriseTableCell>
                     <EnterpriseTableCell className="tabular-nums text-al-text-primary">
                       {formatCostReportingEstimatedUsd(row.estimatedCostUsd, props.currency)}

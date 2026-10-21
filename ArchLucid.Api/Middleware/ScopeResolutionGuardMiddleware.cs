@@ -50,7 +50,12 @@ internal sealed class ScopeResolutionGuardMiddleware(
 
     private static bool ShouldSkip(HttpContext context)
     {
-        PathString pathString = NormalizeProbePath(context.Request.Path);
+        PathString rawPath = context.Request.Path;
+
+        if (ApiPathSkipSafety.BlocksPathBasedSkip(rawPath.Value))
+            return false;
+
+        PathString pathString = NormalizeProbePath(rawPath);
         string path = pathString.Value ?? string.Empty;
 
         if (path.Contains("/internal/", StringComparison.OrdinalIgnoreCase))

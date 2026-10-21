@@ -34,9 +34,11 @@ public static partial class TopologyProposalRelationshipEndpointIndex
         AddEndpointKey(endpointKeys, node.NodeId);
 
         // "ProposedChanges" is a provenance sentinel shared by every topology-agent node, not an architecture endpoint.
+
         if (!TopologyProposalGraphNodeMatchers.IsAgentProposedSourceSentinel(node.SourceId))
         {
             AddEndpointKey(endpointKeys, node.SourceId);
+            AddCanonicalTerraformInstanceKeyEndpointKey(endpointKeys, node.SourceId);
             TopologyProposalTerraformSourceIdHeuristics.AddTerraformLeafResourceAddressKeys(endpointKeys, node.SourceId);
         }
 
@@ -58,6 +60,12 @@ public static partial class TopologyProposalRelationshipEndpointIndex
         if (!TopologyProposalGraphNodeMatchers.IsAgentProposedSourceSentinel(node.SourceId))
         {
             AddResolutionAlias(endpointKeyToNodeId, node.SourceId, node.NodeId);
+            string sourceId = node.SourceId ?? string.Empty;
+            string canonicalSourceId = CanonicalizeTerraformEndpointReferenceForLookup(sourceId);
+
+            if (!string.Equals(canonicalSourceId, sourceId, StringComparison.OrdinalIgnoreCase))
+                AddResolutionAlias(endpointKeyToNodeId, canonicalSourceId, node.NodeId);
+
             TopologyProposalTerraformSourceIdHeuristics.AddTerraformLeafResourceAddressResolutionAliases(
                 endpointKeyToNodeId,
                 node.SourceId,
@@ -81,12 +89,83 @@ public static partial class TopologyProposalRelationshipEndpointIndex
     internal static string? TrimManifestEndpointValue(string? value) =>
         string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 
+    /// <summary>
+    ///     Single entry point for Terraform address comparisons in topology merge (instance-key quote normalization).
+    /// </summary>
+    internal static string CanonicalizeTerraformEndpointReferenceForLookup(string value) =>
+        TerraformAzurermResourceTypeParser.CanonicalizeTerraformAddressForLookup(value.Trim());
+
+    internal static bool ManifestEndpointReferencesEqual(string? left, string? right)
+    {
+        if (left is null || right is null)
+            return false;
+
+        if (string.Equals(left, right, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return string.Equals(
+            CanonicalizeTerraformEndpointReferenceForLookup(left),
+            CanonicalizeTerraformEndpointReferenceForLookup(right),
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    internal static bool DeclaredEndpointKeySetContains(HashSet<string> declaredEndpointKeys, string? endpoint)
+    {
+        if (string.IsNullOrWhiteSpace(endpoint))
+            return false;
+
+        string trimmed = endpoint.Trim();
+
+        if (declaredEndpointKeys.Contains(trimmed))
+            return true;
+
+        string canonical = CanonicalizeTerraformEndpointReferenceForLookup(trimmed);
+
+        if (!string.Equals(canonical, trimmed, StringComparison.OrdinalIgnoreCase)
+            && declaredEndpointKeys.Contains(canonical))
+        {
+            return true;
+        }
+
+        string? normalizedIdentity =
+            TopologyProposalTerraformSourceIdHeuristics.TryNormalizeTerraformEndpointIdentity(trimmed);
+
+        return normalizedIdentity is not null && declaredEndpointKeys.Contains(normalizedIdentity);
+    }
+
     internal static void AddEndpointKey(HashSet<string> knownEndpointKeys, string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
             return;
 
         knownEndpointKeys.Add(value.Trim());
+    }
+
+    internal static void AddCanonicalTerraformInstanceKeyEndpointKey(HashSet<string> knownEndpointKeys, string? terraformSourceId)
+    {
+        if (string.IsNullOrWhiteSpace(terraformSourceId))
+            return;
+
+        string trimmed = terraformSourceId.Trim();
+        string canonical = CanonicalizeTerraformEndpointReferenceForLookup(trimmed);
+
+        if (!string.Equals(canonical, trimmed, StringComparison.OrdinalIgnoreCase))
+            knownEndpointKeys.Add(canonical);
+    }
+
+    internal static void AddCanonicalTerraformInstanceKeyResolutionAlias(
+        Dictionary<string, string> aliasToNodeId,
+        string? terraformSourceId,
+        string nodeId)
+    {
+        if (string.IsNullOrWhiteSpace(terraformSourceId))
+            return;
+
+        string trimmed = terraformSourceId.Trim();
+        string canonical = CanonicalizeTerraformEndpointReferenceForLookup(trimmed);
+
+        if (!string.Equals(canonical, trimmed, StringComparison.OrdinalIgnoreCase))
+            AddResolutionAlias(aliasToNodeId, canonical, nodeId);
     }
 
     internal static void AddResolutionAlias(Dictionary<string, string> aliasToNodeId, string? endpointKey, string nodeId)
