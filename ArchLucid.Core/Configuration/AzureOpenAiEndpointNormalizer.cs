@@ -14,6 +14,7 @@ public static class AzureOpenAiEndpointNormalizer
         ArgumentException.ThrowIfNullOrWhiteSpace(endpoint);
 
         string trimmed = endpoint.Trim();
+        trimmed = EnsureHttpsSchemeWhenMissing(trimmed);
 
         if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri? uri))
             return EnsureTrailingSlash(trimmed);
@@ -30,6 +31,21 @@ public static class AzureOpenAiEndpointNormalizer
             return EnsureTrailingSlash(uri.GetLeftPart(UriPartial.Authority) + "/");
 
         return EnsureTrailingSlash(trimmed);
+    }
+
+    private static string EnsureHttpsSchemeWhenMissing(string value)
+    {
+        if (value.Contains("://", StringComparison.Ordinal))
+            return value;
+
+        if (value.Contains("openai.azure.com", StringComparison.OrdinalIgnoreCase)
+            || value.Contains("cognitiveservices.azure.com", StringComparison.OrdinalIgnoreCase)
+            || value.Contains("services.ai.azure.com", StringComparison.OrdinalIgnoreCase))
+        {
+            return "https://" + value;
+        }
+
+        return value;
     }
 
     private static string EnsureTrailingSlash(string value)

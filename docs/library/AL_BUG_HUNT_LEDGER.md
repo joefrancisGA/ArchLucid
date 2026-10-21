@@ -31041,7 +31041,9 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-09-26 seed hunt #31 (seed→hit): reseeded core-azure-extractor after workflow JSON reference hit; proved restore point collection `source.id` JSON reference gap; seeded route table explicit next-hop JSON reference candidate; 1397 scoped `AzureExtractor` tests passed.
 
 ---
-## Zone: core-configuration-summary2026-10-21 seed hunt (seed-only): re-read Configuration after AgentModelTiers/Deployments dictionary normalizer consolidation; saturated [class:other] blocks another trim-only hit; cheap-disproof closed five open stale candidates; no new hunt-ready row promoted; seeded five non-trim follow-on candidates; scoped Configuration sample 29 passed (RunAnalyzers=false).
+## Zone: core-configuration-summary
+2026-10-21 seed hunt (seed->hit): promoted AzureOpenAI endpoint without URL scheme; NormalizeForChatCompletions returned scheme-less host so new Uri(...) in completion client could not target Azure OpenAI; EnsureHttpsSchemeWhenMissing prepends https for Azure OpenAI host markers; regression NormalizeForChatCompletions_prepends_https_when_azure_openai_endpoint_omits_scheme; cheap-disproof closed five stale candidates; 4 AzureOpenAiEndpointNormalizer tests passed (RunAnalyzers=false).
+2026-10-21 seed hunt (seed-only): re-read Configuration after AgentModelTiers/Deployments dictionary normalizer consolidation; saturated [class:other] blocks another trim-only hit; cheap-disproof closed five open stale candidates; no new hunt-ready row promoted; seeded five non-trim follow-on candidates; scoped Configuration sample 29 passed (RunAnalyzers=false).
 2026-10-21 seed hunt (seed->hit): promoted AgentModelTierOptions.AgentTypeTiers whitespace-key parity; AgentModelTierResolver resolves AgentType.ToString() labels without trimming dictionary keys; AgentModelTierOptionsNormalizePostConfigure via shared key normalizer; regressions PostConfigure_trims_agent_type_tier_map_keys_from_configuration_binding and ResolveTierForAgent_uses_agent_type_mapping_when_config_key_has_bounding_whitespace; cheap-disproof closed five stale candidates (Stripe trim, Confluence TrimBound, FallbackLlm list, EmailOtp shared classifier, ValidAudiences verifier catch); 2 tests passed (RunAnalyzers=false).
 2026-10-21 seed hunt (seed->hit): promoted LlmCostEstimation Deployments whitespace-key parity; TryResolve trims deploymentLabel but bound dictionary keys did not; shared ConfigurationDictionaryBindingKeyNormalizer consolidates Billing/ByPlan/Deployments post-configure trim; regression TryResolve_uses_deployment_overlay_when_deployments_key_has_bounding_whitespace; cheap-disproof closed five prior candidates (Stripe price ids trim at checkout, Confluence TrimBound, FallbackLlm lists all rows, EmailOtp shares QuickScan production-like helper, ValidAudiences null handled in verifier catch); 7 normalization tests passed (RunAnalyzers=false).
 
@@ -31058,11 +31060,12 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 53
-- **bugs-found:** 35
+- **hunts:** 54
+- **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-21 — spaced ASCII comma/semicolon between phrase words
+- **last-bug:** 2026-10-21 - prepend https when AzureOpenAI endpoint omits scheme
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -31073,11 +31076,13 @@ Split from retired `archlucid-core` (ABQ-08).
 ### Hypotheses
 - [x] (proven) `LlmMonthlyTenantDollarBudgetOptionsNormalizePostConfigure` / `LlmMonthlyTenantDollarBudgetOptions.ByPlan` - configuration-bound ByPlan keys with bounding whitespace never matched trimmed tenant plan ids, so per-plan included/hard-cutoff USD overlays were skipped - **hit 2026-10-21 seed hunt (seed->hit):** post-configure trim on ByPlan keys; regression `ResolveHardCutoffUsdPerUtcMonth_uses_plan_overlay_when_by_plan_key_has_bounding_whitespace`. [class:other]
 
-- (candidate) `AzureMarketplaceBillingOptions.ValidAudiences` - null elements in bound ValidAudiences array may break marketplace webhook JWT validation - locus: validator/JWT handler; input: Billing:AzureMarketplace:ValidAudiences:1 null from appsettings.
-- (candidate) `StripeBillingOptions` - bounding whitespace on PriceIdTeam breaks Stripe price resolution - locus: checkout price lookup; input: Billing:Stripe:PriceIdTeam with surrounding spaces from configuration.
-- (candidate) `FallbackLlmConfigurationResolver` - endpoint rows whose deployment names differ only by surrounding spaces may collapse unpredictably - locus: resolver row selection; input: duplicate trim-colliding DeploymentName values in FallbackLlm:Endpoints.
-- (candidate) `EmailOtpAuthOptionsValidator` vs QuickScanSafetyProductionLikeHostClassification - production-like scope may disagree when ASP.NET environment is Development but ARCHLUCID_ENVIRONMENT=Staging - locus: host classification; input: staging slot profile.
-- (candidate) `ConfluencePublishingSpaceKeyResolver` - ProjectSpaceKeys values with bounding whitespace may bypass intended space mapping - locus: NormalizeSpaceKey; input: Integrations:ConfluencePublishing:ProjectSpaceKeys entry with surrounding spaces.
+- [x] (invalid) `AzureMarketplaceBillingOptions.ValidAudiences` null slot — no in-zone JWT validator; marketplace audience checks live outside Configuration/.
+- [x] (valid-no-repro) `StripeBillingOptions.PriceIdTeam` bounding whitespace — checkout paths trim Stripe price ids at use sites; not a Configuration-only lookup gap.
+- [x] (invalid) `FallbackLlmConfigurationResolver` deployment-name trim collapse — resolver trims each row independently; does not dedupe by deployment label.
+- [x] (valid-no-repro) `EmailOtpAuthOptionsValidator` vs QuickScan production-like scope — shared `QuickScanSafetyProductionLikeHostClassification` already wired (proven 2026-09-07).
+- [x] (valid-no-repro) `ConfluencePublishingSpaceKeyResolver` ProjectSpaceKeys whitespace — `Resolve` trims keys/values on read (proven null-trim 2026-10-09).
+- [x] (proven) `AzureOpenAiEndpointNormalizer.NormalizeForChatCompletions` — `AzureOpenAI:Endpoint` bound without `https://` left a scheme-less string so `new Uri(...)` in `AzureOpenAiCompletionClient` could not reach the resource — **hit 2026-10-21 seed hunt (seed->hit):** `EnsureHttpsSchemeWhenMissing` prepends `https://` for Azure OpenAI host markers; regression `NormalizeForChatCompletions_prepends_https_when_azure_openai_endpoint_omits_scheme`. [class:fail-open-validation]
+
 
 - [x] (proven) `BillingOptionsNormalizePostConfigure` / `AzureMarketplaceBillingOptions.PlanIdTierMap` — configuration-bound map keys with bounding whitespace never matched trimmed marketplace `planId` values, so Enterprise plans defaulted to Standard — **hit 2026-10-21 seed hunt (seed→hit):** post-configure trim on keys and tier values; regressions `PostConfigure_trims_plan_id_tier_map_keys_from_configuration_binding` and `ResolveTierStorageCode_maps_enterprise_when_plan_id_tier_map_key_has_bounding_whitespace`. [class:other]
 
