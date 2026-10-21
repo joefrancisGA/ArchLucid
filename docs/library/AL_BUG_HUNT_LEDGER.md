@@ -1,15 +1,4 @@
-2026-10-21 follow-up (hit): `cloud-extractors` — lane B; partial child enumeration for Event Grid, messaging, Service Connector, and AVD session hosts was only logged, not merged into hosted package `warnings` like PaaS `partial-child-enumeration`; collectors now return `CollectionWarnings`, diagram enrichment and subscription extract merge them into ZIP `warnings`; regression `CollectAsync_surfaces_partial_child_enumeration_when_event_grid_listing_is_partial`. Scoped Aws/Gcp/Azure extractor filter: 212 passed.
-
-- [x] (proven) AX-DE child collectors — partial ARM child lists omitted `partial-child-enumeration` from packaged warnings — **hit 2026-10-21 follow-up:** wire `CollectionWarnings` through diagram enrichment and AVD extract paths; regression above.
-
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
-
-2026-10-21 thorough hunt (dry): `topology-proposal-merge` — lane B; manual zone (picker host error on `property 'at'`); cheap-disproof closed four open `(candidate)` rows: critic bypass pre-registration (Critic uses overlay validation and shared `accumulatedEndpointKeys`), chained rename alias (`TryResolveNodeId` / index regressions), ARM-vs-rename consensus intersection (map lookup before ARM branch in `CanonicalizeConsensusRelationshipEndpoint`), topology extension on inventoried graph (`allowTopologyExtension` gated on agent-proposed topology nodes). No failing repro. Scoped merge/graph/edge-mapper/consensus filter: 2186 passed. No production change.
-
-- [x] (invalid) `AgentTopologyProposalMergeGate.FilterValidatedProposals` — critic batch bypasses endpoint pre-registration — **cheap-disproof 2026-10-21 lane B:** Critic is overlay-validated; merge order Topology→Cost→Compliance→Critic.
-- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — chained rename alias — **cheap-disproof 2026-10-21 lane B:** no failing repro; existing mapper/index coverage.
-- [x] (valid-no-repro) `TopologyProposalConsensusMerger.CanonicalizeConsensusRelationshipEndpoint` — ARM id vs rename label intersect — **cheap-disproof 2026-10-21 lane B:** canonical map consulted before ARM normalization.
-- [x] (invalid) `AgentTopologyProposalMergeGate.FilterValidatedProposals` — unsupported topology extension after overlay — **cheap-disproof 2026-10-21 lane B:** extension requires `HasAgentProposedTopologyNodes` or empty inventory.
 
 2026-10-21 seed hunt (seed→hit): `cloud-extractors` — lane B; promoted `ListChildJsonElementsAsync` dropping `partialCollection` from `ListJsonElementsAtRelativePathAsync` so Event Grid, messaging, AVD session hosts, and Service Connector child listings looked complete after mid-pagination ARM failures (PaaS paths already use `ListChildResourcesWithStatusAsync` + `partial-child-enumeration` on trunk); `ListChildJsonElementsAsync` now returns `HostedAzureArmChildCollectionReadResult` and collectors log Warning on partial retain; regression `ListChildJsonElementsAsync_marks_partial_when_later_page_fails` (reuses upstream `CollectAsync_warns_when_sql_database_list_is_partially_collected`). Scoped Aws/Gcp/Azure extractor filter: 211 passed.
 
@@ -22810,10 +22799,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 71
-- **last-hunt:** 2026-10-11
+- **hunts:** 72
+- **last-hunt:** 2026-10-21
 - **bugs-found:** 32
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-11 — zero export limit and blank policy-pack identity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -22865,6 +22854,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2172 (seed-only): reseeded retrieval with `-Hint retrieval`; no new hunt-ready rows.
 
 ### Hypotheses
+- [x] (invalid) `SimpleTextChunker.Chunk` / `StructureAwareTextChunker.Chunk` — non-positive `maxChars` — **cheap-disproof 2026-10-21 thorough hunt:** only internal chunkers invoke `ITextChunker` with positive defaults; no configuration path supplies non-positive sizes.
+- [x] (valid-no-repro) `RetrievalIndexingService.IndexDocumentsAsync` — duplicate `DocumentId` in one batch — **cheap-disproof 2026-10-21 thorough hunt:** run-completion document builders dedupe artifacts; duplicate ids in a single batch are caller contract violation; upsert replaces by chunk id by design.
+- [x] (valid-no-repro) `InMemoryVectorIndex.UpsertChunksAsync` — duplicate `ChunkId` — **cheap-disproof 2026-10-21 thorough hunt:** replace-by-chunk-id is documented index semantics for dev/tests.
+- [x] (valid-no-repro) `RetrievalDocumentBuilder.BuildForArtifacts` — duplicate `ArtifactId` — **cheap-disproof 2026-10-21 thorough hunt:** `BuildForArtifacts_collapses_duplicate_artifact_ids_to_last_entry`.
+- [x] (valid-no-repro) `CachingEmbeddingService.EmbedManyAsync` — embedding cardinality — **cheap-disproof 2026-10-21 thorough hunt:** cardinality guard shipped in CachingEmbeddingServiceTests.
+- [x] (valid-no-repro) `RetrievalDocumentBuilder.BuildForFindings` — reorder missing ids — **cheap-disproof 2026-10-21 thorough hunt:** `BuildForFindings_missing_finding_id_uses_emitted_ordinal_not_raw_list_index`.
+- [x] (valid-no-repro) `AzureSearchTenantScopeFilterBuilder.BuildScopeFilter` — empty assigned policy packs still allow non-PolicyPack platform corpora — **cheap-disproof 2026-10-21 thorough hunt:** intentional per `SearchAsync_IncludePlatformCorpora_StillReturnsNonPolicyPackPlatformCorpus` and filter tests.
 
 - [x] (proven) `StructureAwareTextChunker` treated any three-backtick line inside a longer fenced block as a closing delimiter — **hit 2026-10-10 seed hunt:** a reachable four-backtick manifest/artifact code block containing a three-backtick line was split into unwrapped chunks; closure now requires at least the opener's fence length; regression `Chunk_preserves_four_backtick_fence_when_body_contains_three_backticks`.
 - [x] (valid-no-repro) `CachingEmbeddingService.EmbedManyAsync` converts nullable/blank batch entries to empty strings before delegating, so an embedding provider that filters blank inputs could return fewer vectors than the original batch — **cheap-disproof 2026-10-11 thorough hunt:** scoped chunkers remove blank chunks before dispatch; no reachable mixed batch with blank entries was established.
@@ -22903,9 +22899,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — multi-document batch removed prior vectors per document before all `EmbedManyAsync` calls finished, so a later embedding failure left earlier documents without vectors and unchanged catalog hashes — **hit 2026-10-04 seed hunt #51:** defer `RemoveChunksForDocumentAsync` until after all embeddings succeed, immediately before `UpsertChunksAsync`; regression `IndexDocumentsAsync_when_later_document_embed_fails_does_not_leave_earlier_document_vectors_deleted`.
 - [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — batched reindex removed prior vectors for every document before `UpsertChunksAsync`, so upsert failures left the whole batch without searchable vectors while catalog hashes stayed stale — **hit 2026-10-04 seed hunt #52:** upsert new chunks first and remove-then-reupsert only when catalog `IndexedChunkCount` exceeds the new chunk count; regression `IndexDocumentsAsync_when_batch_upsert_fails_does_not_leave_prior_document_vectors_deleted`.
 - [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — content-shrink cleanup removed all document chunks then re-upserted, so re-upsert failure after batch upsert left zero searchable vectors — **hit 2026-10-04 seed hunt #53:** delete only stale higher-ordinal `chunkId` values via `RemoveChunkIdsAsync`; regression `IndexDocumentsAsync_when_content_shrinks_keeps_new_chunks_when_stale_ordinal_cleanup_reupsert_would_fail`.
-- [ ] (candidate) `SimpleTextChunker.Chunk` / `StructureAwareTextChunker.Chunk` — a reachable non-positive `maxChars` argument can return no chunks or throw for non-empty content instead of rejecting invalid chunk configuration; direct `ITextChunker` callers can supply the input, but production option reachability and intended failure semantics are not established.
-- [ ] (candidate) `RetrievalIndexingService.IndexDocumentsAsync` — two reachable `RetrievalDocument` entries with the same `DocumentId` in one batch generate colliding `{documentId}-chunk-{ordinal}` ids and let the later document overwrite the earlier one; batch uniqueness is not enforced in the selected path.
-- [ ] (candidate) `InMemoryVectorIndex.UpsertChunksAsync` — two reachable chunks with the same `ChunkId` but different scope/content are applied sequentially and the later row replaces the earlier row; global chunk-id uniqueness is not established for all indexing callers.
+- [x] (valid-no-repro) `SimpleTextChunker.Chunk` / `StructureAwareTextChunker.Chunk` — a reachable non-positive `maxChars` argument can return no chunks or throw for non-empty content instead of rejecting invalid chunk configuration; direct `ITextChunker` callers can supply the input, but production option reachability and intended failure semantics are not established.
+- [x] (valid-no-repro) `RetrievalIndexingService.IndexDocumentsAsync` — two reachable `RetrievalDocument` entries with the same `DocumentId` in one batch generate colliding `{documentId}-chunk-{ordinal}` ids and let the later document overwrite the earlier one; batch uniqueness is not enforced in the selected path.
+- [x] (valid-no-repro) `InMemoryVectorIndex.UpsertChunksAsync` — two reachable chunks with the same `ChunkId` but different scope/content are applied sequentially and the later row replaces the earlier row; global chunk-id uniqueness is not established for all indexing callers.
 
 2026-09-12 thorough hunt #1961 (hit): proved Louvain edge/node casing mismatch; cheap-disproof closed PolicyPackChunker colon-split on shipped templates; scoped Louvain tests passed.
 

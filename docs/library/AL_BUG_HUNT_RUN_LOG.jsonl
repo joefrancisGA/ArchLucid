@@ -1,4 +1,4 @@
-{"at":"2026-09-21T01:08:29.4149966Z","zoneId":"topology-proposal-merge","outcome":"hit"}
+﻿{"at":"2026-09-21T01:08:29.4149966Z","zoneId":"topology-proposal-merge","outcome":"hit"}
 {"at":"2026-09-21T01:08:33.8250781Z","zoneId":"context-ingestion","outcome":"seed-only"}
 {"at":"2026-09-21T01:08:37.9022845Z","zoneId":"core-costing","outcome":"seed-only"}
 {"at":"2026-09-21T01:08:41.9175789Z","zoneId":"tenant-data-export","outcome":"seed-only"}
@@ -5769,6 +5769,6 @@
 {"at":"2026-10-21T01:17:18.3233250Z","zoneId":"application-billing-logic","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T01:28:06.6961753Z","zoneId":"infra-evidence-diagrams","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T01:35:28.4561425Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared"}
-{"recordedAt": "2026-10-21T01:42:23.0000000Z", "zoneId": "cloud-extractors", "outcome": "hit", "lane": "B", "kind": "seed hunt", "note": "ListChildJsonElementsAsync partialCollection wiring for AX-DE collectors"}
+{"at":"2026-10-21T01:42:23.0000000Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T01:44:11.4723088Z","zoneId":"host-composition","outcome":"hit","productLine":"archlucid-shared"}
-{"recordedAt": "2026-10-21T01:50:37.0000000Z", "zoneId": "topology-proposal-merge", "outcome": "dry", "lane": "B", "kind": "thorough hunt", "note": "cheap-disproof four open candidates"}
+{"at":"2026-10-21T01:50:29.1932207Z","zoneId":"retrieval","outcome":"dry","productLine":"archlucid-shared"}
