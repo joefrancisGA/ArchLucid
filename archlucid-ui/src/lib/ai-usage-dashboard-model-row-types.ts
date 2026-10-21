@@ -42,6 +42,7 @@ export type AiUsageBreakdownRow = {
   readonly usageCount: number;
   readonly promptTokens: number;
   readonly completionTokens: number;
+  readonly reasoningTokens: number;
   readonly estimatedCostUsd: number;
   readonly percentOfTotal: number;
   readonly trendPercent: number | null;

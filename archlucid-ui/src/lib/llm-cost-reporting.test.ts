@@ -3,7 +3,9 @@ import { describe, expect, it, vi } from "vitest";
 import {
   buildMockLlmCostReportingDashboard,
   fetchLlmCostReportingDashboard,
+  measurableLlmTokens,
 } from "@/lib/llm-cost-reporting";
+import { buildBreakdownRows } from "@/lib/ai-usage-breakdown-rows";
 
 describe("llm-cost-reporting", () => {
   it("buildMockLlmCostReportingDashboard returns 30 daily buckets and breakdown rows", () => {
@@ -43,6 +45,7 @@ describe("llm-cost-reporting", () => {
           estimatedCostUsd: 4.2,
           promptTokens: 100,
           completionTokens: 40,
+          reasoningTokens: 250,
           llmCallCount: 3,
         },
       ],
@@ -64,7 +67,13 @@ describe("llm-cost-reporting", () => {
     expect(dash.daily.length).toBe(1);
     expect(dash.byWorkspaceProject.length).toBe(1);
     expect(dash.topRuns.length).toBe(1);
+    expect(dash.topRuns[0]?.reasoningTokens).toBe(250);
     expect(dash.byWorkspaceProject[0]?.estimatedCostUsd).toBe(99);
+
+    const runRows = buildBreakdownRows("run", dash, null);
+    expect(runRows).toHaveLength(1);
+    expect(measurableLlmTokens(runRows[0]!)).toBe(390);
+
     vi.unstubAllGlobals();
   });
 
