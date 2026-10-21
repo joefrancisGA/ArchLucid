@@ -1421,4 +1421,74 @@ public sealed class TopologyProposalConsensusMergerTests
         result.DisagreementCount.Should().Be(0);
         result.MergedProposal.Warnings.Should().BeEmpty();
     }
+
+    [Fact]
+    public void Merge_intersects_relationships_when_one_model_uses_renamed_api_label_and_other_uses_synthetic_svc_id()
+    {
+        static List<ManifestService> Services() =>
+        [
+            new ManifestService
+            {
+                ServiceName = "api",
+                ServiceId = "svc-api",
+                ServiceType = ServiceType.Api,
+                RuntimePlatform = RuntimePlatform.AppService,
+            },
+            new ManifestService
+            {
+                ServiceName = "renamed-api",
+                ServiceId = "svc-api",
+                ServiceType = ServiceType.Api,
+                RuntimePlatform = RuntimePlatform.AppService,
+            },
+        ];
+
+        static List<ManifestDatastore> Datastores() =>
+        [
+            new ManifestDatastore
+            {
+                DatastoreName = "sql",
+                DatastoreId = "ds-sql",
+                DatastoreType = DatastoreType.Sql,
+                RuntimePlatform = RuntimePlatform.SqlServer,
+            },
+        ];
+
+        AgentTopologyProposal primary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices = Services(),
+            AddedDatastores = Datastores(),
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "renamed-api",
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom,
+                },
+            ],
+        };
+
+        AgentTopologyProposal secondary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices = Services(),
+            AddedDatastores = Datastores(),
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "svc-api",
+                    TargetId = "ds-sql",
+                    RelationshipType = RelationshipType.ReadsFrom,
+                },
+            ],
+        };
+
+        TopologyProposalConsensusMergeResult result = TopologyProposalConsensusMerger.Merge(primary, secondary);
+
+        result.DisagreementCount.Should().Be(0);
+        result.MergedProposal.AddedRelationships.Should().ContainSingle();
+    }
 }

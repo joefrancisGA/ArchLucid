@@ -5896,3 +5896,5 @@
 {"at":"2026-10-21T12:04:05.3088254Z","zoneId":"agent-runtime-safety","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T12:18:45.2021238Z","zoneId":"tenant-data-export","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T12:34:23.0475014Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T13:18:07.6153235Z","zoneId":"scope-binding-middleware","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-21T13:26:44.7626720Z","zoneId":"topology-proposal-merge","outcome":"dry","productLine":"archlucid-shared"}
