@@ -5819,3 +5819,4 @@
 {"at":"2026-10-21T04:37:17.5606403Z","zoneId":"email-otp-auth","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-21T04:39:08.909Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T04:41:58.8057973Z","zoneId":"finding-disposition","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Governance/FindingDisposition/"]}
+{"at":"2026-10-21T04:42:05.7778175Z","zoneId":"billing-webhooks","outcome":"seed-only","productLine":"archlucid-shared"}
