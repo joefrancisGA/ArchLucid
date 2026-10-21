@@ -5955,3 +5955,4 @@
 {"at":"2026-10-21T15:54:51.4189535Z","zoneId":"scim-users","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Scim/ScimUsersController.cs,ArchLucid.Persistence/Scim/SqlScimUserFilterTranslator.cs,ArchLucid.Core/Scim/Filtering/ScimFilterInMemoryEvaluator.cs"]}
 {"at":"2026-10-21T15:57:32.1903458Z","zoneId":"agent-runtime-evaluation","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.AgentRuntime/Evaluation/FindingClaimCoverageEvaluator.cs)"]}
 {"at":"2026-10-21T16:01:57.6534446Z","zoneId":"authority-pipeline-payload","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs"]}
+{"at":"2026-10-21T16:05:11.4384495Z","zoneId":"cli-draft-new","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Cli/Commands/DraftNewCommandIntakeLoop.cs,ArchLucid.Cli/Commands/DraftNewCommandConnectStage.cs)"]}
