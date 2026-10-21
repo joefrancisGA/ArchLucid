@@ -92,6 +92,21 @@ public sealed class RetrievalIndexingScopeValidatorTests
     }
 
     [Fact]
+    public void ValidateDocuments_duplicate_document_id_throws()
+    {
+        RetrievalDocument first = CreateTenantDocument(TenantA, WorkspaceA, ProjectA);
+        RetrievalDocument second = CreateTenantDocument(TenantA, WorkspaceA, ProjectA);
+        second.Content = "different body";
+
+        ScopeContext scope = new() { TenantId = TenantA, WorkspaceId = WorkspaceA, ProjectId = ProjectA };
+
+        Action act = () => RetrievalIndexingScopeValidator.ValidateDocuments([first, second], scope);
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*duplicate DocumentId*doc-1*");
+    }
+
+    [Fact]
     public void ValidateChunk_platform_policy_pack_bypasses_tenant_scope()
     {
         RetrievalChunk chunk = new()
