@@ -912,14 +912,12 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             CollapseToResourceGroupMap = options?.CollapseToResourceGroupMap ?? false,
             CollapseToBackboneKeep = options?.CollapseToBackboneKeep ?? false,
             HiddenExecutiveTierKeys = options?.HiddenExecutiveTierKeys,
-            IncludePrivateEndpointNodes = options?.IncludePrivateEndpointNodes ?? includePrivateEndpointNodes,
-            // The mode parser never sets this flag. A compile-options object built for another
-            // display flag still has the bool default false, and ?? does not replace false.
+            // CopyOptions can set explicit false for flags the caller also turned on; ?? does not replace false.
+            IncludePrivateEndpointNodes = includePrivateEndpointNodes || (options?.IncludePrivateEndpointNodes ?? false),
             IncludeNetworkDetails = includeNetworkDetails || (options?.IncludeNetworkDetails ?? false),
-            IncludeRecoveryServices = options?.IncludeRecoveryServices ?? includeRecoveryServices,
-            // Mode parser CopyOptions can set IncludeAvdAssets=false when only cross-group fan-out was requested.
+            IncludeRecoveryServices = includeRecoveryServices || (options?.IncludeRecoveryServices ?? false),
             IncludeAvdAssets = includeAvdAssets || (options?.IncludeAvdAssets ?? false),
-            IncludeCrossGroupFanOut = includeCrossGroupFanOut,
+            IncludeCrossGroupFanOut = includeCrossGroupFanOut || (options?.IncludeCrossGroupFanOut ?? false),
             RecoveryServicesCollectionIncomplete = collectionIncomplete,
         };
     }
