@@ -5795,3 +5795,4 @@
 {"at":"2026-10-21T03:07:11.7712681Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T02:51:41.4393766Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId],archlucid-ui/src/components/reviews"]}
 {"at":"2026-10-21T03:08:54.8723146Z","zoneId":"securenow-question-queue","outcome":"hit","productLine":"securenow","paths":["ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions"]}
+{"at":"2026-10-21T03:13:30.1177688Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared"}
