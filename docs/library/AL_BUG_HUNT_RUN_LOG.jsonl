@@ -5775,3 +5775,4 @@
 {"at":"2026-10-21T00:22:29.6208824Z","zoneId":"ui-runs-list","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T00:25:52.0443566Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T00:40:43.0303990Z","zoneId":"email-otp-auth","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T00:45:00Z","zoneId":"security-analyzers","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Analyzers/"]}

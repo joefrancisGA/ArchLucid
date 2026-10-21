@@ -400,6 +400,19 @@
 - (candidate) `discovery.ts` `parseDiscoveryDocument` — unvalidated `issuer` string — locus: issuer normalized for emptiness only; input: discovery doc with attacker-controlled `issuer` URL cached for tab lifetime.
 - (candidate) `resolve-expires-in-seconds.ts` — boolean `expires_in` token field — locus: `Number(true)` path parity with BFF refresh; input: token response `{ expires_in: true }` during BFF sync.
 
+2026-10-21 seed hunt (seed-only): `security-analyzers` — re-read analyzers after run #47 AcceptVerbs AL0003 and NonAction/non-public route AL0001 guards (#48–#49); promoted five run #46 `(candidate)` rows and cheap-disproof closed each (mixed `HttpMethod`/`AcceptVerbs` arrays; dual-interface explicit mapping; function-pointer `ClaimsPrincipal` via generic-name walk; primary-constructor field initializer AL0003; `[Authorize]` subclass inheritance); no hunt-ready row met the bar for same-run repro; seeded five follow-on `(candidate)` rows; 131 scoped analyzer tests passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `MutatingControllerAuditAnalyzer.HttpMethodAttributeDeclaresMutatingVerb` — mixed POST in `Methods` array — **cheap-disproof 2026-10-21 seed hunt:** `TypedConstantContainsMutatingHttpMethod` walks arrays; regression `AL0003_reports_when_AcceptVerbs_mixed_get_and_post_lacks_IAudit_LogAsync`.
+- [x] (valid-no-repro) `RequireAuthorizationAnalyzer` — dual interface authorize vs unsecured explicit — **cheap-disproof 2026-10-21 seed hunt:** per-member `FindImplementationForInterfaceMember` mapping; regression `Reports_unsecured_explicit_interface_when_sibling_interface_has_type_level_Authorize`.
+- [x] (valid-no-repro) `TenantIdentityBoundaryAnalyzer` — function pointer `ClaimsPrincipal` parameter — **cheap-disproof 2026-10-21 seed hunt:** `GenericName` analysis flags `ClaimsPrincipal` type argument inside `delegate*<ClaimsPrincipal, void>` (repro attempt without product change).
+- [x] (valid-no-repro) `MutatingControllerAuditAnalyzer` — primary-constructor field initializer audit — **cheap-disproof 2026-10-21 seed hunt:** intentional action-body contract; regression `AL0003_reports_when_LogAsync_runs_only_in_primary_constructor_field_initializer`.
+- [x] (valid-no-repro) `RequireAuthorizationAnalyzer` — `[Authorize(Roles = ...)]` subclass equivalence — **cheap-disproof 2026-10-21 seed hunt:** `InheritsFromOrEqualsAttribute` matches `AuthorizeAttribute` derivatives on methods and types.
+
+- (candidate) `MutatingControllerAuditAnalyzer.AnalyzeReferencedBaseActions` — referenced shared controller with `[AcceptVerbs("POST")]` only — locus: referenced-base verb scan after run #47; input: unaudited POST in referenced assembly base.
+- (candidate) `RequireAuthorizationAnalyzer` — empty controller with `protected` `[HttpGet]` route helper (no `[NonAction]`) — locus: `SymbolHasNonPublicRouteAttributedMember` vs public action scan; input: protected GET without authorize after #49.
+- (candidate) `MutatingControllerAuditAnalyzer` — `[AcceptVerbs("Get")]` case-insensitive POST detection — locus: `IsMutatingHttpMethodName`; input: mixed-case verb strings from attribute literals.
+- (candidate) `TenantIdentityBoundaryAnalyzer` — banned type in `typeof` inside attribute argument on inner-layer DTO — locus: `IsInTypeOf` exemption; input: `[Custom(typeof(ClaimsPrincipal))]` on application model.
+- (candidate) `RequireAuthorizationAnalyzer` — nested controller type inside primary-constructor controller — locus: nested `RegisterSymbolAction` independence; input: outer unauthorized nested authorized endpoints.
 2026-10-20 seed hunt (seed-only): `security-analyzers` — re-read analyzers after run #45 regression locks; promoted all five run #45 `(candidate)` rows and cheap-disproof closed each (nested authorized controller analyzed independently from outer abstract explicit-interface AL0001; partial explicit-interface split not a valid C# pattern; `params` array matches existing array-element ARCH001; `[Authorize]` on explicit impl covers empty derived; `AcceptVerbs` on explicit impl matches intentional AL0003 omission); regression locks only; seeded five new `(candidate)` rows; 109 scoped analyzer tests passed (`RunAnalyzers=false`).
 
 - [x] (valid-no-repro) `RequireAuthorizationAnalyzer` — abstract outer explicit vs nested authorized controller — **cheap-disproof 2026-10-20 seed hunt #46:** nested `ControllerBase` types analyzed independently; regression `Reports_outer_abstract_only_when_nested_controller_is_authorized_and_outer_has_unauthorized_explicit_interface`.
@@ -18576,10 +18589,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 38
+- **hunts:** 39
 - **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
+- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-20 — AL0003 missed explicit interface implementation with interface [HttpPost]
 - **related-pd-tb:** none
 - **code-changed-since:** yes
