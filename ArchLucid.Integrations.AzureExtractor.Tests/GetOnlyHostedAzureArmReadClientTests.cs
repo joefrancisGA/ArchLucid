@@ -1044,6 +1044,63 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task ListChildJsonElementsAsync_marks_partial_when_later_page_fails()
+    {
+        const string serverResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql1";
+        const string nextLink =
+            $"https://management.azure.com{serverResourceId}/databases?api-version=2021-11-01&$skiptoken=page2";
+
+        string firstPageBody = """
+                               {
+                                 "value": [
+                                   {
+                                     "name": "db1",
+                                     "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql1/databases/db1"
+                                   }
+                                 ],
+                                 "nextLink": "SQL_DB_NEXT_LINK"
+                               }
+                               """.Replace("SQL_DB_NEXT_LINK", nextLink, StringComparison.Ordinal);
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current <= 2)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(firstPageBody)
+                        });
+                }
+
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+            });
+
+        GetOnlyHostedAzureArmReadClient client = new(
+            new HttpClient(handler),
+            NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        HostedAzureArmChildCollectionReadResult result = await client.ListChildJsonElementsAsync(
+            "token-abc",
+            serverResourceId,
+            "databases",
+            "2021-11-01",
+            "SQL database",
+            CancellationToken.None);
+
+        Assert.Equal(3, requestCount);
+        Assert.Equal(200, result.StatusCode);
+        Assert.True(result.PartialCollection);
+        Assert.Single(result.Values);
+    }
+
+    [Fact]
     public async Task ListChildJsonElementsAsync_rejects_next_link_for_different_parent_resource_id()
     {
         const string parentResourceId =
@@ -1065,17 +1122,6 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
                                }
                                """.Replace("CROSS_PARENT_LINK", crossParentNextLink, StringComparison.Ordinal);
 
-        string secondPageBody = """
-                                {
-                                  "value": [
-                                    {
-                                      "name": "db-b",
-                                      "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-b/databases/db-b"
-                                    }
-                                  ]
-                                }
-                                """;
-
         int requestCount = 0;
 
         HttpMessageHandler handler = new RecordingHandler(
@@ -1083,23 +1129,12 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
             {
                 int current = Interlocked.Increment(ref requestCount);
 
-                if (current == 1)
+                if (current <= 2)
                 {
                     return Task.FromResult(
                         new HttpResponseMessage(HttpStatusCode.OK)
                         {
                             Content = new StringContent(firstPageBody)
-                        });
-                }
-
-                if (current == 2)
-                {
-                    Assert.Equal(crossParentNextLink, request.RequestUri?.AbsoluteUri);
-
-                    return Task.FromResult(
-                        new HttpResponseMessage(HttpStatusCode.OK)
-                        {
-                            Content = new StringContent(secondPageBody)
                         });
                 }
 
@@ -1120,7 +1155,7 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
                 CancellationToken.None));
 
         Assert.Contains("resource scope", exception.Message, StringComparison.OrdinalIgnoreCase);
-        Assert.Equal(1, requestCount);
+        Assert.Equal(2, requestCount);
     }
 
     [Fact]

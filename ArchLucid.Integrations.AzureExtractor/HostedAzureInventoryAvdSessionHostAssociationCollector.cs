@@ -40,7 +40,7 @@ public static class HostedAzureInventoryAvdSessionHostAssociationCollector
 
             try
             {
-                IReadOnlyList<JsonElement> sessionHosts = await armReadClient.ListChildJsonElementsAsync(
+                HostedAzureArmChildCollectionReadResult listResult = await armReadClient.ListChildJsonElementsAsync(
                     accessToken,
                     resource.ResourceId.Trim(),
                     "sessionHosts",
@@ -48,7 +48,15 @@ public static class HostedAzureInventoryAvdSessionHostAssociationCollector
                     "AVD session host",
                     cancellationToken).ConfigureAwait(false);
 
-                foreach (JsonElement sessionHost in sessionHosts)
+                HostedAzureInventoryChildListPartialEnumeration.NotePartialCollection(
+                    logger,
+                    listResult,
+                    resource.ResourceId.Trim(),
+                    "AVD session host",
+                    null,
+                    null);
+
+                foreach (JsonElement sessionHost in listResult.Values)
                 {
                     if (!AzureInventoryAvdSessionHostAssociationExtractor.TryExtractFromJsonElement(
                             sessionHost,

@@ -38,7 +38,7 @@ public static class HostedAzureInventoryEventGridSubscriptionCollector
 
             try
             {
-                IReadOnlyList<JsonElement> subscriptions = await armReadClient.ListChildJsonElementsAsync(
+                HostedAzureArmChildCollectionReadResult listResult = await armReadClient.ListChildJsonElementsAsync(
                     accessToken,
                     resource.ResourceId.Trim(),
                     "eventSubscriptions",
@@ -46,7 +46,15 @@ public static class HostedAzureInventoryEventGridSubscriptionCollector
                     "Event Grid subscription",
                     cancellationToken).ConfigureAwait(false);
 
-                AddSubscriptions(resource.ResourceId.Trim(), subscriptions, rows, seenKeys);
+                HostedAzureInventoryChildListPartialEnumeration.NotePartialCollection(
+                    logger,
+                    listResult,
+                    resource.ResourceId.Trim(),
+                    "Event Grid subscription",
+                    null,
+                    null);
+
+                AddSubscriptions(resource.ResourceId.Trim(), listResult.Values, rows, seenKeys);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
@@ -66,7 +74,7 @@ public static class HostedAzureInventoryEventGridSubscriptionCollector
             {
                 string trimmedSubscriptionId = subscriptionId.Trim();
                 string sourceResourceId = $"/subscriptions/{trimmedSubscriptionId}";
-                IReadOnlyList<JsonElement> subscriptions = await armReadClient.ListChildJsonElementsAsync(
+                HostedAzureArmChildCollectionReadResult listResult = await armReadClient.ListChildJsonElementsAsync(
                     accessToken,
                     sourceResourceId,
                     "providers/Microsoft.EventGrid/eventSubscriptions",
@@ -74,7 +82,15 @@ public static class HostedAzureInventoryEventGridSubscriptionCollector
                     "subscription Event Grid subscription",
                     cancellationToken).ConfigureAwait(false);
 
-                AddSubscriptions(sourceResourceId, subscriptions, rows, seenKeys);
+                HostedAzureInventoryChildListPartialEnumeration.NotePartialCollection(
+                    logger,
+                    listResult,
+                    sourceResourceId,
+                    "subscription Event Grid subscription",
+                    null,
+                    null);
+
+                AddSubscriptions(sourceResourceId, listResult.Values, rows, seenKeys);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {

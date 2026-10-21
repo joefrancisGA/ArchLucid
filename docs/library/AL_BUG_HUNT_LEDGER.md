@@ -1,5 +1,11 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
+2026-10-21 seed hunt (seed→hit): `cloud-extractors` — lane B; promoted `ListChildJsonElementsAsync` dropping `partialCollection` from `ListJsonElementsAtRelativePathAsync` so Event Grid, messaging, AVD session hosts, and Service Connector child listings looked complete after mid-pagination ARM failures (PaaS paths already use `ListChildResourcesWithStatusAsync` + `partial-child-enumeration` on trunk); `ListChildJsonElementsAsync` now returns `HostedAzureArmChildCollectionReadResult` and collectors log Warning on partial retain; regression `ListChildJsonElementsAsync_marks_partial_when_later_page_fails` (reuses upstream `CollectAsync_warns_when_sql_database_list_is_partially_collected`). Scoped Aws/Gcp/Azure extractor filter: 211 passed.
+
+- [x] (proven) `ListChildJsonElementsAsync` — partial ARM child pagination retained rows but callers never observed `PartialCollection` — **hit 2026-10-21 lane B seed hunt:** return `HostedAzureArmChildCollectionReadResult`; wire non-PaaS AX-DE collectors; regression above.
+
+
+
 2026-10-21 seed hunt (seed→hit): `application-billing-logic` — promoted `AdminFleetLlmCogsService.CostRatesConfigured` requiring both positive global input and output USD rates while `LlmCostEstimationEffectiveRates` still prices when only `Billing:LlmCostEstimation:InputUsdPerMillionTokens` is set and output is zeroed for catalog fallback; fleet rows falsely reported `missing-cost-rates`. Treat any positive global input, output, or reasoning rate (or per-deployment override) as configured; regression `BuildDashboardAsync_treats_positive_global_input_rate_as_configured_when_output_is_zeroed_for_default_fallback`. Seeded five follow-on `(candidate)` rows. 46 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed.
 
 - [x] (proven) `AdminFleetLlmCogsService.CostRatesConfigured` — global input-only override with zeroed output reported missing fleet COGS rates — **hit 2026-10-21 seed hunt:** aligned configured check with `LlmCostEstimationEffectiveRates`; regression `BuildDashboardAsync_treats_positive_global_input_rate_as_configured_when_output_is_zeroed_for_default_fallback`.

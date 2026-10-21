@@ -40,7 +40,7 @@ public static class HostedAzureInventoryServiceConnectorCollector
 
             try
             {
-                IReadOnlyList<JsonElement> linkers = await armReadClient.ListChildJsonElementsAsync(
+                HostedAzureArmChildCollectionReadResult listResult = await armReadClient.ListChildJsonElementsAsync(
                     accessToken,
                     resource.ResourceId.Trim(),
                     ServiceLinkerChildCollection,
@@ -48,7 +48,15 @@ public static class HostedAzureInventoryServiceConnectorCollector
                     "Service Connector linker",
                     cancellationToken).ConfigureAwait(false);
 
-                AddLinkers(resource.ResourceId.Trim(), linkers, rows, seenKeys);
+                HostedAzureInventoryChildListPartialEnumeration.NotePartialCollection(
+                    logger,
+                    listResult,
+                    resource.ResourceId.Trim(),
+                    "Service Connector linker",
+                    null,
+                    null);
+
+                AddLinkers(resource.ResourceId.Trim(), listResult.Values, rows, seenKeys);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {

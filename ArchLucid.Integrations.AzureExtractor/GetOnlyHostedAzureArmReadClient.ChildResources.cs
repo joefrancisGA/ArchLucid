@@ -7,7 +7,7 @@ namespace ArchLucid.Integrations.AzureExtractor;
 
 public sealed partial class GetOnlyHostedAzureArmReadClient
 {
-    internal async Task<IReadOnlyList<JsonElement>> ListChildJsonElementsAsync(
+    internal async Task<HostedAzureArmChildCollectionReadResult> ListChildJsonElementsAsync(
         string accessToken,
         string parentResourceId,
         string childCollectionName,
@@ -15,19 +15,36 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         string logLabel,
         CancellationToken cancellationToken)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
+        ArgumentException.ThrowIfNullOrWhiteSpace(parentResourceId);
+
         string trimmedParentId = parentResourceId.Trim().TrimStart('/');
         string relativePath = string.IsNullOrWhiteSpace(childCollectionName)
             ? trimmedParentId
             : $"{trimmedParentId}/{childCollectionName.Trim()}";
+        string requestUri = $"https://management.azure.com/{relativePath}?api-version={apiVersion}";
 
-        (IReadOnlyList<JsonElement> values, _) = await ListJsonElementsAtRelativePathAsync(
+        using HttpRequestMessage request = new(HttpMethod.Get, requestUri);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+        using HttpResponseMessage response =
+            await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+        int statusCode = (int)response.StatusCode;
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return HostedAzureArmChildCollectionReadResult.Failed(statusCode);
+        }
+
+        (IReadOnlyList<JsonElement> values, bool partialCollection) = await ListJsonElementsAtRelativePathAsync(
             accessToken,
             relativePath,
             apiVersion,
             logLabel,
             cancellationToken).ConfigureAwait(false);
 
-        return values;
+        return HostedAzureArmChildCollectionReadResult.Succeeded(values, partialCollection);
     }
 
     internal async Task<JsonElement?> TryGetArmResourceJsonAsync(
