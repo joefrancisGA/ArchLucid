@@ -301,7 +301,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         result.Succeeded.Should().BeTrue();
         observedOptions.Should().NotBeEmpty();
         observedOptions.Should().Contain(options =>
-            options != null
+            options is not null
             && options.IncludeRecoveryServices
             && options.IncludeCrossGroupFanOut
             && options.IncludeAvdAssets
@@ -340,7 +340,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
 
         result.Succeeded.Should().BeTrue();
         observedOptions.Should().NotBeEmpty();
-        observedOptions.Should().OnlyContain(options => options != null && options.IncludeNetworkDetails);
+        observedOptions.Should().OnlyContain(options => options is not null && options.IncludeNetworkDetails);
     }
 
     [Fact]

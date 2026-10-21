@@ -55,6 +55,7 @@ internal sealed class TenantErasureQuarantineMiddleware(RequestDelegate next)
         path = NormalizeRequestPath(path);
 
         // Lifecycle erasure routes intentionally accept dot-segment and duplicate-slash normalization.
+
         if (path.StartsWithSegments("/v1/tenant/erasure", StringComparison.OrdinalIgnoreCase))
             return true;
 
