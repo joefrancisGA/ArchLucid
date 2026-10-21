@@ -24,6 +24,22 @@ export type UseReviewFindingsLastVisitRestoreOptions = {
 
 const reviewFindingsLastVisitRestoredRunIds = new Set<string>();
 
+function findingsUrlAlreadyHasToolbarParams(pathname: string, routerSearch: string): boolean {
+  const routerSearchParams = new URLSearchParams(routerSearch);
+
+  if (reviewFindingsLastVisitHasUrlParams(routerSearchParams)) {
+    return true;
+  }
+
+  if (typeof window === "undefined" || window.location.pathname !== pathname) {
+    return false;
+  }
+
+  const windowSearchParams = new URLSearchParams(window.location.search);
+
+  return reviewFindingsLastVisitHasUrlParams(windowSearchParams);
+}
+
 /** Test-only reset for module-level restore guard. */
 export function resetReviewFindingsLastVisitRestoreStateForTests(): void {
   reviewFindingsLastVisitRestoredRunIds.clear();
@@ -46,9 +62,7 @@ export function useReviewFindingsLastVisitRestore(options: UseReviewFindingsLast
         return;
       }
 
-      const routerSearchParams = new URLSearchParams(routerSearch);
-
-      if (reviewFindingsLastVisitHasUrlParams(routerSearchParams)) {
+      if (findingsUrlAlreadyHasToolbarParams(pathname, routerSearch)) {
         reviewFindingsLastVisitRestoredRunIds.add(runId);
 
         return;

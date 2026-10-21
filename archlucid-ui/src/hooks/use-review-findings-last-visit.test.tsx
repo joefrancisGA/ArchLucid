@@ -160,6 +160,28 @@ describe("useReviewFindingsLastVisitRestore", () => {
     expect(href).toContain("hideGeneric=1");
   });
 
+  it("does not overwrite toolbar params when the address bar leads useSearchParams after browser back", () => {
+    patchReviewFindingsLastVisit("run-1", {
+      filter: "high",
+    });
+
+    navHarness.pathname = "/architecture/reviews/run-1";
+    navHarness.searchParams = new URLSearchParams("reviewTab=findings");
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-1?reviewTab=findings&findingsFilter=medium",
+    );
+
+    const replaceState = vi.spyOn(window.history, "replaceState");
+
+    render(<RestoreProbe runId="run-1" />);
+
+    expect(replaceState).not.toHaveBeenCalled();
+
+    replaceState.mockRestore();
+  });
+
   it("restores last-visit filters when runId changes before window.location.search catches up", () => {
     patchReviewFindingsLastVisit("run-2", {
       filter: "high",
