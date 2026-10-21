@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { createElement, useSyncExternalStore, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -32,8 +32,10 @@ const searchParamsHarness = vi.hoisted(() => {
   };
 });
 
+const pathnameMock = vi.hoisted(() => ({ value: "/architecture/reviews/run-b" }));
+
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/architecture/reviews/run-abc",
+  usePathname: () => pathnameMock.value,
   useSearchParams: () => new URLSearchParams(searchParamsHarness.state.query),
 }));
 
@@ -59,7 +61,30 @@ const sampleSummary = buildRunDetailFirstScreenProofSummary({
 describe("RunDetailFirstScreenProofStatus URL sync", () => {
   beforeEach(() => {
     searchParamsHarness.reset();
-    window.history.replaceState({}, "", "/architecture/reviews/run-abc?reviewTab=overview");
+    pathnameMock.value = "/architecture/reviews/run-b";
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-a?reviewTab=findings&q=stale-payment",
+    );
+  });
+
+  it("opens proof details from useSearchParams when window.location.search lags after soft navigation", async () => {
+    searchParamsHarness.state.query = "reviewTab=overview";
+
+    render(
+      <SearchParamsRerenderHost>
+        <RunDetailFirstScreenProofStatus summary={sampleSummary} />
+      </SearchParamsRerenderHost>,
+    );
+
+    fireEvent.click(screen.getByText("View proof details"));
+
+    await waitFor(() => {
+      expect(window.location.pathname + window.location.search).toBe(
+        `/architecture/reviews/run-b?reviewTab=overview&${RUN_DETAIL_FIRST_SCREEN_PROOF_OPEN_PARAM}=1`,
+      );
+    });
   });
 
   it("follows runDetailFirstScreenProofOpen query changes without a popstate event", async () => {
@@ -76,7 +101,7 @@ describe("RunDetailFirstScreenProofStatus URL sync", () => {
     window.history.replaceState(
       {},
       "",
-      `/architecture/reviews/run-abc?reviewTab=overview&${RUN_DETAIL_FIRST_SCREEN_PROOF_OPEN_PARAM}=1`,
+      `/architecture/reviews/run-b?reviewTab=overview&${RUN_DETAIL_FIRST_SCREEN_PROOF_OPEN_PARAM}=1`,
     );
     rerender(
       <SearchParamsRerenderHost>

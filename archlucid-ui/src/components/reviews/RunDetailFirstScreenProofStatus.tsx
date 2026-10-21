@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { InlineGuidance } from "@/components/InlineGuidance";
 import type { RunDetailFirstScreenProofSummary } from "@/lib/runs/run-detail-first-screen-proof-status";
 import { runDetailFirstScreenProofDispositionClass } from "@/lib/runs/run-detail-first-screen-proof-status";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import {
   RUN_DETAIL_FIRST_SCREEN_PROOF_OPEN_PARAM,
   parseRunDetailFirstScreenProofOpenFromSearch,
@@ -37,11 +37,11 @@ export function RunDetailFirstScreenProofStatus(props: RunDetailFirstScreenProof
   const syncProofDetailsOpenToUrl = useCallback(
     (open: boolean) => {
       commitHrefIfChanged(
-        runDetailFirstScreenProofDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        runDetailFirstScreenProofDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setProofDetailsOpen = useCallback(
