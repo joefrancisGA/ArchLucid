@@ -17,7 +17,7 @@ export const HELP_TOPIC_TRAFFIC_ROWS_INTEGRATIONS: readonly UiRouteTrafficRow[] 
     rowId: "HE",
     path: "/help/azure-permissions",
     section: "Help topic",
-    note: "Azure permissions help (Help topic) - HelpAzurePermissionsGuideView with PageContextualHelpButton (topic map azure-permissions; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, permissions matrix, setup and verify panels. Not bare HelpTopicMarkdownView. Sibling HC = Connect Azure securely; HCE = cloud-connections help. Score 58/100 (2026-08-04) Ã¢â‚¬â€ help-topic ceiling below HEL hub band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    note: "Azure permissions help (Help topic) - HelpAzurePermissionsGuideView with PageContextualHelpButton (topic map azure-permissions; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, permissions matrix, setup and verify panels. Not bare HelpTopicMarkdownView. Sibling HC = Connect Azure securely; HCE = cloud-connections help. Score 58/100 (2026-08-04) — help-topic ceiling below HEL hub band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
     noteMustContain: ["HelpAzurePermissionsGuideView", "Sources", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Integration readiness help. Owner backlog shorthand: HEI. */

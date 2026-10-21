@@ -206,7 +206,7 @@ export const ADMIN_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "ATD",
     path: "/internal/trial-funnel",
     section: "Admin",
-    note: "Trial funnel (Admin) - TrialFunnelOpsPageClient with PageContextualHelpButton (topic map billing-and-plans; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, stage KPIs + cohort table/export. Internal conversion metrics Ã¢â‚¬â€ not a signed-record Sources trail.admin KPI/config ceiling below ADY Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    note: "Trial funnel (Admin) - TrialFunnelOpsPageClient with PageContextualHelpButton (topic map billing-and-plans; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, stage KPIs + cohort table/export. Internal conversion metrics — not a signed-record Sources trail.admin KPI/config ceiling below ADY Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
     noteMustContain: ["TrialFunnelOpsPageClient", "Sources", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Tenant settings. Owner backlog shorthand: ATE (template formerly STX on legacy settings path). */
@@ -279,7 +279,7 @@ export const ADMIN_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "WSX",
     path: SETTINGS_SECURITY_TRUST_PATH,
     section: "Admin",
-    note: "Security & Trust (Settings) - OperatorSecurityTrustPageView with PageContextualHelpButton (topic map security-trust; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, procurement materials + NDA/roadmap honesty. Sibling SEC = /security-trust hub; HSE = /help/security-trust; TXX = /trust. Operator orientation Ã¢â‚¬â€ not a signed-record Sources trail.admin hub at SET/ADY Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    note: "Security & Trust (Settings) - OperatorSecurityTrustPageView with PageContextualHelpButton (topic map security-trust; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, procurement materials + NDA/roadmap honesty. Sibling SEC = /security-trust hub; HSE = /help/security-trust; TXX = /trust. Operator orientation — not a signed-record Sources trail.admin hub at SET/ADY Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
     noteMustContain: ["OperatorSecurityTrustPageView", "Sources", "cannot improve further toward 80"],
   },
 ];

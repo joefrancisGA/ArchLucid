@@ -16,7 +16,7 @@ public sealed partial class InMemoryValueReportJobQueue
         if (!_jobs.TryAdd(jobId, entry))
             throw new InvalidOperationException("Duplicate job id (extremely unlikely).");
 
-        WriteDistributedState(jobId, entry);
+        TryWriteDistributedState(jobId, entry);
 
         _ = RunJobAsync(jobId, request);
 

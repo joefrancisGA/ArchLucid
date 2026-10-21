@@ -28,7 +28,7 @@ export const HELP_TOPIC_TRAFFIC_ROWS_PILOT: readonly UiRouteTrafficRow[] = [
     rowId: "COR",
     path: FIRST_ARCHITECTURE_REVIEW_HELP_PATH,
     section: "Help topic",
-    note: "Your first architecture review (Help topic) - HelpCorePilotGuideView with PageContextualHelpButton (topic map first-architecture-review; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, hero Start review CTA, five-step stepper, gated finalize steps (TB-1040), and Admin-gated folded internal runbooks for printable first-run checklist (FI) and 20-minute first-value (HEF) retired Batch R 2026-08-11. Absorbs former core-pilot / first-pilot-path / first-hour-operator-path / evidence-only-review aliases (retired, TB-2050). Not bare HelpTopicMarkdownView. Sibling HP = pilot-guide. Score 58/100 (2026-08-05) Ã¢â‚¬â€ help-topic ceiling below HEL hub band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    note: "Your first architecture review (Help topic) - HelpCorePilotGuideView with PageContextualHelpButton (topic map first-architecture-review; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, hero Start review CTA, five-step stepper, gated finalize steps (TB-1040), and Admin-gated folded internal runbooks for printable first-run checklist (FI) and 20-minute first-value (HEF) retired Batch R 2026-08-11. Absorbs former core-pilot / first-pilot-path / first-hour-operator-path / evidence-only-review aliases (retired, TB-2050). Not bare HelpTopicMarkdownView. Sibling HP = pilot-guide. Score 58/100 (2026-08-05) — help-topic ceiling below HEL hub band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
     noteMustContain: ["HelpCorePilotGuideView", "cannot improve further toward 80"],
     sectionMustNotEqualLower: ["marketing"],
   },
@@ -39,7 +39,7 @@ export const HELP_TOPIC_TRAFFIC_ROWS_PILOT: readonly UiRouteTrafficRow[] = [
     section: "Help topic",
     note: "Evidence trail help (Help topic) - HelpEvidenceTrailGuideView with PageContextualHelpButton (topic map evidence-trail; Category-1 registry), Open Evidence graph + Load + Open sample primary CTAs, finding trace vs provenance graph jump panel, claim-discipline callout, collapsed EVIDENCE_TRAIL_OPERATOR_GUIDE.md reference body with Mermaid lineage diagram, and in-app related guides (TB-1360-TB-1364). Not bare HelpTopicMarkdownView. Sibling INE = /insights/evidence-graph; DEX = /demo/explain. Score 58/100 (2026-08-05) - help-topic ceiling below HEL hub band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
     noteMustContain: ["HelpEvidenceTrailGuideView", "Open Evidence graph", "Not bare HelpTopicMarkdownView", "cannot improve further toward 80"],
-    noteMustNotContain: ["Ã¢â‚¬â€"],
+    noteMustNotContain: ["\u00c3\u00a2\u20ac\u201d"],
   },
   /** Traffic workbook row ID for Start a review / evidence-intake help. Owner backlog shorthand: EVI. */
   {
@@ -48,7 +48,7 @@ export const HELP_TOPIC_TRAFFIC_ROWS_PILOT: readonly UiRouteTrafficRow[] = [
     section: "Help topic",
     note: "Evidence intake help (Help topic) - HelpEvidenceIntakeGuideView with PageContextualHelpButton (topic map evidence-intake; Category-1 registry), Start review + cloud connections primary CTAs, three-path wizard strip, verify-intake actionable panel, claim-discipline callout, collapsed EVIDENCE_INTAKE_OPERATOR_GUIDE.md reference body, and in-app related guides (TB-1350-TB-1354). Not bare HelpTopicMarkdownView. Sibling RNX = /reviews/new; COR = first-architecture-review. Score 58/100 (2026-08-05) - help-topic ceiling below HEL hub band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
     noteMustContain: ["HelpEvidenceIntakeGuideView", "claim-discipline callout", "Start review", "Not bare HelpTopicMarkdownView", "cannot improve further toward 80"],
-    noteMustNotContain: ["Ã¢â‚¬â€"],
+    noteMustNotContain: ["\u00c3\u00a2\u20ac\u201d"],
   },
   /** Traffic workbook row ID for Accelerator chooser help. Owner backlog shorthand: HAX. */
   {
@@ -76,7 +76,7 @@ export const HELP_TOPIC_TRAFFIC_ROWS_PILOT: readonly UiRouteTrafficRow[] = [
     rowId: "HCX",
     path: "/help/cli-usage",
     section: "Help topic",
-    note: "CLI usage help (Help topic) - HelpCliUsageTechnicalReferenceView with PageContextualHelpButton (topic map cli-usage; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, engineering runbook landing + CLI_USAGE.md. Sibling HDX = engineering-troubleshooting; HTX = customer troubleshooting. Internal-runbook Ã¢â‚¬â€ not customer diligence. Score 58/100 (2026-08-05) Ã¢â‚¬â€ help-topic ceiling below HEL hub band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    note: "CLI usage help (Help topic) - HelpCliUsageTechnicalReferenceView with PageContextualHelpButton (topic map cli-usage; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, engineering runbook landing + CLI_USAGE.md. Sibling HDX = engineering-troubleshooting; HTX = customer troubleshooting. Internal-runbook — not customer diligence. Score 58/100 (2026-08-05) — help-topic ceiling below HEL hub band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
     noteMustContain: ["HelpCliUsageTechnicalReferenceView", "Sources", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Engineering troubleshooting runbook help. Owner backlog shorthand: HDX. */
@@ -127,7 +127,7 @@ export const HELP_TOPIC_TRAFFIC_ROWS_PILOT: readonly UiRouteTrafficRow[] = [
     rowId: "HGE",
     path: "/help/glossary",
     section: "Help topic",
-    note: "Glossary help (Help topic) - HelpGlossaryPageView with PageContextualHelpButton (topic map glossary; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, searchable term browser. Not bare HelpTopicMarkdownView. Score 58/100 (2026-08-04) Ã¢â‚¬â€ help-topic ceiling below HEL hub band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    note: "Glossary help (Help topic) - HelpGlossaryPageView with PageContextualHelpButton (topic map glossary; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, searchable term browser. Not bare HelpTopicMarkdownView. Score 58/100 (2026-08-04) — help-topic ceiling below HEL hub band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
     noteMustContain: ["HelpGlossaryPageView", "Sources", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Getting started help. Owner backlog shorthand: HGX. */
@@ -212,7 +212,7 @@ export const HELP_TOPIC_TRAFFIC_ROWS_PILOT: readonly UiRouteTrafficRow[] = [
     rowId: "HSX",
     path: "/help/scope",
     section: "Help topic",
-    note: "Workspace and scope help (Help topic) - HelpTopicMarkdownView with PageContextualHelpButton (topic map scope; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, curated WORKSPACE_SCOPE_GUIDE markdown. Sibling HOE = users-and-roles. Score 58/100 (2026-08-05) Ã¢â‚¬â€ help-topic ceiling below HEL hub band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    note: "Workspace and scope help (Help topic) - HelpTopicMarkdownView with PageContextualHelpButton (topic map scope; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, curated WORKSPACE_SCOPE_GUIDE markdown. Sibling HOE = users-and-roles. Score 58/100 (2026-08-05) — help-topic ceiling below HEL hub band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
     noteMustContain: ["HelpTopicMarkdownView", "Sources", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Troubleshooting help. Owner backlog shorthand: HTX. */

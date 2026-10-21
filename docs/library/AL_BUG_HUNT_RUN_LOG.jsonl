@@ -5898,3 +5898,10 @@
 {"at":"2026-10-21T12:34:23.0475014Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T13:18:07.6153235Z","zoneId":"scope-binding-middleware","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-21T13:26:44.7626720Z","zoneId":"topology-proposal-merge","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-21T13:34:28.7029336Z","zoneId":"host-composition","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T13:38:16.9148796Z","zoneId":"persistence-identity","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T13:42:21.4752229Z","zoneId":"application-pilots","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T13:44:46.9768927Z","zoneId":"tenant-settings-sql","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-21T13:46:13.7081307Z","zoneId":"encoding-mojibake-guard","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T13:54:13.7620138Z","zoneId":"llm-wallet","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-21T13:59:00.2324908Z","zoneId":"quick-scan-distributed-concurrency","outcome":"seed-only","productLine":"archlucid-shared"}

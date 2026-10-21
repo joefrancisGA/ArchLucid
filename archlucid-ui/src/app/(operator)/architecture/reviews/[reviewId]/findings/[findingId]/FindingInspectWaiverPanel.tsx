@@ -166,7 +166,7 @@ export function FindingInspectWaiverPanel(props: FindingInspectWaiverPanelProps)
                 data-testid="finding-waiver-create"
                 aria-busy={busyAction === "waiver"}
               >
-                {busyAction === "waiver" ? "Creating waiverâ€¦" : "Create waiver"}
+                {busyAction === "waiver" ? "Creating waiver…" : "Create waiver"}
               </Button>
             </div>
           </>
@@ -185,7 +185,7 @@ export function FindingInspectWaiverPanel(props: FindingInspectWaiverPanelProps)
               data-testid="finding-waiver-revoke"
               aria-busy={busyAction === "revoke-waiver"}
             >
-              {busyAction === "revoke-waiver" ? "Revoking waiverâ€¦" : "Revoke waiver"}
+              {busyAction === "revoke-waiver" ? "Revoking waiver…" : "Revoke waiver"}
             </Button>
           </div>
         ) : null}

@@ -80,7 +80,7 @@ public static class FirstValueReportDeltasSectionFormatter
         }
 
         sb.AppendLine($"Wall-clock from `RunRecord.CreatedUtc` to `GoldenManifest.CommittedUtc`: **{wall:c}**.");
-        sb.AppendLine($"Created: `{deltas.RunCreatedUtc:O}` Â· Committed: `{deltas.ManifestCommittedUtc:O}`.");
+        sb.AppendLine($"Created: `{deltas.RunCreatedUtc:O}` · Committed: `{deltas.ManifestCommittedUtc:O}`.");
         sb.AppendLine();
     }
 

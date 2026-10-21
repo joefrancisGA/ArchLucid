@@ -1,4 +1,12 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
+2026-10-21 seed hunt (seed-only, lane B): `quick-scan-distributed-concurrency` — lock `quick-scan-distributed-concurrency` pushed and verified on `origin/bugsmash` before work (skipped picker top `core-configuration-summary` already hit today; `llm-wallet` locked by lane C); re-read `QuickScanDistributedConcurrencyService`, `QuickScanDistributedConcurrencyLeaseRenewal`, admit-limit refresh decorator, in-memory and Dapper stores after 2026-10-20 renewal-interval options refresh; no hunt-ready row promoted; reaffirmed `Renewal_loop_re_reads_lease_renewal_interval_after_options_change` and post-admit cancel/cleanup regressions; seeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~QuickScanDistributedConcurrency` 45 passed (`RunAnalyzers=false`).
+2026-10-21 thorough hunt (hit, lane B): `encoding-mojibake-guard` — lock `encoding-mojibake-guard` pushed and verified on `origin/bugsmash` before work; swept Application + UI `src` for live UTF-8 mojibake (`Â·`, `Â§`, `â€¦`, `Ã¢â‚¬â€`, smart-quote sequences) in user-facing strings; repaired sponsor first-value markdown (`FirstValueReportBuilder` § reference), ROI summary + finding waiver loading copy, help search excerpts (`help-index.generated.ts`), and ui-route-traffic owner notes; structural closure: `scripts/ci/assert_no_utf8_mojibake_in_user_source.py` + allowlist + CI step + unit tests; regression guard exits zero on repo trees; scoped `python3 -m unittest discover -s scripts/ci/tests -p test_assert_no_utf8_mojibake_in_user_source.py` 2 passed.
+2026-10-21 seed hunt (seed-only, lane C): `tenant-settings-sql` — lock verified on origin; cheap-disproof closed five open `(candidate)` rows (write-in-flight cache race, post-commit stale read during in-flight bypass, cross-process generation reset, cache-key delimiter collision, cancel-after-SQL-read boundary); regression `TenantSettings_TryGetAsync_throws_when_setting_key_whitespace_only_without_poisoning_cache`; reaffirmed existing `TenantSettings_TryGetAsync_reflects_*` concurrency suite; seeded five follow-on `(candidate)` rows; 44 scoped `SqlTenantSettingsRepository` + `TenantSettings_` tests passed (`RunAnalyzers=false`).
+
+2026-10-21 thorough hunt (hit, lane B): `application-pilots` — lock `application-pilots` pushed and verified on `origin/bugsmash` before work; code-read proved UTF-8 mojibake `Â·` in sponsor-facing first-value elapsed copy (`FirstValueReportDeltasSectionFormatter.AppendElapsedSection`), proof-package mirror row (`FirstValueReportProofPackageSectionFormatter`), and sponsor one-pager evidence-chain PDF lines (`SponsorOnePagerPdfBuilder`); replaced with middle dot `·`; regression `AppendElapsedSection_uses_utf8_middle_dot_between_created_and_committed_timestamps`; cheap-disproof closed five picker `(candidate)` rows (audit-labeled `Recommendations generated` with empty run-detail sample remains tenant-wide audit rollup by design — `Format_when_audit_export_truncated_with_empty_timeline_still_surfaces_comparison_drift_count`; `CommittedRunsInventoryTruncated` vs low `TotalRunsCommitted` reflects keyset cap independent of run-detail `TakeLast` — 2026-10-15 closure; compact artifact summary has no `TotalFindings` field — `Build_when_audit_row_count_truncated_does_not_echo_cap_in_compact_summary`; governed-finding coverage derives from agent/snapshot findings not capped audit row fetch — `AppendComputedDeltasSection_when_audit_rows_truncated_discloses_cap_in_audit_metric_row`; recent-deltas tie-break — `GetRecentDeltasAsync_WhenSortKeysTie_OrdersByRunIdDescendingSoPanelOrderIsStable`); scoped picker filter `FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack|FullyQualifiedName~FirstValueReportDeltasSectionFormatter|FullyQualifiedName~PilotValueReportMarkdownFormatter|FullyQualifiedName~RecentPilotRunDeltasService` 72 passed (`RunAnalyzers=false`).
+2026-10-21 thorough hunt (hit, lane B): `host-composition` — lock `host-composition` pushed and verified on `origin/bugsmash` before work; promoted picker `(candidate)` on `InMemoryValueReportJobQueue.RunJobAsync` / `WriteDistributedState` — completed async value-report jobs logged a warning when distributed poll-state `Set` failed but left the in-process entry `Completed`, so the enqueueing replica returned DOCX bytes while a peer replica kept reading stale `Pending` from cache; `TryWriteDistributedState` returns success/failure and completion now transitions to `Failed` with retryable copy plus best-effort failed-state write when completed persistence fails; regression `TryPoll_on_peer_instance_reports_failure_when_completed_state_cannot_be_persisted`; cheap-disproof closed three sibling candidates (`PollingCollectionRunDiscovery` null artifact skip is intentional missing `packageBlobPath`; `GraphProjectionCacheInvalidationSubscriberHostedService` malformed payload ignore is defensive; `SqlStorageProviderRegistrar` empty blob reader when client missing matches SQL-only host contract); scoped picker filter `FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions` 470 passed (`RunAnalyzers=false`).
+
+2026-10-21 seed hunt (seed→hit, lane C): `persistence-identity` — lock verified on origin; promoted hourly OTP **request** rate-limit parity gap: invalidated lockout challenges still counted toward `MaxCodeRequestsPerEmailPerHour` while `GetLatestRequestUtcByEmailAsync` already ignored them, blocking a fresh sign-in code after lockout when cap is 1; `CountsTowardRequestRateLimit` and Dapper hourly SQL now exclude `InvalidatedUtc` rows; regressions `CountRecentRequestsByEmail_ignores_invalidated_unused_challenges` and `RequestCodeAsync_allows_new_code_after_lockout_when_hourly_cap_is_one`; scoped persistence identity + EmailOtp coverage 27 passed (1 SQL skipped), EmailOtpAuthServiceTests lockout regression passed (`RunAnalyzers=false`).
 
 2026-10-21 thorough hunt (dry, lane C): `topology-proposal-merge` — lock verified on origin before hunt; cheap-disproof closed five follow-on `(candidate)` rows from 2026-10-20 hit (quoted `for_each` vs unquoted graph index, renamed-api vs synthetic `svc-api` consensus intersection, compliance after topology sanitize, `tf.resource_id` trailing-slash resolution aliases, Cost-then-Critic datastore rename without Cost rename declaration); regressions `Merge_intersects_relationships_when_one_model_uses_renamed_api_label_and_other_uses_synthetic_svc_id`, `AddGraphNodeResolutionKeys_maps_canonical_arm_when_tf_resource_id_property_has_trailing_slash`, and `WithMergedTopologyProposals_adds_edges_when_critic_uses_datastore_rename_after_cost_relationship_without_rename_declaration`; reaffirmed `MapRelationships_resolves_relationship_when_for_each_key_uses_quoted_string_and_graph_uses_unquoted_index` and `FilterValidatedProposals_WhenInventoryExists_AllowsCostRelationshipOnlyProposalsReferencingTopologyRenameAliasFromPriorResult`; seeded five follow-on `(candidate)` rows; 1,623 scoped topology merge/endpoint/edge-mapper tests passed (`RunAnalyzers=false`).
 
@@ -8743,7 +8751,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: tenant-settings-sql
 
-**Hunts:** 53 · **Bugs found:** 7 · **Consecutive dry hunts:** 13
+2026-10-21 seed hunt (seed-only, lane C): cheap-disproof five open cache/SQL candidates; one new regression; seeded five follow-on rows; 44 scoped tests passed.
+
+**Hunts:** 54 · **Bugs found:** 7 · **Consecutive dry hunts:** 13
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected SQL and caching repositories; seeded five reachable follow-on `(candidate)` rows; 17 focused `SqlTenantSettingsRepository` tests passed; no production code changed and no regression was added.
 
@@ -8757,11 +8767,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 2026-10-08 seed hunt (seed-only): re-read the selected SQL, cache, migration, and focused test paths; no fresh reachable mechanism-backed candidate remained after prior cache, normalization, schema, and concurrency coverage; added no regression and no new candidate row.
 
-- [ ] (candidate) `CachingTenantSettingsRepository.TryGetAsync` — the cache-miss check can race with `WriteInFlightKeys.TryAdd`, allowing a cold read to cache the pre-write value — locus: `ContainsKey` check ~29–31 followed by `GetOrCreateAsync`; input: read starts immediately before a concurrent upsert marks the slot in-flight.
-- [ ] (candidate) `CachingTenantSettingsRepository.TryGetAsync` — a read that bypasses the cache during a write can return an older value after the write has committed — locus: direct `_inner.TryGetAsync` branch ~31; input: read begins during upsert and completes after the upsert commits.
-- [ ] (candidate) `CachingTenantSettingsRepository.CacheGenerations` — process restart resets generation counters while a shared cache can still contain old `:g0` entries — locus: static dictionary initialization ~13; input: application restart followed by a read before the shared cache TTL expires.
-- [ ] (candidate) `CachingTenantSettingsRepository.BuildCacheKey` — tenant-setting keys containing the cache-key delimiter may collide with another normalized key — locus: string interpolation ~103; input: two setting keys whose serialized key segments produce the same cache key.
-- [ ] (candidate) `SqlTenantSettingsRepository.TryGetCoreAsync` — cancellation after `QuerySingleOrDefaultAsync` completes but before the method returns can surface cancellation despite a committed read — locus: awaited Dapper query and post-query trim ~62–68; input: request token canceled in the return boundary.
+- [x] (valid-no-repro) `CachingTenantSettingsRepository.TryGetAsync` — cache-miss races `WriteInFlightKeys.TryAdd` — **cheap-disproof 2026-10-21 seed hunt (lane C):** write-in-flight bypass and generation bumps; regressions `TenantSettings_TryGetAsync_reflects_upsert_when_read_started_before_write_completed` and `TenantSettings_TryGetAsync_reflects_upsert_after_cached_miss_before_generation_bump`., allowing a cold read to cache the pre-write value — locus: `ContainsKey` check ~29–31 followed by `GetOrCreateAsync`; input: read starts immediately before a concurrent upsert marks the slot in-flight.
+- [x] (valid-no-repro) `CachingTenantSettingsRepository.TryGetAsync` — in-flight read bypass may observe pre-commit inner state — **cheap-disproof 2026-10-21 seed hunt (lane C):** intentional read-through during `WriteInFlightKeys`; post-commit reads use bumped generation; `TenantSettings_TryGetAsync_reflects_upsert_when_read_started_before_write_completed`. — locus: direct `_inner.TryGetAsync` branch ~31; input: read begins during upsert and completes after the upsert commits.
+- [x] (invalid) `CachingTenantSettingsRepository.CacheGenerations` — process restart vs shared cache `:g0` entries — **cheap-disproof 2026-10-21 seed hunt (lane C):** cross-instance/process cache coherence is outside single-decorator contract; generation stamp is process-local by design. — locus: static dictionary initialization ~13; input: application restart followed by a read before the shared cache TTL expires.
+- [x] (invalid) `CachingTenantSettingsRepository.BuildCacheKey` — delimiter collision between normalized setting keys — **cheap-disproof 2026-10-21 seed hunt (lane C):** keys are normalized lowercase tokens from `TenantSettingKeys` family; no production delimiter injection path. with another normalized key — locus: string interpolation ~103; input: two setting keys whose serialized key segments produce the same cache key.
+- [x] (invalid) `SqlTenantSettingsRepository.TryGetCoreAsync` — cancellation after Dapper read completes — **cheap-disproof 2026-10-21 seed hunt (lane C):** completed query results are not rolled back by token cancel; no incorrect state surfaced. but before the method returns can surface cancellation despite a committed read — locus: awaited Dapper query and post-query trim ~62–68; input: request token canceled in the return boundary.
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected SQL and caching repositories; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
@@ -8792,7 +8802,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `CachingTenantSettingsRepository` — `TenantSettingCacheEntry.IsPresent` distinguishes cached miss from HybridCache absent entry — **cheap-disproof 2026-10-08 seed hunt #46:** cached miss is refreshed after generation bump; regression `TenantSettings_TryGetAsync_reflects_upsert_after_cached_miss_before_generation_bump`.
 
 - [ ] (candidate) `SqlTenantSettingsRepository.UpsertCoreAsync` — normalizes the key before `TenantSettingsWriteGuard` but trims the value only in SQL parameters — locus: `normalizedKey` and `SettingValue = settingValue.Trim()` ~83–107; input: setting value containing leading/trailing Unicode whitespace.
-- [ ] (candidate) `CachingTenantSettingsRepository.TryGetAsync` — invalid `settingKey` is normalized before the cache read and may throw outside the inner repository's validation boundary — locus: `TenantSettingKeyNormalizer.Normalize` ~26; input: null or whitespace key through the caching decorator.
+- [x] (valid-no-repro) `CachingTenantSettingsRepository.TryGetAsync` — whitespace-only setting key throws at normalizer — **cheap-disproof 2026-10-21 seed hunt (lane C):** regression `TenantSettings_TryGetAsync_throws_when_setting_key_whitespace_only_without_poisoning_cache`. — locus: `TenantSettingKeyNormalizer.Normalize` ~26; input: null or whitespace key through the caching decorator.
 - [ ] (candidate) `CachingTenantSettingsRepository.UpsertAsync` — `WriteInFlightKeys.TryAdd` does not record whether a prior writer owns the slot — locus: `WriteInFlightKeys` ~59–67; input: concurrent upserts for the same tenant/key with one cancellation.
 - [ ] (candidate) `SqlTenantSettingsRepository.TryGetCoreAsync` — `QuerySingleOrDefaultAsync` assumes one row per tenant/key and surfaces duplicate-row data errors — locus: scalar Dapper query ~62–68; input: legacy duplicate `TenantSettings` rows before unique-key repair.
 - [ ] (candidate) `TenantSettingsWriteGuard.EnsureSettingValueLength` — .NET `Trim()` and SQL `SettingValue` storage may disagree for non-breaking-space edge padding — locus: `settingValue.Trim()` ~11; input: value padded with `U+00A0` at the NVARCHAR boundary.
@@ -8821,10 +8831,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 56
+- **hunts:** 57
 - **bugs-found:** 7
-- **consecutive-dry-hunts:** 13
-- **last-hunt:** 2026-10-08
+- **consecutive-dry-hunts:** 14
+- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-09-08 — WorkspaceAllowedEngineSetService allowed-engine JSON exceeded TenantSettings NVARCHAR(512)
 - **related-pd-tb:** PD-003
 - **code-changed-since:** unknown
@@ -8992,6 +9002,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-07 seed hunt #1240 (seed-only): reseeded after #1239 fixes; cheap-disproof on concurrent upsert write-in-flight drop, upsert cached-hit symmetric gap, and duplicate-key SQL read; added upsert/delete parity regressions; no new hunt-ready row reproduces.
 
 ---
+
+- (candidate) `CachingTenantSettingsRepository.UpsertAsync` — `finally` removes `WriteInFlightKeys` before hybrid cache invalidation finishes so a follow-up read may repopulate stale generation — locus: `TryRemove` in `finally` ~68–71 vs `InvalidateCurrentGenerationCacheAsync`; input: upsert completes, invalidation slow, immediate read on another thread.
+- (candidate) `SqlTenantSettingsRepository.TryGetCoreAsync` — `QuerySingleOrDefaultAsync` throws when duplicate rows exist for the same tenant/key — locus: scalar query ~61–66; input: manual catalog repair leaves two `TenantSettings` rows before unique constraint enforcement.
+- (candidate) `TenantSettingsWriteGuard.EnsureSettingValueLength` — JSON with `\u0000` inside trim budget passes guard but SQL rejects or truncates — locus: length-only guard; input: compact JSON setting value containing embedded null code unit at 512 boundary.
+- (candidate) `CachingTenantSettingsRepository.TryGetAsync` — cached `TenantSettingCacheEntry` with `IsPresent=true` and empty string value is treated as absent — locus: `!entry.IsPresent` ~43–44; input: legacy SQL row with empty non-null `SettingValue` if ever inserted out-of-band.
+- (candidate) `SqlTenantSettingsRepository.UpsertCoreAsync` — `MERGE` `UpdatedUtc` refresh on matched update is observable as duplicate audit events when Polly retries transient deadlocks — locus: `SqlResilientOperationExecutor` replay; input: deadlock on first MERGE attempt then success on retry.
+
 
 ## Zone: ui-form-validation
 
@@ -12732,13 +12749,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 39
+- **hunts:** 40
 - **bugs-found:** 19
-- **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-10-12
+- **consecutive-dry-hunts:** 4
+- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-09 — wallet GET still required admin because Authorize attributes stack
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-10-21 thorough hunt (dry): cheap-disproved the open Stripe ownership candidate as not hunt-ready in this zone. Beta Billing & plans wallet PUT sends only auto-replenish, monthly cap, and row version — not Stripe customer or payment-method identifiers (OperatorBillingWalletPanel.tsx). Persisting identifiers on PUT is partial-update forwarding; ownership and Stripe attach/charge enforcement live in Persistence billing/Stripe integration outside the selected controller, service, and SQL repository paths. No failing repro; 27 scoped LlmTenantWalletServiceTests passed (discovery no longer blocked). No production or regression code changed.
 
 2026-10-12 thorough hunt (dry): cheap-disproved the Stripe ownership candidate as not hunt-ready in the selected files: `WalletController.PutAsync` and `LlmTenantWalletService.UpdateWalletAsync` only forward the identifiers, while the ownership/validation contract is outside this zone. The focused `LlmTenantWalletServiceTests` run was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no failing repro, production change, or regression code was added.
 
@@ -12800,7 +12819,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `LlmTenantWalletWebhookStage.QueueOverageSettlementAsync` — `actualUsd <= 0` returns without enqueue. **Cheap-disproof 2026-10-12 thorough hunt:** the required no-token/zero-estimate caller is in `ArchLucid.AgentRuntime`, outside this zone’s selected paths; the selected `WalletController`, `LlmTenantWalletService`, and SQL repository do not establish that caller or the proposed debit outcome.
 - [x] (invalid) `InMemoryLlmTenantWalletRepository.UpdateSettingsAsync` — a missing tenant row returns null. **Cheap-disproof 2026-10-12 thorough hunt:** the proposed behavior is in `ArchLucid.Persistence/Data/Repositories/InMemoryLlmTenantWalletRepository.cs` and `InMemoryStorageProviderRegistrar`, outside the selected zone paths; the selected SQL/controller/service files cannot prove a storage-provider divergence.
 - [x] (valid-no-repro) `SqlLlmTenantWalletRepository.LedgerContainsPaymentIntentAsync` — the lookup is only `StripePaymentIntentId`, with no `TenantId` predicate. **Cheap-disproof 2026-10-12 thorough hunt:** `LlmTenantWalletLedger` has a filtered unique index on `StripePaymentIntentId`, so the proposed cross-tenant duplicate row cannot be reached; the global idempotency check is consistent with that schema contract.
-- [ ] (candidate) `WalletController.PutAsync` / `LlmTenantWalletService.UpdateWalletAsync` — a reachable authenticated-admin wallet PUT can forward client-supplied `StripeCustomerId` and `StripePaymentMethodId` directly into the update stage; if the stage persists them without tenant/payment-method ownership validation, a later auto-refill could charge a payment method belonging to another Stripe customer. The selected controller/service files do not establish the ownership contract or the stage’s validation.
+- [x] (invalid) `WalletController.PutAsync` / `LlmTenantWalletService.UpdateWalletAsync` — Stripe identifier ownership on PUT. **Cheap-disproof 2026-10-21 thorough hunt:** beta wallet save does not send Stripe ids; charge correctness depends on Stripe billing integration outside this zone’s selected paths; the selected files only forward partial-update fields and cannot prove a cross-tenant wrong charge without expanding scope.
 
 2026-10-12 thorough hunt (dry): cheap-disproved all three picker candidates; the first two require caller/storage files outside the selected zone, and the payment-intent candidate is blocked by the ledger’s global filtered unique index. The scoped `LlmTenantWalletServiceTests` filter was blocked before test discovery on both attempts by the unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
 
@@ -22650,6 +22669,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: persistence-identity
 
+2026-10-21 seed hunt (seed→hit, lane C): invalidated OTP challenges excluded from hourly request counts; 27 scoped persistence tests + EmailOtp auth regression.
+
 2026-09-14 seed hunt #2912 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
 
 2026-09-14 seed hunt #2907 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
@@ -24452,11 +24473,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 927
-- **bugs-found:** 24
+- **hunts:** 928
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — expired unused OTP challenge hid a later verification lockout from the hourly count
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-21 — hourly OTP request rate limits ignored invalidated challenges
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -24508,6 +24529,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-13 seed hunt #2384 (seed-only): reseeded persistence-identity; duplicate-insert parity family exhausted; no new hunt-ready rows.
 
 ### Hypotheses
+- [x] (proven) `EmailOtpChallengeRepositoryCore.CountsTowardRequestRateLimit` — invalidated lockout rows still counted toward hourly OTP send caps — **hit 2026-10-21 seed hunt (lane C):** exclude `InvalidatedUtc` in core + SQL; regressions `CountRecentRequestsByEmail_ignores_invalidated_unused_challenges` and `RequestCodeAsync_allows_new_code_after_lockout_when_hourly_cap_is_one`.
 
 - [x] (invalid) Identity lookup by email returns a user from another tenant — `IAuthenticationIdentityRepository` has no email lookup; sign-in domain routing uses global domain keys by design.
 - [x] (invalid) Link/unlink writes succeed without scoping to the caller tenant — persistence repos are record-oriented; caller tenant enforcement lives in application services.
@@ -24556,6 +24578,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-12 seed hunt #1920 (seed-only): reseeded persistence-identity; scoped identity repository tests passed; no new hunt-ready defect proven this pass.
 ---
+
+- (candidate) `DapperEmailOtpChallengeRepository.GetLatestRequestUtcByEmailAsync` — SQL `ORDER BY CreatedUtc DESC` without tie-break when two active challenges share the same `CreatedUtc` — locus: TOP (1) selection; input: concurrent inserts with identical timestamp from bulk migration replay.
+- (candidate) `EmailOtpChallengeRepositoryCore.MatchesFailedVerificationByEmail` — lockout-invalidated row still counts when a newer active challenge exists but is expired — locus: `emailHasActiveChallenge` probe uses only unexpired actives; input: expired active plus lockout-invalidated predecessor within hourly verification window.
+- (candidate) `DapperAuthenticationIdentityRepository.Lookup` — normalized email lookup case-folding diverges from `IdentityEmailNormalizer` for IDN domains — locus: SQL `NormalizedEmail` compare; input: sign-in email with mixed-script homoglyph rejected at app layer but alternate normalization in legacy row.
+- (candidate) `InMemoryPlatformUserRepository` — concurrent `TryAdd` duplicate external id returns stale row instead of conflict — locus: `ConcurrentDictionary` add path; input: parallel self-service trial sign-ups sharing external subject.
+- (candidate) `SqlTenantIdentityProviderConfigurationRepository` — MERGE without rowversion check allows silent overwrite when admin saves stale ETag — locus: optimistic concurrency; input: two admin saves with same provider id from SSO wizard tabs.
+
 
 ## Zone: retrieval
 
@@ -43863,11 +43892,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 39
+- **hunts:** 40
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
+- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-20 — lease renewal loop ignored live LeaseRenewalIntervalSeconds changes
+
+2026-10-21 seed hunt (seed-only, lane B): see ledger header; no production change.
 
 2026-10-10 seed hunt (seed-only): reread the selected service and store paths with concurrency/lease lifecycle coverage, focusing on a distinct cleanup/error mechanism; no fresh reachable defect remained beyond closed retry, release, cancellation, ordering, and lease-expiry cases. The scoped test project was blocked before execution by pre-existing duplicate `CreateEmptyAgentResultRepository` member `CS0111`. No production or regression code was changed.
 
@@ -43969,6 +44000,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `QuickScanDistributedConcurrencyLeaseRenewal.RunLoopAsync` — captures `LeaseDurationSeconds` once at loop start so mid-scan options shrink cannot shorten renewal TTL — **cheap-disproof 2026-09-26 seed hunt #6959:** in-flight distributed lease honors duration captured at permit time; promote path re-reads `MaxConcurrentAnonymousScans` each poll (#1542); renewal interval clamped at loop start (#1406).
 
 ### Hypotheses
+
+- [ ] (candidate) `QuickScanDistributedConcurrencyLeaseRenewal.RunLoopAsync` — an in-flight `Task.Delay` is not shortened when `LeaseRenewalIntervalSeconds` decreases during the delay, so the next `RenewLeaseAsync` may run later than operators expect after `IOptionsMonitor` reload — locus: renewal loop delay between renewals; input: appsettings / Key Vault reload lowering `QuickScanSafety:Concurrency:LeaseRenewalIntervalSeconds` while an anonymous marketing Quick Scan holds a distributed lease.
+- [ ] (candidate) `QuickScanDistributedConcurrencyLeaseRenewal.RunLoopAsync` — paired reload that shrinks `LeaseDurationSeconds` while a long renewal delay is already scheduled can let `ExpiresUtc` elapse before the next renewal attempt — locus: `Math.Min(LeaseRenewalIntervalSeconds, LeaseDurationSeconds - 1)` vs uncancelled prior delay; input: concurrent config reload during long-running anonymous scan on beta/shared hosts.
+- [ ] (candidate) `DapperQuickScanDistributedConcurrencyStore.TryAdmitAsync` — `@QueueWaitSeconds` truncates `QueueWaitTimeout` to whole seconds, so sub-second queue-wait budgets (if ever configured) would extend store `QueueExpiresUtc` beyond the service deadline — locus: `(int)request.QueueWaitTimeout.TotalSeconds`; input: future fractional-second `QueueWaitTimeout` on admit request (OpenAPI/appsettings today use integer seconds).
+- [ ] (candidate) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — fixed 250ms promote polling with no jitter under sustained `NotYet` outcomes may amplify SQL `usp_QuickScanConcurrency_TryPromote` load during marketing Quick Scan bursts — locus: promote `while` loop `Task.Delay(pollInterval)`; input: anonymous visitors enqueue when `MaxConcurrentAnonymousScans` saturated and `MaxQueuedAnonymousScans` > 0.
+- [ ] (candidate) `InMemoryQuickScanDistributedConcurrencyStore` — `Promoted` / `TimedOut` queue rows are never removed from `_queue`, so simulator chaos tests that hammer queue timeouts could grow unbounded memory while production SQL retires rows — locus: `_queue` dictionary retention; input: in-memory store load tests only (not beta SQL path).
 
 - [x] (valid-no-repro) `InMemoryQuickScanDistributedConcurrencyStore.TryAdmitAsync` — a caller cancellation arriving before the synchronous direct-lease insertion is ignored, so a canceled anonymous request can still consume a lease — **cheap-disproof 2026-10-10 thorough hunt:** the in-memory admit path inserts and returns synchronously; cancellation is observed by the caller around the completed operation, while downstream cancellation exits and `QuickScanExecutionOrchestrator` finally disposes the admission.
 - [x] (valid-no-repro) `InMemoryQuickScanDistributedConcurrencyStore.TryPromoteAsync` — a caller cancellation arriving during synchronous promotion is ignored, so a canceled queued waiter can still acquire a lease — **cheap-disproof 2026-10-10 thorough hunt:** promotion also completes synchronously; a canceled downstream request cannot leave the admitted lease live because orchestrator cleanup disposes it.

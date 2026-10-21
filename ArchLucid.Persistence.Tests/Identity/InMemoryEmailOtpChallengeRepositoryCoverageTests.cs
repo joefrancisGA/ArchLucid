@@ -277,6 +277,31 @@ public sealed class InMemoryEmailOtpChallengeRepositoryCoverageTests
     }
 
     [Fact]
+    public async Task CountRecentRequestsByEmail_ignores_invalidated_unused_challenges()
+    {
+        InMemoryEmailOtpChallengeRepository sut = new();
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+        DateTimeOffset since = now.AddMinutes(-5);
+
+        EmailOtpChallengeRecord active = await sut.InsertAsync(
+            new EmailOtpChallengeInsert
+            {
+                NormalizedEmail = "otp@example.com",
+                CodeHash = "correct-hash",
+                ExpiresUtc = now.AddMinutes(5),
+            },
+            CancellationToken.None);
+
+        (await sut.TryCompleteAsync(active.Id, "wrong", now, maxFailedAttempts: 1, CancellationToken.None))
+            .Result.Should()
+            .Be(EmailOtpChallengeCompletionResult.TooManyAttempts);
+
+        (await sut.CountRecentRequestsByEmailAsync("otp@example.com", since, now, CancellationToken.None))
+            .Should()
+            .Be(0);
+    }
+
+    [Fact]
     public async Task CountRecentRequests_ignores_expired_unused_challenges()
     {
         InMemoryEmailOtpChallengeRepository sut = new();

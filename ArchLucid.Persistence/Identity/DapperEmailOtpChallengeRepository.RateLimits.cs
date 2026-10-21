@@ -20,6 +20,7 @@ public sealed partial class DapperEmailOtpChallengeRepository
                            WHERE NormalizedEmail = @NormalizedEmail
                              AND CreatedUtc >= @SinceUtc
                              AND CompletedUtc IS NULL
+                             AND InvalidatedUtc IS NULL
                              AND ExpiresUtc > @NowUtc;
                            """;
 
@@ -49,6 +50,7 @@ public sealed partial class DapperEmailOtpChallengeRepository
                            WHERE ClientIpHash = @ClientIpHash
                              AND CreatedUtc >= @SinceUtc
                              AND CompletedUtc IS NULL
+                             AND InvalidatedUtc IS NULL
                              AND ExpiresUtc > @NowUtc;
                            """;
 

@@ -11,7 +11,7 @@ export const DIGESTS_HELP_TRAFFIC_PATH = "/help/digests";
 export const DIGESTS_HELP_TRAFFIC_SECTION = "Help topic";
 
 /**
- * Owner workbook Notes for HDG Ã¢â‚¬â€ Digests specialty help (TB-2049).
+ * Owner workbook Notes for HDG — Digests specialty help (TB-2049).
  * ASCII-only for Windows console note scripts.
  */
 export const DIGESTS_HELP_TRAFFIC_NOTE =
