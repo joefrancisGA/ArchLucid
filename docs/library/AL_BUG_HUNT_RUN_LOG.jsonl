@@ -5987,3 +5987,4 @@
 {"at":"2026-10-21T17:13:39.6064192Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T17:14:16.8474808Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared","severity":"medium","defectClass":"state-machine-gap"}
 {"at":"2026-10-21T17:14:51.1267330Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared","severity":"medium","defectClass":"state-machine-gap"}
+{"at":"2026-10-21T17:22:37.6184993Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared"}
