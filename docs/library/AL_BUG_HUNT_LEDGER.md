@@ -31011,7 +31011,8 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-09-26 seed hunt #31 (seed→hit): reseeded core-azure-extractor after workflow JSON reference hit; proved restore point collection `source.id` JSON reference gap; seeded route table explicit next-hop JSON reference candidate; 1397 scoped `AzureExtractor` tests passed.
 
 ---
-## Zone: core-configuration-summary2026-10-21 seed hunt (seed->hit): promoted LlmCostEstimation Deployments whitespace-key parity; TryResolve trims deploymentLabel but bound dictionary keys did not; shared ConfigurationDictionaryBindingKeyNormalizer consolidates Billing/ByPlan/Deployments post-configure trim; regression TryResolve_uses_deployment_overlay_when_deployments_key_has_bounding_whitespace; cheap-disproof closed five prior candidates (Stripe price ids trim at checkout, Confluence TrimBound, FallbackLlm lists all rows, EmailOtp shares QuickScan production-like helper, ValidAudiences null handled in verifier catch); 7 normalization tests passed (RunAnalyzers=false).
+## Zone: core-configuration-summary2026-10-21 seed hunt (seed->hit): promoted AgentModelTierOptions.AgentTypeTiers whitespace-key parity; AgentModelTierResolver resolves AgentType.ToString() labels without trimming dictionary keys; AgentModelTierOptionsNormalizePostConfigure via shared key normalizer; regressions PostConfigure_trims_agent_type_tier_map_keys_from_configuration_binding and ResolveTierForAgent_uses_agent_type_mapping_when_config_key_has_bounding_whitespace; cheap-disproof closed five stale candidates (Stripe trim, Confluence TrimBound, FallbackLlm list, EmailOtp shared classifier, ValidAudiences verifier catch); 2 tests passed (RunAnalyzers=false).
+2026-10-21 seed hunt (seed->hit): promoted LlmCostEstimation Deployments whitespace-key parity; TryResolve trims deploymentLabel but bound dictionary keys did not; shared ConfigurationDictionaryBindingKeyNormalizer consolidates Billing/ByPlan/Deployments post-configure trim; regression TryResolve_uses_deployment_overlay_when_deployments_key_has_bounding_whitespace; cheap-disproof closed five prior candidates (Stripe price ids trim at checkout, Confluence TrimBound, FallbackLlm lists all rows, EmailOtp shares QuickScan production-like helper, ValidAudiences null handled in verifier catch); 7 normalization tests passed (RunAnalyzers=false).
 
 
 2026-10-21 seed hunt (seed->hit): promoted LlmMonthlyTenantDollarBudgetOptions.ByPlan whitespace-key parity gap; configuration-bound ByPlan keys with bounding whitespace missed ResolveHardCutoffUsdPerUtcMonth lookups; added LlmMonthlyTenantDollarBudgetOptionsNormalizePostConfigure and host registration; regression ResolveHardCutoffUsdPerUtcMonth_uses_plan_overlay_when_by_plan_key_has_bounding_whitespace; 2 LlmMonthlyTenantDollarBudgetOptionsTests passed (RunAnalyzers=false).
@@ -31026,11 +31027,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 51
-- **bugs-found:** 34
+- **hunts:** 52
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim LlmCostEstimation Deployments keys after configuration bind
+- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -31353,10 +31354,10 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
 - **hunts:** 34
-- **bugs-found:** 34
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-21 - trim LlmCostEstimation Deployments keys after configuration bind
+- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 
 - **id:** core-requests-constraints
 - **split-from:** archlucid-core
@@ -31366,7 +31367,7 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
 - **hunts:** 34
-- **bugs-found:** 34
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-20
 - **last-bug:** 2026-10-13 — spaced ASCII solidus broke multi-word constraint phrases
@@ -31518,7 +31519,7 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim LlmCostEstimation Deployments keys after configuration bind
+- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -34020,7 +34021,7 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **bugs-found:** 49
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim LlmCostEstimation Deployments keys after configuration bind
+- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -34354,7 +34355,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **bugs-found:** 121
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim LlmCostEstimation Deployments keys after configuration bind
+- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -34425,7 +34426,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **test-filter:** FullyQualifiedName~Contracts
 - **hunts:** 142
 - **bugs-found:** 122- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21- **last-bug:** 2026-10-21 - trim LlmCostEstimation Deployments keys after configuration bind
+- **last-hunt:** 2026-10-21- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -38088,7 +38089,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **hunts:** 56
 - **bugs-found:** 47
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim LlmCostEstimation Deployments keys after configuration bind
+- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -40006,7 +40007,7 @@ heap-disproved mermaid typed-topology candidate.
 - **bugs-found:** 56
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim LlmCostEstimation Deployments keys after configuration bind
+- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -40229,7 +40230,7 @@ heap-disproved mermaid typed-topology candidate.
 - **last-hunt:** 2026-10-21
 - **bugs-found:** 526
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-21 - trim LlmCostEstimation Deployments keys after configuration bind
+- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -41853,8 +41854,8 @@ heap-disproved mermaid typed-topology candidate.
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim LlmCostEstimation Deployments keys after configuration bind
-- **last-bug:** 2026-10-21 - trim LlmCostEstimation Deployments keys after configuration bind
+- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -42015,7 +42016,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim LlmCostEstimation Deployments keys after configuration bind
+- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -42362,7 +42363,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **bugs-found:** 41
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim LlmCostEstimation Deployments keys after configuration bind
+- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
 
@@ -42555,7 +42556,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
 - **hunts:** 40
-- **bugs-found:** 34
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-09 — digest kept superseded NeedsEvidence and Deferred review events
@@ -42699,7 +42700,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **bugs-found:** 105
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-21 - trim LlmCostEstimation Deployments keys after configuration bind
+- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 
 2026-10-13 seed hunt (seed→hit): reseeded catalog migration after offboard-before-insert fix; proved `CompleteAsync` closed migration when tenant entered erasure quarantine after verification; re-read before `CompleteAsync`; regression `CompleteAsync_returns_in_erasure_quarantine_when_offboarded_before_complete`; 170 scoped tenancy tests passed.
 
@@ -43826,7 +43827,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
 - **hunts:** 36
-- **bugs-found:** 34
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 8
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-09-26 — workspace metrics strip omitted paginated totalCount on demo-only overview rows
@@ -44111,7 +44112,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim LlmCostEstimation Deployments keys after configuration bind
+- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **code-changed-since:** no
 - **related-pd-tb:** none
 
@@ -44429,7 +44430,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim LlmCostEstimation Deployments keys after configuration bind
+- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -44948,7 +44949,7 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **bugs-found:** 63
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim LlmCostEstimation Deployments keys after configuration bind
+- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -44972,7 +44973,7 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **bugs-found:** 60
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim LlmCostEstimation Deployments keys after configuration bind
+- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -45677,7 +45678,7 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **bugs-found:** 38
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim LlmCostEstimation Deployments keys after configuration bind
+- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -46555,7 +46556,7 @@ ABQ-09 churn hotspot.
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim LlmCostEstimation Deployments keys after configuration bind
+- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -46697,7 +46698,7 @@ ABQ-09 churn hotspot.
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim LlmCostEstimation Deployments keys after configuration bind
+- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -46866,7 +46867,7 @@ ABQ-09 churn hotspot.
 - **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim LlmCostEstimation Deployments keys after configuration bind
+- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

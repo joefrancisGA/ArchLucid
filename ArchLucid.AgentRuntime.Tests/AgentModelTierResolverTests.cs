@@ -46,6 +46,26 @@ public sealed class AgentModelTierResolverTests
     }
 
     [Fact]
+    public void ResolveTierForAgent_uses_agent_type_mapping_when_config_key_has_bounding_whitespace()
+    {
+        AgentModelTierOptions options = new()
+        {
+            AgentTypeTiers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["  Cost  "] = nameof(LlmModelTier.Premium),
+            },
+        };
+
+        new AgentModelTierOptionsNormalizePostConfigure().PostConfigure(Options.DefaultName, options);
+
+        AgentModelTierResolver resolver = CreateResolver(
+            new Dictionary<string, string?> { ["AzureOpenAI:DeploymentName"] = "primary-deploy" },
+            options);
+
+        resolver.ResolveTierForAgent(AgentType.Cost, null).Should().Be(LlmModelTier.Premium);
+    }
+
+    [Fact]
     public void ResolveDeploymentName_reads_llm_deployments_fast_and_reasoning_aliases()
     {
         AgentModelTierResolver resolver = CreateResolver(
