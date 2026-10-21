@@ -26,6 +26,7 @@
 - [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — multiple architecture-version pin violations surface only `architectureVersionPinReasons[0]` in the thrown `ConflictException` — locus: throw ~136; input: architecture request failing two independent pin checks in one commit.
 - [ ] (candidate) `CommitOutputIntegrityService.LoadAcknowledgedAssumptionIdsAsync` — non-Guid `runId` omits persisted assumption acknowledgements and uses request-body ids only — locus: early return ~244–245; input: finalize commit where persisted TB-2345 acks exist but run id format prevents Guid parse.
 2026-10-21 seed hunt (seed→hit, lane B): `core-costing` — lock `core-costing` pushed and verified on `origin/bugsmash` before work (skipped picker top `core-configuration-summary` hunted today; no other lane locks); promoted reachable `InfrastructureCostSummaryNotes` — zero-dollar retail/illustrative lines still produced estimate rows but `TotalUsdPerMonth <= 0` gate returned the empty-topology copy; gate on `Lines.Count == 0` instead; regressions `ComposeRetailBlendNote_zero_total_with_retail_lines_does_not_claim_no_topology_rows` and `ComposeIllustrativeOnlyNote_zero_total_with_lines_does_not_claim_no_topology_rows`; scoped `FullyQualifiedName~Costing` 288/294 passed (6 known retired week-UOM baseline failures); lock released after push.
+2026-10-21 seed hunt (seed->hit): `core-configuration-summary` — form-feed (\f) delimiter parity for ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter; config summary leaked `Server=prod\fPassword=secret` effective values; regression Resolve_redacts_embedded_credential_material_when_password_pair_is_form_feed_delimited; 22 matrix tests passed.
 
 2026-10-21 seed hunt (seed→hit, lane B): `capabilities-cost-mcp` — lock `capabilities-cost-mcp` pushed and verified on `origin/bugsmash` before work (skipped picker top `core-configuration-summary` hunted today; avoided `worker-host` lock); promoted reachable `CostBreachFindingEngine` / `CostConstraintFindingEngine` graph property parsing — invariant-culture decimals from materializers (`6200.50`) failed `decimal.TryParse` under non-invariant thread cultures (e.g. `fr-FR`), silently skipping breach findings; shared `CostGraphDecimalParser` with `CultureInfo.InvariantCulture`; regression `AnalyzeAsync_parses_invariant_graph_decimals_under_non_invariant_thread_culture`; scoped `Capabilities.Cost` 20/20 + MCP retrieval 4/4; lock released after push.
 
@@ -31218,6 +31219,8 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-10-21 seed hunt (seed->hit): promoted Scim GroupRoleMappingOverrides whitespace keys; GroupToRoleMapper trims SCIM group ids but bound dictionary keys did not; ScimOptionsNormalizePostConfigure + host registration; regressions PostConfigure_trims_group_role_mapping_override_keys_from_configuration_binding and PostConfigure_trims_group_role_mapping_override_values_from_configuration_binding; cheap-disproof closed blob URL AccountKey semicolon (matrix); removed malformed jsonl row; 2 ScimOptionsNormalizePostConfigure tests passed (RunAnalyzers=false).
 2026-10-21 seed hunt (seed->hit): promoted AgentPromptCatalogOptions.Versions whitespace keys; CachedAgentSystemPromptCatalog resolves AgentTypeKeys without trimming dictionary keys; AgentPromptCatalogOptionsNormalizePostConfigure + host registration; regression PostConfigure_trims_agent_prompt_version_keys_from_configuration_binding; cheap-disproof closed JSON null array (Resolve_redacts_json_effective_values_when_json_array_contains_null_then_password_pair) and SaaS WhenProduction (catalog Production-only); 1 AgentPromptCatalog test passed (RunAnalyzers=false).
 ## Zone: core-configuration-summary
+2026-10-21 seed hunt (seed->hit): promoted ConfigurationEmbeddedCredentialMaterialDetector form-feed delimiter parity; password= pair after \f bypassed IsPairDelimiter so config summary effective values leaked ADO.NET secrets; regression Resolve_redacts_embedded_credential_material_when_password_pair_is_form_feed_delimited; cheap-disproof closed ACS Email NBSP padding (Trim), QuickScan staging doc divergence, fragment-only trailing-slash claim, LlmCost whitespace-only deployment key; 22 matrix tests passed (RunAnalyzers=false).
+
 2026-10-21 seed hunt (seed->hit): promoted ConfigurationKeyRequirement WhenOtlpEnabled/WhenApiKeyEnabled boolean reads; GetValue<bool> threw on yes/on synonyms and skipped required-key enforcement; IsConfigurationBooleanEnabled uses JsonBooleanStringReader; regressions WhenOtlpEnabled_honors_yes_synonym_configuration_value, WhenOtlpEnabled_does_not_throw_on_unrecognized_boolean_configuration_value, WhenApiKeyEnabled_honors_on_synonym_configuration_value; 13 ConfigurationKeyRequirement tests passed (RunAnalyzers=false).
 
 2026-10-21 seed hunt (seed->hit): promoted configuration-bound ASPNETCORE_ENVIRONMENT with bounding whitespace; WhenProduction ignored IConfiguration value because IsAspNetCoreProductionEnvironment compared without Trim; regression ConfigurationKeyRequirement_WhenProduction_treats_configuration_bound_aspnet_environment_with_bounding_whitespace_as_production; cheap-disproof closed ITSM inbound map whitespace candidates (lookup trims config keys); 4 WhenProduction tests passed (RunAnalyzers=false).
@@ -31248,11 +31251,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 65
-- **bugs-found:** 47
+- **hunts:** 66
+- **bugs-found:** 48
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - WhenOtlp/ApiKey enabled flags use JsonBooleanStringReader
+- **last-bug:** 2026-10-21 - form-feed delimiter parity for embedded credential redaction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -31483,11 +31486,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) IntegrationsItsmInboundOptions.JiraStatusDispositionMap whitespace keys — ItsmInboundExternalStatusMapper trims dictionary keys during lookup. [class:other]
 - [x] (valid-no-repro) IntegrationsItsmInboundOptions.ServiceNowStateDispositionMap whitespace keys — disposition mapper trims config keys on lookup. [class:other]
 
-- (candidate) ConfigurationKeyRequirement.WhenAcsEmail — Email:Provider bound with full-width or NBSP padding around AzureCommunicationServices vs EmailProviderNames constant equality.
-- (candidate) QuickScanSafetyProductionLikeHostClassification — ARCHLUCID_ENVIRONMENT=Staging in configuration while host is Development does not align with ConfigurationKeyRequirement.WhenProduction scope (documented divergence vs bug).
-- (candidate) ConfigurationEmbeddedCredentialMaterialDetector — password=secret pair preceded only by form-feed (\f) delimiter may bypass IsPairDelimiter scan on non-sensitive effective values.
-- (candidate) AzureOpenAiEndpointNormalizer.EnsureTrailingSlash — absolute endpoint with empty path and fragment (https://host.openai.azure.com/#/) may append slash after fragment.
-- (candidate) LlmCostEstimationEffectiveRates.TryResolve — deployment overlay key match when deploymentLabel is empty but configuration map has whitespace-only key entry.
+- [x] (valid-no-repro) `ConfigurationKeyRequirement.WhenAcsEmail` — `Email:Provider` uses `Trim()` before constant equality; NBSP/full-width padding already matches Azure Communication Services provider name.
+- [x] (invalid) `QuickScanSafetyProductionLikeHostClassification` vs `ConfigurationKeyRequirement.WhenProduction` — intentional scope split (production-like Quick Scan guardrails vs Stripe/catalog required-key Production checks); not a Configuration defect.
+- [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter` — form-feed-delimited `Password=` pair bypassed pair-boundary scan so config summary effective values leaked secrets — **hit 2026-10-21 seed hunt (seed->hit):** treat `\f` as pair delimiter like tab/newline; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_form_feed_delimited`. [class:fail-open-validation]
+- [x] (valid-no-repro) `AzureOpenAiEndpointNormalizer.EnsureTrailingSlash` — `https://host.openai.azure.com/#/` already ends with `/` before fragment; normalizer does not append a second slash after the fragment.
+- [x] (valid-no-repro) `LlmCostEstimationEffectiveRates.TryResolve` — empty `deploymentLabel` skips deployment overlay branch; whitespace-only map keys are not reachable deployment labels from callers.
 
 
 ## Zone: core-findings-advice
