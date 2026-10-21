@@ -6000,3 +6000,4 @@
 {"at":"2026-10-21T17:57:18.1063804Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.KnowledgeGraph/,ArchLucid.Provenance/"]}
 {"at":"2026-10-21T17:58:59.1280676Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T18:03:33.4794932Z","zoneId":"core-tenancy-commercial","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Identity/,ArchLucid.Core/Billing/,ArchLucid.Core/Budgeting/"]}
+{"at":"2026-10-21T18:03:26.5301435Z","zoneId":"application-tenancy-lifecycle","outcome":"seed-only","productLine":"archlucid-shared"}

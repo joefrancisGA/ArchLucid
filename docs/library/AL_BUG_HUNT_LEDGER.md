@@ -43111,11 +43111,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 130
+- **hunts:** 131
 - **bugs-found:** 113
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-21 - signup baseline persist erasure re-read
+
+2026-10-21 seed hunt (seed-only): re-read open `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` saturated); closed trial-bootstrap failure metric (nested quarantine guard shipped with email failure metric fix), TrialLimitGate offboard gap (erasure middleware + `TrialLimitFilter`), projection refresh service (orchestrator guards), identity handoff (existing race regressions), slug normalizer (covered by `TenantSlugNormalizerTests`); added five new `(candidate)` rows.
 
 2026-10-21 seed hunt (seed→hit): `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` persisted signup baseline review cycle after pre-baseline quarantine read without a second read before `PersistTrialSignupBaselineReviewCycleAsync` — regression `TryBootstrapAfterSelfRegistrationAsync_skips_signup_baseline_persist_when_offboard_completes_after_baseline_check_before_persist`; 243 scoped tenancy tests passed.
 
@@ -43683,11 +43685,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` — email-verification `RecordTrialSignupFailure` when erasure offboard between pre-metric and pre-audit quarantine reads — **hit 2026-10-21 seed hunt:** metric nested with audit under second `IsTenantInErasureQuarantineAsync`; regression `TryBootstrapAfterSelfRegistrationAsync_skips_email_verification_failure_metric_when_offboard_completes_after_pre_metric_check_before_audit`. [class:state-machine-gap]
 - [x] (valid-no-repro) `WorkspaceModelExecutionProfileService.GetAsync` — malformed profile falls back — **cheap-disproof 2026-10-21 seed hunt:** conservative fallback on parse failure; no tenant-controlled OpenAPI path cited for corrupted row.
 
-- (candidate) `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` — `trial_bootstrap` catch `RecordTrialSignupFailure` when offboard between nested quarantine reads — locus: catch block; input: `/v1/register` commit failure (reachability: parity with email-verification failure metric regression; may already be fixed by nested metric guard).
-- (candidate) `TrialLimitGate.GuardWriteAsync` — omits `OffboardedUtc` while enforcing trial lifecycle limits — locus: `GetByIdAsync` then trial status checks; input: tenant row with `OffboardedUtc` set and `TrialStatus=Active` (reachability: `TrialLimitFilter` after erasure middleware on tenant HTTP).
-- (candidate) `TenantSlugNormalizer.FromName` — slug collision or empty edge for unicode/normalization — locus: slug helper; input: registration `Name` from OpenAPI `POST /v1/register` (inspect tests before promote).
-- (candidate) `TenantMigrationProjectionRefreshService` — refresh side effects without post-refresh erasure re-read — locus: projection refresh entry; input: operator migration maintenance API (compare to `TenantCatalogMigrationOrchestrator.ProjectionRefresh` guards).
-- (candidate) `TenantTrialIdentityHandoffStage.LinkEntraAsync` — identity audit ordering vs `OffboardedUtc` reads on partial payload — locus: handoff stage; input: trial link Entra OpenAPI body with email+oid pair.
+- [x] (valid-no-repro) `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` — `trial_bootstrap` catch failure metric between quarantine reads — **cheap-disproof 2026-10-21 seed hunt:** nested metric+audit guard shipped with email failure metric fix (`937330a557`); audit race covered by `skips_trial_bootstrap_failure_audit_when_offboard_completes_after_failure_metric_before_audit`.
+- [x] (valid-no-repro) `TrialLimitGate.GuardWriteAsync` — no `OffboardedUtc` predicate — **cheap-disproof 2026-10-21 seed hunt:** tenant mutating HTTP blocked by `TenantErasureQuarantineMiddleware` before `TrialLimitFilter` runs.
+- [x] (valid-no-repro) `TenantSlugNormalizer.FromName` — unicode/normalization edges — **cheap-disproof 2026-10-21 seed hunt:** `TenantSlugNormalizerTests` covers hyphen collapse, trim, and no-alphanumeric throw; non-ASCII letters stripped by design.
+- [x] (valid-no-repro) `TenantMigrationProjectionRefreshService.RefreshAsync` — no tenant offboard check in service — **cheap-disproof 2026-10-21 seed hunt:** `RunProjectionRefreshAsync` re-reads tenant before/after refresh and before audit (`TenantCatalogMigrationOrchestratorTests` projection refresh erasure suite).
+- [x] (valid-no-repro) `TenantTrialIdentityHandoffStage.LinkEntraAsync` — partial payload audit races — **cheap-disproof 2026-10-21 seed hunt:** `TenantTrialIdentityHandoffStageTests` already covers offboard windows before bind, audit, link, and retry idempotency.
+
+- (candidate) `WorkspaceAllowedEngineSetService.TryReadStoredAsync` — malformed or empty `AllowedAliasIds` JSON returns null and `GetAsync` falls back to full catalog default — locus: deserialize branch; input: corrupted `WorkspaceAllowedEngineAliases` tenant setting (reachability: admin settings write path or DB tamper).
+- (candidate) `TenantAgentOutputQualityGateModeService.GetAsync` — unrecognized `AgentOutputQualityGateMode` tenant setting value ignored and host default returned — locus: `TryParseMode` failure branch; input: invalid mode string in tenant settings row.
+- (candidate) `TenantProvisioningService.BuildAlreadyProvisionedResultAsync` — duplicate slug/org match returns existing tenant without checking `OffboardedUtc` — locus: already-provisioned branch; input: `POST /v1/register` when normalized org matches an offboarded tenant row (reachability: registration retry semantics).
+- (candidate) `TrialLimitGate.GuardDeleteAsync` — mirrors write guard without `OffboardedUtc` check — locus: lifecycle delete freeze; input: offboarded tenant with `TrialStatus=ReadOnly` (reachability: DELETE through `TrialLimitFilter` after erasure middleware).
+- (candidate) `TenantFindingEngineControlsService` — tenant settings read path may ignore parse failures for engine control toggles — locus: settings repository + parser; input: operator tenant settings API (compare to `WorkspaceModelExecutionProfileService` fallback pattern).
 ## Zone: host-core-coordination
 
 - **id:** host-core-coordination
