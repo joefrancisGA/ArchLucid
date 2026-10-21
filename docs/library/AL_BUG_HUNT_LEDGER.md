@@ -1,9 +1,4 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
-2026-10-21 follow-up (hit, lane C): `knowledge-graph-provenance` — artifact bundle duplicate `ArtifactId` + conflicting `ContentHash` now surfaces via `SynthesizedArtifactBundleCanonicalizer` (Warning log in `ProvenanceGraphAccessService`, metric `archlucid_provenance_artifact_bundle_duplicate_artifact_id_conflict_total`, synthesis trace notes on legacy `ArtifactsJson` hydrate); upstream: relational `UQ_ArtifactBundleArtifacts_ArtifactId` prevents SQL dupes — conflicts only from legacy JSON payloads; `GraphSnapshotSchemaStabilityTests` updated for intentional additive `GraphEdge.DeclaredConnectionId` / `ProvenanceKind` (#3379 IDP-01–04, SchemaVersion 1); scoped KnowledgeGraph 375/375 + Provenance 59/59 passed.
-2026-10-21 thorough hunt (dry): `extraction-router` — lane B; cheap-disproved open `(candidate)` email-domain `ops@owner.example.com` + `unowned` false ownership gap: `@` is a continuing lexical token before `owner`, so `IsValidOwnershipMarkerStartBoundary` rejects the match (regressions `Extract_does_not_emit_ownership_gap_for_email_domain_owner_label_with_unowned` and ownership boundary matrix `email-domain-owner`). No failing repro attempted beyond existing coverage. Scoped `DifficultyBasedExtractionRouter` filter: 77 passed. No production change.
-
-- [x] (invalid) `FindBoundedOwnershipMarkerIndex` — `owner` in email domain label with separate `unowned` — **cheap-disproof 2026-10-21 lane B:** `@` continues token; matrix + unit tests pass.
-
 2026-10-21 seed hunt (seed→hit): `core-azure-extractor` — lane B (picker default `core-tenancy-commercial` held by lane C); promoted Event Hub capture `destination.properties.storageAccountResourceId` nesting — list payloads nest storage id under `destination.properties` like Event Grid 2022-06-15; `TryExtractEventHub` only read top-level `storageAccountResourceId`; now uses nested destination properties with top-level fallback; regression `TryExtractEventHub_reads_capture_storage_from_nested_destination_properties`. Scoped `AzureExtractor` filter: 1573 Core tests passed.
 
 - [x] (proven) `AzureInventoryMessagingAssociationExtractor.TryExtractEventHub` — capture storage id under nested `destination.properties` ignored — **hit 2026-10-21 lane B seed hunt:** `TryReadDestinationProperties` parity with Event Grid; regression above.
@@ -12788,8 +12783,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: extraction-router
 
-2026-10-21 thorough hunt (dry): lane B; email-domain owner candidate invalid; 77 scoped tests passed.
-
 2026-10-12 thorough hunt (dry): re-attempted the retained reachable email-domain `owner` boundary repro for `FindBoundedMarkerIndex` / `IsValidMarkerStartBoundary` with `ops@owner.example.com` plus a separate `unowned` mention. The focused test was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no failing repro, production change, or regression was shipped.
 
 2026-10-12 thorough hunt (dry): attempted the retained reachable email-domain `owner` boundary repro for `FindBoundedMarkerIndex` / `IsValidMarkerStartBoundary` using `ops@owner.example.com` plus a separate `unowned` mention. The focused test was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no failing repro, production change, or regression was shipped.
@@ -12822,10 +12815,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Classify.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Extract.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.LifecycleHelpers.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 39
+- **hunts:** 38
 - **bugs-found:** 19
-- **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-10-21
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-10-12
 - **last-bug:** 2026-09-27 — DNS/path dot false positive for `owner` token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -41592,6 +41585,10 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 ---
 
 ## Zone: ui-review-detail-workspace
+2026-10-21 seed hunt (seed→hit): promoted ledger `(candidate)` `RunExplanationSection` `runExplanationProvenanceOpen` syncing only on `popstate`; provenance metadata `<details>` stayed closed on Next.js soft navigation; reconcile from `useSearchParams`; regression `follows runExplanationProvenanceOpen query changes without a popstate event`; cheap-disproof closed `use-review-detail-workspace-tabs`, `RunDetailRunGovernanceDispositionActions`, and `ReviewWorkbenchSelectionContext` (already reconcile from `useSearchParams`); seeded five follow-on `(candidate)` rows.
+
+- [x] (proven) `RunExplanationSection` — `runExplanationProvenanceOpen` ignored on Next.js soft navigation — **hit 2026-10-21 seed hunt:** reconcile provenance disclosure from `useSearchParams`; regression `follows runExplanationProvenanceOpen query changes without a popstate event`.
+
 2026-10-20 seed hunt (seed->hit): promoted `RunDetailSponsorBriefingSection` `runDetailSponsorBriefingOpen` syncing only on `popstate`, leaving sponsor briefing collapsible stale on Next.js soft navigation; reconcile from `useSearchParams`; regression `follows runDetailSponsorBriefingOpen query changes without a popstate event`; `RunDetailSponsorBriefingSection.url-sync.test.tsx` 1/1; cheap-disproof closed `use-review-detail-workspace-tabs` (already reconciles `reviewTab` from `useSearchParams`); seeded five follow-on `(candidate)` rows.
 
 - [x] (proven) `RunDetailSponsorBriefingSection` — `runDetailSponsorBriefingOpen` ignored on Next.js soft navigation — **hit 2026-10-20 seed hunt:** reconcile sponsor briefing collapsible from `useSearchParams`; regression `follows runDetailSponsorBriefingOpen query changes without a popstate event`.
@@ -41602,7 +41599,7 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - [ ] (candidate) `RunDetailRunGovernanceDispositionActions` — `runDispDecision` confirm dialog open sync only on `popstate` — locus: governance disposition actions; input: soft navigation with disposition confirm query.
 - [ ] (candidate) `RunFindingExplainabilityTable` — explainability row expansion query sync only on `popstate` — locus: finding explainability table; input: soft navigation sets explainability open param.
 - [ ] (candidate) `RunExplanationSection` — provenance disclosure `runExplanationProvenanceOpen` sync only on `popstate` — locus: run explanation section; input: soft navigation with provenance open query on overview tab.
-- [ ] (candidate) `use-review-detail-workspace-tabs` — active workspace tab from URL sync only on `popstate` — locus: review detail tab strip; input: `router.push` changes `reviewTab` without back/forward.
+- [x] (valid-no-repro) `use-review-detail-workspace-tabs` — **cheap-disproof 2026-10-21 seed hunt:** reconciles `reviewTab` from `useSearchParams`; regression `follows reviewTab query changes without a popstate event`.
 - [ ] (candidate) `ReviewWorkbenchSelectionContext` — selected finding id from URL sync only on `popstate` — locus: workbench selection provider; input: soft navigation updates `findingId` query on inspect workspace.
 
 2026-10-16 seed hunt (seed→hit): promoted operator technical disclosure `runTechnicalDetailsOpen` soft-navigation sync.
@@ -41799,17 +41796,22 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - [x] (proven) `ArchitectureCreatedClarificationsPanel` (create-home arch tabs) — diagram/findings/activity `buildReviewWorkspaceTabHref` calls omitted `includeCreateIntent` — **hit 2026-09-27 thorough hunt:** zero-gap success CTAs dropped create-home chrome; fixed with `includeCreateIntent: true`; regression `preserves create-home intent on zero-gap workspace tab links (TB-1836)`
 - [x] (valid-no-repro) `resolveReviewWorkspaceLifecycle` — returns `finalized` whenever `manifestId` is set even if `showProgressTracker` and `runCompleted` indicate analysis still in flight — **cheap-disproof 2026-09-27 thorough hunt:** mirrors `resolveReviewDetailTabLifecycleStage` committed stage (TB-2175); in-flight UX uses progress tracker / `resolveReviewPackagePipelineInFlight`, not coarse lifecycle; regression `returns finalized when manifest is present even if the progress tracker is still on (TB-2175)`
 
+- [ ] (candidate) `RunFindingExplainabilityTable` — per-finding explainability row expansion query sync only on `popstate` — locus: explainability table; input: soft navigation sets finding explainability open param on overview.
+- [ ] (candidate) `ReviewAskDock` — closing dock when `askDock` cleared without `popstate` — locus: ask dock dialog; input: Link removes open flag on soft navigation.
+- [ ] (candidate) `SponsorRehearsalPreviewPanel` — `sponsorRehearsalPreviewOpen` stale after in-app navigation from run detail — locus: sponsor rehearsal preview; input: workspace deep link toggles preview param.
+- [ ] (candidate) `TechnologyBaselinePanel` — evidence ref entry id from URL sync only on `popstate` for nested disclosure — locus: technology baseline panel; input: soft navigation sets `technologyBaselineEvidenceRefEntryId`.
+- [ ] (candidate) `RunDetailPresenterElicitationBridge` — presenter vs room elicitation mode divergence when only `presenter` query changes — locus: presenter elicitation bridge; input: soft navigation updates `presenter` without `popstate`.
 - **id:** ui-review-detail-workspace
 - **status:** open
 - **impact:** high
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 41
-- **bugs-found:** 32
-- **consecutive-dry-hunts:** 0
+- **hunts:** 42
+- **bugs-found:** 33
+- **hunts:** 42
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — findings toolbar findingJobView ignored soft navigation
+- **last-bug:** 2026-10-21 — run explanation provenance disclosure ignored soft navigation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.
