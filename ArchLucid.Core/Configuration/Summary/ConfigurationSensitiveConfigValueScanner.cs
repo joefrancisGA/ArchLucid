@@ -76,8 +76,8 @@ internal static class ConfigurationSensitiveConfigValueScanner
 
     /// <summary>
     ///     ADO.NET and Azure storage connection strings allow whitespace around <c>=</c>.
-    ///     Pair keys are recognized at the start of the value and after each <c>;</c> or <c>,</c>
-    ///     (Azure Cache for Redis uses comma-delimited pairs).
+    ///     Pair keys are recognized at the start of the value and after each <c>;</c>, <c>,</c>, or <c>|</c>
+    ///     (Azure Cache for Redis uses comma-delimited pairs; some libpq-style strings use pipe).
     /// </summary>
     private static bool ContainsCredentialConnectionPair(ReadOnlySpan<char> trimmed)
     {
@@ -92,7 +92,8 @@ internal static class ConfigurationSensitiveConfigValueScanner
             ReadOnlySpan<char> remainder = trimmed.Slice(index);
             int semicolon = remainder.IndexOf(';');
             int comma = remainder.IndexOf(',');
-            int delimiter = NextPairDelimiterOffset(semicolon, comma);
+            int pipe = remainder.IndexOf('|');
+            int delimiter = NextPairDelimiterOffset(semicolon, comma, pipe);
 
             if (delimiter < 0)
                 return false;
@@ -106,15 +107,20 @@ internal static class ConfigurationSensitiveConfigValueScanner
         return false;
     }
 
-    private static int NextPairDelimiterOffset(int semicolon, int comma)
+    private static int NextPairDelimiterOffset(int semicolon, int comma, int pipe)
     {
-        if (semicolon < 0)
-            return comma;
+        int delimiter = -1;
 
-        if (comma < 0)
-            return semicolon;
+        if (semicolon >= 0)
+            delimiter = semicolon;
 
-        return semicolon < comma ? semicolon : comma;
+        if (comma >= 0 && (delimiter < 0 || comma < delimiter))
+            delimiter = comma;
+
+        if (pipe >= 0 && (delimiter < 0 || pipe < delimiter))
+            delimiter = pipe;
+
+        return delimiter;
     }
 
     private static bool TryMatchCredentialPairAt(ReadOnlySpan<char> value, int index)
