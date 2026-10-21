@@ -625,6 +625,26 @@ public sealed class CachingReferenceDataRepositoryTests
     }
 
     [Fact]
+    public async Task TenantSettings_TryGetAsync_throws_when_setting_key_whitespace_only_without_poisoning_cache()
+    {
+        HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
+        HybridHotPathReadCache hotPath = HybridHotPathCacheTestFactory.Create(options);
+        InMemoryTenantSettingsRepository inner = new();
+        CachingTenantSettingsRepository repo = new(inner, hotPath);
+
+        Guid tenantId = Guid.NewGuid();
+
+        await repo.UpsertAsync(tenantId, "feature.x", "committed", CancellationToken.None);
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().Be("committed");
+
+        Func<Task> act = () => repo.TryGetAsync(tenantId, "   ", CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>();
+
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().Be("committed");
+    }
+
+    [Fact]
     public async Task TenantSettings_TryGetAsync_throws_when_tenant_id_empty_without_poisoning_cached_tenant()
     {
         HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };

@@ -1,4 +1,6 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
+2026-10-21 seed hunt (seed-only, lane C): `tenant-settings-sql` — lock verified on origin; cheap-disproof closed five open `(candidate)` rows (write-in-flight cache race, post-commit stale read during in-flight bypass, cross-process generation reset, cache-key delimiter collision, cancel-after-SQL-read boundary); regression `TenantSettings_TryGetAsync_throws_when_setting_key_whitespace_only_without_poisoning_cache`; reaffirmed existing `TenantSettings_TryGetAsync_reflects_*` concurrency suite; seeded five follow-on `(candidate)` rows; 44 scoped `SqlTenantSettingsRepository` + `TenantSettings_` tests passed (`RunAnalyzers=false`).
+
 2026-10-21 thorough hunt (hit, lane B): `application-pilots` — lock `application-pilots` pushed and verified on `origin/bugsmash` before work; code-read proved UTF-8 mojibake `Â·` in sponsor-facing first-value elapsed copy (`FirstValueReportDeltasSectionFormatter.AppendElapsedSection`), proof-package mirror row (`FirstValueReportProofPackageSectionFormatter`), and sponsor one-pager evidence-chain PDF lines (`SponsorOnePagerPdfBuilder`); replaced with middle dot `·`; regression `AppendElapsedSection_uses_utf8_middle_dot_between_created_and_committed_timestamps`; cheap-disproof closed five picker `(candidate)` rows (audit-labeled `Recommendations generated` with empty run-detail sample remains tenant-wide audit rollup by design — `Format_when_audit_export_truncated_with_empty_timeline_still_surfaces_comparison_drift_count`; `CommittedRunsInventoryTruncated` vs low `TotalRunsCommitted` reflects keyset cap independent of run-detail `TakeLast` — 2026-10-15 closure; compact artifact summary has no `TotalFindings` field — `Build_when_audit_row_count_truncated_does_not_echo_cap_in_compact_summary`; governed-finding coverage derives from agent/snapshot findings not capped audit row fetch — `AppendComputedDeltasSection_when_audit_rows_truncated_discloses_cap_in_audit_metric_row`; recent-deltas tie-break — `GetRecentDeltasAsync_WhenSortKeysTie_OrdersByRunIdDescendingSoPanelOrderIsStable`); scoped picker filter `FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack|FullyQualifiedName~FirstValueReportDeltasSectionFormatter|FullyQualifiedName~PilotValueReportMarkdownFormatter|FullyQualifiedName~RecentPilotRunDeltasService` 72 passed (`RunAnalyzers=false`).
 2026-10-21 thorough hunt (hit, lane B): `host-composition` — lock `host-composition` pushed and verified on `origin/bugsmash` before work; promoted picker `(candidate)` on `InMemoryValueReportJobQueue.RunJobAsync` / `WriteDistributedState` — completed async value-report jobs logged a warning when distributed poll-state `Set` failed but left the in-process entry `Completed`, so the enqueueing replica returned DOCX bytes while a peer replica kept reading stale `Pending` from cache; `TryWriteDistributedState` returns success/failure and completion now transitions to `Failed` with retryable copy plus best-effort failed-state write when completed persistence fails; regression `TryPoll_on_peer_instance_reports_failure_when_completed_state_cannot_be_persisted`; cheap-disproof closed three sibling candidates (`PollingCollectionRunDiscovery` null artifact skip is intentional missing `packageBlobPath`; `GraphProjectionCacheInvalidationSubscriberHostedService` malformed payload ignore is defensive; `SqlStorageProviderRegistrar` empty blob reader when client missing matches SQL-only host contract); scoped picker filter `FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions` 470 passed (`RunAnalyzers=false`).
 
@@ -8747,7 +8749,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: tenant-settings-sql
 
-**Hunts:** 53 · **Bugs found:** 7 · **Consecutive dry hunts:** 13
+2026-10-21 seed hunt (seed-only, lane C): cheap-disproof five open cache/SQL candidates; one new regression; seeded five follow-on rows; 44 scoped tests passed.
+
+**Hunts:** 54 · **Bugs found:** 7 · **Consecutive dry hunts:** 13
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected SQL and caching repositories; seeded five reachable follow-on `(candidate)` rows; 17 focused `SqlTenantSettingsRepository` tests passed; no production code changed and no regression was added.
 
@@ -8761,11 +8765,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 2026-10-08 seed hunt (seed-only): re-read the selected SQL, cache, migration, and focused test paths; no fresh reachable mechanism-backed candidate remained after prior cache, normalization, schema, and concurrency coverage; added no regression and no new candidate row.
 
-- [ ] (candidate) `CachingTenantSettingsRepository.TryGetAsync` — the cache-miss check can race with `WriteInFlightKeys.TryAdd`, allowing a cold read to cache the pre-write value — locus: `ContainsKey` check ~29–31 followed by `GetOrCreateAsync`; input: read starts immediately before a concurrent upsert marks the slot in-flight.
-- [ ] (candidate) `CachingTenantSettingsRepository.TryGetAsync` — a read that bypasses the cache during a write can return an older value after the write has committed — locus: direct `_inner.TryGetAsync` branch ~31; input: read begins during upsert and completes after the upsert commits.
-- [ ] (candidate) `CachingTenantSettingsRepository.CacheGenerations` — process restart resets generation counters while a shared cache can still contain old `:g0` entries — locus: static dictionary initialization ~13; input: application restart followed by a read before the shared cache TTL expires.
-- [ ] (candidate) `CachingTenantSettingsRepository.BuildCacheKey` — tenant-setting keys containing the cache-key delimiter may collide with another normalized key — locus: string interpolation ~103; input: two setting keys whose serialized key segments produce the same cache key.
-- [ ] (candidate) `SqlTenantSettingsRepository.TryGetCoreAsync` — cancellation after `QuerySingleOrDefaultAsync` completes but before the method returns can surface cancellation despite a committed read — locus: awaited Dapper query and post-query trim ~62–68; input: request token canceled in the return boundary.
+- [x] (valid-no-repro) `CachingTenantSettingsRepository.TryGetAsync` — cache-miss races `WriteInFlightKeys.TryAdd` — **cheap-disproof 2026-10-21 seed hunt (lane C):** write-in-flight bypass and generation bumps; regressions `TenantSettings_TryGetAsync_reflects_upsert_when_read_started_before_write_completed` and `TenantSettings_TryGetAsync_reflects_upsert_after_cached_miss_before_generation_bump`., allowing a cold read to cache the pre-write value — locus: `ContainsKey` check ~29–31 followed by `GetOrCreateAsync`; input: read starts immediately before a concurrent upsert marks the slot in-flight.
+- [x] (valid-no-repro) `CachingTenantSettingsRepository.TryGetAsync` — in-flight read bypass may observe pre-commit inner state — **cheap-disproof 2026-10-21 seed hunt (lane C):** intentional read-through during `WriteInFlightKeys`; post-commit reads use bumped generation; `TenantSettings_TryGetAsync_reflects_upsert_when_read_started_before_write_completed`. — locus: direct `_inner.TryGetAsync` branch ~31; input: read begins during upsert and completes after the upsert commits.
+- [x] (invalid) `CachingTenantSettingsRepository.CacheGenerations` — process restart vs shared cache `:g0` entries — **cheap-disproof 2026-10-21 seed hunt (lane C):** cross-instance/process cache coherence is outside single-decorator contract; generation stamp is process-local by design. — locus: static dictionary initialization ~13; input: application restart followed by a read before the shared cache TTL expires.
+- [x] (invalid) `CachingTenantSettingsRepository.BuildCacheKey` — delimiter collision between normalized setting keys — **cheap-disproof 2026-10-21 seed hunt (lane C):** keys are normalized lowercase tokens from `TenantSettingKeys` family; no production delimiter injection path. with another normalized key — locus: string interpolation ~103; input: two setting keys whose serialized key segments produce the same cache key.
+- [x] (invalid) `SqlTenantSettingsRepository.TryGetCoreAsync` — cancellation after Dapper read completes — **cheap-disproof 2026-10-21 seed hunt (lane C):** completed query results are not rolled back by token cancel; no incorrect state surfaced. but before the method returns can surface cancellation despite a committed read — locus: awaited Dapper query and post-query trim ~62–68; input: request token canceled in the return boundary.
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected SQL and caching repositories; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
@@ -8796,7 +8800,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `CachingTenantSettingsRepository` — `TenantSettingCacheEntry.IsPresent` distinguishes cached miss from HybridCache absent entry — **cheap-disproof 2026-10-08 seed hunt #46:** cached miss is refreshed after generation bump; regression `TenantSettings_TryGetAsync_reflects_upsert_after_cached_miss_before_generation_bump`.
 
 - [ ] (candidate) `SqlTenantSettingsRepository.UpsertCoreAsync` — normalizes the key before `TenantSettingsWriteGuard` but trims the value only in SQL parameters — locus: `normalizedKey` and `SettingValue = settingValue.Trim()` ~83–107; input: setting value containing leading/trailing Unicode whitespace.
-- [ ] (candidate) `CachingTenantSettingsRepository.TryGetAsync` — invalid `settingKey` is normalized before the cache read and may throw outside the inner repository's validation boundary — locus: `TenantSettingKeyNormalizer.Normalize` ~26; input: null or whitespace key through the caching decorator.
+- [x] (valid-no-repro) `CachingTenantSettingsRepository.TryGetAsync` — whitespace-only setting key throws at normalizer — **cheap-disproof 2026-10-21 seed hunt (lane C):** regression `TenantSettings_TryGetAsync_throws_when_setting_key_whitespace_only_without_poisoning_cache`. — locus: `TenantSettingKeyNormalizer.Normalize` ~26; input: null or whitespace key through the caching decorator.
 - [ ] (candidate) `CachingTenantSettingsRepository.UpsertAsync` — `WriteInFlightKeys.TryAdd` does not record whether a prior writer owns the slot — locus: `WriteInFlightKeys` ~59–67; input: concurrent upserts for the same tenant/key with one cancellation.
 - [ ] (candidate) `SqlTenantSettingsRepository.TryGetCoreAsync` — `QuerySingleOrDefaultAsync` assumes one row per tenant/key and surfaces duplicate-row data errors — locus: scalar Dapper query ~62–68; input: legacy duplicate `TenantSettings` rows before unique-key repair.
 - [ ] (candidate) `TenantSettingsWriteGuard.EnsureSettingValueLength` — .NET `Trim()` and SQL `SettingValue` storage may disagree for non-breaking-space edge padding — locus: `settingValue.Trim()` ~11; input: value padded with `U+00A0` at the NVARCHAR boundary.
@@ -8825,10 +8829,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 56
+- **hunts:** 57
 - **bugs-found:** 7
-- **consecutive-dry-hunts:** 13
-- **last-hunt:** 2026-10-08
+- **consecutive-dry-hunts:** 14
+- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-09-08 — WorkspaceAllowedEngineSetService allowed-engine JSON exceeded TenantSettings NVARCHAR(512)
 - **related-pd-tb:** PD-003
 - **code-changed-since:** unknown
@@ -8996,6 +9000,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-07 seed hunt #1240 (seed-only): reseeded after #1239 fixes; cheap-disproof on concurrent upsert write-in-flight drop, upsert cached-hit symmetric gap, and duplicate-key SQL read; added upsert/delete parity regressions; no new hunt-ready row reproduces.
 
 ---
+
+- (candidate) `CachingTenantSettingsRepository.UpsertAsync` — `finally` removes `WriteInFlightKeys` before hybrid cache invalidation finishes so a follow-up read may repopulate stale generation — locus: `TryRemove` in `finally` ~68–71 vs `InvalidateCurrentGenerationCacheAsync`; input: upsert completes, invalidation slow, immediate read on another thread.
+- (candidate) `SqlTenantSettingsRepository.TryGetCoreAsync` — `QuerySingleOrDefaultAsync` throws when duplicate rows exist for the same tenant/key — locus: scalar query ~61–66; input: manual catalog repair leaves two `TenantSettings` rows before unique constraint enforcement.
+- (candidate) `TenantSettingsWriteGuard.EnsureSettingValueLength` — JSON with `\u0000` inside trim budget passes guard but SQL rejects or truncates — locus: length-only guard; input: compact JSON setting value containing embedded null code unit at 512 boundary.
+- (candidate) `CachingTenantSettingsRepository.TryGetAsync` — cached `TenantSettingCacheEntry` with `IsPresent=true` and empty string value is treated as absent — locus: `!entry.IsPresent` ~43–44; input: legacy SQL row with empty non-null `SettingValue` if ever inserted out-of-band.
+- (candidate) `SqlTenantSettingsRepository.UpsertCoreAsync` — `MERGE` `UpdatedUtc` refresh on matched update is observable as duplicate audit events when Polly retries transient deadlocks — locus: `SqlResilientOperationExecutor` replay; input: deadlock on first MERGE attempt then success on retry.
+
 
 ## Zone: ui-form-validation
 
