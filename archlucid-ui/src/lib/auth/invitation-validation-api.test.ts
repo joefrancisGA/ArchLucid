@@ -57,11 +57,32 @@ describe("validateInvitationToken (pre-auth proxy)", () => {
     expect(url).toContain("token=invite%2Btoken");
   });
 
-  it("throws invitation_validation_failed on any non-OK proxy response", async () => {
+  it("throws ApiRequestError with Retry-After on HTTP 429 so invite recovery can show the capped window", async () => {
+    const { ApiRequestError } = await import("@/lib/api-request-error");
+
+    vi.mocked(fetch).mockResolvedValueOnce(
+      new Response(null, {
+        status: 429,
+        headers: { "Retry-After": "900" },
+      }),
+    );
+
+    await expect(validateInvitationToken("invite-token-value")).rejects.toSatisfy((error: unknown) => {
+      return (
+        error instanceof ApiRequestError &&
+        error.httpStatus === 429 &&
+        error.retryAfterSeconds === 900
+      );
+    });
+  });
+
+  it("throws ApiRequestError on other non-OK proxy responses", async () => {
+    const { ApiRequestError } = await import("@/lib/api-request-error");
+
     vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 404 }));
 
-    await expect(validateInvitationToken("invite-token-value")).rejects.toThrow(
-      "invitation_validation_failed",
+    await expect(validateInvitationToken("invite-token-value")).rejects.toBeInstanceOf(
+      ApiRequestError,
     );
   });
 });
