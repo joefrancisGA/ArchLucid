@@ -5984,3 +5984,6 @@
 {"at":"2026-10-21T17:09:13.5571384Z","zoneId":"api-governance-tenancy-controllers","outcome":"dry","productLine":"archlucid-shared","paths":["@(ArchLucid.Api/Controllers/Governance/,ArchLucid.Api/Controllers/Tenancy/)"]}
 {"at":"2026-10-21T17:10:16.6291284Z","zoneId":"ui-operator-routes","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/operator/operator-url-query-writer-guard.ts"]}
 {"at":"2026-10-21T17:10:25.1536080Z","zoneId":"ui-operator-routes","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T17:13:39.6064192Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T17:14:16.8474808Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared","severity":"medium","defectClass":"state-machine-gap"}
+{"at":"2026-10-21T17:14:51.1267330Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared","severity":"medium","defectClass":"state-machine-gap"}
