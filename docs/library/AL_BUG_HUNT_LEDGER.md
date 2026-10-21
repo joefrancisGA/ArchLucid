@@ -4,6 +4,13 @@
 
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
+2026-10-21 thorough hunt (dry): `topology-proposal-merge` — lane B; manual zone (picker host error on `property 'at'`); cheap-disproof closed four open `(candidate)` rows: critic bypass pre-registration (Critic uses overlay validation and shared `accumulatedEndpointKeys`), chained rename alias (`TryResolveNodeId` / index regressions), ARM-vs-rename consensus intersection (map lookup before ARM branch in `CanonicalizeConsensusRelationshipEndpoint`), topology extension on inventoried graph (`allowTopologyExtension` gated on agent-proposed topology nodes). No failing repro. Scoped merge/graph/edge-mapper/consensus filter: 2186 passed. No production change.
+
+- [x] (invalid) `AgentTopologyProposalMergeGate.FilterValidatedProposals` — critic batch bypasses endpoint pre-registration — **cheap-disproof 2026-10-21 lane B:** Critic is overlay-validated; merge order Topology→Cost→Compliance→Critic.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — chained rename alias — **cheap-disproof 2026-10-21 lane B:** no failing repro; existing mapper/index coverage.
+- [x] (valid-no-repro) `TopologyProposalConsensusMerger.CanonicalizeConsensusRelationshipEndpoint` — ARM id vs rename label intersect — **cheap-disproof 2026-10-21 lane B:** canonical map consulted before ARM normalization.
+- [x] (invalid) `AgentTopologyProposalMergeGate.FilterValidatedProposals` — unsupported topology extension after overlay — **cheap-disproof 2026-10-21 lane B:** extension requires `HasAgentProposedTopologyNodes` or empty inventory.
+
 2026-10-21 seed hunt (seed→hit): `cloud-extractors` — lane B; promoted `ListChildJsonElementsAsync` dropping `partialCollection` from `ListJsonElementsAtRelativePathAsync` so Event Grid, messaging, AVD session hosts, and Service Connector child listings looked complete after mid-pagination ARM failures (PaaS paths already use `ListChildResourcesWithStatusAsync` + `partial-child-enumeration` on trunk); `ListChildJsonElementsAsync` now returns `HostedAzureArmChildCollectionReadResult` and collectors log Warning on partial retain; regression `ListChildJsonElementsAsync_marks_partial_when_later_page_fails` (reuses upstream `CollectAsync_warns_when_sql_database_list_is_partially_collected`). Scoped Aws/Gcp/Azure extractor filter: 211 passed.
 
 - [x] (proven) `ListChildJsonElementsAsync` — partial ARM child pagination retained rows but callers never observed `PartialCollection` — **hit 2026-10-21 lane B seed hunt:** return `HostedAzureArmChildCollectionReadResult`; wire non-PaaS AX-DE collectors; regression above.
