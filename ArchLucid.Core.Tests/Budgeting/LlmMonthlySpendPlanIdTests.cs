@@ -23,6 +23,18 @@ public sealed class LlmMonthlySpendPlanIdTests
     }
 
     [Fact]
+    public void FromCommercialPackaging_maps_team_label_when_subscription_reports_zero_seats()
+    {
+        BillingSubscriptionSnapshot subscription = new("stripe", nameof(TenantTier.Standard), 0, 1, "Active");
+
+        string? planId = LlmMonthlySpendPlanId.FromCommercialPackaging(
+            CommercialPackagingTierLabels.Team,
+            subscription);
+
+        planId.Should().Be(LlmMonthlySpendPlanId.Team);
+    }
+
+    [Fact]
     public void FromCommercialPackaging_maps_team_label_when_subscription_is_the_five_seat_bundle()
     {
         BillingSubscriptionSnapshot subscription = new("stripe", nameof(TenantTier.Standard), 5, 1, "Active");

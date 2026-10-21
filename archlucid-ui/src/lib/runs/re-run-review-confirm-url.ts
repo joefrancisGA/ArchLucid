@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const RE_RUN_REVIEW_CONFIRM_OPEN_PARAM = "reRunConfirmOpen";
 export const RE_RUN_REVIEW_CONFIRM_SOURCE_PARAM = "reRunConfirmSource";
 
@@ -44,22 +45,22 @@ export function reRunReviewConfirmHrefFromSearch(
   pathname: string,
   sourceTestId: string | null = null,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!open) {
-    params.delete(RE_RUN_REVIEW_CONFIRM_OPEN_PARAM);
-    params.delete(RE_RUN_REVIEW_CONFIRM_SOURCE_PARAM);
-  } else {
-    params.set(RE_RUN_REVIEW_CONFIRM_OPEN_PARAM, "1");
-
-    if (sourceTestId !== null && sourceTestId.length > 0) {
-      params.set(RE_RUN_REVIEW_CONFIRM_SOURCE_PARAM, sourceTestId);
-    } else {
+    if (!open) {
+      params.delete(RE_RUN_REVIEW_CONFIRM_OPEN_PARAM);
       params.delete(RE_RUN_REVIEW_CONFIRM_SOURCE_PARAM);
+    } else {
+      params.set(RE_RUN_REVIEW_CONFIRM_OPEN_PARAM, "1");
+
+      if (sourceTestId !== null && sourceTestId.length > 0) {
+        params.set(RE_RUN_REVIEW_CONFIRM_SOURCE_PARAM, sourceTestId);
+      } else {
+        params.delete(RE_RUN_REVIEW_CONFIRM_SOURCE_PARAM);
+      }
     }
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    },
+  });
 }

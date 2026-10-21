@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const QUICK_SCAN_PRIVACY_DISCLOSURE_OPEN_PARAM = "quickScanPrivacyDisclosureOpen";
 
 export function parseQuickScanPrivacyDisclosureOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function quickScanPrivacyDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(QUICK_SCAN_PRIVACY_DISCLOSURE_OPEN_PARAM);
-  } else {
-    params.set(QUICK_SCAN_PRIVACY_DISCLOSURE_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, QUICK_SCAN_PRIVACY_DISCLOSURE_OPEN_PARAM);
 }

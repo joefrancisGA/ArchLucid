@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import { DEFAULT_FINDING_JOB_VIEW } from "@/lib/findings/finding-job-view";
 import { EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS } from "@/lib/findings/findings-natural-language-filter";
 
+import { GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM } from "@/lib/governance/governance-findings-resource-group-disclosure-url";
+
 import {
   governanceFindingsRunScopedSavedViewHref,
   governanceFindingsWorkspaceSavedViewHref,
@@ -40,6 +42,7 @@ describe("governanceFindingsWorkspaceSavedViewHref", () => {
     expect(href).toContain("findingJobView=ready-for-sponsor-packet");
     expect(href).toContain("groupBy=resource");
     expect(href).toContain("severity=high");
+    expect(href).not.toContain(GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM);
   });
 });
 

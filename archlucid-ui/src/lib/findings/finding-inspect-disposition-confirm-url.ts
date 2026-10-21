@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const FINDING_INSPECT_DISP_CONFIRM_PARAM = "dispConfirm";
 
 export const FINDING_INSPECT_DISP_CONFIRM_OPTIONS = ["disposition", "mark-remediated"] as const;
@@ -27,15 +28,15 @@ export function findingInspectDispositionConfirmHrefFromSearch(
   confirm: FindingInspectDispositionConfirmUrlValue | null,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (confirm === null) {
-    params.delete(FINDING_INSPECT_DISP_CONFIRM_PARAM);
-  } else {
-    params.set(FINDING_INSPECT_DISP_CONFIRM_PARAM, confirm);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (confirm === null) {
+      params.delete(FINDING_INSPECT_DISP_CONFIRM_PARAM);
+    } else {
+      params.set(FINDING_INSPECT_DISP_CONFIRM_PARAM, confirm);
+    }
+    },
+  });
 }

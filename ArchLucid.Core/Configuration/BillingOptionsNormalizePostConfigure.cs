@@ -15,24 +15,7 @@ public sealed class BillingOptionsNormalizePostConfigure : IPostConfigureOptions
 
     private static void NormalizePlanIdTierMap(AzureMarketplaceBillingOptions marketplace)
     {
-        Dictionary<string, string>? map = marketplace.PlanIdTierMap;
-
-        if (map is not { Count: > 0 })
-            return;
-
-        Dictionary<string, string> normalized = new(StringComparer.OrdinalIgnoreCase);
-
-        foreach (KeyValuePair<string, string> entry in map)
-        {
-
-            if (string.IsNullOrWhiteSpace(entry.Key))
-                continue;
-
-            string key = entry.Key.Trim();
-            string tier = entry.Value is null ? string.Empty : entry.Value.Trim();
-            normalized[key] = tier;
-        }
-
-        marketplace.PlanIdTierMap = normalized;
+        marketplace.PlanIdTierMap = ConfigurationDictionaryBindingKeyNormalizer.NormalizeTrimmedKeysAndStringValues(
+            marketplace.PlanIdTierMap);
     }
 }

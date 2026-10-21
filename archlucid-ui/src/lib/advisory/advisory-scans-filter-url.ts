@@ -1,4 +1,5 @@
 import { GOVERNANCE_ADVISORY_SCANS_PATH } from "@/lib/governance/governance-route-paths";
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 
 export const ADVISORY_SCANS_RUN_ID_PARAM = "runId";
 export const ADVISORY_SCANS_COMPARE_TO_PARAM = "compareTo";
@@ -40,6 +41,7 @@ export function advisoryScansFilterHrefFromSearch(
   pathname: string = GOVERNANCE_ADVISORY_SCANS_PATH,
 ): string {
   const params = new URLSearchParams(currentSearch);
+  applyOperatorUrlSelectionSwitch(params, { kind: "disclosure-only" });
 
   if (patch.runId !== undefined) {
     const trimmed = patch.runId.trim();

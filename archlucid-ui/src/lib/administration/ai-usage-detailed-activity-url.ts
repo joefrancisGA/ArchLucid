@@ -1,4 +1,5 @@
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const AI_USAGE_DETAILED_ACTIVITY_OPEN_PARAM = "aiUsageDetailedActivityOpen";
 
@@ -17,15 +18,15 @@ export function aiUsageDetailedActivityHrefFromSearch(
   open: boolean,
   pathname: string = AI_USAGE_SETTINGS_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!open) {
-    params.delete(AI_USAGE_DETAILED_ACTIVITY_OPEN_PARAM);
-  } else {
-    params.set(AI_USAGE_DETAILED_ACTIVITY_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!open) {
+      params.delete(AI_USAGE_DETAILED_ACTIVITY_OPEN_PARAM);
+    } else {
+      params.set(AI_USAGE_DETAILED_ACTIVITY_OPEN_PARAM, "1");
+    }
+    },
+  });
 }

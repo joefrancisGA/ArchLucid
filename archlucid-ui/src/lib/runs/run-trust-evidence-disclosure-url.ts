@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const TRUST_EVIDENCE_FIELDS_OPEN_PARAM = "trustEvidenceFieldsOpen";
 export const TRUST_EVIDENCE_TECH_OPEN_PARAM = "trustEvidenceTechOpen";
 
@@ -31,21 +32,21 @@ export function runTrustEvidenceDisclosureHrefFromSearch(
   state: RunTrustEvidenceDisclosureUrlState,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!state.fieldsOpen) {
-    params.delete(TRUST_EVIDENCE_FIELDS_OPEN_PARAM);
-  } else {
-    params.set(TRUST_EVIDENCE_FIELDS_OPEN_PARAM, "1");
-  }
+    if (!state.fieldsOpen) {
+      params.delete(TRUST_EVIDENCE_FIELDS_OPEN_PARAM);
+    } else {
+      params.set(TRUST_EVIDENCE_FIELDS_OPEN_PARAM, "1");
+    }
 
-  if (!state.technicalOpen) {
-    params.delete(TRUST_EVIDENCE_TECH_OPEN_PARAM);
-  } else {
-    params.set(TRUST_EVIDENCE_TECH_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!state.technicalOpen) {
+      params.delete(TRUST_EVIDENCE_TECH_OPEN_PARAM);
+    } else {
+      params.set(TRUST_EVIDENCE_TECH_OPEN_PARAM, "1");
+    }
+    },
+  });
 }

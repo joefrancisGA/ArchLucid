@@ -11,11 +11,11 @@ public static class ApiRequestNullCollectionElementsGuard
     private static readonly NullabilityInfoContext NullabilityContext = new();
 
     public const string ValidationMessage =
-        "Request body collections must not contain null elements.";
+        "Request body collection properties must not be null when required, and collections must not contain null elements.";
 
     /// <summary>
-    ///     Returns true when <paramref name="root" /> contains a null element in any enumerable collection
-    ///     (excluding strings and byte arrays) whose element type is not annotated nullable.
+    ///     Returns true when <paramref name="root" /> has a null non-nullable collection property, or contains a null
+    ///     element in any enumerable collection (excluding strings and byte arrays) whose element type is not annotated nullable.
     /// </summary>
     public static bool ContainsNullCollectionElement(object? root)
     {
@@ -53,7 +53,13 @@ public static class ApiRequestNullCollectionElementsGuard
             object? propertyValue = property.GetValue(value);
 
             if (propertyValue is null)
+            {
+
+                if (IsNullNonNullableCollectionProperty(property))
+                    return true;
+
                 continue;
+            }
 
             if (VisitPropertyValue(propertyValue, property, visited))
                 return true;
@@ -96,6 +102,21 @@ public static class ApiRequestNullCollectionElementsGuard
         }
 
         return false;
+    }
+
+    private static bool IsNullNonNullableCollectionProperty(PropertyInfo property)
+    {
+        Type propertyType = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+
+        if (!IsEnumerableCollection(propertyType))
+            return false;
+
+        return !AllowsNullProperty(NullabilityContext.Create(property));
+    }
+
+    internal static bool AllowsNullProperty(NullabilityInfo nullability)
+    {
+        return nullability.ReadState == NullabilityState.Nullable;
     }
 
     internal static bool AllowsNullElements(NullabilityInfo nullability)

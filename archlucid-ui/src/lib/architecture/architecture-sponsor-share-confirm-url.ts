@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const ARCHITECTURE_SPONSOR_SHARE_CONFIRM_PARAM = "sponsorShareConfirm";
 
 export function parseArchitectureSponsorShareConfirmOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function architectureSponsorShareConfirmHrefFromSearch(
   confirmOpen: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!confirmOpen) {
-    params.delete(ARCHITECTURE_SPONSOR_SHARE_CONFIRM_PARAM);
-  } else {
-    params.set(ARCHITECTURE_SPONSOR_SHARE_CONFIRM_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, confirmOpen, pathname, ARCHITECTURE_SPONSOR_SHARE_CONFIRM_PARAM);
 }

@@ -291,6 +291,62 @@ public sealed class GovernanceDigestDecisionNeededComposerTests
         markdown.Should().NotContain("f-closed-deferred");
     }
 
+    [Fact]
+    public async Task BuildDecisionNeededMarkdownAsync_fyi_remediated_count_ignores_superseded_remediated_events()
+    {
+        Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid workspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        Guid projectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        DateTimeOffset earlier = DateTimeOffset.UtcNow.AddDays(-3);
+        DateTimeOffset later = DateTimeOffset.UtcNow.AddHours(-2);
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new();
+        approvals.Setup(repo => repo.GetPendingAsync(It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
+
+        Mock<IArchitectureRiskRegisterService> riskRegister = new();
+        riskRegister
+            .Setup(service => service.GetRegisterAsync(tenantId, workspaceId, projectId, It.IsAny<int>(), It.IsAny<ArchitectureRiskRegisterListOptions?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRiskRegisterResponse());
+
+        Mock<IRiskExceptionService> waivers = new();
+        waivers
+            .Setup(service => service.ListActiveAsync(tenantId, projectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Mock<IFindingReviewTrailRepository> trail = new();
+        trail
+            .Setup(repo => repo.ListSinceUtcAsync(tenantId, It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                ReviewEvent(tenantId, workspaceId, projectId, "f-reopened", ArchLucid.Contracts.Findings.FindingDisposition.NeedsEvidence, later, null, "Need proof"),
+                ReviewEvent(tenantId, workspaceId, projectId, "f-reopened", ArchLucid.Contracts.Findings.FindingDisposition.Remediated, earlier, null),
+            ]);
+
+        Mock<IArchitectureDigestRepository> digests = new();
+        digests
+            .Setup(repo => repo.ListByScopeAsync(tenantId, workspaceId, projectId, 2, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Mock<ISponsorRoiSummaryService> roi = new();
+        roi
+            .Setup(service => service.BuildAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchLucid.Contracts.Roi.SponsorRoiSummaryResponse());
+
+        GovernanceDigestDecisionNeededComposer composer = new(
+            approvals.Object,
+            riskRegister.Object,
+            waivers.Object,
+            trail.Object,
+            digests.Object,
+            roi.Object);
+
+        string? markdown = await composer.BuildDecisionNeededMarkdownAsync(tenantId, workspaceId, projectId);
+
+        markdown.Should().NotBeNull();
+        markdown.Should().Contain("Findings awaiting evidence");
+        markdown.Should().NotContain("marked remediated in the last 30 days");
+    }
+
     private static FindingReviewEventRecord ReviewEvent(
         Guid tenantId,
         Guid workspaceId,

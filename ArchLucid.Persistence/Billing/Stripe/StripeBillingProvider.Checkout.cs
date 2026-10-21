@@ -110,7 +110,17 @@ public sealed partial class StripeBillingProvider
         if (string.IsNullOrWhiteSpace(secretKey))
             throw new InvalidOperationException("Billing:Stripe:SecretKey is not configured.");
 
-        string customerId = await ResolveStripeCustomerIdAsync(request.TenantId, secretKey, cancellationToken);
+        string? resolvedCustomerId = await _linkedCustomerResolver
+            .TryResolveLinkedCustomerIdAsync(request.TenantId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (string.IsNullOrWhiteSpace(resolvedCustomerId))
+        {
+            throw new InvalidOperationException(
+                "No Stripe customer is linked to this tenant yet. Complete checkout first.");
+        }
+
+        string customerId = resolvedCustomerId;
 
         global::Stripe.BillingPortal.SessionCreateOptions options = new()
         {
@@ -131,93 +141,6 @@ public sealed partial class StripeBillingProvider
             PortalUrl = portalSession.Url ?? string.Empty,
             ProviderSessionId = portalSession.Id
         };
-    }
-    private async Task<string> ResolveStripeCustomerIdAsync(
-        Guid tenantId,
-        string secretKey,
-        CancellationToken cancellationToken)
-    {
-        string? providerRef = await _ledger.TryGetProviderSubscriptionIdAsync(tenantId, cancellationToken);
-
-        if (string.IsNullOrWhiteSpace(providerRef))
-        {
-            throw new InvalidOperationException(
-                "No Stripe customer is linked to this tenant yet. Complete checkout first.");
-        }
-
-        string? fromProvider = await TryResolveCustomerFromProviderRefAsync(
-            tenantId,
-            providerRef.Trim(),
-            secretKey,
-            cancellationToken);
-
-        if (string.IsNullOrWhiteSpace(fromProvider))
-        {
-            throw new InvalidOperationException(
-                "No Stripe customer is linked to this tenant yet. Complete checkout first.");
-        }
-
-        return fromProvider;
-    }
-    private static async Task<string?> TryResolveCustomerFromProviderRefAsync(
-        Guid tenantId,
-        string providerRef,
-        string secretKey,
-        CancellationToken cancellationToken)
-    {
-        RequestOptions requestOptions = new()
-        {
-            ApiKey = secretKey
-        };
-
-        if (providerRef.StartsWith("sub_", StringComparison.Ordinal))
-        {
-            SubscriptionService subscriptionService = new();
-            Subscription subscription = await subscriptionService.GetAsync(
-                providerRef,
-                requestOptions: requestOptions,
-                cancellationToken: cancellationToken);
-
-            if (!MetadataMatchesTenant(subscription.Metadata, tenantId))
-            {
-                throw new InvalidOperationException("Stripe subscription is not linked to this tenant.");
-            }
-
-            return subscription.CustomerId;
-        }
-
-        if (!providerRef.StartsWith("cs_", StringComparison.Ordinal))
-            return null;
-
-        SessionService sessionService = new();
-        Session checkoutSession = await sessionService.GetAsync(
-            providerRef,
-            requestOptions: requestOptions,
-            cancellationToken: cancellationToken);
-
-        if (!MetadataMatchesTenant(checkoutSession.Metadata, tenantId))
-        {
-            throw new InvalidOperationException("Stripe checkout session is not linked to this tenant.");
-        }
-
-        if (!string.IsNullOrWhiteSpace(checkoutSession.CustomerId))
-            return checkoutSession.CustomerId;
-
-        if (string.IsNullOrWhiteSpace(checkoutSession.SubscriptionId))
-            return null;
-
-        SubscriptionService subscriptionServiceFromSession = new();
-        Subscription subscriptionFromSession = await subscriptionServiceFromSession.GetAsync(
-            checkoutSession.SubscriptionId,
-            requestOptions: requestOptions,
-            cancellationToken: cancellationToken);
-
-        if (!MetadataMatchesTenant(subscriptionFromSession.Metadata, tenantId))
-        {
-            throw new InvalidOperationException("Stripe subscription is not linked to this tenant.");
-        }
-
-        return subscriptionFromSession.CustomerId;
     }
     private static string? ResolveCheckoutApiKey(BillingOptions billing)
     {

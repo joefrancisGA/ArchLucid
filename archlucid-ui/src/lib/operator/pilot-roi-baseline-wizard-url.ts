@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const PILOT_ROI_WIZARD_OPEN_PARAM = "roiWizard";
 export const PILOT_ROI_WIZARD_STEP_PARAM = "roiStep";
 
@@ -47,22 +48,22 @@ export function pilotRoiBaselineWizardHrefFromSearch(
   state: PilotRoiBaselineWizardUrlState,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!state.open) {
-    params.delete(PILOT_ROI_WIZARD_OPEN_PARAM);
-    params.delete(PILOT_ROI_WIZARD_STEP_PARAM);
-  } else {
-    params.set(PILOT_ROI_WIZARD_OPEN_PARAM, "1");
-
-    if (state.stepIndex === null || state.stepIndex <= 0) {
+    if (!state.open) {
+      params.delete(PILOT_ROI_WIZARD_OPEN_PARAM);
       params.delete(PILOT_ROI_WIZARD_STEP_PARAM);
     } else {
-      params.set(PILOT_ROI_WIZARD_STEP_PARAM, String(state.stepIndex));
+      params.set(PILOT_ROI_WIZARD_OPEN_PARAM, "1");
+
+      if (state.stepIndex === null || state.stepIndex <= 0) {
+        params.delete(PILOT_ROI_WIZARD_STEP_PARAM);
+      } else {
+        params.set(PILOT_ROI_WIZARD_STEP_PARAM, String(state.stepIndex));
+      }
     }
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    },
+  });
 }

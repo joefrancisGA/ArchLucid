@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const ARCHITECTURE_SEAL_DELTA_OPEN_PARAM = "architectureSealDeltaOpen";
 
 export function parseArchitectureSealDeltaOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function architectureSealDeltaDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(ARCHITECTURE_SEAL_DELTA_OPEN_PARAM);
-  } else {
-    params.set(ARCHITECTURE_SEAL_DELTA_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, ARCHITECTURE_SEAL_DELTA_OPEN_PARAM);
 }

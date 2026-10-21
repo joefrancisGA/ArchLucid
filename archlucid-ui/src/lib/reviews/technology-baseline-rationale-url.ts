@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const TECHNOLOGY_BASELINE_ENTRY_PARAM = "techEntryId";
 
 export function parseTechnologyBaselineEntryIdFromSearch(raw: string | null | undefined): string {
@@ -13,16 +14,16 @@ export function technologyBaselineRationaleHrefFromSearch(
   entryId: string | null,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = (entryId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = (entryId ?? "").trim();
 
-  if (trimmed.length === 0) {
-    params.delete(TECHNOLOGY_BASELINE_ENTRY_PARAM);
-  } else {
-    params.set(TECHNOLOGY_BASELINE_ENTRY_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(TECHNOLOGY_BASELINE_ENTRY_PARAM);
+    } else {
+      params.set(TECHNOLOGY_BASELINE_ENTRY_PARAM, trimmed);
+    }
+    },
+  });
 }

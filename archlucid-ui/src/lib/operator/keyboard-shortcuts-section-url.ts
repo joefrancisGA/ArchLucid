@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const KEYBOARD_SHORTCUTS_SECTION_PARAM = "shortcutsSection";
 
 export const KEYBOARD_SHORTCUTS_SECTION_IDS = [
@@ -31,15 +32,15 @@ export function keyboardShortcutsSectionHrefFromSearch(
   sectionId: KeyboardShortcutsSectionId | null,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (sectionId === null) {
-    params.delete(KEYBOARD_SHORTCUTS_SECTION_PARAM);
-  } else {
-    params.set(KEYBOARD_SHORTCUTS_SECTION_PARAM, sectionId);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (sectionId === null) {
+      params.delete(KEYBOARD_SHORTCUTS_SECTION_PARAM);
+    } else {
+      params.set(KEYBOARD_SHORTCUTS_SECTION_PARAM, sectionId);
+    }
+    },
+  });
 }

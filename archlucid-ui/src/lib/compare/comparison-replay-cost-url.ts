@@ -1,4 +1,5 @@
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 import {
   isReplayValidationModeId,
   type ReplayValidationModeId,
@@ -60,6 +61,7 @@ export function comparisonReplayCostHrefFromSearch(
   pathname: string = COMPARE_TWO_REVIEWS_PATH,
 ): string {
   const params = new URLSearchParams(currentSearch);
+  applyOperatorUrlSelectionSwitch(params, { kind: "disclosure-only" });
 
   if (patch.comparisonRecordId !== undefined) {
     const trimmed = patch.comparisonRecordId.trim();

@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const AFTER_CORE_PILOT_WHATS_NEXT_OPEN_PARAM = "afterCorePilotWhatsNextOpen";
 
 export function parseAfterCorePilotWhatsNextOpenFromSearch(raw: string | null | undefined): boolean {
@@ -19,15 +20,15 @@ export function afterCorePilotWhatsNextDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (open) {
-    params.delete(AFTER_CORE_PILOT_WHATS_NEXT_OPEN_PARAM);
-  } else {
-    params.set(AFTER_CORE_PILOT_WHATS_NEXT_OPEN_PARAM, "0");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (open) {
+      params.delete(AFTER_CORE_PILOT_WHATS_NEXT_OPEN_PARAM);
+    } else {
+      params.set(AFTER_CORE_PILOT_WHATS_NEXT_OPEN_PARAM, "0");
+    }
+    },
+  });
 }

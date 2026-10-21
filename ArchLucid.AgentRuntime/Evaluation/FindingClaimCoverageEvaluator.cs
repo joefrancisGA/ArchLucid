@@ -30,7 +30,7 @@ public sealed class FindingClaimCoverageEvaluator : IFindingClaimCoverageEvaluat
 
         foreach (ArchitectureFinding finding in findings)
         {
-            bool hasEvidenceRefs = finding.EvidenceRefs.Count > 0;
+            bool hasEvidenceRefs = finding.EvidenceRefs.Any(static reference => !string.IsNullOrWhiteSpace(reference));
 
             if (hasEvidenceRefs)
             {

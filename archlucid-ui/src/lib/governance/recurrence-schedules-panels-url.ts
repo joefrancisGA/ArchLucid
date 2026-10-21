@@ -1,4 +1,5 @@
 import { GOVERNANCE_RECURRENCE_SCHEDULES_PATH } from "@/lib/governance/recurrence-schedules-route";
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 
 export const RECURRENCE_SCHEDULES_CREATE_PARAM = "create";
 export const RECURRENCE_SCHEDULES_EDIT_PARAM = "edit";
@@ -40,6 +41,7 @@ export function recurrenceSchedulesPanelsHrefFromSearch(
   pathname: string = GOVERNANCE_RECURRENCE_SCHEDULES_PATH,
 ): string {
   const params = new URLSearchParams(currentSearch);
+  applyOperatorUrlSelectionSwitch(params, { kind: "disclosure-only" });
 
   if (patch.showCreatePanel !== undefined) {
     if (!patch.showCreatePanel) {

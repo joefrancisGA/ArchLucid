@@ -41,7 +41,9 @@ describe("auth-domains-enum-labels (TB-1891)", () => {
   });
 
   it("keeps raw enum tokens off visible auth-domains list copy", () => {
-    const source = readUiSource("src/app/(operator)/administration/auth-domains/AuthDomainsPageClient.tsx");
+    const source = readUiSource(
+      "src/app/(operator)/administration/auth-domains/AuthDomainsDomainListPanel.tsx",
+    );
 
     expect(source).not.toContain("{row.verificationStatus} ·");
     expect(source).not.toContain("enforcement active");

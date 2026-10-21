@@ -1,4 +1,5 @@
 import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const GOVERNANCE_APPROVAL_ID_PARAM = "approvalId";
 export const GOVERNANCE_REVIEW_MODE_PARAM = "reviewMode";
@@ -43,25 +44,25 @@ export function governanceApprovalReviewHrefFromSearch(
   review: GovernanceApprovalReviewUrlState | null,
   pathname: string = GOVERNANCE_APPROVAL_QUEUE_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (review === null) {
-    params.delete(GOVERNANCE_APPROVAL_ID_PARAM);
-    params.delete(GOVERNANCE_REVIEW_MODE_PARAM);
-  } else {
-    const approvalRequestId = review.approvalRequestId.trim();
-    const mode = review.mode;
-
-    if (approvalRequestId.length === 0 || mode === null) {
+    if (review === null) {
       params.delete(GOVERNANCE_APPROVAL_ID_PARAM);
       params.delete(GOVERNANCE_REVIEW_MODE_PARAM);
     } else {
-      params.set(GOVERNANCE_APPROVAL_ID_PARAM, approvalRequestId);
-      params.set(GOVERNANCE_REVIEW_MODE_PARAM, mode);
+      const approvalRequestId = review.approvalRequestId.trim();
+      const mode = review.mode;
+
+      if (approvalRequestId.length === 0 || mode === null) {
+        params.delete(GOVERNANCE_APPROVAL_ID_PARAM);
+        params.delete(GOVERNANCE_REVIEW_MODE_PARAM);
+      } else {
+        params.set(GOVERNANCE_APPROVAL_ID_PARAM, approvalRequestId);
+        params.set(GOVERNANCE_REVIEW_MODE_PARAM, mode);
+      }
     }
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    },
+  });
 }

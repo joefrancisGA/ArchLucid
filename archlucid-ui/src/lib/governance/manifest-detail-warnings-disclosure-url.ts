@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const MANIFEST_DETAIL_WARNINGS_OPEN_PARAM = "manifestDetailWarningsOpen";
 
 export function parseManifestDetailWarningsOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function manifestDetailWarningsDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(MANIFEST_DETAIL_WARNINGS_OPEN_PARAM);
-  } else {
-    params.set(MANIFEST_DETAIL_WARNINGS_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, MANIFEST_DETAIL_WARNINGS_OPEN_PARAM);
 }

@@ -33,6 +33,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<StripeBillingSubscriptionWebhookProcessor>();
         services.AddSingleton<IBillingWebhookReplayGuard, MemoryCacheBillingWebhookReplayGuard>();
         services.AddScoped<StripeBillingProvider>();
+        services.AddScoped<IStripeLinkedCustomerResolver, StripeLinkedCustomerResolver>();
+        services.AddScoped<IStripeWalletPaymentIdentifierGuard, StripeWalletPaymentIdentifierGuard>();
         services.AddScoped<IStripeWalletGateway, StripeWalletGateway>();
         services.AddScoped<ILlmTenantWalletStripeWebhookProcessor, LlmTenantWalletStripeWebhookProcessor>();
         services.AddSingleton<LlmWalletSettlementQueue>();

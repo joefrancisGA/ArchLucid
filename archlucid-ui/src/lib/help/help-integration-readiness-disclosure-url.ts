@@ -1,4 +1,5 @@
 import { INTEGRATION_READINESS_HELP_CANONICAL_PATH } from "@/lib/integration-readiness-help-evidence-copy";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const HELP_INTEGRATION_READINESS_STATUS_GLOSSARY_OPEN_PARAM = "helpIntegrationReadinessStatusGlossaryOpen";
 
@@ -17,15 +18,15 @@ export function helpIntegrationReadinessStatusGlossaryDisclosureHrefFromSearch(
   open: boolean,
   pathname: string = INTEGRATION_READINESS_HELP_CANONICAL_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!open) {
-    params.delete(HELP_INTEGRATION_READINESS_STATUS_GLOSSARY_OPEN_PARAM);
-  } else {
-    params.set(HELP_INTEGRATION_READINESS_STATUS_GLOSSARY_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!open) {
+      params.delete(HELP_INTEGRATION_READINESS_STATUS_GLOSSARY_OPEN_PARAM);
+    } else {
+      params.set(HELP_INTEGRATION_READINESS_STATUS_GLOSSARY_OPEN_PARAM, "1");
+    }
+    },
+  });
 }

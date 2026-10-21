@@ -1,6 +1,7 @@
 import type { SecurityDeclaredConnectionRow } from "@/lib/security-declared-connection-types";
 
 import { resolveDeclaredConnectionDisplayStatus } from "./declared-connections-status";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export type DeclaredConnectionsStatusFilter = "all" | "Active" | "NearExpiry" | "Expired" | "Revoked";
 
@@ -57,15 +58,15 @@ export function declaredConnectionsFilterHrefFromSearch(
   filter: DeclaredConnectionsStatusFilter,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (filter === "all") {
-    params.delete(DECLARED_CONNECTIONS_STATUS_FILTER_PARAM);
-  } else {
-    params.set(DECLARED_CONNECTIONS_STATUS_FILTER_PARAM, filter);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (filter === "all") {
+      params.delete(DECLARED_CONNECTIONS_STATUS_FILTER_PARAM);
+    } else {
+      params.set(DECLARED_CONNECTIONS_STATUS_FILTER_PARAM, filter);
+    }
+    },
+  });
 }

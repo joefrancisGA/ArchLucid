@@ -1,4 +1,5 @@
 import { CORE_PILOT_WIZARD_STEP_COUNT } from "@/lib/core-pilot-wizard-state";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const CORE_PILOT_WIZARD_OPEN_PARAM = "pilotWizard";
 export const CORE_PILOT_WIZARD_STEP_PARAM = "pilotWizardStep";
@@ -47,22 +48,22 @@ export function corePilotWizardHrefFromSearch(
   state: CorePilotWizardUrlState,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!state.open) {
-    params.delete(CORE_PILOT_WIZARD_OPEN_PARAM);
-    params.delete(CORE_PILOT_WIZARD_STEP_PARAM);
-  } else {
-    params.set(CORE_PILOT_WIZARD_OPEN_PARAM, "1");
-
-    if (state.stepIndex === null || state.stepIndex <= 0) {
+    if (!state.open) {
+      params.delete(CORE_PILOT_WIZARD_OPEN_PARAM);
       params.delete(CORE_PILOT_WIZARD_STEP_PARAM);
     } else {
-      params.set(CORE_PILOT_WIZARD_STEP_PARAM, String(state.stepIndex));
+      params.set(CORE_PILOT_WIZARD_OPEN_PARAM, "1");
+
+      if (state.stepIndex === null || state.stepIndex <= 0) {
+        params.delete(CORE_PILOT_WIZARD_STEP_PARAM);
+      } else {
+        params.set(CORE_PILOT_WIZARD_STEP_PARAM, String(state.stepIndex));
+      }
     }
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    },
+  });
 }

@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const POLICY_RULE_PREVIEW_ID_PARAM = "rulePreviewId";
 
 export function parsePolicyRulePreviewIdFromSearch(raw: string | null | undefined): string {
@@ -13,16 +14,16 @@ export function policyRulePreviewPanelsHrefFromSearch(
   ruleId: string | null,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = (ruleId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = (ruleId ?? "").trim();
 
-  if (trimmed.length === 0) {
-    params.delete(POLICY_RULE_PREVIEW_ID_PARAM);
-  } else {
-    params.set(POLICY_RULE_PREVIEW_ID_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(POLICY_RULE_PREVIEW_ID_PARAM);
+    } else {
+      params.set(POLICY_RULE_PREVIEW_ID_PARAM, trimmed);
+    }
+    },
+  });
 }

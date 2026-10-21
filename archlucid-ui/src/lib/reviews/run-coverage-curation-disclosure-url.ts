@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const RUN_COVERAGE_CURATION_OPEN_PARAM = "runCoverageCurationOpen";
 
 export function parseRunCoverageCurationOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function runCoverageCurationDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(RUN_COVERAGE_CURATION_OPEN_PARAM);
-  } else {
-    params.set(RUN_COVERAGE_CURATION_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, RUN_COVERAGE_CURATION_OPEN_PARAM);
 }

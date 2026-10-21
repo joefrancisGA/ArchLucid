@@ -1,4 +1,5 @@
 import { NEW_RUN_WIZARD_PATH } from "@/lib/runs/quick-family-wizard-step-url";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const WIZARD_PRESET_IMPORT_OPEN_PARAM = "wizardImportOpen";
 
@@ -17,15 +18,15 @@ export function wizardStepPresetImportHrefFromSearch(
   open: boolean,
   pathname: string = NEW_RUN_WIZARD_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!open) {
-    params.delete(WIZARD_PRESET_IMPORT_OPEN_PARAM);
-  } else {
-    params.set(WIZARD_PRESET_IMPORT_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!open) {
+      params.delete(WIZARD_PRESET_IMPORT_OPEN_PARAM);
+    } else {
+      params.set(WIZARD_PRESET_IMPORT_OPEN_PARAM, "1");
+    }
+    },
+  });
 }

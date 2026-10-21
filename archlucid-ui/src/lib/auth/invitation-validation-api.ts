@@ -1,3 +1,4 @@
+import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 export type InvitationValidationStatus =
@@ -26,7 +27,9 @@ export async function validateInvitationToken(token: string): Promise<Invitation
   );
 
   if (!response.ok) {
-    throw new Error("invitation_validation_failed");
+    const bodyText = await response.text();
+
+    throw buildApiRequestErrorFromParts(response, bodyText);
   }
 
   return (await response.json()) as InvitationValidationResponse;

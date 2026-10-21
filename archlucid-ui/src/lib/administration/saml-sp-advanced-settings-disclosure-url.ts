@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const SAML_SP_ADVANCED_SETTINGS_OPEN_PARAM = "samlSpAdvancedSettingsOpen";
 
 export function parseSamlSpAdvancedSettingsOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function samlSpAdvancedSettingsDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(SAML_SP_ADVANCED_SETTINGS_OPEN_PARAM);
-  } else {
-    params.set(SAML_SP_ADVANCED_SETTINGS_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, SAML_SP_ADVANCED_SETTINGS_OPEN_PARAM);
 }

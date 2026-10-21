@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const SSO_WIZARD_RELATED_SURFACES_OPEN_PARAM = "ssoWizardRelatedSurfacesOpen";
 
 export function parseSsoWizardRelatedSurfacesOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function ssoWizardRelatedSurfacesDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(SSO_WIZARD_RELATED_SURFACES_OPEN_PARAM);
-  } else {
-    params.set(SSO_WIZARD_RELATED_SURFACES_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, SSO_WIZARD_RELATED_SURFACES_OPEN_PARAM);
 }

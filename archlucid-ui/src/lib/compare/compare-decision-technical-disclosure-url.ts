@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const COMPARE_DECISION_TECHNICAL_KEY_PARAM = "compareDecisionTechnicalKey";
 
 export function parseCompareDecisionTechnicalKeyFromSearch(raw: string | null | undefined): string {
@@ -13,16 +14,16 @@ export function compareDecisionTechnicalDisclosureHrefFromSearch(
   decisionKey: string | null,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = (decisionKey ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = (decisionKey ?? "").trim();
 
-  if (trimmed.length === 0) {
-    params.delete(COMPARE_DECISION_TECHNICAL_KEY_PARAM);
-  } else {
-    params.set(COMPARE_DECISION_TECHNICAL_KEY_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(COMPARE_DECISION_TECHNICAL_KEY_PARAM);
+    } else {
+      params.set(COMPARE_DECISION_TECHNICAL_KEY_PARAM, trimmed);
+    }
+    },
+  });
 }

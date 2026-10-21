@@ -1,6 +1,8 @@
 using System.Globalization;
 using System.Text.Json;
 
+using ArchLucid.Core.AzureExtractor;
+
 namespace ArchLucid.Core.InfraEvidence;
 
 /// <summary>
@@ -187,8 +189,23 @@ public sealed class AzureInventoryVnetCustomDnsIndex
                 && TryReadDnsServerFromNumericElement(serverElement, out string numericServer))
             {
                 dnsServers.Add(ResolveFlattenedDnsServerValue(numericServer));
+                continue;
+            }
+
+            if (serverElement.ValueKind == JsonValueKind.Object
+                && TryReadDnsServerFromObjectElement(serverElement, out string objectServer))
+            {
+                dnsServers.Add(ResolveFlattenedDnsServerValue(objectServer));
             }
         }
+    }
+
+    private static bool TryReadDnsServerFromObjectElement(JsonElement serverElement, out string dnsServer)
+    {
+        string? resolved = AzureInventoryArmTolerantScalarReader.TryReadStringOrObjectScalar(serverElement);
+        dnsServer = resolved ?? string.Empty;
+
+        return !string.IsNullOrWhiteSpace(dnsServer);
     }
 
     private static bool TryAppendDnsServersFromNumericOctetArray(JsonElement serversElement, List<string> dnsServers)
@@ -533,25 +550,4 @@ public sealed class AzureInventoryVnetCustomDnsIndex
 
         return ArmResourceIdNormalizer.Normalize(parentVnetArmId);
     }
-}
-
-public sealed class AzureInventoryVnetCustomDnsResourceProperties
-{
-    public string AzureResourceId
-    {
-        get;
-        init;
-    } = string.Empty;
-
-    public string ResourceType
-    {
-        get;
-        init;
-    } = string.Empty;
-
-    public IReadOnlyDictionary<string, string> Properties
-    {
-        get;
-        init;
-    } = new Dictionary<string, string>();
 }

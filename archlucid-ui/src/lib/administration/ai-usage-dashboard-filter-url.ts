@@ -4,6 +4,7 @@ import type {
   AiUsageBreakdownGroupBy,
 } from "@/lib/ai-usage-dashboard-filters";
 import { DEFAULT_AI_USAGE_DASHBOARD_FILTERS } from "@/lib/ai-usage-dashboard-filters";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const AI_USAGE_TRIGGER_PARAM = "trigger";
 export const AI_USAGE_STATUS_PARAM = "status";
@@ -52,17 +53,17 @@ export function aiUsageTriggerHrefFromSearch(
   trigger: AiUsageActivityTriggerFilter,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (trigger === DEFAULT_AI_USAGE_DASHBOARD_FILTERS.trigger) {
-    params.delete(AI_USAGE_TRIGGER_PARAM);
-  } else {
-    params.set(AI_USAGE_TRIGGER_PARAM, trigger);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trigger === DEFAULT_AI_USAGE_DASHBOARD_FILTERS.trigger) {
+      params.delete(AI_USAGE_TRIGGER_PARAM);
+    } else {
+      params.set(AI_USAGE_TRIGGER_PARAM, trigger);
+    }
+    },
+  });
 }
 
 export function aiUsageStatusHrefFromSearch(
@@ -70,17 +71,17 @@ export function aiUsageStatusHrefFromSearch(
   status: AiUsageActivityStatusFilter,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (status === DEFAULT_AI_USAGE_DASHBOARD_FILTERS.status) {
-    params.delete(AI_USAGE_STATUS_PARAM);
-  } else {
-    params.set(AI_USAGE_STATUS_PARAM, status);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (status === DEFAULT_AI_USAGE_DASHBOARD_FILTERS.status) {
+      params.delete(AI_USAGE_STATUS_PARAM);
+    } else {
+      params.set(AI_USAGE_STATUS_PARAM, status);
+    }
+    },
+  });
 }
 
 export function aiUsageFeatureHrefFromSearch(
@@ -88,18 +89,18 @@ export function aiUsageFeatureHrefFromSearch(
   feature: string | null,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = (feature ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = (feature ?? "").trim();
 
-  if (trimmed.length === 0) {
-    params.delete("feature");
-  } else {
-    params.set("feature", trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete("feature");
+    } else {
+      params.set("feature", trimmed);
+    }
+    },
+  });
 }
 
 export function aiUsageGroupByHrefFromSearch(
@@ -107,15 +108,15 @@ export function aiUsageGroupByHrefFromSearch(
   groupBy: AiUsageBreakdownGroupBy,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (groupBy === DEFAULT_AI_USAGE_DASHBOARD_FILTERS.groupBy) {
-    params.delete("groupBy");
-  } else {
-    params.set("groupBy", groupBy);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (groupBy === DEFAULT_AI_USAGE_DASHBOARD_FILTERS.groupBy) {
+      params.delete("groupBy");
+    } else {
+      params.set("groupBy", groupBy);
+    }
+    },
+  });
 }

@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const SCOPE_SWITCHER_TECHNICAL_DETAILS_OPEN_PARAM = "scopeSwitcherTechnicalDetailsOpen";
 
 export function parseScopeSwitcherTechnicalDetailsOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function scopeSwitcherTechnicalDetailsDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(SCOPE_SWITCHER_TECHNICAL_DETAILS_OPEN_PARAM);
-  } else {
-    params.set(SCOPE_SWITCHER_TECHNICAL_DETAILS_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, SCOPE_SWITCHER_TECHNICAL_DETAILS_OPEN_PARAM);
 }

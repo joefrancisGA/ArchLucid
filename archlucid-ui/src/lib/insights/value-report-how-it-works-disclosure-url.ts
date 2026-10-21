@@ -1,4 +1,5 @@
 import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const VALUE_REPORT_HOW_IT_WORKS_OPEN_PARAM = "valueReportHowItWorksOpen";
 
@@ -17,15 +18,15 @@ export function valueReportHowItWorksDisclosureHrefFromSearch(
   open: boolean,
   pathname: string = SPONSOR_REPORT_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!open) {
-    params.delete(VALUE_REPORT_HOW_IT_WORKS_OPEN_PARAM);
-  } else {
-    params.set(VALUE_REPORT_HOW_IT_WORKS_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!open) {
+      params.delete(VALUE_REPORT_HOW_IT_WORKS_OPEN_PARAM);
+    } else {
+      params.set(VALUE_REPORT_HOW_IT_WORKS_OPEN_PARAM, "1");
+    }
+    },
+  });
 }

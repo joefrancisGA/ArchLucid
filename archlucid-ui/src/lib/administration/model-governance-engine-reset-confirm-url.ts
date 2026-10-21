@@ -1,4 +1,5 @@
 import { MODEL_GOVERNANCE_SETTINGS_CANONICAL_PATH } from "@/lib/model-governance-settings-evidence-copy";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const MODEL_GOVERNANCE_ENGINE_RESET_CONFIRM_PARAM = "engineResetConfirm";
 
@@ -19,15 +20,15 @@ export function modelGovernanceEngineResetConfirmHrefFromSearch(
   confirmOpen: boolean,
   pathname: string = MODEL_GOVERNANCE_SETTINGS_CANONICAL_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!confirmOpen) {
-    params.delete(MODEL_GOVERNANCE_ENGINE_RESET_CONFIRM_PARAM);
-  } else {
-    params.set(MODEL_GOVERNANCE_ENGINE_RESET_CONFIRM_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!confirmOpen) {
+      params.delete(MODEL_GOVERNANCE_ENGINE_RESET_CONFIRM_PARAM);
+    } else {
+      params.set(MODEL_GOVERNANCE_ENGINE_RESET_CONFIRM_PARAM, "1");
+    }
+    },
+  });
 }

@@ -301,6 +301,7 @@ public sealed class NestedBlockLocalRunsRepository
     public void Load(IDbConnection connection, bool includeArchived)
     {
         string sql;
+
         if (includeArchived)
         {
             sql = "SELECT RunId FROM dbo.Runs WHERE ArchivedUtc IS NULL";
@@ -956,6 +957,40 @@ public sealed class ExpressionBodiedPropertyRunsRepository
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnscopedTableRule)
             .WithSpan(71, 13, 71, 62)
+            .WithArguments("dbo.Runs");
+
+        await RunPersistenceAnalyzerTestAsync(testCode, expected);
+    }
+
+    [Fact]
+    public async Task ARCH006_reports_unscoped_sql_for_expression_bodied_property_get_accessor()
+    {
+        const string testCode = SharedStubs +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System.Data;
+using Dapper;
+
+public sealed class ExpressionBodiedPropertyGetterRunsRepository
+{
+    private static string UnscopedRunsSql
+    {
+        get => "SELECT RunId FROM dbo.Runs WHERE ArchivedUtc IS NULL";
+    }
+
+    public void Load(IDbConnection connection)
+    {
+        _ = SqlMapper.Query<int>(connection, UnscopedRunsSql);
+    }
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
+            .Diagnostic(Arch006Descriptor.UnscopedTableRule)
+            .WithSpan(73, 13, 73, 62)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);

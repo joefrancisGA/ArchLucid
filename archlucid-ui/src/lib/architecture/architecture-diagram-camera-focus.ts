@@ -16,12 +16,13 @@ export function diagramOutlineIncludesFocusResource(
     return false;
   }
 
+  const resourceLooksLikeQualifiedPath = trimmed.includes("/");
+
   return outline.nodes.some((node) => {
     const nodeTokens = [node.id, node.seedNodeId ?? ""].map((token) => normalizeDiagramFocusToken(token));
 
-    return nodeTokens.some(
-      (token) => token.length > 0 && (token === normalizedResource || token.includes(normalizedResource) || normalizedResource.includes(token)),
-    );
+    return nodeTokens.some((token) =>
+      diagramFocusTokensMatch(resourceLooksLikeQualifiedPath, normalizedResource, token));
   });
 }
 
@@ -90,4 +91,26 @@ export function inventoryDiagramNodeElementMatchesFocusId(
 
 function normalizeDiagramFocusToken(value: string): string {
   return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
+function diagramFocusTokensMatch(
+  resourceLooksLikeQualifiedPath: boolean,
+  normalizedResource: string,
+  normalizedNodeToken: string,
+): boolean {
+  if (normalizedNodeToken.length === 0 || normalizedResource.length === 0) {
+    return false;
+  }
+
+  if (normalizedNodeToken === normalizedResource) {
+    return true;
+  }
+
+  // Bare slugs (no "/") must match exactly so "api" does not hit "apigateway".
+  if (!resourceLooksLikeQualifiedPath) {
+    return false;
+  }
+
+  // Full ARM-style resource ids may match a shorter diagram node slug as a suffix.
+  return normalizedResource.endsWith(normalizedNodeToken) && normalizedNodeToken.length >= 6;
 }

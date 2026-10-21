@@ -3,6 +3,7 @@ import {
   formatInfraDiagramsHiddenExecutiveTierKeysForSearch,
   parseInfraDiagramsHiddenExecutiveTierKeysFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-diagrams-executive-tiers";
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 import {
   RESOURCE_HUB_ASSESSMENT_ID_PARAM,
   RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM,
@@ -288,6 +289,7 @@ export function infraDiagramsFilterHrefFromSearch(
   pathname: string = GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
 ): string {
   const params = new URLSearchParams(currentSearch);
+  applyOperatorUrlSelectionSwitch(params, { kind: "infra-resource-hub-run-scope" });
 
   if (patch.snapshotId !== undefined) {
     const trimmed = patch.snapshotId.trim();

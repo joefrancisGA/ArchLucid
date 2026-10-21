@@ -1,4 +1,5 @@
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const ARCHITECTURE_DRAFT_DELETE_ID_PARAM = "draftDeleteId";
 export const ARCHITECTURE_DRAFT_DELETE_CONFIRM_PARAM = "draftDeleteConfirm";
@@ -31,18 +32,18 @@ export function architectureDraftDeleteConfirmHrefFromSearch(
   state: ArchitectureDraftDeleteConfirmUrlState,
   pathname: string = ARCHITECTURES_LIST_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const draftId = (state.draftId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const draftId = (state.draftId ?? "").trim();
 
-  if (!state.confirmOpen || draftId.length === 0) {
-    params.delete(ARCHITECTURE_DRAFT_DELETE_ID_PARAM);
-    params.delete(ARCHITECTURE_DRAFT_DELETE_CONFIRM_PARAM);
-  } else {
-    params.set(ARCHITECTURE_DRAFT_DELETE_ID_PARAM, draftId);
-    params.set(ARCHITECTURE_DRAFT_DELETE_CONFIRM_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!state.confirmOpen || draftId.length === 0) {
+      params.delete(ARCHITECTURE_DRAFT_DELETE_ID_PARAM);
+      params.delete(ARCHITECTURE_DRAFT_DELETE_CONFIRM_PARAM);
+    } else {
+      params.set(ARCHITECTURE_DRAFT_DELETE_ID_PARAM, draftId);
+      params.set(ARCHITECTURE_DRAFT_DELETE_CONFIRM_PARAM, "1");
+    }
+    },
+  });
 }

@@ -1,4 +1,5 @@
 import type { ApiKeyPendingAction } from "@/lib/api-keys-settings-types";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const API_KEY_ACTION_PARAM = "apiKeyAction";
 
@@ -35,15 +36,15 @@ export function apiKeyActionConfirmHrefFromSearch(
   action: ApiKeyActionConfirmKind | null,
   pathname: string = "/administration/api-keys",
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (action === null) {
-    params.delete(API_KEY_ACTION_PARAM);
-  } else {
-    params.set(API_KEY_ACTION_PARAM, action);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (action === null) {
+      params.delete(API_KEY_ACTION_PARAM);
+    } else {
+      params.set(API_KEY_ACTION_PARAM, action);
+    }
+    },
+  });
 }

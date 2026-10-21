@@ -1,4 +1,5 @@
 import type { BuyerPackageScopeFilter } from "./runs-list-types";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const BUYER_PACKAGE_SCOPE_PARAM = "scope";
 
@@ -23,15 +24,15 @@ export function buyerPackageScopeHrefFromSearch(
   scope: BuyerPackageScopeFilter,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (scope === "all") {
-    params.delete(BUYER_PACKAGE_SCOPE_PARAM);
-  } else {
-    params.set(BUYER_PACKAGE_SCOPE_PARAM, scope);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (scope === "all") {
+      params.delete(BUYER_PACKAGE_SCOPE_PARAM);
+    } else {
+      params.set(BUYER_PACKAGE_SCOPE_PARAM, scope);
+    }
+    },
+  });
 }

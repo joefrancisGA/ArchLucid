@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const ADMIN_HEALTH_CONFIG_PROBES_OPEN_PARAM = "adminHealthConfigProbesOpen";
 
 export function parseAdminHealthConfigProbesOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function adminHealthConfigProbesDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(ADMIN_HEALTH_CONFIG_PROBES_OPEN_PARAM);
-  } else {
-    params.set(ADMIN_HEALTH_CONFIG_PROBES_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, ADMIN_HEALTH_CONFIG_PROBES_OPEN_PARAM);
 }

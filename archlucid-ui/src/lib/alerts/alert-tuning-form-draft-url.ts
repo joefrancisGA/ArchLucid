@@ -1,4 +1,5 @@
 import { GOVERNANCE_ALERT_RULES_PATH } from "@/lib/governance/governance-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const ALERT_TUNING_KIND_PARAM = "tuneKind";
 export const ALERT_TUNING_THRESHOLDS_PARAM = "tuneThresholds";
@@ -47,29 +48,29 @@ export function alertTuningFormDraftHrefFromSearch(
   state: AlertTuningFormDraftUrlState,
   pathname: string = GOVERNANCE_ALERT_RULES_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const thresholds = (state.candidateThresholds ?? "").trim();
-  const runSlug = (state.runSlug ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const thresholds = (state.candidateThresholds ?? "").trim();
+    const runSlug = (state.runSlug ?? "").trim();
 
-  if (state.ruleKind === null) {
-    params.delete(ALERT_TUNING_KIND_PARAM);
-  } else {
-    params.set(ALERT_TUNING_KIND_PARAM, state.ruleKind);
-  }
+    if (state.ruleKind === null) {
+      params.delete(ALERT_TUNING_KIND_PARAM);
+    } else {
+      params.set(ALERT_TUNING_KIND_PARAM, state.ruleKind);
+    }
 
-  if (thresholds.length === 0) {
-    params.delete(ALERT_TUNING_THRESHOLDS_PARAM);
-  } else {
-    params.set(ALERT_TUNING_THRESHOLDS_PARAM, thresholds);
-  }
+    if (thresholds.length === 0) {
+      params.delete(ALERT_TUNING_THRESHOLDS_PARAM);
+    } else {
+      params.set(ALERT_TUNING_THRESHOLDS_PARAM, thresholds);
+    }
 
-  if (runSlug.length === 0) {
-    params.delete(ALERT_TUNING_RUN_SLUG_PARAM);
-  } else {
-    params.set(ALERT_TUNING_RUN_SLUG_PARAM, runSlug);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (runSlug.length === 0) {
+      params.delete(ALERT_TUNING_RUN_SLUG_PARAM);
+    } else {
+      params.set(ALERT_TUNING_RUN_SLUG_PARAM, runSlug);
+    }
+    },
+  });
 }

@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Requests;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
@@ -20,7 +21,7 @@ public static class ClosedLoopRecommendationBriefGroundingFilter
         if (architectureRequest is null || recommendations.Count == 0)
             return recommendations.ToList();
 
-        BriefGroundingRules rules = BriefGroundingRules.FromRequest(architectureRequest);
+        ArchitectureRequestBriefGroundingRules rules = BuildBriefGroundingRules(architectureRequest);
 
         if (!rules.HasAnyRules)
             return recommendations.ToList();
@@ -46,7 +47,7 @@ public static class ClosedLoopRecommendationBriefGroundingFilter
 
     private static bool TryDescribeBriefGroundingDrop(
         ArchitectureRecommendation recommendation,
-        BriefGroundingRules rules,
+        ArchitectureRequestBriefGroundingRules rules,
         out string? reason)
     {
         string text = BuildRecommendationText(recommendation);
@@ -99,43 +100,20 @@ public static class ClosedLoopRecommendationBriefGroundingFilter
         || text.Contains("without encryption", StringComparison.OrdinalIgnoreCase)
         || text.Contains("plaintext storage", StringComparison.OrdinalIgnoreCase);
 
-    private static bool ConstraintRequiresHttps(string constraint) =>
-        constraint.Contains("https", StringComparison.OrdinalIgnoreCase)
-        && !constraint.Contains("http://", StringComparison.OrdinalIgnoreCase);
-
-    private static bool ConstraintRequiresPrivateNetworking(string constraint) =>
-        constraint.Contains("private", StringComparison.OrdinalIgnoreCase)
-        || constraint.Contains("vnet", StringComparison.OrdinalIgnoreCase)
-        || constraint.Contains("private endpoint", StringComparison.OrdinalIgnoreCase);
-
-    private static bool CapabilityRequiresEncryptionAtRest(string capability) =>
-        capability.Contains("encryption", StringComparison.OrdinalIgnoreCase)
-        && capability.Contains("rest", StringComparison.OrdinalIgnoreCase);
-
-    private sealed record BriefGroundingRules(
-        bool RequiresHttps,
-        bool RequiresPrivateNetworking,
-        bool RequiresEncryptionAtRest)
+    private static ArchitectureRequestBriefGroundingRules BuildBriefGroundingRules(ArchitectureRequest request)
     {
-        public bool HasAnyRules =>
-            RequiresHttps || RequiresPrivateNetworking || RequiresEncryptionAtRest;
+        List<string> confirmedConstraints = request.Constraints
+            .Where(ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry)
+            .Select(static constraint => constraint.Trim())
+            .ToList();
 
-        public static BriefGroundingRules FromRequest(ArchitectureRequest request)
-        {
-            List<string> confirmedConstraints = request.Constraints
-                .Where(ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry)
-                .Select(static constraint => constraint.Trim())
-                .ToList();
+        List<string> confirmedCapabilities = request.RequiredCapabilities
+            .Where(ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry)
+            .Select(static capability => capability.Trim())
+            .ToList();
 
-            List<string> confirmedCapabilities = request.RequiredCapabilities
-                .Where(ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry)
-                .Select(static capability => capability.Trim())
-                .ToList();
-
-            return new BriefGroundingRules(
-                confirmedConstraints.Any(ConstraintRequiresHttps),
-                confirmedConstraints.Any(ConstraintRequiresPrivateNetworking),
-                confirmedCapabilities.Any(CapabilityRequiresEncryptionAtRest));
-        }
+        return ArchitectureRequestBriefGroundingRules.FromConfirmedBriefEntries(
+            confirmedConstraints,
+            confirmedCapabilities);
     }
 }

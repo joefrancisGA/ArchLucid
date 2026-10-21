@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const REVIEW_PRESENTER_MODE_PARAM = "presenter";
 
 export function parseReviewPresenterModeFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function reviewPresenterModeHrefFromSearch(
   presenterMode: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!presenterMode) {
-    params.delete(REVIEW_PRESENTER_MODE_PARAM);
-  } else {
-    params.set(REVIEW_PRESENTER_MODE_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, presenterMode, pathname, REVIEW_PRESENTER_MODE_PARAM);
 }

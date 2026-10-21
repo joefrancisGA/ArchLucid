@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const SECURITY_TRUST_RELATED_SURFACES_OPEN_PARAM = "securityTrustRelatedSurfacesOpen";
 
 export function parseSecurityTrustRelatedSurfacesOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function securityTrustRelatedSurfacesDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(SECURITY_TRUST_RELATED_SURFACES_OPEN_PARAM);
-  } else {
-    params.set(SECURITY_TRUST_RELATED_SURFACES_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, SECURITY_TRUST_RELATED_SURFACES_OPEN_PARAM);
 }

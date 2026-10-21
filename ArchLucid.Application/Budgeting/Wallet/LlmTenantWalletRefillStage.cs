@@ -13,6 +13,7 @@ namespace ArchLucid.Application.Budgeting.Wallet;
 public sealed class LlmTenantWalletRefillStage(
     ILlmTenantWalletRepository repository,
     IStripeWalletGateway stripeWalletGateway,
+    IStripeWalletPaymentIdentifierGuard stripeWalletPaymentIdentifierGuard,
     IAuditService auditService,
     TimeProvider timeProvider,
     ILlmWalletSettlementQueue settlementQueue,
@@ -29,6 +30,9 @@ public sealed class LlmTenantWalletRefillStage(
 
     private readonly IStripeWalletGateway _stripeWalletGateway =
         stripeWalletGateway ?? throw new ArgumentNullException(nameof(stripeWalletGateway));
+
+    private readonly IStripeWalletPaymentIdentifierGuard _stripeWalletPaymentIdentifierGuard =
+        stripeWalletPaymentIdentifierGuard ?? throw new ArgumentNullException(nameof(stripeWalletPaymentIdentifierGuard));
 
     private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 
@@ -76,6 +80,29 @@ public sealed class LlmTenantWalletRefillStage(
 
             if (string.IsNullOrWhiteSpace(state.StripeCustomerId) || string.IsNullOrWhiteSpace(state.StripePaymentMethodId))
                 return false;
+
+            if (!await _stripeWalletPaymentIdentifierGuard
+                    .AllowsWalletUpdateAsync(
+                        tenantId,
+                        state.StripeCustomerId,
+                        state.StripePaymentMethodId,
+                        cancellationToken)
+                    .ConfigureAwait(false))
+            {
+                _logger.LogWarning(
+                    "LLM wallet auto-refill refused for tenant {TenantId}: persisted Stripe customer or payment-method identifiers failed ownership validation.",
+                    tenantId);
+
+                await _refillAuditor
+                    .LogRefillFailedAsync(
+                        tenantId,
+                        "payment_identifier_guard",
+                        "Persisted Stripe customer or payment method is not linked to this tenant.",
+                        cancellationToken)
+                    .ConfigureAwait(false);
+
+                return false;
+            }
 
             StripeWalletChargeResult charge = await _stripeWalletGateway
                 .ChargeRefillAsync(

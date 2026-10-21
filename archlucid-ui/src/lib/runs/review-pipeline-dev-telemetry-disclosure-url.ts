@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const REVIEW_PIPELINE_DEV_TELEMETRY_OPEN_PARAM = "reviewPipelineDevTelemetryOpen";
 
 export function parseReviewPipelineDevTelemetryOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function reviewPipelineDevTelemetryDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(REVIEW_PIPELINE_DEV_TELEMETRY_OPEN_PARAM);
-  } else {
-    params.set(REVIEW_PIPELINE_DEV_TELEMETRY_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, REVIEW_PIPELINE_DEV_TELEMETRY_OPEN_PARAM);
 }

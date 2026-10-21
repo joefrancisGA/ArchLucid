@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 const CONNECTOR_INTAKE_TAB_PARAM = "intake";
 
 export type ConnectorIntakeTabId = "terraform" | "git";
@@ -21,15 +22,15 @@ export function connectorIntakeTabHrefFromSearch(
   tab: ConnectorIntakeTabId,
   pathname: string = "/architecture/reviews/new",
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (tab === "terraform") {
-    params.delete(CONNECTOR_INTAKE_TAB_PARAM);
-  } else {
-    params.set(CONNECTOR_INTAKE_TAB_PARAM, tab);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (tab === "terraform") {
+      params.delete(CONNECTOR_INTAKE_TAB_PARAM);
+    } else {
+      params.set(CONNECTOR_INTAKE_TAB_PARAM, tab);
+    }
+    },
+  });
 }

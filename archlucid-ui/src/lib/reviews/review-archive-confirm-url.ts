@@ -1,4 +1,5 @@
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const REVIEW_ARCHIVE_RUN_ID_PARAM = "archiveRunId";
 export const REVIEW_ARCHIVE_CONFIRM_PARAM = "archiveConfirm";
@@ -31,18 +32,18 @@ export function reviewArchiveConfirmHrefFromSearch(
   state: ReviewArchiveConfirmUrlState,
   pathname: string = REVIEWS_LIST_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const runId = (state.runId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const runId = (state.runId ?? "").trim();
 
-  if (!state.confirmOpen || runId.length === 0) {
-    params.delete(REVIEW_ARCHIVE_RUN_ID_PARAM);
-    params.delete(REVIEW_ARCHIVE_CONFIRM_PARAM);
-  } else {
-    params.set(REVIEW_ARCHIVE_RUN_ID_PARAM, runId);
-    params.set(REVIEW_ARCHIVE_CONFIRM_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!state.confirmOpen || runId.length === 0) {
+      params.delete(REVIEW_ARCHIVE_RUN_ID_PARAM);
+      params.delete(REVIEW_ARCHIVE_CONFIRM_PARAM);
+    } else {
+      params.set(REVIEW_ARCHIVE_RUN_ID_PARAM, runId);
+      params.set(REVIEW_ARCHIVE_CONFIRM_PARAM, "1");
+    }
+    },
+  });
 }

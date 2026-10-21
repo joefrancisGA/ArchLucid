@@ -7,7 +7,7 @@ internal static class InfrastructureCostSummaryNotes
 {
     internal static string ComposeIllustrativeOnlyNote(InfrastructureCostEstimateTotals totals)
     {
-        if (totals.TotalUsdPerMonth <= 0m)
+        if (totals.Lines.Count == 0)
             return "No billable topology rows surfaced for illustrative costing.";
 
         CloudProvider? soleFamily = ResolveSoleCloudFamily(totals.Lines);
@@ -26,7 +26,7 @@ internal static class InfrastructureCostSummaryNotes
 
     internal static string ComposeRetailBlendNote(InfrastructureCostEstimateTotals totals)
     {
-        if (totals.TotalUsdPerMonth <= 0m)
+        if (totals.Lines.Count == 0)
             return "No billable topology rows surfaced for sizing.";
 
         CloudProvider? soleFamily = ResolveSoleCloudFamily(totals.Lines);

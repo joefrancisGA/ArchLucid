@@ -1,3 +1,4 @@
+using ArchLucid.Application.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
@@ -61,8 +62,9 @@ public sealed class FindingsBackedAgentEvaluationService : IAgentEvaluationServi
         string? topologyTaskId)
     {
         string targetTaskId = topologyTaskId ?? result.TaskId;
+        AgentType agentType = AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result);
 
-        return (result.AgentType, finding.Severity) switch
+        return (agentType, finding.Severity) switch
         {
             (AgentType.Compliance or AgentType.Critic, FindingSeverity.Critical) => Build(
                 runId,

@@ -13,6 +13,7 @@ import { resolveResourceHubTabFromExplorerWorkQueue } from "@/lib/infra-evidence
 import { GOVERNANCE_INFRASTRUCTURE_RESOURCES_FILTER_MAX_LENGTH } from "@/lib/governance/governance-infrastructure-copy";
 import type { CloudResourceExplorerWorkCountKind } from "@/lib/infra-evidence/infra-evidence-explorer-work-counts";
 import { formatResourceHubTabViewLabel } from "@/lib/infra-evidence/infra-evidence-hub-tab-labels";
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 
 export const RESOURCE_EXPLORER_NAME_PREFIX_PARAM = "namePrefix";
 export const RESOURCE_EXPLORER_RESOURCE_TYPE_PARAM = "resourceType";
@@ -430,6 +431,8 @@ export function resourceHubFilterHrefFromSearch(
 
   if (patch.runId !== undefined) {
     const trimmed = patch.runId.trim();
+
+    applyOperatorUrlSelectionSwitch(params, { kind: "infra-resource-hub-run-scope" });
 
     if (trimmed.length === 0) {
       params.delete(RESOURCE_HUB_RUN_ID_PARAM);

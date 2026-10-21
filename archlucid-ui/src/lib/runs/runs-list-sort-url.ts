@@ -1,4 +1,5 @@
 import type { SortOrder } from "@/app/(operator)/architecture/reviews/runs-list-types";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const RUNS_LIST_SORT_PARAM = "sort";
 
@@ -35,15 +36,15 @@ export function runsListSortHrefFromSearch(
   sort: RunsListSortId,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (sort === DEFAULT_RUNS_LIST_SORT) {
-    params.delete(RUNS_LIST_SORT_PARAM);
-  } else {
-    params.set(RUNS_LIST_SORT_PARAM, sort);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (sort === DEFAULT_RUNS_LIST_SORT) {
+      params.delete(RUNS_LIST_SORT_PARAM);
+    } else {
+      params.set(RUNS_LIST_SORT_PARAM, sort);
+    }
+    },
+  });
 }

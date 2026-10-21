@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 import type {
   FindingEvidenceGraphPresentationMode,
   FindingEvidenceGraphViewMode,
@@ -51,21 +52,21 @@ export function findingEvidenceGraphViewHrefFromSearch(
   state: FindingEvidenceGraphViewUrlState,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (state.viewMode === null || state.viewMode === "context") {
-    params.delete(FINDING_EVIDENCE_GRAPH_VIEW_PARAM);
-  } else {
-    params.set(FINDING_EVIDENCE_GRAPH_VIEW_PARAM, state.viewMode);
-  }
+    if (state.viewMode === null || state.viewMode === "context") {
+      params.delete(FINDING_EVIDENCE_GRAPH_VIEW_PARAM);
+    } else {
+      params.set(FINDING_EVIDENCE_GRAPH_VIEW_PARAM, state.viewMode);
+    }
 
-  if (state.presentationMode === null || state.presentationMode === "graph") {
-    params.delete(FINDING_EVIDENCE_GRAPH_PRESENTATION_PARAM);
-  } else {
-    params.set(FINDING_EVIDENCE_GRAPH_PRESENTATION_PARAM, state.presentationMode);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (state.presentationMode === null || state.presentationMode === "graph") {
+      params.delete(FINDING_EVIDENCE_GRAPH_PRESENTATION_PARAM);
+    } else {
+      params.set(FINDING_EVIDENCE_GRAPH_PRESENTATION_PARAM, state.presentationMode);
+    }
+    },
+  });
 }

@@ -208,6 +208,8 @@ export function useQuickScanClient() {
     setCapacityMessage(null);
     setSubmitting(true);
     setStatusMessage(`Analyzing architecture… ${QUICK_SCAN_ANALYSIS_TYPICAL_DURATION}`);
+    // Invalidate in-flight sample loads so a late sample response cannot replace AI analysis.
+    ++sampleRequestGenerationRef.current;
 
     const abortController = new AbortController();
     abortControllerRef.current = abortController;

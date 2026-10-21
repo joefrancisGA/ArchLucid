@@ -280,14 +280,17 @@ function Read-AlBugHuntRunLog {
 
         try {
             $entry = $line | ConvertFrom-Json
+
+            if (-not (Test-RunLogEntryHasCanonicalTimestamp -Entry $entry)) {
+                $warningMessage = Get-RunLogEntryMissingTimestampMessage -Entry $entry -SourceLineNumber $lineNumber -SourcePath $Path
+                Write-Warning ($warningMessage.Trim())
+                continue
+            }
+
             Get-RunLogEntryIsoTimestamp -Entry $entry -SourceLineNumber $lineNumber -SourcePath $Path | Out-Null
             $entries += ,$entry
         }
         catch {
-            if ($_.Exception.Message -match 'AL_BUG_HUNT_RUN_LOG entry') {
-                throw
-            }
-
             throw "Invalid JSONL line in '$Path' (line $lineNumber): $line"
         }
     }

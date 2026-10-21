@@ -1,4 +1,5 @@
 import { GOVERNANCE_DECISION_REGISTER_PATH } from "@/lib/governance/governance-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const DECISION_REGISTER_FROM_PARAM = "from";
 export const DECISION_REGISTER_TO_PARAM = "to";
@@ -25,23 +26,23 @@ export function decisionRegisterCustomDateHrefFromSearch(
   recordedBefore: string,
   pathname: string = GOVERNANCE_DECISION_REGISTER_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const from = parseDecisionRegisterCustomDateFromSearch(recordedAfter);
-  const to = parseDecisionRegisterCustomDateFromSearch(recordedBefore);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const from = parseDecisionRegisterCustomDateFromSearch(recordedAfter);
+    const to = parseDecisionRegisterCustomDateFromSearch(recordedBefore);
 
-  if (from.length === 0) {
-    params.delete(DECISION_REGISTER_FROM_PARAM);
-  } else {
-    params.set(DECISION_REGISTER_FROM_PARAM, from);
-  }
+    if (from.length === 0) {
+      params.delete(DECISION_REGISTER_FROM_PARAM);
+    } else {
+      params.set(DECISION_REGISTER_FROM_PARAM, from);
+    }
 
-  if (to.length === 0) {
-    params.delete(DECISION_REGISTER_TO_PARAM);
-  } else {
-    params.set(DECISION_REGISTER_TO_PARAM, to);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (to.length === 0) {
+      params.delete(DECISION_REGISTER_TO_PARAM);
+    } else {
+      params.set(DECISION_REGISTER_TO_PARAM, to);
+    }
+    },
+  });
 }

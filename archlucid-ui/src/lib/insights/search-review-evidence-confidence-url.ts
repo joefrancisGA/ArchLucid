@@ -1,5 +1,6 @@
 import type { RetrievalHitRelevanceTier } from "@/app/(operator)/insights/search-review-evidence/_sections/retrieval-hit-display";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const SEARCH_REVIEW_EVIDENCE_CONFIDENCE_PARAM = "confidence";
 
@@ -32,16 +33,16 @@ export function searchReviewEvidenceConfidenceHrefFromSearch(
   confidence: RetrievalHitRelevanceTier | null,
   pathname: string = SEARCH_REVIEW_EVIDENCE_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  params.delete("cursor");
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    params.delete("cursor");
 
-  if (confidence === null) {
-    params.delete(SEARCH_REVIEW_EVIDENCE_CONFIDENCE_PARAM);
-  } else {
-    params.set(SEARCH_REVIEW_EVIDENCE_CONFIDENCE_PARAM, confidence);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (confidence === null) {
+      params.delete(SEARCH_REVIEW_EVIDENCE_CONFIDENCE_PARAM);
+    } else {
+      params.set(SEARCH_REVIEW_EVIDENCE_CONFIDENCE_PARAM, confidence);
+    }
+    },
+  });
 }

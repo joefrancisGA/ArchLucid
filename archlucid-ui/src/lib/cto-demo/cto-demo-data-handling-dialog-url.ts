@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const CTO_DEMO_DATA_HANDLING_OPEN_PARAM = "dataHandlingOpen";
 
 export function parseCtoDemoDataHandlingOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function ctoDemoDataHandlingDialogHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(CTO_DEMO_DATA_HANDLING_OPEN_PARAM);
-  } else {
-    params.set(CTO_DEMO_DATA_HANDLING_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, CTO_DEMO_DATA_HANDLING_OPEN_PARAM);
 }

@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const MANIFEST_TOP_DECISIONS_AREA_KEY_PARAM = "manifestTopDecisionsAreaKey";
 
 export function parseManifestTopDecisionsAreaKeyFromSearch(raw: string | null | undefined): string {
@@ -13,16 +14,16 @@ export function manifestTopDecisionsAreaDisclosureHrefFromSearch(
   areaKey: string | null,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = (areaKey ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = (areaKey ?? "").trim();
 
-  if (trimmed.length === 0) {
-    params.delete(MANIFEST_TOP_DECISIONS_AREA_KEY_PARAM);
-  } else {
-    params.set(MANIFEST_TOP_DECISIONS_AREA_KEY_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(MANIFEST_TOP_DECISIONS_AREA_KEY_PARAM);
+    } else {
+      params.set(MANIFEST_TOP_DECISIONS_AREA_KEY_PARAM, trimmed);
+    }
+    },
+  });
 }

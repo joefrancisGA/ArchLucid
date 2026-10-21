@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const HELP_TECHNICAL_REFERENCE_MOBILE_OPEN_PARAM = "helpTechnicalReferenceMobileOpen";
 
 export function parseHelpTechnicalReferenceMobileOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function helpTechnicalReferenceMobileDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(HELP_TECHNICAL_REFERENCE_MOBILE_OPEN_PARAM);
-  } else {
-    params.set(HELP_TECHNICAL_REFERENCE_MOBILE_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, HELP_TECHNICAL_REFERENCE_MOBILE_OPEN_PARAM);
 }

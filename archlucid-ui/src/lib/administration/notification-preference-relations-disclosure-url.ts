@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const NOTIFICATION_PREFERENCE_RELATIONS_OPEN_PARAM = "notificationPreferenceRelationsOpen";
 
 export function parseNotificationPreferenceRelationsOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function notificationPreferenceRelationsDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(NOTIFICATION_PREFERENCE_RELATIONS_OPEN_PARAM);
-  } else {
-    params.set(NOTIFICATION_PREFERENCE_RELATIONS_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, NOTIFICATION_PREFERENCE_RELATIONS_OPEN_PARAM);
 }

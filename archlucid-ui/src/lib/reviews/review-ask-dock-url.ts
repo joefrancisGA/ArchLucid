@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const REVIEW_ASK_DOCK_OPEN_PARAM = "askDock";
 export const REVIEW_ASK_DOCK_THREAD_PARAM = "askThread";
 
@@ -29,23 +30,23 @@ export function reviewAskDockHrefFromSearch(
   state: ReviewAskDockUrlState,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const threadId = (state.threadId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const threadId = (state.threadId ?? "").trim();
 
-  if (!state.open) {
-    params.delete(REVIEW_ASK_DOCK_OPEN_PARAM);
-    params.delete(REVIEW_ASK_DOCK_THREAD_PARAM);
-  } else {
-    params.set(REVIEW_ASK_DOCK_OPEN_PARAM, "1");
-
-    if (threadId.length === 0) {
+    if (!state.open) {
+      params.delete(REVIEW_ASK_DOCK_OPEN_PARAM);
       params.delete(REVIEW_ASK_DOCK_THREAD_PARAM);
     } else {
-      params.set(REVIEW_ASK_DOCK_THREAD_PARAM, threadId);
+      params.set(REVIEW_ASK_DOCK_OPEN_PARAM, "1");
+
+      if (threadId.length === 0) {
+        params.delete(REVIEW_ASK_DOCK_THREAD_PARAM);
+      } else {
+        params.set(REVIEW_ASK_DOCK_THREAD_PARAM, threadId);
+      }
     }
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    },
+  });
 }

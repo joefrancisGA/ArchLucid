@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const EVIDENCE_GAP_FORECAST_OPEN_PARAM = "evidenceGapForecastOpen";
 
 export function parseEvidenceGapForecastOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function evidenceGapForecastDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(EVIDENCE_GAP_FORECAST_OPEN_PARAM);
-  } else {
-    params.set(EVIDENCE_GAP_FORECAST_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, EVIDENCE_GAP_FORECAST_OPEN_PARAM);
 }

@@ -1,4 +1,5 @@
 import { PLANNING_PATH } from "@/lib/planning-route";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const PLANNING_THEME_PARAM = "theme";
 
@@ -21,15 +22,15 @@ export function planningThemeHrefFromSearch(
   themeId: string | null,
   pathname: string = PLANNING_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (themeId === null || themeId.trim().length === 0) {
-    params.delete(PLANNING_THEME_PARAM);
-  } else {
-    params.set(PLANNING_THEME_PARAM, themeId.trim());
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (themeId === null || themeId.trim().length === 0) {
+      params.delete(PLANNING_THEME_PARAM);
+    } else {
+      params.set(PLANNING_THEME_PARAM, themeId.trim());
+    }
+    },
+  });
 }

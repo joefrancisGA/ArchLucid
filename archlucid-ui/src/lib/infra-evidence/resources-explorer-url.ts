@@ -5,6 +5,7 @@ import {
 } from "@/lib/infra-evidence/resources-explorer-table-sort";
 import { infrastructureResourcesPathForProductLine } from "@/lib/product-line/securenow-infrastructure-resources-route";
 import { resolveProductLineId } from "@/lib/product-line/resolve-product-line-id";
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 
 export const RESOURCE_EXPLORER_PAGE_PARAM = "page";
 export const RESOURCE_EXPLORER_SORT_PARAM = "sort";
@@ -110,6 +111,7 @@ export function resourceExplorerListStateHrefFromSearch(
   pathname: string = infrastructureResourcesPathForProductLine(resolveProductLineId()),
 ): string {
   const params = new URLSearchParams(currentSearch);
+  applyOperatorUrlSelectionSwitch(params, { kind: "infra-resource-hub-run-scope" });
 
   if (patch.page !== undefined) {
     if (patch.page <= 1) {

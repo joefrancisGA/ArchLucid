@@ -1,4 +1,5 @@
 import { INTERNAL_INTEGRATION_EVENTS_DLQ_PATH } from "@/lib/internal-ops-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const INTEGRATION_EVENTS_DLQ_BULK_RETRY_CONFIRM_PARAM = "dlqBulkRetryConfirm";
 export const INTEGRATION_EVENTS_DLQ_SUPPRESS_ID_PARAM = "dlqSuppressId";
@@ -33,22 +34,22 @@ export function integrationEventsDlqConfirmHrefFromSearch(
   state: IntegrationEventsDlqConfirmUrlState,
   pathname: string = INTERNAL_INTEGRATION_EVENTS_DLQ_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const suppressId = (state.suppressOutboxId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const suppressId = (state.suppressOutboxId ?? "").trim();
 
-  if (!state.bulkRetryConfirmOpen) {
-    params.delete(INTEGRATION_EVENTS_DLQ_BULK_RETRY_CONFIRM_PARAM);
-  } else {
-    params.set(INTEGRATION_EVENTS_DLQ_BULK_RETRY_CONFIRM_PARAM, "1");
-  }
+    if (!state.bulkRetryConfirmOpen) {
+      params.delete(INTEGRATION_EVENTS_DLQ_BULK_RETRY_CONFIRM_PARAM);
+    } else {
+      params.set(INTEGRATION_EVENTS_DLQ_BULK_RETRY_CONFIRM_PARAM, "1");
+    }
 
-  if (suppressId.length === 0) {
-    params.delete(INTEGRATION_EVENTS_DLQ_SUPPRESS_ID_PARAM);
-  } else {
-    params.set(INTEGRATION_EVENTS_DLQ_SUPPRESS_ID_PARAM, suppressId);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (suppressId.length === 0) {
+      params.delete(INTEGRATION_EVENTS_DLQ_SUPPRESS_ID_PARAM);
+    } else {
+      params.set(INTEGRATION_EVENTS_DLQ_SUPPRESS_ID_PARAM, suppressId);
+    }
+    },
+  });
 }

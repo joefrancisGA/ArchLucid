@@ -31,3 +31,6 @@ a5dff22bb134d8c663a8a769e808762904e2cc8d:docs/library/AL_BUG_HUNT_LEDGER.md:gene
 
 # Cosmos connection-string redaction fixture (4b9fd5f9): generic-api-key false positive on a retired AccountKey test literal; HEAD uses a low-entropy placeholder.
 4b9fd5f9680886607247c6a2e5ded26b699157a9:ArchLucid.Core.Tests/Configuration/ConfigurationEffectiveValueResolverTests.cs:generic-api-key:383
+
+# Stripe wallet guard unit test (1df3dd91a2): retired Stripe-shaped test SecretKey fixture; HEAD uses a non-credential-shaped literal. stripe-access-token matches the test-mode secret prefix even for low-entropy placeholders.
+1df3dd91a2a011fb570280ef02b4a9f14895e5ee:ArchLucid.Persistence.Tests/Billing/StripeWalletPaymentIdentifierGuardTests.cs:stripe-access-token:29

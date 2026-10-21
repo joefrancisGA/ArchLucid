@@ -1,4 +1,5 @@
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const GOVERNANCE_FINDINGS_SEARCH_PARAM = "q";
 
@@ -16,18 +17,18 @@ export function governanceFindingsSearchHrefFromSearch(
   query: string,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = query.trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "governance-findings-queue-navigation" },
+    mutate: (params) => {
+    const trimmed = query.trim();
 
-  if (trimmed.length === 0) {
-    params.delete(GOVERNANCE_FINDINGS_SEARCH_PARAM);
-  } else {
-    params.set(GOVERNANCE_FINDINGS_SEARCH_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(GOVERNANCE_FINDINGS_SEARCH_PARAM);
+    } else {
+      params.set(GOVERNANCE_FINDINGS_SEARCH_PARAM, trimmed);
+    }
+    },
+  });
 }
 
 /** Client-side row match for findings queue header/in-page search. */

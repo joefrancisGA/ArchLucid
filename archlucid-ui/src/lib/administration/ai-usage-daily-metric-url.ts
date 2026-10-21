@@ -1,5 +1,6 @@
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import type { AiUsageDailyMetric } from "@/lib/ai-usage-dashboard-model-types";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const AI_USAGE_DAILY_METRIC_PARAM = "metric";
 
@@ -28,15 +29,15 @@ export function aiUsageDailyMetricHrefFromSearch(
   metric: AiUsageDailyMetric,
   pathname: string = AI_USAGE_SETTINGS_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (metric === DEFAULT_AI_USAGE_DAILY_METRIC) {
-    params.delete(AI_USAGE_DAILY_METRIC_PARAM);
-  } else {
-    params.set(AI_USAGE_DAILY_METRIC_PARAM, metric);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (metric === DEFAULT_AI_USAGE_DAILY_METRIC) {
+      params.delete(AI_USAGE_DAILY_METRIC_PARAM);
+    } else {
+      params.set(AI_USAGE_DAILY_METRIC_PARAM, metric);
+    }
+    },
+  });
 }

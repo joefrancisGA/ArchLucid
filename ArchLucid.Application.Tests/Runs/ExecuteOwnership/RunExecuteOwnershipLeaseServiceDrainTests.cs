@@ -49,6 +49,45 @@ public sealed class RunExecuteOwnershipLeaseServiceDrainTests
     }
 
     [Fact]
+    public async Task AcquireAsync_when_drain_begins_after_acquire_rolls_back_sql_with_non_cancellable_release_when_caller_token_is_cancelled()
+    {
+        Guid runId = Guid.NewGuid();
+        TaskCompletionSource<bool> acquireCompleted = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Mock<IRunExecuteOwnershipLeaseRepository> leases = new();
+        leases
+            .Setup(l => l.TryAcquireOrRenewAsync(runId, "instance-a", 900, It.IsAny<CancellationToken>()))
+            .Returns(acquireCompleted.Task);
+        CancellationToken releaseToken = default;
+        leases
+            .Setup(l => l.TryReleaseAsync(runId, "instance-a", It.IsAny<CancellationToken>()))
+            .Callback<Guid, string, CancellationToken>((_, _, token) => releaseToken = token)
+            .Returns<Guid, string, CancellationToken>((_, _, token) =>
+            {
+                if (token.IsCancellationRequested)
+                    throw new OperationCanceledException(token);
+
+                return Task.CompletedTask;
+            });
+
+        WorkerHostDrainGate drainGate = new();
+        RunExecuteOwnershipLeaseService sut = CreateSut(leases, drainGate);
+
+        using CancellationTokenSource callerCancellation = new();
+        Task acquireTask = sut.AcquireAsync(runId, callerCancellation.Token);
+
+        drainGate.BeginDrain();
+        callerCancellation.Cancel();
+        acquireCompleted.SetResult(true);
+
+        Func<Task> act = async () => await acquireTask;
+
+        await act.Should().ThrowAsync<ConflictException>()
+            .WithMessage("*draining*");
+
+        releaseToken.Should().Be(CancellationToken.None);
+    }
+
+    [Fact]
     public async Task AcquireAsync_when_host_is_draining_throws_conflict_without_claiming_lease()
     {
         Guid runId = Guid.NewGuid();

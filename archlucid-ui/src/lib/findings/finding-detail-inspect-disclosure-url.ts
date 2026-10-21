@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const FINDING_EVIDENCE_OPEN_PARAM = "findingEvidenceOpen";
 export const FINDING_AUDIT_OPEN_PARAM = "findingAuditOpen";
 export const FINDING_RELATED_AUDIT_OPEN_PARAM = "findingRelatedAuditOpen";
@@ -59,51 +60,51 @@ export function findingDetailInspectDisclosureHrefFromSearch(
   state: FindingDetailInspectDisclosureUrlState,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!state.evidenceOpen) {
-    params.delete(FINDING_EVIDENCE_OPEN_PARAM);
-  } else {
-    params.set(FINDING_EVIDENCE_OPEN_PARAM, "1");
-  }
+    if (!state.evidenceOpen) {
+      params.delete(FINDING_EVIDENCE_OPEN_PARAM);
+    } else {
+      params.set(FINDING_EVIDENCE_OPEN_PARAM, "1");
+    }
 
-  if (!state.auditOpen) {
-    params.delete(FINDING_AUDIT_OPEN_PARAM);
-  } else {
-    params.set(FINDING_AUDIT_OPEN_PARAM, "1");
-  }
+    if (!state.auditOpen) {
+      params.delete(FINDING_AUDIT_OPEN_PARAM);
+    } else {
+      params.set(FINDING_AUDIT_OPEN_PARAM, "1");
+    }
 
-  if (!state.relatedAuditOpen) {
-    params.delete(FINDING_RELATED_AUDIT_OPEN_PARAM);
-  } else {
-    params.set(FINDING_RELATED_AUDIT_OPEN_PARAM, "1");
-  }
+    if (!state.relatedAuditOpen) {
+      params.delete(FINDING_RELATED_AUDIT_OPEN_PARAM);
+    } else {
+      params.set(FINDING_RELATED_AUDIT_OPEN_PARAM, "1");
+    }
 
-  if (!state.technicalMetadataOpen) {
-    params.delete(FINDING_TECHNICAL_METADATA_OPEN_PARAM);
-  } else {
-    params.set(FINDING_TECHNICAL_METADATA_OPEN_PARAM, "1");
-  }
+    if (!state.technicalMetadataOpen) {
+      params.delete(FINDING_TECHNICAL_METADATA_OPEN_PARAM);
+    } else {
+      params.set(FINDING_TECHNICAL_METADATA_OPEN_PARAM, "1");
+    }
 
-  if (!state.evidenceBasisOpen) {
-    params.delete(FINDING_EVIDENCE_BASIS_OPEN_PARAM);
-  } else {
-    params.set(FINDING_EVIDENCE_BASIS_OPEN_PARAM, "1");
-  }
+    if (!state.evidenceBasisOpen) {
+      params.delete(FINDING_EVIDENCE_BASIS_OPEN_PARAM);
+    } else {
+      params.set(FINDING_EVIDENCE_BASIS_OPEN_PARAM, "1");
+    }
 
-  if (!state.fullEvidenceTraceOpen) {
-    params.delete(FINDING_FULL_EVIDENCE_TRACE_OPEN_PARAM);
-  } else {
-    params.set(FINDING_FULL_EVIDENCE_TRACE_OPEN_PARAM, "1");
-  }
+    if (!state.fullEvidenceTraceOpen) {
+      params.delete(FINDING_FULL_EVIDENCE_TRACE_OPEN_PARAM);
+    } else {
+      params.set(FINDING_FULL_EVIDENCE_TRACE_OPEN_PARAM, "1");
+    }
 
-  if (!state.workWithOpen) {
-    params.delete(FINDING_WORK_WITH_OPEN_PARAM);
-  } else {
-    params.set(FINDING_WORK_WITH_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!state.workWithOpen) {
+      params.delete(FINDING_WORK_WITH_OPEN_PARAM);
+    } else {
+      params.set(FINDING_WORK_WITH_OPEN_PARAM, "1");
+    }
+    },
+  });
 }

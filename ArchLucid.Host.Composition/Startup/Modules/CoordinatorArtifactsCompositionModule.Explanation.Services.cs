@@ -64,6 +64,7 @@ partial class CoordinatorArtifactsCompositionModule
             .Bind(configuration.GetSection(LlmCostEstimationOptions.SectionPath))
             .ValidateOnStart();
         services.AddSingleton<IValidateOptions<LlmCostEstimationOptions>, LlmCostEstimationOptionsValidator>();
+        services.AddSingleton<IPostConfigureOptions<LlmCostEstimationOptions>, LlmCostEstimationOptionsNormalizePostConfigure>();
         services.AddSingleton<IPostConfigureOptions<LlmCostEstimationOptions>, LlmCostEstimationStartupRateWarningPostConfigure>();
 
         ArchLucidOptions storageOptions = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);

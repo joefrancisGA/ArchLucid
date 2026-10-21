@@ -1,4 +1,5 @@
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const AUDIT_PAGE_TECHNICAL_DETAILS_OPEN_PARAM = "auditTechnicalDetailsOpen";
 
@@ -17,15 +18,15 @@ export function auditPageTechnicalDetailsHrefFromSearch(
   open: boolean,
   pathname: string = GOVERNANCE_AUDIT_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!open) {
-    params.delete(AUDIT_PAGE_TECHNICAL_DETAILS_OPEN_PARAM);
-  } else {
-    params.set(AUDIT_PAGE_TECHNICAL_DETAILS_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!open) {
+      params.delete(AUDIT_PAGE_TECHNICAL_DETAILS_OPEN_PARAM);
+    } else {
+      params.set(AUDIT_PAGE_TECHNICAL_DETAILS_OPEN_PARAM, "1");
+    }
+    },
+  });
 }

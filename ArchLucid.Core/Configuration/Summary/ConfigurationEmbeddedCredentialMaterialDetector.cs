@@ -46,6 +46,9 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
     private static bool ContainsUrlUserInfoCredentials(ReadOnlySpan<char> trimmed)
     {
+        if (ContainsSchemeLessUserInfoCredentials(trimmed))
+            return true;
+
         int searchStart = 0;
 
         while (searchStart < trimmed.Length)
@@ -72,6 +75,31 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         }
 
         return false;
+    }
+
+    /// <summary>
+    ///     Connection strings copied without a scheme (e.g. <c>user:pass@host:5432/db</c>) still embed credentials in userinfo.
+    /// </summary>
+    private static bool ContainsSchemeLessUserInfoCredentials(ReadOnlySpan<char> trimmed)
+    {
+        int atIndex = trimmed.IndexOf('@');
+
+        if (atIndex <= 0)
+            return false;
+
+        ReadOnlySpan<char> beforeAt = trimmed.Slice(0, atIndex);
+
+        if (beforeAt.Contains("://".AsSpan(), StringComparison.Ordinal))
+            return false;
+
+        int colonIndex = beforeAt.IndexOf(':');
+
+        if (colonIndex < 0)
+            return false;
+
+        ReadOnlySpan<char> password = beforeAt.Slice(colonIndex + 1).Trim();
+
+        return !password.IsEmpty;
     }
 
     private static bool ContainsCredentialKeyValuePair(ReadOnlySpan<char> trimmed)
@@ -117,7 +145,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
     }
 
     private static bool IsPairDelimiter(char character) =>
-        character is ';' or ',' or '|' or '&' or '\r' or '\n' or '\t';
+        character is ';' or ',' or '|' or '&' or '\r' or '\n' or '\t' or '\f';
 
     private static bool TryMatchCredentialKeyValuePairAt(ReadOnlySpan<char> trimmed, int index)
     {

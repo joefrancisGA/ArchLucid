@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const ASK_ASSISTANT_MORE_SOURCES_OPEN_PARAM = "askAssistantMoreSourcesOpen";
 
 export function parseAskAssistantMoreSourcesOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function askAssistantMoreSourcesDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(ASK_ASSISTANT_MORE_SOURCES_OPEN_PARAM);
-  } else {
-    params.set(ASK_ASSISTANT_MORE_SOURCES_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, ASK_ASSISTANT_MORE_SOURCES_OPEN_PARAM);
 }

@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const CREATE_WORK_ITEM_OPEN_PARAM = "workItemOpen";
 export const CREATE_WORK_ITEM_FINDING_ID_PARAM = "workItemFindingId";
 
@@ -29,24 +30,24 @@ export function createWorkItemDialogHrefFromSearch(
   state: CreateWorkItemDialogUrlState,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!state.open) {
-    params.delete(CREATE_WORK_ITEM_OPEN_PARAM);
-    params.delete(CREATE_WORK_ITEM_FINDING_ID_PARAM);
-  } else {
-    params.set(CREATE_WORK_ITEM_OPEN_PARAM, "1");
-
-    const findingId = (state.findingId ?? "").trim();
-
-    if (findingId.length === 0) {
+    if (!state.open) {
+      params.delete(CREATE_WORK_ITEM_OPEN_PARAM);
       params.delete(CREATE_WORK_ITEM_FINDING_ID_PARAM);
     } else {
-      params.set(CREATE_WORK_ITEM_FINDING_ID_PARAM, findingId);
+      params.set(CREATE_WORK_ITEM_OPEN_PARAM, "1");
+
+      const findingId = (state.findingId ?? "").trim();
+
+      if (findingId.length === 0) {
+        params.delete(CREATE_WORK_ITEM_FINDING_ID_PARAM);
+      } else {
+        params.set(CREATE_WORK_ITEM_FINDING_ID_PARAM, findingId);
+      }
     }
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    },
+  });
 }

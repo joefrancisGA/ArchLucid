@@ -1,4 +1,5 @@
 import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export type ProductLearningTimeRangeKey = "all" | "7d" | "30d";
 
@@ -29,15 +30,15 @@ export function productLearningRangeHrefFromSearch(
   range: ProductLearningTimeRangeKey,
   pathname: string = PRODUCT_LEARNING_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (range === DEFAULT_PRODUCT_LEARNING_RANGE) {
-    params.delete(PRODUCT_LEARNING_RANGE_PARAM);
-  } else {
-    params.set(PRODUCT_LEARNING_RANGE_PARAM, range);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (range === DEFAULT_PRODUCT_LEARNING_RANGE) {
+      params.delete(PRODUCT_LEARNING_RANGE_PARAM);
+    } else {
+      params.set(PRODUCT_LEARNING_RANGE_PARAM, range);
+    }
+    },
+  });
 }

@@ -1,4 +1,5 @@
 import { INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const TEAMS_REMOVE_CONFIRM_PARAM = "teamsRemoveConfirm";
 
@@ -17,15 +18,15 @@ export function teamsNotificationsRemoveConfirmHrefFromSearch(
   confirmOpen: boolean,
   pathname: string = INTEGRATIONS_TEAMS_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!confirmOpen) {
-    params.delete(TEAMS_REMOVE_CONFIRM_PARAM);
-  } else {
-    params.set(TEAMS_REMOVE_CONFIRM_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!confirmOpen) {
+      params.delete(TEAMS_REMOVE_CONFIRM_PARAM);
+    } else {
+      params.set(TEAMS_REMOVE_CONFIRM_PARAM, "1");
+    }
+    },
+  });
 }

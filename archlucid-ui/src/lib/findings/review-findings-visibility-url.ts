@@ -1,3 +1,4 @@
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 export const REVIEW_FINDINGS_SHOW_LOW_PARAM = "showLow";
 export const REVIEW_FINDINGS_SHOW_ADVISORY_PARAM = "showAdvisory";
 export const REVIEW_FINDINGS_HIDE_GENERIC_PARAM = "hideGeneric";
@@ -34,6 +35,7 @@ export function reviewFindingsVisibilityHrefFromSearch(
   pathname: string,
 ): string {
   const params = new URLSearchParams(currentSearch);
+  applyOperatorUrlSelectionSwitch(params, { kind: "disclosure-only" });
 
   if (!options.showLowConfidence) {
     params.delete(REVIEW_FINDINGS_SHOW_LOW_PARAM);

@@ -11,6 +11,7 @@ import {
 import type { DiagramInfrastructureCorrespondenceRow } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-types";
 import type { DiagramReconcileMatchKindFilter } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-types";
 import { buildRemediationWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-workbench-url";
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 
 export const DIAGRAM_RECONCILE_RUN_ID_PARAM = "runId";
 export const DIAGRAM_RECONCILE_SNAPSHOT_ID_PARAM = "snapshotId";
@@ -195,6 +196,7 @@ export function diagramReconcileFilterHrefFromSearch(
   pathname: string = GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
 ): string {
   const params = new URLSearchParams(currentSearch);
+  applyOperatorUrlSelectionSwitch(params, { kind: "infra-resource-hub-run-scope" });
 
   if (patch.runId !== undefined) {
     const trimmed = patch.runId.trim();

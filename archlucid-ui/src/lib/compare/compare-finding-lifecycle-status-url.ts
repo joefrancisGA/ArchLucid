@@ -1,5 +1,6 @@
 import type { CompareFindingLifecycleState } from "@/lib/compare-finding-lifecycle";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const COMPARE_FINDING_LIFECYCLE_STATUS_PARAM = "comparisonStatus";
 
@@ -32,15 +33,15 @@ export function compareFindingLifecycleStatusHrefFromSearch(
   status: CompareFindingLifecycleState | null,
   pathname: string = COMPARE_TWO_REVIEWS_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (status === null) {
-    params.delete(COMPARE_FINDING_LIFECYCLE_STATUS_PARAM);
-  } else {
-    params.set(COMPARE_FINDING_LIFECYCLE_STATUS_PARAM, status);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (status === null) {
+      params.delete(COMPARE_FINDING_LIFECYCLE_STATUS_PARAM);
+    } else {
+      params.set(COMPARE_FINDING_LIFECYCLE_STATUS_PARAM, status);
+    }
+    },
+  });
 }

@@ -1,4 +1,5 @@
 import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const RISK_EXCEPTION_RENEW_PARAM = "renewId";
 export const RISK_EXCEPTION_REVOKE_PARAM = "revokeId";
@@ -29,23 +30,23 @@ export function riskExceptionsRenewRevokeHrefFromSearch(
   state: RiskExceptionsRenewRevokeUrlState,
   pathname: string = GOVERNANCE_EXCEPTIONS_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const renewId = (state.renewId ?? "").trim();
-  const revokeId = (state.revokeId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const renewId = (state.renewId ?? "").trim();
+    const revokeId = (state.revokeId ?? "").trim();
 
-  if (renewId.length === 0) {
-    params.delete(RISK_EXCEPTION_RENEW_PARAM);
-  } else {
-    params.set(RISK_EXCEPTION_RENEW_PARAM, renewId);
-  }
+    if (renewId.length === 0) {
+      params.delete(RISK_EXCEPTION_RENEW_PARAM);
+    } else {
+      params.set(RISK_EXCEPTION_RENEW_PARAM, renewId);
+    }
 
-  if (revokeId.length === 0) {
-    params.delete(RISK_EXCEPTION_REVOKE_PARAM);
-  } else {
-    params.set(RISK_EXCEPTION_REVOKE_PARAM, revokeId);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (revokeId.length === 0) {
+      params.delete(RISK_EXCEPTION_REVOKE_PARAM);
+    } else {
+      params.set(RISK_EXCEPTION_REVOKE_PARAM, revokeId);
+    }
+    },
+  });
 }

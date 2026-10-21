@@ -1,4 +1,5 @@
 import { PLANNING_PATH } from "@/lib/planning-route";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const PLANNING_TECHNICAL_EXPORT_OPEN_PARAM = "planningTechnicalExportOpen";
 
@@ -17,15 +18,15 @@ export function planningTechnicalExportDisclosureHrefFromSearch(
   open: boolean,
   pathname: string = PLANNING_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!open) {
-    params.delete(PLANNING_TECHNICAL_EXPORT_OPEN_PARAM);
-  } else {
-    params.set(PLANNING_TECHNICAL_EXPORT_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!open) {
+      params.delete(PLANNING_TECHNICAL_EXPORT_OPEN_PARAM);
+    } else {
+      params.set(PLANNING_TECHNICAL_EXPORT_OPEN_PARAM, "1");
+    }
+    },
+  });
 }

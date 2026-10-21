@@ -1,3 +1,5 @@
+using ArchLucid.Core.Requests;
+
 namespace ArchLucid.Decisioning.Analysis;
 
 /// <summary>
@@ -16,6 +18,14 @@ internal static class DecisioningTextTokenMatcher
         {
             return haystack.Contains(pattern, StringComparison.Ordinal);
         }
+
+        if (ControlPhraseMatcher.TryMatchCatalogPattern(haystack, pattern, out bool catalogMatches))
+        {
+            return catalogMatches;
+        }
+
+        haystack = haystack.ToLowerInvariant();
+        pattern = pattern.ToLowerInvariant();
 
         if (pattern.Contains(' ', StringComparison.Ordinal))
         {
@@ -189,22 +199,8 @@ internal static class DecisioningTextTokenMatcher
         return char.IsLetter(part[keyword.Length]);
     }
 
-    internal static bool ContainsAffirmativePrivateKeyword(string text)
-    {
-        if (string.IsNullOrEmpty(text))
-        {
-            return false;
-        }
-
-        string normalized = text.ToLowerInvariant();
-
-        if (!ContainsStandaloneToken(normalized, "private"))
-        {
-            return false;
-        }
-
-        return true;
-    }
+    internal static bool ContainsAffirmativePrivateKeyword(string text) =>
+        ControlPhraseMatcher.TextAffirmsPrivateWord(text);
 
     private static bool IsNegatedNonPrefix(string haystack, int tokenIndex)
     {
@@ -241,6 +237,7 @@ internal static class DecisioningTextTokenMatcher
             "do not mandate ",
             "do not need ",
             "do not deploy ",
+            "without ",
         ];
 
         foreach (string negationPhrase in negationPhrases)

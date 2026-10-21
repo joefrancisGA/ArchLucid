@@ -1,3 +1,5 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 export const FINDING_ASK_INLINE_OPEN_PARAM = "findingAskInlineOpen";
 export const FINDING_ASK_INLINE_FINDING_ID_PARAM = "findingAskInlineFindingId";
 
@@ -26,17 +28,7 @@ export function findingAskInlineDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(FINDING_ASK_INLINE_OPEN_PARAM);
-  } else {
-    params.set(FINDING_ASK_INLINE_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, FINDING_ASK_INLINE_OPEN_PARAM);
 }
 
 export function findingAskInlineFindingIdDisclosureHrefFromSearch(
@@ -45,6 +37,7 @@ export function findingAskInlineFindingIdDisclosureHrefFromSearch(
   pathname: string,
 ): string {
   const params = new URLSearchParams(currentSearch);
+  applyOperatorUrlSelectionSwitch(params, { kind: "disclosure-only" });
 
   if (findingId === null || findingId.trim().length === 0) {
     params.delete(FINDING_ASK_INLINE_FINDING_ID_PARAM);

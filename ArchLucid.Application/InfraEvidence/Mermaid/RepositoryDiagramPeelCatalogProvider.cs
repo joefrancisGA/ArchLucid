@@ -22,33 +22,35 @@ public sealed class RepositoryDiagramPeelCatalogProvider(
 
     public async Task<DiagramPeelCatalogSnapshot> GetCatalogAsync(CancellationToken cancellationToken = default)
     {
-        if (_memoryCache.TryGetValue(CacheKey, out DiagramPeelCatalogSnapshot? cached) && cached is not null)
-        {
-            return cached;
-        }
-
         using IServiceScope scope = _scopeFactory.CreateScope();
         IDiagramPeelCatalogRepository catalogRepository =
             scope.ServiceProvider.GetRequiredService<IDiagramPeelCatalogRepository>();
 
         int count = await catalogRepository.CountAsync(cancellationToken).ConfigureAwait(false);
 
-        DiagramPeelCatalogSnapshot snapshot;
-
         if (count == 0)
         {
-            snapshot = DiagramPeelCatalogDefaultSeed.BuildSnapshot();
-        }
-        else
-        {
-            snapshot = new DiagramPeelCatalogSnapshot
-            {
-                CatalogVersion = await catalogRepository.GetCatalogVersionAsync(cancellationToken).ConfigureAwait(false),
-                Entries = await catalogRepository.ListEntriesAsync(cancellationToken).ConfigureAwait(false),
-            };
+            // Do not cache the read-time default seed: a later repository upsert must be visible on the next read.
+            _memoryCache.Remove(CacheKey);
+
+            return DiagramPeelCatalogDefaultSeed.BuildSnapshot();
         }
 
-        _memoryCache.Set(CacheKey, snapshot, TimeSpan.FromMinutes(15));
+        int catalogVersion = await catalogRepository.GetCatalogVersionAsync(cancellationToken).ConfigureAwait(false);
+        string versionedCacheKey = $"{CacheKey}:{catalogVersion}";
+
+        if (_memoryCache.TryGetValue(versionedCacheKey, out DiagramPeelCatalogSnapshot? cached) && cached is not null)
+        {
+            return cached;
+        }
+
+        DiagramPeelCatalogSnapshot snapshot = new()
+        {
+            CatalogVersion = catalogVersion,
+            Entries = await catalogRepository.ListEntriesAsync(cancellationToken).ConfigureAwait(false),
+        };
+
+        _memoryCache.Set(versionedCacheKey, snapshot, TimeSpan.FromMinutes(15));
 
         return snapshot;
     }

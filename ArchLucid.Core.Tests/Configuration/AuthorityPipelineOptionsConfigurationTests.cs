@@ -68,4 +68,24 @@ public sealed class AuthorityPipelineOptionsConfigurationTests
 
         options.Concurrency.WaitPollMilliseconds.Should().Be(120);
     }
+
+    [Fact]
+    public void AuthorityPipeline_Concurrency_clamps_negative_lease_recognition_horizon_to_zero()
+    {
+        IConfigurationRoot configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["ArchLucid:AuthorityPipeline:Concurrency:LeaseRecognitionHorizon"] = "-01:00:00",
+                })
+            .Build();
+
+        AuthorityPipelineOptions options = new();
+
+        configuration.GetSection("ArchLucid").GetSection(AuthorityPipelineOptions.SectionName).Bind(options);
+
+        options.Concurrency.LeaseRecognitionHorizon.Should().Be(
+            TimeSpan.Zero,
+            "negative horizons must not push lease stale cutoffs into the future for SQL capacity accounting");
+    }
 }

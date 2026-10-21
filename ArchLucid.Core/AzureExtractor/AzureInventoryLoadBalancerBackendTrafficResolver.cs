@@ -391,16 +391,9 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
             return null;
         }
 
-        if (backendPortElement.ValueKind is JsonValueKind.Number
-            && backendPortElement.TryGetInt32(out int backendPort))
+        if (AzureInventoryArmTolerantScalarReader.TryReadInt32(backendPortElement, out int backendPort))
         {
             return backendPort;
-        }
-
-        if (backendPortElement.ValueKind is JsonValueKind.String
-            && int.TryParse(backendPortElement.GetString(), out int parsedPort))
-        {
-            return parsedPort;
         }
 
         return null;

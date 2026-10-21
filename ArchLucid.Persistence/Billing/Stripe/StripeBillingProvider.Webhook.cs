@@ -210,10 +210,18 @@ public sealed partial class StripeBillingProvider
             ? parsedCorrelation
             : Guid.NewGuid();
 
-        if (!await _walletRepository.TryInsertStripeWebhookIdempotencyAsync(stripeEvent.Id, stripeEvent.Type, cancellationToken)
-                .ConfigureAwait(false))
+        bool claimedStripeEvent = await _walletRepository
+            .TryInsertStripeWebhookIdempotencyAsync(stripeEvent.Id, stripeEvent.Type, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (!claimedStripeEvent)
         {
-            return;
+            bool paymentIntentAlreadyCredited = await _walletRepository
+                .LedgerContainsPaymentIntentAsync(intent.Id, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (paymentIntentAlreadyCredited)
+                return;
         }
 
         await _walletWebhookProcessor
@@ -234,6 +242,7 @@ public sealed partial class StripeBillingProvider
 
         // StripeObjectConverter yields null on data.object when JSON omits the Stripe "object" discriminator.
         // EventConverter still stores data.object on RawObject; deserialize as Session so metadata activation works.
+
         if (stripeEvent.Data?.RawObject is JToken token)
             return token.ToObject<Session>(Newtonsoft.Json.JsonSerializer.Create(StripeConfiguration.SerializerSettings));
 

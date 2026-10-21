@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const PAGE_SHORTCUTS_OPEN_PARAM = "pageShortcutsOpen";
 
 export function parsePageShortcutsOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function pageShortcutsDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(PAGE_SHORTCUTS_OPEN_PARAM);
-  } else {
-    params.set(PAGE_SHORTCUTS_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, PAGE_SHORTCUTS_OPEN_PARAM);
 }

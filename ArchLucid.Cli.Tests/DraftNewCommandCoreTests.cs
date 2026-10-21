@@ -765,6 +765,14 @@ public sealed class DraftNewCommandCoreTests
             connectCalled.Should().BeFalse();
             error.ToString().Should().Contain("--system-name");
             output.ToString().Should().NotContain("System name");
+
+            string jsonLine = output.ToString()
+                .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Single(line => line.StartsWith('{'));
+
+            using JsonDocument document = JsonDocument.Parse(jsonLine);
+            document.RootElement.GetProperty("ok").GetBoolean().Should().BeFalse();
+            document.RootElement.GetProperty("error").GetString().Should().Be("missing_system_name");
         }
         finally
         {
@@ -1092,7 +1100,14 @@ public sealed class DraftNewCommandCoreTests
             exit.Should().Be(CliExitCode.UsageError);
             prompted.Should().BeFalse();
             error.ToString().Should().Contain("at least 100 characters after trim");
-            output.ToString().Should().NotContain("\"ok\"");
+
+            string jsonLine = output.ToString()
+                .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Single(line => line.StartsWith('{'));
+
+            using JsonDocument document = JsonDocument.Parse(jsonLine);
+            document.RootElement.GetProperty("ok").GetBoolean().Should().BeFalse();
+            document.RootElement.GetProperty("error").GetString().Should().Be("intent_text_too_short");
         }
         finally
         {
@@ -2111,7 +2126,14 @@ public sealed class DraftNewCommandCoreTests
 
             exit.Should().Be(CliExitCode.UsageError);
             error.ToString().Should().Contain("at least 100 characters after trim");
-            output.ToString().Should().NotContain("\"ok\"");
+
+            string jsonLine = output.ToString()
+                .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Single(line => line.StartsWith('{'));
+
+            using JsonDocument document = JsonDocument.Parse(jsonLine);
+            document.RootElement.GetProperty("ok").GetBoolean().Should().BeFalse();
+            document.RootElement.GetProperty("error").GetString().Should().Be("intent_text_too_short");
         }
         finally
         {

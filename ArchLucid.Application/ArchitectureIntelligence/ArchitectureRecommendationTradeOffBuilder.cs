@@ -168,7 +168,45 @@ internal static class ArchitectureRecommendationTradeOffBuilder
         if (IsNegatedDimensionMention(priority, dimensionToken))
             return false;
 
+        if (TryResolveExplicitDimensionPrecedence(priority, dimensionToken, out bool explicitPrefers))
+            return explicitPrefers;
+
         return CreateDimensionWordPattern(dimensionToken).IsMatch(priority);
+    }
+
+    private static bool TryResolveExplicitDimensionPrecedence(
+        string priority,
+        string dimensionToken,
+        out bool prefersDimension)
+    {
+        prefersDimension = false;
+
+        Match? match = ExplicitDimensionOverDimensionPattern().Match(priority);
+
+        if (!match.Success)
+            match = ExplicitDimensionBeforeDimensionPattern().Match(priority);
+
+        if (!match.Success)
+            return false;
+
+        string left = match.Groups[1].Value;
+        string right = match.Groups[2].Value;
+
+        if (dimensionToken.Equals(left, StringComparison.OrdinalIgnoreCase))
+        {
+            prefersDimension = true;
+
+            return true;
+        }
+
+        if (dimensionToken.Equals(right, StringComparison.OrdinalIgnoreCase))
+        {
+            prefersDimension = false;
+
+            return true;
+        }
+
+        return false;
     }
 
     private static bool IsNegatedDimensionMention(string priority, string dimensionToken)
@@ -257,6 +295,16 @@ internal static class ArchitectureRecommendationTradeOffBuilder
             $@"\b{Regex.Escape(dimensionToken)}\b",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
     }
+
+    private static Regex ExplicitDimensionOverDimensionPattern() =>
+        new(
+            @"\b(Security|Cost|Reliability)\s+over\s+(Security|Cost|Reliability)\b",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static Regex ExplicitDimensionBeforeDimensionPattern() =>
+        new(
+            @"\b(Security|Cost|Reliability)\s+before\s+(Security|Cost|Reliability)\b",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static Regex UnreliabilityNegationPattern() =>
         new(@"\bunreliability\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);

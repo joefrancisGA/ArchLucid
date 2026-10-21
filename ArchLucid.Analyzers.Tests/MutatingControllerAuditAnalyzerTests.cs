@@ -1617,6 +1617,69 @@ namespace ArchLucid.Api.Probe
     }
 
     [Fact]
+    public async Task AL0003_reports_mutating_action_in_referenced_controller_base_when_only_AcceptVerbs_post()
+    {
+        MetadataReference sharedControllerReference = BuildSharedAcceptVerbsControllerReference();
+        CSharpCompilation apiCompilation = CSharpCompilation.Create(
+            "ArchLucid.Api",
+            [
+                CSharpSyntaxTree.ParseText(
+                    """
+namespace ArchLucid.Api.Probe
+{
+    public sealed class ReferencedAcceptVerbsDerivedController : Shared.Controllers.SharedAcceptVerbsMutatingController
+    {
+    }
+}
+""")
+            ],
+            TrustedPlatformReferences().Append(sharedControllerReference),
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+        ImmutableArray<Diagnostic> diagnostics =
+            await apiCompilation
+                .WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(new MutatingControllerAuditAnalyzer()))
+                .GetAnalyzerDiagnosticsAsync();
+
+        Assert.Contains(diagnostics, diagnostic =>
+            diagnostic.Id == Al0003MutatingControllerAuditDescriptor.Rule.Id &&
+            diagnostic.GetMessage().Contains("SharedAcceptVerbsMutatingController.Post", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task AL0003_reports_when_AcceptVerbs_lowercase_post_action_lacks_IAudit_LogAsync()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public sealed class AcceptVerbsLowercasePostController(IAuditService auditService) : ControllerBase
+{
+    [AcceptVerbs("post")]
+    public IActionResult {|#0:PostNotAllowed|}() => Ok();
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<MutatingControllerAuditAnalyzer, DefaultVerifier>.Diagnostic(
+                Al0003MutatingControllerAuditDescriptor.Rule)
+            .WithLocation(0)
+            .WithArguments("ArchLucid.Api.Probe.AcceptVerbsLowercasePostController.PostNotAllowed");
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expected },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
+    [Fact]
     public async Task AL0003_reports_when_HttpPost_action_uses_dynamic_LogAsync_because_audit_is_not_statically_resolved()
     {
         const string testCode = AuditAndMvcStubs +
@@ -2041,6 +2104,38 @@ using Microsoft.AspNetCore.Mvc;
 public abstract class SharedMutatingController : ControllerBase
 {
     [HttpPost("x")]
+    public IActionResult Post() => Ok();
+}
+}
+""")
+            ],
+            TrustedPlatformReferences(),
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+        using MemoryStream image = new();
+        EmitResult emit = compilation.Emit(image);
+        Assert.True(emit.Success, string.Join(Environment.NewLine, emit.Diagnostics));
+
+        return MetadataReference.CreateFromImage(image.ToArray());
+    }
+
+    private static MetadataReference BuildSharedAcceptVerbsControllerReference()
+    {
+        CSharpCompilation compilation = CSharpCompilation.Create(
+            "Shared.Controllers",
+            [
+                CSharpSyntaxTree.ParseText(
+                    AuditAndMvcStubs +
+                    """
+
+namespace Shared.Controllers
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public abstract class SharedAcceptVerbsMutatingController : ControllerBase
+{
+    [AcceptVerbs("POST")]
     public IActionResult Post() => Ok();
 }
 }

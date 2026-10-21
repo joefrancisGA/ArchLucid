@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Core.Requests;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
@@ -119,7 +120,7 @@ internal static class ArchitectureFramingConstraintReader
 
     private static bool IsCostFramingKey(string key)
     {
-        return key.Contains("cost", StringComparison.OrdinalIgnoreCase)
+        return ControlPhraseMatcher.IdentifierMentionsQualityDimension(key, ControlPhraseCatalog.Cost)
             || key.Contains("budget", StringComparison.OrdinalIgnoreCase)
             || key.Contains("ceiling", StringComparison.OrdinalIgnoreCase);
     }

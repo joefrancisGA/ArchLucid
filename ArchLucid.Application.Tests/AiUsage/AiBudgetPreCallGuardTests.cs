@@ -39,6 +39,38 @@ public sealed class AiBudgetPreCallGuardTests
     }
 
     [SkippableFact]
+    public async Task EnsureAllowedAsync_PublicDemoBlocksExpensiveFeature_WhenConfigBoundFeatureCapKeyHasBoundingWhitespace()
+    {
+        AiUsageControlsOptions controls = new()
+        {
+            DemoMode = true,
+            PublicDemoFeatureDailyLimitUsd = new Dictionary<string, decimal>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["  ArchitectureGeneration  "] = 0m,
+            },
+        };
+
+        new AiUsageControlsOptionsNormalizePostConfigure().PostConfigure(Options.DefaultName, controls);
+
+        AiBudgetPreCallGuard sut = CreateSutWithControls(
+            workspaceKind: AiUsageWorkspaceKind.PublicDemo,
+            blocks: false,
+            controls);
+
+        Func<Task> act = () => sut.EnsureAllowedAsync(
+            TenantId,
+            AiUsageFeature.ArchitectureGeneration,
+            "azure-openai",
+            "system",
+            "user",
+            null,
+            null,
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<LlmTokenQuotaExceededException>();
+    }
+
+    [SkippableFact]
     public async Task EnsureAllowedAsync_TrialWithinBudget_AllowsCall()
     {
         AiBudgetPreCallGuard sut = CreateSut(
@@ -241,6 +273,44 @@ public sealed class AiBudgetPreCallGuardTests
                 [AiUsageFeature.EvidenceQa.ToString()] = featureCap,
             },
         };
+
+        Mock<IOptionsMonitor<AiUsageControlsOptions>> optionsMonitor = new();
+        optionsMonitor.Setup(o => o.CurrentValue).Returns(controls);
+
+        return CreateSutWithControls(
+            workspaceKind,
+            blocks,
+            controls,
+            demoCache,
+            usageEvents,
+            policyResolver);
+    }
+
+    private static AiBudgetPreCallGuard CreateSutWithControls(
+        AiUsageWorkspaceKind workspaceKind,
+        bool blocks,
+        AiUsageControlsOptions controls,
+        IDemoAiPromptCache? demoCache = null,
+        InMemoryAiUsageEventRepository? usageEvents = null,
+        Mock<ITenantAiBudgetPolicyResolver>? policyResolver = null)
+    {
+        if (policyResolver is null)
+        {
+            policyResolver = new Mock<ITenantAiBudgetPolicyResolver>();
+            policyResolver
+                .Setup(p => p.ResolveAsync(TenantId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(
+                    new TenantAiBudgetPolicySnapshot
+                    {
+                        WorkspaceKind = workspaceKind,
+                        BudgetAmountUsd = 10m,
+                        UsedAmountUsd = 0m,
+                        RemainingAmountUsd = 10m,
+                        HardStopEnabled = true,
+                        BlocksAdditionalLlmExecution = blocks,
+                        CustomerAiProviderConfigured = false,
+                    });
+        }
 
         Mock<IOptionsMonitor<AiUsageControlsOptions>> optionsMonitor = new();
         optionsMonitor.Setup(o => o.CurrentValue).Returns(controls);

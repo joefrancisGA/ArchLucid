@@ -48,7 +48,7 @@ export function SearchPageClient(props: SearchPageClientProps) {
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [recentQueries, setRecentQueries] = useState<readonly string[]>(() => readSearchRecentQueries());
-  const lastAutoSearchedQuery = useRef<string | null>(null);
+  const lastAutoSearchedScope = useRef<{ runId: string; query: string } | null>(null);
 
   useEffect(() => {
     setQueryState(urlQuery);
@@ -110,7 +110,7 @@ export function SearchPageClient(props: SearchPageClientProps) {
       setResults(data);
       setHasSearched(true);
       setRecentQueries(recordSearchRecentQuery(q));
-      lastAutoSearchedQuery.current = q;
+      lastAutoSearchedScope.current = { runId: scopedRunId, query: q };
     } catch (e: unknown) {
       setFailure(toApiLoadFailure(e));
       setResults([]);
@@ -124,7 +124,14 @@ export function SearchPageClient(props: SearchPageClientProps) {
       return;
     }
 
-    if (lastAutoSearchedQuery.current === urlQuery.trim()) {
+    const trimmedQuery = urlQuery.trim();
+    const lastScope = lastAutoSearchedScope.current;
+
+    if (
+      lastScope !== null &&
+      lastScope.runId === scopedRunId &&
+      lastScope.query === trimmedQuery
+    ) {
       return;
     }
 

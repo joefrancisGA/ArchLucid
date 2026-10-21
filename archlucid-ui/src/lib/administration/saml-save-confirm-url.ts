@@ -1,4 +1,5 @@
 import { IDENTITY_PROVIDERS_SAML_CANONICAL_PATH } from "@/lib/identity-providers-saml-evidence-copy";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const SAML_SAVE_CONFIRM_PARAM = "samlSaveConfirm";
 
@@ -17,15 +18,15 @@ export function samlSaveConfirmHrefFromSearch(
   confirmOpen: boolean,
   pathname: string = IDENTITY_PROVIDERS_SAML_CANONICAL_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!confirmOpen) {
-    params.delete(SAML_SAVE_CONFIRM_PARAM);
-  } else {
-    params.set(SAML_SAVE_CONFIRM_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!confirmOpen) {
+      params.delete(SAML_SAVE_CONFIRM_PARAM);
+    } else {
+      params.set(SAML_SAVE_CONFIRM_PARAM, "1");
+    }
+    },
+  });
 }

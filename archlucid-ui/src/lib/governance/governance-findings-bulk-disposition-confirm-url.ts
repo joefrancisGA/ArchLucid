@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 import {
   GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_FINDINGS_PATH,
@@ -72,17 +73,17 @@ export function governanceFindingsBulkDispositionConfirmHrefFromSearch(
   confirm: GovernanceFindingsBulkDispositionConfirmValue | null,
   pathname: string = GOVERNANCE_FINDINGS_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "governance-findings-queue-navigation" },
+    mutate: (params) => {
 
-  if (confirm === null) {
-    params.delete(GOVERNANCE_FINDINGS_BULK_DISP_CONFIRM_PARAM);
-  } else {
-    params.set(GOVERNANCE_FINDINGS_BULK_DISP_CONFIRM_PARAM, confirm);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (confirm === null) {
+      params.delete(GOVERNANCE_FINDINGS_BULK_DISP_CONFIRM_PARAM);
+    } else {
+      params.set(GOVERNANCE_FINDINGS_BULK_DISP_CONFIRM_PARAM, confirm);
+    }
+    },
+  });
 }
 
 export function governanceAssignedToMeBulkDispositionConfirmHrefFromSearch(

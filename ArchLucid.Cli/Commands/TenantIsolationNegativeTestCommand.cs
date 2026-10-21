@@ -96,7 +96,7 @@ internal static class TenantIsolationNegativeTestCommand
             : CliExitCode.OperationFailed;
     }
 
-    private static async Task WriteArtifactsAsync(
+    internal static async Task WriteArtifactsAsync(
         TenantIsolationNegativeTestOutputResolution outputPaths,
         string json,
         string markdown,
@@ -104,23 +104,32 @@ internal static class TenantIsolationNegativeTestCommand
     {
         if (outputPaths.WillWriteJson)
         {
-            string jsonDirectory = Path.GetDirectoryName(outputPaths.JsonPath!)!;
-
-            if (!Directory.Exists(jsonDirectory))
-                Directory.CreateDirectory(jsonDirectory);
+            EnsureArtifactParentDirectoryExists(outputPaths.JsonPath!);
 
             await File.WriteAllTextAsync(outputPaths.JsonPath!, json, Encoding.UTF8, cancellationToken);
         }
 
         if (outputPaths.WillWriteMarkdown)
         {
-            string markdownDirectory = Path.GetDirectoryName(outputPaths.MarkdownPath!)!;
-
-            if (!Directory.Exists(markdownDirectory))
-                Directory.CreateDirectory(markdownDirectory);
+            EnsureArtifactParentDirectoryExists(outputPaths.MarkdownPath!);
 
             await File.WriteAllTextAsync(outputPaths.MarkdownPath!, markdown, Encoding.UTF8, cancellationToken);
         }
+    }
+
+    /// <summary>
+    /// Filename-only <c>--json-out</c> / <c>--markdown-out</c> paths have no directory component;
+    /// <see cref="Path.GetDirectoryName"/> returns empty and must not be passed to <see cref="Directory.CreateDirectory"/>.
+    /// </summary>
+    private static void EnsureArtifactParentDirectoryExists(string filePath)
+    {
+        string? directory = Path.GetDirectoryName(filePath);
+
+        if (string.IsNullOrWhiteSpace(directory))
+            return;
+
+        if (!Directory.Exists(directory))
+            Directory.CreateDirectory(directory);
     }
 
     private static void WriteConsoleSummary(TenantIsolationNegativeTestReport report)

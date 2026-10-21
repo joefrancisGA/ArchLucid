@@ -63,6 +63,62 @@ internal static class ApiRequestNullCollectionProbeFactory
         return instance;
     }
 
+    internal static object? TryCreateWithNullCollectionProperty(Type requestType, string propertyPath)
+    {
+        ArgumentNullException.ThrowIfNull(requestType);
+        ArgumentException.ThrowIfNullOrWhiteSpace(propertyPath);
+
+        if (requestType.GetConstructor(Type.EmptyTypes) is null)
+            return null;
+
+        object instance = Activator.CreateInstance(requestType)!;
+        string[] segments = propertyPath.Split('.', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        if (segments.Length == 0)
+            return null;
+
+        object target = instance;
+
+        for (int index = 0; index < segments.Length - 1; index++)
+        {
+            PropertyInfo? segmentProperty = target.GetType().GetProperty(
+                segments[index],
+                BindingFlags.Instance | BindingFlags.Public);
+
+            if (segmentProperty is null || !segmentProperty.CanRead || !segmentProperty.CanWrite)
+                return null;
+
+            object? nested = segmentProperty.GetValue(target);
+
+            if (nested is null)
+            {
+                Type nestedType = Nullable.GetUnderlyingType(segmentProperty.PropertyType) ?? segmentProperty.PropertyType;
+
+                if (nestedType.GetConstructor(Type.EmptyTypes) is null)
+                    return null;
+
+                nested = Activator.CreateInstance(nestedType)!;
+                segmentProperty.SetValue(target, nested);
+            }
+
+            target = nested!;
+        }
+
+        PropertyInfo? collectionProperty = target.GetType().GetProperty(
+            segments[^1],
+            BindingFlags.Instance | BindingFlags.Public);
+
+        if (collectionProperty is null || !collectionProperty.CanWrite)
+            return null;
+
+        collectionProperty.SetValue(target, null);
+
+        if (collectionProperty.GetValue(target) is not null)
+            return null;
+
+        return instance;
+    }
+
     private static object? CreateCollectionWithNullElement(Type collectionType)
     {
         Type? elementType = TryGetEnumerableElementType(collectionType);

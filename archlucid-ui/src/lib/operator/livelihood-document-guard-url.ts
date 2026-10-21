@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const LIVELIHOOD_DOCUMENT_GUARD_OPEN_PARAM = "navGuardOpen";
 
 export function parseLivelihoodDocumentGuardOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function livelihoodDocumentGuardHrefFromSearch(
   guardOpen: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!guardOpen) {
-    params.delete(LIVELIHOOD_DOCUMENT_GUARD_OPEN_PARAM);
-  } else {
-    params.set(LIVELIHOOD_DOCUMENT_GUARD_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, guardOpen, pathname, LIVELIHOOD_DOCUMENT_GUARD_OPEN_PARAM);
 }

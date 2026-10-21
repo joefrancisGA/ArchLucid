@@ -1,12 +1,5 @@
+import { applyInfraResourceHubTabParamOwnership } from "@/lib/operator/operator-url-selection-switch";
 import type { ResourceHubTab } from "@/lib/infra-evidence/infra-evidence-hub-types";
-import {
-  RESOURCE_HUB_CORRESPONDENCE_ID_PARAM,
-  RESOURCE_HUB_DIFF_ID_PARAM,
-  RESOURCE_HUB_FINDING_ID_PARAM,
-  RESOURCE_HUB_INSTANCE_ID_PARAM,
-  RESOURCE_HUB_SEED_NODE_ID_PARAM,
-} from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
-import { INFRA_RESOURCE_HUB_TECHNICAL_KEY_PARAM } from "@/lib/infra-evidence/infra-resource-hub-technical-disclosure-url";
 
 /** Drop hub item-scoped query params that do not apply to the active tab. */
 export function sanitizeResourceHubQueryForTab(
@@ -15,30 +8,7 @@ export function sanitizeResourceHubQueryForTab(
 ): string {
   const params = new URLSearchParams(currentSearch);
 
-  if (tab !== "findings") {
-    params.delete(RESOURCE_HUB_FINDING_ID_PARAM);
-  }
-
-  if (tab !== "drift") {
-    params.delete(RESOURCE_HUB_DIFF_ID_PARAM);
-  }
-
-  if (tab !== "remediation") {
-    params.delete(RESOURCE_HUB_INSTANCE_ID_PARAM);
-  }
-
-  if (tab !== "diagram") {
-    params.delete(RESOURCE_HUB_CORRESPONDENCE_ID_PARAM);
-    params.delete(RESOURCE_HUB_SEED_NODE_ID_PARAM);
-  }
-
-  if (tab !== "terraform") {
-    const technicalKey = params.get(INFRA_RESOURCE_HUB_TECHNICAL_KEY_PARAM)?.trim() ?? "";
-
-    if (technicalKey === "terraformAddress") {
-      params.delete(INFRA_RESOURCE_HUB_TECHNICAL_KEY_PARAM);
-    }
-  }
+  applyInfraResourceHubTabParamOwnership(params, tab);
 
   return params.toString();
 }

@@ -1,4 +1,5 @@
 import { GOVERNANCE_ALERT_RULES_PATH } from "@/lib/governance/governance-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const ALERT_SIMULATION_RUN_ID_PARAM = "simRunId";
 export const ALERT_SIMULATION_COMPARE_RUN_PARAM = "simCompareRun";
@@ -39,30 +40,30 @@ export function alertSimulationScopeHrefFromSearch(
   state: AlertSimulationScopeUrlState,
   pathname: string = GOVERNANCE_ALERT_RULES_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const runId = state.runId.trim();
-  const compareRunId = state.compareRunId.trim();
-  const projectSlug = state.projectSlug.trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const runId = state.runId.trim();
+    const compareRunId = state.compareRunId.trim();
+    const projectSlug = state.projectSlug.trim();
 
-  if (runId.length === 0) {
-    params.delete(ALERT_SIMULATION_RUN_ID_PARAM);
-  } else {
-    params.set(ALERT_SIMULATION_RUN_ID_PARAM, runId);
-  }
+    if (runId.length === 0) {
+      params.delete(ALERT_SIMULATION_RUN_ID_PARAM);
+    } else {
+      params.set(ALERT_SIMULATION_RUN_ID_PARAM, runId);
+    }
 
-  if (compareRunId.length === 0) {
-    params.delete(ALERT_SIMULATION_COMPARE_RUN_PARAM);
-  } else {
-    params.set(ALERT_SIMULATION_COMPARE_RUN_PARAM, compareRunId);
-  }
+    if (compareRunId.length === 0) {
+      params.delete(ALERT_SIMULATION_COMPARE_RUN_PARAM);
+    } else {
+      params.set(ALERT_SIMULATION_COMPARE_RUN_PARAM, compareRunId);
+    }
 
-  if (projectSlug.length === 0) {
-    params.delete(ALERT_SIMULATION_SLUG_PARAM);
-  } else {
-    params.set(ALERT_SIMULATION_SLUG_PARAM, projectSlug);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (projectSlug.length === 0) {
+      params.delete(ALERT_SIMULATION_SLUG_PARAM);
+    } else {
+      params.set(ALERT_SIMULATION_SLUG_PARAM, projectSlug);
+    }
+    },
+  });
 }

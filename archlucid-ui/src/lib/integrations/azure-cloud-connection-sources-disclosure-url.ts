@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const AZURE_CLOUD_CONNECTION_SOURCES_OPEN_PARAM = "azureCloudConnectionSourcesOpen";
 
 export function parseAzureCloudConnectionSourcesOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function azureCloudConnectionSourcesDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(AZURE_CLOUD_CONNECTION_SOURCES_OPEN_PARAM);
-  } else {
-    params.set(AZURE_CLOUD_CONNECTION_SOURCES_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, AZURE_CLOUD_CONNECTION_SOURCES_OPEN_PARAM);
 }

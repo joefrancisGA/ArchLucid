@@ -117,5 +117,10 @@ describe("HelpPreferencesGuideView", () => {
     for (const heading of guideHeadings) {
       expect(screen.getByRole("heading", { name: heading.title })).toHaveAttribute("id", heading.id);
     }
+
+    const toc = screen.getByTestId("help-topic-toc");
+    expect(
+      within(toc).queryByRole("link", { name: PREFERENCES_HELP_CLAIM_DISCIPLINE_HEADING }),
+    ).not.toBeInTheDocument();
   });
 });

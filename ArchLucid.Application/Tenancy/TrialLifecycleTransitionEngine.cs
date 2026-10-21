@@ -100,7 +100,8 @@ public sealed class TrialLifecycleTransitionEngine(
                 return false;
             }
 
-            if (await TryEmitAuditAsync(tenant, advancement, cancellationToken))
+            if (await TryEmitAuditAsync(tenant, advancement, cancellationToken)
+                && !await IsErasureSupersededAsync(tenantId, cancellationToken))
             {
                 ArchLucidInstrumentation.RecordTrialExpiration($"{advancement.FromStatus}->{advancement.ToStatus}");
             }
@@ -143,7 +144,8 @@ public sealed class TrialLifecycleTransitionEngine(
             return false;
         }
 
-        if (await TryEmitAuditAsync(tenant, advancement, cancellationToken))
+        if (await TryEmitAuditAsync(tenant, advancement, cancellationToken)
+            && !await IsErasureSupersededAsync(tenantId, cancellationToken))
         {
             ArchLucidInstrumentation.RecordTrialExpiration($"{advancement.FromStatus}->{advancement.ToStatus}");
         }

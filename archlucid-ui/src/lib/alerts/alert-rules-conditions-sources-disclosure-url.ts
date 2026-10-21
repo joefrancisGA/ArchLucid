@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const ALERT_RULES_CONDITIONS_SOURCES_OPEN_PARAM = "alertRulesConditionsSourcesOpen";
 
 export function parseAlertRulesConditionsSourcesOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function alertRulesConditionsSourcesDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(ALERT_RULES_CONDITIONS_SOURCES_OPEN_PARAM);
-  } else {
-    params.set(ALERT_RULES_CONDITIONS_SOURCES_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, ALERT_RULES_CONDITIONS_SOURCES_OPEN_PARAM);
 }

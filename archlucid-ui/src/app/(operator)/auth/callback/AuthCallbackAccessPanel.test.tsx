@@ -467,7 +467,7 @@ describe("AuthCallbackAccessPanel", () => {
     expect(fatalReportProblemCapture.lastProps?.errorTitle).not.toContain("Token exchange");
   });
 
-  it("posts required fields without client-side trim in the JSON body", async () => {
+  it("trims peripheral spaces on required fields in the POST body", async () => {
     const fetchMock = vi.fn(async () => new Response(null, { status: 204 }));
     vi.stubGlobal("fetch", fetchMock);
 
@@ -492,9 +492,9 @@ describe("AuthCallbackAccessPanel", () => {
       roleTitle: string;
     };
 
-    expect(body.name).toBe("  Jordan Lee  ");
-    expect(body.company).toBe("  Fabrikam  ");
-    expect(body.roleTitle).toBe("  Architect  ");
+    expect(body.name).toBe("Jordan Lee");
+    expect(body.company).toBe("Fabrikam");
+    expect(body.roleTitle).toBe("Architect");
     vi.unstubAllGlobals();
   });
 
@@ -1596,7 +1596,7 @@ describe("AuthCallbackAccessPanel", () => {
     vi.unstubAllGlobals();
   });
 
-  it("posts required fields without client-side trim", async () => {
+  it("trims peripheral spaces on name and company in the POST body", async () => {
     const fetchMock = vi.fn(async () => new Response(null, { status: 204 }));
     vi.stubGlobal("fetch", fetchMock);
 
@@ -1616,8 +1616,8 @@ describe("AuthCallbackAccessPanel", () => {
     const [, requestInit] = fetchMock.mock.calls[0] as [string, RequestInit];
     const body = JSON.parse(String(requestInit.body)) as { name: string; company: string };
 
-    expect(body.name).toBe("  Jordan Lee  ");
-    expect(body.company).toBe("  Fabrikam  ");
+    expect(body.name).toBe("Jordan Lee");
+    expect(body.company).toBe("Fabrikam");
     vi.unstubAllGlobals();
   });
 
@@ -1737,7 +1737,7 @@ describe("AuthCallbackAccessPanel", () => {
     const [, requestInit] = fetchMock.mock.calls[0] as [string, RequestInit];
     const body = JSON.parse(String(requestInit.body)) as { roleTitle: string };
 
-    expect(body.roleTitle).toBe("   ");
+    expect(body.roleTitle).toBe("");
     vi.unstubAllGlobals();
   });
 
@@ -1795,7 +1795,7 @@ describe("AuthCallbackAccessPanel", () => {
     const [, requestInit] = fetchMock.mock.calls[0] as [string, RequestInit];
     const body = JSON.parse(String(requestInit.body)) as { name: string };
 
-    expect(body.name).toBe("   ");
+    expect(body.name).toBe("");
     vi.unstubAllGlobals();
   });
 
@@ -1891,7 +1891,7 @@ describe("AuthCallbackAccessPanel", () => {
     const [, requestInit] = fetchMock.mock.calls[0] as [string, RequestInit];
     const body = JSON.parse(String(requestInit.body)) as { company: string };
 
-    expect(body.company).toBe("   ");
+    expect(body.company).toBe("");
     vi.unstubAllGlobals();
   });
 
@@ -2110,6 +2110,30 @@ describe("AuthCallbackAccessPanel", () => {
     });
 
     expect(screen.queryByTestId("fatal-page-report-problem-row")).not.toBeInTheDocument();
+    vi.unstubAllGlobals();
+  });
+
+  it("trims peripheral spaces on workEmail in the POST body", async () => {
+    const fetchMock = vi.fn(async () => new Response(null, { status: 204 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "  jordan@fabrikam.com  " } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledOnce();
+    });
+
+    const [, requestInit] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(String(requestInit.body)) as { workEmail: string };
+
+    expect(body.workEmail).toBe("jordan@fabrikam.com");
     vi.unstubAllGlobals();
   });
 

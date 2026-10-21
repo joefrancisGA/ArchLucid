@@ -24,6 +24,9 @@ public static class ScimFilterInMemoryEvaluator
 
     private static bool Compare(ScimUserRecord user, ScimComparisonNode c)
     {
+        if (string.Equals(c.AttributePath, "active", StringComparison.OrdinalIgnoreCase))
+            return CompareActive(user, c);
+
         string? left = GetString(user, c.AttributePath);
         StringComparison comparison = ScimUserFilterAttributeSemantics.StringComparisonFor(c.AttributePath);
 
@@ -43,6 +46,24 @@ public static class ScimFilterInMemoryEvaluator
             "lt" => LexLess(left, right, comparison),
             "ge" => LexGreater(left, right, comparison) || string.Equals(left, right, comparison),
             "le" => LexLess(left, right, comparison) || string.Equals(left, right, comparison),
+            _ => false
+        };
+    }
+
+    private static bool CompareActive(ScimUserRecord user, ScimComparisonNode c)
+    {
+        if (string.Equals(c.Operator, "pr", StringComparison.Ordinal))
+            return true;
+
+        if (!ScimActiveFilterLiteralParser.TryParseEqualityOperand(c.Value, out bool expected))
+            return false;
+
+        bool actual = user.Active;
+
+        return c.Operator.ToLowerInvariant() switch
+        {
+            "eq" => actual == expected,
+            "ne" => actual != expected,
             _ => false
         };
     }

@@ -34,6 +34,7 @@ internal static class DiagramForestDataFlowRollup
                      .GroupBy(node => BuildKey(node, neighborIdsByNodeId), RollupKeyComparer.Instance))
         {
             List<DiagramNode> members = group.ToList();
+
             if (members.Count < MinimumMembersToRollUp)
             {
                 continue;
@@ -59,6 +60,7 @@ internal static class DiagramForestDataFlowRollup
 
         List<DiagramNode> resolvedNodes = [];
         HashSet<string> emittedRollupIds = new(StringComparer.Ordinal);
+
         foreach (DiagramNode node in nodes)
         {
             if (!rollupByMemberId.TryGetValue(node.NodeId, out DiagramNode? rollup))
@@ -75,16 +77,19 @@ internal static class DiagramForestDataFlowRollup
 
         List<DiagramEdge> resolvedEdges = [];
         Dictionary<string, DiagramEdge> resolvedEdgeByKey = new(StringComparer.Ordinal);
+
         foreach (DiagramEdge edge in edges)
         {
             string fromNodeId = ResolveNodeId(edge.FromNodeId, rollupByMemberId);
             string toNodeId = ResolveNodeId(edge.ToNodeId, rollupByMemberId);
+
             if (string.Equals(fromNodeId, toNodeId, StringComparison.Ordinal))
             {
                 continue;
             }
 
             string edgeKey = $"{fromNodeId}\u001f{toNodeId}\u001f{edge.Label}\u001f{edge.IsLayoutOnly}";
+
             if (!resolvedEdgeByKey.TryGetValue(edgeKey, out DiagramEdge? existing))
             {
                 resolvedEdgeByKey[edgeKey] = CloneEdge(edge, fromNodeId, toNodeId);
@@ -363,53 +368,11 @@ internal static class DiagramForestDataFlowRollup
             : nodeId;
     }
 
-    private static DiagramEdge CloneEdge(DiagramEdge source, string fromNodeId, string toNodeId)
-    {
-        return new DiagramEdge
-        {
-            FromNodeId = fromNodeId,
-            ToNodeId = toNodeId,
-            Label = source.Label,
-            IsLayoutOnly = source.IsLayoutOnly,
-            ProvenanceKind = source.ProvenanceKind,
-            InferenceSource = source.InferenceSource,
-            DeclaredConnectionId = source.DeclaredConnectionId,
-            IsDataFlowNsgBlocked = source.IsDataFlowNsgBlocked,
-            DataFlowNsgAnnotationLabels = [.. source.DataFlowNsgAnnotationLabels],
-            DataFlowNsgSupportingRuleDetails = [.. source.DataFlowNsgSupportingRuleDetails],
-        };
-    }
+    private static DiagramEdge CloneEdge(DiagramEdge source, string fromNodeId, string toNodeId) =>
+        DiagramForestDataFlowRollupStructuralCopy.CloneEdge(source, fromNodeId, toNodeId);
 
-    private static DiagramEdge MergeParallelRollupEdges(DiagramEdge existing, DiagramEdge incoming)
-    {
-        List<string> mergedLabels = existing.DataFlowNsgAnnotationLabels
-            .Concat(incoming.DataFlowNsgAnnotationLabels)
-            .Where(label => !string.IsNullOrWhiteSpace(label))
-            .Select(label => label.Trim())
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .OrderBy(label => label, StringComparer.OrdinalIgnoreCase)
-            .ToList();
-        List<string> mergedRuleDetails = existing.DataFlowNsgSupportingRuleDetails
-            .Concat(incoming.DataFlowNsgSupportingRuleDetails)
-            .Where(detail => !string.IsNullOrWhiteSpace(detail))
-            .Select(detail => detail.Trim())
-            .Distinct(StringComparer.Ordinal)
-            .ToList();
-
-        return new DiagramEdge
-        {
-            FromNodeId = existing.FromNodeId,
-            ToNodeId = existing.ToNodeId,
-            Label = existing.Label,
-            IsLayoutOnly = existing.IsLayoutOnly,
-            ProvenanceKind = existing.ProvenanceKind,
-            InferenceSource = existing.InferenceSource,
-            DeclaredConnectionId = existing.DeclaredConnectionId,
-            IsDataFlowNsgBlocked = existing.IsDataFlowNsgBlocked || incoming.IsDataFlowNsgBlocked,
-            DataFlowNsgAnnotationLabels = mergedLabels,
-            DataFlowNsgSupportingRuleDetails = mergedRuleDetails,
-        };
-    }
+    private static DiagramEdge MergeParallelRollupEdges(DiagramEdge existing, DiagramEdge incoming) =>
+        DiagramForestDataFlowRollupStructuralCopy.MergeParallelRollupEdges(existing, incoming);
 
     private sealed record RollupKey(string Stage, string Type, string Neighbors);
 

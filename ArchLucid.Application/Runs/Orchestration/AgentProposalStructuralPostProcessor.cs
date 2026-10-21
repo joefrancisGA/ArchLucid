@@ -1,8 +1,10 @@
+using ArchLucid.Application.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Requests;
 
 namespace ArchLucid.Application.Runs.Orchestration;
 
@@ -20,7 +22,7 @@ public static class AgentProposalStructuralPostProcessor
             if (result is null || result.ProposedChanges is null)
                 continue;
 
-            ApplyToProposal(result.AgentType, result.ProposedChanges);
+            ApplyToProposal(AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result), result.ProposedChanges);
         }
     }
 
@@ -175,7 +177,7 @@ public static class AgentProposalStructuralPostProcessor
         ArgumentNullException.ThrowIfNull(results);
         ArgumentNullException.ThrowIfNull(dropLog);
 
-        BriefGroundingRules rules = BriefGroundingRules.FromRequest(request);
+        ArchitectureRequestBriefGroundingRules rules = BuildBriefGroundingRules(request);
 
         if (!rules.HasAnyRules)
             return;
@@ -185,14 +187,18 @@ public static class AgentProposalStructuralPostProcessor
             if (result is null || result.ProposedChanges is null)
                 continue;
 
-            ApplyBriefGroundingToProposal(result.AgentType, result.ProposedChanges, rules, dropLog);
+            ApplyBriefGroundingToProposal(
+                AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result),
+                result.ProposedChanges,
+                rules,
+                dropLog);
         }
     }
 
     private static void ApplyBriefGroundingToProposal(
         AgentType agentType,
         AgentTopologyProposal proposal,
-        BriefGroundingRules rules,
+        ArchitectureRequestBriefGroundingRules rules,
         IList<string> dropLog)
     {
         IReadOnlyList<ManifestService> beforeServices = proposal.AddedServices ?? [];
@@ -310,7 +316,7 @@ public static class AgentProposalStructuralPostProcessor
 
     private static bool TryDescribeBriefGroundingDrop(
         string? endpointName,
-        BriefGroundingRules rules,
+        ArchitectureRequestBriefGroundingRules rules,
         bool applyHttpsRule,
         out string? reason)
     {
@@ -351,45 +357,22 @@ public static class AgentProposalStructuralPostProcessor
         endpointName.Contains("plaintext", StringComparison.OrdinalIgnoreCase)
         || endpointName.Contains("unencrypted", StringComparison.OrdinalIgnoreCase);
 
-    private static bool ConstraintRequiresHttps(string constraint) =>
-        constraint.Contains("https", StringComparison.OrdinalIgnoreCase)
-        || constraint.Contains("tls", StringComparison.OrdinalIgnoreCase);
-
-    private static bool ConstraintRequiresPrivateNetworking(string constraint) =>
-        constraint.Contains("private", StringComparison.OrdinalIgnoreCase)
-        || constraint.Contains("vnet", StringComparison.OrdinalIgnoreCase)
-        || constraint.Contains("private endpoint", StringComparison.OrdinalIgnoreCase);
-
-    private static bool CapabilityRequiresEncryptionAtRest(string capability) =>
-        capability.Contains("encryption", StringComparison.OrdinalIgnoreCase)
-        && capability.Contains("rest", StringComparison.OrdinalIgnoreCase);
-
-    private sealed record BriefGroundingRules(
-        bool RequiresHttps,
-        bool RequiresPrivateNetworking,
-        bool RequiresEncryptionAtRest)
+    private static ArchitectureRequestBriefGroundingRules BuildBriefGroundingRules(ArchitectureRequest request)
     {
-        public bool HasAnyRules =>
-            RequiresHttps || RequiresPrivateNetworking || RequiresEncryptionAtRest;
+        // JSON null is a real execute payload. The region enricher already accepts it.
+        // This grounding pass runs first and must not abort the batch on a missing list.
+        List<string> confirmedConstraints = (request.Constraints ?? [])
+            .Where(ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry)
+            .Select(static c => c.Trim())
+            .ToList();
 
-        public static BriefGroundingRules FromRequest(ArchitectureRequest request)
-        {
-            // JSON null is a real execute payload. The region enricher already accepts it.
-            // This grounding pass runs first and must not abort the batch on a missing list.
-            List<string> confirmedConstraints = (request.Constraints ?? [])
-                .Where(ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry)
-                .Select(static c => c.Trim())
-                .ToList();
+        List<string> confirmedCapabilities = (request.RequiredCapabilities ?? [])
+            .Where(ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry)
+            .Select(static c => c.Trim())
+            .ToList();
 
-            List<string> confirmedCapabilities = (request.RequiredCapabilities ?? [])
-                .Where(ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry)
-                .Select(static c => c.Trim())
-                .ToList();
-
-            return new BriefGroundingRules(
-                confirmedConstraints.Any(ConstraintRequiresHttps),
-                confirmedConstraints.Any(ConstraintRequiresPrivateNetworking),
-                confirmedCapabilities.Any(CapabilityRequiresEncryptionAtRest));
-        }
+        return ArchitectureRequestBriefGroundingRules.FromConfirmedBriefEntries(
+            confirmedConstraints,
+            confirmedCapabilities);
     }
 }

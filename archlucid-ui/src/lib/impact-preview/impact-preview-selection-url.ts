@@ -1,4 +1,5 @@
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const IMPACT_PREVIEW_CANDIDATE_PARAM = "candidateId";
 export const IMPACT_PREVIEW_BASELINE_PARAM = "baseline";
@@ -28,18 +29,18 @@ export function impactPreviewCandidateHrefFromSearch(
   candidateId: string | null,
   pathname: string = IMPACT_PREVIEW_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = (candidateId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = (candidateId ?? "").trim();
 
-  if (trimmed.length === 0) {
-    params.delete(IMPACT_PREVIEW_CANDIDATE_PARAM);
-  } else {
-    params.set(IMPACT_PREVIEW_CANDIDATE_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(IMPACT_PREVIEW_CANDIDATE_PARAM);
+    } else {
+      params.set(IMPACT_PREVIEW_CANDIDATE_PARAM, trimmed);
+    }
+    },
+  });
 }
 
 export function impactPreviewBaselineHrefFromSearch(
@@ -47,16 +48,16 @@ export function impactPreviewBaselineHrefFromSearch(
   baselineRunId: string | null,
   pathname: string = IMPACT_PREVIEW_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = (baselineRunId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = (baselineRunId ?? "").trim();
 
-  if (trimmed.length === 0) {
-    params.delete(IMPACT_PREVIEW_BASELINE_PARAM);
-  } else {
-    params.set(IMPACT_PREVIEW_BASELINE_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(IMPACT_PREVIEW_BASELINE_PARAM);
+    } else {
+      params.set(IMPACT_PREVIEW_BASELINE_PARAM, trimmed);
+    }
+    },
+  });
 }

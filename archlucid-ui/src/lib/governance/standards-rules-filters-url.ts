@@ -1,4 +1,5 @@
 import { GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance/governance-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const STANDARDS_RULES_SEARCH_PARAM = "q";
 export const STANDARDS_RULES_SEVERITY_PARAM = "severity";
@@ -57,18 +58,18 @@ export function standardsRulesSearchHrefFromSearch(
   query: string,
   pathname: string = GOVERNANCE_STANDARDS_AND_RULES_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = query.trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = query.trim();
 
-  if (trimmed.length === 0) {
-    params.delete(STANDARDS_RULES_SEARCH_PARAM);
-  } else {
-    params.set(STANDARDS_RULES_SEARCH_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(STANDARDS_RULES_SEARCH_PARAM);
+    } else {
+      params.set(STANDARDS_RULES_SEARCH_PARAM, trimmed);
+    }
+    },
+  });
 }
 
 export function standardsRulesClearSearchHrefFromSearch(
@@ -83,17 +84,17 @@ export function standardsRulesLinkedFindingsHrefFromSearch(
   linkedFindings: StandardsRulesLinkedFindingsFilter,
   pathname: string = GOVERNANCE_STANDARDS_AND_RULES_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (linkedFindings === "all") {
-    params.delete(STANDARDS_RULES_LINKED_FINDINGS_PARAM);
-  } else {
-    params.set(STANDARDS_RULES_LINKED_FINDINGS_PARAM, linkedFindings);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (linkedFindings === "all") {
+      params.delete(STANDARDS_RULES_LINKED_FINDINGS_PARAM);
+    } else {
+      params.set(STANDARDS_RULES_LINKED_FINDINGS_PARAM, linkedFindings);
+    }
+    },
+  });
 }
 
 export function standardsRulesSeverityHrefFromSearch(
@@ -101,18 +102,18 @@ export function standardsRulesSeverityHrefFromSearch(
   severity: string,
   pathname: string = GOVERNANCE_STANDARDS_AND_RULES_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = severity.trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = severity.trim();
 
-  if (trimmed.length === 0 || trimmed === "all") {
-    params.delete(STANDARDS_RULES_SEVERITY_PARAM);
-  } else {
-    params.set(STANDARDS_RULES_SEVERITY_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0 || trimmed === "all") {
+      params.delete(STANDARDS_RULES_SEVERITY_PARAM);
+    } else {
+      params.set(STANDARDS_RULES_SEVERITY_PARAM, trimmed);
+    }
+    },
+  });
 }
 
 export function parseStandardsRulesEvidenceCoverageFromSearch(
@@ -150,17 +151,17 @@ export function standardsRulesEvidenceCoverageHrefFromSearch(
   evidenceCoverage: StandardsRulesEvidenceCoverageFilter,
   pathname: string = GOVERNANCE_STANDARDS_AND_RULES_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (evidenceCoverage === "all") {
-    params.delete(STANDARDS_RULES_EVIDENCE_COVERAGE_PARAM);
-  } else {
-    params.set(STANDARDS_RULES_EVIDENCE_COVERAGE_PARAM, evidenceCoverage);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (evidenceCoverage === "all") {
+      params.delete(STANDARDS_RULES_EVIDENCE_COVERAGE_PARAM);
+    } else {
+      params.set(STANDARDS_RULES_EVIDENCE_COVERAGE_PARAM, evidenceCoverage);
+    }
+    },
+  });
 }
 
 export function standardsRulesEnforcementHrefFromSearch(
@@ -168,18 +169,18 @@ export function standardsRulesEnforcementHrefFromSearch(
   enforcement: string,
   pathname: string = GOVERNANCE_STANDARDS_AND_RULES_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = enforcement.trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = enforcement.trim();
 
-  if (trimmed.length === 0 || trimmed === "all") {
-    params.delete(STANDARDS_RULES_ENFORCEMENT_PARAM);
-  } else {
-    params.set(STANDARDS_RULES_ENFORCEMENT_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0 || trimmed === "all") {
+      params.delete(STANDARDS_RULES_ENFORCEMENT_PARAM);
+    } else {
+      params.set(STANDARDS_RULES_ENFORCEMENT_PARAM, trimmed);
+    }
+    },
+  });
 }
 
 export function parseStandardsRulesFrameworkFromSearch(raw: string | null | undefined): string {
@@ -215,18 +216,18 @@ export function standardsRulesFrameworkHrefFromSearch(
   framework: string,
   pathname: string = GOVERNANCE_STANDARDS_AND_RULES_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = framework.trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = framework.trim();
 
-  if (trimmed.length === 0 || trimmed === "all") {
-    params.delete(STANDARDS_RULES_FRAMEWORK_PARAM);
-  } else {
-    params.set(STANDARDS_RULES_FRAMEWORK_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0 || trimmed === "all") {
+      params.delete(STANDARDS_RULES_FRAMEWORK_PARAM);
+    } else {
+      params.set(STANDARDS_RULES_FRAMEWORK_PARAM, trimmed);
+    }
+    },
+  });
 }
 
 export function standardsRulesPackHrefFromSearch(
@@ -234,16 +235,16 @@ export function standardsRulesPackHrefFromSearch(
   pack: string,
   pathname: string = GOVERNANCE_STANDARDS_AND_RULES_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = pack.trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = pack.trim();
 
-  if (trimmed.length === 0 || trimmed === "all") {
-    params.delete(STANDARDS_RULES_PACK_PARAM);
-  } else {
-    params.set(STANDARDS_RULES_PACK_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0 || trimmed === "all") {
+      params.delete(STANDARDS_RULES_PACK_PARAM);
+    } else {
+      params.set(STANDARDS_RULES_PACK_PARAM, trimmed);
+    }
+    },
+  });
 }

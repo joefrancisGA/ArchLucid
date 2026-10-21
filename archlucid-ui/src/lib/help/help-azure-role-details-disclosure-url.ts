@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const HELP_AZURE_ROLE_DETAILS_KEY_PARAM = "helpAzureRoleDetailsKey";
 
 export function parseHelpAzureRoleDetailsKeyFromSearch(raw: string | null | undefined): string {
@@ -13,16 +14,16 @@ export function helpAzureRoleDetailsDisclosureHrefFromSearch(
   roleKey: string | null,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = (roleKey ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = (roleKey ?? "").trim();
 
-  if (trimmed.length === 0) {
-    params.delete(HELP_AZURE_ROLE_DETAILS_KEY_PARAM);
-  } else {
-    params.set(HELP_AZURE_ROLE_DETAILS_KEY_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(HELP_AZURE_ROLE_DETAILS_KEY_PARAM);
+    } else {
+      params.set(HELP_AZURE_ROLE_DETAILS_KEY_PARAM, trimmed);
+    }
+    },
+  });
 }

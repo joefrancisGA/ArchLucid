@@ -1,4 +1,5 @@
 import { REVIEW_DETAIL_FINDING_PARAM } from "@/lib/review-detail-workspace-tabs";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 /** Legacy alias — hydrate once into `findingId`, then stop writing this param (LS-01). */
 export const ARCHITECTURE_DIAGRAM_FINDING_PARAM = "diagramFindingId";
@@ -35,18 +36,18 @@ export function architectureDiagramFindingHrefFromSearch(
   findingId: string | null,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = (findingId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = (findingId ?? "").trim();
 
-  if (trimmed.length === 0) {
-    params.delete(REVIEW_DETAIL_FINDING_PARAM);
-    params.delete(ARCHITECTURE_DIAGRAM_FINDING_PARAM);
-  } else {
-    params.set(REVIEW_DETAIL_FINDING_PARAM, trimmed);
-    params.delete(ARCHITECTURE_DIAGRAM_FINDING_PARAM);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(REVIEW_DETAIL_FINDING_PARAM);
+      params.delete(ARCHITECTURE_DIAGRAM_FINDING_PARAM);
+    } else {
+      params.set(REVIEW_DETAIL_FINDING_PARAM, trimmed);
+      params.delete(ARCHITECTURE_DIAGRAM_FINDING_PARAM);
+    }
+    },
+  });
 }

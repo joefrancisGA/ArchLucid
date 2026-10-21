@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const RUN_FINDINGS_EXPLAIN_ID_PARAM = "explainId";
 export const RUN_FINDINGS_REASON_ID_PARAM = "reasonId";
 
@@ -27,23 +28,23 @@ export function runFindingsExplainabilityHrefFromSearch(
   state: RunFindingsExplainabilityUrlState,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const explainId = (state.explainFindingId ?? "").trim();
-  const reasonId = (state.reasoningFindingId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const explainId = (state.explainFindingId ?? "").trim();
+    const reasonId = (state.reasoningFindingId ?? "").trim();
 
-  if (explainId.length === 0) {
-    params.delete(RUN_FINDINGS_EXPLAIN_ID_PARAM);
-  } else {
-    params.set(RUN_FINDINGS_EXPLAIN_ID_PARAM, explainId);
-  }
+    if (explainId.length === 0) {
+      params.delete(RUN_FINDINGS_EXPLAIN_ID_PARAM);
+    } else {
+      params.set(RUN_FINDINGS_EXPLAIN_ID_PARAM, explainId);
+    }
 
-  if (reasonId.length === 0) {
-    params.delete(RUN_FINDINGS_REASON_ID_PARAM);
-  } else {
-    params.set(RUN_FINDINGS_REASON_ID_PARAM, reasonId);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (reasonId.length === 0) {
+      params.delete(RUN_FINDINGS_REASON_ID_PARAM);
+    } else {
+      params.set(RUN_FINDINGS_REASON_ID_PARAM, reasonId);
+    }
+    },
+  });
 }

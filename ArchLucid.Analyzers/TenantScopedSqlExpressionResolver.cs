@@ -74,6 +74,7 @@ internal static class TenantScopedSqlExpressionResolver
             yield break;
 
         SyntaxNode syntax = syntaxReference.GetSyntax();
+
         if (syntax is VariableDeclaratorSyntax declarator &&
             declarator.Initializer?.Value is ExpressionSyntax initializer)
         {
@@ -106,12 +107,14 @@ internal static class TenantScopedSqlExpressionResolver
                 return ResolveFromSymbol(identifier, semanticModel);
 
             case MemberAccessExpressionSyntax memberAccess:
+
                 if (IsRecognizedScopeHelper(memberAccess, semanticModel))
                     return new ResolutionResult(string.Empty, true, true);
 
                 return ResolveFromSymbol(memberAccess, semanticModel);
 
             case InvocationExpressionSyntax invocation:
+
                 if (IsRecognizedScopeHelperInvocation(invocation, semanticModel))
                     return new ResolutionResult(string.Empty, true, true);
 
@@ -147,6 +150,7 @@ internal static class TenantScopedSqlExpressionResolver
                 return ResolveSwitchExpression(switchExpression, semanticModel, visitingInterpolatedHole);
 
             default:
+
                 if (visitingInterpolatedHole)
                     return new ResolutionResult(null, false, IsScopeHelperExpression(expression, semanticModel));
 
@@ -389,6 +393,25 @@ internal static class TenantScopedSqlExpressionResolver
 
         if (propertyDeclaration.ExpressionBody?.Expression is ExpressionSyntax expressionBody)
             return expressionBody;
+
+        if (propertyDeclaration.AccessorList is not null)
+        {
+            foreach (AccessorDeclarationSyntax accessor in propertyDeclaration.AccessorList.Accessors)
+            {
+                if (accessor.ExpressionBody?.Expression is ExpressionSyntax accessorExpression)
+                    return accessorExpression;
+
+                if (accessor.Body is BlockSyntax accessorBody)
+                {
+                    ReturnStatementSyntax? returnStatement = accessorBody.Statements
+                        .OfType<ReturnStatementSyntax>()
+                        .SingleOrDefault();
+
+                    if (returnStatement?.Expression is ExpressionSyntax returnExpression)
+                        return returnExpression;
+                }
+            }
+        }
 
         return null;
     }

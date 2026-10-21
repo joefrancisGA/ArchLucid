@@ -173,6 +173,54 @@ internal static class FindingInspectReadRepositoryCore
         return hasSubstantive;
     }
 
+    /// <summary>
+    ///     Trims whitespace and leading/trailing format/control characters so persisted enum tokens with
+    ///     invisible prefixes (for example U+200B before <c>Supported</c>) still parse as the overlay value.
+    /// </summary>
+    private static string? NormalizeInspectEnumToken(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        string trimmed = value.Trim();
+        int start = 0;
+
+        while (start < trimmed.Length)
+        {
+            UnicodeCategory category = char.GetUnicodeCategory(trimmed[start]);
+
+            if (category is UnicodeCategory.Format or UnicodeCategory.Control)
+            {
+                start++;
+
+                continue;
+            }
+
+            break;
+        }
+
+        if (start >= trimmed.Length)
+            return null;
+
+        int end = trimmed.Length - 1;
+
+        while (end >= start)
+        {
+            UnicodeCategory category = char.GetUnicodeCategory(trimmed[end]);
+
+            if (category is UnicodeCategory.Format or UnicodeCategory.Control)
+            {
+                end--;
+
+                continue;
+            }
+
+            break;
+        }
+
+        return trimmed.Substring(start, end - start + 1);
+    }
+
     public static JsonElement? TryParsePayloadJson(string? payloadJson)
     {
         if (string.IsNullOrWhiteSpace(payloadJson))
@@ -245,8 +293,10 @@ internal static class FindingInspectReadRepositoryCore
         string? overlayBandStorage,
         JsonElement? typedPayload)
     {
-        if (!string.IsNullOrWhiteSpace(overlayBandStorage)
-            && Enum.TryParse(overlayBandStorage.Trim(), ignoreCase: true, out FindingSemanticSupportBand overlayBand)
+        string? normalizedOverlay = NormalizeInspectEnumToken(overlayBandStorage);
+
+        if (normalizedOverlay is not null
+            && Enum.TryParse(normalizedOverlay, ignoreCase: true, out FindingSemanticSupportBand overlayBand)
             && Enum.IsDefined(overlayBand))
         {
             return overlayBand;

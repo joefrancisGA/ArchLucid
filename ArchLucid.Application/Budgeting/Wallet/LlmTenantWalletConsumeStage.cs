@@ -1,3 +1,4 @@
+using ArchLucid.Core.Billing;
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Diagnostics;
 
@@ -9,6 +10,7 @@ namespace ArchLucid.Application.Budgeting.Wallet;
 public sealed class LlmTenantWalletConsumeStage(
     ILlmTenantWalletRepository repository,
     ILlmWalletSettlementQueue settlementQueue,
+    IStripeWalletPaymentIdentifierGuard stripeWalletPaymentIdentifierGuard,
     ILogger<LlmTenantWalletConsumeStage> logger) : ILlmTenantWalletConsumeStage
 {
     private readonly LlmTenantWalletConsumeRetry _consumeRetry = new(repository, settlementQueue, logger);
@@ -18,6 +20,9 @@ public sealed class LlmTenantWalletConsumeStage(
 
     private readonly ILlmWalletSettlementQueue _settlementQueue =
         settlementQueue ?? throw new ArgumentNullException(nameof(settlementQueue));
+
+    private readonly IStripeWalletPaymentIdentifierGuard _stripeWalletPaymentIdentifierGuard =
+        stripeWalletPaymentIdentifierGuard ?? throw new ArgumentNullException(nameof(stripeWalletPaymentIdentifierGuard));
 
     public Task<LlmTenantWalletStateReadModel> GetOrCreateAsync(Guid tenantId, CancellationToken cancellationToken = default) =>
         _repository.GetOrCreateAsync(tenantId, cancellationToken);
@@ -48,6 +53,20 @@ public sealed class LlmTenantWalletConsumeStage(
             }
         }
 
+        string? normalizedStripeCustomerId = NormalizeOptionalStripeId(command.StripeCustomerId);
+        string? normalizedStripePaymentMethodId = NormalizeOptionalStripeId(command.StripePaymentMethodId);
+
+        if (!await _stripeWalletPaymentIdentifierGuard
+                .AllowsWalletUpdateAsync(
+                    tenantId,
+                    normalizedStripeCustomerId,
+                    normalizedStripePaymentMethodId,
+                    cancellationToken)
+                .ConfigureAwait(false))
+        {
+            return null;
+        }
+
         LlmTenantWalletStateReadModel? updated = await _repository
             .UpdateSettingsAsync(
                 new LlmTenantWalletUpdateSettingsRequest
@@ -55,8 +74,8 @@ public sealed class LlmTenantWalletConsumeStage(
                     TenantId = tenantId,
                     AutoReplenishEnabled = command.AutoReplenishEnabled,
                     MonthlyCapUsd = command.MonthlyCapUsd,
-                    StripeCustomerId = NormalizeOptionalStripeId(command.StripeCustomerId),
-                    StripePaymentMethodId = NormalizeOptionalStripeId(command.StripePaymentMethodId),
+                    StripeCustomerId = normalizedStripeCustomerId,
+                    StripePaymentMethodId = normalizedStripePaymentMethodId,
                     ExpectedRowVersion = command.ExpectedRowVersion,
                 },
                 cancellationToken)

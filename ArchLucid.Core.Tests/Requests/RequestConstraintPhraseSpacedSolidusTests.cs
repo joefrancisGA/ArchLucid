@@ -26,6 +26,22 @@ public sealed class RequestConstraintPhraseSpacedSolidusTests
     }
 
     [Fact]
+    public void HasManagedIdentityConstraint_returns_true_when_ascii_comma_with_spaces_splits_phrase()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Require managed, identity authentication"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasPrivateNetworkingConstraint_returns_true_when_ascii_comma_with_spaces_splits_private_endpoint_phrase()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Use private, endpoint access only"]);
+
+        RequestConstraintClassifier.HasPrivateNetworkingConstraint(request).Should().BeTrue();
+    }
+
+    [Fact]
     public void HasManagedIdentityConstraint_returns_false_when_ascii_slash_forms_compact_compound_slug()
     {
         ArchitectureRequest request = CreateRequest(constraints: ["Require managed/identity-auth for apps"]);

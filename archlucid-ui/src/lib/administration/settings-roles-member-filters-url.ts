@@ -1,5 +1,6 @@
 import type { ArchLucidAppRole } from "@/lib/current-principal";
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const SETTINGS_ROLES_MEMBER_ROLE_PARAM = "role";
 export const SETTINGS_ROLES_MEMBER_STATUS_PARAM = "status";
@@ -53,17 +54,17 @@ export function settingsRolesMemberRoleHrefFromSearch(
   role: ArchLucidAppRole | null,
   pathname: string = SETTINGS_USERS_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (role === null) {
-    params.delete(SETTINGS_ROLES_MEMBER_ROLE_PARAM);
-  } else {
-    params.set(SETTINGS_ROLES_MEMBER_ROLE_PARAM, role);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (role === null) {
+      params.delete(SETTINGS_ROLES_MEMBER_ROLE_PARAM);
+    } else {
+      params.set(SETTINGS_ROLES_MEMBER_ROLE_PARAM, role);
+    }
+    },
+  });
 }
 
 export function settingsRolesMemberStatusHrefFromSearch(
@@ -71,15 +72,15 @@ export function settingsRolesMemberStatusHrefFromSearch(
   status: SettingsRolesMemberStatusFilter | null,
   pathname: string = SETTINGS_USERS_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (status === null) {
-    params.delete(SETTINGS_ROLES_MEMBER_STATUS_PARAM);
-  } else {
-    params.set(SETTINGS_ROLES_MEMBER_STATUS_PARAM, status);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (status === null) {
+      params.delete(SETTINGS_ROLES_MEMBER_STATUS_PARAM);
+    } else {
+      params.set(SETTINGS_ROLES_MEMBER_STATUS_PARAM, status);
+    }
+    },
+  });
 }

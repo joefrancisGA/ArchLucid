@@ -66,7 +66,10 @@ public sealed class TrialArchitecturePreseedExecutor(
         {
             try
             {
-                ArchitectureRequest request = TrialVerticalWelcomeRequestFactory.Create(tenantId, tenant.IndustryVertical);
+                ArchitectureRequest request = TrialVerticalWelcomeRequestFactory.Create(
+                    tenantId,
+                    tenant.IndustryVertical,
+                    tenant.IndustryVerticalOther);
                 CreateRunResult created = await _architectureRunCreateOrchestrator.CreateRunAsync(request, null, cancellationToken);
                 string runId = created.Run.RunId;
                 await _architectureRunExecuteOrchestrator.ExecuteRunAsync(runId, cancellationToken);

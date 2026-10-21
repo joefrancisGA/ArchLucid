@@ -39,8 +39,13 @@ internal static class DraftNewCommandConnectStage
         {
             if (intent.Length < DraftIntakeValidation.MinimumFreeTextIntentLength)
             {
-                await error.WriteLineAsync(
-                    $"Intent must be at least {DraftIntakeValidation.MinimumFreeTextIntentLength} characters after trim.");
+                string message =
+                    $"Intent must be at least {DraftIntakeValidation.MinimumFreeTextIntentLength} characters after trim.";
+
+                await error.WriteLineAsync(message);
+
+                if (CliExecutionContext.JsonOutput)
+                    CliJson.WriteFailureLine(output, CliExitCode.UsageError, "intent_text_too_short", message);
 
                 return (null, CliExitCode.UsageError);
             }

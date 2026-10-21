@@ -257,6 +257,17 @@ function Get-Rolling24HourHuntStats {
     $archlucidShared = New-ProductLine24HourBucket
 
     foreach ($entry in $Entries) {
+        if (-not (Test-RunLogEntryHasCanonicalTimestamp -Entry $entry)) {
+            $zoneHint = 'unknown'
+
+            if ($entry.PSObject.Properties.Name.Contains('zoneId')) {
+                $zoneHint = [string]$entry.zoneId
+            }
+
+            Write-Warning ("AL_BUG_HUNT_RUN_LOG entry for zone '$zoneHint' is missing a usable timestamp; skipping for rolling stats.")
+            continue
+        }
+
         $at = ConvertTo-UtcDateTime -IsoTimestamp (Get-RunLogEntryIsoTimestamp -Entry $entry)
 
         if ($at -lt $cutoff) {

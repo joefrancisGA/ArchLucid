@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const GOVERNANCE_FINDINGS_RELATED_QUEUES_OPEN_PARAM = "governanceFindingsRelatedQueuesOpen";
 
 export function parseGovernanceFindingsRelatedQueuesOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function governanceFindingsRelatedQueuesHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(GOVERNANCE_FINDINGS_RELATED_QUEUES_OPEN_PARAM);
-  } else {
-    params.set(GOVERNANCE_FINDINGS_RELATED_QUEUES_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, GOVERNANCE_FINDINGS_RELATED_QUEUES_OPEN_PARAM);
 }

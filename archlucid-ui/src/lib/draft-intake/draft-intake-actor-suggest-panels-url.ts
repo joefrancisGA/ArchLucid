@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const DRAFT_INTAKE_ACTOR_SUGGEST_OPEN_PARAM = "actorSuggestOpen";
 
 export function parseDraftIntakeActorSuggestOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function draftIntakeActorSuggestPanelsHrefFromSearch(
   suggestOpen: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!suggestOpen) {
-    params.delete(DRAFT_INTAKE_ACTOR_SUGGEST_OPEN_PARAM);
-  } else {
-    params.set(DRAFT_INTAKE_ACTOR_SUGGEST_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, suggestOpen, pathname, DRAFT_INTAKE_ACTOR_SUGGEST_OPEN_PARAM);
 }

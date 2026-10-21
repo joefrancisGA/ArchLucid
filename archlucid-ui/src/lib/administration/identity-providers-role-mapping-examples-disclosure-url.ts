@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES_OPEN_PARAM = "identityProvidersRoleMappingExamplesOpen";
 
 export function parseIdentityProvidersRoleMappingExamplesOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function identityProvidersRoleMappingExamplesDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES_OPEN_PARAM);
-  } else {
-    params.set(IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES_OPEN_PARAM);
 }

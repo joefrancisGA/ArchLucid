@@ -1,4 +1,5 @@
 import { GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance/governance-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const STANDARDS_RULES_SORT_PARAM = "sort";
 export const STANDARDS_RULES_SORT_DIR_PARAM = "dir";
@@ -45,21 +46,21 @@ export function standardsRulesSortHrefFromSearch(
   sortAsc: boolean,
   pathname: string = GOVERNANCE_STANDARDS_AND_RULES_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (sortKey === DEFAULT_STANDARDS_RULES_SORT_KEY) {
-    params.delete(STANDARDS_RULES_SORT_PARAM);
-  } else {
-    params.set(STANDARDS_RULES_SORT_PARAM, sortKey);
-  }
+    if (sortKey === DEFAULT_STANDARDS_RULES_SORT_KEY) {
+      params.delete(STANDARDS_RULES_SORT_PARAM);
+    } else {
+      params.set(STANDARDS_RULES_SORT_PARAM, sortKey);
+    }
 
-  if (sortAsc === DEFAULT_STANDARDS_RULES_SORT_ASC) {
-    params.delete(STANDARDS_RULES_SORT_DIR_PARAM);
-  } else {
-    params.set(STANDARDS_RULES_SORT_DIR_PARAM, sortAsc ? "asc" : "desc");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (sortAsc === DEFAULT_STANDARDS_RULES_SORT_ASC) {
+      params.delete(STANDARDS_RULES_SORT_DIR_PARAM);
+    } else {
+      params.set(STANDARDS_RULES_SORT_DIR_PARAM, sortAsc ? "asc" : "desc");
+    }
+    },
+  });
 }

@@ -1,4 +1,5 @@
 import { navHrefPathPart } from "@/lib/nav-href-path-part";
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 
 export const REMEDIATION_PATTERN_ID_PARAM = "patternId" as const;
 export const REMEDIATION_PATTERN_VERSION_PARAM = "version" as const;
@@ -34,6 +35,7 @@ export function remediationPatternSelectionHrefFromSearch(
   pathname: string,
 ): string {
   const params = new URLSearchParams(currentSearch);
+  applyOperatorUrlSelectionSwitch(params, { kind: "disclosure-only" });
   const resolvedPath = navHrefPathPart(pathname);
 
   if (patch.patternId === null) {

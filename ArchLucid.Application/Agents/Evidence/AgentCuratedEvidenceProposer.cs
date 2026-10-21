@@ -71,7 +71,10 @@ public sealed class AgentCuratedEvidenceProposer(
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             if (_logger.IsEnabled(LogLevel.Debug))
-                _logger.LogDebugCuratedEvidenceProposalSkipped(ex, runId, result.AgentType.ToString());
+                _logger.LogDebugCuratedEvidenceProposalSkipped(
+                    ex,
+                    runId,
+                    AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result).ToString());
 
             return null;
         }

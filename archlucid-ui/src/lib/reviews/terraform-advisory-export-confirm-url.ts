@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const TERRAFORM_ADVISORY_EXPORT_CONFIRM_PARAM = "terraformExportConfirm";
 
 export function parseTerraformAdvisoryExportConfirmOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function terraformAdvisoryExportConfirmHrefFromSearch(
   confirmOpen: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!confirmOpen) {
-    params.delete(TERRAFORM_ADVISORY_EXPORT_CONFIRM_PARAM);
-  } else {
-    params.set(TERRAFORM_ADVISORY_EXPORT_CONFIRM_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, confirmOpen, pathname, TERRAFORM_ADVISORY_EXPORT_CONFIRM_PARAM);
 }

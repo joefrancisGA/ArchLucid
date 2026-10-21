@@ -1,3 +1,4 @@
+using ArchLucid.Application.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Runs;
@@ -104,7 +105,9 @@ public static class RunRetrievalGroundingSummaryBuilder
 
         foreach (AgentResult result in agentResults)
         {
-            if (!RagAgentWireNames.TryGetValue(result.AgentType, out string? expectedAgentName))
+            if (!RagAgentWireNames.TryGetValue(
+                    AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result),
+                    out string? expectedAgentName))
                 continue;
 
             if (!tracedAgents.Contains(expectedAgentName))

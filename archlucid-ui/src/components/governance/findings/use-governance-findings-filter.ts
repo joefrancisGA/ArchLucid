@@ -28,6 +28,7 @@ import {
   resolveGovernanceFindingsArchitectureScopeFromUrl,
   scopedArchitectureIdFromQuery,
 } from "@/lib/governance/governance-findings-architecture-scope";
+import { governanceFindingsRegisterFilterHrefFromSearch } from "@/lib/governance/governance-findings-register-filter-url";
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 
 import {
@@ -193,17 +194,10 @@ export function useGovernanceFindingsFilter(options?: UseGovernanceFindingsFilte
     setRegisterFilterState(next);
     patchGovernanceFindingsQueueFacets({ registerFilter: next }, mode);
 
-    const params = new URLSearchParams(searchParams.toString());
-
-    if (next === "all") {
-      params.delete("filter");
-    } else {
-      params.set("filter", next);
-    }
-
-    const query = params.toString();
-
-    router.replace(query.length === 0 ? pathname : `${pathname}?${query}`, { scroll: false });
+    router.replace(
+      governanceFindingsRegisterFilterHrefFromSearch(searchParams.toString(), next, pathname),
+      { scroll: false },
+    );
   }, [mode, pathname, router, searchParams]);
 
   const saveCurrentFilterAsPreset = useCallback((): void => {

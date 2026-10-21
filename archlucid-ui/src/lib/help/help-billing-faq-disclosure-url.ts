@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const HELP_BILLING_FAQ_ID_PARAM = "helpBillingFaqId";
 
 export function parseHelpBillingFaqIdFromSearch(raw: string | null | undefined): string {
@@ -13,16 +14,16 @@ export function helpBillingFaqDisclosureHrefFromSearch(
   faqId: string | null,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = (faqId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = (faqId ?? "").trim();
 
-  if (trimmed.length === 0) {
-    params.delete(HELP_BILLING_FAQ_ID_PARAM);
-  } else {
-    params.set(HELP_BILLING_FAQ_ID_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(HELP_BILLING_FAQ_ID_PARAM);
+    } else {
+      params.set(HELP_BILLING_FAQ_ID_PARAM, trimmed);
+    }
+    },
+  });
 }

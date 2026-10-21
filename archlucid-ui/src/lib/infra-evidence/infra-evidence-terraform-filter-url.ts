@@ -4,6 +4,7 @@ import {
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import { infrastructureTerraformPathForProductLine } from "@/lib/product-line/securenow-infrastructure-routes";
 import { resolveProductLineId } from "@/lib/product-line/resolve-product-line-id";
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 import {
   RESOURCE_HUB_ASSESSMENT_ID_PARAM,
   RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM,
@@ -83,6 +84,7 @@ export function infraTerraformFilterHrefFromSearch(
   pathname: string = infrastructureTerraformPathForProductLine(resolveProductLineId()),
 ): string {
   const params = new URLSearchParams(currentSearch);
+  applyOperatorUrlSelectionSwitch(params, { kind: "infra-resource-hub-run-scope" });
 
   if (patch.snapshotId !== undefined) {
     const trimmed = patch.snapshotId.trim();

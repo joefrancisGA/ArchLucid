@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const RUN_EXPLANATION_PROVENANCE_OPEN_PARAM = "runExplanationProvenanceOpen";
 
 export function parseRunExplanationProvenanceOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function runExplanationProvenanceDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(RUN_EXPLANATION_PROVENANCE_OPEN_PARAM);
-  } else {
-    params.set(RUN_EXPLANATION_PROVENANCE_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, RUN_EXPLANATION_PROVENANCE_OPEN_PARAM);
 }

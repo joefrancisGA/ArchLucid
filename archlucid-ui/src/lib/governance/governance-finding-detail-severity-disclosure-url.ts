@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const GOVERNANCE_FINDING_DETAIL_SEVERITY_OPEN_PARAM = "governanceFindingDetailSeverityOpen";
 
 export function parseGovernanceFindingDetailSeverityOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function governanceFindingDetailSeverityDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(GOVERNANCE_FINDING_DETAIL_SEVERITY_OPEN_PARAM);
-  } else {
-    params.set(GOVERNANCE_FINDING_DETAIL_SEVERITY_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, GOVERNANCE_FINDING_DETAIL_SEVERITY_OPEN_PARAM);
 }

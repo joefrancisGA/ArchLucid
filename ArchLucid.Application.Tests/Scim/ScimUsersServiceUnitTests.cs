@@ -719,6 +719,41 @@ public sealed class ScimUsersServiceUnitTests
     }
 
     [Fact]
+    public async Task ListAsync_active_eq_numeric_one_returns_only_active_users()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        ScimUserService sut = CreateService(users, tenants);
+
+        await users.InsertAsync(
+            tenantId,
+            "ext-active",
+            "active@example.com",
+            null,
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        await users.InsertAsync(
+            tenantId,
+            "ext-inactive",
+            "inactive@example.com",
+            null,
+            false,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        (IReadOnlyList<ScimUserRecord> items, int total) =
+            await sut.ListAsync(tenantId, @"active eq ""1""", 1, 100, CancellationToken.None);
+
+        total.Should().Be(1);
+        items.Should().ContainSingle(u => u.UserName == "active@example.com");
+    }
+
+    [Fact]
     public async Task PatchAsync_replace_active_numeric_zero_deactivates_user()
     {
         Guid tenantId = Guid.NewGuid();

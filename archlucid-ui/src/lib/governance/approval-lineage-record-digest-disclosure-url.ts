@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const APPROVAL_LINEAGE_RECORD_DIGEST_OPEN_PARAM = "approvalLineageRecordDigestOpen";
 
 export function parseApprovalLineageRecordDigestOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function approvalLineageRecordDigestDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(APPROVAL_LINEAGE_RECORD_DIGEST_OPEN_PARAM);
-  } else {
-    params.set(APPROVAL_LINEAGE_RECORD_DIGEST_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, APPROVAL_LINEAGE_RECORD_DIGEST_OPEN_PARAM);
 }

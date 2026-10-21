@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const SIDEBAR_RECENT_ACTIVITY_OPEN_PARAM = "sidebarRecentOpen";
 
 export function parseSidebarRecentActivityOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function sidebarRecentActivityHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(SIDEBAR_RECENT_ACTIVITY_OPEN_PARAM);
-  } else {
-    params.set(SIDEBAR_RECENT_ACTIVITY_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, SIDEBAR_RECENT_ACTIVITY_OPEN_PARAM);
 }

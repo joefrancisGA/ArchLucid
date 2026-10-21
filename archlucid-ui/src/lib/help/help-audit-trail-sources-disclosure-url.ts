@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const HELP_AUDIT_TRAIL_SOURCES_OPEN_PARAM = "helpAuditTrailSourcesOpen";
 
 export function parseHelpAuditTrailSourcesOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function helpAuditTrailSourcesDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(HELP_AUDIT_TRAIL_SOURCES_OPEN_PARAM);
-  } else {
-    params.set(HELP_AUDIT_TRAIL_SOURCES_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, HELP_AUDIT_TRAIL_SOURCES_OPEN_PARAM);
 }

@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const COMMAND_PALETTE_OPEN_PARAM = "paletteOpen";
 export const COMMAND_PALETTE_QUERY_PARAM = "paletteQ";
 
@@ -29,23 +30,23 @@ export function commandPaletteOverlayHrefFromSearch(
   state: CommandPaletteOverlayUrlState,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const query = state.query.trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const query = state.query.trim();
 
-  if (!state.open) {
-    params.delete(COMMAND_PALETTE_OPEN_PARAM);
-    params.delete(COMMAND_PALETTE_QUERY_PARAM);
-  } else {
-    params.set(COMMAND_PALETTE_OPEN_PARAM, "1");
-
-    if (query.length === 0) {
+    if (!state.open) {
+      params.delete(COMMAND_PALETTE_OPEN_PARAM);
       params.delete(COMMAND_PALETTE_QUERY_PARAM);
     } else {
-      params.set(COMMAND_PALETTE_QUERY_PARAM, query);
+      params.set(COMMAND_PALETTE_OPEN_PARAM, "1");
+
+      if (query.length === 0) {
+        params.delete(COMMAND_PALETTE_QUERY_PARAM);
+      } else {
+        params.set(COMMAND_PALETTE_QUERY_PARAM, query);
+      }
     }
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    },
+  });
 }

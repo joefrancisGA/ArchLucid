@@ -1,3 +1,4 @@
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 const NEW_RUN_WIZARD_PILOT_PARAM = "pilot";
 const NEW_RUN_WIZARD_ADVANCED_CONFIG_PARAM = "advancedConfig";
 
@@ -38,6 +39,7 @@ export function newRunWizardPilotHrefFromSearch(
   pathname: string = "/architecture/reviews/new",
 ): string {
   const params = new URLSearchParams(currentSearch);
+  applyOperatorUrlSelectionSwitch(params, { kind: "disclosure-only" });
 
   if (patch.focusedPilotModeEnabled !== undefined) {
     if (patch.focusedPilotModeEnabled) {

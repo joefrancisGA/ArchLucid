@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const PILOT_ROI_VALIDATION_INTERVIEW_OPEN_PARAM = "pilotRoiValidationInterviewOpen";
 
 export function parsePilotRoiValidationInterviewOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function pilotRoiValidationInterviewDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(PILOT_ROI_VALIDATION_INTERVIEW_OPEN_PARAM);
-  } else {
-    params.set(PILOT_ROI_VALIDATION_INTERVIEW_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, PILOT_ROI_VALIDATION_INTERVIEW_OPEN_PARAM);
 }

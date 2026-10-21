@@ -293,8 +293,7 @@ public sealed class BackgroundJobQueueProcessorHostedService(
 
             current = await repository.GetAsync(jobId, stoppingToken);
 
-            if (current is not null
-                && string.Equals(current.State, nameof(BackgroundJobState.Canceled), StringComparison.OrdinalIgnoreCase))
+            if (ShouldAbortRetryNotification(current))
             {
                 await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
 
@@ -350,18 +349,7 @@ public sealed class BackgroundJobQueueProcessorHostedService(
 
             current = await repository.GetAsync(jobId, stoppingToken);
 
-            if (current is not null
-                && string.Equals(current.State, nameof(BackgroundJobState.Canceled), StringComparison.OrdinalIgnoreCase))
-            {
-                await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
-
-                return;
-            }
-
-            current = await repository.GetAsync(jobId, stoppingToken);
-
-            if (current is not null
-                && string.Equals(current.State, nameof(BackgroundJobState.Canceled), StringComparison.OrdinalIgnoreCase))
+            if (ShouldAbortRetryNotification(current))
             {
                 await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
 
@@ -414,6 +402,12 @@ public sealed class BackgroundJobQueueProcessorHostedService(
     private static bool IsRunningJobRow(BackgroundJobRow? row) =>
         row is not null
         && string.Equals(row.State, nameof(BackgroundJobState.Running), StringComparison.OrdinalIgnoreCase);
+
+    private static bool ShouldAbortRetryNotification(BackgroundJobRow? row) =>
+        row is not null
+        && (string.Equals(row.State, nameof(BackgroundJobState.Canceled), StringComparison.OrdinalIgnoreCase)
+            || string.Equals(row.State, nameof(BackgroundJobState.Failed), StringComparison.OrdinalIgnoreCase)
+            || string.Equals(row.State, nameof(BackgroundJobState.Succeeded), StringComparison.OrdinalIgnoreCase));
 
     public async ValueTask DisposeAsync()
     {

@@ -1675,6 +1675,37 @@ namespace N
     }
 
     [Fact]
+    public async Task Does_not_report_type_level_AL0001_on_outer_shell_when_only_nested_authorized_controller_exists()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    public sealed class OuterShellController : ControllerBase
+    {
+        public sealed class NestedController : ControllerBase
+        {
+            [Authorize]
+            [HttpGet]
+            public IActionResult Get() => Ok();
+        }
+    }
+}
+""";
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
     public async Task Reports_nested_controller_class_without_authorization()
     {
         const string testCode = AspNetCoreStubs +

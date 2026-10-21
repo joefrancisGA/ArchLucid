@@ -6,6 +6,7 @@ import {
 import {
   REMEDIATION_FACTORY_FINDING_ID_PARAM,
 } from "@/app/(operator)/governance/remediation-factory/remediation-factory-url-state";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export type GovernanceFindingsQueueDeskUrlPatch = {
   readonly bulkFindingIds: readonly string[];
@@ -17,25 +18,26 @@ export function governanceFindingsQueueDeskHrefFromSearch(
   pathname: string,
   patch: GovernanceFindingsQueueDeskUrlPatch,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const bulkIds = patch.bulkFindingIds.map((id) => id.trim()).filter((id) => id.length > 0);
-
-  if (bulkIds.length === 0) {
-    params.delete(GOVERNANCE_FINDINGS_BULK_PARAM);
-  } else {
-    params.set(GOVERNANCE_FINDINGS_BULK_PARAM, bulkIds.join(","));
-  }
-
-  if (patch.pathInspectFindingId === null) {
-    params.delete(REMEDIATION_FACTORY_FINDING_ID_PARAM);
-  } else {
-    params.set(REMEDIATION_FACTORY_FINDING_ID_PARAM, patch.pathInspectFindingId);
-  }
-
   const resolvedPath = navHrefPathPart(pathname);
-  const nextQuery = params.toString();
 
-  return nextQuery.length === 0 ? resolvedPath : `${resolvedPath}?${nextQuery}`;
+  return buildOperatorHrefFromSearch(currentSearch, resolvedPath, {
+    selectionSwitch: { kind: "governance-findings-queue-navigation" },
+    mutate: (params) => {
+      const bulkIds = patch.bulkFindingIds.map((id) => id.trim()).filter((id) => id.length > 0);
+
+      if (bulkIds.length === 0) {
+        params.delete(GOVERNANCE_FINDINGS_BULK_PARAM);
+      } else {
+        params.set(GOVERNANCE_FINDINGS_BULK_PARAM, bulkIds.join(","));
+      }
+
+      if (patch.pathInspectFindingId === null) {
+        params.delete(REMEDIATION_FACTORY_FINDING_ID_PARAM);
+      } else {
+        params.set(REMEDIATION_FACTORY_FINDING_ID_PARAM, patch.pathInspectFindingId);
+      }
+    },
+  });
 }
 
 export function resolveGovernanceFindingsQueuePathInspectFindingIdForDeskUrl(

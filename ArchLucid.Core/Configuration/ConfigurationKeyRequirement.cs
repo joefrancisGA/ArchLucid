@@ -1,3 +1,5 @@
+using ArchLucid.Core.Json;
+
 using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Core.Configuration;
@@ -41,6 +43,7 @@ public static class ConfigurationKeyRequirement
             case ConfigKeyRequirementKind.None:
                 return false;
             case ConfigKeyRequirementKind.WhenDefaultSqlStorage:
+
                 if (!IsDefaultSql(c))
                 {
                     return false;
@@ -49,6 +52,7 @@ public static class ConfigurationKeyRequirement
                 reason = "Storage is SQL (or unset, defaulting to SQL).";
                 return true;
             case ConfigKeyRequirementKind.WhenRealLlmNotEcho:
+
                 if (!IsRealMode(c) || IsEchoClient(c))
                 {
                     return false;
@@ -57,7 +61,8 @@ public static class ConfigurationKeyRequirement
                 reason = "AgentExecution:Mode is Real and completion client is not Echo.";
                 return true;
             case ConfigKeyRequirementKind.WhenApiKeyEnabled:
-                if (!c.GetValue("Authentication:ApiKey:Enabled", false))
+
+                if (!IsConfigurationBooleanEnabled(c, "Authentication:ApiKey:Enabled"))
                 {
                     return false;
                 }
@@ -65,7 +70,8 @@ public static class ConfigurationKeyRequirement
                 reason = "API key authentication is enabled.";
                 return true;
             case ConfigKeyRequirementKind.WhenOtlpEnabled:
-                if (!c.GetValue("Observability:Otlp:Enabled", false))
+
+                if (!IsConfigurationBooleanEnabled(c, "Observability:Otlp:Enabled"))
                 {
                     return false;
                 }
@@ -73,6 +79,7 @@ public static class ConfigurationKeyRequirement
                 reason = "OTLP export is enabled.";
                 return true;
             case ConfigKeyRequirementKind.WhenProduction:
+
                 if (!IsProduction(aspNetCoreEnvironment, c))
                 {
                     return false;
@@ -81,6 +88,7 @@ public static class ConfigurationKeyRequirement
                 reason = "Environment is Production.";
                 return true;
             case ConfigKeyRequirementKind.WhenAcsEmail:
+
                 if (!string.Equals(
                         c["Email:Provider"]?.Trim(),
                         EmailProviderNames.AzureCommunicationServices,
@@ -92,6 +100,7 @@ public static class ConfigurationKeyRequirement
                 reason = "Email:Provider is Azure Communication Services.";
                 return true;
             case ConfigKeyRequirementKind.WhenWorkerRole:
+
                 if (!string.Equals(
                         c["Hosting:Role"]?.Trim(),
                         "Worker",
@@ -109,7 +118,16 @@ public static class ConfigurationKeyRequirement
 
     private static bool IsProduction(string? envFromCaller, IConfiguration c)
     {
+        if (IsAspNetCoreProductionEnvironment(envFromCaller, c))
+            return true;
+
+        return IsArchLucidProductionEnvironment(c);
+    }
+
+    private static bool IsAspNetCoreProductionEnvironment(string? envFromCaller, IConfiguration c)
+    {
         string? env = envFromCaller?.Trim();
+
         if (string.IsNullOrEmpty(env))
         {
             env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
@@ -122,10 +140,26 @@ public static class ConfigurationKeyRequirement
 
         if (string.IsNullOrEmpty(env))
         {
-            env = c["ASPNETCORE_ENVIRONMENT"] ?? c["Environment"];
+            env = c["ASPNETCORE_ENVIRONMENT"] ?? c["DOTNET_ENVIRONMENT"] ?? c["Environment"];
         }
 
-        return string.Equals(env, "Production", StringComparison.OrdinalIgnoreCase);
+        if (string.IsNullOrWhiteSpace(env))
+            return false;
+
+        return string.Equals(env.Trim(), "Production", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsArchLucidProductionEnvironment(IConfiguration c)
+    {
+        string? archLucidEnv = Environment.GetEnvironmentVariable("ARCHLUCID_ENVIRONMENT");
+
+        if (string.IsNullOrWhiteSpace(archLucidEnv))
+            archLucidEnv = c["ARCHLUCID_ENVIRONMENT"];
+
+        if (string.IsNullOrWhiteSpace(archLucidEnv))
+            return false;
+
+        return string.Equals(archLucidEnv.Trim(), "Production", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDefaultSql(IConfiguration c)
@@ -146,4 +180,12 @@ public static class ConfigurationKeyRequirement
             c["AgentExecution:CompletionClient"]?.Trim(),
             "Echo",
             StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsConfigurationBooleanEnabled(IConfiguration configuration, string key)
+    {
+        if (JsonBooleanStringReader.TryParseBooleanString(configuration[key], out bool parsed))
+            return parsed;
+
+        return false;
+    }
 }

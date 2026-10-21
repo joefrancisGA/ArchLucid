@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const ITSM_OAUTH_CALLBACK_SUPPORT_DETAILS_OPEN_PARAM = "itsmOAuthCallbackSupportDetailsOpen";
 
 export function parseItsmOAuthCallbackSupportDetailsOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function itsmOAuthCallbackSupportDetailsDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(ITSM_OAUTH_CALLBACK_SUPPORT_DETAILS_OPEN_PARAM);
-  } else {
-    params.set(ITSM_OAUTH_CALLBACK_SUPPORT_DETAILS_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, ITSM_OAUTH_CALLBACK_SUPPORT_DETAILS_OPEN_PARAM);
 }

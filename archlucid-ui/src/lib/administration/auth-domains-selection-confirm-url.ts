@@ -1,4 +1,5 @@
 import { SETTINGS_AUTH_DOMAINS_PATH } from "@/lib/settings-admin-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const AUTH_DOMAIN_PARAM = "authDomain";
 export const AUTH_CONFIRM_PARAM = "authConfirm";
@@ -77,46 +78,46 @@ export function authDomainsSelectionConfirmHrefFromSearch(
   state: AuthDomainsSelectionConfirmUrlState,
   pathname: string = SETTINGS_AUTH_DOMAINS_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const selectedDomain = (state.selectedDomain ?? "").trim();
-  const enforcementMode = (state.enforcementMode ?? "").trim();
-  const recoveryAdminEmail = (state.recoveryAdminEmail ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const selectedDomain = (state.selectedDomain ?? "").trim();
+    const enforcementMode = (state.enforcementMode ?? "").trim();
+    const recoveryAdminEmail = (state.recoveryAdminEmail ?? "").trim();
 
-  if (selectedDomain.length === 0) {
-    params.delete(AUTH_DOMAIN_PARAM);
-  } else {
-    params.set(AUTH_DOMAIN_PARAM, selectedDomain);
-  }
-
-  if (state.confirmKind === null) {
-    params.delete(AUTH_CONFIRM_PARAM);
-    params.delete(AUTH_ENFORCEMENT_MODE_PARAM);
-    params.delete(AUTH_OTP_RECOVERY_PARAM);
-    params.delete(AUTH_RECOVERY_EMAIL_PARAM);
-  } else {
-    params.set(AUTH_CONFIRM_PARAM, state.confirmKind);
-
-    if (state.confirmKind === "set-enforcement-mode" && enforcementMode.length > 0) {
-      params.set(AUTH_ENFORCEMENT_MODE_PARAM, enforcementMode);
-
-      if (state.allowEmailOtpRecovery) {
-        params.set(AUTH_OTP_RECOVERY_PARAM, "1");
-      } else {
-        params.delete(AUTH_OTP_RECOVERY_PARAM);
-      }
+    if (selectedDomain.length === 0) {
+      params.delete(AUTH_DOMAIN_PARAM);
     } else {
+      params.set(AUTH_DOMAIN_PARAM, selectedDomain);
+    }
+
+    if (state.confirmKind === null) {
+      params.delete(AUTH_CONFIRM_PARAM);
       params.delete(AUTH_ENFORCEMENT_MODE_PARAM);
       params.delete(AUTH_OTP_RECOVERY_PARAM);
-    }
-
-    if (state.confirmKind === "recovery-remove" && recoveryAdminEmail.length > 0) {
-      params.set(AUTH_RECOVERY_EMAIL_PARAM, recoveryAdminEmail);
-    } else {
       params.delete(AUTH_RECOVERY_EMAIL_PARAM);
+    } else {
+      params.set(AUTH_CONFIRM_PARAM, state.confirmKind);
+
+      if (state.confirmKind === "set-enforcement-mode" && enforcementMode.length > 0) {
+        params.set(AUTH_ENFORCEMENT_MODE_PARAM, enforcementMode);
+
+        if (state.allowEmailOtpRecovery) {
+          params.set(AUTH_OTP_RECOVERY_PARAM, "1");
+        } else {
+          params.delete(AUTH_OTP_RECOVERY_PARAM);
+        }
+      } else {
+        params.delete(AUTH_ENFORCEMENT_MODE_PARAM);
+        params.delete(AUTH_OTP_RECOVERY_PARAM);
+      }
+
+      if (state.confirmKind === "recovery-remove" && recoveryAdminEmail.length > 0) {
+        params.set(AUTH_RECOVERY_EMAIL_PARAM, recoveryAdminEmail);
+      } else {
+        params.delete(AUTH_RECOVERY_EMAIL_PARAM);
+      }
     }
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    },
+  });
 }

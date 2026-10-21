@@ -630,6 +630,30 @@ describe("RunsListClient inspector", () => {
     expect(screen.getByText(/orphan-candidates\.json/i)).toBeInTheDocument();
   });
 
+  it("hides orphan-candidates banner when filter= is cleared without a popstate event", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    const view = renderRunsList(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+      "filter=orphan-candidates",
+    );
+
+    expect(screen.getByTestId("runs-list-orphan-candidates-filter-banner")).toBeInTheDocument();
+
+    runsListSearchParamsHarness.applyHref("/architecture/reviews");
+    view.rerender(
+      <RunsListSearchParamsRerenderHost>
+        <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />
+      </RunsListSearchParamsRerenderHost>,
+    );
+
+    expect(screen.queryByTestId("runs-list-orphan-candidates-filter-banner")).toBeNull();
+  });
+
   it("shows an empty-table message when the text filter matches no reviews", () => {
     const secondRun: RunSummary = {
       ...sampleRun,

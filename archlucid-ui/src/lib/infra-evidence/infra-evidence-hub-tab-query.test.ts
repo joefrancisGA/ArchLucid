@@ -30,6 +30,21 @@ describe("infra-evidence-hub-tab-query", () => {
     expect(new URLSearchParams(driftSearch).get(RESOURCE_HUB_RUN_ID_PARAM)).toBe("run-1");
   });
 
+  it("drops overview-only technical disclosure keys when leaving overview tab", () => {
+    const currentSearch = new URLSearchParams({
+      tab: "overview",
+      [INFRA_RESOURCE_HUB_TECHNICAL_KEY_PARAM]: "armResourcePath",
+      workQueue: "open-findings",
+      runId: "run-1",
+    }).toString();
+
+    const findingsSearch = sanitizeResourceHubQueryForTab(currentSearch, "findings");
+
+    expect(new URLSearchParams(findingsSearch).get(INFRA_RESOURCE_HUB_TECHNICAL_KEY_PARAM)).toBeNull();
+    expect(new URLSearchParams(findingsSearch).get("workQueue")).toBe("open-findings");
+    expect(new URLSearchParams(findingsSearch).get(RESOURCE_HUB_RUN_ID_PARAM)).toBe("run-1");
+  });
+
   it("drops terraform-only technical disclosure key when leaving terraform tab", () => {
     const currentSearch = new URLSearchParams({
       tab: "terraform",

@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const RUNS_LIST_FILTER_OPEN_PARAM = "runsListFilterOpen";
 
 export function parseRunsListFilterOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function runsListFilterDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(RUNS_LIST_FILTER_OPEN_PARAM);
-  } else {
-    params.set(RUNS_LIST_FILTER_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, RUNS_LIST_FILTER_OPEN_PARAM);
 }

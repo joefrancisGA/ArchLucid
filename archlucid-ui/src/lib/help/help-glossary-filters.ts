@@ -1,4 +1,5 @@
 import type { CustomerGlossaryCategoryId } from "@/lib/customer-glossary-manifest";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const HELP_GLOSSARY_SEARCH_PARAM = "q";
 export const HELP_GLOSSARY_CATEGORY_PARAM = "category";
@@ -45,17 +46,16 @@ export function helpGlossaryCategoryHrefFromSearch(
   category: HelpGlossaryCategoryFilter,
   pathname: string = HELP_GLOSSARY_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (category === "all") {
-    params.delete(HELP_GLOSSARY_CATEGORY_PARAM);
-  } else {
-    params.set(HELP_GLOSSARY_CATEGORY_PARAM, category);
-  }
-
-  const query = params.toString();
-
-  return query.length === 0 ? pathname : `${pathname}?${query}`;
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+      if (category === "all") {
+        params.delete(HELP_GLOSSARY_CATEGORY_PARAM);
+      } else {
+        params.set(HELP_GLOSSARY_CATEGORY_PARAM, category);
+      }
+    },
+  });
 }
 
 export function helpGlossarySearchHrefFromSearch(
@@ -63,18 +63,26 @@ export function helpGlossarySearchHrefFromSearch(
   query: string,
   pathname: string = HELP_GLOSSARY_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+<<<<<<< HEAD
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+      const trimmed = query.trim();
+
+=======
   const trimmed = query.trim();
 
-  if (trimmed.length === 0) {
-    params.delete(HELP_GLOSSARY_SEARCH_PARAM);
-  } else {
-    params.set(HELP_GLOSSARY_SEARCH_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+>>>>>>> 6fffd4ff08 (Fix operator URL codemod syntax damage)
+      if (trimmed.length === 0) {
+        params.delete(HELP_GLOSSARY_SEARCH_PARAM);
+      } else {
+        params.set(HELP_GLOSSARY_SEARCH_PARAM, trimmed);
+      }
+    },
+  });
 }
 
 export function helpGlossaryClearSearchHrefFromSearch(

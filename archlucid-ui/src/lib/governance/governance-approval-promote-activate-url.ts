@@ -1,4 +1,5 @@
 import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const GOVERNANCE_PROMOTE_MANIFEST_PARAM = "promoteManifest";
 export const GOVERNANCE_PROMOTE_ENV_PARAM = "promoteEnv";
@@ -39,26 +40,26 @@ export function governanceApprovalPromoteActivateHrefFromSearch(
   state: GovernanceApprovalPromoteActivateUrlState,
   pathname: string = GOVERNANCE_APPROVAL_QUEUE_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const promoteManifestId = (state.promoteManifestId ?? "").trim();
-  const promoteTargetEnv = (state.promoteTargetEnv ?? "").trim();
-  const activateId = (state.activateId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const promoteManifestId = (state.promoteManifestId ?? "").trim();
+    const promoteTargetEnv = (state.promoteTargetEnv ?? "").trim();
+    const activateId = (state.activateId ?? "").trim();
 
-  if (promoteManifestId.length === 0 || promoteTargetEnv.length === 0) {
-    params.delete(GOVERNANCE_PROMOTE_MANIFEST_PARAM);
-    params.delete(GOVERNANCE_PROMOTE_ENV_PARAM);
-  } else {
-    params.set(GOVERNANCE_PROMOTE_MANIFEST_PARAM, promoteManifestId);
-    params.set(GOVERNANCE_PROMOTE_ENV_PARAM, promoteTargetEnv);
-  }
+    if (promoteManifestId.length === 0 || promoteTargetEnv.length === 0) {
+      params.delete(GOVERNANCE_PROMOTE_MANIFEST_PARAM);
+      params.delete(GOVERNANCE_PROMOTE_ENV_PARAM);
+    } else {
+      params.set(GOVERNANCE_PROMOTE_MANIFEST_PARAM, promoteManifestId);
+      params.set(GOVERNANCE_PROMOTE_ENV_PARAM, promoteTargetEnv);
+    }
 
-  if (activateId.length === 0) {
-    params.delete(GOVERNANCE_ACTIVATE_ID_PARAM);
-  } else {
-    params.set(GOVERNANCE_ACTIVATE_ID_PARAM, activateId);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (activateId.length === 0) {
+      params.delete(GOVERNANCE_ACTIVATE_ID_PARAM);
+    } else {
+      params.set(GOVERNANCE_ACTIVATE_ID_PARAM, activateId);
+    }
+    },
+  });
 }

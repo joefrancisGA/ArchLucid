@@ -1,6 +1,7 @@
 import { GOVERNANCE_DECISION_REGISTER_PATH } from "@/lib/governance/governance-route-paths";
 
 import type { DecisionRegisterViewMode } from "@/app/(operator)/governance/decision-register/DecisionRegisterViewSwitcher";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const DECISION_REGISTER_VIEW_PARAM = "view";
 
@@ -29,15 +30,15 @@ export function decisionRegisterViewModeHrefFromSearch(
   viewMode: DecisionRegisterViewMode,
   pathname: string = GOVERNANCE_DECISION_REGISTER_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (viewMode === DEFAULT_DECISION_REGISTER_VIEW_MODE) {
-    params.delete(DECISION_REGISTER_VIEW_PARAM);
-  } else {
-    params.set(DECISION_REGISTER_VIEW_PARAM, viewMode);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (viewMode === DEFAULT_DECISION_REGISTER_VIEW_MODE) {
+      params.delete(DECISION_REGISTER_VIEW_PARAM);
+    } else {
+      params.set(DECISION_REGISTER_VIEW_PARAM, viewMode);
+    }
+    },
+  });
 }

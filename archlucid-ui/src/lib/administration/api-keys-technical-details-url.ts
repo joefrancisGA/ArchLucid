@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const API_KEYS_TECHNICAL_DETAILS_OPEN_PARAM = "apiKeysTechnicalDetailsOpen";
 
 export function parseApiKeysTechnicalDetailsOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,15 @@ export function apiKeysTechnicalDetailsHrefFromSearch(
   open: boolean,
   pathname: string = "/administration/api-keys",
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!open) {
-    params.delete(API_KEYS_TECHNICAL_DETAILS_OPEN_PARAM);
-  } else {
-    params.set(API_KEYS_TECHNICAL_DETAILS_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!open) {
+      params.delete(API_KEYS_TECHNICAL_DETAILS_OPEN_PARAM);
+    } else {
+      params.set(API_KEYS_TECHNICAL_DETAILS_OPEN_PARAM, "1");
+    }
+    },
+  });
 }

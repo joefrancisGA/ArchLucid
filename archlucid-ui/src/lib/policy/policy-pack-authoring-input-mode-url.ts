@@ -1,4 +1,5 @@
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 
 export const POLICY_PACK_AUTHORING_INPUT_MODE_PARAM = "inputMode";
 
@@ -28,6 +29,8 @@ export function policyPackAuthoringInputModeHrefFromSearch(
   pathname: string = GOVERNANCE_POLICY_PACKS_PATH,
 ): string {
   const params = new URLSearchParams(currentSearch);
+
+  applyOperatorUrlSelectionSwitch(params, { kind: "policy-pack-authoring-input-mode" });
 
   if (inputMode === "guided") {
     params.delete(POLICY_PACK_AUTHORING_INPUT_MODE_PARAM);

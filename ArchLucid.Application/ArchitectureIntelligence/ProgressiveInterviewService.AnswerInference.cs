@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Core.Requests;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
@@ -197,7 +198,7 @@ public sealed partial class ProgressiveInterviewService
         }
 
         if (combinedText.Contains("availability", StringComparison.OrdinalIgnoreCase)
-            || combinedText.Contains("security", StringComparison.OrdinalIgnoreCase))
+            || ControlPhraseMatcher.IdentifierMentionsQualityDimension(combinedText, ControlPhraseCatalog.Security))
         {
             return "Availability and security called out in source material.";
         }

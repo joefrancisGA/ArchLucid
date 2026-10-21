@@ -1,4 +1,5 @@
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const FIRST_REVIEW_GUIDE_LEDGER_PARAM = "ledger";
 
@@ -17,15 +18,15 @@ export function firstReviewGuideLedgerHrefFromSearch(
   ledgerExpanded: boolean,
   pathname: string = FIRST_REVIEW_GUIDE_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!ledgerExpanded) {
-    params.delete(FIRST_REVIEW_GUIDE_LEDGER_PARAM);
-  } else {
-    params.set(FIRST_REVIEW_GUIDE_LEDGER_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!ledgerExpanded) {
+      params.delete(FIRST_REVIEW_GUIDE_LEDGER_PARAM);
+    } else {
+      params.set(FIRST_REVIEW_GUIDE_LEDGER_PARAM, "1");
+    }
+    },
+  });
 }

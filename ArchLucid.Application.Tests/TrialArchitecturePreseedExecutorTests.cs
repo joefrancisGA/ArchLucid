@@ -23,6 +23,48 @@ public sealed class TrialArchitecturePreseedExecutorTests
     private readonly Guid _projectId = Guid.Parse("bbbbbbbb-cccc-dddd-eeee-ffffffffffff");
 
     [Fact]
+    public async Task TryProcessTenantAsync_other_vertical_passes_other_specification_into_welcome_request()
+    {
+        ArchitectureRequest? capturedRequest = null;
+        Mock<IArchitectureRunCreateOrchestrator> create = new();
+        create.Setup(c => c.CreateRunAsync(
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<ArchLucid.Application.Runs.CreateRunIdempotencyState?>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<ArchitectureRequest, ArchLucid.Application.Runs.CreateRunIdempotencyState?, CancellationToken>(
+                (request, _, _) => capturedRequest = request)
+            .ReturnsAsync(
+                new CreateRunResult
+                {
+                    Run = new ArchitectureRun { RunId = Guid.NewGuid().ToString("N"), RequestId = "req" }
+                });
+
+        (TrialArchitecturePreseedExecutor sut, Mock<ITenantRepository> repo) = CreateSut("unused", create);
+
+        repo.Setup(r => r.GetFirstWorkspaceAsync(_tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantWorkspaceLink { WorkspaceId = _workspaceId, DefaultProjectId = _projectId });
+
+        repo.Setup(r => r.GetByIdAsync(_tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantRecord
+                {
+                    Id = _tenantId,
+                    Name = "Trial",
+                    Slug = "trial",
+                    Tier = TenantTier.Free,
+                    CreatedUtc = DateTimeOffset.UtcNow,
+                    TrialStatus = TrialLifecycleStatus.Active,
+                    IndustryVertical = "Other",
+                    IndustryVerticalOther = "Defense logistics",
+                });
+
+        await sut.TryProcessTenantAsync(_tenantId, CancellationToken.None);
+
+        capturedRequest.Should().NotBeNull();
+        capturedRequest!.Description.Should().Contain("Defense logistics");
+    }
+
+    [Fact]
     public async Task TryProcessTenantAsync_happy_path_marks_preseed_completed()
     {
         Guid welcomeRunId = Guid.Parse("ccccccccddddeeeeffff000011112222");

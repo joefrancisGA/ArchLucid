@@ -1,4 +1,5 @@
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const SETTINGS_INVITES_SHOW_RESOLVED_PARAM = "settingsInvitesShowResolved";
 
@@ -17,15 +18,15 @@ export function settingsInvitesShowResolvedHrefFromSearch(
   showResolved: boolean,
   pathname: string = SETTINGS_USERS_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!showResolved) {
-    params.delete(SETTINGS_INVITES_SHOW_RESOLVED_PARAM);
-  } else {
-    params.set(SETTINGS_INVITES_SHOW_RESOLVED_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!showResolved) {
+      params.delete(SETTINGS_INVITES_SHOW_RESOLVED_PARAM);
+    } else {
+      params.set(SETTINGS_INVITES_SHOW_RESOLVED_PARAM, "1");
+    }
+    },
+  });
 }

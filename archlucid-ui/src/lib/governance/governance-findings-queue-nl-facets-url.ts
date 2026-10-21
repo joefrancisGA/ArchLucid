@@ -1,4 +1,5 @@
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 import type {
   FindingsNaturalLanguageFacets,
   FindingsNaturalLanguageSeverity,
@@ -77,6 +78,7 @@ export function governanceFindingsNlSeverityHrefFromSearch(
   pathname: string = GOVERNANCE_FINDINGS_PATH,
 ): string {
   const params = new URLSearchParams(currentSearch);
+  applyOperatorUrlSelectionSwitch(params, { kind: "governance-findings-queue-navigation" });
 
   if (severity === null) {
     params.delete(GOVERNANCE_FINDINGS_NL_SEVERITY_PARAM);
@@ -95,6 +97,7 @@ export function governanceFindingsNlStatusHrefFromSearch(
   pathname: string = GOVERNANCE_FINDINGS_PATH,
 ): string {
   const params = new URLSearchParams(currentSearch);
+  applyOperatorUrlSelectionSwitch(params, { kind: "governance-findings-queue-navigation" });
 
   if (status === null) {
     params.delete(GOVERNANCE_FINDINGS_NL_STATUS_PARAM);
@@ -113,6 +116,7 @@ export function governanceFindingsNlTitleHrefFromSearch(
   pathname: string = GOVERNANCE_FINDINGS_PATH,
 ): string {
   const params = new URLSearchParams(currentSearch);
+  applyOperatorUrlSelectionSwitch(params, { kind: "governance-findings-queue-navigation" });
   const normalized = titleKeywords.map((keyword) => keyword.trim()).filter((keyword) => keyword.length > 0);
 
   if (normalized.length === 0) {
@@ -131,7 +135,12 @@ export function governanceFindingsNlFacetsHrefFromSearch(
   facets: FindingsNaturalLanguageFacets,
   pathname: string = GOVERNANCE_FINDINGS_PATH,
 ): string {
-  let href = governanceFindingsNlSeverityHrefFromSearch(currentSearch, facets.severity, pathname);
+  const strippedParams = new URLSearchParams(currentSearch);
+
+  applyOperatorUrlSelectionSwitch(strippedParams, { kind: "governance-findings-queue-navigation" });
+  const strippedSearch = strippedParams.toString();
+
+  let href = governanceFindingsNlSeverityHrefFromSearch(strippedSearch, facets.severity, pathname);
 
   href = governanceFindingsNlStatusHrefFromSearch(
     href.includes("?") ? href.split("?")[1] ?? "" : "",

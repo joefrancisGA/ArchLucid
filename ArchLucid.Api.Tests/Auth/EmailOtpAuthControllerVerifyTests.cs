@@ -8,6 +8,7 @@ using ArchLucid.Api.Models.Auth;
 using ArchLucid.Application.Audit;
 using ArchLucid.Application.Identity;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Security;
 
@@ -102,6 +103,80 @@ public sealed class EmailOtpAuthControllerVerifyTests
         capturedProjectId.Should().Be(defaultProjectId);
         response.TenantId.Should().Be(defaultTenantId);
         response.WorkspaceId.Should().Be(defaultWorkspaceId);
+    }
+
+    [Fact]
+    public async Task VerifyAsync_does_not_apply_trial_scope_defaults_when_next_step_is_select_workspace()
+    {
+        Guid userId = Guid.NewGuid();
+        Guid challengeId = Guid.NewGuid();
+        Guid authVersion = Guid.NewGuid();
+        (Guid defaultTenantId, Guid defaultWorkspaceId, _) = TrialLocalJwtScopeDefaults.Resolve();
+
+        Mock<IEmailOtpAuthService> emailOtpAuth = new();
+        emailOtpAuth
+            .Setup(service => service.VerifyCodeAsync(It.IsAny<Application.Identity.EmailOtpVerifyRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new EmailOtpVerifyResult
+                {
+                    Succeeded = true,
+                    PlatformUserId = userId,
+                    DisplayEmail = "member@example.com",
+                    Role = ArchLucidRoles.Reader,
+                    NextStep = EmailOtpAuthNextStep.SelectWorkspace,
+                    TenantId = null,
+                    WorkspaceId = null,
+                    AuthVersion = authVersion
+                });
+
+        Guid capturedTenantId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+        Guid capturedWorkspaceId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+
+        Mock<ILocalTrialJwtIssuer> jwtIssuer = new();
+        jwtIssuer
+            .Setup(issuer => issuer.IssueAccessToken(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<int?>()))
+            .Callback<Guid, string, string, Guid, Guid, Guid, Guid?, int?>(
+                (_, _, _, tenantId, workspaceId, _, _, _) =>
+                {
+                    capturedTenantId = tenantId;
+                    capturedWorkspaceId = workspaceId;
+                })
+            .Returns("signed-jwt");
+
+        EmailOtpAuthController controller = new(
+            Options.Create(new EmailOtpAuthOptions { Enabled = true, AccessTokenLifetimeMinutes = 60 }),
+            emailOtpAuth.Object,
+            jwtIssuer.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+
+        IActionResult actionResult = await controller.VerifyAsync(
+            new ArchLucid.Api.Models.Auth.EmailOtpVerifyRequest
+            {
+                ChallengeId = challengeId,
+                Code = "123456"
+            },
+            CancellationToken.None);
+
+        OkObjectResult ok = actionResult.Should().BeOfType<OkObjectResult>().Subject;
+        EmailOtpVerifyResponse response = ok.Value.Should().BeOfType<EmailOtpVerifyResponse>().Subject;
+
+        capturedTenantId.Should().Be(Guid.Empty);
+        capturedWorkspaceId.Should().Be(Guid.Empty);
+        capturedTenantId.Should().NotBe(defaultTenantId);
+        capturedWorkspaceId.Should().NotBe(defaultWorkspaceId);
+        response.TenantId.Should().Be(Guid.Empty);
+        response.WorkspaceId.Should().Be(Guid.Empty);
+        response.NextStep.Should().Be(EmailOtpAuthNextStep.SelectWorkspace.ToString());
     }
 
     [Fact]

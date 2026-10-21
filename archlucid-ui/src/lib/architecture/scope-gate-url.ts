@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const SCOPE_GATE_OPEN_PARAM = "scopeGate";
 
 export function parseScopeGateOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function scopeGateHrefFromSearch(
   scopeGateOpen: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!scopeGateOpen) {
-    params.delete(SCOPE_GATE_OPEN_PARAM);
-  } else {
-    params.set(SCOPE_GATE_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, scopeGateOpen, pathname, SCOPE_GATE_OPEN_PARAM);
 }

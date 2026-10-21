@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const SLACK_PLATFORM_NOTES_OPEN_PARAM = "slackPlatformNotesOpen";
 
 export function parseSlackPlatformNotesOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function slackPlatformNotesDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(SLACK_PLATFORM_NOTES_OPEN_PARAM);
-  } else {
-    params.set(SLACK_PLATFORM_NOTES_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, SLACK_PLATFORM_NOTES_OPEN_PARAM);
 }

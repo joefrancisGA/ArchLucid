@@ -6,6 +6,7 @@ import { parseArchitectureNestedRoute } from "@/lib/architecture/working-archite
 import { extractReviewIdFromPathname } from "@/lib/desk-continuity-preference";
 import { REVIEW_DETAIL_TAB_PARAM } from "@/lib/review-detail-workspace-tabs";
 import { OPERATOR_RECENT_VIEWS_STORAGE_KEY, parseStoredRecentViews } from "@/lib/operator/operator-recent-views";
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 
 export const REVIEW_PIN_RUN_PARAM = "pinRunId" as const;
 
@@ -180,6 +181,8 @@ export function reviewPinRunHrefFromSearch(
   pathname: string,
 ): string {
   const params = new URLSearchParams(search);
+
+  applyOperatorUrlSelectionSwitch(params, { kind: "disclosure-only" });
 
   if (pinRunId === null || pinRunId.trim().length === 0) {
     params.delete(REVIEW_PIN_RUN_PARAM);

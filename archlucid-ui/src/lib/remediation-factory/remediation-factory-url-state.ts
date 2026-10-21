@@ -1,3 +1,5 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
+
 export const REMEDIATION_FACTORY_SELECTED_FINDING_PARAM = "selectedFinding" as const;
 export const REMEDIATION_FACTORY_SELECTED_PATH_PARAM = "selectedPath" as const;
 export const REMEDIATION_FACTORY_FROM_SNAPSHOT_PARAM = "fromSnapshot" as const;
@@ -77,7 +79,8 @@ export function remediationFactoryUrlStateToSearchParams(
 }
 
 export function remediationFactoryHrefFromSearch(pathname: string, search: string): string {
-  const query = search.trim();
-
-  return query.length > 0 ? `${pathname}?${query}` : pathname;
+  return buildOperatorHrefFromSearch(search, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: () => {},
+  });
 }

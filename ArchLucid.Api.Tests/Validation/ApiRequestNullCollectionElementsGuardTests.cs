@@ -1,5 +1,6 @@
 using ArchLucid.Api.Models.Coverage;
 using ArchLucid.Api.Validation;
+using ArchLucid.Core.Configuration.Summary;
 
 using FluentAssertions;
 
@@ -75,6 +76,29 @@ public sealed class ApiRequestNullCollectionElementsGuardTests
         ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(request).Should().BeFalse();
     }
 
+    [Fact]
+    public void ContainsNullCollectionElement_returns_true_for_null_non_nullable_collection_property()
+    {
+        WorkspaceAllowedEngineSetUpdateRequest request = new()
+        {
+            AllowedAliasIds = null!,
+            DefaultAliasId = "gpt-4",
+        };
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void ContainsNullCollectionElement_allows_null_nullable_collection_property()
+    {
+        NullableCollectionPropertyRequest request = new()
+        {
+            Tags = null,
+        };
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(request).Should().BeFalse();
+    }
+
     private sealed class NullableStringListRequest
     {
         public List<string?> Tags { get; set; } = [];
@@ -88,5 +112,10 @@ public sealed class ApiRequestNullCollectionElementsGuardTests
     private sealed class NullableIntArrayRequest
     {
         public int?[] Values { get; set; } = [];
+    }
+
+    private sealed class NullableCollectionPropertyRequest
+    {
+        public List<string>? Tags { get; set; }
     }
 }

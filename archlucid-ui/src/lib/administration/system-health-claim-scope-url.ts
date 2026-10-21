@@ -1,4 +1,5 @@
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const SYSTEM_HEALTH_CLAIM_SCOPE_OPEN_PARAM = "systemHealthClaimScopeOpen";
 
@@ -17,15 +18,15 @@ export function systemHealthClaimScopeHrefFromSearch(
   open: boolean,
   pathname: string = ADMINISTRATION_SYSTEM_HEALTH_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!open) {
-    params.delete(SYSTEM_HEALTH_CLAIM_SCOPE_OPEN_PARAM);
-  } else {
-    params.set(SYSTEM_HEALTH_CLAIM_SCOPE_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!open) {
+      params.delete(SYSTEM_HEALTH_CLAIM_SCOPE_OPEN_PARAM);
+    } else {
+      params.set(SYSTEM_HEALTH_CLAIM_SCOPE_OPEN_PARAM, "1");
+    }
+    },
+  });
 }

@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const GOVERNANCE_OVERVIEW_BLOCKING_BREAKDOWN_OPEN_PARAM = "governanceOverviewBlockingBreakdownOpen";
 
 export function parseGovernanceOverviewBlockingBreakdownOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function governanceOverviewBlockingBreakdownDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(GOVERNANCE_OVERVIEW_BLOCKING_BREAKDOWN_OPEN_PARAM);
-  } else {
-    params.set(GOVERNANCE_OVERVIEW_BLOCKING_BREAKDOWN_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, GOVERNANCE_OVERVIEW_BLOCKING_BREAKDOWN_OPEN_PARAM);
 }

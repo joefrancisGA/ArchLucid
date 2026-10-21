@@ -21,7 +21,7 @@ internal static class DraftNewCommandIntakeLoop
 
         if (CliExecutionContext.JsonOutput)
         {
-            int jsonFlagsExit = await TryValidateJsonModeRequiredFlagsAsync(options, error);
+            int jsonFlagsExit = await TryValidateJsonModeRequiredFlagsAsync(options, output, error);
 
             if (jsonFlagsExit != CliExitCode.Success)
                 return jsonFlagsExit;
@@ -149,25 +149,37 @@ internal static class DraftNewCommandIntakeLoop
         return CliExitCode.Success;
     }
 
-    private static async Task<int> TryValidateJsonModeRequiredFlagsAsync(DraftNewCommandOptions options, TextWriter error)
+    private static async Task<int> TryValidateJsonModeRequiredFlagsAsync(
+        DraftNewCommandOptions options,
+        TextWriter output,
+        TextWriter error)
     {
         if (options.IntentText is null)
         {
-            await error.WriteLineAsync("JSON output mode requires --text <intent>.");
+            const string message = "JSON output mode requires --text <intent>.";
+
+            await error.WriteLineAsync(message);
+            CliJson.WriteFailureLine(output, CliExitCode.UsageError, "missing_intent_text", message);
 
             return CliExitCode.UsageError;
         }
 
         if (string.IsNullOrWhiteSpace(options.SystemName))
         {
-            await error.WriteLineAsync("JSON output mode requires --system-name <name>.");
+            const string message = "JSON output mode requires --system-name <name>.";
+
+            await error.WriteLineAsync(message);
+            CliJson.WriteFailureLine(output, CliExitCode.UsageError, "missing_system_name", message);
 
             return CliExitCode.UsageError;
         }
 
         if (string.IsNullOrWhiteSpace(options.BusinessOutcome))
         {
-            await error.WriteLineAsync("JSON output mode requires --business-outcome <text>.");
+            const string message = "JSON output mode requires --business-outcome <text>.";
+
+            await error.WriteLineAsync(message);
+            CliJson.WriteFailureLine(output, CliExitCode.UsageError, "missing_business_outcome", message);
 
             return CliExitCode.UsageError;
         }

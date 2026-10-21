@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 const NEW_RUN_WIZARD_MODE_PARAM = "mode";
 
 export type NewRunWizardModeId = "quick" | "full";
@@ -21,15 +22,15 @@ export function newRunWizardModeHrefFromSearch(
   mode: NewRunWizardModeId,
   pathname: string = "/architecture/reviews/new",
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (mode === "quick") {
-    params.delete(NEW_RUN_WIZARD_MODE_PARAM);
-  } else {
-    params.set(NEW_RUN_WIZARD_MODE_PARAM, mode);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (mode === "quick") {
+      params.delete(NEW_RUN_WIZARD_MODE_PARAM);
+    } else {
+      params.set(NEW_RUN_WIZARD_MODE_PARAM, mode);
+    }
+    },
+  });
 }

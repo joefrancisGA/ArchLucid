@@ -1,3 +1,5 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 export const ARCHITECTURE_DIAGRAM_FULLSCREEN_PARAM = "diagFullscreen";
 export const ARCHITECTURE_DIAGRAM_ZOOM_PARAM = "diagZoom";
 
@@ -63,17 +65,7 @@ export function architectureDiagramFullscreenHrefFromSearch(
   fullscreenOpen: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!fullscreenOpen) {
-    params.delete(ARCHITECTURE_DIAGRAM_FULLSCREEN_PARAM);
-  } else {
-    params.set(ARCHITECTURE_DIAGRAM_FULLSCREEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, fullscreenOpen, pathname, ARCHITECTURE_DIAGRAM_FULLSCREEN_PARAM);
 }
 
 export function architectureDiagramZoomHrefFromSearch(
@@ -82,6 +74,7 @@ export function architectureDiagramZoomHrefFromSearch(
   pathname: string,
 ): string {
   const params = new URLSearchParams(currentSearch);
+  applyOperatorUrlSelectionSwitch(params, { kind: "disclosure-only" });
 
   if (zoom === null || Math.abs(zoom - 1) < 0.001) {
     params.delete(ARCHITECTURE_DIAGRAM_ZOOM_PARAM);

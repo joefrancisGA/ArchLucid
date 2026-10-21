@@ -157,14 +157,38 @@ public sealed class TenantProvisioningService(
         await _defaultPolicyPackSeeder.EnsureDefaultPolicyPacksAsync(tenantId, workspaceId, projectId, ct)
             .ConfigureAwait(false);
 
+        TenantRecord? tenantBeforeNavSettings =
+            await _tenantRepository.GetByIdAsync(tenantId, ct).ConfigureAwait(false);
+
+        if (IsErasureQuarantine(tenantBeforeNavSettings))
+        {
+            return BuildErasureQuarantineProvisionResult(tenantId, workspaceId, projectId);
+        }
+
         // Default Advanced mode to OFF for new tenants to reduce cognitive load on first-run (Imp-2)
         await _tenantSettingsRepository.UpsertAsync(tenantId, "archlucid_nav_show_advanced", "0", ct).ConfigureAwait(false);
         await _tenantSettingsRepository.UpsertAsync(tenantId, "archlucid_nav_show_extended", "0", ct).ConfigureAwait(false);
+
+        TenantRecord? tenantBeforeMarketingAttribution =
+            await _tenantRepository.GetByIdAsync(tenantId, ct).ConfigureAwait(false);
+
+        if (IsErasureQuarantine(tenantBeforeMarketingAttribution))
+        {
+            return BuildErasureQuarantineProvisionResult(tenantId, workspaceId, projectId);
+        }
 
         if (request.FirstTouch is not null)
         {
             await _marketingAttributionService.PersistFirstTouchIfPresentAsync(tenantId, request.FirstTouch, ct)
                 .ConfigureAwait(false);
+        }
+
+        TenantRecord? tenantBeforeProvisionedAudit =
+            await _tenantRepository.GetByIdAsync(tenantId, ct).ConfigureAwait(false);
+
+        if (IsErasureQuarantine(tenantBeforeProvisionedAudit))
+        {
+            return BuildErasureQuarantineProvisionResult(tenantId, workspaceId, projectId);
         }
 
         string actor = string.IsNullOrWhiteSpace(request.AuditActorOverride) ? _actorContext.GetActor() : request.AuditActorOverride.Trim();

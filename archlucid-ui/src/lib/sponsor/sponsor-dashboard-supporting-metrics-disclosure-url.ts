@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const SPONSOR_DASHBOARD_SUPPORTING_METRICS_OPEN_PARAM = "sponsorDashboardSupportingMetricsOpen";
 
 export function parseSponsorDashboardSupportingMetricsOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function sponsorDashboardSupportingMetricsDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(SPONSOR_DASHBOARD_SUPPORTING_METRICS_OPEN_PARAM);
-  } else {
-    params.set(SPONSOR_DASHBOARD_SUPPORTING_METRICS_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, SPONSOR_DASHBOARD_SUPPORTING_METRICS_OPEN_PARAM);
 }

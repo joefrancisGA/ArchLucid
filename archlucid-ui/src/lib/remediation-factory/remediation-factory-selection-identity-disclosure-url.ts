@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const REMEDIATION_FACTORY_SELECTION_IDENTITY_DISCLOSURE_OPEN_PARAM =
   "remediationFactorySelectionIdentityOpen";
 
@@ -18,15 +19,5 @@ export function remediationFactorySelectionIdentityDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(REMEDIATION_FACTORY_SELECTION_IDENTITY_DISCLOSURE_OPEN_PARAM);
-  } else {
-    params.set(REMEDIATION_FACTORY_SELECTION_IDENTITY_DISCLOSURE_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, REMEDIATION_FACTORY_SELECTION_IDENTITY_DISCLOSURE_OPEN_PARAM);
 }

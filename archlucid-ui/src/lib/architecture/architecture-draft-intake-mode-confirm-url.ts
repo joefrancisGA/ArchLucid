@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const ARCHITECTURE_DRAFT_INTAKE_MODE_CONFIRM_PARAM = "intakeModeConfirm";
 export const ARCHITECTURE_DRAFT_INTAKE_MODE_DRAFT_ID_PARAM = "intakeModeDraftId";
 
@@ -29,18 +30,18 @@ export function architectureDraftIntakeModeConfirmHrefFromSearch(
   state: ArchitectureDraftIntakeModeConfirmUrlState,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const draftId = (state.draftId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const draftId = (state.draftId ?? "").trim();
 
-  if (!state.confirmOpen || draftId.length === 0) {
-    params.delete(ARCHITECTURE_DRAFT_INTAKE_MODE_CONFIRM_PARAM);
-    params.delete(ARCHITECTURE_DRAFT_INTAKE_MODE_DRAFT_ID_PARAM);
-  } else {
-    params.set(ARCHITECTURE_DRAFT_INTAKE_MODE_CONFIRM_PARAM, "1");
-    params.set(ARCHITECTURE_DRAFT_INTAKE_MODE_DRAFT_ID_PARAM, draftId);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!state.confirmOpen || draftId.length === 0) {
+      params.delete(ARCHITECTURE_DRAFT_INTAKE_MODE_CONFIRM_PARAM);
+      params.delete(ARCHITECTURE_DRAFT_INTAKE_MODE_DRAFT_ID_PARAM);
+    } else {
+      params.set(ARCHITECTURE_DRAFT_INTAKE_MODE_CONFIRM_PARAM, "1");
+      params.set(ARCHITECTURE_DRAFT_INTAKE_MODE_DRAFT_ID_PARAM, draftId);
+    }
+    },
+  });
 }

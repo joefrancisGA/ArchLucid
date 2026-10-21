@@ -15,17 +15,22 @@ import {
   RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM,
   RESOURCE_HUB_CONTROL_ID_PARAM,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 
 export function remediationWorkbenchHrefFromSearch(
   searchParams: URLSearchParams,
   patch: Partial<InfraEvidenceWorkbenchContext> = {},
 ): string {
+  const hygieneParams = new URLSearchParams(searchParams);
+
+  applyOperatorUrlSelectionSwitch(hygieneParams, { kind: "infra-resource-hub-run-scope" });
+
   const readParam = (key: string, patchValue?: string | null): string => {
     if (patchValue !== undefined) {
       return patchValue?.trim() ?? "";
     }
 
-    return parseInfraEvidenceWorkbenchQueryValue(searchParams.get(key));
+    return parseInfraEvidenceWorkbenchQueryValue(hygieneParams.get(key));
   };
 
   return buildRemediationWorkbenchHref({

@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const POLICY_PACKS_RESOLVED_CONTENT_OPEN_PARAM = "policyPacksResolvedContentOpen";
 
 export function parsePolicyPacksResolvedContentOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function policyPacksResolvedContentDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(POLICY_PACKS_RESOLVED_CONTENT_OPEN_PARAM);
-  } else {
-    params.set(POLICY_PACKS_RESOLVED_CONTENT_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, POLICY_PACKS_RESOLVED_CONTENT_OPEN_PARAM);
 }

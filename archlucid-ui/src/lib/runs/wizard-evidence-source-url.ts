@@ -6,6 +6,7 @@ import {
 import { isAzureExtractorDemoScenarioId } from "@/lib/arch-lucid-azure-extractor-demo-scenarios";
 import type { DemoReviewScenarioId } from "@/lib/arch-lucid-azure-extractor-demo-scenarios";
 import { NEW_RUN_WIZARD_PATH } from "@/lib/runs/quick-family-wizard-step-url";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const WIZARD_EVIDENCE_SOURCE_PARAM = "evidenceSource";
 export const WIZARD_EVIDENCE_DEMO_SCENARIO_PARAM = "demoScenario";
@@ -51,21 +52,21 @@ export function wizardEvidenceSourceHrefFromSearch(
   state: WizardEvidenceSourceUrlState,
   pathname: string = NEW_RUN_WIZARD_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (state.evidenceSourceId === null) {
-    params.delete(WIZARD_EVIDENCE_SOURCE_PARAM);
-  } else {
-    params.set(WIZARD_EVIDENCE_SOURCE_PARAM, state.evidenceSourceId);
-  }
+    if (state.evidenceSourceId === null) {
+      params.delete(WIZARD_EVIDENCE_SOURCE_PARAM);
+    } else {
+      params.set(WIZARD_EVIDENCE_SOURCE_PARAM, state.evidenceSourceId);
+    }
 
-  if (state.demoScenarioId === null) {
-    params.delete(WIZARD_EVIDENCE_DEMO_SCENARIO_PARAM);
-  } else {
-    params.set(WIZARD_EVIDENCE_DEMO_SCENARIO_PARAM, state.demoScenarioId);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (state.demoScenarioId === null) {
+      params.delete(WIZARD_EVIDENCE_DEMO_SCENARIO_PARAM);
+    } else {
+      params.set(WIZARD_EVIDENCE_DEMO_SCENARIO_PARAM, state.demoScenarioId);
+    }
+    },
+  });
 }

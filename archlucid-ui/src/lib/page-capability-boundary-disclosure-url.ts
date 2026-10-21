@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const PAGE_CAPABILITY_BOUNDARY_OPEN_PARAM = "pageCapabilityBoundaryOpen";
 
 export function parsePageCapabilityBoundaryOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function pageCapabilityBoundaryDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(PAGE_CAPABILITY_BOUNDARY_OPEN_PARAM);
-  } else {
-    params.set(PAGE_CAPABILITY_BOUNDARY_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, PAGE_CAPABILITY_BOUNDARY_OPEN_PARAM);
 }

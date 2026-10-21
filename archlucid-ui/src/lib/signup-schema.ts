@@ -135,8 +135,16 @@ export function deriveSignupFormReadinessMessage(values: SignupFormValues): stri
     case "adminEmail":
       return "Enter a valid work email to continue.";
     case "adminDisplayName":
+      if (issueMessage === "Full name contains unsupported characters.") {
+        return "Remove unsupported characters from your full name to continue.";
+      }
+
       return "Enter a full name of at most 200 characters to continue.";
     case "organizationName":
+      if (issueMessage === "Organization name contains unsupported characters.") {
+        return "Remove unsupported characters from the organization name to continue.";
+      }
+
       return "Enter an organization name of at most 200 characters to continue.";
     case "architectureTeamSize":
       return readinessMessageForArchitectureTeamSize(issueMessage);

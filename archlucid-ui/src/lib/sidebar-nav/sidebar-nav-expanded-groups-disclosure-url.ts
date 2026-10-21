@@ -1,5 +1,6 @@
 import type { SidebarCollapsibleNavGroupId } from "@/lib/sidebar-nav-group-expansion-storage";
 import { isSidebarCollapsibleNavGroupId } from "@/lib/sidebar-nav-group-expansion-storage";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const SIDEBAR_NAV_EXPANDED_GROUPS_PARAM = "sidebarNavExpandedGroups";
 
@@ -25,15 +26,15 @@ export function sidebarNavExpandedGroupsDisclosureHrefFromSearch(
   expandedGroupIds: readonly SidebarCollapsibleNavGroupId[],
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (expandedGroupIds.length === 0) {
-    params.delete(SIDEBAR_NAV_EXPANDED_GROUPS_PARAM);
-  } else {
-    params.set(SIDEBAR_NAV_EXPANDED_GROUPS_PARAM, expandedGroupIds.join(","));
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (expandedGroupIds.length === 0) {
+      params.delete(SIDEBAR_NAV_EXPANDED_GROUPS_PARAM);
+    } else {
+      params.set(SIDEBAR_NAV_EXPANDED_GROUPS_PARAM, expandedGroupIds.join(","));
+    }
+    },
+  });
 }

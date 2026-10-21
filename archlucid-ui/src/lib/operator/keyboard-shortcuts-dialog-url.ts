@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const KEYBOARD_SHORTCUTS_OPEN_PARAM = "shortcutsOpen";
 
 export function parseKeyboardShortcutsOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function keyboardShortcutsDialogHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(KEYBOARD_SHORTCUTS_OPEN_PARAM);
-  } else {
-    params.set(KEYBOARD_SHORTCUTS_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, KEYBOARD_SHORTCUTS_OPEN_PARAM);
 }

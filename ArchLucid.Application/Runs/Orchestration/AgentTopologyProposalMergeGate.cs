@@ -1,3 +1,4 @@
+using ArchLucid.Application.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
@@ -28,14 +29,15 @@ public static partial class AgentTopologyProposalMergeGate
             HasAgentProposedTopologyNodes(graph) || inventoriedIdentifiers.Count == 0;
         HashSet<string> accumulatedEndpointKeys = new(relationshipEndpointKeys, StringComparer.OrdinalIgnoreCase);
         List<AgentResult> orderedResults = results
-            .OrderBy(static result => GetMergeOrder(result.AgentType))
+            .OrderBy(static result => GetMergeOrder(AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result)))
             .ToList();
 
         Dictionary<string, AgentResult> sanitizedResultsById = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (AgentResult result in orderedResults)
         {
-            if (!RequiresInventoryOverlayValidation(result.AgentType) || result.ProposedChanges is null)
+            if (!RequiresInventoryOverlayValidation(AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result))
+                || result.ProposedChanges is null)
                 continue;
 
             PreRegisterDeclaredProposalEndpointKeys(
@@ -47,7 +49,8 @@ public static partial class AgentTopologyProposalMergeGate
 
         foreach (AgentResult result in orderedResults)
         {
-            if (!RequiresInventoryOverlayValidation(result.AgentType) || result.ProposedChanges is null)
+            if (!RequiresInventoryOverlayValidation(AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result))
+                || result.ProposedChanges is null)
             {
                 sanitizedResultsById[result.ResultId] = result;
                 continue;

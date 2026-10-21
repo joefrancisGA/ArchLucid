@@ -29,6 +29,8 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     [InlineData("password:super-secret")]
     [InlineData("""password="quoted secret value";other=1""")]
     [InlineData("postgresql://dbuser:dbpass@db.example.com:5432/app")]
+    [InlineData("dbuser:dbpass@db.example.com:5432/app")]
+    [InlineData("https://account.blob.core.windows.net/c;AccountKey=secret")]
     public void Resolve_redacts_embedded_credential_material_delimiter_agnostic_matrix(string effectiveValue)
     {
         AssertRedacts(effectiveValue);
@@ -45,6 +47,13 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     public void Resolve_redacts_embedded_credential_material_when_pwd_pair_is_tab_delimited()
     {
         string effectiveValue = "Server=prod" + '\t' + "Pwd=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_form_feed_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\f' + "Password=secret";
         AssertRedacts(effectiveValue);
     }
 

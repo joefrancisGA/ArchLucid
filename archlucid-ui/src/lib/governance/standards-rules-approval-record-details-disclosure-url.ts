@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const STANDARDS_RULES_APPROVAL_RECORD_DETAILS_OPEN_PARAM = "standardsRulesApprovalRecordDetailsOpen";
 
 export function parseStandardsRulesApprovalRecordDetailsOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function standardsRulesApprovalRecordDetailsDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(STANDARDS_RULES_APPROVAL_RECORD_DETAILS_OPEN_PARAM);
-  } else {
-    params.set(STANDARDS_RULES_APPROVAL_RECORD_DETAILS_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, STANDARDS_RULES_APPROVAL_RECORD_DETAILS_OPEN_PARAM);
 }

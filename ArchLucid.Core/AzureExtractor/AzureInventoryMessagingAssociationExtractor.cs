@@ -34,7 +34,7 @@ public static class AzureInventoryMessagingAssociationExtractor
             && propertiesElement.ValueKind is JsonValueKind.Object
             && propertiesElement.TryGetProperty("captureDescription", out JsonElement captureElement)
             && captureElement.ValueKind is JsonValueKind.Object
-            && IsEnabled(captureElement)
+            && AzureInventoryArmTolerantScalarReader.TryReadBooleanProperty(captureElement, "enabled", defaultWhenMissing: true)
             && captureElement.TryGetProperty("destination", out JsonElement destinationElement)
             && destinationElement.ValueKind is JsonValueKind.Object)
         {
@@ -118,13 +118,4 @@ public static class AzureInventoryMessagingAssociationExtractor
         return value.ValueKind is JsonValueKind.String ? value.GetString() : value.GetRawText().Trim('"');
     }
 
-    private static bool IsEnabled(JsonElement captureElement)
-    {
-        if (!captureElement.TryGetProperty("enabled", out JsonElement enabledElement))
-        {
-            return true;
-        }
-
-        return enabledElement.ValueKind is JsonValueKind.True;
-    }
 }

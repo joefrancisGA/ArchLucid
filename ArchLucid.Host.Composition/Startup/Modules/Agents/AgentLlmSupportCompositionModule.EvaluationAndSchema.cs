@@ -80,6 +80,7 @@ partial class AgentLlmSupportCompositionModule
         services.AddSingleton<HeuristicOnlyAgentOutputSemanticEvaluator>();
         services.AddSingleton<IAgentOutputEvaluationHarness, AgentOutputEvaluationHarness>();
         services.AddSingleton<IValidateOptions<AgentOutputQualityGateOptions>, AgentOutputQualityGateOptionsValidator>();
+        services.AddSingleton<IPostConfigureOptions<AgentOutputQualityGateOptions>, AgentOutputQualityGateOptionsNormalizePostConfigure>();
         services.AddOptions<AgentOutputQualityGateOptions>()
             .Bind(configuration.GetSection(AgentOutputQualityGateOptions.SectionPath))
             .ValidateOnStart();

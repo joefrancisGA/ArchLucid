@@ -1,4 +1,5 @@
 import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 import type { GovernanceAssignedToMeQueueSortKey } from "@/lib/governance/governance-assigned-to-me-queue-sort";
 
 export const GOVERNANCE_ASSIGNED_TO_ME_SORT_PARAM = "sort";
@@ -47,6 +48,8 @@ export function governanceAssignedToMeSortHrefFromSearch(
   pathname: string = GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
 ): string {
   const params = new URLSearchParams(currentSearch);
+
+  applyOperatorUrlSelectionSwitch(params, { kind: "governance-findings-queue-navigation" });
 
   if (sortKey === DEFAULT_GOVERNANCE_ASSIGNED_TO_ME_SORT_KEY) {
     params.delete(GOVERNANCE_ASSIGNED_TO_ME_SORT_PARAM);

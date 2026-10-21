@@ -1,3 +1,4 @@
+using ArchLucid.Application.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
@@ -25,6 +26,8 @@ public static class CrossReviewFindingSourceCoverageBuilder
 
     private static HashSet<AgentType> ToAgentTypeSet(IReadOnlyCollection<AgentResult> results)
     {
-        return results.Select(static result => result.AgentType).ToHashSet();
+        return results
+            .Select(static result => AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result))
+            .ToHashSet();
     }
 }

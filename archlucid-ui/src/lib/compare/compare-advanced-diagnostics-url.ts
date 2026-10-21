@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const COMPARE_ADVANCED_DIAGNOSTICS_OPEN_PARAM = "compareAdvancedDiagnosticsOpen";
 
 export function parseCompareAdvancedDiagnosticsOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function compareAdvancedDiagnosticsHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(COMPARE_ADVANCED_DIAGNOSTICS_OPEN_PARAM);
-  } else {
-    params.set(COMPARE_ADVANCED_DIAGNOSTICS_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, COMPARE_ADVANCED_DIAGNOSTICS_OPEN_PARAM);
 }

@@ -1,5 +1,6 @@
 import type { RemediationPatternRecord } from "@/lib/remediation-pattern-types";
 import { remediationPatternRegistryNeedsAttention } from "@/lib/remediation-pattern-content";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const REMEDIATION_PATTERN_REGISTRY_FILTER_PARAM = "registryFilter" as const;
 
@@ -58,15 +59,15 @@ export function remediationPatternRegistryFilterHrefFromSearch(
   filter: RemediationPatternRegistryFilter,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (filter === REMEDIATION_PATTERN_REGISTRY_FILTERS.all) {
-    params.delete(REMEDIATION_PATTERN_REGISTRY_FILTER_PARAM);
-  } else {
-    params.set(REMEDIATION_PATTERN_REGISTRY_FILTER_PARAM, filter);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (filter === REMEDIATION_PATTERN_REGISTRY_FILTERS.all) {
+      params.delete(REMEDIATION_PATTERN_REGISTRY_FILTER_PARAM);
+    } else {
+      params.set(REMEDIATION_PATTERN_REGISTRY_FILTER_PARAM, filter);
+    }
+    },
+  });
 }

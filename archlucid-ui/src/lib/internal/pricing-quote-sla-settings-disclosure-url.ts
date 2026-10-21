@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const PRICING_QUOTE_SLA_SETTINGS_OPEN_PARAM = "pricingQuoteSlaSettingsOpen";
 
 export function parsePricingQuoteSlaSettingsOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function pricingQuoteSlaSettingsDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(PRICING_QUOTE_SLA_SETTINGS_OPEN_PARAM);
-  } else {
-    params.set(PRICING_QUOTE_SLA_SETTINGS_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, PRICING_QUOTE_SLA_SETTINGS_OPEN_PARAM);
 }

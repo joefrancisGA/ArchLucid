@@ -39,17 +39,17 @@ public sealed class CostConstraintFindingEngine : IFindingEngine
 
             decimal? maxMonthly = null;
 
-            if (!string.IsNullOrWhiteSpace(maxCostStr) && decimal.TryParse(maxCostStr, out decimal mc))
+            if (CostGraphDecimalParser.TryParse(maxCostStr, out decimal mc))
                 maxMonthly = mc;
 
             decimal? lowerBound = null;
 
-            if (!string.IsNullOrWhiteSpace(lowerBoundStr) && decimal.TryParse(lowerBoundStr, out decimal lb))
+            if (CostGraphDecimalParser.TryParse(lowerBoundStr, out decimal lb))
                 lowerBound = lb;
 
             decimal? upperBound = null;
 
-            if (!string.IsNullOrWhiteSpace(upperBoundStr) && decimal.TryParse(upperBoundStr, out decimal ub))
+            if (CostGraphDecimalParser.TryParse(upperBoundStr, out decimal ub))
                 upperBound = ub;
 
             findings.Add(new Finding

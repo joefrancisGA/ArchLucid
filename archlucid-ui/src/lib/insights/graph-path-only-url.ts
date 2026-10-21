@@ -1,4 +1,5 @@
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const GRAPH_PATH_ONLY_PARAM = "pathOnly";
 
@@ -17,15 +18,15 @@ export function graphPathOnlyHrefFromSearch(
   pathOnly: boolean,
   pathname: string = EVIDENCE_GRAPH_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!pathOnly) {
-    params.delete(GRAPH_PATH_ONLY_PARAM);
-  } else {
-    params.set(GRAPH_PATH_ONLY_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!pathOnly) {
+      params.delete(GRAPH_PATH_ONLY_PARAM);
+    } else {
+      params.set(GRAPH_PATH_ONLY_PARAM, "1");
+    }
+    },
+  });
 }

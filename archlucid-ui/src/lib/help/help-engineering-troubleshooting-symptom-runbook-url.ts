@@ -1,6 +1,7 @@
 import {
   helpEngineeringTroubleshootingMarkdownSectionDisclosureHrefFromSearch,
 } from "@/lib/help/help-engineering-troubleshooting-markdown-section-disclosure-url";
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 
 /** Deep-link a symptom row to an expanded markdown section (hash + disclosure param). */
 export function helpEngineeringTroubleshootingSymptomRunbookHrefFromSearch(
@@ -14,8 +15,12 @@ export function helpEngineeringTroubleshootingSymptomRunbookHrefFromSearch(
     return pathname;
   }
 
+  const hygieneParams = new URLSearchParams(currentSearch);
+
+  applyOperatorUrlSelectionSwitch(hygieneParams, { kind: "disclosure-only" });
+
   const base = helpEngineeringTroubleshootingMarkdownSectionDisclosureHrefFromSearch(
-    currentSearch,
+    hygieneParams.toString(),
     trimmed,
     pathname,
   );

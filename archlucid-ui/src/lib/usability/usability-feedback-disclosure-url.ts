@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const USABILITY_FEEDBACK_OPEN_PARAM = "usabilityFeedbackOpen";
 
 export function parseUsabilityFeedbackOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function usabilityFeedbackDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(USABILITY_FEEDBACK_OPEN_PARAM);
-  } else {
-    params.set(USABILITY_FEEDBACK_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, USABILITY_FEEDBACK_OPEN_PARAM);
 }

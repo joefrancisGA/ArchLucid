@@ -78,6 +78,7 @@ public sealed partial class GovernanceStickinessController
     [ProducesResponseType(typeof(IReadOnlyList<ArchitectureReviewRecurrenceSchedule>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    [RequiresGovernanceScopePostureSealedManifest("Recurrence schedules reference committed source runs.")]
     public async Task<IActionResult> ListRecurrenceSchedules(CancellationToken cancellationToken = default)
     {
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
@@ -85,10 +86,23 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? sealedGuardResult =
+            await EnsureRegistersSealedManifestAllowedAsync(null, cancellationToken).ConfigureAwait(false);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         try
         {
             IReadOnlyList<ArchitectureReviewRecurrenceSchedule> schedules =
                 await _facade.ListRecurrenceSchedulesAsync(cancellationToken);
+
+            IActionResult? sourceRunGuard = await EnsureRegisterRunsSealedManifestAllowedAsync(
+                schedules.Select(static schedule => (Guid?)schedule.SourceRunId),
+                cancellationToken).ConfigureAwait(false);
+
+            if (sourceRunGuard is not null)
+                return sourceRunGuard;
 
             return Ok(schedules);
         }

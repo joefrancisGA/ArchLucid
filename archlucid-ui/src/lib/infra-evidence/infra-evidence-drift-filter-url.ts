@@ -24,6 +24,7 @@ import {
   RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM,
   RESOURCE_HUB_CONTROL_ID_PARAM,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 
 function readDriftWorkbenchParam(
   searchParams: URLSearchParams,
@@ -81,6 +82,8 @@ export function driftWorkbenchHrefFromSearch(
   snapshotTableParams.forEach((value, key) => {
     merged.set(key, value);
   });
+
+  applyOperatorUrlSelectionSwitch(merged, { kind: "infra-resource-hub-run-scope" });
 
   const query = merged.toString();
 

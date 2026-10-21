@@ -1,4 +1,5 @@
 import { SETTINGS_WORKSPACE_SETTINGS_PATH } from "@/lib/settings-admin-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const TENANT_SETTINGS_QUALITY_ADVANCED_OPEN_PARAM = "settingsQualityAdvancedOpen";
 
@@ -17,15 +18,15 @@ export function tenantSettingsQualityAdvancedHrefFromSearch(
   open: boolean,
   pathname: string = SETTINGS_WORKSPACE_SETTINGS_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!open) {
-    params.delete(TENANT_SETTINGS_QUALITY_ADVANCED_OPEN_PARAM);
-  } else {
-    params.set(TENANT_SETTINGS_QUALITY_ADVANCED_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!open) {
+      params.delete(TENANT_SETTINGS_QUALITY_ADVANCED_OPEN_PARAM);
+    } else {
+      params.set(TENANT_SETTINGS_QUALITY_ADVANCED_OPEN_PARAM, "1");
+    }
+    },
+  });
 }

@@ -1,4 +1,5 @@
 import type { DiagramEvidenceCitation } from "@/lib/findings/diagram-evidence-citation";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const FINDING_INSPECT_DIAGRAM_CITATION_PREVIEW_PARAM = "diagramCitationPreview";
 
@@ -43,15 +44,15 @@ export function findingInspectDiagramCitationPreviewHrefFromSearch(
   citation: DiagramEvidenceCitation | null,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (citation === null) {
-    params.delete(FINDING_INSPECT_DIAGRAM_CITATION_PREVIEW_PARAM);
-  } else {
-    params.set(FINDING_INSPECT_DIAGRAM_CITATION_PREVIEW_PARAM, encodeDiagramCitationPreviewParam(citation));
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (citation === null) {
+      params.delete(FINDING_INSPECT_DIAGRAM_CITATION_PREVIEW_PARAM);
+    } else {
+      params.set(FINDING_INSPECT_DIAGRAM_CITATION_PREVIEW_PARAM, encodeDiagramCitationPreviewParam(citation));
+    }
+    },
+  });
 }

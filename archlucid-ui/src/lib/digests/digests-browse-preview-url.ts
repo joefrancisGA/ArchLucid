@@ -1,4 +1,5 @@
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const DIGESTS_BROWSE_PREVIEW_PARAM = "preview";
 
@@ -21,15 +22,15 @@ export function digestsBrowsePreviewHrefFromSearch(
   previewOpen: boolean,
   pathname: string = DIGESTS_HUB_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (previewOpen) {
-    params.delete(DIGESTS_BROWSE_PREVIEW_PARAM);
-  } else {
-    params.set(DIGESTS_BROWSE_PREVIEW_PARAM, "0");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (previewOpen) {
+      params.delete(DIGESTS_BROWSE_PREVIEW_PARAM);
+    } else {
+      params.set(DIGESTS_BROWSE_PREVIEW_PARAM, "0");
+    }
+    },
+  });
 }

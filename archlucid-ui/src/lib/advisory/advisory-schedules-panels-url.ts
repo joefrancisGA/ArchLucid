@@ -1,4 +1,5 @@
 import { GOVERNANCE_ADVISORY_SCANS_PATH } from "@/lib/governance/governance-route-paths";
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 
 export const ADVISORY_SCHEDULES_CREATE_PARAM = "create";
 export const ADVISORY_SCHEDULES_HISTORY_PARAM = "history";
@@ -42,6 +43,7 @@ export function advisorySchedulesPanelsHrefFromSearch(
   pathname: string = GOVERNANCE_ADVISORY_SCANS_PATH,
 ): string {
   const params = new URLSearchParams(currentSearch);
+  applyOperatorUrlSelectionSwitch(params, { kind: "disclosure-only" });
 
   if (patch.showCreatePanel !== undefined) {
     if (!patch.showCreatePanel) {

@@ -34,7 +34,7 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
         if (fileName.Length == 0)
             return fileName;
 
-        fileName = DecodePercentEncodedSlashes(fileName);
+        fileName = DecodePercentEncodedFileNameTokens(fileName);
         fileName = fileName.Replace('\\', '/');
 
         while (fileName.StartsWith("./", StringComparison.Ordinal))
@@ -107,14 +107,18 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
         return content;
     }
 
-    private static string DecodePercentEncodedSlashes(string fileName)
+    private static string DecodePercentEncodedFileNameTokens(string fileName)
     {
         string decoded = fileName;
 
-        while (decoded.Contains("%2F", StringComparison.Ordinal) || decoded.Contains("%2f", StringComparison.Ordinal))
+        while (decoded.Contains('%', StringComparison.Ordinal))
         {
-            decoded = decoded.Replace("%2F", "/", StringComparison.Ordinal);
-            decoded = decoded.Replace("%2f", "/", StringComparison.Ordinal);
+            string next = Uri.UnescapeDataString(decoded);
+
+            if (string.Equals(next, decoded, StringComparison.Ordinal))
+                break;
+
+            decoded = next;
         }
 
         return decoded;

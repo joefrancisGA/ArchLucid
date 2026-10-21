@@ -1,5 +1,6 @@
 import type { ProvenanceViewMode } from "@/components/provenance/ProvenanceViewModeSwitcher";
 import type { ProvenanceNodeFilterCategory } from "@/lib/provenance-node-presentation";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const PROVENANCE_VIEW_PARAM = "view";
 export const PROVENANCE_CATEGORY_PARAM = "category";
@@ -55,17 +56,17 @@ export function provenanceViewModeHrefFromSearch(
   viewMode: ProvenanceViewMode,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (viewMode === DEFAULT_PROVENANCE_VIEW_MODE) {
-    params.delete(PROVENANCE_VIEW_PARAM);
-  } else {
-    params.set(PROVENANCE_VIEW_PARAM, viewMode);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (viewMode === DEFAULT_PROVENANCE_VIEW_MODE) {
+      params.delete(PROVENANCE_VIEW_PARAM);
+    } else {
+      params.set(PROVENANCE_VIEW_PARAM, viewMode);
+    }
+    },
+  });
 }
 
 export function provenanceCategoryHrefFromSearch(
@@ -73,17 +74,17 @@ export function provenanceCategoryHrefFromSearch(
   category: ProvenanceNodeFilterCategory | null,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (category === null) {
-    params.delete(PROVENANCE_CATEGORY_PARAM);
-  } else {
-    params.set(PROVENANCE_CATEGORY_PARAM, category);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (category === null) {
+      params.delete(PROVENANCE_CATEGORY_PARAM);
+    } else {
+      params.set(PROVENANCE_CATEGORY_PARAM, category);
+    }
+    },
+  });
 }
 
 export function parseProvenanceTableSearchQueryFromSearch(raw: string | null | undefined): string {
@@ -107,18 +108,18 @@ export function provenanceTableSearchHrefFromSearch(
   query: string,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = query.trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = query.trim();
 
-  if (trimmed.length === 0) {
-    params.delete(PROVENANCE_TABLE_SEARCH_PARAM);
-  } else {
-    params.set(PROVENANCE_TABLE_SEARCH_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(PROVENANCE_TABLE_SEARCH_PARAM);
+    } else {
+      params.set(PROVENANCE_TABLE_SEARCH_PARAM, trimmed);
+    }
+    },
+  });
 }
 
 export function provenanceTableNodeTypeHrefFromSearch(
@@ -126,18 +127,18 @@ export function provenanceTableNodeTypeHrefFromSearch(
   nodeType: string,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = nodeType.trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = nodeType.trim();
 
-  if (trimmed.length === 0) {
-    params.delete(PROVENANCE_TABLE_NODE_TYPE_PARAM);
-  } else {
-    params.set(PROVENANCE_TABLE_NODE_TYPE_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(PROVENANCE_TABLE_NODE_TYPE_PARAM);
+    } else {
+      params.set(PROVENANCE_TABLE_NODE_TYPE_PARAM, trimmed);
+    }
+    },
+  });
 }
 
 export function parseProvenanceTableEdgeSearchQueryFromSearch(raw: string | null | undefined): string {
@@ -153,16 +154,16 @@ export function provenanceTableEdgeSearchHrefFromSearch(
   query: string,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = query.trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = query.trim();
 
-  if (trimmed.length === 0) {
-    params.delete(PROVENANCE_TABLE_EDGE_SEARCH_PARAM);
-  } else {
-    params.set(PROVENANCE_TABLE_EDGE_SEARCH_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(PROVENANCE_TABLE_EDGE_SEARCH_PARAM);
+    } else {
+      params.set(PROVENANCE_TABLE_EDGE_SEARCH_PARAM, trimmed);
+    }
+    },
+  });
 }

@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Core.Requests;
 
 namespace ArchLucid.Decisioning.Findings;
 
@@ -19,10 +20,10 @@ public static class PolicyPackRequiredFindingCategoryResolver
             if (string.IsNullOrWhiteSpace(packId))
                 continue;
 
-            if (packId.Contains("security", StringComparison.OrdinalIgnoreCase))
+            if (ControlPhraseMatcher.IdentifierMentionsQualityDimension(packId, ControlPhraseCatalog.Security))
                 categories.Add("Security");
 
-            if (packId.Contains("cost", StringComparison.OrdinalIgnoreCase))
+            if (ControlPhraseMatcher.IdentifierMentionsQualityDimension(packId, ControlPhraseCatalog.Cost))
                 categories.Add("Cost");
 
             if (packId.Contains("requirement", StringComparison.OrdinalIgnoreCase))

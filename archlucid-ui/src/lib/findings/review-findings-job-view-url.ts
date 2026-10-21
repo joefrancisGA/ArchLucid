@@ -4,6 +4,7 @@ import {
   type FindingJobView,
 } from "@/lib/findings/finding-job-view";
 import { REVIEW_DETAIL_TAB_PARAM } from "@/lib/review-detail-workspace-tabs";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 /** Query param for findings workspace job-view filter (TB-2179 deep links). */
 export const REVIEW_FINDINGS_JOB_VIEW_PARAM = "findingJobView";
@@ -68,15 +69,15 @@ export function reviewFindingsJobViewHrefFromSearch(
   pathname: string,
   jobView: FindingJobView,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (jobView === DEFAULT_FINDING_JOB_VIEW) {
-    params.delete(REVIEW_FINDINGS_JOB_VIEW_PARAM);
-  } else {
-    params.set(REVIEW_FINDINGS_JOB_VIEW_PARAM, jobView);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (jobView === DEFAULT_FINDING_JOB_VIEW) {
+      params.delete(REVIEW_FINDINGS_JOB_VIEW_PARAM);
+    } else {
+      params.set(REVIEW_FINDINGS_JOB_VIEW_PARAM, jobView);
+    }
+    },
+  });
 }

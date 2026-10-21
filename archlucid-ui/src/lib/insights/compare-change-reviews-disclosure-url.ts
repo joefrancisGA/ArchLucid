@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const COMPARE_CHANGE_REVIEWS_OPEN_PARAM = "compareChangeReviewsOpen";
 
 export function parseCompareChangeReviewsOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function compareChangeReviewsDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(COMPARE_CHANGE_REVIEWS_OPEN_PARAM);
-  } else {
-    params.set(COMPARE_CHANGE_REVIEWS_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, COMPARE_CHANGE_REVIEWS_OPEN_PARAM);
 }

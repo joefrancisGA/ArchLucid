@@ -1,4 +1,5 @@
 import { GOVERNANCE_ALERTS_PATH } from "@/lib/governance/governance-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const ALERTS_INBOX_BULK_PARAM = "bulkAlerts";
 export const ALERTS_INBOX_LOOP_PARAM = "alertLoopId";
@@ -72,33 +73,33 @@ export function alertsInboxBatchSelectionHrefFromSearch(
   state: AlertsInboxBatchSelectionUrlState,
   pathname: string = GOVERNANCE_ALERTS_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const bulkIds = state.bulkAlertIds.map((id) => id.trim()).filter((id) => id.length > 0);
-  const loopId = (state.actionLoopAlertId ?? "").trim();
-  const actionAlertId = (state.pendingActionAlertId ?? "").trim();
-  const actionKind = state.pendingActionKind;
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const bulkIds = state.bulkAlertIds.map((id) => id.trim()).filter((id) => id.length > 0);
+    const loopId = (state.actionLoopAlertId ?? "").trim();
+    const actionAlertId = (state.pendingActionAlertId ?? "").trim();
+    const actionKind = state.pendingActionKind;
 
-  if (bulkIds.length === 0) {
-    params.delete(ALERTS_INBOX_BULK_PARAM);
-  } else {
-    params.set(ALERTS_INBOX_BULK_PARAM, bulkIds.join(","));
-  }
+    if (bulkIds.length === 0) {
+      params.delete(ALERTS_INBOX_BULK_PARAM);
+    } else {
+      params.set(ALERTS_INBOX_BULK_PARAM, bulkIds.join(","));
+    }
 
-  if (loopId.length === 0) {
-    params.delete(ALERTS_INBOX_LOOP_PARAM);
-  } else {
-    params.set(ALERTS_INBOX_LOOP_PARAM, loopId);
-  }
+    if (loopId.length === 0) {
+      params.delete(ALERTS_INBOX_LOOP_PARAM);
+    } else {
+      params.set(ALERTS_INBOX_LOOP_PARAM, loopId);
+    }
 
-  if (actionAlertId.length === 0 || actionKind === null) {
-    params.delete(ALERTS_INBOX_ACTION_ALERT_PARAM);
-    params.delete(ALERTS_INBOX_ACTION_KIND_PARAM);
-  } else {
-    params.set(ALERTS_INBOX_ACTION_ALERT_PARAM, actionAlertId);
-    params.set(ALERTS_INBOX_ACTION_KIND_PARAM, actionKind);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (actionAlertId.length === 0 || actionKind === null) {
+      params.delete(ALERTS_INBOX_ACTION_ALERT_PARAM);
+      params.delete(ALERTS_INBOX_ACTION_KIND_PARAM);
+    } else {
+      params.set(ALERTS_INBOX_ACTION_ALERT_PARAM, actionAlertId);
+      params.set(ALERTS_INBOX_ACTION_KIND_PARAM, actionKind);
+    }
+    },
+  });
 }

@@ -1,5 +1,6 @@
 import { GOVERNANCE_ALERT_RULES_PATH } from "@/lib/governance/governance-route-paths";
 import type { AlertSimulationModeTabId } from "@/lib/alert-simulation-form";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const ALERT_SIMULATION_MODE_PARAM = "simMode";
 
@@ -24,15 +25,15 @@ export function alertSimulationModeHrefFromSearch(
   mode: AlertSimulationModeTabId,
   pathname: string = GOVERNANCE_ALERT_RULES_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (mode === "simple") {
-    params.delete(ALERT_SIMULATION_MODE_PARAM);
-  } else {
-    params.set(ALERT_SIMULATION_MODE_PARAM, mode);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (mode === "simple") {
+      params.delete(ALERT_SIMULATION_MODE_PARAM);
+    } else {
+      params.set(ALERT_SIMULATION_MODE_PARAM, mode);
+    }
+    },
+  });
 }

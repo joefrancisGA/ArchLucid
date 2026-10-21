@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const RUN_ID_PICKER_OPEN_FIELD_PARAM = "runPickerField";
 export const RUN_ID_PICKER_QUERY_PARAM = "runPickerQ";
 
@@ -28,24 +29,24 @@ export function runIdPickerOverlayHrefFromSearch(
   state: RunIdPickerOverlayUrlState,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const fieldId = state.fieldId.trim();
-  const query = state.query.trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const fieldId = state.fieldId.trim();
+    const query = state.query.trim();
 
-  if (!state.open || fieldId.length === 0) {
-    params.delete(RUN_ID_PICKER_OPEN_FIELD_PARAM);
-    params.delete(RUN_ID_PICKER_QUERY_PARAM);
-  } else {
-    params.set(RUN_ID_PICKER_OPEN_FIELD_PARAM, fieldId);
-
-    if (query.length === 0) {
+    if (!state.open || fieldId.length === 0) {
+      params.delete(RUN_ID_PICKER_OPEN_FIELD_PARAM);
       params.delete(RUN_ID_PICKER_QUERY_PARAM);
     } else {
-      params.set(RUN_ID_PICKER_QUERY_PARAM, query);
+      params.set(RUN_ID_PICKER_OPEN_FIELD_PARAM, fieldId);
+
+      if (query.length === 0) {
+        params.delete(RUN_ID_PICKER_QUERY_PARAM);
+      } else {
+        params.set(RUN_ID_PICKER_QUERY_PARAM, query);
+      }
     }
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    },
+  });
 }

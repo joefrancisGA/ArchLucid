@@ -17,6 +17,7 @@ import { reviewFindingsToolbarSortHrefFromSearch } from "@/lib/findings/review-f
 import { reviewFindingsVisibilityHrefFromSearch } from "@/lib/findings/review-findings-visibility-url";
 
 import type { ReviewFindingsLastVisitV1 } from "./review-findings-last-visit-storage";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM = "findingsBand";
 
@@ -35,17 +36,17 @@ export function reviewFindingsClassificationBandHrefFromSearch(
   pathname: string,
   band: ReviewFindingsClassificationBandId,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (band === "decision-grade") {
-    params.delete(REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM);
-  } else {
-    params.set(REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM, band);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (band === "decision-grade") {
+      params.delete(REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM);
+    } else {
+      params.set(REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM, band);
+    }
+    },
+  });
 }
 
 export function buildReviewFindingsLastVisitHref(

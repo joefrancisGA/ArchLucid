@@ -1,3 +1,4 @@
+using ArchLucid.Core.Billing;
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Persistence.Billing;
 using ArchLucid.Persistence.Billing.Stripe;
@@ -35,12 +36,15 @@ internal static class StripeBillingProviderTestSupport
                 .Returns(Task.CompletedTask);
         }
 
+        IStripeLinkedCustomerResolver linkedCustomerResolver = new StripeLinkedCustomerResolver(ledger.Object, monitor);
+
         return new StripeBillingProvider(
             monitor,
             ledger.Object,
             replayGuardMock.Object,
             subscriptionProcessor,
             walletProcessor.Object,
-            walletRepository.Object);
+            walletRepository.Object,
+            linkedCustomerResolver);
     }
 }

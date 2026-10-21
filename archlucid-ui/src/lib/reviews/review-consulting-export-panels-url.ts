@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const REVIEW_CONSULTING_EXPORT_OPEN_PARAM = "consultingExportOpen";
 
 export function parseReviewConsultingExportOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function reviewConsultingExportPanelsHrefFromSearch(
   exportOpen: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!exportOpen) {
-    params.delete(REVIEW_CONSULTING_EXPORT_OPEN_PARAM);
-  } else {
-    params.set(REVIEW_CONSULTING_EXPORT_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, exportOpen, pathname, REVIEW_CONSULTING_EXPORT_OPEN_PARAM);
 }

@@ -10,6 +10,7 @@ import { GOVERNANCE_FINDINGS_BULK_PARAM } from "@/lib/governance/governance-find
 import { GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM } from "@/lib/governance/governance-findings-resource-group-disclosure-url";
 import { governanceFindingsHideGenericHrefFromSearch } from "@/lib/governance/governance-findings-hide-generic-url";
 import { REVIEW_FINDINGS_JOB_VIEW_PARAM } from "@/lib/findings/review-findings-job-view-url";
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 
 /** Clears register, facet, search, and bulk-selection params while preserving review/architecture scope. */
 export function governanceFindingsClearAllFiltersHref(
@@ -17,6 +18,7 @@ export function governanceFindingsClearAllFiltersHref(
   pathname: string,
 ): string {
   const params = new URLSearchParams(currentSearch);
+  applyOperatorUrlSelectionSwitch(params, { kind: "governance-findings-queue-navigation" });
 
   params.delete("filter");
   params.delete(GOVERNANCE_FINDINGS_SEARCH_PARAM);

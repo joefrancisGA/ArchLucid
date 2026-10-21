@@ -1125,6 +1125,29 @@ public sealed class DigestEmailDispatcherIdempotencyTests
     }
 
     [Fact]
+    public async Task WeeklySponsorReportEmailDispatcher_throws_for_iso_week_key_with_embedded_line_break()
+    {
+        WeeklySponsorReportEmailDispatcher sut = new(
+            Mock.Of<IEmailTemplateRenderer>(),
+            Mock.Of<IEmailProvider>(),
+            Mock.Of<ISentEmailLedger>(),
+            Mock.Of<IOptionsMonitor<EmailNotificationOptions>>(),
+            NullLogger<WeeklySponsorReportEmailDispatcher>.Instance);
+
+        Func<Task> act = () => sut.TryDispatchAsync(
+            Guid.Parse("24242424-2424-2424-2424-242424242424"),
+            "2026-W22\r\nBcc: injected",
+            runIdHex: "a1b2c3d4",
+            summaryMarkdown: "summary",
+            runDetailUrl: "https://example.test/runs/a1b2c3d4",
+            weekLabel: "W22",
+            toMailboxes: ["exec@example.test"],
+            cancellationToken: CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>().WithParameterName("isoWeekIdempotencyKey");
+    }
+
+    [Fact]
     public async Task WeeklySponsorReportEmailDispatcher_omits_logo_when_operator_base_url_is_scheme_only()
     {
         WeeklySponsorReportEmailModel? capturedModel = null;
@@ -1952,6 +1975,29 @@ public sealed class DigestEmailDispatcherIdempotencyTests
             summaryMarkdown: "summary",
             runDetailUrl: "https://example.test/runs/a1b2c3d4",
             weekLabel: "W29",
+            toMailboxes: ["exec@example.test"],
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>().WithParameterName("isoWeekIdempotencyKey");
+    }
+
+    [Fact]
+    public async Task WeeklySponsorSummaryEmailDispatcher_throws_for_iso_week_key_with_embedded_line_break()
+    {
+        WeeklySponsorSummaryEmailDispatcher sut = new(
+            Mock.Of<IEmailTemplateRenderer>(),
+            Mock.Of<IEmailProvider>(),
+            Mock.Of<ISentEmailLedger>(),
+            Mock.Of<IOptionsMonitor<EmailNotificationOptions>>(),
+            NullLogger<WeeklySponsorSummaryEmailDispatcher>.Instance);
+
+        Func<Task> act = () => sut.TryDispatchAsync(
+            Guid.Parse("29292929-2929-2929-2929-292929292929"),
+            "2026-W23\u2028injected",
+            runIdHex: "a1b2c3d4",
+            summaryMarkdown: "summary",
+            runDetailUrl: "https://example.test/runs/a1b2c3d4",
+            weekLabel: "W23",
             toMailboxes: ["exec@example.test"],
             CancellationToken.None);
 

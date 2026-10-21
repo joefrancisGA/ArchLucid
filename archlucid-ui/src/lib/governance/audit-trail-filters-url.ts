@@ -1,4 +1,5 @@
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const AUDIT_TRAIL_ACTION_PARAM = "action";
 export const AUDIT_TRAIL_ACTOR_PARAM = "actor";
@@ -33,18 +34,18 @@ export function auditTrailActionHrefFromSearch(
   action: string,
   pathname: string = GOVERNANCE_AUDIT_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = action.trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = action.trim();
 
-  if (trimmed.length === 0) {
-    params.delete(AUDIT_TRAIL_ACTION_PARAM);
-  } else {
-    params.set(AUDIT_TRAIL_ACTION_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(AUDIT_TRAIL_ACTION_PARAM);
+    } else {
+      params.set(AUDIT_TRAIL_ACTION_PARAM, trimmed);
+    }
+    },
+  });
 }
 
 export function auditTrailActorHrefFromSearch(
@@ -52,18 +53,18 @@ export function auditTrailActorHrefFromSearch(
   actor: string,
   pathname: string = GOVERNANCE_AUDIT_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = actor.trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = actor.trim();
 
-  if (trimmed.length === 0) {
-    params.delete(AUDIT_TRAIL_ACTOR_PARAM);
-  } else {
-    params.set(AUDIT_TRAIL_ACTOR_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(AUDIT_TRAIL_ACTOR_PARAM);
+    } else {
+      params.set(AUDIT_TRAIL_ACTOR_PARAM, trimmed);
+    }
+    },
+  });
 }
 
 export function auditTrailSearchHrefFromSearch(
@@ -71,18 +72,18 @@ export function auditTrailSearchHrefFromSearch(
   query: string,
   pathname: string = GOVERNANCE_AUDIT_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = query.trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = query.trim();
 
-  if (trimmed.length === 0) {
-    params.delete(AUDIT_TRAIL_SEARCH_PARAM);
-  } else {
-    params.set(AUDIT_TRAIL_SEARCH_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(AUDIT_TRAIL_SEARCH_PARAM);
+    } else {
+      params.set(AUDIT_TRAIL_SEARCH_PARAM, trimmed);
+    }
+    },
+  });
 }
 
 export function auditTrailClearSearchHrefFromSearch(
@@ -96,13 +97,13 @@ export function auditTrailClearFiltersHrefFromSearch(
   currentSearch: string,
   pathname: string = GOVERNANCE_AUDIT_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  params.delete(AUDIT_TRAIL_ACTION_PARAM);
-  params.delete(AUDIT_TRAIL_ACTOR_PARAM);
-  params.delete(AUDIT_TRAIL_SEARCH_PARAM);
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    params.delete(AUDIT_TRAIL_ACTION_PARAM);
+    params.delete(AUDIT_TRAIL_ACTOR_PARAM);
+    params.delete(AUDIT_TRAIL_SEARCH_PARAM);
+    },
+  });
 }

@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const WORKSPACE_MODE_GRADUATION_OFFER_OPEN_PARAM = "graduationOfferOpen";
 
 export function parseWorkspaceModeGraduationOfferOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,17 +16,7 @@ export function workspaceModeGraduationOfferPanelsHrefFromSearch(
   offerOpen: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!offerOpen) {
-    params.delete(WORKSPACE_MODE_GRADUATION_OFFER_OPEN_PARAM);
-  } else {
-    params.set(WORKSPACE_MODE_GRADUATION_OFFER_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, offerOpen, pathname, WORKSPACE_MODE_GRADUATION_OFFER_OPEN_PARAM);
 }
 
 /** True when the current query already encodes `offerOpen` — skip a no-op App Router replace. */

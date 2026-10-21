@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const HEALTH_CHECK_TECHNICAL_ID_PARAM = "healthCheckTechnicalId";
 
 export function parseHealthCheckTechnicalIdFromSearch(raw: string | null | undefined): string {
@@ -13,16 +14,16 @@ export function healthCheckTechnicalDisclosureHrefFromSearch(
   checkId: string | null,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = (checkId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = (checkId ?? "").trim();
 
-  if (trimmed.length === 0) {
-    params.delete(HEALTH_CHECK_TECHNICAL_ID_PARAM);
-  } else {
-    params.set(HEALTH_CHECK_TECHNICAL_ID_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(HEALTH_CHECK_TECHNICAL_ID_PARAM);
+    } else {
+      params.set(HEALTH_CHECK_TECHNICAL_ID_PARAM, trimmed);
+    }
+    },
+  });
 }

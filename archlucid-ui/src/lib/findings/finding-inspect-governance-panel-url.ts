@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const FINDING_INSPECT_GOV_PANEL_PARAM = "govPanel";
 export const FINDING_INSPECT_WAIVER_CONFIRM_PARAM = "waiverConfirm";
 export const FINDING_INSPECT_WAIVER_REVOKE_CONFIRM_PARAM = "waiverRevokeConfirm";
@@ -55,27 +56,27 @@ export function findingInspectGovernancePanelHrefFromSearch(
   state: FindingInspectGovernancePanelUrlState,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (state.panel === null) {
-    params.delete(FINDING_INSPECT_GOV_PANEL_PARAM);
-  } else {
-    params.set(FINDING_INSPECT_GOV_PANEL_PARAM, state.panel);
-  }
+    if (state.panel === null) {
+      params.delete(FINDING_INSPECT_GOV_PANEL_PARAM);
+    } else {
+      params.set(FINDING_INSPECT_GOV_PANEL_PARAM, state.panel);
+    }
 
-  if (!state.waiverConfirmOpen) {
-    params.delete(FINDING_INSPECT_WAIVER_CONFIRM_PARAM);
-  } else {
-    params.set(FINDING_INSPECT_WAIVER_CONFIRM_PARAM, "1");
-  }
+    if (!state.waiverConfirmOpen) {
+      params.delete(FINDING_INSPECT_WAIVER_CONFIRM_PARAM);
+    } else {
+      params.set(FINDING_INSPECT_WAIVER_CONFIRM_PARAM, "1");
+    }
 
-  if (!state.waiverRevokeConfirmOpen) {
-    params.delete(FINDING_INSPECT_WAIVER_REVOKE_CONFIRM_PARAM);
-  } else {
-    params.set(FINDING_INSPECT_WAIVER_REVOKE_CONFIRM_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!state.waiverRevokeConfirmOpen) {
+      params.delete(FINDING_INSPECT_WAIVER_REVOKE_CONFIRM_PARAM);
+    } else {
+      params.set(FINDING_INSPECT_WAIVER_REVOKE_CONFIRM_PARAM, "1");
+    }
+    },
+  });
 }

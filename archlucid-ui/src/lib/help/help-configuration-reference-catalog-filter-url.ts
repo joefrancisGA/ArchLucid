@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const HELP_CONFIGURATION_REFERENCE_CATALOG_FILTER_PARAM = "helpConfigurationReferenceCatalogFilter";
 
 export function parseHelpConfigurationReferenceCatalogFilterFromSearch(
@@ -15,16 +16,16 @@ export function helpConfigurationReferenceCatalogFilterHrefFromSearch(
   filterQuery: string,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const trimmed = filterQuery.trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const trimmed = filterQuery.trim();
 
-  if (trimmed.length === 0) {
-    params.delete(HELP_CONFIGURATION_REFERENCE_CATALOG_FILTER_PARAM);
-  } else {
-    params.set(HELP_CONFIGURATION_REFERENCE_CATALOG_FILTER_PARAM, trimmed);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (trimmed.length === 0) {
+      params.delete(HELP_CONFIGURATION_REFERENCE_CATALOG_FILTER_PARAM);
+    } else {
+      params.set(HELP_CONFIGURATION_REFERENCE_CATALOG_FILTER_PARAM, trimmed);
+    }
+    },
+  });
 }

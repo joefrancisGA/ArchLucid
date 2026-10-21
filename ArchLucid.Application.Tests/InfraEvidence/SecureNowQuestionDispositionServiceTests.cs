@@ -1,5 +1,8 @@
+using ArchLucid.Application.InfraEvidence.Mermaid;
 using ArchLucid.Application.InfraEvidence.SecureNowQuestionDispositions;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -481,6 +484,48 @@ public async Task Foreign_snapshot_cannot_read_or_write()
     }
 
     [Fact]
+    public async Task Subscription_scope_pack_question_accepts_empty_resource_id_on_answer()
+    {
+        InMemoryDispositionRepository repository = new();
+        SecureNowQuestionDispositionService sut = CreateSut(
+            repository,
+            includeInventoryQuestion: false,
+            includePackElicitation: true);
+
+        IReadOnlyList<SecureNowQuestionRecord> listed =
+            await sut.ListQuestionsAsync(Scope, SnapshotId);
+        SecureNowQuestionRecord packQuestion = listed.Should().ContainSingle().Subject;
+        packQuestion.ScopeKind.Should().Be(SecureNowQuestionScopeKind.Subscription);
+        packQuestion.ResourceId.Should().BeEmpty();
+
+        SecureNowQuestionDispositionMutationResult answered = await sut.AnswerAsync(
+            Scope,
+            SnapshotId,
+            new SecureNowQuestionDispositionWriteRequest
+            {
+                SubscriptionId = "sub-1",
+                ResourceId = string.Empty,
+                QuestionKey = packQuestion.QuestionKey,
+                Source = SecureNowQuestionSource.PolicyPack,
+                ScopeKind = SecureNowQuestionScopeKind.Subscription,
+                AnswerCode = packQuestion.AnswerCodes[0],
+                AnswerText = packQuestion.AnswerCodes[0],
+                Reason = "Pack elicitation reviewed.",
+                EvidenceFingerprint = packQuestion.EvidenceFingerprint,
+            },
+            "actor");
+
+        answered.Succeeded.Should().BeTrue();
+        answered.Record!.ResourceId.Should().Be("sub-1");
+
+        IReadOnlyList<SecureNowQuestionRecord> afterAnswer =
+            await sut.ListQuestionsAsync(Scope, SnapshotId);
+        afterAnswer.Should().ContainSingle();
+        afterAnswer[0].Status.Should().Be(SecureNowQuestionDispositionStatus.Answered);
+        afterAnswer[0].AnswerCode.Should().Be(packQuestion.AnswerCodes[0]);
+    }
+
+    [Fact]
     public async Task Inventory_answer_does_not_depend_on_inferred_connection_availability()
     {
         InMemoryDispositionRepository repository = new();
@@ -513,6 +558,8 @@ public async Task Foreign_snapshot_cannot_read_or_write()
         InMemoryDispositionRepository repository,
         bool snapshotOwned = true,
         bool includeQuestion = true,
+        bool includeInventoryQuestion = true,
+        bool includePackElicitation = false,
         bool inferredConnectionsUnavailable = false,
         IReadOnlyList<OperatorInferredConnectionRecord>? inferredConnections = null)
     {
@@ -548,7 +595,7 @@ public async Task Foreign_snapshot_cannot_read_or_write()
                             WorkspaceId = Scope.WorkspaceId,
                             ProjectId = Scope.ProjectId,
                         },
-                        Resources = includeQuestion
+                        Resources = includeQuestion && includeInventoryQuestion
                             ? [
                                 new AzureInventoryResourceRecord
                                 {
@@ -559,6 +606,38 @@ public async Task Foreign_snapshot_cannot_read_or_write()
                             : [],
                     }
                     : null);
+
+        Mock<IEffectiveGovernanceLoader>? governanceLoader = null;
+        Mock<IAzureInventorySnapshotGraphResolver>? graphResolver = null;
+
+        if (includePackElicitation)
+        {
+            governanceLoader = new Mock<IEffectiveGovernanceLoader>();
+            governanceLoader
+                .Setup(item => item.LoadEffectiveContentAsync(
+                    Scope.TenantId,
+                    Scope.WorkspaceId,
+                    Scope.ProjectId,
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new PolicyPackContentDocument
+                {
+                    ElicitationQuestions =
+                    [
+                        new ElicitationQuestion
+                        {
+                            QuestionKey = "subscription-ownership",
+                            Prompt = "Who owns this subscription workload?",
+                            Tier = ElicitationQuestionTier.Must,
+                            AnswerKind = ElicitationAnswerKind.Text,
+                        },
+                    ],
+                });
+
+            graphResolver = new Mock<IAzureInventorySnapshotGraphResolver>();
+            graphResolver
+                .Setup(item => item.ResolveGraphFromSnapshot(It.IsAny<AzureInventorySnapshotDetailReadModel>()))
+                .Returns(new AzureInventorySnapshotGraphResolveResult { Succeeded = false });
+        }
 
         Mock<IAuditService> audit = new();
         audit
@@ -592,7 +671,9 @@ public async Task Foreign_snapshot_cannot_read_or_write()
             repository,
             snapshots.Object,
             audit.Object,
-            inferredConnectionsMock?.Object);
+            inferredConnectionsMock?.Object,
+            governanceLoader?.Object,
+            graphResolver?.Object);
     }
 
     private static SecureNowQuestionDispositionWriteRequest CreateWriteRequest(

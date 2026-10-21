@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const WEBHOOKS_DELIVERY_CONTRACT_OPEN_PARAM = "webhooksDeliveryContractOpen";
 
 export function parseWebhooksDeliveryContractOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function webhooksDeliveryContractDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(WEBHOOKS_DELIVERY_CONTRACT_OPEN_PARAM);
-  } else {
-    params.set(WEBHOOKS_DELIVERY_CONTRACT_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, WEBHOOKS_DELIVERY_CONTRACT_OPEN_PARAM);
 }

@@ -110,6 +110,115 @@ public sealed class CorePackageCoverageBatchRc28bTests
         reason.Should().BeEmpty();
     }
 
+    [Fact]
+    public void ConfigurationKeyRequirement_WhenProduction_uses_dotnet_environment_from_configuration_when_caller_env_unset()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> { ["DOTNET_ENVIRONMENT"] = "Production" })
+            .Build();
+        ConfigurationKeyEntry prod = new("s", "p", ["e"], null, "r", "d", ConfigKeyRequirementKind.WhenProduction);
+
+        ConfigurationKeyRequirement.IsKeyRequired(prod, configuration, aspNetCoreEnvironment: null, out string reason)
+            .Should()
+            .BeTrue();
+        reason.Should().Contain("Production");
+    }
+
+    [Fact]
+    public void ConfigurationKeyRequirement_WhenProduction_uses_archlucid_environment_from_configuration_when_aspnet_env_not_production()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["ARCHLUCID_ENVIRONMENT"] = "Production",
+                    ["ASPNETCORE_ENVIRONMENT"] = "Development",
+                })
+            .Build();
+        ConfigurationKeyEntry prod = new("s", "p", ["e"], null, "r", "d", ConfigKeyRequirementKind.WhenProduction);
+
+        ConfigurationKeyRequirement.IsKeyRequired(prod, configuration, aspNetCoreEnvironment: "Development", out string reason)
+            .Should()
+            .BeTrue();
+        reason.Should().Contain("Production");
+    }
+
+    [Fact]
+    public void ConfigurationKeyRequirement_WhenOtlpEnabled_honors_yes_synonym_configuration_value()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> { ["Observability:Otlp:Enabled"] = "yes" })
+            .Build();
+        ConfigurationKeyEntry entry = new(
+            "s",
+            "path",
+            ["env"],
+            null,
+            "req",
+            "desc",
+            ConfigKeyRequirementKind.WhenOtlpEnabled);
+
+        ConfigurationKeyRequirement.IsKeyRequired(entry, configuration, aspNetCoreEnvironment: "Development", out string reason)
+            .Should()
+            .BeTrue();
+        reason.Should().Contain("OTLP");
+    }
+
+    [Fact]
+    public void ConfigurationKeyRequirement_WhenOtlpEnabled_does_not_throw_on_unrecognized_boolean_configuration_value()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> { ["Observability:Otlp:Enabled"] = "maybe" })
+            .Build();
+        ConfigurationKeyEntry entry = new(
+            "s",
+            "path",
+            ["env"],
+            null,
+            "req",
+            "desc",
+            ConfigKeyRequirementKind.WhenOtlpEnabled);
+
+        ConfigurationKeyRequirement.IsKeyRequired(entry, configuration, aspNetCoreEnvironment: "Development")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void ConfigurationKeyRequirement_WhenApiKeyEnabled_honors_on_synonym_configuration_value()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> { ["Authentication:ApiKey:Enabled"] = "on" })
+            .Build();
+        ConfigurationKeyEntry entry = new(
+            "s",
+            "path",
+            ["env"],
+            null,
+            "req",
+            "desc",
+            ConfigKeyRequirementKind.WhenApiKeyEnabled);
+
+        ConfigurationKeyRequirement.IsKeyRequired(entry, configuration, aspNetCoreEnvironment: "Development", out string reason)
+            .Should()
+            .BeTrue();
+        reason.Should().Contain("API key");
+    }
+
+    [Fact]
+    public void ConfigurationKeyRequirement_WhenProduction_treats_configuration_bound_aspnet_environment_with_bounding_whitespace_as_production()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> { ["ASPNETCORE_ENVIRONMENT"] = " Production " })
+            .Build();
+        ConfigurationKeyEntry prod = new("s", "p", ["e"], null, "r", "d", ConfigKeyRequirementKind.WhenProduction);
+
+        ConfigurationKeyRequirement.IsKeyRequired(prod, configuration, aspNetCoreEnvironment: null, out string reason)
+            .Should()
+            .BeTrue();
+        reason.Should().Contain("Production");
+    }
+
     [Theory]
     [InlineData("AWS::EC2::Instance", RuntimePlatform.Ec2)]
     [InlineData("AWS::Lambda::Function", RuntimePlatform.Lambda)]

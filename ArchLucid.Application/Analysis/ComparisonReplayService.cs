@@ -1,3 +1,4 @@
+using ArchLucid.Application.Exports;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Metadata;
@@ -32,12 +33,15 @@ public sealed class ComparisonReplayService(
     IRunExportRecordRepository runExportRecordRepository,
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
-    IScopeContextProvider scopeContextProvider) : IComparisonReplayService
+    IScopeContextProvider scopeContextProvider,
+    IRunExportCareerPostureGate runExportCareerPostureGate) : IComparisonReplayService
 {
     private readonly IRunExportRecordRepository _runExportRecordRepository = runExportRecordRepository.ThrowIfNull();
     private readonly IAuthorityQueryService _authorityQueryService = authorityQueryService.ThrowIfNull();
     private readonly IManifestHashService _manifestHashService = manifestHashService.ThrowIfNull();
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider.ThrowIfNull();
+    private readonly IRunExportCareerPostureGate _runExportCareerPostureGate =
+        runExportCareerPostureGate ?? throw new ArgumentNullException(nameof(runExportCareerPostureGate));
     private readonly IExportRecordDiffService _exportRecordDiffService = exportRecordDiffService.ThrowIfNull();
     private readonly IExportRecordDiffExportService _exportRecordDiffExportService = exportRecordDiffExportService.ThrowIfNull();
     private readonly IComparisonRecordRepository _comparisonRecordRepository = comparisonRecordRepository.ThrowIfNull();
@@ -79,6 +83,7 @@ public sealed class ComparisonReplayService(
             ComparisonTypes.ExportRecordDiff => await ReplayExportDiffAsync(record, format, mode, cancellationToken),
             _ => throw new InvalidOperationException($"Replay is not supported for comparison type '{record.ComparisonType}'.")
         };
+
         if (request.PersistReplay)
             // Intentionally persists a *new* comparison record rather than mutating the original.
             // This keeps comparison records immutable and yields an audit trail of replay activity.
@@ -146,6 +151,7 @@ public sealed class ComparisonReplayService(
                                                                $"Comparison record '{record.ComparisonRecordId}' did not contain a valid end-to-end payload.");
                 report = await RegenerateEndToEndAsync(record, cancellationToken);
                 DriftAnalysisResult driftE2E = _driftAnalyzer.Analyze(storedE2E, report);
+
                 if (driftE2E.DriftDetected)
                     throw new ComparisonVerificationFailedException(driftE2E.Summary, driftE2E);
                 break;
@@ -155,6 +161,7 @@ public sealed class ComparisonReplayService(
 
         ReplayComparisonResult result = await BuildEndToEndResultAsync(record, report, format, profile, cancellationToken);
         result.ReplayMode = ComparisonReplayRequestParsing.FormatReplayMode(mode);
+
         if (mode != ComparisonReplayMode.Verify)
             return result;
         result.VerificationPassed = true;
@@ -263,6 +270,9 @@ public sealed class ComparisonReplayService(
     private async Task<ReplayComparisonResult> ReplayExportDiffAsync(ComparisonRecord record, string format, ComparisonReplayMode mode,
         CancellationToken cancellationToken)
     {
+        await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.LeftRunId ?? string.Empty, cancellationToken);
+        await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.RightRunId ?? string.Empty, cancellationToken);
+
         ExportRecordDiffResult diff;
         switch (mode)
         {
@@ -279,6 +289,7 @@ public sealed class ComparisonReplayService(
                                                         $"Comparison record '{record.ComparisonRecordId}' did not contain a valid export-diff payload.");
                 diff = await RegenerateExportDiffAsync(record, cancellationToken);
                 DriftAnalysisResult driftExport = _driftAnalyzer.Analyze(storedDiff, diff);
+
                 if (driftExport.DriftDetected)
                     throw new ComparisonVerificationFailedException(driftExport.Summary, driftExport);
                 break;
@@ -300,6 +311,7 @@ public sealed class ComparisonReplayService(
                 BinaryContent = bytes,
                 ReplayMode = ComparisonReplayRequestParsing.FormatReplayMode(mode)
             };
+
             if (mode == ComparisonReplayMode.Verify)
             {
                 resultDocx.VerificationPassed = true;
@@ -321,6 +333,7 @@ public sealed class ComparisonReplayService(
             ReplayMode = ComparisonReplayRequestParsing.FormatReplayMode(mode)
         };
         SetRecordMetadata(result, record, null);
+
         if (mode != ComparisonReplayMode.Verify)
             return result;
         result.VerificationPassed = true;
@@ -351,5 +364,23 @@ public sealed class ComparisonReplayService(
         await EnsureRunPairLifecycleCompleteOrThrowAsync(left.RunId, right.RunId, cancellationToken);
 
         return await _exportRecordDiffService.CompareAsync(left, right, cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task EnsureCareerAllowsExportRecordMetadataOrThrowAsync(
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            return;
+
+        if (!Guid.TryParse(runId, out Guid runGuid))
+            return;
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        await _runExportCareerPostureGate.EnsureAllowsExportRecordMetadataOrThrowAsync(
+            runGuid,
+            scope,
+            cancellationToken);
     }
 }

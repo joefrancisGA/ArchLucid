@@ -1,4 +1,5 @@
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 import { POLICY_PACK_ID_QUERY_PARAM } from "@/lib/policy/policy-packs-deep-link";
 
 export function parsePolicyPackSelectionFromSearch(raw: string | null | undefined): string {
@@ -16,6 +17,8 @@ export function policyPackSelectionHrefFromSearch(
 ): string {
   const params = new URLSearchParams(currentSearch);
   const trimmed = packId.trim();
+
+  applyOperatorUrlSelectionSwitch(params, { kind: "policy-pack-selection" });
 
   if (trimmed.length === 0) {
     params.delete(POLICY_PACK_ID_QUERY_PARAM);

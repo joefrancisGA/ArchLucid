@@ -1,4 +1,5 @@
 import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const ASK_PAGE_THREAD_PARAM = "thread";
 export const ASK_PAGE_COMPARE_PARAM = "compare";
@@ -51,41 +52,41 @@ export function askPageThreadHrefFromSearch(
   state: AskPageThreadUrlState,
   pathname: string = ASK_REVIEW_QUESTIONS_PATH,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-  const threadId = state.threadId.trim();
-  const baseRunId = (state.baseRunId ?? "").trim();
-  const targetRunId = (state.targetRunId ?? "").trim();
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+    const threadId = state.threadId.trim();
+    const baseRunId = (state.baseRunId ?? "").trim();
+    const targetRunId = (state.targetRunId ?? "").trim();
 
-  if (threadId.length === 0) {
-    params.delete(ASK_PAGE_THREAD_PARAM);
-    params.delete(ASK_PAGE_COMPARE_PARAM);
-    params.delete(ASK_PAGE_BASE_RUN_PARAM);
-    params.delete(ASK_PAGE_TARGET_RUN_PARAM);
-  } else {
-    params.set(ASK_PAGE_THREAD_PARAM, threadId);
-
-    if (!state.compareOpen) {
+    if (threadId.length === 0) {
+      params.delete(ASK_PAGE_THREAD_PARAM);
       params.delete(ASK_PAGE_COMPARE_PARAM);
       params.delete(ASK_PAGE_BASE_RUN_PARAM);
       params.delete(ASK_PAGE_TARGET_RUN_PARAM);
     } else {
-      params.set(ASK_PAGE_COMPARE_PARAM, "1");
+      params.set(ASK_PAGE_THREAD_PARAM, threadId);
 
-      if (baseRunId.length === 0) {
+      if (!state.compareOpen) {
+        params.delete(ASK_PAGE_COMPARE_PARAM);
         params.delete(ASK_PAGE_BASE_RUN_PARAM);
-      } else {
-        params.set(ASK_PAGE_BASE_RUN_PARAM, baseRunId);
-      }
-
-      if (targetRunId.length === 0) {
         params.delete(ASK_PAGE_TARGET_RUN_PARAM);
       } else {
-        params.set(ASK_PAGE_TARGET_RUN_PARAM, targetRunId);
+        params.set(ASK_PAGE_COMPARE_PARAM, "1");
+
+        if (baseRunId.length === 0) {
+          params.delete(ASK_PAGE_BASE_RUN_PARAM);
+        } else {
+          params.set(ASK_PAGE_BASE_RUN_PARAM, baseRunId);
+        }
+
+        if (targetRunId.length === 0) {
+          params.delete(ASK_PAGE_TARGET_RUN_PARAM);
+        } else {
+          params.set(ASK_PAGE_TARGET_RUN_PARAM, targetRunId);
+        }
       }
     }
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    },
+  });
 }

@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const HEALTHCARE_CLAIMS_PACK_TECHNICAL_OPEN_PARAM = "healthcareClaimsPackTechnicalOpen";
 
 export function parseHealthcareClaimsPackTechnicalOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function healthcareClaimsPackTechnicalDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(HEALTHCARE_CLAIMS_PACK_TECHNICAL_OPEN_PARAM);
-  } else {
-    params.set(HEALTHCARE_CLAIMS_PACK_TECHNICAL_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, HEALTHCARE_CLAIMS_PACK_TECHNICAL_OPEN_PARAM);
 }

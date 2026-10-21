@@ -1,4 +1,5 @@
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 
 export const DIGEST_SUBSCRIPTIONS_CREATE_PARAM = "create";
 export const DIGEST_SUBSCRIPTIONS_HISTORY_PARAM = "history";
@@ -40,6 +41,7 @@ export function digestSubscriptionsPanelsHrefFromSearch(
   pathname: string = DIGESTS_HUB_PATH,
 ): string {
   const params = new URLSearchParams(currentSearch);
+  applyOperatorUrlSelectionSwitch(params, { kind: "disclosure-only" });
 
   if (patch.showCreatePanel !== undefined) {
     if (!patch.showCreatePanel) {

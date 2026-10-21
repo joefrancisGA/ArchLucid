@@ -115,6 +115,22 @@ public sealed class TenantCostEstimateServiceTests
     }
 
     [SkippableFact]
+    public async Task TryGetEstimateAsync_free_tenant_omits_commercial_openai_widen_copy()
+    {
+        BillingUnitRatesOptions rates = new() { Currency = "USD" };
+
+        TenantCostEstimate? result = await EstimateAsync(TenantTier.Free, rates);
+
+        result.Should().NotBeNull();
+        result!.EstimatedMonthlyUsdLow.Should().Be(0);
+        result.EstimatedMonthlyUsdHigh.Should().Be(0);
+        result.Factors.Should().Contain(factor =>
+            factor.Contains("Free tier", StringComparison.OrdinalIgnoreCase));
+        result.Factors.Should().NotContain(factor =>
+            factor.Contains("Azure OpenAI", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [SkippableFact]
     public async Task TryGetEstimateAsync_standard_tenant_with_zero_configured_rates_explains_unconfigured_band()
     {
         BillingUnitRatesOptions rates = new()

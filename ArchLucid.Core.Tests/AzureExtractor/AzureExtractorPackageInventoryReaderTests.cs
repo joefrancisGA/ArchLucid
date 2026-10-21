@@ -756,7 +756,7 @@ public sealed class AzureExtractorPackageInventoryReaderTests
     }
 
     [Fact]
-    public void TryReadFromZip_treats_string_true_is_unknown_type_as_false()
+    public void TryReadFromZip_treats_string_true_is_unknown_type_as_true()
     {
         byte[] zipBytes = BuildZip(
             """
@@ -777,7 +777,7 @@ public sealed class AzureExtractorPackageInventoryReaderTests
 
         result.Succeeded.Should().BeTrue();
         result.Resources.Should().ContainSingle();
-        result.Resources[0].IsUnknownType.Should().BeFalse();
+        result.Resources[0].IsUnknownType.Should().BeTrue();
     }
 
     [Fact]

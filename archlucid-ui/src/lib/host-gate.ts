@@ -33,6 +33,14 @@ import {
 } from "@/lib/ui-route-traffic-retired-redirect-shims";
 import { LEGACY_ONBOARDING_PATH } from "@/lib/first-review-guide-route";
 import { LEGACY_GETTING_STARTED_PATH } from "@/lib/getting-started-help-guide-route";
+import {
+  LEGACY_ALERT_RULES_PATH,
+  LEGACY_ARCHITECTURE_EXECUTIVE_DASHBOARD_PATH,
+  LEGACY_EXECUTIVE_DASHBOARD_PATH,
+  LEGACY_INTERNAL_INTEGRATION_EVENTS_DLQ_PATH,
+  LEGACY_INTERNAL_OPERATIONS_ROOT_PATH,
+  LEGACY_OPERATE_INTEGRATION_EVENTS_DLQ_PATH,
+} from "@/lib/canonicalize-legacy-operator-route-path";
 import { isSplitSiteHostingEnabled, resolveAppSiteOrigin, resolvePublicSiteOrigin } from "@/lib/site-urls";
 import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
 
@@ -121,6 +129,12 @@ const LEGACY_OPERATOR_PATH_PREFIXES: readonly string[] = [
   RETIRED_OPERATE_ARCHITECTURE_GRAPH_BOOKMARK_PATH,
   LEGACY_ONBOARDING_PATH,
   LEGACY_GETTING_STARTED_PATH,
+  LEGACY_ALERT_RULES_PATH,
+  LEGACY_INTERNAL_OPERATIONS_ROOT_PATH,
+  LEGACY_OPERATE_INTEGRATION_EVENTS_DLQ_PATH,
+  LEGACY_INTERNAL_INTEGRATION_EVENTS_DLQ_PATH,
+  LEGACY_ARCHITECTURE_EXECUTIVE_DASHBOARD_PATH,
+  LEGACY_EXECUTIVE_DASHBOARD_PATH,
 ];
 
 const OPERATOR_PATH_PREFIXES: readonly string[] = [

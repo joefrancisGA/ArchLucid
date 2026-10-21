@@ -2,6 +2,7 @@ import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/find
 import { GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM } from "@/lib/governance/governance-findings-resource-group-disclosure-url";
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import type { ArchitectureIdentityChildReviewSummary } from "@/types/architecture-identity";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const GOVERNANCE_FINDINGS_ARCHITECTURE_SCOPE_ALL = "all";
 
@@ -86,19 +87,18 @@ export function governanceFindingsArchitectureScopeHrefFromSearch(
   architectureId: string | null,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "governance-findings-queue-navigation" },
+    mutate: (params) => {
+    params.delete(GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM);
 
-  params.delete(GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM);
-
-  if (architectureId === null) {
-    params.set("architectureId", GOVERNANCE_FINDINGS_ARCHITECTURE_SCOPE_ALL);
-  } else {
-    params.set("architectureId", architectureId);
-  }
-
-  const query = params.toString();
-
-  return query.length === 0 ? pathname : `${pathname}?${query}`;
+    if (architectureId === null) {
+      params.set("architectureId", GOVERNANCE_FINDINGS_ARCHITECTURE_SCOPE_ALL);
+    } else {
+      params.set("architectureId", architectureId);
+    }
+    },
+  });
 }
 
 export function deriveGovernanceFindingsArchitectureScopeHonesty(

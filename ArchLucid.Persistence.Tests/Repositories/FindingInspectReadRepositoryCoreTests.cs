@@ -1574,6 +1574,20 @@ public sealed class FindingInspectReadRepositoryCoreTests
     }
 
     [Fact]
+    public void ResolveInspectSemanticSupportBand_parses_overlay_after_leading_invisible_format_characters()
+    {
+        JsonElement typed = JsonSerializer.SerializeToElement(new { semanticSupportBand = "Unsupported" });
+
+        FindingSemanticSupportBand? band = FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand(
+            "\u200BSupported",
+            typed);
+
+        band.Should().Be(
+            FindingSemanticSupportBand.Supported,
+            "relational overlay must win over typed payload even when the stored band has a leading format character");
+    }
+
+    [Fact]
     public void MapDispositionPointerProjection_converts_local_revisit_due_to_utc_offset()
     {
         DateTime local = new(2026, 11, 1, 0, 0, 0, DateTimeKind.Local);

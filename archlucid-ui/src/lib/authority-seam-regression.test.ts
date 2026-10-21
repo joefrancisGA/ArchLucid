@@ -24,6 +24,7 @@ import {
   navLinkVisibleForCallerRank,
 } from "@/lib/nav-authority";
 import { filterNavLinksForOperatorShell, listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
+import { buildOperatorSystemAdminNavLinks } from "@/lib/operator/operator-system-admin-nav-group-builder";
 
 describe("authority seam regression", () => {
   const enterpriseLinks = NAV_GROUPS.find((g) => g.id === "operate-governance")?.links;
@@ -52,7 +53,10 @@ describe("authority seam regression", () => {
     const groupIds = ["operate-integrations", "operator-system-admin"] as const;
 
     for (const groupId of groupIds) {
-      const links = NAV_GROUPS.find((g) => g.id === groupId)?.links;
+      const links =
+        groupId === "operator-system-admin"
+          ? buildOperatorSystemAdminNavLinks()
+          : NAV_GROUPS.find((g) => g.id === groupId)?.links;
 
       expect(links, groupId).toBeDefined();
 

@@ -1,5 +1,6 @@
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import type { SponsorTimeRange } from "@/lib/sponsor/sponsor-time-range";
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 export const SPONSOR_ROI_TREND_RANGE_PARAM = "range";
 
@@ -26,15 +27,15 @@ export function sponsorRoiTrendRangeHrefFromSearch(
   range: SponsorTimeRange,
   pathname: string = SPONSOR_DASHBOARD_HREF,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (range === DEFAULT_SPONSOR_ROI_TREND_RANGE) {
-    params.delete(SPONSOR_ROI_TREND_RANGE_PARAM);
-  } else {
-    params.set(SPONSOR_ROI_TREND_RANGE_PARAM, range);
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (range === DEFAULT_SPONSOR_ROI_TREND_RANGE) {
+      params.delete(SPONSOR_ROI_TREND_RANGE_PARAM);
+    } else {
+      params.set(SPONSOR_ROI_TREND_RANGE_PARAM, range);
+    }
+    },
+  });
 }

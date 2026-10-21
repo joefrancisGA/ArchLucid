@@ -27,7 +27,7 @@ public sealed class TenantCostEstimateService(ITenantRepository tenantRepository
         if (string.IsNullOrWhiteSpace(rates.Currency))
             return null;
 
-        List<string> factors = [$"Tenant tier: {tenant.Tier}.", "Band widened to cover optional Azure OpenAI attach for authority runs."];
+        List<string> factors = [$"Tenant tier: {tenant.Tier}."];
         (decimal low, decimal high) = tenant.Tier switch
         {
             TenantTier.Standard => OrderMonthlyBand(rates.StandardMonthlyUsdLow, rates.StandardMonthlyUsdHigh),
@@ -42,6 +42,10 @@ public sealed class TenantCostEstimateService(ITenantRepository tenantRepository
         if (tenant.Tier is TenantTier.Free)
         {
             factors.Add("Free tier: guidance defaults to zero — activate a commercial plan for a non-zero band.");
+        }
+        else
+        {
+            factors.Add("Band widened to cover optional Azure OpenAI attach for authority runs.");
         }
 
         if (tenant.Tier is TenantTier.Standard or TenantTier.Enterprise && low == 0m && high == 0m)

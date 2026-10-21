@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const REVIEW_FINALIZE_CONFIRM_PARAM = "finalizeConfirm";
 export const REVIEW_FINALIZE_SUCCESS_PARAM = "finalizeSuccess";
 
@@ -31,21 +32,21 @@ export function reviewFinalizeConfirmHrefFromSearch(
   state: ReviewFinalizeConfirmUrlState,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!state.confirmOpen) {
-    params.delete(REVIEW_FINALIZE_CONFIRM_PARAM);
-  } else {
-    params.set(REVIEW_FINALIZE_CONFIRM_PARAM, "1");
-  }
+    if (!state.confirmOpen) {
+      params.delete(REVIEW_FINALIZE_CONFIRM_PARAM);
+    } else {
+      params.set(REVIEW_FINALIZE_CONFIRM_PARAM, "1");
+    }
 
-  if (!state.successOpen) {
-    params.delete(REVIEW_FINALIZE_SUCCESS_PARAM);
-  } else {
-    params.set(REVIEW_FINALIZE_SUCCESS_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!state.successOpen) {
+      params.delete(REVIEW_FINALIZE_SUCCESS_PARAM);
+    } else {
+      params.set(REVIEW_FINALIZE_SUCCESS_PARAM, "1");
+    }
+    },
+  });
 }

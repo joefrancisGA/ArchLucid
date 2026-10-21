@@ -4,6 +4,7 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.Requests;
 
 namespace ArchLucid.Application.Diagnostics;
 
@@ -15,7 +16,8 @@ public static partial class FakeAgentResultFactory
         ArgumentNullException.ThrowIfNull(taskId);
         ArgumentNullException.ThrowIfNull(request);
         List<string> requiredControls = ["Managed Identity", "Key Vault", "Private Endpoints"];
-        if (!request.RequiredCapabilities.Any(x => x.Contains("private", StringComparison.OrdinalIgnoreCase)))
+
+        if (!request.RequiredCapabilities.Any(ControlPhraseMatcher.ConstraintRequiresPrivateNetworking))
             return new AgentResult
             {
                 ResultId = Guid.NewGuid().ToString("N"),
@@ -62,6 +64,7 @@ public static partial class FakeAgentResultFactory
                 },
                 CreatedUtc = TimeProvider.System.UtcNowDateTime()
             };
+
         if (!requiredControls.Contains("Private Networking", StringComparer.OrdinalIgnoreCase))
             requiredControls.Add("Private Networking");
         return new AgentResult

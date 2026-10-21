@@ -1,4 +1,5 @@
 import { SPECIALTY_WALKTHROUGHS_HELP_CANONICAL_PATH } from "@/lib/specialty-walkthroughs-help-evidence-copy";
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 import {
   resolveSpecialtyReviewCloudFromSearchParam,
   specialtyReviewCloudQueryValue,
@@ -42,6 +43,7 @@ export function specialtyWalkthroughsSelectionHrefFromSearch(
   pathname: string = SPECIALTY_WALKTHROUGHS_HELP_CANONICAL_PATH,
 ): string {
   const params = new URLSearchParams(currentSearch);
+  applyOperatorUrlSelectionSwitch(params, { kind: "disclosure-only" });
 
   if (patch.templateId !== undefined) {
     if (patch.templateId === null) {

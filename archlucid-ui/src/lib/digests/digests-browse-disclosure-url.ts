@@ -1,3 +1,4 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const DIGESTS_TECHNICAL_DETAILS_OPEN_PARAM = "digestsTechnicalDetailsOpen";
 export const DIGESTS_BROWSE_INCLUDES_OPEN_PARAM = "digestsBrowseIncludesOpen";
 
@@ -29,21 +30,21 @@ export function digestsBrowseDisclosureHrefFromSearch(
   state: DigestsBrowseDisclosureUrlState,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
 
-  if (!state.technicalDetailsOpen) {
-    params.delete(DIGESTS_TECHNICAL_DETAILS_OPEN_PARAM);
-  } else {
-    params.set(DIGESTS_TECHNICAL_DETAILS_OPEN_PARAM, "1");
-  }
+    if (!state.technicalDetailsOpen) {
+      params.delete(DIGESTS_TECHNICAL_DETAILS_OPEN_PARAM);
+    } else {
+      params.set(DIGESTS_TECHNICAL_DETAILS_OPEN_PARAM, "1");
+    }
 
-  if (!state.browseIncludesOpen) {
-    params.delete(DIGESTS_BROWSE_INCLUDES_OPEN_PARAM);
-  } else {
-    params.set(DIGESTS_BROWSE_INCLUDES_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+    if (!state.browseIncludesOpen) {
+      params.delete(DIGESTS_BROWSE_INCLUDES_OPEN_PARAM);
+    } else {
+      params.set(DIGESTS_BROWSE_INCLUDES_OPEN_PARAM, "1");
+    }
+    },
+  });
 }

@@ -1,8 +1,10 @@
 using System.Globalization;
 
+using ArchLucid.Application.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Findings;
@@ -56,6 +58,7 @@ public sealed partial class ArchitectureRunProvenanceService
             Label = "Run created",
             ReferenceId = run.RunId
         });
+
         if (evidenceBundle is not null)
         {
             string bundleId = evidenceBundle.EvidenceBundleId;
@@ -72,6 +75,7 @@ public sealed partial class ArchitectureRunProvenanceService
         }
 
         AddSnapshotNodes(run, runNodeId, AddNode, AddEdge);
+
         foreach (AgentTask task in detail.Tasks.OrderBy(t => t.CreatedUtc).ThenBy(t => t.TaskId, StringComparer.Ordinal))
         {
             string taskNodeId = $"task:{task.TaskId}";
@@ -95,6 +99,7 @@ public sealed partial class ArchitectureRunProvenanceService
                 Label = $"Task scheduled ({task.AgentType})",
                 ReferenceId = task.TaskId
             });
+
             if (task.CompletedUtc is { } completed)
                 timeline.Add(new ArchitectureTraceTimelineEntry
                 {
@@ -107,13 +112,14 @@ public sealed partial class ArchitectureRunProvenanceService
 
         foreach (AgentResult result in detail.Results.OrderBy(r => r.CreatedUtc).ThenBy(r => r.ResultId, StringComparer.Ordinal))
         {
+            AgentType agentType = AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result);
             string resultNodeId = $"result:{result.ResultId}";
             AddNode(new ArchitectureLinkageNode
             {
                 Id = resultNodeId,
                 Type = ArchitectureLinkageKinds.Nodes.AgentResult,
                 ReferenceId = result.ResultId,
-                Name = $"{result.AgentType} result",
+                Name = $"{agentType} result",
                 Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
                     ["confidence"] = result.Confidence.ToString("F2", CultureInfo.InvariantCulture),
@@ -126,9 +132,10 @@ public sealed partial class ArchitectureRunProvenanceService
             {
                 TimestampUtc = result.CreatedUtc,
                 Kind = ArchitectureLinkageKinds.Timeline.ResultRecorded,
-                Label = $"Agent result recorded ({result.AgentType})",
+                Label = $"Agent result recorded ({agentType})",
                 ReferenceId = result.ResultId
             });
+
             foreach (ArchitectureFinding finding in result.Findings)
             {
                 string findingNodeId = $"finding:{result.ResultId}:{finding.FindingId}";
@@ -150,6 +157,7 @@ public sealed partial class ArchitectureRunProvenanceService
         }
 
         GoldenManifest? manifest = detail.Manifest;
+
         if (manifest is not null)
         {
             string manifestVersion = manifest.Metadata.ManifestVersion;
@@ -179,6 +187,7 @@ public sealed partial class ArchitectureRunProvenanceService
         List<RunEventTraceDto> runEventTraces = detail.DecisionTraces.OfType<RunEventTraceDto>().OrderBy(t => t.RunEvent.CreatedUtc)
             .ThenBy(t => t.RunEvent.TraceId, StringComparer.Ordinal).ToList();
         string? previousTraceNodeId = null;
+
         foreach (RunEventTraceDto trace in runEventTraces)
         {
             RunEventTracePayload ev = trace.RunEvent;
@@ -196,6 +205,7 @@ public sealed partial class ArchitectureRunProvenanceService
                 }
             });
             AddEdge(ArchitectureLinkageKinds.Edges.TraceContainsEvent, runNodeId, traceNodeId);
+
             if (manifest is not null)
             {
                 string manifestNodeId = $"manifest:{manifest.Metadata.ManifestVersion}";

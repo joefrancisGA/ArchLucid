@@ -1,3 +1,4 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 export const SPONSOR_SCORECARD_EMPTY_PREVIEW_OPEN_PARAM = "sponsorScorecardEmptyPreviewOpen";
 
 export function parseSponsorScorecardEmptyPreviewOpenFromSearch(raw: string | null | undefined): boolean {
@@ -15,15 +16,5 @@ export function sponsorScorecardEmptyPreviewDisclosureHrefFromSearch(
   open: boolean,
   pathname: string,
 ): string {
-  const params = new URLSearchParams(currentSearch);
-
-  if (!open) {
-    params.delete(SPONSOR_SCORECARD_EMPTY_PREVIEW_OPEN_PARAM);
-  } else {
-    params.set(SPONSOR_SCORECARD_EMPTY_PREVIEW_OPEN_PARAM, "1");
-  }
-
-  const nextQuery = params.toString();
-
-  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, SPONSOR_SCORECARD_EMPTY_PREVIEW_OPEN_PARAM);
 }

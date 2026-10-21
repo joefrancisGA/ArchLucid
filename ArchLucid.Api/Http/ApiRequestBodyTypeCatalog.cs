@@ -11,6 +11,15 @@ namespace ArchLucid.Api.Http;
 /// </summary>
 public static class ApiRequestBodyTypeCatalog
 {
+    private static readonly NullabilityInfoContext NullabilityContext = new();
+
+    public static bool CollectionPropertyAllowsNull(PropertyInfo property)
+    {
+        ArgumentNullException.ThrowIfNull(property);
+
+        return NullabilityContext.Create(property).ReadState == NullabilityState.Nullable;
+    }
+
     public static IReadOnlyList<Type> DiscoverFromBodyRequestTypes(Assembly apiAssembly)
     {
         ArgumentNullException.ThrowIfNull(apiAssembly);
@@ -45,7 +54,8 @@ public static class ApiRequestBodyTypeCatalog
         return types.OrderBy(static type => type.FullName, StringComparer.Ordinal).ToList();
     }
 
-    public static IEnumerable<(Type RequestType, string PropertyPath)> EnumerateCollectionPropertyPaths(Type requestType)
+    public static IEnumerable<(Type RequestType, string PropertyPath, PropertyInfo Property)> EnumerateCollectionPropertyPaths(
+        Type requestType)
     {
         ArgumentNullException.ThrowIfNull(requestType);
 
@@ -54,7 +64,7 @@ public static class ApiRequestBodyTypeCatalog
         return EnumerateCollectionPropertyPathsCore(requestType, string.Empty, visitedTypes);
     }
 
-    private static IEnumerable<(Type, string)> EnumerateCollectionPropertyPathsCore(
+    private static IEnumerable<(Type, string, PropertyInfo)> EnumerateCollectionPropertyPathsCore(
         Type type,
         string prefix,
         HashSet<Type> visitedTypes)
@@ -74,13 +84,18 @@ public static class ApiRequestBodyTypeCatalog
 
             if (IsEnumerableCollection(propertyType))
             {
-                yield return (type, path);
+                yield return (type, path, property);
             }
 
             if (!IsLeafType(propertyType) && !IsEnumerableCollection(propertyType))
             {
-                foreach ((Type nestedType, string nestedPath) in EnumerateCollectionPropertyPathsCore(propertyType, path, visitedTypes))
-                    yield return (nestedType, nestedPath);
+                foreach ((Type nestedType, string nestedPath, PropertyInfo nestedProperty) in EnumerateCollectionPropertyPathsCore(
+                             propertyType,
+                             path,
+                             visitedTypes))
+                {
+                    yield return (nestedType, nestedPath, nestedProperty);
+                }
             }
         }
     }
