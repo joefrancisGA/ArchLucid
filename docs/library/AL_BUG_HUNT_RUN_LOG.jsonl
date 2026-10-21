@@ -5920,3 +5920,4 @@
 {"at":"2026-10-21T14:32:00.0000000Z","zoneId":"api-null-collection-properties","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T14:41:20.3290299Z","zoneId":"architecture-recommendation","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T14:45:05.9460948Z","zoneId":"core-requests-constraints","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T14:48:00.0000000Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared"}

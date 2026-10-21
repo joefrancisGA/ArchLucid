@@ -17,6 +17,9 @@ internal static class DecisioningTextTokenMatcher
             return haystack.Contains(pattern, StringComparison.Ordinal);
         }
 
+        haystack = haystack.ToLowerInvariant();
+        pattern = pattern.ToLowerInvariant();
+
         if (pattern.Contains(' ', StringComparison.Ordinal))
         {
             return ContainsStandalonePhrase(haystack, pattern);
@@ -241,6 +244,7 @@ internal static class DecisioningTextTokenMatcher
             "do not mandate ",
             "do not need ",
             "do not deploy ",
+            "without ",
         ];
 
         foreach (string negationPhrase in negationPhrases)

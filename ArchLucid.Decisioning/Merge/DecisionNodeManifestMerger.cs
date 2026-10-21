@@ -1,3 +1,4 @@
+using ArchLucid.Decisioning.Analysis;
 using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Contracts.Manifest;
 
@@ -79,15 +80,19 @@ public sealed class DecisionNodeManifestMerger
             if (selected is not null)
             {
 
-                if (selected.Description.Contains(ControlPrivateEndpoints, StringComparison.OrdinalIgnoreCase) &&
-                    !manifest.Governance.RequiredControls.Contains(ControlPrivateEndpoints,
+                if (DescribesPrivateEndpointPromotion(selected.Description)
+                    && !manifest.Governance.RequiredControls.Contains(ControlPrivateEndpoints,
                         StringComparer.OrdinalIgnoreCase))
+                {
                     manifest.Governance.RequiredControls.Add(ControlPrivateEndpoints);
+                }
 
-                if (selected.Description.Contains(ControlManagedIdentity, StringComparison.OrdinalIgnoreCase) &&
-                    !manifest.Governance.RequiredControls.Contains(ControlManagedIdentity,
+                if (DecisioningTextTokenMatcher.ContainsPattern(selected.Description, "managed identity")
+                    && !manifest.Governance.RequiredControls.Contains(ControlManagedIdentity,
                         StringComparer.OrdinalIgnoreCase))
+                {
                     manifest.Governance.RequiredControls.Add(ControlManagedIdentity);
+                }
 
                 DecisionMergeTraceRecorder.AddTrace(
                     output,
@@ -127,6 +132,12 @@ public sealed class DecisionNodeManifestMerger
                 ["outcome"] = complexitySelected?.Description ?? "Unknown",
                 ["confidence"] = complexityDecision.Confidence.ToString("F3")
             });
+    }
+
+    private static bool DescribesPrivateEndpointPromotion(string description)
+    {
+        return DecisioningTextTokenMatcher.ContainsPattern(description, "private endpoints")
+            || DecisioningTextTokenMatcher.ContainsPattern(description, "private endpoint");
     }
 }
 
