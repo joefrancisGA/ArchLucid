@@ -97,7 +97,7 @@ public sealed partial class PolicyPacksController
                 policyPackId,
                 new PolicyPackPublishBody
                 {
-                    Version = request.Version,
+                    Version = request.Version.Trim(),
                     ContentJson = request.ContentJson,
                 },
                 ct).ConfigureAwait(false);

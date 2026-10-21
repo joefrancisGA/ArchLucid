@@ -1,4 +1,8 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
+2026-10-21 seed hunt (seed→hit): `api-policy-packs` — lane B; promoted `PolicyPacksController.Publish` validating semver after trim but forwarding padded `request.Version` to `PublishVersionAsync`, so reachable publish bodies such as `" 1.0.0 "` could miss the version row despite passing validation (same class as GetVersion/PromoteCatalogEntry). Controller now forwards `request.Version.Trim()`; regression `Publish_forwards_trimmed_version_to_facade`. Scoped `PolicyPacksController` filter: 83 passed.
+
+- [x] (proven) `PolicyPacksController.Publish` — trimmed-valid semver forwarded untrimmed to facade — **hit 2026-10-21 lane B seed hunt:** `Version = request.Version.Trim()` on publish body; regression above.
+
 
 2026-10-21 seed hunt (seed→hit): `application-analysis` — promoted `RunExportQueryFacade.CompareExportRecordsAsync` / `CompareExportRecordsSummaryAsync` / `ReplayExportAsync` skipping `IRunExportCareerPostureGate` while `GetExportRecordAsync` blocked simulator-rehearsal runs, so export compare and replay could read metadata when single-record GET returned 409; shared `EnsureCareerAllowsExportRecordMetadataOrThrowAsync`; `ExportsController` compare routes map `CareerArtifactExportBlockedException`; regression `CompareExportRecordsAsync_throws_when_career_posture_blocks_metadata_read`; 5 `RunExportQueryFacadeTests` passed.
 
@@ -38981,15 +38985,17 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 41
-- **bugs-found:** 21
+- **hunts:** 42
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — simulate sealed-manifest guard blocked missing-run and scope-not-found with HTTP 409
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-21 — Publish forwarded untrimmed semver after trim-aware validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 Split from retired `api-governance-tenancy-controllers` (ABQ-08).
+
+2026-10-21 seed hunt (seed→hit): lane B; `Publish` trim-forward parity with GetVersion/PromoteCatalogEntry; 83 scoped tests passed.
 
 2026-10-20 seed hunt (seed->hit): simulate sealed-manifest guard no longer maps unknown runs to HTTP 409 before facade scope/run-not-found handling; 82 scoped tests passed.
 
