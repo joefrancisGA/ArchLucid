@@ -5700,7 +5700,7 @@
 {"at":"2026-10-20T20:27:31.6213395Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/lib/oidc/)"]}
 {"at":"2026-10-20T20:31:08.4906171Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/lib/oidc/)"]}
 {"at":"2026-10-20T20:33:33.7479601Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/lib/oidc/)"]}
-{"at": "2026-10-21T00:13:15Z", "zoneId": "identity-provider-config", "outcome": "hit", "productLine": "archlucid-shared"}
+{"at":"2026-10-21T00:13:15Z","zoneId":"identity-provider-config","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T00:36:00Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/oidc/"]}
 {"at":"2026-10-21T00:13:15Z","zoneId":"identity-provider-config","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-20T20:35:52.3637102Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/lib/oidc/)"]}
@@ -5774,6 +5774,7 @@
 {"at":"2026-10-21T00:10:21.9938072Z","zoneId":"orchestrator-transient-retry","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T00:22:29.6208824Z","zoneId":"ui-runs-list","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T00:25:52.0443566Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-21T00:40:43.0303990Z","zoneId":"email-otp-auth","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T00:40:43.030399Z","zoneId":"email-otp-auth","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T00:45:00Z","zoneId":"security-analyzers","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Analyzers/"]}
 {"at":"2026-10-21T07:50:00.0000000Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/findings/use-run-detail-findings-toolbar-state.ts"]}
+{"at":"2026-10-21T00:52:01.7589689Z","zoneId":"api-key-auth","outcome":"dry","productLine":"archlucid-shared"}
