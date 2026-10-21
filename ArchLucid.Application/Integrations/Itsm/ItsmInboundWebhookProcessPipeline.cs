@@ -314,7 +314,14 @@ public sealed class ItsmInboundWebhookProcessPipeline(
                 WorkspaceId = row.WorkspaceId,
                 ProjectId = row.ProjectId,
                 DataJson = JsonSerializer.Serialize(
-                    CreateSyncedAuditPayload(descriptor.ProviderName, effectivePayload, replayEventId, humanReview, updated, dispositionResult))
+                    CreateSyncedAuditPayload(
+                        descriptor.ProviderName,
+                        effectivePayload,
+                        primaryStatusValue,
+                        replayEventId,
+                        humanReview,
+                        updated,
+                        dispositionResult))
             };
 
             return new ItsmInboundWebhookProcessResult(true, auditEvent);
@@ -390,6 +397,7 @@ public sealed class ItsmInboundWebhookProcessPipeline(
     private static object CreateSyncedAuditPayload(
         string providerName,
         ItsmInboundPayloadReadResult payload,
+        string primaryStatusValue,
         string replayEventId,
         string humanReview,
         int updated,
@@ -414,10 +422,16 @@ public sealed class ItsmInboundWebhookProcessPipeline(
             };
         }
 
+        string effectiveState = payload.StatusValue.Trim();
+        string? auditPrimaryState = SelectServiceNowAuditPrimaryState(primaryStatusValue, effectiveState);
+        string? auditIncidentState = SelectServiceNowAuditIncidentState(payload.AlternateStatusValue);
+
         return new
         {
             externalKey = payload.ExternalKey,
-            state = payload.StatusValue,
+            state = effectiveState,
+            primaryState = auditPrimaryState,
+            incidentState = auditIncidentState,
             replayEventId,
             humanReviewStatus = humanReview,
             rowsUpdated = updated,
@@ -429,5 +443,26 @@ public sealed class ItsmInboundWebhookProcessPipeline(
             currentDisposition = dispositionResult.ConflictDetail?.Disposition.ToString(),
             currentDispositionReviewerUserId = dispositionResult.ConflictDetail?.ReviewerUserId,
         };
+    }
+
+    private static string? SelectServiceNowAuditPrimaryState(string primaryStatusValue, string effectiveState)
+    {
+        if (string.IsNullOrWhiteSpace(primaryStatusValue))
+            return null;
+
+        string primaryTrimmed = primaryStatusValue.Trim();
+
+        if (string.Equals(primaryTrimmed, effectiveState, StringComparison.OrdinalIgnoreCase))
+            return null;
+
+        return primaryTrimmed;
+    }
+
+    private static string? SelectServiceNowAuditIncidentState(string? alternateStatusValue)
+    {
+        if (string.IsNullOrWhiteSpace(alternateStatusValue))
+            return null;
+
+        return alternateStatusValue.Trim();
     }
 }

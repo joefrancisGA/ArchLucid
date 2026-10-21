@@ -486,6 +486,8 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         payload.RootElement.GetProperty("humanReviewStatus").GetString().Should().Be(nameof(FindingHumanReviewStatus.Pending));
         payload.RootElement.GetProperty("dispositionSynced").GetBoolean().Should().BeTrue();
         payload.RootElement.GetProperty("disposition").GetString().Should().Be(nameof(FindingDisposition.Remediated));
+        payload.RootElement.GetProperty("state").GetString().Should().Be("1");
+        payload.RootElement.GetProperty("incidentState").GetString().Should().Be("6");
         dispositionService.Verify(
             s => s.RecordAsync(
                 It.IsAny<RecordFindingDispositionRequest>(),
@@ -552,6 +554,9 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         payload.RootElement.GetProperty("humanReviewStatus").GetString().Should().Be(nameof(FindingHumanReviewStatus.Approved));
         payload.RootElement.GetProperty("dispositionSynced").GetBoolean().Should().BeTrue();
         payload.RootElement.GetProperty("disposition").GetString().Should().Be(nameof(FindingDisposition.Remediated));
+        payload.RootElement.GetProperty("state").GetString().Should().Be("6");
+        payload.RootElement.GetProperty("primaryState").GetString().Should().Be("4");
+        payload.RootElement.GetProperty("incidentState").GetString().Should().Be("6");
         dispositionService.Verify(
             s => s.RecordAsync(
                 It.IsAny<RecordFindingDispositionRequest>(),

@@ -18337,15 +18337,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: itsm-inbound-webhooks
 
-**Hunts:** 32 · **Bugs found:** 20 · **Consecutive dry hunts:** 0
+**Hunts:** 33 · **Bugs found:** 21 · **Consecutive dry hunts:** 0
 
-2026-10-21 seed hunt (seed-only): re-read `ItsmInboundWebhookProcessPipeline`, `ItsmInboundDispositionSync`, `ItsmInboundWebhookFacade`, ServiceNow/Jira payload readers, and `MemoryCacheItsmInboundWebhookReplayGuard`; exercised ServiceNow synthetic replay normalization (`06` vs `6`) and disposition-conflict replay retention without a failing repro; no hunt-ready promotion; scoped `FullyQualifiedName~ItsmInboundWebhook` 82/82 (71 Application + 11 Persistence); seeded five follow-on `(candidate)` rows.
+2026-10-21 seed hunt (hit): promoted `CreateSyncedAuditPayload` candidate — ServiceNow synced audits omitted divergent `incident_state` / primary `state` when disposition used alternate tokens; audit JSON now includes `incidentState` and `primaryState` when they differ from effective `state`; regressions extended on `ServiceNow_inbound_uses_incident_state_disposition_when_primary_state_maps_human_review_only` and `ServiceNow_inbound_uses_primary_state_disposition_when_human_review_promoted_from_incident_state`; cheap-disproof closed four sibling `(candidate)` rows; scoped `FullyQualifiedName~ItsmInboundWebhook` 82/82.
 
-- [ ] (candidate) `ItsmInboundWebhookReplayEventId.BuildSynthetic` / `MemoryCacheItsmInboundWebhookReplayGuard.BuildCacheKey` — logically equivalent ServiceNow state tokens (JSON number `6` vs string `"06"`) produce distinct synthetic replay ids without an explicit delivery header, allowing duplicate mutation on the same incident — locus: synthetic key uses raw `statusOrState` text; input: ServiceNow incident webhook JSON per `ItsmInboundServiceNowPayloadReader.ReadStringOrRawText`.
-- [ ] (candidate) `ItsmInboundWebhookProcessPipeline.CreateSyncedAuditPayload` — when `state` and `incident_state` diverge, synced audit JSON emits only effective `state` and omits `AlternateStatusValue`, obscuring which token drove disposition in operator audits — locus: ServiceNow branch ~417–431; input: ServiceNow Business Rule payload with both `state` and `incident_state` fields.
-- [ ] (candidate) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — disposition CAS conflict skips human review but leaves the replay claim held, so a follow-up webhook with the same synthetic replay key is `ReplayIgnored` while HR remains stale — locus: ~284–305 vs replay claim ~222–234; input: ITSM webhook after concurrent human disposition write (ADR 0076); see `Jira_inbound_disposition_conflict_skips_human_review_update_and_surfaces_conflict_audit`.
-- [ ] (candidate) `ItsmInboundWebhookFacade.TryValidateOptionalTimestampSkew` — malformed non-empty `X-ArchLucid-Timestamp` values fail optional skew validation with HTTP 401 instead of being treated as absent — locus: facade timestamp gate before JSON parse; input: `POST /v1/integrations/webhooks/jira` with shared-secret headers and a non-numeric timestamp string.
-- [ ] (candidate) `ItsmInboundWebhookSyncSupport.ValidateCorrelationFindingId` — null `FindingId` on an in-memory correlation DTO throws before `finding_id_invalid_length` rejected audit (SQL `NOT NULL` on `dbo.ItsmFindingCorrelations.FindingId` limits production reachability) — locus: `row.FindingId.Trim()` ~106; input: corrupted test double or future repository bug returning null finding id.
+- [x] (proven) `ItsmInboundWebhookProcessPipeline.CreateSyncedAuditPayload` — divergent ServiceNow `state`/`incident_state` omitted from synced audit — **hit 2026-10-21:** `incidentState` + `primaryState` on ServiceNow synced audit payload.
+- [x] (valid-no-repro) `ItsmInboundWebhookReplayEventId.BuildSynthetic` — `06` vs `6` distinct synthetic replay ids — **cheap-disproof 2026-10-21:** idempotent HR/disposition; duplicate audits only.
+- [x] (valid-no-repro) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — disposition conflict retains replay claim — **cheap-disproof 2026-10-21:** intentional dedupe contract per `Jira_inbound_disposition_conflict_skips_human_review_update_and_surfaces_conflict_audit`.
+- [x] (valid-no-repro) `ItsmInboundWebhookFacade.TryValidateOptionalTimestampSkew` — malformed timestamp returns 401 — **cheap-disproof 2026-10-21:** regressions `TimestampWithinSkew_rejects_non_numeric_timestamp_when_skew_enabled` / `ProcessAsync_returns_unauthorized_when_timestamp_skew_enabled_and_header_is_malformed`.
+- [x] (invalid) `ItsmInboundWebhookSyncSupport.ValidateCorrelationFindingId` — null `FindingId` throws — **cheap-disproof 2026-10-21:** `dbo.ItsmFindingCorrelations.FindingId` is `NOT NULL`; no production reachability.
 
 2026-10-21 thorough hunt (hit, lane B): repro-first on ServiceNow disposition when human review promotes `incident_state` but disposition map keys primary `state`; fixed primary-token disposition fallback after alternate HR promotion; regression `ServiceNow_inbound_uses_primary_state_disposition_when_human_review_promoted_from_incident_state`; scoped 82/82.
 
@@ -18426,11 +18426,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 32
-- **bugs-found:** 20
+- **hunts:** 33
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-09-30 — delayed replay eviction callback removed a reclaimed event claim
+- **last-bug:** 2026-10-21 — ServiceNow synced audit omitted divergent incident_state
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
