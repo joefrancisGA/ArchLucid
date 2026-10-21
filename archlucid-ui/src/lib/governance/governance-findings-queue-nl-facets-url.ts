@@ -1,4 +1,5 @@
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 import type {
   FindingsNaturalLanguageFacets,
   FindingsNaturalLanguageSeverity,
@@ -131,7 +132,12 @@ export function governanceFindingsNlFacetsHrefFromSearch(
   facets: FindingsNaturalLanguageFacets,
   pathname: string = GOVERNANCE_FINDINGS_PATH,
 ): string {
-  let href = governanceFindingsNlSeverityHrefFromSearch(currentSearch, facets.severity, pathname);
+  const strippedParams = new URLSearchParams(currentSearch);
+
+  applyOperatorUrlSelectionSwitch(strippedParams, { kind: "governance-findings-queue-navigation" });
+  const strippedSearch = strippedParams.toString();
+
+  let href = governanceFindingsNlSeverityHrefFromSearch(strippedSearch, facets.severity, pathname);
 
   href = governanceFindingsNlStatusHrefFromSearch(
     href.includes("?") ? href.split("?")[1] ?? "" : "",

@@ -35,6 +35,7 @@ export type OperatorUrlSelectionSwitch =
   | { readonly kind: "policy-pack-authoring-input-mode" }
   | { readonly kind: "policy-pack-generator-template" }
   | { readonly kind: "governance-findings-register-filter" }
+  | { readonly kind: "governance-findings-queue-navigation" }
   | { readonly kind: "infra-resource-hub-tab"; readonly tab: ResourceHubTab }
   | { readonly kind: "infra-resource-hub-run-scope" };
 
@@ -130,6 +131,7 @@ export function applyOperatorUrlSelectionSwitch(
       stripPolicyPacksTabForeignParams(params, selectionSwitch.tab);
       break;
     case "governance-findings-register-filter":
+    case "governance-findings-queue-navigation":
       params.delete(GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM);
       break;
     case "infra-resource-hub-tab":

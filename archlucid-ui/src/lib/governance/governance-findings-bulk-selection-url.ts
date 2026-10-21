@@ -2,6 +2,7 @@ import {
   GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_FINDINGS_PATH,
 } from "@/lib/governance/governance-route-paths";
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 
 export const GOVERNANCE_FINDINGS_BULK_PARAM = "bulkFindings";
 
@@ -28,6 +29,9 @@ export function governanceFindingsBulkSelectionHrefFromSearch(
   pathname: string = GOVERNANCE_FINDINGS_PATH,
 ): string {
   const params = new URLSearchParams(currentSearch);
+
+  applyOperatorUrlSelectionSwitch(params, { kind: "governance-findings-queue-navigation" });
+
   const ids = findingIds.map((id) => id.trim()).filter((id) => id.length > 0);
 
   if (ids.length === 0) {
