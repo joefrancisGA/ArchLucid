@@ -5935,3 +5935,4 @@
 {"at":"2026-10-21T16:20:00.0000000Z","zoneId":"artifact-synthesis","outcome":"hit","productLine":"archlucid-shared","note":"structural diagram model copy matrix"}
 {"at":"2026-10-21T15:15:05.6856156Z","zoneId":"ui-form-validation","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T16:35:00.0000000Z","zoneId":"ui-architecture-diagram","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/architecture/architecture-diagram-camera-focus.ts"]}
+{"at":"2026-10-21T16:50:00.0000000Z","zoneId":"ui-auth-callback","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx"]}
