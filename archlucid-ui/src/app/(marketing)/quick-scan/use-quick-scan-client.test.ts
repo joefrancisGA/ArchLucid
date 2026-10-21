@@ -252,4 +252,63 @@ describe("useQuickScanClient", () => {
 
     expect(result.current.result).toEqual(SAMPLE_ANALYSIS);
   });
+
+  it("does not let a stale sample response overwrite a completed AI analysis", async () => {
+    let resolveSample: ((value: Response) => void) | undefined;
+    const samplePromise = new Promise<Response>((resolve) => {
+      resolveSample = resolve;
+    });
+
+    const fetchMock = vi.fn().mockImplementation((url: string, init?: RequestInit) => {
+      if (url.includes("/marketing/quick-scan/sample")) {
+        return samplePromise;
+      }
+
+      if (url.includes("/marketing/quick-scan") && init?.method === "POST") {
+        return Promise.resolve({
+          ok: true,
+          text: async () => JSON.stringify(REAL_ANALYSIS),
+        });
+      }
+
+      return Promise.reject(new Error(`Unexpected fetch: ${url}`));
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useQuickScanClient());
+
+    act(() => {
+      result.current.showSampleResult("Busy");
+      result.current.setFormValues({
+        systemName: "Contoso",
+        primaryEnvironment: "Azure",
+        primaryEnvironmentOther: "",
+        description: "A multi-region workflow with audit logging.",
+        architectureConcerns: [],
+      });
+      result.current.markFieldTouched("systemName");
+      result.current.markFieldTouched("primaryEnvironment");
+      result.current.markFieldTouched("description");
+    });
+
+    await act(async () => {
+      await result.current.handleFormSubmit({
+        preventDefault: vi.fn(),
+      } as unknown as FormEvent<HTMLFormElement>);
+    });
+
+    await waitFor(() => {
+      expect(result.current.result).toEqual(REAL_ANALYSIS);
+    });
+
+    await act(async () => {
+      resolveSample?.({
+        ok: true,
+        json: async () => SAMPLE_ANALYSIS,
+      } as Response);
+    });
+
+    expect(result.current.result).toEqual(REAL_ANALYSIS);
+  });
 });
