@@ -14847,7 +14847,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — oversized `ClaimMappingJson` — **cheap-disproof 2026-10-21 #78** (no in-memory repro; SQL MERGE boundary).
 - [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — `sameProtocol` ignores `IsActive` when preserving optional fields — **cheap-disproof 2026-10-21 #78** (reactivation intentionally preserves stored protocol fields).
 - [x] (valid-no-repro) `IdentityProviderConfigurationController.GetConfigurationAsync` — GET does not re-validate claim mapping — **cheap-disproof 2026-10-21 #78** (read path; activate enforces).
-- [x] (proven) `IdentityProviderConfigurationController.TestLogin` — sandbox test-login accepted issuer URIs longer than the persisted column while activate rejected them — regression `TestLogin_rejects_canonical_issuer_uri_longer_than_persisted_column`.- **id:** identity-provider-config
+- [x] (proven) `IdentityProviderConfigurationController.TestLogin` — sandbox test-login accepted issuer URIs longer than the persisted column while activate rejected them — regression `TestLogin_rejects_canonical_issuer_uri_longer_than_persisted_column.
+- **id:** identity-provider-config
 - **status:** open
 - **impact:** high
 - **aliases:** identity provider; idp activation
