@@ -77,6 +77,14 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
+$runLogUtilsScript = Join-Path $PSScriptRoot 'al-bug-run-log-utils.ps1'
+
+if (-not (Test-Path -LiteralPath $runLogUtilsScript)) {
+    throw "Missing run log helper: '$runLogUtilsScript'."
+}
+
+. $runLogUtilsScript
+
 function Get-RepoRoot {
     param([string] $ExplicitRoot)
 
@@ -243,7 +251,7 @@ function Get-Rolling24HourHuntStats {
     $archlucidShared = New-ProductLine24HourBucket
 
     foreach ($entry in $Entries) {
-        $at = ConvertTo-UtcDateTime -IsoTimestamp ([string]$entry.at)
+        $at = ConvertTo-UtcDateTime -IsoTimestamp (Get-RunLogEntryIsoTimestamp -Entry $entry)
 
         if ($at -lt $cutoff) {
             continue
@@ -375,7 +383,7 @@ function Prune-HuntRunLog {
 
     return @(
         $Entries | Where-Object {
-            $at = ConvertTo-UtcDateTime -IsoTimestamp ([string]$_.at)
+            $at = ConvertTo-UtcDateTime -IsoTimestamp (Get-RunLogEntryIsoTimestamp -Entry $_)
             $at -ge $retentionCutoff
         }
     )

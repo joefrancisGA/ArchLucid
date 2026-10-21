@@ -80,6 +80,14 @@ if (Test-Path -LiteralPath $escalationScript) {
     . $escalationScript
 }
 
+$runLogUtilsScript = Join-Path $PSScriptRoot 'al-bug-run-log-utils.ps1'
+
+if (-not (Test-Path -LiteralPath $runLogUtilsScript)) {
+    throw "Missing run log helper: '$runLogUtilsScript'."
+}
+
+. $runLogUtilsScript
+
 function Get-RepoRoot {
     param([string] $ExplicitRoot)
 
@@ -261,17 +269,26 @@ function Read-AlBugHuntRunLog {
 
     $entries = @()
     $lines = Get-Content -LiteralPath $Path -Encoding UTF8
+    $lineNumber = 0
 
     foreach ($line in $lines) {
+        $lineNumber++
+
         if ([string]::IsNullOrWhiteSpace($line)) {
             continue
         }
 
         try {
-            $entries += ,($line | ConvertFrom-Json)
+            $entry = $line | ConvertFrom-Json
+            Get-RunLogEntryIsoTimestamp -Entry $entry -SourceLineNumber $lineNumber -SourcePath $Path | Out-Null
+            $entries += ,$entry
         }
         catch {
-            throw "Invalid JSONL line in '$Path': $line"
+            if ($_.Exception.Message -match 'AL_BUG_HUNT_RUN_LOG entry') {
+                throw
+            }
+
+            throw "Invalid JSONL line in '$Path' (line $lineNumber): $line"
         }
     }
 
@@ -327,7 +344,7 @@ function Get-ZoneRunLogHitStats {
             continue
         }
 
-        $at = ConvertTo-RunLogUtcDateTime -IsoTimestamp $entry.at
+        $at = ConvertTo-RunLogUtcDateTime -IsoTimestamp (Get-RunLogEntryIsoTimestamp -Entry $entry)
         $outcome = [string]$entry.outcome
 
         if ($at -ge $twentyFourHourCutoff -and $outcome -ne 'seed-only') {
@@ -423,7 +440,7 @@ function Get-SaturatedDefectClasses {
             continue
         }
 
-        $at = ConvertTo-RunLogUtcDateTime -IsoTimestamp $entry.at
+        $at = ConvertTo-RunLogUtcDateTime -IsoTimestamp (Get-RunLogEntryIsoTimestamp -Entry $entry)
 
         if ($at -lt $cutoff) {
             continue
@@ -589,7 +606,7 @@ function Get-ZoneEscapeStats {
             continue
         }
 
-        $at = ConvertTo-RunLogUtcDateTime -IsoTimestamp $entry.at
+        $at = ConvertTo-RunLogUtcDateTime -IsoTimestamp (Get-RunLogEntryIsoTimestamp -Entry $entry)
 
         if ($at -lt $cutoff) {
             continue
@@ -613,7 +630,7 @@ function Get-ZoneEscapeStats {
             continue
         }
 
-        $at = ConvertTo-RunLogUtcDateTime -IsoTimestamp $entry.at
+        $at = ConvertTo-RunLogUtcDateTime -IsoTimestamp (Get-RunLogEntryIsoTimestamp -Entry $entry)
 
         if ($at -lt $cutoff) {
             continue
@@ -860,7 +877,7 @@ function Get-SeedOnlyHuntCount24h {
             continue
         }
 
-        $at = ConvertTo-RunLogUtcDateTime -IsoTimestamp $entry.at
+        $at = ConvertTo-RunLogUtcDateTime -IsoTimestamp (Get-RunLogEntryIsoTimestamp -Entry $entry)
 
         if ($at -ge $cutoff) {
             $count++
