@@ -656,6 +656,12 @@
 
 2026-10-20 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernancePreviewController.CompareEnvironments` running scope posture sealed-manifest guard before `CompareEnvironmentsAsync`, so read-only environment comparison returned HTTP 409 when the latest committed project run failed hash verification even though comparison only loads active activation manifests inside the service; remove scope guard from compare-environments (per-activation sealing remains in `GovernancePreviewService`); regression `CompareEnvironments_reaches_service_when_scope_posture_sealed_manifest_would_conflict`.
 
+2026-10-21 seed hunt (seed→hit): `application-agents` — promoted `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` accepting faithfulness summaries with `CasesEvaluated` 0 (ratios could still mark Evaluated when floor was 0), recording catalog evaluation from an empty harness; reject before upsert when `CasesEvaluated <= 0`; regression `Import_rejects_summary_when_cases_evaluated_is_zero`; 118 scoped `Application.Tests.Agents` tests passed.
+
+2026-10-21 seed hunt (seed→hit): `api-governance-tenancy-controllers` — structural pass closing **scope-posture sealed-manifest over-block** on metadata/config reads: added `GovernanceScopePostureSealedManifestEndpointCatalog`, `RequiresGovernanceScopePostureSealedManifestAttribute`, and `GovernanceScopePostureSealedManifestPreflight`; removed API scope guards from environment catalog GET/PUT, setup guide bundle, and governance resolution; duplicate posture guard removed from controller (service enforces); architecture tests `GovernanceScopePostureSealedManifestEndpointArchitectureTests`; regressions `Get_reaches_catalog_service_when_scope_posture_sealed_manifest_would_conflict`, `GetSetupGuideBundle_reaches_resolver_when_scope_posture_sealed_manifest_would_conflict`, `Resolve_reaches_resolver_when_scope_posture_sealed_manifest_would_conflict`; scoped governance catalog/setup/resolution/coverage tests 30/30.
+
+2026-10-21 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceCoverageController.GetScopeCoverage` running scope posture sealed-manifest guard before `ICoverageQueryService.GetByScopeAsync`, so GET governance coverage returned HTTP 409 when the latest committed project run failed hash verification unrelated to coverage assignment metadata; remove scope guard (parity with dashboard/compare-environments; preview POST keeps preview-specific guard); regression `GetScopeCoverage_reaches_query_service_when_scope_posture_sealed_manifest_would_conflict`; `GovernanceCoverageControllerScopeTests` 11/11; `TenantWorkspacesController` 61/61.
+
 2026-10-20 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceStickinessController.EnsureGovernanceDispositionRunSealedManifestAllowedAsync` and `GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync` treating manifest-compare miss as HTTP 409 before `RunNotFoundException` mapping on `POST /v1/governance/risk-exceptions`; skip sealed-hash guard when `GetRunDetailForManifestCompareAsync` returns null (preview/policy-pack simulate parity); regression `CreateRiskException_returns_not_found_for_missing_run_before_sealed_manifest_check`; cheap-disproof closed `GovernancePreCommitSimulationController` missing-run candidate (run repository preflight before sealed guard).
 
 2026-10-20 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryAppSettingHostRedactor.TryParseSqlHost` ignoring ADO.NET `Data Source=` SQL connection strings so App Service / Function declared SQL hosts were dropped from `app-settings-hosts.json` companion rows; extend `SqlServerHostRegex` to accept `Data Source` alias; regression `TryParseSettingValue_extracts_sql_host_from_data_source_alias`; app-setting host Core tests 25/25.
@@ -10142,7 +10148,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
 - **hunts:** 56
-- **bugs-found:** 22
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 7
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-09-26 — fullwidth commercial-at homoglyphs evaded userinfo-shaped return-path guard
@@ -10642,7 +10648,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
 - **hunts:** 37
-- **bugs-found:** 22
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-20
 - **last-bug:** 2026-10-09 — nested local functions and expression-bodied properties bypassed ARCH006
@@ -15301,7 +15307,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
 - **hunts:** 79
-- **bugs-found:** 22
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
 - **last-bug:** 2026-10-11 — legacy API key rotation audit stored a noncanonical route slot
@@ -29152,7 +29158,7 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-13 — spaced ASCII solidus broke multi-word constraint phrases
+- **last-bug:** 2026-10-21 — NFC vs NFD framing answer values split review-cache `ContentHash`
 
 2026-10-13 seed hunt (seed→hit): reseeded phrase normalization after duplicate-space fix; proved spaced ASCII `/` between words (`managed / identity`, `private / endpoint`) missed affirmative phrase detection while compact `managed/identity` slugs must stay suppressed; `NormalizeSpacedAsciiSolidus`; regressions in `RequestConstraintPhraseSpacedSolidusTests`; 910 scoped RequestConstraint tests passed.
 
@@ -39377,6 +39383,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-21 seed hunt (seed→hit): curated evidence proposal prompt agent type from finding SourceAgent when envelope field missing; regression above.
 
 - [x] (proven) `AgentCuratedEvidenceProposer.BuildUserPrompt` — post-execution curated evidence LLM prompt used `AgentType: 0` when `AgentResult.AgentType` was default but typed findings carried `SourceAgent` — regression `BuildUserPrompt_uses_finding_source_agent_when_envelope_agent_type_missing`.
+2026-10-21 seed hunt (seed→hit): `application-agents` — promoted `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` accepting faithfulness summaries with `CasesEvaluated` 0 (ratios could still mark Evaluated when floor was 0), recording catalog evaluation from an empty harness; reject before upsert when `CasesEvaluated <= 0`; regression `Import_rejects_summary_when_cases_evaluated_is_zero`; 118 scoped `Application.Tests.Agents` tests passed.
+
+2026-10-21 seed hunt (seed→hit): promoted faithfulness harness import with zero `CasesEvaluated`; regression `Import_rejects_summary_when_cases_evaluated_is_zero`.
+
+- [x] (proven) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — reachable POST import with `faithfulness-summary.json` reporting `casesEvaluated: 0` stored Evaluated/Failed evaluation rows without running harness cases — regression above. [class:fail-open-validation]
 
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
@@ -39714,7 +39725,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **bugs-found:** 105
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Trial conversion mark on quarantined tenant after conversion metrics
+- **last-bug:** 2026-10-21 — NFC vs NFD framing answer values split review-cache `ContentHash`
 
 2026-10-13 seed hunt (seed→hit): reseeded trial conversion post-metrics mark window; proved `MarkTrialConvertedAsync` when offboard followed conversion metrics; pre-mark tenant re-read; regression `ConvertTrialAsync_returns_success_without_mark_when_offboard_completes_after_conversion_metrics_before_mark`; 227 scoped tenancy tests passed.
 
@@ -41306,6 +41317,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-21 seed hunt (seed→hit): promoted NFC vs NFD framing answer values splitting `ContentHash` while ledger technology names already used FormC; `ClosedLoopFramingAnswersNormalizer` now normalizes keys and values with `NormalizationForm.FormC`; regression `Build_matches_content_hash_when_framing_answer_differs_only_by_unicode_normalization_form`; 95 scoped tests passed.
+
 2026-10-13 seed hunt (seed→hit): promoted duplicate normalized `SourceTexts` rows and NFC vs NFD `TechnologyName` in ledger fingerprint; dedupe grouped attachments in `HashContent`; `NormalizeTechnologyName` (FormC) in `ReviewCacheLedgerFingerprint`; regressions `Build_matches_content_hash_when_duplicate_source_texts_normalize_to_identical_rows` and `Build_matches_content_hash_when_ledger_technology_name_differs_only_by_unicode_normalization_form`; 94 scoped tests passed.
 
 2026-10-13 seed hunt (seed→hit): promoted `%2F` percent-encoded slash and UTF-8 BOM prefix on source `Content`; `DecodePercentEncodedSlashes` + `StripUtf8Bom` in `ClosedLoopReasoningSourceTextNormalizer`; regressions `Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_slash` and `Build_matches_content_hash_when_source_content_differs_only_by_utf8_bom_prefix`; cheap-disproved duplicate ledger-order and publish-toggle candidates; 92 scoped tests passed.
@@ -41344,7 +41357,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` — percent-encoded slash (`%2F`) in `FileName` vs literal `/` split `ContentHash` — **hit 2026-10-13 seed hunt:** `DecodePercentEncodedSlashes`; regression `Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_slash`.
 - [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` — UTF-8 BOM (`\uFEFF`) prefix in `Content` split `ContentHash` — **hit 2026-10-13 seed hunt:** `StripUtf8Bom` after line-ending normalize; regression `Build_matches_content_hash_when_source_content_differs_only_by_utf8_bom_prefix`.
 - [x] (proven) `ReviewCacheManifestBuilder.HashContent` — duplicate `SourceTexts` rows that normalize to identical file/type/content split `ContentHash` — **hit 2026-10-13 seed hunt:** `GroupBy` dedupe after normalize; regression `Build_matches_content_hash_when_duplicate_source_texts_normalize_to_identical_rows`.
-- [ ] (candidate) `ClosedLoopFramingAnswersNormalizer` — framing answer keys differing only by Unicode compatibility case folding — locus: `HashContent` framing loop; input: Turkish dotted `I` key variants; wrong outcome: cache miss for equivalent answers.
+- [x] (proven) `ClosedLoopFramingAnswersNormalizer` — framing answer values differing only by Unicode NFC vs NFD split `ContentHash` — **hit 2026-10-21 seed hunt:** `NormalizeUnicode` with `NormalizationForm.FormC` on keys and values; regression `Build_matches_content_hash_when_framing_answer_differs_only_by_unicode_normalization_form`.
+- [x] (invalid) `ClosedLoopFramingAnswersNormalizer` — framing answer keys differing only by Unicode compatibility case folding — **cheap-disproof 2026-10-21 seed hunt:** keys merge via `StringComparer.OrdinalIgnoreCase` (ASCII casing); Turkish `I`/`ı` compatibility folding is not a reachable OpenAPI/UI framing-key shape in this path.
 
 2026-10-06 seed hunt (seed→hit): source `ContentType` letter casing split cache manifest hash; lowercase in `ClosedLoopReasoningSourceTextNormalizer`; regression `Build_matches_content_hash_when_source_content_type_differs_only_by_casing`; seeded five follow-on candidates; 82 scoped tests passed.
 
@@ -41383,11 +41397,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 42
-- **bugs-found:** 22
+- **hunts:** 43
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — duplicate source attachments and NFC/NFD ledger labels split cache hash
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-21 — NFC vs NFD framing answer values split review-cache `ContentHash`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -43054,7 +43068,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 42
+- **hunts:** 43
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-20
