@@ -1,3 +1,5 @@
+using ArchLucid.Core.Json;
+
 using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Core.Configuration;
@@ -57,7 +59,7 @@ public static class ConfigurationKeyRequirement
                 reason = "AgentExecution:Mode is Real and completion client is not Echo.";
                 return true;
             case ConfigKeyRequirementKind.WhenApiKeyEnabled:
-                if (!c.GetValue("Authentication:ApiKey:Enabled", false))
+                if (!IsConfigurationBooleanEnabled(c, "Authentication:ApiKey:Enabled"))
                 {
                     return false;
                 }
@@ -65,7 +67,7 @@ public static class ConfigurationKeyRequirement
                 reason = "API key authentication is enabled.";
                 return true;
             case ConfigKeyRequirementKind.WhenOtlpEnabled:
-                if (!c.GetValue("Observability:Otlp:Enabled", false))
+                if (!IsConfigurationBooleanEnabled(c, "Observability:Otlp:Enabled"))
                 {
                     return false;
                 }
@@ -170,4 +172,12 @@ public static class ConfigurationKeyRequirement
             c["AgentExecution:CompletionClient"]?.Trim(),
             "Echo",
             StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsConfigurationBooleanEnabled(IConfiguration configuration, string key)
+    {
+        if (JsonBooleanStringReader.TryParseBooleanString(configuration[key], out bool parsed))
+            return parsed;
+
+        return false;
+    }
 }

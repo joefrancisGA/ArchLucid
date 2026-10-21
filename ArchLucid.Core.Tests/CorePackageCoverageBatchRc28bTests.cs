@@ -144,6 +144,68 @@ public sealed class CorePackageCoverageBatchRc28bTests
     }
 
     [Fact]
+    public void ConfigurationKeyRequirement_WhenOtlpEnabled_honors_yes_synonym_configuration_value()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> { ["Observability:Otlp:Enabled"] = "yes" })
+            .Build();
+        ConfigurationKeyEntry entry = new(
+            "s",
+            "path",
+            ["env"],
+            null,
+            "req",
+            "desc",
+            ConfigKeyRequirementKind.WhenOtlpEnabled);
+
+        ConfigurationKeyRequirement.IsKeyRequired(entry, configuration, aspNetCoreEnvironment: "Development", out string reason)
+            .Should()
+            .BeTrue();
+        reason.Should().Contain("OTLP");
+    }
+
+    [Fact]
+    public void ConfigurationKeyRequirement_WhenOtlpEnabled_does_not_throw_on_unrecognized_boolean_configuration_value()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> { ["Observability:Otlp:Enabled"] = "maybe" })
+            .Build();
+        ConfigurationKeyEntry entry = new(
+            "s",
+            "path",
+            ["env"],
+            null,
+            "req",
+            "desc",
+            ConfigKeyRequirementKind.WhenOtlpEnabled);
+
+        ConfigurationKeyRequirement.IsKeyRequired(entry, configuration, aspNetCoreEnvironment: "Development")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void ConfigurationKeyRequirement_WhenApiKeyEnabled_honors_on_synonym_configuration_value()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> { ["Authentication:ApiKey:Enabled"] = "on" })
+            .Build();
+        ConfigurationKeyEntry entry = new(
+            "s",
+            "path",
+            ["env"],
+            null,
+            "req",
+            "desc",
+            ConfigKeyRequirementKind.WhenApiKeyEnabled);
+
+        ConfigurationKeyRequirement.IsKeyRequired(entry, configuration, aspNetCoreEnvironment: "Development", out string reason)
+            .Should()
+            .BeTrue();
+        reason.Should().Contain("API key");
+    }
+
+    [Fact]
     public void ConfigurationKeyRequirement_WhenProduction_treats_configuration_bound_aspnet_environment_with_bounding_whitespace_as_production()
     {
         IConfiguration configuration = new ConfigurationBuilder()

@@ -31189,6 +31189,8 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-10-21 seed hunt (seed->hit): promoted Scim GroupRoleMappingOverrides whitespace keys; GroupToRoleMapper trims SCIM group ids but bound dictionary keys did not; ScimOptionsNormalizePostConfigure + host registration; regressions PostConfigure_trims_group_role_mapping_override_keys_from_configuration_binding and PostConfigure_trims_group_role_mapping_override_values_from_configuration_binding; cheap-disproof closed blob URL AccountKey semicolon (matrix); removed malformed jsonl row; 2 ScimOptionsNormalizePostConfigure tests passed (RunAnalyzers=false).
 2026-10-21 seed hunt (seed->hit): promoted AgentPromptCatalogOptions.Versions whitespace keys; CachedAgentSystemPromptCatalog resolves AgentTypeKeys without trimming dictionary keys; AgentPromptCatalogOptionsNormalizePostConfigure + host registration; regression PostConfigure_trims_agent_prompt_version_keys_from_configuration_binding; cheap-disproof closed JSON null array (Resolve_redacts_json_effective_values_when_json_array_contains_null_then_password_pair) and SaaS WhenProduction (catalog Production-only); 1 AgentPromptCatalog test passed (RunAnalyzers=false).
 ## Zone: core-configuration-summary
+2026-10-21 seed hunt (seed->hit): promoted ConfigurationKeyRequirement WhenOtlpEnabled/WhenApiKeyEnabled boolean reads; GetValue<bool> threw on yes/on synonyms and skipped required-key enforcement; IsConfigurationBooleanEnabled uses JsonBooleanStringReader; regressions WhenOtlpEnabled_honors_yes_synonym_configuration_value, WhenOtlpEnabled_does_not_throw_on_unrecognized_boolean_configuration_value, WhenApiKeyEnabled_honors_on_synonym_configuration_value; 13 ConfigurationKeyRequirement tests passed (RunAnalyzers=false).
+
 2026-10-21 seed hunt (seed->hit): promoted configuration-bound ASPNETCORE_ENVIRONMENT with bounding whitespace; WhenProduction ignored IConfiguration value because IsAspNetCoreProductionEnvironment compared without Trim; regression ConfigurationKeyRequirement_WhenProduction_treats_configuration_bound_aspnet_environment_with_bounding_whitespace_as_production; cheap-disproof closed ITSM inbound map whitespace candidates (lookup trims config keys); 4 WhenProduction tests passed (RunAnalyzers=false).
 
 2026-10-21 seed hunt (seed->hit): promoted AiUsageControlsOptions.PublicDemoFeatureDailyLimitUsd whitespace-key parity; configuration-bound feature cap keys with bounding whitespace missed AiBudgetPreCallGuard TryGetValue(feature.ToString()); AiUsageControlsOptionsNormalizePostConfigure + host registration; regressions PostConfigure_trims_public_demo_feature_daily_limit_usd_keys_from_configuration_binding and EnsureAllowedAsync_PublicDemoBlocksExpensiveFeature_WhenConfigBoundFeatureCapKeyHasBoundingWhitespace; closed stale dictionary-batch candidate; 2 tests passed (RunAnalyzers=false).
@@ -31217,11 +31219,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 64
-- **bugs-found:** 46
+- **hunts:** 65
+- **bugs-found:** 47
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - WhenProduction honors trimmed ASPNETCORE_ENVIRONMENT from configuration
+- **last-bug:** 2026-10-21 - WhenOtlp/ApiKey enabled flags use JsonBooleanStringReader
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -31451,6 +31453,12 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) ConfluencePublishingOptions.ProjectSpaceKeys whitespace keys — ConfluencePublishingSpaceKeyResolver.Resolve trims keys and values on read (proven null-trim 2026-10-09). [class:other]
 - [x] (valid-no-repro) IntegrationsItsmInboundOptions.JiraStatusDispositionMap whitespace keys — ItsmInboundExternalStatusMapper trims dictionary keys during lookup. [class:other]
 - [x] (valid-no-repro) IntegrationsItsmInboundOptions.ServiceNowStateDispositionMap whitespace keys — disposition mapper trims config keys on lookup. [class:other]
+
+- (candidate) ConfigurationKeyRequirement.WhenAcsEmail — Email:Provider bound with full-width or NBSP padding around AzureCommunicationServices vs EmailProviderNames constant equality.
+- (candidate) QuickScanSafetyProductionLikeHostClassification — ARCHLUCID_ENVIRONMENT=Staging in configuration while host is Development does not align with ConfigurationKeyRequirement.WhenProduction scope (documented divergence vs bug).
+- (candidate) ConfigurationEmbeddedCredentialMaterialDetector — password=secret pair preceded only by form-feed (\f) delimiter may bypass IsPairDelimiter scan on non-sensitive effective values.
+- (candidate) AzureOpenAiEndpointNormalizer.EnsureTrailingSlash — absolute endpoint with empty path and fragment (https://host.openai.azure.com/#/) may append slash after fragment.
+- (candidate) LlmCostEstimationEffectiveRates.TryResolve — deployment overlay key match when deploymentLabel is empty but configuration map has whitespace-only key entry.
 
 
 ## Zone: core-findings-advice
