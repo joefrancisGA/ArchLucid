@@ -19,7 +19,7 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import {
   parseRunAgentExecutionLogOpenFromSearch,
   RUN_AGENT_EXECUTION_LOG_OPEN_PARAM,
@@ -64,11 +64,11 @@ export function ReviewAgentExecutionLogSection({
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
       commitHrefIfChanged(
-        runAgentExecutionLogDisclosureHrefFromSearch(readWindowLocationSearch(), detailsOpen, pathname),
+        runAgentExecutionLogDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setOpen = useCallback(
