@@ -39,7 +39,7 @@ public static class AzureOpenAiEndpointNormalizer
         if (!value.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
             return value;
 
-        if (!ContainsAzureOpenAiHostMarker(value))
+        if (!TryGetEndpointHost(value, out string? host) || string.IsNullOrEmpty(host) || !IsAzureOpenAiHost(host))
             return value;
 
         return "https://" + value["http://".Length..];
@@ -50,16 +50,38 @@ public static class AzureOpenAiEndpointNormalizer
         if (value.Contains("://", StringComparison.Ordinal))
             return value;
 
-        if (ContainsAzureOpenAiHostMarker(value))
-            return "https://" + value;
+        if (!TryGetEndpointHost(value, out string? host) || string.IsNullOrEmpty(host) || !IsAzureOpenAiHost(host))
+            return value;
 
-        return value;
+        return "https://" + value;
     }
 
-    private static bool ContainsAzureOpenAiHostMarker(string value) =>
-        value.Contains("openai.azure.com", StringComparison.OrdinalIgnoreCase)
-        || value.Contains("cognitiveservices.azure.com", StringComparison.OrdinalIgnoreCase)
-        || value.Contains("services.ai.azure.com", StringComparison.OrdinalIgnoreCase);
+    private static bool TryGetEndpointHost(string value, out string? host)
+    {
+        host = null;
+
+        if (Uri.TryCreate(value, UriKind.Absolute, out Uri? absolute))
+        {
+            host = absolute.Host;
+
+            return true;
+        }
+
+        if (value.Contains("://", StringComparison.Ordinal))
+            return false;
+
+        if (!Uri.TryCreate("https://" + value, UriKind.Absolute, out Uri? inferred))
+            return false;
+
+        host = inferred.Host;
+
+        return true;
+    }
+
+    private static bool IsAzureOpenAiHost(string host) =>
+        host.EndsWith(".openai.azure.com", StringComparison.OrdinalIgnoreCase)
+        || host.EndsWith(".cognitiveservices.azure.com", StringComparison.OrdinalIgnoreCase)
+        || host.EndsWith(".services.ai.azure.com", StringComparison.OrdinalIgnoreCase);
 
     private static string EnsureTrailingSlash(string value)
     {

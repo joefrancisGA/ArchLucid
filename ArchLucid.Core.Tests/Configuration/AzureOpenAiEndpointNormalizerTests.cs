@@ -55,4 +55,13 @@ public sealed class AzureOpenAiEndpointNormalizerTests
 
         normalized.Should().Be("https://oai-archlucid-dev.openai.azure.com/");
     }
+
+    [SkippableFact]
+    public void NormalizeForChatCompletions_does_not_upgrade_http_when_only_query_contains_azure_openai_host_marker()
+    {
+        string normalized = AzureOpenAiEndpointNormalizer.NormalizeForChatCompletions(
+            "http://evil.example.com?mirror=openai.azure.com");
+
+        normalized.Should().StartWith("http://evil.example.com");
+    }
 }

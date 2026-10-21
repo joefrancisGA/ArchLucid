@@ -31090,6 +31090,9 @@ Split from retired `archlucid-core` (ABQ-08).
 
 ---
 ## Zone: core-configuration-summary
+2026-10-21 seed hunt (seed->hit): promoted substring Azure OpenAI host marker false positive; EnsureHttpsSchemeForAzureOpenAiHosts upgraded http://evil.example.com?mirror=openai.azure.com because query contained host marker; TryGetEndpointHost + IsAzureOpenAiHost use authority host only; regression NormalizeForChatCompletions_does_not_upgrade_http_when_only_query_contains_azure_openai_host_marker; cheap-disproof closed four ledger candidates; 6 AzureOpenAiEndpointNormalizer tests passed (RunAnalyzers=false).
+
+
 2026-10-21 seed hunt (seed->hit): promoted HTTP AzureOpenAI endpoint binding; NormalizeForChatCompletions preserved http:// for openai.azure.com hosts; EnsureHttpsSchemeForAzureOpenAiHosts upgrades http to https for Azure OpenAI host markers; regression NormalizeForChatCompletions_upgrades_http_to_https_for_openai_azure_host; cheap-disproof closed five open dictionary-trim and password-@ candidates; 5 AzureOpenAiEndpointNormalizer tests passed (RunAnalyzers=false).
 
 2026-10-21 seed hunt (seed->hit): promoted scheme-less user:pass@host connection strings in config summary effective values; ConfigurationEmbeddedCredentialMaterialDetector only scanned userinfo after ://; ContainsSchemeLessUserInfoCredentials closes the gap; matrix case dbuser:dbpass@db.example.com:5432/app; 24 scoped tests passed (RunAnalyzers=false).
@@ -31111,12 +31114,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 56
-- **bugs-found:** 38
+- **hunts:** 57
+- **bugs-found:** 39
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - upgrade http Azure OpenAI endpoints to https
-- **related-pd-tb:** none
+- **last-bug:** 2026-10-21 - Azure OpenAI host marker matches authority host only*related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-09-13 seed hunt #2278 (seed-only): reseeded core-configuration-summary with `-Hint archlucid-core` `-Refresh`; no new hunt-ready rows.
@@ -31124,11 +31126,15 @@ Split from retired `archlucid-core` (ABQ-08).
 Split from retired `archlucid-core` (ABQ-08).
 
 ### Hypotheses
-- (candidate) `ConfigurationDictionaryBindingKeyNormalizer` batch — remaining configuration-bound dictionaries (`PerAgentTypeFloors`, `GroupRoleMappingOverrides`, `AgentPromptCatalogOptions.Versions`, ITSM inbound maps) still lack post-configure trim registration; input: appsettings keys with bounding whitespace on any of those sections.
-- (candidate) `AzureOpenAiEndpointNormalizer` — `https://` Foundry project URLs with non-default path segments may be collapsed to classic host without preserving required path/query; input: `AzureOpenAI:Endpoint` bound to a cognitiveservices host with custom `/openai/deployments/...` path.
-- (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — semicolon-free `host,port=6379,password=secret` tuples without `password=` key name may bypass delimiter-agnostic scan; input: non-sensitive effective value using comma-only Azure Redis shorthand.
-- (candidate) `ConfigurationKeyRequirement.WhenProduction` — `Environment` configuration key alias may disagree with `ASPNETCORE_ENVIRONMENT` when only `DOTNET_ENVIRONMENT` is set in container hosts; input: `DOTNET_ENVIRONMENT=Production` without ASP.NET env vars.
-- (candidate) `ProductLineDeploymentOptions.TryParseDeploymentKind` — `securenow`/`archlucid` deployment aliases documented in UI may not parse while `security`/`architecture` do; input: `ProductLine:Deployment=securenow` from operator env.
+- (candidate) `ConfigurationDictionaryBindingKeyNormalizer` batch — remaining configuration-bound dictionaries still lack post-configure trim registration; input: appsettings keys with bounding whitespace on PerAgentTypeFloors / SCIM / AgentPrompts sections.
+- (candidate) `ConfigurationKeyRequirement.IsProduction` — `DOTNET_ENVIRONMENT` bound only via environment variable, not `IConfiguration`, when ASP.NET caller environment is unset; input: in-memory `DOTNET_ENVIRONMENT=Production` without env vars.
+- (candidate) `AzureOpenAiEndpointNormalizer` — host suffix check accepts typo hosts such as `notopenai.azure.com` because `EndsWith(.openai.azure.com)` matches embedded suffix; input: mis-typed `AzureOpenAI:Endpoint` hostname.
+- (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `user:pass@host/path?token=secret` may skip userinfo when `@` appears only in query on scheme-less values; input: non-sensitive effective value with credentials in query half.
+- (candidate) `SelfServiceAbuseOptions.ConsumerEmailDomainsCsv` — interior Unicode homoglyph domains may bypass `ToLowerInvariant` consumer-mail blocklist; input: `Auth:SelfServiceAbuse:ConsumerEmailDomainsCsv` with Cyrillic lookalike gmail domain.
+- [x] (valid-no-repro) `AzureOpenAiEndpointNormalizer` Foundry project URL path collapse — `*.services.ai.azure.com` mapping to classic `openai.azure.com` host is intentional for SDK client shape.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` comma Redis shorthand — matrix already covers `contoso.redis.cache.windows.net:6380,password=secret`.
+- [x] (invalid) `ProductLineDeploymentOptions.TryParseDeploymentKind` `securenow` alias — catalog/OpenAPI document `architecture`/`security`/`both` only; no `securenow` config path.
+- [x] (proven) `AzureOpenAiEndpointNormalizer.EnsureHttpsSchemeForAzureOpenAiHosts` — substring `Contains` on full endpoint upgraded `http://evil.example.com?mirror=openai.azure.com` to https — **hit 2026-10-21 seed hunt (seed->hit):** `TryGetEndpointHost` + `IsAzureOpenAiHost`; regression `NormalizeForChatCompletions_does_not_upgrade_http_when_only_query_contains_azure_openai_host_marker`. [class:fail-open-validation]
 - [x] (valid-no-repro) `AgentOutputQualityGateEffectiveFloorsResolver` / `PerAgentTypeFloors` whitespace keys — real mismatch, but fix is consolidated dictionary post-configure (`[class:other]` saturated); defer batch registration.
 - [x] (valid-no-repro) `ScimOptions.GroupRoleMappingOverrides` whitespace keys — mapper trims SCIM ids; config-key trim belongs in shared dictionary post-configure batch, not a one-off synonym.
 - [x] (valid-no-repro) `AgentPromptCatalogOptions.Versions` whitespace keys — same dictionary-key trim class; catalog uses case-insensitive keys without leading-space trim.
