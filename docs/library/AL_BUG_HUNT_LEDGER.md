@@ -13,6 +13,10 @@
 
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 2026-10-21 structural hunt (hit, lane B): `api-null-collection-properties` — lock `api-null-collection-properties` pushed and verified on `origin/bugsmash` before work; extended `ApiRequestNullCollectionElementsGuard` to reject null non-nullable `[FromBody]` collection properties (nullable-annotated properties exempt) with the same global filter and HTTP 400 `ValidationFailed` (closes sibling class to null-element guard: `SettingsController.PutAllowedEngineSet` `allowedAliasIds: null`); architecture matrix `All_from_body_non_nullable_collection_properties_are_rejected_when_property_is_null` + probe factory; guard/filter regressions including `WorkspaceAllowedEngineSetUpdateRequest`; scoped `FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~ApiRequestNullCollectionElementsFilter` 15/15; lock released after push; no additional live 500 found in matrix (`DEFECT_FOUND: false`).
+2026-10-21 seed hunt (seed→hit, lane C): `core-requests-constraints` — lock `core-requests-constraints` pushed and verified on `origin/bugsmash` before work (skipped `core-configuration-summary` hunted today; avoided lane B `decisioning` lock); promoted phrase-splitting gap — `managed, identity` and `private, endpoint` missed `ContainsAffirmativePhrase` while spaced list commas elsewhere already matched whole phrases; `NormalizeSpacedListSeparators` maps ASCII `,`/`;` to spaces when bounded by ASCII spaces (compact `field,encryption,module` unchanged); regressions in `RequestConstraintPhraseSpacedSolidusTests`; scoped `FullyQualifiedName~RequestConstraint` 912 passed (`RunAnalyzers=false`).
+
+- [x] (proven) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — spaced ASCII comma/semicolon between phrase words broke matching — **hit 2026-10-21 lane C:** `NormalizeSpacedListSeparators`; regressions `HasManagedIdentityConstraint_returns_true_when_ascii_comma_with_spaces_splits_phrase` and `HasPrivateNetworkingConstraint_returns_true_when_ascii_comma_with_spaces_splits_private_endpoint_phrase`.
+
 
 - [x] (proven) **Defect class:** null non-nullable collection properties on `[FromBody]` DTOs (`"allowedAliasIds": null`) causing `NullReferenceException` before validation — **closed 2026-10-21 lane B:** same global filter/guard as null elements; architecture null-property matrix + guard tests.
 
@@ -8219,7 +8223,7 @@
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.RelationshipValidation.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalTerraformSourceIdHeuristics.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalConsensusMerger.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
 - **hunts:** 67
-- **last-hunt:** 2026-10-20
+- **last-hunt:** 2026-10-21
 - **bugs-found:** 53
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-20 — Tenant value report DOCX omitted artifact-text sanitization
@@ -13514,7 +13518,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-16
@@ -20133,7 +20137,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
 - **hunts:** 65
-- **bugs-found:** 35
+- **bugs-found:** 36
 - **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-05 — BFF session JWT scope ignored for upstream headers in production
@@ -31054,7 +31058,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **last-bug:** 2026-10-21 — spaced ASCII comma/semicolon between phrase words
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -31394,6 +31398,8 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-20
 - **last-bug:** 2026-10-13 — spaced ASCII solidus broke multi-word constraint phrases
+
+2026-10-21 seed hunt (seed→hit, lane C): promoted spaced comma/semicolon phrase normalization; 912 scoped RequestConstraint tests passed.
 
 2026-10-13 seed hunt (seed→hit): reseeded phrase normalization after duplicate-space fix; proved spaced ASCII `/` between words (`managed / identity`, `private / endpoint`) missed affirmative phrase detection while compact `managed/identity` slugs must stay suppressed; `NormalizeSpacedAsciiSolidus`; regressions in `RequestConstraintPhraseSpacedSolidusTests`; 910 scoped RequestConstraint tests passed.
 
