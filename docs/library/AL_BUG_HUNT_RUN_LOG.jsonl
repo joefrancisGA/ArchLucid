@@ -5993,3 +5993,4 @@
 {"at":"2026-10-21T17:30:09.9323492Z","zoneId":"application-tenancy-lifecycle","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-21T17:38:04.8768218Z","zoneId":"application-agents","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Agents/"]}
 {"at":"2026-10-21T17:37:35.0716487Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared","severity":"medium","defectClass":"state-machine-gap"}
+{"at":"2026-10-21T17:42:12.5892047Z","zoneId":"application-tenancy-lifecycle","outcome":"seed-only","productLine":"archlucid-shared"}

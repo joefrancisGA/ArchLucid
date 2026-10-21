@@ -43099,11 +43099,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 127
+- **hunts:** 128
 - **bugs-found:** 111
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-21 - post-auth welcome demo seed quarantine re-read
+
+2026-10-21 seed hunt (seed-only): `[state-machine-gap]` saturated — no new dual-path erasure repro promoted; cheap-disproof closed `TenantWorkOwnershipDeletePolicyService` teardown-window candidate (tenant HTTP blocked by erasure middleware; `TrialSeatReservationMiddleware` runs after quarantine per `PipelineExtensions`); added four `(candidate)` rows for non-race lenses.
 
 2026-10-21 seed hunt (seed→hit): dual-path gap — post-auth bootstrap lacked pre-welcome erasure re-read present on self-registration; regression `TryBootstrapAfterPostAuthWorkspaceAsync_skips_welcome_demo_seed_when_offboard_completes_after_entry_before_welcome`; 241 scoped tenancy tests passed.
 
@@ -43655,10 +43657,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `TenantMigrationStatusService.BuildSnapshotAsync` — active migration stage surfaced for tenant in erasure quarantine — **cheap-disproof 2026-10-21 seed hunt:** `GetForTenantAsync` re-reads tenant and returns `InMigration = false` when `OffboardedUtc` is set; regression `GetForTenantAsync_returns_inactive_when_active_migration_exists_but_tenant_is_in_erasure_quarantine`.
 
 - [x] (valid-no-repro) `TenantUsageStatusService.BuildAsync` — **cheap-disproof 2026-10-21 seed hunt:** snapshot assembly is read-model only; tenant-scoped HTTP blocked by `TenantErasureQuarantineMiddleware` before controllers; no reachable wrong harm without citing admin bypass caller.
-- (candidate) `TenantWorkOwnershipDeletePolicyService.GetAllowCreatorDeleteOwnedWorkAsync` — reads `AllowCreatorDeleteOwnedWork` tenant setting using scope tenant id without confirming tenant row still active — locus: `RequireTenantId` + `TryGetAsync`; input: scoped HTTP read during tenant teardown window.
+- [x] (valid-no-repro) `TenantWorkOwnershipDeletePolicyService.GetAllowCreatorDeleteOwnedWorkAsync` — reads settings without tenant row active check — **cheap-disproof 2026-10-21 seed hunt:** authenticated tenant-scoped settings routes are blocked by `TenantErasureQuarantineMiddleware` before controllers; malformed-value fail-open already closed (#1247).
 - [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.StartAsync` — active migration row after post-insert quarantine — **cheap-disproof 2026-10-21 seed hunt:** regression `StartAsync_returns_in_erasure_quarantine_without_started_audit_when_offboard_completes_after_insert` documents current behavior.
 - [x] (valid-no-repro) `TenantDeletionService.DeleteTenantAsync` — destructive purge without audit when approval cleared after SQL purge — **cheap-disproof 2026-10-21 seed hunt:** regression `DeleteTenantAsync_returns_without_platform_audit_when_erasure_approval_cleared_after_sql_purge` documents intentional skip.
 - [x] (proven) `TrialTenantBootstrapService.TryBootstrapAfterPostAuthWorkspaceAsync` — welcome demo seed when erasure offboard after entry before welcome — **hit 2026-10-21 seed hunt (seed→hit):** pre-welcome `IsTenantInErasureQuarantineAsync` guard (parity with self-registration); regression `TryBootstrapAfterPostAuthWorkspaceAsync_skips_welcome_demo_seed_when_offboard_completes_after_entry_before_welcome`. [class:state-machine-gap]
+
+- (candidate) `TenantTrialFacade.GetTrialStatusAsync` — returns `TenantTrialHttpOutcome.Success` with trial days remaining when `OffboardedUtc` is set — locus: status query after `GetByIdAsync` without quarantine filter; input: `GET` trial status while tenant row still shows active trial fields (reachability: only if caller bypasses erasure middleware).
+- (candidate) `TenantTrialSeatPolicy.RequiresSeatClaim` — omits `OffboardedUtc` predicate while `TrialSeatAccountant` uses policy before `TryClaimTrialSeatAsync` — locus: seat policy helper; input: authenticated tenant request (mitigated: `TenantErasureQuarantineMiddleware` precedes `TrialSeatReservationMiddleware` in `PipelineExtensions`).
+- (candidate) `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` — `RecordTrialSignupFailure` for email-verification block without re-read between first quarantine check and metric — locus: lines 85–87; input: `/v1/register` bootstrap when offboard races verification failure path (audit path has second read; metric may still emit — see test `skips_email_verification_failure_audit_when_offboard_completes_after_failure_metric_before_audit`).
+- (candidate) `WorkspaceModelExecutionProfileService.GetAsync` — malformed `DefaultModelExecutionProfile` tenant setting falls back to workspace default without surfacing parse failure — locus: `AgentModelExecutionProfileParser.TryParse`; input: operator settings API with corrupted setting row (reachability: admin/DB tamper vs tenant-controlled OpenAPI).
 ## Zone: host-core-coordination
 
 - **id:** host-core-coordination
