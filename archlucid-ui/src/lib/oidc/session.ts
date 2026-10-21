@@ -500,13 +500,18 @@ export async function ensureAccessTokenFresh(): Promise<void> {
           ) {
             const currentExpiresAtHintMs = getExpiresAtMs();
 
-            // A pre-persist refresh may return a shorter BFF expiry after callback persist
-            // already extended the client hint for the same identity.
-            if (
-              expiresAtHintAtStart !== currentExpiresAtHintMs &&
-              result.expiresAtMs < currentExpiresAtHintMs
-            ) {
-              return;
+            // A pre-persist refresh may disagree with callback persist that moved the client hint.
+            if (expiresAtHintAtStart !== currentExpiresAtHintMs) {
+              const hintMovedForward = currentExpiresAtHintMs > expiresAtHintAtStart;
+              const hintMovedBackward = currentExpiresAtHintMs < expiresAtHintAtStart;
+
+              if (hintMovedForward && result.expiresAtMs < currentExpiresAtHintMs) {
+                return;
+              }
+
+              if (hintMovedBackward && result.expiresAtMs > currentExpiresAtHintMs) {
+                return;
+              }
             }
 
             sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(result.expiresAtMs));

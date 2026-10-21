@@ -25231,13 +25231,23 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 80
-- **bugs-found:** 73
+- **hunts:** 81
+- **bugs-found:** 74
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — stale shorter BFF ok refresh after persist extended expiry
+- **last-bug:** 2026-10-21 — stale longer BFF ok refresh after persist shortened expiry hint
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-21 seed hunt (seed->hit): ensureAccessTokenFresh stale longer BFF ok after same-identity persist shortened client hint; regression does not lengthen client expiry when stale ok BFF refresh completes after same-identity persist shortened the hint; 28 session-ensure-fresh vitest tests passed.
+
+- [x] (proven) ensureAccessTokenFresh stale longer BFF ok after same-identity persist shortened expiry hint (hit 2026-10-21 seed hunt).
+
+- [ ] (candidate) `parseOidcEpochMsHint` — leading-plus expires_at_ms session hint — locus: normalizeNumericOidcHintString; input: sessionStorage +1730000000000; reachability: support tooling pasting epoch ms.
+- [ ] (candidate) `coerceAcceptedOidcEpochMsHint` — fractional JSON expires_at_ms — locus: returns raw parsed float; input: BFF refresh 1730000000000.9; reachability: POST /api/auth/bff-session/refresh JSON.
+- [ ] (candidate) `parseOidcTokenResponse` — spread field shadowing — locus: object spread before expires_in override; input: expires_in string 7200; reachability: Entra token JSON.
+- [ ] (candidate) `discoveryUrlForAuthority` — triple-slash authority path — locus: pathname trim; input: https://login.example.com/// env; reachability: NEXT_PUBLIC_OIDC_AUTHORITY via config getters.
+- [ ] (candidate) `consumePostSignInReturnUrl` — ZWSP-wrapped safe path — locus: store/consume normalize; input: /reviews with ZWSP; reachability: initiateOidcRedirect returnUrl.
 
 2026-10-21 seed hunt (seed->hit): ensureAccessTokenFresh stale shorter BFF ok after persist extended client hint; regression does not shorten client expiry when stale ok BFF refresh completes after same-identity persist extended the hint; 319 scoped src/lib/oidc vitest tests passed.
 
