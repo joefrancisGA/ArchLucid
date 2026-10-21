@@ -1,8 +1,9 @@
 using ArchLucid.Application.Billing;
 using ArchLucid.Application.Budgeting;
 using ArchLucid.Application.Budgeting.Wallet;
-using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Billing;
+using ArchLucid.Core.Billing.AzureMarketplace;
+using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Http;
 using ArchLucid.Host.Core.Http;
@@ -40,6 +41,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<ILlmTenantWalletService>(sp => sp.GetRequiredService<LlmTenantWalletService>());
         services.AddHostedService<LlmWalletSettlementHostedService>();
         services.AddScoped<NoopBillingProvider>();
+        services.AddSingleton<IMarketplacePlanIdTierResolver, MarketplacePlanIdTierResolver>();
         services.AddScoped<IMarketplaceChangePlanWebhookMutationHandler, MarketplaceChangePlanWebhookMutationHandler>();
         services.AddScoped<IMarketplaceChangeQuantityWebhookMutationHandler, MarketplaceChangeQuantityWebhookMutationHandler>();
         services.AddScoped<AzureMarketplaceBillingProvider>();

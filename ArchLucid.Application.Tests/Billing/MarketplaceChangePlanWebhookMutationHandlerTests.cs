@@ -27,10 +27,8 @@ public sealed class MarketplaceChangePlanWebhookMutationHandlerTests
 
         BillingOptionsTestMonitor<BillingOptions> monitor = new(billing);
         Mock<IBillingLedger> ledger = new();
-        MarketplaceChangePlanWebhookMutationHandler sut = new(
-            monitor,
-            ledger.Object,
-            NullLogger<MarketplaceChangePlanWebhookMutationHandler>.Instance);
+        MarketplaceChangePlanWebhookMutationHandler sut =
+            MarketplaceChangePlanHandlerTestSupport.CreateHandler(monitor, ledger.Object);
 
         using JsonDocument doc = JsonDocument.Parse("""{"planId":"p-enterprise"}""");
 
@@ -50,7 +48,11 @@ public sealed class MarketplaceChangePlanWebhookMutationHandlerTests
         BillingOptions billing = new()
         {
             Provider = BillingProviderNames.AzureMarketplace,
-            AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = true },
+            AzureMarketplace = new AzureMarketplaceBillingOptions
+            {
+                GaEnabled = true,
+                PlanIdTierMap = MarketplaceChangePlanHandlerTestSupport.EnterpriseTestPlanMap,
+            },
         };
 
         BillingOptionsTestMonitor<BillingOptions> monitor = new(billing);
@@ -59,10 +61,8 @@ public sealed class MarketplaceChangePlanWebhookMutationHandlerTests
             .Setup(l => l.ChangePlanAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        MarketplaceChangePlanWebhookMutationHandler sut = new(
-            monitor,
-            ledger.Object,
-            NullLogger<MarketplaceChangePlanWebhookMutationHandler>.Instance);
+        MarketplaceChangePlanWebhookMutationHandler sut =
+            MarketplaceChangePlanHandlerTestSupport.CreateHandler(monitor, ledger.Object);
 
         Guid tenantId = Guid.NewGuid();
         const string raw = "{\"planId\":\"x-enterprise\"}";
@@ -91,10 +91,8 @@ public sealed class MarketplaceChangePlanWebhookMutationHandlerTests
             .Setup(l => l.ChangePlanAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        MarketplaceChangePlanWebhookMutationHandler sut = new(
-            monitor,
-            ledger.Object,
-            NullLogger<MarketplaceChangePlanWebhookMutationHandler>.Instance);
+        MarketplaceChangePlanWebhookMutationHandler sut =
+            MarketplaceChangePlanHandlerTestSupport.CreateHandler(monitor, ledger.Object);
 
         Guid tenantId = Guid.NewGuid();
         const string raw = """{"planId":"archlucid-stripe-team"}""";
@@ -114,15 +112,17 @@ public sealed class MarketplaceChangePlanWebhookMutationHandlerTests
         BillingOptions billing = new()
         {
             Provider = BillingProviderNames.AzureMarketplace,
-            AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = true },
+            AzureMarketplace = new AzureMarketplaceBillingOptions
+            {
+                GaEnabled = true,
+                PlanIdTierMap = MarketplaceChangePlanHandlerTestSupport.EnterpriseTestPlanMap,
+            },
         };
 
         BillingOptionsTestMonitor<BillingOptions> monitor = new(billing);
         Mock<IBillingLedger> ledger = new();
-        MarketplaceChangePlanWebhookMutationHandler sut = new(
-            monitor,
-            ledger.Object,
-            NullLogger<MarketplaceChangePlanWebhookMutationHandler>.Instance);
+        MarketplaceChangePlanWebhookMutationHandler sut =
+            MarketplaceChangePlanHandlerTestSupport.CreateHandler(monitor, ledger.Object);
 
         using JsonDocument doc = JsonDocument.Parse("""{"quantity":5}""");
 

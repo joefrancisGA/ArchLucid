@@ -40,10 +40,8 @@ public sealed class AzureMarketplaceBillingProviderChangeWebhookTests
         BillingWebhookTrialActivator activator = new(ledger.Object, tenants.Object, audit.Object);
         Mock<IMarketplaceWebhookTokenVerifier> verifier = new();
         Mock<IHttpClientFactory> httpFactory = new();
-        MarketplaceChangePlanWebhookMutationHandler changePlanHandler = new(
-            monitor,
-            ledger.Object,
-            NullLogger<MarketplaceChangePlanWebhookMutationHandler>.Instance);
+        MarketplaceChangePlanWebhookMutationHandler changePlanHandler =
+            MarketplaceChangePlanHandlerTestSupport.CreateHandler(monitor, ledger.Object);
         MarketplaceChangeQuantityWebhookMutationHandler changeQtyHandler = new(
             monitor,
             ledger.Object,
@@ -107,10 +105,8 @@ public sealed class AzureMarketplaceBillingProviderChangeWebhookTests
             .ReturnsAsync(new MarketplaceWebhookValidatedToken([]));
 
         Mock<IHttpClientFactory> httpFactory = new();
-        MarketplaceChangePlanWebhookMutationHandler changePlanHandler = new(
-            monitor,
-            ledger.Object,
-            NullLogger<MarketplaceChangePlanWebhookMutationHandler>.Instance);
+        MarketplaceChangePlanWebhookMutationHandler changePlanHandler =
+            MarketplaceChangePlanHandlerTestSupport.CreateHandler(monitor, ledger.Object);
         MarketplaceChangeQuantityWebhookMutationHandler changeQtyHandler = new(
             monitor,
             ledger.Object,
@@ -155,7 +151,8 @@ public sealed class AzureMarketplaceBillingProviderChangeWebhookTests
                 GaEnabled = true,
                 OpenIdMetadataAddress =
                     "https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration",
-                ValidAudiences = ["https://marketplaceapi.microsoft.com"]
+                ValidAudiences = ["https://marketplaceapi.microsoft.com"],
+                PlanIdTierMap = MarketplaceChangePlanHandlerTestSupport.WebhookTestPlanIdTierMap,
             }
         };
 
@@ -183,10 +180,8 @@ public sealed class AzureMarketplaceBillingProviderChangeWebhookTests
             .ReturnsAsync(new MarketplaceWebhookValidatedToken([]));
 
         Mock<IHttpClientFactory> httpFactory = new();
-        MarketplaceChangePlanWebhookMutationHandler changePlanHandler = new(
-            monitor,
-            ledger.Object,
-            NullLogger<MarketplaceChangePlanWebhookMutationHandler>.Instance);
+        MarketplaceChangePlanWebhookMutationHandler changePlanHandler =
+            MarketplaceChangePlanHandlerTestSupport.CreateHandler(monitor, ledger.Object);
         MarketplaceChangeQuantityWebhookMutationHandler changeQtyHandler = new(
             monitor,
             ledger.Object,
@@ -253,10 +248,8 @@ public sealed class AzureMarketplaceBillingProviderChangeWebhookTests
             .ReturnsAsync(new MarketplaceWebhookValidatedToken([]));
 
         Mock<IHttpClientFactory> httpFactory = new();
-        MarketplaceChangePlanWebhookMutationHandler changePlanHandler = new(
-            monitor,
-            ledger.Object,
-            NullLogger<MarketplaceChangePlanWebhookMutationHandler>.Instance);
+        MarketplaceChangePlanWebhookMutationHandler changePlanHandler =
+            MarketplaceChangePlanHandlerTestSupport.CreateHandler(monitor, ledger.Object);
         MarketplaceChangeQuantityWebhookMutationHandler changeQtyHandler = new(
             monitor,
             ledger.Object,
@@ -329,10 +322,8 @@ public sealed class AzureMarketplaceBillingProviderChangeWebhookTests
             .ReturnsAsync(new MarketplaceWebhookValidatedToken([]));
 
         Mock<IHttpClientFactory> httpFactory = new();
-        MarketplaceChangePlanWebhookMutationHandler changePlanHandler = new(
-            monitor,
-            ledger,
-            NullLogger<MarketplaceChangePlanWebhookMutationHandler>.Instance);
+        MarketplaceChangePlanWebhookMutationHandler changePlanHandler =
+            MarketplaceChangePlanHandlerTestSupport.CreateHandler(monitor, ledger);
         MarketplaceChangeQuantityWebhookMutationHandler changeQtyHandler = new(
             monitor,
             ledger,
@@ -411,10 +402,8 @@ public sealed class AzureMarketplaceBillingProviderChangeWebhookTests
             TimeProvider.System);
 
         Mock<IHttpClientFactory> httpFactory = new();
-        MarketplaceChangePlanWebhookMutationHandler changePlanHandler = new(
-            monitor,
-            ledger.Object,
-            NullLogger<MarketplaceChangePlanWebhookMutationHandler>.Instance);
+        MarketplaceChangePlanWebhookMutationHandler changePlanHandler =
+            MarketplaceChangePlanHandlerTestSupport.CreateHandler(monitor, ledger.Object);
         MarketplaceChangeQuantityWebhookMutationHandler changeQtyHandler = new(
             monitor,
             ledger.Object,

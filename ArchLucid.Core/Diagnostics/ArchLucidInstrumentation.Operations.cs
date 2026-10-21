@@ -30,6 +30,16 @@ public static partial class ArchLucidInstrumentation
             "archlucid_billing_checkouts_total",
             description: "Billing checkout sessions (labels: provider, tier, outcome).");
 
+    /// <summary>
+    ///     Marketplace <c>ChangePlan</c> webhooks whose <c>planId</c> is absent from
+    ///     <c>Billing:AzureMarketplace:PlanIdTierMap</c> (tier defaulted to Standard).
+    /// </summary>
+    public static readonly Counter<long> MarketplaceUnknownPlanIdsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_marketplace_unknown_plan_ids_total",
+            description:
+            "Azure Marketplace plan ids with no configured tier mapping (defaulted to Standard).");
+
     
     /// <summary>Wall time for <c>IArchLucidJob.RunOnceAsync</c> (labels: <c>job_name</c>, <c>exit_code</c>).</summary>
     public static readonly Histogram<double> ContainerJobRunDurationMilliseconds =
@@ -231,4 +241,7 @@ public static partial class ArchLucidInstrumentation
 
         BillingCheckoutsTotal.Add(1, tags);
     }
+
+    /// <summary>Increments <see cref="MarketplaceUnknownPlanIdsTotal" />.</summary>
+    public static void RecordMarketplaceUnknownPlanId() => MarketplaceUnknownPlanIdsTotal.Add(1);
 }

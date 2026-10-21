@@ -171,4 +171,15 @@ public sealed class AzureMarketplaceBillingOptions
         get;
         init;
     }
+
+    /// <summary>
+    ///     Partner Center marketplace <c>planId</c> → persisted <c>TenantTier</c> storage code
+    ///     (<c>Standard</c>, <c>Enterprise</c>). Keys are matched case-insensitively after trim. Unlisted plan ids never
+    ///     infer Enterprise; they default to <c>Standard</c> with a warning and metric.
+    /// </summary>
+    public Dictionary<string, string>? PlanIdTierMap
+    {
+        get;
+        init;
+    }
 }

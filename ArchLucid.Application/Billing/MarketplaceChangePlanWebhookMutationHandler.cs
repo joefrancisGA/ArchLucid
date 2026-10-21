@@ -16,10 +16,13 @@ namespace ArchLucid.Application.Billing;
 /// </summary>
 public sealed class MarketplaceChangePlanWebhookMutationHandler(
     IOptionsMonitor<BillingOptions> billingOptions,
+    IMarketplacePlanIdTierResolver planIdTierResolver,
     IBillingLedger ledger,
     ILogger<MarketplaceChangePlanWebhookMutationHandler> logger) : IMarketplaceChangePlanWebhookMutationHandler
 {
     private readonly IOptionsMonitor<BillingOptions> _billingOptions = billingOptions ?? throw new ArgumentNullException(nameof(billingOptions));
+    private readonly IMarketplacePlanIdTierResolver _planIdTierResolver =
+        planIdTierResolver ?? throw new ArgumentNullException(nameof(planIdTierResolver));
     private readonly IBillingLedger _ledger = ledger ?? throw new ArgumentNullException(nameof(ledger));
     private readonly ILogger<MarketplaceChangePlanWebhookMutationHandler> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -51,7 +54,7 @@ public sealed class MarketplaceChangePlanWebhookMutationHandler(
             return MarketplaceWebhookMutationOutcome.DeferredGaDisabled;
         }
 
-        string tierCode = MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId(planId);
+        string tierCode = _planIdTierResolver.ResolveTierStorageCode(planId);
         await _ledger.ChangePlanAsync(tenantId, tierCode, rawBody, cancellationToken);
         return MarketplaceWebhookMutationOutcome.Applied;
     }
