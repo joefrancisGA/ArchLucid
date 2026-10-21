@@ -125,6 +125,29 @@ public static class AzureInventoryMessagingAssociationExtractor
             return true;
         }
 
-        return enabledElement.ValueKind is JsonValueKind.True;
+        if (enabledElement.ValueKind is JsonValueKind.True)
+        {
+            return true;
+        }
+
+        if (enabledElement.ValueKind is JsonValueKind.False)
+        {
+            return false;
+        }
+
+        if (enabledElement.ValueKind is JsonValueKind.String)
+        {
+            string? raw = enabledElement.GetString();
+
+            if (string.IsNullOrWhiteSpace(raw))
+            {
+                return false;
+            }
+
+            return raw.Equals("true", StringComparison.OrdinalIgnoreCase)
+                || raw.Equals("1", StringComparison.Ordinal);
+        }
+
+        return false;
     }
 }

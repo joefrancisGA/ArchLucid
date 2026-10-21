@@ -137,9 +137,12 @@ public sealed class AzureInventoryMessagingAssociationExtractorTests
     }
 
     [Fact]
-    public void TryExtractEventHub_ignores_capture_when_enabled_is_string_true()
+    public void TryExtractEventHub_reads_capture_when_enabled_is_string_true()
     {
-        using JsonDocument document = JsonDocument.Parse("""
+        const string captureStorageId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/store";
+
+        using JsonDocument document = JsonDocument.Parse($$"""
                                                             {
                                                               "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventHub/namespaces/ns/eventhubs/orders",
                                                               "name": "orders",
@@ -147,7 +150,7 @@ public sealed class AzureInventoryMessagingAssociationExtractorTests
                                                                 "captureDescription": {
                                                                   "enabled": "true",
                                                                   "destination": {
-                                                                    "storageAccountResourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/store"
+                                                                    "storageAccountResourceId": "{{captureStorageId}}"
                                                                   }
                                                                 }
                                                               }
@@ -160,6 +163,6 @@ public sealed class AzureInventoryMessagingAssociationExtractorTests
             out AzureInventoryMessagingAssociationRow? row);
 
         row.Should().NotBeNull();
-        row!.CaptureStorageAccountId.Should().BeNull();
+        row!.CaptureStorageAccountId.Should().Be(captureStorageId);
     }
 }
