@@ -386,6 +386,47 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
     }
 
     [Fact]
+    public async Task Render_architecture_keeps_avd_assets_when_cross_group_fan_out_is_set()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot(resourceCount: 3);
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        Mock<IDiagramAstFromGraphCompiler> compiler = new();
+        DiagramAstFromGraphCompiler realCompiler = new();
+        List<DiagramAstCompileOptions?> observedOptions = [];
+
+        compiler
+            .Setup(candidate => candidate.Compile(
+                It.IsAny<GraphSnapshot>(),
+                It.IsAny<DiagramMode>(),
+                It.IsAny<DiagramAstCompileOptions?>()))
+            .Callback((GraphSnapshot _, DiagramMode _, DiagramAstCompileOptions? options) => observedOptions.Add(options))
+            .Returns((GraphSnapshot graph, DiagramMode mode, DiagramAstCompileOptions? options) =>
+                realCompiler.Compile(graph, mode, options));
+
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds(),
+            compiler.Object);
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
+            await service.TryGetMermaidAsync(
+                CreateScope(),
+                SnapshotId,
+                "architecture",
+                null,
+                null,
+                cancellationToken: CancellationToken.None,
+                includeCrossGroupFanOut: true,
+                includeAvdAssets: true);
+
+        result.Succeeded.Should().BeTrue();
+        observedOptions.Should().ContainSingle();
+        observedOptions[0].Should().NotBeNull();
+        observedOptions[0]!.IncludeAvdAssets.Should().BeTrue();
+        observedOptions[0]!.IncludeCrossGroupFanOut.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task Render_failure_response_includes_exception_message_without_stack_trace()
     {
         AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot(resourceCount: 3);

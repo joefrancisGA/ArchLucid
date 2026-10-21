@@ -917,7 +917,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             // display flag still has the bool default false, and ?? does not replace false.
             IncludeNetworkDetails = includeNetworkDetails || (options?.IncludeNetworkDetails ?? false),
             IncludeRecoveryServices = options?.IncludeRecoveryServices ?? includeRecoveryServices,
-            IncludeAvdAssets = options?.IncludeAvdAssets ?? includeAvdAssets,
+            // Mode parser CopyOptions can set IncludeAvdAssets=false when only cross-group fan-out was requested.
+            IncludeAvdAssets = includeAvdAssets || (options?.IncludeAvdAssets ?? false),
             IncludeCrossGroupFanOut = includeCrossGroupFanOut,
             RecoveryServicesCollectionIncomplete = collectionIncomplete,
         };
