@@ -1,4 +1,5 @@
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 
 export const POLICY_PACK_CATALOG_ENTRY_PARAM = "catalogEntry";
 
@@ -17,6 +18,8 @@ export function policyPackCatalogEntryHrefFromSearch(
 ): string {
   const params = new URLSearchParams(currentSearch);
   const trimmed = catalogEntryId.trim();
+
+  applyOperatorUrlSelectionSwitch(params, { kind: "policy-pack-catalog-entry" });
 
   if (trimmed.length === 0) {
     params.delete(POLICY_PACK_CATALOG_ENTRY_PARAM);

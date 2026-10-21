@@ -1,3 +1,7 @@
+2026-10-21 structural hunt (follow-up class closure, lane B): `ui-operator-routes` — lock `ui-operator-routes` pushed and verified on `origin/bugsmash` before work (`93f7460ac6`); closes stale-query-param class from runs 270/272 (pack/version-diff and hub tab/disclosure params surviving selection/tab switches); centralized `operator-url-selection-switch` with `applyOperatorUrlSelectionSwitch` / tab-run ownership helpers; routed policy-pack selection/catalog/tab/input-mode/generator href builders, governance findings register-filter, infra hub tab sanitizer, and hub `runId` patch through shared strip rules; matrix `operator-url-selection-switch.test.ts` seeds stale params per builder; additional live leak: hub `resourceHubFilterHrefFromSearch` now strips audit/item params when `runId` changes; scoped operator-url-selection-switch 9/9 + infra-evidence-hub-tab-query + governance-findings-register-filter-url + wave11 policy pack vitest; lock released after push.
+
+- [x] (proven-class) Operator URL selection/tab/pack/run switches — stale child query params — **structural follow-up 2026-10-21 lane B:** `operator-url-selection-switch.ts`; matrix tests; hub run-scope strip on `runId` change.
+
 2026-10-21 thorough hunt (hit, lane B): `ui-infra-resource-hub` — lock `ui-infra-resource-hub` pushed and verified on `origin/bugsmash` before work; selected least-recent unlocked beta-reachable zone with open `(candidate)` rows (`2026-10-21T15:01:14Z` per run log), skipping zones hunted in the last hour (e.g. `ui-operator-routes`, `ui-form-validation`) and `infra-evidence-diagrams` lock; promoted reachable `sanitizeResourceHubQueryForTab` — `infraResourceHubTechnicalKey=armResourcePath` (and `cloudResourceId`) survived tab-bar navigation away from overview while terraform-only keys were already stripped; strip overview-only technical keys outside overview tab; unit regression `drops overview-only technical disclosure keys when leaving overview tab` + `clears overview arm path technical disclosure key when switching away from overview tab`; cheap-disproof closed four sibling `(candidate)` rows (RBAC/network React row keys are static-list reconciliation edges without reachable wrong-outcome on initial render; audit control picker already keyed by snapshot+control with regressions for duplicate `controlId`; `resourceTitle` uses decoded route `cloudResourceId` only as fallback when hub names absent — encoded-slash segment is routing concern); seeded five follow-on `(candidate)` rows; scoped `infra-evidence-hub-tab-query` + `ResourceHubClient` vitest 55/55; lock released after push.
 
 - [x] (proven) `sanitizeResourceHubQueryForTab` — overview `armResourcePath` technical key persisted on non-overview tabs — **hit 2026-10-21 thorough hunt lane B:** strip overview-only keys outside overview; regressions above.
@@ -43793,7 +43797,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 32
+- **hunts:** 33
 - **last-hunt:** 2026-10-21
 - **bugs-found:** 27
 - **consecutive-dry-hunts:** 0

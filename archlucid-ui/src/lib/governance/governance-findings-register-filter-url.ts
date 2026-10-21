@@ -4,6 +4,7 @@ import {
 } from "@/lib/architecture/architecture-risk-register-page";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM } from "@/lib/governance/governance-findings-resource-group-disclosure-url";
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 
 export const GOVERNANCE_FINDINGS_REGISTER_FILTER_PARAM = "filter";
 
@@ -24,7 +25,7 @@ export function governanceFindingsRegisterFilterHrefFromSearch(
 ): string {
   const params = new URLSearchParams(currentSearch);
 
-  params.delete(GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM);
+  applyOperatorUrlSelectionSwitch(params, { kind: "governance-findings-register-filter" });
 
   if (filter === "all") {
     params.delete(GOVERNANCE_FINDINGS_REGISTER_FILTER_PARAM);

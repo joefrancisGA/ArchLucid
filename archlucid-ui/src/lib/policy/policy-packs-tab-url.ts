@@ -1,4 +1,5 @@
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 import { POLICY_PACKS_TAB_QUERY_PARAM } from "@/lib/policy/policy-packs-deep-link";
 
 export type PolicyPacksTabId = "my-packs" | "catalog" | "generator" | "author";
@@ -25,6 +26,8 @@ export function policyPacksTabHrefFromSearch(
   pathname: string = GOVERNANCE_POLICY_PACKS_PATH,
 ): string {
   const params = new URLSearchParams(currentSearch);
+
+  applyOperatorUrlSelectionSwitch(params, { kind: "policy-packs-tab", tab });
 
   if (tab === "my-packs") {
     params.delete(POLICY_PACKS_TAB_QUERY_PARAM);
