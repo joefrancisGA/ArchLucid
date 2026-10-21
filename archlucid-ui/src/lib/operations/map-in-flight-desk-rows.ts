@@ -42,6 +42,23 @@ export function buildInFlightDeskHref(operation: TrackedInFlightOperation): stri
   return operation.href;
 }
 
+/** Run id from flat or nested (AO-08) in-flight review desk deep links. */
+export function extractReviewRunIdFromInFlightDeskHref(href: string): string {
+  const path = href.split("?")[0]?.split("#")[0]?.trim() ?? "";
+
+  if (path.length === 0) {
+    return "";
+  }
+
+  const nestedRunMatch = /\/reviews\/([^/]+)$/.exec(path);
+
+  if (nestedRunMatch?.[1] !== undefined) {
+    return nestedRunMatch[1].trim();
+  }
+
+  return "";
+}
+
 export function mapInFlightOperationToDeskRow(operation: TrackedInFlightOperation): InFlightDeskRow {
   const stepLabel = operation.stepLabel.trim().length > 0 ? operation.stepLabel.trim() : operation.state;
 

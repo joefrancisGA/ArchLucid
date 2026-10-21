@@ -5,6 +5,7 @@ import type { TrackedInFlightOperation } from "@/lib/operations/in-flight-operat
 import {
   buildInFlightDeskHref,
   collectInFlightReviewRunIds,
+  extractReviewRunIdFromInFlightDeskHref,
   filterInFlightOperationsForArchitecture,
   IN_FLIGHT_DESK_ANALYSIS_RUNNING_DETAIL,
   isVisibleInFlightDeskOperation,
@@ -58,6 +59,15 @@ describe("map-in-flight-desk-rows (LI-08)", () => {
     expect(href).toBe(
       "/architecture/architectures/architecture-identity-001/reviews/run-001?reviewTab=activity",
     );
+  });
+
+  it("extracts run id from flat and nested in-flight desk hrefs", () => {
+    expect(extractReviewRunIdFromInFlightDeskHref("/architecture/reviews/abc?reviewTab=activity")).toBe("abc");
+    expect(
+      extractReviewRunIdFromInFlightDeskHref(
+        "/architecture/architectures/architecture-identity-001/reviews/run-001?reviewTab=activity",
+      ),
+    ).toBe("run-001");
   });
 
   it("AO-21: filters in-flight rows to one architecture identity", () => {

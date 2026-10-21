@@ -8,6 +8,7 @@ import { useShellInFlightOperations } from "@/hooks/use-shell-in-flight-operatio
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  extractReviewRunIdFromInFlightDeskHref,
   mapInFlightOperationsToDeskRows,
   type InFlightDeskRow,
 } from "@/lib/operations/map-in-flight-desk-rows";
@@ -24,8 +25,7 @@ function filterSiblingInFlightRows(
   const trimmedRunId = currentRunId.trim();
 
   return rows.filter((row) => {
-    const hrefRunMatch = /\/architecture\/reviews\/([^/?]+)/.exec(row.href);
-    const hrefRunId = hrefRunMatch?.[1]?.trim() ?? "";
+    const hrefRunId = extractReviewRunIdFromInFlightDeskHref(row.href);
 
     return hrefRunId.length > 0 && hrefRunId !== trimmedRunId;
   });
