@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 ﻿> **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
+2026-10-21 seed hunt (seed→hit): `ui-review-detail-workspace` — promoted `RunDetailDetailedOutcomeCardsDisclosure` writing detailed outcome cards disclosure href from `readWindowLocationSearch()` so soft navigation could re-attach stale findings toolbar query when expanding Detailed outcome cards; writes now use `searchParams.toString()`; regression `writes detailed outcome cards disclosure from useSearchParams when window.location.search lags after soft navigation`; outcome cards disclosure url-sync vitest 2/2.
+
 2026-10-21 seed hunt (seed→hit): `ui-review-detail-workspace` — promoted `RunDetailOperatorPipelineToolsCollapsible` writing Refine with AI disclosure href from `readWindowLocationSearch()` so soft navigation could re-attach stale findings toolbar query when expanding Refine with AI; writes now use `searchParams.toString()`; regression `writes refine with AI disclosure from useSearchParams when window.location.search lags after soft navigation`; pipeline tools url-sync vitest 2/2.
 
 2026-10-21 seed hunt (seed→hit): `ui-review-detail-workspace` — promoted `RunDetailWorkspaceHeader` writing record metadata disclosure href from `readWindowLocationSearch()` so soft navigation could re-attach stale findings toolbar query when opening Record metadata; writes now use `searchParams.toString()`; regression `writes record metadata disclosure from useSearchParams when window.location.search lags after soft navigation`; RunDetailWorkspaceChrome url-sync vitest 2/2.
@@ -41711,6 +41713,10 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 ---
 
 ## Zone: ui-review-detail-workspace
+2026-10-21 seed hunt (seed→hit): promoted `RunDetailDetailedOutcomeCardsDisclosure` — `syncOpenToUrl` built hrefs from `readWindowLocationSearch()`, so after cross-review soft navigation expanding Detailed outcome cards could write the prior review's findings toolbar query when setting `runDetailOutcomeCardsOpen=1`; base href writes on `useSearchParams`; regression `writes detailed outcome cards disclosure from useSearchParams when window.location.search lags after soft navigation`; outcome cards disclosure url-sync vitest 2/2.
+
+- [x] (proven) RunDetailDetailedOutcomeCardsDisclosure — stale toolbar params on detailed outcome cards open after soft navigation — **hit 2026-10-21 seed hunt:** unDetailOutcomeCardsDisclosureHrefFromSearch(searchParams.toString(), …); regression above.
+
 2026-10-21 seed hunt (seed→hit): promoted `RunDetailOperatorPipelineToolsCollapsible` — `syncOpenToUrl` built hrefs from `readWindowLocationSearch()`, so after cross-review soft navigation expanding Refine with AI could write the prior review's findings toolbar query when setting `runRefineWithAiOpen=1`; base href writes on `useSearchParams`; regression `writes refine with AI disclosure from useSearchParams when window.location.search lags after soft navigation`; pipeline tools url-sync vitest 2/2.
 
 - [x] (proven) RunDetailOperatorPipelineToolsCollapsible — stale toolbar params on Refine with AI open after soft navigation — **hit 2026-10-21 seed hunt:** unDetailRefineWithAiDisclosureHrefFromSearch(searchParams.toString(), …); regression above.
@@ -41720,8 +41726,7 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - [x] (proven) `RunDetailWorkspaceHeader` — stale toolbar params on record metadata disclosure open after soft navigation — **hit 2026-10-21 seed hunt:** `runDetailRecordMetadataHrefFromSearch(searchParams.toString(), …)`; regression above.
 
 - (candidate) `RunDetailOperatorPipelineToolsCollapsible` — Refine with AI disclosure href built from `readWindowLocationSearch()` on write — locus: `_sections/RunDetailOperatorPipelineToolsCollapsible.tsx` `syncDetailsOpenToUrl`; input: soft navigation clears findings toolbar params then operator expands Refine with AI (`runDetailRefineWithAiOpen=1` via Next.js `<Link>`).
-- (candidate) `RunDetailDetailedOutcomeCardsDisclosure` — outcome cards disclosure href built from `readWindowLocationSearch()` on write — locus: `_sections/RunDetailDetailedOutcomeCardsDisclosure.tsx`; input: cross-review soft navigation then toggle detailed outcome cards open.
-- (candidate) `RunDetailFindingsWorkspace` — classification band href built from `readWindowLocationSearch()` on write — locus: `_sections/RunDetailFindingsWorkspace.tsx` band setter; input: soft navigation to overview tab then operator changes findings band chip.
+- [x] (proven) `RunDetailDetailedOutcomeCardsDisclosure` — outcome cards disclosure href used stale `window.location.search` on write after soft navigation — **hit 2026-10-21 seed hunt:** `searchParams.toString()` for `runDetailOutcomeCardsOpen` writes; regression `writes detailed outcome cards disclosure from useSearchParams when window.location.search lags after soft navigation`.`r`n- (candidate) `RunDetailFindingsWorkspace` — classification band href built from `readWindowLocationSearch()` on write — locus: `_sections/RunDetailFindingsWorkspace.tsx` band setter; input: soft navigation to overview tab then operator changes findings band chip.
 - (candidate) `FindingInspectEvidenceSection` — citation preview / evidence citation disclosure hrefs built from `readWindowLocationSearch()` on write — locus: `findings/[findingId]/FindingInspectEvidenceSection.tsx`; input: soft navigation between findings then open citation disclosure.
 - (candidate) `RunDetailArtifactsExportsSection` — deliverables disclosure and export URL params read from `readWindowLocationSearch()` on write — locus: `_sections/RunDetailArtifactsExportsSection.tsx`; input: soft navigation after changing review tab then open deliverables disclosure.
 2026-10-21 seed hunt (seed→hit): promoted `ReviewAgentExecutionLogSection` — `syncOpenToUrl` built hrefs from `readWindowLocationSearch()`, so after cross-review soft navigation expanding the agent execution log could write the prior review's findings toolbar query onto the next review when setting `runAgentExecutionLogOpen=1`; base href writes on `useSearchParams`; regression `opens agent execution log from useSearchParams when window.location.search lags after soft navigation`; agent execution log url-sync vitest 2/2.
@@ -42036,11 +42041,11 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 70
-- **bugs-found:** 61
+- **hunts:** 71
+- **bugs-found:** 62
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - RunDetailOperatorPipelineToolsCollapsible refine-with-AI href soft-nav sync
+- **last-bug:** 2026-10-21 - RunDetailDetailedOutcomeCardsDisclosure outcome cards href soft-nav sync
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.

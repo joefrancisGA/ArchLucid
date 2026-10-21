@@ -5852,3 +5852,4 @@
 {"at":"2026-10-21T06:02:23.254Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailWorkspaceChrome.tsx"]}
 {"at":"2026-10-21T06:02:20.9022897Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T06:09:17.596Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailOperatorPipelineToolsCollapsible.tsx"]}
+{"at":"2026-10-21T06:12:25.483Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailDetailedOutcomeCardsDisclosure.tsx"]}

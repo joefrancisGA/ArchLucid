@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import {
   RUN_DETAIL_OUTCOME_CARDS_OPEN_PARAM,
   parseRunDetailOutcomeCardsOpenFromSearch,
@@ -30,11 +30,11 @@ export function RunDetailDetailedOutcomeCardsDisclosure(
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
       commitHrefIfChanged(
-        runDetailOutcomeCardsDisclosureHrefFromSearch(readWindowLocationSearch(), detailsOpen, pathname),
+        runDetailOutcomeCardsDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setOpen = useCallback(

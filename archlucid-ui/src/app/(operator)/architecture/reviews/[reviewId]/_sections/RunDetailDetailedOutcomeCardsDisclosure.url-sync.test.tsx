@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { createElement, useSyncExternalStore, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -51,6 +51,39 @@ describe("RunDetailDetailedOutcomeCardsDisclosure URL sync", () => {
   beforeEach(() => {
     searchParamsHarness.reset();
     window.history.replaceState({}, "", "/architecture/reviews/run-abc?reviewTab=overview");
+  });
+
+  it("writes detailed outcome cards disclosure from useSearchParams when window.location.search lags after soft navigation", async () => {
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-abc?reviewTab=findings&q=stale-payment",
+    );
+
+    const { rerender } = render(
+      <SearchParamsRerenderHost>
+        <RunDetailDetailedOutcomeCardsDisclosure>
+          <p>Outcome cards</p>
+        </RunDetailDetailedOutcomeCardsDisclosure>
+      </SearchParamsRerenderHost>,
+    );
+
+    searchParamsHarness.applyQuery("reviewTab=overview");
+    rerender(
+      <SearchParamsRerenderHost>
+        <RunDetailDetailedOutcomeCardsDisclosure>
+          <p>Outcome cards</p>
+        </RunDetailDetailedOutcomeCardsDisclosure>
+      </SearchParamsRerenderHost>,
+    );
+
+    fireEvent.click(screen.getByText("Detailed outcome cards"));
+
+    await waitFor(() => {
+      expect(window.location.pathname + window.location.search).toBe(
+        `/architecture/reviews/run-abc?reviewTab=overview&${RUN_DETAIL_OUTCOME_CARDS_OPEN_PARAM}=1`,
+      );
+    });
   });
 
   it("follows runDetailOutcomeCardsOpen query changes without a popstate event", async () => {
