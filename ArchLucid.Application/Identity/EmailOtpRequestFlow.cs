@@ -226,6 +226,8 @@ public sealed class EmailOtpRequestFlow(
 
             ArchLucidInstrumentation.RecordEmailOtpChallengeRequested("delivery_failed");
 
+            // EmailDeliverySucceeded=false is safe for anti-enumeration: SMTP is attempted for every valid email that
+            // reaches this point (sign-up and sign-in share the path; there is no "registered only" send gate).
             return new EmailOtpChallengeRequestResult
             {
                 Message = NeutralSentMessage,

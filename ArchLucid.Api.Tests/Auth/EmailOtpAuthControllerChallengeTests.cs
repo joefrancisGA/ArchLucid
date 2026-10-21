@@ -180,6 +180,78 @@ public sealed class EmailOtpAuthControllerChallengeTests
         body.ChallengeId.Should().BeNull();
         body.EmailDeliverySucceeded.Should().BeFalse();
     }
+
+    [Fact]
+    public async Task RequestChallengeAsync_delivery_failure_api_envelope_matches_for_unknown_and_existing_user_emails()
+    {
+        Mock<IEmailOtpEmailNotifier> notifier = new();
+        notifier
+            .Setup(n => n.TrySendSignInCodeAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        EmailOtpAuthOptions options = new() { Enabled = true, ResendCooldownSeconds = 0 };
+
+        InMemoryPlatformUserRepository users = new();
+        await users.InsertAsync(
+            new PlatformUserInsert
+            {
+                Id = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                PrimaryEmail = "existing@example.com",
+                NormalizedPrimaryEmail = "existing@example.com",
+            },
+            CancellationToken.None);
+
+        EmailOtpAuthService emailOtpAuth = new(
+            Options.Create(options),
+            new InMemoryEmailOtpChallengeRepository(),
+            new EmailOtpSignInDomainPolicyService(
+                AuthSignInRoutingServiceTestSupport.Create(
+                    new InMemoryTenantSignInEmailDomainRepository(),
+                    new InMemoryTenantSignInEmailDomainRecoveryAdminRepository(),
+                    new InMemoryTenantIdentityProviderConfigurationRepository(),
+                    new InMemoryUserInvitationRepository(),
+                    new InMemoryPlatformTenantAuthRecoveryGrantRepository(),
+                    TimeProvider.System)),
+            notifier.Object,
+            new PlatformIdentityService(
+                users,
+                new InMemoryAuthenticationIdentityRepository(),
+                new InMemoryWorkspaceMembershipRepository(),
+                Mock.Of<IAuditService>(),
+                TimeProvider.System),
+            new InMemoryAuthenticationIdentityRepository(),
+            new InMemoryWorkspaceMembershipRepository(),
+            new InMemoryUserInvitationRepository(),
+            new PermissiveEmailOtpBotChallengeVerifier(Options.Create(options)),
+            Mock.Of<IAuditService>(),
+            TimeProvider.System);
+
+        EmailOtpAuthController controller = new(
+            Options.Create(options),
+            emailOtpAuth,
+            Mock.Of<ILocalTrialJwtIssuer>())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+
+        OkObjectResult unknownResult = (OkObjectResult)await controller.RequestChallengeAsync(
+            new ArchLucid.Api.Models.Auth.EmailOtpChallengeRequest { Email = "never-seen@example.com" },
+            CancellationToken.None);
+
+        OkObjectResult existingResult = (OkObjectResult)await controller.RequestChallengeAsync(
+            new ArchLucid.Api.Models.Auth.EmailOtpChallengeRequest { Email = "existing@example.com" },
+            CancellationToken.None);
+
+        EmailOtpChallengeResponse unknownBody = unknownResult.Value.Should().BeOfType<EmailOtpChallengeResponse>().Subject;
+        EmailOtpChallengeResponse existingBody = existingResult.Value.Should().BeOfType<EmailOtpChallengeResponse>().Subject;
+
+        unknownBody.Message.Should().Be(existingBody.Message);
+        unknownBody.ChallengeId.Should().BeNull();
+        existingBody.ChallengeId.Should().BeNull();
+        unknownBody.EmailDeliverySucceeded.Should().BeFalse();
+        existingBody.EmailDeliverySucceeded.Should().BeFalse();
+        unknownBody.SsoRequired.Should().Be(existingBody.SsoRequired);
+    }
 }
 
 internal sealed class InMemoryTenantIdentityProviderConfigurationRepository : ITenantIdentityProviderConfigurationRepository
