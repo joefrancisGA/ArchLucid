@@ -505,10 +505,12 @@ export async function ensureAccessTokenFresh(): Promise<void> {
               const hintMovedForward = currentExpiresAtHintMs > expiresAtHintAtStart;
               const hintMovedBackward = currentExpiresAtHintMs < expiresAtHintAtStart;
 
-              if (hintMovedForward && result.expiresAtMs < currentExpiresAtHintMs) {
+              // After persist extends the hint, only accept a BFF ok refresh that matches it exactly.
+              if (hintMovedForward && result.expiresAtMs !== currentExpiresAtHintMs) {
                 return;
               }
 
+              // After persist shortens the hint, reject a stale longer BFF expiry.
               if (hintMovedBackward && result.expiresAtMs > currentExpiresAtHintMs) {
                 return;
               }

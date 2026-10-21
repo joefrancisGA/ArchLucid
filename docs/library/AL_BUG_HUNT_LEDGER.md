@@ -25231,11 +25231,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 81
-- **bugs-found:** 74
+- **hunts:** 82
+- **bugs-found:** 75
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — stale longer BFF ok refresh after persist shortened expiry hint
+- **last-bug:** 2026-10-21 — stale longer BFF ok refresh after persist extended expiry hint
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -25243,11 +25243,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) ensureAccessTokenFresh stale longer BFF ok after same-identity persist shortened expiry hint (hit 2026-10-21 seed hunt).
 
-- [ ] (candidate) `parseOidcEpochMsHint` — leading-plus expires_at_ms session hint — locus: normalizeNumericOidcHintString; input: sessionStorage +1730000000000; reachability: support tooling pasting epoch ms.
-- [ ] (candidate) `coerceAcceptedOidcEpochMsHint` — fractional JSON expires_at_ms — locus: returns raw parsed float; input: BFF refresh 1730000000000.9; reachability: POST /api/auth/bff-session/refresh JSON.
-- [ ] (candidate) `parseOidcTokenResponse` — spread field shadowing — locus: object spread before expires_in override; input: expires_in string 7200; reachability: Entra token JSON.
-- [ ] (candidate) `discoveryUrlForAuthority` — triple-slash authority path — locus: pathname trim; input: https://login.example.com/// env; reachability: NEXT_PUBLIC_OIDC_AUTHORITY via config getters.
-- [ ] (candidate) `consumePostSignInReturnUrl` — ZWSP-wrapped safe path — locus: store/consume normalize; input: /reviews with ZWSP; reachability: initiateOidcRedirect returnUrl.
+2026-10-21 seed hunt (seed->hit): ensureAccessTokenFresh stale longer BFF ok after same-identity persist extended client hint; regression does not lengthen client expiry when stale ok BFF refresh completes after same-identity persist extended the hint; 29 session-ensure-fresh vitest tests passed.
+
+- [x] (proven) ensureAccessTokenFresh stale longer BFF ok after same-identity persist extended expiry hint (hit 2026-10-21 seed hunt).
+
+- [x] (valid-no-repro) `parseOidcEpochMsHint` — leading-plus expires_at_ms session hint — **cheap-disproof 2026-10-21 seed hunt:** `Number("+1730000000000")` parses; no wrong outcome vs decimal hints.
+- [x] (valid-no-repro) `coerceAcceptedOidcEpochMsHint` — fractional JSON expires_at_ms — **cheap-disproof 2026-10-21 seed hunt:** fractional hints accepted by design; `bff-session-sync.test.ts` covers fractional refresh JSON.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — spread field shadowing — **cheap-disproof 2026-10-21 seed hunt:** `expires_in` override follows spread; `token-client.test.ts` coerces string expires_in.
+- [x] (valid-no-repro) `discoveryUrlForAuthority` — triple-slash authority path — **cheap-disproof 2026-10-21 seed hunt:** `pathname.replace(/\/+$/, "")` collapses trailing slashes before `.well-known`.
+- [x] (valid-no-repro) `consumePostSignInReturnUrl` — ZWSP-wrapped safe path — **cheap-disproof 2026-10-21 seed hunt:** regression `storePostSignInReturnUrl` strips interior ZWSP on consume.
+
+- [ ] (candidate) `ensureAccessTokenFresh` — concurrent callers await shared `refreshInFlight` without starting a second POST when first refresh still pending after skew boundary — locus: `if (!refreshInFlight)` gate; input: two API calls in same tick past expiry skew; reachability: parallel `ensureAccessTokenFresh` from fetch interceptors.
+- [ ] (candidate) `syncTokenToBff` — late completion replays `latestTokenSyncRequest` when generation unchanged but sequence advanced — locus: tail replay branch; input: three rapid `persistTokenResponse` with same generation; reachability: burst token refresh callbacks.
+- [ ] (candidate) `parseBffExpiresAtMs` — JSON number path uses `coerceAcceptedOidcEpochMsHint` but string path uses `parseOidcEpochMsHint` only — locus: dual parsers in `bff-session-sync.ts`; input: refresh JSON numeric string vs number for same epoch; reachability: BFF refresh route serialization differences.
+- [ ] (candidate) `buildAuthorizeUrl` — supplemental scope string duplicated when env scopes already include `openid` — locus: scope concatenation; input: `NEXT_PUBLIC_OIDC_SCOPES` with openid + profile; reachability: deployment env via `getOidcScopes`.
+- [ ] (candidate) `readSignedInDisplayName` — returns unstored value when display key holds only invisible format chars after failed normalize — locus: `readSessionKey` + `normalizeOidcDisplayString`; input: sessionStorage display name of ZWSP-only; reachability: malformed IdP name claim persisted before normalize guard.
+
 
 2026-10-21 seed hunt (seed->hit): ensureAccessTokenFresh stale shorter BFF ok after persist extended client hint; regression does not shorten client expiry when stale ok BFF refresh completes after same-identity persist extended the hint; 319 scoped src/lib/oidc vitest tests passed.
 

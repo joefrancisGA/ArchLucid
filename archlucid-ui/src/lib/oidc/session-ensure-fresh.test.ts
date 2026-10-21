@@ -588,6 +588,47 @@ describe("ensureAccessTokenFresh (LK-06 P2 BFF refresh)", () => {
     expect(Number(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY))).toBe(shortenedHintMs);
   });
 
+  it("does not lengthen client expiry when stale ok BFF refresh completes after same-identity persist extended the hint", async () => {
+    let releaseRefresh: (() => void) | undefined;
+    const expiredHintMs = Date.now();
+    const staleLongBffExpiryMs = Date.now() + 7_200_000;
+
+    vi.mocked(bffSessionSync.refreshBffSessionCookie).mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          releaseRefresh = () => {
+            resolve({ ok: true, expiresAtMs: staleLongBffExpiryMs });
+          };
+        }),
+    );
+    vi.spyOn(bffSessionSync, "syncBffSessionCookieFromTokenResponse").mockResolvedValue();
+
+    sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, "user-stable");
+    sessionStorage.setItem(OIDC_DISPLAY_NAME_KEY, "Stable Operator");
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(expiredHintMs));
+
+    const refreshPromise = ensureAccessTokenFresh();
+
+    await Promise.resolve();
+
+    const token = accessTokenWithSubjectClaim("user-stable", "Stable Operator");
+    const nowSpy = vi.spyOn(Date, "now").mockReturnValue(expiredHintMs);
+
+    persistTokenResponse({ access_token: token, expires_in: 3600 });
+
+    nowSpy.mockRestore();
+
+    const extendedHintMs = expiredHintMs + 3_600_000;
+
+    expect(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY)).toBe(String(extendedHintMs));
+    expect(staleLongBffExpiryMs).toBeGreaterThan(extendedHintMs);
+
+    releaseRefresh?.();
+    await refreshPromise;
+
+    expect(Number(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY))).toBe(extendedHintMs);
+  });
+
   it("allows stale ok refresh to update expiry when persist repeats unchanged identity hints", async () => {
     let releaseRefresh: (() => void) | undefined;
     const expiredHintMs = Date.now();
