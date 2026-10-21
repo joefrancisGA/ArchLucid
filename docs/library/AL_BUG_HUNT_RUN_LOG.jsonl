@@ -5867,3 +5867,4 @@
 {"at":"2026-10-21T06:58:04.1702398Z","zoneId":"auth-return-path","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-21T07:01:07.2283397Z","zoneId":"review-recurrence","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs"]}
 {"at":"2026-10-21T07:07:07.6744910Z","zoneId":"itsm-inbound-webhooks","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Integrations/Itsm/ItsmInboundWebhookProcessPipeline.cs","ArchLucid.Application.Tests/Integrations/Itsm/ItsmInboundWebhookSyncServiceTests.cs"]}
+{"at":"2026-10-21T07:12:22.4994647Z","zoneId":"outbound-webhook-dry-run","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs;ArchLucid.Host.Composition/Services/OutboundWebhookDryRunService.cs"]}

@@ -1,4 +1,5 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
+2026-10-21 thorough hunt (hit, lane C): `outbound-webhook-dry-run` — lock pushed and verified on origin; promoted open `(candidate)` on `WebhookSimulationController.SimulateAsync` null/missing `TargetUrl` (parity with 2026-09-26 `OutboundWebhookDryRunController` fix); JSON body with absent `targetUrl` threw `NullReferenceException` on `body.TargetUrl.ToString()` before SSRF validation; explicit null guard returns HTTP 400; regression `SimulateAsync_missing_target_url_returns_400`; scoped `FullyQualifiedName~OutboundWebhookDryRun|FullyQualifiedName~WebhookSimulation` 28/28.
 2026-10-21 thorough hunt (dry, lane C): `review-recurrence` — lock `review-recurrence` pushed and verified on origin before work; re-read `ArchitectureReviewRecurrenceNextRunCalculator` and `GovernanceStickinessFacade.PreviewRecurrenceScheduleRuns`; re-confirmed large `count` allocation remains caller-bounded (1–20) before `ComputeNextRunsUtc`; no open `(candidate)` or `(hunt-ready)` rows in zone catalog; scoped `ArchitectureReviewRecurrenceNextRunCalculatorTests` 47/47; no production change.
 ﻿> **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 2026-10-21 thorough hunt (dry, lane B): `auth-return-path` — lock pushed before work; repro-first on five open `(candidate)` rows (paragraph separator, form feed, query `%5C%2F`, fragment `%2E%2E`, small commercial-at homoglyph); BMP NFKC compatibility scan on accepted single-codepoint prefixes found no protocol-relative or `@` normalization bypass beyond prior ledger rows; regressions `TryNormalize_accepts_percent_encoded_paragraph_separator_in_path_segment`, `TryNormalize_rejects_percent_encoded_form_feed_in_path_segment_after_decode`, `TryNormalize_rejects_encoded_backslash_slash_pair_in_query`, `TryNormalize_accepts_percent_encoded_dot_dot_literals_only_in_fragment`, `TryNormalize_rejects_percent_encoded_small_commercial_at_in_path_portion`; scoped `FullyQualifiedName~AuthSignInReturnPathGuardTests` 201/201; no production change.
@@ -12615,16 +12616,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: outbound-webhook-dry-run
 
+2026-10-21 thorough hunt (hit, lane C): `WebhookSimulationController` null `TargetUrl` guard; 28/28 scoped Api webhook dry-run/simulation tests.
+
 - **id:** outbound-webhook-dry-run
 - **status:** cooling
 - **impact:** high
 - **aliases:** webhook dry run; outbound webhook
 - **paths:** ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs; ArchLucid.Host.Composition/Services/OutboundWebhookDryRunService.cs
 - **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
-- **hunts:** 18
-- **bugs-found:** 10
+- **hunts:** 19
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-26
+- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-09-26 — dry-run controller NullReferenceException when TargetUrl omitted from body
 - **related-pd-tb:** none
 - **code-changed-since:** 7
@@ -12634,7 +12637,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2080 (seed-only): reseeded outbound-webhook-dry-run; 22 scoped tests passed; no new hunt-ready rows
 
 - [x] (proven) `OutboundWebhookDryRunController.DryRunAsync` — JSON body with null/missing `targetUrl` dereferenced `body.TargetUrl` before SSRF validation and threw `NullReferenceException` (500) instead of validation `400` — **hit 2026-09-26 seed hunt #15 (hint `b`):** model binding can leave `required Uri TargetUrl` null when the property is absent; fixed with explicit null guard before `ToString()`; regression `DryRunAsync_missing_target_url_returns_400`.
-- [ ] (candidate) `Integrations/WebhookSimulationController` — same null `TargetUrl` ordering as pre-fix dry-run controller (reachability: simulate endpoint shares `OutboundWebhookDryRunRequest`; out of zone paths)
+- [x] (proven) `Integrations/WebhookSimulationController` — null/missing `TargetUrl` dereferenced before SSRF validation — **hit 2026-10-21 lane C:** explicit null guard; regression `SimulateAsync_missing_target_url_returns_400`.
 
 2026-09-26 seed hunt #15 (seed→hit, hint `b`): reseeded outbound-webhook-dry-run after post-#1364 cooling; proved missing `TargetUrl` validation gap; seeded simulate-controller parity candidate; 24 scoped controller/service tests passed.
 
