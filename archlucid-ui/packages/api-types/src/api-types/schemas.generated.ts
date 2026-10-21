@@ -6083,6 +6083,8 @@ export interface components {
             llmCallCount?: number;
             /** Format: int64 */
             promptTokens?: number;
+            /** Format: int64 */
+            reasoningTokens?: number;
             runId?: string;
         };
         LlmCostTuningRequest: {
