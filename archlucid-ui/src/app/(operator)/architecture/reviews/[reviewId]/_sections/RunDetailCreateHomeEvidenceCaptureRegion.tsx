@@ -30,8 +30,8 @@ export type RunDetailCreateHomeEvidenceCaptureRegionProps = {
 type CreateHomeCatalogEntry = {
   readonly evidenceItemId: string;
   readonly originalFileName: string;
-  readonly contentType: string;
-  readonly createdUtc: string;
+  readonly contentType?: string;
+  readonly createdUtc?: string;
 };
 
 /** Value-stable key so inline array literals do not retrigger inventory reconciliation every render. */
@@ -55,7 +55,7 @@ function runDetailCreateHomeCatalogInventoryKey(catalog: readonly CreateHomeCata
   return catalog
     .map(
       (entry) =>
-        `${entry.evidenceItemId}\u001f${entry.originalFileName}\u001f${entry.contentType}\u001f${entry.createdUtc}`,
+        `${entry.evidenceItemId}\u001f${entry.originalFileName}\u001f${entry.contentType ?? ""}\u001f${entry.createdUtc ?? ""}`,
     )
     .join("\u001e");
 }
