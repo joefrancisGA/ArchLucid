@@ -314,18 +314,3 @@ public static class HostedAzureInventoryPaasChildCollector
         }
     }
 }
-
-public sealed class HostedAzureInventoryPaasChildCollectResult
-{
-    public IReadOnlyList<AzureInventoryPaasChildAssociationRow> Associations
-    {
-        get;
-        init;
-    } = [];
-
-    public IReadOnlyList<string> CollectionWarnings
-    {
-        get;
-        init;
-    } = [];
-}

@@ -6,9 +6,10 @@ using ArchLucid.Application.Tests.Identity;
 using ArchLucid.Core.Admin;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
-using ArchLucid.Core.Identity;
 using ArchLucid.Persistence.Admin;
 using ArchLucid.Persistence.Identity;
+
+using IdpConfigStore = ArchLucid.Persistence.Identity.InMemoryTenantIdentityProviderConfigurationRepository;
 
 using FluentAssertions;
 
@@ -49,7 +50,7 @@ public sealed class EmailOtpAuthControllerChallengeTests
                 AuthSignInRoutingServiceTestSupport.Create(
                     new InMemoryTenantSignInEmailDomainRepository(),
                     new InMemoryTenantSignInEmailDomainRecoveryAdminRepository(),
-                    new InMemoryTenantIdentityProviderConfigurationRepository(),
+                    new IdpConfigStore(),
                     new InMemoryUserInvitationRepository(),
                     new InMemoryPlatformTenantAuthRecoveryGrantRepository(),
                     TimeProvider.System)),
@@ -208,7 +209,7 @@ public sealed class EmailOtpAuthControllerChallengeTests
                 AuthSignInRoutingServiceTestSupport.Create(
                     new InMemoryTenantSignInEmailDomainRepository(),
                     new InMemoryTenantSignInEmailDomainRecoveryAdminRepository(),
-                    new InMemoryTenantIdentityProviderConfigurationRepository(),
+                    new IdpConfigStore(),
                     new InMemoryUserInvitationRepository(),
                     new InMemoryPlatformTenantAuthRecoveryGrantRepository(),
                     TimeProvider.System)),
@@ -251,28 +252,5 @@ public sealed class EmailOtpAuthControllerChallengeTests
         unknownBody.EmailDeliverySucceeded.Should().BeFalse();
         existingBody.EmailDeliverySucceeded.Should().BeFalse();
         unknownBody.SsoRequired.Should().Be(existingBody.SsoRequired);
-    }
-}
-
-internal sealed class InMemoryTenantIdentityProviderConfigurationRepository : ITenantIdentityProviderConfigurationRepository
-{
-    private readonly Dictionary<Guid, TenantIdentityProviderConfigurationRecord> _byTenant = [];
-
-    public Task<TenantIdentityProviderConfigurationRecord?> TryGetAsync(Guid tenantId, CancellationToken cancellationToken)
-    {
-        _ = cancellationToken;
-
-        _byTenant.TryGetValue(tenantId, out TenantIdentityProviderConfigurationRecord? record);
-
-        return Task.FromResult(record);
-    }
-
-    public Task UpsertAsync(TenantIdentityProviderConfigurationRecord record, CancellationToken cancellationToken)
-    {
-        _ = cancellationToken;
-
-        _byTenant[record.TenantId] = record;
-
-        return Task.CompletedTask;
     }
 }

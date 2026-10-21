@@ -81,9 +81,3 @@ public static class PixelDiagramIntakeStubDetector
         }
     }
 }
-
-public sealed record PixelDiagramIntakeStubMetadata(
-    string FileName,
-    string SourceMimeType,
-    string? EvidenceItemId,
-    string? PendingStoredFileMarker);

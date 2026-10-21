@@ -117,13 +117,3 @@ public sealed class CachingPolicyPackVersionRepository(
         return cached?.Items ?? [];
     }
 }
-
-/// <summary>Concrete list wrapper so HybridCache can round-trip version rows.</summary>
-public sealed class CachedPolicyPackVersionList
-{
-    public List<PolicyPackVersion> Items
-    {
-        get;
-        init;
-    } = [];
-}
