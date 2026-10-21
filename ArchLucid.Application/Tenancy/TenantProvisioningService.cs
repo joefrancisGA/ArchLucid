@@ -169,6 +169,14 @@ public sealed class TenantProvisioningService(
         await _tenantSettingsRepository.UpsertAsync(tenantId, "archlucid_nav_show_advanced", "0", ct).ConfigureAwait(false);
         await _tenantSettingsRepository.UpsertAsync(tenantId, "archlucid_nav_show_extended", "0", ct).ConfigureAwait(false);
 
+        TenantRecord? tenantBeforeMarketingAttribution =
+            await _tenantRepository.GetByIdAsync(tenantId, ct).ConfigureAwait(false);
+
+        if (IsErasureQuarantine(tenantBeforeMarketingAttribution))
+        {
+            return BuildErasureQuarantineProvisionResult(tenantId, workspaceId, projectId);
+        }
+
         if (request.FirstTouch is not null)
         {
             await _marketingAttributionService.PersistFirstTouchIfPresentAsync(tenantId, request.FirstTouch, ct)
