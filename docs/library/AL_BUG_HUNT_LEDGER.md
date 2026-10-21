@@ -18351,7 +18351,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: itsm-inbound-webhooks
 
-**Hunts:** 34 · **Bugs found:** 22 · **Consecutive dry hunts:** 0
+**Hunts:** 35 · **Bugs found:** 22 · **Consecutive dry hunts:** 0
+
+2026-10-21 seed hunt (seed-only): re-read `ItsmInboundWebhookProcessPipeline` (post-audit parity), facade security gates, ServiceNow/Jira readers, and replay guard; attempted promotion on `CreateFindingNotFoundPayload` drift vs `CreateServiceNowStatusDetail`, synthetic `06`/`6` replay keys, and disposition-conflict replay retention — no failing repro; scoped `FullyQualifiedName~ItsmInboundWebhook` 83/83; seeded five follow-on `(candidate)` rows.
+
+- [ ] (candidate) `ItsmInboundWebhookProcessPipeline.CreateFindingNotFoundPayload` — ServiceNow branch inlines status fields instead of calling `CreateServiceNowStatusDetail`, so future audit-shape fixes can miss `finding_not_found` rejected audits — locus: ~377–384; input: ServiceNow webhook with correlation row but missing `FindingRecords` row and divergent `state`/`incident_state` (`When_correlated_finding_row_missing` path).
+- [ ] (candidate) `ItsmInboundWebhookReplayEventId.BuildSynthetic` — JSON number state `6` vs string `"06"` without `X-ArchLucid-Webhook-Delivery-Id` yields distinct synthetic replay ids despite equivalent choice-list mapping — locus: `Resolve` status token; input: ServiceNow incident updates per `ItsmInboundJsonElementReader.ReadNumberAsStatusText`.
+- [ ] (candidate) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — after `ItsmInboundDispositionSyncResult.IsDispositionConflict`, replay claim is not released so a later delivery with the same synthetic replay key stays `ReplayIgnored` while human review was skipped — locus: ~284–305; input: concurrent human disposition write (ADR 0076) per `Jira_inbound_disposition_conflict_skips_human_review_update_and_surfaces_conflict_audit`.
+- [ ] (candidate) `ItsmInboundWebhookFacade.ProcessAsync` — tenant-scoped route passes `request.TenantId` into sync even when global deployment secret is disabled and tenant inbound KV is missing, surfacing HTTP 401 indistinguishable from bad vendor token — locus: `ResolveInboundSecretAsync`; input: `POST .../servicenow/tenants/{tenantId}` without tenant connector secret configured.
+- [ ] (candidate) `ItsmInboundWebhookProcessPipeline.CreateSyncedAuditPayload` — ServiceNow branch duplicates `CreateServiceNowStatusDetail` field wiring instead of composing it, risking synced vs replay-ignored audit drift — locus: ~442–449; input: dual-field ServiceNow payload after HR promotion from `incident_state`.
 
 2026-10-21 seed hunt (hit): promoted dual-path `CreateStatusPayload` vs `CreateSyncedAuditPayload` — ServiceNow replay-ignored (and related status detail) audits omitted divergent `incident_state` after synced-audit fix; `CreateStatusPayload` / `CreateFindingNotFoundPayload` now reuse `CreateServiceNowStatusDetail`; regression `ServiceNow_replay_ignored_audit_includes_divergent_incident_state`; scoped `FullyQualifiedName~ItsmInboundWebhook` 83/83.
 
@@ -18444,7 +18452,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
