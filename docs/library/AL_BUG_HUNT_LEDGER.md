@@ -14749,6 +14749,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-20 seed hunt (seed-only): identity-provider-config — re-read IdentityProviderConfigurationController discover/test-login/activate/get-configuration paths and IdentityProviderActivationService activation persistence after recent field-limit and camelCase claim-mapping hits; no row met the hunt-ready bar for a failing repro in the selected files. Seeded five bounded (candidate) rows for discover request validation parity, empty metadata URL handling, claim-mapping JSON size, test-login guard delegation, and legacy oversize Key Vault secret names on same-protocol re-activate. Scoped IdentityProviderActivationServiceTests passed 51/51 and IdentityProviderConfigurationControllerTests passed 15/15. No production change.
 
+2026-10-21 seed hunt (seed-only): re-read `IdentityProviderConfigurationController` and `IdentityProviderActivationService` after bugsmash fast-forward; cheap-disproof on audit best-effort envelope, GET claim-mapping passthrough, and discover URI canonicalization lenses; no row met hunt-ready bar for a failing repro in zone paths; seeded five `(candidate)` rows; 93 scoped activation/controller/matrix tests passed (1 matrix theory row expects SAML→SAML requires-metadata=false but `RequiresSubstantiveSamlMetadataXml` returns true by design).
 ## Zone: identity-provider-config
 2026-10-20 seed hunt (seed->hit): promoted GET /v1/admin/identity/configuration returning legacy MetadataXml on OIDC rows (and KeyVaultSecretName on SAML) after activate began stripping cross-protocol fields; PrepareConfigurationResponse omits protocol-inapplicable columns on read; regression GetConfigurationAsync_omits_metadata_xml_when_stored_protocol_is_oidc; 16 scoped IdentityProviderConfigurationControllerTests passed.
 
@@ -14765,13 +14766,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `IdentityProviderActivationService.ResolveOptionalPersistedField` — empty-string `keyVaultSecretName` clears on reactivate — **cheap-disproof 2026-10-20 seed hunt:** null preserves, whitespace clears by design; SSO wizard and SAML SP form send `null` via `trim() || null` (`use-sso-wizard-page.ts`, `buildSamlSpActivateRequest`).
 - [x] (valid-no-repro) `IdentityProviderConfigurationController.ActivateAsync` — audit `DataJson` omits full configuration row — **cheap-disproof 2026-10-20 seed hunt:** intentional audit summary (regression `ActivateAsync_audit_logs_persisted_protocol_not_raw_request_protocol`); operators use GET configuration for full SAML fields (2026-10-06 valid-no-repro on audit metadata).
 
+- [ ] (candidate) `IdentityProviderConfigurationController.ActivateAsync` — configuration upsert completes then audit `LogAsync` throws — locus: `catch (Exception)` after persist; input: audit sink failure after successful `UpsertAsync`; wrong outcome: HTTP 200 without `IdentitySsoConfigurationActivated` audit row; reachability: operator activate via POST `/v1/admin/identity/activate`.
+- [ ] (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` — returns stored `ClaimMappingJson` without re-running `IdentityClaimRoleMappingResolver.ValidateMapping` — locus: `PrepareConfigurationResponse` / GET handler; input: ISJSON-valid mapping with unsupported `archLucidRole` inserted via SQL repair; wrong outcome: wizard loads mapping until next activate rejects; reachability: GET `/v1/admin/identity/configuration`.
+- [ ] (candidate) `IdentityProviderConfigurationController.WithCanonicalWizardUris` — canonicalizes issuer and JWKS independently — locus: discover response post-process; input: discovery success with non-canonical `jwks_uri` host casing and issuer already canonical; wrong outcome: mixed casing between issuer and JWKS in wizard; reachability: POST `/v1/admin/identity/discover` OIDC success path.
+- [ ] (candidate) `IdentityProviderConfigurationController.PrepareConfigurationResponse` — omits cross-protocol columns on read but does not strip stale `KeyVaultSecretName` on SAML rows in integration tests — locus: `keyVaultSecretName` ternary; input: SAML row with legacy OIDC secret column populated; wrong outcome: admin GET echoes secret name pointer; reachability: GET configuration after cross-protocol switch before activate strip (DB legacy).
+- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — greenfield OIDC activation allows null `KeyVaultSecretName` while `RequiresSubstantiveOidcKeyVaultSecretName` is false — locus: requirements helper + persist; input: first activate without secret name; wrong outcome: active OIDC row without Key Vault pointer until follow-up activate; reachability: SSO wizard step-1 activate OpenAPI payload omitting `keyVaultSecretName`.
 - **id:** identity-provider-config
 - **status:** open
 - **impact:** high
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 69
+- **hunts:** 70
 - **bugs-found:** 51
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
