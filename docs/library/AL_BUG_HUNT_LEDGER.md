@@ -17054,6 +17054,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: scope-binding-middleware
 
+2026-10-21 seed hunt (seed-only): re-read `ScopeIdentityBindingMiddleware`, `ScopeResolutionGuardMiddleware`, and `RouteTenantScopeBindingFilter` after shared `ApiPathSkipSafety` rollout; cheap-disproof closed traversal-shaped `/internal/` prefix skip bypass and lowercase `PlatformTenantDeletionAuthority` policy metadata skip; regressions `OnActionExecutionAsync_traversal_shaped_internal_path_does_not_skip_binding` and `OnActionExecutionAsync_platform_deletion_policy_case_mismatch_does_not_skip_binding`; 105 scoped unit tests passed (6 SQL-backed integration tests unavailable).
+
 2026-10-12 seed hunt (seed→hit): `ScopeIdentityBindingMiddleware` skipped SCIM rebinding when an authenticated non-SCIM principal reached `/scim/v2/Users`, so scope validation trusted the wrong identity. The middleware now reauthenticates unless the current authentication type is `ScimBearer`. Regression `InvokeAsync_authenticated_non_scim_principal_on_scim_path_rebinds_before_scope_validation` failed before the fix and passed after it; the isolated scope-binding filter passed 63/63. The picker-wide API filter retained 6 pre-existing SQL Server-unavailable integration failures.
 
 2026-10-10 seed hunt (seed-only): repeated the scoped review with unchanged production behavior. The focused run again had 96 passing unit tests, 2 stale API-key workspace/project expectations, and 8 SQL-backed integration tests blocked by the missing SQL Server connection. No new hunt-ready row was promoted.
@@ -17094,10 +17096,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 65
+- **hunts:** 66
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-12
+- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-12 — authenticated non-SCIM principals bypassed SCIM rebinding on `/scim/v2/Users`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -17118,9 +17120,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-09 seed hunt (seed→hit): promoted empty and dot-segment health probe TB-304 gap; proved and fixed; backslash `Request.Path` was not reproduced; 96 scoped scope-binding unit tests passed (6 SQL integration tests unavailable).
 - [ ] (candidate) `ScopeIdentityBindingValidator.TryParseClaimGuid` — first `tenant_id` claim unparseable with later parseable claim and matching `x-tenant-id` header may pass `Validate` while scope resolves from header on non-Bearer schemes.
-- [ ] (candidate) `RouteTenantScopeBindingFilter.MetadataDeclaresPolicy` — policy names that differ from `PlatformTenantDeletionAuthority` only by case may not skip route tenant binding.
-- [ ] (candidate) `ScopeResolutionGuardMiddleware.NormalizeProbePath` — a reachable parent-segment request such as `/health/live/../v1/runs` must not be normalized into a public probe skip.
-- [ ] (candidate) `ScopeResolutionGuardMiddleware.ShouldSkip` — a routed path containing `/internal/` outside an explicitly internal endpoint may inherit the unscoped bypass if such a route is reachable.
+- [x] (valid-no-repro) `RouteTenantScopeBindingFilter.MetadataDeclaresPolicy` — policy names that differ from `PlatformTenantDeletionAuthority` only by case may not skip route tenant binding — **cheap-disproof 2026-10-21 seed hunt:** ASP.NET policy names are ordinal; lowercase metadata does not skip binding; regression `OnActionExecutionAsync_platform_deletion_policy_case_mismatch_does_not_skip_binding`.
+- [x] (valid-no-repro) `ScopeResolutionGuardMiddleware.NormalizeProbePath` — a reachable parent-segment request such as `/health/live/../v1/runs` must not be normalized into a public probe skip — **cheap-disproof 2026-10-21 seed hunt:** `ApiPathSkipSafety.BlocksPathBasedSkip` fail-closes parent segments before probe normalization; existing regression `InvokeAsync_staging_host_does_not_skip_health_live_parent_segment_escape`.
+- [x] (valid-no-repro) `ScopeResolutionGuardMiddleware.ShouldSkip` — a routed path containing `/internal/` outside an explicitly internal endpoint may inherit the unscoped bypass if such a route is reachable — **cheap-disproof 2026-10-21 seed hunt:** traversal-shaped internal URLs do not skip; regression `OnActionExecutionAsync_traversal_shaped_internal_path_does_not_skip_binding`.
 - [ ] (candidate) `RouteTenantScopeBindingFilter.MetadataDeclaresPolicy` — a custom `IAuthorizeData` implementation carrying the platform deletion policy may differ from the built-in metadata shapes handled by the filter.
 - [ ] (candidate) `RouteTenantScopeBindingFilter.OnActionExecutionAsync` — a valid route `tenantId` represented by a non-string route value must compare identically to the ambient tenant scope.
 - [ ] (candidate) `ScopeIdentityBindingValidator.TryParseHeaderGuid` — empty and malformed header segments surrounding one parseable GUID may produce a different duplicate/steering result than the request header parser.
