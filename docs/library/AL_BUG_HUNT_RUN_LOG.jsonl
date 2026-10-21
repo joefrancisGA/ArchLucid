@@ -6004,3 +6004,4 @@
 {"at":"2026-10-21T18:08:01.4829598Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/"]}
 {"at":"2026-10-21T18:07:40.9639558Z","zoneId":"application-tenancy-lifecycle","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-21T18:13:28.2996618Z","zoneId":"core-azure-extractor","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/"]}
+{"at":"2026-10-21T18:18:46.0992256Z","zoneId":"application-billing-logic","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Billing/"]}
