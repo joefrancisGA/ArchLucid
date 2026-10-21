@@ -110,31 +110,10 @@ public sealed partial class GovernanceStickinessController
         return null;
     }
 
-    private async Task<IActionResult?> EnsureRecurrenceScheduleSourceRunSealedManifestAllowedAsync(
+    private Task<IActionResult?> EnsureRecurrenceScheduleSourceRunSealedManifestAllowedAsync(
         Guid sourceRunId,
-        CancellationToken cancellationToken)
-    {
-        if (sourceRunId == Guid.Empty)
-            return null;
-
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-
-        try
-        {
-            await RecurrenceScheduleCreateSealedManifestHashGuard.EnsureSourceRunSealedManifestHashOrThrowAsync(
-                sourceRunId,
-                scope,
-                _authorityQueryService,
-                _manifestHashService,
-                cancellationToken);
-        }
-        catch (ConflictException ex)
-        {
-            return MapGovernanceStickinessSealedManifestConflict(ex);
-        }
-
-        return null;
-    }
+        CancellationToken cancellationToken) =>
+        EnsureGovernanceDispositionRunSealedManifestAllowedAsync(sourceRunId, cancellationToken);
 
     private async Task<IActionResult?> EnsureRecurrenceScheduleUpdateSealedManifestAllowedAsync(
         Guid scheduleId,
