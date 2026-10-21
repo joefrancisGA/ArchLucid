@@ -5872,3 +5872,4 @@
 {"at":"2026-10-21T07:17:09.6194069Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T07:18:03.1262759Z","zoneId":"technology-ledger-merge","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs"]}
 {"at":"2026-10-21T07:19:37.0737424Z","zoneId":"itsm-inbound-webhooks","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-21T07:28:30.3549093Z","zoneId":"sql-run-repository","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Repositories/SqlRunRepository.List.cs,ArchLucid.Persistence/Sql/RunListWarningFlagSql.cs"]}

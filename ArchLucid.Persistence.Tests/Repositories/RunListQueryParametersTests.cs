@@ -136,6 +136,26 @@ public sealed class RunListQueryParametersTests
             .Be(expected);
 
     [Fact]
+    public void ForProjectList_preserves_raw_project_slug_for_try_convert_while_normalizing_slug_branch()
+    {
+        Guid scopeProjectId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string raw = $"  {scopeProjectId:D}  ";
+        object parameters = RunListQueryParameters.ForProjectList(Scope(), raw, 10);
+
+        Read<string>(parameters, "ProjectSlug").Should().Be(raw);
+        Read<string>(parameters, "NormalizedProjectSlug").Should().Be(scopeProjectId.ToString("D").ToUpperInvariant());
+    }
+
+    [Fact]
+    public void ForRecentInScopeOffsetPage_negative_offset_normalization_does_not_change_probe_trim_semantics()
+    {
+        int limit = 2;
+        int fetch = Read<int>(RunListQueryParameters.ForRecentInScopeOffsetPage(Scope(), -3, limit), "Fetch");
+
+        fetch.Should().Be(limit + 1);
+    }
+
+    [Fact]
     public void ForRecentInScopeOffsetPage_requests_one_row_beyond_the_limit() =>
         Read<int>(RunListQueryParameters.ForRecentInScopeOffsetPage(Scope(), 0, 50), "Fetch")
             .Should()

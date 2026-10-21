@@ -121,4 +121,18 @@ public sealed class RunListWarningFlagSqlTests
         HotPathRelationalQueryShapes.RunsListByProjectNoLock.Should()
             .Contain("JSON_VALUE(ar.RequestJson");
     }
+
+    [Fact]
+    public void LeftJoinAggregates_governance_open_alert_presence_keys_by_run_id_like_detail_exists()
+    {
+        const string joins = RunListWarningFlagSql.LeftJoinAggregates;
+
+        joins.Should().Contain("GROUP BY ar.RunId");
+        joins.Should().NotContain("ar.TenantId = @TenantId");
+
+        RunDetailReadSql.SelectCorrelatedWarningFlags.Should()
+            .Contain("ar.RunId = dbo.Runs.RunId AND ar.Status = 'Open'");
+        RunDetailReadSql.SelectCorrelatedWarningFlags.Should()
+            .NotContain("ar.TenantId");
+    }
 }
