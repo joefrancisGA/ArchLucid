@@ -7,10 +7,11 @@ vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
     ...actual,
-  useSearchParams: () => ({
-    get: (key: string) => (key === "sampleRunId" ? "6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c501" : null),
-  }),
-  redirect: vi.fn(),
+    useSearchParams: () =>
+      new URLSearchParams("sampleRunId=6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c501"),
+    usePathname: () => "/architecture/reviews/new",
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn(), back: vi.fn(), forward: vi.fn() }),
+    redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
   };
@@ -52,6 +53,7 @@ vi.mock("@/lib/api", () => ({
 }));
 
 import { NewRunWizardClient } from "./NewRunWizardClient";
+import "./new-run-wizard-test-helpers";
 
 describe("NewRunWizardClient (sampleRunId query)", () => {
   beforeEach(() => {

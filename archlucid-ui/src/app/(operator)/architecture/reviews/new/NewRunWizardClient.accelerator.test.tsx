@@ -9,7 +9,7 @@ vi.mock("next/navigation", async (importOriginal) => {
     ...actual,
     useSearchParams: () => acceleratorSearchParams,
     useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn(), back: vi.fn(), forward: vi.fn() }),
-    usePathname: () => "",
+    usePathname: () => "/architecture/reviews/new",
     redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
@@ -45,6 +45,7 @@ vi.mock("@/lib/api", () => ({
 }));
 
 import { NewRunWizardClient } from "./NewRunWizardClient";
+import { NEW_RUN_WIZARD_SYSTEM_NAME_LABEL } from "./new-run-wizard-test-helpers";
 
 const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
 
@@ -92,10 +93,10 @@ describe("NewRunWizardClient (accelerator query)", { timeout: 60_000 }, () => {
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
 
     await waitFor(() => {
-      expect(screen.getByLabelText("System name")).toBeInTheDocument();
+      expect(screen.getByLabelText(NEW_RUN_WIZARD_SYSTEM_NAME_LABEL)).toBeInTheDocument();
     });
 
-    const systemName = screen.getByLabelText("System name") as HTMLInputElement;
+    const systemName = screen.getByLabelText(NEW_RUN_WIZARD_SYSTEM_NAME_LABEL) as HTMLInputElement;
 
     expect(systemName.value).toBe("Enterprise.Copilot.RagPlatform");
     expect(screen.queryByTestId("wizard-preset-step")).not.toBeInTheDocument();

@@ -14,9 +14,15 @@ vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
     ...actual,
-  useSearchParams: () => searchParamsState.value,
+    useSearchParams: () => {
+      const query = window.location.search.startsWith("?")
+        ? window.location.search.slice(1)
+        : window.location.search;
+
+      return new URLSearchParams(query);
+    },
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn(), back: vi.fn(), forward: vi.fn() }),
-  usePathname: () => "",
+  usePathname: () => "/architecture/reviews/new",
   redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
@@ -60,13 +66,20 @@ vi.mock("@/lib/save-tenant-review-cycle-baseline", async (importOriginal) => {
   };
 });
 
+import "./new-run-wizard-test-helpers";
+
 import { NewRunWizardClient } from "./NewRunWizardClient";
-import { optIntoAdvancedNewRunWizardConfiguration } from "./new-run-wizard-test-helpers";
+import {
+  NEW_RUN_WIZARD_SYSTEM_NAME_LABEL,
+  optIntoAdvancedNewRunWizardConfiguration,
+  prepareNewRunWizardVitestHarness,
+} from "./new-run-wizard-test-helpers";
 
 const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
 
 describe("NewRunWizardClient (baseline metrics step)", { timeout: 60_000 }, () => {
   beforeEach(() => {
+    prepareNewRunWizardVitestHarness();
     searchParamsState.value = new URLSearchParams();
     window.localStorage.setItem(WIZARD_MODE_STORAGE_KEY, "full");
     createArchitectureRunMock.mockReset();
@@ -125,7 +138,7 @@ describe("NewRunWizardClient (baseline metrics step)", { timeout: 60_000 }, () =
     fireEvent.click(screen.getByTestId("wizard-evidence-upload-skip-demo"));
 
     await waitFor(() => {
-      expect(screen.getByLabelText("System name")).toBeInTheDocument();
+      expect(screen.getByLabelText(NEW_RUN_WIZARD_SYSTEM_NAME_LABEL)).toBeInTheDocument();
     });
 
     for (let i = 0; i < 4; i += 1) {

@@ -33,7 +33,11 @@ export function GuidedIntakeRequestError(props: GuidedIntakeRequestErrorProps): 
       <OperatorApiProblem
         problem={isApiRequestError(props.error) ? props.error.problem : null}
         fallbackMessage={
-          isApiRequestError(props.error) ? props.error.message : GUIDED_INTAKE_REQUEST_FAILED_FALLBACK
+          isApiRequestError(props.error)
+            ? props.error.message
+            : props.error instanceof Error && props.error.message.trim().length > 0
+              ? props.error.message
+              : GUIDED_INTAKE_REQUEST_FAILED_FALLBACK
         }
       />
     </div>

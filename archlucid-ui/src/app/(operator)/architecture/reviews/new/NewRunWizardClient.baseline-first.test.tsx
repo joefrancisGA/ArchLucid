@@ -38,7 +38,7 @@ vi.mock("next/navigation", async (importOriginal) => {
     ...actual,
   useSearchParams: () => baselineSearchParams,
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn(), back: vi.fn(), forward: vi.fn() }),
-  usePathname: () => "",
+  usePathname: () => "/architecture/reviews/new",
   redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),

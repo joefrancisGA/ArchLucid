@@ -1,14 +1,76 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const useSearchParams = vi.fn();
+const pathSwitcherUrlHarness = vi.hoisted(() => {
+  const listeners = new Set<() => void>();
+  const state = { query: "" };
+  const committedHrefs: string[] = [];
+
+  return {
+    state,
+    committedHrefs,
+    subscribe(listener: () => void): () => void {
+      listeners.add(listener);
+
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+    applyHref(href: string): void {
+      committedHrefs.push(href);
+
+      try {
+        const url = new URL(href, "http://localhost/");
+        state.query = url.search.startsWith("?") ? url.search.slice(1) : url.search;
+        window.history.replaceState(null, "", url.pathname + url.search + url.hash);
+      } catch {
+        const qIndex = href.indexOf("?");
+        state.query = qIndex >= 0 ? href.slice(qIndex + 1) : "";
+      }
+
+      for (const listener of listeners) {
+        listener();
+      }
+    },
+    reset(): void {
+      state.query = "";
+      committedHrefs.length = 0;
+      window.history.replaceState(null, "", "/architecture/reviews/new");
+    },
+  };
+});
+
+function seedReviewsNewSearchParams(query: string): void {
+  pathSwitcherUrlHarness.applyHref(
+    query.length > 0 ? `/architecture/reviews/new?${query}` : "/architecture/reviews/new",
+  );
+}
+
+function expectNavigationCommitted(pathSubstring: string): void {
+  expect(pathSwitcherUrlHarness.committedHrefs.some((href) => href.includes(pathSubstring))).toBe(true);
+}
+
+vi.mock("@/lib/navigation/replace-if-href-changed", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/navigation/replace-if-href-changed")>();
+
+  return {
+    ...actual,
+    readWindowLocationSearch: () => pathSwitcherUrlHarness.state.query,
+    commitHrefIfChanged: (href: string, _options?: { readonly notify?: boolean }) => {
+      pathSwitcherUrlHarness.applyHref(href);
+
+      return true;
+    },
+  };
+});
+
 const replace = vi.fn();
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
     ...actual,
-    useSearchParams: () => useSearchParams(),
+    useSearchParams: () => new URLSearchParams(pathSwitcherUrlHarness.state.query),
     usePathname: () => "/architecture/reviews/new",
     useRouter: () => ({ replace }),
     redirect: vi.fn(),
@@ -46,7 +108,8 @@ import { ReviewsNewPathSwitcher } from "./ReviewsNewPathSwitcher";
 describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
   beforeEach(() => {
     window.localStorage.clear();
-    useSearchParams.mockReturnValue(new URLSearchParams());
+    pathSwitcherUrlHarness.reset();
+    seedReviewsNewSearchParams("");
     replace.mockClear();
     useCorePilotCommitContextQuery.mockReturnValue({
       isPending: false,
@@ -94,7 +157,7 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
   });
 
   it("clears orphan scopeGate when opening guided intake from the disclosure", async () => {
-    useSearchParams.mockReturnValue(new URLSearchParams("scopeGate=1"));
+    seedReviewsNewSearchParams("scopeGate=1");
 
     render(<ReviewsNewPathSwitcher />);
 
@@ -108,15 +171,12 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
       expect(screen.getByTestId("socratic-intake-wizard-stub")).toBeTruthy();
     });
 
-    expect(replace).toHaveBeenCalledWith(
-      "/architecture/reviews/new?path=guided-intake",
-      expect.objectContaining({ scroll: false }),
-    );
-    expect(replace.mock.calls.some(([href]) => String(href).includes("scopeGate="))).toBe(false);
+    expectNavigationCommitted("path=guided-intake");
+    expect(pathSwitcherUrlHarness.committedHrefs.at(-1)?.includes("scopeGate=")).toBe(false);
   });
 
   it("clears stale detailed wizard query params when opening guided intake from the disclosure", async () => {
-    useSearchParams.mockReturnValue(new URLSearchParams("step=4&mode=full&pilot=0&advancedConfig=1"));
+    seedReviewsNewSearchParams("step=4&mode=full&pilot=0&advancedConfig=1");
 
     render(<ReviewsNewPathSwitcher />);
 
@@ -130,18 +190,15 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
       expect(screen.getByTestId("socratic-intake-wizard-stub")).toBeTruthy();
     });
 
-    expect(replace).toHaveBeenCalledWith(
-      "/architecture/reviews/new?path=guided-intake",
-      expect.objectContaining({ scroll: false }),
-    );
-    expect(replace.mock.calls.some(([href]) => String(href).includes("step="))).toBe(false);
-    expect(replace.mock.calls.some(([href]) => String(href).includes("mode="))).toBe(false);
-    expect(replace.mock.calls.some(([href]) => String(href).includes("pilot="))).toBe(false);
-    expect(replace.mock.calls.some(([href]) => String(href).includes("advancedConfig="))).toBe(false);
+    expectNavigationCommitted("path=guided-intake");
+    expect(pathSwitcherUrlHarness.committedHrefs.at(-1)?.includes("step=")).toBe(false);
+    expect(pathSwitcherUrlHarness.committedHrefs.at(-1)?.includes("mode=")).toBe(false);
+    expect(pathSwitcherUrlHarness.committedHrefs.at(-1)?.includes("pilot=")).toBe(false);
+    expect(pathSwitcherUrlHarness.committedHrefs.at(-1)?.includes("advancedConfig=")).toBe(false);
   });
 
   it("clears orphan intakeStep when opening guided intake from the disclosure", async () => {
-    useSearchParams.mockReturnValue(new URLSearchParams("intakeStep=2"));
+    seedReviewsNewSearchParams("intakeStep=2");
 
     render(<ReviewsNewPathSwitcher />);
 
@@ -155,11 +212,8 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
       expect(screen.getByTestId("socratic-intake-wizard-stub")).toBeTruthy();
     });
 
-    expect(replace).toHaveBeenCalledWith(
-      "/architecture/reviews/new?path=guided-intake",
-      expect.objectContaining({ scroll: false }),
-    );
-    expect(replace.mock.calls.some(([href]) => String(href).includes("intakeStep="))).toBe(false);
+    expectNavigationCommitted("path=guided-intake");
+    expect(pathSwitcherUrlHarness.committedHrefs.at(-1)?.includes("intakeStep=")).toBe(false);
   });
 
   it("opens guided intake from the disclosure without showing peer tabs", async () => {
@@ -178,10 +232,7 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
     expect(screen.queryByTestId("reviews-new-path-toggle")).toBeNull();
     expect(screen.queryByTestId("reviews-new-job-chooser-section")).toBeNull();
     expect(screen.getByTestId("reviews-new-back-to-quick-start")).toBeInTheDocument();
-    expect(replace).toHaveBeenCalledWith(
-      "/architecture/reviews/new?path=guided-intake",
-      expect.objectContaining({ scroll: false }),
-    );
+    expectNavigationCommitted("path=guided-intake");
   });
 
   it("opens templates and imports from the disclosure and syncs path=detailed (TB-1867)", async () => {
@@ -197,14 +248,11 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
       expect(screen.getByTestId("new-run-wizard-stub")).toBeTruthy();
     });
 
-    expect(replace).toHaveBeenCalledWith(
-      "/architecture/reviews/new?path=detailed",
-      expect.objectContaining({ scroll: false }),
-    );
+    expectNavigationCommitted("path=detailed");
   });
 
   it("clears orphan intakeStep when opening detailed wizard from the disclosure", async () => {
-    useSearchParams.mockReturnValue(new URLSearchParams("intakeStep=2&scopeGate=1"));
+    seedReviewsNewSearchParams("intakeStep=2&scopeGate=1");
 
     render(<ReviewsNewPathSwitcher />);
 
@@ -218,16 +266,13 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
       expect(screen.getByTestId("new-run-wizard-stub")).toBeTruthy();
     });
 
-    expect(replace).toHaveBeenCalledWith(
-      "/architecture/reviews/new?path=detailed",
-      expect.objectContaining({ scroll: false }),
-    );
-    expect(replace.mock.calls.some(([href]) => String(href).includes("intakeStep="))).toBe(false);
-    expect(replace.mock.calls.some(([href]) => String(href).includes("scopeGate="))).toBe(false);
+    expectNavigationCommitted("path=detailed");
+    expect(pathSwitcherUrlHarness.committedHrefs.at(-1)?.includes("intakeStep=")).toBe(false);
+    expect(pathSwitcherUrlHarness.committedHrefs.at(-1)?.includes("scopeGate=")).toBe(false);
   });
 
   it("opens guided intake when path=guided-intake is in the query string", async () => {
-    useSearchParams.mockReturnValue(new URLSearchParams("path=guided-intake"));
+    seedReviewsNewSearchParams("path=guided-intake");
 
     render(<ReviewsNewPathSwitcher />);
 
@@ -240,7 +285,7 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
   });
 
   it("clears intakeStep when returning to quick-review", async () => {
-    useSearchParams.mockReturnValue(new URLSearchParams("path=guided-intake&intakeStep=2"));
+    seedReviewsNewSearchParams("path=guided-intake&intakeStep=2");
 
     render(<ReviewsNewPathSwitcher />);
 
@@ -254,15 +299,12 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
       expect(screen.getByTestId("reviews-new-job-chooser-section")).toBeInTheDocument();
     });
 
-    expect(replace).toHaveBeenCalledWith(
-      "/architecture/reviews/new?path=quick-review",
-      expect.objectContaining({ scroll: false }),
-    );
-    expect(replace.mock.calls.some(([href]) => String(href).includes("intakeStep="))).toBe(false);
+    expectNavigationCommitted("path=quick-review");
+    expect(pathSwitcherUrlHarness.committedHrefs.at(-1)?.includes("intakeStep=")).toBe(false);
   });
 
   it("clears the legacy example alias when returning to quick-review", async () => {
-    useSearchParams.mockReturnValue(new URLSearchParams("path=guided-intake&example=healthcare-claims-intake"));
+    seedReviewsNewSearchParams("path=guided-intake&example=healthcare-claims-intake");
     window.history.replaceState(
       null,
       "",
@@ -285,7 +327,7 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
   });
 
   it("clears stale detailed wizard query params when returning to quick-review", async () => {
-    useSearchParams.mockReturnValue(new URLSearchParams("path=detailed&step=4&mode=full&pilot=0"));
+    seedReviewsNewSearchParams("path=detailed&step=4&mode=full&pilot=0");
 
     render(<ReviewsNewPathSwitcher />);
 
@@ -299,17 +341,14 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
       expect(screen.getByTestId("reviews-new-job-chooser-section")).toBeInTheDocument();
     });
 
-    expect(replace).toHaveBeenCalledWith(
-      "/architecture/reviews/new?path=quick-review",
-      expect.objectContaining({ scroll: false }),
-    );
-    expect(replace.mock.calls.some(([href]) => String(href).includes("step="))).toBe(false);
-    expect(replace.mock.calls.some(([href]) => String(href).includes("mode="))).toBe(false);
-    expect(replace.mock.calls.some(([href]) => String(href).includes("pilot="))).toBe(false);
+    expectNavigationCommitted("path=quick-review");
+    expect(pathSwitcherUrlHarness.committedHrefs.at(-1)?.includes("step=")).toBe(false);
+    expect(pathSwitcherUrlHarness.committedHrefs.at(-1)?.includes("mode=")).toBe(false);
+    expect(pathSwitcherUrlHarness.committedHrefs.at(-1)?.includes("pilot=")).toBe(false);
   });
 
   it("returns to the job chooser when back to quick start clears accelerator deep-link params", async () => {
-    useSearchParams.mockReturnValue(new URLSearchParams("baseline=1&accelerator=ai-llm-workload"));
+    seedReviewsNewSearchParams("baseline=1&accelerator=ai-llm-workload");
 
     render(<ReviewsNewPathSwitcher />);
 
@@ -323,14 +362,11 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
       expect(screen.getByTestId("reviews-new-job-chooser-section")).toBeInTheDocument();
     });
 
-    expect(replace).toHaveBeenCalledWith(
-      "/architecture/reviews/new?path=quick-review",
-      expect.objectContaining({ scroll: false }),
-    );
+    expectNavigationCommitted("path=quick-review");
   });
 
   it("keeps default review path hints when an accelerator pack deep link is used", async () => {
-    useSearchParams.mockReturnValue(new URLSearchParams("baseline=1&accelerator=ai-llm-workload"));
+    seedReviewsNewSearchParams("baseline=1&accelerator=ai-llm-workload");
 
     render(<ReviewsNewPathSwitcher />);
 
@@ -343,7 +379,7 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
   });
 
   it("opens the templates wizard for greenfield preset without showing the job chooser", async () => {
-    useSearchParams.mockReturnValue(new URLSearchParams("preset=greenfield"));
+    seedReviewsNewSearchParams("preset=greenfield");
 
     render(<ReviewsNewPathSwitcher />);
 
@@ -355,7 +391,7 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
   });
 
   it("skips the job chooser when a valid example template deep link is present", async () => {
-    useSearchParams.mockReturnValue(new URLSearchParams("template=customer-intake-modernization"));
+    seedReviewsNewSearchParams("template=customer-intake-modernization");
 
     render(<ReviewsNewPathSwitcher />);
 
@@ -370,7 +406,8 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
 describe("ReviewsNewPathSwitcher (returning tenant)", () => {
   beforeEach(() => {
     window.localStorage.clear();
-    useSearchParams.mockReturnValue(new URLSearchParams());
+    pathSwitcherUrlHarness.reset();
+    seedReviewsNewSearchParams("");
     replace.mockClear();
     useCorePilotCommitContextQuery.mockReturnValue({
       isPending: false,
@@ -409,10 +446,7 @@ describe("ReviewsNewPathSwitcher (returning tenant)", () => {
     expect(screen.queryByTestId("reviews-new-path-toggle")).toBeNull();
     expect(screen.queryByTestId("reviews-new-job-chooser-section")).toBeNull();
     expect(screen.getByTestId("reviews-new-back-to-quick-start")).toBeInTheDocument();
-    expect(replace).toHaveBeenCalledWith(
-      "/architecture/reviews/new?path=guided-intake",
-      expect.objectContaining({ scroll: false }),
-    );
+    expectNavigationCommitted("path=guided-intake");
   });
 
   it("opens templates and imports from the disclosure and syncs path=detailed (TB-1867 / TB-2332)", async () => {
@@ -429,14 +463,11 @@ describe("ReviewsNewPathSwitcher (returning tenant)", () => {
     });
 
     expect(screen.queryByTestId("reviews-new-path-toggle")).toBeNull();
-    expect(replace).toHaveBeenCalledWith(
-      "/architecture/reviews/new?path=detailed",
-      expect.objectContaining({ scroll: false }),
-    );
+    expectNavigationCommitted("path=detailed");
   });
 
   it("preserves unrelated query keys when switching paths from the disclosure (TB-1867)", async () => {
-    useSearchParams.mockReturnValue(new URLSearchParams("intent=create-architecture"));
+    seedReviewsNewSearchParams("intent=create-architecture");
 
     render(<ReviewsNewPathSwitcher />);
 
@@ -450,14 +481,12 @@ describe("ReviewsNewPathSwitcher (returning tenant)", () => {
       expect(screen.getByTestId("socratic-intake-wizard-stub")).toBeTruthy();
     });
 
-    expect(replace).toHaveBeenCalledWith(
-      "/architecture/reviews/new?intent=create-architecture&path=guided-intake",
-      expect.objectContaining({ scroll: false }),
-    );
+    expectNavigationCommitted("intent=create-architecture");
+    expectNavigationCommitted("path=guided-intake");
   });
 
   it("opens templates wizard when path=detailed is in the query string (TB-1867)", async () => {
-    useSearchParams.mockReturnValue(new URLSearchParams("path=detailed"));
+    seedReviewsNewSearchParams("path=detailed");
 
     render(<ReviewsNewPathSwitcher />);
 

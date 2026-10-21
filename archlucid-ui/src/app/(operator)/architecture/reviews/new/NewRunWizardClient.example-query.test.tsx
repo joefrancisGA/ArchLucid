@@ -9,7 +9,7 @@ vi.mock("next/navigation", async (importOriginal) => {
     get: (key: string) => (key === "template" ? "customer-intake-modernization" : null),
   }),
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn(), back: vi.fn(), forward: vi.fn() }),
-  usePathname: () => "",
+  usePathname: () => "/architecture/reviews/new",
   redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
@@ -51,12 +51,13 @@ vi.mock("@/lib/api", () => ({
   }),
 }));
 
-import { NewRunWizardClient } from "./NewRunWizardClient";
-
 import {
   OPERATOR_HOME_EXAMPLE_DESCRIPTION,
   OPERATOR_HOME_EXAMPLE_SYSTEM_NAME,
 } from "@/lib/operator/operator-home-example-request";
+
+import { NewRunWizardClient } from "./NewRunWizardClient";
+import { NEW_RUN_WIZARD_SYSTEM_NAME_LABEL } from "./new-run-wizard-test-helpers";
 
 const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
 
@@ -111,7 +112,7 @@ describe("NewRunWizardClient (example query)", { timeout: 60_000 }, () => {
     fireEvent.click(within(greenfieldCard as HTMLElement).getByRole("button", { name: "Use greenfield web app" }));
 
     await waitFor(() => {
-      expect(screen.getByTestId("new-run-wizard-step-line")).toHaveTextContent(/Step 2: Evidence \(optional\)/);
+      expect(screen.getByTestId("new-run-wizard-step-line")).toHaveTextContent(/Step 2: Add evidence \(optional\)/);
     });
 
     fireEvent.click(screen.getByTestId("wizard-evidence-source-demo"));
@@ -121,7 +122,7 @@ describe("NewRunWizardClient (example query)", { timeout: 60_000 }, () => {
       expect(screen.getByTestId("new-run-wizard-step-line")).toHaveTextContent(/Step 3: Identity & goals/);
     });
 
-    expect((screen.getByLabelText("System name") as HTMLInputElement).value).toBe(OPERATOR_HOME_EXAMPLE_SYSTEM_NAME);
+    expect((screen.getByLabelText(NEW_RUN_WIZARD_SYSTEM_NAME_LABEL) as HTMLInputElement).value).toBe(OPERATOR_HOME_EXAMPLE_SYSTEM_NAME);
 
     expect((screen.getByLabelText("Description") as HTMLTextAreaElement).value).toBe(OPERATOR_HOME_EXAMPLE_DESCRIPTION);
   });

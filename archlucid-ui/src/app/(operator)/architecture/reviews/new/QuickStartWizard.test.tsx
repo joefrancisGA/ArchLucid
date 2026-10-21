@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { ApiRequestError } from "@/lib/api-request-error";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
+import { GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL } from "@/lib/guided-intake-copy";
 import { buildDefaultWizardValues, wizardFormSchema, type WizardFormValues } from "@/lib/wizard-schema";
 
 const createRun = vi.fn();
@@ -56,7 +57,7 @@ describe("QuickStartWizard", () => {
 
     expect(screen.getByTestId("quick-start-progress")).toHaveTextContent(/step 1 of 3/i);
 
-    const system = screen.getByLabelText("System name");
+    const system = screen.getByLabelText(GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL);
     fireEvent.change(system, { target: { value: "MyRetailApp" } });
 
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
@@ -95,7 +96,7 @@ describe("QuickStartWizard", () => {
 
     render(<Harness />);
 
-    fireEvent.change(screen.getByLabelText("System name"), { target: { value: "IgnoredAfterTemplate" } });
+    fireEvent.change(screen.getByLabelText(GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL), { target: { value: "IgnoredAfterTemplate" } });
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
 
     await waitFor(() => {
@@ -139,7 +140,7 @@ describe("QuickStartWizard", () => {
 
     render(<Harness />);
 
-    fireEvent.change(screen.getByLabelText("System name"), { target: { value: "MyRetailApp" } });
+    fireEvent.change(screen.getByLabelText(GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL), { target: { value: "MyRetailApp" } });
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
 
     await waitFor(() => {
@@ -168,7 +169,7 @@ describe("QuickStartWizard", () => {
   it("surfaces step validation inline without toast (TB-2113)", async () => {
     render(<Harness />);
 
-    fireEvent.change(screen.getByLabelText("System name"), { target: { value: "" } });
+    fireEvent.change(screen.getByLabelText(GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL), { target: { value: "" } });
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
 
     await waitFor(() => {

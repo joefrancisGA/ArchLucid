@@ -39,8 +39,17 @@ vi.mock("@/lib/api", () => ({
   createArchitectureRun: (...args: unknown[]) => createRun(...args),
 }));
 
-vi.mock("@/lib/wizard-pending-evidence-upload", () => ({
-  uploadWizardPendingDocumentEvidence: (...args: unknown[]) => uploadDocuments(...args),
+vi.mock("@/lib/wizard-pending-evidence-upload", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/wizard-pending-evidence-upload")>();
+
+  return {
+    ...actual,
+    uploadWizardPendingDocumentEvidence: (...args: unknown[]) => uploadDocuments(...args),
+  };
+});
+
+vi.mock("@/lib/persist-run-coverage-acknowledgement", () => ({
+  persistSessionRunCoverageAcknowledgement: vi.fn(async () => undefined),
 }));
 
 vi.mock("@/lib/extract-evidence-document-text", () => ({
@@ -53,6 +62,25 @@ vi.mock("@/lib/extract-evidence-document-text", () => ({
 
 vi.mock("@/lib/first-tenant-funnel-telemetry", () => ({
   recordFirstTenantFunnelEvent: vi.fn(),
+}));
+
+vi.mock("@/hooks/use-workspace-system-name-availability", () => ({
+  useWorkspaceSystemNameAvailability: () => ({
+    blocksSubmit: false,
+    validating: false,
+    isAvailable: true,
+    conflictMessage: null,
+    validationReady: true,
+    validationUnavailable: false,
+  }),
+}));
+
+vi.mock("@/hooks/use-llm-monthly-budget-execution-gate", () => ({
+  useLlmMonthlyBudgetExecutionGate: () => ({ status: "ok", blocksLlmExecution: false }),
+}));
+
+vi.mock("@/hooks/use-agent-execution-mode", () => ({
+  useAgentExecutionMode: () => ({ isSimulator: true }),
 }));
 
 vi.mock("@/lib/toast", () => ({
@@ -99,6 +127,7 @@ import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING, NEW_REVIEW_SAMPLE_ESCAPE_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD } from "@/lib/create-vs-review-intake-copy";
 import { showError } from "@/lib/toast";
+import { WIZARD_PENDING_EVIDENCE_UPLOAD_DEFERRED_MESSAGE } from "@/lib/wizard-pending-evidence-upload";
 import { REVIEW_START_PREPARING_LABEL } from "@/lib/review-start-progress-copy";
 import { FOCUSED_PILOT_MODE_POLICY_REFERENCE } from "@/lib/focused-pilot-mode-policy-packs";
 import { satisfyAllQuickStartL0MustQuestions } from "@/testing/quick-start-l0-must-vitest-helpers";
@@ -418,11 +447,17 @@ describe("FirstPilotIntakeWizard", () => {
     fireEvent.click(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }));
 
     await waitFor(() => {
-      expect(screen.getByTestId("first-pilot-submit-error")).toHaveTextContent(
-        /document evidence upload failed/i,
+      expect(showError).toHaveBeenCalledWith(
+        "Evidence upload",
+        WIZARD_PENDING_EVIDENCE_UPLOAD_DEFERRED_MESSAGE,
+        { type: "warning" },
       );
     });
-    expect(push).not.toHaveBeenCalled();
+
+    await waitFor(() => {
+      expect(push).toHaveBeenCalledWith(buildReviewGenerationRedirect("first-pilot-run-2", "quick-review"));
+    });
+    expect(screen.queryByTestId("first-pilot-submit-error")).not.toBeInTheDocument();
   });
 
   it("keeps review standards selection collapsed by default", () => {

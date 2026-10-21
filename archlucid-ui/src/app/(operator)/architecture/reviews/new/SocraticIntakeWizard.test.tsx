@@ -1,7 +1,7 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, type RenderResult } from "@testing-library/react";
+import { createElement, useSyncExternalStore, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { WIZARD_STICKY_PROGRESS_TEST_ID } from "@/lib/wizard-sticky-progress";
-
 const admitDraftRequest = vi.fn();
 const answerDraftQuestion = vi.fn();
 const createDraftRequest = vi.fn();
@@ -14,18 +14,79 @@ const routerPush = vi.fn();
 const routerReplace = vi.fn();
 const tryLoadPriorPackageGuidedIntakePrefill = vi.fn();
 const searchParamsGet = vi.hoisted(() => vi.fn(() => null as string | null));
+const socraticIntakeUrlHarness = vi.hoisted(() => {
+  const listeners = new Set<() => void>();
+  const state = { query: "" };
+  const committedHrefs: string[] = [];
+
+  return {
+    state,
+    committedHrefs,
+    subscribe(listener: () => void): () => void {
+      listeners.add(listener);
+
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+    applyHref(href: string): void {
+      committedHrefs.push(href);
+
+      try {
+        const url = new URL(href, "http://localhost/");
+        state.query = url.search.startsWith("?") ? url.search.slice(1) : url.search;
+        window.history.replaceState(null, "", url.pathname + url.search + url.hash);
+      } catch {
+        const qIndex = href.indexOf("?");
+        state.query = qIndex >= 0 ? href.slice(qIndex + 1) : "";
+      }
+
+      for (const listener of listeners) {
+        listener();
+      }
+    },
+    reset(): void {
+      state.query = "";
+      committedHrefs.length = 0;
+      window.history.replaceState(null, "", "/architecture/reviews/new");
+    },
+  };
+});
+
+vi.mock("@/lib/navigation/replace-if-href-changed", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/navigation/replace-if-href-changed")>();
+
+  return {
+    ...actual,
+    readWindowLocationSearch: () => socraticIntakeUrlHarness.state.query,
+    commitHrefIfChanged: (href: string, _options?: { readonly notify?: boolean }) => {
+      socraticIntakeUrlHarness.applyHref(href);
+
+      return true;
+    },
+  };
+});
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
     ...actual,
-  useRouter: () => ({ push: routerPush, replace: routerReplace }),
-  useSearchParams: () => ({
-    get: (key: string) => searchParamsGet(key),
-    toString: () => "",
-  }),
-  usePathname: () => "/architecture/reviews/new",
-  redirect: vi.fn(),
+    useRouter: () => ({ push: routerPush, replace: routerReplace }),
+    useSearchParams: () => {
+      const params = new URLSearchParams(socraticIntakeUrlHarness.state.query);
+
+      return new Proxy(params, {
+        get(target, prop, receiver) {
+          if (prop === "get") {
+            return (key: string) => searchParamsGet(key) ?? target.get(key);
+          }
+
+          return Reflect.get(target, prop, receiver);
+        },
+      });
+    },
+    usePathname: () => "/architecture/reviews/new",
+    redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
   };
@@ -47,6 +108,19 @@ vi.mock("@/hooks/use-llm-monthly-budget-execution-gate", () => ({
     status: null,
     blocksLlmExecution: false,
   }),
+}));
+
+const workspaceSystemNameAvailabilityState = vi.hoisted(() => ({
+  blocksSubmit: false,
+  validating: false,
+  isAvailable: true,
+  conflictMessage: null as string | null,
+  validationReady: true,
+  validationUnavailable: false,
+}));
+
+vi.mock("@/hooks/use-workspace-system-name-availability", () => ({
+  useWorkspaceSystemNameAvailability: () => workspaceSystemNameAvailabilityState,
 }));
 
 const suggestAnswersFromEvidence = vi.fn();
@@ -236,6 +310,20 @@ import {
 
 import { SocraticIntakeWizard } from "./SocraticIntakeWizard";
 
+function SocraticIntakeSearchParamsRerenderHost({ children }: { readonly children: ReactNode }) {
+  useSyncExternalStore(
+    socraticIntakeUrlHarness.subscribe,
+    () => socraticIntakeUrlHarness.state.query,
+    () => "",
+  );
+
+  return createElement("div", null, children);
+}
+
+function renderSocraticWizard(): RenderResult {
+  return render(<SocraticIntakeWizard />, { wrapper: SocraticIntakeSearchParamsRerenderHost });
+}
+
 const sampleQuestion = {
   questionKey: "l0.pillar.security",
   prompt: "How is data protected?",
@@ -313,7 +401,13 @@ function mockAdmittedDraftWithoutClarifications(): void {
 
 describe("SocraticIntakeWizard", () => {
   beforeEach(() => {
+    socraticIntakeUrlHarness.reset();
     searchParamsGet.mockImplementation(() => null);
+    createDraftRequest.mockReset();
+    patchDraftRequest.mockReset();
+    admitDraftRequest.mockReset();
+    getDraftQuestions.mockReset();
+    submitDraftRequest.mockReset();
     getDraftRequest.mockReset();
     getDraftRequest.mockResolvedValue({
       draftId: "draft-1",
@@ -328,6 +422,12 @@ describe("SocraticIntakeWizard", () => {
     tryLoadPriorPackageGuidedIntakePrefill.mockResolvedValue(null);
     fetchWorkspaceSystemNameAvailability.mockReset();
     fetchWorkspaceSystemNameAvailability.mockResolvedValue({ isAvailable: true });
+    workspaceSystemNameAvailabilityState.blocksSubmit = false;
+    workspaceSystemNameAvailabilityState.validating = false;
+    workspaceSystemNameAvailabilityState.isAvailable = true;
+    workspaceSystemNameAvailabilityState.conflictMessage = null;
+    workspaceSystemNameAvailabilityState.validationReady = true;
+    workspaceSystemNameAvailabilityState.validationUnavailable = false;
     window.sessionStorage.clear();
   });
 
@@ -369,7 +469,7 @@ describe("SocraticIntakeWizard", () => {
       updatedUtc: "2026-08-05T12:00:00Z",
     });
 
-    render(<SocraticIntakeWizard />);
+    renderSocraticWizard();
 
     await waitFor(() => {
       expect(getDraftRequest).toHaveBeenCalledWith(sourceArchitectureId);
@@ -427,7 +527,7 @@ describe("SocraticIntakeWizard", () => {
       updatedUtc: "2026-08-05T12:00:00Z",
     });
 
-    render(<SocraticIntakeWizard />);
+    renderSocraticWizard();
 
     await waitFor(() => {
       expect(routerPush).toHaveBeenCalledWith("/architecture/reviews/run-vertex-2");
@@ -472,7 +572,7 @@ describe("SocraticIntakeWizard", () => {
       updatedUtc: "2026-08-05T12:00:00Z",
     });
 
-    render(<SocraticIntakeWizard />);
+    renderSocraticWizard();
 
     await waitFor(() => {
       expect(routerPush).toHaveBeenCalledWith(`/architecture/architectures/${sourceArchitectureId}`);
@@ -517,7 +617,7 @@ describe("SocraticIntakeWizard", () => {
       updatedUtc: "2026-08-05T12:00:00Z",
     });
 
-    render(<SocraticIntakeWizard />);
+    renderSocraticWizard();
 
     await waitFor(() => {
       expect(routerPush).toHaveBeenCalledWith("/architecture/reviews/run-vertex-2");
@@ -525,7 +625,7 @@ describe("SocraticIntakeWizard", () => {
   });
 
   it("keeps step 0 on one primary intake panel without colored banner cards (TB-1879)", () => {
-    render(<SocraticIntakeWizard />);
+    renderSocraticWizard();
 
     expect(screen.getByTestId("guided-intake-primary-panel")).toBeInTheDocument();
     expect(screen.getByTestId("socratic-admit")).toBeInTheDocument();
@@ -539,7 +639,7 @@ describe("SocraticIntakeWizard", () => {
       key === "template" ? "customer-intake-modernization" : null,
     );
 
-    render(<SocraticIntakeWizard />);
+    renderSocraticWizard();
 
     expect(screen.getByTestId("review-intake-example-template-callout")).toBeInTheDocument();
     expect((screen.getByTestId("socratic-intent") as HTMLTextAreaElement).value).toBe(
@@ -585,7 +685,7 @@ describe("SocraticIntakeWizard", () => {
       priorAttachedFileNames: ["ARCHITECTURE_HANDBOOK.2026.08.06b.docx"],
     });
 
-    render(<SocraticIntakeWizard />);
+    renderSocraticWizard();
 
     await waitFor(() => {
       expect(tryLoadPriorPackageGuidedIntakePrefill).toHaveBeenCalledWith("run-failed-1");
@@ -605,7 +705,7 @@ describe("SocraticIntakeWizard", () => {
   });
 
   it("shows the guided intake evidence upload section on step 0", () => {
-    render(<SocraticIntakeWizard />);
+    renderSocraticWizard();
 
     expect(screen.getByTestId("guided-intake-evidence-section")).toBeInTheDocument();
     expect(screen.getByTestId("guided-intake-upload-stub")).toBeInTheDocument();
@@ -653,7 +753,7 @@ describe("SocraticIntakeWizard", () => {
         updatedUtc: "2026-08-05T12:00:00Z",
       });
 
-    render(<SocraticIntakeWizard />);
+    renderSocraticWizard();
 
     fillStep0ForAdmission();
     fireEvent.click(screen.getByTestId("socratic-admit"));
@@ -663,7 +763,7 @@ describe("SocraticIntakeWizard", () => {
   });
 
   it("shows guided placeholders and Continue to clarifications on step 1", () => {
-    render(<SocraticIntakeWizard />);
+    renderSocraticWizard();
 
     expect(screen.getByTestId("socratic-intent")).toHaveAttribute(
       "placeholder",
@@ -686,7 +786,7 @@ describe("SocraticIntakeWizard", () => {
   });
 
   it("shows under-minimum intent helper copy and blocks continue until 100 characters", () => {
-    render(<SocraticIntakeWizard />);
+    renderSocraticWizard();
 
     fireEvent.change(screen.getByTestId("socratic-intent"), {
       target: { value: "Too short for guided intake." },
@@ -726,7 +826,7 @@ describe("SocraticIntakeWizard", () => {
       },
     });
 
-    render(<SocraticIntakeWizard />);
+    renderSocraticWizard();
 
     fillStep0ForAdmission();
     expect(screen.getByTestId("draft-intake-actor-editor-stub")).toBeInTheDocument();
@@ -785,7 +885,7 @@ describe("SocraticIntakeWizard", () => {
       },
     });
 
-    render(<SocraticIntakeWizard />);
+    renderSocraticWizard();
 
     fillStep0ForAdmission();
     fireEvent.click(screen.getByTestId("socratic-admit"));
@@ -838,7 +938,7 @@ describe("SocraticIntakeWizard", () => {
       },
     });
 
-    render(<SocraticIntakeWizard />);
+    renderSocraticWizard();
 
     fillStep0ForAdmission();
     fireEvent.click(screen.getByTestId("socratic-admit"));
@@ -871,7 +971,7 @@ describe("SocraticIntakeWizard", () => {
       },
     });
 
-    render(<SocraticIntakeWizard />);
+    renderSocraticWizard();
 
     fillStep0ForAdmission();
     fireEvent.click(screen.getByTestId("socratic-admit"));
@@ -918,7 +1018,7 @@ describe("SocraticIntakeWizard", () => {
       },
     });
 
-    render(<SocraticIntakeWizard />);
+    renderSocraticWizard();
 
     fillStep0ForAdmission();
     fireEvent.click(screen.getByTestId("socratic-admit"));
@@ -965,7 +1065,7 @@ describe("SocraticIntakeWizard", () => {
       },
     });
 
-    render(<SocraticIntakeWizard />);
+    renderSocraticWizard();
 
     fillStep0ForAdmission();
     fireEvent.click(screen.getByTestId("socratic-admit"));
@@ -1008,7 +1108,7 @@ describe("SocraticIntakeWizard", () => {
       });
     answerDraftQuestion.mockResolvedValue({ draftId: "draft-1", status: "Admitted" });
 
-    render(<SocraticIntakeWizard />);
+    renderSocraticWizard();
 
     fillStep0ForAdmission();
     fireEvent.click(screen.getByTestId("socratic-admit"));
@@ -1070,7 +1170,7 @@ describe("SocraticIntakeWizard", () => {
       });
     skipDraftQuestion.mockResolvedValue({ draftId: "draft-1", status: "Admitted" });
 
-    render(<SocraticIntakeWizard />);
+    renderSocraticWizard();
 
     fillStep0ForAdmission();
     fireEvent.click(screen.getByTestId("socratic-admit"));
@@ -1117,7 +1217,7 @@ describe("SocraticIntakeWizard", () => {
     });
     skipDraftQuestion.mockResolvedValue({ draftId: "draft-1", status: "Admitted" });
 
-    render(<SocraticIntakeWizard />);
+    renderSocraticWizard();
 
     fillStep0ForAdmission();
     fireEvent.click(screen.getByTestId("socratic-admit"));
@@ -1144,7 +1244,7 @@ describe("SocraticIntakeWizard", () => {
   it("shows Start review on the clarifications footer when every required clarification is already answered", async () => {
     mockAdmittedDraftWithoutClarifications();
 
-    render(<SocraticIntakeWizard />);
+    renderSocraticWizard();
 
     fillStep0ForAdmission();
     fireEvent.click(screen.getByTestId("socratic-admit"));
@@ -1202,7 +1302,7 @@ describe("SocraticIntakeWizard", () => {
       });
     skipDraftQuestion.mockResolvedValue({ draftId: "draft-1", status: "Admitted" });
 
-    render(<SocraticIntakeWizard />);
+    renderSocraticWizard();
 
     fillStep0ForAdmission();
     fireEvent.click(screen.getByTestId("socratic-admit"));
@@ -1288,7 +1388,7 @@ describe("SocraticIntakeWizard", () => {
       },
     });
 
-    render(<SocraticIntakeWizard />);
+    renderSocraticWizard();
 
     await waitFor(() => {
       expect(getDraftQuestions).toHaveBeenCalledWith(sourceArchitectureId);
@@ -1339,7 +1439,7 @@ describe("SocraticIntakeWizard", () => {
         updatedUtc: "2026-08-05T12:00:00Z",
       });
 
-    render(<SocraticIntakeWizard />);
+    renderSocraticWizard();
 
     fillStep0ForAdmission();
     fireEvent.click(screen.getByTestId("socratic-admit"));
@@ -1372,7 +1472,7 @@ describe("SocraticIntakeWizard", () => {
   it("gates continue on scope confirmation so the brief carries scope before admission", async () => {
     mockAdmittedDraftWithoutClarifications();
 
-    render(<SocraticIntakeWizard />);
+    renderSocraticWizard();
 
     fireEvent.change(screen.getByTestId("socratic-intent"), { target: { value: VALID_GUIDED_INTENT } });
     fireEvent.change(screen.getByTestId("socratic-outcome"), {
@@ -1403,7 +1503,7 @@ describe("SocraticIntakeWizard", () => {
       requestId: "req-1",
     });
 
-    render(<SocraticIntakeWizard />);
+    renderSocraticWizard();
 
     fillStep0ForAdmission();
     fireEvent.click(screen.getByTestId("socratic-admit"));
@@ -1424,13 +1524,12 @@ describe("SocraticIntakeWizard", () => {
   });
 
   it("blocks continue when the system name is already used in the workspace", async () => {
-    fetchWorkspaceSystemNameAvailability.mockResolvedValue({
-      systemName: "ArchLucid",
-      isAvailable: false,
-      conflictMessage: "A review named 'ArchLucid' already exists in this workspace.",
-    });
+    workspaceSystemNameAvailabilityState.blocksSubmit = true;
+    workspaceSystemNameAvailabilityState.isAvailable = false;
+    workspaceSystemNameAvailabilityState.conflictMessage =
+      "A review named 'ArchLucid' already exists in this workspace.";
 
-    render(<SocraticIntakeWizard />);
+    renderSocraticWizard();
 
     fillStep0ForAdmission();
     fireEvent.change(screen.getByTestId("socratic-system-name"), { target: { value: "ArchLucid" } });
@@ -1447,13 +1546,18 @@ describe("SocraticIntakeWizard", () => {
     createDraftRequest.mockResolvedValue({ draftId: "draft-1" });
     patchDraftRequest.mockRejectedValue(
       new ApiRequestError("A review named 'ArchLucid' already exists in this workspace.", {
-        problem: null,
+        problem: {
+          type: "https://archlucid.example/problems/conflict",
+          title: "Conflict",
+          status: 409,
+          detail: "A review named 'ArchLucid' already exists in this workspace.",
+        },
         correlationId: "corr-1",
         httpStatus: 409,
       }),
     );
 
-    render(<SocraticIntakeWizard />);
+    renderSocraticWizard();
 
     fillStep0ForAdmission();
     fireEvent.click(screen.getByTestId("socratic-admit"));
@@ -1478,7 +1582,7 @@ describe("SocraticIntakeWizard", () => {
       }),
     );
 
-    render(<SocraticIntakeWizard />);
+    renderSocraticWizard();
 
     fillStep0ForAdmission();
     fireEvent.click(screen.getByTestId("socratic-admit"));
