@@ -5915,3 +5915,4 @@
 {"at":"2026-10-21T14:24:21.7090002Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Configuration/"]}
 {"at":"2026-10-21T14:28:29.2282102Z","zoneId":"application-governance-policy","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T14:29:45.9676985Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Configuration/"]}
+{"at":"2026-10-21T14:33:00.8327248Z","zoneId":"host-core-coordination","outcome":"seed-only","productLine":"archlucid-shared"}

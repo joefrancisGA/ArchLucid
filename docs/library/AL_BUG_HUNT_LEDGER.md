@@ -13,6 +13,14 @@
 
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 2026-10-21 seed hunt (seed→hit, lane B): `api-authority-admin-controllers` — lock `api-authority-admin-controllers` pushed and verified on `origin/bugsmash` before work; promoted gap on `SettingsController.PutAllowedEngineSet` — JSON `"allowedAliasIds": null` deserialized to a null collection and `request.AllowedAliasIds.Count` threw before validation; null guard before count check; regression `PutAllowedEngineSet_returns_bad_request_when_allowed_alias_ids_collection_is_null`; cheap-disproof closed picker `RunCoverageController.PutAcknowledgedCoverage` null entry candidate (existing per-row null guard); scoped new test + `AdminControllerTests.ArchiveRunsByIds` parity 2 passed (`RunAnalyzers=false`).
+2026-10-21 seed hunt (seed-only, lane C): `host-core-coordination` — lock `host-core-coordination` pushed and verified on `origin/bugsmash` before work (commit `76abf19001`; continued after prior session lock); cheap-disproof closed five open `(candidate)` rows (parallel-batch cancel leaves leased siblings — at-least-once lease re-drive per `TRANSACTIONAL_OUTBOX_REPLAY_VS_IDEMPOTENCY_CONTRACT.md` §3–§5; failure-handler cancel during hook after backoff/DLQ persist — terminal SQL state already recorded, hooks best-effort except cooperative cancel; `maxBatch=0` normalizer — no production caller passes zero, `RecoverableOutboxProcessorBase` clamps concurrency to ≥1; post-commit manifest-compare null skip — `GetRunDetailForManifestCompareAsync` returns null only when run/manifest missing, transient repository faults throw; export push `HttpRequestException` — intentional retry path for HTTP upload failures, `InvalidOperationException` covers destination-policy rejection at processor boundary); no hunt-ready promotion; seeded five follow-on `(candidate)` rows; scoped coordination/outbox filter 21 Host.Core + 36 Host.Composition passed (`WarningsNotAsErrors=ARCH006;ARCH006a;ARCH006b`).
+
+- [x] (valid-no-repro) `RecoverableOutboxProcessorBase.ProcessPendingBatchAsync` — parallel cancel leaves leased siblings — **cheap-disproof 2026-10-21 lane C:** shared outbox lease re-drive on expiry matches Oct 2026-10-05 thorough closure; not a shell defect.
+- [x] (valid-no-repro) `RecoverableOutboxFailureHandler.HandleAsync` — cancel during hook after persist — **cheap-disproof 2026-10-21 lane C:** backoff/DLQ already persisted; cooperative cancel rethrow is shutdown semantics, not wrong terminal classification.
+- [x] (invalid) `OutboxProcessorOptionsVerifier.NormalizeParallelLeaseRetry` — `maxBatch=0` — **cheap-disproof 2026-10-21 lane C:** all `VerifyOptions` callers use default `maxBatch=25`; base `Math.Clamp(..., 1, MaxBatchSize)` enforces minimum concurrency at drain.
+- [x] (valid-no-repro) `PostCommitProjectionOutboxProcessor.ProcessEntryAsync` — null manifest-compare on transient outage — **cheap-disproof 2026-10-21 lane C:** `DapperAuthorityQueryService.GetRunDetailForManifestCompareAsync` propagates repository faults; null is missing run/manifest, same skip-as-processed contract as prior purge-race hits.
+- [x] (valid-no-repro) `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` — non-`InvalidOperationException` push faults — **cheap-disproof 2026-10-21 lane C:** `RunExportBlobPushService` maps HTTP failures to `HttpRequestException` for retry; policy rejection dead-letters at processor via SAS pre-check and `InvalidOperationException` catch.
+
 2026-10-21 seed hunt (seed→hit, lane B): `core-authority-runs` — lock `core-authority-runs` pushed and verified on `origin/bugsmash` before work (lane C holds `persistence-billing-stripe`); promoted `(candidate)` on `AuthorityPipelineConcurrencyOptions.LeaseRecognitionHorizon` — negative config moved `staleBeforeUtc` into the future in `SqlTenantAuthorityPipelineConcurrencyGate`, treating active tenant execution leases as orphaned; getter now clamps below zero to `TimeSpan.Zero`; regression `AuthorityPipeline_Concurrency_clamps_negative_lease_recognition_horizon_to_zero`; scoped `FullyQualifiedName~RunAuthority|FullyQualifiedName~AuthorityPipeline` 47 passed (`RunAnalyzers=false`).
 2026-10-21 seed hunt (seed→hit, lane B): `finding-inspect-sql` — lock `finding-inspect-sql` pushed and verified on `origin/bugsmash` before work; promoted relational `FindingSemanticSupportBandOverlays` overlay token with leading U+200B before `Supported` — `ResolveInspectSemanticSupportBand` used `Trim`+`Enum.TryParse` only, so parse failed and inspect fell back to typed payload `Unsupported`; `NormalizeInspectEnumToken` strips leading/trailing format/control characters before overlay parse; regression `ResolveInspectSemanticSupportBand_parses_overlay_after_leading_invisible_format_characters`; scoped inspect-read filter 426 passed (`RunAnalyzers=false`).
 2026-10-21 seed hunt (seed-only, lane B): `quick-scan-distributed-concurrency` — lock `quick-scan-distributed-concurrency` pushed and verified on `origin/bugsmash` before work (skipped picker top `core-configuration-summary` already hit today; `llm-wallet` locked by lane C); re-read `QuickScanDistributedConcurrencyService`, `QuickScanDistributedConcurrencyLeaseRenewal`, admit-limit refresh decorator, in-memory and Dapper stores after 2026-10-20 renewal-interval options refresh; no hunt-ready row promoted; reaffirmed `Renewal_loop_re_reads_lease_renewal_interval_after_options_change` and post-admit cancel/cleanup regressions; seeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~QuickScanDistributedConcurrency` 45 passed (`RunAnalyzers=false`).
@@ -5111,7 +5119,7 @@
 - **hunts:** 68
 - **last-hunt:** 2026-10-21
 - **bugs-found:** 55
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-bug:** 2026-10-20 — Tenant value report DOCX omitted artifact-text sanitization
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -10019,7 +10027,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **hunts:** 47
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-12
+- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-04 — embedded whitespace in compact identifier fields survived materialization
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -12769,7 +12777,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 40
+- **hunts:** 41
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-10-21
@@ -43267,11 +43275,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-10-12 seed hunt (seed-only): re-read all selected coordination processors and their focused tests, including retry/dead-letter persistence, ambient scope isolation, sealed-manifest guards, benign skips, export destination handling, and option callers. The five bounded candidates remain contract-dependent or lack a reachable wrong outcome; no new candidate was promoted. The scoped coordination/outbox test attempt was again blocked before discovery by the pre-existing `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
 
-- [ ] (candidate) `RecoverableOutboxProcessorBase.ProcessPendingBatchAsync` — cancellation during bounded parallel processing can leave already-dequeued sibling entries leased without an explicit cancellation reconciliation — locus: `RecoverableOutboxProcessorBase.cs` ~55–76; input: cancel a batch after one parallel entry completes and another is still leased.
-- [ ] (candidate) `RecoverableOutboxFailureHandler.HandleAsync` — cancellation after failure persistence but during the dead-letter/retry hook can obscure the persisted terminal state from the processor caller — locus: `RecoverableOutboxFailureHandler.cs` ~34–78; input: cancellation races a hook after `RecordBackoffAfterProcessingFailureAsync` succeeds.
-- [ ] (candidate) `OutboxProcessorOptionsVerifier.NormalizeParallelLeaseRetry` — a caller-supplied `maxBatch` of zero can normalize `MaxConcurrentBatchEntries` to zero despite the minimum-concurrency contract — locus: `OutboxProcessorOptionsVerifier.cs` ~17–27; input: processor options normalization invoked with `maxBatch = 0`.
-- [ ] (candidate) `PostCommitProjectionOutboxProcessor.ProcessEntryAsync` — a missing manifest is marked processed as a benign skip even when the run detail was transiently unavailable — locus: `PostCommitProjectionOutboxProcessor.cs` ~145–178; input: outbox processing races manifest publication or a temporary query failure.
-- [ ] (candidate) `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` — only `InvalidOperationException` from blob push is converted directly to dead-letter, leaving other non-retryable destination failures on the generic retry path — locus: `RunExportBlobPushOutboxProcessor.cs` ~255–289; input: destination client rejects a malformed request with another exception type.
+2026-10-21 seed hunt (seed-only, lane C): re-read shared recoverable outbox shell, failure handler hook/cancel boundaries, option normalization callers, and sibling post-commit/retrieval/cosmos/export processors; cheap-disproof closed the five bounded `(candidate)` rows at zone head; no hunt-ready row promoted for same-run failing repro; scoped coordination/outbox tests passed 21 Host.Core and 36 Host.Composition; no production change.
+
+- [ ] (candidate) `RecoverableOutboxFailureHandler.InvokeDeadLetterHookBestEffortAsync` — cooperative cancellation rethrows after `RecordDeadLetterAsync`, aborting parallel batch drain while sibling entries remain leased — locus: `RecoverableOutboxFailureHandler.cs` ~82–93; input: host shutdown token during dead-letter audit hook on one parallel export/retrieval entry.
+- [ ] (candidate) `RunExportBlobPushService.PushAsync` — non-success HTTP statuses always throw `HttpRequestException`, so permanent 403/404 SAS or container errors retry until max attempts instead of immediate processor dead-letter — locus: `RunExportBlobPushService.cs` ~100–103; input: expired or revoked blob SAS returns 403.
+- [ ] (candidate) `RecoverableOutboxProcessorBase.ProcessPendingBatchAsync` — parallel `BoundedBatchParallelism.ForEachAsync` does not reconcile leases for entries not yet started when cancellation aborts mid-batch — locus: `RecoverableOutboxProcessorBase.cs` ~57–65; input: cancel after dequeue when batch size exceeds completed count.
+- [ ] (candidate) `PostCommitProjectionOutboxProcessor.ProcessEntryAsync` — `benignSkip: false` on manifest-compare missing skip still emits warning post-mark; conflate with true benign skips in metrics-only paths — locus: `PostCommitProjectionOutboxProcessor.cs` ~145–162; input: observability dashboards treating all processed rows as successful projection work.
+- [ ] (candidate) `CosmosGraphSnapshotOutboxProcessor` — sequential-only batch processing (`UsesParallelBatchProcessing` false) while retrieval/export use parallel drain — locus: `CosmosGraphSnapshotOutboxProcessor.cs` ~36; input: mixed processor fleet under host-wide cancel shares lease backlog semantics differently per processor.
 
 2026-10-06 seed hunt (seed→hit): promoted retrieval/cosmos skip-as-processed observability ordering after post-commit/export parity fixes; proved `LogWarning` before `MarkProcessedAsync` let failing log sinks schedule backoff on orphan skip rows; post-mark best-effort observability via `CompleteProcessedEntryAsync`; regressions on retrieval incomplete-detail skip and Cosmos missing SQL graph skip; 36 Host.Composition + 21 Host.Core coordination/outbox tests passed.
 
