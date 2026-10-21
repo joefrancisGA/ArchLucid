@@ -154,6 +154,10 @@ public sealed partial class ExportsController(
         {
             return MapExportReplaySealedManifestConflict(ex);
         }
+        catch (CareerArtifactExportBlockedException ex)
+        {
+            return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
+        }
     }
 
     // idempotency-posture: operator-documented-safe-retry
@@ -200,6 +204,10 @@ public sealed partial class ExportsController(
         catch (ConflictException ex)
         {
             return MapExportReplaySealedManifestConflict(ex);
+        }
+        catch (CareerArtifactExportBlockedException ex)
+        {
+            return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
         }
     }
 

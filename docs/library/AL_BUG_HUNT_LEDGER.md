@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
+2026-10-21 seed hunt (seed→hit): `application-analysis` — promoted `RunExportQueryFacade.CompareExportRecordsAsync` / `CompareExportRecordsSummaryAsync` / `ReplayExportAsync` skipping `IRunExportCareerPostureGate` while `GetExportRecordAsync` blocked simulator-rehearsal runs, so export compare and replay could read metadata when single-record GET returned 409; shared `EnsureCareerAllowsExportRecordMetadataOrThrowAsync`; `ExportsController` compare routes map `CareerArtifactExportBlockedException`; regression `CompareExportRecordsAsync_throws_when_career_posture_blocks_metadata_read`; 5 `RunExportQueryFacadeTests` passed.
+
 2026-10-21 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryAppSettingHostRedactor.TryParseSqlHost` omitting Npgsql/PostgreSQL `Host=` on App Service connection strings; regex now accepts `Host=` alongside `Server=` and `Data Source=`; regression `TryParseSettingValue_extracts_sql_host_from_postgresql_host_alias`; 26 scoped `AzureInventoryAppSettingHost*` tests passed.
 2026-10-21 tooling (hit): `al-bug-rolling-stats.ps1` — `-RecordHunt` read the JSONL, applied `Prune-HuntRunLog` (30-day retention), then rewrote the file with `Set-Content`, dropping ~89 historical lines and breaking append-only expectations; `-RecordHunt` now appends one JSON line via `Add-HuntRunLogEntryLine` with a post-append line-count check; optional `-PruneEntriesOlderThanDays` uses `Rewrite-HuntRunLogWithLineCountGuard` (temp file, aborts unless `-AllowLineCountDecrease`); regression `RecordHunt never decreases physical line count even when older rows exist` in `AlBugRollingStats.Tests.ps1` (50 Pester tests passed). Verified `AL_BUG_HUNT_RUN_LOG.jsonl` on bugsmash: 5778 lines >= 5768 before 2026-10-21 UTC runs.
 
@@ -19773,6 +19775,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: application-analysis
+2026-10-21 seed hunt (seed→hit): export compare/replay career posture gate parity with GetExportRecord; regression `CompareExportRecordsAsync_throws_when_career_posture_blocks_metadata_read`.
+- [x] (proven) `RunExportQueryFacade.CompareExportRecordsAsync` — reachable `GET /v1/architecture/review/exports/compare` bypassed `IRunExportCareerPostureGate` while `GetExportRecordAsync` blocked metadata for simulator-rehearsal runs — regression above.
+
 
 - **id:** application-analysis
 - **status:** open
@@ -19780,11 +19785,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 57
-- **bugs-found:** 55
+- **hunts:** 58
+- **bugs-found:** 56
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-16
-- **last-bug:** 2026-10-16 — export pairing CompareRunId GUID format normalization
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-21 — export compare/replay skipped career metadata gate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
