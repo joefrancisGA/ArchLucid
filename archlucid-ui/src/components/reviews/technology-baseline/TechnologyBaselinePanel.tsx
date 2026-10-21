@@ -166,7 +166,13 @@ export function TechnologyBaselinePanel({
   }, [urlEvidenceRefFromSearch]);
 
   useEffect(() => {
-    if (urlTechEntryId.length === 0 || entries.length === 0) {
+    if (entries.length === 0) {
+      return;
+    }
+
+    if (urlTechEntryId.length === 0) {
+      setRationaleDialogEntryState((current) => (current === null ? current : null));
+
       return;
     }
 
@@ -174,6 +180,8 @@ export function TechnologyBaselinePanel({
 
     if (matched !== null) {
       setRationaleDialogEntryState(matched);
+    } else {
+      setRationaleDialogEntryState((current) => (current === null ? current : null));
     }
   }, [entries, urlTechEntryId]);
 

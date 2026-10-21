@@ -3,6 +3,7 @@ import { createElement, useSyncExternalStore, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { TECHNOLOGY_BASELINE_EVIDENCE_REF_ENTRY_ID_PARAM } from "@/lib/reviews/technology-baseline-evidence-ref-disclosure-url";
+import { TECHNOLOGY_BASELINE_ENTRY_PARAM } from "@/lib/reviews/technology-baseline-rationale-url";
 
 import { TechnologyBaselinePanel } from "./TechnologyBaselinePanel";
 
@@ -127,6 +128,50 @@ describe("TechnologyBaselinePanel URL sync", () => {
 
     await waitFor(() => {
       expect(evidenceDetails()).toHaveAttribute("open");
+    });
+  });
+
+  it("closes the rationale dialog when techEntryId is removed from useSearchParams without a popstate event", async () => {
+    searchParamsHarness.applyQuery(`reviewTab=overview&${TECHNOLOGY_BASELINE_ENTRY_PARAM}=entry-assumed`);
+    window.history.replaceState(
+      {},
+      "",
+      `/architecture/reviews/${runId}?reviewTab=overview&${TECHNOLOGY_BASELINE_ENTRY_PARAM}=entry-assumed`,
+    );
+
+    const { rerender } = render(
+      <SearchParamsRerenderHost>
+        <TechnologyBaselinePanel
+          runId={runId}
+          manifestFinalized={false}
+          buyerPolished={false}
+          usedStaticDemoRun={false}
+          warningCountDisplay={0}
+        />
+      </SearchParamsRerenderHost>,
+    );
+
+    await screen.findByText("Azure SQL Database");
+
+    await waitFor(() => {
+      expect(screen.getByTestId("technology-baseline-rationale-dialog")).toBeInTheDocument();
+    });
+
+    searchParamsHarness.applyQuery("reviewTab=overview");
+    rerender(
+      <SearchParamsRerenderHost>
+        <TechnologyBaselinePanel
+          runId={runId}
+          manifestFinalized={false}
+          buyerPolished={false}
+          usedStaticDemoRun={false}
+          warningCountDisplay={0}
+        />
+      </SearchParamsRerenderHost>,
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("technology-baseline-rationale-dialog")).not.toBeInTheDocument();
     });
   });
 });
