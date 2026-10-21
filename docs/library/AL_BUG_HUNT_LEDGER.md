@@ -1,15 +1,8 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 
-2026-10-21 thorough hunt (hit): `core-tenancy-commercial` — lane B; promoted `not-for-enterprise` marketplace plan-id candidate; `PlanIdContainsEnterpriseTierToken` only neg-checked the immediate predecessor token so `contoso-not-for-enterprise-standard` false-mapped to Enterprise; skip enterprise when a bridge token (`for`/`of`/`to`) separates enterprise from a negation adverb; regressions `TierStorageCodeFromPlanId_does_not_false_positive_on_negation_bridge_before_enterprise`. Cheap-disproof: packaging resolver without billing row intentionally infers Team from usage caps per source comment. 72 scoped CommercialTenant/TierStorageCodeFromPlanId/CommercialPackagingTierResolver tests passed.
+2026-10-21 seed hunt (seed→hit): `application-billing-logic` — promoted `AdminFleetLlmCogsService.CostRatesConfigured` requiring both positive global input and output USD rates while `LlmCostEstimationEffectiveRates` still prices when only `Billing:LlmCostEstimation:InputUsdPerMillionTokens` is set and output is zeroed for catalog fallback; fleet rows falsely reported `missing-cost-rates`. Treat any positive global input, output, or reasoning rate (or per-deployment override) as configured; regression `BuildDashboardAsync_treats_positive_global_input_rate_as_configured_when_output_is_zeroed_for_default_fallback`. Seeded five follow-on `(candidate)` rows. 46 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed.
 
-- [x] (proven) `MarketplacePlanIdMapper.PlanIdContainsEnterpriseTierToken` — negation adverb two tokens before `enterprise` via `for` bridge — **hit 2026-10-21:** `not-for-enterprise-*` plans; bridge-token guard; `MarketplaceWebhookPayloadParserTests` regressions above.
-- [x] (valid-no-repro) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — sales-led Standard without billing row under-labels Professional — **cheap-disproof 2026-10-21:** intentional usage-cap inference when `subscription is null`; no purchased-cap signal exists.
-
-2026-10-21 thorough hunt (dry): `llm-wallet` — lane B; pursued Stripe ownership `(candidate)` on admin wallet PUT forwarding `StripeCustomerId`/`StripePaymentMethodId`. Product UI (`OperatorBillingWalletPanel`) PUTs only auto-replenish cap and row version; payment methods flow through Stripe billing portal, not client-supplied ids. Mismatched customer/payment-method pairs fail at Stripe `PaymentIntent` creation (`StripeWalletGateway`). No failing repro for cross-tenant charge; ownership validation is out of zone / not hunt-ready without a cited server-side binding path. 26 scoped `LlmTenantWalletServiceTests` passed.
-
-- [x] (invalid) `WalletController.PutAsync` / `LlmTenantWalletService.UpdateWalletAsync` — client-supplied Stripe ids without ownership validation enable cross-tenant auto-refill charges — **cheap-disproof 2026-10-21:** no in-repo UI caller supplies arbitrary ids; Stripe off-session confirm rejects unattached payment methods; admin-only PUT is not a demonstrated cross-tenant attacker input in zone paths.
-
-2026-10-21 follow-up (hit): `alert-simulation` — lane B check on `42d4c503c5`; replaced silent audit swallow with `DurableAuditLogRetry.TryLogAsync` (scoped tenant/workspace/project operation label, `archlucid_audit_write_failures_total` via `AuditEventTypes.AlertRuleSimulationExecuted`); regressions `Simulate_returns_ok_when_simulation_succeeds_but_audit_log_throws` and `Simulate_logs_scope_context_and_records_audit_write_failure_metric_when_audit_abandoned`. 2 scoped `AlertSimulationControllerSimulateTests` passed.
+- [x] (proven) `AdminFleetLlmCogsService.CostRatesConfigured` — global input-only override with zeroed output reported missing fleet COGS rates — **hit 2026-10-21 seed hunt:** aligned configured check with `LlmCostEstimationEffectiveRates`; regression `BuildDashboardAsync_treats_positive_global_input_rate_as_configured_when_output_is_zeroed_for_default_fallback`.
 
 2026-10-21 thorough hunt (hit): `alert-simulation` — lane B; promoted audit-after-simulate `(candidate)` on `AlertSimulationController.Simulate`; successful `SimulateAsync` followed by `IAuditService.LogAsync` throwing `InvalidOperationException` was caught by the broad validation handler and returned HTTP 400; simulation and audit are now separate try regions and audit failures (except cancellation) no longer discard dry-run results; regression `Simulate_returns_ok_when_simulation_succeeds_but_audit_log_throws`. Cheap-disproof: cancellation during audit still propagates `OperationCanceledException`; comparison `InvalidOperationException` remains a simulate-phase validation failure by design. Scoped `AlertSimulationContextProviderTests`: 40 passed; controller regression: 1 passed.
 
@@ -20017,12 +20010,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 43
-- **bugs-found:** 22
+- **hunts:** 44
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-12
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — zero-config commercial cost band lacked guidance copy
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-21 — fleet COGS missing-rate when only global input rate configured
 - **related-pd-tb:** none
 
 2026-10-11 seed hunt (seed-only): re-read the remaining billing interfaces, admin COGS tests, and scoped reporting edge cases; 26 scoped tests passed. No new row met the same-run failing-repro bar. Seeded two bounded candidates for requested dashboard-window clamping and suspended/offboarded tenant visibility.
@@ -20130,6 +20122,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — forwards `BillingEmail` without trimming while Stripe checkout only skips whitespace via `IsNullOrWhiteSpace`, so a whitespace-only billing email in JSON bypasses facade validation yet never sets `CustomerEmail`. — **cheap-disproof 2026-10-20 thorough hunt:** billing email is optional; whitespace-only values behave like unset at Stripe `CustomerEmail`.
 - [x] (valid-no-repro) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` — integration outbox body omits `planId` and `quantity` from Marketplace `ChangePlan` / `ChangeQuantity` ingress, forcing Logic Apps to re-parse raw webhook bodies for seat/plan correlation. — **cheap-disproof 2026-10-20 thorough hunt:** enriching integration events requires Persistence webhook dispatch to populate fields; publisher already serializes payload properties when present.
 - [x] (proven) `TenantCostEstimateService.TryGetEstimateAsync` — returns a non-zero Standard/Enterprise band when configured low/high rates are both zero (valid negatives already return null), surfacing a `0 — 0` commercial band without an explicit Free-tier style explanation. — **hit 2026-10-20 thorough hunt:** add unconfigured-rates guidance factor; regression `TryGetEstimateAsync_standard_tenant_with_zero_configured_rates_explains_unconfigured_band`.
+- [x] (proven) `AdminFleetLlmCogsService.CostRatesConfigured` — positive global input with zeroed output for default fallback still reported `missing-cost-rates` on fleet COGS rows — **hit 2026-10-21 seed hunt:** align configured check with `LlmCostEstimationEffectiveRates`; regression `BuildDashboardAsync_treats_positive_global_input_rate_as_configured_when_output_is_zeroed_for_default_fallback`.
+
+- [ ] (candidate) `AdminFleetLlmCogsService.CostRatesConfigured` — positive global output with zeroed input for default fallback — locus: same method as input-only fix; input: `Billing:LlmCostEstimation:OutputUsdPerMillionTokens` set while input zeroed for rollback.
+- [ ] (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — `LlmCostTopRunRowResponse` omits `ReasoningTokens` on ranked rows while tie-break logic counts them — locus: `TenantLlmCostTopRunRanker.TryBuildRow`; input: reasoning-only traces on `GET /v1/tenant/llm-cost-reporting` Top Runs panel.
+- [ ] (candidate) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` returns `DeferredGaDisabled` indistinguishable from GA-off deferral — locus: outcome after `TryGetPlanId` fails; input: Marketplace `ChangePlan` notification without `planId` when `BillingPlanMutationPolicy.WebhookPlanMutationsEnabled` is true.
+- [ ] (candidate) `TenantCostEstimateService.TryGetEstimateAsync` — Free-tier estimate always adds commercial Azure OpenAI widen copy even when band is `0 — 0` — locus: factors list line 30; input: `TenantTier.Free` tenant on Why ArchLucid cost guidance.
+- [ ] (candidate) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — whitespace-only ledger `Status` yields `HasSubscription=false` but echoes raw status string — locus: `HasSubscriptionForStatusQuery`; input: corrupted ledger row with `Status` of spaces (no production writer; verify Persistence invariants).
+
 
 2026-09-11 thorough hunt #1700 (dry): cheap-disproof closed ChangeQuantity Stripe policy parity and subscription-status past-due mapping candidates; 8 scoped Marketplace/BillingCheckout tests passed.
 

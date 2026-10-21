@@ -154,6 +154,34 @@ public sealed class AdminFleetLlmCogsServiceTests
     }
 
     [SkippableFact]
+    public async Task BuildDashboardAsync_treats_positive_global_input_rate_as_configured_when_output_is_zeroed_for_default_fallback()
+    {
+        Guid tenantId = Guid.Parse("66666666-6666-6666-6666-666666666666");
+        AdminFleetLlmCogsService sut = CreateService(
+            [Tenant(tenantId, "Zeta")],
+            new InMemoryLlmTenantBudgetRepository(),
+            new LlmMonthlyTenantDollarBudgetOptions
+            {
+                Enabled = true,
+                IncludedUsdPerUtcMonth = 50m,
+                HardCutoffUsdPerUtcMonth = 100m,
+            },
+            new LlmCostEstimationOptions
+            {
+                Enabled = true,
+                InputUsdPerMillionTokens = 3.25m,
+                OutputUsdPerMillionTokens = 0m,
+            });
+
+        AdminFleetLlmCogsDashboardResponse result = await sut.BuildDashboardAsync();
+
+        AdminFleetLlmCogsRowResponse row = result.Rows.Should().ContainSingle().Subject;
+        row.CostRatesConfigured.Should().BeTrue();
+        row.BudgetCompletionLabel.Should().Be("complete");
+        result.MissingRateTenantCount.Should().Be(0);
+    }
+
+    [SkippableFact]
     public async Task BuildDashboardAsync_treats_explicit_reasoning_rate_as_configured_when_global_io_are_zero()
     {
         Guid tenantId = Guid.Parse("55555555-5555-5555-5555-555555555555");
