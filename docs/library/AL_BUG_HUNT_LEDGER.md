@@ -1,4 +1,10 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
+2026-10-21 safety follow-up (lane B): `api-request-null-collection-elements` — `ApiRequestNullCollectionElementsGuard` now skips null-element rejection when `NullabilityInfoContext` marks collection elements nullable (`List<string?>`, `int?[]`, etc.); regressions `ContainsNullCollectionElement_allows_null_elements_when_property_annotated_nullable`, `ContainsNullCollectionElement_rejects_null_elements_when_property_annotated_non_nullable`, and `ContainsNullCollectionElement_allows_null_elements_in_nullable_value_type_array`; `ArchLucid.Api.Tests` `Category=Unit` **2979/3000** passed (21 failures unchanged vs pre-exemption baseline — ExportReplay, ManifestsController, PolicyPacksAppService, SAML audit, etc.; none reference null-collection filter); no endpoint behavior change for non-nullable collection DTOs.
+
+2026-10-21 thorough hunt (hit, lane B): `scope-binding-middleware` — lock pushed and verified on `origin/bugsmash` before work; promoted `(candidate)` parent-segment probe on `ScopeResolutionGuardMiddleware.ShouldSkip` — `/health/live/../v1/runs` incorrectly skipped TB-304 via `StartsWithSegments("/health/live")` while routing keeps the raw path; `PathContainsParentSegment` blocks all scope skips when `..` is present; regression `InvokeAsync_staging_host_does_not_skip_health_live_parent_segment_escape`; scoped picker filter **103/103** unit passed (6 SQL integration blocked); lock released after push.
+
+- [x] (proven) `ScopeResolutionGuardMiddleware.ShouldSkip` — `/health/live/../v1/runs` inherited public health skip — **hit 2026-10-21 lane B:** reject parent-segment paths before skip checks; regression above.
+
 2026-10-21 structural hunt (hit, lane B): `api-request-null-collection-elements` — lock pushed and verified on `origin/bugsmash` before work; central `ApiRequestNullCollectionElementsFilter` + `ApiRequestNullCollectionElementsGuard` reject null elements inside `[FromBody]` collection properties with HTTP 400 `ValidationFailed` before controller actions (closes recurring class: `RunCoverageController` entries, clarification `Answers` 2026-10-04, topology entries run 193, `ArchiveRunsByIds` null collection); per-controller guards retained; architecture test enumerates all API `[FromBody]` collection property paths with null-element probes; filter + guard tests + `RunCoverageControllerTests` 13/13 scoped; lock released after push.
 
 - [x] (proven) **Defect class:** null elements inside JSON request body collections (`[{...}, null]`) causing `NullReferenceException` in controller validation loops — **closed 2026-10-21 lane B:** global MVC filter on all `[FromBody]` models; `ApiRequestNullCollectionElementsArchitectureTests` + `ApiRequestNullCollectionElementsFilterTests`.
@@ -15944,8 +15950,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **hunts:** 65
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-12
-- **last-bug:** 2026-10-12 — authenticated non-SCIM principals bypassed SCIM rebinding on `/scim/v2/Users`
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-21 — health/live/../ path bypassed TB-304 via probe skip
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15966,7 +15972,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-09 seed hunt (seed→hit): promoted empty and dot-segment health probe TB-304 gap; proved and fixed; backslash `Request.Path` was not reproduced; 96 scoped scope-binding unit tests passed (6 SQL integration tests unavailable).
 - [ ] (candidate) `ScopeIdentityBindingValidator.TryParseClaimGuid` — first `tenant_id` claim unparseable with later parseable claim and matching `x-tenant-id` header may pass `Validate` while scope resolves from header on non-Bearer schemes.
 - [ ] (candidate) `RouteTenantScopeBindingFilter.MetadataDeclaresPolicy` — policy names that differ from `PlatformTenantDeletionAuthority` only by case may not skip route tenant binding.
-- [ ] (candidate) `ScopeResolutionGuardMiddleware.NormalizeProbePath` — a reachable parent-segment request such as `/health/live/../v1/runs` must not be normalized into a public probe skip.
+- [x] (proven) `ScopeResolutionGuardMiddleware.NormalizeProbePath` — a reachable parent-segment request such as `/health/live/../v1/runs` must not be normalized into a public probe skip — **hit 2026-10-21 lane B:** `PathContainsParentSegment` blocks skip; regression `InvokeAsync_staging_host_does_not_skip_health_live_parent_segment_escape`.
 - [ ] (candidate) `ScopeResolutionGuardMiddleware.ShouldSkip` — a routed path containing `/internal/` outside an explicitly internal endpoint may inherit the unscoped bypass if such a route is reachable.
 - [ ] (candidate) `RouteTenantScopeBindingFilter.MetadataDeclaresPolicy` — a custom `IAuthorizeData` implementation carrying the platform deletion policy may differ from the built-in metadata shapes handled by the filter.
 - [ ] (candidate) `RouteTenantScopeBindingFilter.OnActionExecutionAsync` — a valid route `tenantId` represented by a non-string route value must compare identically to the ambient tenant scope.

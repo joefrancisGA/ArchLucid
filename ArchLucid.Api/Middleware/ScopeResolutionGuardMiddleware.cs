@@ -53,6 +53,9 @@ internal sealed class ScopeResolutionGuardMiddleware(
         PathString pathString = NormalizeProbePath(context.Request.Path);
         string path = pathString.Value ?? string.Empty;
 
+        if (PathContainsParentSegment(path))
+            return false;
+
         if (path.Contains("/internal/", StringComparison.OrdinalIgnoreCase))
             return true;
 
@@ -133,5 +136,17 @@ internal sealed class ScopeResolutionGuardMiddleware(
             return new PathString("/");
 
         return new PathString("/" + string.Join('/', segments));
+    }
+
+    private static bool PathContainsParentSegment(string path)
+    {
+        foreach (string segment in path.Split('/'))
+        {
+
+            if (string.Equals(segment, "..", StringComparison.Ordinal))
+                return true;
+        }
+
+        return false;
     }
 }

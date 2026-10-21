@@ -261,6 +261,27 @@ public sealed class ScopeResolutionGuardMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_staging_host_does_not_skip_health_live_parent_segment_escape()
+    {
+        DefaultHttpContext context = CreateContext("/health/live/../v1/runs");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse();
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
     public async Task InvokeAsync_staging_host_does_not_skip_dot_segment_health_impostor()
     {
         DefaultHttpContext context = CreateContext("/health/./livefoo");
