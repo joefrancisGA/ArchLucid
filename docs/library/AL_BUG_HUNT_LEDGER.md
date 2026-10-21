@@ -1,10 +1,3 @@
-2026-10-21 seed hunt (seed→hit, lane D): `scim-users` — lock `scim-users` pushed and verified on `origin/bugsmash` before work (`be718ccc09`; skipped picker top `core-configuration-summary` hunted today; avoided `cli-tenant-isolation` lock); promoted reachable `GET /scim/v2/Users?filter=active eq "1"` — SQL translator treated any non-`true` literal as inactive (`active eq "1"` queried `Active=0`) while PATCH already accepts numeric booleans; shared `ScimActiveFilterLiteralParser` for SQL and in-memory list evaluation; regressions `ListAsync_active_eq_numeric_one_returns_only_active_users` and `BuildWhere_active_eq_numeric_one_targets_active_bit_one`; cheap-disproof closed open `(candidate)` rows (`startIndex` malformed query binds 400 before action; PATCH `displayName` JSON null clears via `ResolvePatchDisplayName`); scoped `FullyQualifiedName~ScimUsers` 37/37 + SQL translator 5/5; lock released after push.
-
-- [x] (proven) `SqlScimUserFilterTranslator` / `ScimFilterInMemoryEvaluator` — `active eq "1"` matched inactive users — **hit 2026-10-21 seed hunt lane D:** `ScimActiveFilterLiteralParser`; regressions above.
-2026-10-21 thorough hunt (seed→hit, lane C): `agent-runtime-evaluation` — lock `agent-runtime-evaluation` pushed and verified on `origin/bugsmash` before work (`ec06409a55`; skipped picker top `core-configuration-summary` hunted today; `scim-users` locked by another lane); promoted `(candidate)` `FindingClaimCoverageEvaluator.Evaluate` — findings with only whitespace `evidenceRefs` entries counted as supported and inflated Real-task `FindingCitationCoverageRatio`, letting PilotStrict pass citation-coverage floor without usable refs; require at least one non-whitespace reference (parity with top-level evidence-ref floor); regression `Evaluate_WhitespaceOnlyEvidenceRefs_CountsAsUnsupported`; cheap-disproof closed open scalar-coercion and case-variant citation rows already fixed on trunk; scoped `FullyQualifiedName~Evaluation` 228/228 (`RunAnalyzers=false`); lock released after push.
-
-- [x] (proven) `FindingClaimCoverageEvaluator.Evaluate` — whitespace-only finding `evidenceRefs` counted as supported citation coverage — **hit 2026-10-21 thorough hunt lane C:** `Any` non-whitespace ref check; regression above.
-
 2026-10-21 thorough hunt (hit, lane D): `host-infra-evidence-composition` — lock `host-infra-evidence-composition` pushed and verified on `origin/bugsmash` before work (`0adcf8f65d`; skipped picker top `core-configuration-summary` hunted today; avoided `commit-output-integrity` lock); promoted reachable `RepositoryDiagramPeelCatalogProvider.GetCatalogAsync` — first read against an empty peel repository cached the read-time default seed for 15 minutes, so a later `UpsertEntryAsync` left inventory diagram peel budgets stale until process restart; skip caching when repository count is zero and version-scoped cache keys when count is positive; regression `RepositoryDiagramPeelCatalogProvider_refreshes_after_repository_upsert_following_empty_read`; cheap-disproof closed five open `(candidate)` rows (audit diff consumer registers before SecureNow; immutable readability thresholds singleton; tenant-keyed branding cache; `IOptionsMonitor` Graphviz binding; duplicate Register guarded by production single-call); scoped `InfraEvidenceComposition` tests 51/51; lock released after push.
 
 - [x] (proven) `RepositoryDiagramPeelCatalogProvider` — empty-repository default peel snapshot cached across repository upsert — **hit 2026-10-21 thorough hunt lane D:** no cache on count zero + versioned cache key; regression above.
@@ -15999,8 +15992,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — `startIndex` above `totalResults` returns empty `items` with stable `totalResults` — **cheap-disproof 2026-10-06 seed hunt:** RFC-aligned empty page; regression `ListAsync_start_index_above_total_returns_empty_page`
 
 - [x] (proven) `ScimUserService.PatchAsync` — PATCH `remove` on `externalId` or `userName` repopulated the stored value from the required-string fallback — **hit 2026-10-09 seed hunt:** `RejectRemovedRequiredAttribute` returns `mutability`; regressions `PatchAsync_remove_userName_rejects_required_attribute` and `PatchAsync_remove_externalId_rejects_required_attribute`.
-- [x] (valid-no-repro) `ScimUsersController.ListAsync` — malformed `startIndex` query types — **cheap-disproof 2026-10-21 seed hunt lane D:** ASP.NET model binding returns 400 before `ListAsync`; service also `Math.Max(1, startIndex)`.
-- [x] (valid-no-repro) `ScimUserService.PatchAsync` — PATCH replace `displayName` with JSON `null` — **cheap-disproof 2026-10-21 seed hunt lane D:** `ResolvePatchDisplayName` maps `JsonValueKind.Null` to explicit clear.
+- [ ] (candidate) `ScimUsersController.ListAsync` — `filter` parse failures return `invalidFilter` but malformed `startIndex` query types may bind as zero before service normalization.
+- [ ] (candidate) `ScimUserService.PatchAsync` — PATCH replace `displayName` with JSON `null` may not clear when `ResolvePatchDisplayName` only handles string whitespace.
 
 ### Hypotheses
 
@@ -31162,6 +31155,8 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-10-21 seed hunt (seed->hit): promoted Scim GroupRoleMappingOverrides whitespace keys; GroupToRoleMapper trims SCIM group ids but bound dictionary keys did not; ScimOptionsNormalizePostConfigure + host registration; regressions PostConfigure_trims_group_role_mapping_override_keys_from_configuration_binding and PostConfigure_trims_group_role_mapping_override_values_from_configuration_binding; cheap-disproof closed blob URL AccountKey semicolon (matrix); removed malformed jsonl row; 2 ScimOptionsNormalizePostConfigure tests passed (RunAnalyzers=false).
 2026-10-21 seed hunt (seed->hit): promoted AgentPromptCatalogOptions.Versions whitespace keys; CachedAgentSystemPromptCatalog resolves AgentTypeKeys without trimming dictionary keys; AgentPromptCatalogOptionsNormalizePostConfigure + host registration; regression PostConfigure_trims_agent_prompt_version_keys_from_configuration_binding; cheap-disproof closed JSON null array (Resolve_redacts_json_effective_values_when_json_array_contains_null_then_password_pair) and SaaS WhenProduction (catalog Production-only); 1 AgentPromptCatalog test passed (RunAnalyzers=false).
 ## Zone: core-configuration-summary
+2026-10-21 seed hunt (seed->hit): promoted AiUsageControlsOptions.PublicDemoFeatureDailyLimitUsd whitespace-key parity; configuration-bound feature cap keys with bounding whitespace missed AiBudgetPreCallGuard TryGetValue(feature.ToString()); AiUsageControlsOptionsNormalizePostConfigure + host registration; regressions PostConfigure_trims_public_demo_feature_daily_limit_usd_keys_from_configuration_binding and EnsureAllowedAsync_PublicDemoBlocksExpensiveFeature_WhenConfigBoundFeatureCapKeyHasBoundingWhitespace; closed stale dictionary-batch candidate; 2 tests passed (RunAnalyzers=false).
+
 2026-10-21 seed hunt (seed->hit): promoted substring Azure OpenAI host marker false positive; EnsureHttpsSchemeForAzureOpenAiHosts upgraded http://evil.example.com?mirror=openai.azure.com because query contained host marker; TryGetEndpointHost + IsAzureOpenAiHost use authority host only; regression NormalizeForChatCompletions_does_not_upgrade_http_when_only_query_contains_azure_openai_host_marker; cheap-disproof closed four ledger candidates; 6 AzureOpenAiEndpointNormalizer tests passed (RunAnalyzers=false).
 
 
@@ -31186,11 +31181,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 62
-- **bugs-found:** 44
+- **hunts:** 63
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - AgentPrompts Versions keys trimmed on bind
+- **last-bug:** 2026-10-21 - PublicDemo feature daily limit USD keys trimmed on bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -31207,7 +31202,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — semicolon-delimited `AccountKey=` after absolute blob URL already redacts via pair-delimiter scan; matrix case `https://account.blob.core.windows.net/c;AccountKey=secret`.
 - [x] (valid-no-repro) `ConfigurationEffectiveValueResolver` — JSON array with `null` then credential string element redacts via `ConfigurationSensitiveConfigValueScanner`; regression `Resolve_redacts_json_effective_values_when_json_array_contains_null_then_password_pair.
 - [x] (proven) `AgentPromptCatalogOptionsNormalizePostConfigure` / `AgentPromptCatalogOptions.Versions` — configuration-bound agent type keys with bounding whitespace missed prompt release label overlays — **hit 2026-10-21 seed hunt (seed->hit):** shared dictionary post-configure + host registration; regression `PostConfigure_trims_agent_prompt_version_keys_from_configuration_binding`. [class:other]
-- (candidate) ConfigurationDictionaryBindingKeyNormalizer batch — remaining configuration-bound dictionaries still lack post-configure trim registration; input: appsettings keys with bounding whitespace on PerAgentTypeFloors / SCIM / AgentPrompts sections.
+- [x] (proven) AiUsageControlsOptionsNormalizePostConfigure / AiUsageControlsOptions.PublicDemoFeatureDailyLimitUsd — configuration-bound feature cap keys with bounding whitespace missed public-demo zero-cap blocks in AiBudgetPreCallGuard — **hit 2026-10-21 seed hunt (seed->hit):** shared dictionary post-configure + host registration; regressions PostConfigure_trims_public_demo_feature_daily_limit_usd_keys_from_configuration_binding and EnsureAllowedAsync_PublicDemoBlocksExpensiveFeature_WhenConfigBoundFeatureCapKeyHasBoundingWhitespace. [class:other]
 - [x] (proven) `ConfigurationKeyRequirement.IsProduction` — `DOTNET_ENVIRONMENT` bound only via environment variable, not `IConfiguration`, when ASP.NET caller environment is unset — **hit 2026-10-21 seed hunt (seed->hit):** read `c["DOTNET_ENVIRONMENT"]` after env vars when resolving WhenProduction; regression `ConfigurationKeyRequirement_WhenProduction_uses_dotnet_environment_from_configuration_when_caller_env_unset`. [class:state-machine-gap]
 - [x] (invalid) `AzureOpenAiEndpointNormalizer` — `notopenai.azure.com` typo host — `EndsWith(".openai.azure.com")` requires a leading dot before `openai`; hostname does not match.
 - [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — scheme-less values still scan first `@` for `user:pass@` userinfo; query-only `@` without leading userinfo is not ADO.NET connection-string shape.
@@ -31219,7 +31214,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `AgentOutputQualityGateEffectiveFloorsResolver` / `PerAgentTypeFloors` whitespace keys — real mismatch, but fix is consolidated dictionary post-configure (`[class:other]` saturated); defer batch registration.
 - [x] (valid-no-repro) `ScimOptions.GroupRoleMappingOverrides` whitespace keys — mapper trims SCIM ids; config-key trim belongs in shared dictionary post-configure batch, not a one-off synonym.
 - [x] (valid-no-repro) `AgentPromptCatalogOptions.Versions` whitespace keys — same dictionary-key trim class; catalog uses case-insensitive keys without leading-space trim.
-- [x] (valid-no-repro) `AiUsageControlsOptions.PublicDemoFeatureDailyLimitUsd` whitespace keys — lookup in `AiBudgetPreCallGuard` trims feature token; config-key trim deferred to batch post-configure.
+- [x] (proven) AiUsageControlsOptions.PublicDemoFeatureDailyLimitUsd whitespace keys — superseded by AiUsageControlsOptionsNormalizePostConfigure hit 2026-10-21 (see proven row above). [class:other]
 - [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` password with `@` — `default:secr@et@redis.cache.windows.net:6380` already redacts via first-`@` scheme-less userinfo heuristic.
 - [x] (proven) `AzureOpenAiEndpointNormalizer.NormalizeForChatCompletions` — `AzureOpenAI:Endpoint` bound as `http://{resource}.openai.azure.com` left insecure scheme so Azure OpenAI TLS endpoints failed — **hit 2026-10-21 seed hunt (seed->hit):** `EnsureHttpsSchemeForAzureOpenAiHosts` upgrades `http` to `https` for Azure OpenAI host markers; regression `NormalizeForChatCompletions_upgrades_http_to_https_for_openai_azure_host`. [class:fail-open-validation]
 - [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector.ContainsSchemeLessUserInfoCredentials` — scheme-less `user:pass@host:port/db` effective values on non-sensitive catalog paths leaked in operator config summary because userinfo scan required `://` — **hit 2026-10-21 seed hunt (seed->hit):** detect `user:pass@` before `@` without scheme; matrix case `dbuser:dbpass@db.example.com:5432/app`. [class:fail-open-validation]
@@ -31414,6 +31409,14 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-09-07 seed hunt #1223 (hit): proved compound Stripe signing secrets leaked through config summary redaction; cheap-disproof on Email OTP HashPepper/BotChallenge paths.
 
 ---
+
+- (candidate) IntegrationsItsmInboundOptions.JiraStatusHumanReviewMap — appsettings Integrations:ItsmInbound:JiraStatusHumanReviewMap keys with bounding whitespace vs status lookup in ITSM inbound handlers.
+- (candidate) IntegrationsItsmInboundOptions.ServiceNowStateHumanReviewMap — same trim gap for ServiceNow state keys bound from configuration.
+- (candidate) ConfluencePublishingOptions.ProjectSpaceKeys — project id keys with bounding whitespace vs Confluence space resolution.
+- (candidate) IntegrationsItsmInboundOptions.JiraStatusDispositionMap — disposition map keys with bounding whitespace vs webhook status routing.
+- (candidate) IntegrationsItsmInboundOptions.ServiceNowStateDispositionMap — ServiceNow disposition keys with bounding whitespace vs inbound state mapping.
+
+
 ## Zone: core-findings-advice
 
 2026-10-21 thorough hunt (hit, lane D): narrow no-break space / NBSP token delimiter parity; 1743 scoped tests passed.
