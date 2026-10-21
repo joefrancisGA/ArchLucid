@@ -59,27 +59,32 @@ public sealed partial class AlertSimulationController
                 ProblemTypes.ValidationFailed);
         }
 
-        try
+        AuditEvent auditEvent = new()
         {
-            await _auditService.LogAsync(
-                new AuditEvent
-                {
-                    EventType = AuditEventTypes.AlertRuleSimulationExecuted,
-                    DataJson = JsonSerializer.Serialize(new
-                    {
-                        request.RuleKind,
-                        result.EvaluatedRunCount,
-                        result.MatchedCount,
-                        result.WouldCreateCount,
-                        result.WouldSuppressCount
-                    })
-                },
-                ct);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            // Dry-run results must not be discarded when aggregate audit persistence fails after a successful simulation.
-        }
+            EventType = AuditEventTypes.AlertRuleSimulationExecuted,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            DataJson = JsonSerializer.Serialize(new
+            {
+                request.RuleKind,
+                result.EvaluatedRunCount,
+                result.MatchedCount,
+                result.WouldCreateCount,
+                result.WouldSuppressCount
+            })
+        };
+
+        string auditOperationLabel =
+            $"{AuditEventTypes.AlertRuleSimulationExecuted}:tenant={scope.TenantId}:workspace={scope.WorkspaceId}:project={scope.ProjectId}";
+
+        await DurableAuditLogRetry.TryLogAsync(
+                ct => _auditService.LogAsync(auditEvent, ct),
+                _logger,
+                auditOperationLabel,
+                ct,
+                auditEventTypeForMetrics: AuditEventTypes.AlertRuleSimulationExecuted)
+            .ConfigureAwait(false);
 
         return Ok(result);
     }
