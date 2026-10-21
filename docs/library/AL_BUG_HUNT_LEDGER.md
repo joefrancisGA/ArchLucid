@@ -31019,7 +31019,8 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-09-26 seed hunt #31 (seed→hit): reseeded core-azure-extractor after workflow JSON reference hit; proved restore point collection `source.id` JSON reference gap; seeded route table explicit next-hop JSON reference candidate; 1397 scoped `AzureExtractor` tests passed.
 
 ---
-## Zone: core-configuration-summary2026-10-21 seed hunt (seed->hit): promoted AgentModelTierOptions.AgentTypeTiers whitespace-key parity; AgentModelTierResolver resolves AgentType.ToString() labels without trimming dictionary keys; AgentModelTierOptionsNormalizePostConfigure via shared key normalizer; regressions PostConfigure_trims_agent_type_tier_map_keys_from_configuration_binding and ResolveTierForAgent_uses_agent_type_mapping_when_config_key_has_bounding_whitespace; cheap-disproof closed five stale candidates (Stripe trim, Confluence TrimBound, FallbackLlm list, EmailOtp shared classifier, ValidAudiences verifier catch); 2 tests passed (RunAnalyzers=false).
+## Zone: core-configuration-summary2026-10-21 seed hunt (seed-only): re-read Configuration after AgentModelTiers/Deployments dictionary normalizer consolidation; saturated [class:other] blocks another trim-only hit; cheap-disproof closed five open stale candidates; no new hunt-ready row promoted; seeded five non-trim follow-on candidates; scoped Configuration sample 29 passed (RunAnalyzers=false).
+2026-10-21 seed hunt (seed->hit): promoted AgentModelTierOptions.AgentTypeTiers whitespace-key parity; AgentModelTierResolver resolves AgentType.ToString() labels without trimming dictionary keys; AgentModelTierOptionsNormalizePostConfigure via shared key normalizer; regressions PostConfigure_trims_agent_type_tier_map_keys_from_configuration_binding and ResolveTierForAgent_uses_agent_type_mapping_when_config_key_has_bounding_whitespace; cheap-disproof closed five stale candidates (Stripe trim, Confluence TrimBound, FallbackLlm list, EmailOtp shared classifier, ValidAudiences verifier catch); 2 tests passed (RunAnalyzers=false).
 2026-10-21 seed hunt (seed->hit): promoted LlmCostEstimation Deployments whitespace-key parity; TryResolve trims deploymentLabel but bound dictionary keys did not; shared ConfigurationDictionaryBindingKeyNormalizer consolidates Billing/ByPlan/Deployments post-configure trim; regression TryResolve_uses_deployment_overlay_when_deployments_key_has_bounding_whitespace; cheap-disproof closed five prior candidates (Stripe price ids trim at checkout, Confluence TrimBound, FallbackLlm lists all rows, EmailOtp shares QuickScan production-like helper, ValidAudiences null handled in verifier catch); 7 normalization tests passed (RunAnalyzers=false).
 
 
@@ -31035,7 +31036,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 52
+- **hunts:** 53
 - **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
