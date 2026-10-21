@@ -1,5 +1,9 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 2026-10-21 follow-up (hit, lane C): `knowledge-graph-provenance` — artifact bundle duplicate `ArtifactId` + conflicting `ContentHash` now surfaces via `SynthesizedArtifactBundleCanonicalizer` (Warning log in `ProvenanceGraphAccessService`, metric `archlucid_provenance_artifact_bundle_duplicate_artifact_id_conflict_total`, synthesis trace notes on legacy `ArtifactsJson` hydrate); upstream: relational `UQ_ArtifactBundleArtifacts_ArtifactId` prevents SQL dupes — conflicts only from legacy JSON payloads; `GraphSnapshotSchemaStabilityTests` updated for intentional additive `GraphEdge.DeclaredConnectionId` / `ProvenanceKind` (#3379 IDP-01–04, SchemaVersion 1); scoped KnowledgeGraph 375/375 + Provenance 59/59 passed.
+2026-10-21 thorough hunt (dry): `extraction-router` — lane B; cheap-disproved open `(candidate)` email-domain `ops@owner.example.com` + `unowned` false ownership gap: `@` is a continuing lexical token before `owner`, so `IsValidOwnershipMarkerStartBoundary` rejects the match (regressions `Extract_does_not_emit_ownership_gap_for_email_domain_owner_label_with_unowned` and ownership boundary matrix `email-domain-owner`). No failing repro attempted beyond existing coverage. Scoped `DifficultyBasedExtractionRouter` filter: 77 passed. No production change.
+
+- [x] (invalid) `FindBoundedOwnershipMarkerIndex` — `owner` in email domain label with separate `unowned` — **cheap-disproof 2026-10-21 lane B:** `@` continues token; matrix + unit tests pass.
+
 2026-10-21 seed hunt (seed→hit): `core-azure-extractor` — lane B (picker default `core-tenancy-commercial` held by lane C); promoted Event Hub capture `destination.properties.storageAccountResourceId` nesting — list payloads nest storage id under `destination.properties` like Event Grid 2022-06-15; `TryExtractEventHub` only read top-level `storageAccountResourceId`; now uses nested destination properties with top-level fallback; regression `TryExtractEventHub_reads_capture_storage_from_nested_destination_properties`. Scoped `AzureExtractor` filter: 1573 Core tests passed.
 
 - [x] (proven) `AzureInventoryMessagingAssociationExtractor.TryExtractEventHub` — capture storage id under nested `destination.properties` ignored — **hit 2026-10-21 lane B seed hunt:** `TryReadDestinationProperties` parity with Event Grid; regression above.
@@ -12784,6 +12788,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: extraction-router
 
+2026-10-21 thorough hunt (dry): lane B; email-domain owner candidate invalid; 77 scoped tests passed.
+
 2026-10-12 thorough hunt (dry): re-attempted the retained reachable email-domain `owner` boundary repro for `FindBoundedMarkerIndex` / `IsValidMarkerStartBoundary` with `ops@owner.example.com` plus a separate `unowned` mention. The focused test was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no failing repro, production change, or regression was shipped.
 
 2026-10-12 thorough hunt (dry): attempted the retained reachable email-domain `owner` boundary repro for `FindBoundedMarkerIndex` / `IsValidMarkerStartBoundary` using `ops@owner.example.com` plus a separate `unowned` mention. The focused test was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no failing repro, production change, or regression was shipped.
@@ -12816,10 +12822,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Classify.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Extract.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.LifecycleHelpers.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 38
+- **hunts:** 39
 - **bugs-found:** 19
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-12
+- **consecutive-dry-hunts:** 3
+- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-09-27 — DNS/path dot false positive for `owner` token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
