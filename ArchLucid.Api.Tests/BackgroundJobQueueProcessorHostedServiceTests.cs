@@ -1632,7 +1632,7 @@ public sealed class BackgroundJobQueueProcessorHostedServiceTests
                 new AnalysisReportDocxJobPayload { RunId = "run-cancel-retry-send-reread", IncludeDiagram = false },
                 "report.docx",
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document"));
-        int getAsyncCalls = 0;
+        bool retryMarkedPending = false;
 
         BackgroundJobRow BuildRunningRow()
         {
@@ -1718,13 +1718,12 @@ public sealed class BackgroundJobQueueProcessorHostedServiceTests
         repo.Setup(r => r.TryPrepareQueuedJobAsync("job-cancel-retry-send-reread", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new QueuedBackgroundJobPrepareResult(true, false, false, BuildRunningRow()));
 
-        repo.Setup(r => r.GetAsync("job-cancel-retry-send-reread", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(() =>
-            {
-                getAsyncCalls++;
+        repo.Setup(r => r.MarkPendingRetryAsync("job-cancel-retry-send-reread", 1, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Callback(() => retryMarkedPending = true)
+            .Returns(Task.CompletedTask);
 
-                return getAsyncCalls < 6 ? BuildRunningRow() : BuildCanceledRow();
-            });
+        repo.Setup(r => r.GetAsync("job-cancel-retry-send-reread", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => retryMarkedPending ? BuildCanceledRow() : BuildRunningRow());
 
         repo.Setup(r => r.CountNonTerminalAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
@@ -1741,7 +1740,130 @@ public sealed class BackgroundJobQueueProcessorHostedServiceTests
             q => q.SendMessageAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
 
-        getAsyncCalls.Should().BeGreaterThan(5, "retry notification should re-read cancel state before SendMessageAsync");
+        await sut.StopAsync(CancellationToken.None);
+    }
+
+    [Fact]
+    public async Task ProcessOneMessageAsync_does_not_send_retry_notification_when_failed_visible_before_send_after_backoff()
+    {
+        TaskCompletionSource<bool> started = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        TaskCompletionSource<bool> release = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Mock<QueueClient> queueClient = new();
+        Mock<IBackgroundJobRepository> repo = new();
+        Mock<IBackgroundJobWorkUnitExecutor> executor = new();
+        string workJson = BackgroundJobWorkUnitJson.Serialize(
+            new AnalysisReportDocxWorkUnit(
+                new AnalysisReportDocxJobPayload { RunId = "run-failed-retry-send-reread", IncludeDiagram = false },
+                "report.docx",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"));
+        bool retryMarkedPending = false;
+
+        BackgroundJobRow BuildRunningRow()
+        {
+            return new BackgroundJobRow
+            {
+                JobId = "job-failed-retry-send-reread",
+                WorkUnitJson = workJson,
+                RetryCount = 0,
+                MaxRetries = 2,
+                State = "Running",
+            };
+        }
+
+        BackgroundJobRow BuildFailedRow()
+        {
+            return new BackgroundJobRow
+            {
+                JobId = "job-failed-retry-send-reread",
+                WorkUnitJson = workJson,
+                RetryCount = 2,
+                MaxRetries = 2,
+                State = "Failed",
+                Error = "handled elsewhere",
+            };
+        }
+
+        executor
+            .Setup(e => e.ExecuteAsync(It.IsAny<BackgroundJobWorkUnit>(), It.IsAny<CancellationToken>()))
+            .Returns(async (BackgroundJobWorkUnit _, CancellationToken ct) =>
+            {
+                started.TrySetResult(true);
+                await release.Task.WaitAsync(ct);
+
+                throw new InvalidOperationException("export failed before retry send assignment");
+            });
+
+        ServiceCollection serviceCollection = new();
+        serviceCollection.AddSingleton<IBackgroundJobWorkUnitExecutor>(executor.Object);
+        serviceCollection.AddSingleton(Mock.Of<IBackgroundJobResultBlobAccessor>());
+        using ServiceProvider provider = serviceCollection.BuildServiceProvider();
+        IServiceScopeFactory scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
+
+        BackgroundJobsOptions backgroundJobsOptions = new()
+        {
+            ProcessorReceiveBatchSize = 1,
+            ProcessorIdlePollMilliseconds = 10,
+            MaxPendingJobs = 100,
+        };
+
+        BackgroundJobQueueProcessorHostedService sut = new(
+            NullLogger<BackgroundJobQueueProcessorHostedService>.Instance,
+            queueClient.Object,
+            repo.Object,
+            scopeFactory,
+            new OperationCancellationRegistry(),
+            Options.Create(backgroundJobsOptions));
+
+        using CancellationTokenSource cts = new();
+        int pulls = 0;
+        QueueMessage queueMessage = QueuesModelFactory.QueueMessage(
+            "msg-failed-retry-send-reread",
+            "rcpt-failed-retry-send-reread",
+            "job-failed-retry-send-reread",
+            1);
+
+        queueClient.Setup(q => q.CreateIfNotExistsAsync(It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<Azure.Response>());
+
+        queueClient.Setup(q => q.ReceiveMessagesAsync(It.IsAny<int>(), It.IsAny<TimeSpan?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() =>
+            {
+                pulls++;
+
+                if (pulls == 1)
+                {
+                    return Azure.Response.FromValue(new[] { queueMessage }, Mock.Of<Azure.Response>());
+                }
+
+                cts.Cancel();
+
+                throw new OperationCanceledException(cts.Token);
+            });
+
+        repo.Setup(r => r.TryPrepareQueuedJobAsync("job-failed-retry-send-reread", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new QueuedBackgroundJobPrepareResult(true, false, false, BuildRunningRow()));
+
+        repo.Setup(r => r.MarkPendingRetryAsync("job-failed-retry-send-reread", 1, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Callback(() => retryMarkedPending = true)
+            .Returns(Task.CompletedTask);
+
+        repo.Setup(r => r.GetAsync("job-failed-retry-send-reread", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => retryMarkedPending ? BuildFailedRow() : BuildRunningRow());
+
+        repo.Setup(r => r.CountNonTerminalAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
+
+        queueClient.Setup(q => q.DeleteMessageAsync("msg-failed-retry-send-reread", "rcpt-failed-retry-send-reread", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<Azure.Response>());
+
+        await sut.StartAsync(CancellationToken.None);
+        await started.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        release.TrySetResult(true);
+        await Task.Delay(3500, CancellationToken.None);
+
+        queueClient.Verify(
+            q => q.SendMessageAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
 
         await sut.StopAsync(CancellationToken.None);
     }
