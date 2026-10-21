@@ -352,6 +352,46 @@ public sealed class IdentityProviderConfigurationControllerTests
     }
 
     [Fact]
+    public async Task GetConfigurationAsync_returns_detached_copy_when_response_matches_stored_row()
+    {
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        string originalIssuer = "https://idp.example/";
+
+        await repository.UpsertAsync(
+            new TenantIdentityProviderConfigurationRecord
+            {
+                TenantId = tenantId,
+                Protocol = TenantIdentityProtocol.Oidc,
+                IssuerUri = originalIssuer,
+                ClaimMappingJson = """{"roleClaimName":"groups","mappings":[]}""",
+                UpdatedUtc = DateTimeOffset.UtcNow,
+                UpdatedByActorId = "admin@test",
+                IsActive = true,
+            },
+            CancellationToken.None);
+
+        IdentityProviderConfigurationController controller = CreateController(configurationRepository: repository);
+
+        IActionResult firstResult = await controller.GetConfigurationAsync(CancellationToken.None);
+
+        OkObjectResult firstOk = firstResult.Should().BeOfType<OkObjectResult>().Subject;
+        TenantIdentityProviderConfigurationRecord firstBody =
+            firstOk.Value.Should().BeOfType<TenantIdentityProviderConfigurationRecord>().Subject;
+
+        IActionResult secondResult = await controller.GetConfigurationAsync(CancellationToken.None);
+
+        OkObjectResult secondOk = secondResult.Should().BeOfType<OkObjectResult>().Subject;
+        TenantIdentityProviderConfigurationRecord secondBody =
+            secondOk.Value.Should().BeOfType<TenantIdentityProviderConfigurationRecord>().Subject;
+
+        firstBody.IssuerUri.Should().Be(originalIssuer);
+        secondBody.IssuerUri.Should().Be(originalIssuer);
+        ReferenceEquals(firstBody, secondBody).Should().BeFalse(
+            "GET configuration must return a detached snapshot, not the repository row instance.");
+    }
+
+    [Fact]
     public async Task DiscoverAsync_returns_canonical_issuer_and_jwks_uris()
     {
         Mock<IIdentityProviderDiscoveryService> discovery = new();

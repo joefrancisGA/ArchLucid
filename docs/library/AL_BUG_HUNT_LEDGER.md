@@ -14767,6 +14767,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-21 seed hunt (seed-only): re-read `IdentityProviderConfigurationController` and `IdentityProviderActivationService` after bugsmash fast-forward; cheap-disproof on audit best-effort envelope, GET claim-mapping passthrough, and discover URI canonicalization lenses; no row met hunt-ready bar for a failing repro in zone paths; seeded five `(candidate)` rows; 93 scoped activation/controller/matrix tests passed (1 matrix theory row expects SAML→SAML requires-metadata=false but `RequiresSubstantiveSamlMetadataXml` returns true by design).
 2026-10-21 seed hunt (seed-only) #71: cheap-disproof closed five open `(candidate)` rows (audit-after-persist is intentional `ActivateAsync_returns_success_when_audit_logging_fails`; GET claim-mapping passthrough is by design; discover URI canonicalization covered by `DiscoverAsync_returns_canonical_issuer_and_jwks_uris`; SAML GET strips stale KeyVault via `PrepareConfigurationResponse` ternary; greenfield OIDC without Key Vault name is wizard step-1 contract); no promotion to hunt-ready; 78 scoped activation/controller tests passed.
+2026-10-21 seed hunt (seed->hit): `PrepareConfigurationResponse` returned the repository row instance on the early-return path so consecutive GET `/v1/admin/identity/configuration` responses shared one object (in-memory store); always project a detached `TenantIdentityProviderConfigurationRecord`; regression `GetConfigurationAsync_returns_detached_copy_when_response_matches_stored_row`; 79 scoped activation/controller tests passed.
 ## Zone: identity-provider-config
 2026-10-20 seed hunt (seed->hit): promoted GET /v1/admin/identity/configuration returning legacy MetadataXml on OIDC rows (and KeyVaultSecretName on SAML) after activate began stripping cross-protocol fields; PrepareConfigurationResponse omits protocol-inapplicable columns on read; regression GetConfigurationAsync_omits_metadata_xml_when_stored_protocol_is_oidc; 16 scoped IdentityProviderConfigurationControllerTests passed.
 
@@ -14788,7 +14789,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `IdentityProviderConfigurationController.WithCanonicalWizardUris` — independent issuer/JWKS canonicalization — **cheap-disproof 2026-10-21:** both URIs normalized when HTTP(S) valid (`DiscoverAsync_returns_canonical_issuer_and_jwks_uris`).
 - [x] (valid-no-repro) `IdentityProviderConfigurationController.PrepareConfigurationResponse` — SAML GET omits stale `KeyVaultSecretName` — **cheap-disproof 2026-10-21:** `keyVaultSecretName` nulled unless protocol is OIDC (symmetric to proven OIDC metadata strip).
 - [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — greenfield OIDC without Key Vault secret name — **cheap-disproof 2026-10-21:** intentional two-step wizard (`ActivateAsync_matrix_greenfield_oidc_without_key_vault_secret_succeeds`).
-- [ ] (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` — `PrepareConfigurationResponse` early-return returns the repository record instance when issuer and projected fields already match — locus: reference equality branch; input: GET after activate when stored issuer is already canonical; wrong outcome: mutating response fields could affect in-memory repository implementations; reachability: GET `/v1/admin/identity/configuration`.
+- [x] (proven) `IdentityProviderConfigurationController.PrepareConfigurationResponse` — GET configuration returned the repository row instance when projection matched stored fields — regression `GetConfigurationAsync_returns_detached_copy_when_response_matches_stored_row`.
 - [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — same-protocol SAML reactivate with omitted `MetadataXml` does not re-run `SamlMetadataDiscoveryParser.Parse` on preserved XML — locus: `EnsureValidWhenProvided` only when request supplies XML; input: DB row with expired but parseable SAML cert metadata, omitted on reactivate; wrong outcome: stale metadata kept until operator supplies new XML; reachability: SAML SP settings re-activate OpenAPI payload omitting `metadataXml`.
 - [ ] (candidate) `IdentityProviderConfigurationController.ActivateAsync` — audit `DataJson` includes `keyVaultSecretName` for OIDC activations — locus: anonymous audit payload; input: activate with secret name `tenant-idp-client-secret`; wrong outcome: secret **name** visible in audit stream (not value); reachability: POST activate OIDC wizard completion.
 - [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — `ResolveOptionalPersistedField` treats whitespace-only `MetadataXml` as clear on same-protocol SAML — locus: whitespace branch; input: `"   "` metadata on SAML reactivate; wrong outcome: `MetadataXml is required` despite stored metadata (unless whitespace intended clear); reachability: SAML activate form sending trimmed-empty metadata field.
@@ -14799,11 +14800,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 71
-- **bugs-found:** 51
+- **hunts:** 72
+- **bugs-found:** 52
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-20 — GET configuration echoed cross-protocol IdP columns
+- **last-bug:** 2026-10-21 — GET configuration returned shared repository row instance
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -56546,7 +56547,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 51
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-20 — GET configuration echoed cross-protocol IdP columns
+- **last-bug:** 2026-10-21 — GET configuration returned shared repository row instance
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -100110,7 +100111,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 51
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-20 — GET configuration echoed cross-protocol IdP columns
+- **last-bug:** 2026-10-21 — GET configuration returned shared repository row instance
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

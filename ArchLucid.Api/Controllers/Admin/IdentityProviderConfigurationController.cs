@@ -209,13 +209,6 @@ public sealed class IdentityProviderConfigurationController(
         if (IdentityProviderUriValidator.TryGetCanonicalAbsoluteHttpOrHttps(record.IssuerUri, out string canonicalIssuer))
             issuerUri = canonicalIssuer;
 
-        if (string.Equals(issuerUri, record.IssuerUri, StringComparison.Ordinal)
-            && metadataXml == record.MetadataXml
-            && keyVaultSecretName == record.KeyVaultSecretName)
-        {
-            return record;
-        }
-
         return new TenantIdentityProviderConfigurationRecord
         {
             TenantId = record.TenantId,

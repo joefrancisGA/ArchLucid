@@ -5876,3 +5876,4 @@
 {"at":"2026-10-21T07:30:00.2703738Z","zoneId":"identity-provider-config","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-21T07:39:30.1490568Z","zoneId":"identity-provider-config","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-21T07:40:33.4925045Z","zoneId":"orchestrator-transient-retry","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-21T07:53:07.8968960Z","zoneId":"identity-provider-config","outcome":"hit","productLine":"archlucid-shared"}
