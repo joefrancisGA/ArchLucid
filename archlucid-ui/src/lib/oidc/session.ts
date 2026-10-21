@@ -474,6 +474,7 @@ export async function ensureAccessTokenFresh(): Promise<void> {
   if (!refreshInFlight) {
     const generationAtStart = refreshSessionGeneration;
     const expiresAtHintAtStart = getExpiresAtMs();
+    const identityHintsAtRefreshStart = readOidcIdentityHintsSnapshot();
     let activeRefreshPromise: Promise<void> | null = null;
     activeRefreshPromise = (async () => {
       try {
@@ -489,8 +490,14 @@ export async function ensureAccessTokenFresh(): Promise<void> {
         }
 
         if (result.ok) {
-          // A concurrent sign-in may have refreshed session hints while refresh was in flight.
-          if (expiresAtHintAtStart === getExpiresAtMs() && hasOidcSessionIdentityHints()) {
+          const identityHintsNow = readOidcIdentityHintsSnapshot();
+
+          // Same-user token persist may update the client expiry hint while refresh is in flight;
+          // still honor a successful BFF refresh unless identity hints changed (replacement sign-in).
+          if (
+            hasOidcSessionIdentityHints() &&
+            !oidcIdentityHintsChanged(identityHintsAtRefreshStart, identityHintsNow)
+          ) {
             sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(result.expiresAtMs));
           }
 
