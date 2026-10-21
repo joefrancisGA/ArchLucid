@@ -3,7 +3,7 @@ using ArchLucid.ArtifactSynthesis.Models;
 
 namespace ArchLucid.ArtifactSynthesis.Layout;
 
-/// <summary>Collapses repeated, same-neighbor cards for the data-flow canvas only.</summary>
+/// <summary>Collapses repeated cards for the data-flow canvas only. Source rolls up by connector type; other stages require the same neighbors.</summary>
 internal static class DiagramForestDataFlowRollup
 {
     private const int MinimumMembersToRollUp = 4;
@@ -171,10 +171,22 @@ internal static class DiagramForestDataFlowRollup
         string type = !string.IsNullOrWhiteSpace(node.ExternalLinkedServiceType)
             ? node.ExternalLinkedServiceType.Trim()
             : node.ArmResourceType?.Trim() ?? string.Empty;
-        string neighbors = string.Join(
-            "\u001e",
-            neighborIdsByNodeId[node.NodeId].OrderBy(value => value, StringComparer.Ordinal));
+
+        string neighbors = string.Empty;
+
+        if (!IsSourceStageSubgraph(node.SubgraphId))
+        {
+            neighbors = string.Join(
+                "\u001e",
+                neighborIdsByNodeId[node.NodeId].OrderBy(value => value, StringComparer.Ordinal));
+        }
+
         return new RollupKey(node.SubgraphId ?? string.Empty, type, neighbors);
+    }
+
+    private static bool IsSourceStageSubgraph(string? subgraphId)
+    {
+        return string.Equals(subgraphId, "data-arch-source", StringComparison.Ordinal);
     }
 
     private static DiagramNode CreateRollupNode(
