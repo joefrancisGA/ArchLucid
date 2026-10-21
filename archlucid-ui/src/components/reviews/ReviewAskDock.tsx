@@ -80,14 +80,14 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
     (nextOpen: boolean, nextThreadId: string | null) => {
       commitHrefIfChanged(
         reviewAskDockHrefFromSearch(
-          window.location.search.slice(1),
+          searchParams.toString(),
           { open: nextOpen, threadId: nextThreadId },
           pathname,
         ),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setOpen = useCallback(

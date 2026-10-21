@@ -34,8 +34,10 @@ const searchParamsHarness = vi.hoisted(() => {
   };
 });
 
+const pathnameMock = vi.hoisted(() => ({ value: "/architecture/reviews/run-b" }));
+
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/architecture/reviews/run-abc",
+  usePathname: () => pathnameMock.value,
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
   useSearchParams: () => new URLSearchParams(searchParamsHarness.state.query),
 }));
@@ -69,7 +71,30 @@ describe("ReviewAskDock URL sync", () => {
   beforeEach(() => {
     searchParamsHarness.reset();
     askStreamMock.mockClear();
-    window.history.replaceState({}, "", "/architecture/reviews/run-abc?reviewTab=overview");
+    pathnameMock.value = "/architecture/reviews/run-b";
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-a?reviewTab=findings&q=stale-payment",
+    );
+  });
+
+  it("opens ask dock from useSearchParams when window.location.search lags after soft navigation", async () => {
+    searchParamsHarness.state.query = "reviewTab=overview";
+
+    render(
+      <SearchParamsRerenderHost>
+        <ReviewAskDock runId="run-b" reviewTitle="Claims API" />
+      </SearchParamsRerenderHost>,
+    );
+
+    fireEvent.click(screen.getByTestId("review-ask-dock-trigger"));
+
+    await waitFor(() => {
+      expect(window.location.pathname + window.location.search).toBe(
+        `/architecture/reviews/run-b?reviewTab=overview&${REVIEW_ASK_DOCK_OPEN_PARAM}=1`,
+      );
+    });
   });
 
   it("follows askDock query changes without a popstate event", async () => {
@@ -85,7 +110,7 @@ describe("ReviewAskDock URL sync", () => {
     window.history.replaceState(
       {},
       "",
-      `/architecture/reviews/run-abc?reviewTab=overview&${REVIEW_ASK_DOCK_OPEN_PARAM}=1`,
+      `/architecture/reviews/run-b?reviewTab=overview&${REVIEW_ASK_DOCK_OPEN_PARAM}=1`,
     );
     rerender(
       <SearchParamsRerenderHost>
