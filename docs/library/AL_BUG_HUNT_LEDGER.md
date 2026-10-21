@@ -43083,6 +43083,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-21 seed hunt (seed→hit): `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` catch and email-verification failure paths recorded `RecordTrialSignupFailure` then appended `TrialSignupFailed` audit without a post-metric erasure re-read; regression `TryBootstrapAfterSelfRegistrationAsync_skips_trial_bootstrap_failure_audit_when_offboard_completes_after_failure_metric_before_audit` and `TryBootstrapAfterSelfRegistrationAsync_skips_email_verification_failure_audit_when_offboard_completes_after_failure_metric_before_audit`; 239 scoped tenancy tests passed.
+
+- [x] (proven) `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` — `TrialSignupFailed` audit after failure metric when erasure offboard completed between metric and audit — **hit 2026-10-21 seed hunt:** post-metric `IsTenantInErasureQuarantineAsync` before audit; regressions above.
+
 - **id:** application-tenancy-lifecycle
 - **status:** open
 - **impact:** high
@@ -43096,6 +43100,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **last-bug:** 2026-10-21 - pre-marketing provision guard after nav settings
 
 2026-10-21 seed hunt (seed→hit): promoted marketing first-touch after nav settings without erasure re-read; pre-marketing `GetByIdAsync` guard; regression `ProvisionAsync_skips_first_touch_persist_when_offboard_completes_after_nav_settings_before_marketing`; cheap-disproof closed migration complete audit and bootstrap catch metric/audit ordering candidates; 238 scoped tenancy tests passed.
+- **last-bug:** 2026-10-21 — trial signup failure audit after failure metric without post-metric erasure re-read
 
 2026-10-21 seed hunt (seed→hit): promoted nav settings upsert race after policy pack seed; pre-settings erasure re-read; regression `ProvisionAsync_skips_nav_settings_when_offboard_completes_after_policy_pack_seed_before_settings`; 237 scoped tenancy tests passed.
 

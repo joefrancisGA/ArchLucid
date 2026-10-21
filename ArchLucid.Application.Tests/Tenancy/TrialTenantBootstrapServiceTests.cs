@@ -514,6 +514,136 @@ public sealed class TrialTenantBootstrapServiceTests
     }
 
     [SkippableFact]
+    public async Task TryBootstrapAfterSelfRegistrationAsync_skips_trial_bootstrap_failure_audit_when_offboard_completes_after_failure_metric_before_audit()
+    {
+        Guid tenantId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        DateTimeOffset anchor = new(2026, 10, 21, 0, 0, 0, TimeSpan.Zero);
+        TenantRecord active = new()
+        {
+            Id = tenantId,
+            Tier = TenantTier.Free,
+        };
+        TenantRecord offboarded = new()
+        {
+            Id = tenantId,
+            Tier = TenantTier.Free,
+            OffboardedUtc = anchor,
+            ErasureEligibleUtc = anchor.AddDays(30),
+        };
+
+        Mock<IDemoSeedService> demo = new();
+        demo.Setup(s => s.SeedTrialWelcomeRunAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        demo.Setup(s => s.SeedAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        Mock<ITenantRepository> repo = new();
+        repo.Setup(r => r.CommitSelfServiceTrialAsync(
+                tenantId,
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<Guid>(),
+                It.IsAny<decimal?>(),
+                It.IsAny<string?>(),
+                It.IsAny<DateTimeOffset?>(),
+                It.IsAny<string?>(),
+                It.IsAny<int?>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("commit failed"));
+        repo.SetupSequence(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(active)
+            .ReturnsAsync(active)
+            .ReturnsAsync(active)
+            .ReturnsAsync(active)
+            .ReturnsAsync(active)
+            .ReturnsAsync(offboarded);
+
+        Mock<IAuditService> audit = new(MockBehavior.Strict);
+        Mock<ITrialBootstrapEmailVerificationPolicy> email = new();
+        email.Setup(e => e.CanProvisionTrialForRegisteredEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        TrialTenantBootstrapService sut = new(
+            demo.Object,
+            repo.Object,
+            audit.Object,
+            email.Object,
+            CreateTrialAiBudgetProvisionerMock().Object,
+            TimeProvider.System,
+            NullLogger<TrialTenantBootstrapService>.Instance);
+
+        TenantProvisioningResult result = new()
+        {
+            TenantId = tenantId,
+            DefaultWorkspaceId = Guid.NewGuid(),
+            DefaultProjectId = Guid.NewGuid(),
+            WasAlreadyProvisioned = false,
+        };
+
+        await sut.TryBootstrapAfterSelfRegistrationAsync(result, "owner@example.com", null, null, CancellationToken.None);
+
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
+    public async Task TryBootstrapAfterSelfRegistrationAsync_skips_email_verification_failure_audit_when_offboard_completes_after_failure_metric_before_audit()
+    {
+        Guid tenantId = Guid.Parse("44444444-4444-4444-4444-444444444444");
+        DateTimeOffset anchor = new(2026, 10, 21, 0, 0, 0, TimeSpan.Zero);
+        TenantRecord active = new()
+        {
+            Id = tenantId,
+            Tier = TenantTier.Free,
+        };
+        TenantRecord offboarded = new()
+        {
+            Id = tenantId,
+            Tier = TenantTier.Free,
+            OffboardedUtc = anchor,
+            ErasureEligibleUtc = anchor.AddDays(30),
+        };
+
+        Mock<IDemoSeedService> demo = new();
+        Mock<ITenantRepository> repo = new();
+        repo.SetupSequence(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(active)
+            .ReturnsAsync(active)
+            .ReturnsAsync(offboarded);
+
+        Mock<IAuditService> audit = new(MockBehavior.Strict);
+        Mock<ITrialBootstrapEmailVerificationPolicy> email = new();
+        email.Setup(e => e.CanProvisionTrialForRegisteredEmailAsync("x@y.com", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        TrialTenantBootstrapService sut = new(
+            demo.Object,
+            repo.Object,
+            audit.Object,
+            email.Object,
+            CreateTrialAiBudgetProvisionerMock().Object,
+            TimeProvider.System,
+            NullLogger<TrialTenantBootstrapService>.Instance);
+
+        TenantProvisioningResult result = new()
+        {
+            TenantId = tenantId,
+            DefaultWorkspaceId = Guid.NewGuid(),
+            DefaultProjectId = Guid.NewGuid(),
+            WasAlreadyProvisioned = false,
+        };
+
+        await sut.TryBootstrapAfterSelfRegistrationAsync(result, "x@y.com", null, null, CancellationToken.None);
+
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
     public async Task TryBootstrapAfterSelfRegistrationAsync_skips_when_email_verification_policy_blocks()
     {
         Mock<IDemoSeedService> demo = new();
