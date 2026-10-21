@@ -43099,11 +43099,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 126
-- **bugs-found:** 110
+- **hunts:** 127
+- **bugs-found:** 111
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - pre-marketing provision guard after nav settings
+- **last-bug:** 2026-10-21 - post-auth welcome demo seed quarantine re-read
+
+2026-10-21 seed hunt (seed→hit): dual-path gap — post-auth bootstrap lacked pre-welcome erasure re-read present on self-registration; regression `TryBootstrapAfterPostAuthWorkspaceAsync_skips_welcome_demo_seed_when_offboard_completes_after_entry_before_welcome`; 241 scoped tenancy tests passed.
 
 2026-10-21 seed hunt (seed-only): re-read tenancy zone after provision guard series; cheap-disproof closed `TenantWorkspaceScopeGuard` offboard success (`TenantErasureQuarantineMiddleware` blocks authenticated tenant APIs); no new hunt-ready row promoted (`state-machine-gap` saturated); added five `(candidate)` rows for next passes.
 
@@ -43652,11 +43654,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` — failure metric after audit when offboard between — **cheap-disproof 2026-10-21 seed hunt:** catch path uses one `IsTenantInErasureQuarantineAsync` guard before metric and audit together.
 - [x] (invalid) `TenantMigrationStatusService.BuildSnapshotAsync` — active migration stage surfaced for tenant in erasure quarantine — **cheap-disproof 2026-10-21 seed hunt:** `GetForTenantAsync` re-reads tenant and returns `InMigration = false` when `OffboardedUtc` is set; regression `GetForTenantAsync_returns_inactive_when_active_migration_exists_but_tenant_is_in_erasure_quarantine`.
 
-- (candidate) `TenantUsageStatusService.BuildAsync` — returns seat/workspace headroom snapshot for tenant rows with `OffboardedUtc` set — locus: `BuildAsync` after `GetByIdAsync` without quarantine filter; input: internal/admin caller with tenant scope while row is erasure-quarantined (reachability: verify whether any caller bypasses `TenantErasureQuarantineMiddleware`).
+- [x] (valid-no-repro) `TenantUsageStatusService.BuildAsync` — **cheap-disproof 2026-10-21 seed hunt:** snapshot assembly is read-model only; tenant-scoped HTTP blocked by `TenantErasureQuarantineMiddleware` before controllers; no reachable wrong harm without citing admin bypass caller.
 - (candidate) `TenantWorkOwnershipDeletePolicyService.GetAllowCreatorDeleteOwnedWorkAsync` — reads `AllowCreatorDeleteOwnedWork` tenant setting using scope tenant id without confirming tenant row still active — locus: `RequireTenantId` + `TryGetAsync`; input: scoped HTTP read during tenant teardown window.
-- (candidate) `TenantCatalogMigrationOrchestrator.StartAsync` — active migration row remains when `InErasureQuarantine` returned after `InsertAsync` but before started audit — locus: post-insert offboard race; input: catalog migration start API racing erasure offboard (may be intentional; regression `StartAsync_returns_in_erasure_quarantine_without_started_audit_when_offboard_completes_after_insert` documents current behavior).
-- (candidate) `TenantDeletionService.DeleteTenantAsync` — destructive purge completes but `TenantDataDeleted` platform audit skipped when `TenantErasureApprovedUtc` cleared after SQL purge — locus: `tenantBeforeAudit` approval check; input: admin hard-purge job racing approval revocation (regression `DeleteTenantAsync_returns_without_platform_audit_when_erasure_approval_cleared_after_sql_purge`).
-- (candidate) `TrialTenantBootstrapService.TryBootstrapAfterPostAuthWorkspaceAsync` — welcome demo seed runs without re-read between `SeedTrialWelcomeRunAsync` and `SeedAsync` when only full seed should be skipped — locus: post-auth path between welcome and full demo; input: post-auth workspace bootstrap with `includeDemoSeed` true (compare self-registration path guards).
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.StartAsync` — active migration row after post-insert quarantine — **cheap-disproof 2026-10-21 seed hunt:** regression `StartAsync_returns_in_erasure_quarantine_without_started_audit_when_offboard_completes_after_insert` documents current behavior.
+- [x] (valid-no-repro) `TenantDeletionService.DeleteTenantAsync` — destructive purge without audit when approval cleared after SQL purge — **cheap-disproof 2026-10-21 seed hunt:** regression `DeleteTenantAsync_returns_without_platform_audit_when_erasure_approval_cleared_after_sql_purge` documents intentional skip.
+- [x] (proven) `TrialTenantBootstrapService.TryBootstrapAfterPostAuthWorkspaceAsync` — welcome demo seed when erasure offboard after entry before welcome — **hit 2026-10-21 seed hunt (seed→hit):** pre-welcome `IsTenantInErasureQuarantineAsync` guard (parity with self-registration); regression `TryBootstrapAfterPostAuthWorkspaceAsync_skips_welcome_demo_seed_when_offboard_completes_after_entry_before_welcome`. [class:state-machine-gap]
 ## Zone: host-core-coordination
 
 - **id:** host-core-coordination

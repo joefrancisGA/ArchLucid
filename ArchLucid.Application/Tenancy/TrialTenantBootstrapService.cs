@@ -274,6 +274,9 @@ public sealed class TrialTenantBootstrapService(
 
             try
             {
+                if (await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken).ConfigureAwait(false))
+                    return;
+
                 await _demoSeedService.SeedTrialWelcomeRunAsync(cancellationToken).ConfigureAwait(false);
 
                 if (await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken).ConfigureAwait(false))
