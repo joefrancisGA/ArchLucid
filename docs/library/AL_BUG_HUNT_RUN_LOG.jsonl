@@ -5925,3 +5925,4 @@
 {"at":"2026-10-21T14:50:17.5811924Z","zoneId":"ui-operator-routes","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/insights/search-review-evidence/_sections/SearchPageClient.tsx"],"defectClass":"state-machine-gap"}
 {"at":"2026-10-21T15:05:00.0000000Z","zoneId":"control-phrase-matching","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T14:54:43.6696686Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Configuration/"]}
+{"at":"2026-10-21T15:12:00.0000000Z","zoneId":"content-safety-admission","outcome":"hit","productLine":"archlucid-shared"}

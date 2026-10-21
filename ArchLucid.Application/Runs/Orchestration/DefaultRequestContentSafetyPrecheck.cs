@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Requests;
 
 namespace ArchLucid.Application.Runs.Orchestration;
@@ -72,6 +73,27 @@ public sealed class DefaultRequestContentSafetyPrecheck : IRequestContentSafetyP
             PromptInjectionPatternSignals.AccumulateForField(
                 doc.SourceDocumentUrl,
                 $"{nameof(request.Documents)}.{nameof(ContextDocumentRequest.SourceDocumentUrl)}",
+                reasons);
+        }
+
+        foreach (InfrastructureDeclarationRequest declaration in request.InfrastructureDeclarations)
+        {
+            PromptInjectionPatternSignals.AccumulateForField(
+                declaration.Name,
+                $"{nameof(request.InfrastructureDeclarations)}.{nameof(InfrastructureDeclarationRequest.Name)}",
+                reasons);
+
+            PromptInjectionPatternSignals.AccumulateForField(
+                declaration.Content,
+                $"{nameof(request.InfrastructureDeclarations)}.{nameof(InfrastructureDeclarationRequest.Content)}",
+                reasons);
+        }
+
+        foreach (ActorDescriptor actor in request.DraftActors)
+        {
+            PromptInjectionPatternSignals.AccumulateForField(
+                actor.Label,
+                $"{nameof(request.DraftActors)}.{nameof(ActorDescriptor.Label)}",
                 reasons);
         }
 
