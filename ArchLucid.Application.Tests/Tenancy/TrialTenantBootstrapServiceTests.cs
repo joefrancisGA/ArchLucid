@@ -891,6 +891,66 @@ public sealed class TrialTenantBootstrapServiceTests
     }
 
     [SkippableFact]
+    public async Task TryBootstrapAfterSelfRegistrationAsync_skips_signup_baseline_persist_when_offboard_completes_after_baseline_check_before_persist()
+    {
+        Guid tenantId = Guid.Parse("66666666-6666-6666-6666-666666666666");
+        DateTimeOffset anchor = new(2026, 10, 21, 0, 0, 0, TimeSpan.Zero);
+        TenantRecord active = new()
+        {
+            Id = tenantId,
+            Tier = TenantTier.Free,
+        };
+        TenantRecord offboarded = new()
+        {
+            Id = tenantId,
+            Tier = TenantTier.Free,
+            OffboardedUtc = anchor,
+            ErasureEligibleUtc = anchor.AddDays(30),
+        };
+
+        Mock<IDemoSeedService> demo = new(MockBehavior.Strict);
+        Mock<ITenantRepository> repo = new();
+        repo.SetupSequence(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(active)
+            .ReturnsAsync(active)
+            .ReturnsAsync(offboarded);
+
+        Mock<IAuditService> audit = new(MockBehavior.Strict);
+        Mock<ITrialBootstrapEmailVerificationPolicy> email = new(MockBehavior.Strict);
+
+        TrialTenantBootstrapService sut = new(
+            demo.Object,
+            repo.Object,
+            audit.Object,
+            email.Object,
+            CreateTrialAiBudgetProvisionerMock().Object,
+            TimeProvider.System,
+            NullLogger<TrialTenantBootstrapService>.Instance);
+
+        TenantProvisioningResult result = new()
+        {
+            TenantId = tenantId,
+            DefaultWorkspaceId = Guid.NewGuid(),
+            DefaultProjectId = Guid.NewGuid(),
+            WasAlreadyProvisioned = false,
+        };
+
+        DateTimeOffset captured = DateTimeOffset.Parse("2026-05-02T12:00:00Z");
+        TrialSignupBaselineReviewCycleCapture baseline = new(22m, "note", captured);
+
+        await sut.TryBootstrapAfterSelfRegistrationAsync(result, "owner@example.com", baseline, null, CancellationToken.None);
+
+        repo.Verify(
+            r => r.PersistTrialSignupBaselineReviewCycleAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<decimal>(),
+                It.IsAny<string?>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
     public async Task TryBootstrapAfterPostAuthWorkspaceAsync_skips_demo_seed_when_tenant_in_erasure_quarantine()
     {
         Guid tenantId = Guid.Parse("33333333-3333-3333-3333-333333333334");

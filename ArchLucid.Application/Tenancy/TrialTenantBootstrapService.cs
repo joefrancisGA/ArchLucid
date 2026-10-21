@@ -65,6 +65,9 @@ public sealed class TrialTenantBootstrapService(
                 if (await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken))
                     return;
 
+                if (await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken))
+                    return;
+
                 await _tenantRepository.PersistTrialSignupBaselineReviewCycleAsync(
                     result.TenantId,
                     baselineReviewCycle.Hours,

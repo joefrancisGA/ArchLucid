@@ -43109,11 +43109,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 129
-- **bugs-found:** 112
+- **hunts:** 130
+- **bugs-found:** 113
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - email verification failure metric erasure quarantine parity
+- **last-bug:** 2026-10-21 - signup baseline persist erasure re-read
+
+2026-10-21 seed hunt (seed→hit): `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` persisted signup baseline review cycle after pre-baseline quarantine read without a second read before `PersistTrialSignupBaselineReviewCycleAsync` — regression `TryBootstrapAfterSelfRegistrationAsync_skips_signup_baseline_persist_when_offboard_completes_after_baseline_check_before_persist`; 243 scoped tenancy tests passed.
 
 2026-10-21 seed hunt (seed→hit): `TrialTenantBootstrapService` email-verification blocked path recorded `RecordTrialSignupFailure` after first quarantine read but before second read while audit was already gated — nested metric with audit under second read; regression `TryBootstrapAfterSelfRegistrationAsync_skips_email_verification_failure_metric_when_offboard_completes_after_pre_metric_check_before_audit`; same guard for `trial_bootstrap` catch; 242 scoped tenancy tests passed.
 
@@ -43678,6 +43680,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `TenantTrialSeatPolicy.RequiresSeatClaim` — no offboard predicate — **cheap-disproof 2026-10-21 seed hunt:** quarantine middleware runs before seat reservation middleware.
 - [x] (proven) `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` — email-verification `RecordTrialSignupFailure` when erasure offboard between pre-metric and pre-audit quarantine reads — **hit 2026-10-21 seed hunt:** metric nested with audit under second `IsTenantInErasureQuarantineAsync`; regression `TryBootstrapAfterSelfRegistrationAsync_skips_email_verification_failure_metric_when_offboard_completes_after_pre_metric_check_before_audit`. [class:state-machine-gap]
 - [x] (valid-no-repro) `WorkspaceModelExecutionProfileService.GetAsync` — malformed profile falls back — **cheap-disproof 2026-10-21 seed hunt:** conservative fallback on parse failure; no tenant-controlled OpenAPI path cited for corrupted row.
+
+- (candidate) `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` — `trial_bootstrap` catch `RecordTrialSignupFailure` when offboard between nested quarantine reads — locus: catch block; input: `/v1/register` commit failure (reachability: parity with email-verification failure metric regression; may already be fixed by nested metric guard).
+- (candidate) `TrialLimitGate.GuardWriteAsync` — omits `OffboardedUtc` while enforcing trial lifecycle limits — locus: `GetByIdAsync` then trial status checks; input: tenant row with `OffboardedUtc` set and `TrialStatus=Active` (reachability: `TrialLimitFilter` after erasure middleware on tenant HTTP).
+- (candidate) `TenantSlugNormalizer.FromName` — slug collision or empty edge for unicode/normalization — locus: slug helper; input: registration `Name` from OpenAPI `POST /v1/register` (inspect tests before promote).
+- (candidate) `TenantMigrationProjectionRefreshService` — refresh side effects without post-refresh erasure re-read — locus: projection refresh entry; input: operator migration maintenance API (compare to `TenantCatalogMigrationOrchestrator.ProjectionRefresh` guards).
+- (candidate) `TenantTrialIdentityHandoffStage.LinkEntraAsync` — identity audit ordering vs `OffboardedUtc` reads on partial payload — locus: handoff stage; input: trial link Entra OpenAPI body with email+oid pair.
 ## Zone: host-core-coordination
 
 - **id:** host-core-coordination
