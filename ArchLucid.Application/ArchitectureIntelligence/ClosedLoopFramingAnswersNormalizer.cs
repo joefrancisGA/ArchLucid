@@ -1,3 +1,5 @@
+using System.Text;
+
 using ArchLucid.Contracts.ArchitectureIntelligence;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
@@ -15,7 +17,10 @@ internal static class ClosedLoopFramingAnswersNormalizer
             if (string.IsNullOrWhiteSpace(pair.Key))
                 continue;
 
-            pairs.Add(new KeyValuePair<string, string>(pair.Key.Trim(), pair.Value?.Trim() ?? string.Empty));
+            pairs.Add(
+                new KeyValuePair<string, string>(
+                    NormalizeUnicode(pair.Key.Trim()),
+                    NormalizeUnicode(pair.Value?.Trim() ?? string.Empty)));
         }
 
         Dictionary<string, string> normalized = new(StringComparer.Ordinal);
@@ -33,4 +38,7 @@ internal static class ClosedLoopFramingAnswersNormalizer
 
         return normalized;
     }
+
+    private static string NormalizeUnicode(string value) =>
+        value.Length == 0 ? value : value.Normalize(NormalizationForm.FormC);
 }

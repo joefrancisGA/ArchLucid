@@ -754,6 +754,29 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_framing_answer_differs_only_by_unicode_normalization_form()
+    {
+        const string nfcAnswer = "Caf\u00E9 intake";
+        const string nfdAnswer = "Cafe\u0301 intake";
+
+        ClosedLoopReasoningRequest nfcRequest = CreateRequest("Architecture note.");
+        nfcRequest.FramingAnswers = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["outcome"] = nfcAnswer,
+        };
+
+        ClosedLoopReasoningRequest nfdRequest = CreateRequest("Architecture note.");
+        nfdRequest.FramingAnswers = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["outcome"] = nfdAnswer,
+        };
+
+        ReviewCacheManifestBuilder.Build(nfcRequest).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(nfdRequest).ContentHash);
+    }
+
+    [Fact]
     public void Build_changes_content_hash_when_framing_keys_differ_only_by_casing()
     {
         ClosedLoopReasoningRequest lowerKey = CreateRequest("Architecture note.");
