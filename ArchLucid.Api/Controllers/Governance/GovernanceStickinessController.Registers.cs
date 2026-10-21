@@ -204,7 +204,9 @@ public sealed partial class GovernanceStickinessController
         {
             ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
-            // Waiver expiry totals come from active exceptions. Seal those runs before returning counts.
+            // Waiver expiry totals come from active exceptions. Fail closed with HTTP 409 when any active
+            // waiver references an unsealed run (same EnsureRiskExceptionRecordsSealedManifestAllowedAsync
+            // path as GET risk-exceptions); do not omit unsealed waivers from totals or return warning counts.
             IReadOnlyList<RiskExceptionRecord> activeWaivers =
                 await _facade.ListRiskExceptionsAsync(projectId, cancellationToken);
 

@@ -148,6 +148,10 @@ public sealed partial class GovernanceStickinessController
             cancellationToken);
     }
 
+    /// <summary>
+    ///     Per-waiver run sealing for list and aggregate reads. Returns HTTP 409 when any referenced run is
+    ///     unsealed; callers must not filter rows or return partial aggregates.
+    /// </summary>
     private async Task<IActionResult?> EnsureRiskExceptionRecordsSealedManifestAllowedAsync(
         IReadOnlyList<RiskExceptionRecord> records,
         CancellationToken cancellationToken)
