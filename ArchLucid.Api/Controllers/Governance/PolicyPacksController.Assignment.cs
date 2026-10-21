@@ -25,6 +25,7 @@ public sealed partial class PolicyPacksController
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    [RequiresGovernanceScopePostureSealedManifest("Policy pack assignment mutates governance posture tied to committed architecture.")]
     public async Task<IActionResult> Assign(
         Guid policyPackId,
         [FromBody] AssignPolicyPackRequest? request,
@@ -79,6 +80,7 @@ public sealed partial class PolicyPacksController
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [RequiresGovernanceScopePostureSealedManifest("Assignment archive mutates governance posture.")]
     public async Task<IActionResult> ArchiveAssignment(Guid assignmentId, CancellationToken ct = default)
     {
         IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(assignmentId, "assignmentId");
@@ -133,6 +135,7 @@ public sealed partial class PolicyPacksController
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    [RequiresGovernanceScopePostureSealedManifest("Assignment enablement mutates governance posture.")]
     public async Task<IActionResult> SetAssignmentEnabled(
         Guid assignmentId,
         [FromBody] SetPolicyPackAssignmentEnabledRequest? request,
@@ -196,6 +199,7 @@ public sealed partial class PolicyPacksController
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    [RequiresGovernanceScopePostureSealedManifest("Assignment organization flag mutates governance posture.")]
     public async Task<IActionResult> SetAssignmentOrganizationRequired(
         Guid assignmentId,
         [FromBody] SetPolicyPackAssignmentOrganizationRequiredRequest? request,

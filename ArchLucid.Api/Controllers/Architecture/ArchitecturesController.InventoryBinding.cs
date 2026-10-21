@@ -52,6 +52,7 @@ public sealed partial class ArchitecturesController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [MutatingAuditExcluded("Audit: ArchitectureInventoryBindingAuditSupport logs ArchitectureInventorySnapshotBound via LogOrThrowAsync.")]
+    [RequiresGovernanceScopePostureSealedManifest("Inventory binding mutates architecture identity against committed run.")]
     public async Task<IActionResult> AttachInventoryBinding(
         Guid architectureId,
         [FromBody] AttachArchitectureInventoryBindingRequest? body,
@@ -115,6 +116,7 @@ public sealed partial class ArchitecturesController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [MutatingAuditExcluded("Audit: ArchitectureInventoryBindingAuditSupport logs ArchitectureInventorySnapshotDetached via LogOrThrowAsync.")]
+    [RequiresGovernanceScopePostureSealedManifest("Inventory detach mutates architecture identity against committed run.")]
     public async Task<IActionResult> DetachInventoryBinding(Guid architectureId, CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();

@@ -1,6 +1,5 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
-using ArchLucid.Application.Governance.Posture;
 using ArchLucid.Application.Governance.Preview;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
@@ -36,29 +35,6 @@ public sealed partial class GovernancePreviewController
             await GovernancePreviewSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
                 runId,
                 scope,
-                _authorityQueryService,
-                _manifestHashService,
-                cancellationToken);
-        }
-        catch (ConflictException ex)
-        {
-            return MapGovernancePreviewSealedManifestConflict(ex);
-        }
-
-        return null;
-    }
-
-    private async Task<IActionResult?> EnsureGovernancePreviewScopeSealedManifestReadAllowedAsync(
-        ScopeContext scope,
-        CancellationToken cancellationToken)
-    {
-        try
-        {
-            await GovernancePostureSealedManifestHashGuard.EnsureLatestCommittedRunSealedOrThrowAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
-                _runDetailQueryService,
                 _authorityQueryService,
                 _manifestHashService,
                 cancellationToken);

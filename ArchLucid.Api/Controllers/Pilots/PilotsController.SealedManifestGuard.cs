@@ -1,6 +1,7 @@
+using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
-using ArchLucid.Application.Governance.Posture;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
@@ -68,22 +69,12 @@ public sealed partial class PilotsController
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
-        try
-        {
-            await GovernancePostureSealedManifestHashGuard.EnsureLatestCommittedRunSealedOrThrowAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
-                _runDetailQueryService,
-                _authorityQueryService,
-                _manifestHashService,
-                cancellationToken);
-        }
-        catch (ConflictException ex)
-        {
-            return MapPilotPackSealedManifestConflict(ex);
-        }
-
-        return null;
+        return await GovernanceScopePostureSealedManifestPreflight.TryGetConflictResultAsync(
+            this,
+            scope,
+            _runDetailQueryService,
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken);
     }
 }

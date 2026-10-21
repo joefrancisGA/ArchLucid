@@ -16,30 +16,27 @@ public sealed class ArchitectureReviewRobustnessWave126ArchitectureTests
     public void Suggestion1497_1502_setup_resolution_catalog_and_register_sealed_manifest_mappers()
     {
         string setupController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceSetupController.cs");
-        string setupGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceSetupController.SealedManifestGuard.cs");
         string resolutionController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceResolutionController.cs");
-        string resolutionGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceResolutionController.SealedManifestGuard.cs");
         string catalogController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceEnvironmentCatalogController.cs");
-        string catalogGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceEnvironmentCatalogController.SealedManifestGuard.cs");
         string registersController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs");
         string attestationController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs");
+        string scopePostureCatalog = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Http/Governance/GovernanceScopePostureSealedManifestEndpointCatalog.cs");
 
         setupController.Should().Contain("GetSetupGuideBundle");
-        setupController.Should().Contain("MapGovernanceSetupSealedManifestConflict");
-        setupGuard.Should().Contain("EnsureGovernanceScopeSealedManifestReadAllowedAsync");
-        setupGuard.Should().Contain("MapGovernanceSetupSealedManifestConflict");
+        setupController.Should().Contain("ConflictProblem");
+        scopePostureCatalog.Should().Contain("GovernanceSetupController\", \"GetSetupGuideBundle\", GovernanceScopePostureSealedManifestClassification.ExemptMetadataOrConfigRead");
         resolutionController.Should().Contain("Resolve");
-        resolutionController.Should().Contain("MapGovernanceResolutionSealedManifestConflict");
-        resolutionGuard.Should().Contain("EnsureGovernanceScopeSealedManifestReadAllowedAsync");
-        resolutionGuard.Should().Contain("MapGovernanceResolutionSealedManifestConflict");
+        resolutionController.Should().Contain("ConflictProblem");
+        scopePostureCatalog.Should().Contain("GovernanceResolutionController\", \"Resolve\", GovernanceScopePostureSealedManifestClassification.ExemptMetadataOrConfigRead");
         catalogController.Should().Contain("Get");
-        catalogController.Should().Contain("MapGovernanceEnvironmentCatalogSealedManifestConflict");
-        catalogGuard.Should().Contain("EnsureGovernanceScopeSealedManifestReadAllowedAsync");
-        catalogGuard.Should().Contain("MapGovernanceEnvironmentCatalogSealedManifestConflict");
+        catalogController.Should().Contain("ConflictProblem");
+        scopePostureCatalog.Should().Contain("GovernanceEnvironmentCatalogController\", \"Get\", GovernanceScopePostureSealedManifestClassification.ExemptMetadataOrConfigRead");
         registersController.Should().Contain("GetReviewsAwaitingAction");
         registersController.Should().Contain("GetDecisionsNeededSummary");
+        registersController.Should().Contain("RequiresGovernanceScopePostureSealedManifest");
         registersController.Should().Contain("MapGovernanceStickinessSealedManifestConflict");
         attestationController.Should().Contain("GetRealizedValueAttestation");
+        attestationController.Should().Contain("RequiresGovernanceScopePostureSealedManifest");
         attestationController.Should().Contain("MapGovernanceStickinessSealedManifestConflict");
     }
 

@@ -56,6 +56,7 @@ public sealed partial class PilotsBoardPackController(
     [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [RequiresGovernanceScopePostureSealedManifest("Board pack PDF embeds committed-run digest and value metrics.")]
     public async Task<IActionResult> PostBoardPackPdf(
         [FromBody] BoardPackPdfPostRequest? body,
         CancellationToken cancellationToken)

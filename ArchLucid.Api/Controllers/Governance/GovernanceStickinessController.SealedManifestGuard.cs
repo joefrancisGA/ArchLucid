@@ -1,7 +1,8 @@
+using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Governance;
-using ArchLucid.Application.Governance.Posture;
 using ArchLucid.Application.Governance.Stickiness;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
@@ -137,23 +138,14 @@ public sealed partial class GovernanceStickinessController
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         Guid resolvedProjectId = projectId ?? scope.ProjectId;
 
-        try
-        {
-            await GovernancePostureSealedManifestHashGuard.EnsureLatestCommittedRunSealedOrThrowAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                resolvedProjectId,
-                _runDetailQueryService,
-                _authorityQueryService,
-                _manifestHashService,
-                cancellationToken);
-        }
-        catch (ConflictException ex)
-        {
-            return MapGovernanceStickinessSealedManifestConflict(ex);
-        }
-
-        return null;
+        return await GovernanceScopePostureSealedManifestPreflight.TryGetConflictResultAsync(
+            this,
+            scope,
+            resolvedProjectId,
+            _runDetailQueryService,
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken);
     }
 
     private async Task<IActionResult?> EnsureRiskExceptionRecordsSealedManifestAllowedAsync(

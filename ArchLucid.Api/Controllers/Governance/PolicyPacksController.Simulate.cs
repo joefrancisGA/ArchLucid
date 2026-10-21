@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Http.Governance;

@@ -1,4 +1,6 @@
 using ArchLucid.Api.Controllers.Governance;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
@@ -49,6 +51,57 @@ public sealed class GovernanceEnvironmentCatalogControllerTests
             ]);
 
         return tenants.Object;
+    }
+
+    [Fact]
+    public async Task Get_reaches_catalog_service_when_scope_posture_sealed_manifest_would_conflict()
+    {
+        Guid committedRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
+
+        Mock<IGovernanceEnvironmentCatalogService> catalogService = new(MockBehavior.Strict);
+        catalogService
+            .Setup(service => service.GetCatalogAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceEnvironmentCatalog());
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(service => service.ListRunSummariesKeysetAsync(
+                It.IsAny<string?>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            (
+                new[]
+                {
+                    new RunSummary
+                    {
+                        RunId = committedRunId.ToString("D"),
+                        Status = nameof(ArchitectureRunStatus.Committed),
+                    },
+                },
+                false,
+                (string?)null));
+
+        GovernanceEnvironmentCatalogController controller = new(
+            scopeProvider.Object,
+            catalogService.Object,
+            Mock.Of<IActorContext>(),
+            Mock.Of<IAuditService>(),
+            TenantExistsRepository(),
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun("stored-hash"),
+            SealedManifestHashTestSupport.CreateManifestHashService("computed-hash"),
+            runDetails.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult action = await controller.Get(CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        catalogService.VerifyAll();
     }
 
     [Fact]

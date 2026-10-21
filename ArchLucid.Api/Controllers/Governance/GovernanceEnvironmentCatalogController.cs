@@ -93,12 +93,6 @@ public sealed partial class GovernanceEnvironmentCatalogController(
             if (scopeProblem is not null)
                 return scopeProblem;
 
-            IActionResult? sealedGuardResult =
-                await EnsureGovernanceScopeSealedManifestReadAllowedAsync(scope, cancellationToken);
-
-            if (sealedGuardResult is not null)
-                return sealedGuardResult;
-
             GovernanceEnvironmentCatalog catalog = await _catalogService
                 .GetCatalogAsync(cancellationToken)
                 .ConfigureAwait(false);
@@ -107,7 +101,7 @@ public sealed partial class GovernanceEnvironmentCatalogController(
         }
         catch (ConflictException ex)
         {
-            return MapGovernanceEnvironmentCatalogSealedManifestConflict(ex);
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
     }
 
@@ -142,12 +136,6 @@ public sealed partial class GovernanceEnvironmentCatalogController(
 
             if (scopeProblem is not null)
                 return scopeProblem;
-
-            IActionResult? sealedGuardResult =
-                await EnsureGovernanceScopeSealedManifestReadAllowedAsync(scope, cancellationToken);
-
-            if (sealedGuardResult is not null)
-                return sealedGuardResult;
 
             GovernanceEnvironmentCatalog existingCatalog = await _catalogService
                 .GetCatalogAsync(cancellationToken)
@@ -203,7 +191,7 @@ public sealed partial class GovernanceEnvironmentCatalogController(
         }
         catch (ConflictException ex)
         {
-            return MapGovernanceEnvironmentCatalogSealedManifestConflict(ex);
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
     }
 

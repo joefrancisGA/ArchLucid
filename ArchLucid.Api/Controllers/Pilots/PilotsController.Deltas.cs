@@ -1,3 +1,4 @@
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Contracts.Pilots;
@@ -38,6 +39,7 @@ public sealed partial class PilotsController
     [Produces("application/json")]
     [ProducesResponseType(typeof(RecentPilotRunDeltasResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [RequiresGovernanceScopePostureSealedManifest("Recent pilot deltas summarize latest committed run deltas.")]
     public async Task<IActionResult> GetRecentDeltas(
         [FromQuery(Name = "count")] int? count,
         CancellationToken cancellationToken)

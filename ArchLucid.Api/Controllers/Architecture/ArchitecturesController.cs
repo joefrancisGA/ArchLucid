@@ -236,6 +236,7 @@ public sealed partial class ArchitecturesController(
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    [RequiresGovernanceScopePostureSealedManifest("Identity mutation pins architecture to committed run lineage.")]
     public async Task<IActionResult> PatchArchitecture(
         Guid architectureId,
         [FromBody] PatchArchitectureIdentityRequest? body,

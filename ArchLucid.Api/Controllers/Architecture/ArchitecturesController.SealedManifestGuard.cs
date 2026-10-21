@@ -1,7 +1,8 @@
+using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
-using ArchLucid.Application.Governance.Posture;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
@@ -88,23 +89,13 @@ public sealed partial class ArchitecturesController
         ScopeContext scope,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            await GovernancePostureSealedManifestHashGuard.EnsureLatestCommittedRunSealedOrThrowAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
-                _runDetailQueryService,
-                _authorityQueryService,
-                _manifestHashService,
-                cancellationToken);
-        }
-        catch (ConflictException ex)
-        {
-            return MapArchitectureSealedManifestConflict(ex);
-        }
-
-        return null;
+        return await GovernanceScopePostureSealedManifestPreflight.TryGetConflictResultAsync(
+            this,
+            scope,
+            _runDetailQueryService,
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken);
     }
 
     /// <summary>
