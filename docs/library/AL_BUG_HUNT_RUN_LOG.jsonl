@@ -5792,3 +5792,4 @@
 {"at":"2026-10-21T02:57:05.0494894Z","zoneId":"api-policy-packs","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Governance/PolicyPacksController"]}
 {"at":"2026-10-21T02:56:39.7630615Z","zoneId":"api-policy-packs","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T03:02:44.7516142Z","zoneId":"core-tenancy-commercial","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Core/Identity","ArchLucid.Core/Billing","ArchLucid.Core/Budgeting"]}
+{"at":"2026-10-21T03:07:11.7712681Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared"}
