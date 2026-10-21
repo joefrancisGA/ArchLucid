@@ -4,7 +4,7 @@ import { AUTHENTICATION_SIGN_IN_HELP_PRIMARY_ACTION } from "@/lib/authentication
 export const AUTHENTICATION_SIGN_IN_HELP_SPECIALTY_SOURCE_FILES: readonly string[] = [
   "src/app/(operator)/help/_sections/HelpAuthenticationSignInGuideView.tsx",
   "src/app/(operator)/help/_sections/HelpAuthenticationSignInHeaderActions.tsx",
-  "src/app/(operator)/help/[...topic]/page.tsx",
+  "src/lib/help/help-topic-view-resolver-admin.tsx",
 ] as const;
 
 export const AUTHENTICATION_SIGN_IN_HELP_SPECIALTY_ROOT_TEST_ID = "help-authentication-sign-in-guide";
