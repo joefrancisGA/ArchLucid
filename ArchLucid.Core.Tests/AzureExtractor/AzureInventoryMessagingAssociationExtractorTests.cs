@@ -47,6 +47,43 @@ public sealed class AzureInventoryMessagingAssociationExtractorTests
     }
 
     [Fact]
+    public void TryExtractEventHub_reads_capture_storage_from_nested_destination_properties()
+    {
+        const string namespaceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventHub/namespaces/ehns1";
+        const string eventHubId = $"{namespaceId}/eventhubs/orders";
+        const string captureStorageId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/capturestore";
+
+        using JsonDocument document = JsonDocument.Parse($$"""
+                                                            {
+                                                              "id": "{{eventHubId}}",
+                                                              "name": "orders",
+                                                              "properties": {
+                                                                "captureDescription": {
+                                                                  "enabled": true,
+                                                                  "destination": {
+                                                                    "name": "EventHubCaptureDestination",
+                                                                    "properties": {
+                                                                      "storageAccountResourceId": "{{captureStorageId}}"
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                            """);
+
+        bool extracted = AzureInventoryMessagingAssociationExtractor.TryExtractEventHub(
+            namespaceId,
+            document.RootElement,
+            out AzureInventoryMessagingAssociationRow? row);
+
+        extracted.Should().BeTrue();
+        row.Should().NotBeNull();
+        row!.CaptureStorageAccountId.Should().Be(captureStorageId);
+    }
+
+    [Fact]
     public void TryExtractEventHub_ignores_disabled_capture()
     {
         using JsonDocument document = JsonDocument.Parse("""

@@ -1,4 +1,8 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
+2026-10-21 seed hunt (seed→hit): `core-azure-extractor` — lane B (picker default `core-tenancy-commercial` held by lane C); promoted Event Hub capture `destination.properties.storageAccountResourceId` nesting — list payloads nest storage id under `destination.properties` like Event Grid 2022-06-15; `TryExtractEventHub` only read top-level `storageAccountResourceId`; now uses nested destination properties with top-level fallback; regression `TryExtractEventHub_reads_capture_storage_from_nested_destination_properties`. Scoped `AzureExtractor` filter: 1573 Core tests passed.
+
+- [x] (proven) `AzureInventoryMessagingAssociationExtractor.TryExtractEventHub` — capture storage id under nested `destination.properties` ignored — **hit 2026-10-21 lane B seed hunt:** `TryReadDestinationProperties` parity with Event Grid; regression above.
+
 2026-10-21 thorough hunt (hit): `api-policy-packs` — lane B; closed the **validate-trim / forward-raw** semver bug class (GetVersion, PromoteCatalogEntry, Publish) by introducing `PolicyPackSemVerVersion` in Contracts and routing controller, facade, catalog admin, and version-repository lookup through `TryParse` / `NormalizeLookupKey`; `PolicyPacksHttpMapper.TryParsePackVersion` binds validation to the same normalized value; matrix tests for GetVersion/Publish/Promote/Assign (spaces, tabs, optional `v` prefix). Scoped `PolicyPacksController` filter: 95 passed.
 
 - [x] (proven) **Bug class closed** policy-pack semver validate-trim / forward-raw — **2026-10-21 lane B:** `PolicyPackSemVerVersion` + boundary/repository normalization; `PolicyPacksControllerVersionNormalizationMatrixTests`.
@@ -28582,13 +28586,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 56
-- **bugs-found:** 36
+- **hunts:** 57
+- **bugs-found:** 37
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — application gateway NIC backends were omitted
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-21 — Event Hub capture storage id nested under destination.properties
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-21 seed hunt (seed→hit): lane B; Event Hub capture destination.properties nesting; 1573 Core scoped tests passed.
 
 2026-10-09 seed hunt (seed→hit): promoted Application Gateway `backendIPConfigurations`. A NIC-only pool produced no backend target because the resolver required `backendAddresses`. Ip configurations now resolve to the NIC, and address targets stay. Regression `ResolveApplicationGatewayBackends_reads_ip_configuration_from_backend_pool`. 1474 scoped AzureExtractor tests passed (1447 Core + 27 Application), and 5 load-balancer diagram applier tests passed.
 
