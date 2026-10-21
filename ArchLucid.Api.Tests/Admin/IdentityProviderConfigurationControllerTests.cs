@@ -321,6 +321,43 @@ public sealed class IdentityProviderConfigurationControllerTests
     }
 
     [Fact]
+    public async Task GetConfigurationAsync_rejects_stored_canonical_issuer_uri_longer_than_persisted_column()
+    {
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        string issuerUri = "https://idp.example/" + new string(
+            'a',
+            IdentityProviderPersistedFieldLimits.IssuerUriMaxLength - "https://idp.example/".Length + 1);
+
+        await repository.UpsertAsync(
+            new TenantIdentityProviderConfigurationRecord
+            {
+                TenantId = tenantId,
+                Protocol = TenantIdentityProtocol.Oidc,
+                IssuerUri = issuerUri,
+                ClaimMappingJson = """{"roleClaimName":"groups","mappings":[]}""",
+                UpdatedUtc = DateTimeOffset.UtcNow,
+                UpdatedByActorId = "admin@test",
+                IsActive = true,
+            },
+            CancellationToken.None);
+
+        IdentityProviderConfigurationController controller = CreateController(configurationRepository: repository);
+
+        IActionResult result = await controller.GetConfigurationAsync(CancellationToken.None);
+
+        ObjectResult objectResult = result.Should().BeOfType<ObjectResult>().Subject;
+        objectResult.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        objectResult.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>();
+
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            (Microsoft.AspNetCore.Mvc.ProblemDetails)objectResult.Value!;
+
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
+        problem.Detail.Should().Contain("IssuerUri");
+    }
+
+    [Fact]
     public async Task GetConfigurationAsync_omits_metadata_xml_when_stored_protocol_is_oidc()
     {
         Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");

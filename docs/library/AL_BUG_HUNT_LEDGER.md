@@ -1,10 +1,4 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
-2026-10-21 safety follow-up (lane B): `api-request-null-collection-elements` — `ApiRequestNullCollectionElementsGuard` now skips null-element rejection when `NullabilityInfoContext` marks collection elements nullable (`List<string?>`, `int?[]`, etc.); regressions `ContainsNullCollectionElement_allows_null_elements_when_property_annotated_nullable`, `ContainsNullCollectionElement_rejects_null_elements_when_property_annotated_non_nullable`, and `ContainsNullCollectionElement_allows_null_elements_in_nullable_value_type_array`; `ArchLucid.Api.Tests` `Category=Unit` **2979/3000** passed (21 failures unchanged vs pre-exemption baseline — ExportReplay, ManifestsController, PolicyPacksAppService, SAML audit, etc.; none reference null-collection filter); no endpoint behavior change for non-nullable collection DTOs.
-
-2026-10-21 thorough hunt (hit, lane B): `scope-binding-middleware` — lock pushed and verified on `origin/bugsmash` before work; promoted `(candidate)` parent-segment probe on `ScopeResolutionGuardMiddleware.ShouldSkip` — `/health/live/../v1/runs` incorrectly skipped TB-304 via `StartsWithSegments("/health/live")` while routing keeps the raw path; `PathContainsParentSegment` blocks all scope skips when `..` is present; regression `InvokeAsync_staging_host_does_not_skip_health_live_parent_segment_escape`; scoped picker filter **103/103** unit passed (6 SQL integration blocked); lock released after push.
-
-- [x] (proven) `ScopeResolutionGuardMiddleware.ShouldSkip` — `/health/live/../v1/runs` inherited public health skip — **hit 2026-10-21 lane B:** reject parent-segment paths before skip checks; regression above.
-
 2026-10-21 structural hunt (hit, lane B): `api-request-null-collection-elements` — lock pushed and verified on `origin/bugsmash` before work; central `ApiRequestNullCollectionElementsFilter` + `ApiRequestNullCollectionElementsGuard` reject null elements inside `[FromBody]` collection properties with HTTP 400 `ValidationFailed` before controller actions (closes recurring class: `RunCoverageController` entries, clarification `Answers` 2026-10-04, topology entries run 193, `ArchiveRunsByIds` null collection); per-controller guards retained; architecture test enumerates all API `[FromBody]` collection property paths with null-element probes; filter + guard tests + `RunCoverageControllerTests` 13/13 scoped; lock released after push.
 
 - [x] (proven) **Defect class:** null elements inside JSON request body collections (`[{...}, null]`) causing `NullReferenceException` in controller validation loops — **closed 2026-10-21 lane B:** global MVC filter on all `[FromBody]` models; `ApiRequestNullCollectionElementsArchitectureTests` + `ApiRequestNullCollectionElementsFilterTests`.
@@ -15950,8 +15944,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **hunts:** 65
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — health/live/../ path bypassed TB-304 via probe skip
+- **last-hunt:** 2026-10-12
+- **last-bug:** 2026-10-12 — authenticated non-SCIM principals bypassed SCIM rebinding on `/scim/v2/Users`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15972,7 +15966,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-09 seed hunt (seed→hit): promoted empty and dot-segment health probe TB-304 gap; proved and fixed; backslash `Request.Path` was not reproduced; 96 scoped scope-binding unit tests passed (6 SQL integration tests unavailable).
 - [ ] (candidate) `ScopeIdentityBindingValidator.TryParseClaimGuid` — first `tenant_id` claim unparseable with later parseable claim and matching `x-tenant-id` header may pass `Validate` while scope resolves from header on non-Bearer schemes.
 - [ ] (candidate) `RouteTenantScopeBindingFilter.MetadataDeclaresPolicy` — policy names that differ from `PlatformTenantDeletionAuthority` only by case may not skip route tenant binding.
-- [x] (proven) `ScopeResolutionGuardMiddleware.NormalizeProbePath` — a reachable parent-segment request such as `/health/live/../v1/runs` must not be normalized into a public probe skip — **hit 2026-10-21 lane B:** `PathContainsParentSegment` blocks skip; regression `InvokeAsync_staging_host_does_not_skip_health_live_parent_segment_escape`.
+- [ ] (candidate) `ScopeResolutionGuardMiddleware.NormalizeProbePath` — a reachable parent-segment request such as `/health/live/../v1/runs` must not be normalized into a public probe skip.
 - [ ] (candidate) `ScopeResolutionGuardMiddleware.ShouldSkip` — a routed path containing `/internal/` outside an explicitly internal endpoint may inherit the unscoped bypass if such a route is reachable.
 - [ ] (candidate) `RouteTenantScopeBindingFilter.MetadataDeclaresPolicy` — a custom `IAuthorizeData` implementation carrying the platform deletion policy may differ from the built-in metadata shapes handled by the filter.
 - [ ] (candidate) `RouteTenantScopeBindingFilter.OnActionExecutionAsync` — a valid route `tenantId` represented by a non-string route value must compare identically to the ambient tenant scope.
@@ -100161,6 +100155,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - (candidate) `IdentityProviderActivationService.ActivateAsync` — oversized `ClaimMappingJson` only fails at SQL MERGE — locus: serialize-before-upsert without length guard; input: mapping entries producing JSON > practical limit; reachability: SSO wizard claim-mapping POST body.
 - (candidate) `IdentityProviderConfigurationController.TestLogin` — empty `SampleClaimValues` returns HTTP 200 `Success:false` while activate ignores sample claims — locus: sandbox service empty-role guard; input: `sampleClaimValues:[]`; reachability: `POST /v1/admin/identity/test-login` wizard step.
 - (candidate) `IdentityProviderConfigurationController.ActivateAsync` — audit `DataJson` omits SAML `metadataXml` fingerprint — locus: audit payload shape; input: SAML activate; reachability: audit trail for SSO activation (forensics vs GET configuration).
+
+2026-10-21 seed hunt (seed->hit) #81: GET `/v1/admin/identity/configuration` returned HTTP 200 with a canonical stored issuer longer than migration 183 NVARCHAR(2048) while activate/test-login/discover already reject that width; `GetConfigurationAsync` now calls `EnsureIssuerUriFits` after `PrepareConfigurationResponse` when the issuer is canonical HTTP(S); regression `GetConfigurationAsync_rejects_stored_canonical_issuer_uri_longer_than_persisted_column`; cheap-disproof closed four #80 `(candidate)` rows (`sameProtocol`/`IsActive` preserve-by-design; claim-mapping JSON SQL boundary; empty `SampleClaimValues` sandbox contract; audit summary omits SAML metadata by design); 100 scoped activation/controller/matrix tests passed.
+
+- [x] (proven) `IdentityProviderConfigurationController.GetConfigurationAsync` — GET returned a canonical issuer longer than the persisted column while activate rejected it — regression `GetConfigurationAsync_rejects_stored_canonical_issuer_uri_longer_than_persisted_column`.
+- [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — `sameProtocol` ignores `IsActive` when preserving optional fields — **cheap-disproof 2026-10-21 #81:** reactivation intentionally preserves stored protocol fields.
+- [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — oversized `ClaimMappingJson` — **cheap-disproof 2026-10-21 #81:** SQL MERGE boundary; no in-memory guard required.
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.TestLogin` — empty `SampleClaimValues` — **cheap-disproof 2026-10-21 #81:** sandbox `Success:false` contract; activate does not read sample claims.
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.ActivateAsync` — audit omits SAML `metadataXml` — **cheap-disproof 2026-10-21 #81:** intentional audit summary; GET configuration returns full row.
 ## Zone: identity-provider-config
 2026-10-20 seed hunt (seed->hit): promoted GET /v1/admin/identity/configuration returning legacy MetadataXml on OIDC rows (and KeyVaultSecretName on SAML) after activate began stripping cross-protocol fields; PrepareConfigurationResponse omits protocol-inapplicable columns on read; regression GetConfigurationAsync_omits_metadata_xml_when_stored_protocol_is_oidc; 16 scoped IdentityProviderConfigurationControllerTests passed.
 
@@ -100183,11 +100185,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 80
-- **bugs-found:** 56
+- **hunts:** 81
+- **bugs-found:** 57
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — discover accepted issuer URIs longer than persisted column
+- **last-bug:** 2026-10-21 — GET configuration returned issuer longer than persisted column
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -100599,7 +100601,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 80
+- **hunts:** 81
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-16
@@ -103389,7 +103391,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
 - **hunts:** 943
-- **bugs-found:** 56
+- **bugs-found:** 57
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-12
 - **last-bug:** 2026-10-06 — export replay and run-summary routes omitted CareerArtifactExportBlocked 409 mapping
@@ -105420,7 +105422,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
 - **hunts:** 58
-- **bugs-found:** 56
+- **bugs-found:** 57
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-21 — export compare/replay skipped career metadata gate
@@ -122001,9 +122003,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 80
+- **hunts:** 81
 - **last-hunt:** 2026-10-20
-- **bugs-found:** 56
+- **bugs-found:** 57
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-20 — Probable provenance edges omitted display label when verb blank
 - **related-pd-tb:** none
@@ -122817,7 +122819,7 @@ heap-disproved mermaid typed-topology candidate.
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
 - **hunts:** 62
-- **bugs-found:** 56
+- **bugs-found:** 57
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-16
 - **last-bug:** 2026-10-16 — archive-by-ids null RunIds caused 500 instead of validation
@@ -127522,7 +127524,7 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 80
+- **hunts:** 81
 - **bugs-found:** 60
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21

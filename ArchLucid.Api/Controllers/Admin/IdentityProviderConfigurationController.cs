@@ -220,7 +220,21 @@ public sealed class IdentityProviderConfigurationController(
                 ProblemTypes.ResourceNotFound);
         }
 
-        return Ok(PrepareConfigurationResponse(record));
+        TenantIdentityProviderConfigurationRecord response = PrepareConfigurationResponse(record);
+
+        if (IdentityProviderUriValidator.TryGetCanonicalAbsoluteHttpOrHttps(response.IssuerUri, out string canonicalIssuerUri))
+        {
+            try
+            {
+                IdentityProviderPersistedFieldLimits.EnsureIssuerUriFits(canonicalIssuerUri);
+            }
+            catch (ArgumentException ex)
+            {
+                return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+            }
+        }
+
+        return Ok(response);
     }
 
     private static TenantIdentityProviderConfigurationRecord PrepareConfigurationResponse(
