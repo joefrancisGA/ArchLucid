@@ -49,6 +49,13 @@
 
 
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
+2026-10-21 thorough hunt (dry, lane C): `ui-webhooks-settings` — lock `ui-webhooks-settings` (lane B held `api-tenancy-workspaces` on origin); repro-first on four open `(candidate)` rows; colon `scopeKey` lacks reachable operator-scope ids with `:` (`sanitizeScopeId` / UUID headers only; `parseOperatorScopeQueryKey` split is a separate contract); latest `loadRequestRef` failure over older success is intentional newest-request policy (`load` guards + overlap regressions); `syncToggleConfirmToUrl` `searchParams` snapshot has no serialized rapid-toggle wrong-outcome vs existing enable/disable URL regressions; global `data-testid` test-button lookup is not a reachable dual-shell invariant (scroll uses `data-webhook-subscription-id`); webhooks folder vitest 62/62; no production change.
+
+- [x] (invalid) `useWebhooksSettingsLoad` — colon-delimited `scopeKey` collision — **cheap-disproof 2026-10-21 lane C:** operator scope ids are sanitized header UUIDs without an established colon alphabet.
+- [x] (valid-no-repro) `useWebhooksSettingsLoad.load` — newer failure suppresses older successful list response — **cheap-disproof 2026-10-21 lane C:** `loadRequestRef` newest-response policy by design; overlap/sequence regressions cover stale overwrite class.
+- [x] (valid-no-repro) `useWebhooksSettingsMutations` — stale `searchParams` during rapid toggle URL sync — **cheap-disproof 2026-10-21 lane C:** one-id canonical URL transitions; no failing repro for wrong confirmation id.
+- [x] (valid-no-repro) `WebhooksSettingsClient.openSubscription` — unscoped `data-testid` test button — **cheap-disproof 2026-10-21 lane C:** duplicate mounted shells with same subscription id are not a route invariant.
+
 2026-10-21 security audit (dry): `email-otp-auth` — lane B; re-reviewed `ea6040c8b0` (`EmailDeliverySucceeded = false` on notifier failure). Request flow attempts SMTP for every normalized email that passes domain policy, bot challenge, and rate limits — there is no platform-user lookup before `TrySendSignInCodeAsync`, so false does not separate registered vs unregistered inboxes (sign-up and sign-in share the path). `false` vs null still distinguishes delivery failure from pre-send neutrals (cooldown/rate limit), not account existence. Added parity regressions `RequestCodeAsync_delivery_failure_response_shape_matches_for_unknown_email_and_platform_user`, `RequestCodeAsync_success_delivery_response_shape_matches_for_unknown_email_and_platform_user`, and `RequestChallengeAsync_delivery_failure_api_envelope_matches_for_unknown_and_existing_user_emails`; Application OTP tests 48/48, API EmailOtp tests 13/13.
 
 - [x] (valid-no-repro) `EmailOtpRequestFlow` / `EmailOtpAuthController` — `emailDeliverySucceeded: false` reveals registered accounts — **audit 2026-10-21 lane B:** send gate is not account-scoped; unknown and existing emails share delivery-failure and success envelopes; parity tests above.
@@ -9188,7 +9195,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
 - **hunts:** 12
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-10
 - **last-bug:** never
 - **related-pd-tb:** none
@@ -9255,7 +9262,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **hunts:** 47
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-12
+- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-04 — embedded whitespace in compact identifier fields survived materialization
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -14216,6 +14223,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-webhooks-settings
 
+2026-10-21 thorough hunt (dry, lane C): cheap-disproved the four bounded `(candidate)` rows (scope-key colon collision, latest-load failure precedence, toggle URL `searchParams` snapshot, unscoped test-button lookup); webhooks folder vitest 62/62; no production or regression change.
+
 2026-10-12 thorough hunt (dry): cheap-disproved the four current candidates: colon-delimited scope-key collision lacks an identifier-origin contract; latest-request failure precedence is an intentional newest-response policy without a contrary contract; URL replacement uses canonical one-id transitions and existing deep-link/toggle regressions; and duplicate mounted shells are not a reachable route invariant. The focused Webhooks settings page suite passed 60/60; no production or regression change.
 
 2026-10-12 seed hunt (seed-only): re-read the selected client and hook plus the focused 60-test page suite; existing scope-generation, load-sequencing, failure-gating, deep-link, and toggle-refresh regressions cover the established boundary classes. No new hunt-ready row met the reachability and wrong-outcome bar; seeded four bounded candidates and made no production or regression change.
@@ -14260,7 +14269,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 45
+- **hunts:** 46
 - **bugs-found:** 27
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-12
@@ -14290,10 +14299,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) `useWebhooksSettingsLoad` — colon-delimited `scopeKey` can collide when operator-scope identifiers contain `:` and suppress a real scope-change reset — input: a reachable workspace/tenant/project scope value containing a colon from the operator-scope selector; wrong outcome: prior-workspace webhook rows and mutation state remain visible after switching to the colliding scope; the selected hook does not establish an identifier alphabet contract.
-- [ ] (candidate) `useWebhooksSettingsLoad.load` — a newer same-scope refresh failure supersedes an older successful response because `loadRequestRef` intentionally accepts only the latest request — input: operator Refresh or mutation-triggered reload overlapping a prior list request, with the latest request failing after the earlier request succeeds; wrong outcome: valid earlier inventory is suppressed behind an error despite a usable response; the product contract for failure-vs-older-success precedence is not established in the selected files.
-- [ ] (candidate) `useWebhooksSettingsMutations.setPendingEnable` / `setPendingDisable` — URL replacement is computed from a render-time `searchParams` snapshot inside functional state updates, so rapid row actions or a concurrent query update may leave the URL confirmation id different from the open dialog — input: operator clicks a second webhook toggle while the first confirmation URL update is still being applied; wrong outcome: reload/deep-link opens the wrong confirmation or no matching confirmation; the selected hook has no serialized transition guard.
-- [ ] (candidate) `WebhooksSettingsClient.openSubscription` — global `[data-testid]` lookup for the target test button is not scoped to the selected subscription row, so overlapping route shells with duplicate subscription ids can focus the first matching button — input: a route transition or retained shell temporarily mounts two webhook tables containing the same API subscription id; wrong outcome: Continue-last scrolls/focuses a different table instance; the selected client does not establish a single-mounted-shell invariant.
+- [x] (invalid) `useWebhooksSettingsLoad` — colon-delimited `scopeKey` collision — **cheap-disproof 2026-10-21 lane C:** operator scope ids are sanitized UUID header values; no reachable colon-bearing scope from the selector contract.
+- [x] (valid-no-repro) `useWebhooksSettingsLoad.load` — newer failure vs older success — **cheap-disproof 2026-10-21 lane C:** newest-request policy is intentional; no contrary product contract in selected files.
+- [x] (valid-no-repro) `useWebhooksSettingsMutations.setPendingEnable` / `setPendingDisable` — stale `searchParams` during URL sync — **cheap-disproof 2026-10-21 lane C:** no failing repro; existing toggle/deep-link regressions cover URL-backed confirmations.
+- [x] (valid-no-repro) `WebhooksSettingsClient.openSubscription` — global test-button `data-testid` lookup — **cheap-disproof 2026-10-21 lane C:** dual-shell duplicate ids are not a reachable route invariant; row scroll uses subscription id attribute.
 
 - [x] (valid-no-repro) `useWebhooksSettingsMutations` URL confirmation effect — a manually opened URL containing both `webhookDisableId` and `webhookEnableId` processes the disable id first and ignores the enable id, so the requested enable confirmation can be absent — **cheap-disproof 2026-10-10 thorough hunt:** `webhooksToggleConfirmHrefFromSearch` intentionally canonicalizes confirmation state to one id, the app never generates both ids, and the dual-parameter URL has no promised simultaneous-confirmation behavior.
 - [x] (proven) `useWebhooksSettingsMutations` URL-sync effect — failed `listAlertRoutingSubscriptions` cleared `webhookEnableId` before refresh could open enable confirmation — **hit 2026-10-09 seed hunt:** unverified inventory was treated as a missing subscription, and a null pending write rewrote the confirm URL; regression `keeps webhookEnableId when the subscription list fails so refresh can open enable confirmation`.
