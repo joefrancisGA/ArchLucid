@@ -5894,3 +5894,4 @@
 {"at":"2026-10-21T09:58:04.8823912Z","zoneId":"identity-provider-config","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-21T11:31:57.1135254Z","zoneId":"api-path-dot-segment-skips","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Api/Middleware,ArchLucid.Api/Security)"]}
 {"at":"2026-10-21T12:04:05.3088254Z","zoneId":"agent-runtime-safety","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-21T12:18:45.2021238Z","zoneId":"tenant-data-export","outcome":"hit","productLine":"archlucid-shared"}
