@@ -31166,7 +31166,13 @@ Split from retired `archlucid-core` (ABQ-08).
 Split from retired `archlucid-core` (ABQ-08).
 
 ### Hypotheses
-- (candidate) `ConfigurationDictionaryBindingKeyNormalizer` batch — remaining configuration-bound dictionaries still lack post-configure trim registration; input: appsettings keys with bounding whitespace on PerAgentTypeFloors / SCIM / AgentPrompts sections.
+
+- [x] (proven) ConfigurationKeyRequirement.IsProduction / ARCHLUCID_ENVIRONMENT — WhenProduction ignored ARCHLUCID_ENVIRONMENT=Production in IConfiguration when ASP.NET environment was Development — hit 2026-10-21 seed hunt (seed->hit): IsArchLucidProductionEnvironment; regression ConfigurationKeyRequirement_WhenProduction_uses_archlucid_environment_from_configuration_when_aspnet_env_not_production. [class:state-machine-gap]
+- (candidate) ConfigurationKeyRequirement.IsProduction — ASPNETCORE_ENVIRONMENT=SaaS does not mark WhenProduction; input: hosted SaaS profile with unset ARCHLUCID.
+- (candidate) AgentOutputQualityGateOptionsNormalizePostConfigure — missing PerAgentTypeFloors dictionary key trim registration; input: agent-type config key with bounding whitespace.
+- (candidate) ScimOptionsNormalizePostConfigure — GroupRoleMappingOverrides keys with bounding whitespace; input: Scim:GroupRoleMappingOverrides key with leading space.
+- (candidate) ConfigurationEmbeddedCredentialMaterialDetector — AccountKey= after path on semicolon-delimited blob URL; input: https://account.blob.core.windows.net/c;AccountKey=secret.
+- (candidate) ConfigurationEffectiveValueResolver — JSON array effective value with null string elements; input: [null,"Password=secret"] on non-sensitive catalog path.- (candidate) `ConfigurationDictionaryBindingKeyNormalizer` batch — remaining configuration-bound dictionaries still lack post-configure trim registration; input: appsettings keys with bounding whitespace on PerAgentTypeFloors / SCIM / AgentPrompts sections.
 - [x] (proven) `ConfigurationKeyRequirement.IsProduction` — `DOTNET_ENVIRONMENT` bound only via environment variable, not `IConfiguration`, when ASP.NET caller environment is unset — **hit 2026-10-21 seed hunt (seed->hit):** read `c["DOTNET_ENVIRONMENT"]` after env vars when resolving WhenProduction; regression `ConfigurationKeyRequirement_WhenProduction_uses_dotnet_environment_from_configuration_when_caller_env_unset`. [class:state-machine-gap]
 - [x] (invalid) `AzureOpenAiEndpointNormalizer` — `notopenai.azure.com` typo host — `EndsWith(".openai.azure.com")` requires a leading dot before `openai`; hostname does not match.
 - [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — scheme-less values still scan first `@` for `user:pass@` userinfo; query-only `@` without leading userinfo is not ADO.NET connection-string shape.
