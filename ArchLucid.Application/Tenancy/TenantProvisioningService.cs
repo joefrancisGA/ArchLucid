@@ -167,6 +167,14 @@ public sealed class TenantProvisioningService(
                 .ConfigureAwait(false);
         }
 
+        TenantRecord? tenantBeforeProvisionedAudit =
+            await _tenantRepository.GetByIdAsync(tenantId, ct).ConfigureAwait(false);
+
+        if (IsErasureQuarantine(tenantBeforeProvisionedAudit))
+        {
+            return BuildErasureQuarantineProvisionResult(tenantId, workspaceId, projectId);
+        }
+
         string actor = string.IsNullOrWhiteSpace(request.AuditActorOverride) ? _actorContext.GetActor() : request.AuditActorOverride.Trim();
         await _auditService.LogAsync(
             new AuditEvent

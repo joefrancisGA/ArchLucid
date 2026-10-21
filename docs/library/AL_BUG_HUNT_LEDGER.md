@@ -23,6 +23,7 @@
 - [x] (invalid) `RetrievalIndexingService.IndexDocumentsAsync` / `MaxChunksPerIndexOperation = 0` — **cheap-disproof 2026-10-21 thorough hunt lane C:** `RetrievalEmbeddingCapOptions` documents `0 = unlimited`; `maxChunks > 0` guard only; tests use cap `0` for unlimited batches.
 - [x] (invalid) `GraphRagBoundedNeighborCollector.Collect` / `maxNeighbors = 0` — **cheap-disproof 2026-10-21 thorough hunt lane C:** `Math.Max(1, maxNeighbors)` is intentional minimum expansion (TB-597); zero-as-disabled not a product contract.
 - [x] (valid-no-repro) `InMemoryVectorIndex.RemoveChunkIdsAsync` — chunk-id-only delete — **cheap-disproof 2026-10-21 thorough hunt lane C:** stale cleanup uses `{documentId}-chunk-{ordinal}` from scoped indexing; cross-scope collision not established (`IndexDocumentsAsync_when_content_shrinks_*`).
+2026-10-21 seed hunt (seed->hit): `application-tenancy-lifecycle` — `TenantProvisioningService.ProvisionAsync` appended `TenantProvisioned` platform audit after default policy pack seed without pre-audit erasure re-read; regression `ProvisionAsync_returns_without_platform_audit_when_offboard_completes_after_policy_pack_seed_before_audit`; reseeded five `(candidate)` rows; 236 scoped tenancy tests passed.
 
 2026-10-21 thorough hunt (hit, lane B): `ui-infra-resource-hub` — lock `ui-infra-resource-hub` pushed and verified on `origin/bugsmash` before work; selected least-recent unlocked beta-reachable zone with open `(candidate)` rows (`2026-10-21T15:01:14Z` per run log), skipping zones hunted in the last hour (e.g. `ui-operator-routes`, `ui-form-validation`) and `infra-evidence-diagrams` lock; promoted reachable `sanitizeResourceHubQueryForTab` — `infraResourceHubTechnicalKey=armResourcePath` (and `cloudResourceId`) survived tab-bar navigation away from overview while terraform-only keys were already stripped; strip overview-only technical keys outside overview tab; unit regression `drops overview-only technical disclosure keys when leaving overview tab` + `clears overview arm path technical disclosure key when switching away from overview tab`; cheap-disproof closed four sibling `(candidate)` rows (RBAC/network React row keys are static-list reconciliation edges without reachable wrong-outcome on initial render; audit control picker already keyed by snapshot+control with regressions for duplicate `controlId`; `resourceTitle` uses decoded route `cloudResourceId` only as fallback when hub names absent — encoded-slash segment is routing concern); seeded five follow-on `(candidate)` rows; scoped `infra-evidence-hub-tab-query` + `ResourceHubClient` vitest 55/55; lock released after push.
 
@@ -43074,11 +43075,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 122
-- **bugs-found:** 107
+- **hunts:** 123
+- **bugs-found:** 108
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - post-preseed trial signup metric erasure guard
+- **last-bug:** 2026-10-21 - pre-audit provision guard after policy pack seed
 
 2026-10-13 seed hunt (seed→hit): reseeded catalog migration after offboard-before-insert fix; proved `CompleteAsync` closed migration when tenant entered erasure quarantine after verification; re-read before `CompleteAsync`; regression `CompleteAsync_returns_in_erasure_quarantine_when_offboarded_before_complete`; 170 scoped tenancy tests passed.
 
@@ -43610,6 +43611,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - [x] (proven) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — post-audit `RecordTrialExpiration` without erasure re-read — **hit 2026-10-21 thorough hunt:** regression `TryAdvanceTenantAsync_skips_expiration_metric_when_offboard_completes_after_audit_before_metric`. [class:state-machine-gap]
 
+- [x] (proven) `TenantProvisioningService.ProvisionAsync` — `TenantProvisioned` audit when erasure offboard after `EnsureDefaultPolicyPacksAsync` — **hit 2026-10-21 seed hunt (seed->hit):** pre-audit `GetByIdAsync` quarantine guard; regression `ProvisionAsync_returns_without_platform_audit_when_offboard_completes_after_policy_pack_seed_before_audit`. [class:state-machine-gap]
+
+- (candidate) `TenantProvisioningService.ProvisionAsync` — `tenant_settings` nav defaults upsert when erasure offboard completes after policy pack seed but before `UpsertAsync` — locus: post-`EnsureDefaultPolicyPacksAsync` settings writes; input: `/v1/register` greenfield provision races operator erasure offboard.
+- (candidate) `TenantWorkspaceScopeGuard.RequireTenantAndWorkspaceAsync` — returns `Success` for tenant rows with `OffboardedUtc` set — locus: guard checks existence only; input: scoped policy-pack HTTP facade during erasure quarantine maintenance window.
+- (candidate) `TenantCatalogMigrationOrchestrator.CompleteAsync` — `AppendPlatformAuditAsync` for migration complete when offboard after repository `CompleteAsync` — locus: `VerifyComplete.cs` complete path; input: catalog migration complete API after verification pass races erasure offboard.
+- (candidate) `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` — `RecordTrialSignupFailure` after `TrialSignupFailed` audit when offboard completes between failure metric and audit in catch — locus: catch block ordering; input: trial bootstrap exception during commit races erasure offboard.
+- (candidate) `TenantMigrationStatusService.BuildSnapshotAsync` — active migration stage surfaced for tenant in erasure quarantine without `InErasureQuarantine` flag — locus: status snapshot assembly; input: operator migration status panel while tenant offboarded mid-migration.
 ## Zone: host-core-coordination
 
 - **id:** host-core-coordination
