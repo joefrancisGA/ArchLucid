@@ -13,6 +13,8 @@ const searchParamsMock = vi.hoisted(() => ({
 }));
 
 const routerReplaceMock = vi.hoisted(() => vi.fn());
+const pathnameMock = vi.hoisted(() => ({ value: "/architecture/reviews/run-a" }));
+const commitHrefIfChangedMock = vi.hoisted(() => vi.fn(() => true));
 
 const elicitationMock = vi.hoisted(() => ({
   value: {
@@ -46,8 +48,24 @@ vi.mock("@/components/WorkspaceModeProvider", () => ({
 vi.mock("next/navigation", () => ({
   useSearchParams: () => searchParamsMock.value,
   useRouter: () => ({ push: vi.fn(), replace: routerReplaceMock }),
-  usePathname: () => "/architecture/reviews/run-a",
+  usePathname: () => pathnameMock.value,
 }));
+
+vi.mock("@/lib/navigation/replace-if-href-changed", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/navigation/replace-if-href-changed")>();
+
+  return {
+    ...actual,
+    commitHrefIfChanged: (
+      nextHref: string,
+      options?: { readonly notify?: boolean },
+    ): boolean => {
+      commitHrefIfChangedMock(nextHref, options);
+
+      return actual.commitHrefIfChanged(nextHref, options);
+    },
+  };
+});
 
 vi.mock("@/hooks/use-review-presenter-elicitation", () => ({
   useReviewPresenterElicitation: () => elicitationMock.value,
@@ -78,6 +96,8 @@ describe("RunDetailPresenterElicitationBridge (FD-01)", () => {
     workspaceModeMock.isWorkingMode = true;
     workspaceModeMock.mode = "working";
     routerReplaceMock.mockReset();
+    commitHrefIfChangedMock.mockClear();
+    pathnameMock.value = "/architecture/reviews/run-a";
     searchParamsMock.value = new URLSearchParams("reviewTab=overview&presenter=1");
     window.history.replaceState({}, "", "/architecture/reviews/run-a?reviewTab=overview&presenter=1");
     elicitationMock.value = {
@@ -297,6 +317,48 @@ describe("RunDetailPresenterElicitationBridge (FD-01)", () => {
     expect(screen.getByTestId("review-room-enter")).toHaveTextContent("Room on");
     expect(window.location.search).toContain("roomElicitation=1");
     expect(screen.getByTestId("review-room-elicitation-panel")).toBeInTheDocument();
+  });
+
+  it("writes presenterQuestionId from the router query when runId changes before window.location.search catches up", () => {
+    searchParamsMock.value = new URLSearchParams(
+      "reviewTab=overview&presenter=1&presenterQuestionId=latency",
+    );
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-a?reviewTab=overview&presenter=1&presenterQuestionId=latency",
+    );
+
+    const { rerender } = render(
+      <RunDetailPresenterElicitationBridge
+        runId={RUN_ID}
+        architectureRequestId="draft-1"
+        panels={panels}
+      />,
+    );
+
+    commitHrefIfChangedMock.mockClear();
+
+    pathnameMock.value = "/architecture/reviews/run-b";
+    searchParamsMock.value = new URLSearchParams("reviewTab=overview&presenter=1");
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-a?reviewTab=overview&presenter=1&presenterQuestionId=latency",
+    );
+
+    rerender(
+      <RunDetailPresenterElicitationBridge
+        runId="run-b"
+        architectureRequestId="draft-1"
+        panels={panels}
+      />,
+    );
+
+    expect(commitHrefIfChangedMock).toHaveBeenCalledWith(
+      "/architecture/reviews/run-b?reviewTab=overview&presenter=1&presenterQuestionId=latency",
+      { notify: false },
+    );
   });
 
   it("does not show elicitation chrome when neither presenter nor room flag is set", () => {

@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useSearchParams } from "next/navigation";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 
 import { ReviewPresenterElicitationActions } from "@/components/reviews/ReviewPresenterElicitationActions";
 import {
@@ -25,10 +25,11 @@ import {
   readRoomElicitationFromSearchParams,
 } from "@/lib/reviews/review-room-elicitation-url";
 import {
-  readReviewPresenterQuestionIdFromWindowLocation,
+  REVIEW_PRESENTER_QUESTION_ID_PARAM,
+  parseReviewPresenterQuestionIdFromSearch,
   reviewPresenterElicitationHrefFromSearch,
 } from "@/lib/reviews/review-presenter-elicitation-url";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import { cn } from "@/lib/utils";
 
 export type RunDetailPresenterElicitationBridgeProps = ReviewDetailWorkspaceProps & {
@@ -61,6 +62,13 @@ export function RunDetailPresenterElicitationBridge(
   const searchParams = useSearchParams();
   const searchParamPresenterMode = readPresenterModeFromSearchParams(searchParams);
   const searchParamRoomElicitationMode = readRoomElicitationFromSearchParams(searchParams);
+  const searchParamPresenterQuestionId = useMemo(
+    () =>
+      parseReviewPresenterQuestionIdFromSearch(
+        searchParams.get(REVIEW_PRESENTER_QUESTION_ID_PARAM),
+      ),
+    [searchParams],
+  );
   const { isWorkingMode } = useWorkspaceMode();
   const [presenterMode, setPresenterModeState] = useState(
     () => readPresenterModesFromWindowLocation().presenterMode,
@@ -148,6 +156,10 @@ export function RunDetailPresenterElicitationBridge(
   }, [isWorkingMode, roomElicitationMode, resolvedParentArchitectureId, workspaceProps.runId]);
 
   useEffect(() => {
+    syncedPresenterQuestionIdRef.current = null;
+  }, [workspaceProps.runId]);
+
+  useEffect(() => {
     if (!showElicitation) {
       syncedPresenterQuestionIdRef.current = null;
 
@@ -158,13 +170,18 @@ export function RunDetailPresenterElicitationBridge(
       return;
     }
 
+    if (!presenterMode) {
+      return;
+    }
+
     const nextQuestionId = primaryQuestionKey.trim().length > 0 ? primaryQuestionKey : null;
 
     if (syncedPresenterQuestionIdRef.current === nextQuestionId) {
       return;
     }
 
-    const urlQuestionId = readReviewPresenterQuestionIdFromWindowLocation();
+    // Next.js client navigations update useSearchParams before window.location.search catches up.
+    const urlQuestionId = searchParamPresenterQuestionId;
 
     if (urlQuestionId === (nextQuestionId ?? "")) {
       syncedPresenterQuestionIdRef.current = nextQuestionId;
@@ -174,10 +191,19 @@ export function RunDetailPresenterElicitationBridge(
 
     syncedPresenterQuestionIdRef.current = nextQuestionId;
     commitHrefIfChanged(
-      reviewPresenterElicitationHrefFromSearch(readWindowLocationSearch(), nextQuestionId, pathname),
+      reviewPresenterElicitationHrefFromSearch(searchParams.toString(), nextQuestionId, pathname),
       { notify: false },
     );
-  }, [pathname, primaryQuestionKey, resolvedParentArchitectureId, showElicitation]);
+  }, [
+    pathname,
+    primaryQuestionKey,
+    resolvedParentArchitectureId,
+    presenterMode,
+    searchParamPresenterQuestionId,
+    searchParams,
+    showElicitation,
+    workspaceProps.runId,
+  ]);
 
   const presenterFindingTitle = showPresenterSurface ? elicitation.title : undefined;
 
