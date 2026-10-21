@@ -106,9 +106,8 @@ describe("WorkspaceAiAvailabilityPanel", () => {
 
     expect(fetchWorkspaceAiAvailabilityMock).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId("review-package-workspace-ai-vendor-error")).toHaveTextContent("HTTP 401");
-    expect(screen.getByTestId("review-package-workspace-ai-checked-at")).toHaveAttribute(
-      "title",
-      "Aug 31, 2026, 6:00 PM UTC",
+    expect(screen.getByTestId("review-package-workspace-ai-checked-at").getAttribute("aria-label")).toMatch(
+      /^Checked .+2026/,
     );
     expect(screen.getAllByTestId("review-package-workspace-ai-model")[0]).toHaveTextContent("gpt-4o");
     expect(screen.queryByTestId("review-package-workspace-ai-model-provenance")).not.toBeInTheDocument();

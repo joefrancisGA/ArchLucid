@@ -118,6 +118,8 @@ describe("review pipeline in-flight keyboard triage (PC-08)", () => {
     expect(screen.getAllByTestId("review-in-pipeline-banner").length).toBeGreaterThan(0);
     expect(screen.getAllByTestId("review-in-pipeline-working-background-helper").length).toBeGreaterThan(0);
 
+    fireEvent.click(screen.getByTestId("review-detail-workspace-tab-findings"));
+
     const first = screen.getByTestId(`finding-card-${FINDING_IDS[0]}`);
     const second = screen.getByTestId(`finding-card-${FINDING_IDS[1]}`);
 

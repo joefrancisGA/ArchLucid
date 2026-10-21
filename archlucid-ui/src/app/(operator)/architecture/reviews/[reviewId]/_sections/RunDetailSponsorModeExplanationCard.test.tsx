@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
@@ -124,6 +124,9 @@ describe("RunDetailSponsorModeExplanationCard", () => {
       />,
     );
 
-    expect(screen.getByText("Citations not returned")).toBeInTheDocument();
+    const evidenceBasisBlock = screen.getByText("Evidence basis").closest("div");
+
+    expect(evidenceBasisBlock).not.toBeNull();
+    expect(within(evidenceBasisBlock as HTMLElement).getByText("Citations not returned")).toBeInTheDocument();
   });
 });

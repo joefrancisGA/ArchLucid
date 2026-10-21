@@ -101,9 +101,9 @@ describe("ReviewDetailSiblingInFlightQueue (FD-04)", () => {
     render(<ReviewDetailSiblingInFlightQueue runId="run-a" />);
 
     expect(screen.getByTestId("review-detail-sibling-in-flight-empty")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /open the reviews hub/i })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /open architectures/i })).toHaveAttribute(
       "href",
-      "/architecture/reviews",
+      "/architecture/architectures",
     );
   });
 

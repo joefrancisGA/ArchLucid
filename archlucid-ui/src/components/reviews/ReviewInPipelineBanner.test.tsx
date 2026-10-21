@@ -1,9 +1,10 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ReviewDetailWorkspace } from "@/components/reviews/ReviewDetailWorkspace";
 import { ReviewInPipelineBanner } from "@/components/reviews/ReviewInPipelineBanner";
 import type { RunSummary } from "@/types/authority";
+import { PROFESSIONAL_WORKBENCH_STORAGE_KEY } from "@/lib/workspace-mode/professional-workbench-preference";
 
 const pushMock = vi.fn();
 const replaceMock = vi.fn();
@@ -15,6 +16,9 @@ const workspaceModeMock = vi.hoisted(() => ({
   setAndPersist: vi.fn(),
 }));
 const openInFlightSpy = vi.fn();
+const searchParamsMock = vi.hoisted(() => ({
+  value: new URLSearchParams("reviewTab=findings"),
+}));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
@@ -22,7 +26,7 @@ vi.mock("next/navigation", () => ({
     replace: replaceMock,
   }),
   usePathname: () => "/architecture/reviews/run-abc",
-  useSearchParams: () => new URLSearchParams("reviewTab=findings"),
+  useSearchParams: () => searchParamsMock.value,
 }));
 
 vi.mock("@/components/WorkspaceModeProvider", () => ({
@@ -114,6 +118,12 @@ describe("ReviewInPipelineBanner (TB-2385)", () => {
 });
 
 describe("ReviewDetailWorkspace in-pipeline banner (TB-2385)", () => {
+  beforeEach(() => {
+    window.localStorage.setItem(PROFESSIONAL_WORKBENCH_STORAGE_KEY, "0");
+    searchParamsMock.value = new URLSearchParams("reviewTab=findings");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?reviewTab=findings");
+  });
+
   const panels = {
     overview: <div data-testid="panel-overview">Overview</div>,
     findings: <div data-testid="panel-findings">Findings panel</div>,
@@ -125,14 +135,25 @@ describe("ReviewDetailWorkspace in-pipeline banner (TB-2385)", () => {
     activity: <div data-testid="panel-activity">Activity</div>,
   };
 
-  it("shows banner on findings tab but not activity when provided", () => {
+  it("shows banner on findings tab but not activity when provided", async () => {
     render(
       <ReviewDetailWorkspace
         runId="run-abc"
+        tabLifecycle={{
+          manifestId: null,
+          showProgressTracker: false,
+          runCompleted: false,
+        }}
         panels={panels}
         inPipelineBanner={<ReviewInPipelineBanner runId="run-abc" initialSummary={inPipelineSummary} />}
       />,
     );
+
+    fireEvent.click(screen.getByRole("tab", { name: /Findings/i }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("review-detail-workspace-panel-findings")).not.toHaveAttribute("hidden");
+    });
 
     expect(
       within(screen.getByTestId("review-detail-workspace-panel-findings")).getByTestId(

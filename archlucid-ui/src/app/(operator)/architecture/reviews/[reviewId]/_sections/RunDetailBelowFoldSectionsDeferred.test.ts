@@ -32,8 +32,8 @@ describe("RunDetailBelowFoldSectionsDeferred", () => {
   it("keeps timelines-bundle on the server instead of a client dynamic chunk", () => {
     const wrapperSource = readSectionSource("RunDetailBelowFoldSectionsDeferred.tsx");
     const deferredChunksSource = readDeferredChunkFamilySource();
-    const pageViewSource = readSectionSource("RunDetailPageView.tsx");
-    const tabbedWorkspaceSource = readSectionSource("RunDetailTabbedWorkspace.tsx");
+    const pageViewCommittedSource = readSectionSource("RunDetailPageViewCommitted.tsx");
+    const tabbedWorkspaceResolveSource = readSectionSource("resolve-run-detail-tabbed-workspace.tsx");
 
     expect(wrapperSource.trimStart().startsWith('"use client"')).toBe(false);
     expect(wrapperSource).not.toMatch(/from ["']next\/dynamic["']/);
@@ -41,9 +41,9 @@ describe("RunDetailBelowFoldSectionsDeferred", () => {
     expect(wrapperSource).toContain("RunDetailBelowFoldSections");
     expect(deferredChunksSource).not.toContain('"run-detail-below-fold"');
     expect(deferredChunksSource).not.toContain("RunDetailBelowFoldSectionsDeferred");
-    expect(pageViewSource).toContain('./RunDetailBelowFoldSectionsDeferred"');
-    expect(tabbedWorkspaceSource).toContain("RunDetailBelowFoldSectionsDeferred");
-    expect(pageViewSource).not.toContain('./RunDetailBelowFoldSections"');
-    expect(tabbedWorkspaceSource).not.toContain('./RunDetailBelowFoldSections"');
+    expect(pageViewCommittedSource).toContain('./RunDetailBelowFoldSectionsDeferred"');
+    expect(tabbedWorkspaceResolveSource).toContain("RunDetailBelowFoldSectionsDeferred");
+    expect(pageViewCommittedSource).not.toContain('./RunDetailBelowFoldSections"');
+    expect(tabbedWorkspaceResolveSource).not.toContain('./RunDetailBelowFoldSections"');
   });
 });

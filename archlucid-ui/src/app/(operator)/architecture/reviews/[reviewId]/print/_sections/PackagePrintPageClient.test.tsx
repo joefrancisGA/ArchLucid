@@ -1,10 +1,10 @@
-import { render } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { render, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PackagePrintPageClient } from "@/app/(operator)/architecture/reviews/[reviewId]/print/_sections/PackagePrintPageClient";
 import { SESSION_LAST_ACTIVITY_STORAGE_KEY } from "@/lib/auth/session-idle-timeout";
-
-const ensureAccessTokenFreshMock = vi.hoisted(() => vi.fn(async () => undefined));
+import * as bffSessionSync from "@/lib/oidc/bff-session-sync";
+import * as oidcSession from "@/lib/oidc/session";
 
 vi.mock("@/hooks/use-run-summary-query", () => ({
   useRunSummaryQuery: () => ({
@@ -29,20 +29,23 @@ vi.mock("@/hooks/use-package-print-meeting-capture-query", () => ({
   }),
 }));
 
-vi.mock("@/lib/oidc/session", () => ({
-  ensureAccessTokenFresh: ensureAccessTokenFreshMock,
-}));
-
 describe("PackagePrintPageClient (LI-14)", () => {
   beforeEach(() => {
     window.localStorage.clear();
-    ensureAccessTokenFreshMock.mockClear();
+    vi.spyOn(oidcSession, "ensureAccessTokenFresh").mockResolvedValue(undefined);
+    vi.spyOn(bffSessionSync, "pulseBffSessionActivity").mockResolvedValue("ok");
   });
 
-  it("writes shared session activity on mount for cross-tab idle keep-alive", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("writes shared session activity on mount for cross-tab idle keep-alive", async () => {
     render(<PackagePrintPageClient runId="run-print-1" />);
 
     expect(window.localStorage.getItem(SESSION_LAST_ACTIVITY_STORAGE_KEY)).not.toBeNull();
-    expect(ensureAccessTokenFreshMock).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(oidcSession.ensureAccessTokenFresh).toHaveBeenCalled();
+    });
   });
 });

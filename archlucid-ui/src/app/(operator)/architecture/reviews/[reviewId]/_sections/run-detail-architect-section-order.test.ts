@@ -20,6 +20,7 @@ const workspaceSource = `${pageViewSource}\n${tabbedWorkspaceSource}`;
 
 // Evidence deliverables mount via composeRunDetailEvidenceTab (not inline in tabbed workspace).
 const evidenceTabCompositionSource = readRegisteredSource("run-detail-evidence-tab-composition");
+const activityTabCompositionSource = readRegisteredSource("run-detail-activity-tab-composition");
 const tabOwnedSectionSource = `${workspaceSource}\n${evidenceTabCompositionSource}`;
 
 describe("run-detail-architect-section-order (TB-620)", () => {
@@ -54,7 +55,7 @@ describe("run-detail-architect-section-order (TB-620)", () => {
   });
 
   it("tells the tabbed workspace's below-fold block that tabs own those sections", () => {
-    expect(tabbedWorkspaceSource).toContain("renderedInsideTabbedWorkspace");
+    expect(activityTabCompositionSource).toContain("renderedInsideTabbedWorkspace");
     // Superseded by renderedInsideTabbedWorkspace, which covers all four tab-owned sections.
     expect(workspaceSource).not.toContain("skipArtifactsExports");
     expect(belowFoldSource).not.toContain("skipArtifactsExports");
