@@ -5972,3 +5972,4 @@
 {"at":"2026-10-21T16:47:12.8105688Z","zoneId":"infra-evidence-diagrams","outcome":"hit","productLine":"securenow","paths":["@(ArchLucid.Application/InfraEvidence/Mermaid/,archlucid-ui/src/lib/infra-evidence/)"]}
 {"at":"2026-10-21T16:45:38.6929246Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T16:50:44.3024986Z","zoneId":"ui-operator-routes","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/policy/policy-pack-selection-url.ts"],"defectClass":"state-machine-gap"}
+{"at":"2026-10-21T16:52:23.4535338Z","zoneId":"infra-evidence-diagrams","outcome":"dry","productLine":"securenow","paths":["@(ArchLucid.Application/InfraEvidence/Mermaid/)"]}
