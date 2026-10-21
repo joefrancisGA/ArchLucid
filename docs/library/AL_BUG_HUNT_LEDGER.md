@@ -16390,13 +16390,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** persistence billing stripe; stripe wallet integration; stripe billing persistence
 - **paths:** ArchLucid.Persistence/Billing/Stripe/; ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/Wallet/LlmTenantWalletConsumeStage.cs
 - **test-filter:** FullyQualifiedName~StripeWalletPaymentIdentifierGuard|FullyQualifiedName~UpdateWalletAsync_rejects_stripe_customer_id_that_guard_blocks
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — wallet PUT accepted foreign Stripe customer/payment-method ids for auto-refill
+- **last-bug:** 2026-10-21 — auto-refill charged without re-validating persisted Stripe ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-21 follow-up hunt (hit, lane C): auto-refill `TryAutoRefillAsync` now re-runs `IStripeWalletPaymentIdentifierGuard` on persisted Stripe ids before `ChargeRefillAsync`, logging `LlmWalletRefillFailed` with decline code `payment_identifier_guard` and skipping Stripe when legacy rows fail validation. Regression `TryAutoRefillAsync_skips_stripe_charge_when_persisted_identifiers_fail_guard`; 29 scoped wallet tests passed.
 
 2026-10-21 thorough hunt (hit, lane C): lock verified on origin; promoted cross-tenant wallet PUT Stripe identifier abuse — `PUT /v1/billing/wallet` could persist another tenant's `StripeCustomerId`/`StripePaymentMethodId` from a direct API call, so auto-refill (`StripeWalletGateway.ChargeRefillAsync`) could charge a victim customer while crediting the caller tenant. Added `IStripeWalletPaymentIdentifierGuard` + `StripeWalletPaymentIdentifierGuard` (linked customer from billing ledger + Stripe payment-method attachment check) and `IStripeLinkedCustomerResolver` shared with portal checkout; wallet updates fail closed when identifiers do not match the tenant-linked customer. Regressions `UpdateWalletAsync_rejects_stripe_customer_id_that_guard_blocks`, `AllowsWalletUpdate_false_when_customer_id_differs_from_linked_customer`. 28 Application wallet tests + 2 guard tests passed.
 

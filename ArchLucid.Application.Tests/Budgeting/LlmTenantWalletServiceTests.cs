@@ -259,6 +259,53 @@ public sealed class LlmTenantWalletServiceTests
     }
 
     [SkippableFact]
+    public async Task TryAutoRefillAsync_skips_stripe_charge_when_persisted_identifiers_fail_guard()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                AutoReplenishEnabled = true,
+                MonthlyCapUsd = 100m,
+                StripeCustomerId = "cus_legacy_foreign",
+                StripePaymentMethodId = "pm_legacy_foreign",
+            },
+            CancellationToken.None);
+
+        await repository.TryCreditRefillAsync(tenantId, 0m, Guid.NewGuid(), null, int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")), [], cancellationToken: CancellationToken.None);
+
+        Mock<IStripeWalletPaymentIdentifierGuard> guard = new();
+        guard
+            .Setup(g => g.AllowsWalletUpdateAsync(
+                tenantId,
+                "cus_legacy_foreign",
+                "pm_legacy_foreign",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        Mock<IStripeWalletGateway> stripe = new();
+
+        LlmTenantWalletService service = CreateService(repository, stripe.Object, stripePaymentIdentifierGuard: guard.Object);
+
+        bool refilled = await service.TryAutoRefillAsync(tenantId, Guid.NewGuid(), CancellationToken.None);
+
+        refilled.Should().BeFalse();
+        stripe.Verify(
+            s => s.ChargeRefillAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<decimal>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
     public async Task TryAutoRefillAsync_credits_wallet_when_stripe_succeeds()
     {
         InMemoryLlmTenantWalletRepository repository = new();
@@ -1061,15 +1108,16 @@ public sealed class LlmTenantWalletServiceTests
         audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         TimeProvider resolvedTimeProvider = timeProvider ?? TimeProvider.System;
+        IStripeWalletPaymentIdentifierGuard guard = stripePaymentIdentifierGuard ?? new AllowAllStripeWalletPaymentIdentifierGuard();
+
         LlmTenantWalletRefillStage refillStage = new(
             repository,
             stripeGateway,
+            guard,
             audit.Object,
             resolvedTimeProvider,
             settlementQueue,
             NullLogger<LlmTenantWalletRefillStage>.Instance);
-
-        IStripeWalletPaymentIdentifierGuard guard = stripePaymentIdentifierGuard ?? new AllowAllStripeWalletPaymentIdentifierGuard();
 
         return new LlmTenantWalletService(
             new LlmTenantWalletConsumeStage(repository, settlementQueue, guard, NullLogger<LlmTenantWalletConsumeStage>.Instance),
