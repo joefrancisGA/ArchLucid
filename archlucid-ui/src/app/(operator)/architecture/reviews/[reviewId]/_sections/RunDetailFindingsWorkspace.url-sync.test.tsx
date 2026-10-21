@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { createElement, useSyncExternalStore, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -87,6 +87,44 @@ describe("RunDetailFindingsWorkspace URL sync", () => {
     searchParamsHarness.reset();
     resetReviewFindingsLastVisitRestoreStateForTests();
     window.history.replaceState({}, "", "/architecture/reviews/run-1?reviewTab=findings");
+  });
+
+  it("writes classification band from useSearchParams when window.location.search lags after soft navigation", async () => {
+    const findings = [
+      finding({
+        findingId: "f-checklist",
+        classification: "ChecklistFinding",
+        severityValue: 1,
+        findingOrder: 0,
+      }),
+    ];
+
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-1?reviewTab=findings&q=stale-payment",
+    );
+
+    const { rerender } = render(
+      <SearchParamsRerenderHost>
+        <RunDetailFindingsWorkspace runId="run-1" findings={findings} packageCommitted={true} />
+      </SearchParamsRerenderHost>,
+    );
+
+    searchParamsHarness.applyQuery("reviewTab=findings");
+    rerender(
+      <SearchParamsRerenderHost>
+        <RunDetailFindingsWorkspace runId="run-1" findings={findings} packageCommitted={true} />
+      </SearchParamsRerenderHost>,
+    );
+
+    fireEvent.click(screen.getByTestId("run-detail-findings-band-checklist"));
+
+    await waitFor(() => {
+      expect(window.location.pathname + window.location.search).toBe(
+        `/architecture/reviews/run-1?reviewTab=findings&${REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM}=checklist`,
+      );
+    });
   });
 
   it("follows findingsBand query changes without a popstate event", async () => {
