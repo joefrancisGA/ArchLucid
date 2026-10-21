@@ -1,5 +1,6 @@
 using System.Text;
 
+using ArchLucid.Application.Findings;
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
@@ -152,7 +153,9 @@ public sealed partial class GovernanceDigestDecisionNeededComposer(
                 decisionNeeded.AppendLine($"- `{reviewEvent.FindingId}` — due {reviewEvent.RevisitDueUtc:u}");
         }
 
-        int remediatedCount = recent.Count(e => e.Disposition == Disposition.Remediated);
+        int remediatedCount = CrossReviewLatestDispositionMap
+            .SelectLatestEvents(recent)
+            .Count(static reviewEvent => reviewEvent.Disposition == Disposition.Remediated);
 
         if (remediatedCount > 0)
         {

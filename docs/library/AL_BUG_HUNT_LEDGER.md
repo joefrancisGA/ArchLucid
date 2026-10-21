@@ -1,3 +1,7 @@
+2026-10-21 seed hunt (seed→hit, lane C): `application-governance-policy` — lock `application-governance-policy` pushed and verified on `origin/bugsmash` before work (skipped picker top `core-configuration-summary` already hit today; avoided lane B `api-null-collection-properties`); promoted hunt-ready `GovernanceDigestDecisionNeededComposer.BuildDecisionNeededMarkdownAsync` FYI remediated counter — raw 30-day trail counted every `Remediated` event, so a finding reopened to `NeedsEvidence` still inflated FYI copy; latest-per-finding via `CrossReviewLatestDispositionMap.SelectLatestEvents`; regression `BuildDecisionNeededMarkdownAsync_fyi_remediated_count_ignores_superseded_remediated_events`; scoped `FullyQualifiedName~GovernanceDigestDecisionNeededComposerTests` 5/5 (`RunAnalyzers=false`).
+
+- [x] (proven) `GovernanceDigestDecisionNeededComposer.BuildDecisionNeededMarkdownAsync` — FYI remediated count ignored superseded Remediated rows — **hit 2026-10-21 seed hunt lane C:** latest-disposition parity with decisions-needed summary; regression above.
+
 2026-10-21 seed hunt (seed→hit, lane C): `ui-auth-proxy` — lock `ui-auth-proxy` pushed and verified on `origin/bugsmash` before work (skipped picker top `core-configuration-summary` already hit today; `api-authority-admin-controllers` locked by another lane); promoted hunt-ready `validateInvitationToken` — HTTP 429 from `/api/proxy/v1/auth/invitations/validate` threw generic `Error("invitation_validation_failed")`, so `InvitationAcceptPageClient` never saw `ApiRequestError.retryAfterSeconds` and showed generic validation-failed copy instead of capped retry guidance (TB-1474); `buildApiRequestErrorFromParts` preserves status + `Retry-After`; regression `throws ApiRequestError with Retry-After on HTTP 429 so invite recovery can show the capped window`; cheap-disproof closed five open `(candidate)` rows at zone head; scoped invitation-validation + auth/proxy vitest 348 passed (3 unrelated baseline seam failures).
 
 - [x] (proven) `validateInvitationToken` — HTTP 429 mapped to generic Error drops Retry-After for invite recovery UI — **hit 2026-10-21 seed hunt lane C:** `buildApiRequestErrorFromParts`; regression above.
@@ -42553,7 +42557,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **hunts:** 40
 - **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-09
+- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-09 — digest kept superseded NeedsEvidence and Deferred review events
 - **related-pd-tb:** none
 - **code-changed-since:** yes

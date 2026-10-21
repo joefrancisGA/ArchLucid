@@ -5913,3 +5913,4 @@
 {"at":"2026-10-21T14:17:37.4625011Z","zoneId":"api-authority-admin-controllers","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T14:18:10.8657903Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T14:24:21.7090002Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Configuration/"]}
+{"at":"2026-10-21T14:28:29.2282102Z","zoneId":"application-governance-policy","outcome":"hit","productLine":"archlucid-shared"}
