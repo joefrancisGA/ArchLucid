@@ -593,7 +593,7 @@ internal static partial class RunExplanationAggregateJsonReader
                     if (CitationArrayItemIsDuplicateAliasPoison(item, applyTrailingDuplicateArrayPoison))
                         continue;
 
-                    if (!string.IsNullOrWhiteSpace(TryReadEvidenceRefObjectStringProperty(item, allowIdWhenBlankTextKeyPresent: false)))
+                    if (!string.IsNullOrWhiteSpace(TryReadEvidenceRefObjectStringProperty(item)))
                         return true;
                 }
                 else if (ObjectPropertyValueIsNonEmpty(
@@ -751,7 +751,7 @@ internal static partial class RunExplanationAggregateJsonReader
         }
 
         if (item.ValueKind == JsonValueKind.Object
-            && !string.IsNullOrWhiteSpace(TryReadEvidenceRefObjectStringProperty(item, allowIdWhenBlankTextKeyPresent: false)))
+            && !string.IsNullOrWhiteSpace(TryReadEvidenceRefObjectStringProperty(item)))
         {
             return true;
         }
@@ -776,7 +776,7 @@ internal static partial class RunExplanationAggregateJsonReader
             }
 
             if (item.ValueKind == JsonValueKind.Object
-                && !string.IsNullOrWhiteSpace(TryReadEvidenceRefObjectStringProperty(item, allowIdWhenBlankTextKeyPresent: false)))
+                && !string.IsNullOrWhiteSpace(TryReadEvidenceRefObjectStringProperty(item)))
             {
                 return true;
             }
@@ -1355,7 +1355,7 @@ internal static partial class RunExplanationAggregateJsonReader
             return ProseListObjectAliasHasExtractableContent(jsonElement);
 
         if (structuredPropertyName.Equals("citations", StringComparison.OrdinalIgnoreCase))
-            return !string.IsNullOrWhiteSpace(TryReadEvidenceRefObjectStringProperty(jsonElement, allowIdWhenBlankTextKeyPresent: false));
+            return !string.IsNullOrWhiteSpace(TryReadEvidenceRefObjectStringProperty(jsonElement));
 
         if (structuredPropertyName.Equals("confidence", StringComparison.OrdinalIgnoreCase))
             return StructuredExplanationParser.StructuredConfidenceElementHasReadableValue(jsonElement);
@@ -1453,12 +1453,7 @@ internal static partial class RunExplanationAggregateJsonReader
         return null;
     }
 
-    internal static string? TryReadEvidenceRefObjectStringProperty(JsonElement jsonElement) =>
-        TryReadEvidenceRefObjectStringProperty(jsonElement, allowIdWhenBlankTextKeyPresent: true);
-
-    internal static string? TryReadEvidenceRefObjectStringProperty(
-        JsonElement jsonElement,
-        bool allowIdWhenBlankTextKeyPresent)
+    internal static string? TryReadEvidenceRefObjectStringProperty(JsonElement jsonElement)
     {
         string? readableText = null;
 
@@ -1484,11 +1479,10 @@ internal static partial class RunExplanationAggregateJsonReader
         if (readableText is not null)
             return readableText;
 
-        if (!allowIdWhenBlankTextKeyPresent
-            && ObjectHasCaseInsensitiveProperty(jsonElement, "text"))
-        {
+        // Blank `text` with a non-empty `id` is the in-array poison shape; do not fall back to id.
+
+        if (ObjectHasCaseInsensitiveProperty(jsonElement, "text"))
             return null;
-        }
 
         if (readableId is not null)
             return readableId;

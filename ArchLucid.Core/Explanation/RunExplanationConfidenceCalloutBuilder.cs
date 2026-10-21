@@ -260,10 +260,7 @@ public static class RunExplanationConfidenceCalloutBuilder
         if (item.ValueKind != JsonValueKind.Object)
             return 0;
 
-        return string.IsNullOrWhiteSpace(
-                RunExplanationAggregateJsonReader.TryReadEvidenceRefObjectStringProperty(
-                    item,
-                    allowIdWhenBlankTextKeyPresent: false))
+        return string.IsNullOrWhiteSpace(RunExplanationAggregateJsonReader.TryReadEvidenceRefObjectStringProperty(item))
             ? 0
             : 1;
     }
