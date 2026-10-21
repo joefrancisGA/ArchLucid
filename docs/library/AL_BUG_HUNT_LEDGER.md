@@ -1,4 +1,4 @@
-﻿> **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
+> **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
 2026-10-21 seed hunt (seed-only, lane C): `tenant-erasure` — lock pushed before work (replaced mistaken `billing-webhooks` lock; zone hunted today by lane B); re-read `TenantErasureQuarantineMiddleware` and `TenantErasureCommandService`; cheap-disproof closed orphan `(candidate)` idempotent offboard audit after quarantine restore (covered by `CompleteOffboardSideEffectsAsync` post-read + regression `TryOffboardTenantAsync_returns_null_without_audit_when_quarantine_restored_before_idempotent_side_effects`); no new hunt-ready row; Application `TenantErasure` 35/35, Api `TenantErasure` 29/29; seeded three follow-on `(candidate)` rows.
 2026-10-21 seed hunt (seed-only): `host-core-jobs` — lane B; lock `host-core-jobs` pushed before work; re-read `BackgroundJobQueueProcessorHostedService`, `BackgroundJobStuckRunningWatchdogBackgroundWork`, `DurableBackgroundJobQueue`, and `InMemoryBackgroundJobQueue`; cheap-disproof closed five open `(candidate)` rows (stale `MarkPendingRetryAsync` race superseded by 2026-10-12 `IsRunningJobRow` + SQL `Running` guard; exhausted-retry stale reclaim SQL marks `Failed` not `Pending`; enqueue cancel cleanup swallow operational; shutdown backoff `Failed` uses `TryAssignUnlessCanceled`; invalid-payload `RetryCount+1` single-thread prepare snapshot); no hunt-ready promotion for same-run proof; seeded five follow-on `(candidate)` rows; Host.Core scoped filter 77/77; Api picker filter 97 passed (9 `Hosted*Extractor` SQL integration tests unavailable on Linux VM).
 
@@ -41660,6 +41660,10 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 ---
 
 ## Zone: ui-review-detail-workspace
+2026-10-21 seed hunt (seed→hit): promoted `RunDetailEngineProvenanceRow` — `syncOpenToUrl` built hrefs from `readWindowLocationSearch()`, so after cross-review soft navigation expanding Engine & model could write the prior review's findings toolbar query onto the next review when setting `runEngineProvenanceOpen=1`; base href writes on `useSearchParams`; regression `opens engine provenance from useSearchParams when window.location.search lags after soft navigation`; engine provenance url-sync vitest 2/2.
+
+- [x] (proven) `RunDetailEngineProvenanceRow` — stale toolbar params on engine provenance open after soft navigation — **hit 2026-10-21 seed hunt:** `runEngineProvenanceDisclosureHrefFromSearch(searchParams.toString(), …)`; regression above.
+
 2026-10-21 seed hunt (seed→hit): promoted `RunDetailOverviewTransparencyTrail` — `syncDetailsOpenToUrl` built hrefs from `window.location.search`, so after cross-review soft navigation expanding Transparency trail could write the prior review's findings toolbar query onto the next review when setting `transparencyTrailOpen=1`; base href writes on `useSearchParams`; regression `opens transparency trail from useSearchParams when window.location.search lags after soft navigation`; transparency trail url-sync vitest 2/2.
 
 - [x] (proven) `RunDetailOverviewTransparencyTrail` — stale toolbar params on transparency trail open after soft navigation — **hit 2026-10-21 seed hunt:** `transparencyTrailHrefFromSearch(searchParams.toString(), …)`; regression above.
@@ -41788,6 +41792,7 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - (candidate) `RunDetailRunExplanationCollapsible` — run explanation nested disclosures open sync only on `popstate` — locus: run explanation collapsible; input: soft navigation sets disclosure query flags.
 - [x] (proven) `RunDetailPipelineStagesSection` — `runPipelineStagesOpen` ignored on Next.js soft navigation — **hit 2026-10-16 seed hunt:** reconcile stages disclosures from `useSearchParams`; regression `follows runPipelineStagesOpen query changes without a popstate event`. — locus: pipeline stages section; input: soft navigation with stages open query.
 - [x] (proven) `RunDetailOperatorTechnicalDisclosure` — `runTechnicalDetailsOpen` ignored on Next.js soft navigation — **hit 2026-10-16 seed hunt:** reconcile technical details accordion from `useSearchParams`; regression `follows runTechnicalDetailsOpen query changes without a popstate event`. — locus: operator technical disclosure; input: soft navigation with open query param.
+- [x] (proven) `RunDetailEngineProvenanceRow` — stale toolbar params on engine provenance open after soft navigation — **hit 2026-10-21 seed hunt:** `runEngineProvenanceDisclosureHrefFromSearch(searchParams.toString(), …)`; regression `opens engine provenance from useSearchParams when window.location.search lags after soft navigation`.
 - [x] (proven) `RunDetailEngineProvenanceRow` — `runEngineProvenanceOpen` ignored on Next.js soft navigation — **hit 2026-10-16 seed hunt:** reconcile engine provenance disclosure from `useSearchParams`; regression `follows runEngineProvenanceOpen query changes without a popstate event`. — locus: engine provenance row; input: soft navigation with open query param.
 - [x] (proven) `RunDetailOverviewTransparencyTrail` — `transparencyTrailOpen` ignored on Next.js soft navigation — **hit 2026-10-16 seed hunt:** reconcile guided-mode trail disclosure from `useSearchParams`; regression `follows transparencyTrailOpen query changes without a popstate event`. — locus: overview transparency trail; input: soft navigation with trail open query.
 - [x] (proven) `RunDetailFirstScreenProofStatus` — `runDetailFirstScreenProofOpen` ignored on Next.js soft navigation — **hit 2026-10-16 seed hunt:** reconcile proof details disclosure from `useSearchParams`; regression `follows runDetailFirstScreenProofOpen query changes without a popstate event`. — locus: first-screen proof status; input: soft navigation with proof details open query.
@@ -41943,11 +41948,11 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 59
-- **bugs-found:** 50
+- **hunts:** 60
+- **bugs-found:** 51
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — RunDetailOverviewTransparencyTrail transparencyTrailOpen href soft-nav sync
+- **last-bug:** 2026-10-21 — RunDetailEngineProvenanceRow runEngineProvenanceOpen href soft-nav sync
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.

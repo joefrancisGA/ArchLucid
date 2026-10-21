@@ -17,7 +17,7 @@ import {
   parseRunEngineProvenanceOpenFromSearch,
   runEngineProvenanceDisclosureHrefFromSearch,
 } from "@/lib/runs/run-engine-provenance-disclosure-url";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type RunDetailEngineProvenanceRowProps = {
@@ -54,11 +54,11 @@ export function RunDetailEngineProvenanceRow(props: RunDetailEngineProvenanceRow
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
       commitHrefIfChanged(
-        runEngineProvenanceDisclosureHrefFromSearch(readWindowLocationSearch(), detailsOpen, pathname),
+        runEngineProvenanceDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setOpen = useCallback(
