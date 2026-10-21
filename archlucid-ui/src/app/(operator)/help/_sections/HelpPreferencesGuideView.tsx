@@ -17,6 +17,7 @@ import {
 import {
   PREFERENCES_HELP_CHANGES_ITEMS,
   PREFERENCES_HELP_CHANGES_SECTION_TITLE,
+  PREFERENCES_HELP_CLAIM_HEADING_ID,
   PREFERENCES_HELP_GUIDE_HEADINGS,
   PREFERENCES_HELP_HOW_SECTION_TITLE,
   PREFERENCES_HELP_HOW_TO_READ_STEPS,
@@ -28,6 +29,7 @@ import {
   PREFERENCES_HELP_START_HERE_HELPER,
   PREFERENCES_HELP_TILE_ITEMS,
 } from "@/lib/preferences-help-guide-content";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import { PREFERENCES_HELP_CANONICAL_PATH } from "@/lib/preferences-help-evidence-copy";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -68,7 +70,12 @@ function HelpTileList(props: {
 /** Operator preferences orientation for `/help/preferences`. */
 export function HelpPreferencesGuideView(props: HelpPreferencesGuideViewProps): React.ReactElement {
   const { entry } = props;
-  const contentGridClass = resolveHelpPageContentGridClass(PREFERENCES_HELP_GUIDE_HEADINGS.length);
+  const guideHeadings = resolveGuideHeadingsForStrip(
+    "help-preferences",
+    PREFERENCES_HELP_GUIDE_HEADINGS,
+    PREFERENCES_HELP_CLAIM_HEADING_ID,
+  );
+  const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
@@ -153,7 +160,7 @@ export function HelpPreferencesGuideView(props: HelpPreferencesGuideViewProps): 
           </section>
         </div>
 
-        <HelpTopicTableOfContents headings={PREFERENCES_HELP_GUIDE_HEADINGS} enableScrollSpy />
+        <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
       </div>
     </article>
   );
