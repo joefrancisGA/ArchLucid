@@ -208,7 +208,13 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
             if (!symbol.IsAbstract &&
                 !foundPublicApiAction &&
                 (SymbolHasNonPublicRouteAttributedMember(symbol, nonActionAttribute) ||
-                 SymbolHasNonActionRouteMarkedPublicMember(symbol, nonActionAttribute)))
+                 SymbolHasNonActionRouteMarkedPublicMember(symbol, nonActionAttribute) ||
+                 NestedDerivedControllerTypesSatisfyEmptyOuterShell(
+                     symbol,
+                     controllerBase,
+                     authorizeAttribute,
+                     allowAnonymousAttribute,
+                     nonActionAttribute)))
             {
                 return;
             }
@@ -268,6 +274,54 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
         }
 
         return foundInheritedApiAction;
+    }
+
+    private static bool NestedDerivedControllerTypesSatisfyEmptyOuterShell(
+        INamedTypeSymbol outerController,
+        INamedTypeSymbol controllerBase,
+        INamedTypeSymbol? authorizeAttribute,
+        INamedTypeSymbol? allowAnonymousAttribute,
+        INamedTypeSymbol? nonActionAttribute)
+    {
+        bool foundNestedController = false;
+
+        foreach (ISymbol member in outerController.GetMembers())
+        {
+            if (member is not INamedTypeSymbol nestedType || nestedType.TypeKind != TypeKind.Class)
+                continue;
+
+            if (!InheritsFromControllerBase(nestedType, controllerBase))
+                continue;
+
+            foundNestedController = true;
+
+            if (HasTypeLevelAuthorizeOrAllowAnonymous(
+                    nestedType,
+                    controllerBase,
+                    authorizeAttribute,
+                    allowAnonymousAttribute))
+            {
+                continue;
+            }
+
+            bool hasPublicApiAction = false;
+
+            foreach (IMethodSymbol method in nestedType.GetMembers().OfType<IMethodSymbol>())
+            {
+                if (!IsDeclaredPublicApiAction(method, nonActionAttribute))
+                    continue;
+
+                hasPublicApiAction = true;
+
+                if (!ActionHasAuthorization(method, authorizeAttribute, allowAnonymousAttribute))
+                    return false;
+            }
+
+            if (!hasPublicApiAction)
+                return false;
+        }
+
+        return foundNestedController;
     }
 
     private static bool IsDeclaredControllerApiMethod(IMethodSymbol method)
