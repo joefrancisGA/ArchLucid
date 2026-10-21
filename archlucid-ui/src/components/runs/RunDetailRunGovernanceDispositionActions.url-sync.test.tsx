@@ -3,6 +3,7 @@ import { createElement, useSyncExternalStore, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { RunDetailRunGovernanceDispositionActions } from "@/components/runs/RunDetailRunGovernanceDispositionActions";
+import { recordRunOperatorGovernanceDisposition } from "@/lib/api/architecture-runs";
 import { RUN_GOVERNANCE_DISP_DECISION_PARAM } from "@/lib/governance/run-governance-disposition-confirm-url";
 
 vi.mock("@/lib/api/architecture-runs", () => ({
@@ -89,5 +90,7 @@ describe("RunDetailRunGovernanceDispositionActions URL sync", () => {
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "Confirm Approved" })).toBeInTheDocument();
     });
+
+    expect(vi.mocked(recordRunOperatorGovernanceDisposition)).not.toHaveBeenCalled();
   });
 });

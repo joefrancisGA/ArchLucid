@@ -66,11 +66,13 @@ public sealed class EmailOtpAuthController(
             },
             cancellationToken).ConfigureAwait(false);
 
+        bool emailDeliveryFailed = result.EmailDeliverySucceeded == false;
+
         return Ok(
             new EmailOtpChallengeResponse
             {
                 Message = result.Message,
-                ChallengeId = result.ChallengeId,
+                ChallengeId = emailDeliveryFailed ? null : result.ChallengeId,
                 SsoRequired = result.SsoRequired,
                 SsoMessage = result.SsoMessage,
                 EmailDeliverySucceeded = result.EmailDeliverySucceeded

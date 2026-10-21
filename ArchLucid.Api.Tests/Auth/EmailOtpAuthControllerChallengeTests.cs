@@ -143,6 +143,43 @@ public sealed class EmailOtpAuthControllerChallengeTests
         ObjectResult badRequest = actionResult.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
     }
+
+    [Fact]
+    public async Task RequestChallengeAsync_omits_challenge_id_when_email_delivery_failed()
+    {
+        Guid leakedChallengeId = Guid.NewGuid();
+
+        Mock<IEmailOtpAuthService> emailOtpAuth = new();
+        emailOtpAuth
+            .Setup(service => service.RequestCodeAsync(
+                It.IsAny<Application.Identity.EmailOtpChallengeRequest>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new EmailOtpChallengeRequestResult
+                {
+                    Message = "If that address can receive email, we sent a sign-in code.",
+                    ChallengeId = leakedChallengeId,
+                    EmailDeliverySucceeded = false
+                });
+
+        EmailOtpAuthController controller = new(
+            Options.Create(new EmailOtpAuthOptions { Enabled = true }),
+            emailOtpAuth.Object,
+            Mock.Of<ILocalTrialJwtIssuer>())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+
+        IActionResult actionResult = await controller.RequestChallengeAsync(
+            new ArchLucid.Api.Models.Auth.EmailOtpChallengeRequest { Email = "user@example.com" },
+            CancellationToken.None);
+
+        OkObjectResult ok = actionResult.Should().BeOfType<OkObjectResult>().Subject;
+        EmailOtpChallengeResponse body = ok.Value.Should().BeOfType<EmailOtpChallengeResponse>().Subject;
+
+        body.ChallengeId.Should().BeNull();
+        body.EmailDeliverySucceeded.Should().BeFalse();
+    }
 }
 
 internal sealed class InMemoryTenantIdentityProviderConfigurationRepository : ITenantIdentityProviderConfigurationRepository
