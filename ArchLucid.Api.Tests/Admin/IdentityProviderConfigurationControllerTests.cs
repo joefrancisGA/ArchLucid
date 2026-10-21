@@ -425,6 +425,44 @@ public sealed class IdentityProviderConfigurationControllerTests
     }
 
     [Fact]
+    public async Task DiscoverAsync_returns_detached_copy_when_discovery_uris_already_canonical()
+    {
+        IdentityProviderDiscoverResponse shared = new()
+        {
+            Protocol = "oidc",
+            IssuerUri = "https://idp.example/oidc",
+            JwksUri = "https://idp.example/oidc/jwks",
+            DiscoverySucceeded = true,
+            DiagnosticSummary = "ok",
+        };
+
+        Mock<IIdentityProviderDiscoveryService> discovery = new();
+        discovery
+            .Setup(d => d.DiscoverAsync(It.IsAny<IdentityProviderDiscoverRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(shared);
+
+        IdentityProviderConfigurationController controller = CreateController(discoveryService: discovery.Object);
+        IdentityProviderDiscoverRequest request = new()
+        {
+            Protocol = "oidc",
+            MetadataUrl = "https://idp.example/.well-known/openid-configuration",
+        };
+
+        IActionResult firstResult = await controller.DiscoverAsync(request, CancellationToken.None);
+        IActionResult secondResult = await controller.DiscoverAsync(request, CancellationToken.None);
+
+        IdentityProviderDiscoverResponse firstBody =
+            firstResult.Should().BeOfType<OkObjectResult>().Subject.Value
+                .Should().BeOfType<IdentityProviderDiscoverResponse>().Subject;
+        IdentityProviderDiscoverResponse secondBody =
+            secondResult.Should().BeOfType<OkObjectResult>().Subject.Value
+                .Should().BeOfType<IdentityProviderDiscoverResponse>().Subject;
+
+        ReferenceEquals(firstBody, secondBody).Should().BeFalse(
+            "Discover must return a detached snapshot, not the discovery service response instance.");
+    }
+
+    [Fact]
     public void TestLogin_passes_canonical_issuer_uri_to_sandbox_service()
     {
         IdentityProviderTestLoginRequest? captured = null;

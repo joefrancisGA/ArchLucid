@@ -242,12 +242,6 @@ public sealed class IdentityProviderConfigurationController(
             jwksUri = canonicalJwks;
         }
 
-        if (string.Equals(issuerUri, response.IssuerUri, StringComparison.Ordinal)
-            && string.Equals(jwksUri, response.JwksUri, StringComparison.Ordinal))
-        {
-            return response;
-        }
-
         return new IdentityProviderDiscoverResponse
         {
             Protocol = response.Protocol,
