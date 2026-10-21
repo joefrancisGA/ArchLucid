@@ -123,4 +123,43 @@ describe("RunDetailFindingsWorkspace URL sync", () => {
       expect(screen.getByTestId("run-detail-findings-band-checklist")).toHaveAttribute("aria-selected", "true");
     });
   });
+
+  it("resets classification band from useSearchParams when runId changes before window.location.search catches up", async () => {
+    const findings = [
+      finding({
+        findingId: "f-checklist",
+        classification: "ChecklistFinding",
+        severityValue: 1,
+        findingOrder: 0,
+      }),
+    ];
+
+    searchParamsHarness.applyQuery(`reviewTab=findings&${REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM}=checklist`);
+    window.history.replaceState(
+      {},
+      "",
+      `/architecture/reviews/run-1?reviewTab=findings&${REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM}=checklist`,
+    );
+
+    const { rerender } = render(
+      <SearchParamsRerenderHost>
+        <RunDetailFindingsWorkspace runId="run-1" findings={findings} packageCommitted={true} />
+      </SearchParamsRerenderHost>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("run-detail-findings-band-checklist")).toHaveAttribute("aria-selected", "true");
+    });
+
+    searchParamsHarness.applyQuery("reviewTab=findings");
+    rerender(
+      <SearchParamsRerenderHost>
+        <RunDetailFindingsWorkspace runId="run-2" findings={findings} packageCommitted={true} />
+      </SearchParamsRerenderHost>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("run-detail-findings-band-decision-grade")).toHaveAttribute("aria-selected", "true");
+    });
+  });
 });

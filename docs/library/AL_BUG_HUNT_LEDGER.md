@@ -1,13 +1,9 @@
 > **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
-2026-10-21 thorough hunt (hit): `llm-wallet` — lane B (no dedicated `AgentRuntime` ledger zone for `LlmCompletionAccountingClient`; claimed `llm-wallet` on origin — lane C holds only `ui-review-detail-workspace`); closed hunt-ready reasoning settlement gap from application-billing-logic audit: `LlmCompletionUsageBillingNormalization` subtracts OpenAI-style reasoning subset from completion before `EstimateUsd`; `LlmMonthlyTenantDollarBudgetTracker.RecordUsageAndMaybeWarnAsync` and `LlmCompletionAccountingClient` carry `reasoningTokens` through daily/monthly settle and wallet overage; reasoning-only usage no longer early-returns. Regressions: normalization matrix, `RecordUsageAndMaybeWarnAsync_reasoning_only_settles_monthly_pressure`, `RecordUsageAndMaybeWarnAsync_openai_subset_shape_avoids_double_counting_completion`, `RecordUsageAndMaybeWarnAsync_zero_usage_does_not_settle`, `CompleteJsonAsync_when_reasoning_only_usage_settles_monthly_dollar_budget`. Scoped AgentRuntime billing/accounting tests: 30 passed; `LlmTenantWalletServiceTests`: 26 passed.
-
-- [x] (proven) `LlmMonthlyTenantDollarBudgetTracker` / `LlmCompletionAccountingClient` — reasoning tokens omitted from wallet debit and monthly `TotalUsdPressure` — **hit 2026-10-21 lane B:** normalization + reasoning parameter plumbing; regressions above.
-
 2026-10-21 thorough hunt (hit — UI follow-up): `application-billing-logic` — lane B; completed Top Runs parity after API `reasoningTokens` (prior commit `a2f97eb1585770d53f6ae460a1b5458ae6219b98`): `llm-cost-reporting.ts` parses `reasoningTokens`, `measurableLlmTokens` sums prompt+completion+reasoning for AI Usage breakdown (group by run), `AiUsageCostBreakdownPanel` Tokens column uses measurable total; vitest `llm-cost-reporting` 3 passed. Wallet/monthly pressure audit: `LlmMonthlyTenantDollarBudgetTracker.RecordUsageAndMaybeWarnAsync` and `LlmCompletionAccountingClient` still drop `reasoningTok` and early-return when prompt/completion are zero — reasoning-only completions under-debit wallet and skip monthly settle (out of zone `ArchLucid.AgentRuntime`; logged as hunt-ready candidate). Tenant dashboard daily/workspace rows remain budget-pressure placeholders (tokens 0 by design). Scoped Application billing tests: 52 passed.
 
 - [x] (proven) `archlucid-ui` `parseTopRunRow` / Top Runs breakdown — ignored API `reasoningTokens` — **hit 2026-10-21 lane B UI follow-up:** parse + `measurableLlmTokens`; vitest above.
 - [x] (valid-no-repro) `TenantLlmCostReportingService` daily/workspace token totals — **audit 2026-10-21 lane B:** buckets use `TotalUsdPressure` spread; token fields intentionally zero until trace rollup ships.
-- [x] (proven) `LlmMonthlyTenantDollarBudgetTracker.RecordUsageAndMaybeWarnAsync` — reasoning tokens omitted from `EstimateUsd` and skipped when prompt/completion zero — **hit 2026-10-21 lane B llm-wallet:** `LlmCompletionUsageBillingNormalization` + accounting settlement path; regressions in normalization and monthly tracker tests.
+- [ ] (hunt-ready) `LlmMonthlyTenantDollarBudgetTracker.RecordUsageAndMaybeWarnAsync` — reasoning tokens omitted from `EstimateUsd` and skipped when prompt/completion zero — locus: `LlmCompletionAccountingClient.Complete.cs` discards `reasoningTok`; input: o-series reasoning-only completion with zero prompt/completion tallies.
 
 2026-10-21 seed hunt (seed→hit): `core-azure-extractor` — lane B (picker default `core-tenancy-commercial` held by lane C); promoted Event Hub capture `destination.properties.storageAccountResourceId` nesting — list payloads nest storage id under `destination.properties` like Event Grid 2022-06-15; `TryExtractEventHub` only read top-level `storageAccountResourceId`; now uses nested destination properties with top-level fallback; regression `TryExtractEventHub_reads_capture_storage_from_nested_destination_properties`. Scoped `AzureExtractor` filter: 1573 Core tests passed.
 
@@ -41595,6 +41591,9 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 ---
 
 ## Zone: ui-review-detail-workspace
+2026-10-21 seed hunt (seed→hit): promoted `RunDetailFindingsWorkspace` — the `runId` reset effect read `window.location.search` while Next.js had already updated `useSearchParams`, so client navigation to another review reapplied the prior review's `findingsBand` when the address bar lagged; reset classification band and list view from derived `useSearchParams` values on `runId` change; regression `resets classification band from useSearchParams when runId changes before window.location.search catches up`; findings workspace url-sync vitest 2/2.
+
+- [x] (proven) `RunDetailFindingsWorkspace` — stale classification band after cross-review soft navigation — **hit 2026-10-21 seed hunt:** `runId` effect uses `urlClassificationBand` / `urlListView` instead of `window.location.search`; regression above.
 2026-10-21 seed hunt (seed→hit): promoted `TechnologyBaselinePanel` — rationale dialog opened from `techEntryId` but the `urlTechEntryId` effect returned early when the query cleared, so soft navigation left the edit-rationale dialog open; close dialog state when `useSearchParams` omits `techEntryId`; regression `closes the rationale dialog when techEntryId is removed from useSearchParams without a popstate event`; `TechnologyBaselinePanel.url-sync.test.tsx` 2/2.
 
 - [x] (proven) `TechnologyBaselinePanel` — rationale dialog stayed open when `techEntryId` cleared on soft navigation — **hit 2026-10-21 seed hunt:** clear `rationaleDialogEntry` when `urlTechEntryId` is empty; regression above.
@@ -41829,11 +41828,11 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 46
-- **bugs-found:** 37
+- **hunts:** 47
+- **bugs-found:** 38
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — TechnologyBaselinePanel techEntryId rationale dialog
+- **last-bug:** 2026-10-21 — RunDetailFindingsWorkspace findingsBand on runId change
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.

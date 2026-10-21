@@ -5802,4 +5802,4 @@
 {"at":"2026-10-21T03:40:15.1290324Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/reviews/ReviewAskDock.tsx"]}
 {"at":"2026-10-21T03:44:47.6266889Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/reviews/technology-baseline/TechnologyBaselinePanel.tsx"]}
 {"at":"2026-10-21T03:45:11.5579239Z","zoneId":"application-billing-logic","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-21T03:55:53.9818442Z","zoneId":"llm-wallet","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.AgentRuntime/LlmCompletionAccountingClient.cs,ArchLucid.AgentRuntime/LlmMonthlyTenantDollarBudgetTracker.Record.cs"]}
+{"at":"2026-10-21T03:56:37.0609208Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailFindingsWorkspace.tsx"]}

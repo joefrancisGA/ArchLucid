@@ -200,18 +200,10 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
   const [listView, setListViewState] = useState(() => defaultReviewFindingsListView(architectWorkspaceChrome));
 
   useEffect(() => {
-    const params = new URLSearchParams(readWindowLocationSearch());
-
-    setClassificationBandState(
-      parseReviewFindingsClassificationBandFromSearch(
-        params.get(REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM),
-      ),
-    );
-    setListViewState(
-      parseReviewFindingsListViewFromSearch(params.get(REVIEW_FINDINGS_LIST_VIEW_PARAM))
-        ?? defaultReviewFindingsListView(architectWorkspaceChrome),
-    );
-  }, [architectWorkspaceChrome, props.runId]);
+    // Next.js client navigations update useSearchParams before window.location.search catches up.
+    setClassificationBandState(urlClassificationBand);
+    setListViewState(urlListView);
+  }, [architectWorkspaceChrome, props.runId, urlClassificationBand, urlListView]);
 
   useEffect(() => {
     const syncListViewFromUrl = (): void => {
