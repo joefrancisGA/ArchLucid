@@ -6005,3 +6005,5 @@
 {"at":"2026-10-21T18:07:40.9639558Z","zoneId":"application-tenancy-lifecycle","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-21T18:13:28.2996618Z","zoneId":"core-azure-extractor","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/"]}
 {"at":"2026-10-21T18:18:46.0992256Z","zoneId":"application-billing-logic","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Billing/"]}
+{"at":"2026-10-21T18:18:04.7087264Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/"]}
+{"at":"2026-10-21T18:19:14.9975579Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/"]}
