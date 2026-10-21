@@ -94,7 +94,8 @@ public sealed class AuditControlEvaluationServiceTests
             new LoggingAuditEvidenceSelector(),
             new GovernanceAuditEvidenceSelector(),
             new PostureAuditEvidenceSelector(),
-            new ResilienceAuditEvidenceSelector());
+            new ResilienceAuditEvidenceSelector(),
+            new DefenderAuditEvidenceSelector());
 
     private sealed class CapturingEvaluationRepository : IAuditControlEvaluationRepository
     {

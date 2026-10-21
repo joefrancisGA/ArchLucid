@@ -13,11 +13,12 @@ public static class AuditEvidenceTypeNames
     public const string Resilience = "resilience";
     public const string Inventory = "inventory";
 
+    public const string Defender = "defender";
+
     public static readonly IReadOnlySet<string> EntraSpecificTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
         "entra",
         "entra-conditional-access",
         "entra-pim",
-        "defender",
     };
 }

@@ -105,7 +105,8 @@ public static class SecurityEvidencePathRankCalculator
         IReadOnlyList<SecurityEvidencePathHopRecord> hops,
         IReadOnlyDictionary<SecurityEvidencePathRankDimension, decimal>? weights = null,
         IReadOnlySet<Guid>? activeCrownJewelAssertionIds = null,
-        DefenderSecureScoreOrdinalBand subscriptionDefenderBand = DefenderSecureScoreOrdinalBand.Unknown)
+        DefenderSecureScoreOrdinalBand subscriptionDefenderBand = DefenderSecureScoreOrdinalBand.Unknown,
+        DefenderHopPostureEvidence? hopPosture = null)
     {
         ArgumentNullException.ThrowIfNull(path);
         ArgumentNullException.ThrowIfNull(hops);
@@ -115,7 +116,7 @@ public static class SecurityEvidencePathRankCalculator
 
         decimal technicalExposure = Cap(ScoreTechnicalExposure(path, hops));
         decimal privilegeDepth = Cap(ScorePrivilegeDepth(path, hops));
-        decimal blastRadius = Cap(ScoreBlastRadius(path, hops, subscriptionDefenderBand));
+        decimal blastRadius = Cap(ScoreBlastRadius(path, hops, subscriptionDefenderBand, hopPosture));
         (decimal? businessConsequence, string businessSource) =
             ScoreBusinessConsequence(path, activeCrownJewelAssertionIds);
         decimal confidenceBand = Cap(ScoreConfidenceBand(path.PathConfidenceBand));
@@ -141,7 +142,7 @@ public static class SecurityEvidencePathRankCalculator
             SecurityEvidencePathRankDimension.BlastRadius,
             effectiveWeights,
             blastRadius,
-            DescribeBlastRadius(path, hops, subscriptionDefenderBand));
+            DescribeBlastRadius(path, hops, subscriptionDefenderBand, hopPosture));
 
         decimal consequenceForSort = businessConsequence ?? SecurityEvidencePathRankConstants.NeutralBusinessConsequenceScore;
 
@@ -169,6 +170,13 @@ public static class SecurityEvidencePathRankCalculator
             businessConsequence,
             confidenceBand,
             composite);
+
+        if (hopPosture is not null
+            && hopPosture.WeakControlNames.Count > 0
+            && subscriptionDefenderBand is DefenderSecureScoreOrdinalBand.Low or DefenderSecureScoreOrdinalBand.Medium)
+        {
+            explanationSummary += " Weak controls: " + string.Join(", ", hopPosture.WeakControlNames);
+        }
 
         string breakdownJson = JsonSerializer.Serialize(
             contributions.Select(item => new
@@ -332,11 +340,14 @@ public static class SecurityEvidencePathRankCalculator
     private static decimal ScoreBlastRadius(
         SecurityEvidencePathRecord path,
         IReadOnlyList<SecurityEvidencePathHopRecord> hops,
-        DefenderSecureScoreOrdinalBand subscriptionDefenderBand)
+        DefenderSecureScoreOrdinalBand subscriptionDefenderBand,
+        DefenderHopPostureEvidence? hopPosture)
     {
+        decimal postureAdjustment = ResolveDefenderPostureAdjustment(subscriptionDefenderBand, hops, hopPosture);
+
         if (path.PathKind == PathKind.SharedControlBlastRadius)
         {
-            return 3.5m + DefenderSecureScoreRankAdjustment.BlastRadiusPostureAdjustment(subscriptionDefenderBand);
+            return 3.5m + postureAdjustment;
         }
 
         int distinctResources = hops
@@ -358,10 +369,34 @@ public static class SecurityEvidencePathRankCalculator
             score += 0.75m;
         }
 
-        score += DefenderSecureScoreRankAdjustment.BlastRadiusPostureAdjustment(subscriptionDefenderBand);
+        score += postureAdjustment;
 
         return score;
     }
+
+    private static decimal ResolveDefenderPostureAdjustment(
+        DefenderSecureScoreOrdinalBand subscriptionDefenderBand,
+        IReadOnlyList<SecurityEvidencePathHopRecord> hops,
+        DefenderHopPostureEvidence? hopPosture)
+    {
+        decimal subscriptionAdjustment =
+            DefenderSecureScoreRankAdjustment.BlastRadiusPostureAdjustment(subscriptionDefenderBand);
+        decimal hopAdjustment = 0m;
+
+        if (hopPosture is not null && HopMatches(hops, hopPosture.HighAssessmentCloudResourceIds))
+        {
+            hopAdjustment = 0.75m;
+        }
+        else if (hopPosture is not null && HopMatches(hops, hopPosture.MediumAssessmentCloudResourceIds))
+        {
+            hopAdjustment = 0.5m;
+        }
+
+        return Math.Max(subscriptionAdjustment, hopAdjustment);
+    }
+
+    private static bool HopMatches(IReadOnlyList<SecurityEvidencePathHopRecord> hops, IReadOnlySet<Guid> cloudResourceIds) =>
+        hops.Any(hop => hop.CloudResourceId is Guid cloudResourceId && cloudResourceIds.Contains(cloudResourceId));
 
     private static (decimal? Score, string Source) ScoreBusinessConsequence(
         SecurityEvidencePathRecord path,
@@ -460,21 +495,20 @@ public static class SecurityEvidencePathRankCalculator
     private static string DescribeBlastRadius(
         SecurityEvidencePathRecord path,
         IReadOnlyList<SecurityEvidencePathHopRecord> hops,
-        DefenderSecureScoreOrdinalBand subscriptionDefenderBand)
+        DefenderSecureScoreOrdinalBand subscriptionDefenderBand,
+        DefenderHopPostureEvidence? hopPosture)
     {
+        string postureSource = ResolveDefenderPostureSource(subscriptionDefenderBand, hops, hopPosture);
+
         if (path.PathKind == PathKind.SharedControlBlastRadius)
         {
-            string postureSource =
-                DefenderSecureScoreRankAdjustment.DescribeBlastRadiusPostureSource(subscriptionDefenderBand);
-
             return string.IsNullOrEmpty(postureSource)
                 ? "shared-control-fan-out"
                 : $"shared-control-fan-out+{postureSource}";
         }
 
         int resourceCount = hops.Count(hop => hop.CloudResourceId is not null);
-        string postureSuffix =
-            DefenderSecureScoreRankAdjustment.DescribeBlastRadiusPostureSource(subscriptionDefenderBand);
+        string postureSuffix = postureSource;
 
         if (string.IsNullOrEmpty(postureSuffix))
         {
@@ -482,5 +516,30 @@ public static class SecurityEvidencePathRankCalculator
         }
 
         return FormattableString.Invariant($"resources:{resourceCount}+{postureSuffix}");
+    }
+
+    private static string ResolveDefenderPostureSource(
+        DefenderSecureScoreOrdinalBand subscriptionDefenderBand,
+        IReadOnlyList<SecurityEvidencePathHopRecord> hops,
+        DefenderHopPostureEvidence? hopPosture)
+    {
+        decimal subscriptionAdjustment =
+            DefenderSecureScoreRankAdjustment.BlastRadiusPostureAdjustment(subscriptionDefenderBand);
+
+        if (hopPosture is not null
+            && HopMatches(hops, hopPosture.HighAssessmentCloudResourceIds)
+            && 0.75m >= subscriptionAdjustment)
+        {
+            return "defender-assessment-high";
+        }
+
+        if (hopPosture is not null
+            && HopMatches(hops, hopPosture.MediumAssessmentCloudResourceIds)
+            && 0.5m >= subscriptionAdjustment)
+        {
+            return "defender-assessment-medium";
+        }
+
+        return DefenderSecureScoreRankAdjustment.DescribeBlastRadiusPostureSource(subscriptionDefenderBand);
     }
 }

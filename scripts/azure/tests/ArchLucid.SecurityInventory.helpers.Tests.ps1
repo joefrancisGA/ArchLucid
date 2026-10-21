@@ -751,6 +751,76 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
         $rows[0].secureScore | Should -Be 85
     }
 
+    It 'collects defender plans, unhealthy assessments, and a security contact without the phone' {
+        function Invoke-AzRestMethod {
+            param(
+                [string] $Method,
+                [string] $Path,
+                [string] $Uri
+            )
+
+            [string]$target = $(if ([string]::IsNullOrWhiteSpace($Uri)) { $Path } else { $Uri })
+
+            if ($target -like '*pricings*') {
+                return [PSCustomObject]@{
+                    Content = (@{ value = @(@{ name = 'StorageAccounts'; properties = @{ pricingTier = 'Free' } }) } | ConvertTo-Json -Depth 6)
+                }
+            }
+
+            if ($target -like '*secureScoreControls*') {
+                return [PSCustomObject]@{
+                    Content = (@{ value = @(@{ name = 'EnableMfa'; properties = @{ displayName = 'MFA'; score = @{ current = 1; max = 4; percentage = 0.25 }; unhealthyResourceCount = 2 } }) } | ConvertTo-Json -Depth 8)
+                }
+            }
+
+            if ($target -like '*secureScores*') {
+                return [PSCustomObject]@{
+                    Content = (@{ value = @(@{ name = 'ascScore' }) } | ConvertTo-Json -Depth 6)
+                }
+            }
+
+            if ($target -like '*assessments*') {
+                return [PSCustomObject]@{
+                    Content = (@{
+                        value = @(
+                            @{
+                                name = 'key-1'
+                                properties = @{
+                                    displayName = 'Private storage'
+                                    status = @{ code = 'Unhealthy' }
+                                    metadata = @{ severity = 'High' }
+                                    resourceDetails = @{ id = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1' }
+                                }
+                            }
+                        )
+                    } | ConvertTo-Json -Depth 8)
+                }
+            }
+
+            if ($target -like '*securityContacts*') {
+                return [PSCustomObject]@{
+                    Content = (@{ value = @(@{ properties = @{ emails = 'soc@contoso.com'; phone = '555-0100'; alertNotifications = @{ state = 'On'; minimalSeverity = 'High' } } }) } | ConvertTo-Json -Depth 8)
+                }
+            }
+
+            return [PSCustomObject]@{ Content = '{"value":[]}' }
+        }
+
+        [object]$bundle = Get-ArchLucidAzureDefenderCompanionBundle -SubscriptionId '11111111-1111-1111-1111-111111111111' -InventoryResources @(
+            [pscustomobject]@{
+                resourceType = 'Microsoft.Storage/storageAccounts'
+                resourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1'
+            }
+        )
+
+        $bundle.pricings[0].tier | Should -Be 'Free'
+        $bundle.scoreControls[0].percentage | Should -Be 25
+        $bundle.assessments[0].status | Should -Be 'Unhealthy'
+        $bundle.securityContacts[0].emails | Should -Be 'soc@contoso.com'
+        ($bundle.securityContacts[0].emails -like '*555-0100*') | Should -Be $false
+        @($bundle.warnings) | Should -Contain 'defender-plan-off:StorageAccounts'
+    }
+
     It 'detects password markers but still parses sql host' {
         Test-ArchLucidAzureAppSettingHostRejectedValue -Value 'Server=tcp:sql.database.windows.net;Password=secret' |
             Should -Be $true

@@ -229,6 +229,109 @@ public sealed class SecurityEvidencePathRankCalculatorTests
         blastContribution.Source.Should().Contain("defender-posture-low");
     }
 
+    [Fact]
+    public void Evaluate_high_unhealthy_assessment_raises_blast_radius_above_a_high_subscription_band()
+    {
+        Guid cloudResourceId = Guid.NewGuid();
+        IReadOnlyList<SecurityEvidencePathHopRecord> hops =
+        [
+            new SecurityEvidencePathHopRecord
+            {
+                HopRowId = Guid.NewGuid(),
+                PathId = PathIdA,
+                TenantId = TenantId,
+                HopOrdinal = 1,
+                FromNodeId = SecureNowArchitectConstants.InternetPublicExposureNodeId,
+                ToNodeId = "resource:storage/sa1",
+                EdgeType = SecureNowArchitectConstants.PublicNetworkAccessHopEdgeType,
+                ProvenanceKind = ProvenanceKind.ObservedFact,
+                HopConfidenceBand = PathConfidenceBand.Confirmed,
+                EvidenceReference = "test:public",
+                CloudResourceId = cloudResourceId,
+            },
+        ];
+        SecurityEvidencePathRecord path = BuildPath(
+            PathIdA,
+            PathKind.ToxicCombination,
+            PathConfidenceBand.Confirmed,
+            crownJewelAssertionId: null,
+            hops);
+
+        SecurityEvidencePathRankEvaluation highBand =
+            SecurityEvidencePathRankCalculator.Evaluate(
+                path,
+                hops,
+                subscriptionDefenderBand: DefenderSecureScoreOrdinalBand.High);
+        SecurityEvidencePathRankEvaluation withAssessment =
+            SecurityEvidencePathRankCalculator.Evaluate(
+                path,
+                hops,
+                subscriptionDefenderBand: DefenderSecureScoreOrdinalBand.High,
+                hopPosture: new DefenderHopPostureEvidence
+                {
+                    HighAssessmentCloudResourceIds = new HashSet<Guid> { cloudResourceId },
+                });
+
+        withAssessment.BlastRadiusScore.Should().Be(highBand.BlastRadiusScore + 0.75m);
+        withAssessment.Contributions
+            .Should()
+            .ContainSingle(item => item.Dimension == SecurityEvidencePathRankDimension.BlastRadius)
+            .Subject.Source.Should().Contain("defender-assessment-high");
+    }
+
+    [Fact]
+    public void Evaluate_medium_assessment_does_not_stack_on_a_low_subscription_band()
+    {
+        Guid cloudResourceId = Guid.NewGuid();
+        IReadOnlyList<SecurityEvidencePathHopRecord> hops =
+        [
+            new SecurityEvidencePathHopRecord
+            {
+                HopRowId = Guid.NewGuid(),
+                PathId = PathIdA,
+                TenantId = TenantId,
+                HopOrdinal = 1,
+                FromNodeId = SecureNowArchitectConstants.InternetPublicExposureNodeId,
+                ToNodeId = "resource:storage/sa1",
+                EdgeType = SecureNowArchitectConstants.PublicNetworkAccessHopEdgeType,
+                ProvenanceKind = ProvenanceKind.ObservedFact,
+                HopConfidenceBand = PathConfidenceBand.Confirmed,
+                EvidenceReference = "test:public",
+                CloudResourceId = cloudResourceId,
+            },
+        ];
+        SecurityEvidencePathRecord path = BuildPath(
+            PathIdA,
+            PathKind.ToxicCombination,
+            PathConfidenceBand.Confirmed,
+            crownJewelAssertionId: null,
+            hops);
+        DefenderHopPostureEvidence posture = new()
+        {
+            MediumAssessmentCloudResourceIds = new HashSet<Guid> { cloudResourceId },
+            WeakControlNames = ["EnableMfa"],
+        };
+
+        SecurityEvidencePathRankEvaluation lowBand =
+            SecurityEvidencePathRankCalculator.Evaluate(
+                path,
+                hops,
+                subscriptionDefenderBand: DefenderSecureScoreOrdinalBand.Low);
+        SecurityEvidencePathRankEvaluation withAssessment =
+            SecurityEvidencePathRankCalculator.Evaluate(
+                path,
+                hops,
+                subscriptionDefenderBand: DefenderSecureScoreOrdinalBand.Low,
+                hopPosture: posture);
+
+        withAssessment.BlastRadiusScore.Should().Be(lowBand.BlastRadiusScore);
+        withAssessment.ExplanationSummary.Should().Contain("Weak controls: EnableMfa");
+        withAssessment.Contributions
+            .Should()
+            .ContainSingle(item => item.Dimension == SecurityEvidencePathRankDimension.BlastRadius)
+            .Subject.Source.Should().Contain("defender-assessment-medium");
+    }
+
     private static SecurityEvidencePathRecord BuildPath(
         Guid pathId,
         PathKind pathKind,

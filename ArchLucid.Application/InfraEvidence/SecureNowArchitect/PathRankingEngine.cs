@@ -64,9 +64,12 @@ public sealed class PathRankingEngine(
         AzureInventoryDefenderBandContextReadModel? defenderContext =
             await snapshotRepository.TryGetDefenderBandContextAsync(scope, snapshotId, cancellationToken);
 
+        DefenderHopPostureEvidence? hopPosture = null;
+
         if (defenderContext is not null)
         {
             subscriptionDefenderBand = DefenderBandContextResolver.ResolveSubscriptionBand(defenderContext);
+            hopPosture = DefenderBandContextResolver.BuildHopPosture(defenderContext, subscriptionDefenderBand);
         }
 
         List<(SecurityEvidencePathRecord Path, SecurityEvidencePathRankEvaluation Evaluation)> evaluated = [];
@@ -82,7 +85,8 @@ public sealed class PathRankingEngine(
                     hops,
                     weights,
                     activeCrownJewelAssertionIds,
-                    subscriptionDefenderBand);
+                    subscriptionDefenderBand,
+                    hopPosture);
 
             evaluated.Add((path, evaluation));
         }
