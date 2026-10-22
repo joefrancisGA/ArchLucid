@@ -144,7 +144,9 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
         if (content.Length == 0)
             return content;
 
-        return content.Replace('\u00a0', ' ');
+        return content
+            .Replace('\u00a0', ' ')
+            .Replace('\u202f', ' ');
     }
 
     private static string StripInvisibleFormatCharacters(string content)

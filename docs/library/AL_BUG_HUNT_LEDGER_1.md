@@ -8712,6 +8712,12 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted narrow no-break space (`U+202F`) in source `Content` and NBSP in baseline framing-answer keys splitting review-cache hash; `NormalizeUnicodeSpaces` now maps `U+202F`; `NormalizeFingerprintText` normalizes unicode spaces before FormC; regressions `Build_matches_content_hash_when_source_content_differs_only_by_narrow_nbsp_vs_space`, `Build_matches_content_hash_when_baseline_model_framing_answer_key_differs_only_by_nbsp_vs_space`, and `Build_matches_content_hash_when_baseline_element_properties_include_duplicate_keys_after_casing`; 172 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeUnicodeSpaces` — `U+202F` in `Content` split `ContentHash` — **hit 2026-10-22 seed hunt:** narrow NBSP→space; regression above.
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatFramingAnswers` — NBSP in framing-answer keys split `modelfp` — **hit 2026-10-22 seed hunt:** unicode space normalize in `NormalizeFingerprintText`; regression above.
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — `Environment`/`environment` duplicate property keys — **cheap-disproof 2026-10-22 seed hunt:** case-insensitive key group from prior hunt; regression above.
+
 2026-10-22 seed hunt (seed→hit): promoted duplicate normalized element property keys and NBSP in `SourceTexts.FileName` splitting review-cache hash; property bag now case-insensitive dedupes normalized keys; `NormalizeFileNameForHash` applies `NormalizeUnicodeSpaces`; regressions `Build_matches_content_hash_when_baseline_element_properties_include_duplicate_keys_after_normalization` and `Build_matches_content_hash_when_file_name_differs_only_by_nbsp_vs_space`; 169 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — duplicate padded property keys split `modelfp` — **hit 2026-10-22 seed hunt:** group normalized keys; regression above.

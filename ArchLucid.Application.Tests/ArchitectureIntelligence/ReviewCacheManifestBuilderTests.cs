@@ -353,6 +353,51 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_baseline_element_properties_include_duplicate_keys_after_casing()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-property-key-casing";
+
+        ArchitectureKnowledgeModel mixedCase = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["Environment"] = "prod",
+                        ["environment"] = "prod",
+                    },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel canonical = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Properties = new Dictionary<string, string> { ["Environment"] = "prod" },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, mixedCase).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, canonical).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_baseline_element_properties_include_duplicate_keys_after_normalization()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
@@ -1543,6 +1588,44 @@ public sealed class ReviewCacheManifestBuilderTests
         ReviewCacheManifestBuilder.Build(nullContent).ContentHash
             .Should()
             .Be(ReviewCacheManifestBuilder.Build(emptyContent).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_source_content_differs_only_by_narrow_nbsp_vs_space()
+    {
+        ClosedLoopReasoningRequest spaced = CreateRequest("Claims intake for architects.");
+        ClosedLoopReasoningRequest narrow = CreateRequest("Claims\u202Fintake for architects.");
+
+        ReviewCacheManifestBuilder.Build(spaced).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(narrow).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_model_framing_answer_key_differs_only_by_nbsp_vs_space()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-framing-key-nbsp";
+
+        ArchitectureKnowledgeModel spacedKey = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            FramingAnswers = new Dictionary<string, string> { ["business outcome"] = "Secure intake." },
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ArchitectureKnowledgeModel nbspKey = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            FramingAnswers = new Dictionary<string, string> { ["business\u00A0outcome"] = "Secure intake." },
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, spacedKey).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, nbspKey).ContentHash);
     }
 
     [Fact]

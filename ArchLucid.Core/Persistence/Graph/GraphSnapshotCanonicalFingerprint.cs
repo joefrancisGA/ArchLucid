@@ -159,8 +159,13 @@ public static class GraphSnapshotCanonicalFingerprint
         if (string.IsNullOrWhiteSpace(value))
             return string.Empty;
 
-        return value.Trim().Normalize(NormalizationForm.FormC);
+        return NormalizeUnicodeSpaces(value.Trim()).Normalize(NormalizationForm.FormC);
     }
+
+    private static string NormalizeUnicodeSpaces(string value) =>
+        value
+            .Replace('\u00a0', ' ')
+            .Replace('\u202f', ' ');
 
     private static IEnumerable<ArchitectureModelElement> SelectCanonicalKnowledgeModelElements(
         IReadOnlyList<ArchitectureModelElement>? elements)
