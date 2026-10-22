@@ -12470,8 +12470,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 192
-- **bugs-found:** 160
+- **hunts:** 193
+- **bugs-found:** 161
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-overlay rebind deduped parallel edges separately when EdgeType differed only by whitespace
 - **related-pd-tb:** none
@@ -12537,7 +12537,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — appended overlay edges retained padded endpoints — **cheap-disproof 2026-10-22 seed hunt:** `NormalizeOverlayEdge` trims endpoints; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — newly appended inventory overlay nodes may retain padded `NodeId` tokens — locus: `mergedNodes.Add(inventoryNode)` without output normalization; input: brand-new inventory nodes with padded ids are appended raw; wrong outcome: merged graph node ids do not match trim-normalized membership used for edge attachment.
+2026-10-22 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` padded inventory overlay `NodeId` on newly appended nodes candidate; proved overlay merge appended brand-new inventory nodes by reference while membership checks used trim-normalized ids, so padded node ids could persist on merged rows and break endpoint parity for later edge attachment; emit normalized overlay nodes via `NormalizeOverlayNode`; regression `Merge_normalizes_padded_node_id_when_appending_new_inventory_overlay_node`; seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` overlay edge skipped when overlay node id padded but normalized membership already satisfied follow-on; 485 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — newly appended inventory overlay nodes retained padded `NodeId` — **hit 2026-10-22 seed hunt (seed→hit):** normalize overlay node on append; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — inventory overlay edges may be dropped when overlay node ids are padded but trim-equal to base nodes already in graph — locus: edge loop endpoint membership vs stored padded overlay node rows before node normalization; input: overlay carries padded-node endpoints and edges between base and overlay-only resources; wrong outcome: connectivity rows skipped despite trim-normalized endpoint parity.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 

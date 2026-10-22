@@ -172,6 +172,56 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void Merge_normalizes_padded_node_id_when_appending_new_inventory_overlay_node()
+    {
+        string canonicalNodeId = CloudResourceId.ToString("D");
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "context-node",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "Context",
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = $"  {canonicalNodeId}  ",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                    Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+                    {
+                        ["cloudResourceId"] = canonicalNodeId,
+                    },
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Nodes.Should().HaveCount(2);
+        merged.Nodes.Should().Contain(node => node.NodeId == canonicalNodeId);
+        merged.Nodes.Should().NotContain(node => node.NodeId != canonicalNodeId && node.NodeId.Trim() == canonicalNodeId);
+    }
+
+    [Fact]
     public void Merge_boundOverlay_skips_inventory_node_when_node_id_differs_only_by_surrounding_whitespace()
     {
         string canonicalNodeId = CloudResourceId.ToString("D");

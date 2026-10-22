@@ -33,8 +33,9 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
                 continue;
             }
 
-            mergedNodes.Add(inventoryNode);
-            existingNodeIds.Add(NormalizeNodeId(inventoryNode.NodeId));
+            GraphNode normalizedNode = NormalizeOverlayNode(inventoryNode);
+            mergedNodes.Add(normalizedNode);
+            existingNodeIds.Add(NormalizeNodeId(normalizedNode.NodeId));
         }
 
         HashSet<string> edgeKeys = baseGraph.Edges
@@ -84,6 +85,21 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
         $"{NormalizeNodeId(edge.FromNodeId)}|{NormalizeNodeId(edge.ToNodeId)}|{NormalizeEdgeType(edge.EdgeType)}";
 
     private static string NormalizeEdgeType(string? edgeType) => (edgeType ?? string.Empty).Trim();
+
+    private static GraphNode NormalizeOverlayNode(GraphNode node) =>
+        new()
+        {
+            NodeId = NormalizeNodeId(node.NodeId),
+            NodeType = node.NodeType,
+            Label = node.Label,
+            Category = node.Category,
+            SourceType = node.SourceType,
+            SourceId = node.SourceId,
+            ReasoningTrace = node.ReasoningTrace,
+            Properties = node.Properties is null
+                ? []
+                : new Dictionary<string, string>(node.Properties, StringComparer.Ordinal),
+        };
 
     private static GraphEdge NormalizeOverlayEdge(GraphEdge edge) =>
         new()
