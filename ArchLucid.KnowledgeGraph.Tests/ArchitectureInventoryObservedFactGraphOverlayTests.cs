@@ -1171,6 +1171,50 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void Merge_preserves_base_graph_case_variant_duplicate_nodes_without_deduping()
+    {
+        const string canonicalNodeId = "topology-node-a";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = canonicalNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "lower",
+                },
+                new GraphNode
+                {
+                    NodeId = canonicalNodeId.ToUpperInvariant(),
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "upper",
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot emptyOverlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes = [],
+            Edges = [],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, emptyOverlay);
+
+        merged.Nodes.Should().HaveCount(2);
+        merged.Nodes.Should().Contain(node => node.NodeId == canonicalNodeId && node.Label == "lower");
+        merged.Nodes.Should().Contain(node => node.NodeId == canonicalNodeId.ToUpperInvariant() && node.Label == "upper");
+    }
+
+    [Fact]
     public void Merge_appends_inventory_overlay_edge_when_endpoints_have_surrounding_whitespace_matching_base_nodes()
     {
         const string NodeA = "node-a";
