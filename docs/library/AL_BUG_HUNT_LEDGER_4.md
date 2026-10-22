@@ -12470,7 +12470,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 255
+- **hunts:** 256
 - **bugs-found:** 177
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — fully empty overlay merge returned base graph without warning normalization
@@ -12789,7 +12789,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — padded overlay edge property conflicts merged silently — **cheap-disproof 2026-10-22 seed hunt:** trim-then-compare guard throws; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — overlay node property keys differing only by surrounding whitespace with conflicting values may merge silently — locus: `NormalizeOverlayPropertyBag` on node append; input: overlay node property bag with padding-only key variants and different trimmed values; wrong outcome: merged node keeps both values or last-wins without error.
+2026-10-22 seed hunt (valid-no-repro): promoted `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` padded overlay node property conflict candidate; proved `NormalizeOverlayNode` property normalization trims keys before the case-insensitive duplicate guard, throwing when padding-only variants carry conflicting trimmed values; regression `Merge_throws_when_overlay_property_keys_differ_only_by_padding_and_values_conflict`; seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` overlay node property keys differing only by surrounding whitespace with identical values dedupe follow-on; 549 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — padded overlay node property conflicts merged silently — **cheap-disproof 2026-10-22 seed hunt:** trim-then-compare guard throws; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — overlay node property keys differing only by surrounding whitespace with identical values may duplicate logical metadata — locus: `NormalizeOverlayPropertyBag` on node append; input: overlay node property bag with padding-only key variants and identical values; wrong outcome: duplicate property entries on merged node.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 

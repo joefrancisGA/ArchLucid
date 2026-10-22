@@ -1015,6 +1015,58 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void Merge_throws_when_overlay_property_keys_differ_only_by_padding_and_values_conflict()
+    {
+        string canonicalNodeId = CloudResourceId.ToString("D");
+        const string CanonicalPropertyKey = "cloudResourceId";
+        const string PaddedPropertyKey = "  cloudResourceId  ";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "context-node",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "Context",
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = canonicalNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                    Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+                    {
+                        [CanonicalPropertyKey] = canonicalNodeId,
+                        [PaddedPropertyKey] = "22222222-2222-2222-2222-222222222222",
+                    },
+                },
+            ],
+            Edges = [],
+        };
+
+        Action act = () => ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*duplicate keys that collide under ordinal case-insensitive comparison*");
+    }
+
+    [Fact]
     public void Merge_normalizes_padded_node_id_when_appending_new_inventory_overlay_node()
     {
         string canonicalNodeId = CloudResourceId.ToString("D");
