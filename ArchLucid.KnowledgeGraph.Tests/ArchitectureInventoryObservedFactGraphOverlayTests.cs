@@ -33,6 +33,32 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void BuildOverlay_returns_empty_overlay_when_inventory_snapshot_has_no_resources_or_relationships()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                CreatedUtc = new DateTime(2026, 7, 18, 12, 0, 0, DateTimeKind.Utc),
+            },
+            Resources = [],
+            Relationships = [],
+        };
+
+        GraphSnapshot overlay = ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay(
+            snapshot,
+            RunId,
+            ContextSnapshotId);
+
+        overlay.Nodes.Should().BeEmpty();
+        overlay.Edges.Should().BeEmpty();
+        overlay.RunId.Should().Be(RunId);
+        overlay.ContextSnapshotId.Should().Be(ContextSnapshotId);
+    }
+
+    [Fact]
     public void BuildOverlay_boundFixture_emitsObservedFactNodesWithCloudResourceId()
     {
         AzureInventorySnapshotDetailReadModel snapshot = CreateSnapshotFixture();
