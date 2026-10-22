@@ -491,6 +491,20 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toMatch(/access%5fdenied/i);
   });
 
+  it("maps percent-encoded plus signs in authorize error codes to standard handlers", () => {
+    const message = humanizeAuthorizeCallbackError("unauthorized%2Bclient", "");
+
+    expect(message).toContain("not enabled");
+    expect(message).not.toMatch(/unauthorized\+client/i);
+  });
+
+  it("maps singly percent-encoded underscores in authorize error codes to standard handlers", () => {
+    const message = humanizeAuthorizeCallbackError("access%5fdenied", "");
+
+    expect(message).toContain("canceled sign-in");
+    expect(message).not.toMatch(/access%5fdenied/i);
+  });
+
   it("includes numeric invalid_request error_description in callback copy", () => {
     const message = humanizeAuthorizeCallbackError("invalid_request", "403");
 
