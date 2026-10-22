@@ -7803,6 +7803,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-22 seed hunt (seed→hit): promoted padded replay execution mode; regression `Resolve_known_mode_with_surrounding_whitespace_returns_injected_executor`; consolidated `ExecutionModes.EnsureKnown`; 132 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `DefaultAgentExecutorResolver.Resolve` — `ReplayRunRequest.ExecutionMode` with surrounding whitespace failed `KnownModes.Contains` and aborted replay — **hit 2026-10-22 seed hunt:** `ExecutionModes.EnsureKnown` trims before validation; resolver delegates to shared helper. [class:state-machine-gap]
+
+- (candidate) `AgentCuratedEvidenceProposer` — enricher ordering vs structural post-process — engineering hardening.
+- (candidate) `AgentResultRegionMismatchEnricher` — restricted-region SKUs without name heuristics — design gap.
+- (candidate) `EvidenceProposalPromoter.BuildCatalogEntryId` — homoglyph title slug collisions — verify reachability before promoting.
+- (candidate) `RepoFaithfulnessHarnessSummaryReader.TryReadLatestAsync` — whitespace-only `formatVersion` passes through as empty string — locus: `dto.FormatVersion ?? "1.0"`; input: `"formatVersion":"   "`.
+
 2026-10-22 seed hunt (seed→hit): promoted shared curated-evidence type guard; regressions `TryParseValid_WhenTypeHasSurroundingWhitespace_ReturnsTrue` and `NormalizeResponse_parses_valid_policy_proposal_when_type_has_surrounding_whitespace`; 131 scoped Application.Tests.Agents tests passed.
 
 - [x] (proven) `ProposedEvidencePayloadValidator.TryParseValid` — JSON `type` with ASCII padding failed `IsSupportedType` so operator promotion rejected otherwise valid `ProposedEvidenceJson` — **hit 2026-10-22 seed hunt:** `ProposedEvidenceSupportedTypes.IsSupported` shared by validator and proposer; trim normalized type on success. [class:fail-open-validation]
@@ -7913,11 +7922,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 55
-- **bugs-found:** 51
+- **hunts:** 56
+- **bugs-found:** 52
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — shared curated-evidence type guard accepts padded JSON type
+- **last-bug:** 2026-10-22 — execution mode guard accepts padded replay API values
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
 
