@@ -541,6 +541,103 @@ public sealed class StructuredDiagramGraphMergerTests
     }
 
     [Fact]
+    public void Merge_uses_latest_diagram_edge_id_when_multiple_documents_share_equivalent_endpoints()
+    {
+        ArchitectureDiagramModelRecord inferredTopology = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API Gateway",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "db",
+                    Label = "SQL Database",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+            ],
+            Edges =
+            [
+                new ArchitectureDiagramEdgeRecord
+                {
+                    Id = "edge-first",
+                    SourceId = "api",
+                    TargetId = "db",
+                    Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        ArchitectureDiagramModelRecord assertedTopology = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API Gateway",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "db",
+                    Label = "SQL Database",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+            ],
+            Edges =
+            [
+                new ArchitectureDiagramEdgeRecord
+                {
+                    Id = "edge-second",
+                    SourceId = "api",
+                    TargetId = "db",
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        List<CanonicalObject> canonicalObjects = [];
+        canonicalObjects.AddRange(
+            ArchitectureDiagramCanonicalObjectMapper.Map(inferredTopology, "doc-edge-id-a", labelOnlyInferenceConfidence: 0.5));
+        canonicalObjects.AddRange(
+            ArchitectureDiagramCanonicalObjectMapper.Map(assertedTopology, "doc-edge-id-b", labelOnlyInferenceConfidence: 0.5));
+
+        ContextSnapshot snapshot = new()
+        {
+            SnapshotId = Guid.Parse("bbbbbbbb-cccc-dddd-eeee-111111111111"),
+            RunId = Guid.Parse("88888888-9999-aaaa-bbbb-cccccccccccc"),
+            ProjectId = "project-edge-id-merge",
+            CanonicalObjects = canonicalObjects,
+        };
+
+        StructuredDiagramGraphMerger merger = GraphMaterializationTestHelpers.CreateStructuredDiagramGraphMerger();
+        StructuredDiagramGraphMergeResult result = merger.Merge(snapshot, []);
+
+        GraphEdge merged = result.Edges
+            .Should()
+            .ContainSingle(edge =>
+                edge.EdgeType == GraphEdgeTypes.ConnectsTo
+                && edge.FromNodeId == "diagram-node:api"
+                && edge.ToNodeId == "diagram-node:db")
+            .Subject;
+
+        merged.EdgeId.Should().Be("diagram-edge:edge-second");
+        merged.Properties[StructuredDiagramGraphPropertyKeys.DiagramEdgeId].Should().Be("edge-second");
+        merged.Properties[StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId].Should().Be("doc-edge-id-b");
+    }
+
+    [Fact]
     public void Merge_deduplicates_canonical_bindings_when_multiple_documents_bind_the_same_inventory_node()
     {
         const string armSqlId =
