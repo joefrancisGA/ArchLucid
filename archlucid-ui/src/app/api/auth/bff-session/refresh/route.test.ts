@@ -1943,6 +1943,30 @@ describe("POST /api/auth/bff-session/refresh", () => {
     expect(response.headers.get("set-cookie")).toBeNull();
   });
 
+  it("returns 503 without clearing BFF session cookies when refreshAccessToken throws opaque token endpoint error 508", async () => {
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() + 3_600_000,
+      refreshToken: "refresh-token",
+      workingMode: true,
+    });
+
+    refreshAccessTokenMock.mockRejectedValue(new Error("Token endpoint error 508"));
+
+    const req = new NextRequest("http://localhost/api/auth/bff-session/refresh", {
+      method: "POST",
+      headers: {
+        cookie: `${BFF_SESSION_COOKIE_NAME}=${issueResult?.sessionCookieValue ?? ""}`,
+        [BFF_CSRF_HEADER]: issueResult?.csrfToken ?? "",
+      },
+    });
+
+    const response = await POST(req);
+
+    expect(response.status).toBe(503);
+    expect(response.headers.get("set-cookie")).toBeNull();
+  });
+
   it("returns 503 without clearing BFF session cookies when refreshAccessToken throws humanized server_error", async () => {
     const issueResult = createBffSessionCookieValue({
       accessToken: "access-token",

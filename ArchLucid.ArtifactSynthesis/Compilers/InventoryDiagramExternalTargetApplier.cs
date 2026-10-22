@@ -177,7 +177,7 @@ internal static class InventoryDiagramExternalTargetApplier
                     ast,
                     sourceDiagramNodeId,
                     externalNodeId,
-                    InventoryDiagramRelationshipLabelTexts.FormatSendsTrafficTo(backendTarget.RulePort),
+                    InventoryDiagramRelationshipLabelTexts.FormatBackendPoolNames(backendTarget.RulePort),
                     GraphEdgeInferenceSources.InventoryLbBackend,
                     ProvenanceKind.ObservedFact.ToString());
             }

@@ -48,15 +48,18 @@ export function resolveSpawnLockHandoffSnapshotSummaryRows(
   return [
     {
       label: SPAWN_LOCK_HANDOFF_LAYOUT_SNAPSHOT_LABELS.architecture,
-      value: input.workspaceHeading.trim().length > 0 ? input.workspaceHeading : "—",
+      value:
+        input.workspaceHeading.trim().length > 0
+          ? input.workspaceHeading
+          : "Architecture name was stored empty.",
     },
     {
       label: SPAWN_LOCK_HANDOFF_LAYOUT_SNAPSHOT_LABELS.businessOutcome,
-      value: businessOutcome.length > 0 ? businessOutcome : "—",
+      value: businessOutcome.length > 0 ? businessOutcome : "Business outcome was stored empty.",
     },
     {
       label: SPAWN_LOCK_HANDOFF_LAYOUT_SNAPSHOT_LABELS.intentSummary,
-      value: intentSummary.length > 0 ? intentSummary : "—",
+      value: intentSummary.length > 0 ? intentSummary : "Intent summary was stored empty.",
       wide: true,
     },
   ];
