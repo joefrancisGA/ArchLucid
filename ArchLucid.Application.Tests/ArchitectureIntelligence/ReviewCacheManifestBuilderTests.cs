@@ -7574,6 +7574,146 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_ledger_technology_name_differs_only_by_leading_dot_slash()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-ledger-technology-leading-dot";
+
+        TechnologyLedgerEntry dotted = CreateLedgerEntry(request.RunId, evidenceRef: "evidence:shared");
+        dotted.TechnologyName = "./docs/architecture/overview.md";
+
+        TechnologyLedgerEntry plain = CreateLedgerEntry(request.RunId, evidenceRef: "evidence:shared");
+        plain.TechnologyName = "docs/architecture/overview.md";
+
+        ReviewCacheManifestBuilder.Build(request, null, [dotted]).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, null, [plain]).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_ledger_technology_name_differs_only_by_dot_dot_slash_segment()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-ledger-technology-dot-dot";
+
+        TechnologyLedgerEntry dotted = CreateLedgerEntry(request.RunId, evidenceRef: "evidence:shared");
+        dotted.TechnologyName = "docs/acme/../architecture/overview.md";
+
+        TechnologyLedgerEntry collapsed = CreateLedgerEntry(request.RunId, evidenceRef: "evidence:shared");
+        collapsed.TechnologyName = "docs/architecture/overview.md";
+
+        ReviewCacheManifestBuilder.Build(request, null, [dotted]).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, null, [collapsed]).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_request_framing_answer_value_differs_only_by_dot_dot_slash_segment()
+    {
+        ClosedLoopReasoningRequest dotted = CreateRequest("Architecture note.");
+        dotted.FramingAnswers = new Dictionary<string, string> { ["evidence"] = "docs/acme/../architecture/overview.md" };
+
+        ClosedLoopReasoningRequest collapsed = CreateRequest("Architecture note.");
+        collapsed.FramingAnswers = new Dictionary<string, string> { ["evidence"] = "docs/architecture/overview.md" };
+
+        ReviewCacheManifestBuilder.Build(dotted).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(collapsed).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_ledger_evidence_ref_differs_only_by_percent_encoded_slash()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-ledger-evidence-percent-slash";
+
+        TechnologyLedgerEntry slash = CreateLedgerEntry(request.RunId, evidenceRef: "docs/architecture/overview.md");
+        TechnologyLedgerEntry encoded = CreateLedgerEntry(request.RunId, evidenceRef: "docs%2Farchitecture%2Foverview.md");
+
+        ReviewCacheManifestBuilder.Build(request, null, [slash]).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, null, [encoded]).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_element_provenance_passage_artifact_id_differs_only_by_percent_encoded_slash()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-passage-artifact-percent-slash";
+
+        ArchitectureKnowledgeModel slash = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator
+                        {
+                            ArtifactId = "docs/architecture/overview.md",
+                        },
+                    },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel encoded = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator
+                        {
+                            ArtifactId = "docs%2Farchitecture%2Foverview.md",
+                        },
+                    },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, slash).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, encoded).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_model_framing_answer_key_differs_only_by_dot_dot_slash_segment()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-framing-key-dot-dot";
+
+        ArchitectureKnowledgeModel dotted = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            FramingAnswers = new Dictionary<string, string> { ["questions/acme/../cost/driver"] = "optimize" },
+        };
+
+        ArchitectureKnowledgeModel collapsed = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            FramingAnswers = new Dictionary<string, string> { ["questions/cost/driver"] = "optimize" },
+        };
+
+        ReviewCacheManifestBuilder.Build(request, dotted).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, collapsed).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_baseline_element_ids_differ_only_by_casing()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
