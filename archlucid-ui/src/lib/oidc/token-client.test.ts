@@ -464,6 +464,29 @@ describe("refreshAccessToken", () => {
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBeNull();
   });
 
+  it("does not mark authorize callback failed when authorization code exchange returns a variation-selector-only access_token", async () => {
+    sessionStorage.clear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        text: async () => JSON.stringify({ access_token: "\uFE0F" }),
+      })),
+    );
+
+    const result = await exchangeAuthorizationCode({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      code: "auth-code",
+      redirectUri: "https://app.example/callback",
+      codeVerifier: "verifier",
+    });
+
+    expect(result.access_token).toBe("\uFE0F");
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBeNull();
+  });
+
   it("marks authorize callback failed when authorization code exchange returns a tab-only access_token", async () => {
     sessionStorage.clear();
 

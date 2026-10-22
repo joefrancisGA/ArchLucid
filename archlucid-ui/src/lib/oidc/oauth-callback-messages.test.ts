@@ -108,6 +108,10 @@ describe("readOAuthJsonErrorDescription", () => {
   it("preserves percent-decoded plus in JSON when narrow-no-break-space glue separates words", () => {
     expect(readOAuthJsonErrorDescription("Policy\u202fdenied%252Bextra")).toBe("Policy denied+extra");
   });
+
+  it("preserves percent-decoded plus in JSON when hair-space glue separates words", () => {
+    expect(readOAuthJsonErrorDescription("Policy\u200adenied%252Bextra")).toBe("Policy denied+extra");
+  });
 });
 
 describe("decodeOAuthErrorDescription", () => {
@@ -694,6 +698,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toMatch(/nonce replay/i);
     expect(message).not.toContain("nonce_replay");
+  });
+
+  it("humanizes invalid_session_id authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_session_id", "");
+
+    expect(message).toMatch(/invalid session id/i);
+    expect(message).not.toContain("invalid_session_id");
   });
 
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
