@@ -114,9 +114,9 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
             ProvenanceKind = edge.ProvenanceKind,
             DeclaredConnectionId = edge.DeclaredConnectionId,
             ReasoningTrace = edge.ReasoningTrace,
-            Properties = edge.Properties is null
+            Properties = edge.Properties is null || edge.Properties.Count == 0
                 ? []
-                : new Dictionary<string, string>(edge.Properties, StringComparer.Ordinal),
+                : NormalizeOverlayPropertyBag(edge.Properties),
         };
 
     private static Dictionary<string, string> NormalizeOverlayPropertyBag(IReadOnlyDictionary<string, string> properties)
@@ -134,7 +134,7 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
                 && !string.Equals(existing, value, StringComparison.Ordinal))
             {
                 throw new ArgumentException(
-                    "Inventory overlay node properties contain duplicate keys that collide under ordinal case-insensitive comparison.");
+                    "Inventory overlay properties contain duplicate keys that collide under ordinal case-insensitive comparison.");
             }
 
             normalized[key] = value;

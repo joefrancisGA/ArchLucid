@@ -12470,8 +12470,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 195
-- **bugs-found:** 162
+- **hunts:** 196
+- **bugs-found:** 163
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-overlay rebind deduped parallel edges separately when EdgeType differed only by whitespace
 - **related-pd-tb:** none
@@ -12549,7 +12549,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.NormalizeOverlayNode` — appended inventory nodes retained padded property-bag keys — **hit 2026-10-22 seed hunt (seed→hit):** trim property keys on overlay node append; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.NormalizeOverlayEdge` — newly appended inventory overlay edges may retain padded property-bag keys — locus: overlay edge output copies `Properties` without key trim; input: overlay-only edge carries metadata keys with surrounding whitespace; wrong outcome: parallel logical property keys on merged graph edges.
+2026-10-22 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphOverlayMerger.NormalizeOverlayEdge` padded property-bag keys on appended inventory edges candidate; proved overlay edge normalization shallow-copied property bags while hunt 195 added `NormalizeOverlayPropertyBag` for nodes only, so appended inventory edges could retain parallel logical metadata keys; reuse `NormalizeOverlayPropertyBag` on overlay edge append; regression `Merge_normalizes_padded_property_keys_when_appending_inventory_overlay_edge`; seeded `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` padded property-bag keys on minted inventory overlay nodes follow-on; 488 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.NormalizeOverlayEdge` — appended inventory edges retained padded property-bag keys — **hit 2026-10-22 seed hunt (seed→hit):** trim property keys on overlay edge append; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — minted inventory overlay graph nodes or edges may carry padded property-bag keys before merge normalization — locus: observed-fact overlay materialization; input: snapshot metadata keys with surrounding whitespace; wrong outcome: overlay consumers see duplicate logical keys before `ArchitectureInventoryObservedFactGraphOverlayMerger` normalizes on append.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 

@@ -722,6 +722,57 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void Merge_normalizes_padded_property_keys_when_appending_inventory_overlay_edge()
+    {
+        const string NodeA = "node-a";
+        const string NodeB = "node-b";
+        const string PaddedSourceEvidenceKey = "  sourceEvidenceItemId  ";
+        const string SourceEvidenceId = "evidence-42";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode { NodeId = NodeA, NodeType = GraphNodeTypes.TopologyResource, Label = "A" },
+                new GraphNode { NodeId = NodeB, NodeType = GraphNodeTypes.TopologyResource, Label = "B" },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes = [],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "overlay-edge",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+                    {
+                        [PaddedSourceEvidenceKey] = SourceEvidenceId,
+                    },
+                },
+            ],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        GraphEdge edge = merged.Edges.Should().ContainSingle().Subject;
+        edge.Properties.Should().ContainKey("sourceEvidenceItemId");
+        edge.Properties["sourceEvidenceItemId"].Should().Be(SourceEvidenceId);
+        edge.Properties.Should().NotContainKey(PaddedSourceEvidenceKey);
+    }
+
+    [Fact]
     public void Merge_normalizes_padded_edge_type_when_appending_inventory_overlay_edge()
     {
         const string NodeA = "node-a";
