@@ -57,6 +57,13 @@ public sealed class AgentModelCatalogFaithfulnessHarnessImporter(
                 "Faithfulness harness summary reports zero evaluated cases. Re-run scripts/ci/eval_agent_faithfulness.py before import.");
         }
 
+        if (!double.IsFinite(summary.PositiveReadinessSupportRatio)
+            || !double.IsFinite(summary.FloorMinSupportRatio))
+        {
+            throw new InvalidOperationException(
+                "Faithfulness harness summary contains non-finite support ratios. Re-run scripts/ci/eval_agent_faithfulness.py before import.");
+        }
+
         AgentModelEvaluationStateKind evaluationState =
             summary.PositiveReadinessSupportRatio >= summary.FloorMinSupportRatio
                 ? AgentModelEvaluationStateKind.Evaluated
