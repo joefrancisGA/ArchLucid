@@ -12470,18 +12470,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 158
+- **hunts:** 159
 - **bugs-found:** 149
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — graph node property reader returned padded property values
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-10-22 seed hunt (valid-no-repro): promoted `DeclarationIdentityActorMaterializer` padded `k8s.servicetype` load-balancer candidate; proved hunt 158 `GraphNodePropertyReader` value trim already normalizes `k8s.servicetype` before `TryMatchK8sLoadBalancerService` equality; regression `MaterializeFromNodes_emits_external_actor_for_loadbalancer_service_when_servicetype_has_surrounding_whitespace`; seeded `DeclarationIdentityActorMaterializer` padded `k8s.kind` ingress gate parity follow-on; 463 KnowledgeGraph + 148 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `DeclarationIdentityActorMaterializer.TryMatchK8sLoadBalancerService` — padded `k8s.servicetype` missed load-balancer actors — **cheap-disproof 2026-10-22 seed hunt:** closed by `GraphNodePropertyReader` value trim (#158); regression above.
+
+- [ ] (candidate) `DeclarationIdentityActorMaterializer.TryMatchK8sIngress` — padded `k8s.kind` ingress token may miss external actor materialization — locus: `string.Equals(kind, "ingress", …)`; input: `k8s.kind` with surrounding whitespace; wrong outcome: ingress actors omitted unless reader trim covers path (parity audit after #158).
+
 2026-10-22 seed hunt (seed→hit): promoted `GraphNodePropertyReader` padded property-bag value candidate; proved `TryGetPropertyValue` returned raw property strings, so declaration identity k8s kind gates like `TryMatchK8sServiceAccount` compared unpadded tokens and skipped actors when `k8s.kind` carried surrounding whitespace; trim values on successful read; regressions `TryGetPropertyValue_trims_surrounding_whitespace_on_returned_value` and `MaterializeFromNodes_emits_actor_for_k8s_service_account_when_kind_property_has_surrounding_whitespace`; seeded `DeclarationIdentityActorMaterializer` padded `k8s.servicetype` load-balancer gate follow-on; 462 KnowledgeGraph + 148 Provenance scoped tests passed.
 
 - [x] (proven) `GraphNodePropertyReader.TryGetPropertyValue` — padded property-bag values surfaced without trim on read — **hit 2026-10-22 seed hunt (seed→hit):** trim returned values; regressions above.
-
-- [ ] (candidate) `DeclarationIdentityActorMaterializer.TryMatchK8sLoadBalancerService` — padded `k8s.servicetype` may miss load-balancer actor materialization — locus: `string.Equals(serviceType, "loadbalancer", …)` without local trim when reader omits trim; input: `k8s.servicetype` with surrounding whitespace; wrong outcome: external-trust load-balancer actors omitted (verify reader trim closes or add local parity).
 
 2026-10-22 seed hunt (valid-no-repro): promoted `StructuredDiagramGraphMerger` duplicate-edge `InferenceSource` coalesce candidate; proved `ArchitectureDiagramToGraphCompiler` always assigns `GraphEdgeInferenceSources.StructuredParse` for diagram `ConnectsTo` rows (inferred and asserted), so multi-document merge never observes differing inference sources on the reachable path; regressions `Compile_asserted_connects_to_edge_uses_structured_parse_inference_source` and `InferenceSource` assertion on `Merge_uses_latest_diagram_edge_properties_and_reasoning_when_multiple_documents_share_equivalent_endpoints`; seeded `GraphNodePropertyReader` padded property-bag **values** on read follow-on; 460 KnowledgeGraph + 148 Provenance scoped tests passed.
 

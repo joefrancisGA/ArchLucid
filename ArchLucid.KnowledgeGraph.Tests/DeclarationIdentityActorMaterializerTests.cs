@@ -67,6 +67,33 @@ public sealed class DeclarationIdentityActorMaterializerTests
     }
 
     [Fact]
+    public void MaterializeFromNodes_emits_external_actor_for_loadbalancer_service_when_servicetype_has_surrounding_whitespace()
+    {
+        Guid snapshotId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+
+        GraphNode service = new()
+        {
+            NodeId = "obj-svc-lb",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "checkout-lb",
+            SourceType = "InfrastructureDeclaration",
+            SourceId = "decl-svc",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["k8s.kind"] = "service",
+                ["k8s.servicetype"] = "  loadbalancer  ",
+                ["k8s.name"] = "checkout-lb",
+            },
+        };
+
+        IReadOnlyList<GraphNode> materialized =
+            DeclarationIdentityActorMaterializer.MaterializeFromNodes([service], snapshotId);
+
+        materialized.Should().ContainSingle(n => n.NodeType == GraphNodeTypes.Actor);
+        materialized[0].Properties["trustOrigin"].Should().Be(nameof(TrustOrigin.External));
+    }
+
+    [Fact]
     public void MaterializeFromNodes_emits_internal_actor_for_function_app_with_identity()
     {
         Guid snapshotId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
