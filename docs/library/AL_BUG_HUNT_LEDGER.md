@@ -193260,9 +193260,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 46
+- **hunts:** 47
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 3
+- **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-21 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ fleet COGS missing-rate when only global input rate configured
 - **related-pd-tb:** none
@@ -193358,11 +193358,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 
 2026-10-22 thorough hunt (dry): `application-billing-logic` — pass 3 — cheap-disproof closed five seeded (candidate) rows (boolean quantity false vs true, daily chart token columns, integration event body shape, fleet hard-cap when monitoring disabled, whitespace planId); no hunt-ready rows; 47 scoped billing tests passed; zone status cooling after 3 consecutive dry hunts; seeded five follow-on (candidate) rows.
-- [ ] (candidate) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — `quantity: 0` defers without ledger mutation while positive integers apply — locus: `TryReadQuantity` rejects `wholeNumber < 1`; input: GA-enabled ChangeQuantity with numeric zero seats.
-- [ ] (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — omitted `Seats`/`Workspaces` become zero on provider request before Persistence clamps — locus: `Seats = body.Seats ?? 0`; input: checkout POST with null seat counts (verify Stripe `Math.Max(1, …)` parity).
-- [ ] (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — `CostBasisLabel` uses identical `estimated` branches for `hardCap > 0` vs zero — locus: response `CostBasisLabel` ternary; input: tenant dashboard with monthly budget monitoring on vs off.
-- [ ] (candidate) `AdminFleetLlmCogsService.BuildDashboardAsync` — `BlocksAdditionalLlmExecution` stays false when monthly budget monitoring disabled even if stored month pressure exceeds configured hard cutoff — locus: `blocks` predicate requires `opts.Enabled`; input: fleet COGS row with positive pressure and `Billing:LlmMonthlyTenantDollarBudget:Enabled=false`.
-- [ ] (candidate) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` — `messageId` is only `ProviderDedupeKey:eventType` with no tenant suffix — locus: `messageId` format line; input: distinct tenants replaying the same Marketplace dedupe key (verify Persistence dedupe key includes tenant/subscription).
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — `quantity: 0` defers without ledger mutation while positive integers apply — **cheap-disproof 2026-10-22 thorough hunt pass 4:** `MarketplaceQuantityReader.TryReadQuantity` rejects numeric and string quantities below 1; GA handler defers when `TryReadQuantity` fails (same path as `Ga_enabled_missing_quantity_defers_without_ledger_mutation`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — omitted `Seats`/`Workspaces` become zero on provider request before Persistence clamps — **cheap-disproof 2026-10-22 thorough hunt pass 4:** `AzureMarketplaceBillingProvider.Checkout` and `NoopBillingProvider` clamp with `Math.Max(1, request.Seats/Workspaces)` before ledger upsert; facade zero is not a reachable under-seat checkout.
+- [x] (invalid) `TenantLlmCostReportingService.BuildDashboardAsync` — `CostBasisLabel` uses identical `estimated` branches for `hardCap > 0` vs zero — **cheap-disproof 2026-10-22 thorough hunt pass 4:** duplicate ternary is dead code only; contract always returns `estimated` (2026-10-20 thorough hunt).
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — `BlocksAdditionalLlmExecution` stays false when monthly budget monitoring disabled even if stored month pressure exceeds configured hard cutoff — **cheap-disproof 2026-10-22 thorough hunt pass 4:** `blocks` requires `opts.Enabled`; fleet COGS must not hard-stop tenants when `Billing:LlmMonthlyTenantDollarBudget:Enabled=false` (`ClassifyBudgetCompletion` returns `monitoring-disabled`).
+- [x] (invalid) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` — `messageId` is only `ProviderDedupeKey:eventType` with no tenant suffix — **cheap-disproof 2026-10-22 thorough hunt pass 4:** `ProviderDedupeKey` is built in Persistence from subscription id, action, and raw body (`AzureMarketplaceBillingProvider.WebhookDispatch`); tenant is resolved before publish, not a cross-tenant idempotency key in Application.
+
+
+2026-10-22 thorough hunt (dry): `application-billing-logic` — pass 4 — cheap-disproof closed five pass-3 seed (candidate) rows (zero quantity, null checkout seats, CostBasisLabel ternary, fleet blocks when monitoring off, integration messageId shape); no hunt-ready rows; 47 scoped billing tests passed; consecutive dry hunts 4 while zone remains cooling; seeded five follow-on (candidate) rows.
+- [ ] (candidate) `AdminFleetLlmCogsService.CostRatesConfigured` — returns false when `Billing:LlmCostEstimation:Enabled=false` even if per-deployment USD rates are configured — locus: `!options.Enabled` guard; input: fleet COGS dashboard with estimation disabled in config.
+- [ ] (candidate) `AdminFleetLlmCogsService.ClassifyRisk` — `GrossMarginRiskLabel` can read `warn` from `pressureUsd >= warningAtUsd` while `HardCapUtilizationFraction` is null when hard cap is zero — locus: `ClassifyRisk` pressure branch before utilization check; input: fleet row with included warn threshold but disabled hard cap math.
+- [ ] (candidate) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — defers with `DeferredGaDisabled` when `BillingPlanMutationPolicy.WebhookPlanMutationsEnabled` is false even if `Billing:Provider` is Stripe (ChangePlan still used for tier sync) — locus: first guard vs Stripe parity tests; input: Stripe-hosted tenant `ChangePlan` when only GA flag is off (verify `Stripe_provider_applies_change_plan_when_azure_marketplace_ga_disabled`).
+- [ ] (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — clamps `days` to 1–90 but does not re-fetch top runs when `days` changes within range — locus: `RankAsync` invocation uses fixed `maxRunsToScan: 12`; input: dashboard poll with different `days` query (verify top-run window is independent by design).
+- [ ] (candidate) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — returns `Status` from ledger for non-subscribed rows without normalizing unknown lifecycle strings for display — locus: `Status = snapshot.Status`; input: `Pending`/`Canceled` checkout rows (verify intentional lifecycle surfacing vs corruption).
 
 
 - **id:** application-billing-logic
