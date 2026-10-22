@@ -3,7 +3,7 @@ using System.Text;
 
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
-using ArchLucid.Core.Artifacts;
+using ArchLucid.Contracts.Persistence.Artifacts;
 using ArchLucid.Decisioning.Models;
 
 namespace ArchLucid.Provenance;
@@ -160,29 +160,50 @@ public static class ProvenanceSnapshotRevisionHasher
         if (artifacts.Count == 0)
             return string.Empty;
 
-        IEnumerable<string> parts = SynthesizedArtifactBundleCanonicalizer
-            .DistinctByArtifactId(artifacts)
-            .OrderBy(static artifact => artifact.ArtifactId)
-            .Select(static artifact =>
+        IEnumerable<string> parts = artifacts
+            .GroupBy(static artifact => artifact.ArtifactId)
+            .OrderBy(static group => group.Key)
+            .Select(group =>
             {
+                SynthesizedArtifact representative = SelectRevisionArtifactRepresentative(group);
+
                 string contributingDecisionIds = string.Join(
                     ",",
-                    artifact.ContributingDecisionIds
+                    group.SelectMany(static artifact => artifact.ContributingDecisionIds)
                         .Select(static decisionId => decisionId.Trim())
                         .Where(static decisionId => decisionId.Length > 0)
                         .Distinct(StringComparer.OrdinalIgnoreCase)
                         .OrderBy(static decisionId => decisionId, StringComparer.OrdinalIgnoreCase));
 
-                string name = (artifact.Name ?? string.Empty).Trim();
-                string artifactType = (artifact.ArtifactType ?? string.Empty).Trim();
-                string format = (artifact.Format ?? string.Empty).Trim();
+                string name = (representative.Name ?? string.Empty).Trim();
+                string artifactType = (representative.ArtifactType ?? string.Empty).Trim();
+                string format = (representative.Format ?? string.Empty).Trim();
 
-                string contentHash = (artifact.ContentHash ?? string.Empty).Trim();
+                string contentHash = (representative.ContentHash ?? string.Empty).Trim();
 
-                return $"{artifact.ArtifactId:N}|{contentHash}|{contributingDecisionIds}|{name}|{artifactType}|{format}";
+                return $"{group.Key:N}|{contentHash}|{contributingDecisionIds}|{name}|{artifactType}|{format}";
             });
 
         return string.Join(";", parts);
+    }
+
+    internal static SynthesizedArtifact SelectRevisionArtifactRepresentative(
+        IEnumerable<SynthesizedArtifact> artifactsWithSameId)
+    {
+        List<SynthesizedArtifact> rows = artifactsWithSameId.ToList();
+
+        IEnumerable<string> distinctHashes = rows
+            .Select(static artifact => artifact.ContentHash ?? string.Empty)
+            .Distinct(StringComparer.Ordinal);
+
+        if (distinctHashes.Skip(1).Any())
+        {
+            return rows
+                .OrderByDescending(static artifact => artifact.ContentHash ?? string.Empty, StringComparer.Ordinal)
+                .First();
+        }
+
+        return rows[^1];
     }
 
     private static Guid ResolveDecisionTraceId(DecisionTraceDto trace)

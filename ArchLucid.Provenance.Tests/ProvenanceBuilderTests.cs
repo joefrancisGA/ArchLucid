@@ -716,6 +716,47 @@ public sealed class ProvenanceBuilderTests
     }
 
     [Fact]
+    public void Build_uses_last_artifact_name_when_bundle_lists_duplicate_artifact_ids()
+    {
+        SynthesizedArtifact firstRow = new()
+        {
+            ArtifactId = ArtifactId,
+            ArtifactType = "doc",
+            Name = "overview-old.md",
+            Format = "md",
+            Content = "x",
+            ContentHash = "h",
+            ContributingDecisionIds = [],
+        };
+
+        SynthesizedArtifact secondRow = new()
+        {
+            ArtifactId = ArtifactId,
+            ArtifactType = "doc",
+            Name = "overview-renamed.md",
+            Format = "md",
+            Content = "x",
+            ContentHash = "h",
+            ContributingDecisionIds = [],
+        };
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot { Nodes = [] },
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [firstRow, secondRow],
+        });
+
+        graph.Nodes
+            .Should()
+            .ContainSingle(n => n.Type == ProvenanceNodeType.Artifact && n.Name == "overview-renamed.md");
+    }
+
+    [Fact]
     public void Build_deduplicates_contributed_to_artifact_when_artifact_bundle_lists_duplicate_entries()
     {
         const string decisionId = "dec-1";

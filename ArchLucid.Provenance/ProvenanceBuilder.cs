@@ -228,7 +228,9 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         return result;
 
         IEnumerable<SynthesizedArtifact> DistinctArtifacts() =>
-            SynthesizedArtifactBundleCanonicalizer.DistinctByArtifactId(artifacts);
+            artifacts
+                .GroupBy(static artifact => artifact.ArtifactId)
+                .Select(static group => ProvenanceSnapshotRevisionHasher.SelectRevisionArtifactRepresentative(group));
 
         ProvenanceNode CreateFindingNode(Finding finding)
         {
