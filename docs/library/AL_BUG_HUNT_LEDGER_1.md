@@ -8712,6 +8712,16 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): consolidated Unicode line-break scalars in `NormalizeLineEndings` (added vertical tab `\u000b`); regression `Build_matches_content_hash_when_source_content_uses_unicode_line_separators`; cheap-disproof framing-key NFC parity; 99 scoped orchestrator/cache/manifest tests passed.
+
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — vertical tab (`\u000b`) split `ContentHash` from LF — **hit 2026-10-22 seed hunt:** shared `UnicodeLineBreakScalars` loop maps VT with NEL/LS/PS; regression above (`\u000b` case). [class:state-machine-gap]
+
+- [x] (valid-no-repro) `ClosedLoopFramingAnswersNormalizer` — framing keys NFC vs NFD — **cheap-disproof 2026-10-22 seed hunt:** `NormalizeUnicode` on keys; regression `Build_matches_content_hash_when_framing_key_differs_only_by_unicode_normalization_form`.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeFileNameForHash` — `+` vs `%20` in `FileName` may still split `ContentHash` — locus: percent decode loop; input: `docs/my+file.md` vs `docs/my%20file.md`.
+
+- (candidate) `ReviewCacheManifestBuilder.HashPriorities` — priority strings differing only by surrounding Unicode whitespace (not ASCII space) — locus: priority hash loop; input: NBSP-padded priority token.
+
 2026-10-22 seed hunt (seed→hit): promoted NEL (`\u0085`) line separator in source `Content` splitting `ContentHash` after U+2028/U+2029 fix; extended `NormalizeLineEndings`; regression `Build_matches_content_hash_when_source_content_uses_unicode_line_separators` (`\u0085` case); closed stale framing-key and duplicate-source candidates; 97 scoped orchestrator/cache/manifest tests passed.
 
 - [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — Unicode NEL (`\u0085`) left content unnormalized vs LF — **hit 2026-10-22 seed hunt:** map NEL to LF alongside LS/PS; regression above. [class:state-machine-gap]
@@ -8753,11 +8763,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 44
-- **bugs-found:** 24
+- **hunts:** 45
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — NEL line separator in review-cache source content hash
+- **last-bug:** 2026-10-22 — vertical tab line break in review-cache source content hash
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
