@@ -142,6 +142,7 @@ describe("decodeOAuthErrorDescription", () => {
   it("preserves literal plus in authorize error descriptions when regional-indicator flag emoji is present", () => {
     expect(decodeOAuthErrorDescription("🇺🇸+extra")).toBe("🇺🇸+extra");
     expect(decodeOAuthErrorDescription("🇺🇸%2Bextra")).toBe("🇺🇸+extra");
+    expect(decodeOAuthErrorDescription("🇺🇸%252Bextra")).toBe("🇺🇸+extra");
   });
 
   it("preserves literal plus in authorize error descriptions when skin-tone emoji modifiers are present", () => {
@@ -385,6 +386,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toMatch(/unsupported grant type/i);
     expect(message).not.toContain("unsupported_grant_type");
+  });
+
+  it("humanizes invalid_token authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_token", "");
+
+    expect(message).toMatch(/invalid token/i);
+    expect(message).not.toContain("invalid_token");
   });
 
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
