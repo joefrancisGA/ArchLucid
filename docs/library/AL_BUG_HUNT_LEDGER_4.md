@@ -12470,7 +12470,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 241
+- **hunts:** 242
 - **bugs-found:** 177
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — fully empty overlay merge returned base graph without warning normalization
@@ -12733,7 +12733,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — empty normalized ARM id minted placeholder nodes — **cheap-disproof 2026-10-22 seed hunt:** skip before mint; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — resource rows with only `CloudResourceId` and missing ARM id may throw or mint unstable node ids — locus: `ResolveNodeId` ARM fallback; input: resource without `AzureResourceId` but with cloud resource guid; wrong outcome: overlay mint fails or uses raw whitespace ARM token.
+2026-10-22 seed hunt (valid-no-repro): promoted `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` cloud-resource-id-only row candidate; proved overlay mint requires non-empty normalized ARM id, so rows with `CloudResourceId` but missing `AzureResourceId` are skipped (no throw, no unstable hash fallback); when both are present `ResolveNodeId` prefers the cloud guid; regressions `BuildOverlay_skips_cloud_resource_id_row_when_azure_resource_id_is_missing` and `BuildOverlay_uses_cloud_resource_id_as_node_id_when_arm_resource_id_is_present`; seeded `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` ARM-only rows without cloud guid use hashed node id fallback follow-on; 535 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — cloud-resource-id-only rows threw or minted unstable ids — **cheap-disproof 2026-10-22 seed hunt:** ARM required before `ResolveNodeId`; regressions above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — ARM-only resource rows without `CloudResourceId` may throw or mint padded ARM tokens as node ids — locus: `ResolveNodeId` hash fallback; input: resource with valid ARM id and null cloud guid; wrong outcome: overlay mint fails or uses raw ARM string as `NodeId`.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
