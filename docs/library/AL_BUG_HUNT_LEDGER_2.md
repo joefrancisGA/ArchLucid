@@ -1801,6 +1801,18 @@
 
 ## Zone: finding-inspect-sql
 
+2026-10-22 seed hunt #92 (seed-only): re-read audit/disposition SQL tests and typed-payload parity paths; cheap-disproof closed four open `(candidate)` rows; no hunt-ready promotion; seeded four follow-on `(candidate)` rows; scoped inspect filter not run on this host.
+
+- [x] (invalid) `FollowUpBatch` audit subquery omits `FindingId` — **cheap-disproof 2026-10-22 seed #92:** inspect surfaces latest run-level `AuthorityCommittedChainPersisted` anchor by design; regression `FollowUpBatch_audit_event_scoped_by_run_without_finding_records_join` plus tenant/workspace/project + `RunId` scope.
+- [x] (valid-no-repro) `RemediationDueUtc` — `ToUtcDateTimeOffset` assumes UTC storage — **cheap-disproof 2026-10-22 seed #92:** `datetime2` columns are persisted UTC; `SpecifyKind(Utc)` matches repository convention elsewhere on inspect dates.
+- [x] (invalid) `ResolveTypedPayloadForInspectRead` — metadata `whyThisMatters` parity SQL vs in-memory when `includeTypedPayload` false — **cheap-disproof 2026-10-22 seed #92:** both paths call `BuildMetadataTypedPayload(title, rationale)` without the corrupt-payload flag; in-memory corrupt fallback uses `includeWhyThisMattersWhenTitleMissing: true` matching `ResolveTypedPayloadForInspect` (#1238).
+- [x] (valid-no-repro) `TryParseEvaluationConfidenceLevel` null vs `ParseFindingSeverity` throw — **cheap-disproof 2026-10-22 seed #92:** optional evaluation bucket is soft-fail; severity is required governance enum with explicit invalid-data throw (documented contract tests).
+
+- [ ] (candidate) `DapperFindingInspectReadRepository` — `QuerySingleOrDefaultAsync<DispositionRow>` may materialize a disposition join row when SQL returns whitespace-only `Disposition` while pointer timestamps are still populated (saturated `state-machine-gap` sibling).
+- [ ] (candidate) `FindingInspectReadSql.MainInspectWithTypedPayload` — `LEFT JOIN dbo.DecisioningTraces` binds run decision trace only; a finding-level override trace (if introduced) would not surface on inspect without SQL change.
+- [ ] (candidate) `FilterNonBlankTrimmedStrings` — drops embedded format-character strings entirely rather than stripping leading/trailing format chars (display contract vs enum-token normalization asymmetry).
+- [ ] (candidate) `GetInspectAsync` — cancellation token passed to `QueryMultipleAsync` but not between grid readers (long-running batch could continue after caller cancel — operational edge).
+
 2026-10-22 seed hunt #91 (seed-only): re-read disposition join, rule-field resolution, and main inspect SQL; cheap-disproof closed four open `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` saturated); seeded four follow-on `(candidate)` rows; scoped inspect filter not run on this host.
 
 - [x] (invalid) `LoadDispositionJoinAsync` — related nodes / trace rules unnormalized before rule pairing — **cheap-disproof 2026-10-22 seed #91:** related nodes only feed `BuildEvidenceFromRelatedNodes` (filtered); trace rule text uses `ResolveFirstTraceRuleText` → `FilterNonBlankTrimmedStrings` before `ResolveRuleFields`; no cross-stream pairing of raw node ids.
@@ -1819,11 +1831,6 @@
 - [x] (invalid) `MainInspectWithTypedPayload` — `JSON_VALUE` model alias bypasses `NormalizeInspectDisplayText` — **cheap-disproof 2026-10-22 seed #90:** `MapInspectResponse` applies `NormalizeInspectDisplayText(row.ModelAlias)` after SQL projection (hit 2026-10-04).
 - [x] (valid-no-repro) `FilterRecommendedActions` — trailing format-only action text dropped vs evidence normalizer — **cheap-disproof 2026-10-22 seed #90:** both paths use `FilterNonBlankTrimmedStrings` / `NormalizeInspectText`; dropping invisible-only action lines is intentional inspect contract.
 - [x] (valid-no-repro) `LoadDispositionJoinAsync` — disposition pointer timestamps without parsed enum — **cheap-disproof 2026-10-22 seed #90:** `MapDispositionPointerProjection` + `ParseDisposition` intentionally allow null enum with row metadata; saturated `state-machine-gap` class.
-
-- [ ] (candidate) `DapperFindingInspectReadRepository.LoadDispositionJoinAsync` — `ReadAsync<string>()` for related nodes and trace rules does not normalize until `BuildEvidenceFromRelatedNodes` / `ResolveFirstTraceRuleText`, so invisible-only node ids may still flow into rule-text pairing before filter (parity with recommended-actions path).
-- [ ] (candidate) `FindingInspectReadSql.MainInspectWithTypedPayload` — `fr.ProjectId = @ScopeProjectId` vs `r.ScopeProjectId` naming documents project scope binding; a future caller passing mismatched scope parameters could join the wrong run row (defense-in-depth vs `FindingRecords` tenant guard).
-- [ ] (candidate) `InMemoryFindingInspectReadRepository.GetInspectAsync` — demo-only path omits disposition pointer / waiver fields present on Dapper inspect (documented demo regex gate; parity gap if demo findings ever carry disposition state).
-- [ ] (candidate) `FindingInspectReadModelMapper.ParseFindingSeverity` — invisible-only severity token returns `Info` default after normalize (symmetric with human-review `NotRequired`); callers cannot distinguish missing severity from format-garbage storage without reading raw column.
 
 2026-10-22 seed hunt #89 (seed-only): re-read mapper, SQL batch, and repository core after sparse `bugsmash-2` tip dropped Persistence paths; restored `FindingInspectReadModelMapper` enum parse parity with `NormalizeInspectEnumToken` (regressions already in ledger hit #88); cheap-disproof closed five open `(candidate)` rows; seeded four follow-on `(candidate)` rows; scoped inspect filter not run on this host.
 
@@ -1845,7 +1852,7 @@
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 90
+- **hunts:** 91
 - **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
