@@ -3988,9 +3988,9 @@
 - **aliases:** persistence billing stripe; stripe wallet integration; stripe billing persistence
 - **paths:** ArchLucid.Persistence/Billing/Stripe/; ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/Wallet/LlmTenantWalletConsumeStage.cs
 - **test-filter:** FullyQualifiedName~StripeWalletPaymentIdentifierGuard|FullyQualifiedName~UpdateWalletAsync_rejects_stripe_customer_id_that_guard_blocks
-- **hunts:** 3
+- **hunts:** 4
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-21 — auto-refill charged without re-validating persisted Stripe ids
 - **related-pd-tb:** none
@@ -4003,10 +4003,18 @@
 - [x] (valid-no-repro) `StripeWalletPaymentIdentifierGuard.AllowsWalletUpdateAsync` - customer id matches linked customer without payment method - **regression 2026-10-22:** allow tenant-owned customer id only.
 - [x] (valid-no-repro) `StripeWalletPaymentIdentifierGuard.AllowsWalletUpdateAsync` - whitespace-only Stripe ids treated as absent - **cheap-disproof 2026-10-22:** early no-op bypass without resolver call.
 
-- [ ] (candidate) `StripeWalletPaymentIdentifierGuard.AllowsWalletUpdateAsync` - payment method not attached to linked customer - locus: `IsPaymentMethodAttachedToCustomerAsync` (reachability: Stripe PaymentMethod.GetAsync).
-- [ ] (candidate) `StripeLinkedCustomerResolver.TryResolveLinkedCustomerIdAsync` - checkout session provider ref without tenant metadata - locus: `MetadataMatchesTenant` (reachability: ledger `cs_` refs).
-- [ ] (candidate) `LlmTenantWalletRefillStage.TryAutoRefillAsync` - guard bypass when only payment method id persisted - locus: auto-refill re-validation (reachability: persisted wallet row shape).
-- [ ] (candidate) `LlmTenantWalletConsumeStage` - guard skipped on consume when Stripe ids stale - locus: consume-stage identifier guard (reachability: parallel to refill stage).
+- [x] (valid-no-repro) `StripeWalletPaymentIdentifierGuard.AllowsWalletUpdateAsync` — payment method not attached to linked customer — **cheap-disproof 2026-10-22 seed hunt:** `IsPaymentMethodAttachedToCustomerAsync` requires `paymentMethod.CustomerId` equals linked customer; detached or foreign PM returns false.
+- [x] (valid-no-repro) `StripeLinkedCustomerResolver.TryResolveLinkedCustomerIdAsync` — checkout session provider ref without tenant metadata — **cheap-disproof 2026-10-22 seed hunt:** `MetadataMatchesTenant` rejects missing/`tenant_id`; regression `TryResolveCustomerFromProviderRef_returns_null_for_unsupported_provider_ref_prefix`.
+- [x] (valid-no-repro) `LlmTenantWalletRefillStage.TryAutoRefillAsync` — guard bypass when only payment method id persisted — **cheap-disproof 2026-10-22 seed hunt:** requires both persisted customer and payment method (`string.IsNullOrWhiteSpace` on both) before charge; re-runs guard on persisted pair (2026-10-21 hit).
+- [x] (valid-no-repro) `LlmTenantWalletConsumeStage` — guard skipped on consume when Stripe ids stale — **cheap-disproof 2026-10-22 seed hunt:** consume does not call Stripe; auto-refill enqueue path re-validates identifiers in `LlmTenantWalletRefillStage`.
+
+2026-10-22 seed hunt (seed-only): `persistence-billing-stripe` — cheap-disproof closed four open candidates; added `StripeLinkedCustomerResolverTests` + synced guard regressions; scoped filter 9/9 passed; no product defect.
+
+- [ ] (candidate) `StripeWalletPaymentIdentifierGuard.AllowsWalletUpdateAsync` — payment method `GetAsync` StripeException fails closed — locus: `IsPaymentMethodAttachedToCustomerAsync` catch (reachability: invalid or cross-account PM id).
+- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — enable auto-replenish with only linked customer id in PUT leaves stale persisted payment method — locus: first guard `(customer, null)` skip vs persisted PM on refill (reachability: COALESCE update).
+- [ ] (candidate) `StripeLinkedCustomerResolver.TryResolveCustomerFromProviderRefAsync` — `sub_` ref with matching metadata but customer reused across tenants — locus: subscription metadata gate only (reachability: Stripe customer sharing).
+- [ ] (candidate) `StripeWalletGateway.ChargeRefillAsync` — off-session charge without re-running identifier guard — locus: gateway entry (reachability: callers must guard first).
+- [ ] (candidate) `WalletController.PutAsync` — wallet PUT returns 409 without distinguishing guard failure from concurrency — locus: `updated is null` (reachability: operator retry UX).
 
 2026-10-21 follow-up hunt (hit, lane C): auto-refill `TryAutoRefillAsync` now re-runs `IStripeWalletPaymentIdentifierGuard` on persisted Stripe ids before `ChargeRefillAsync`, logging `LlmWalletRefillFailed` with decline code `payment_identifier_guard` and skipping Stripe when legacy rows fail validation. Regression `TryAutoRefillAsync_skips_stripe_charge_when_persisted_identifiers_fail_guard`; 29 scoped wallet tests passed.
 
