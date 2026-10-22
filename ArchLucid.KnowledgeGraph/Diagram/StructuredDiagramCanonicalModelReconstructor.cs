@@ -78,15 +78,21 @@ public static class StructuredDiagramCanonicalModelReconstructor
             string? subgraphId = ReadDiagramSubgraphId(canonicalObject);
             string? subgraphLabel = ReadDiagramSubgraphLabel(canonicalObject);
 
-            if (!string.IsNullOrWhiteSpace(subgraphId)
-                && !subgraphs.ContainsKey(subgraphId))
+            if (!string.IsNullOrWhiteSpace(subgraphId))
             {
-                subgraphs[subgraphId] = new ArchitectureDiagramSubgraphRecord
+                if (!subgraphs.TryGetValue(subgraphId, out ArchitectureDiagramSubgraphRecord? subgraph))
                 {
-                    Id = subgraphId,
-                    Label = string.IsNullOrWhiteSpace(subgraphLabel) ? subgraphId : subgraphLabel,
-                    OrderKey = subgraphOrder++,
-                };
+                    subgraphs[subgraphId] = new ArchitectureDiagramSubgraphRecord
+                    {
+                        Id = subgraphId,
+                        Label = string.IsNullOrWhiteSpace(subgraphLabel) ? subgraphId : subgraphLabel,
+                        OrderKey = subgraphOrder++,
+                    };
+                }
+                else if (!string.IsNullOrWhiteSpace(subgraphLabel))
+                {
+                    subgraph.Label = subgraphLabel.Trim();
+                }
             }
 
             ArchitectureDiagramNodeRecord incomingNode = new()

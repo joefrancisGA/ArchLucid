@@ -320,4 +320,104 @@ public sealed class StructuredDiagramCanonicalModelReconstructorTests
         model.Nodes.Should().HaveCount(1);
         model.Nodes[0].Label.Should().Be("API Gateway");
     }
+
+    [Fact]
+    public void ReconstructDocuments_upgrades_subgraph_label_when_later_row_supplies_diagram_subgraph_label()
+    {
+        List<CanonicalObject> canonicalObjects =
+        [
+            new CanonicalObject
+            {
+                ObjectId = "obj-api",
+                ObjectType = "TopologyResource",
+                Name = "Orders API",
+                SourceType = ArchitectureDiagramCanonicalObjectMapper.StructuredDiagramSourceType,
+                SourceId = "doc-subgraph-label",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["text"] = "Orders API",
+                    ["diagramNodeId"] = "api",
+                    ["diagramNodeKind"] = ArchitectureDiagramNodeKinds.System,
+                    ["diagramSubgraphId"] = "corp",
+                },
+            },
+            new CanonicalObject
+            {
+                ObjectId = "obj-db",
+                ObjectType = "TopologyResource",
+                Name = "SQL Database",
+                SourceType = ArchitectureDiagramCanonicalObjectMapper.StructuredDiagramSourceType,
+                SourceId = "doc-subgraph-label",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["text"] = "SQL Database",
+                    ["diagramNodeId"] = "db",
+                    ["diagramNodeKind"] = ArchitectureDiagramNodeKinds.System,
+                    ["diagramSubgraphId"] = "corp",
+                    ["diagramSubgraphLabel"] = "Corporate network",
+                },
+            },
+        ];
+
+        ArchitectureDiagramModelRecord model = StructuredDiagramCanonicalModelReconstructor
+            .ReconstructDocuments(canonicalObjects)
+            .Should()
+            .ContainSingle()
+            .Subject
+            .Model;
+
+        model.Subgraphs.Should().ContainSingle(subgraph =>
+            subgraph.Id == "corp"
+            && subgraph.Label == "Corporate network");
+    }
+
+    [Fact]
+    public void ReconstructDocuments_preserves_subgraph_label_when_later_row_omits_diagram_subgraph_label()
+    {
+        List<CanonicalObject> canonicalObjects =
+        [
+            new CanonicalObject
+            {
+                ObjectId = "obj-api",
+                ObjectType = "TopologyResource",
+                Name = "Orders API",
+                SourceType = ArchitectureDiagramCanonicalObjectMapper.StructuredDiagramSourceType,
+                SourceId = "doc-subgraph-label-keep",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["text"] = "Orders API",
+                    ["diagramNodeId"] = "api",
+                    ["diagramNodeKind"] = ArchitectureDiagramNodeKinds.System,
+                    ["diagramSubgraphId"] = "corp",
+                    ["diagramSubgraphLabel"] = "Corporate network",
+                },
+            },
+            new CanonicalObject
+            {
+                ObjectId = "obj-db",
+                ObjectType = "TopologyResource",
+                Name = "SQL Database",
+                SourceType = ArchitectureDiagramCanonicalObjectMapper.StructuredDiagramSourceType,
+                SourceId = "doc-subgraph-label-keep",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["text"] = "SQL Database",
+                    ["diagramNodeId"] = "db",
+                    ["diagramNodeKind"] = ArchitectureDiagramNodeKinds.System,
+                    ["diagramSubgraphId"] = "corp",
+                },
+            },
+        ];
+
+        ArchitectureDiagramModelRecord model = StructuredDiagramCanonicalModelReconstructor
+            .ReconstructDocuments(canonicalObjects)
+            .Should()
+            .ContainSingle()
+            .Subject
+            .Model;
+
+        model.Subgraphs.Should().ContainSingle(subgraph =>
+            subgraph.Id == "corp"
+            && subgraph.Label == "Corporate network");
+    }
 }
