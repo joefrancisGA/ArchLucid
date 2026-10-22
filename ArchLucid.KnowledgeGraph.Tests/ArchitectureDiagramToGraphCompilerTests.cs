@@ -274,6 +274,34 @@ public sealed class ArchitectureDiagramToGraphCompilerTests
     }
 
     [Fact]
+    public void Compile_uses_trimmed_diagram_node_id_as_label_when_record_label_is_whitespace_only()
+    {
+        const string PaddedTerraformAddress = "  azurerm_mssql_server.pay_sql  ";
+
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = PaddedTerraformAddress,
+                    Label = "   ",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        StructuredDiagramGraphCompileResult result = new ArchitectureDiagramToGraphCompiler().Compile(
+            model,
+            CreateDefaultCompileOptions());
+
+        result.Snapshot.Nodes.Should().ContainSingle(node =>
+            node.Label == PaddedTerraformAddress.Trim());
+    }
+
+    [Fact]
     public void Compile_trims_diagram_node_label_when_node_record_label_has_surrounding_whitespace()
     {
         ArchitectureDiagramModelRecord model = new()
