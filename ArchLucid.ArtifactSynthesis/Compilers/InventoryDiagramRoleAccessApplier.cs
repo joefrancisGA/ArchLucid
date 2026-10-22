@@ -156,7 +156,7 @@ internal static class InventoryDiagramRoleAccessApplier
         string normalizedScope = ArmResourceIdNormalizer.Normalize(scope);
         string sentence = normalizedScope.Contains("/resourceGroups/", StringComparison.OrdinalIgnoreCase)
             ? $"Has {roleName} on resource group {ReadResourceName(normalizedScope)}"
-            : $"Has {roleName} on this subscription";
+            : $"Has {roleName} on subscription {ReadSubscriptionId(normalizedScope)}";
 
         if (!sourceNode.UnresolvedRelationshipDetails.Contains(sentence, StringComparer.Ordinal))
         {
@@ -205,5 +205,28 @@ internal static class InventoryDiagramRoleAccessApplier
         return lastSlash >= 0 && lastSlash < scope.Length - 1
             ? scope[(lastSlash + 1)..]
             : scope;
+    }
+
+    private static string ReadSubscriptionId(string scope)
+    {
+        const string prefix = "/subscriptions/";
+
+        if (!scope.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return "Subscription id was not stored.";
+        }
+
+        int end = scope.IndexOf('/', prefix.Length);
+
+        if (end < 0)
+        {
+            string trailing = scope[prefix.Length..].Trim();
+
+            return trailing.Length > 0 ? trailing : "Subscription id was not stored.";
+        }
+
+        string subscriptionId = scope[prefix.Length..end].Trim();
+
+        return subscriptionId.Length > 0 ? subscriptionId : "Subscription id was not stored.";
     }
 }

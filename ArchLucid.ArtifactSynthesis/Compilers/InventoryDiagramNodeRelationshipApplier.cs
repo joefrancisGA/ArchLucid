@@ -417,7 +417,11 @@ internal static class InventoryDiagramNodeRelationshipApplier
             {
                 FromNodeId = workflowDiagramNodeId,
                 ToNodeId = targetDiagramNodeId,
-                Label = InventoryDiagramEvidenceCurrencyLabels.Format(evidenceCurrency, action.ActionName),
+                Label = InventoryDiagramEvidenceCurrencyLabels.Format(
+                    evidenceCurrency,
+                    string.IsNullOrWhiteSpace(action.ActionName)
+                        ? "Action name was not stored."
+                        : action.ActionName),
                 ProvenanceKind = ProvenanceKind.ObservedFact.ToString(),
                 InferenceSource = GraphEdgeInferenceSources.InventoryWorkflowAction,
             });

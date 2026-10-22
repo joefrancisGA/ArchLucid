@@ -28,6 +28,7 @@ export type FindingDecisionSummary = {
 const BUSINESS_IMPACT_STORED_EMPTY = "Business impact was stored empty.";
 const REMEDIATION_DUE_NOT_STORED = "Remediation due date was not stored.";
 const REMEDIATION_DUE_STORED_EMPTY = "Remediation due date was stored empty.";
+const REMEDIATION_DUE_NOT_READABLE = "Remediation due date was not readable.";
 const RISK_OWNER_NOT_ASSIGNED = "Risk owner was not stored";
 const STATUS_NOT_STORED = "Status was not stored";
 const SEVERITY_NOT_STORED = "Severity was not stored";
@@ -138,7 +139,7 @@ export function formatFindingRemediationDueLabel(remediationDueUtc: string | nul
   const parsed = new Date(trimmed);
 
   if (Number.isNaN(parsed.getTime())) {
-    return trimmed;
+    return REMEDIATION_DUE_NOT_READABLE;
   }
 
   return parsed.toLocaleDateString(undefined, {

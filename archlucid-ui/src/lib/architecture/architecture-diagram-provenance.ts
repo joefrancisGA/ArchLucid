@@ -107,12 +107,13 @@ export function buildArchitectureDiagramNodeProvenanceDetail(input: {
   readonly diagramVersionSource: ArchitectureDiagramVersionSource | null;
 }): ArchitectureDiagramElementProvenanceDetail {
   const provenanceClass = resolveNodeProvenanceClass(input.node, input.diagramVersionSource);
-  const sentence = buildProvenanceSentence("node", input.node.label, provenanceClass, input.node.accepted);
+  const displayLabel = resolveArchitectureDiagramNodeDisplayLabel(input.node.label);
+  const sentence = buildProvenanceSentence("node", displayLabel, provenanceClass, input.node.accepted);
 
   return {
     kind: "node",
     elementId: input.node.id,
-    label: input.node.label,
+    label: displayLabel,
     provenanceClass,
     sentence,
     sourceHref: buildEvidenceSourceHref(input.runId, provenanceClass),
@@ -122,8 +123,38 @@ export function buildArchitectureDiagramNodeProvenanceDetail(input: {
 export const ARCHITECTURE_DIAGRAM_CONNECTION_LABEL_NOT_STORED =
   "Connection label was not stored." as const;
 
+export const ARCHITECTURE_DIAGRAM_CONNECTION_LABEL_STORED_EMPTY =
+  "Connection label was stored empty." as const;
+
+export const ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED = "Node label was not stored." as const;
+
+export const ARCHITECTURE_DIAGRAM_NODE_LABEL_STORED_EMPTY = "Node label was stored empty." as const;
+
+export const ARCHITECTURE_DIAGRAM_REVIEW_ID_NOT_STORED_EVIDENCE_LINK =
+  "Review id was not stored, so the evidence link is not available." as const;
+
+export function resolveArchitectureDiagramNodeDisplayLabel(label: string): string {
+  if (label.length === 0) {
+    return ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED;
+  }
+
+  if (label.trim().length === 0) {
+    return ARCHITECTURE_DIAGRAM_NODE_LABEL_STORED_EMPTY;
+  }
+
+  return label;
+}
+
 function resolveArchitectureDiagramEdgeDisplayLabel(edge: ArchitectureDiagramEdge): string {
-  return edge.label.length > 0 ? edge.label : ARCHITECTURE_DIAGRAM_CONNECTION_LABEL_NOT_STORED;
+  if (edge.label.length === 0) {
+    return ARCHITECTURE_DIAGRAM_CONNECTION_LABEL_NOT_STORED;
+  }
+
+  if (edge.label.trim().length === 0) {
+    return ARCHITECTURE_DIAGRAM_CONNECTION_LABEL_STORED_EMPTY;
+  }
+
+  return edge.label;
 }
 
 export function buildArchitectureDiagramEdgeProvenanceDetail(input: {
@@ -173,7 +204,11 @@ export function listSelectableArchitectureDiagramElements(
 ): readonly { readonly kind: ArchitectureDiagramElementKind; readonly id: string; readonly label: string }[] {
   const nodes = model.nodes
     .filter((node) => !node.removed)
-    .map((node) => ({ kind: "node" as const, id: node.id, label: node.label }));
+    .map((node) => ({
+      kind: "node" as const,
+      id: node.id,
+      label: resolveArchitectureDiagramNodeDisplayLabel(node.label),
+    }));
   const edges = model.edges
     .filter((edge) => !edge.removed)
     .map((edge) => ({
