@@ -61,6 +61,12 @@ public sealed class TenantTrialIdentityHandoffStage(
             if (tenantBeforeDirectoryAudit?.OffboardedUtc is not null)
                 return new TenantTrialLinkEntraResult { Outcome = TenantTrialHttpOutcome.Success };
 
+            TenantRecord? tenantBeforeDirectoryAuditAppend =
+                await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+            if (tenantBeforeDirectoryAuditAppend?.OffboardedUtc is not null)
+                return new TenantTrialLinkEntraResult { Outcome = TenantTrialHttpOutcome.Success };
+
             if (tenantBeforeDirectoryAudit is not null)
             {
                 await _auditService.LogAsync(
@@ -121,6 +127,12 @@ public sealed class TenantTrialIdentityHandoffStage(
                 await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
 
             if (tenantBeforeIdentityAudit?.OffboardedUtc is not null)
+                return new TenantTrialLinkEntraResult { Outcome = TenantTrialHttpOutcome.Success };
+
+            TenantRecord? tenantBeforeIdentityAuditAppend =
+                await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+            if (tenantBeforeIdentityAuditAppend?.OffboardedUtc is not null)
                 return new TenantTrialLinkEntraResult { Outcome = TenantTrialHttpOutcome.Success };
 
             if (tenantBeforeIdentityAudit is not null)
