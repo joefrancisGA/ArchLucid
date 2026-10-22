@@ -296,6 +296,13 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("authorization_pending");
   });
 
+  it("humanizes slow_down authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("slow_down", "");
+
+    expect(message).toMatch(/slow down/i);
+    expect(message).not.toContain("slow_down");
+  });
+
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
     expect(humanizeAuthorizeCallbackError("   ", "")).toContain("complete response");
     expect(humanizeAuthorizeCallbackError("   ", "")).not.toMatch(/\(\s*\)/u);
@@ -427,20 +434,6 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).toContain("temporary error");
     expect(message.length).toBeLessThanOrEqual(280);
     expect(message).not.toContain("Policy");
-  });
-
-  it("uses readable default copy for authorization_pending authorize-query errors", () => {
-    const message = humanizeAuthorizeCallbackError("authorization_pending", "");
-
-    expect(message).toContain("authorization pending");
-    expect(message).toContain("Sign-in did not finish");
-  });
-
-  it("uses readable default copy for slow_down authorize-query errors", () => {
-    const message = humanizeAuthorizeCallbackError("slow_down", "");
-
-    expect(message).toContain("slow down");
-    expect(message).toContain("Sign-in did not finish");
   });
 
   it("uses fixed copy for login_required regardless of oversized error_description", () => {

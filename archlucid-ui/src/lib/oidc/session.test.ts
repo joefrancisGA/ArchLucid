@@ -164,6 +164,17 @@ describe("storePostSignInReturnUrl / consumePostSignInReturnUrl", () => {
 
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY)).toBe("/architecture/reviews/run-snapshot");
   });
+
+  it("preserves authorize-retry return snapshot when retry is re-marked without a post-sign-in URL", () => {
+    storePostSignInReturnUrl("/architecture/reviews/run-reremark");
+    markAuthorizeCallbackFailed();
+    sessionStorage.removeItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY);
+
+    markAuthorizeCallbackFailed();
+
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY)).toBe("/architecture/reviews/run-reremark");
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
+  });
 });
 
 describe("getAccessTokenForApi / isLikelySignedIn expiry parsing (LK-06 P2)", () => {
