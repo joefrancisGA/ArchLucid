@@ -1,3 +1,17 @@
+2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `isOAuthRefreshTokenRejectedError` - refresh grant JSON `access_denied` humanized without snake_case in `Error.message` so BFF refresh returned 503 instead of clearing HttpOnly cookies (same classifier gap as other refresh rejection codes); add `access_denied` to `OAUTH_REFRESH_REJECTION_ERROR_CODES`; regressions `classifies humanized access_denied refresh failures for BFF session clearing` and BFF route humanized access_denied cookie clear; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped token-client + BFF refresh route vitest 67/67.
+
+- [x] (proven) `isOAuthRefreshTokenRejectedError` - humanized refresh `access_denied` skipped BFF session clear - **hit 2026-10-22 seed hunt:** classifier set extended; regressions above.
+- [x] (valid-no-repro) `isOAuthRefreshTokenRejectedError` - `invalid_scope` on refresh - **cheap-disproof 2026-10-22:** prior hit on trunk; regression exists.
+- [x] (valid-no-repro) `shouldHumanizeTokenOAuthErrorCode` - `expired_token` on token JSON - **cheap-disproof 2026-10-22:** prior hit; allowlist + classifier landed.
+- [x] (invalid) `OAuthTokenEndpointError` - carry `httpStatus` from token POST - **cheap-disproof 2026-10-22:** enhancement; not wrong session outcome today.
+- [x] (invalid) `refreshBffSessionCookie` - surface 401 body to telemetry - **cheap-disproof 2026-10-22:** observability only.
+
+- [ ] (candidate) `isOAuthRefreshTokenRejectedError` - `login_required` on refresh grant - locus: classifier set; input: humanized copy (reachability: client clears on 401 only).
+- [ ] (candidate) `isOAuthRefreshTokenRejectedError` - `interaction_required` / `consent_required` on refresh - locus: classifier set; input: interactive step required (reachability: 503 retry loop risk).
+- [ ] (candidate) `OAuthTokenEndpointError` - attach HTTP status for proxy 502 HTML body - locus: `readOAuthError`; input: transient proxy (reachability: session clear policy).
+- [ ] (candidate) `bff-session-sync` - ensureAccessTokenFresh after humanized access_denied 401 - locus: client; input: shouldClearSession (reachability: add test).
+- [ ] (candidate) `readOAuthJsonErrorDescription` - regional-indicator flag plus in JSON mixed path - locus: encoding; input: saturated class avoid (reachability: prior hits).
+
 2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `isOAuthRefreshTokenRejectedError` — refresh grant `unauthorized_client` uses fixed operator copy without snake_case in `Error.message`, so BFF refresh skipped permanent-rejection session clear (503 vs 401); add `unauthorized_client` to `OAUTH_REFRESH_REJECTION_ERROR_CODES`; regressions `classifies humanized unauthorized_client refresh failures for BFF session clearing` and BFF route humanized unauthorized_client cookie clear; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` + BFF refresh route vitest 388/388.
 
 - [x] (proven) `isOAuthRefreshTokenRejectedError` — humanized refresh `unauthorized_client` skipped BFF session clear — **hit 2026-10-22 seed hunt:** classifier set; regressions above.

@@ -385,6 +385,33 @@ describe("refreshAccessToken", () => {
     expect((caught as OAuthTokenEndpointError).message).not.toContain("unauthorized_client");
   });
 
+  it("classifies humanized access_denied refresh failures for BFF session clearing", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "access_denied" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect(isOAuthRefreshTokenRejectedError(caught)).toBe(true);
+    expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("access_denied");
+    expect((caught as OAuthTokenEndpointError).message).not.toContain("access_denied");
+  });
+
   it("classifies humanized invalid_scope refresh failures for BFF session clearing", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,

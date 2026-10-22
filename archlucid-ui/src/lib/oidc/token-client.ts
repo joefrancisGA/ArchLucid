@@ -30,6 +30,7 @@ export class OAuthTokenEndpointError extends Error {
 }
 
 const OAUTH_REFRESH_REJECTION_ERROR_CODES = new Set([
+  "access_denied",
   "expired_token",
   "invalid_client",
   "invalid_grant",
@@ -54,6 +55,7 @@ export function isOAuthRefreshTokenRejectedError(error: unknown): boolean {
   const message = error.message.toLowerCase();
 
   return (
+    message.includes("access_denied") ||
     message.includes("expired_token") ||
     message.includes("invalid_client") ||
     message.includes("invalid_grant") ||
