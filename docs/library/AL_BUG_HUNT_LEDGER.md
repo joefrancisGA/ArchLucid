@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_saml_issuer authorize-query UX, BFF refresh 456 parity (client + route opaque 456), and saturated readOAuthJsonErrorDescription ideographic-space multiply-encoded glue; regression documents authorize-retry is marked when authorization code exchange returns hair-space-only access_token (existing parity); scoped vitest 669/669.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - invalid_saml_issuer authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 456 shouldClearSession false - **regression 2026-10-22:** client soft-fail plus BFF route opaque 456 without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string hair-space-only skips authorize retry marker - **regression 2026-10-22:** existing hair-space-only token exchange regression.
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with ideographic-space glue - **cheap-disproof 2026-10-22:** saturated JSON encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_saml_conditions authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 457 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string thin-space-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with hair-space glue - locus: saturated encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed binding_required authorize-query UX, BFF refresh 455 parity, and saturated decodeOAuthErrorDescription punctuation-space glue; regression documents authorize-retry is marked when authorization code exchange returns three-per-em-space-only access_token; scoped vitest 598/598.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - binding_required authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
