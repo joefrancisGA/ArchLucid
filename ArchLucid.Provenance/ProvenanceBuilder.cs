@@ -191,27 +191,30 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
 
         // Decisions → Artifacts (bundle payloads may repeat the same artifact row)
 
-        foreach (SynthesizedArtifact a in DistinctArtifacts())
+        foreach (IGrouping<Guid, SynthesizedArtifact> artifactGroup in artifacts.GroupBy(static artifact => artifact.ArtifactId))
         {
-            string ak = $"artifact:{a.ArtifactId:N}";
+            SynthesizedArtifact representative =
+                ProvenanceSnapshotRevisionHasher.SelectRevisionArtifactRepresentative(artifactGroup);
+
+            string ak = $"artifact:{representative.ArtifactId:N}";
 
             if (!nodeMap.TryGetValue(ak, out Guid artifactNid))
                 continue;
 
+            IEnumerable<string> contributingDecisionIds = artifactGroup
+                .SelectMany(static artifact => artifact.ContributingDecisionIds)
+                .Select(NormalizeId)
+                .Distinct(StringComparer.OrdinalIgnoreCase);
 
-            foreach (string dId in a.ContributingDecisionIds.Select(NormalizeId).Distinct(StringComparer.OrdinalIgnoreCase))
-
+            foreach (string dId in contributingDecisionIds)
             {
-
                 string dk = $"decision:{dId}";
 
                 if (!nodeMap.TryGetValue(dk, out Guid decisionNid))
-
                     continue;
 
                 AddEdge(decisionNid, artifactNid, ProvenanceEdgeType.ContributedToArtifact);
             }
-
         }
 
 

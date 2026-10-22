@@ -757,6 +757,73 @@ public sealed class ProvenanceBuilderTests
     }
 
     [Fact]
+    public void Build_unions_contributing_decision_ids_when_bundle_lists_duplicate_artifact_rows()
+    {
+        const string decisionA = "dec-a";
+        const string decisionB = "dec-b";
+
+        ResolvedArchitectureDecision decisionOne = new()
+        {
+            DecisionId = decisionA,
+            Category = "c",
+            Title = "Decision A",
+            SelectedOption = "opt",
+            Rationale = "why",
+            SupportingFindingIds = [],
+        };
+
+        ResolvedArchitectureDecision decisionTwo = new()
+        {
+            DecisionId = decisionB,
+            Category = "c",
+            Title = "Decision B",
+            SelectedOption = "opt",
+            Rationale = "why",
+            SupportingFindingIds = [],
+        };
+
+        SynthesizedArtifact firstRow = new()
+        {
+            ArtifactId = ArtifactId,
+            ArtifactType = "doc",
+            Name = "overview.md",
+            Format = "md",
+            Content = "x",
+            ContentHash = "h",
+            ContributingDecisionIds = [decisionA],
+        };
+
+        SynthesizedArtifact secondRow = new()
+        {
+            ArtifactId = ArtifactId,
+            ArtifactType = "doc",
+            Name = "overview.md",
+            Format = "md",
+            Content = "x",
+            ContentHash = "h",
+            ContributingDecisionIds = [decisionB],
+        };
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot { Nodes = [] },
+            Manifest = new ManifestDocument
+            {
+                ManifestId = ManifestId,
+                ManifestHash = "h",
+                Decisions = [decisionOne, decisionTwo],
+            },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [firstRow, secondRow],
+        });
+
+        graph.Edges.Count(e => e.Type == ProvenanceEdgeType.ContributedToArtifact).Should().Be(2);
+    }
+
+    [Fact]
     public void Build_deduplicates_contributed_to_artifact_when_artifact_bundle_lists_duplicate_entries()
     {
         const string decisionId = "dec-1";
