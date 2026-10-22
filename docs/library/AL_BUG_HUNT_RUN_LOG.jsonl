@@ -6100,3 +6100,4 @@
 {"outcome":"hit","zoneId":"ui-oidc","kind":"seed hunt","zone":"ui-oidc","at":"2026-10-22T03:03:59.176Z"}
 {"outcome":"hit","zoneId":"ui-oidc","kind":"seed hunt","zone":"ui-oidc","at":"2026-10-22T03:07:22.275Z"}
 {"outcome":"hit","zoneId":"ui-oidc","kind":"seed hunt","zone":"ui-oidc","at":"2026-10-22T03:11:32.632Z"}
+{"at":"2026-10-22T03:14:25.0208980Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
