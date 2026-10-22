@@ -2791,6 +2791,14 @@
 
 ## Zone: scim-users
 
+2026-10-22 thorough hunt #3 (dry): cheap-disproof closed five picker `(candidate)` rows (`count` clamped in `ScimUserService.ListAsync`; missing `[Consumes]` is Entra-compatible; unbounded `filter` has no in-zone length guard requirement; mutation-path `OperationCanceledException` propagation is correct; DELETE 204 without JSON body is RFC-correct); no failing repro; five replacement `(candidate)` rows; scoped tests not run (Defender WIP compile).
+
+- [x] (invalid) `ScimUsersController.ListAsync` — `count` above 200 without controller clamp — **cheap-disproof 2026-10-22 #3:** `Math.Clamp(count, 0, 200)` in `ScimUserService.ListAsync`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — missing `[Consumes("application/scim+json")]` — **cheap-disproof 2026-10-22 #3:** `[Produces]` set; ASP.NET accepts JSON bodies; Entra integration posts `application/scim+json`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — unbounded `filter` query length — **cheap-disproof 2026-10-22 #3:** no controller cap; invalid filters return `invalidFilter`; megabyte input is operational DoS class without cited production caller.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` / `PatchAsync` — `OperationCanceledException` during service mutation — **cheap-disproof 2026-10-22 #3:** must propagate; deserialize cancellation fixed separately (proven hit same day).
+- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — `Produces("application/scim+json")` with 204 `NoContent` — **cheap-disproof 2026-10-22 #3:** RFC 7644 successful DELETE has no response body.
+
 2026-10-22 thorough hunt #2 (dry): cheap-disproof closed five picker `(candidate)` rows — JSON root `null` already returns `invalidSyntax` via `ScimUserResourceParser` / `ScimPatchOpEvaluator`; list non-filter faults as operational 500; `ScimWrite` on GET is product contract; post-mutation `GetAsync` is intentional projection; 409 vs 403 status split is intentional; no failing repro; five replacement `(candidate)` rows; scoped tests not run (Defender WIP compile).
 
 - [x] (invalid) `ScimUsersController.CreateAsync` / `ReplaceAsync` / `PatchAsync` — JSON root `null` surfaces `invalidValue` — **cheap-disproof 2026-10-22 #2:** `ScimUserResourceParser.ParseUser` throws `invalidSyntax` for non-object; PATCH uses `ScimPatchOpEvaluator` `invalidSyntax` for non-object body.
@@ -2836,9 +2844,9 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 36
+- **hunts:** 37
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — SCIM POST/PUT/PATCH mapped canceled JSON reads to invalidSyntax 400
 - **related-pd-tb:** none
@@ -2947,11 +2955,17 @@
 - [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` / `PatchAsync` — post-mutation `GetAsync` latency — **cheap-disproof 2026-10-22 #2:** design tradeoff.
 - [x] (valid-no-repro) `ScimUsersController.CreateAsync` — 409 vs 403 mapping — **cheap-disproof 2026-10-22 #2:** intentional SCIM types.
 
-- [ ] (candidate) `ScimUsersController.ListAsync` — `count` query above 200 forwarded without controller clamp — locus: passes `count` to service (~47); input: `count=500` (service `Math.Clamp(count, 0, 200)` may close).
-- [ ] (candidate) `ScimUsersController.CreateAsync` — missing `[Consumes("application/scim+json")]` allows non-SCIM content types — locus: action attributes ~74–75; input: `application/json` POST from generic HTTP client.
-- [ ] (candidate) `ScimUsersController.ListAsync` — unbounded `filter` query string length — locus: forwards `filter` to `ScimFilterParser.Parse`; input: megabyte filter string (verify parser/ASP.NET limits).
-- [ ] (candidate) `ScimUsersController.ReplaceAsync` / `PatchAsync` — `OperationCanceledException` during `_users` mutation propagates while deserialize cancellation already fixed — locus: inner try without catch (~137–161); input: cancel during seat transition (expected propagation).
-- [ ] (candidate) `ScimUsersController.DeleteAsync` — `Produces("application/scim+json")` on class/action but 204 success has no body — locus: `NoContent()` (~222); input: strict content-type negotiators (RFC 7644 204).
+- [x] (invalid) `ScimUsersController.ListAsync` — `count` above 200 without controller clamp — **cheap-disproof 2026-10-22 #3:** service clamp in `ScimUserService.ListAsync`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — missing `[Consumes("application/scim+json")]` — **cheap-disproof 2026-10-22 #3:** Entra posts SCIM media type; body still JSON-deserialized.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — unbounded `filter` length — **cheap-disproof 2026-10-22 #3:** no in-zone production caller cited.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` / `PatchAsync` — mutation cancellation propagation — **cheap-disproof 2026-10-22 #3:** correct ASP.NET behavior.
+- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — 204 without JSON body — **cheap-disproof 2026-10-22 #3:** RFC-correct.
+
+- [ ] (candidate) `ScimUsersController.CreateAsync` — `JsonSerializer.DeserializeAsync<JsonElement>` on empty body may yield `JsonValueKind.Undefined` instead of `invalidSyntax` — locus: deserialize ~83–84; input: zero-length POST (verify throws `JsonException`).
+- [ ] (candidate) `ScimUsersController.ListAsync` — `itemsPerPage` in list response equals returned `Resources` count not requested `count` query — locus: `ScimResourceSerializer.ListResponse` ~50; input: RFC 7644 list response semantics (likely valid-by-design).
+- [ ] (candidate) `ScimUsersController.GetAsync` — no explicit `Guid.Empty` route guard before repository — locus: `GetAsync` ~63–66; input: `GET …/Users/00000000-0000-0000-0000-000000000000` (returns 404 today).
+- [ ] (candidate) `ScimUsersController.ReplaceAsync` / `PatchAsync` — deserialize `OperationCanceledException` fixed but bare `catch` still maps other exceptions to `invalidSyntax` — locus: catch blocks ~132–135; input: transport errors during body read (intentional fail-closed).
+- [ ] (candidate) `ScimUsersController` — zone path is Users controller only; sibling `ScimGroupsController` JSON deserialize still uses bare `catch` without OCE rethrow — locus: out of zone `ArchLucid.Api/Controllers/Scim/ScimGroupsController.cs`; input: cross-controller parity (defer separate zone).
 
 - [x] (proven) `ScimUserService.CreateAsync` / `PatchAsync` / `ScimUsersController` — a second live user with the same `userName` and a different `externalId` was stored, including case-only names — **hit 2026-10-09 seed hunt:** live `userName` lookup returns `uniqueness`. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
 - [x] (proven) `ScimFilterParser.ParseFilter` / `ScimUsersController.ListAsync` — ungrouped `or` before `and` was parsed left-to-right, so an active user matching only the left comparison was omitted — **hit 2026-10-09 seed hunt:** `not` over `and` over `or` per RFC 7644 §3.4.2.2. Regressions `ListAsync_filter_gives_and_precedence_over_or`, `Parse_or_binds_looser_than_and`, and `Parse_not_binds_tighter_than_and`.
