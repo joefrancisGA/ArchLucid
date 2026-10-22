@@ -6691,6 +6691,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-22 seed hunt (seed-only): `application-analysis` — re-read `ArchLucid.Application/Analysis/` export/compare/replay surfaces after lifecycle/career/sealed-manifest parity fixes; no hunt-ready product defect; cheap-disproof closed four re-seeded `(candidate)` rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 49/49.
+
+- [x] (valid-no-repro) `ConsultingDocxExportWhitelabelPrefill.ApplyMissingFromPriorExportsAsync` - reads prior export rows without `IRunExportCareerPostureGate` - **cheap-disproof 2026-10-22:** whitelabel hint copy only; consulting DOCX route enforces sealed-manifest and export completeness before `BuildAsync` returns bytes.
+- [x] (valid-no-repro) `CompareQualityDeltaCalculator.Build` - returns null when either knowledge model is null without API error detail - **cheap-disproof 2026-10-22:** intentional null when compare-quality inputs are incomplete; `CompareQualityDeltaCalculatorTests` cover null-model behavior.
+- [x] (valid-no-repro) `ComparisonReplayService.ReplayAsync` - sealed-manifest hash guard runs before lifecycle/career inside type-specific replay - **cheap-disproof 2026-10-22:** intentional integrity ordering; lifecycle-then-career enforced inside `ReplayEndToEndAsync` / `ReplayExportDiffAsync` after 2026-10-22 fixes.
+- [x] (invalid) `RunExportQueryFacade.GetRunExportHistoryAsync` - `GetByRunIdAsync` omits canonical `N`-format run id for dashed route ids - **cheap-disproof 2026-10-22:** `RunExportRecordRunIdSql.LookupKeys` expands dashed GUID routes to canonical keys; regression `LookupKeys_dashed_route_id_includes_canonical_N_form`.
+
 2026-10-22 seed hunt (seed→hit): `RunExportQueryFacade.GetRunExportHistoryAsync` verified export lineage only and skipped `RunExportSealedManifestHashGuard` while `GetExportRecordAsync` blocked sealed-manifest mismatches; route history through `TryEnsureExportRunLineageAndSealedHashAsync`; regression `CompareQuality_GetRunExportHistoryAsync_returns_lineage_unverified_when_sealed_manifest_hash_mismatches`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 49/49.
 
 - [x] (proven) `RunExportQueryFacade.GetRunExportHistoryAsync` - export history listing bypassed sealed-manifest hash verification while single-export read returned `LineageUnverified` - **hit 2026-10-22 seed hunt:** shared lineage+sealed guard on history; regression above.
@@ -6775,9 +6782,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 64
+- **hunts:** 65
 - **bugs-found:** 61
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — export history skipped sealed-manifest hash guard
 - **related-pd-tb:** none
