@@ -11,6 +11,20 @@
 - [ ] (candidate) `exchangeAuthorizationCode` — `OAuthTokenEndpointError` preserves code for logging — locus: thrown error type; input: Sentry/buyer-safe wrapper (reachability: callback catch).
 - [ ] (candidate) `refreshBffSessionCookie` — client trusts 401 from BFF refresh route — locus: `bff-session-sync.ts`; input: humanized invalid_grant path (reachability: `ensureAccessTokenFresh`).
 - [ ] (candidate) `shouldMarkAuthorizeCallbackFailedOnExchangeError` — recognize `OAuthTokenEndpointError` — locus: exchange catch; input: invalid token URL vs OAuth failure (reachability: callback).
+2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `decodeOAuthErrorDescription` / `shouldPreserveLiteralPlusInAuthorizeDescription` - authorize `error_description` with emoji ZWJ family sequence plus literal plus (`👨‍👩‍👧+extra`) collapsed every plus to space because the mixed-plus guard only matched ZWSP glue and Latin ZWNJ/ZWJ; treat any U+200D ZWJ sequence like other glue when a literal plus is present; regression `preserves literal plus in authorize error descriptions when emoji ZWJ sequences are present`; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped oauth-callback-messages + token-client vitest 148/148.
+
+- [x] (proven) `decodeOAuthErrorDescription` - emoji ZWJ plus literal plus collapsed - **hit 2026-10-22 seed hunt:** U+200D mixed-plus guard; regression above.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` - emoji ZWJ plus in JSON - **cheap-disproof 2026-10-22:** JSON path never collapsed literal plus for this input.
+- [x] (invalid) `humanizeAuthorizeCallbackError` - dedicated `invalid_token` copy on refresh - **cheap-disproof 2026-10-22:** UX enhancement; default humanize sufficient.
+- [x] (invalid) `exchangeAuthorizationCode` - CallbackClient integration for humanized invalid_token - **cheap-disproof 2026-10-22:** token-client regressions cover message shaping.
+- [x] (valid-no-repro) `token-client.test` - refresh invalid_grant without description - **cheap-disproof 2026-10-22:** existing refresh humanize tests on trunk.
+
+- [ ] (candidate) `shouldHumanizeTokenOAuthErrorCode` - `expired_token` on token JSON refresh - locus: allowlist gap; input: BFF 400 JSON (reachability: authorize query already humanizes via default branch).
+- [ ] (candidate) `decodeOAuthErrorDescription` - regional-indicator flag emoji with trailing literal plus - locus: preserve guard; input: flag sequence + plus (reachability: flag emoji tests exist).
+- [ ] (candidate) `humanizeAuthorizeCallbackError` - dedicated `expired_token` operator copy - locus: switch case; input: differentiate from invalid_token (reachability: UX).
+- [ ] (candidate) `CallbackClient` - access_denied panel shows emoji ZWJ plus authorize description end-to-end - locus: integration test; input: mock query string (reachability: decode unit covered).
+- [ ] (candidate) `readOAuthJsonErrorDescription` - mixed literal plus and percent-encoded plus with ZWJ emoji prefix - locus: JSON mixed path; input: saturated class avoid (reachability: prior hits).
+
 2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `shouldHumanizeTokenOAuthErrorCode` / `decodeOAuthErrorDescription` - refresh grant JSON `invalid_token` surfaced raw `invalid_token:` in CallbackClient while other standard codes humanize; add `invalid_token` to the allowlist; ZWNJ glue (`Policy\u200cdenied+extra`) still collapsed literal plus because only ZWSP was in the mixed-plus guard; extend authorize glue detection to Latin ZWNJ/ZWJ joiners; regressions `humanizes invalid_token refresh grant errors instead of raw snake_case` and `preserves literal plus in authorize error descriptions when ZWNJ glue separates words`; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped oauth-callback-messages + token-client vitest 147/147.
 
 - [x] (proven) `errorFromOAuthJson` - raw `invalid_token` on refresh grant - **hit 2026-10-22 seed hunt:** allowlist entry; regression above.

@@ -120,6 +120,10 @@ describe("decodeOAuthErrorDescription", () => {
     expect(decodeOAuthErrorDescription("Policy\u200cdenied+extra")).toBe("Policy denied+extra");
   });
 
+  it("preserves literal plus in authorize error descriptions when emoji ZWJ sequences are present", () => {
+    expect(decodeOAuthErrorDescription("👨\u200d👩\u200d👧+extra")).toBe("👨\u200d👩\u200d👧+extra");
+  });
+
   it("decodes doubly percent-encoded authorize error descriptions", () => {
     expect(decodeOAuthErrorDescription("User%2520denied")).toBe("User denied");
   });
