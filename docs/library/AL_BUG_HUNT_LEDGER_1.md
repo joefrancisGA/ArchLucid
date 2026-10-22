@@ -7803,6 +7803,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-22 seed hunt (seed→hit): promoted faithfulness import when diagnostic ratios are non-finite; regression `Import_rejects_summary_when_combined_diagnostic_ratio_is_not_finite`; 125 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — finite guard covered only readiness/floor so `NaN` `combinedDiagnosticSupportRatio` still persisted in evaluation `EvidenceJson` — **hit 2026-10-22 seed hunt:** `AreAllSupportRatiosFinite` on every harness ratio; regression above. [class:fail-open-validation]
+
+- (candidate) `AgentResultRegionMismatchEnricher` — restricted-region warnings still depend on name/platform cues for unlisted SKUs — locus: `TryResolveRestrictedServiceHintFromResourceName`; input: restricted map entry with no name heuristic (design gap, not instance-list).
+- (candidate) `RepoFaithfulnessHarnessSummaryReader.TryReadLatestAsync` — omitted ratio keys deserialize as `0.0` before import guards — locus: DTO defaults; input: partial JSON (import may record Failed — verify operator-visible harm).
+- (candidate) `AgentCuratedEvidenceProposer.TryProposeEvidenceJsonAsync` — LLM runs before structural post-process — locus: enricher order; input: brief-grounded service drop (engineering hardening).
+- (candidate) `ReviewRunEngineProvenanceMerger.MergeSelectionWithExecution` — mutates `execution` provenance in place — locus: merge helper; input: shared object reused by caller (verify callers clone).
+
 2026-10-22 seed hunt (seed→hit): promoted ML region mismatch for unknown-platform services; consolidated name→ARM hint helper; regression `EnrichAsync_appends_warning_when_machine_learning_named_service_omits_runtime_platform_in_restricted_region`; 124 scoped Application.Tests.Agents tests passed.
 
 - [x] (proven) `AgentResultRegionMismatchEnricher.TryResolveRestrictedServiceHintFromResourceName` — Machine Learning–named services with `RuntimePlatform.Unknown` in `qatarcentral` never matched `Microsoft.MachineLearningServices/workspaces` restricted map — **hit 2026-10-22 seed hunt:** shared name-cue ARM hints (OpenAI + ML); regression above. [class:state-machine-gap]
@@ -7845,11 +7854,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 48
-- **bugs-found:** 45
+- **hunts:** 49
+- **bugs-found:** 46
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — region mismatch for ML-named services with unknown runtime platform
+- **last-bug:** 2026-10-22 — faithfulness import rejects non-finite diagnostic harness ratios
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
 

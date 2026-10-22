@@ -57,8 +57,7 @@ public sealed class AgentModelCatalogFaithfulnessHarnessImporter(
                 "Faithfulness harness summary reports zero evaluated cases. Re-run scripts/ci/eval_agent_faithfulness.py before import.");
         }
 
-        if (!double.IsFinite(summary.PositiveReadinessSupportRatio)
-            || !double.IsFinite(summary.FloorMinSupportRatio))
+        if (!AreAllSupportRatiosFinite(summary))
         {
             throw new InvalidOperationException(
                 "Faithfulness harness summary contains non-finite support ratios. Re-run scripts/ci/eval_agent_faithfulness.py before import.");
@@ -110,6 +109,12 @@ public sealed class AgentModelCatalogFaithfulnessHarnessImporter(
 
         return updated;
     }
+
+    private static bool AreAllSupportRatiosFinite(FaithfulnessHarnessSummary summary) =>
+        double.IsFinite(summary.PositiveReadinessSupportRatio)
+        && double.IsFinite(summary.NegativeControlSupportRatio)
+        && double.IsFinite(summary.CombinedDiagnosticSupportRatio)
+        && double.IsFinite(summary.FloorMinSupportRatio);
 
     private static List<string> CollectApprovedTaskTypes(IReadOnlyList<string>? approvedTaskTypes)
     {
