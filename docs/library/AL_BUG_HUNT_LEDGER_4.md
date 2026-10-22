@@ -12470,18 +12470,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 137
-- **bugs-found:** 131
+- **hunts:** 138
+- **bugs-found:** 132
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — provenance graph view labels kept padded node names
+- **last-bug:** 2026-10-22 — provenance graph view exposed padded agent execution trace ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted `ProvenanceGraphViewMapper` padded `AgentExecutionTraceId` candidate; proved view mapping copied raw trace correlation tokens into `GraphNodeVm`, breaking parity with `ProvenanceBuilder` trim on ingest; trim non-empty trace ids in `ToViewModel`; regression `ToViewModel_MapsNodes_Trims_surrounding_whitespace_on_agent_execution_trace_id`; seeded `ProvenanceGraphViewMapper` metadata value trim on view copy follow-on; 439 KnowledgeGraph + 142 Provenance scoped tests passed.
+
+- [x] (proven) `ProvenanceGraphViewMapper.ToViewModel` — padded `AgentExecutionTraceId` propagated to view models — **hit 2026-10-22 seed hunt (seed→hit):** trim trace id; regression above.
+
+- [ ] (candidate) `ProvenanceGraphViewMapper.ToViewModel` — padded metadata values may surface in buyer graph node metadata — locus: metadata dictionary copy; input: node metadata entry with padded value; wrong outcome: trace/type metadata displays surrounding whitespace.
 
 2026-10-22 seed hunt (seed→hit): promoted `ProvenanceGraphViewMapper` padded node `Name` candidate; proved `ToViewModel` copied raw `ProvenanceNode.Name` into buyer-facing `GraphNodeVm.Label`, surfacing leading/trailing whitespace from hand-built or deserialized graphs; trim non-empty names; regression `ToViewModel_MapsNodes_Trims_surrounding_whitespace_on_label`; seeded `ProvenanceGraphViewMapper` padded `AgentExecutionTraceId` passthrough follow-on; 439 KnowledgeGraph + 141 Provenance scoped tests passed.
 
 - [x] (proven) `ProvenanceGraphViewMapper.ToViewModel` — padded provenance node `Name` surfaced in graph labels — **hit 2026-10-22 seed hunt (seed→hit):** trim label; regression above.
-
-- [ ] (candidate) `ProvenanceGraphViewMapper.ToViewModel` — padded `AgentExecutionTraceId` may propagate surrounding whitespace to view models — locus: `AgentExecutionTraceId = n.AgentExecutionTraceId`; input: node with padded trace id; wrong outcome: trace correlation UI shows untrimmed token.
 
 2026-10-22 seed hunt (seed→hit): promoted `ProvenanceBuilder` merge coalesce padded `ReferenceId` and `ShouldSkipGraphNodeNameDowngrade` padded placeholder title candidates; proved duplicate-key merge copied raw incoming `ReferenceId` values and compared unpadded name/reference tokens, persisting padded reference ids and allowing human-readable decision titles to downgrade to padded id placeholders; centralize merge in `ProvenanceNodeCoalesce` with trim-normalized reference ids and skip-downgrade detection; regressions `ApplyMergedFields_normalizes_reference_id_when_incoming_value_has_surrounding_whitespace` and `ShouldSkipGraphNodeNameDowngrade_returns_true_when_incoming_name_has_surrounding_whitespace_matching_reference_id`; seeded `ProvenanceGraphViewMapper` padded node label display follow-on; 439 KnowledgeGraph + 140 Provenance scoped tests passed.
 

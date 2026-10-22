@@ -49,6 +49,31 @@ public sealed class ProvenanceGraphViewMapperTests
     }
 
     [Fact]
+    public void ToViewModel_MapsNodes_Trims_surrounding_whitespace_on_agent_execution_trace_id()
+    {
+        const string traceId = "abc123def456";
+        Guid nodeId = Guid.NewGuid();
+        DecisionProvenanceGraph graph = new()
+        {
+            Nodes =
+            [
+                new ProvenanceNode
+                {
+                    Id = nodeId,
+                    Name = "Finding",
+                    Type = ProvenanceNodeType.Finding,
+                    ReferenceId = "find-1",
+                    AgentExecutionTraceId = $"  {traceId}  ",
+                },
+            ],
+        };
+
+        GraphViewModel vm = ProvenanceGraphViewMapper.ToViewModel(graph);
+
+        vm.Nodes.Should().ContainSingle().Which.AgentExecutionTraceId.Should().Be(traceId);
+    }
+
+    [Fact]
     public void ToViewModel_MapsNodes_Trims_surrounding_whitespace_on_label()
     {
         Guid nodeId = Guid.NewGuid();

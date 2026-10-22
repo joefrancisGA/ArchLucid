@@ -17,7 +17,9 @@ public static class ProvenanceGraphViewMapper
                     Id = n.Id.ToString("D"),
                     Label = string.IsNullOrWhiteSpace(n.Name) ? n.Name ?? string.Empty : n.Name.Trim(),
                     Type = n.Type.ToString(),
-                    AgentExecutionTraceId = n.AgentExecutionTraceId,
+                    AgentExecutionTraceId = string.IsNullOrWhiteSpace(n.AgentExecutionTraceId)
+                        ? n.AgentExecutionTraceId
+                        : n.AgentExecutionTraceId.Trim(),
                     Metadata = n.Metadata is { Count: > 0 } metadata
                         ? new Dictionary<string, string>(metadata)
                         : null
