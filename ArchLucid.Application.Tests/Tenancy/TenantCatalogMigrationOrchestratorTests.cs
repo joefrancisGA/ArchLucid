@@ -1105,6 +1105,7 @@ public sealed class TenantCatalogMigrationOrchestratorTests
             .ReturnsAsync(active)
             .ReturnsAsync(active)
             .ReturnsAsync(active)
+            .ReturnsAsync(active)
             .ReturnsAsync(offboarded);
         tenants
             .Setup(t => t.TrySuspendTenantAsync(TenantId, It.IsAny<CancellationToken>()))
@@ -1171,6 +1172,7 @@ public sealed class TenantCatalogMigrationOrchestratorTests
         Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
         tenants
             .SetupSequence(t => t.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(active)
             .ReturnsAsync(active)
             .ReturnsAsync(active)
             .ReturnsAsync(active)
