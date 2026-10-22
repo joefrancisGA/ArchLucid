@@ -163,6 +163,50 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void Merge_throws_when_base_graph_is_null()
+    {
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes = [],
+            Edges = [],
+            Warnings = [],
+        };
+
+        Action act = () => ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(null!, overlay);
+
+        act.Should().Throw<ArgumentNullException>().WithParameterName("baseGraph");
+    }
+
+    [Fact]
+    public void Merge_throws_when_inventory_overlay_is_null()
+    {
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "context-node",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "Context",
+                },
+            ],
+            Edges = [],
+            Warnings = [],
+        };
+
+        Action act = () => ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, null!);
+
+        act.Should().Throw<ArgumentNullException>().WithParameterName("inventoryOverlay");
+    }
+
+    [Fact]
     public void Merge_normalizes_padded_inventory_overlay_warnings_and_dedupes_trim_equal_entries()
     {
         const string sharedWarning = "inventory-overlay-warning";
