@@ -569,6 +569,13 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("invalid_grant_challenge");
   });
 
+  it("humanizes invalid_resource_owner authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_resource_owner", "");
+
+    expect(message).toMatch(/invalid resource owner/i);
+    expect(message).not.toContain("invalid_resource_owner");
+  });
+
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
     expect(humanizeAuthorizeCallbackError("   ", "")).toContain("complete response");
     expect(humanizeAuthorizeCallbackError("   ", "")).not.toMatch(/\(\s*\)/u);
