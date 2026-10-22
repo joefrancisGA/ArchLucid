@@ -12473,7 +12473,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **hunts:** 132
 - **bugs-found:** 127
 - **last-hunt:** 2026-10-22
+<<<<<<< HEAD
+- **last-bug:** 2026-10-22 — diagram edge id persists through canonical round-trip and merge coalesce
+=======
 - **last-bug:** 2026-10-22 — topology sensitivity missed padded publicNetworkAccess truthy values
+>>>>>>> origin/bugsmash-4
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
