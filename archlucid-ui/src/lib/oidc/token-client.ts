@@ -203,13 +203,23 @@ export async function exchangeAuthorizationCode(params: {
   redirectUri: string;
   codeVerifier: string;
 }): Promise<OidcTokenResponse> {
-  return postTokenForm(params.tokenEndpoint, {
-    grant_type: "authorization_code",
-    client_id: params.clientId,
-    code: params.code,
-    redirect_uri: params.redirectUri,
-    code_verifier: params.codeVerifier,
-  });
+  try {
+    return await postTokenForm(params.tokenEndpoint, {
+      grant_type: "authorization_code",
+      client_id: params.clientId,
+      code: params.code,
+      redirect_uri: params.redirectUri,
+      code_verifier: params.codeVerifier,
+    });
+  } catch (error) {
+    // Sign-in already consumed the authorize-callback retry marker at redirect start; re-mark so
+    // a follow-up initiateOidcRedirect keeps the stored post-sign-in return path.
+    const { markAuthorizeCallbackFailed } = await import("@/lib/oidc/session");
+
+    markAuthorizeCallbackFailed();
+
+    throw error;
+  }
 }
 
 export async function refreshAccessToken(params: {
