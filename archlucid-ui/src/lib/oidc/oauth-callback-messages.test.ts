@@ -100,6 +100,10 @@ describe("readOAuthJsonErrorDescription", () => {
     expect(readOAuthJsonErrorDescription("\u2014\u2014")).toBe("");
   });
 
+  it("returns empty for en-dash-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("\u2013\u2013")).toBe("");
+  });
+
   it("preserves ZWNJ in Persian token error_description copy", () => {
     const detail = "دسترسی\u200cرد";
 
@@ -305,6 +309,10 @@ describe("decodeOAuthErrorDescription", () => {
     expect(decodeOAuthErrorDescription("%E2%80%94")).toBe("");
   });
 
+  it("returns empty for en-dash-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%E2%80%93")).toBe("");
+  });
+
   it("returns empty for percent-encoded punctuation-only error descriptions", () => {
     expect(decodeOAuthErrorDescription("%2E%2E%2E")).toBe("");
   });
@@ -504,6 +512,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toMatch(/org internal/i);
     expect(message).not.toContain("org_internal");
+  });
+
+  it("humanizes admin_consent_required authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("admin_consent_required", "");
+
+    expect(message).toMatch(/admin consent required/i);
+    expect(message).not.toContain("admin_consent_required");
   });
 
   it("humanizes invalid_target authorize callback errors with readable copy", () => {
