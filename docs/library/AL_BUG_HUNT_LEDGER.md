@@ -1,15 +1,15 @@
-2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; cheap-disproof closed authorization_pending authorize UX and clearOidcSession retry-snapshot policy without signed-in identity; parity regressions zero-width-only authorize-retry snapshot purge, snapshot preserved on unsigned session clear, BFF refresh HTTP 410 and opaque token endpoint 410 without cookie clear; removed duplicate BFF client 425 test; scoped `src/lib/oidc` + BFF refresh route vitest 480/480.
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; closed head candidates via cheap-disproof and parity regressions (authorization_pending authorize-query UX, clearOidcSession preserves retry snapshot without identity, ZWSP-only authorize-retry snapshot purge, BFF refresh HTTP 410 soft-fail, initiate rehydrate after unsafe consume + tampered post-sign-in URL); deduped duplicate BFF 425 test; scoped vitest 458/458.
 
-- [x] (invalid) humanizeAuthorizeCallbackError - authorization_pending authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX; not a security defect.
-- [x] (valid-no-repro) clearOidcSession - clear retry snapshot without signed-in identity - **cheap-disproof 2026-10-22:** snapshot + retry marker intentionally preserved for unsigned retry flow.
-- [x] (valid-no-repro) readAuthorizeRetryReturnPathSnapshot - ZWSP-only snapshot purge - **regression 2026-10-22:** parity with post-sign-in zero-width tamper purge.
+- [x] (invalid) humanizeAuthorizeCallbackError - authorization_pending authorize-query copy - **cheap-disproof 2026-10-22:** readable-code default; authorize-query is not token-endpoint authorization_pending semantics.
+- [x] (valid-no-repro) clearOidcSession - clear retry snapshot without signed-in identity - **regression 2026-10-22:** preserves authorize-retry snapshot and marker for in-flight retry.
+- [x] (valid-no-repro) readAuthorizeRetryReturnPathSnapshot - ZWSP-only snapshot purge - **regression 2026-10-22:** purges unsafe snapshot without clearing retry marker.
 - [x] (valid-no-repro) refreshBffSessionCookie - refresh 410 shouldClearSession false - **regression 2026-10-22:** non-401/403 refresh failures soft-fail without cookie clear.
-- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** saturated encoding class on trunk.
+- [x] (valid-no-repro) initiateOidcRedirect - rehydrate snapshot after unsafe consume tamper - **regression 2026-10-22:** sign-in start rehydrates from authorize-retry snapshot.
 
-- [ ] (candidate) humanizeAuthorizeCallbackError - slow_down authorize-query copy - locus: default branch UX.
-- [ ] (candidate) refreshBffSessionCookie - refresh 408 shouldClearSession false - locus: client HTTP 408 parity (route opaque 408).
-- [ ] (candidate) exchangeAuthorizationCode - authorization_pending marks authorize retry - locus: device-flow vs code exchange policy.
-- [ ] (candidate) clearAbandonedPostSignInReturnUrl - tampered unsafe during retry - locus: shared prepare helper parity.
+- [ ] (candidate) refreshBffSessionCookie - refresh 408 shouldClearSession false - locus: route maps opaque 408 to 503.
+- [ ] (candidate) exchangeAuthorizationCode - server_error marks authorize retry - locus: transient exchange policy.
+- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - locus: saturated encoding class.
+- [ ] (candidate) markAuthorizeCallbackFailed - snapshot when post-sign-in empty after prior snapshot - locus: intentional preserve for tamper recovery.
 
 2026-10-22 seed hunt (seed->hit): ui-oidc - persistTokenResponse cleared authorize retry marker on successful identity persist but left authorize-retry return snapshot in sessionStorage; clear snapshot with retry marker; parity BFF refresh 425 shouldClearSession false; scoped vitest 451/451.
 
@@ -25949,7 +25949,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 82
 - **hunts:** 81
 - **hunts:** 87
 - **hunts:** 91

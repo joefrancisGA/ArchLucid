@@ -7,11 +7,11 @@ import {
   markAuthorizeCallbackFailed,
   consumePkceState,
   consumePostSignInReturnUrl,
+  readAuthorizeRetryReturnPathSnapshot,
   getAccessTokenExpiresAtMs,
   getAccessTokenForApi,
   isLikelySignedIn,
   persistTokenResponse,
-  readAuthorizeRetryReturnPathSnapshot,
   readPostSignInReturnUrl,
   readSignedInDisplayName,
   readSignedInUserSubject,
@@ -154,15 +154,6 @@ describe("storePostSignInReturnUrl / consumePostSignInReturnUrl", () => {
   it("does not write authorize-retry return snapshot when post-sign-in URL is absent", () => {
     markAuthorizeCallbackFailed();
 
-    expect(sessionStorage.getItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY)).toBeNull();
-    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
-  });
-
-  it("drops a zero-width-only authorize-retry return snapshot on read", () => {
-    sessionStorage.setItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY, "\u200b\u200b");
-    sessionStorage.setItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY, "1");
-
-    expect(readAuthorizeRetryReturnPathSnapshot()).toBeNull();
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY)).toBeNull();
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });
@@ -922,6 +913,15 @@ describe("clearOidcSession", () => {
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });
 
+  it("drops a zero-width-only authorize retry return snapshot without clearing the retry marker", () => {
+    sessionStorage.setItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY, "\u200b\u200b");
+    sessionStorage.setItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY, "1");
+
+    expect(readAuthorizeRetryReturnPathSnapshot()).toBeNull();
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY)).toBeNull();
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
+  });
+
   it("clears authorize retry return snapshot when authorize retry marker is consumed", () => {
     storePostSignInReturnUrl("/architecture/reviews/run-consume");
     markAuthorizeCallbackFailed();
@@ -937,13 +937,13 @@ describe("clearOidcSession", () => {
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });
 
-  it("preserves authorize-retry return snapshot when clearing without signed-in identity", () => {
-    storePostSignInReturnUrl("/architecture/reviews/retry-keep");
+  it("preserves authorize retry return snapshot when clearing without signed-in identity", () => {
+    storePostSignInReturnUrl("/architecture/reviews/preserve-snapshot");
     markAuthorizeCallbackFailed();
     clearOidcSession();
 
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY)).toBe(
-      "/architecture/reviews/retry-keep",
+      "/architecture/reviews/preserve-snapshot",
     );
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });
