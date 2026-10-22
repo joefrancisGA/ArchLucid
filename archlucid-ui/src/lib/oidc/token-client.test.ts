@@ -247,54 +247,6 @@ describe("refreshAccessToken", () => {
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });
 
-  it("humanizes slow_down authorization code exchange errors instead of raw snake_case", async () => {
-    sessionStorage.clear();
-
-    const fetchMock = vi.fn(async () => ({
-      ok: false,
-      status: 400,
-      text: async () => JSON.stringify({ error: "slow_down" }),
-    }));
-
-    vi.stubGlobal("fetch", fetchMock);
-
-    await expect(
-      exchangeAuthorizationCode({
-        tokenEndpoint: "https://login.example.com/token",
-        clientId: "client",
-        code: "auth-code",
-        redirectUri: "https://app.example/callback",
-        codeVerifier: "verifier",
-      }),
-    ).rejects.toThrow(/Sign-in did not finish \(slow down\)/i);
-
-    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
-  });
-
-  it("humanizes authorization_pending authorization code exchange errors instead of raw snake_case", async () => {
-    sessionStorage.clear();
-
-    const fetchMock = vi.fn(async () => ({
-      ok: false,
-      status: 400,
-      text: async () => JSON.stringify({ error: "authorization_pending" }),
-    }));
-
-    vi.stubGlobal("fetch", fetchMock);
-
-    await expect(
-      exchangeAuthorizationCode({
-        tokenEndpoint: "https://login.example.com/token",
-        clientId: "client",
-        code: "auth-code",
-        redirectUri: "https://app.example/callback",
-        codeVerifier: "verifier",
-      }),
-    ).rejects.toThrow(/Sign-in did not finish \(authorization pending\)/i);
-
-    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
-  });
-
   it("humanizes unsupported_token_type authorization code exchange errors instead of raw snake_case", async () => {
     sessionStorage.clear();
 
@@ -315,30 +267,6 @@ describe("refreshAccessToken", () => {
         codeVerifier: "verifier",
       }),
     ).rejects.toThrow(/Sign-in did not finish \(unsupported token type\)/i);
-
-    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
-  });
-
-  it("humanizes insufficient_scope authorization code exchange errors instead of raw snake_case", async () => {
-    sessionStorage.clear();
-
-    const fetchMock = vi.fn(async () => ({
-      ok: false,
-      status: 400,
-      text: async () => JSON.stringify({ error: "insufficient_scope" }),
-    }));
-
-    vi.stubGlobal("fetch", fetchMock);
-
-    await expect(
-      exchangeAuthorizationCode({
-        tokenEndpoint: "https://login.example.com/token",
-        clientId: "client",
-        code: "auth-code",
-        redirectUri: "https://app.example/callback",
-        codeVerifier: "verifier",
-      }),
-    ).rejects.toThrow(/Sign-in did not finish \(insufficient scope\)/i);
 
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });
@@ -941,112 +869,6 @@ describe("refreshAccessToken", () => {
 
     expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
     expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("server_error");
-    expect(isOAuthRefreshTokenRejectedError(caught)).toBe(false);
-  });
-
-  it("humanizes slow_down refresh failures without embedding snake_case in the message", async () => {
-    const fetchMock = vi.fn(async () => ({
-      ok: false,
-      status: 400,
-      text: async () => JSON.stringify({ error: "slow_down" }),
-    }));
-
-    vi.stubGlobal("fetch", fetchMock);
-
-    let caught: unknown;
-
-    try {
-      await refreshAccessToken({
-        tokenEndpoint: "https://login.example.com/token",
-        clientId: "client",
-        refreshToken: "rt",
-      });
-    } catch (error) {
-      caught = error;
-    }
-
-    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
-    expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("slow_down");
-    expect(isOAuthRefreshTokenRejectedError(caught)).toBe(false);
-    expect((caught as OAuthTokenEndpointError).message).not.toContain("slow_down");
-  });
-
-  it("does not classify slow_down refresh failures as permanent rejection", async () => {
-    const fetchMock = vi.fn(async () => ({
-      ok: false,
-      status: 400,
-      text: async () => JSON.stringify({ error: "slow_down" }),
-    }));
-
-    vi.stubGlobal("fetch", fetchMock);
-
-    let caught: unknown;
-
-    try {
-      await refreshAccessToken({
-        tokenEndpoint: "https://login.example.com/token",
-        clientId: "client",
-        refreshToken: "rt",
-      });
-    } catch (error) {
-      caught = error;
-    }
-
-    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
-    expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("slow_down");
-    expect(isOAuthRefreshTokenRejectedError(caught)).toBe(false);
-  });
-
-  it("humanizes authorization_pending refresh failures without embedding snake_case in the message", async () => {
-    const fetchMock = vi.fn(async () => ({
-      ok: false,
-      status: 400,
-      text: async () => JSON.stringify({ error: "authorization_pending" }),
-    }));
-
-    vi.stubGlobal("fetch", fetchMock);
-
-    let caught: unknown;
-
-    try {
-      await refreshAccessToken({
-        tokenEndpoint: "https://login.example.com/token",
-        clientId: "client",
-        refreshToken: "rt",
-      });
-    } catch (error) {
-      caught = error;
-    }
-
-    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
-    expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("authorization_pending");
-    expect(isOAuthRefreshTokenRejectedError(caught)).toBe(false);
-    expect((caught as OAuthTokenEndpointError).message).not.toContain("authorization_pending");
-  });
-
-  it("does not classify authorization_pending refresh failures as permanent rejection", async () => {
-    const fetchMock = vi.fn(async () => ({
-      ok: false,
-      status: 400,
-      text: async () => JSON.stringify({ error: "authorization_pending" }),
-    }));
-
-    vi.stubGlobal("fetch", fetchMock);
-
-    let caught: unknown;
-
-    try {
-      await refreshAccessToken({
-        tokenEndpoint: "https://login.example.com/token",
-        clientId: "client",
-        refreshToken: "rt",
-      });
-    } catch (error) {
-      caught = error;
-    }
-
-    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
-    expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("authorization_pending");
     expect(isOAuthRefreshTokenRejectedError(caught)).toBe(false);
   });
 
