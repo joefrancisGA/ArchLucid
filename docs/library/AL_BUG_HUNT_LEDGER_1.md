@@ -7803,6 +7803,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-22 seed hunt (seed→hit): promoted shared curated-evidence type guard; regressions `TryParseValid_WhenTypeHasSurroundingWhitespace_ReturnsTrue` and `NormalizeResponse_parses_valid_policy_proposal_when_type_has_surrounding_whitespace`; 131 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `ProposedEvidencePayloadValidator.TryParseValid` — JSON `type` with ASCII padding failed `IsSupportedType` so operator promotion rejected otherwise valid `ProposedEvidenceJson` — **hit 2026-10-22 seed hunt:** `ProposedEvidenceSupportedTypes.IsSupported` shared by validator and proposer; trim normalized type on success. [class:fail-open-validation]
+
+- (candidate) `DefaultAgentExecutorResolver.Resolve` — padded known execution mode throws — locus: `KnownModes.Contains`; reachability: verify replay/run-create never emits padded modes.
+- (candidate) `AgentCuratedEvidenceProposer` — enricher ordering vs structural post-process — engineering hardening.
+- (candidate) `AgentResultRegionMismatchEnricher` — restricted-region SKUs without name heuristics — design gap; do not extend instance-list cues.
+- (candidate) `EvidenceProposalPromoter.BuildCatalogEntryId` — slug collision semantics for homoglyph titles — verify before promoting.
+
 2026-10-22 seed hunt (seed-only): re-read `ArchLucid.Application/Agents/` after provenance applicator hit; cheap-disproof on coordination (out-of-zone), promoter trim sibling, reasoning-only cost slices, selection provenance defaults; 129 scoped Application.Tests.Agents tests passed.
 
 - [x] (invalid) `ArchitectureRunAuthorityCoordination.PatchAuthorityRunHeaderAsync` — padded alias skipped registry `TryGet` before applicator — **cheap-disproof 2026-10-22 seed hunt:** locus is `Runs/Coordination/` (outside zone `paths`); applicator normalizes alias id when reached.
@@ -7904,11 +7913,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 54
-- **bugs-found:** 50
+- **hunts:** 55
+- **bugs-found:** 51
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — run engine provenance applicator trims padded alias ids
+- **last-bug:** 2026-10-22 — shared curated-evidence type guard accepts padded JSON type
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
 
