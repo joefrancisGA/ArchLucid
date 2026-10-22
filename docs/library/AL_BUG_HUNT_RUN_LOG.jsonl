@@ -6073,3 +6073,5 @@
 {"outcome":"hit","zoneId":"ui-oidc","at":"2026-10-22T02:27:49.767Z","kind":"seed hunt"}
 {"outcome":"seed-only","zoneId":"ui-oidc","at":"2026-10-22T02:33:21.043Z","kind":"seed hunt"}
 {"outcome":"hit","zoneId":"ui-oidc","at":"2026-10-22T02:37:40.363Z","kind":"seed hunt"}
+{"at":"2026-10-22T02:36:26.9907004Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/"]}
+{"at":"2026-10-22T02:38:42.0178820Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/"]}
