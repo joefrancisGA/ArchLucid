@@ -13,6 +13,27 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     private static readonly Guid BundleId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
 
     [Fact]
+    public void Compute_changes_when_manifest_hash_changes_but_manifest_id_is_unchanged()
+    {
+        ProvenanceBuildInput baseline = CreateInput([]);
+        ProvenanceBuildInput updated = CreateInput([]);
+        updated.Manifest.ManifestHash = "hash-v2";
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
+    public void Compute_changes_when_applied_rule_ids_change_but_decision_trace_id_is_unchanged()
+    {
+        ProvenanceBuildInput baseline = CreateInput([], ["rule-a"]);
+        ProvenanceBuildInput updated = CreateInput([], ["rule-a", "rule-b"]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
     public void Compute_changes_when_artifact_content_hash_changes()
     {
         ProvenanceBuildInput baseline = CreateInput(
@@ -142,12 +163,23 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
             .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(duplicated, BundleId));
     }
 
-    private static ProvenanceBuildInput CreateInput(IReadOnlyList<SynthesizedArtifact> artifacts)
+    private static ProvenanceBuildInput CreateInput(
+        IReadOnlyList<SynthesizedArtifact> artifacts,
+        IReadOnlyList<string>? appliedRuleIds = null)
     {
         Guid findingsSnapshotId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
         Guid graphSnapshotId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
         Guid manifestId = Guid.Parse("11111111-1111-1111-1111-111111111111");
         Guid decisionTraceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+
+        RuleAuditTracePayload tracePayload = new()
+        {
+            DecisionTraceId = decisionTraceId,
+            RunId = RunId,
+        };
+
+        if (appliedRuleIds is not null)
+            tracePayload.AppliedRuleIds.AddRange(appliedRuleIds);
 
         return new ProvenanceBuildInput
         {
@@ -172,12 +204,7 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
                 ManifestHash = "mh",
                 Decisions = [],
             },
-            DecisionTrace = RuleAuditTraceDto.From(
-                new RuleAuditTracePayload
-                {
-                    DecisionTraceId = decisionTraceId,
-                    RunId = RunId,
-                }),
+            DecisionTrace = RuleAuditTraceDto.From(tracePayload),
             Artifacts = artifacts,
         };
     }

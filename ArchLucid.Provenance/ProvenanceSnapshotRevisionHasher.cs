@@ -19,13 +19,15 @@ public static class ProvenanceSnapshotRevisionHasher
         Guid findingsSnapshotId = input.Findings.FindingsSnapshotId;
         Guid graphSnapshotId = input.Graph.GraphSnapshotId;
         Guid manifestId = input.Manifest.ManifestId;
+        string manifestHash = input.Manifest.ManifestHash ?? string.Empty;
         Guid decisionTraceId = ResolveDecisionTraceId(input.DecisionTrace);
+        string appliedRuleIdsFingerprint = ComputeAppliedRuleIdsFingerprint(input.DecisionTrace);
         Guid bundleId = artifactBundleId ?? Guid.Empty;
         string artifactsFingerprint = ComputeArtifactsFingerprint(input.Artifacts);
 
         string canonical =
             FormattableString.Invariant(
-                $"{input.RunId:D}|{findingsSnapshotId:D}|{graphSnapshotId:D}|{manifestId:D}|{decisionTraceId:D}|{bundleId:D}|{artifactsFingerprint}");
+                $"{input.RunId:D}|{findingsSnapshotId:D}|{graphSnapshotId:D}|{manifestId:D}|{manifestHash}|{decisionTraceId:D}|{appliedRuleIdsFingerprint}|{bundleId:D}|{artifactsFingerprint}");
 
         byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(canonical));
 
@@ -52,5 +54,19 @@ public static class ProvenanceSnapshotRevisionHasher
             return ruleAudit.RuleAudit.DecisionTraceId;
 
         return Guid.Empty;
+    }
+
+    private static string ComputeAppliedRuleIdsFingerprint(DecisionTraceDto trace)
+    {
+        if (trace is not RuleAuditTraceDto ruleAudit)
+            return string.Empty;
+
+        IEnumerable<string> parts = ruleAudit.RuleAudit.AppliedRuleIds
+            .Select(static ruleId => ruleId.Trim())
+            .Where(static ruleId => ruleId.Length > 0)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(static ruleId => ruleId, StringComparer.OrdinalIgnoreCase);
+
+        return string.Join(";", parts);
     }
 }
