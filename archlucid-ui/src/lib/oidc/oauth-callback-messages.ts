@@ -115,8 +115,13 @@ export function parseOidcEpochMsHint(value: string): number {
   return coerceAcceptedOidcEpochMsHint(parsed);
 }
 
+/** ZWNJ between Latin tokens is usually accidental paste glue; keep ZWNJ inside Persian/Arabic copy. */
+function collapseAccidentalLatinZwnjGlue(text: string): string {
+  return text.replace(/(?<=[A-Za-z0-9])\u200c(?=[A-Za-z0-9])/gu, " ");
+}
+
 export function collapseOAuthErrorDescriptionLineBreaks(text: string): string {
-  return text
+  return collapseAccidentalLatinZwnjGlue(text)
     .replace(OIDC_DISPLAY_GLUE_FORMAT_CHARS, " ")
     // Soft hyphens are optional break points; on single-line callback copy they glue words (Policy\u00ADdenied).
     .replace(/[\u0000-\u001F\u007F\u2028\u2029\u0085\u00AD]/gu, " ")

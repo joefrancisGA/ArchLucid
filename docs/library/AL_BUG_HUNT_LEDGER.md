@@ -1,4 +1,8 @@
-﻿2026-10-22 seed hunt (seed→hit): `ui-oidc` — picker `ui-oidc` after 51 commits since 2026-10-16; promoted hunt-ready `normalizeOAuthErrorCode` — authorize `?error=access` + ZWNJ + `denied` skipped `access_denied` handler and surfaced generic `(accessdenied)` copy; map invisible format characters to `_` before snake_case collapse; regression `maps authorize error codes with ZWNJ glue to the standard snake_case handlers`; cheap-disproof closed five run #88 `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped vitest under `src/lib/oidc` 323/323.
+2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `collapseOAuthErrorDescriptionLineBreaks` for Latin ZWNJ-glued `error_description` copy; regressions above; scoped `src/lib/oidc` vitest 325/325.
+
+- [x] (proven) `collapseOAuthErrorDescriptionLineBreaks` - Latin ZWNJ glue in OAuth error descriptions - **hit 2026-10-22 seed hunt (second pass):** `collapseAccidentalLatinZwnjGlue`.
+
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — picker `ui-oidc` after 51 commits since 2026-10-16; promoted hunt-ready `normalizeOAuthErrorCode` — authorize `?error=access` + ZWNJ + `denied` skipped `access_denied` handler and surfaced generic `(accessdenied)` copy; map invisible format characters to `_` before snake_case collapse; regression `maps authorize error codes with ZWNJ glue to the standard snake_case handlers`; cheap-disproof closed five run #88 `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped vitest under `src/lib/oidc` 323/323.
 
 - [x] (proven) `normalizeOAuthErrorCode` / `humanizeAuthorizeCallbackError` — ZWNJ-split OAuth error codes missed `access_denied` handler — **hit 2026-10-22 seed hunt:** invisible chars → `_` before collapse; regression above.
 - [x] (valid-no-repro) `refreshBffSessionCookie` — plus-prefixed `expires_at_ms` string on ok refresh — **cheap-disproof 2026-10-22 seed hunt:** `parseOidcEpochMsHint` accepts decimal `+` prefix via `Number()`; no soft-fail on valid future epoch.
@@ -7,11 +11,11 @@
 - [x] (valid-no-repro) `initiateOidcRedirect` / `initiateSupplementalOidcRedirect` — supplemental Google vs primary PKCE ordering — **cheap-disproof 2026-10-22 seed hunt:** intentional cross-flow `clearPkceState` on successful redirect; `initiate-redirect.test.ts`.
 - [x] (valid-no-repro) `buildAuthorizeUrl` — B2C `p=` policy query key collision with ArchLucid params — **cheap-disproof 2026-10-22 seed hunt:** `searchParams.set` overwrites stale keys; retains `p`; `build-authorize-url.test.ts`.
 
-- [x] (valid-no-repro) `readOAuthErrorString` — interior ZWNJ in token JSON `error` — **cheap-disproof 2026-10-22 seed hunt:** `readOAuthErrorString` calls `normalizeOAuthErrorCode` (same path as authorize query).
-- [x] (valid-no-repro) `discoveryUrlForAuthority` — authority userinfo — **cheap-disproof 2026-10-22 seed hunt:** discovery URL uses `parsed.origin`, which omits embedded credentials from the fetch target.
-- [x] (invalid) `normalizeOAuthErrorCode` — ZWJ between regional indicators — **cheap-disproof 2026-10-22 seed hunt:** emoji error codes are not standard OAuth `error` values; readable-detail guards apply.
-- [x] (invalid) `ensureAccessTokenFresh` — skew boundary timing — **cheap-disproof 2026-10-22 seed hunt:** not hunt-ready (timing flake / environmental).
-- [x] (valid-no-repro) `exchangeAuthorizationCode` — interior ZWSP in `code` — **cheap-disproof 2026-10-22 seed hunt:** `trimTokenFormParams` uses `stripOAuthInvisibleFormatChars` on the full code string.
+- [ ] (candidate) `readOAuthErrorString` — token JSON `error` field with interior ZWNJ may not normalize before readability gate — locus: `token-client.ts`; input: token endpoint `{ "error": "invalid\u200cgrant" }` (reachability: IdP mis-encoded JSON).
+- [ ] (candidate) `discoveryUrlForAuthority` — configured authority with embedded userinfo builds discovery fetch URL with credentials — locus: `discovery.ts`; input: `NEXT_PUBLIC_OIDC_AUTHORITY=https://user:pass@idp.example` (reachability: misconfiguration).
+- [ ] (candidate) `normalizeOAuthErrorCode` — ZWJ-only glue between Regional Indicator flag sequences in error codes — locus: error code normalization; input: flag emoji error codes from IdP (may be intentional no-op).
+- [ ] (candidate) `ensureAccessTokenFresh` — identity hints present with `expires_at_ms` exactly `Date.now()` at skew boundary — locus: `EXPIRY_SKEW_MS` compare; input: refresh fires once per tick at boundary (timing flake class).
+- [ ] (candidate) `exchangeAuthorizationCode` — invisible characters inside `code` query value forwarded to token POST — locus: `trimTokenFormParams`; input: callback `code` with ZWSP interior (reachability: IdP never emits; strip at edges only today).
 2026-10-21 thorough hunt (dry, lane C): `api-governance-tenancy-controllers` — lock `api-governance-tenancy-controllers` pushed and verified on `origin/bugsmash` before work (`dee13d7e5c` content after push; lane C `2026-10-21T17:03:47Z`); skipped `ui-*` zones (lane B URL helper sweep); selected least-recent unlocked non-UI zone with open candidate rows (`2026-10-21T02:33:42Z`); exercised zone-head sealed-manifest / tenancy candidates — risk revoke/renew and recurrence already delegate to `EnsureGovernanceDispositionRunSealedManifestAllowedAsync` (null manifest-compare detail skips guard); pre-commit checklist loads `IRunRepository` before sealed guard (404 before 409); approval lineage guard returns null when approval missing; project delete audit uses `User?.Identity?.Name ?? actorUserId`; scoped stickiness not-found/sealed regressions **9/9**; no new defect.
 
 - [x] (valid-no-repro) `GovernanceStickinessController` revoke/renew risk exception sealed guard — **cheap-disproof 2026-10-21 lane C:** same null-detail skip as create/recurrence (2026-10-20/21 hits).
@@ -25344,6 +25348,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `normalizeOAuthErrorCode` - authorize callback `error` values with ZWNJ (U+200C) between snake_case tokens (e.g. `access<ZWNJ>denied`) stripped the joiner without inserting a separator, so `humanizeAuthorizeCallbackError` missed the `access_denied` branch and showed generic copy; map invisible format characters to `_` before snake_case normalization; regression `maps authorize error codes with ZWNJ glue to the standard snake_case handlers`; scoped `src/lib/oidc` vitest 323/323.
 
 - [x] (proven) `normalizeOAuthErrorCode` - ZWNJ-glued authorize error codes missed standard handlers - **hit 2026-10-22 seed hunt:** invisible chars become `_` separators; regression above.
+
+
+2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `collapseOAuthErrorDescriptionLineBreaks` - Latin OAuth `error_description` with accidental ZWNJ between ASCII tokens (e.g. `Policy<ZWNJ>denied`) stayed glued while ZWSP glue already collapsed; collapse ZWNJ only between Latin alphanumerics; preserve Persian ZWNJ; regressions `collapses accidental ZWNJ glue between Latin words in JSON error_description` + authorize decode path; scoped `src/lib/oidc` vitest 325/325.
+
+- [x] (proven) `collapseOAuthErrorDescriptionLineBreaks` - Latin ZWNJ glue in OAuth error descriptions - **hit 2026-10-22 seed hunt:** `collapseAccidentalLatinZwnjGlue`; regressions above.
 
 2026-10-21 seed hunt (seed->hit): coerceAcceptedOidcEpochMsHint returned fractional epoch-ms from JSON refresh bodies; regression truncates fractional epoch-ms JSON numbers to whole milliseconds; 138 scoped oauth-callback-messages + bff-session-sync + session-ensure-fresh vitest tests passed.
 
