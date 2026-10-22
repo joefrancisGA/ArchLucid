@@ -8712,6 +8712,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted element property keys/values, provenance `Notes`, and related label casing gaps in review-cache `modelfp`; property bag, provenance quotes/notes, and baseline declared priorities now use `NormalizeLabelForFingerprint`; regressions `Build_matches_content_hash_when_baseline_element_property_value_differs_only_by_casing`, `Build_matches_content_hash_when_baseline_element_property_key_differs_only_by_casing`, and `Build_matches_content_hash_when_baseline_element_provenance_notes_differs_only_by_casing`; 222 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — property and provenance label casing split `modelfp` — **hit 2026-10-22 seed hunt:** `NormalizeLabelForFingerprint` on property bag and provenance notes; regressions above.
+
 2026-10-22 seed hunt (seed→hit): promoted baseline model framing-answer keys/values and element `Name` letter-casing splitting review-cache `modelfp`; `FormatFramingAnswers` and element labels now use `NormalizeLabelForFingerprint`; regressions `Build_matches_content_hash_when_baseline_model_framing_answer_key_differs_only_by_casing`, `Build_matches_content_hash_when_baseline_model_framing_answer_value_differs_only_by_casing`, and `Build_matches_content_hash_when_baseline_element_name_differs_only_by_casing`; 218 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatFramingAnswers` / `FormatKnowledgeModelElementFingerprint` — framing keys/values and element name casing split `modelfp` — **hit 2026-10-22 seed hunt:** `NormalizeLabelForFingerprint`; regressions above.
@@ -9224,11 +9228,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 90
-- **bugs-found:** 78
+- **hunts:** 91
+- **bugs-found:** 79
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — baseline framing and element name casing in review-cache modelfp
+- **last-bug:** 2026-10-22 — element property and provenance label casing in review-cache modelfp
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
