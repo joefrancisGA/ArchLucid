@@ -1379,3 +1379,4 @@
 {"at":"2026-10-22T15:38:14.0137826Z","zoneId":"application-tenancy-lifecycle","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/"]}
 {"at":"2026-10-22T15:45:00.0000000Z","zoneId":"api-request-null-collection-elements","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Filters/ApiRequestNullCollectionElementsFilter.cs","ArchLucid.Api/Validation/ApiRequestNullCollectionElementsGuard.cs"]}
 {"at":"2026-10-22T15:48:00.0000000Z","zoneId":"identity-provider-config","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs","ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs"]}
+{"at":"2026-10-22T15:52:00.0000000Z","zoneId":"api-policy-packs","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs"]}

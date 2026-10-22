@@ -10623,6 +10623,14 @@
 
 ## Zone: api-policy-packs
 
+2026-10-22 seed hunt (seed-only): re-read policy-pack controller partials after `PolicyPackSemVerVersion` structural normalization (publish/assign/promote/get-version share `Parse`); cheap-disproof closed padded-semver forwarding (class closed 2026-10-21 + `PolicyPacksControllerVersionNormalizationMatrixTests`), simulate run-id forwarding (proven 2026-10-03), and bulk blank-slot semantics (valid-no-repro 2026-10-09); no hunt-ready promotion (`other` saturated); added five new `(candidate)` rows; scoped tests not run on this checkout (Application compile blocked).
+
+- [x] (invalid) `PolicyPacksController.Publish` / `Assign` — padded `Version` forwarded untrimmed after FluentValidation — **cheap-disproof 2026-10-22:** `PolicyPackSemVerVersion.Parse` normalizes before facade; matrix regressions `Publish_accepts_padded_version_when_trimmed_label_is_within_limit`, `Assign_forwards_trimmed_version_to_facade`.
+- [x] (invalid) `PolicyPacksController.PromoteCatalogEntry` — optional semver padding mismatch — **cheap-disproof 2026-10-22:** `PolicyPackSemVerVersion.Parse(request.Version).Value` at promote (~46–48); regression `PromoteCatalogEntry_forwards_trimmed_optional_version_to_facade`.
+- [x] (valid-no-repro) `PolicyPacksController.SimulateBulk` — blank `runIds` slots vs cap semantics — **cheap-disproof 2026-10-22:** intentional submitted-list cap; ledger #10699–10700.
+- [x] (proven) `PolicyPacksController.Simulate` — padded `runId` forwarded untrimmed — **cheap-disproof 2026-10-22:** already proven 2026-10-03; regression `Simulate_forwards_canonical_run_id_to_facade`.
+- [x] (valid-no-repro) `PolicyPacksController.GetEffective` — cross-scope output cache — **cheap-disproof 2026-10-22:** proven removed 2026-10-02; regression `Effective_policy_pack_endpoints_must_not_use_the_anonymous_immutable_cache_policy`.
+
 2026-10-21 seed hunt (seed→hit): promoted padded semver on `POST …/publish` and `POST …/assign` passing FluentValidation via `BePolicyPackSemVerVersion` trim but forwarding untrimmed `Version` to `IPolicyPackHttpFacade`; controller now forwards `request.Version.Trim()`; regressions `Publish_forwards_trimmed_version_to_facade` and `Assign_forwards_trimmed_version_to_facade`; 84 scoped `PolicyPacksController` tests passed.
 
 - **id:** api-policy-packs
@@ -10654,11 +10662,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 41
+- **hunts:** 42
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — simulate sealed-manifest guard blocked missing-run and scope-not-found with HTTP 409
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-21 — publish/assign semver normalization parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10687,6 +10695,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-02 seed hunt (hit): proved cross-scope output caching on effective policy-pack reads; 1 focused regression test passed after removing the shared anonymous cache policy. The full controller filter had 55 passing and 17 unrelated baseline failures from null test scopes.
 
 ### Hypotheses
+
+- [ ] (candidate) `PolicyPacksController.Create` — `PackType` forwarded without controller-level enum guard beyond FluentValidation — locus: `CreatePackAsync` body ~49–56; input: out-of-range numeric `packType` after validator drift; reachability: `CreatePolicyPackRequestValidator` + facade rejection.
+- [ ] (candidate) `PolicyPacksController.Validate` — raw `JsonElement` body bypasses null-collection global filter shape checks for nested arrays — locus: `Validate` accepts `JsonElement` ~207; input: content object with null array slots; reachability: `PolicyPackValidateContentHttpMapper` deserialize gates.
+- [ ] (candidate) `PolicyPacksController.ExplainPack` — markdown explain returns `Ok(result.Value!)` without explicit not-found branch beyond `MapScopeOrNull` — locus: `ExplainPackMarkdownAsync` outcome mapping ~102–115; input: pack id visible in list but explain returns empty; reachability: facade `ResourceNotFound` only.
+- [ ] (candidate) `PolicyPacksController.Simulate` — `ProposedPolicyPackId` optional route to facade without empty-guid normalization — locus: `SimulateAsync` ~70–76; input: `Guid.Empty` proposed id; reachability: OpenAPI optional field on simulate request.
+- [ ] (candidate) `PolicyPacksController.Publish` — `ValidationFailed` outcome from facade after platform-default guard — locus: `Publish` ~135–140; input: future management validation outcome; reachability: today only `ResourceNotFound` + `ValidationFailed` for republish guard (proven 2026-10-07).
 
 - [x] (proven) `PolicyPacksController.GetVersion` — an OpenAPI route parameter with surrounding whitespace, such as `1.0.0%20`, passed `ValidatePackVersion` because validation trims for semver checks but was forwarded untrimmed to `GetVersionAsync`, so a valid version lookup could return not-found — **hit 2026-10-10 seed hunt:** forward `packVersion.Trim()` after validation; regression `GetVersion_forwards_trimmed_pack_version_to_facade`.
 - [x] (proven) `PolicyPacksController.PromoteCatalogEntry` — an OpenAPI catalog-promotion body with surrounding whitespace in its optional semver, such as `" 1.0.0 "`, passed trimmed validation but was forwarded untrimmed to the facade — **hit 2026-10-10 seed hunt:** forward `request.Version?.Trim()` after validation; regression `PromoteCatalogEntry_forwards_trimmed_optional_version_to_facade`.
