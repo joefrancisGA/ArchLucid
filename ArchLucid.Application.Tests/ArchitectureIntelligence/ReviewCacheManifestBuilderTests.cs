@@ -218,6 +218,23 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_ledger_evidence_ref_differs_only_by_unicode_normalization_form()
+    {
+        const string nfcRef = "evidence:Caf\u00E9";
+        const string nfdRef = "evidence:Cafe\u0301";
+
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-ledger-evidence-unicode";
+
+        TechnologyLedgerEntry nfcEntry = CreateLedgerEntry(request.RunId, nfcRef);
+        TechnologyLedgerEntry nfdEntry = CreateLedgerEntry(request.RunId, nfdRef);
+
+        ReviewCacheManifestBuilder.Build(request, null, [nfcEntry]).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, null, [nfdEntry]).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_ledger_technology_name_differs_only_by_unicode_normalization_form()
     {
         const string nfcName = "Caf\u00E9";

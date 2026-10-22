@@ -53,7 +53,7 @@ public static class ReviewCacheLedgerFingerprint
         if (string.IsNullOrWhiteSpace(evidenceRef))
             return string.Empty;
 
-        return evidenceRef.Trim();
+        return evidenceRef.Trim().Normalize(NormalizationForm.FormC);
     }
 
     private static string Sha256Hex(string value)
