@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as bffSessionSync from "@/lib/oidc/bff-session-sync";
 import {
   clearOidcSession,
+  clearPostSignInReturnUrl,
   consumeAuthorizeCallbackFailedRetry,
   markAuthorizeCallbackFailed,
   consumePkceState,
@@ -105,6 +106,17 @@ describe("storePostSignInReturnUrl / consumePostSignInReturnUrl", () => {
 
     expect(readPostSignInReturnUrl()).toBe("/desk/reviews");
     expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBe("/desk\u000B/reviews");
+  });
+
+  it("clears authorize retry markers when clearing post-sign-in return URL without a stored path", () => {
+    sessionStorage.setItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY, "1");
+    sessionStorage.setItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY, "/architecture/reviews/safe-snapshot");
+
+    clearPostSignInReturnUrl();
+
+    expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBeNull();
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBeNull();
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY)).toBeNull();
   });
 
   it("persists a control-stripped post-sign-in return path when store receives smuggled control characters", () => {

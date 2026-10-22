@@ -2528,6 +2528,40 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+- **id:** ui-oidc
+- **status:** open
+- **impact:** high
+- **aliases:** oidc authority; sign-in routing; OIDC host
+- **paths:** archlucid-ui/src/lib/oidc/
+- **test-filter:** oidc-authority|oidc
+- **hunts:** 91
+- **bugs-found:** 73
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed-only, pass 12): cheap-disproved five open `(candidate)` rows from pass 11; regression locks ellipsis-only JSON/authorize `error_description` guards, JSON number-zero token body, and `clearPostSignInReturnUrl` retry-marker cleanup; no hunt-ready row promoted; seeded five follow-on `(candidate)` rows; focused OIDC suite passed 732/732; no production code changed.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `request_not_supported` authorize callback query — **cheap-disproof 2026-10-22 seed hunt pass 12:** existing regression `humanizes request_not_supported authorize callback errors with readable copy`.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — ellipsis-only (`U+2026`) JSON `error_description` — **cheap-disproof 2026-10-22 seed hunt pass 12:** readable-detail guard; regression `returns empty for ellipsis-only token-endpoint JSON error_description values`.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — ellipsis-only percent-encoded authorize `error_description` — **cheap-disproof 2026-10-22 seed hunt pass 12:** regression `returns empty for ellipsis-only percent-encoded error descriptions`.
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON number `0` — **cheap-disproof 2026-10-22 seed hunt pass 12:** non-object root fails closed; regression `throws when a successful token response body is the JSON number 0`.
+- [x] (invalid) `clearPostSignInReturnUrl` — authorize-retry markers left set when post-sign-in URL already absent — **cheap-disproof 2026-10-22 seed hunt pass 12:** helper clears retry marker and snapshot; regression `clears authorize retry markers when clearing post-sign-in return URL without a stored path`.
+
+- [ ] (candidate) `humanizeAuthorizeCallbackError` — `unsupported_response_type` on authorize callback query — locus: `humanizeAuthorizeCallbackError` default branch; input: SPA callback `?error=unsupported_response_type` without description.
+- [ ] (candidate) `readOAuthJsonErrorDescription` — middle-dot-only (`U+00B7`) JSON `error_description` — locus: readable-detail guard; input: token-endpoint OAuth JSON `"\\u00b7\\u00b7"`.
+- [ ] (candidate) `decodeOAuthErrorDescription` — middle-dot-only percent-encoded authorize `error_description` — locus: `decodeOAuthErrorDescription`; input: callback `?error_description=%C2%B7`.
+- [ ] (candidate) `token-client.postTokenForm` — HTTP 200 body is JSON number `-1` — locus: `parseOidcTokenResponse`; input: misconfigured IdP returns numeric negative root JSON with 200.
+- [ ] (candidate) `consumePkceState` — PKCE state value with vertical-tab interior — locus: `consumePkceState`; input: tampered session `OIDC_PKCE_STATE_KEY` containing `desk\u000Bstate` before callback consume.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `request_not_supported` authorize callback query — **closed 2026-10-22 seed hunt pass 12** (see pass-12 row above).
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — ellipsis-only JSON `error_description` — **closed 2026-10-22 seed hunt pass 12** (see pass-12 row above).
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — ellipsis-only percent-encoded `error_description` — **closed 2026-10-22 seed hunt pass 12** (see pass-12 row above).
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 JSON number `0` — **closed 2026-10-22 seed hunt pass 12** (see pass-12 row above).
+- [x] (invalid) `clearPostSignInReturnUrl` — retry markers left when return URL absent — **closed 2026-10-22 seed hunt pass 12** (see pass-12 row above).
+
 2026-10-22 seed hunt (seed-only, pass 11): cheap-disproved five open `(candidate)` rows from pass 10; regression locks `acr_values_not_supported` authorize humanization, bullet-only JSON/authorize `error_description` guards, JSON `false` token body, and BFF refresh `501` soft-fail; no hunt-ready row promoted; seeded five follow-on `(candidate)` rows; focused OIDC suite passed 728/728; no production code changed.
 
 - [x] (invalid) `humanizeAuthorizeCallbackError` — `acr_values_not_supported` authorize callback query — **cheap-disproof 2026-10-22 seed hunt pass 11:** default-branch readable copy; regression `humanizes acr_values_not_supported authorize callback errors with readable copy`.
@@ -2536,11 +2570,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON literal `false` — **cheap-disproof 2026-10-22 seed hunt pass 11:** non-object root fails closed; regression `throws when a successful token response body is the JSON literal false`.
 - [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route returns HTTP `501` without clearing session — **cheap-disproof 2026-10-22 seed hunt pass 11:** non-401/403 soft-fail; regression `soft-fails refresh without clearing session when the refresh route returns 501`.
 
-- [ ] (candidate) `humanizeAuthorizeCallbackError` — `request_not_supported` on authorize callback query — locus: `humanizeAuthorizeCallbackError` default branch; input: SPA callback `?error=request_not_supported` without description.
-- [ ] (candidate) `readOAuthJsonErrorDescription` — ellipsis-only (`U+2026`) JSON `error_description` — locus: readable-detail guard; input: token-endpoint OAuth JSON `"\\u2026\\u2026"`.
-- [ ] (candidate) `decodeOAuthErrorDescription` — ellipsis-only percent-encoded authorize `error_description` — locus: `decodeOAuthErrorDescription`; input: callback `?error_description=%E2%80%A6`.
-- [ ] (candidate) `token-client.postTokenForm` — HTTP 200 body is JSON number `0` — locus: `parseOidcTokenResponse`; input: misconfigured IdP returns numeric zero root JSON with 200.
-- [ ] (candidate) `clearPostSignInReturnUrl` — authorize-retry markers left set when post-sign-in URL already absent — locus: `clearPostSignInReturnUrl`; input: retry marker plus snapshot keys present but `OIDC_POST_SIGN_IN_RETURN_URL_KEY` missing before clear.
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `request_not_supported` on authorize callback query — **closed 2026-10-22 seed hunt pass 12** (see pass-12 row above).
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — ellipsis-only (`U+2026`) JSON `error_description` — **closed 2026-10-22 seed hunt pass 12** (see pass-12 row above).
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — ellipsis-only percent-encoded authorize `error_description` — **closed 2026-10-22 seed hunt pass 12** (see pass-12 row above).
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 body is JSON number `0` — **closed 2026-10-22 seed hunt pass 12** (see pass-12 row above).
+- [x] (invalid) `clearPostSignInReturnUrl` — authorize-retry markers left set when post-sign-in URL already absent — **closed 2026-10-22 seed hunt pass 12** (see pass-12 row above).
 
 - [x] (invalid) `humanizeAuthorizeCallbackError` — `acr_values_not_supported` authorize callback query — **closed 2026-10-22 seed hunt pass 11** (see pass-11 row above).
 - [x] (valid-no-repro) `readOAuthJsonErrorDescription` — bullet-only JSON `error_description` — **closed 2026-10-22 seed hunt pass 11** (see pass-11 row above).
