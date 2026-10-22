@@ -177,6 +177,15 @@ public sealed class TenantErasureCommandService(
         if (beforeRestoreAudit.OffboardedUtc is not null)
             return true;
 
+        TenantRecord? tenantBeforeRestoreAudit =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+        if (tenantBeforeRestoreAudit is null)
+            return false;
+
+        if (tenantBeforeRestoreAudit.OffboardedUtc is not null)
+            return true;
+
         await AppendPlatformAuditAsync(
             AuditEventTypes.TenantErasureQuarantineRestored,
             tenantId,
