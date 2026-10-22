@@ -8712,6 +8712,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted baseline passage locator with `StartOffset=0` and unset `EndOffset` splitting review-cache `modelfp` from fully unset offsets; `FormatPassageOffsetToken` treats open-ended zero start like unset start; regression `Build_matches_content_hash_when_baseline_element_provenance_passage_start_is_zero_vs_null_with_unset_end`; cheap-disproof regressions for null vs empty element description, duplicate provenance confidence list order, and empty vs omitted request framing answers; 241 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatPassageOffsetToken` — zero start vs null start with unset end split `modelfp` — **hit 2026-10-22 seed hunt:** open-range start normalization; regression above.
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — null vs empty description — **cheap-disproof 2026-10-22 seed hunt:** `NormalizeLabelForFingerprint`; regression `Build_matches_content_hash_when_baseline_element_description_is_null_vs_empty_string`.
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint.SelectCanonicalKnowledgeModelElements` — duplicate provenance confidence list order — **cheap-disproof 2026-10-22 seed hunt:** fingerprint tie-break; regression `Build_matches_content_hash_when_baseline_duplicate_element_ids_differ_only_by_provenance_confidence_list_order`.
+- [x] (valid-no-repro) `ClosedLoopFramingAnswersNormalizer` — empty vs omitted request framing map — **cheap-disproof 2026-10-22 seed hunt:** empty map omitted from hash; regression `Build_matches_content_hash_when_request_framing_answers_are_empty_vs_omitted`.
+
 2026-10-22 seed hunt (seed→hit): promoted baseline passage locator with non-zero `StartOffset` and unset `EndOffset` splitting review-cache `modelfp` from `EndOffset=0`; `FormatPassageOffsetToken` treats null or zero end as unset when start is set; regression `Build_matches_content_hash_when_baseline_element_provenance_passage_end_is_null_vs_zero_with_start_offset`; 237 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatPassageOffsetToken` — null end vs zero end with start offset split `modelfp` — **hit 2026-10-22 seed hunt:** unset end normalization; regression above.
