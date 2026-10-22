@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_client authorize-query UX, BFF refresh 416 parity, and saturated decodeOAuthErrorDescription emoji-modifier glue; regression documents authorize-retry marking when authorization code exchange returns empty access_token; scoped vitest 487/487.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - invalid_client authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 416 shouldClearSession false - **regression 2026-10-22:** transient refresh soft-fail without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - empty access_token skips authorize retry marker - **regression 2026-10-22:** intentional retry marker on empty token (not skip).
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with emoji modifier glue - **cheap-disproof 2026-10-22:** saturated encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - redirect_uri_mismatch authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 417 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - whitespace-only access_token skips authorize retry marker - locus: normalized empty token.
+- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with emoji modifier glue - locus: saturated JSON encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_request authorize-query UX, BFF refresh 415 parity, and saturated readOAuthJsonErrorDescription skin-tone glue; regression documents authorize-retry marking when authorization code exchange omits access_token; scoped vitest 484/484.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - invalid_request authorize-query copy - **cheap-disproof 2026-10-22:** fixed not-valid UX parity test.
@@ -9,19 +21,6 @@
 - [ ] (candidate) refreshBffSessionCookie - refresh 416 shouldClearSession false - locus: transient refresh parity.
 - [ ] (candidate) exchangeAuthorizationCode - empty access_token skips authorize retry marker - locus: whitespace token vs OAuth outcome.
 - [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with emoji modifier glue - locus: saturated encoding class.
-2026-10-22 seed hunt (seed->hit): `application-tenancy-lifecycle` - promoted hunt-ready from seed re-read `TenantErasureCommandService.TryRestoreQuarantineAsync` - quarantine restored platform audit appended after pre-audit offboard check using only one tenant read, so erasure offboard restarted between that read and audit could emit `TenantErasureQuarantineRestored` for offboarded tenants; pre-restore-audit `GetByIdAsync` offboard guard; regression `TryRestoreQuarantineAsync_returns_success_without_audit_when_offboard_completes_after_pre_restore_audit_read_before_audit`; scoped tenancy filter 258/258.
-
-- [x] (proven) `TryRestoreQuarantineAsync` - offboard after pre-restore audit read before restore audit - **hit 2026-10-22 seed hunt:** pre-restore-audit re-read; regression above.
-- [x] (valid-no-repro) `TryRestoreQuarantineAsync` - offboard on beforeRestoreAudit read - **cheap-disproof 2026-10-22:** existing three-read regression on trunk.
-- [x] (valid-no-repro) `TryClearLegalHoldAsync` - hold re-applied after pre-clear audit read - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
-- [x] (invalid) `DeleteTenantAsync` - legal hold between revalidate and blob purge - **cheap-disproof 2026-10-22:** second pre-blob revalidate throws when hold present.
-- [x] (valid-no-repro) `TryRestoreQuarantineAsync` - offboard after atomic restore - **cheap-disproof 2026-10-22:** existing regression on trunk.
-
-- [ ] (candidate) `TrialLifecycleTransitionEngine` - offboard between audit and expiration metric - locus: post-audit superseded read (reachability: saturated).
-- [ ] (candidate) `TenantCatalogMigrationOrchestrator.StartAsync` - offboard after insert before started audit - locus: existing regression (reachability: saturated).
-- [ ] (candidate) `TenantErasureCommandService.TryOffboardAsync` - offboard audit races - locus: TryEmitOffboard pattern (reachability: erasure command).
-- [ ] (candidate) `DeleteTenantAsync` - approval cleared between pre-deletion audit reads - locus: parity with legal hold guard (reachability: admin delete job).
-- [ ] (candidate) `TenantSuspendCommandService` - concurrent suspend audit races - locus: saturated offboard tests.
 
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_scope authorize-query UX, BFF refresh 414 parity, and saturated decodeOAuthErrorDescription skin-tone glue; regression documents authorize-retry marking after non-JSON token success bodies during code exchange (parse failure still preserves return-path retry); scoped vitest 481/481.
 
