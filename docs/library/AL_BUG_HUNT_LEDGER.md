@@ -1,3 +1,17 @@
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `decodeRepeatedPercentEncoding` — triply percent-encoded spaces in OAuth `error_description` (`User%252520denied`) still showed `User%20denied` after two decode passes; raise cap to three passes (unchanged stable-break behavior); regressions `decodes triply percent-encoded spaces in JSON error_description` + authorize decode path; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 346/346.
+
+- [x] (proven) `decodeRepeatedPercentEncoding` — triply percent-encoded `error_description` — **hit 2026-10-22 seed hunt:** `MAX_OAUTH_PERCENT_DECODE_PASSES` 3; regressions above.
+- [x] (invalid) `decodeOAuthErrorDescription` — `+` vs JSON plus handling split — **cheap-disproof 2026-10-22:** RFC 6749 JSON is plain text; query `+`→space is authorize-only by design.
+- [x] (valid-no-repro) `errorFromOAuthJson` — invisible `error` padding with readable description — **cheap-disproof 2026-10-22:** description-only branch returns sanitized detail; existing token-client tests.
+- [x] (valid-no-repro) `clearAbandonedPostSignInReturnUrl` — `%2Freviews` vs `/reviews` — **cheap-disproof 2026-10-22:** `storePostSignInReturnUrl` only accepts safe `/…` paths; encoded-slash storage not reachable.
+- [x] (valid-no-repro) `exchangeAuthorizationCode` — soft hyphen in JSON `error` code — **cheap-disproof 2026-10-22:** `normalizeOAuthErrorCode` maps `\u00AD` to `_`; `access\u00ADdenied` → `access_denied`.
+
+- [ ] (candidate) `decodeRepeatedPercentEncoding` — four-pass `%25252520` chains may still leak `%20` — locus: pass cap; input: `User%25252520denied`; reachability: multi-hop reverse proxies on token errors.
+- [ ] (candidate) `storePostSignInReturnUrl` — return path with encoded query (`%3F`) vs literal `?` breaks idle-desk pairing — locus: `normalizeComparableReturnPath`; input: `/reviews%3Ftab=1` stored vs `/reviews?tab=1` idle payload.
+- [ ] (candidate) `errorFromOAuthJson` — numeric `error` field with string `error_description` — locus: `readOAuthErrorString`; input: `{ error: 403, error_description: "denied" }` (may already ignore).
+- [ ] (candidate) `getAccessTokenExpiresAtMs` — returns parsed expiry when identity hints exist but `expires_at_ms` hint is whitespace-only — locus: `parseOidcEpochMsHint`; input: sessionStorage `expires_at_ms` = `   `.
+- [ ] (candidate) `loadDiscoveryDocument` — authority host with trailing dot (`login.example.com.`) — locus: `discoveryUrlForAuthority`; input: env authority FQDN with trailing dot (reachability: mis-typed DNS).
+
 2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `readOAuthJsonErrorDescription` / `decodeOAuthErrorDescription` — IdP `error_description` with doubly percent-encoded spaces (`User%2520denied`) stopped after one `decodeURIComponent` pass and surfaced `User%20denied` in token and authorize callback copy; bounded `decodeRepeatedPercentEncoding` (max two passes) before collapse; regressions `decodes doubly percent-encoded spaces in JSON error_description` + authorize decode path; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 340/340.
 
 - [x] (proven) `readOAuthJsonErrorDescription` — doubly percent-encoded JSON `error_description` — **hit 2026-10-22 seed hunt:** `decodeRepeatedPercentEncoding`; regressions above.
@@ -7,7 +21,7 @@
 - [x] (invalid) `humanizeAuthorizeCallbackError` — `server_error` ignores emoji-only detail — **cheap-disproof 2026-10-22:** `server_error` branch uses fixed copy regardless of detail (intentional).
 - [x] (valid-no-repro) `sanitizeOAuthUserFacingMessage` — truncation splits regional-indicator pair — **cheap-disproof 2026-10-22:** surrogate guard keeps truncated copy well-formed.
 
-- [ ] (candidate) `decodeRepeatedPercentEncoding` — triply-encoded `%252520` may still leave `%20` visible — locus: two-pass cap; input: `User%252520denied`; reachability: proxy re-encoding token JSON errors.
+- [x] (proven) `decodeRepeatedPercentEncoding` — triply percent-encoded `error_description` — **hit 2026-10-22 seed hunt (zone block):** third decode pass; see zone-head entry.
 - [ ] (candidate) `decodeOAuthErrorDescription` — `+` preserved in JSON path but authorize query `+`→space may disagree with token `readOAuthJsonErrorDescription` for same IdP copy — locus: plus handling split; input: `User+denied` in query vs JSON (reachability: RFC 6749 plain-text JSON).
 - [ ] (candidate) `errorFromOAuthJson` — description-only token errors skip `humanizeAuthorizeCallbackError` when `error` is unreadable padding — locus: `readOAuthErrorString`; input: `error=\u200b` + readable `error_description`; reachability: malformed token JSON from IdP.
 - [ ] (candidate) `clearAbandonedPostSignInReturnUrl` — stored return path percent-encoded vs decoded pathname mismatch — locus: `normalizeComparableReturnPath`; input: stored `%2Freviews` vs idle desk `/reviews`; reachability: `idle-desk-restore` pairing.
@@ -25293,11 +25307,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 79
-- **bugs-found:** 73
+- **hunts:** 80
+- **bugs-found:** 74
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — identity-less OIDC token responses still synced BFF cookie
+- **last-bug:** 2026-10-22 — triply percent-encoded OAuth error_description
 
 - **id:** ui-oidc
 - **status:** open

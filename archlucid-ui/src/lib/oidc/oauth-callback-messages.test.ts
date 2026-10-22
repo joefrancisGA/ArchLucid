@@ -39,6 +39,10 @@ describe("readOAuthJsonErrorDescription", () => {
     expect(readOAuthJsonErrorDescription("User%2520denied")).toBe("User denied");
   });
 
+  it("decodes triply percent-encoded spaces in JSON error_description", () => {
+    expect(readOAuthJsonErrorDescription("User%252520denied")).toBe("User denied");
+  });
+
   it("collapses interior zero-width characters to spaces instead of gluing words", () => {
     expect(readOAuthJsonErrorDescription("Policy\u200bdenied")).toBe("Policy denied");
   });
@@ -89,6 +93,10 @@ describe("decodeOAuthErrorDescription", () => {
 
   it("decodes doubly percent-encoded authorize error descriptions", () => {
     expect(decodeOAuthErrorDescription("User%2520denied")).toBe("User denied");
+  });
+
+  it("decodes triply percent-encoded authorize error descriptions", () => {
+    expect(decodeOAuthErrorDescription("User%252520denied")).toBe("User denied");
   });
 
   it("falls back safely on invalid percent sequences", () => {

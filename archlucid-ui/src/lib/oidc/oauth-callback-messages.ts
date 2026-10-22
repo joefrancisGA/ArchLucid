@@ -120,9 +120,9 @@ function collapseAccidentalLatinZwnjGlue(text: string): string {
   return text.replace(/(?<=[A-Za-z0-9])[\u200c\u200d](?=[A-Za-z0-9])/gu, " ");
 }
 
-const MAX_OAUTH_PERCENT_DECODE_PASSES = 2;
+const MAX_OAUTH_PERCENT_DECODE_PASSES = 3;
 
-/** Some IdPs double-encode `error_description`; decode at most twice without breaking literal `%` copy. */
+/** Some IdPs over-encode `error_description` (proxy chains); decode until stable, capped, without breaking literal `%` copy. */
 function decodeRepeatedPercentEncoding(value: string): string {
   let current = value;
 
