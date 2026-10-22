@@ -12470,18 +12470,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 79
-- **bugs-found:** 74
+- **hunts:** 80
+- **bugs-found:** 75
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — manifest rule set id in revision fingerprint
+- **last-bug:** 2026-10-22 — structured diagram merge keeps latest node label
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted structured diagram node label merge candidate; proved `StructuredDiagramGraphMerger.Merge` used `nodesById.TryAdd`, so a later diagram document compiling the same `NodeId` with an updated display label was dropped and multi-document merges kept a stale first label; coalesce duplicate node ids with last non-empty label; regression `Merge_uses_latest_diagram_label_when_multiple_documents_compile_the_same_node_id`; seeded cross-document `NodeType`/`Category` coalesce follow-on; 380 KnowledgeGraph + 99 Provenance scoped tests passed.
+
+- [x] (proven) `StructuredDiagramGraphMerger.Merge` — cross-document merge kept the first compiled node label when later documents shared the same `NodeId` with a different display label — **hit 2026-10-22 seed hunt (seed→hit):** last non-empty label wins on duplicate node id; regression above.
+
+- [ ] (candidate) `StructuredDiagramGraphMerger.Merge` — cross-document merge may keep the first `NodeType` or `Category` when later documents compile the same `NodeId` with refined metadata — locus: duplicate node coalesce; input: two documents sharing a diagram node id; wrong outcome: stale graph node typing on multi-document merge.
 
 2026-10-22 seed hunt (seed→hit): promoted manifest rule set header candidate; proved `ProvenanceSnapshotRevisionHasher.Compute` omitted `Manifest.RuleSetId`, so rule-set re-linking under stable manifest id/hash and decisions left `ProvenanceGraphAccessService` serving a cache hit; include trimmed rule set id in canonical string; regressions `Compute_changes_when_manifest_rule_set_id_differs_but_manifest_id_hash_and_decisions_are_unchanged` and `Compute_unchanged_when_manifest_rule_set_id_differs_only_by_surrounding_whitespace`; seeded `StructuredDiagramGraphMerger` cross-document node label conflict follow-on; 379 KnowledgeGraph + 99 Provenance scoped tests passed.
 
 - [x] (proven) `ProvenanceSnapshotRevisionHasher.Compute` — `Manifest.RuleSetId` drift did not change revision fingerprint when manifest id, hash, and decisions were unchanged — **hit 2026-10-22 seed hunt (seed→hit):** trimmed rule set id in canonical string; regressions above.
-
-- [ ] (candidate) `StructuredDiagramGraphMerger.Merge` — cross-document merge may keep the first compiled node label when later documents bind the same `NodeId` with a different display label — locus: `nodesById.TryAdd`; input: two diagram documents sharing a canonical node id; wrong outcome: stale graph node label on multi-document merge.
 
 2026-10-22 seed hunt (seed→hit): promoted manifest architecture version header candidate; proved `ProvenanceSnapshotRevisionHasher.Compute` omitted `Manifest.ArchitectureVersionId`, so architecture version re-linking under stable manifest id/hash and decisions left `ProvenanceGraphAccessService` serving a cache hit; include manifest architecture version id in canonical string (`Guid.Empty` when unset); regression `Compute_changes_when_manifest_architecture_version_id_differs_but_manifest_id_hash_and_decisions_are_unchanged`; seeded manifest `RuleSetId` header drift follow-on; 379 KnowledgeGraph + 97 Provenance scoped tests passed.
 
