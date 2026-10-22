@@ -192320,7 +192320,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 63
+- **hunts:** 64
 - **bugs-found:** 56
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
@@ -192641,6 +192641,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `MarkdownEndToEndReplayComparisonSummaryFormatter` — sponsor interpretation notes section may render when `InterpretationNotes` empty but `SynergyNotes` populated — locus: summary formatter branches; input: E2E report with synergy-only notes; wrong outcome: blank interpretation heading; reachability: comparison summary markdown replay.
 - [ ] (candidate) `GraphAzureInventoryReconciliationAnalyzer` vs `GraphGcpInventoryReconciliationAnalyzer` — Azure inventory id normalization may disagree with GCP URI canonicalization on cross-cloud compare exports — locus: reconciliation analyzers; input: multi-cloud inventory reconciliation export; wrong outcome: false missing-resource signals; reachability: architecture analysis inventory reconciliation warnings in compare exports.
 - [ ] (candidate) `PersistedAnalysisExportRequest` rehydrate — `CompareManifestVersion` trimmed on read but `CompareRunId` left raw in JSON rehydrate path — locus: `AnalysisExportRequestRehydrator`; input: persisted export with padded compare run id; wrong outcome: replay regenerates with non-canonical compare id; reachability: export replay rehydrate (`ExportReplayService`).
+
+2026-10-22 seed hunt #63 (seed-only): cheap-disproof closed five follow-on `(candidate)` rows from seed hunt #62; re-read comparison replay layering, DOCX sealed receipt guards, and Terraform GitHub PR service; no hunt-ready promotion; seeded five follow-on `(candidate)` rows; 45 scoped ArchitectureAnalysis/CompareQuality tests passed.
+
+- [x] (valid-no-repro) `ComparisonReplayCostEstimator.TryEstimateAsync` without career gate — **cheap-disproof 2026-10-22 seed hunt #64:** returns heuristic complexity only; does not load export metadata bodies (same class as pre-#62 cost-estimate candidate).
+- [x] (valid-no-repro) `RunExportQueryFacade.CompareExportRecordsAsync` career coverage — **cheap-disproof 2026-10-22 seed hunt #64:** `EnsureCareerAllowsExportRecordMetadataOrThrowAsync` runs for both `left` and `right` export record run ids before `ExportRecordDiffService.Compare`.
+- [x] (valid-no-repro) `MarkdownEndToEndReplayComparisonSummaryFormatter` empty interpretation notes — **cheap-disproof 2026-10-22 seed hunt #64:** `AppendSection` renders `- None` when `InterpretationNotes` is empty; formatter has no `SynergyNotes` branch (wrong locus).
+- [x] (invalid) Azure vs GCP inventory normalization cross-cloud compare — **cheap-disproof 2026-10-22 seed hunt #64:** analyzers are cloud-specific; multi-cloud false missing-resource claim lacks a single compare code path.
+- [x] (valid-no-repro) `AnalysisExportRequestRehydrator` raw JSON compare run id — **cheap-disproof 2026-10-22 seed hunt #64:** `ArchitectureAnalysisService.BuildAsync` canonicalizes compare run lookup via `CanonicalRunIdForLookup`; export diff pairing uses `GovernanceRunIdNormalizer.AreEquivalent` on persisted exports.
+
+2026-10-22 seed hunt #64 (seed-only): cheap-disproof closed five follow-on `(candidate)` rows from seed hunt #63; re-read replay cost estimator, export compare career gates, E2E summary formatter, and export rehydrate paths; no hunt-ready promotion; seeded five follow-on `(candidate)` rows; 45 scoped ArchitectureAnalysis/CompareQuality tests passed.
+
+- [ ] (candidate) `ComparisonReplayService.ReplayAsync` — `ComparisonReplayMode.Verify` on export-diff records calls `RegenerateExportDiffAsync` after career gate but drift analyze path now gates while verify replay already gated — locus: dual entry parity audit; input: simulator-rehearsal export-diff verify replay; wrong outcome: redundant or missing gate on one path; reachability: `POST` comparison replay `verify` mode (mechanism audit, not yet promoted).
+- [ ] (candidate) `ExportReplayService.ReplayAsync` — copies `CompareRunId` from rehydrated JSON without `Trim()` before `BuildAsync` — locus: `ExportReplayService.cs` ~163; input: persisted `compareRunId` with surrounding whitespace in `AnalysisRequestJson`; wrong outcome: agent/manifest compare misses run; reachability: export replay when stored JSON contains padded compare run id (needs repro).
+- [ ] (candidate) `EndToEndReplayComparisonExportService.GenerateMarkdown` — interpretation notes materiality may differ from `MarkdownEndToEndReplayComparisonSummaryFormatter` for the same report — locus: dual markdown formatters; input: E2E report with warnings-only manifest diff; wrong outcome: summary vs full export markdown disagree; reachability: comparison replay markdown export routes.
+- [ ] (candidate) `ComparisonReplayPayloadComplexity.ScoreAgentResultDiff` — confidence-only agent deltas ignored when list surfaces empty — locus: manifest diff complexity (verify 2026-09-11 #1739 proven hit); input: replay cost estimate on confidence-only agent drift payload; wrong outcome: under-estimated replay cost; reachability: persisted comparison JSON cost preview (verify not reopening proven class).
+- [ ] (candidate) `RunExportAuditService` — audit payload may persist dashed `CompareRunId` while comparison search canonicalizes N-format — locus: audit persist vs `ComparisonsApplicationService.SearchAsync` (verify 2026-10-15 proven hits); input: new audit field for compare manifest version only; wrong outcome: search misses by compare manifest filter; reachability: comparison history search API.
 
 
 ## Zone: application-pilots
