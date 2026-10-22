@@ -11982,17 +11982,29 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: api-request-null-collection-elements
 
+2026-10-22 seed hunt (seed→hit): promoted nested collection traversal — `List<List<string>>` with null inner strings skipped validation because collection elements typed as `IEnumerable` only recursed through `VisitObject`, which does not enumerate list items; recurse nested collections with element `NullabilityInfo`; regression `ContainsNullCollectionElement_returns_true_for_null_string_in_nested_list_collection`; 11 guard tests (local compile blocked by unrelated Application WIP on main checkout).
+
+- [x] (proven) `ApiRequestNullCollectionElementsGuard.VisitCollection` — null elements inside nested collection properties not detected — **hit 2026-10-22 seed hunt:** nested `VisitCollection` via `ElementType` nullability; regression `ContainsNullCollectionElement_returns_true_for_null_string_in_nested_list_collection`.
+
+### Hypotheses
+
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitObject` — public fields on `[FromBody]` DTOs bypass property-only reflection — locus: `GetProperties` ~44; input: field-backed collection with null element; reachability: none in current `ArchLucid.Api/Models` catalog today.
+- [ ] (candidate) `ApiRequestNullCollectionElementsFilter.OnActionExecutionAsync` — skips validation when body argument is null after failed bind — locus: `body is null` continue ~33; input: malformed JSON leaving null body; reachability: model-binding + `[ApiController]` automatic 400 before filter.
+- [ ] (candidate) `ApiRequestBodyTypeCatalog.DiscoverFromBodyRequestTypes` — minimal API / endpoint metadata bodies omitted — locus: controller-type scan only; input: non-controller route with body DTO; reachability: MVC controller surface in `ArchLucid.Api`.
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.TryVisitDictionaryEntryValue` — dictionary keys with nested invalid graphs not visited — locus: value-only walk ~134–143; input: complex key type with null inner collection; reachability: no non-string dictionary keys in FromBody catalog.
+- [ ] (candidate) `SkipNullCollectionElementValidationAttribute` — opt-out property can reintroduce null-element 500 if used on production DTO — locus: guard skip ~50; input: attributed collection with null element; reachability: attribute documented; no production usages.
+
 - **id:** api-request-null-collection-elements
 - **status:** open
 - **impact:** high
 - **aliases:** null collection elements; request body validation
 - **paths:** ArchLucid.Api/Filters/ApiRequestNullCollectionElementsFilter.cs; ArchLucid.Api/Validation/ApiRequestNullCollectionElementsGuard.cs; ArchLucid.Api/Http/ApiRequestBodyTypeCatalog.cs; ArchLucid.Api/Startup/MvcExtensions.cs
 - **test-filter:** FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests
-- **hunts:** 2
-- **bugs-found:** 1
+- **hunts:** 3
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 — nested list null-element guard traversal
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

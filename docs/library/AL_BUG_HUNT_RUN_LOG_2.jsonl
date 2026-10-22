@@ -1377,3 +1377,4 @@
 {"at":"2026-10-22T15:35:00.0000000Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-22T15:38:00.0000000Z","zoneId":"application-tenancy-lifecycle","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-22T15:38:14.0137826Z","zoneId":"application-tenancy-lifecycle","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/"]}
+{"at":"2026-10-22T15:45:00.0000000Z","zoneId":"api-request-null-collection-elements","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Filters/ApiRequestNullCollectionElementsFilter.cs","ArchLucid.Api/Validation/ApiRequestNullCollectionElementsGuard.cs"]}
