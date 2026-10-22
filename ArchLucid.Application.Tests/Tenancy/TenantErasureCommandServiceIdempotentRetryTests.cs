@@ -1091,6 +1091,73 @@ public sealed class TenantErasureCommandServiceIdempotentRetryTests
     }
 
     [Fact]
+    public async Task TrySetLegalHoldAsync_returns_success_without_audit_when_legal_hold_cleared_after_tenant_before_set_audit_read_before_audit_for_platform_operator()
+    {
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset now = new(2026, 10, 22, 4, 28, 0, TimeSpan.Zero);
+        DateTimeOffset holdUntil = now.AddDays(14);
+        FakeTimeProvider clock = new(now);
+        TenantRecord active = ActiveTenant(tenantId, now);
+        TenantRecord activeWithHold = new()
+        {
+            Id = tenantId,
+            Name = "Acme",
+            Slug = "acme",
+            Tier = TenantTier.Standard,
+            DataRegion = TenantDataRegions.Default,
+            CreatedUtc = now.AddDays(-1),
+            LegalHoldUntilUtc = holdUntil,
+            LegalHoldReason = "litigation",
+        };
+        TenantRecord holdCleared = ActiveTenant(tenantId, now);
+
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        tenants
+            .SetupSequence(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(active)
+            .ReturnsAsync(activeWithHold)
+            .ReturnsAsync(activeWithHold)
+            .ReturnsAsync(activeWithHold)
+            .ReturnsAsync(holdCleared);
+        tenants
+            .Setup(t => t.TrySetTenantErasureLegalHoldAsync(
+                tenantId,
+                holdUntil,
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        Mock<IPlatformAuditRepository> audit = new(MockBehavior.Strict);
+
+        Mock<IOptionsMonitor<TenantErasurePurgeOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new TenantErasurePurgeOptions());
+
+        TenantErasureCommandService sut = new(
+            tenants.Object,
+            audit.Object,
+            clock,
+            options.Object);
+
+        (await sut.TrySetLegalHoldAsync(
+                tenantId,
+                holdUntil,
+                "litigation",
+                "counsel@example.com",
+                "Counsel",
+                requireErasureQuarantine: false,
+                "corr",
+                CancellationToken.None))
+            .Should()
+            .BeTrue();
+
+        audit.Verify(
+            a => a.AppendAsync(It.IsAny<PlatformAuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task TrySetLegalHoldAsync_returns_success_without_audit_when_legal_hold_cleared_after_pre_set_audit_read_before_audit_for_platform_operator()
     {
         Guid tenantId = Guid.NewGuid();
