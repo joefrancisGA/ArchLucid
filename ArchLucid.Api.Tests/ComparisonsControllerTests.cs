@@ -3,6 +3,8 @@ using ArchLucid.Api.Models;
 using ArchLucid.Api.Validators;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Exports;
+using ArchLucid.Decisioning.CareerArtifacts;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Scoping;
@@ -489,5 +491,23 @@ public sealed class ComparisonsControllerTests
 
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task CompareQuality_AnalyzeComparisonDrift_returns_career_blocked_problem_when_posture_blocks_metadata_read()
+    {
+        Mock<IComparisonReplayService> replayService = new();
+        replayService
+            .Setup(s => s.AnalyzeDriftAsync(ComparisonId, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new CareerArtifactExportBlockedException(
+                SimulatorCareerHonestyPresenter.SimulatorRehearsalBlockedMessage,
+                CareerArtifactCompletenessValidator.SimulatorRehearsalCode));
+
+        ComparisonsController controller = CreateControllerWithScopedComparison(
+            comparisonReplayService: replayService.Object);
+
+        IActionResult action = await controller.AnalyzeComparisonDrift(ComparisonId, CancellationToken.None);
+
+        action.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
     }
 }
