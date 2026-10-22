@@ -1187,6 +1187,15 @@
 
 ## Zone: tenant-scoped-analyzer
 
+2026-10-22 seed hunt (seed→hit) #3: promoted split local `CommandDefinition` (`declare; assign; ExecuteAsync`) — unwrap only read declarator initializers, not simple `=` assignments; `TryGetCommandDefinitionAssignmentRightHand`; regression `ARCH006_reports_unscoped_sql_for_execute_async_split_local_command_definition`; cheap-disproof closed four sibling `(candidate)` rows; scoped tests not run locally (analyzer test host NuGet failure).
+
+- [x] (proven) `UnwrapCommandDefinitionSqlExpression` — split local `CommandDefinition` before `ExecuteAsync` — **hit 2026-10-22 seed hunt #3:** follow block assignment RHS; regression `ARCH006_reports_unscoped_sql_for_execute_async_split_local_command_definition`.
+- [x] (valid-no-repro) `UnwrapCommandDefinitionSqlExpression` — duplicate split-local row after #3 fix — **cheap-disproof 2026-10-22 #3:** same code path as proven hit.
+- [x] (valid-no-repro) `ExecuteScalarAsync(new CommandDefinition(sql))` — **cheap-disproof 2026-10-22 #3:** `ExecuteScalarAsync` in allowlist; shared unwrap path with `ExecuteAsync`.
+- [x] (valid-no-repro) `AnalyzeObjectCreation` — standalone `new CommandDefinition` — **cheap-disproof 2026-10-22 #3:** existing object-creation syntax action + regressions.
+- [x] (invalid) `AnalyzeTypeDeclaration` — `interface` ARCH006b — **cheap-disproof 2026-10-22 #3:** no `[TenantScopeExempt]` persistence interfaces in repo.
+- [x] (invalid) `DapperQueryMethodNames` — `QueryUnbufferedAsync` — **cheap-disproof 2026-10-22 #3:** duplicate closure; audit export SQL scope-bound.
+
 2026-10-22 seed hunt (seed→hit) #2: promoted local `CommandDefinition` passed to `ExecuteAsync` — unwrap followed inline `new CommandDefinition` only, not locals initialized with `new CommandDefinition(sql)`; extend `UnwrapCommandDefinitionSqlExpression` to peel identifier declarator initializers; regression `ARCH006_reports_unscoped_sql_for_execute_async_local_command_definition`; cheap-disproof closed four open `(candidate)` rows; scoped tests not run locally (analyzer test host NuGet failure).
 
 - [x] (proven) `TenantScopedSqlExpressionResolver` / `UnwrapCommandDefinitionSqlExpression` — `ExecuteAsync(localCommandDefinition)` missed ARCH006 — **hit 2026-10-22 seed hunt #2:** unwrap identifier declarator initializer; regression `ARCH006_reports_unscoped_sql_for_execute_async_local_command_definition`.
@@ -1211,11 +1220,11 @@
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 41
-- **bugs-found:** 26
+- **hunts:** 42
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — ExecuteAsync(local CommandDefinition) bypassed ARCH006 SQL unwrap
+- **last-bug:** 2026-10-22 — split local CommandDefinition bypassed ARCH006 ExecuteAsync unwrap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1293,11 +1302,17 @@
 - [x] (invalid) `AnalyzeTypeDeclaration` — record ARCH006b — **cheap-disproof 2026-10-22 #2.**
 - [x] (valid-no-repro) `TenantScopedQuerySqlInspector` — triple-scope surrogate read — **cheap-disproof 2026-10-22 #2.**
 
-- [ ] (candidate) `UnwrapCommandDefinitionSqlExpression` — split local declaration + assignment `cmd = new CommandDefinition(sql)` before `ExecuteAsync(cmd)` — locus: identifier unwrap reads declarator initializer only; input: assignment-only local without initializer (verify resolver assignment fold + unwrap).
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — `ExecuteScalarAsync(new CommandDefinition(sql))` — locus: `DapperQueryMethodNames` + unwrap path; input: scalar query via `CommandDefinition` (parity with `ExecuteAsync` fix).
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeObjectCreation` — `new CommandDefinition(sql)` statement without Dapper call — locus: object-creation syntax action; input: already covered; verify no regression when SQL is only stored in field.
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer` — `interface` declarations with `[TenantScopeExempt]` skip ARCH006b validation — locus: class-only `AnalyzeTypeDeclaration`; input: exempt attribute on persistence `interface` (if any exist).
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.DapperQueryMethodNames` — `QueryUnbufferedAsync` on `IDbConnection` extension — locus: allowlist; input: `DapperAuditRepository.StreamFilteredExportAsync` (document allowlist addition if unscoped path ever appears).
+- [x] (proven) `UnwrapCommandDefinitionSqlExpression` — split local `CommandDefinition` — **hit 2026-10-22 seed hunt #3.**
+- [x] (valid-no-repro) `ExecuteScalarAsync(CommandDefinition)` — **cheap-disproof 2026-10-22 #3.**
+- [x] (valid-no-repro) `AnalyzeObjectCreation` standalone — **cheap-disproof 2026-10-22 #3.**
+- [x] (invalid) `interface` ARCH006b — **cheap-disproof 2026-10-22 #3.**
+- [x] (invalid) `QueryUnbufferedAsync` allowlist — **cheap-disproof 2026-10-22 #3.**
+
+- [ ] (candidate) `UnwrapCommandDefinitionSqlExpression` — `CommandDefinition` assigned in nested block before `ExecuteAsync` — locus: `TryGetCommandDefinitionAssignmentRightHand` scans declaring block only; input: split local inside `if`/`using` block (parity with string SQL nested-block regression).
+- [ ] (candidate) `UnwrapCommandDefinitionSqlExpression` — field or auto-property holds `CommandDefinition` passed to `ExecuteAsync` — locus: identifier unwrap; input: instance field assigned in ctor then used in method (verify resolver + unwrap).
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — `ExecuteReaderAsync(new CommandDefinition(sql))` — locus: allowlist + unwrap; input: reader path parity with `ExecuteAsync` fixes.
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer` — `static` local function returns `CommandDefinition` passed to `ExecuteAsync` — locus: unwrap + resolver; input: local function indirection shape.
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.DapperQueryMethodNames` — add `QueryUnbufferedAsync` for audit export symmetry — locus: allowlist; input: only if production SQL becomes dynamically unscoped (today scope-bound).
 
 - [x] (proven) `TenantScopedSqlExpressionResolver.TryGetPropertySqlExpression` — expression-bodied property getters — **hit 2026-10-21 seed hunt (lane C):** accessor-list `get =>` SQL not resolved; regression `ARCH006_reports_unscoped_sql_for_expression_bodied_property_get_accessor`.
 
