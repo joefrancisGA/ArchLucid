@@ -34,6 +34,37 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     }
 
     [Fact]
+    public void Compute_changes_when_contributing_decision_ids_change_but_content_hash_is_unchanged()
+    {
+        Guid artifactId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+        SynthesizedArtifact baseline = new()
+        {
+            ArtifactId = artifactId,
+            ArtifactType = "doc",
+            Name = "overview.md",
+            Format = "md",
+            Content = "v1",
+            ContentHash = "hash-v1",
+            ContributingDecisionIds = ["dec-a"],
+        };
+
+        SynthesizedArtifact updated = new()
+        {
+            ArtifactId = artifactId,
+            ArtifactType = "doc",
+            Name = "overview.md",
+            Format = "md",
+            Content = "v1",
+            ContentHash = "hash-v1",
+            ContributingDecisionIds = ["dec-a", "dec-b"],
+        };
+
+        ProvenanceSnapshotRevisionHasher.Compute(CreateInput([baseline]), BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(CreateInput([updated]), BundleId));
+    }
+
+    [Fact]
     public void Compute_changes_when_artifact_content_hash_changes()
     {
         ProvenanceBuildInput baseline = CreateInput(

@@ -12470,12 +12470,18 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 58
-- **bugs-found:** 49
+- **hunts:** 59
+- **bugs-found:** 50
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 - provenance revision hash ignored manifest hash and applied rule ids
+- **last-bug:** 2026-10-22 - provenance revision hash ignored artifact contributing decision ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): reseeded revision-hasher surface; proved `ComputeArtifactsFingerprint` keyed only `ArtifactId` and `ContentHash`, so `ContributingDecisionIds` changes left `ProvenanceGraphAccessService` serving stale `ContributedToArtifact` edges when bundle content hash was unchanged; regression `Compute_changes_when_contributing_decision_ids_change_but_content_hash_is_unchanged`; 377 KnowledgeGraph + 62 Provenance scoped tests passed.
+
+- [x] (proven) `ProvenanceSnapshotRevisionHasher.ComputeArtifactsFingerprint` — `ContributingDecisionIds` changes did not change revision fingerprint when `ContentHash` was unchanged — **hit 2026-10-22 seed hunt (seed→hit):** include normalized contributing-decision-id list per artifact; regression above.
+
+- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.Compute` — findings list or `RelatedNodeIds` changes may not change revision fingerprint when `FindingsSnapshotId` is unchanged — locus: canonical revision string; input: amended findings snapshot row; wrong outcome: stale `InfluencedByGraphNode` edges.
 
 2026-10-22 seed hunt (seed→hit): promoted revision-hasher candidates; proved `ProvenanceSnapshotRevisionHasher.Compute` omitted `Manifest.ManifestHash` and normalized `AppliedRuleIds` from the canonical fingerprint so `ProvenanceGraphAccessService` could reuse a stored snapshot after manifest refresh or rule-list amendment under the same ids; regressions `Compute_changes_when_manifest_hash_changes_but_manifest_id_is_unchanged` and `Compute_changes_when_applied_rule_ids_change_but_decision_trace_id_is_unchanged`; 377 KnowledgeGraph + 61 Provenance scoped tests passed.
 

@@ -43,7 +43,17 @@ public static class ProvenanceSnapshotRevisionHasher
             .DistinctByArtifactId(artifacts)
             .OrderBy(static artifact => artifact.ArtifactId)
             .Select(static artifact =>
-                $"{artifact.ArtifactId:N}|{artifact.ContentHash ?? string.Empty}");
+            {
+                string contributingDecisionIds = string.Join(
+                    ",",
+                    artifact.ContributingDecisionIds
+                        .Select(static decisionId => decisionId.Trim())
+                        .Where(static decisionId => decisionId.Length > 0)
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .OrderBy(static decisionId => decisionId, StringComparer.OrdinalIgnoreCase));
+
+                return $"{artifact.ArtifactId:N}|{artifact.ContentHash ?? string.Empty}|{contributingDecisionIds}";
+            });
 
         return string.Join(";", parts);
     }
