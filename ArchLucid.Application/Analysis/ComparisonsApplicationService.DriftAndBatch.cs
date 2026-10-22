@@ -1,4 +1,5 @@
 using ArchLucid.Application.Analysis.ComparisonBatchReplay;
+using ArchLucid.Application.Exports;
 using ArchLucid.Contracts.Metadata;
 
 namespace ArchLucid.Application.Analysis;
@@ -115,6 +116,10 @@ public sealed partial class ComparisonsApplicationService
                 throw;
             }
             catch (ConflictException)
+            {
+                throw;
+            }
+            catch (CareerArtifactExportBlockedException)
             {
                 throw;
             }

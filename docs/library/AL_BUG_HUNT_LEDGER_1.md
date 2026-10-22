@@ -6691,6 +6691,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-22 seed hunt (seed→hit): `ComparisonsApplicationService.TryBuildBatchReplayZipAsync` caught `CareerArtifactExportBlockedException` in its per-id failure loop (unlike `ConflictException`), so batch replay returned null and `ReplayComparisonsBatch` responded HTTP 422 `BatchReplayAllFailed` instead of HTTP 409 career block; rethrow career posture blocks; regression `CompareQuality_TryBuildBatchReplayZipAsync_throws_career_posture_block_instead_of_swallowing_as_total_failure`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 50/50.
+
+- [x] (proven) `ComparisonsApplicationService.TryBuildBatchReplayZipAsync` - batch comparison replay swallowed `CareerArtifactExportBlockedException` while the batch controller mapped it to `CareerArtifactBlockedProblem` - **hit 2026-10-22 seed hunt:** rethrow after `ConflictException` parity; regression above.
+
 2026-10-22 seed hunt (seed→hit): `ComparisonsController.GetComparisonSummary` invoked `TryReplaySummaryMarkdownAsync` (comparison replay) without mapping `CareerArtifactExportBlockedException` while dedicated replay routes did; return `CareerArtifactBlockedProblem` on summary replay failure; regression `CompareQuality_GetComparisonSummary_returns_career_blocked_problem_when_replay_blocks_metadata_read`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 49/49.
 
 - [x] (proven) `ComparisonsController.GetComparisonSummary` - comparison summary replay omitted career posture problem mapping present on replay routes - **hit 2026-10-22 seed hunt:** career catch on `GET` comparison summary; regression above.
@@ -6790,11 +6794,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 65
-- **bugs-found:** 63
+- **hunts:** 66
+- **bugs-found:** 64
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — comparison summary route omitted career posture problem mapping
+- **last-bug:** 2026-10-22 — batch comparison replay swallowed career posture blocks as total failure
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
