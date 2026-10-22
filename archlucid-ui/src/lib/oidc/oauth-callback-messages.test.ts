@@ -88,6 +88,7 @@ describe("readOAuthJsonErrorDescription", () => {
 
   it("preserves literal plus in token error_description when skin-tone emoji modifiers are present", () => {
     expect(readOAuthJsonErrorDescription("👍🏻+extra")).toBe("👍🏻+extra");
+    expect(readOAuthJsonErrorDescription("👍🏻%252Bextra")).toBe("👍🏻+extra");
     expect(readOAuthJsonErrorDescription("👋🏽+denied")).toBe("👋🏽+denied");
   });
 
