@@ -538,6 +538,33 @@ describe("initiate redirect PKCE isolation", () => {
     expect(assignMock).toHaveBeenCalled();
   });
 
+  it("keeps the new return path without re-marking authorize retry when discovery fails after changing explicit return URL", async () => {
+    sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, "/architecture/reviews/run-old");
+    sessionStorage.setItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY, "1");
+
+    vi.doMock("@/lib/oidc/config", () => ({
+      getOidcAuthority: () => "https://issuer.example",
+      getOidcClientId: () => "client-id",
+      getOidcRedirectUri: () => "https://app.example/auth/callback",
+      getOidcScopes: () => "openid",
+    }));
+    vi.doMock("@/lib/oidc/pkce", () => ({
+      createPkcePair: vi.fn(async () => ({ verifier: "primary-verifier", challenge: "challenge" })),
+      randomOpaqueState: vi.fn(() => "primary-state"),
+    }));
+    vi.doMock("@/lib/oidc/discovery", () => ({
+      loadDiscoveryDocument: vi.fn(async () => {
+        throw new Error("discovery unavailable");
+      }),
+    }));
+
+    const { initiateOidcRedirect } = await import("@/lib/oidc/initiate-redirect");
+
+    await expect(initiateOidcRedirect("/architecture/reviews/run-new")).rejects.toThrow("discovery unavailable");
+    expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBe("/architecture/reviews/run-new");
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBeNull();
+  });
+
   it("preserves post-sign-in return path when authorize retry repeats the same explicit return URL then user abandons IdP", async () => {
     const returnPath = "/architecture/reviews/run-abandon-explicit";
     sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, returnPath);
