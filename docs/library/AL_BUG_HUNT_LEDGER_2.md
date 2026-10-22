@@ -2791,6 +2791,14 @@
 
 ## Zone: scim-users
 
+2026-10-22 thorough hunt #2 (dry): cheap-disproof closed five picker `(candidate)` rows — JSON root `null` already returns `invalidSyntax` via `ScimUserResourceParser` / `ScimPatchOpEvaluator`; list non-filter faults as operational 500; `ScimWrite` on GET is product contract; post-mutation `GetAsync` is intentional projection; 409 vs 403 status split is intentional; no failing repro; five replacement `(candidate)` rows; scoped tests not run (Defender WIP compile).
+
+- [x] (invalid) `ScimUsersController.CreateAsync` / `ReplaceAsync` / `PatchAsync` — JSON root `null` surfaces `invalidValue` — **cheap-disproof 2026-10-22 #2:** `ScimUserResourceParser.ParseUser` throws `invalidSyntax` for non-object; PATCH uses `ScimPatchOpEvaluator` `invalidSyntax` for non-object body.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — non-filter `ListAsync` faults become HTTP 500 — **cheap-disproof 2026-10-22 #2:** repository/infra failures are not SCIM client syntax errors.
+- [x] (valid-no-repro) `ScimUsersController` — `ScimWrite` policy on GET routes — **cheap-disproof 2026-10-22 #2:** Entra provisioning token is write-capable by design.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` / `PatchAsync` — second `GetAsync` round-trip — **cheap-disproof 2026-10-22 #2:** returns persisted projection after mutation; design tradeoff.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — 409 `uniqueness` vs 403 `mutability` for seat cap — **cheap-disproof 2026-10-22 #2:** intentional SCIM type mapping per exception.
+
 2026-10-22 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows on `ScimUsersController` (post-mutation `GetAsync` 404 only on concurrent directory-remove race; negative `count` clamped in `ScimUserService.ListAsync`; `Guid.Empty` returns not-found; 201 without `Location` is RFC-optional for Entra; DELETE 204 `NoContent` is SCIM-correct); no failing repro; seeded five replacement `(candidate)` rows; scoped `ScimUsers` tests not run on this checkout (Defender WIP compile errors).
 
 - [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` / `PatchAsync` — post-mutation `GetAsync` 404 after successful write — **cheap-disproof 2026-10-22:** `ReplaceAsync`/`PatchAsync` throw `ScimNotFoundException` when the row is directory-removed; second `GetAsync` null implies cross-request race, not single-request inconsistency.
@@ -2828,9 +2836,9 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 35
+- **hunts:** 36
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — SCIM POST/PUT/PATCH mapped canceled JSON reads to invalidSyntax 400
 - **related-pd-tb:** none
@@ -2933,11 +2941,17 @@
 - [x] (valid-no-repro) `ScimUsersController.CreateAsync` — 201 without `Location` — **cheap-disproof 2026-10-22 thorough hunt:** Entra POST integration; RFC optional Location.
 - [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — `NoContent()` on success — **cheap-disproof 2026-10-22 thorough hunt:** SCIM 204 DELETE contract.
 
-- [ ] (candidate) `ScimUsersController.CreateAsync` / `ReplaceAsync` / `PatchAsync` — JSON root `null` literal deserializes to `JsonValueKind.Null` and surfaces `invalidValue` not `invalidSyntax` — locus: deserialize succeeds then `ScimUserResourceParser.ParseUser`; input: POST/PUT/PATCH body `null`.
-- [ ] (candidate) `ScimUsersController.ListAsync` — only filter parse/SQL failures map to `invalidFilter`; other `ListAsync` faults become HTTP 500 — locus: catch blocks ~51–58; input: repository timeout (operational).
-- [ ] (candidate) `ScimUsersController` — class-level `ScimWrite` policy applies to `GET` list/read routes — locus: `[Authorize(... Policy = ArchLucidPolicies.ScimWrite)]` ~21; input: future read-scoped provisioning token.
-- [ ] (candidate) `ScimUsersController.ReplaceAsync` / `PatchAsync` — successful mutation followed by `GetAsync` round-trip adds latency vs returning service projection — locus: second `GetAsync` (~140, ~188); input: Entra high-volume PATCH (design tradeoff).
-- [ ] (candidate) `ScimUsersController.CreateAsync` — `ScimConflictException` mapped to 409 `uniqueness` but seat-limit uses 403 `mutability` — locus: catch blocks ~102–108; input: enterprise seat cap vs duplicate `externalId` (intentional status split).
+- [x] (invalid) `ScimUsersController.CreateAsync` / `ReplaceAsync` / `PatchAsync` — JSON root `null` maps to `invalidValue` — **cheap-disproof 2026-10-22 #2:** parser/patch evaluator use `invalidSyntax` for non-object bodies.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — non-filter failures become HTTP 500 — **cheap-disproof 2026-10-22 #2:** operational errors.
+- [x] (valid-no-repro) `ScimUsersController` — `ScimWrite` on GET — **cheap-disproof 2026-10-22 #2:** provisioning contract.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` / `PatchAsync` — post-mutation `GetAsync` latency — **cheap-disproof 2026-10-22 #2:** design tradeoff.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — 409 vs 403 mapping — **cheap-disproof 2026-10-22 #2:** intentional SCIM types.
+
+- [ ] (candidate) `ScimUsersController.ListAsync` — `count` query above 200 forwarded without controller clamp — locus: passes `count` to service (~47); input: `count=500` (service `Math.Clamp(count, 0, 200)` may close).
+- [ ] (candidate) `ScimUsersController.CreateAsync` — missing `[Consumes("application/scim+json")]` allows non-SCIM content types — locus: action attributes ~74–75; input: `application/json` POST from generic HTTP client.
+- [ ] (candidate) `ScimUsersController.ListAsync` — unbounded `filter` query string length — locus: forwards `filter` to `ScimFilterParser.Parse`; input: megabyte filter string (verify parser/ASP.NET limits).
+- [ ] (candidate) `ScimUsersController.ReplaceAsync` / `PatchAsync` — `OperationCanceledException` during `_users` mutation propagates while deserialize cancellation already fixed — locus: inner try without catch (~137–161); input: cancel during seat transition (expected propagation).
+- [ ] (candidate) `ScimUsersController.DeleteAsync` — `Produces("application/scim+json")` on class/action but 204 success has no body — locus: `NoContent()` (~222); input: strict content-type negotiators (RFC 7644 204).
 
 - [x] (proven) `ScimUserService.CreateAsync` / `PatchAsync` / `ScimUsersController` — a second live user with the same `userName` and a different `externalId` was stored, including case-only names — **hit 2026-10-09 seed hunt:** live `userName` lookup returns `uniqueness`. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
 - [x] (proven) `ScimFilterParser.ParseFilter` / `ScimUsersController.ListAsync` — ungrouped `or` before `and` was parsed left-to-right, so an active user matching only the left comparison was omitted — **hit 2026-10-09 seed hunt:** `not` over `and` over `or` per RFC 7644 §3.4.2.2. Regressions `ListAsync_filter_gives_and_precedence_over_or`, `Parse_or_binds_looser_than_and`, and `Parse_not_binds_tighter_than_and`.
