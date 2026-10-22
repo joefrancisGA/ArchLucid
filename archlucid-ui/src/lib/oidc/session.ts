@@ -225,10 +225,6 @@ export function persistTokenResponse(tokens: OidcTokenResponse): void {
 
   persistNonSensitiveSessionHints(normalizedTokens, expiresAtMs);
 
-  if (typeof sessionStorage !== "undefined") {
-    sessionStorage.removeItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY);
-  }
-
   if (!hasOidcSessionIdentityHints()) {
     // Invalidate in-flight BFF sync so a late POST cannot resurrect the HttpOnly cookie.
     refreshSessionGeneration += 1;
@@ -237,6 +233,10 @@ export function persistTokenResponse(tokens: OidcTokenResponse): void {
     void clearBffSessionCookie();
 
     return;
+  }
+
+  if (typeof sessionStorage !== "undefined") {
+    sessionStorage.removeItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY);
   }
 
   const identityHintsAfterPersist = readOidcIdentityHintsSnapshot();

@@ -504,6 +504,22 @@ describe("persistTokenResponse", () => {
     expect(sessionStorage.getItem(OIDC_DISPLAY_NAME_KEY)).toBeNull();
   });
 
+  it("keeps authorize-callback retry marker when token response has no identity hints", () => {
+    markAuthorizeCallbackFailed();
+
+    persistTokenResponse({ access_token: "opaque-access-token", expires_in: 3600 });
+
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
+  });
+
+  it("clears authorize-callback retry marker after a successful identity persist", () => {
+    markAuthorizeCallbackFailed();
+
+    persistTokenResponse({ access_token: accessTokenWithSubjectClaim(), expires_in: 3600 });
+
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBeNull();
+  });
+
   it("does not sync identity-less opaque tokens to the BFF cookie", async () => {
     const syncMock = vi.spyOn(bffSessionSync, "syncBffSessionCookieFromTokenResponse").mockResolvedValue();
     const clearMock = vi.spyOn(bffSessionSync, "clearBffSessionCookie").mockResolvedValue();
