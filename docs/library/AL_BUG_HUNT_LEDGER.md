@@ -14,32 +14,33 @@
 - [ ] (candidate) `decodeJwtPayload` — truncated payload segment without padding — locus: base64 pad; input: malformed id_token (existing null return).
 
 2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `decodeOAuthErrorDescription` — authorize `error_description` with percent-encoded plus (`Policy%2Bdenied`) ran plus-to-space before percent decode and surfaced glued `Policy+denied` in callback copy; decode first then collapse `+` to space (parity with `normalizeOAuthErrorCode`); regression `decodes percent-encoded plus signs in authorize error descriptions`; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 359/359.
+2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `initiateOidcRedirect` repeating explicit `returnUrl` after authorize-callback error; sign-in page passes the same deep link on retry and consumed the retry marker so a later sign-in without `returnUrl` cleared the stored path; consume authorize retry only when the new return URL differs from the stored path; regression `preserves post-sign-in return path when authorize retry repeats the same explicit return URL then user abandons IdP`; restored identity-less `clearOidcSession` return/marker preservation from trunk; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 363/363.
 
-- [x] (proven) `decodeOAuthErrorDescription` — `%2B` in authorize `error_description` — **hit 2026-10-22 seed hunt:** post-decode plus-to-space; regression above.
-- [x] (valid-no-repro) `normalizeOAuthErrorCode` — doubly-encoded `%252B` in error codes — **cheap-disproof 2026-10-22:** `decodeRepeatedPercentEncoding` + post-decode plus already yields `invalid_grant`.
-- [x] (invalid) `readOAuthJsonErrorDescription` — literal `+` in JSON descriptions — **cheap-disproof 2026-10-22:** RFC 6749 plain text; no query plus rule by design.
-- [x] (valid-no-repro) `errorFromOAuthJson` — `%2B` in token JSON `error` field — **cheap-disproof 2026-10-22:** shared `normalizeOAuthErrorCode` path; token-client regression shipped.
-- [x] (valid-no-repro) `initiateSupplementalOidcRedirect` — discovery failure during authorize retry — **cheap-disproof 2026-10-22:** catch re-marks `markAuthorizeCallbackFailed` when `preservingAuthorizeCallbackRetry`.
-- [x] (valid-no-repro) `initiateOidcRedirect` — peek vs consume retry marker — **cheap-disproof 2026-10-22:** `hasAuthorizeCallbackFailedRetry` hit on trunk; regression covers abandon-after-IdP.
+- [x] (proven) `initiateOidcRedirect` - same explicit returnUrl after authorize error consumed retry marker - **hit 2026-10-22:** `shouldConsumeAuthorizeRetryForReturnUrl`; regression above.
+- [x] (valid-no-repro) `initiateSupplementalOidcRedirect` - abandoned IdP after authorize-callback retry - **cheap-disproof 2026-10-22:** shares primary peek/consume rules (add supplemental abandon regression later).
+- [x] (valid-no-repro) `initiateOidcRedirect` - explicit returnUrl during pending retry replaces stored path - **cheap-disproof 2026-10-22:** differing paths still consume marker by design.
+- [x] (invalid) `hasAuthorizeCallbackFailedRetry` - SSR sessionStorage unavailable - **cheap-disproof 2026-10-22:** guarded false; not operator-reachable in browser OIDC.
+- [x] (invalid) `markAuthorizeCallbackFailed` - incomplete callback without OAuth error - **cheap-disproof 2026-10-22:** CallbackClient outside zone; marker set only on authorize OAuth errors.
+- [x] (invalid) `exchangeAuthorizationCode` - fetch throws before body - **cheap-disproof 2026-10-22:** catch re-marks for all exchange failures; existing vitest coverage.
+- [ ] (candidate) `initiateSupplementalOidcRedirect` - same explicit returnUrl on authorize retry preserves marker - locus: shared helper; input: mirror primary explicit-repeat regression for Google flow.
+- [ ] (candidate) `readPostSignInReturnUrl` - unsafe stored path returns null - locus: read without consume; input: poisoned sessionStorage value (reachability: defense in depth).
+- [ ] (candidate) `shouldConsumeAuthorizeRetryForReturnUrl` - encoding-normalized path comparison - locus: `normalizeComparableReturnPath`; input: `%2F` vs `/` on repeat sign-in (reachability: sign-in query encoding).
+- [ ] (candidate) `clearOidcSession` - identity-less preserve vs idle-desk paired path - locus: clear keys list; input: idle payload matches stored return (reachability: idle timeout mid-sign-in).
+- [ ] (candidate) `exchangeAuthorizationCode` - invalid token endpoint URL before fetch - locus: postTokenForm guard; input: unsafe endpoint string (reachability: misconfigured discovery).
 
-- [ ] (candidate) `decodeOAuthErrorDescription` — doubly-encoded plus in descriptions (`Policy%252Bdenied`) — locus: repeated decode + post-decode plus; input: proxy `%252B`; reachability: mirror error-code class.
-- [ ] (candidate) `readOAuthJsonErrorDescription` — mistaken `%2B` escapes in JSON body — locus: no plus-to-space; input: `Policy%2Bdenied` in token JSON (intentional vs authorize query).
-- [ ] (candidate) `humanizeAuthorizeCallbackError` — emoji-only detail on `invalid_request` with numeric detail — locus: readability gate; input: `error_description=403` vs `🔒` (covered).
-- [ ] (candidate) `buildAuthorizeUrl` — scope string with interior ZWSP from env — locus: `normalizeOidcConfigurationString`; input: mis-pasted scope list (reachability: deployment env).
-- [ ] (candidate) `refreshAccessToken` — marks authorize callback failed on network throw — locus: exchange catch; input: offline during code exchange (regression may exist).
-2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `readOAuthJsonErrorDescription` — token JSON `error_description` with mistaken `%2B` (`Policy%2Bdenied`) percent-decoded to glued `Policy+denied` while literal `User+denied` must stay per RFC 6749; collapse `+`→space only when the JSON carried percent-encoded plus (`includesPercentEncodedPlus`); regressions singly/doubly `%2B` in JSON descriptions; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 364/364.
+2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `readOAuthJsonErrorDescription` - token JSON `error_description` doubly percent-encoded (`User%2520denied`) stopped after one decode and surfaced literal `User%20denied`; bounded two-pass `decodePercentEncodedOAuthCopy`; regression `decodes doubly percent-encoded spaces in JSON error_description`; also regression `maps percent-encoded underscore authorize error codes`; cheap-disproof closed four sibling zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 350/350.
 
-- [x] (proven) `readOAuthJsonErrorDescription` — mistaken `%2B` in token JSON descriptions — **hit 2026-10-22 seed hunt:** conditional post-decode plus collapse; regressions above.
-- [x] (valid-no-repro) `humanizeAuthorizeCallbackError` — `Policy%2Bdenied` authorize detail — **cheap-disproof 2026-10-22 seed hunt:** prior `decodeOAuthErrorDescription` hit; humanize consumes decoded detail.
-- [x] (valid-no-repro) `sanitizeOAuthUserFacingMessage` — truncation after plus collapse — **cheap-disproof 2026-10-22 seed hunt:** existing 280-cap tests; no falsifying long `%2B` repro.
-- [x] (invalid) `initiateSupplementalOidcRedirect` — parity test only — **cheap-disproof 2026-10-22 seed hunt:** test gap, not product defect; primary retry regression covers logic.
-- [x] (valid-no-repro) `normalizeOAuthErrorCode` — literal `invalid+grant` in authorize `error` — **cheap-disproof 2026-10-22 seed hunt:** pre-decode plus-to-space maps to `invalid_grant`; existing authorize tests.
+- [x] (proven) `readOAuthJsonErrorDescription` - doubly percent-encoded JSON error_description - **hit 2026-10-22 seed hunt:** `decodePercentEncodedOAuthCopy` (max 2 passes); regression above.
+- [x] (valid-no-repro) `humanizeAuthorizeCallbackError` - `access%5fdenied` authorize error - **cheap-disproof 2026-10-22:** covered by `normalizeOAuthErrorCode` URI decode; regression added.
+- [x] (valid-no-repro) `initiateSupplementalOidcRedirect` - Google discovery failure during authorize retry - **cheap-disproof 2026-10-22:** `preservingAuthorizeCallbackRetry` parity with primary.
+- [x] (valid-no-repro) `normalizeOAuthErrorCode` - token JSON `error` with `+` glue - **cheap-disproof 2026-10-22:** plus-to-space before decode yields `invalid_grant`.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` - NBSP `%C2%A0` between Latin words - **cheap-disproof 2026-10-22:** URI decode + `\s+` collapse yields spaced copy.
 
-- [ ] (candidate) `readOAuthJsonErrorDescription` — `%2b` lowercase percent plus in JSON — locus: `includesPercentEncodedPlus` case fold; input: `policy%2bdenied`; reachability: regression lock.
-- [ ] (candidate) `errorFromOAuthJson` — description-only token errors with `%2B` glue — locus: `readOAuthJsonErrorDescription` on 400 body; input: token-client integration test; reachability: add if missing.
-- [ ] (candidate) `decodeOAuthErrorDescription` vs JSON — asymmetric plus rules — locus: authorize always post-decode plus; input: document/intentional split (reachability: no code change).
-- [ ] (candidate) `includesPercentEncodedPlus` — `%25252B` quadruple-encoded plus — locus: three-pass decode cap; input: proxy chain on JSON descriptions.
-- [ ] (candidate) `humanizeAuthorizeCallbackError` — token JSON `access_denied` + `%2B` description — locus: end-to-end refresh failure copy; input: mirror authorize callback pairing.
+- [ ] (candidate) `decodeOAuthErrorDescription` - doubly percent-encoded authorize `error_description` query values — locus: single decode in callback path; input: `Policy%2520denied` after `URLSearchParams` (reachability: trace authorize callback).
+- [ ] (candidate) `readOAuthJsonErrorDescription` - literal `%%` sequences in JSON descriptions — locus: bounded decode loop; input: `100%%20blocked` (reachability: malformed IdP copy).
+- [ ] (candidate) `humanizeAuthorizeCallbackError` - mixed-case percent-encoded error codes — locus: `normalizeOAuthErrorCode` lowercases after decode; input: `Access%20Denied` (may already pass).
+- [ ] (candidate) `token-client` `errorFromOAuthJson` - numeric `error` field ignored — locus: `readOAuthErrorString` typeof gate; input: `{ "error": 403 }` (reachability: non-conformant IdP JSON).
+- [ ] (candidate) `initiateSupplementalOidcRedirect` - regression test for authorize-retry + Google discovery failure preserving return URL — locus: mirror primary test; input: add vitest (reachability: test gap only).
 
 2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `decodeOAuthErrorDescription` — authorize `error_description=Policy%2Bdenied` decoded `%2B` to `+` after the query plus-to-space pass, surfacing glued `Policy+denied` in callback copy; apply `+`→space after `decodeRepeatedPercentEncoding` (parity with `normalizeOAuthErrorCode`); regressions singly and doubly percent-encoded plus in authorize descriptions; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 363/363.
 
@@ -100,27 +101,6 @@
 - [ ] (candidate) `markAuthorizeCallbackFailed` - marker survives `clearPkceState` only paths - locus: callback error handlers; input: incomplete callback without OAuth error query (reachability: CallbackClient).
 - [ ] (candidate) `exchangeAuthorizationCode` - network error before response body - locus: token-client catch re-mark; input: fetch throws (reachability: existing re-mark test coverage).
 
-- [x] (proven) `normalizeOAuthErrorCode` — percent-encoded `+` in authorize `error` — **hit 2026-10-22 (zone block):** plus-to-space after decode; see zone-head entry.
-- [ ] (candidate) `humanizeAuthorizeCallbackError` — `access%5fdenied` already maps — locus: regression lock only; input: underscore percent escape (reachability: add test if missing).
-- [ ] (candidate) `clearOidcSession` — display-name-only hint treated as signed-in for return-url clear — locus: `hasOidcSessionIdentityHints`; input: legacy display without sub; reachability: intentional product choice vs bug.
-- [ ] (candidate) `pulseOidcSessionKeepalive` — unauthorized pulse during failed callback — locus: `clearOidcSession` without identity; input: BFF 401 with stored return (reachability: keepalive hook).
-- [ ] (candidate) `initiateOidcRedirect` — retry marker preserved but user starts sign-in without `returnUrl` — locus: skip `clearAbandonedPostSignInReturnUrl`; input: manual navigation after OAuth error (may be intentional).
-
-2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `decodeRepeatedPercentEncoding` — triply percent-encoded spaces in OAuth `error_description` (`User%252520denied`) still showed `User%20denied` after two decode passes; raise cap to three passes (unchanged stable-break behavior); regressions `decodes triply percent-encoded spaces in JSON error_description` + authorize decode path; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 346/346.
-
-- [x] (proven) `decodeRepeatedPercentEncoding` — triply percent-encoded `error_description` — **hit 2026-10-22 seed hunt:** `MAX_OAUTH_PERCENT_DECODE_PASSES` 3; regressions above.
-- [x] (invalid) `decodeOAuthErrorDescription` — `+` vs JSON plus handling split — **cheap-disproof 2026-10-22:** RFC 6749 JSON is plain text; query `+`→space is authorize-only by design.
-- [x] (valid-no-repro) `errorFromOAuthJson` — invisible `error` padding with readable description — **cheap-disproof 2026-10-22:** description-only branch returns sanitized detail; existing token-client tests.
-- [x] (valid-no-repro) `clearAbandonedPostSignInReturnUrl` — `%2Freviews` vs `/reviews` — **cheap-disproof 2026-10-22:** `storePostSignInReturnUrl` only accepts safe `/…` paths; encoded-slash storage not reachable.
-- [x] (valid-no-repro) `exchangeAuthorizationCode` — soft hyphen in JSON `error` code — **cheap-disproof 2026-10-22:** `normalizeOAuthErrorCode` maps `\u00AD` to `_`; `access\u00ADdenied` → `access_denied`.
-
-- [ ] (candidate) `decodeRepeatedPercentEncoding` — four-pass `%25252520` chains may still leak `%20` — locus: pass cap; input: `User%25252520denied`; reachability: multi-hop reverse proxies on token errors.
-- [ ] (candidate) `storePostSignInReturnUrl` — return path with encoded query (`%3F`) vs literal `?` breaks idle-desk pairing — locus: `normalizeComparableReturnPath`; input: `/reviews%3Ftab=1` stored vs `/reviews?tab=1` idle payload.
-- [ ] (candidate) `errorFromOAuthJson` — numeric `error` field with string `error_description` — locus: `readOAuthErrorString`; input: `{ error: 403, error_description: "denied" }` (may already ignore).
-- [ ] (candidate) `getAccessTokenExpiresAtMs` — returns parsed expiry when identity hints exist but `expires_at_ms` hint is whitespace-only — locus: `parseOidcEpochMsHint`; input: sessionStorage `expires_at_ms` = `   `.
-- [ ] (candidate) `loadDiscoveryDocument` — authority host with trailing dot (`login.example.com.`) — locus: `discoveryUrlForAuthority`; input: env authority FQDN with trailing dot (reachability: mis-typed DNS).
-
-2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `readOAuthJsonErrorDescription` / `decodeOAuthErrorDescription` — IdP `error_description` with doubly percent-encoded spaces (`User%2520denied`) stopped after one `decodeURIComponent` pass and surfaced `User%20denied` in token and authorize callback copy; bounded `decodeRepeatedPercentEncoding` (max two passes) before collapse; regressions `decodes doubly percent-encoded spaces in JSON error_description` + authorize decode path; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 340/340.
 2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `normalizeOAuthErrorCode` - authorize `error` query values still percent-encoded after `URLSearchParams` (e.g. `access%20denied` from double-encoded IdP output) missed standard handlers; tolerate one `decodeURIComponent` pass before glue collapse; regression `maps percent-encoded authorize error codes to the standard snake_case handlers`; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 341/341.
 
 - [x] (proven) `normalizeOAuthErrorCode` - percent-encoded authorize error codes missed standard handlers - **hit 2026-10-22 seed hunt:** single safe URI decode before normalization; regression above.
@@ -129,8 +109,8 @@
 - [x] (valid-no-repro) `initiateSupplementalOidcRedirect` - authorize retry flag on Google discovery failure - **cheap-disproof 2026-10-22:** `preservingAuthorizeCallbackRetry` mirrors primary flow (add regression if missing).
 - [x] (invalid) `decodeOAuthErrorDescription` - `%252F` double-encoded path fragments - **cheap-disproof 2026-10-22:** single decode by design; literal `%2F` preserved for operator copy.
 - [x] (invalid) `loadDiscoveryDocument` - default-port authority normalization duplicate cache - **cheap-disproof 2026-10-22:** duplicate fetch only; no wrong auth outcome.
-- [ ] (candidate) `humanizeAuthorizeCallbackError` — `access%5fdenied` percent-encoded underscore in authorize `error` — locus: `normalizeOAuthErrorCode` decode; input: single-encoded underscore (reachability: IdP emits `%5f` not space).
-- [ ] (candidate) `readOAuthJsonErrorDescription` — `%2520` double-encoded spaces in token JSON — locus: single decodeURIComponent; input: `User%2520denied` (reachability: mis-encoded JSON body).
+- [x] (valid-no-repro) `humanizeAuthorizeCallbackError` — `access%5fdenied` — **cheap-disproof 2026-10-22 seed hunt:** see head block.
+- [x] (proven) `readOAuthJsonErrorDescription` — `%2520` double-encoded spaces — **hit 2026-10-22 seed hunt:** see head block.
 - [ ] (candidate) `initiateSupplementalOidcRedirect` — preserves return URL on Google discovery failure during authorize-callback retry — locus: `preservingAuthorizeCallbackRetry`; input: mirror primary regression (reachability: add test).
 - [ ] (candidate) `normalizeOAuthErrorCode` — token JSON `error` with literal `+` glue — locus: plus-to-space before decode; input: `{ "error": "invalid+grant" }` (reachability: token-client path).
 - [ ] (candidate) `decodeOAuthErrorDescription` — NBSP `%C2%A0` between Latin words in authorize descriptions — locus: collapse `\s`; input: `Policy%C2%A0denied` (may already collapse via `\s+`).

@@ -23,6 +23,7 @@ import {
   hasAuthorizeCallbackFailedRetry,
   markAuthorizeCallbackFailed,
   readPkceState,
+  readPostSignInReturnUrl,
   storePkceState,
   storePostSignInReturnUrl,
 } from "@/lib/oidc/session";
@@ -59,6 +60,20 @@ function clearAbandonedPostSignInReturnUrl(): void {
   clearPostSignInReturnUrl();
 }
 
+function shouldConsumeAuthorizeRetryForReturnUrl(returnUrl: string): boolean {
+  const normalizedNew = normalizeOidcConfigurationString(returnUrl);
+  const prior = readPostSignInReturnUrl();
+
+  if (prior === null) {
+    return true;
+  }
+
+  const priorComparable = normalizeComparableReturnPath(prior);
+  const newComparable = normalizeComparableReturnPath(normalizedNew);
+
+  return priorComparable !== newComparable;
+}
+
 /**
  * Builds the IdP authorization URL and navigates the browser to it.
  * Stores PKCE state and an optional post-sign-in return URL before redirecting.
@@ -84,7 +99,10 @@ export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
   if (returnUrl !== undefined && isSafeReturnPath(returnUrl)) {
     storePostSignInReturnUrl(returnUrl);
     storedReturnUrlThisAttempt = true;
-    consumeAuthorizeCallbackFailedRetry();
+
+    if (shouldConsumeAuthorizeRetryForReturnUrl(returnUrl)) {
+      consumeAuthorizeCallbackFailedRetry();
+    }
   } else if (readPkceState("google") === null) {
     if (!preservingAuthorizeCallbackRetry) {
       clearAbandonedPostSignInReturnUrl();
@@ -156,7 +174,10 @@ export async function initiateSupplementalOidcRedirect(
   if (returnUrl !== undefined && isSafeReturnPath(returnUrl)) {
     storePostSignInReturnUrl(returnUrl);
     storedReturnUrlThisAttempt = true;
-    consumeAuthorizeCallbackFailedRetry();
+
+    if (shouldConsumeAuthorizeRetryForReturnUrl(returnUrl)) {
+      consumeAuthorizeCallbackFailedRetry();
+    }
   } else if (readPkceState("primary") === null) {
     if (!preservingAuthorizeCallbackRetry) {
       clearAbandonedPostSignInReturnUrl();

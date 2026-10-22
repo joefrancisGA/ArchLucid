@@ -212,8 +212,8 @@ export async function exchangeAuthorizationCode(params: {
       code_verifier: params.codeVerifier,
     });
   } catch (error) {
-    // Sign-in already consumed the authorize-callback retry marker at redirect start; re-mark so
-    // a follow-up initiateOidcRedirect keeps the stored post-sign-in return path.
+    // Re-mark so a follow-up initiateOidcRedirect keeps the stored post-sign-in return path
+    // when token exchange fails after the authorize redirect.
     const { markAuthorizeCallbackFailed } = await import("@/lib/oidc/session");
 
     markAuthorizeCallbackFailed();
