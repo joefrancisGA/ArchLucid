@@ -8712,6 +8712,12 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed-only): cheap-disproof closed null `baselineKnowledgeModel` vs empty `ArchitectureKnowledgeModel` and null vs empty ledger `TechnologyName` parity rows; regressions `Build_matches_content_hash_when_baseline_model_is_null_vs_empty_model` and `Build_matches_content_hash_when_ledger_technology_name_is_null_vs_empty_string`; deferred consolidated C0 line-break batch (picker saturated `other`); 119 scoped orchestrator/cache/manifest tests passed.
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` / `ReviewCacheModelFingerprint.Compute` — null baseline model vs empty model split `ContentHash` — **cheap-disproof 2026-10-22 seed hunt:** regression `Build_matches_content_hash_when_baseline_model_is_null_vs_empty_model`.
+
+- [x] (valid-no-repro) `ReviewCacheLedgerFingerprint.Compute` — null `TechnologyName` vs empty string split `ledgerfp` — **cheap-disproof 2026-10-22 seed hunt:** regression `Build_matches_content_hash_when_ledger_technology_name_is_null_vs_empty_string`; `NormalizeTechnologyName` maps null to empty.
+
 2026-10-22 seed hunt (seed→hit): promoted null element in `technologyLedgerEntries` list causing `NullReferenceException` during `ledgerfp` computation; `ReviewCacheLedgerFingerprint.Compute` now skips null entries; regression `Build_ignores_null_technology_ledger_entries_when_hashing_content`; cheap-disproof padded `BuildWithResolvedRunId` and prior API-validation/tombstone/framing-order rows; guard regression for padded resolved run id; 119 scoped tests passed.
 
 - [x] (proven) `ReviewCacheLedgerFingerprint.Compute` — null ledger entry in list threw during ordered fingerprint — **hit 2026-10-22 seed hunt:** filter null entries before sort/hash; regression above.
@@ -8726,9 +8732,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 - (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — consolidated C0/C1 line-break audit (picker saturated `other`; batch only).
 
-- (candidate) `ReviewCacheLedgerFingerprint.Compute` — null `TechnologyName` on entry — locus: `NormalizeTechnologyName`; input: sparse ledger row with null name (verify empty token).
+- [x] (valid-no-repro) `ReviewCacheLedgerFingerprint.Compute` — null `TechnologyName` on entry — **cheap-disproof 2026-10-22 seed hunt:** see seed-only row above.
 
-- (candidate) `ReviewCacheManifestBuilder.HashContent` — null `baselineKnowledgeModel` vs empty model fingerprint — locus: `ReviewCacheModelFingerprint.Compute`; input: run id present with null baseline.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — null `baselineKnowledgeModel` vs empty model fingerprint — **cheap-disproof 2026-10-22 seed hunt:** see seed-only row above.
 
 - (candidate) `ClosedLoopContinueRunSingleFlight` — coalesce key uses manifest content hash only — locus: tenant in continue outer hash; input: verify tenant move cannot false-share continue coalesce.
 
@@ -8971,7 +8977,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 55
+- **hunts:** 56
 - **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22

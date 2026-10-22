@@ -488,6 +488,48 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_baseline_model_is_null_vs_empty_model()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-baseline-null-vs-empty";
+
+        ReviewCacheManifestBuilder.Build(request, baselineKnowledgeModel: null).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, new ArchitectureKnowledgeModel()).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_ledger_technology_name_is_null_vs_empty_string()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-ledger-null-name";
+
+        TechnologyLedgerEntry nullName = new()
+        {
+            RunId = request.RunId,
+            Role = TechnologyLedgerRole.CloudPlatform,
+            TechnologyName = null!,
+            ProviderFamily = ArchLucid.Contracts.Common.CloudProvider.Azure,
+            Status = TechnologyLedgerStatus.Chosen,
+            Source = TechnologyLedgerSource.User,
+        };
+
+        TechnologyLedgerEntry emptyName = new()
+        {
+            RunId = request.RunId,
+            Role = TechnologyLedgerRole.CloudPlatform,
+            TechnologyName = string.Empty,
+            ProviderFamily = ArchLucid.Contracts.Common.CloudProvider.Azure,
+            Status = TechnologyLedgerStatus.Chosen,
+            Source = TechnologyLedgerSource.User,
+        };
+
+        ReviewCacheManifestBuilder.Build(request, null, [nullName]).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, null, [emptyName]).ContentHash);
+    }
+
+    [Fact]
     public void Build_ignores_null_technology_ledger_entries_when_hashing_content()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
