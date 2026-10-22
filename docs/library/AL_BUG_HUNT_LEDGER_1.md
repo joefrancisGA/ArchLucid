@@ -8712,6 +8712,28 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed-only): re-read orchestrator, review cache, and manifest hashing paths; cheap-disproof closed stale duplicate normalization candidates (`+` vs `%20`, NBSP priorities, vertical tab, framing-key NFC) and Turkish compatibility priority folding; deferred form-feed (`\u000c`) line-break parity to a consolidated `UnicodeLineBreakScalars` batch (picker saturated `other`); seeded five follow-on candidates; 100 scoped orchestrator/cache/manifest tests passed.
+
+- [x] (invalid) `ClosedLoopDeclaredPrioritiesNormalizer` — duplicate priorities differing only by Turkish compatibility case folding (`I`/`ı`) — **cheap-disproof 2026-10-22 seed hunt:** grouping uses `StringComparer.OrdinalIgnoreCase` (invariant), not culture-specific Turkish rules; OpenAPI priority tokens are ASCII labels in practice.
+
+- [x] (invalid) `ClosedLoopReasoningSourceTextNormalizer.NormalizeFileNameForHash` — `+` vs `%20` in `FileName` — **cheap-disproof 2026-10-22 seed hunt:** duplicate of 2026-10-22 row; `%20` decoded; `+` is literal in path segments.
+
+- [x] (invalid) `ReviewCacheManifestBuilder.HashPriorities` — NBSP-padded priority tokens — **cheap-disproof 2026-10-22 seed hunt:** duplicate of 2026-10-22 row; `Trim()` removes Unicode whitespace before hash.
+
+- [x] (invalid) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — vertical tab (`\u000b`) — **cheap-disproof 2026-10-22 seed hunt:** duplicate of 2026-10-22 hit; regression `Build_matches_content_hash_when_source_content_uses_unicode_line_separators` (`\u000b`).
+
+- [x] (valid-no-repro) `ClosedLoopFramingAnswersNormalizer` — framing keys NFC vs NFD — **cheap-disproof 2026-10-22 seed hunt:** duplicate of 2026-10-22 row; regression `Build_matches_content_hash_when_framing_key_differs_only_by_unicode_normalization_form`.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — form feed (`\u000c`) in uploaded `Content` may split `ContentHash` from LF — locus: `UnicodeLineBreakScalars`; input: `line\u000cline` vs `line\nline`; wrong outcome: cache miss; consolidate with other C0 breaks (picker saturated `other`, no one-off fix).
+
+- (candidate) `ReviewResultCache.TryEvictOldestUnpinnedEntry` — equal `CreatedUtc` timestamps make eviction order depend on `ConcurrentDictionary` enumeration — locus: `ReviewResultCache.Eviction.cs`; input: >128 `Set` calls under one frozen `TimeProvider` tick; wrong outcome: nondeterministic retention.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.StripUtf8Bom` — interior UTF-8 BOM scalar (`\uFEFF`) in `Content` is not stripped — locus: BOM removal runs once at index 0 only; input: `body\uFEFFtail` vs `bodytail`; wrong outcome: cache miss for equivalent paste payloads.
+
+- (candidate) `ReviewCacheManifestBuilder.HashContent` — `FramingAnswers` null vs empty dictionary may diverge if a caller bypasses contract defaults — locus: `ClosedLoopFramingAnswersNormalizer.Normalize` null guard; input: deserialized request with `FramingAnswers: null`; wrong outcome: exception vs empty framing segment (verify OpenAPI always materializes empty dict).
+
+- (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunContinueFromExistingReviewAsync` — `PublishToProduct=true` skips pre-flight `TryGet` but still acquires dual-manifest `PinScope` — locus: `ClosedLoopArchitectureReasoningOrchestrator.Cache.cs`; input: continue with publish enabled and warm continue manifest; wrong outcome: pin held without cache reuse (verify intentional publish path).
+
 2026-10-22 seed hunt (seed→hit): promoted declared priorities NFC vs NFD splitting `DeclaredPrioritiesHash`; `ClosedLoopDeclaredPrioritiesNormalizer` now applies `NormalizationForm.FormC`; regression `Build_matches_declared_priorities_hash_when_priority_differs_only_by_unicode_normalization_form`; closed `+` vs `%20` and NBSP priority candidates; 100 scoped orchestrator/cache/manifest tests passed.
 
 - [x] (proven) `ClosedLoopDeclaredPrioritiesNormalizer` — priority strings NFC vs NFD split cache priority hash — **hit 2026-10-22 seed hunt:** `NormalizeUnicode` after trim; regression above. [class:state-machine-gap]
@@ -8720,7 +8742,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 - [x] (invalid) `ReviewCacheManifestBuilder.HashPriorities` — NBSP-padded priority tokens — **cheap-disproof 2026-10-22 seed hunt:** `priority.Trim()` removes Unicode whitespace including NBSP before hash.
 
-- (candidate) `ClosedLoopDeclaredPrioritiesNormalizer` — duplicate priorities differing only by compatibility case folding (Turkish `I`/`ı`) — locus: `OrdinalIgnoreCase` group; input: locale-specific casing pair (verify OpenAPI/UI never emits).
+- [x] (invalid) `ClosedLoopDeclaredPrioritiesNormalizer` — duplicate priorities differing only by compatibility case folding (Turkish `I`/`ı`) — **cheap-disproof 2026-10-22 seed hunt:** see seed-only row above.
 
 2026-10-22 seed hunt (seed→hit): consolidated Unicode line-break scalars in `NormalizeLineEndings` (added vertical tab `\u000b`); regression `Build_matches_content_hash_when_source_content_uses_unicode_line_separators`; cheap-disproof framing-key NFC parity; 99 scoped orchestrator/cache/manifest tests passed.
 
@@ -8728,9 +8750,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 - [x] (valid-no-repro) `ClosedLoopFramingAnswersNormalizer` — framing keys NFC vs NFD — **cheap-disproof 2026-10-22 seed hunt:** `NormalizeUnicode` on keys; regression `Build_matches_content_hash_when_framing_key_differs_only_by_unicode_normalization_form`.
 
-- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeFileNameForHash` — `+` vs `%20` in `FileName` may still split `ContentHash` — locus: percent decode loop; input: `docs/my+file.md` vs `docs/my%20file.md`.
+- [x] (invalid) `ClosedLoopReasoningSourceTextNormalizer.NormalizeFileNameForHash` — `+` vs `%20` in `FileName` — **cheap-disproof 2026-10-22 seed hunt:** see seed-only row above.
 
-- (candidate) `ReviewCacheManifestBuilder.HashPriorities` — priority strings differing only by surrounding Unicode whitespace (not ASCII space) — locus: priority hash loop; input: NBSP-padded priority token.
+- [x] (invalid) `ReviewCacheManifestBuilder.HashPriorities` — NBSP-padded priority tokens — **cheap-disproof 2026-10-22 seed hunt:** see seed-only row above.
 
 2026-10-22 seed hunt (seed→hit): promoted NEL (`\u0085`) line separator in source `Content` splitting `ContentHash` after U+2028/U+2029 fix; extended `NormalizeLineEndings`; regression `Build_matches_content_hash_when_source_content_uses_unicode_line_separators` (`\u0085` case); closed stale framing-key and duplicate-source candidates; 97 scoped orchestrator/cache/manifest tests passed.
 
@@ -8742,9 +8764,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 - [x] (valid-no-repro) `ReviewResultCache.InvalidateForRun` — tombstone FIFO saturation under pin pressure — **cheap-disproof 2026-10-22 seed hunt:** deferred invalidation contract documented in cache tests; no new repro without product flag.
 
-- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — vertical tab (`\u000b`) in uploaded source content may still split `ContentHash` from LF — locus: line-ending map; input: `note\u000bline` vs `note\nline`.
+- [x] (invalid) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — vertical tab (`\u000b`) — **cheap-disproof 2026-10-22 seed hunt:** see seed-only row above.
 
-- (candidate) `ClosedLoopFramingAnswersNormalizer` — framing keys differing only by Unicode NFC vs NFD (not values) — locus: `NormalizeUnicode` on keys; input: composed vs decomposed key for same answer (verify parity with value NFC hit).
+- [x] (valid-no-repro) `ClosedLoopFramingAnswersNormalizer` — framing keys NFC vs NFD — **cheap-disproof 2026-10-22 seed hunt:** see seed-only row above.
 
 2026-10-21 seed hunt (seed→hit): promoted NFC vs NFD framing answer values splitting `ContentHash` while ledger technology names already used FormC; `ClosedLoopFramingAnswersNormalizer` now normalizes keys and values with `NormalizationForm.FormC`; regression `Build_matches_content_hash_when_framing_answer_differs_only_by_unicode_normalization_form`; 95 scoped tests passed.
 
@@ -8773,13 +8795,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 46
+- **hunts:** 47
 - **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — declared priorities Unicode normalization in cache hash
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-09-07 seed hunt #1173 (hit): reseeded closed-loop orchestrator/cache manifest paths; proved client RunId missing from cache content hash caused concurrent coalesce to skip follower persistence.
 
