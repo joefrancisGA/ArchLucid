@@ -367,6 +367,46 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void BuildOverlay_stamps_resource_type_label_when_arm_resource_id_has_no_name_segment()
+    {
+        const string armIdWithoutSlash = "legacy-resource-name";
+        const string resourceType = "Microsoft.Sql/servers";
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                CreatedUtc = new DateTime(2026, 7, 18, 12, 0, 0, DateTimeKind.Utc),
+            },
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("14141414-1414-1414-1414-141414141414"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = armIdWithoutSlash,
+                    ResourceType = resourceType,
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                },
+            ],
+            Relationships = [],
+        };
+
+        GraphSnapshot overlay = ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay(
+            snapshot,
+            RunId,
+            ContextSnapshotId);
+
+        GraphNode node = overlay.Nodes.Should().ContainSingle().Subject;
+        node.Label.Should().Be(resourceType);
+        node.Properties["arm.id"].Should().Be(ArmResourceIdNormalizer.Normalize(armIdWithoutSlash));
+    }
+
+    [Fact]
     public void BuildOverlay_returns_no_edges_when_relationships_exist_but_resources_list_is_empty()
     {
         const string fromResourceId =

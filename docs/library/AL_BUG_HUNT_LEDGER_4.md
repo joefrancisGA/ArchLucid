@@ -12470,7 +12470,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 271
+- **hunts:** 272
 - **bugs-found:** 181
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — fully empty overlay merge returned base graph without warning normalization
@@ -12853,7 +12853,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — whitespace-only final ARM name segment minted empty `Label` — **hit 2026-10-22 seed hunt (seed→hit):** `ResourceType` fallback after empty segment trim; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — ARM id without slash may fail to stamp `ResourceType` as `Label` — locus: `ResolveLabel` no-segment branch; input: resource whose `AzureResourceId` has no `/` name segment; wrong outcome: overlay node `Label` is empty or throws instead of using trimmed `ResourceType`.
+2026-10-22 seed hunt (valid-no-repro): promoted `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` slashless ARM id label candidate; proved `ResolveLabel` uses trimmed `ResourceType` when the ARM id has no `/` name segment; regression `BuildOverlay_stamps_resource_type_label_when_arm_resource_id_has_no_name_segment`; seeded `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` slashless ARM id with whitespace-only `ResourceType` may mint empty `Label` follow-on; 565 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — slashless ARM id failed to stamp `ResourceType` label — **cheap-disproof 2026-10-22 seed hunt:** no-segment fallback; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — slashless ARM id with whitespace-only `ResourceType` may mint empty `Label` — locus: `ResolveLabel` `ResourceType` trim without empty fallback; input: resource with no `/` in `AzureResourceId` and `ResourceType` surrounding whitespace only; wrong outcome: overlay node `Label` is empty after trim.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
