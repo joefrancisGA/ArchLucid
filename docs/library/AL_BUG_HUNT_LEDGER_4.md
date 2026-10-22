@@ -12470,18 +12470,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 159
+- **hunts:** 160
 - **bugs-found:** 149
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — graph node property reader returned padded property values
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-10-22 seed hunt (valid-no-repro): promoted `DeclarationIdentityActorMaterializer` padded `k8s.kind` ingress candidate; proved hunt 158 `GraphNodePropertyReader` value trim already normalizes `k8s.kind` before `TryMatchK8sIngress` equality; regression `MaterializeFromNodes_emits_actor_and_trust_boundary_for_k8s_ingress_when_kind_has_surrounding_whitespace`; seeded declaration identity padded `k8s.kind` property **key** ingress lookup follow-on; 464 KnowledgeGraph + 148 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `DeclarationIdentityActorMaterializer.TryMatchK8sIngress` — padded `k8s.kind` missed ingress actors — **cheap-disproof 2026-10-22 seed hunt:** closed by `GraphNodePropertyReader` value trim (#158); regression above.
+
+- [ ] (candidate) `DeclarationIdentityActorMaterializer.TryMatchK8sIngress` — padded `k8s.kind` property **key** may miss ingress actor materialization — locus: `GraphNodePropertyReader` bag key trim; input: property key `"  k8s.kind  "` with value `ingress`; wrong outcome: ingress actors omitted on legacy deserialized nodes (parity audit after #156 key trim).
+
 2026-10-22 seed hunt (valid-no-repro): promoted `DeclarationIdentityActorMaterializer` padded `k8s.servicetype` load-balancer candidate; proved hunt 158 `GraphNodePropertyReader` value trim already normalizes `k8s.servicetype` before `TryMatchK8sLoadBalancerService` equality; regression `MaterializeFromNodes_emits_external_actor_for_loadbalancer_service_when_servicetype_has_surrounding_whitespace`; seeded `DeclarationIdentityActorMaterializer` padded `k8s.kind` ingress gate parity follow-on; 463 KnowledgeGraph + 148 Provenance scoped tests passed.
 
 - [x] (valid-no-repro) `DeclarationIdentityActorMaterializer.TryMatchK8sLoadBalancerService` — padded `k8s.servicetype` missed load-balancer actors — **cheap-disproof 2026-10-22 seed hunt:** closed by `GraphNodePropertyReader` value trim (#158); regression above.
-
-- [ ] (candidate) `DeclarationIdentityActorMaterializer.TryMatchK8sIngress` — padded `k8s.kind` ingress token may miss external actor materialization — locus: `string.Equals(kind, "ingress", …)`; input: `k8s.kind` with surrounding whitespace; wrong outcome: ingress actors omitted unless reader trim covers path (parity audit after #158).
 
 2026-10-22 seed hunt (seed→hit): promoted `GraphNodePropertyReader` padded property-bag value candidate; proved `TryGetPropertyValue` returned raw property strings, so declaration identity k8s kind gates like `TryMatchK8sServiceAccount` compared unpadded tokens and skipped actors when `k8s.kind` carried surrounding whitespace; trim values on successful read; regressions `TryGetPropertyValue_trims_surrounding_whitespace_on_returned_value` and `MaterializeFromNodes_emits_actor_for_k8s_service_account_when_kind_property_has_surrounding_whitespace`; seeded `DeclarationIdentityActorMaterializer` padded `k8s.servicetype` load-balancer gate follow-on; 462 KnowledgeGraph + 148 Provenance scoped tests passed.
 
