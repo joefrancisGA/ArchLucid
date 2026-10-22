@@ -409,6 +409,60 @@ public sealed class LlmTenantWalletServiceTests
     }
 
     [SkippableFact]
+    public async Task TryAutoRefillAsync_passes_trimmed_stripe_identifiers_to_charge_when_persisted_values_have_padding()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                AutoReplenishEnabled = true,
+                MonthlyCapUsd = 100m,
+                StripeCustomerId = "  cus_test  ",
+                StripePaymentMethodId = "  pm_test  ",
+            },
+            CancellationToken.None);
+
+        await repository.TryCreditRefillAsync(
+            tenantId,
+            0m,
+            Guid.NewGuid(),
+            null,
+            int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")),
+            [],
+            cancellationToken: CancellationToken.None);
+
+        Mock<IStripeWalletGateway> stripe = new();
+        stripe
+            .Setup(s => s.ChargeRefillAsync(
+                tenantId,
+                "cus_test",
+                "pm_test",
+                It.IsAny<decimal>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(StripeWalletChargeResult.Ok("pi_trimmed_ids"));
+
+        LlmTenantWalletService service = CreateService(repository, stripe.Object);
+
+        bool refilled = await service.TryAutoRefillAsync(tenantId, Guid.NewGuid(), CancellationToken.None);
+
+        refilled.Should().BeTrue();
+        stripe.Verify(
+            s => s.ChargeRefillAsync(
+                tenantId,
+                "cus_test",
+                "pm_test",
+                It.IsAny<decimal>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
     public async Task TryAutoRefillAsync_skips_stripe_charge_when_persisted_identifiers_fail_guard()
     {
         InMemoryLlmTenantWalletRepository repository = new();

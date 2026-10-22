@@ -78,14 +78,17 @@ public sealed class LlmTenantWalletRefillStage(
             if (!CanAutoRefill(state))
                 return false;
 
-            if (string.IsNullOrWhiteSpace(state.StripeCustomerId) || string.IsNullOrWhiteSpace(state.StripePaymentMethodId))
+            string? stripeCustomerId = NormalizeOptionalStripeId(state.StripeCustomerId);
+            string? stripePaymentMethodId = NormalizeOptionalStripeId(state.StripePaymentMethodId);
+
+            if (string.IsNullOrWhiteSpace(stripeCustomerId) || string.IsNullOrWhiteSpace(stripePaymentMethodId))
                 return false;
 
             if (!await _stripeWalletPaymentIdentifierGuard
                     .AllowsWalletUpdateAsync(
                         tenantId,
-                        state.StripeCustomerId,
-                        state.StripePaymentMethodId,
+                        stripeCustomerId,
+                        stripePaymentMethodId,
                         cancellationToken)
                     .ConfigureAwait(false))
             {
@@ -107,8 +110,8 @@ public sealed class LlmTenantWalletRefillStage(
             StripeWalletChargeResult charge = await _stripeWalletGateway
                 .ChargeRefillAsync(
                     tenantId,
-                    state.StripeCustomerId,
-                    state.StripePaymentMethodId,
+                    stripeCustomerId,
+                    stripePaymentMethodId,
                     state.RefillIncrementUsd,
                     correlationId,
                     cancellationToken)
@@ -297,4 +300,7 @@ public sealed class LlmTenantWalletRefillStage(
     {
         ArchLucidInstrumentation.RecordLlmWalletBalanceUsd(tenantId, balanceUsd);
     }
+
+    private static string? NormalizeOptionalStripeId(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }
