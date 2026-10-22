@@ -6215,3 +6215,5 @@
 {"at":"2026-10-22T07:59:58.7493739Z","zoneId":"identity-provider-config","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-22T08:08:59.888Z","zoneId":"application-billing-logic","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Application/Billing/"]}
 {"at":"2026-10-22T08:09:08.0022627Z","zoneId":"application-billing-logic","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-22T08:17:52.226Z","zoneId":"identity-provider-config","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs","ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs"]}
+{"at":"2026-10-22T08:17:52.1458895Z","zoneId":"identity-provider-config","outcome":"seed-only","productLine":"archlucid-shared"}
