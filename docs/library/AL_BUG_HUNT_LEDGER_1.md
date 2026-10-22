@@ -8712,6 +8712,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted duplicate identical technology-ledger rows splitting review-cache `ledgerfp`; `ReviewCacheLedgerFingerprint.Compute` now `DistinctBy` normalized entry fingerprints after sort; regressions `Build_matches_content_hash_when_ledger_contains_duplicate_identical_entries` and `Build_matches_content_hash_when_baseline_duplicate_element_ids_differ_only_by_lifecycle_scope_list_order`; 203 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ReviewCacheLedgerFingerprint.Compute` — duplicate identical ledger rows doubled `ledgerfp` payload — **hit 2026-10-22 seed hunt:** `DistinctBy(FormatLedgerEntryFingerprint)`; regression above.
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint.SelectCanonicalKnowledgeModelElements` — duplicate element `LifecycleScope` list order — **cheap-disproof 2026-10-22 seed hunt:** fingerprint ordinal tie-break; regression above.
+
+2026-10-22 seed hunt (seed→hit): promoted duplicate baseline elements with the same `ElementId` but different property bags (and `Kind`) list order splitting review-cache `modelfp`; `SelectCanonicalKnowledgeModelElements` now picks the lexicographically smallest element fingerprint; regressions `Build_matches_content_hash_when_baseline_duplicate_element_ids_differ_only_by_property_bag_list_order` and `Build_matches_content_hash_when_baseline_duplicate_element_ids_differ_only_by_kind_list_order`; 201 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.SelectCanonicalKnowledgeModelElements` — duplicate element rows with divergent property bags split `modelfp` by list order — **hit 2026-10-22 seed hunt:** fingerprint ordinal tie-break; regressions above.
+
 2026-10-22 seed hunt (seed→hit): promoted duplicate baseline elements with the same normalized id but different `ExtractionConfidence` list order splitting review-cache `modelfp`; `SelectCanonicalKnowledgeModelElements` now tie-breaks on confidence/kind/lifecycle scope; regression `Build_matches_content_hash_when_baseline_duplicate_element_ids_differ_only_by_extraction_confidence_list_order`; added regression coverage for workspace NBSP, resolved run-id NBSP, provenance note spaces, and model framing-value NBSP; 199 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint.SelectCanonicalKnowledgeModelElements` — duplicate element rows with equal name/description but different confidence split `modelfp` by list order — **hit 2026-10-22 seed hunt:** deterministic tie-break chain; regression above.
@@ -9191,11 +9200,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 83
-- **bugs-found:** 71
+- **hunts:** 85
+- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — duplicate element confidence list order in review-cache modelfp
+- **last-bug:** 2026-10-22 — duplicate identical ledger rows in review-cache ledgerfp
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

@@ -3232,6 +3232,72 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_ledger_contains_duplicate_identical_entries()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-ledger-duplicate-rows";
+
+        TechnologyLedgerEntry entry = CreateLedgerEntry(request.RunId, evidenceRef: "evidence:shared");
+
+        ReviewCacheManifestBuilder.Build(request, null, [entry, entry]).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, null, [entry]).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_duplicate_element_ids_differ_only_by_lifecycle_scope_list_order()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-duplicate-element-lifecycle";
+
+        ArchitectureKnowledgeModel currentFirst = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    LifecycleScope = ArchitectureLifecycleScope.CurrentState,
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    LifecycleScope = ArchitectureLifecycleScope.TargetState,
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel targetFirst = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    LifecycleScope = ArchitectureLifecycleScope.TargetState,
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    LifecycleScope = ArchitectureLifecycleScope.CurrentState,
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, currentFirst).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, targetFirst).ContentHash);
+    }
+
+    [Fact]
     public void Build_changes_tenant_configuration_hash_when_workspace_changes()
     {
         ClosedLoopReasoningRequest workspaceA = CreateRequest("Architecture note.");

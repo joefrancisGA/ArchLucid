@@ -26,19 +26,25 @@ public static class ReviewCacheLedgerFingerprint
                      .ThenBy(item => NormalizeEvidenceRef(item.EvidenceRef), StringComparer.Ordinal)
                      .ThenBy(item => item.Status)
                      .ThenBy(item => item.Source)
-                     .ThenBy(item => item.IsLocked))
+                     .ThenBy(item => item.IsLocked)
+                     .DistinctBy(FormatLedgerEntryFingerprint, StringComparer.Ordinal))
         {
-            builder.Append(entry.Role.ToString()).Append('|');
-            builder.Append(NormalizeTechnologyName(entry.TechnologyName)).Append('|');
-            builder.Append(entry.ProviderFamily).Append('|');
-            builder.Append(entry.Status).Append('|');
-            builder.Append(entry.Source).Append('|');
-            builder.Append(entry.IsLocked ? '1' : '0').Append('|');
-            builder.Append(NormalizeEvidenceRef(entry.EvidenceRef)).Append('\n');
+            builder.Append(FormatLedgerEntryFingerprint(entry)).Append('\n');
         }
 
         return Sha256Hex(builder.ToString());
     }
+
+    private static string FormatLedgerEntryFingerprint(TechnologyLedgerEntry entry) =>
+        string.Join(
+            '|',
+            entry.Role.ToString(),
+            NormalizeTechnologyName(entry.TechnologyName),
+            entry.ProviderFamily.ToString(),
+            entry.Status.ToString(),
+            entry.Source.ToString(),
+            entry.IsLocked ? '1' : '0',
+            NormalizeEvidenceRef(entry.EvidenceRef));
 
     private static string NormalizeTechnologyName(string? technologyName)
     {
