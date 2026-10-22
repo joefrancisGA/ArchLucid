@@ -508,6 +508,50 @@ public sealed class ProvenanceBuilderTests
     }
 
     [Fact]
+    public void Build_preserves_decision_title_when_later_case_variant_row_omits_title()
+    {
+        ResolvedArchitectureDecision firstRow = new()
+        {
+            DecisionId = "dec-1",
+            Category = "security",
+            Title = "Enable WAF",
+            SelectedOption = "opt",
+            Rationale = "why",
+            SupportingFindingIds = [],
+        };
+
+        ResolvedArchitectureDecision secondRow = new()
+        {
+            DecisionId = "DEC-1",
+            Category = string.Empty,
+            Title = string.Empty,
+            SelectedOption = "opt",
+            Rationale = "why",
+            SupportingFindingIds = [],
+        };
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot { Nodes = [] },
+            Manifest = new ManifestDocument
+            {
+                ManifestId = ManifestId,
+                ManifestHash = "h",
+                Decisions = [firstRow, secondRow],
+            },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        graph.Nodes
+            .Should()
+            .ContainSingle(n => n.Type == ProvenanceNodeType.Decision && n.Name == "Enable WAF");
+    }
+
+    [Fact]
     public void Build_deduplicates_contained_in_manifest_when_manifest_lists_case_variant_decision_ids()
     {
         ResolvedArchitectureDecision lower = new()

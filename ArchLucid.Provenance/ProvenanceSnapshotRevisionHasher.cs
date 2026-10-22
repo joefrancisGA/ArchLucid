@@ -94,8 +94,6 @@ public static class ProvenanceSnapshotRevisionHasher
             .OrderBy(group => group.Key, StringComparer.OrdinalIgnoreCase)
             .Select(group =>
             {
-                ResolvedArchitectureDecision representative = group.Last();
-
                 string supportingFindingIds = string.Join(
                     ",",
                     group.SelectMany(decision => decision.SupportingFindingIds)
@@ -104,8 +102,8 @@ public static class ProvenanceSnapshotRevisionHasher
                         .Distinct(StringComparer.OrdinalIgnoreCase)
                         .OrderBy(static findingId => findingId, StringComparer.OrdinalIgnoreCase));
 
-                string title = (representative.Title ?? string.Empty).Trim();
-                string category = (representative.Category ?? string.Empty).Trim();
+                string title = SelectLastNonEmptyManifestDecisionField(group, static decision => decision.Title);
+                string category = SelectLastNonEmptyManifestDecisionField(group, static decision => decision.Category);
 
                 return $"{group.Key}|{supportingFindingIds}|{title}|{category}";
             });
@@ -168,6 +166,16 @@ public static class ProvenanceSnapshotRevisionHasher
     private static string SelectLastNonEmptyGraphField(
         IGrouping<string, GraphNode> group,
         Func<GraphNode, string?> selector)
+    {
+        return group
+            .Select(selector)
+            .Select(static value => (value ?? string.Empty).Trim())
+            .LastOrDefault(static value => value.Length > 0) ?? string.Empty;
+    }
+
+    private static string SelectLastNonEmptyManifestDecisionField(
+        IGrouping<string, ResolvedArchitectureDecision> group,
+        Func<ResolvedArchitectureDecision, string?> selector)
     {
         return group
             .Select(selector)
