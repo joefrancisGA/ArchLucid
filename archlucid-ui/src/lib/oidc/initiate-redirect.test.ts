@@ -13,7 +13,10 @@ import {
   IDLE_DESK_RESTORE_STORAGE_KEY,
   persistIdleDeskRestoreBeforeSessionClear,
 } from "@/lib/auth/idle-desk-restore";
-import { writeOperatorScopeToStorage } from "@/lib/operator/operator-scope-storage";
+import {
+  clearOperatorScopeStorage,
+  writeOperatorScopeToStorage,
+} from "@/lib/operator/operator-scope-storage";
 import { readPkceState, storePkceState } from "@/lib/oidc/session";
 
 function mockOidcConfigWithRedirectUri(): void {
@@ -203,6 +206,42 @@ describe("initiate redirect PKCE isolation", () => {
 
     expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBeNull();
     expect(readPkceState("google")).toBeNull();
+    expect(assignMock).toHaveBeenCalled();
+  });
+
+  it("preserves idle-desk restore return path when operator scope is missing before session clear", async () => {
+    clearOperatorScopeStorage();
+    persistIdleDeskRestoreBeforeSessionClear("/architecture/reviews/run-1");
+
+    const assignMock = vi.fn();
+    vi.stubGlobal("location", { assign: assignMock });
+
+    vi.doMock("@/lib/oidc/config", () => ({
+      getOidcAuthority: () => "https://issuer.example",
+      getOidcClientId: () => "client-id",
+      getOidcRedirectUri: () => "https://app.example/auth/callback",
+      getOidcScopes: () => "openid",
+    }));
+    vi.doMock("@/lib/oidc/pkce", () => ({
+      createPkcePair: vi.fn(async () => ({ verifier: "primary-verifier", challenge: "challenge" })),
+      randomOpaqueState: vi.fn(() => "primary-state"),
+    }));
+    vi.doMock("@/lib/oidc/discovery", () => ({
+      loadDiscoveryDocument: vi.fn(async () => ({
+        issuer: "https://issuer.example",
+        authorization_endpoint: "https://issuer.example/authorize",
+        token_endpoint: "https://issuer.example/token",
+      })),
+    }));
+    vi.doMock("@/lib/oidc/build-authorize-url", () => ({
+      buildAuthorizeUrl: vi.fn(() => "https://issuer.example/authorize?state=primary-state"),
+    }));
+
+    const { initiateOidcRedirect } = await import("@/lib/oidc/initiate-redirect");
+
+    await initiateOidcRedirect();
+
+    expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBe("/architecture/reviews/run-1");
     expect(assignMock).toHaveBeenCalled();
   });
 

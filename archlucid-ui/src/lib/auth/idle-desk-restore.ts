@@ -15,7 +15,7 @@ export const IDLE_DESK_RESTORE_STORAGE_KEY = "archlucid.session.idleDeskRestore_
 
 export type IdleDeskRestorePayload = {
   readonly returnPath: string;
-  readonly scope: OperatorScopeRecord;
+  readonly scope: OperatorScopeRecord | null;
   readonly savedAtUtc: string;
   readonly formSnapshots?: Readonly<Record<string, LivelihoodIdleFormSnapshot>>;
 };
@@ -149,9 +149,17 @@ export function readIdleDeskRestorePayload(): IdleDeskRestorePayload | null {
 
     const scope = parsed.scope;
 
+    if (scope === null) {
+      return {
+        returnPath,
+        scope: null,
+        savedAtUtc: String(parsed.savedAtUtc ?? new Date().toISOString()),
+        formSnapshots: parseIdleDeskFormSnapshots(parsed.formSnapshots),
+      };
+    }
+
     if (
-      scope === null
-      || scope === undefined
+      scope === undefined
       || typeof scope.tenantId !== "string"
       || typeof scope.workspaceId !== "string"
       || typeof scope.projectId !== "string"
@@ -242,9 +250,19 @@ export function persistIdleDeskRestoreBeforeSessionClear(returnPath: string): vo
     storePostSignInReturnUrl(safeReturnPath);
   }
 
+  if (safeReturnPath === null) {
+    return;
+  }
+
   const scope = readOperatorScopeFromStorage();
 
-  if (scope === null || safeReturnPath === null) {
+  if (scope === null) {
+    writeIdleDeskRestorePayload({
+      returnPath: safeReturnPath,
+      scope: null,
+      savedAtUtc: new Date().toISOString(),
+    });
+
     return;
   }
 
@@ -310,7 +328,9 @@ export function restoreIdleDeskScopeAfterSignIn(): boolean {
     return false;
   }
 
-  writeOperatorScopeToStorage(payload.scope);
+  if (payload.scope !== null) {
+    writeOperatorScopeToStorage(payload.scope);
+  }
 
   if (payload.formSnapshots !== undefined && Object.keys(payload.formSnapshots).length > 0) {
     writeIdleDeskRestorePayload({

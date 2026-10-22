@@ -48,6 +48,28 @@ describe("idle-desk-restore (DR-12)", () => {
     clearLivelihoodIdleFormSnapshotRegistryForTests();
   });
 
+  it("persists return path without localStorage scope when operator scope is missing", () => {
+    clearOperatorScopeStorage();
+
+    persistIdleDeskRestoreBeforeSessionClear("/architecture/reviews/run-1");
+
+    expect(readIdleDeskRestorePayload()).toEqual({
+      returnPath: "/architecture/reviews/run-1",
+      scope: null,
+      savedAtUtc: expect.any(String),
+    });
+    expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBe("/architecture/reviews/run-1");
+  });
+
+  it("restores after sign-in without writing scope when payload is return-only", () => {
+    clearOperatorScopeStorage();
+    persistIdleDeskRestoreBeforeSessionClear("/architecture/reviews/run-1");
+
+    expect(restoreIdleDeskScopeAfterSignIn()).toBe(true);
+    expect(readOperatorScopeFromStorage()).toBeNull();
+    expect(localStorage.getItem(IDLE_DESK_RESTORE_STORAGE_KEY)).toBeNull();
+  });
+
   it("persists scope and return path before session clear", () => {
     persistIdleDeskRestoreBeforeSessionClear("/architecture/reviews/run-1?reviewTab=findings");
 

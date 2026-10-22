@@ -25274,6 +25274,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `clearAbandonedPostSignInReturnUrl` — idle-desk return path mismatch on trailing slash — **hit 2026-10-22 seed hunt:** comparable path equality; regression above.
 
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `clearAbandonedPostSignInReturnUrl` scope-less idle restore — `persistIdleDeskRestoreBeforeSessionClear` wrote `OIDC_POST_SIGN_IN_RETURN_URL_KEY` but skipped localStorage when operator scope was missing, so `readIdleDeskRestorePayload` returned null and stale-return cleanup cleared the desk return on sign-in without `returnUrl`; persist return-only idle payload (`scope: null`) and skip scope restore when absent; regressions `persists return path without localStorage scope when operator scope is missing` and `preserves idle-desk restore return path when operator scope is missing before session clear`; scoped oidc + idle-desk vitest 340/340.
+
+- [x] (proven) `clearAbandonedPostSignInReturnUrl` — scope-less idle restore return cleared as stale — **hit 2026-10-22 seed hunt:** return-only idle payload; regressions above.
+
 ## Zone: ui-oidc
 
 - **id:** ui-oidc
@@ -25282,11 +25286,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 83
-- **bugs-found:** 77
+- **hunts:** 84
+- **bugs-found:** 78
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — idle-desk return trailing-slash compare drift
+- **last-bug:** 2026-10-22 — scope-less idle restore return cleared as stale
 
 - **id:** ui-oidc
 - **status:** open
