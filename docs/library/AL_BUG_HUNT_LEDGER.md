@@ -10,6 +10,20 @@
 - [ ] (candidate) `decodeOAuthErrorDescription` - authorize query mixed literal `%2B` before regional-indicator flag - locus: URLSearchParams parity (reachability: callback query).
 - [ ] (candidate) `initiateSupplementalOidcRedirect` - discovery failure preserves retry without returnUrl argument - locus: supplemental flow (reachability: initiate-redirect.test).
 - [ ] (candidate) `OAuthTokenEndpointError` - normalizedErrorCode for unreadable JSON `error` - locus: errorFromOAuthJson (reachability: BFF refresh).
+2026-10-22 seed hunt (seed-only): `ui-oidc` — no new hunt-ready product defect after cheap-disproof of zone-head `(candidate)` rows (mixed JSON skin-tone `%2B` already preserved, authorize flag/`%2B` parity covered, discovery-failure return-path policy intentional on first attempt); parity regressions for `temporarily_unavailable` code-exchange authorize-retry marker and `User+denied%2B👍🏻` JSON mixed-plus; scoped `src/lib/oidc` vitest 418/418.
+
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — mixed literal `%2B` with skin-tone modifier glue — **cheap-disproof 2026-10-22:** conditional full-decode branch; regression extended.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — authorize mixed `%2B` before regional-indicator flag — **cheap-disproof 2026-10-22:** URLSearchParams + preserve guard on trunk.
+- [x] (valid-no-repro) `exchangeAuthorizationCode` — humanized `temporarily_unavailable` marks authorize retry — **cheap-disproof 2026-10-22:** parity regression added (mirrors `server_error`).
+- [x] (valid-no-repro) `initiateSupplementalOidcRedirect` — discovery failure without returnUrl — **cheap-disproof 2026-10-22:** `initiate-redirect.test.ts` covers retry-marker preservation.
+- [x] (invalid) `OAuthTokenEndpointError` — normalizedErrorCode for unreadable JSON `error` — **cheap-disproof 2026-10-22:** description-only path already structured on trunk.
+
+- [ ] (candidate) `initiateOidcRedirect` — first-attempt discovery failure with explicit returnUrl clears stored path — locus: `handleInitiateDiscoveryFailure` (reachability: intentional per initiate-redirect.test).
+- [ ] (candidate) `errorFromOAuthJson` — non-string `error` with numeric HTTP-like code — locus: readOAuthErrorString (reachability: vendor JSON).
+- [ ] (candidate) `decodeOAuthErrorDescription` — catch-path percent decode without mixed-plus guard — locus: try/catch fallback (reachability: malformed `%` in query).
+- [ ] (candidate) `refreshBffSessionCookie` — network throw vs 503 shouldClearSession — locus: fetch rejection (reachability: bff-session-sync).
+- [ ] (candidate) `humanizeAuthorizeCallbackError` — readable non-humanized OAuth code with pictograph-only detail — locus: isReadableOAuthErrorDetail (reachability: UX omission by design).
+
 2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `readOAuthJsonErrorDescription` — mixed literal `+` and `%2B` in token JSON pre-replaced percent-plus with space before decode, dropping `%2B` before pictograph glue when authorize would preserve `User+denied+🏷️`; fully decode first and keep when `shouldPreserveLiteralPlusInAuthorizeDescription` applies; extend mixed-plus regression; scoped `src/lib/oidc` vitest 415/415.
 
 - [x] (proven) `readOAuthJsonErrorDescription` — mixed literal and `%2B` plus with pictograph glue — **hit 2026-10-22 seed hunt:** conditional full decode; regression above.
@@ -25720,7 +25734,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 82
+- **hunts:** 83
 - **bugs-found:** 76
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22

@@ -94,6 +94,12 @@ describe("readOAuthJsonErrorDescription", () => {
   it("preserves literal plus in token error_description when emoji ZWJ sequences are present", () => {
     expect(readOAuthJsonErrorDescription("👨\u200d👩\u200d👧+extra")).toBe("👨\u200d👩\u200d👧+extra");
   });
+
+  it("preserves percent-decoded plus in JSON when authorize mixed-plus glue applies", () => {
+    expect(readOAuthJsonErrorDescription("👍🏻%2Bextra")).toBe("👍🏻+extra");
+    expect(readOAuthJsonErrorDescription("Policy%20denied%2Bextra")).toBe("Policy denied+extra");
+    expect(readOAuthJsonErrorDescription("User+denied%2B👍🏻")).toBe("User+denied+👍🏻");
+  });
 });
 
 describe("decodeOAuthErrorDescription", () => {
