@@ -450,6 +450,13 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("invalid_client_metadata");
   });
 
+  it("humanizes invalid_session authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_session", "");
+
+    expect(message).toMatch(/invalid session/i);
+    expect(message).not.toContain("invalid_session");
+  });
+
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
     expect(humanizeAuthorizeCallbackError("   ", "")).toContain("complete response");
     expect(humanizeAuthorizeCallbackError("   ", "")).not.toMatch(/\(\s*\)/u);
