@@ -76,6 +76,10 @@ describe("readOAuthJsonErrorDescription", () => {
     expect(readOAuthJsonErrorDescription("\u00a0\u00a0")).toBe("");
   });
 
+  it("returns empty for thin-space-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("\u202f\u202f")).toBe("");
+  });
+
   it("preserves ZWNJ in Persian token error_description copy", () => {
     const detail = "دسترسی\u200cرد";
 
@@ -259,6 +263,10 @@ describe("decodeOAuthErrorDescription", () => {
 
   it("returns empty for nbsp-only percent-encoded error descriptions", () => {
     expect(decodeOAuthErrorDescription("%C2%A0")).toBe("");
+  });
+
+  it("returns empty for thin-space-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%E2%80%AF")).toBe("");
   });
 
   it("returns empty for percent-encoded punctuation-only error descriptions", () => {
@@ -565,6 +573,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toMatch(/login timeout/i);
     expect(message).not.toContain("login_timeout");
+  });
+
+  it("humanizes device_code_expired authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("device_code_expired", "");
+
+    expect(message).toMatch(/device code expired/i);
+    expect(message).not.toContain("device_code_expired");
   });
 
   it("humanizes invalid_code authorize callback errors with readable copy", () => {
