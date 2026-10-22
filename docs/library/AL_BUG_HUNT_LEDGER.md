@@ -1,3 +1,16 @@
+2026-10-22 seed hunt (seed->hit): `core-configuration-summary` - promoted hunt-ready from seed re-read `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter` - vertical tab (ASCII VT, `\v`) between connection-string style pairs was not a pair boundary, so `Server=prod\vPassword=secret` leaked in admin config summary effective values; delimiter parity with form-feed/tab/newline; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_vertical_tab_delimited`; scoped `FullyQualifiedName~Configuration` 1137/1137.
+
+- [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector` - vertical tab delimiter before credential key - **hit 2026-10-22 seed hunt:** `IsPairDelimiter` includes `\v`; regression above.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` - semicolon/comma/pipe delimiters - **cheap-disproof 2026-10-22:** delimiter-agnostic matrix on trunk.
+- [x] (valid-no-repro) `ConfigurationSensitiveConfigValueScanner` - JSON credential property names - **cheap-disproof 2026-10-22:** existing JSON traversal tests.
+- [x] (invalid) `ConfigurationEffectiveValueResolver` - surrogate truncation - **cheap-disproof 2026-10-22:** dedicated resolver tests on trunk.
+
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` - NEL (U+0085) delimiter parity - locus: C1/unicode line breaks (reachability: pasted config).
+- [ ] (candidate) `ConfigurationSensitiveConfigPathMatcher` - camelCase compound false positives - locus: property name splitting (reachability: config-summary paths).
+- [ ] (candidate) `QuickScanSafetyOptionsValidator` - production anonymous guardrails when feature flag off - locus: effective feature state (reachability: SaaS host).
+- [ ] (candidate) `ConfigurationDictionaryBindingKeyNormalizer` - empty key after trim - locus: dictionary binding (reachability: SCIM overrides).
+- [ ] (candidate) `ConfigurationSensitiveConfigValueScanner` - invalid JSON with trailing garbage - locus: JsonException fallback (reachability: operator paste).
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_state authorize-query UX (existing parity) and saturated readOAuthJsonErrorDescription ZWJ multiply-encoded glue (existing parity); regression documents BFF refresh 492 parity (client + route opaque 492) and soft-hyphen object-replacement replacement-character-only access_token rejection; scoped vitest 767/767.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - invalid_state authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
@@ -58891,8 +58904,8 @@ Split from retired `archlucid-core` (ABQ-08).
 - **hunts:** 66
 - **bugs-found:** 48
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - form-feed delimiter parity for embedded credential redaction
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 - vertical tab delimiter credential redaction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -58980,11 +58993,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 48
-- **bugs-found:** 31
+- **hunts:** 49
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-16
-- **last-bug:** 2026-10-16 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ cognitiveservices endpoint query slash + ArchLucid:Secrets metadata over-redaction
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 - vertical tab delimiter credential redaction
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -106743,8 +106756,8 @@ Split from retired `archlucid-core` (ABQ-08).
 - **hunts:** 66
 - **bugs-found:** 48
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - form-feed delimiter parity for embedded credential redaction
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 - vertical tab delimiter credential redaction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -106832,11 +106845,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 48
-- **bugs-found:** 31
+- **hunts:** 49
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-16
-- **last-bug:** 2026-10-16 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ cognitiveservices endpoint query slash + ArchLucid:Secrets metadata over-redaction
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 - vertical tab delimiter credential redaction
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -154593,8 +154606,8 @@ Split from retired `archlucid-core` (ABQ-08).
 - **hunts:** 66
 - **bugs-found:** 48
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - form-feed delimiter parity for embedded credential redaction
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 - vertical tab delimiter credential redaction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -154682,11 +154695,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 48
-- **bugs-found:** 31
+- **hunts:** 49
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-16
-- **last-bug:** 2026-10-16 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ cognitiveservices endpoint query slash + ArchLucid:Secrets metadata over-redaction
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 - vertical tab delimiter credential redaction
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -202496,8 +202509,8 @@ Split from retired `archlucid-core` (ABQ-08).
 - **hunts:** 66
 - **bugs-found:** 48
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - form-feed delimiter parity for embedded credential redaction
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 - vertical tab delimiter credential redaction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -202585,11 +202598,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 48
-- **bugs-found:** 31
+- **hunts:** 49
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-16
-- **last-bug:** 2026-10-16 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ cognitiveservices endpoint query slash + ArchLucid:Secrets metadata over-redaction
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 - vertical tab delimiter credential redaction
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
