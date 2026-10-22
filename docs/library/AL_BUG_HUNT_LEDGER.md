@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed binding_required authorize-query UX, BFF refresh 455 parity, and saturated decodeOAuthErrorDescription punctuation-space glue; regression documents authorize-retry is marked when authorization code exchange returns three-per-em-space-only access_token; scoped vitest 598/598.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - binding_required authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 455 shouldClearSession false - **regression 2026-10-22:** transient refresh soft-fail without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string three-per-em-space-only skips authorize retry marker - **regression 2026-10-22:** three-per-em-space-only tokens reject exchange and set retry marker.
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with punctuation-space glue - **cheap-disproof 2026-10-22:** saturated encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - device_authorization_required authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 456 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string four-per-em-space-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with punctuation-space glue - locus: saturated JSON encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed credentials_required authorize-query UX, BFF refresh 454 parity, and saturated readOAuthJsonErrorDescription ideographic-space glue; regression documents authorize-retry is marked when authorization code exchange returns em-space-only access_token; scoped vitest 595/595.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - credentials_required authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
