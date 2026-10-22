@@ -574,7 +574,11 @@ describe("initiate redirect PKCE isolation", () => {
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });
 
+<<<<<<< HEAD
   it("preserves post-sign-in return path when discovery fails during authorize retry with the same explicit return URL", async () => {
+=======
+  it("preserves post-sign-in return when discovery fails during authorize retry with explicit returnUrl", async () => {
+>>>>>>> b6596d08e6 (Preserve return URL on discovery failure during OIDC retry.)
     sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, "/architecture/reviews/run-3");
     sessionStorage.setItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY, "1");
 

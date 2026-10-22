@@ -116,7 +116,7 @@ export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
   } catch (error) {
     clearPkceState("primary");
 
-    if (storedReturnUrlThisAttempt) {
+    if (storedReturnUrlThisAttempt && !preservingAuthorizeCallbackRetry) {
       clearPostSignInReturnUrl();
     } else if (preservingAuthorizeCallbackRetry) {
       markAuthorizeCallbackFailed();
@@ -191,7 +191,7 @@ export async function initiateSupplementalOidcRedirect(
   } catch (error) {
     clearPkceState("google");
 
-    if (storedReturnUrlThisAttempt) {
+    if (storedReturnUrlThisAttempt && !preservingAuthorizeCallbackRetry) {
       clearPostSignInReturnUrl();
     } else if (preservingAuthorizeCallbackRetry) {
       markAuthorizeCallbackFailed();
