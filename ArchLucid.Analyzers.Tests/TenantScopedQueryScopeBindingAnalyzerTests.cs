@@ -177,6 +177,39 @@ public sealed class ExecuteAsyncCommandDefinitionRunsRepository
     }
 
     [Fact]
+    public async Task ARCH006_reports_unscoped_sql_for_execute_async_local_command_definition()
+    {
+        const string testCode = SharedStubs +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System.Data;
+using System.Threading;
+using Dapper;
+
+public sealed class ExecuteAsyncLocalCommandDefinitionRunsRepository
+{
+    public async System.Threading.Tasks.Task LoadAsync(IDbConnection connection, CancellationToken cancellationToken)
+    {
+        CommandDefinition command = new(
+            "SELECT RunId FROM dbo.Runs WHERE ArchivedUtc IS NULL",
+            cancellationToken: cancellationToken);
+        await connection.ExecuteAsync(command);
+    }
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
+            .Diagnostic(Arch006Descriptor.UnscopedTableRule)
+            .WithSpan(69, 39, 71, 40)
+            .WithArguments("dbo.Runs");
+
+        await RunPersistenceAnalyzerTestAsync(testCode, expected);
+    }
+
+    [Fact]
     public async Task ARCH006_reports_unscoped_sql_for_target_typed_command_definition()
     {
         const string testCode = SharedStubs +

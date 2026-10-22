@@ -161,6 +161,16 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
         ExpressionSyntax sqlExpression,
         SemanticModel semanticModel)
     {
+        if (sqlExpression is IdentifierNameSyntax identifier)
+        {
+            ISymbol? symbol = semanticModel.GetSymbolInfo(identifier).Symbol;
+            SyntaxReference? reference = symbol?.DeclaringSyntaxReferences.FirstOrDefault();
+
+            if (reference?.GetSyntax() is VariableDeclaratorSyntax declarator &&
+                declarator.Initializer?.Value is ExpressionSyntax initializer)
+                sqlExpression = initializer;
+        }
+
         if (sqlExpression is not BaseObjectCreationExpressionSyntax objectCreation)
             return sqlExpression;
 
