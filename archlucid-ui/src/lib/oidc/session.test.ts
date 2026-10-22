@@ -945,6 +945,14 @@ describe("clearOidcSession", () => {
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY)).toBeNull();
   });
 
+  it("returns a control-stripped authorize retry snapshot when the retry key was tampered", () => {
+    sessionStorage.setItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY, "/desk\u000B/reviews");
+    sessionStorage.setItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY, "1");
+
+    expect(readAuthorizeRetryReturnPathSnapshot()).toBe("/desk/reviews");
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY)).toBe("/desk\u000B/reviews");
+  });
+
   it("drops a tampered unsafe authorize retry return snapshot without clearing the retry marker", () => {
     sessionStorage.setItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY, "https://evil.example/phish");
     sessionStorage.setItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY, "1");
