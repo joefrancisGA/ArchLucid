@@ -51,11 +51,11 @@ describe("quickDecisionRecommendationSnippet", () => {
 
 describe("quickDecisionWorkItemSeverityLabel", () => {
   it("labels missing severity explicitly", () => {
-    expect(quickDecisionWorkItemSeverityLabel(null)).toBe("Severity was not stored");
+    expect(quickDecisionWorkItemSeverityLabel(null)).toBe("Severity label was not stored.");
   });
 
   it("maps the numeric severity scale to the same labels as finding cards", () => {
-    expect(quickDecisionWorkItemSeverityLabel(4)).toBe("4");
+    expect(quickDecisionWorkItemSeverityLabel(4)).toBe("Severity label was not stored.");
     expect(quickDecisionWorkItemSeverityLabel(3)).toBe("Critical");
     expect(quickDecisionWorkItemSeverityLabel(2)).toBe("High");
     expect(quickDecisionWorkItemSeverityLabel(1)).toBe("Medium");

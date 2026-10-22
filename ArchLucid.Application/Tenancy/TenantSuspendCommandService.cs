@@ -58,6 +58,15 @@ public sealed class TenantSuspendCommandService(
         if (tenantBeforeSuspendAudit.OffboardedUtc is not null)
             return TenantSuspendOutcome.InErasureQuarantine;
 
+        TenantRecord? tenantBeforeSuspendAuditAppend =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+        if (tenantBeforeSuspendAuditAppend is null)
+            return TenantSuspendOutcome.NotFound;
+
+        if (tenantBeforeSuspendAuditAppend.OffboardedUtc is not null)
+            return TenantSuspendOutcome.InErasureQuarantine;
+
         await AppendPlatformAuditAsync(
             AuditEventTypes.TenantSuspended,
             tenantId,
@@ -108,6 +117,15 @@ public sealed class TenantSuspendCommandService(
             return TenantSuspendOutcome.NotFound;
 
         if (tenantBeforeUnsuspendAudit.OffboardedUtc is not null)
+            return TenantSuspendOutcome.InErasureQuarantine;
+
+        TenantRecord? tenantBeforeUnsuspendAuditAppend =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+        if (tenantBeforeUnsuspendAuditAppend is null)
+            return TenantSuspendOutcome.NotFound;
+
+        if (tenantBeforeUnsuspendAuditAppend.OffboardedUtc is not null)
             return TenantSuspendOutcome.InErasureQuarantine;
 
         await AppendPlatformAuditAsync(

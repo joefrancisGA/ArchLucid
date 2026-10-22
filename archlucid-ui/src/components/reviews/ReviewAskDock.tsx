@@ -75,6 +75,10 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
   const { ask: askStream, isStreaming, tokens: streamingContent, reset: resetStream } = useAskStream();
   const askDockDisabled = props.disabled === true;
   const disabledReasonMessage = formatWhyDisabledCtaMessage(props.disabledReason);
+  const reviewTitleForGrounding =
+    props.reviewTitle !== null && props.reviewTitle !== undefined && props.reviewTitle.trim().length > 0
+      ? props.reviewTitle.trim()
+      : "Review title was not stored.";
 
   const syncAskDockToUrl = useCallback(
     (nextOpen: boolean, nextThreadId: string | null) => {
@@ -288,7 +292,7 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
             </DialogTitle>
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Grounded answers cite indexed evidence from{" "}
-              <span className="font-medium text-al-text-primary">{props.reviewTitle ?? "this review"}</span>.
+              <span className="font-medium text-al-text-primary">{reviewTitleForGrounding}</span>.
             </p>
           </DialogHeader>
 

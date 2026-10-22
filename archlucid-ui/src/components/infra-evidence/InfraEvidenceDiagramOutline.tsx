@@ -1016,6 +1016,14 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                         fromFallback: resolveInfraEvidenceOutlineNodeLabel(outline.nodes, edge.from),
                         toFallback: resolveInfraEvidenceOutlineNodeLabel(outline.nodes, edge.to),
                       });
+                      const fromAccessibleName =
+                        fromNode != null
+                          ? resolveInfraEvidenceDiagramOutlineResourceName(fromNode)
+                          : "Endpoint was not in this diagram outline";
+                      const toAccessibleName =
+                        toNode != null
+                          ? resolveInfraEvidenceDiagramOutlineResourceName(toNode)
+                          : "Endpoint was not in this diagram outline";
 
                       return (
                         <tr
@@ -1029,7 +1037,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                                 size="sm"
                                 variant="outline"
                                 data-testid={`infra-diagrams-declared-edge-${edge.from}-${edge.to}`}
-                                aria-label={`View declared connection from ${fromNode?.label ?? edge.from} to ${toNode?.label ?? edge.to}`}
+                                aria-label={`View declared connection from ${fromAccessibleName} to ${toAccessibleName}`}
                                 onClick={() => {
                                   selectInventoryEdge(null);
                                   setSelectedDeclaredEdge(edge);
@@ -1045,7 +1053,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                                 size="sm"
                                 variant="outline"
                                 data-testid={`infra-diagrams-inventory-edge-${edge.from}-${edge.to}`}
-                                aria-label={`View connection evidence from ${fromNode?.label ?? edge.from} to ${toNode?.label ?? edge.to}`}
+                                aria-label={`View connection evidence from ${fromAccessibleName} to ${toAccessibleName}`}
                                 onClick={() => {
                                   setSelectedDeclaredEdge(null);
                                   selectInventoryEdge(edge);
