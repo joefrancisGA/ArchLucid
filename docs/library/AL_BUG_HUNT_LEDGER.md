@@ -1,139 +1,26 @@
-2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_password authorize-query UX (existing parity), readOAuthJsonErrorDescription ZWNJ multiply-encoded glue, and variation-selector-11-only access_token rejection (existing strip parity); regression documents BFF refresh 472 parity (client + route opaque 472); scoped vitest 716/716.
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed state_mismatch authorize-query UX (existing parity) and saturated decodeOAuthErrorDescription ZWJ multiply-encoded glue (existing parity); regression documents BFF refresh 493 parity (client + route opaque 493) and soft-hyphen object-replacement replacement-character and variation-selector-16-only access_token rejection; scoped vitest 770/770.
 
-- [x] (invalid) humanizeAuthorizeCallbackError - invalid_password authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
-- [x] (valid-no-repro) refreshBffSessionCookie - refresh 472 shouldClearSession false - **regression 2026-10-22:** client soft-fail plus BFF route opaque 472 without cookie clear.
-- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string variation-selector-11-only skips authorize retry marker - **regression 2026-10-22:** variation-selector strip parity (U+FE0A).
-- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWNJ glue - **cheap-disproof 2026-10-22:** saturated JSON encoding class.
+- [x] (invalid) humanizeAuthorizeCallbackError - state_mismatch authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 493 shouldClearSession false - **regression 2026-10-22:** client soft-fail plus BFF route opaque 493 without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string soft-hyphen object-replacement replacement-character and variation-selector-16-only skips authorize retry marker - **regression 2026-10-22:** normalizeTokenString strip parity for combined invisible tokens.
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** existing saturated encoding class test.
 
-- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_credentials authorize-query copy - locus: default branch UX.
-> **Scope:** Contributor-reference — set catalog and historical diary for `/al-bug`. Zone bodies and new hunt notes live in `AL_BUG_HUNT_LEDGER_1.md` through `AL_BUG_HUNT_LEDGER_4.md`. Not customer-facing.
+- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_nonce authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 494 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string object-replacement replacement-character and variation-selector-16-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - locus: saturated encoding class.
 
-## Parallel hunt sets
+2026-10-22 seed hunt (seed->hit): `application-agents` - promoted hunt-ready from seed re-read `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` - corrupted `docs/quality/faithfulness-summary.json` with non-finite `PositiveReadinessSupportRatio` made `>= FloorMinSupportRatio` succeed for `double.PositiveInfinity` and recorded Evaluated catalog evaluations; require finite support ratios before upsert; regression `Import_rejects_summary_when_positive_readiness_ratio_is_not_finite`; scoped `Application.Tests.Agents` 122/122.
 
-Zone bodies live in the set ledgers below. `/al-bug1` through `/al-bug4` each hunt one set, record one run log, and push one branch. The diary under this catalog is history from the shared ledger.
+- [x] (proven) `AgentModelCatalogFaithfulnessHarnessImporter` - non-finite faithfulness support ratios - **hit 2026-10-22 seed hunt:** `HasFiniteSupportRatios` guard; regression above.
 
-| Set | Command | Branch | Ledger | Run log |
-| --- | --- | --- | --- | --- |
-| 1 | `/al-bug1` | `bugsmash-1` | `docs/library/AL_BUG_HUNT_LEDGER_1.md` | `docs/library/AL_BUG_HUNT_RUN_LOG_1.jsonl` |
-| 2 | `/al-bug2` | `bugsmash-2` | `docs/library/AL_BUG_HUNT_LEDGER_2.md` | `docs/library/AL_BUG_HUNT_RUN_LOG_2.jsonl` |
-| 3 | `/al-bug3` | `bugsmash-3` | `docs/library/AL_BUG_HUNT_LEDGER_3.md` | `docs/library/AL_BUG_HUNT_RUN_LOG_3.jsonl` |
-| 4 | `/al-bug4` | `bugsmash-4` | `docs/library/AL_BUG_HUNT_LEDGER_4.md` | `docs/library/AL_BUG_HUNT_RUN_LOG_4.jsonl` |
+- [ ] (candidate) `RepoFaithfulnessHarnessSummaryReader.TryReadLatestAsync` - empty JSON object deserializes to zero cases without distinct missing-file error - locus: operator rerun messaging (reachability: `docs/quality/faithfulness-summary.json`).
+- [ ] (candidate) `AgentModelCatalogFaithfulnessHarnessImporter` - import marks Failed but still upserts when ratios are NaN - locus: non-finite guard class (reachability: hand-edited summary).
+- [ ] (candidate) `ReviewRunEngineProvenanceAggregator.DeriveProviderKind` - mixed simulator and Azure deployments on `StructuralExecutionMode.Real` runs - locus: provider label (reachability: mixed fallback traces).
+- [ ] (candidate) `RunToolInvocationForensicsBuilder.FormatToolName` - default `AgentType` 0 projects `0-agent` label - locus: trace-derived forensics row (reachability: legacy traces).
+- [ ] (candidate) `AgentResultEnvelopeAgentTypeResolver.ResolveAgentTypeFromFindings` - first finding `SourceAgent` wins when findings disagree - locus: persisted envelope normalization (reachability: partial migration rows).
 
-### Set 1 — Orchestration and topology
-
-- `topology-proposal-merge`
-- `arm-terraform-source-ids`
-- `commit-output-integrity`
-- `content-safety-admission`
-- `storage-vs-data-category`
-- `authority-pipeline-payload`
-- `technology-ledger-merge`
-- `orchestrator-transient-retry`
-- `alert-simulation`
-- `architecture-recommendation`
-- `extraction-router`
-- `agent-runtime-safety`
-- `application-analysis`
-- `application-pilots`
-- `agent-runtime-evaluation`
-- `decisioning`
-- `application-agents`
-- `capabilities-cost-mcp`
-- `quick-scan-distributed-concurrency`
-- `run-execute-ownership`
-- `architecture-intelligence-orchestrator`
-
-### Set 2 — API, identity, tenancy, and governance
-
-- `tenant-settings-sql`
-- `email-otp-auth`
-- `auth-return-path`
-- `tenant-erasure`
-- `tenant-scoped-analyzer`
-- `sql-run-repository`
-- `finding-inspect-sql`
-- `llm-wallet`
-- `finding-disposition`
-- `review-recurrence`
-- `scim-users`
-- `identity-provider-config`
-- `persistence-billing-stripe`
-- `billing-webhooks`
-- `api-key-auth`
-- `scope-binding-middleware`
-- `saml-jwt-bearer`
-- `tenant-data-export`
-- `itsm-inbound-webhooks`
-- `application-billing-logic`
-- `persistence-identity`
-- `api-authority-admin-controllers`
-- `api-governance-tenancy-controllers`
-- `api-policy-packs`
-- `api-governance-stickiness`
-- `api-tenancy-workspaces`
-- `application-governance-policy`
-- `application-tenancy-lifecycle`
-- `api-request-null-collection-elements`
-
-### Set 3 — UI and CLI
-
-- `ui-form-validation`
-- `cli-tenant-isolation`
-- `cli-draft-new`
-- `cli-terraform-evidence`
-- `ui-runs-list`
-- `ui-auth-callback`
-- `ui-help-docs`
-- `ui-webhooks-settings`
-- `ui-host-gate`
-- `ui-architecture-intelligence`
-- `ui-auth-proxy`
-- `ui-oidc`
-- `archlucid-contracts`
-- `ui-operator-routes`
-- `ui-marketing-surfaces`
-- `ui-operator-lib`
-- `ui-review-detail-workspace`
-- `ui-review-intake-wizards`
-- `ui-governance-findings-queue`
-- `ui-infra-resource-hub`
-- `ui-claim-discipline-policy`
-- `securenow-question-queue`
-- `infra-evidence-diagrams`
-- `ui-architecture-diagram`
-
-### Set 4 — Core, host, persistence, and extraction
-
-- `weekly-digest-email`
-- `outbound-webhook-dry-run`
-- `worker-host`
-- `host-core-jobs`
-- `security-analyzers`
-- `retrieval`
-- `archlucid-core`
-- `core-azure-extractor`
-- `core-configuration-summary`
-- `core-findings-advice`
-- `core-requests-constraints`
-- `core-authority-runs`
-- `core-tenancy-commercial`
-- `core-safety-network`
-- `core-costing`
-- `core-explanation-json`
-- `context-ingestion`
-- `knowledge-graph-provenance`
-- `notifications-pipeline`
-- `artifact-synthesis`
-- `host-composition`
-- `cloud-extractors`
-- `host-core-coordination`
-- `chatops-delivery`
-- `host-infra-evidence-composition`
-
-## Hunt diary
-
-2026-10-21 seed hunt (seed-only, lane C): `saml-jwt-bearer` — lock `saml-jwt-bearer` pushed and verified on `origin/bugsmash` (sole lock); skipped `ui-*` and zones hunted in the last hour; selected oldest eligible non-UI zone (`saml-jwt-bearer`); cheap-disproof closed open `(candidate)` rows — comma-folded `Basic`+`Bearer` mix fails closed (`HandleAuthenticateAsync_fails_when_comma_folded_header_mixes_basic_and_bearer_schemes`); revoked-then-valid comma-folded Bearer already proven 2026-10-21; `ArchLucidSamlInboundClaimsNormalizer` whitespace-only source values filtered before promote (parity absent vs empty); `SamlMetadataValidUntilParser` ignores `KeyDescriptor` by design for earliest `EntityDescriptor` expiry; no hunt-ready repro promoted; refreshed five `(candidate)` rows; Release build ArchLucid.Api/Core + tests; focused handler/normalizer/JWT/SAML-metadata unit tests 45/45 (broader `Saml` name filter includes SQL integration factories unavailable on VM); lock released after push.
-﻿2026-10-22 seed hunt (seed-only): `application-analysis` - no hunt-ready product defect; cheap-disproof closed dashed-run-id export history and career-gate-on-history candidates; `RunExportRecordRepository.GetByRunIdAsync` already uses `RunExportRecordRunIdSql.LookupKeys`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 45/45.
+2026-10-22 seed hunt (seed-only): `application-analysis` - no hunt-ready product defect; cheap-disproof closed dashed-run-id export history and career-gate-on-history candidates; `RunExportRecordRepository.GetByRunIdAsync` already uses `RunExportRecordRunIdSql.LookupKeys`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 45/45.
 
 - [x] (valid-no-repro) `RunExportQueryFacade.GetRunExportHistoryAsync` - career posture gate parity with `GetExportRecordAsync` - **cheap-disproof 2026-10-22:** intentional metadata index surface after lifecycle guard (ledger 2026-10-06).
 - [x] (valid-no-repro) `EndToEndReplayComparisonService.BuildAsync` - export pairing without canonical run id on repository lookup - **cheap-disproof 2026-10-22:** persistence `LookupKeys` accepts dashed/N-format equivalents.
