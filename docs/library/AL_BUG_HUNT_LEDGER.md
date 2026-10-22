@@ -1,3 +1,17 @@
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `errorFromOAuthJson` / `shouldHumanizeTokenOAuthErrorCode` — token endpoint JSON `redirect_uri_mismatch` on authorization code exchange surfaced raw `redirect_uri_mismatch` in `CallbackClient`; add `redirect_uri_mismatch` to the humanize allowlist; regression `humanizes redirect_uri_mismatch authorization code exchange errors instead of raw snake_case`; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 374/374.
+
+- [x] (proven) `errorFromOAuthJson` — raw `redirect_uri_mismatch` on code exchange — **hit 2026-10-22 seed hunt:** allowlist entry; regression above.
+- [x] (valid-no-repro) `invalid_client` / `invalid_grant` humanize — **cheap-disproof 2026-10-22:** prior hits; same mechanism.
+- [x] (valid-no-repro) `humanizeAuthorizeCallbackError` — authorize-query `redirect_uri_mismatch` — **cheap-disproof 2026-10-22:** default branch already humanizes authorize callback errors.
+- [x] (invalid) `decodeOAuthErrorDescription` — mixed space and plus — **cheap-disproof 2026-10-22:** recent hit; whitespace+plus guard.
+- [x] (invalid) `shouldPreservePostSignInReturnForCallbackQuery` — always true on callback route — **cheap-disproof 2026-10-22:** intentional after empty-query hit.
+
+- [ ] (candidate) `humanizeAuthorizeCallbackError` — dedicated redirect URI mismatch copy for admins — locus: switch case; input: Azure-style misconfiguration (reachability: UX).
+- [ ] (candidate) `exchangeAuthorizationCode` — `redirect_uri_mismatch` with IdP description — locus: humanize default; input: append description (reachability: token JSON).
+- [ ] (candidate) `shouldHumanizeTokenOAuthErrorCode` — `invalid_token` on refresh grant — locus: allowlist gap; input: refresh 400 JSON (reachability: BFF refresh).
+- [ ] (candidate) `CallbackClient` — integration test for exchange throwing humanized redirect_uri_mismatch — locus: test gap; input: mock exchange reject (reachability: add test).
+- [ ] (candidate) `readOAuthJsonErrorDescription` — literal percent with mistaken `%2B` only — locus: JSON path; input: saturated class avoid (reachability: prior hits).
+
 2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `errorFromOAuthJson` / `shouldHumanizeTokenOAuthErrorCode` — token endpoint JSON `invalid_client` on authorization code exchange surfaced raw `invalid_client` in `CallbackClient` while other standard OAuth codes already humanized; add `invalid_client` to the humanize allowlist; regression `humanizes invalid_client authorization code exchange errors instead of raw snake_case`; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 372/372.
 
 - [x] (proven) `errorFromOAuthJson` — raw `invalid_client` on code exchange — **hit 2026-10-22 seed hunt:** `invalid_client` in `shouldHumanizeTokenOAuthErrorCode`; regression above.

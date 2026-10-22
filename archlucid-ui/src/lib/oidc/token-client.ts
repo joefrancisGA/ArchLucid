@@ -28,6 +28,7 @@ function shouldHumanizeTokenOAuthErrorCode(normalizedErrorCode: string): boolean
     case "invalid_client":
     case "invalid_grant":
     case "invalid_request":
+    case "redirect_uri_mismatch":
     case "unauthorized_client":
     case "invalid_scope":
     case "server_error":

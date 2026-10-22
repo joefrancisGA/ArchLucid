@@ -148,6 +148,26 @@ describe("refreshAccessToken", () => {
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });
 
+  it("humanizes redirect_uri_mismatch authorization code exchange errors instead of raw snake_case", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "redirect_uri_mismatch" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/Sign-in did not finish \(redirect uri mismatch\)/i);
+  });
+
   it("humanizes invalid_client authorization code exchange errors instead of raw snake_case", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,
