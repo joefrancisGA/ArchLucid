@@ -2938,6 +2938,22 @@
 
 ## Zone: identity-provider-config
 
+2026-10-22 seed hunt (seed-only): re-read `IdentityProviderConfigurationController` and `IdentityProviderActivationService` after nested-collection guard ship; cheap-disproof closed five prior seed lenses (failed-discover response detach is saturated `[other]` per #77; legacy oversize issuer GET 400 is intentional repair signal; claim-mapping JSON size is SQL boundary; discover empty metadata URL handled in `IdentityProviderDiscoveryService`; test-login delegates substantive mapping checks to activate path); no hunt-ready promotion; added five new `(candidate)` rows under **Hypotheses**; scoped tests not run on this checkout (unrelated Application compile errors).
+
+- [x] (invalid) `IdentityProviderConfigurationController.WithCanonicalWizardUris` — failed discover returns shared discovery service instance — **cheap-disproof 2026-10-22:** saturated `[other]` detach class; regression `DiscoverAsync_returns_detached_copy_when_discovery_uris_already_canonical` covers success path only by design (#77).
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.GetConfigurationAsync` — HTTP 400 when stored canonical issuer exceeds NVARCHAR(2048) — **cheap-disproof 2026-10-22:** intentional fail-closed read; regression `GetConfigurationAsync_rejects_stored_canonical_issuer_uri_longer_than_persisted_column`.
+- [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — oversized serialized `ClaimMappingJson` — **cheap-disproof 2026-10-22:** no in-memory length guard; SQL upsert boundary; wizard mappings are bounded operator input.
+- [x] (valid-no-repro) `IdentityProviderDiscoveryService.DiscoverAsync` — blank `MetadataUrl` — **cheap-disproof 2026-10-22:** trims to failed discovery envelope (2026-10-21 #78).
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.TestLogin` — claim-mapping substantive validation parity with activate — **cheap-disproof 2026-10-22:** sandbox returns `Success:false` for mapping failures; activate enforces `IdentityClaimRoleMappingResolver.ValidateMapping` (regressions `TestLogin_rejects_invalid_protocol`, `Execute_returns_failure_when_custom_group_claim_regex_is_whitespace_only`).
+
+### Hypotheses
+
+- [ ] (candidate) `IdentityProviderConfigurationController.DiscoverAsync` — HTTP 400 on post-discovery issuer length mismatch vs activate HTTP 400 on same issuer — locus: `EnsureIssuerUriFits` after successful discovery ~79–86; input: discovery success with issuer one char over NVARCHAR(2048); reachability: `DiscoverAsync_rejects_canonical_issuer_uri_longer_than_persisted_column`.
+- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — `sameProtocol` preserves optional fields when `existing.IsActive` is false — locus: `ResolveOptionalPersistedField` ~78–86; input: re-activate inactive row with omitted `KeyVaultSecretName`; reachability: greenfield vs reactivate matrix tests.
+- [ ] (candidate) `IdentityProviderConfigurationController.PrepareConfigurationResponse` — GET returns canonical issuer while `UpdatedByActorId` remains untrimmed from legacy imports — locus: issuer canonicalization ~248–249 only; input: padded actor id in stored row; reachability: activate always trims on write (`ActivateAsync_trims_issuer_uri_and_actor_id`).
+- [ ] (candidate) `IdentityProviderConfigurationController.ActivateAsync` — `scope.TenantId` empty still invokes activation service — locus: passes `scope.TenantId` ~155; input: missing tenant scope binding; reachability: admin middleware / scope provider defaults before controller.
+- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — protocol re-parse accepts `OIDC`/`SAML` casing while audit logs lowercase only — locus: `IdentityProviderProtocolParser.TryParse` trim+lower; input: `Protocol: "OIDC"`; reachability: intentional normalization (regression `ActivateAsync_accepts_protocol_case_insensitive` if present).
+
 2026-10-20 seed hunt (seed->hit): promoted GET /v1/admin/identity/configuration returning legacy MetadataXml on OIDC rows (and KeyVaultSecretName on SAML) after activate began stripping cross-protocol fields; PrepareConfigurationResponse omits protocol-inapplicable columns on read; regression GetConfigurationAsync_omits_metadata_xml_when_stored_protocol_is_oidc; 16 scoped IdentityProviderConfigurationControllerTests passed.
 
 - [x] (proven) IdentityProviderConfigurationController.GetConfigurationAsync — GET /v1/admin/identity/configuration echoed stored MetadataXml on OIDC protocol rows — regression GetConfigurationAsync_omits_metadata_xml_when_stored_protocol_is_oidc.
@@ -3037,11 +3053,11 @@
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 60
+- **hunts:** 61
 - **bugs-found:** 42
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-09 — activation persisted issuer, secret name, or actor id past SQL column width
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-20 — GET configuration omits cross-protocol persisted fields
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
