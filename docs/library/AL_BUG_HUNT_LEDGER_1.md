@@ -8712,6 +8712,12 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted duplicate baseline elements whose `ElementId` normalizes to the same token splitting review-cache `modelfp`, plus `DEL`/`ZWSP` line-break scalars in source `Content`; `SelectCanonicalKnowledgeModelElements` dedupes by normalized id; `UnicodeLineBreakScalars` extended; regressions `Build_matches_content_hash_when_baseline_elements_include_duplicate_normalized_element_ids` and expanded `Build_matches_content_hash_when_source_content_uses_unicode_line_separators`; 164 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.ComputeReviewCacheKnowledgeModelFingerprint` — duplicate padded `ElementId` rows split `modelfp` — **hit 2026-10-22 seed hunt:** canonical element selection; regression above.
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — `U+007F` / `U+200B` split `ContentHash` — **hit 2026-10-22 seed hunt:** scalar batch; theory regression above.
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint.FormatDeclaredPriorities` — whitespace-only baseline priority vs empty list — **cheap-disproof 2026-10-22 seed hunt:** `NormalizeFingerprintText` drops whitespace-only entries; regression `Build_matches_content_hash_when_baseline_declared_priorities_are_whitespace_only_vs_empty_list`.
+
 2026-10-22 seed hunt (seed→hit): promoted NFC vs NFD `SourceTexts.FileName` and remaining C0 controls (`U+0001`–`U+001F`, including tab) in `Content` splitting review-cache `ContentHash`; `NormalizeFileNameForHash` now FormC-canonicalizes collapsed paths; `NormalizeLineEndings` maps `U+0001`–`U+001F` to LF after prior scalar/C1 passes; regressions `Build_matches_content_hash_when_file_name_differs_only_by_unicode_normalization_form` and expanded `Build_matches_content_hash_when_source_content_uses_unicode_line_separators`; 160 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeFileNameForHash` — NFC vs NFD file names split `ContentHash` — **hit 2026-10-22 seed hunt:** FormC after path collapse; regression above.

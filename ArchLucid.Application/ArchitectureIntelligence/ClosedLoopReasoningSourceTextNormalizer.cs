@@ -24,7 +24,7 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
             // Normalize platform line endings so equivalent uploaded documents share a cache key.
             Content = string.IsNullOrWhiteSpace(source.Content)
                 ? string.Empty
-                : StripUtf8Bom(NormalizeLineEndings(source.Content.Trim())),
+                : StripInvisibleFormatCharacters(StripUtf8Bom(NormalizeLineEndings(source.Content.Trim()))),
         };
     }
 
@@ -105,6 +105,8 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
         '\u001f',
         '\u0084',
         '\u0085',
+        '\u007f',
+        '\u200b',
         '\u2028',
         '\u2029',
     ];
@@ -134,6 +136,17 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
             return content[1..];
 
         return content;
+    }
+
+    private static string StripInvisibleFormatCharacters(string content)
+    {
+        if (content.Length == 0)
+            return content;
+
+        return content
+            .Replace("\u200c", string.Empty, StringComparison.Ordinal)
+            .Replace("\u200d", string.Empty, StringComparison.Ordinal)
+            .Replace("\ufeff", string.Empty, StringComparison.Ordinal);
     }
 
     private static string DecodePercentEncodedFileNameTokens(string fileName)

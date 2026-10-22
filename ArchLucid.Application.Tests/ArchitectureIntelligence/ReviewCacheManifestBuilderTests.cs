@@ -108,6 +108,62 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_baseline_elements_include_duplicate_normalized_element_ids()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-duplicate-element-id";
+
+        ArchitectureKnowledgeModel duplicateIds = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement { ElementId = "el-1", Name = "API" },
+                new ArchitectureModelElement { ElementId = "  el-1  ", Name = "API" },
+            ],
+        };
+
+        ArchitectureKnowledgeModel singleId = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, duplicateIds).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, singleId).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_declared_priorities_are_whitespace_only_vs_empty_list()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-declared-priority-whitespace";
+
+        ArchitectureKnowledgeModel whitespaceOnly = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            DeclaredPriorities = ["   "],
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ArchitectureKnowledgeModel emptyList = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            DeclaredPriorities = [],
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, whitespaceOnly).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, emptyList).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_baseline_element_id_differs_only_by_surrounding_whitespace()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
@@ -1362,6 +1418,8 @@ public sealed class ReviewCacheManifestBuilderTests
     [InlineData("\u0088")]
     [InlineData("\u0009")]
     [InlineData("\u0001")]
+    [InlineData("\u007f")]
+    [InlineData("\u200b")]
     public void Build_matches_content_hash_when_source_content_uses_unicode_line_separators(
         string lineSeparator)
     {

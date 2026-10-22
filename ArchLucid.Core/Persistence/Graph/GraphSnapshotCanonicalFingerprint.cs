@@ -86,8 +86,7 @@ public static class GraphSnapshotCanonicalFingerprint
         if (knowledgeModel is null)
             return string.Empty;
 
-        IEnumerable<string> elementParts = (knowledgeModel.Elements ?? [])
-            .OrderBy(element => NormalizeFingerprintText(element.ElementId), StringComparer.Ordinal)
+        IEnumerable<string> elementParts = SelectCanonicalKnowledgeModelElements(knowledgeModel.Elements)
             .Select(FormatKnowledgeModelElementFingerprint);
 
         return string.Join(
@@ -113,8 +112,7 @@ public static class GraphSnapshotCanonicalFingerprint
         if (knowledgeModel is null)
             return string.Empty;
 
-        IEnumerable<string> elementParts = (knowledgeModel.Elements ?? [])
-            .OrderBy(element => NormalizeFingerprintText(element.ElementId), StringComparer.Ordinal)
+        IEnumerable<string> elementParts = SelectCanonicalKnowledgeModelElements(knowledgeModel.Elements)
             .Select(FormatKnowledgeModelElementFingerprint);
 
         return string.Join(
@@ -162,6 +160,19 @@ public static class GraphSnapshotCanonicalFingerprint
             return string.Empty;
 
         return value.Trim().Normalize(NormalizationForm.FormC);
+    }
+
+    private static IEnumerable<ArchitectureModelElement> SelectCanonicalKnowledgeModelElements(
+        IReadOnlyList<ArchitectureModelElement>? elements)
+    {
+        return (elements ?? [])
+            .Where(static element => element is not null)
+            .GroupBy(element => NormalizeFingerprintText(element.ElementId), StringComparer.Ordinal)
+            .OrderBy(static group => group.Key, StringComparer.Ordinal)
+            .Select(static group => group
+                .OrderBy(element => NormalizeFingerprintText(element.Name), StringComparer.Ordinal)
+                .ThenBy(element => NormalizeFingerprintText(element.Description), StringComparer.Ordinal)
+                .First());
     }
 
     private static string FormatKnowledgeModelElementFingerprint(ArchitectureModelElement element)
