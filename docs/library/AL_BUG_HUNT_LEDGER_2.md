@@ -4277,6 +4277,14 @@
 
 ## Zone: api-key-auth
 
+2026-10-22 thorough hunt #3 (dry): cheap-disproof closed five picker `(candidate)` rows (`DevelopmentBypassAll` documented non-Production opt-in with Production fail-closed ~64–67; append rotate stale segments intentional zero-downtime contract; test-actor header overrides display name only per remarks ~160–187; `ConstantTimeKeyEquals` SHA-256 digest compare ~225–233; rotate plaintext in JSON behind admin authority + TLS); no failing repro; five replacement `(candidate)` rows; scoped ApiKey tests not run (disk/analyzer constraints).
+
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — `DevelopmentBypassAll` synthetic admin — **cheap-disproof 2026-10-22 #3:** explicit local opt-in; blocked when `environment.IsProduction()`.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — append retains stale segments — **cheap-disproof 2026-10-22 #3:** `InvalidatePrevious=false` contract; operator uses replace mode to drop old material.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — test actor name without role override — **cheap-disproof 2026-10-22 #3:** governance E2E segregation uses display name only (intentional).
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ConstantTimeKeyEquals` — digest-only compare — **cheap-disproof 2026-10-22 #3:** empty inputs return false; `FixedTimeEquals` on SHA-256 bytes.
+- [x] (valid-no-repro) `AdminApiKeySettingsController` — rotate returns plaintext key — **cheap-disproof 2026-10-22 #3:** admin settings surface; authz + transport boundary not handler defect.
+
 2026-10-22 thorough hunt #2 (dry): cheap-disproof closed five picker `(candidate)` rows (both slots unconfigured returns fail-closed `Invalid API key` by design; trailing-comma append suffix is operator hygiene with empty-segment skip in matcher; duplicate invisible-first `X-Api-Key` covered by `When_enabled_true_and_duplicate_api_key_headers_skip_invisible_only_first_value`; comma-separated admin keys share one slot expiry not per-segment; invisible-only snapshot segments already aligned via normalizer/masker proven hits); no failing repro; five replacement `(candidate)` rows; scoped ApiKey tests not run (Defender WIP compile).
 
 - [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — both slots unconfigured message — **cheap-disproof 2026-10-22 #2:** duplicate of empty-slot reload row; generic invalid key is intentional fail-closed.
@@ -4315,9 +4323,9 @@
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 82
+- **hunts:** 83
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-20 — hex API key material rejected when config/header casing differed
 - **related-pd-tb:** none
@@ -4369,11 +4377,17 @@
 - [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — per-segment admin expiry — **cheap-disproof 2026-10-22 #2.**
 - [x] (invalid) `GetSnapshot` invisible segments — **cheap-disproof 2026-10-22 #2.**
 
-- [ ] (candidate) `ApiKeyAuthenticationHandler` — `DevelopmentBypassAll=true` in non-Production grants synthetic admin without `X-Api-Key` — locus: `HandleAuthenticateAsync` ~56–71; input: misconfigured local host (documented opt-in; verify blocked in Production).
-- [ ] (candidate) `AdminApiKeySettingsService.Rotate` — `InvalidatePrevious=false` append never removes stale first segment when operator pastes suffix only — locus: rotation contract; input: zero-downtime rotation operator error (by design; `InvalidatePrevious` replaces).
-- [ ] (candidate) `ApiKeyAuthenticationHandler` — `AllowTestActorHeaders` overrides display name but not role — locus: `ApplyTestActorHeaderOverrides` ~165–187; input: governance E2E peer approve contract (intentional).
-- [ ] (candidate) `ApiKeyAuthenticationHandler.ConstantTimeKeyEquals` — compares SHA-256 digests only (no raw compare) — locus: ~225–233; input: verify empty/unequal length keys never short-circuit raw bytes (already digest-based).
-- [ ] (candidate) `AdminApiKeySettingsController` — rotate routes return plaintext key in JSON body — locus: `Ok(response)`; input: HTTPS + admin authority policy boundary (transport/authz, not a handler defect).
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — `DevelopmentBypassAll` — **cheap-disproof 2026-10-22 #3:** documented opt-in; Production blocked.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — append stale segments — **cheap-disproof 2026-10-22 #3:** rotation contract.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — test actor header — **cheap-disproof 2026-10-22 #3:** intentional display-name override.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ConstantTimeKeyEquals` — digest compare — **cheap-disproof 2026-10-22 #3:** SHA-256 + `FixedTimeEquals`.
+- [x] (valid-no-repro) `AdminApiKeySettingsController` — plaintext rotate response — **cheap-disproof 2026-10-22 #3:** admin settings boundary.
+
+- [ ] (candidate) `ApiKeyAuthenticationHandler.IsKeyExpired` — expiry instant equal to `GetUtcNow` still authenticates — locus: `expiresAt >= now` ~240; input: boundary `DateTimeOffset` equality.
+- [ ] (candidate) `ApiKeyAuthenticationHandler` — whitespace-only `X-Api-Key` after `ExtractProvidedApiKey` — locus: ~77–80; input: fail-closed missing key parity invisible-only segments.
+- [ ] (candidate) `AdminApiKeySettingsService.Rotate` — unknown slot name — locus: slot validation; input: `ArgumentException` / 400 before config mutation.
+- [ ] (candidate) `ApiKeyAuthenticationHandler` — expired admin slot still accepts reader when keys differ — locus: admin branch before reader ~88–100; input: regression `When_admin_key_expired_but_reader_valid`.
+- [ ] (candidate) `ApiKeyAuthenticationOptions` reload — `IOptionsMonitor` swap mid-request — locus: `apiKeyOptions.CurrentValue` per request; input: documented per-request snapshot (not a defect).
 
 - [x] (proven) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy route audit JSON used the raw `keyId` while `AdminApiKeySettingsService.ParseSlot` canonicalized whitespace and casing for the response — **hit 2026-10-11 thorough hunt:** audit `keyId` now uses `response.Slot`; regression `RotateKeyIdAsync_persisted_audit_uses_canonical_slot_for_padded_route_value`.
 
