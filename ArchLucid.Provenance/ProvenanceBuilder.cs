@@ -239,11 +239,13 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
             };
 
             string? agentTraceId = ResolveAgentExecutionTraceId(finding);
+            string displayTitle = ResolveFindingDisplayTitle(finding);
+
             ProvenanceNode node = new()
             {
                 Type = ProvenanceNodeType.Finding,
                 ReferenceId = NormalizeId(finding.FindingId),
-                Name = finding.Title,
+                Name = displayTitle,
                 Metadata = metadata,
                 AgentExecutionTraceId = agentTraceId
             };
@@ -260,6 +262,13 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                 return finding.AgentExecutionTraceId.Trim();
 
             return finding.Trace?.SourceAgentExecutionTraceId?.Trim();
+        }
+
+        static string ResolveFindingDisplayTitle(Finding finding)
+        {
+            string findingId = NormalizeId(finding.FindingId);
+
+            return string.IsNullOrWhiteSpace(finding.Title) ? findingId : finding.Title.Trim();
         }
 
         Guid AddNode(string key, ProvenanceNode node)
@@ -314,8 +323,9 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
 
         static bool ShouldSkipGraphNodeNameDowngrade(ProvenanceNode existingNode, ProvenanceNode incomingNode)
         {
-            if (existingNode.Type != ProvenanceNodeType.GraphNode
-                || incomingNode.Type != ProvenanceNodeType.GraphNode)
+            if (existingNode.Type != incomingNode.Type
+                || (existingNode.Type != ProvenanceNodeType.GraphNode
+                    && existingNode.Type != ProvenanceNodeType.Finding))
             {
                 return false;
             }

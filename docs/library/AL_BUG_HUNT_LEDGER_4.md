@@ -12470,18 +12470,23 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 104
-- **bugs-found:** 99
+- **hunts:** 105
+- **bugs-found:** 100
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — duplicate graph snapshot edge rows coalesce with last non-empty labels
+- **last-bug:** 2026-10-22 — sparse finding whitespace titles fell back without duplicate-row downgrade guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted sparse finding title follow-on; proved `ProvenanceBuilder.CreateFindingNode` copied whitespace-only `Finding.Title` verbatim (no `FindingId` fallback parity with graph node labels) and duplicate case-variant rows with whitespace-only titles resolved to reference id and overwrote buyer-visible titles because the name-downgrade guard applied only to graph nodes; `ResolveFindingDisplayTitle` plus finding-aware downgrade skip; regressions `Build_uses_finding_id_when_title_is_whitespace_only`, `Build_preserves_finding_title_when_later_case_variant_row_has_whitespace_only_title`, and `Build_preserves_graph_node_label_when_later_case_variant_row_has_whitespace_only_label`; seeded manifest decision whitespace title parity follow-on; 400 KnowledgeGraph + 121 Provenance scoped tests passed.
+
+- [x] (proven) `ProvenanceBuilder.CreateFindingNode` / `AddNode` — whitespace-only finding titles and sparse case-variant rows cleared or replaced buyer-visible finding names — **hit 2026-10-22 seed hunt (seed→hit):** finding id fallback + finding-aware name-downgrade guard; regressions above.
+- [x] (valid-no-repro) `ProvenanceBuilder.AddNode` — duplicate case-variant graph rows with whitespace-only labels clear graph display names — **cheap-disproof 2026-10-22 seed hunt:** graph label fallback and downgrade guard; regression `Build_preserves_graph_node_label_when_later_case_variant_row_has_whitespace_only_label`.
+
+- [ ] (candidate) `ProvenanceBuilder` — manifest decision nodes may copy whitespace-only `Title` without `DecisionId` fallback parity with findings/graph nodes — locus: decision `AddNode` name assignment; input: `DEC-1` with whitespace title; wrong outcome: blank decision node name in provenance graph.
 
 2026-10-22 seed hunt (seed→hit): promoted graph snapshot merger sparse edge label candidate; proved duplicate directed-edge keys skipped later rows so an initial empty-label edge blocked a later labeled duplicate in the same graph pass; coalesce edges by directed key with last non-empty label (and max weight) while keeping model-over-context precedence; regressions `Merge_uses_last_non_empty_model_edge_label_when_model_lists_duplicate_edges` and `Merge_preserves_context_edge_label_when_later_duplicate_context_row_omits_label`; seeded provenance builder sparse finding title follow-on; 400 KnowledgeGraph + 118 Provenance scoped tests passed.
 
 - [x] (proven) `GraphSnapshotKnowledgeModelMerger.Merge` — duplicate edge rows kept first empty label — **hit 2026-10-22 seed hunt (seed→hit):** in-pass edge coalesce; regressions above.
-
-- [ ] (candidate) `ProvenanceBuilder.AddNode` — duplicate case-variant finding rows may still downgrade graph node display names when later rows carry only whitespace titles — locus: graph node name downgrade guard; input: labeled graph node then case-variant row with whitespace title; wrong outcome: provenance graph node title cleared.
 
 2026-10-22 seed hunt (seed→hit): promoted graph snapshot merger sparse label candidate; proved duplicate model `NodeId` rows skipped later entries outright so an initial empty-label row blocked a later labeled duplicate from surfacing; coalesce duplicate ids within each graph pass with last non-empty label/type/category while keeping model-over-context precedence; regressions `Merge_uses_last_non_empty_model_label_when_model_lists_duplicate_node_ids` and `Merge_preserves_context_label_when_later_duplicate_context_row_omits_label`; seeded graph snapshot merger sparse edge label follow-on; 398 KnowledgeGraph + 118 Provenance scoped tests passed.
 

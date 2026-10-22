@@ -1122,6 +1122,110 @@ public sealed class ProvenanceBuilderTests
     }
 
     [Fact]
+    public void Build_uses_finding_id_when_title_is_whitespace_only()
+    {
+        Finding finding = new()
+        {
+            FindingId = "find-1",
+            FindingType = "t",
+            Category = "c",
+            EngineType = "e",
+            Severity = FindingSeverity.Info,
+            Title = "   ",
+            Rationale = "r",
+        };
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [finding] },
+            Graph = new GraphSnapshot { Nodes = [] },
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        graph.Nodes
+            .Should()
+            .ContainSingle(n => n.Type == ProvenanceNodeType.Finding && n.Name == "find-1");
+    }
+
+    [Fact]
+    public void Build_preserves_finding_title_when_later_case_variant_row_has_whitespace_only_title()
+    {
+        Finding firstRow = new()
+        {
+            FindingId = "find-1",
+            FindingType = "t",
+            Category = "c",
+            EngineType = "e",
+            Severity = FindingSeverity.Info,
+            Title = "Buyer-visible title",
+            Rationale = "r",
+        };
+
+        Finding secondRow = new()
+        {
+            FindingId = "FIND-1",
+            FindingType = "t",
+            Category = "c",
+            EngineType = "e",
+            Severity = FindingSeverity.Info,
+            Title = "   ",
+            Rationale = "r",
+        };
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [firstRow, secondRow] },
+            Graph = new GraphSnapshot { Nodes = [] },
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        graph.Nodes
+            .Should()
+            .ContainSingle(n => n.Type == ProvenanceNodeType.Finding && n.Name == "Buyer-visible title");
+    }
+
+    [Fact]
+    public void Build_preserves_graph_node_label_when_later_case_variant_row_has_whitespace_only_label()
+    {
+        GraphNode firstRow = new()
+        {
+            NodeId = "node-a",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "API Gateway",
+        };
+
+        GraphNode secondRow = new()
+        {
+            NodeId = "NODE-A",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "   ",
+        };
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot { Nodes = [firstRow, secondRow] },
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        graph.Nodes
+            .Should()
+            .ContainSingle(n => n.Type == ProvenanceNodeType.GraphNode && n.Name == "API Gateway");
+    }
+
+    [Fact]
     public void Build_ignores_blank_applied_rule_ids_when_emitting_rule_nodes()
     {
         ProvenanceBuilder sut = new();
