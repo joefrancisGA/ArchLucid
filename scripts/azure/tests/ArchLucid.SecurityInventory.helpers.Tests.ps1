@@ -1312,4 +1312,23 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
         $rows[0].connectionName | Should -Be 'RunFactory'
         $rows[0].connectionResourceId | Should -Be '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1'
     }
+
+    It 'formats defender governance failure warnings from measured HTTP status codes' {
+        Format-ArchLucidAzureDefenderGovernanceCollectionFailedWarning -StatusCodes @(403) |
+            Should -Be 'defender-governance.json collection failed; HTTP 403; api-version 2022-01-01-preview'
+
+        Format-ArchLucidAzureDefenderGovernanceCollectionFailedWarning -StatusCodes @() |
+            Should -Be 'defender-governance.json collection failed; api-version 2022-01-01-preview'
+
+        Format-ArchLucidAzureDefenderGovernanceCollectionFailedWarning -StatusCodes @(403, 404) |
+            Should -Be 'defender-governance.json collection failed; HTTP 403, 404; api-version 2022-01-01-preview'
+    }
+
+    It 'builds defender ARM failure warnings with HTTP status when provided' {
+        New-ArchLucidAzureDefenderArmValuesFailureWarning -CompanionName 'defender-governance.json' -StatusCode 403 |
+            Should -Be 'defender-governance.json collection failed; HTTP 403'
+
+        New-ArchLucidAzureDefenderArmValuesFailureWarning -CompanionName 'defender-governance.json' |
+            Should -Be 'defender-governance.json collection failed'
+    }
 }

@@ -41,7 +41,7 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(AzureInventoryRelationshipAssociationTypes.NicToSubnet, "in")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedService, "Linked service")]
     [InlineData(GraphEdgeInferenceSources.InventoryLogicAppConnection, "API connection")]
-    [InlineData(GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage, "Diagnostic setting names")]
+    [InlineData(GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage, "Diagnostic setting name was not stored.")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, "likely · in")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, "Reads from")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfWritesTo, "Writes to")]
@@ -110,9 +110,9 @@ public sealed class DiagramEdgeLabelHumanizerTests
     }
 
     [Theory]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.DiagnosticToDestination, "Diagnostic setting names")]
-    [InlineData(GraphEdgeInferenceSources.InventoryDiagnosticDestination, "Diagnostic setting names")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.DiagnosticSettingToStorage, "Diagnostic setting names")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.DiagnosticToDestination, "Diagnostic setting name was not stored.")]
+    [InlineData(GraphEdgeInferenceSources.InventoryDiagnosticDestination, "Diagnostic setting name was not stored.")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.DiagnosticSettingToStorage, "Diagnostic setting name was not stored.")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AppAuthorizedAccess, "May access")]
     [InlineData(GraphEdgeTypes.MayAccess, "May access")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.EventGridToDestination, "Routes events to")]
@@ -124,5 +124,18 @@ public sealed class DiagramEdgeLabelHumanizerTests
     {
         DiagramEdgeLabelHumanizer.HumanizeLabel(alias).Should().Be(expected);
         DiagramEdgeLabelHumanizer.ResolveDisplayLabel(null, null, alias).Should().Be(expected);
+    }
+
+    [Fact]
+    public void ResolveDisplayLabel_maps_qualified_diagnostic_destination_to_sends_diagnostics_sentence()
+    {
+        DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
+                null,
+                null,
+                GraphEdgeInferenceSources.WithQualifier(
+                    GraphEdgeInferenceSources.InventoryDiagnosticDestination,
+                    "storage-account-logs"))
+            .Should()
+            .Be("Sends diagnostics to storage-account-logs.");
     }
 }

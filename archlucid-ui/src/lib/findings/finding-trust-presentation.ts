@@ -2,6 +2,7 @@ import {
   deriveFindingTrustLabel,
   FINDING_PROVENANCE_ORIGIN_EXPLANATIONS,
   mapFindingTrustLabelToProvenance,
+  resolveFindingProvenance,
   type DeriveFindingTrustLabelInput,
   type FindingProvenanceGrounding,
   type FindingProvenanceOriginDisplay,
@@ -87,6 +88,8 @@ function kindFromProvenance(
       return "degraded";
     case "Not applicable":
       return "heuristic";
+    case "Grounding was not stored.":
+      return "trust-label-not-stored";
     default: {
       const exhaustive: never = grounding;
 
@@ -161,9 +164,7 @@ export function deriveFindingTrustPresentation(
   input: FindingTrustPresentationInput,
 ): FindingTrustPresentation {
   const derived = deriveFindingTrustLabel(input);
-  const provenance = derived.label === "NotStored"
-    ? { origin: "Trust label was not stored" as const, grounding: "Not applicable" as const }
-    : mapFindingTrustLabelToProvenance(derived.label);
+  const provenance = resolveFindingProvenance(input);
 
   let kind = kindFromProvenance(provenance.origin, provenance.grounding);
 

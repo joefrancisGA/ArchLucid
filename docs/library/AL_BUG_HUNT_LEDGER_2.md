@@ -3949,6 +3949,20 @@
 
 ## Zone: persistence-billing-stripe
 
+2026-10-22 seed hunt (seed→hit): promoted auto-refill `TryAutoRefillAsync` forwarding persisted Stripe customer/payment-method strings with surrounding whitespace to `ChargeRefillAsync` while wallet PUT paths trim identifiers; refill stage now normalizes persisted ids before guard and Stripe charge; regression `TryAutoRefillAsync_passes_trimmed_stripe_identifiers_to_charge_when_persisted_values_have_padding`; 34 Application wallet tests + 3 `StripeWalletPaymentIdentifierGuard` tests passed.
+
+- [x] (proven) `LlmTenantWalletRefillStage.TryAutoRefillAsync` — untrimmed persisted Stripe ids passed to `ChargeRefillAsync` — **hit 2026-10-22 seed hunt:** `NormalizeOptionalStripeId` before guard/charge; regression above.
+
+- (candidate) `StripeWalletGateway.ChargeRefillAsync` — amount rounding at Stripe minimum boundary — locus: `amountCents < 50`; input: refill increment just below $0.50.
+
+- (candidate) `LlmTenantWalletRefillStage.TryAutoRefillAsync` — pending refill credit replay skips guard re-check — locus: `PendingRefillCredits` fast path; input: legacy row invalidated after deferred intent (verify credit-only path).
+
+- (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — partial PUT with whitespace-only Stripe id strings — locus: `NormalizeOptionalStripeId`; input: OpenAPI PUT with `"   "` customer id preserving prior value.
+
+- (candidate) `StripeWalletPaymentIdentifierGuard.AllowsWalletUpdateAsync` — missing secret key fails closed on payment-method validation — locus: empty `Billing:Stripe:SecretKey`; input: wallet PUT with payment method only.
+
+- (candidate) `SqlLlmTenantWalletRepository.UpdateSettingsAsync` — `COALESCE(@StripeCustomerId, StripeCustomerId)` with empty string — locus: SQL merge vs in-memory repository; input: direct SQL legacy row (verify Application layer always trims).
+
 - **id:** persistence-billing-stripe
 - **status:** open
 - **impact:** high
@@ -3956,10 +3970,12 @@
 - **paths:** ArchLucid.Persistence/Billing/Stripe/; ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/Wallet/LlmTenantWalletConsumeStage.cs
 - **test-filter:** FullyQualifiedName~StripeWalletPaymentIdentifierGuard|FullyQualifiedName~UpdateWalletAsync_rejects_stripe_customer_id_that_guard_blocks
 - **hunts:** 3
-- **bugs-found:** 2
+
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-21 — auto-refill charged without re-validating persisted Stripe ids
+- **last-bug:** 2026-10-22 — auto-refill sent padded persisted Stripe ids to ChargeRefillAsync
+
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
