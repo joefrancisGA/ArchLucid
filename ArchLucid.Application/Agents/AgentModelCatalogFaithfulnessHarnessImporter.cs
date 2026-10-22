@@ -57,11 +57,7 @@ public sealed class AgentModelCatalogFaithfulnessHarnessImporter(
                 "Faithfulness harness summary reports zero evaluated cases. Re-run scripts/ci/eval_agent_faithfulness.py before import.");
         }
 
-        if (!AreAllSupportRatiosFinite(summary))
-        {
-            throw new InvalidOperationException(
-                "Faithfulness harness summary contains non-finite support ratios. Re-run scripts/ci/eval_agent_faithfulness.py before import.");
-        }
+        EnsureHarnessSummaryRatiosAreValid(summary);
 
         AgentModelEvaluationStateKind evaluationState =
             summary.PositiveReadinessSupportRatio >= summary.FloorMinSupportRatio
@@ -110,11 +106,34 @@ public sealed class AgentModelCatalogFaithfulnessHarnessImporter(
         return updated;
     }
 
+    private static void EnsureHarnessSummaryRatiosAreValid(FaithfulnessHarnessSummary summary)
+    {
+        if (!AreAllSupportRatiosFinite(summary))
+        {
+            throw new InvalidOperationException(
+                "Faithfulness harness summary contains non-finite support ratios. Re-run scripts/ci/eval_agent_faithfulness.py before import.");
+        }
+
+        if (!AreAllSupportRatiosInUnitInterval(summary))
+        {
+            throw new InvalidOperationException(
+                "Faithfulness harness summary contains support ratios outside the [0,1] range. Re-run scripts/ci/eval_agent_faithfulness.py before import.");
+        }
+    }
+
     private static bool AreAllSupportRatiosFinite(FaithfulnessHarnessSummary summary) =>
         double.IsFinite(summary.PositiveReadinessSupportRatio)
         && double.IsFinite(summary.NegativeControlSupportRatio)
         && double.IsFinite(summary.CombinedDiagnosticSupportRatio)
         && double.IsFinite(summary.FloorMinSupportRatio);
+
+    private static bool AreAllSupportRatiosInUnitInterval(FaithfulnessHarnessSummary summary) =>
+        IsUnitIntervalRatio(summary.PositiveReadinessSupportRatio)
+        && IsUnitIntervalRatio(summary.NegativeControlSupportRatio)
+        && IsUnitIntervalRatio(summary.CombinedDiagnosticSupportRatio)
+        && IsUnitIntervalRatio(summary.FloorMinSupportRatio);
+
+    private static bool IsUnitIntervalRatio(double value) => value >= 0d && value <= 1d;
 
     private static List<string> CollectApprovedTaskTypes(IReadOnlyList<string>? approvedTaskTypes)
     {
