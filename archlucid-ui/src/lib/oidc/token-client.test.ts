@@ -239,6 +239,24 @@ describe("refreshAccessToken", () => {
     ).rejects.toThrow(/invalid token: Token expired/);
   });
 
+  it("humanizes expired_token refresh grant errors instead of raw snake_case", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "expired_token" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/Sign-in did not finish \(expired token\)/i);
+  });
+
   it("does not mark authorize callback failed when refresh token exchange fails", async () => {
     sessionStorage.clear();
 
@@ -338,6 +356,33 @@ describe("refreshAccessToken", () => {
     expect(isOAuthRefreshTokenRejectedError(caught)).toBe(true);
     expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("unauthorized_client");
     expect((caught as OAuthTokenEndpointError).message).not.toContain("unauthorized_client");
+  });
+
+  it("classifies humanized expired_token refresh failures for BFF session clearing", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "expired_token" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect(isOAuthRefreshTokenRejectedError(caught)).toBe(true);
+    expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("expired_token");
+    expect((caught as OAuthTokenEndpointError).message).not.toContain("expired_token");
   });
 
   it("classifies invalid_token refresh failures even when message is humanized", async () => {
