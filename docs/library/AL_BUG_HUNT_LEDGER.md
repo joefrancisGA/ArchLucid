@@ -192320,11 +192320,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 61
-- **bugs-found:** 55
+- **hunts:** 62
+- **bugs-found:** 56
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-16 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ export pairing CompareRunId GUID format normalization
+- **last-bug:** 2026-10-22 — export-diff drift analyze skipped career metadata gate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -192609,6 +192609,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `ComparisonsApplicationService.AnalyzeDriftAsync` — delegates to `ComparisonReplayService.AnalyzeDriftAsync` without career posture gate used on export-diff replay — locus: drift entry vs `ReplayExportDiffAsync`; input: simulator-rehearsal export-diff comparison drift analyze; wrong outcome: drift metadata while artifact replay blocked; reachability: comparison drift analyze API.
 - [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — `IncludeSummary` calls `summaryGenerator.GenerateMarkdown(report.Manifest, report.Evidence)` when manifest present even if `IncludeEvidence` is false (evidence null) — locus: ~125-127; input: summary+manifest without evidence flag; wrong outcome: summary omits evidence-backed sections silently vs warning; reachability: persisted analysis export requests with `IncludeSummary` true and `IncludeEvidence` false.
 - [ ] (candidate) `ExportReplayService.ReplayAsync` — does not call `RunExportLineageVerifier` while `GetExportRecordAsync` returns `LineageUnverified` for lineage mismatch — locus: `ExportReplayService` vs `RunExportQueryFacade.TryEnsureExportRunLineageAndSealedHashAsync`; input: export record on run with lineage status not `Match` but sealed hash OK; wrong outcome: replay regenerates DOCX while GET export record is blocked; reachability: architecture export replay after partial lineage verification failure.
+
+2026-10-22 seed hunt #61 (seed-only): cheap-disproof closed five follow-on `(candidate)` rows from seed hunt #60; re-read export diff canonicalization tests, markdown manifest warning export, and export replay vs query guard layering; no hunt-ready promotion; seeded five follow-on `(candidate)` rows; 45 scoped ArchitectureAnalysis/CompareQuality tests passed.
+
+- [x] (valid-no-repro) `ComparisonReplayManifestHashGuard` artifact replay skips sealed-hash check — **cheap-disproof 2026-10-22 seed hunt #62:** `artifact` mode intentionally exports stored payloads without regenerate/verify hash enforcement (`ComparisonReplayService` remarks).
+- [x] (valid-no-repro) `ReplayComparisonExportsDiffSlice` index pairing — **cheap-disproof 2026-10-22 seed hunt #62:** pairing key includes `compareRunId` and `compareManifestVersion` (post-#797); chronological index pairing is intentional for duplicate export profiles.
+- [x] (proven) `ComparisonReplayService.AnalyzeDriftExportDiffAsync` bypassed `IRunExportCareerPostureGate` — **hit 2026-10-22 seed hunt #62:** parity with export-diff replay; regression `AnalyzeDriftAsync_export_diff_throws_when_career_posture_blocks_metadata_read`.
+- [x] (valid-no-repro) `ArchitectureAnalysisService` summary without evidence package — **cheap-disproof 2026-10-22 seed hunt #62:** summary is manifest-driven; missing evidence adds a warning when `IncludeEvidence` is true, not a silent omission when evidence was not requested.
+- [x] (valid-no-repro) `ExportReplayService` vs `RunExportLineageVerifier` — **cheap-disproof 2026-10-22 seed hunt #62:** duplicate lineage theme from #60–#61; replay uses sealed-hash + lifecycle completeness gates.
+
+2026-10-22 seed hunt #62 (seed→hit): proved export-diff comparison drift analyze skipped `IRunExportCareerPostureGate` while artifact/regenerate replay blocked simulator-rehearsal metadata reads; gate drift analyze before regenerate; regression `AnalyzeDriftAsync_export_diff_throws_when_career_posture_blocks_metadata_read`; cheap-disproof closed four sibling candidates; seeded five follow-on `(candidate)` rows; 49 scoped ArchitectureAnalysis/CompareQuality + ComparisonReplay drift tests passed.
+
+- [ ] (candidate) `ComparisonReplayService.RegenerateExportDiffAsync` — regenerates export diff via `ExportRecordDiffService.CompareAsync` without `IRunExportCareerPostureGate` when invoked from drift/verify paths that already passed gate at outer entry — locus: `RegenerateExportDiffAsync` ~354-366; input: future caller invokes regenerate without outer gate; wrong outcome: metadata compare without posture check; reachability: internal API surface (verify dual-entry).
+- [ ] (candidate) `ComparisonsApplicationService.TryReplayAsync` — scopes record then calls `ComparisonReplayService.ReplayAsync` without API-layer career mapping beyond controller catch — locus: replay facade; input: simulator-rehearsal comparison replay from planning API; wrong outcome: relies solely on application gate; reachability: `POST` comparison replay (verify controller maps `CareerArtifactExportBlockedException`).
+- [ ] (candidate) `EndToEndReplayComparisonExportService` — markdown/HTML export bodies may duplicate interpretation notes when stored report already includes sponsor section — locus: export formatters; input: E2E report with pre-rendered interpretation notes; wrong outcome: duplicate headings in replay export; reachability: E2E comparison replay markdown (verify against 2026-08-26 proven duplicate notes hit).
+- [ ] (candidate) `TerraformGitHubPrService` — GitHub API failure returns `TerraformPrCreationResult` with raw exception message in `Error` field — locus: PR creation catch paths; input: GitHub 403 from expired PAT in `TerraformGitHubPr` options; wrong outcome: operator-visible token hint in error string; reachability: Terraform advisory GitHub PR automation config path.
+- [ ] (candidate) `ConsultingDocxExportSealedReceiptGuard.EnsureVerifiedOrThrowAsync` — consulting DOCX export host calls sealed receipt guard but standard `DocxArchitectureAnalysisExportService` path may omit same guard — locus: consulting vs standard DOCX export entry; input: unsealed run consulting DOCX export; wrong outcome: standard DOCX exports while consulting blocked; reachability: analysis export type switch in API hosts.
 
 
 ## Zone: application-pilots
