@@ -1,3 +1,5 @@
+using ArchLucid.Core.Persistence.Graph;
+
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
 /// <summary>
@@ -15,7 +17,7 @@ internal static class ClosedLoopScopeIdHashNormalizer
         if (Guid.TryParse(trimmed, out Guid guid))
             return guid.ToString("D").ToLowerInvariant();
 
-        return trimmed.ToLowerInvariant();
+        return GraphSnapshotCanonicalFingerprint.NormalizeReviewCachePathLikeToken(trimmed.ToLowerInvariant());
     }
 
     private static string NormalizeUnicodeSpaces(string value) =>
