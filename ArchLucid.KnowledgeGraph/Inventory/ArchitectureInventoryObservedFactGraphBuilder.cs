@@ -35,13 +35,14 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
 
             string nodeId = ResolveNodeId(resource);
             nodeIdByArmId[normalizedArmId] = nodeId;
+            string resourceType = (resource.ResourceType ?? string.Empty).Trim();
 
             GraphNode node = new()
             {
                 NodeId = nodeId,
                 NodeType = GraphNodeTypes.TopologyResource,
                 Label = ResolveLabel(resource),
-                Category = AzureInventoryTopologyCategory.Resolve(resource.ResourceType),
+                Category = AzureInventoryTopologyCategory.Resolve(resourceType),
                 SourceType = ArchitectureInventoryGraphSourceTypes.AzureInventorySnapshot,
                 SourceId = normalizedArmId,
             };
@@ -52,7 +53,7 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
             // Product-shaped citation keys used by FindingEvidenceRefs / AS-018 bind matching.
             node.Properties["armResourceId"] = normalizedArmId;
             node.Properties["azureResourceId"] = normalizedArmId;
-            node.Properties["arm.type"] = resource.ResourceType;
+            node.Properties["arm.type"] = resourceType;
             node.Properties["inventory.snapshotId"] = snapshot.Header.SnapshotId.ToString("D");
 
             if (!string.IsNullOrWhiteSpace(resource.ResourceGroup))

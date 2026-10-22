@@ -12470,8 +12470,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 202
-- **bugs-found:** 166
+- **hunts:** 203
+- **bugs-found:** 167
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-overlay rebind deduped parallel edges separately when EdgeType differed only by whitespace
 - **related-pd-tb:** none
@@ -12577,7 +12577,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — minted nodes retained padded resource group / subscription id citations — **hit 2026-10-22 seed hunt (seed→hit):** trim scalar citation fields; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — minted overlay nodes may retain padded `ResourceType` on `arm.type` — locus: resource type citation copies raw `resource.ResourceType` without trim; input: resource row type string carries surrounding whitespace; wrong outcome: topology category resolution and `arm.type` citations diverge on padding-only differences.
+2026-10-22 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` padded `ResourceType` on `arm.type` candidate; proved `arm.type` copied raw `resource.ResourceType` while category resolution could disagree when padding altered prefix matching edge cases; trim resource type once for category and `arm.type`; regression `BuildOverlay_stamps_trimmed_resource_type_on_arm_type_and_resolves_topology_category`; seeded `ArchitectureInventoryObservedFactGraphBuilder.ResolveLabel` padded ARM name segment follow-on; 495 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — minted nodes retained padded `ResourceType` on `arm.type` — **hit 2026-10-22 seed hunt (seed→hit):** trim resource type on mint; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.ResolveLabel` — minted overlay node labels may retain surrounding whitespace from ARM name segments — locus: label resolution takes the substring after the final `/` without trim; input: ARM resource id whose name segment carries padding; wrong outcome: graph node labels display padded resource names.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
