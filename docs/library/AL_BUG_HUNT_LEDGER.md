@@ -12,6 +12,20 @@
 - [ ] (candidate) `humanizeAuthorizeCallbackError` — emoji-only detail on `invalid_request` with numeric detail — locus: readability gate; input: `error_description=403` vs `🔒` (covered).
 - [ ] (candidate) `buildAuthorizeUrl` — scope string with interior ZWSP from env — locus: `normalizeOidcConfigurationString`; input: mis-pasted scope list (reachability: deployment env).
 - [ ] (candidate) `refreshAccessToken` — marks authorize callback failed on network throw — locus: exchange catch; input: offline during code exchange (regression may exist).
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `readOAuthJsonErrorDescription` — token JSON `error_description` with mistaken `%2B` (`Policy%2Bdenied`) percent-decoded to glued `Policy+denied` while literal `User+denied` must stay per RFC 6749; collapse `+`→space only when the JSON carried percent-encoded plus (`includesPercentEncodedPlus`); regressions singly/doubly `%2B` in JSON descriptions; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 364/364.
+
+- [x] (proven) `readOAuthJsonErrorDescription` — mistaken `%2B` in token JSON descriptions — **hit 2026-10-22 seed hunt:** conditional post-decode plus collapse; regressions above.
+- [x] (valid-no-repro) `humanizeAuthorizeCallbackError` — `Policy%2Bdenied` authorize detail — **cheap-disproof 2026-10-22 seed hunt:** prior `decodeOAuthErrorDescription` hit; humanize consumes decoded detail.
+- [x] (valid-no-repro) `sanitizeOAuthUserFacingMessage` — truncation after plus collapse — **cheap-disproof 2026-10-22 seed hunt:** existing 280-cap tests; no falsifying long `%2B` repro.
+- [x] (invalid) `initiateSupplementalOidcRedirect` — parity test only — **cheap-disproof 2026-10-22 seed hunt:** test gap, not product defect; primary retry regression covers logic.
+- [x] (valid-no-repro) `normalizeOAuthErrorCode` — literal `invalid+grant` in authorize `error` — **cheap-disproof 2026-10-22 seed hunt:** pre-decode plus-to-space maps to `invalid_grant`; existing authorize tests.
+
+- [ ] (candidate) `readOAuthJsonErrorDescription` — `%2b` lowercase percent plus in JSON — locus: `includesPercentEncodedPlus` case fold; input: `policy%2bdenied`; reachability: regression lock.
+- [ ] (candidate) `errorFromOAuthJson` — description-only token errors with `%2B` glue — locus: `readOAuthJsonErrorDescription` on 400 body; input: token-client integration test; reachability: add if missing.
+- [ ] (candidate) `decodeOAuthErrorDescription` vs JSON — asymmetric plus rules — locus: authorize always post-decode plus; input: document/intentional split (reachability: no code change).
+- [ ] (candidate) `includesPercentEncodedPlus` — `%25252B` quadruple-encoded plus — locus: three-pass decode cap; input: proxy chain on JSON descriptions.
+- [ ] (candidate) `humanizeAuthorizeCallbackError` — token JSON `access_denied` + `%2B` description — locus: end-to-end refresh failure copy; input: mirror authorize callback pairing.
+
 2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `decodeOAuthErrorDescription` — authorize `error_description=Policy%2Bdenied` decoded `%2B` to `+` after the query plus-to-space pass, surfacing glued `Policy+denied` in callback copy; apply `+`→space after `decodeRepeatedPercentEncoding` (parity with `normalizeOAuthErrorCode`); regressions singly and doubly percent-encoded plus in authorize descriptions; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 363/363.
 
 - [x] (proven) `decodeOAuthErrorDescription` — `%2B` in authorize `error_description` — **hit 2026-10-22 seed hunt:** post-decode plus-to-space; regressions above.
