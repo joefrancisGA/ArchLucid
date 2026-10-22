@@ -19,7 +19,18 @@ public static class PolicyPackRequestValidationRules
 {
     public const int PackVersionMaxLength = PolicyPackSemVerVersion.MaxLength;
 
+    public const int PackNameMaxLength = 300;
+
+    public const int PackDescriptionMaxLength = 20_000;
+
     public const string PackVersionSemVerMessage = PolicyPackSemVerVersion.SemVerMessage;
+
+    /// <summary>Returns whether <paramref name="value" /> is non-null and not whitespace-only after trim.</summary>
+    public static bool BeRequiredTextAfterTrim(string? value) => !string.IsNullOrWhiteSpace(value);
+
+    /// <summary>Returns whether the trimmed <paramref name="value" /> length is at most <paramref name="maxLength" />.</summary>
+    public static bool BeWithinTrimmedMaxLength(string? value, int maxLength) =>
+        (value?.Trim().Length ?? 0) <= maxLength;
 
     /// <summary>Allowed <see cref="CreatePolicyPackRequest.PackType" /> values (case-insensitive set).</summary>
 #pragma warning disable IDE0028 // Simplify collection initialization
