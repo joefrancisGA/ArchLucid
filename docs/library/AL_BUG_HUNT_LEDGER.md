@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_code authorize-query UX, BFF refresh 441 parity (client + route opaque 441), and saturated decodeOAuthErrorDescription emoji ZWJ multiply-encoded glue; regression documents authorize-retry marking when authorization code exchange returns form-feed-only access_token; scoped vitest 608/608.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - invalid_code authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 441 shouldClearSession false - **regression 2026-10-22:** client soft-fail plus BFF route opaque 441 without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string form-feed-only skips authorize retry marker - **regression 2026-10-22:** form-feed-only tokens reject exchange and set retry marker.
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with emoji ZWJ sequence glue - **cheap-disproof 2026-10-22:** saturated encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - authorization_pending authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 442 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string vertical-tab-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with emoji ZWJ sequence glue - locus: saturated JSON encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed session_expired authorize-query UX, BFF refresh 440 parity, and saturated readOAuthJsonErrorDescription pictograph glue; regression documents authorize-retry is marked when authorization code exchange returns CRLF-only access_token; scoped vitest 554/554.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - session_expired authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
