@@ -2842,6 +2842,14 @@
 
 ## Zone: scim-users
 
+2026-10-22 thorough hunt #13 (dry): cheap-disproof closed five picker `(candidate)` rows (malformed list `filter` → `invalidFilter`; PATCH `replace` without `value` → `invalidValue` per `Missing_value_on_replace_throws`; cross-tenant GET id misses tenant scope → 404; seat exhaustion → `ScimSeatLimitExceededException` / 403 `mutability`; flat PATCH `add` overwrites existing keys like `replace` per `Add_inserts_value`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
+
+- [x] (invalid) `ScimUsersController.ListAsync` — malformed `filter` — **cheap-disproof 2026-10-22 #13:** `ScimFilterParser.Parse` throws; controller ~51–54 maps `invalidFilter` (fail-closed, not a defect).
+- [x] (invalid) `ScimUsersController.PatchAsync` — `replace` without `value` — **cheap-disproof 2026-10-22 #13:** `ApplyOne` ~47–48 `invalidValue`; regression `Missing_value_on_replace_throws`.
+- [x] (invalid) `ScimUsersController.GetAsync` — cross-tenant user id — **cheap-disproof 2026-10-22 #13:** `GetByIdAsync` requires matching `TenantId`; miss → null → 404 `notFound`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — seat limit exceeded — **cheap-disproof 2026-10-22 #13:** `TryIncrementEnterpriseScimSeatAsync` false → `ScimSeatLimitExceededException`; controller ~106–108 → 403 `mutability`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `add` on existing attribute — **cheap-disproof 2026-10-22 #13:** flat map `add`/`replace` both assign key; `Add_inserts_value` regression.
+
 2026-10-22 thorough hunt #12 (dry): cheap-disproof closed five picker `(candidate)` rows (missing `userName` property → `invalidValue`; PATCH op without `op` → `invalidSyntax`; `count=201` clamps to 200 via `Math.Clamp`; `"True"` string `active` accepted by `bool.TryParse`; DELETE unknown id → `ScimNotFoundException` not 204); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
 
 - [x] (invalid) `ScimUsersController.CreateAsync` — missing `userName` property — **cheap-disproof 2026-10-22 #12:** `ReadRequiredString` ~21–22 → `invalidValue`.
@@ -2967,9 +2975,9 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 46
+- **hunts:** 47
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 12
+- **consecutive-dry-hunts:** 13
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — SCIM POST/PUT/PATCH mapped canceled JSON reads to invalidSyntax 400
 - **related-pd-tb:** none
@@ -3138,11 +3146,17 @@
 - [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `"True"` active — **cheap-disproof 2026-10-22 #12:** case-insensitive parse.
 - [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — unknown id — **cheap-disproof 2026-10-22 #12:** 404 not 204.
 
-- [ ] (candidate) `ScimUsersController.ListAsync` — malformed `filter` query — locus: `ScimFilterParser.Parse` / controller catch ~51–54; input: `?filter=not valid` (expect `invalidFilter` 400).
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `replace` without `value` — locus: `ApplyOne` ~47–48; input: `{"Operations":[{"op":"replace","path":"active"}]}` (expect `invalidValue`; regression `Missing_value_on_replace_throws`).
-- [ ] (candidate) `ScimUsersController.GetAsync` — user id from another tenant — locus: `GetByIdAsync` tenant match; input: cross-tenant GUID returns 404 `notFound`.
-- [ ] (candidate) `ScimUsersController.CreateAsync` — enterprise seat limit exceeded — locus: `TryIncrementEnterpriseScimSeatAsync` ~62–65; input: active create when seats exhausted → 403 `mutability`.
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `add` on existing `displayName` — locus: `ApplyOne` add/replace both set target key; input: verify add overwrites like replace (RFC flat PATCH semantics).
+- [x] (invalid) `ScimUsersController.ListAsync` — malformed `filter` — **cheap-disproof 2026-10-22 #13:** `invalidFilter`.
+- [x] (invalid) `ScimUsersController.PatchAsync` — `replace` without `value` — **cheap-disproof 2026-10-22 #13:** `invalidValue`.
+- [x] (invalid) `ScimUsersController.GetAsync` — cross-tenant id — **cheap-disproof 2026-10-22 #13:** tenant-scoped lookup.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — seat exhausted — **cheap-disproof 2026-10-22 #13:** 403 `mutability`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `add` overwrites — **cheap-disproof 2026-10-22 #13:** flat PATCH semantics.
+
+- [ ] (candidate) `ScimUsersController.CreateAsync` — `userName` with surrounding whitespace — locus: `ReadRequiredString` trim ~23–24; input: `{"userName":"  alice@example.com  "}` stored trimmed (verify conflict detection uses trimmed value).
+- [ ] (candidate) `ScimUsersController.PatchAsync` — attribute path case variance (`DISPLAYNAME`) — locus: `ApplyFlat` dictionary `OrdinalIgnoreCase`; input: patch path casing does not create duplicate keys.
+- [ ] (candidate) `ScimUsersController.ReplaceAsync` — seat limit on inactive→active PUT — locus: `TransitionSeatAsync` / `TryIncrementEnterpriseScimSeatAsync`; input: 403 when re-activating at seat cap.
+- [ ] (candidate) `ScimUsersController.PatchAsync` — duplicate `userName` via replace — locus: `EnsureUserNameNotUsedByAnotherLiveUserAsync`; input: 409 `uniqueness` (regression `PatchAsync_replace_userName_to_another_users_name_throws_conflict`).
+- [ ] (candidate) `ScimUsersController.ListAsync` — `filter` on `userName` case-insensitive match — locus: in-memory vs SQL filter case rules; input: regression `ListAsync_userName_filter_matches_case_insensitive`.
 
 - [x] (proven) `ScimUserService.CreateAsync` / `PatchAsync` / `ScimUsersController` — a second live user with the same `userName` and a different `externalId` was stored, including case-only names — **hit 2026-10-09 seed hunt:** live `userName` lookup returns `uniqueness`. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
 - [x] (proven) `ScimFilterParser.ParseFilter` / `ScimUsersController.ListAsync` — ungrouped `or` before `and` was parsed left-to-right, so an active user matching only the left comparison was omitted — **hit 2026-10-09 seed hunt:** `not` over `and` over `or` per RFC 7644 §3.4.2.2. Regressions `ListAsync_filter_gives_and_precedence_over_or`, `Parse_or_binds_looser_than_and`, and `Parse_not_binds_tighter_than_and`.
