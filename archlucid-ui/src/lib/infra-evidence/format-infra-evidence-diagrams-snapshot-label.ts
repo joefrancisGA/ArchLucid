@@ -18,8 +18,8 @@ export function formatInfraEvidenceDiagramsSnapshotPickerLabel(
 
   if (subscription != null && !isUuidLike(subscription)) {
     parts.push(subscription);
-  } else if (snapshot.subscriptionName == null && snapshot.subscriptionId == null) {
-    parts.push("Subscription was not stored.");
+  } else {
+    parts.push("Subscription name was not stored.");
   }
 
   parts.push(captured);

@@ -21,7 +21,19 @@ export type AskAssistantGroundingLink = {
 };
 
 const ASK_ANSWER_NOT_STORED = "Answer was not stored";
+const ASK_ANSWER_STORED_EMPTY = "Answer was stored empty.";
 const ASK_ANSWER_LEAD_NOT_STORED = "Answer lead was not stored.";
+const ASK_GROUNDING_SOURCE_LABEL_STORED_EMPTY = "Source label was stored empty.";
+
+function renderAskSectionBody(body: string, buyerPolishedLinks: boolean): ReactNode {
+  return body.trim().length > 0
+    ? renderTextWithUuidReviewLinks(body, buyerPolishedLinks)
+    : ASK_ANSWER_STORED_EMPTY;
+}
+
+function renderGroundingLinkLabel(label: string): string {
+  return label.trim().length > 0 ? label : ASK_GROUNDING_SOURCE_LABEL_STORED_EMPTY;
+}
 
 const UUID_RE =
   /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi;
@@ -121,7 +133,7 @@ function GroundingLinksFooter(props: {
               href={link.href}
               className={OPERATOR_BODY_INLINE_LINK_CLASS}
             >
-              {link.label}
+              {renderGroundingLinkLabel(link.label)}
             </Link>
           </li>
         ))}
@@ -142,7 +154,7 @@ function GroundingLinksFooter(props: {
                   href={link.href}
                   className={OPERATOR_BODY_INLINE_LINK_CLASS}
                 >
-                  {link.label}
+                  {renderGroundingLinkLabel(link.label)}
                 </Link>
               </li>
             ))}
@@ -220,9 +232,7 @@ export function AskAssistantMessageBody(props: {
           <section key={`${section.key}-${index}`} aria-label={section.title} className="border-t border-neutral-100 pt-3 dark:border-neutral-800">
             <h4 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>{section.title}</h4>
             <div className={`${bodyClass} mt-2`}>
-              {section.body.length > 0
-                ? renderTextWithUuidReviewLinks(section.body, buyerPolishedLinks)
-                : ASK_ANSWER_NOT_STORED}
+              {renderAskSectionBody(section.body, buyerPolishedLinks)}
             </div>
           </section>
         ))}
@@ -246,9 +256,7 @@ export function AskAssistantMessageBody(props: {
               {section.title}
             </h4>
             <div className={`${bodyClass} mt-2`}>
-              {section.body.length > 0
-                ? renderTextWithUuidReviewLinks(section.body, buyerPolishedLinks)
-                : ASK_ANSWER_NOT_STORED}
+              {renderAskSectionBody(section.body, buyerPolishedLinks)}
             </div>
           </section>
         ))}

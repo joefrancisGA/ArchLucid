@@ -192,6 +192,13 @@ public class DiagramNode
         set;
     }
 
+    /// <summary>Stored private-endpoint resource name when <see cref="HasPrivateEndpointAccess" /> is true.</summary>
+    public string? PrivateEndpointAccessName
+    {
+        get;
+        set;
+    }
+
     /// <summary>
     ///     True when a hidden public IP still marks this compute resource as internet-facing (NR-21).
     /// </summary>

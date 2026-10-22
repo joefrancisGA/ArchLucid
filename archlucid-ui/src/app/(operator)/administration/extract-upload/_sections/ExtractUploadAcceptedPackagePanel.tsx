@@ -63,7 +63,12 @@ export function ExtractUploadAcceptedPackagePanel(
     }
   }, [record.packageId]);
 
-  const acceptedAtLabel = formatInstantInPreferredTimeZone(record.acceptedAtUtc, ianaTimeZoneId);
+  const acceptedAtLabel =
+    record.acceptedAtUtc !== null &&
+    record.acceptedAtUtc !== undefined &&
+    record.acceptedAtUtc.trim().length === 0
+      ? "Accepted time was stored empty."
+      : formatInstantInPreferredTimeZone(record.acceptedAtUtc, ianaTimeZoneId);
 
   return (
     <section
