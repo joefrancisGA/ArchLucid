@@ -139,6 +139,23 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_declared_priorities_hash_when_priority_differs_only_by_unicode_normalization_form()
+    {
+        const string nfcPriority = "Caf\u00E9";
+        const string nfdPriority = "Cafe\u0301";
+
+        ClosedLoopReasoningRequest nfcRequest = CreateRequest("Architecture note.");
+        nfcRequest.DeclaredPriorities = [nfcPriority];
+
+        ClosedLoopReasoningRequest nfdRequest = CreateRequest("Architecture note.");
+        nfdRequest.DeclaredPriorities = [nfdPriority];
+
+        ReviewCacheManifestBuilder.Build(nfcRequest).DeclaredPrioritiesHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(nfdRequest).DeclaredPrioritiesHash);
+    }
+
+    [Fact]
     public void Build_ignores_publish_intent_for_content_hash()
     {
         ClosedLoopReasoningRequest withoutPublish = CreateRequest("Architecture note.");
