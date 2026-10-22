@@ -184,6 +184,32 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     }
 
     [Fact]
+    public void Compute_unchanged_when_graph_edge_id_changes_but_directed_endpoints_and_type_are_unchanged()
+    {
+        GraphEdge baselineEdge = new()
+        {
+            EdgeId = "edge-buyer-a",
+            FromNodeId = "node-a",
+            ToNodeId = "node-b",
+            EdgeType = "ConnectsTo",
+        };
+
+        GraphEdge updatedEdge = new()
+        {
+            EdgeId = "edge-buyer-b",
+            FromNodeId = "node-a",
+            ToNodeId = "node-b",
+            EdgeType = "ConnectsTo",
+        };
+
+        ProvenanceBuildInput baseline = CreateInput([], graphEdges: [baselineEdge]);
+        ProvenanceBuildInput updated = CreateInput([], graphEdges: [updatedEdge]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
     public void Compute_unchanged_when_only_graph_schema_version_changes()
     {
         GraphNode node = new() { NodeId = "node-a", NodeType = "Resource", Label = "A" };
