@@ -1,3 +1,15 @@
+﻿2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_nonce authorize-query UX (existing parity) and saturated readOAuthJsonErrorDescription ZWJ multiply-encoded glue (existing parity); regression documents BFF refresh 494 parity (client + route opaque 494) and object-replacement replacement-character and variation-selector-16-only access_token rejection; scoped vitest 686/686.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - invalid_nonce authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 494 shouldClearSession false - **regression 2026-10-22:** client soft-fail plus BFF route opaque 494 without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string object-replacement replacement-character and variation-selector-16-only skips authorize retry marker - **regression 2026-10-22:** normalizeTokenString strip parity for combined invisible tokens.
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** existing saturated JSON encoding class test.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - nonce_replay authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 495 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string soft-hyphen object-replacement replacement-character and variation-selector-16-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with ZWJ glue - locus: saturated encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed state_mismatch authorize-query UX (existing parity) and saturated decodeOAuthErrorDescription ZWJ multiply-encoded glue (existing parity); regression documents BFF refresh 493 parity (client + route opaque 493) and soft-hyphen object-replacement replacement-character and variation-selector-16-only access_token rejection; scoped vitest 770/770.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - state_mismatch authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
