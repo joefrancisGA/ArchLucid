@@ -2842,6 +2842,14 @@
 
 ## Zone: scim-users
 
+2026-10-22 thorough hunt #21 (hit): PATCH `remove` on `active` dropped the flat-map key and `ReadActive` fell back to the stored value (silent no-op) instead of `mutability` like `userName`/`externalId`; `RejectRemovedRequiredAttribute` now guards `active`; regression `PatchAsync_remove_active_rejects_required_attribute`; cheap-disproof closed four sibling `(candidate)` rows (unknown `nickName` → SQL `invalidFilter`; `userName co` substring in `ScimFilterInMemoryEvaluator`; numeric `active: 0` proven; Entra `emails[…]` alias integration-tested); scoped `ScimUsers` tests not run (merge conflicts in unrelated Application.Tests files).
+
+- [x] (invalid) `ScimUsersController.ListAsync` — unknown `nickName` filter — **cheap-disproof 2026-10-22 #21:** `SqlScimUserFilterTranslator.ColumnSql` throws → controller `invalidFilter`; in-memory path returns no matches (conservative).
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName co "corp"` — **cheap-disproof 2026-10-22 #21:** `ScimFilterInMemoryEvaluator` `co` operator; parser regression `userName co "corp"`.
+- [x] (proven) `ScimUserService.PatchAsync` — `remove` on `active` — **hit 2026-10-22 #21:** required-attribute remove must not silently retain via `ReadActive` fallback; regression `PatchAsync_remove_active_rejects_required_attribute`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — numeric `active: 0` — **cheap-disproof 2026-10-22 #21:** proven 2026-10-05; regression `PatchAsync_replace_active_numeric_zero_deactivates_user`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `emails[type eq "work"].value` alias — **cheap-disproof 2026-10-22 #21:** maps to `UserName`; integration `Get_users_filter_emails_work_value_eq_entra_literal_returns_single_resource`.
+
 2026-10-22 thorough hunt #20 (dry): cheap-disproof closed five regression-backed `(candidate)` rows (`externalId` case-variant create is RFC case-exact by design; `or`/`and` precedence proven; whitespace-only `userName` PATCH `invalidValue`; whitespace-only `displayName` PATCH clears; `userName pr` presence is supported in parser and SQL `IS NOT NULL` — prior row mis-stated `eq`+`pr`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
 
 - [x] (valid-no-repro) `ScimUsersController.CreateAsync` — `externalId` case-only variant — **cheap-disproof 2026-10-22 #20:** per-tenant case-exact `externalId` equality; regression `CreateAsync_external_id_case_variant_does_not_conflict_with_existing_user`.
@@ -3031,11 +3039,11 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 54
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 20
+- **hunts:** 55
+- **bugs-found:** 23
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — SCIM POST/PUT/PATCH mapped canceled JSON reads to invalidSyntax 400
+- **last-bug:** 2026-10-22 — SCIM PATCH remove on active returned silent no-op instead of mutability
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3250,11 +3258,17 @@
 - [x] (valid-no-repro) `ScimUsersController.PatchAsync` — whitespace `displayName` — **cheap-disproof 2026-10-22 #20:** clears display name.
 - [x] (invalid) `ScimUsersController.ListAsync` — `userName pr` — **cheap-disproof 2026-10-22 #20:** presence supported; not `invalidFilter`.
 
-- [ ] (candidate) `ScimUsersController.ListAsync` — filter on unknown attribute `nickName eq "x"` — locus: `SqlScimUserFilterTranslator.ColumnSql` throws `ScimFilterSqlException`; input: Entra probe attribute outside User schema → HTTP 400 `invalidFilter`.
-- [ ] (candidate) `ScimUsersController.ListAsync` — `userName co "corp"` substring match — locus: `ScimFilterInMemoryEvaluator` / SQL `LIKE`; input: parser accepts `co` (`ScimFilterParserTests`); verify list page includes matching active users only.
-- [ ] (candidate) `ScimUsersController.PatchAsync` — PATCH `remove` on `active` — locus: `RejectRemovedRequiredAttribute` / flat-map remove; input: required boolean cannot be removed (`mutability` vs silent retain).
-- [ ] (candidate) `ScimUsersController.PatchAsync` — replace `active` with JSON number `0` — locus: `ReadActive` `JsonValueKind.Number`; input: regression `PatchAsync_replace_active_numeric_zero_deactivates_user` (deactivate without double seat decrement).
-- [ ] (candidate) `ScimUsersController.ListAsync` — `emails[type eq "work"].value eq "user@contoso.com"` alias — locus: `ScimKnownUserFilterPaths.IsEmailsWorkValuePath` maps to `UserName` column; input: Entra-style email filter resolves to `userName` equality (documented alias behavior).
+- [x] (invalid) `ScimUsersController.ListAsync` — `nickName` filter — **cheap-disproof 2026-10-22 #21:** SQL `invalidFilter`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName co` — **cheap-disproof 2026-10-22 #21:** evaluator supports `co`.
+- [x] (proven) `ScimUsersController.PatchAsync` — remove `active` — **hit 2026-10-22 #21:** `mutability` guard added.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `active: 0` — **cheap-disproof 2026-10-22 #21:** proven regression.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — emails work alias — **cheap-disproof 2026-10-22 #21:** Entra integration test.
+
+- [ ] (candidate) `ScimUsersController.PatchAsync` — replace `active` with JSON `null` — locus: `ReadActive` on `JsonValueKind.Null`; input: expect `invalidValue` (not silent retain via fallback).
+- [ ] (candidate) `ScimUsersController.ListAsync` — `externalId sw "EXT-"` prefix filter — locus: `sw` operator in in-memory/SQL translators; input: verify matching users only (Entra prefix probes).
+- [ ] (candidate) `ScimUsersController.ListAsync` — filter `id eq "{guid}"` — locus: `ColumnSql` maps `id` to string cast; input: single-user lookup via list filter vs GET by id parity.
+- [ ] (candidate) `ScimUsersController.ReplaceAsync` — PUT omits `active` — locus: `ScimUserResourceParser.ReadActive` default true; input: intentional default-active on replace vs PATCH explicit `active`.
+- [ ] (candidate) `ScimUsersController.ListAsync` — `displayName eq ""` empty string — locus: optional `displayName` null vs empty in filter compare; input: users with null display name vs empty string stored value.
 
 - [x] (proven) `ScimUserService.CreateAsync` / `PatchAsync` / `ScimUsersController` — a second live user with the same `userName` and a different `externalId` was stored, including case-only names — **hit 2026-10-09 seed hunt:** live `userName` lookup returns `uniqueness`. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
 - [x] (proven) `ScimFilterParser.ParseFilter` / `ScimUsersController.ListAsync` — ungrouped `or` before `and` was parsed left-to-right, so an active user matching only the left comparison was omitted — **hit 2026-10-09 seed hunt:** `not` over `and` over `or` per RFC 7644 §3.4.2.2. Regressions `ListAsync_filter_gives_and_precedence_over_or`, `Parse_or_binds_looser_than_and`, and `Parse_not_binds_tighter_than_and`.

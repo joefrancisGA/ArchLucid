@@ -35,6 +35,7 @@ public sealed partial class ScimUserService
         // Remove drops the key. Required attributes must not fall back to the stored value.
         RejectRemovedRequiredAttribute(current, core, "userName");
         RejectRemovedRequiredAttribute(current, core, "externalId");
+        RejectRemovedRequiredAttribute(current, core, "active");
         string externalId = ReadPatchRequiredString(core, "externalId", existing.ExternalId);
         string userName = ReadPatchRequiredString(core, "userName", existing.UserName);
 
