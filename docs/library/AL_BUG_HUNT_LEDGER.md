@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_resource_owner authorize-query UX (existing parity) and saturated decodeOAuthErrorDescription ZWJ glue; regression documents BFF refresh 477 parity and variation-selector-6-only access_token rejection; scoped vitest 652/652.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - invalid_resource_owner authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 477 shouldClearSession false - **regression 2026-10-22:** transient refresh soft-fail without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string variation-selector-6-only skips authorize retry marker - **regression 2026-10-22:** variation-selector strip parity (U+FE05).
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** saturated encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_saml_response authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 478 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string variation-selector-5-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - locus: saturated JSON encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_grant_challenge authorize-query UX (existing parity) and saturated readOAuthJsonErrorDescription ZWJ glue; regression documents BFF refresh 476 parity and variation-selector-7-only access_token rejection; scoped vitest 650/650.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - invalid_grant_challenge authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
