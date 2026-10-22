@@ -12470,18 +12470,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 148
-- **bugs-found:** 141
+- **hunts:** 149
+- **bugs-found:** 142
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — graph node factory kept padded canonical object ids
+- **last-bug:** 2026-10-22 — graph node factory kept padded canonical display names
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted `GraphNodeFactory` padded canonical `Name` candidate; proved `CreateNode` copied raw `CanonicalObject.Name` into graph `Label`, breaking parity with diagram bind matcher trim and display-name identity checks when ingestion tokens carried surrounding whitespace; trim name on label assign; regression `CreateNode_trims_surrounding_whitespace_on_name_when_building_label`; seeded `GraphNodeFactory` padded `category` property materialization follow-on; 450 KnowledgeGraph + 148 Provenance scoped tests passed.
+
+- [x] (proven) `GraphNodeFactory.CreateNode` — padded canonical `Name` on graph `Label` — **hit 2026-10-22 seed hunt (seed→hit):** trim label; regression above.
+
+- [ ] (candidate) `GraphNodeFactory.CreateNode` — padded `category` property value may surface on graph node without trim — locus: category assign from properties bag; input: properties `category` with surrounding whitespace; wrong outcome: topology category diverges from trim-normalized classifier gates.
 
 2026-10-22 seed hunt (seed→hit): promoted `GraphNodeFactory` padded canonical `ObjectId` candidate; proved `CreateNode` composed `obj-{ObjectId}` without trimming ingestion tokens, emitting topology node ids with surrounding whitespace that diverged from diagram binder-trimmed canonical endpoints; trim `ObjectId` for `NodeId` and `SourceId` on materialize; regressions `CreateNode_trims_surrounding_whitespace_on_object_id_when_building_node_id` and `CreateNode_trims_surrounding_whitespace_on_source_id`; seeded `GraphNodeFactory` padded canonical `Name` label materialization follow-on; 449 KnowledgeGraph + 148 Provenance scoped tests passed.
 
 - [x] (proven) `GraphNodeFactory.CreateNode` — padded canonical `ObjectId` on materialized node ids — **hit 2026-10-22 seed hunt (seed→hit):** trim object id; regressions above.
-
-- [ ] (candidate) `GraphNodeFactory.CreateNode` — padded canonical `Name` may surface in graph `Label` without trim — locus: label assign; input: `CanonicalObject.Name` with surrounding whitespace; wrong outcome: display labels diverge from diagram bind matcher trim parity.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded `CanonicalGraphNodeId` binding dedupe candidate; proved `mergedBindingKeys` used raw canonical graph node ids so multi-document merge retained duplicate `StructuredDiagramCanonicalBinding` rows when only surrounding whitespace differed; trim-normalize binding dedupe keys; regression `Merge_deduplicates_canonical_bindings_when_canonical_graph_node_id_differs_only_by_surrounding_whitespace`; seeded `GraphNodeFactory` padded canonical `ObjectId` node id materialization follow-on; 447 KnowledgeGraph + 148 Provenance scoped tests passed.
 

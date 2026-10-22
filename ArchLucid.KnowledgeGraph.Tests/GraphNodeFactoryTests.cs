@@ -73,6 +73,16 @@ public sealed class GraphNodeFactoryTests
     }
 
     [Fact]
+    public void CreateNode_trims_surrounding_whitespace_on_name_when_building_label()
+    {
+        CanonicalObject item = BuildItem(name: "  API Gateway  ");
+
+        GraphNode node = _sut.CreateNode(item);
+
+        node.Label.Should().Be("API Gateway");
+    }
+
+    [Fact]
     public void CreateNode_SetsCategoryFromProperties()
     {
         CanonicalObject item = BuildItem(properties: new Dictionary<string, string>
