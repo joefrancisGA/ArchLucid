@@ -196,6 +196,15 @@ function parseOidcTokenResponse(parsed: unknown): OidcTokenResponse {
   };
 }
 
+function shouldMarkAuthorizeCallbackFailedOnExchangeError(error: unknown): boolean {
+  if (!(error instanceof Error)) {
+    return true;
+  }
+
+  // Misconfigured discovery/token URL — not an IdP OAuth outcome worth preserving return-path retry state.
+  return error.message !== "Invalid token endpoint URL";
+}
+
 export async function exchangeAuthorizationCode(params: {
   tokenEndpoint: string;
   clientId: string;
@@ -212,11 +221,13 @@ export async function exchangeAuthorizationCode(params: {
       code_verifier: params.codeVerifier,
     });
   } catch (error) {
-    // Re-mark so a follow-up initiateOidcRedirect keeps the stored post-sign-in return path
-    // when token exchange fails after the authorize redirect.
-    const { markAuthorizeCallbackFailed } = await import("@/lib/oidc/session");
+    if (shouldMarkAuthorizeCallbackFailedOnExchangeError(error)) {
+      // Re-mark so a follow-up initiateOidcRedirect keeps the stored post-sign-in return path
+      // when token exchange fails after the authorize redirect.
+      const { markAuthorizeCallbackFailed } = await import("@/lib/oidc/session");
 
-    markAuthorizeCallbackFailed();
+      markAuthorizeCallbackFailed();
+    }
 
     throw error;
   }

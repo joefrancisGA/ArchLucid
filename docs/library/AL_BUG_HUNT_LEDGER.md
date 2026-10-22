@@ -1,3 +1,18 @@
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `exchangeAuthorizationCode` — catch-all `markAuthorizeCallbackFailed` on every exchange throw also ran for `Invalid token endpoint URL` before fetch (misconfigured discovery), leaving authorize-retry state set without an IdP OAuth outcome; gate marking with `shouldMarkAuthorizeCallbackFailedOnExchangeError`; regression `does not mark authorize callback failed when token endpoint URL is invalid`; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 369/369.
+
+- [x] (proven) `exchangeAuthorizationCode` — retry marker on invalid token endpoint URL — **hit 2026-10-22 seed hunt:** skip mark for config URL guard; regression above.
+- [x] (invalid) `initiateSupplementalOidcRedirect` — supplemental discovery regression test only — **cheap-disproof 2026-10-22 seed hunt:** shared handler; test gap not product defect.
+- [x] (valid-no-repro) `handleInitiateDiscoveryFailure` — fresh sign-in discovery fail clears return — **cheap-disproof 2026-10-22 seed hunt:** test `clears the stored return path when discovery fails before redirect`.
+- [x] (valid-no-repro) `shouldConsumeAuthorizeRetryForReturnUrl` — trailing-slash drift — **cheap-disproof 2026-10-22 seed hunt:** `normalizeComparableReturnPath` strips trailing slash on pathname.
+- [x] (invalid) `syncBffSessionCookieFromTokenResponse` — initial POST without CSRF — **cheap-disproof 2026-10-22 seed hunt:** intentional first mint route.
+- [x] (valid-no-repro) `jwt-payload` — truncated base64 payload — **cheap-disproof 2026-10-22 seed hunt:** `decodeJwtPayload` returns null on parse failure.
+
+- [ ] (candidate) `exchangeAuthorizationCode` — non-JSON token response marks retry — locus: `postTokenForm` catch; input: HTML error page body (reachability: mark intentional).
+- [ ] (candidate) `readOAuthJsonErrorDescription` — `100%25+tax` literal percent guard — locus: plus collapse gate; input: rare IdP marketing copy in JSON.
+- [ ] (candidate) `initiateSupplementalOidcRedirect` — Google changed-return discovery failure test — locus: test mirror; input: copy primary regression.
+- [ ] (candidate) `refreshAccessToken` — invalid token endpoint does not mark retry — locus: parity with exchange guard; input: refresh path (no mark today).
+- [ ] (candidate) `persistTokenResponse` — identity-less opaque token clears BFF cookie — locus: generation bump; input: existing session tests.
+
 2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `shouldConsumeAuthorizeRetryForReturnUrl` after `storePostSignInReturnUrl`; changing explicit return URL on authorize retry compared stored path to the new value already in sessionStorage so consume never ran and the retry marker survived; evaluate consume before persisting the new return URL; simplify `handleInitiateDiscoveryFailure` to key off `preservingAuthorizeCallbackRetry` captured at entry; regression `clears authorize retry marker when retry uses a different explicit return URL`; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 367/367.
 
 - [x] (proven) `shouldConsumeAuthorizeRetryForReturnUrl` - consume after store skipped marker clear on path change - **hit 2026-10-22:** read prior before `storePostSignInReturnUrl`; regression above.
