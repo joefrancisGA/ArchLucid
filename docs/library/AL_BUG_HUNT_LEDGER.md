@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed org_internal authorize-query UX, refresh 425 parity (pre-existing test), and saturated readOAuthJsonErrorDescription ZWJ glue; regression documents authorize-retry is not marked when authorization code exchange returns boolean-string access_token; scoped vitest 513/513.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - org_internal authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 425 shouldClearSession false - **cheap-disproof 2026-10-22:** parity test already on trunk (early refresh block).
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string false skips authorize retry marker - **regression 2026-10-22:** boolean-string tokens are valid (retry marker not set).
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** saturated JSON encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_target authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 426 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string true skips authorize retry marker - locus: boolean-string token shape.
+- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with skin-tone modifier glue - locus: saturated encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed registration_not_supported authorize-query UX, BFF refresh 424 parity, and saturated decodeOAuthErrorDescription ZWJ glue; regression documents authorize-retry is not marked when authorization code exchange returns single-digit-string access_token; scoped vitest 511/511.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - registration_not_supported authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.

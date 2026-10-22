@@ -415,6 +415,13 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("registration_not_supported");
   });
 
+  it("humanizes org_internal authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("org_internal", "");
+
+    expect(message).toMatch(/org internal/i);
+    expect(message).not.toContain("org_internal");
+  });
+
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
     expect(humanizeAuthorizeCallbackError("   ", "")).toContain("complete response");
     expect(humanizeAuthorizeCallbackError("   ", "")).not.toMatch(/\(\s*\)/u);
