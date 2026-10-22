@@ -6691,17 +6691,24 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-22 seed hunt (seed-only): `application-analysis` — cheap-disproof closed four audit `(candidate)` rows (batch artifact pin skip, export replay duplicate guards, manifest hash artifact mode, batch passthrough consolidation); no failing repro; recommend consolidating batch terminal-exception passthrough in a dedicated engineering pass (not shipped this hunt); scoped filter 54/54.
+
+- [x] (valid-no-repro) `ComparisonBatchReplayPinInventoryGuard` - E2E batch `artifact` mode skips pin/inventory guard - **cheap-disproof 2026-10-22:** mirrors single-replay artifact mode (rehydrate stored payload; pin/inventory required only for regenerate/verify).
+- [x] (valid-no-repro) `ExportReplayService.ReplayAsync` - duplicate lifecycle/sealed-manifest checks after facade pre-checks - **cheap-disproof 2026-10-22:** defense-in-depth; ordering matches facade (lineage/career then service completeness).
+- [x] (valid-no-repro) `ComparisonReplayManifestHashGuard` - sealed-hash verification skipped for `artifact` replay mode in service - **cheap-disproof 2026-10-22:** intentional; HTTP routes still run sealed guards and artifact replay does not regenerate from live runs.
+- [x] (valid-no-repro) `TryBuildBatchReplayZipAsync` - ad-hoc passthrough catches for terminal exceptions - **cheap-disproof 2026-10-22:** `ConflictException`, `CareerArtifactExportBlockedException`, and `ComparisonVerificationFailedException` already rethrown; consolidation is engineering hardening only.
+
+- [ ] (candidate) `ComparisonReplayService.RegenerateExportDiffAsync` - regenerate export-diff runs lifecycle on export-record `RunId` pair without career re-check inside helper - locus: private regenerate; reachability: internal-only; outer `EnsureArtifactReplayAccessAllowedCoreAsync` covers public entry points.
+- [ ] (candidate) `RunExportLineageVerifier.VerifyAsync` - lineage mismatch returns `LineageUnverified` outcome while career gate throws on metadata reads - locus: export history vs single-record read asymmetry; reachability: `GET` export history after lineage fix (intentional outcome enum vs exception).
+- [ ] (candidate) `CompareQualityDeltaCalculator.Build` - null knowledge model returns null without surfacing which side is missing - locus: compare-quality delta; reachability: partial compare-quality inputs (covered by existing calculator tests).
+- [ ] (candidate) `ConsultingDocxExportSealedReceiptGuard` - consulting DOCX export sealed receipt check ordering vs `RunExportSealedManifestHashGuard` on query paths - locus: consulting export synthesis; reachability: `POST` consulting DOCX export on committed run with receipt drift.
+
 2026-10-22 seed hunt (seed-only): `application-analysis` — cheap-disproof closed four open `(candidate)` rows on PATCH response, cost-estimator cache, export replay completeness, and batch pin-inventory conflict passthrough; no failing repro promoted (deferred further artifact-read gate expansions while 14d `other` class saturated); seeded four follow-on mechanism rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 54/54.
 
 - [x] (valid-no-repro) `ComparisonsApplicationService.TryUpdateLabelAndTagsAsync` - PATCH response reloads full `ComparisonRecord` without artifact-read gate - **cheap-disproof 2026-10-22:** label/tags mutation echoes stored row; explicit artifact read remains `GET comparisons/{id}` via `TryGetScopedRecordForArtifactReadAsync`.
 - [x] (invalid) `ComparisonReplayCostEstimator` - memory cache key omits career posture revision - **cheap-disproof 2026-10-22:** `TryEstimateReplayCostAsync` runs `EnsureArtifactReplayAccessAllowedAsync` before every estimator call; cache cannot bypass gate.
 - [x] (valid-no-repro) `RunExportQueryFacade.ReplayExportAsync` - export replay omits `CareerArtifactExportCompletenessGate` at facade layer - **cheap-disproof 2026-10-22:** `ExportReplayService.ReplayAsync` enforces completeness after facade career/lifecycle guards.
 - [x] (valid-no-repro) `ComparisonBatchReplayPinInventoryGuard` - batch pin/inventory `ConflictException` handling - **cheap-disproof 2026-10-22:** `TryBuildBatchReplayZipAsync` rethrows `ConflictException`; controller maps sealed-manifest conflicts.
-
-- [ ] (candidate) `ComparisonBatchReplayPinInventoryGuard` - E2E batch `artifact` mode skips pin/inventory guard while `regenerate` enforces `LoadScopedRunPairAsync` - locus: batch ZIP builder; reachability: intentional fast path vs regenerate batch only (audit parity with single replay artifact mode).
-- [ ] (candidate) `ExportReplayService.ReplayAsync` - duplicate lifecycle/sealed-manifest checks after `RunExportQueryFacade.ReplayExportAsync` pre-checks - locus: export replay stack; reachability: performance-only unless ordering diverges (currently aligned).
-- [ ] (candidate) `ComparisonReplayManifestHashGuard` - sealed-hash verification skipped for `artifact` replay mode inside service while HTTP controllers still run sealed guards - locus: mode branch line 46-47; reachability: controller+service double-guard on regenerate/verify only.
-- [ ] (candidate) `ComparisonsApplicationService.TryBuildBatchReplayZipAsync` - per-id failure loop could centralize passthrough exceptions (`ConflictException`, career, verification) - locus: batch replay; reachability: engineering consolidation to avoid missed passthrough when adding new terminal exceptions.
 
 2026-10-22 seed hunt (seed-only): `application-analysis` — re-read comparison/export/replay after batch exception passthrough fixes; no new hunt-ready defect (saturated 14d `other` class: further list/history career-gate rows deferred as audit surfaces); cheap-disproof closed four open `(candidate)` rows; seeded four follow-on rows on non-replay mechanisms; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 54/54.
 
@@ -6832,7 +6839,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 72
+- **hunts:** 73
 - **bugs-found:** 68
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
