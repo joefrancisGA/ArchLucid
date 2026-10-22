@@ -653,6 +653,13 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("invalid_code_verifier");
   });
 
+  it("humanizes code_verifier_mismatch authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("code_verifier_mismatch", "");
+
+    expect(message).toMatch(/code verifier mismatch/i);
+    expect(message).not.toContain("code_verifier_mismatch");
+  });
+
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
     expect(humanizeAuthorizeCallbackError("   ", "")).toContain("complete response");
     expect(humanizeAuthorizeCallbackError("   ", "")).not.toMatch(/\(\s*\)/u);
