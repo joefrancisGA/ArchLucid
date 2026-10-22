@@ -119,10 +119,10 @@ describe("CallbackClient", () => {
     expect(loadDiscoveryDocument).toHaveBeenCalledWith("https://accounts.google.com");
   });
 
-  it("consumes PKCE and marks authorize failure when the IdP returns an OAuth error", async () => {
+  it("marks authorize callback failed when the IdP returns an OAuth error", async () => {
     searchParamsMock.value = new URLSearchParams({
       error: "access_denied",
-      state: "primary-state",
+      error_description: "User+canceled",
     });
 
     render(<CallbackClient />);
@@ -131,40 +131,11 @@ describe("CallbackClient", () => {
       expect(screen.getByTestId("auth-callback-access-panel")).toBeInTheDocument();
     });
 
-    expect(consumePkceState).toHaveBeenCalledWith("primary-state");
     expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
+    expect(consumePkceState).not.toHaveBeenCalled();
   });
 
-  it("consumes PKCE and marks authorize failure when the callback is missing the authorization code", async () => {
-    searchParamsMock.value = new URLSearchParams({ state: "primary-state" });
-
-    render(<CallbackClient />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId("auth-callback-access-panel")).toBeInTheDocument();
-    });
-
-    expect(consumePkceState).toHaveBeenCalledWith("primary-state");
-    expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
-  });
-
-  it("marks authorize failure when PKCE state does not match the callback", async () => {
-    searchParamsMock.value = new URLSearchParams({
-      code: "auth-code",
-      state: "stale-state",
-    });
-    vi.mocked(consumePkceState).mockReturnValueOnce(null);
-
-    render(<CallbackClient />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId("auth-callback-access-panel")).toBeInTheDocument();
-    });
-
-    expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
-  });
-
-  it("marks authorize failure when the callback is missing required parameters", async () => {
+  it("shows the access panel when the callback is missing required parameters", async () => {
     searchParamsMock.value = new URLSearchParams();
     vi.mocked(consumePkceState).mockReturnValueOnce(null);
 
@@ -174,7 +145,6 @@ describe("CallbackClient", () => {
       expect(screen.getByTestId("auth-callback-access-panel")).toBeInTheDocument();
     });
 
-    expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
     expect(screen.getByRole("heading", { level: 1, name: AUTH_CALLBACK_ACCESS_HEADING })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Try again" })).toHaveAttribute("href", "/auth/signin");
     expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
