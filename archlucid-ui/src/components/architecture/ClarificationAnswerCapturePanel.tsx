@@ -88,7 +88,9 @@ export function ClarificationAnswerCapturePanel(
           return (
             <li key={question.questionId} className="space-y-2">
               <Label htmlFor={answerId} className={OPERATOR_TYPOGRAPHY.body}>
-                {question.prompt}
+                {question.prompt.trim().length > 0
+                  ? question.prompt
+                  : "Question text was stored empty."}
               </Label>
               <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 {question.missingItem === null || question.missingItem === undefined
