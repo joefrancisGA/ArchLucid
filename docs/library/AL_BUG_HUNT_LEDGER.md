@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed binding_required authorize-query UX (existing parity) and saturated decodeOAuthErrorDescription ZWJ multiply-encoded glue (existing parity); regression documents BFF refresh 483 parity (client + route opaque 483) and variation-selector-16-only access_token rejection; scoped vitest 744/744.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - binding_required authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 483 shouldClearSession false - **regression 2026-10-22:** client soft-fail plus BFF route opaque 483 without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string variation-selector-16-only skips authorize retry marker - **regression 2026-10-22:** variation-selector strip parity (U+FE0F).
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** existing saturated encoding class test.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - consent_required authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 484 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string variation-selector-15-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with thin-space glue - locus: saturated JSON encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed credentials_required authorize-query UX (existing parity) and saturated readOAuthJsonErrorDescription ZWJ glue; regression documents BFF refresh 482 parity and variation-selector-1-only access_token rejection; scoped vitest 662/662.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - credentials_required authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
