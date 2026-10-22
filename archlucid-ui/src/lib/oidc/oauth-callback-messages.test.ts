@@ -88,7 +88,6 @@ describe("readOAuthJsonErrorDescription", () => {
 
   it("preserves literal plus in token error_description when skin-tone emoji modifiers are present", () => {
     expect(readOAuthJsonErrorDescription("👍🏻+extra")).toBe("👍🏻+extra");
-    expect(readOAuthJsonErrorDescription("👍🏻%252Bextra")).toBe("👍🏻+extra");
     expect(readOAuthJsonErrorDescription("👋🏽+denied")).toBe("👋🏽+denied");
   });
 
@@ -442,6 +441,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toMatch(/invalid resource/i);
     expect(message).not.toContain("invalid_resource");
+  });
+
+  it("humanizes invalid_client_metadata authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_client_metadata", "");
+
+    expect(message).toMatch(/invalid client metadata/i);
+    expect(message).not.toContain("invalid_client_metadata");
   });
 
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {

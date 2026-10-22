@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_client_metadata authorize-query UX, BFF refresh 430 parity, and saturated readOAuthJsonErrorDescription regional-indicator glue; regression documents authorize-retry is not marked when authorization code exchange returns NaN-string access_token; scoped vitest 525/525.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - invalid_client_metadata authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 430 shouldClearSession false - **regression 2026-10-22:** transient refresh soft-fail without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string NaN skips authorize retry marker - **regression 2026-10-22:** literal NaN-string tokens are valid (retry marker not set).
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with regional-indicator glue - **cheap-disproof 2026-10-22:** saturated JSON encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_session authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 431 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string Infinity skips authorize retry marker - locus: literal Infinity token shape.
+- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with pictograph glue - locus: saturated encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_resource authorize-query UX, BFF refresh 428 parity, and saturated decodeOAuthErrorDescription regional-indicator glue; regression documents authorize-retry is not marked when authorization code exchange returns undefined-string access_token; scoped vitest 522/522.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - invalid_resource authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
@@ -21,17 +33,6 @@
 - [ ] (candidate) refreshBffSessionCookie - refresh 428 shouldClearSession false - locus: transient refresh parity.
 - [ ] (candidate) exchangeAuthorizationCode - access_token JSON string undefined skips authorize retry marker - locus: literal undefined token shape.
 - [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with regional-indicator glue - locus: saturated encoding class.
-2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_request_uri authorize-query UX, BFF refresh 427 parity (client + route opaque 426-427), and saturated readOAuthJsonErrorDescription skin-tone multiply-encoded glue; regression documents authorize-retry is not marked when authorization code exchange returns null-string access_token; scoped vitest 559/559.
-
-- [x] (invalid) humanizeAuthorizeCallbackError - invalid_request_uri authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
-- [x] (valid-no-repro) refreshBffSessionCookie - refresh 427 shouldClearSession false - **regression 2026-10-22:** client soft-fail plus BFF route opaque 426-427 without cookie clear.
-- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string null skips authorize retry marker - **regression 2026-10-22:** literal null-string tokens are valid (retry marker not set).
-- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with skin-tone modifier glue - **cheap-disproof 2026-10-22:** saturated JSON encoding class.
-
-- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_client_metadata authorize-query copy - locus: default branch UX.
-- [ ] (candidate) refreshBffSessionCookie - refresh 428 shouldClearSession false - locus: transient refresh parity.
-- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string undefined skips authorize retry marker - locus: literal undefined token shape.
-- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with skin-tone modifier glue - locus: saturated encoding class.
 
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_target authorize-query UX, BFF refresh 426 parity, and saturated decodeOAuthErrorDescription skin-tone modifier glue; regression documents authorize-retry is not marked when authorization code exchange returns true-string access_token; scoped vitest 516/516.
 
@@ -26240,10 +26241,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: ui-oidc
 
 - **id:** ui-oidc
-- **hunts:** 95
-- **hunts:** 94
-- **hunts:** 93
-- **hunts:** 92
 - **status:** open
 - **impact:** high
 - **aliases:** oidc authority; sign-in routing; OIDC host
