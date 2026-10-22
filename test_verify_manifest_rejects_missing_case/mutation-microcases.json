@@ -1,1 +1,0 @@
-{"minimumCaseCount": 8, "cases": [{"mutationId": "mutate-rto-30m", "applyDelta": "recovery-objective:RTO=30m", "expectChangedFindings": true}]}

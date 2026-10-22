@@ -1,4 +1,0 @@
-flowchart TB
-  Gate["enable_private_data_plane"] --> VNet["azurerm_virtual_network.main"]
-  VNet --> Subnet["workload subnet"]
-  Compute["ACA VNet integrate"] --> Subnet

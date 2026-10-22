@@ -1,9 +1,0 @@
-flowchart LR
-  Pref["TenantNotificationChannelPreferences"] --> Email["email flag"]
-  Pref --> TeamsFlag["Teams flag"]
-  Pref --> WhFlag["outbound webhook flag"]
-  TeamsFlag --> Catalog["TeamsNotificationTriggerCatalog All"]
-  Catalog --> Conn["TeamsIncomingWebhookConnections"]
-  Email --> Digest["ExecDigestEmailDispatcher"]
-  Digest --> Slack["DigestSlackWebhookDeliveryChannel"]
-  Catalog --> Logic["Logic Apps teams-notifications"]

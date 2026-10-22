@@ -1,8 +1,0 @@
-flowchart LR
-  Entra["infra/terraform-entra"] --> Roles["ArchLucidRoles"]
-  Src["ArchLucidAuth RoleClaimSources"] --> Xform["ArchLucidRoleClaimsTransformation"]
-  Saml["ArchLucidSamlInboundClaimsNormalizer"] --> Xform
-  Xform --> Roles
-  Xform --> Perm["permission claims"]
-  Roles --> Pol["ArchLucidAuthorizationPoliciesExtensions"]
-  Diag["TokenClaimsDiagnosticService"] --> Xform

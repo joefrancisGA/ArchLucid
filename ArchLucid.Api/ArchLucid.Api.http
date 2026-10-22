@@ -1,6 +1,0 @@
-@ArchLucid.Api_HostAddress = http://localhost:5128
-
-GET {{ArchLucid.Api_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

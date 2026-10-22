@@ -1,7 +1,0 @@
-resources
-| where type =~ 'microsoft.network/virtualnetworks'
-| project
-    id, name, resourceGroup, subscriptionId,
-    addressPrefixes = properties.addressSpace.addressPrefixes,
-    subnets = properties.subnets,
-    peerings = properties.virtualNetworkPeerings

@@ -1,1 +1,0 @@
-{"addedServices":[{"serviceId":"svc-a","serviceName":"a","serviceType":"WebApp","runtimePlatform":"Azure"}],"addedRelationships":[{"sourceId":"a","targetId":"b","relationshipType":"ReadsFrom"}]}

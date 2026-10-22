@@ -1,9 +1,0 @@
-{
-  "schema": "archlucid.roi-baseline-send-override.v1",
-  "generatedUtc": "2026-06-07T12:00:00Z",
-  "approvedByRole": "sponsor-owner",
-  "recordedBy": "sales",
-  "validForRunId": "<committed-run-id>",
-  "rationale": "Describe why SEND is approved without COMPLETE baselines (buyer timeline, partial scorecard, etc.).",
-  "acceptedRisk": "Describe the claim boundary — e.g., no projected dollar ROI in sponsor deck until baselines collected."
-}

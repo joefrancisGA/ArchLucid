@@ -3274,13 +3274,25 @@
 - **aliases:** persistence billing stripe; stripe wallet integration; stripe billing persistence
 - **paths:** ArchLucid.Persistence/Billing/Stripe/; ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/Wallet/LlmTenantWalletConsumeStage.cs
 - **test-filter:** FullyQualifiedName~StripeWalletPaymentIdentifierGuard|FullyQualifiedName~UpdateWalletAsync_rejects_stripe_customer_id_that_guard_blocks
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-21 — auto-refill charged without re-validating persisted Stripe ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed-only): persistence-billing-stripe - no hunt-ready product defect; cheap-disproof closed guard fail-closed paths for unresolved linked customer, missing Stripe secret with payment method, and whitespace-only Stripe ids (no-op bypass); regression documents linked-customer match without payment method; scoped guard filter 6/6.
+
+- [x] (valid-no-repro) `StripeWalletPaymentIdentifierGuard.AllowsWalletUpdateAsync` - linked customer unresolved with customer id supplied - **cheap-disproof 2026-10-22:** fail closed when resolver returns null.
+- [x] (valid-no-repro) `StripeWalletPaymentIdentifierGuard.AllowsWalletUpdateAsync` - missing Stripe secret with payment method supplied - **cheap-disproof 2026-10-22:** fail closed before PaymentMethod API.
+- [x] (valid-no-repro) `StripeWalletPaymentIdentifierGuard.AllowsWalletUpdateAsync` - customer id matches linked customer without payment method - **regression 2026-10-22:** allow tenant-owned customer id only.
+- [x] (valid-no-repro) `StripeWalletPaymentIdentifierGuard.AllowsWalletUpdateAsync` - whitespace-only Stripe ids treated as absent - **cheap-disproof 2026-10-22:** early no-op bypass without resolver call.
+
+- [ ] (candidate) `StripeWalletPaymentIdentifierGuard.AllowsWalletUpdateAsync` - payment method not attached to linked customer - locus: `IsPaymentMethodAttachedToCustomerAsync` (reachability: Stripe PaymentMethod.GetAsync).
+- [ ] (candidate) `StripeLinkedCustomerResolver.TryResolveLinkedCustomerIdAsync` - checkout session provider ref without tenant metadata - locus: `MetadataMatchesTenant` (reachability: ledger `cs_` refs).
+- [ ] (candidate) `LlmTenantWalletRefillStage.TryAutoRefillAsync` - guard bypass when only payment method id persisted - locus: auto-refill re-validation (reachability: persisted wallet row shape).
+- [ ] (candidate) `LlmTenantWalletConsumeStage` - guard skipped on consume when Stripe ids stale - locus: consume-stage identifier guard (reachability: parallel to refill stage).
 
 2026-10-21 follow-up hunt (hit, lane C): auto-refill `TryAutoRefillAsync` now re-runs `IStripeWalletPaymentIdentifierGuard` on persisted Stripe ids before `ChargeRefillAsync`, logging `LlmWalletRefillFailed` with decline code `payment_identifier_guard` and skipping Stripe when legacy rows fail validation. Regression `TryAutoRefillAsync_skips_stripe_charge_when_persisted_identifiers_fail_guard`; 29 scoped wallet tests passed.
 
@@ -11249,6 +11261,76 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-22 seed hunt (seed→hit): promoted post-auth uncatalogued `IndustryVertical` — registration rejects via `RegistrationRequestBaselineValidator.IndustryVerticals` but `CreateWorkspaceAsync` accepted arbitrary labels into trial bootstrap; shared curated-list guard before provision; regression `CreateWorkspaceAsync_denies_when_industry_vertical_not_in_curated_list`; cheap-disproof closed four sibling `(candidate)` rows.
+
+- [x] (proven) `PostAuthWorkspaceBootstrapService.CreateWorkspaceAsync` — uncatalogued `IndustryVertical` accepted — **hit 2026-10-22 seed hunt:** `RegistrationRequestBaselineValidator.IndustryVerticals` parity; regression `CreateWorkspaceAsync_denies_when_industry_vertical_not_in_curated_list`.
+- [x] (valid-no-repro) `TenantWorkOwnershipDeletePolicyService.SetAllowCreatorDeleteOwnedWorkAsync` — writer without admin at service — **cheap-disproof 2026-10-22:** tenant settings mutations authorized at API/controller layer; service is tenant-scoped upsert only.
+- [x] (valid-no-repro) `TenantMigrationStatusService.GetForTenantAsync` — `MaintenanceMessage` during suspended migration — **cheap-disproof 2026-10-22:** intentional operator visibility during active migration (not erasure quarantine).
+- [x] (invalid) `TrialLifecycleAdvancement` — mismatched from/to statuses — **cheap-disproof 2026-10-22:** only constructed by `TrialLifecyclePolicy`; no external attacker input path.
+- [x] (valid-no-repro) `TenantProvisioningService.ProvisionAsync` — `DataRegion` mismatch on idempotent retry — **cheap-disproof 2026-10-22:** `WasAlreadyProvisioned` conflict path does not re-run bootstrap (`BuildAlreadyProvisionedResultAsync` ledger #1247).
+
+- [ ] (candidate) `PostAuthWorkspaceBootstrapService.CreateWorkspaceAsync` — `CompanySize` band not validated on post-auth path — locus: no `AllowedCompanySizes` check; input: post-auth create with unknown company size (reachability: optional profile fields on workspace create).
+- [ ] (candidate) `TenantSuspendCommandService.TrySuspendAsync` — idempotent suspend when already suspended returns before audit — locus: `AlreadyInDesiredState` early return; input: double admin suspend (reachability: admin API).
+- [ ] (candidate) `TenantSlugNormalizer.FromName` — slug truncated at 100 chars mid-token — locus: `slug[..100].TrimEnd('-')`; input: 101-char alphanumeric name (reachability: registration slug derivation).
+- [ ] (candidate) `TrialLimitGate.GuardWriteAsync` — `Guid.Empty` tenant scope bypass — locus: early return ~32–33; input: missing tenant scope on mutating call (reachability: internal scope binding).
+- [ ] (candidate) `TenantMigrationVerificationProbe.RunAsync` — fails when `SuspendedUtc` null — locus: write-freeze guard ~42–45; input: verification invoked before suspend (reachability: orchestrator stage ordering).
+
+2026-10-22 seed hunt (seed→hit): promoted post-auth `IndustryVertical=Other` without `IndustryVerticalOther` — self-service registration rejects via `RegistrationRequestBaselineValidator` but `CreateWorkspaceAsync` provisioned and bootstrapped; added deny guard before provision; regression `CreateWorkspaceAsync_denies_when_other_vertical_without_other_specification`; cheap-disproof closed four sibling `(candidate)` rows.
+
+- [x] (proven) `PostAuthWorkspaceBootstrapService.CreateWorkspaceAsync` — `IndustryVertical=Other` with blank `IndustryVerticalOther` accepted — **hit 2026-10-22 seed hunt:** registration parity validation before provision; regression `CreateWorkspaceAsync_denies_when_other_vertical_without_other_specification`.
+- [x] (valid-no-repro) `TenantTrialFacade.GetTrialStatusAsync` — lowercase `trialStatus` breaks days display — **cheap-disproof 2026-10-22:** `TrialLifecycleStatus.EqualsStatus` is ordinal-ignore-case; `GetTrialStatusAsync_sets_identity_handoff_pending_when_converted_status_differs_only_by_casing`.
+- [x] (valid-no-repro) `TenantUsageStatusService.BuildAsync` — workspace count for offboarded tenant — **cheap-disproof 2026-10-22:** erasure-quarantined tenants blocked on tenant-scoped HTTP before usage callers; snapshot is read-model only.
+- [x] (valid-no-repro) `TrialSignupBaselineReviewCycleCapture` — negative baseline hours — **cheap-disproof 2026-10-22:** `RegistrationRequestBaselineValidator` rejects `<= 0` before capture reaches commit (`BaselineReviewCycleHours must be greater than 0`).
+- [x] (valid-no-repro) `TenantAgentOutputQualityGateModeService.SetAsync` — invalid mode string at service layer — **cheap-disproof 2026-10-22:** `SetAsync` accepts typed `AgentOutputQualityGateMode` enum only; string parsing is `GetAsync` read path.
+
+- [x] (proven) `PostAuthWorkspaceBootstrapService.CreateWorkspaceAsync` — uncatalogued `IndustryVertical` — **hit 2026-10-22 seed hunt:** see zone header.
+- [x] (valid-no-repro) `TenantWorkOwnershipDeletePolicyService` — admin role at service — **closed 2026-10-22 seed hunt:** see zone header.
+- [x] (valid-no-repro) `TenantMigrationStatusService` — maintenance message visibility — **closed 2026-10-22 seed hunt:** see zone header.
+- [x] (invalid) `TrialLifecycleAdvancement` — mismatched statuses — **closed 2026-10-22 seed hunt:** see zone header.
+- [x] (valid-no-repro) `TenantProvisioningService.ProvisionAsync` — data region on idempotent retry — **closed 2026-10-22 seed hunt:** see zone header.
+
+2026-10-22 seed hunt (seed→hit): promoted `PostAuthWorkspaceBootstrapService.BuildCompanyProfile` — stray `IndustryVerticalOther` flowed into post-auth trial bootstrap when vertical was not `Other` (registration path already nulls it); parity guard in `BuildCompanyProfile`; regression `CreateWorkspaceAsync_strips_industry_vertical_other_when_vertical_is_not_other`; cheap-disproof closed four sibling `(candidate)` rows; scoped post-auth + org-detector tests passed.
+
+- [x] (proven) `PostAuthWorkspaceBootstrapService.BuildCompanyProfile` — `IndustryVerticalOther` persisted when vertical not `Other` — **hit 2026-10-22 seed hunt:** null other unless vertical is `Other`; regression `CreateWorkspaceAsync_strips_industry_vertical_other_when_vertical_is_not_other`.
+- [x] (valid-no-repro) `TenantMigrationVerificationProbe.RunAsync` — probe runs when tenant suspended but not offboarded — **cheap-disproof 2026-10-22:** orchestrator quarantine re-reads precede probe; suspend is expected during migration verification window.
+- [x] (valid-no-repro) `TenantDeletionService.DeleteTenantAsync` — platform audit skipped when approval cleared after SQL purge — **cheap-disproof 2026-10-22:** documented intentional skip in existing regression.
+- [x] (valid-no-repro) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — stale workspace link for transition audit — **cheap-disproof 2026-10-22:** `[state-machine-gap]` saturated; workspace-missing audit skip already proven (`TryAdvanceTenantAsync_skips_transition_audit_when_workspace_link_missing_before_audit`).
+- [x] (valid-no-repro) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — `IX_` only on outer exception — **regression 2026-10-22:** `IsDuplicateOrganization_detects_ix_index_name_on_outer_exception_message`.
+
+- [x] (proven) `PostAuthWorkspaceBootstrapService.CreateWorkspaceAsync` — `Other` vertical without other specification — **hit 2026-10-22 seed hunt:** see zone header.
+- [x] (valid-no-repro) `TenantTrialFacade.GetTrialStatusAsync` — lowercase `trialStatus` — **closed 2026-10-22 seed hunt:** see zone header.
+- [x] (valid-no-repro) `TenantUsageStatusService.BuildAsync` — offboarded workspace count — **closed 2026-10-22 seed hunt:** see zone header.
+- [x] (valid-no-repro) `TrialSignupBaselineReviewCycleCapture` — negative baseline hours — **closed 2026-10-22 seed hunt:** see zone header.
+- [x] (valid-no-repro) `TenantAgentOutputQualityGateModeService.SetAsync` — invalid mode at service — **closed 2026-10-22 seed hunt:** see zone header.
+
+2026-10-22 seed hunt (seed-only): closed five open `(candidate)` rows with regressions/cheap-disproof (duplicate-org inner exception, registration `IndustryVerticalOther` guard, migration status error cleared on successful verify mark, no-op retrieval drainer by design, seat cap enforced at repository); no hunt-ready promotion (`state-machine-gap` saturated); scoped tenancy migration/org-detector + registration tests passed.
+
+- [x] (valid-no-repro) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — nested inner exception without SQL unique-key detector — **regression 2026-10-22:** `IsDuplicateOrganization_detects_duplicate_text_on_inner_exception_only`.
+- [x] (valid-no-repro) `TrialSignupCompanyProfileCapture` / `RegistrationApplicationService` — `IndustryVerticalOther` persisted when vertical not `Other` — **regression 2026-10-22:** `RegisterAsync_strips_industry_vertical_other_when_vertical_is_not_other` (null other unless vertical is `Other`).
+- [x] (valid-no-repro) `TenantMigrationStatusService.GetForTenantAsync` — stale `LastVerificationError` after successful verify retry — **regression 2026-10-22:** `MarkVerificationResultAsync` clears error when `passed: true`; `GetForTenantAsync_clears_last_verification_error_after_successful_verification_mark`.
+- [x] (valid-no-repro) `NoOpTenantMigrationRetrievalOutboxDrainer.ProcessPendingBatchAsync` — silent no-op during migration — **cheap-disproof 2026-10-22:** intentional host fallback; catalog migration does not require retrieval drain in Application layer alone.
+- [x] (valid-no-repro) `TrialSeatAccountant.TryReserveSeatAsync` — seat used counter increments when tenant already at limit — **cheap-disproof 2026-10-22:** `TryReserveSeatAsync_lowercase_active_trial_enforces_seat_cap` throws `SeatsExceeded` on third principal; repository owns atomic claim.
+
+- [x] (proven) `PostAuthWorkspaceBootstrapService.BuildCompanyProfile` — stray `IndustryVerticalOther` when vertical not `Other` — **hit 2026-10-22 seed hunt:** see zone header.
+- [x] (valid-no-repro) `TenantMigrationVerificationProbe.RunAsync` — probe while suspended — **closed 2026-10-22 seed hunt:** see zone header.
+- [x] (valid-no-repro) `TenantDeletionService.DeleteTenantAsync` — audit skip after purge — **closed 2026-10-22 seed hunt:** see zone header.
+- [x] (valid-no-repro) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — stale workspace for audit — **closed 2026-10-22 seed hunt:** see zone header.
+- [x] (valid-no-repro) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — `IX_` on outer — **closed 2026-10-22 seed hunt:** see zone header.
+
+2026-10-22 seed hunt (seed-only): `[state-machine-gap]` saturated — no hunt-ready promotion; cheap-disproof closed five open `(candidate)` rows (projection refresh stage gate, preseed enqueue re-read, seat middleware ordering, slug homoglyph stripping, data-region validate path); added `TrialLifecyclePolicy` regressions for converted/unknown status and missing expiry display; scoped `TrialLifecyclePolicyTests` 10/10.
+
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — projection refresh after failed verification retry — **cheap-disproof 2026-10-22:** `RunProjectionRefreshAsync` requires `CatalogAttachDetach` stage; failed verify keeps `Verification` stage until retry passes (`RunVerificationAsync_allows_retry_after_failed_verification`).
+- [x] (valid-no-repro) `TrialTenantBootstrapService.TryEnqueueTrialArchitecturePreseedAsync` — preseed enqueue without re-read after trial commit — **cheap-disproof 2026-10-22:** `IsTenantInErasureQuarantineAsync` immediately before `EnqueueTrialArchitecturePreseedAsync` (~202–205).
+- [x] (valid-no-repro) `TenantTrialSeatReservationMiddleware` — seat claim skipped when `TrialSeatsLimit` null on first request — **cheap-disproof 2026-10-22:** same middleware ordering lens as 2026-10-21; trial commit sets seat limits before self-service HTTP returns.
+- [x] (valid-no-repro) `TenantSlugNormalizer.Normalize` — unicode homoglyph slug collision — **cheap-disproof 2026-10-22:** non-ASCII letters stripped by design; `TenantSlugNormalizerTests` covers alphanumeric extraction.
+- [x] (valid-no-repro) `TenantDataRegionResolver.Resolve` — missing region default vs tenant `DataRegion` mismatch on provision — **cheap-disproof 2026-10-22:** `TenantProvisioningDataRegionPolicy` normalizes optional input and validates against supported list (`ApplicationPackageCoverageBatch8Tests`).
+
+- [x] (valid-no-repro) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — nested inner exception — **closed 2026-10-22 seed hunt:** see zone header regression.
+- [x] (valid-no-repro) `TrialSignupCompanyProfileCapture` / registration profile — `IndustryVerticalOther` when vertical not `Other` — **closed 2026-10-22 seed hunt:** see zone header regression.
+- [x] (valid-no-repro) `TenantMigrationStatusService.GetForTenantAsync` — stale `LastVerificationError` — **closed 2026-10-22 seed hunt:** see zone header regression.
+- [x] (valid-no-repro) `NoOpTenantMigrationRetrievalOutboxDrainer` — silent no-op during migration — **closed 2026-10-22 seed hunt:** see zone header cheap-disproof.
+- [x] (valid-no-repro) `TrialSeatAccountant.TryReserveSeatAsync` — seat cap at limit — **closed 2026-10-22 seed hunt:** see zone header cheap-disproof.
+
 2026-10-21 seed hunt (seed→hit): `TrialVerticalWelcomeRequestFactory.Create` ignored signup `IndustryVerticalOther` when `IndustryVertical` is `Other`, so trial architecture pre-seed used generic welcome copy; `TrialArchitecturePreseedExecutor` now passes both fields; regressions `Create_with_other_vertical_and_specification_includes_other_text_in_description` and `TryProcessTenantAsync_other_vertical_passes_other_specification_into_welcome_request`; 245 scoped tenancy tests passed.
 
 - [x] (proven) `TrialVerticalWelcomeRequestFactory.Create` — `IndustryVerticalOther` ignored for `Other` signup vertical — **hit 2026-10-21 seed hunt:** optional other specification woven into welcome pre-seed description; executor passes `tenant.IndustryVerticalOther`.
@@ -11263,11 +11345,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 133
-- **bugs-found:** 114
+- **hunts:** 138
+- **bugs-found:** 117
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trial welcome preseed IndustryVerticalOther
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 — post-auth IndustryVertical curated-list parity
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
@@ -11857,11 +11939,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `TenantWorkOwnershipDeletePolicyService.GetAllowCreatorDeleteOwnedWorkAsync` — malformed boolean fail-open — **cheap-disproof 2026-10-21 seed hunt:** `[fail-open-validation]` saturated; writes use `TenantSettingBooleanParser.Format`; malformed row requires DB tamper (#1247).
 - [x] (valid-no-repro) `TenantSuspendCommandService.TrySuspendAsync` — suspend/offboard race — **cheap-disproof 2026-10-21 seed hunt:** `TenantSuspendCommandServiceOffboardRaceTests` already covers offboard before atomic suspend, after suspend, and post-read audit windows.
 
-- (candidate) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — projection refresh after failed verification retry — locus: stage gate vs `LastVerificationFailedUtc`; input: admin retries verify after probe failure while tenant still suspended (reachability: migration operator API).
-- (candidate) `TrialTenantBootstrapService.TryEnqueueTrialArchitecturePreseedAsync` — preseed enqueue without re-read after trial commit — locus: enqueue path after `CommitSelfServiceTrialAsync`; input: erasure offboard between commit and enqueue (reachability: self-service registration worker).
-- (candidate) `TenantTrialSeatReservationMiddleware` — seat claim skipped when `TrialSeatsLimit` null on first request — locus: middleware early exit; input: tenant row between slug reserve and trial commit (reachability: first authenticated API after register).
-- (candidate) `TenantSlugNormalizer.Normalize` — unicode homoglyph slug collision — locus: normalization table; input: registration slug with confusable characters (reachability: `POST /v1/register` slug field).
-- (candidate) `TenantDataRegionResolver.Resolve` — missing region default vs tenant `DataRegion` mismatch on provision — locus: resolver merge; input: registration with explicit non-default region (reachability: registration + provision path).
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — projection refresh after failed verification retry — **closed 2026-10-22 seed hunt:** see zone header cheap-disproof.
+- [x] (valid-no-repro) `TrialTenantBootstrapService.TryEnqueueTrialArchitecturePreseedAsync` — preseed enqueue without re-read after trial commit — **closed 2026-10-22 seed hunt:** see zone header cheap-disproof.
+- [x] (valid-no-repro) `TenantTrialSeatReservationMiddleware` — seat claim skipped when `TrialSeatsLimit` null on first request — **closed 2026-10-22 seed hunt:** see zone header cheap-disproof.
+- [x] (valid-no-repro) `TenantSlugNormalizer.Normalize` — unicode homoglyph slug collision — **closed 2026-10-22 seed hunt:** see zone header cheap-disproof.
+- [x] (valid-no-repro) `TenantDataRegionResolver.Resolve` — missing region default vs tenant `DataRegion` mismatch on provision — **closed 2026-10-22 seed hunt:** see zone header cheap-disproof.
 
 ## Zone: api-request-null-collection-elements
 

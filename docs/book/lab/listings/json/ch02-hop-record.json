@@ -1,8 +1,0 @@
-{
-  "resourceId": "/subscriptions/…/storageAccounts/custdata",
-  "claim": "holdsCustomerPersonalData",
-  "value": true,
-  "evidence": "AI_INFERENCE",
-  "producedBy": "classifier v3 (names, tags, container names)",
-  "producedAt": "2026-10-06T09:20:00Z"
-}
