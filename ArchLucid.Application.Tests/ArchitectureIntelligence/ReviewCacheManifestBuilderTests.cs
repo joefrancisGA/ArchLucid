@@ -1729,6 +1729,171 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_baseline_duplicate_element_ids_differ_only_by_extraction_confidence_list_order()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-duplicate-element-confidence";
+
+        ArchitectureKnowledgeModel lowFirst = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    ExtractionConfidence = 0.1,
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    ExtractionConfidence = 0.9,
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel highFirst = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    ExtractionConfidence = 0.9,
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    ExtractionConfidence = 0.1,
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel canonical = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    ExtractionConfidence = 0.1,
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, lowFirst).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, highFirst).ContentHash);
+
+        ReviewCacheManifestBuilder.Build(request, lowFirst).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, canonical).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_tenant_configuration_hash_when_workspace_id_differs_only_by_nbsp_vs_space()
+    {
+        ClosedLoopReasoningRequest spaced = CreateRequest("Architecture note.");
+        spaced.WorkspaceId = "workspace cache";
+
+        ClosedLoopReasoningRequest nbsp = CreateRequest("Architecture note.");
+        nbsp.WorkspaceId = "workspace\u00A0cache";
+
+        ReviewCacheManifestBuilder.Build(spaced).TenantConfigurationHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(nbsp).TenantConfigurationHash);
+    }
+
+    [Fact]
+    public void BuildWithResolvedRunId_matches_content_hash_when_resolved_run_id_differs_only_by_nbsp_vs_space()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = string.Empty;
+
+        ReviewCacheManifestBuilder.BuildWithResolvedRunId(request, "run id-001").ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.BuildWithResolvedRunId(request, "run\u00A0id-001").ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_element_provenance_notes_differs_only_by_consecutive_spaces()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-provenance-notes-spaces";
+
+        ArchitectureKnowledgeModel single = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance { Notes = "Cited from runbook." },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel doubleSpaced = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance { Notes = "Cited from  runbook." },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, single).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, doubleSpaced).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_model_framing_answer_value_differs_only_by_nbsp_vs_space()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-framing-value-nbsp";
+
+        ArchitectureKnowledgeModel spaced = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            FramingAnswers = new Dictionary<string, string> { ["business-outcome"] = "Secure intake." },
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ArchitectureKnowledgeModel nbsp = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            FramingAnswers = new Dictionary<string, string> { ["business-outcome"] = "Secure\u00A0intake." },
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, spaced).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, nbsp).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_client_run_id_differs_only_by_nbsp_vs_space()
     {
         ClosedLoopReasoningRequest spaced = CreateRequest("Architecture note.");

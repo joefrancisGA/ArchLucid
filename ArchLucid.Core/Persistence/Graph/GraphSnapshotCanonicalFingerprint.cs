@@ -185,6 +185,9 @@ public static class GraphSnapshotCanonicalFingerprint
             .Select(static group => group
                 .OrderBy(element => NormalizeFingerprintText(element.Name), StringComparer.Ordinal)
                 .ThenBy(element => NormalizeFingerprintText(element.Description), StringComparer.Ordinal)
+                .ThenBy(element => element.ExtractionConfidence)
+                .ThenBy(element => element.Kind)
+                .ThenBy(element => element.LifecycleScope)
                 .First());
     }
 
