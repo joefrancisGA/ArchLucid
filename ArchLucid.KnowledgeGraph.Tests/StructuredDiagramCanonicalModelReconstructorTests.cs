@@ -420,4 +420,68 @@ public sealed class StructuredDiagramCanonicalModelReconstructorTests
             subgraph.Id == "corp"
             && subgraph.Label == "Corporate network");
     }
+
+    [Fact]
+    public void ReconstructDocuments_preserves_edge_label_when_later_sparse_row_repeats_same_connectivity()
+    {
+        const string labeledTargetToken = "obj-obj-db|HTTPS%20data%20flow|asserted|e1";
+        const string sparseTargetToken = "obj-obj-db||asserted|e1";
+
+        List<CanonicalObject> canonicalObjects =
+        [
+            new CanonicalObject
+            {
+                ObjectId = "obj-api-primary",
+                ObjectType = "TopologyResource",
+                Name = "API Gateway",
+                SourceType = ArchitectureDiagramCanonicalObjectMapper.StructuredDiagramSourceType,
+                SourceId = "doc-edge-dup",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["text"] = "API Gateway",
+                    ["diagramNodeId"] = "api",
+                    ["diagramNodeKind"] = ArchitectureDiagramNodeKinds.System,
+                    ["connectedToNodeIds"] = labeledTargetToken,
+                },
+            },
+            new CanonicalObject
+            {
+                ObjectId = "obj-db",
+                ObjectType = "TopologyResource",
+                Name = "SQL Database",
+                SourceType = ArchitectureDiagramCanonicalObjectMapper.StructuredDiagramSourceType,
+                SourceId = "doc-edge-dup",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["text"] = "SQL Database",
+                    ["diagramNodeId"] = "db",
+                    ["diagramNodeKind"] = ArchitectureDiagramNodeKinds.System,
+                },
+            },
+            new CanonicalObject
+            {
+                ObjectId = "obj-api-sparse",
+                ObjectType = "TopologyResource",
+                Name = string.Empty,
+                SourceType = ArchitectureDiagramCanonicalObjectMapper.StructuredDiagramSourceType,
+                SourceId = "doc-edge-dup",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["diagramNodeId"] = "api",
+                    ["diagramNodeKind"] = ArchitectureDiagramNodeKinds.System,
+                    ["connectedToNodeIds"] = sparseTargetToken,
+                },
+            },
+        ];
+
+        ArchitectureDiagramModelRecord model = StructuredDiagramCanonicalModelReconstructor
+            .ReconstructDocuments(canonicalObjects)
+            .Should()
+            .ContainSingle()
+            .Subject
+            .Model;
+
+        model.Edges.Should().HaveCount(1);
+        model.Edges[0].Label.Should().Be("HTTPS data flow");
+    }
 }

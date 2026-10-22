@@ -222,18 +222,47 @@ public static class StructuredDiagramCanonicalModelReconstructor
                     ? diagramEdgeId.Trim()
                     : $"edge-{edgeIndex++}";
 
-                edges.Add(new ArchitectureDiagramEdgeRecord
+                ArchitectureDiagramEdgeRecord incomingEdge = new()
                 {
                     Id = resolvedEdgeId,
                     SourceId = sourceDiagramNodeId,
                     TargetId = targetDiagramNodeId,
                     Label = edgeLabel ?? string.Empty,
                     Provenance = edgeProvenance ?? ReadProvenance(source),
-                });
+                };
+
+                ArchitectureDiagramEdgeRecord? existingEdge = edges.FirstOrDefault(
+                    candidate =>
+                        string.Equals(candidate.Id, resolvedEdgeId, StringComparison.OrdinalIgnoreCase)
+                        && string.Equals(candidate.SourceId, sourceDiagramNodeId, StringComparison.OrdinalIgnoreCase)
+                        && string.Equals(candidate.TargetId, targetDiagramNodeId, StringComparison.OrdinalIgnoreCase));
+
+                if (existingEdge is null)
+                {
+                    edges.Add(incomingEdge);
+                    continue;
+                }
+
+                CoalesceDiagramEdgeRecord(existingEdge, incomingEdge);
             }
         }
 
         return edges;
+    }
+
+    private static void CoalesceDiagramEdgeRecord(
+        ArchitectureDiagramEdgeRecord existing,
+        ArchitectureDiagramEdgeRecord incoming)
+    {
+        if (!string.IsNullOrWhiteSpace(incoming.Label))
+        {
+            existing.Label = incoming.Label;
+        }
+
+        if (!string.IsNullOrWhiteSpace(incoming.Provenance))
+        {
+            existing.Provenance = incoming.Provenance;
+        }
     }
 
     private static (string ObjectToken, string? EdgeLabel, string? EdgeProvenance, string? DiagramEdgeId)
