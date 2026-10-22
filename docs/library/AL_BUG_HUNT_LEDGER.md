@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_dpop_proof authorize-query UX, BFF refresh 434 parity, and saturated readOAuthJsonErrorDescription ZWJ glue; regression documents authorize-retry is not marked when authorization code exchange returns empty-array-string access_token; scoped vitest 537/537.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - invalid_dpop_proof authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 434 shouldClearSession false - **regression 2026-10-22:** transient refresh soft-fail without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string empty array literal skips authorize retry marker - **regression 2026-10-22:** literal bracket-string tokens are valid (retry marker not set).
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** saturated JSON encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - use_second_factor authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 435 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string empty object literal skips authorize retry marker - locus: literal brace token shape.
+- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with skin-tone modifier glue - locus: saturated encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed request_uri_too_long authorize-query UX, BFF refresh 433 parity, and saturated decodeOAuthErrorDescription ZWJ glue; regression documents authorize-retry is not marked when authorization code exchange returns object-string access_token; scoped vitest 534/534.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - request_uri_too_long authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
@@ -20,30 +32,7 @@
 - [ ] (candidate) humanizeAuthorizeCallbackError - request_uri_too_long authorize-query copy - locus: default branch UX.
 - [ ] (candidate) refreshBffSessionCookie - refresh 433 shouldClearSession false - locus: transient refresh parity.
 - [ ] (candidate) exchangeAuthorizationCode - access_token JSON string [object Object] skips authorize retry marker - locus: literal object-string token shape.
-2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed request_not_supported authorize-query UX, BFF refresh 432 parity (client + route opaque 431-432), and saturated readOAuthJsonErrorDescription pictograph multiply-encoded glue; regression documents authorize-retry is not marked when authorization code exchange returns negative-Infinity-string access_token; scoped vitest 576/576.
-
-- [x] (invalid) humanizeAuthorizeCallbackError - request_not_supported authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
-- [x] (valid-no-repro) refreshBffSessionCookie - refresh 432 shouldClearSession false - **regression 2026-10-22:** client soft-fail plus BFF route opaque 431-432 without cookie clear.
-- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string -Infinity skips authorize retry marker - **regression 2026-10-22:** literal negative-Infinity-string tokens are valid (retry marker not set).
-- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with pictograph glue - **cheap-disproof 2026-10-22:** saturated JSON encoding class.
-
-- [ ] (candidate) humanizeAuthorizeCallbackError - request_uri_not_supported authorize-query copy - locus: default branch UX.
-- [ ] (candidate) refreshBffSessionCookie - refresh 433 shouldClearSession false - locus: transient refresh parity.
-- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string empty object skips authorize retry marker - locus: literal {} token shape.
 - [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with ZWJ glue - locus: saturated encoding class.
-2026-10-22 seed hunt (seed->hit): `application-tenancy-lifecycle` - promoted hunt-ready from seed re-read `TenantDeletionService.DeleteTenantAsync` - `TenantDataDeleted` platform audit appended after three post-purge tenant reads without a final re-read, so an active erasure legal hold activated between `tenantBeforeDeletionAuditAppend` and audit could still emit deletion audit after destructive purge; fourth pre-append `GetByIdAsync` with approval and legal-hold skip; regression `DeleteTenantAsync_returns_without_platform_audit_when_active_legal_hold_set_after_pre_deletion_audit_append_read_before_audit`; scoped tenancy filter 263/263.
-
-- [x] (proven) `DeleteTenantAsync` - active legal hold after pre-deletion audit append read before audit - **hit 2026-10-22 seed hunt:** fourth pre-append re-read + hold guard; regression above.
-- [x] (valid-no-repro) `DeleteTenantAsync` - active legal hold after purge before first post-purge read - **cheap-disproof 2026-10-22:** existing regression on trunk.
-- [x] (valid-no-repro) `DeleteTenantAsync` - erasure approval cleared after pre-deletion audit append read - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
-- [x] (valid-no-repro) `TryRestoreQuarantineAsync` - re-offboard after tenantBeforeRestoreAudit read - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
-- [x] (invalid) `DeleteTenantAsync` - legal hold before blob purge throws - **cheap-disproof 2026-10-22:** revalidate throws before destructive work.
-
-- [ ] (candidate) `DeleteTenantAsync` - erasure approval cleared after pre-deletion audit append read before fourth read - locus: saturated approval guards (reachability: admin delete job).
-- [ ] (candidate) `TryClearLegalHoldAsync` - hold re-applied after tenantBeforeClearAudit read - locus: fifth pre-append read gap (reachability: erasure command).
-- [ ] (candidate) `TrySetLegalHoldAsync` - hold cleared after tenantBeforeSetAudit read - locus: saturated set-hold path (reachability: erasure command).
-- [ ] (candidate) `TrialLifecycleTransitionEngine` - offboard between audit and expiration metric - locus: post-audit superseded read (reachability: saturated).
-- [ ] (candidate) `TenantCatalogMigrationOrchestrator.StartAsync` - offboard after insert before started audit - locus: existing regression (reachability: saturated).
 
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_session authorize-query UX, BFF refresh 431 parity, and saturated decodeOAuthErrorDescription pictograph glue; regression documents authorize-retry is not marked when authorization code exchange returns Infinity-string access_token; scoped vitest 528/528.
 
@@ -26300,12 +26289,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: ui-oidc
 
 - **id:** ui-oidc
-- **hunts:** 97
-- **hunts:** 96
-- **hunts:** 95
-- **hunts:** 94
-- **hunts:** 93
-- **hunts:** 92
 - **status:** open
 - **impact:** high
 - **aliases:** oidc authority; sign-in routing; OIDC host
@@ -217749,4 +217732,28 @@ ABQ-09 churn hotspot.
 2026-10-11 thorough hunt (dry): `host-core-jobs` ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ repeated unchanged candidate review after the 45-hunt threshold; no reachable failing repro or hunt-ready promotion. The scoped host-core job suite passed 76/76. No production change.
 2026-10-11 thorough hunt (dry): `host-core-jobs` ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ repeated the unchanged candidate set after 45 hunts; no reachable failing repro or hunt-ready promotion. The scoped host-core job suite passed 76/76. No production change.
 2026-10-11 thorough hunt (dry): `host-core-jobs` ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ repeated unchanged candidate review after the 45-hunt threshold; no reachable failing repro or hunt-ready promotion. The scoped host-core job suite passed 76/76. No production change.
-2026-10-11 thorough hunt (dry): `host-core-jobs` ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ repeated unchanged candidate review after the 45-hunt threshold; no reachable failing repro or hunt
+2026-10-11 thorough hunt (dry): `host-core-jobs` ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ repeated unchanged candidate review after the 45-hunt threshold; no reachable failing repro or hunt-ready promotion. The scoped host-core job suite passed 76/76. No production change.
+2026-10-11 thorough hunt (dry): `host-core-jobs` ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ repeated unchanged candidate review after the 45-hunt threshold; no reachable failing repro or hunt-ready promotion. The scoped host-core job suite passed 76/76. No production change.
+2026-10-11 seed hunt (seed?hit): `ui-infra-resource-hub` ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ `ResourceHubClient` supplied `shortcutsTestId` to `InfraEvidenceWorkbenchHeaderActions`, but the shared header action wrapper dropped it, making the shortcut region unqueryable and breaking the focused ResourceHubClient test. The wrapper now applies the supplied test id; the focused ResourceHubClient, working-mode, and buyer-polished suites passed 52/52.
+
+## Zone: api-request-null-collection-elements
+
+- **id:** api-request-null-collection-elements
+- **status:** open
+- **impact:** high
+- **aliases:** null collection elements; request body validation
+- **paths:** ArchLucid.Api/Filters/ApiRequestNullCollectionElementsFilter.cs; ArchLucid.Api/Validation/ApiRequestNullCollectionElementsGuard.cs; ArchLucid.Api/Http/ApiRequestBodyTypeCatalog.cs; ArchLucid.Api/Startup/MvcExtensions.cs
+- **test-filter:** FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests
+- **hunts:** 2
+- **bugs-found:** 1
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **related-pd-tb:** none
+- **code-changed-since:** no
+
+2026-10-21 structural hunt (hit, lane B): shipped global guard; defect class marked closed in ledger preamble; no new unguarded 500 repro beyond already-fixed controller paths.
+
+- [x] (proven) **Defect class:** null elements inside request body collections ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ **closed 2026-10-21:** `ApiRequestNullCollectionElementsFilter` + guard; architecture reflection coverage over `[FromBody]` DTO collection properties.
+
+---

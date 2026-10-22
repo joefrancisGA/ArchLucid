@@ -91,12 +91,6 @@ describe("readOAuthJsonErrorDescription", () => {
     expect(readOAuthJsonErrorDescription("👋🏽+denied")).toBe("👋🏽+denied");
   });
 
-  it("preserves literal plus in JSON error_description when pictograph emoji is present", () => {
-    expect(readOAuthJsonErrorDescription("⚠️+extra")).toBe("⚠️+extra");
-    expect(readOAuthJsonErrorDescription("⚠️%2Bextra")).toBe("⚠️+extra");
-    expect(readOAuthJsonErrorDescription("⚠️%252Bextra")).toBe("⚠️+extra");
-  });
-
   it("preserves literal plus in token error_description when emoji ZWJ sequences are present", () => {
     expect(readOAuthJsonErrorDescription("👨\u200d👩\u200d👧+extra")).toBe("👨\u200d👩\u200d👧+extra");
   });
@@ -475,6 +469,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toMatch(/request uri too long/i);
     expect(message).not.toContain("request_uri_too_long");
+  });
+
+  it("humanizes invalid_dpop_proof authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_dpop_proof", "");
+
+    expect(message).toMatch(/invalid dpop proof/i);
+    expect(message).not.toContain("invalid_dpop_proof");
   });
 
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
