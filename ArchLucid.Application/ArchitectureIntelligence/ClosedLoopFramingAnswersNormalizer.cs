@@ -20,7 +20,7 @@ internal static class ClosedLoopFramingAnswersNormalizer
 
             pairs.Add(
                 new KeyValuePair<string, string>(
-                    NormalizeUnicode(pair.Key.Trim()),
+                    NormalizeFramingKey(pair.Key),
                     NormalizeFramingValue(pair.Value)));
         }
 
@@ -43,6 +43,19 @@ internal static class ClosedLoopFramingAnswersNormalizer
         }
 
         return normalized;
+    }
+
+    private static string NormalizeFramingKey(string? key)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+            return string.Empty;
+
+        string normalized = NormalizeUnicode(key.Trim());
+
+        if (normalized.Length == 0)
+            return normalized;
+
+        return GraphSnapshotCanonicalFingerprint.NormalizeReviewCachePathLikeToken(normalized);
     }
 
     private static string NormalizeFramingValue(string? value)

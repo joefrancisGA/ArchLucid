@@ -5862,6 +5862,20 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_request_framing_answer_key_differs_only_by_backslash_vs_forward_slash_in_path()
+    {
+        ClosedLoopReasoningRequest forwardSlash = CreateRequest("Architecture note.");
+        forwardSlash.FramingAnswers = new Dictionary<string, string> { ["questions/cost/driver"] = "optimize" };
+
+        ClosedLoopReasoningRequest backslash = CreateRequest("Architecture note.");
+        backslash.FramingAnswers = new Dictionary<string, string> { ["questions\\cost\\driver"] = "optimize" };
+
+        ReviewCacheManifestBuilder.Build(forwardSlash).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(backslash).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_baseline_element_provenance_notes_differs_only_by_backslash_vs_forward_slash_in_path()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
