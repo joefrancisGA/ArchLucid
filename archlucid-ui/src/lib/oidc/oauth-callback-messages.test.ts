@@ -93,6 +93,8 @@ describe("readOAuthJsonErrorDescription", () => {
 
   it("preserves literal plus in token error_description when emoji ZWJ sequences are present", () => {
     expect(readOAuthJsonErrorDescription("👨\u200d👩\u200d👧+extra")).toBe("👨\u200d👩\u200d👧+extra");
+    expect(readOAuthJsonErrorDescription("👨\u200d👩\u200d👧%2Bextra")).toBe("👨\u200d👩\u200d👧+extra");
+    expect(readOAuthJsonErrorDescription("👨\u200d👩\u200d👧%252Bextra")).toBe("👨\u200d👩\u200d👧+extra");
   });
 
   it("preserves percent-decoded plus in JSON when authorize mixed-plus glue applies", () => {
