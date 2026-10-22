@@ -26,6 +26,13 @@ public sealed class PolicyPacksControllerVersionNormalizationMatrixTests
             { " v1.0.0 ", "v1.0.0" },
         };
 
+    /// <summary>Raw label length can exceed 50 when padding is trimmed (parity with promote/get-version).</summary>
+    public static TheoryData<string, string> PaddedVersionBeyondRawMaxLengthSamples =>
+        new()
+        {
+            { new string(' ', 46) + "1.0.0", "1.0.0" },
+        };
+
     [Theory]
     [MemberData(nameof(NormalizedVersionSamples))]
     public async Task GetVersion_forwards_normalized_pack_version_to_facade(string rawVersion, string expectedVersion)
@@ -44,6 +51,40 @@ public sealed class PolicyPacksControllerVersionNormalizationMatrixTests
         PolicyPacksController sut = PolicyPacksControllerTestSupport.CreateController(httpFacade);
 
         IActionResult result = await sut.GetVersion(PackId, rawVersion, CancellationToken.None);
+
+        result.Should().BeOfType<OkObjectResult>();
+        httpFacade.VerifyAll();
+    }
+
+    [Theory]
+    [MemberData(nameof(PaddedVersionBeyondRawMaxLengthSamples))]
+    public async Task Publish_accepts_padded_version_when_trimmed_label_is_within_limit(
+        string rawVersion,
+        string expectedVersion)
+    {
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        httpFacade
+            .Setup(f => f.PublishVersionAsync(
+                PackId,
+                It.Is<PolicyPackPublishBody>(body =>
+                    body.Version == expectedVersion
+                    && body.ContentJson == """{"complianceRuleIds":[]}"""),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPackHttpResult<PolicyPackVersion>
+            {
+                Outcome = PolicyPackHttpOutcome.Success,
+                Value = new PolicyPackVersion { PolicyPackId = PackId, Version = expectedVersion },
+            });
+
+        PolicyPacksController sut = PolicyPacksControllerTestSupport.CreateController(httpFacade);
+
+        PublishPolicyPackVersionRequest request = new()
+        {
+            Version = rawVersion,
+            ContentJson = """{"complianceRuleIds":[]}""",
+        };
+
+        IActionResult result = await sut.Publish(PackId, request, CancellationToken.None);
 
         result.Should().BeOfType<OkObjectResult>();
         httpFacade.VerifyAll();

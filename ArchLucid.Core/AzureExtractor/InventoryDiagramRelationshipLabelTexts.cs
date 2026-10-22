@@ -13,6 +13,8 @@ public static class InventoryDiagramRelationshipLabelTexts
 
     public const string SendsTrafficTo = "Sends traffic to";
 
+    public const string BackendPoolNames = "Backend pool names";
+
     public static string FormatRoutedThrough(string nextHopResourceName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(nextHopResourceName);
@@ -28,6 +30,16 @@ public static class InventoryDiagramRelationshipLabelTexts
         }
 
         return $"{SendsTrafficTo} {backendPort.Value}";
+    }
+
+    public static string FormatBackendPoolNames(int? backendPort)
+    {
+        if (backendPort is null)
+        {
+            return BackendPoolNames;
+        }
+
+        return $"{BackendPoolNames} port {backendPort.Value}";
     }
 
     public static string FormatPeeringNotConnected(string remoteVirtualNetworkName)

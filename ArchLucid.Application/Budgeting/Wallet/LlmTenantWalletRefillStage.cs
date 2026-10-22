@@ -114,6 +114,24 @@ public sealed class LlmTenantWalletRefillStage(
                     cancellationToken)
                 .ConfigureAwait(false);
 
+            if (charge.AwaitingPaymentCompletion && !string.IsNullOrWhiteSpace(charge.PaymentIntentId))
+            {
+                PendingRefillCredits[tenantId] = new(charge.PaymentIntentId, state.RefillIncrementUsd, correlationId);
+                _settlementQueue.EnqueueRefillCredit(
+                    tenantId,
+                    state.RefillIncrementUsd,
+                    correlationId,
+                    charge.PaymentIntentId);
+
+                _logger.LogInformation(
+                    "LLM wallet auto-refill deferred for tenant {TenantId}; awaiting Stripe payment intent {PaymentIntentId} ({Status}).",
+                    tenantId,
+                    charge.PaymentIntentId,
+                    charge.ErrorMessage);
+
+                return false;
+            }
+
             if (!charge.Succeeded || string.IsNullOrWhiteSpace(charge.PaymentIntentId))
             {
                 await _refillAuditor.LogRefillFailedAsync(tenantId, charge.DeclineCode, charge.ErrorMessage, cancellationToken).ConfigureAwait(false);

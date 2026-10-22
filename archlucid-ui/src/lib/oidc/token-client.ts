@@ -223,8 +223,10 @@ async function postTokenForm(
 }
 
 function normalizeTokenString(value: string): string {
-  // Soft hyphens are optional break hints in copy, not bearer token material.
-  return stripOAuthInvisibleFormatChars(value.replace(/\u00AD/gu, "").trim()).trim();
+  // Soft hyphens, variation selectors, and Unicode replacement glyphs are copy/paste artifacts, not bearer token material.
+  return stripOAuthInvisibleFormatChars(
+    value.replace(/[\u00AD\uFE00-\uFE0F\uFFFC\uFFFD]/gu, "").trim(),
+  ).trim();
 }
 
 function normalizeOptionalTokenString(value: unknown): string | undefined {

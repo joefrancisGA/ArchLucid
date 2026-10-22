@@ -27,6 +27,11 @@ internal sealed class SecureNowAnalysisSnapshot
             RoleAssignments = Array.AsReadOnly(source.RoleAssignments.ToArray()),
             Diagnostics = Array.AsReadOnly(source.Diagnostics.ToArray()),
             DefenderSummaries = Array.AsReadOnly(source.DefenderSummaries.ToArray()),
+            DefenderPricings = Array.AsReadOnly(source.DefenderPricings.ToArray()),
+            DefenderScoreControls = Array.AsReadOnly(source.DefenderScoreControls.ToArray()),
+            DefenderAssessments = Array.AsReadOnly(source.DefenderAssessments.ToArray()),
+            DefenderAssessmentCounts = Array.AsReadOnly(source.DefenderAssessmentCounts.ToArray()),
+            DefenderSecurityContacts = Array.AsReadOnly(source.DefenderSecurityContacts.ToArray()),
         };
         _resourcesByArmId = new(() => new ReadOnlyDictionary<string, AzureInventoryResourceRecord>(Snapshot.Resources.ToDictionary(
             resource => resource.AzureResourceId, StringComparer.OrdinalIgnoreCase)));

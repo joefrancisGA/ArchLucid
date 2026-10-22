@@ -35,6 +35,19 @@ public sealed class AssignPolicyPackRequestValidatorTests
         result.Errors.Should().Contain(e => e.ErrorMessage.Contains("SemVer"));
     }
 
+    [Fact]
+    public void Validate_passes_when_version_padding_makes_raw_length_exceed_50_but_trimmed_semver_is_valid()
+    {
+        string paddedVersion = new string(' ', 46) + "1.0.0";
+        paddedVersion.Length.Should().BeGreaterThan(50);
+
+        AssignPolicyPackRequest request = new() { Version = paddedVersion, ScopeLevel = "Tenant", IsPinned = false };
+
+        ValidationResult result = _validator.Validate(request);
+
+        result.IsValid.Should().BeTrue();
+    }
+
     [Theory]
     [InlineData("1.0.0")]
     [InlineData("2.1.0-rc.1")]

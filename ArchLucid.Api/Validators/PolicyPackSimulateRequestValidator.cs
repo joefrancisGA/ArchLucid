@@ -14,9 +14,7 @@ public sealed class PolicyPackSimulateRequestValidator : AbstractValidator<Polic
     {
         RuleFor(x => x.RunId)
             .NotEmpty()
-            .WithMessage("runId is required.")
-            .MaximumLength(64)
-            .WithMessage("runId must not exceed 64 characters.");
+            .WithMessage("runId is required.");
 
         RuleFor(x => x.Content)
             .NotNull()
