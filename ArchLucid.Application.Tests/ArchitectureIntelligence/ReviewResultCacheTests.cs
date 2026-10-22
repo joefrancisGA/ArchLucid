@@ -783,6 +783,33 @@ public sealed class ReviewResultCacheTests
     }
 
     [Fact]
+    public void TryGet_misses_when_manifest_schema_version_differs_from_stored_entry()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest stored = new()
+        {
+            ContentHash = "hash-schema-version",
+            SchemaVersion = 1,
+        };
+
+        cache.Set(stored, new ClosedLoopReasoningResult { RunId = "run-schema" });
+
+        ReviewCacheDependencyManifest lookup = new()
+        {
+            ContentHash = stored.ContentHash,
+            PromptVersion = stored.PromptVersion,
+            ModelVersion = stored.ModelVersion,
+            PolicyPackVersion = stored.PolicyPackVersion,
+            RubricVersion = stored.RubricVersion,
+            TenantConfigurationHash = stored.TenantConfigurationHash,
+            DeclaredPrioritiesHash = stored.DeclaredPrioritiesHash,
+            SchemaVersion = 2,
+        };
+
+        cache.TryGet(lookup, out ClosedLoopReasoningResult? _).Should().BeFalse();
+    }
+
+    [Fact]
     public void PinScope_reports_not_pinned_when_distinct_key_cap_reached()
     {
         ReviewResultCache cache = new();

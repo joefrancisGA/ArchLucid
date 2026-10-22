@@ -8712,6 +8712,14 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted whitespace-only ledger `EvidenceRef` splitting review-cache `ContentHash` from empty ref; `ReviewCacheLedgerFingerprint` now treats whitespace-only refs as empty and trims substantive refs; regressions `Build_matches_content_hash_when_ledger_evidence_ref_is_null_vs_empty_string` and `Build_matches_content_hash_when_ledger_evidence_ref_is_whitespace_only_vs_empty_string`; cheap-disproof continue coalesce tenant partition and schema-version storage key partition; guard regressions `BuildCoalesceKey_differs_when_tenant_id_changes` and `TryGet_misses_when_manifest_schema_version_differs_from_stored_entry`; 127 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ReviewCacheLedgerFingerprint.Compute` — whitespace-only `EvidenceRef` split `ledgerfp` from null/empty — **hit 2026-10-22 seed hunt:** `NormalizeEvidenceRef`; regressions above.
+
+- [x] (valid-no-repro) `ClosedLoopContinueRunSingleFlight.BuildCoalesceKey` — tenant omitted from continue coalesce key — **cheap-disproof 2026-10-22 seed hunt:** key includes normalized tenant id; regression `BuildCoalesceKey_differs_when_tenant_id_changes`.
+
+- [x] (valid-no-repro) `ReviewResultCache.TryGet` — schema version bump still hits stale entry — **cheap-disproof 2026-10-22 seed hunt:** `ReviewCacheKeyBuilder` partitions on `SchemaVersion`; regression `TryGet_misses_when_manifest_schema_version_differs_from_stored_entry`.
+
 2026-10-22 seed hunt (seed-only): cheap-disproof closed null `baselineKnowledgeModel` vs empty `ArchitectureKnowledgeModel` and null vs empty ledger `TechnologyName` parity rows; regressions `Build_matches_content_hash_when_baseline_model_is_null_vs_empty_model` and `Build_matches_content_hash_when_ledger_technology_name_is_null_vs_empty_string`; deferred consolidated C0 line-break batch (picker saturated `other`); 119 scoped orchestrator/cache/manifest tests passed.
 
 - [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` / `ReviewCacheModelFingerprint.Compute` — null baseline model vs empty model split `ContentHash` — **cheap-disproof 2026-10-22 seed hunt:** regression `Build_matches_content_hash_when_baseline_model_is_null_vs_empty_model`.
@@ -8736,9 +8744,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 - [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — null `baselineKnowledgeModel` vs empty model fingerprint — **cheap-disproof 2026-10-22 seed hunt:** see seed-only row above.
 
-- (candidate) `ClosedLoopContinueRunSingleFlight` — coalesce key uses manifest content hash only — locus: tenant in continue outer hash; input: verify tenant move cannot false-share continue coalesce.
+- [x] (valid-no-repro) `ClosedLoopContinueRunSingleFlight` — coalesce key uses manifest content hash only — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
 
-- (candidate) `ReviewResultCache.TryGet` — manifest `SchemaVersion` mismatch still returns entry — locus: storage key builder; input: version bump without cache clear.
+- [x] (valid-no-repro) `ReviewResultCache.TryGet` — manifest `SchemaVersion` mismatch still returns entry — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
 
 2026-10-22 seed hunt (seed→hit): promoted null element in `SourceTexts` list causing `ArgumentNullException` during manifest `ContentHash` build; `HashContent` now skips null attachments before normalize; regression `Build_ignores_null_source_text_entries_when_hashing_content`; cheap-disproof duplicate-list order (dedupe by normalized triple), padded `InvalidateForRun`, publish in-flight partition, and golden-flag attachment rows; 117 scoped tests passed.
 
@@ -8977,11 +8985,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 56
-- **bugs-found:** 32
+- **hunts:** 57
+- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — null technology ledger entries in review-cache manifest hash
+- **last-bug:** 2026-10-22 — whitespace-only ledger evidence ref in review-cache manifest hash
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

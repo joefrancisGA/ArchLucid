@@ -1407,6 +1407,34 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_ledger_evidence_ref_is_null_vs_empty_string()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-ledger-evidence-null";
+
+        TechnologyLedgerEntry nullRef = CreateLedgerEntry(request.RunId, evidenceRef: null);
+        TechnologyLedgerEntry emptyRef = CreateLedgerEntry(request.RunId, evidenceRef: string.Empty);
+
+        ReviewCacheManifestBuilder.Build(request, null, [nullRef]).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, null, [emptyRef]).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_ledger_evidence_ref_is_whitespace_only_vs_empty_string()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-ledger-evidence-ws";
+
+        TechnologyLedgerEntry whitespaceRef = CreateLedgerEntry(request.RunId, evidenceRef: "   \t  ");
+        TechnologyLedgerEntry emptyRef = CreateLedgerEntry(request.RunId, evidenceRef: string.Empty);
+
+        ReviewCacheManifestBuilder.Build(request, null, [whitespaceRef]).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, null, [emptyRef]).ContentHash);
+    }
+
+    [Fact]
     public void Build_changes_tenant_configuration_hash_when_workspace_changes()
     {
         ClosedLoopReasoningRequest workspaceA = CreateRequest("Architecture note.");
@@ -1418,6 +1446,20 @@ public sealed class ReviewCacheManifestBuilderTests
         ReviewCacheManifestBuilder.Build(workspaceA).TenantConfigurationHash
             .Should()
             .NotBe(ReviewCacheManifestBuilder.Build(workspaceB).TenantConfigurationHash);
+    }
+
+    private static TechnologyLedgerEntry CreateLedgerEntry(string runId, string? evidenceRef)
+    {
+        return new TechnologyLedgerEntry
+        {
+            RunId = runId,
+            Role = TechnologyLedgerRole.CloudPlatform,
+            TechnologyName = "Microsoft Azure",
+            ProviderFamily = ArchLucid.Contracts.Common.CloudProvider.Azure,
+            Status = TechnologyLedgerStatus.Chosen,
+            Source = TechnologyLedgerSource.User,
+            EvidenceRef = evidenceRef,
+        };
     }
 
     private static ClosedLoopReasoningRequest CreateRequest(string content)

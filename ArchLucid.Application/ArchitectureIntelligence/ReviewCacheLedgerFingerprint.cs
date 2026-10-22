@@ -30,7 +30,7 @@ public static class ReviewCacheLedgerFingerprint
             builder.Append(entry.Status).Append('|');
             builder.Append(entry.Source).Append('|');
             builder.Append(entry.IsLocked ? '1' : '0').Append('|');
-            builder.Append(entry.EvidenceRef ?? string.Empty).Append('\n');
+            builder.Append(NormalizeEvidenceRef(entry.EvidenceRef)).Append('\n');
         }
 
         return Sha256Hex(builder.ToString());
@@ -42,6 +42,14 @@ public static class ReviewCacheLedgerFingerprint
             return string.Empty;
 
         return technologyName.Normalize(NormalizationForm.FormC);
+    }
+
+    private static string NormalizeEvidenceRef(string? evidenceRef)
+    {
+        if (string.IsNullOrWhiteSpace(evidenceRef))
+            return string.Empty;
+
+        return evidenceRef.Trim();
     }
 
     private static string Sha256Hex(string value)

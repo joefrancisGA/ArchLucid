@@ -110,6 +110,32 @@ public sealed class ClosedLoopContinueRunSingleFlightTests
     }
 
     [Fact]
+    public void BuildCoalesceKey_differs_when_tenant_id_changes()
+    {
+        ClosedLoopReasoningRequest request = CreateContinueRequest();
+
+        ReviewCacheDependencyManifest manifest =
+            ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                request,
+                "tenant-continue-a",
+                "run-continue-flight");
+
+        string tenantA = ClosedLoopContinueRunSingleFlight.BuildCoalesceKey(
+            "tenant-continue-a",
+            "run-continue-flight",
+            manifest,
+            publishToProduct: false);
+
+        string tenantB = ClosedLoopContinueRunSingleFlight.BuildCoalesceKey(
+            "tenant-continue-b",
+            "run-continue-flight",
+            manifest,
+            publishToProduct: false);
+
+        tenantA.Should().NotBe(tenantB);
+    }
+
+    [Fact]
     public void BuildCoalesceKey_partitions_publish_intent()
     {
         ClosedLoopReasoningRequest request = CreateContinueRequest();
