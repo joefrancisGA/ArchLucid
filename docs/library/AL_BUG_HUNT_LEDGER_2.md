@@ -1801,15 +1801,22 @@
 
 ## Zone: finding-inspect-sql
 
+2026-10-22 seed hunt #89 (seed-only): re-read mapper, SQL batch, and repository core after sparse `bugsmash-2` tip dropped Persistence paths; restored `FindingInspectReadModelMapper` enum parse parity with `NormalizeInspectEnumToken` (regressions already in ledger hit #88); cheap-disproof closed five open `(candidate)` rows; seeded four follow-on `(candidate)` rows; scoped inspect filter not run on this host.
+
+- [x] (valid-no-repro) `MapLatestDisposition` / `MapDispositionPointerProjection` — invisible-only disposition after normalize — **cheap-disproof 2026-10-22 seed #89:** `ParseDisposition` returns null; pointer projection surfaces null disposition by design when token has no substantive enum text.
+- [x] (valid-no-repro) `ResolveRuleFields` — embedded format characters inside applied rule id strings — **cheap-disproof 2026-10-22 seed #89:** `NormalizeInspectText` rejects embedded format/control chars; intentional display contract (ledger #1238 / #1179).
+- [x] (valid-no-repro) `ResolveTypedPayloadForInspect` — corrupt payload with format-char-only title and substantive rationale — **cheap-disproof 2026-10-22 seed #89:** `BuildMetadataTypedPayload` rationale-only slim contract when title whitespace/invisible (ledger 2026-10-05).
+- [x] (valid-no-repro) `FindingInspectReadSql.FollowUpBatch` — whitespace-only `e.Disposition` passes `IS NOT NULL` — **cheap-disproof 2026-10-22 seed #89:** SQL may return a row but mapper normalizes to null disposition; no wrong enum surfaced to API.
+- [x] (invalid) `InMemoryFindingInspectReadRepository.GetInspectAsync` — enum fields skip normalization — **cheap-disproof 2026-10-22 seed #89:** in-memory path uses same `FindingInspectReadModelMapper` after enum-token fix; parity regressions from 2026-10-04 hits.
+
+- [ ] (candidate) `DapperFindingInspectReadRepository.MapInspectResponse` — `Treatment` / `Classification` string columns may skip `NormalizeInspectDisplayText` while severity/human-review enums use format-token normalization (inconsistent inspect chrome for pasted format characters).
+- [ ] (candidate) `FindingInspectReadSql.MainInspectWithTypedPayload` — `JSON_VALUE(aet.TraceJson, '$.modelAlias')` may return JSON null literal string without `NormalizeInspectDisplayText` on the alias projection path.
+- [ ] (candidate) `FindingInspectReadRepositoryCore.FilterRecommendedActions` — action text with only trailing format characters is dropped while related-node evidence uses the same normalizer but different empty-vs-null semantics in evidence items.
+- [ ] (candidate) `LoadDispositionJoinAsync` — disposition batch assumes `hasDispositionRow` when SQL returns whitespace disposition token; inspect may emit disposition pointer timestamps without a parsed enum (UI state-machine-gap class; saturated).
+
 2026-10-22 seed hunt (seed→hit): promoted hunt-ready `FindingInspectReadModelMapper` inspect enum columns that only `Trim()` while overlay semantic band already uses `NormalizeInspectEnumToken`; leading format characters (e.g. U+200B before `Accepted`) made `Enum.TryParse` fail so `LatestDisposition` and related inspect enums surfaced null/wrong defaults; mapper now normalizes tokens via shared `NormalizeInspectEnumToken`; regressions `ParseDisposition_parses_after_leading_invisible_format_characters`, `ParseHumanReview_parses_after_leading_invisible_format_characters`, `TryParseEvaluationConfidenceLevel_parses_after_leading_invisible_format_characters`, `ParseFindingSeverity_parses_after_leading_invisible_format_characters`; scoped inspect tests not run (RS1034 analyzer build block).
 
 - [x] (proven) `FindingInspectReadModelMapper.ParseDisposition` / `ParseHumanReview` / `TryParseEvaluationConfidenceLevel` / `ParseFindingSeverity` — persisted enum strings with leading/trailing format characters failed `Enum.TryParse` after whitespace trim only — **hit 2026-10-22 seed hunt:** parity with `ResolveInspectSemanticSupportBand` overlay normalization; shared `FindingInspectReadRepositoryCore.NormalizeInspectEnumToken`; regressions in `FindingInspectReadModelMapperTests`.
-
-- [ ] (candidate) `MapLatestDisposition` — disposition pointer join when `Disposition` column is invisible-only after normalize — locus: `MapDispositionPointerProjection` ~32–41; input: `FindingReviewEvents.Disposition` paste artifact only format chars (should remain null by design).
-- [ ] (candidate) `ResolveRuleFields` — `AppliedRuleIdsJson` array elements with embedded format characters mid-string — locus: `NormalizeInspectText` rejects embedded format; input: rule id `cost\u200B-guardrail` (display contract vs auth-style normalizer).
-- [ ] (candidate) `ResolveTypedPayloadForInspect` — corrupt payload fallback when title has leading format char but rationale substantive — locus: `BuildMetadataTypedPayload` ~115–118; input: title `\u200B`, rationale populated.
-- [ ] (candidate) `FindingInspectReadSql.FollowUpBatch` — disposition subquery `e.Disposition IS NOT NULL` with whitespace-only enum token — locus: SQL null guard; input: row with `"   "` disposition (mapper returns null after normalize).
-- [ ] (candidate) `InMemoryFindingInspectReadRepository.GetInspectAsync` — enum fields read from in-memory rows without SQL trim — locus: in-memory path uses same mapper; input: parity with Dapper after mapper fix (regression sibling).
 
 2026-10-12 seed hunt (seed-only): re-read the selected inspect repository, mapper, SQL batch, recent trace-rule parity change, and focused tests. No fresh reachable mechanism-backed candidate met the hunt-ready bar. The focused inspect-read filter passed 425/425. No production or regression change.
 
@@ -1819,7 +1826,7 @@
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 88
+- **hunts:** 89
 - **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
