@@ -614,6 +614,47 @@ public sealed class ProvenanceBuilderTests
     }
 
     [Fact]
+    public void Build_uses_last_finding_title_when_findings_list_case_variant_ids()
+    {
+        Finding firstRow = new()
+        {
+            FindingId = "find-1",
+            FindingType = "t",
+            Category = "c",
+            EngineType = "e",
+            Severity = FindingSeverity.Info,
+            Title = "First title",
+            Rationale = "r",
+        };
+
+        Finding secondRow = new()
+        {
+            FindingId = "FIND-1",
+            FindingType = "t",
+            Category = "c",
+            EngineType = "e",
+            Severity = FindingSeverity.Info,
+            Title = "Last title",
+            Rationale = "r",
+        };
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [firstRow, secondRow] },
+            Graph = new GraphSnapshot { Nodes = [] },
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        graph.Nodes
+            .Should()
+            .ContainSingle(n => n.Type == ProvenanceNodeType.Finding && n.Name == "Last title");
+    }
+
+    [Fact]
     public void Build_duplicate_finding_id_reuses_single_node()
     {
         Finding f = new()

@@ -264,8 +264,20 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
 
         Guid AddNode(string key, ProvenanceNode node)
         {
-            if (nodeMap.TryGetValue(key, out Guid existing))
-                return existing;
+            if (nodeMap.TryGetValue(key, out Guid existingId))
+            {
+                ProvenanceNode existingNode = result.Nodes.First(n => n.Id == existingId);
+                existingNode.Name = node.Name;
+                existingNode.ReferenceId = node.ReferenceId;
+                existingNode.AgentExecutionTraceId = node.AgentExecutionTraceId;
+
+                foreach (KeyValuePair<string, string> entry in node.Metadata)
+                {
+                    existingNode.Metadata[entry.Key] = entry.Value;
+                }
+
+                return existingId;
+            }
 
             node.Id = Guid.NewGuid();
             result.Nodes.Add(node);

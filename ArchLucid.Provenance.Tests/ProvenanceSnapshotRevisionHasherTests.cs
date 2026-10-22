@@ -510,6 +510,24 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     }
 
     [Fact]
+    public void Compute_changes_when_later_case_variant_finding_row_has_different_agent_execution_trace_id()
+    {
+        Finding firstRow = CreateSampleFinding();
+        firstRow.FindingId = "find-1";
+        firstRow.AgentExecutionTraceId = "trace-v1";
+
+        Finding secondRow = CreateSampleFinding();
+        secondRow.FindingId = "FIND-1";
+        secondRow.AgentExecutionTraceId = "trace-v2";
+
+        ProvenanceBuildInput baseline = CreateInput([], findings: [firstRow]);
+        ProvenanceBuildInput updated = CreateInput([], findings: [firstRow, secondRow]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
     public void Compute_changes_when_agent_execution_trace_id_changes_but_finding_id_and_related_nodes_are_unchanged()
     {
         Finding baselineFinding = CreateSampleFinding();
