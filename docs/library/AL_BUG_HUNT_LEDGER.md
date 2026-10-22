@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_credentials authorize-query UX (existing parity) and saturated decodeOAuthErrorDescription narrow-no-break-space glue; regression documents BFF refresh 471 parity and variation-selector-12-only access_token rejection; scoped vitest 640/640.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - invalid_credentials authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 471 shouldClearSession false - **regression 2026-10-22:** transient refresh soft-fail without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string variation-selector-12-only skips authorize retry marker - **regression 2026-10-22:** variation-selector strip parity (U+FE0B).
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with narrow-no-break-space glue - **cheap-disproof 2026-10-22:** saturated encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_password authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 472 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string variation-selector-11-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWNJ glue - locus: saturated JSON encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_code authorize-query UX (existing parity) and saturated readOAuthJsonErrorDescription narrow-no-break-space glue; regression documents BFF refresh 470 parity and variation-selector-13-only access_token rejection; scoped vitest 638/638.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - invalid_code authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
