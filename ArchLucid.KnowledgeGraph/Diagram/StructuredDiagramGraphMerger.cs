@@ -126,7 +126,7 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
                         existingEdge.Label = edge.Label;
                     }
 
-                    existingEdge.Weight = edge.Weight;
+                    existingEdge.Weight = Math.Max(existingEdge.Weight, edge.Weight);
 
                     if (edge.Properties.Count > 0)
                     {

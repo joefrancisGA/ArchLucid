@@ -12470,18 +12470,23 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 95
-- **bugs-found:** 90
+- **hunts:** 96
+- **bugs-found:** 91
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — sparse duplicate artifact rows no longer clear name/format in revision fingerprint or graph
+- **last-bug:** 2026-10-22 — later inferred diagram documents no longer downgrade asserted edge confidence on merge
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted diagram edge weight downgrade candidate after cheap-disproving sparse node label loss; proved duplicate directed-edge coalesce always assigned `existingEdge.Weight = edge.Weight`, so a later inferred document recompiling the same endpoints after an asserted document dropped buyer-visible confidence from `1.0` to label-only `0.5`; retain the higher weight on coalesce; regressions `Merge_preserves_asserted_edge_weight_when_later_inferred_document_recompiles_same_endpoints` and `Merge_preserves_diagram_label_when_later_document_omits_node_label` (sparse label guard); seeded duplicate-node diagram inference confidence downgrade follow-on; 389 KnowledgeGraph + 116 Provenance scoped tests passed.
+
+- [x] (proven) `StructuredDiagramGraphMerger.Merge` — later inferred document downgraded asserted edge `Weight` on duplicate directed-edge coalesce — **hit 2026-10-22 seed hunt (seed→hit):** `Math.Max` on coalesced weight; regression above.
+- [x] (valid-no-repro) `StructuredDiagramGraphMerger.Merge` — sparse later document omits node `Label` — **cheap-disproof 2026-10-22 seed hunt:** coalesce only applies non-whitespace labels; regression `Merge_preserves_diagram_label_when_later_document_omits_node_label`.
+
+- [ ] (candidate) `StructuredDiagramGraphMerger.Merge` — duplicate diagram node coalesce may downgrade node inference metadata when a later inferred document recompiles the same `NodeId` after an asserted document — locus: node property/reasoning merge; input: asserted then inferred compile for same node id; wrong outcome: stale or reduced inference confidence on merged diagram nodes.
 
 2026-10-22 seed hunt (seed→hit): promoted sparse duplicate artifact row candidate; proved `ComputeArtifactsFingerprint` last-wins representative cleared `Name` when a later duplicate row omitted display fields at the same `ContentHash`, and `ProvenanceBuilder` built artifact nodes from `DistinctArtifacts()` so the sparse row won outright; last non-empty name/type/format per `ArtifactId` group in the fingerprint and iterate all bundle rows through `AddNode` merge; regressions `Compute_unchanged_when_later_duplicate_artifact_row_omits_name` and `Build_preserves_artifact_name_when_later_duplicate_row_omits_name`; seeded structured diagram duplicate-node sparse label follow-on; 387 KnowledgeGraph + 116 Provenance scoped tests passed.
 
 - [x] (proven) `ProvenanceSnapshotRevisionHasher.ComputeArtifactsFingerprint` / `ProvenanceBuilder` — sparse later duplicate artifact rows cleared name/format at stable content hash — **hit 2026-10-22 seed hunt (seed→hit):** last non-empty artifact scalars + per-row `AddNode` merge; regressions above.
-
-- [ ] (candidate) `StructuredDiagramGraphMerger.Merge` — duplicate diagram node coalesce may drop the latest non-empty display label when a later document fragment omits `Label` — locus: node merge dictionary; input: two merged snapshots share a node id, second pass clears label; wrong outcome: buyer diagram graph shows blank node title.
 
 2026-10-22 seed hunt (seed→hit): promoted sparse duplicate manifest decision row candidate; proved `ComputeManifestDecisionsFingerprint` last-wins representative cleared title/category when a later `DEC-1` row omitted display fields (`ProvenanceBuilder.AddNode` already skipped blank overwrites); last non-empty title/category per case-insensitive decision id group; regressions `Compute_unchanged_when_later_case_variant_manifest_decision_row_omits_title` and `Build_preserves_decision_title_when_later_case_variant_row_omits_title`; seeded sparse duplicate artifact name row follow-on; 387 KnowledgeGraph + 114 Provenance scoped tests passed.
 
