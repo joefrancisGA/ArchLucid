@@ -12470,19 +12470,23 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 113
-- **bugs-found:** 108
+- **hunts:** 114
+- **bugs-found:** 109
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — GraphValidator rejected padded edge endpoints
+- **last-bug:** 2026-10-22 — GraphValidator accepted duplicate normalized node ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted duplicate normalized node id candidate; proved `GraphValidator` built a trim/case-insensitive node id set for edge checks but never rejected multiple node rows sharing the same normalized id (for example `a` and ` a `); reject duplicate normalized node id groups before edge validation; regressions `Validate_DuplicateNodeIdsDifferingOnlyBySurroundingWhitespace_ThrowsInvalidOperationException` and `Validate_DuplicateNodeIdsDifferingOnlyByCase_ThrowsInvalidOperationException`; seeded graph edge duplicate normalized endpoint self-loop follow-on; 407 KnowledgeGraph + 131 Provenance scoped tests passed.
+
+- [x] (proven) `GraphValidator.Validate` — duplicate node ids after trim/case normalization — **hit 2026-10-22 seed hunt (seed→hit):** duplicate normalized node id guard; regressions above.
+
+- [ ] (candidate) `GraphValidator.Validate` — self-loop edges with whitespace-only `EdgeType` may pass edge type required check inconsistently — locus: edge type validation; input: edge with `EdgeType` of spaces; wrong outcome: invalid edge type accepted.
 
 2026-10-22 seed hunt (seed→hit): cheap-disproved finding/decision padded title candidate (`ResolveFindingDisplayTitle` / `ResolveDecisionDisplayTitle` already trim; regression `Build_trims_surrounding_whitespace_on_finding_and_decision_display_titles`); promoted graph validator edge endpoint trim candidate; proved `GraphValidator` indexed raw `NodeId` values while edges could carry surrounding whitespace on `FromNodeId`/`ToNodeId`, falsely failing validation despite matching topology nodes; trim endpoints and node id set keys; regression `Validate_EdgeWithSurroundingWhitespaceOnEndpoints_DoesNotThrow`; seeded graph validator case-variant duplicate node id follow-on; 405 KnowledgeGraph + 131 Provenance scoped tests passed.
 
 - [x] (valid-no-repro) `ProvenanceBuilder` — padded finding/decision display titles — **cheap-disproof 2026-10-22 seed hunt:** display title resolvers trim; regression above.
 - [x] (proven) `GraphValidator.Validate` — padded graph edge endpoints fail node membership — **hit 2026-10-22 seed hunt (seed→hit):** trim on endpoint lookup; regression above.
-
-- [ ] (candidate) `GraphValidator.Validate` — duplicate node ids differing only by surrounding whitespace may both pass node id checks — locus: node id set construction; input: two nodes `a` and ` a `; wrong outcome: duplicate topology nodes accepted without error.
 
 2026-10-22 seed hunt (seed→hit): cheap-disproved context edge weight κ-merge candidate (`CoalesceGraphEdgeFromContext` already applies `Math.Max` on weight when model edge has a label; regression `Merge_enriches_model_edge_weight_from_context_when_model_edge_already_has_label`); promoted graph node display label trim candidate; proved `ProvenanceBuilder` copied surrounding whitespace from `GraphNode.Label` into buyer-visible graph node names while metadata fields were normalized; `ResolveGraphNodeDisplayName`; regression `Build_trims_surrounding_whitespace_on_graph_node_display_name`; seeded finding/decision title trim parity audit follow-on; 404 KnowledgeGraph + 130 Provenance scoped tests passed.
 

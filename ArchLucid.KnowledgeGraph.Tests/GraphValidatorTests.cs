@@ -130,6 +130,26 @@ public sealed class GraphValidatorTests
     }
 
     [Fact]
+    public void Validate_DuplicateNodeIdsDifferingOnlyBySurroundingWhitespace_ThrowsInvalidOperationException()
+    {
+        GraphSnapshot snapshot = BuildSnapshot(ValidNode("a"), ValidNode(" a "));
+
+        Action act = () => _sut.Validate(snapshot);
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*duplicate node ids*'a'*");
+    }
+
+    [Fact]
+    public void Validate_DuplicateNodeIdsDifferingOnlyByCase_ThrowsInvalidOperationException()
+    {
+        GraphSnapshot snapshot = BuildSnapshot(ValidNode("NodeA"), ValidNode("nodea"));
+
+        Action act = () => _sut.Validate(snapshot);
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*duplicate node ids*");
+    }
+
+    [Fact]
     public void Validate_EdgeWithSurroundingWhitespaceOnEndpoints_DoesNotThrow()
     {
         GraphNode a = ValidNode("a");

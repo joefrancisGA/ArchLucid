@@ -24,6 +24,19 @@ public class GraphValidator : IGraphValidator
                 throw new InvalidOperationException($"Graph node '{node.NodeId}' is missing NodeType.");
         }
 
+        IGrouping<string, GraphNode>? duplicateNodeIdGroup = snapshot.Nodes
+            .Where(static node => !string.IsNullOrWhiteSpace(node.NodeId))
+            .GroupBy(
+                static node => (node.NodeId ?? string.Empty).Trim(),
+                StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault(static group => group.Count() > 1);
+
+        if (duplicateNodeIdGroup is not null)
+        {
+            throw new InvalidOperationException(
+                $"Graph snapshot lists duplicate node ids for '{duplicateNodeIdGroup.Key}'.");
+        }
+
         foreach (GraphEdge edge in snapshot.Edges)
         {
             if (string.IsNullOrWhiteSpace(edge.EdgeType))
