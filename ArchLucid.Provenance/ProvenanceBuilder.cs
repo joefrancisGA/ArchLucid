@@ -22,23 +22,27 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
 
         RuleAuditTracePayload trace = ruleAuditTrace.RuleAudit;
 
+        IReadOnlyList<GraphNode> graphNodes = graph.Nodes ?? [];
+        IReadOnlyList<Finding> findingRows = findings.Findings ?? [];
+        IReadOnlyList<ResolvedArchitectureDecision> manifestDecisions = manifest.Decisions ?? [];
+
         DecisionProvenanceGraph result = new() { Id = Guid.NewGuid(), RunId = runId };
 
         Dictionary<string, Guid> nodeMap = new(StringComparer.OrdinalIgnoreCase);
 
         HashSet<string> graphNodeIds = new(
-            graph.Nodes.Select(n => NormalizeId(n.NodeId)),
+            graphNodes.Select(n => NormalizeId(n.NodeId)),
             StringComparer.OrdinalIgnoreCase);
 
         IEnumerable<string> DistinctDecisionKeys()
         {
-            return manifest.Decisions
+            return manifestDecisions
                 .Select(d => NormalizeId(d.DecisionId))
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .Select(id => $"decision:{id}");
         }
 
-        foreach (GraphNode n in graph.Nodes)
+        foreach (GraphNode n in graphNodes)
 
             AddNode(
                 $"graph:{NormalizeId(n.NodeId)}",
@@ -55,7 +59,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                 });
 
 
-        foreach (Finding f in findings.Findings)
+        foreach (Finding f in findingRows)
 
             AddNode(
                 $"finding:{NormalizeId(f.FindingId)}",
@@ -69,7 +73,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                 new ProvenanceNode { Type = ProvenanceNodeType.Rule, ReferenceId = ruleId, Name = ruleId });
 
 
-        foreach (ResolvedArchitectureDecision d in manifest.Decisions)
+        foreach (ResolvedArchitectureDecision d in manifestDecisions)
 
             AddNode(
                 $"decision:{NormalizeId(d.DecisionId)}",
@@ -117,7 +121,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
 
         // Findings → Decisions (decision supported by findings)
 
-        foreach (IGrouping<string, ResolvedArchitectureDecision> decisionGroup in manifest.Decisions.GroupBy(
+        foreach (IGrouping<string, ResolvedArchitectureDecision> decisionGroup in manifestDecisions.GroupBy(
                      d => NormalizeId(d.DecisionId),
                      StringComparer.OrdinalIgnoreCase))
         {
@@ -141,7 +145,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
 
         // Graph nodes → Findings (finding influenced by graph context)
 
-        foreach (IGrouping<string, Finding> findingGroup in findings.Findings.GroupBy(
+        foreach (IGrouping<string, Finding> findingGroup in findingRows.GroupBy(
                      f => NormalizeId(f.FindingId),
                      StringComparer.OrdinalIgnoreCase))
         {
@@ -341,8 +345,8 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         static string NormalizeProvenanceMetadataValue(string? value) =>
             string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
 
-        static IEnumerable<string> DistinctAppliedRuleIds(IEnumerable<string> appliedRuleIds) =>
-            appliedRuleIds
+        static IEnumerable<string> DistinctAppliedRuleIds(IEnumerable<string>? appliedRuleIds) =>
+            (appliedRuleIds ?? [])
                 .Select(NormalizeId)
                 .Where(static ruleId => ruleId.Length > 0)
                 .Distinct(StringComparer.OrdinalIgnoreCase);

@@ -1,6 +1,9 @@
+using System.Text;
+
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Persistence.Serialization;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;
@@ -38,6 +41,54 @@ public sealed class ProvenanceBuilderTests
         graph.RunId.Should().Be(RunId);
         graph.Nodes.Should().ContainSingle(n => n.Type == ProvenanceNodeType.Manifest);
         graph.Edges.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Build_treats_null_graph_nodes_findings_and_manifest_decisions_as_empty()
+    {
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = null! },
+            Graph = new GraphSnapshot { Nodes = null! },
+            Manifest = new ManifestDocument
+            {
+                ManifestId = ManifestId,
+                ManifestHash = "hash-min",
+                Decisions = null!,
+            },
+            DecisionTrace = RuleAuditTraceDto.From(
+                new RuleAuditTracePayload { AppliedRuleIds = null! }),
+            Artifacts = [],
+        });
+
+        graph.Nodes.Should().ContainSingle(n => n.Type == ProvenanceNodeType.Manifest);
+        graph.Edges.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Build_succeeds_when_graph_snapshot_projection_has_null_node_list()
+    {
+        GraphSnapshot graphSnapshot = GraphJsonSerialization.DeserializeSnapshot(
+            Encoding.UTF8.GetBytes("{\"nodes\":null,\"edges\":null}"))
+            ?? new GraphSnapshot();
+
+        graphSnapshot.Nodes = null!;
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = graphSnapshot,
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "hash-min", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(
+                new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        graph.Nodes.Should().ContainSingle(n => n.Type == ProvenanceNodeType.Manifest);
     }
 
     [Fact]
