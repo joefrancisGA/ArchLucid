@@ -10,7 +10,7 @@ internal static class ProvenanceNodeCoalesce
         if (!string.IsNullOrWhiteSpace(incomingNode.Name)
             && !ShouldSkipGraphNodeNameDowngrade(existingNode, incomingNode))
         {
-            existingNode.Name = incomingNode.Name;
+            existingNode.Name = incomingNode.Name.Trim();
         }
 
         if (!string.IsNullOrWhiteSpace(incomingNode.ReferenceId))

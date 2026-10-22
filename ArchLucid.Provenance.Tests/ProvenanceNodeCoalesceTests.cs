@@ -30,6 +30,27 @@ public sealed class ProvenanceNodeCoalesceTests
     }
 
     [Fact]
+    public void ApplyMergedFields_trims_incoming_name_when_overwriting_display_title()
+    {
+        ProvenanceNode existing = new()
+        {
+            Type = ProvenanceNodeType.Decision,
+            ReferenceId = "dec-1",
+            Name = "Enable WAF",
+        };
+        ProvenanceNode incoming = new()
+        {
+            Type = ProvenanceNodeType.Decision,
+            ReferenceId = "dec-1",
+            Name = "  Enable regional WAF  ",
+        };
+
+        ProvenanceNodeCoalesce.ApplyMergedFields(existing, incoming);
+
+        existing.Name.Should().Be("Enable regional WAF");
+    }
+
+    [Fact]
     public void ApplyMergedFields_trims_metadata_values_when_incoming_has_surrounding_whitespace()
     {
         ProvenanceNode existing = new()
