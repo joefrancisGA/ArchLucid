@@ -466,6 +466,13 @@ describe("refreshAccessToken", () => {
     expect((caught as OAuthTokenEndpointError).message).not.toContain("expired_token");
   });
 
+  it("classifies legacy Error messages that embed unsupported_grant_type for BFF session clearing", () => {
+    expect(isOAuthRefreshTokenRejectedError(new Error("unsupported_grant_type"))).toBe(true);
+    expect(
+      isOAuthRefreshTokenRejectedError(new Error("token refresh failed: unsupported_grant_type")),
+    ).toBe(true);
+  });
+
   it("classifies non-humanized readable OAuth error codes on refresh for BFF session clearing", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,

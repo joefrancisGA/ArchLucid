@@ -94,7 +94,8 @@ export function isOAuthRefreshTokenRejectedError(error: unknown): boolean {
     message.includes("invalid_token") ||
     message.includes("login_required") ||
     message.includes("redirect_uri_mismatch") ||
-    message.includes("unauthorized_client")
+    message.includes("unauthorized_client") ||
+    message.includes("unsupported_grant_type")
   );
 }
 
