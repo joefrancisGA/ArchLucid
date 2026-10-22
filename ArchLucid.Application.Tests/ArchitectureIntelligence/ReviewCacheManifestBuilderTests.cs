@@ -2822,6 +2822,111 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_baseline_element_provenance_passage_quote_differs_only_by_casing()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-passage-quote-casing";
+
+        ArchitectureKnowledgeModel lower = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator { Quote = "claims intake" },
+                    },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel upper = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator { Quote = "Claims Intake" },
+                    },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, lower).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, upper).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_declared_priorities_hash_when_priorities_differ_only_by_casing()
+    {
+        ClosedLoopReasoningRequest lower = CreateRequest("Architecture note.");
+        lower.DeclaredPriorities = ["security", "cost"];
+
+        ClosedLoopReasoningRequest upper = CreateRequest("Architecture note.");
+        upper.DeclaredPriorities = ["Security", "Cost"];
+
+        ReviewCacheManifestBuilder.Build(lower).DeclaredPrioritiesHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(upper).DeclaredPrioritiesHash);
+    }
+
+    [Fact]
+    public void Build_matches_tenant_configuration_hash_when_tenant_slug_differs_only_by_casing()
+    {
+        ClosedLoopReasoningRequest lower = CreateRequest("Architecture note.");
+        lower.TenantId = "tenant-slug";
+
+        ClosedLoopReasoningRequest upper = CreateRequest("Architecture note.");
+        upper.TenantId = "Tenant-Slug";
+
+        ReviewCacheManifestBuilder.Build(lower).TenantConfigurationHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(upper).TenantConfigurationHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_source_file_name_differs_only_by_casing()
+    {
+        ClosedLoopReasoningRequest lower = CreateRequest("Architecture note.");
+        lower.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/arch.md",
+                ContentType = "text/markdown",
+                Content = "Architecture note.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest upper = CreateRequest("Architecture note.");
+        upper.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/ARCH.md",
+                ContentType = "text/markdown",
+                Content = "Architecture note.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(lower).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(upper).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_source_content_differs_only_by_consecutive_spaces()
     {
         ClosedLoopReasoningRequest single = CreateRequest("Claims intake for architects.");

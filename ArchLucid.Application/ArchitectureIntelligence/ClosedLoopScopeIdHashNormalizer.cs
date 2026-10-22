@@ -15,7 +15,7 @@ internal static class ClosedLoopScopeIdHashNormalizer
         if (Guid.TryParse(trimmed, out Guid guid))
             return guid.ToString("D").ToLowerInvariant();
 
-        return trimmed;
+        return trimmed.ToLowerInvariant();
     }
 
     private static string NormalizeUnicodeSpaces(string value) =>

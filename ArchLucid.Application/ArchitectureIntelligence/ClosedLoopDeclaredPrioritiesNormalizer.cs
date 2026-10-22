@@ -11,9 +11,10 @@ internal static class ClosedLoopDeclaredPrioritiesNormalizer
         return priorities
             .Where(priority => !string.IsNullOrWhiteSpace(priority))
             .Select(priority => NormalizeUnicode(priority.Trim()))
-            .GroupBy(priority => priority, StringComparer.OrdinalIgnoreCase)
-            .OrderBy(group => group.Key, StringComparer.OrdinalIgnoreCase)
-            .Select(group => group.OrderBy(priority => priority, StringComparer.Ordinal).First())
+            .Select(priority => priority.ToLowerInvariant())
+            .GroupBy(priority => priority, StringComparer.Ordinal)
+            .OrderBy(group => group.Key, StringComparer.Ordinal)
+            .Select(group => group.First())
             .ToList();
     }
 
