@@ -126,6 +126,62 @@ public sealed class StructuredDiagramGraphMergerTests
     }
 
     [Fact]
+    public void Merge_uses_latest_diagram_properties_and_reasoning_when_multiple_documents_compile_the_same_node_id()
+    {
+        ArchitectureDiagramModelRecord firstDocument = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "svc",
+                    Label = "Service",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        ArchitectureDiagramModelRecord secondDocument = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "svc",
+                    Label = "Service",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        List<CanonicalObject> canonicalObjects = [];
+        canonicalObjects.AddRange(
+            ArchitectureDiagramCanonicalObjectMapper.Map(firstDocument, "doc-props-a", labelOnlyInferenceConfidence: 0.5));
+        canonicalObjects.AddRange(
+            ArchitectureDiagramCanonicalObjectMapper.Map(secondDocument, "doc-props-b", labelOnlyInferenceConfidence: 0.5));
+
+        ContextSnapshot snapshot = new()
+        {
+            SnapshotId = Guid.Parse("dddddddd-eeee-ffff-0000-111111111111"),
+            RunId = Guid.Parse("44444444-5555-6666-7777-888888888888"),
+            ProjectId = "project-properties-merge",
+            CanonicalObjects = canonicalObjects,
+        };
+
+        StructuredDiagramGraphMerger merger = GraphMaterializationTestHelpers.CreateStructuredDiagramGraphMerger();
+        StructuredDiagramGraphMergeResult result = merger.Merge(snapshot, []);
+
+        GraphNode merged = result.Nodes.Should().ContainSingle(node => node.NodeId == "diagram-node:svc").Subject;
+        merged.Properties[StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId].Should().Be("doc-props-b");
+        merged.Properties[StructuredDiagramGraphPropertyKeys.InferenceConfidence].Should().Be("1");
+        merged.ReasoningTrace.Should().Contain("asserted diagram source");
+    }
+
+    [Fact]
     public void Merge_deduplicates_connects_to_edges_when_multiple_documents_share_equivalent_endpoints()
     {
         ArchitectureDiagramModelRecord sharedTopology = new()

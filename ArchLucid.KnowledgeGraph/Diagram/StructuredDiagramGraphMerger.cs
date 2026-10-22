@@ -92,6 +92,19 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
                         existing.Category = node.Category;
                     }
 
+                    if (node.Properties.Count > 0)
+                    {
+                        foreach (KeyValuePair<string, string> property in node.Properties)
+                        {
+                            existing.Properties[property.Key] = property.Value;
+                        }
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(node.ReasoningTrace))
+                    {
+                        existing.ReasoningTrace = node.ReasoningTrace;
+                    }
+
                     continue;
                 }
 
