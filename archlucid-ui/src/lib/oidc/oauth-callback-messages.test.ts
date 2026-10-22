@@ -135,6 +135,7 @@ describe("decodeOAuthErrorDescription", () => {
     expect(decodeOAuthErrorDescription("Policy\u200cdenied+extra")).toBe("Policy denied+extra");
     expect(decodeOAuthErrorDescription("Policy\u200adenied%252Bextra")).toBe("Policy denied+extra");
     expect(decodeOAuthErrorDescription("Policy\u202fdenied%252Bextra")).toBe("Policy denied+extra");
+    expect(decodeOAuthErrorDescription("Policy\u3000denied%252Bextra")).toBe("Policy denied+extra");
   });
 
   it("preserves literal plus in authorize error descriptions when emoji ZWJ sequences are present", () => {
@@ -576,6 +577,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toMatch(/invalid resource owner/i);
     expect(message).not.toContain("invalid_resource_owner");
+  });
+
+  it("humanizes invalid_saml_response authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_saml_response", "");
+
+    expect(message).toMatch(/invalid saml response/i);
+    expect(message).not.toContain("invalid_saml_response");
   });
 
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
