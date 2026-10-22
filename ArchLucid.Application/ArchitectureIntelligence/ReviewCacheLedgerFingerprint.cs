@@ -61,7 +61,9 @@ public static class ReviewCacheLedgerFingerprint
         if (string.IsNullOrWhiteSpace(evidenceRef))
             return string.Empty;
 
-        return CollapseInteriorAsciiSpaces(NormalizeUnicodeSpaces(evidenceRef.Trim())).Normalize(NormalizationForm.FormC);
+        string normalized = CollapseInteriorAsciiSpaces(NormalizeUnicodeSpaces(evidenceRef.Trim())).Normalize(NormalizationForm.FormC);
+
+        return normalized.ToLowerInvariant();
     }
 
     private static string NormalizeUnicodeSpaces(string value) =>

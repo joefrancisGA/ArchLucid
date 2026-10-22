@@ -22,7 +22,9 @@ internal static class ClosedLoopModelAliasIdNormalizer
         if (string.IsNullOrWhiteSpace(modelAliasId))
             return string.Empty;
 
-        return CollapseInteriorAsciiSpaces(NormalizeUnicodeSpaces(modelAliasId.Trim()));
+        string normalized = CollapseInteriorAsciiSpaces(NormalizeUnicodeSpaces(modelAliasId.Trim()));
+
+        return normalized.ToLowerInvariant();
     }
 
     private static string NormalizeUnicodeSpaces(string value) =>

@@ -2534,6 +2534,61 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_ledger_evidence_ref_differs_only_by_casing()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-ledger-evidence-casing";
+
+        TechnologyLedgerEntry lower = CreateLedgerEntry(request.RunId, evidenceRef: "evidence:alpha");
+        TechnologyLedgerEntry upper = CreateLedgerEntry(request.RunId, evidenceRef: "EVIDENCE:ALPHA");
+
+        ReviewCacheManifestBuilder.Build(request, null, [lower]).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, null, [upper]).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_model_tenant_id_differs_only_by_casing()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-tenant-casing";
+
+        ArchitectureKnowledgeModel lower = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            TenantId = "tenant-cache",
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ArchitectureKnowledgeModel upper = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            TenantId = "TENANT-CACHE",
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, lower).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, upper).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_model_alias_id_differs_only_by_casing()
+    {
+        ClosedLoopReasoningRequest lower = CreateRequest("Architecture note.");
+        lower.ModelAliasId = "gpt-4.1";
+
+        ClosedLoopReasoningRequest upper = CreateRequest("Architecture note.");
+        upper.ModelAliasId = "GPT-4.1";
+
+        ReviewCacheManifestBuilder.Build(lower).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(upper).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_source_content_differs_only_by_consecutive_spaces()
     {
         ClosedLoopReasoningRequest single = CreateRequest("Claims intake for architects.");

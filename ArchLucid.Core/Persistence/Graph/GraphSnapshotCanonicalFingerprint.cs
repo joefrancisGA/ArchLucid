@@ -118,7 +118,7 @@ public static class GraphSnapshotCanonicalFingerprint
         return string.Join(
             "\n",
             [
-                NormalizeFingerprintText(knowledgeModel.TenantId),
+                NormalizeElementIdForFingerprint(knowledgeModel.TenantId),
                 knowledgeModel.SchemaVersion.ToString(),
                 knowledgeModel.IsProvisionalSynthesis ? "provisional" : "complete",
                 FormatFramingAnswers(knowledgeModel),

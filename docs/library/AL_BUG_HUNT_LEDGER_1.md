@@ -8712,6 +8712,12 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted ledger `EvidenceRef`, baseline model `TenantId`, and request `ModelAliasId` letter-casing splitting review-cache hash; `NormalizeEvidenceRef` and `NormalizeForHash` lower-case after normalize; review-cache `modelfp` tenant header uses `NormalizeElementIdForFingerprint`; regressions `Build_matches_content_hash_when_ledger_evidence_ref_differs_only_by_casing`, `Build_matches_content_hash_when_baseline_model_tenant_id_differs_only_by_casing`, and `Build_matches_content_hash_when_model_alias_id_differs_only_by_casing`; 215 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ReviewCacheLedgerFingerprint.NormalizeEvidenceRef` — evidence ref casing split `ledgerfp` — **hit 2026-10-22 seed hunt:** invariant lower-case; regression above.
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.ComputeReviewCacheKnowledgeModelFingerprint` — baseline `TenantId` casing split `modelfp` — **hit 2026-10-22 seed hunt:** `NormalizeElementIdForFingerprint` on tenant header; regression above.
+- [x] (proven) `ClosedLoopModelAliasIdNormalizer.NormalizeForHash` — alias id casing split `ContentHash` — **hit 2026-10-22 seed hunt:** invariant lower-case; regression above.
+
 2026-10-22 seed hunt (seed→hit): promoted provenance `SourceArtifactId` / passage `ArtifactId` and ledger `TechnologyName` letter-casing splitting review-cache hash; artifact ids now use `NormalizeElementIdForFingerprint`; `ReviewCacheLedgerFingerprint.NormalizeTechnologyName` lowercases after unicode normalize; regressions `Build_matches_content_hash_when_baseline_element_provenance_source_artifact_id_differs_only_by_casing`, `Build_matches_content_hash_when_baseline_element_provenance_passage_locator_artifact_id_differs_only_by_casing`, and `Build_matches_content_hash_when_ledger_technology_name_differs_only_by_casing`; 212 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatElementProvenance` — artifact id casing split `modelfp` — **hit 2026-10-22 seed hunt:** `NormalizeElementIdForFingerprint` on provenance artifact tokens; regressions above.
@@ -9214,11 +9220,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 88
-- **bugs-found:** 76
+- **hunts:** 89
+- **bugs-found:** 77
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — provenance artifact and ledger technology casing in review-cache hash
+- **last-bug:** 2026-10-22 — evidence ref, model tenant, and alias id casing in review-cache hash
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
