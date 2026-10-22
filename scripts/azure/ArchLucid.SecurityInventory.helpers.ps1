@@ -3572,6 +3572,66 @@ function Get-ArchLucidAzureDefenderCompanionBundle
     }
 }
 
+function New-ArchLucidAzureDefenderArmValuesFailureWarning(
+    [Parameter(Mandatory = $true)]
+    [string] $CompanionName,
+
+    [int] $StatusCode = 0)
+{
+    if ($StatusCode -gt 0)
+    {
+        return "$CompanionName collection failed; HTTP $StatusCode"
+    }
+
+    return "$CompanionName collection failed"
+}
+
+function Format-ArchLucidAzureDefenderGovernanceCollectionFailedWarning(
+    [int[]] $StatusCodes = @())
+{
+    [string]$apiSuffix = 'api-version 2022-01-01-preview'
+    [int[]]$ordered = @(
+        @($StatusCodes) |
+            Where-Object { $_ -gt 0 } |
+            Sort-Object -Unique
+    )
+
+    if ($ordered.Count -eq 0)
+    {
+        return "defender-governance.json collection failed; $apiSuffix"
+    }
+
+    if ($ordered.Count -eq 1)
+    {
+        return "defender-governance.json collection failed; HTTP $($ordered[0]); $apiSuffix"
+    }
+
+    [string]$joined = ($ordered | ForEach-Object { "$_" }) -join ', '
+    return "defender-governance.json collection failed; HTTP $joined; $apiSuffix"
+}
+
+function Get-ArchLucidAzureDefenderGovernanceWarningStatusCodes(
+    [Parameter(Mandatory = $true)]
+    [string[]] $Warnings)
+{
+    [System.Collections.Generic.List[int]]$statuses = [System.Collections.Generic.List[int]]::new()
+
+    foreach ($warning in @($Warnings))
+    {
+        if (-not "$warning".Contains('defender-governance.json', [StringComparison]::Ordinal))
+        {
+            continue
+        }
+
+        if ("$warning" -match 'collection failed; HTTP (\d+)')
+        {
+            [void]$statuses.Add([int]$Matches[1])
+        }
+    }
+
+    return @($statuses.ToArray())
+}
+
 function Get-ArchLucidAzureDefenderArmValues
 {
     param(
@@ -3593,6 +3653,7 @@ function Get-ArchLucidAzureDefenderArmValues
     [hashtable]$visited = @{}
     [int]$requestCount = 0
     [string]$warning = ''
+    [int]$httpStatusCode = 0
     [bool]$truncated = $false
 
     while (-not [string]::IsNullOrWhiteSpace($nextLink))
@@ -3611,6 +3672,14 @@ function Get-ArchLucidAzureDefenderArmValues
             else
             {
                 $response = Invoke-AzRestMethod -Method GET -Path $nextLink -ErrorAction Stop
+            }
+
+            try { $httpStatusCode = [int]$response.StatusCode } catch { $httpStatusCode = 0 }
+
+            if ($httpStatusCode -lt 200 -or $httpStatusCode -ge 300)
+            {
+                $warning = New-ArchLucidAzureDefenderArmValuesFailureWarning -CompanionName $CompanionName -StatusCode $httpStatusCode
+                break
             }
 
             $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
@@ -3640,7 +3709,19 @@ function Get-ArchLucidAzureDefenderArmValues
             }
             else
             {
-                $warning = "$CompanionName collection failed"
+                [int]$errorStatus = 0
+
+                if ($null -ne $_.Exception -and $null -ne $_.Exception.Response)
+                {
+                    try { $errorStatus = [int]$_.Exception.Response.StatusCode } catch { }
+                }
+
+                if ($errorStatus -gt 0)
+                {
+                    $httpStatusCode = $errorStatus
+                }
+
+                $warning = New-ArchLucidAzureDefenderArmValuesFailureWarning -CompanionName $CompanionName -StatusCode $httpStatusCode
             }
 
             break
@@ -3650,6 +3731,7 @@ function Get-ArchLucidAzureDefenderArmValues
     return [pscustomobject]@{
         items = @($items.ToArray())
         warning = $warning
+        httpStatusCode = $httpStatusCode
         truncated = $truncated
     }
 }
