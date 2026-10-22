@@ -1,3 +1,18 @@
+2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `shouldHumanizeTokenOAuthErrorCode` / `decodeOAuthErrorDescription` - refresh grant JSON `invalid_token` surfaced raw `invalid_token:` in CallbackClient while other standard codes humanize; add `invalid_token` to the allowlist; ZWNJ glue (`Policy\u200cdenied+extra`) still collapsed literal plus because only ZWSP was in the mixed-plus guard; extend authorize glue detection to Latin ZWNJ/ZWJ joiners; regressions `humanizes invalid_token refresh grant errors instead of raw snake_case` and `preserves literal plus in authorize error descriptions when ZWNJ glue separates words`; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped oauth-callback-messages + token-client vitest 147/147.
+
+- [x] (proven) `errorFromOAuthJson` - raw `invalid_token` on refresh grant - **hit 2026-10-22 seed hunt:** allowlist entry; regression above.
+- [x] (proven) `decodeOAuthErrorDescription` - ZWNJ glue plus literal plus collapsed - **hit 2026-10-22 seed hunt:** ZWNJ/ZWJ joiner guard; regression above.
+- [x] (valid-no-repro) `redirect_uri_mismatch` humanize - **cheap-disproof 2026-10-22:** prior hit on trunk ledger head.
+- [x] (invalid) `CallbackClient` - integration test for exchange redirect_uri_mismatch - **cheap-disproof 2026-10-22:** token-client + CallbackClient catch path covered.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` - ZWSP glue with plus in JSON - **cheap-disproof 2026-10-22:** JSON uses separate mixed-plus path; authorize-only ZWNJ gap.
+- [x] (invalid) `humanizeAuthorizeCallbackError` - dedicated redirect URI admin copy - **cheap-disproof 2026-10-22:** UX enhancement; default humanize sufficient.
+
+- [ ] (candidate) `humanizeAuthorizeCallbackError` - dedicated `invalid_token` copy on refresh - locus: switch case; input: BFF session refresh UX (reachability: allowlist uses default branch today).
+- [ ] (candidate) `shouldHumanizeTokenOAuthErrorCode` - `expired_token` / vendor-specific codes - locus: allowlist; input: Azure AD JSON (reachability: map as encountered).
+- [ ] (candidate) `decodeOAuthErrorDescription` - emoji ZWJ sequences with literal plus - locus: preserve guard; input: family emoji + plus (reachability: prior emoji tests).
+- [ ] (candidate) `exchangeAuthorizationCode` - CallbackClient panel shows humanized invalid_token - locus: integration; input: mock exchange reject (reachability: test gap).
+- [ ] (candidate) `token-client.test` - refresh invalid_grant without description humanize - locus: parity with code exchange; input: existing refresh test (reachability: covered).
+
 2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `errorFromOAuthJson` / `shouldHumanizeTokenOAuthErrorCode` — token endpoint JSON `redirect_uri_mismatch` on authorization code exchange surfaced raw `redirect_uri_mismatch` in `CallbackClient`; add `redirect_uri_mismatch` to the humanize allowlist; regression `humanizes redirect_uri_mismatch authorization code exchange errors instead of raw snake_case`; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 374/374.
 
 - [x] (proven) `errorFromOAuthJson` — raw `redirect_uri_mismatch` on code exchange — **hit 2026-10-22 seed hunt:** allowlist entry; regression above.

@@ -212,6 +212,28 @@ describe("refreshAccessToken", () => {
     ).rejects.toThrow(/invalid grant: Authorization code expired/);
   });
 
+  it("humanizes invalid_token refresh grant errors instead of raw snake_case", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () =>
+        JSON.stringify({
+          error: "invalid_token",
+          error_description: "Token expired",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/invalid token: Token expired/);
+  });
+
   it("does not mark authorize callback failed when refresh token exchange fails", async () => {
     sessionStorage.clear();
 

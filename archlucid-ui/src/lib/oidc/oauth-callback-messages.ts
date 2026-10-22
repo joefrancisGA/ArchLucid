@@ -137,7 +137,11 @@ function shouldPreserveLiteralPlusInAuthorizeDescription(decoded: string): boole
     return true;
   }
 
-  return OIDC_DISPLAY_GLUE_FORMAT_CHARS.test(decoded);
+  if (OIDC_DISPLAY_GLUE_FORMAT_CHARS.test(decoded)) {
+    return true;
+  }
+
+  return /(?<=[A-Za-z0-9])[\u200c\u200d](?=[A-Za-z0-9+])/u.test(decoded);
 }
 
 /** Some IdPs over-encode `error_description` (proxy chains); decode until stable, capped, without breaking literal `%` copy. */
