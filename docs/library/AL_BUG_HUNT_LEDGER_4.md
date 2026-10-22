@@ -12470,7 +12470,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 198
+- **hunts:** 199
 - **bugs-found:** 164
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-overlay rebind deduped parallel edges separately when EdgeType differed only by whitespace
@@ -12561,7 +12561,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — minted overlay edges retained padded `RelationshipType` — **hit 2026-10-22 seed hunt (seed→hit):** trim relationship type on overlay edge mint; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — inventory relationships with padded ARM endpoint ids may fail edge attachment despite trim-normalized node index — locus: `nodeIdByArmId` lookup uses `ArmResourceIdNormalizer` while relationship rows carry surrounding whitespace on endpoint ARM ids only; input: relationships whose endpoints trim-equal indexed nodes but raw ARM strings differ by padding; wrong outcome: overlay drops connectivity rows that should attach.
+2026-10-22 seed hunt (valid-no-repro): promoted `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` padded relationship ARM endpoint attachment candidate; proved relationship endpoint resolution already calls `ArmResourceIdNormalizer.Normalize`, which trims surrounding whitespace before `nodeIdByArmId` lookup (parity with resource row indexing); regression `BuildOverlay_matches_relationship_endpoints_when_arm_id_differs_only_by_surrounding_whitespace`; seeded `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` padded resource-row `AzureResourceId` duplicate dedupe follow-on; 491 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — padded relationship ARM endpoints dropped overlay edges — **cheap-disproof 2026-10-22 seed hunt:** `ArmResourceIdNormalizer` trims endpoints; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — duplicate inventory resources when `AzureResourceId` differs only by surrounding whitespace may mint parallel overlay nodes — locus: `seenNormalizedArmIds` keyed by `ArmResourceIdNormalizer.Normalize(resource.AzureResourceId)` while appended nodes keep raw `SourceId`; input: two resource rows whose ARM ids trim-equal; wrong outcome: duplicate observed-fact nodes before merge.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
