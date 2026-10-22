@@ -12470,18 +12470,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 149
-- **bugs-found:** 142
+- **hunts:** 150
+- **bugs-found:** 143
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — graph node factory kept padded canonical display names
+- **last-bug:** 2026-10-22 — graph node factory kept padded category property values
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted `GraphNodeFactory` padded `category` property candidate; proved `CreateNode` copied raw properties-bag `category` onto `GraphNode.Category`, breaking parity with trim-normalized topology sensitivity and materializer category gates; trim non-empty category on assign; regression `CreateNode_trims_surrounding_whitespace_on_category_property_when_building_category`; seeded `GraphNodeFactory` padded `ObjectType` materialization follow-on; 451 KnowledgeGraph + 148 Provenance scoped tests passed.
+
+- [x] (proven) `GraphNodeFactory.CreateNode` — padded `category` property on graph `Category` — **hit 2026-10-22 seed hunt (seed→hit):** trim category; regression above.
+
+- [ ] (candidate) `GraphNodeFactory.CreateNode` — padded canonical `ObjectType` may surface on graph node without trim — locus: `NodeType` assign; input: `CanonicalObject.ObjectType` with surrounding whitespace; wrong outcome: node-type bucket filters diverge from trim-normalized inferrer gates.
 
 2026-10-22 seed hunt (seed→hit): promoted `GraphNodeFactory` padded canonical `Name` candidate; proved `CreateNode` copied raw `CanonicalObject.Name` into graph `Label`, breaking parity with diagram bind matcher trim and display-name identity checks when ingestion tokens carried surrounding whitespace; trim name on label assign; regression `CreateNode_trims_surrounding_whitespace_on_name_when_building_label`; seeded `GraphNodeFactory` padded `category` property materialization follow-on; 450 KnowledgeGraph + 148 Provenance scoped tests passed.
 
 - [x] (proven) `GraphNodeFactory.CreateNode` — padded canonical `Name` on graph `Label` — **hit 2026-10-22 seed hunt (seed→hit):** trim label; regression above.
-
-- [ ] (candidate) `GraphNodeFactory.CreateNode` — padded `category` property value may surface on graph node without trim — locus: category assign from properties bag; input: properties `category` with surrounding whitespace; wrong outcome: topology category diverges from trim-normalized classifier gates.
 
 2026-10-22 seed hunt (seed→hit): promoted `GraphNodeFactory` padded canonical `ObjectId` candidate; proved `CreateNode` composed `obj-{ObjectId}` without trimming ingestion tokens, emitting topology node ids with surrounding whitespace that diverged from diagram binder-trimmed canonical endpoints; trim `ObjectId` for `NodeId` and `SourceId` on materialize; regressions `CreateNode_trims_surrounding_whitespace_on_object_id_when_building_node_id` and `CreateNode_trims_surrounding_whitespace_on_source_id`; seeded `GraphNodeFactory` padded canonical `Name` label materialization follow-on; 449 KnowledgeGraph + 148 Provenance scoped tests passed.
 

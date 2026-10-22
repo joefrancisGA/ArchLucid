@@ -36,7 +36,7 @@ public class GraphNodeFactory : IGraphNodeFactory
             NodeId = $"obj-{objectId}",
             NodeType = item.ObjectType,
             Label = item.Name.Trim(),
-            Category = category,
+            Category = string.IsNullOrWhiteSpace(category) ? category : category.Trim(),
             SourceType = item.SourceType,
             SourceId = string.IsNullOrWhiteSpace(item.SourceId) ? item.SourceId : item.SourceId.Trim(),
             Properties = properties

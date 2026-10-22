@@ -96,6 +96,19 @@ public sealed class GraphNodeFactoryTests
     }
 
     [Fact]
+    public void CreateNode_trims_surrounding_whitespace_on_category_property_when_building_category()
+    {
+        CanonicalObject item = BuildItem(properties: new Dictionary<string, string>
+        {
+            ["category"] = $"  {GraphTopologyCategories.Storage}  ",
+        });
+
+        GraphNode node = _sut.CreateNode(item);
+
+        node.Category.Should().Be(GraphTopologyCategories.Storage);
+    }
+
+    [Fact]
     public void CreateNode_NoCategoryProperty_CategoryIsNull()
     {
         CanonicalObject item = BuildItem();
