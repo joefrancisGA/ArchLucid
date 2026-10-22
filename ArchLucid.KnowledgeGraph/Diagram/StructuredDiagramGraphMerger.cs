@@ -31,7 +31,7 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
 
         Dictionary<string, GraphNode> nodesById = new(StringComparer.OrdinalIgnoreCase);
         Dictionary<string, GraphEdge> edgesByDirectedPair = new(StringComparer.OrdinalIgnoreCase);
-        HashSet<string> warningKeys = new(StringComparer.Ordinal);
+        HashSet<string> warningKeys = new(StringComparer.OrdinalIgnoreCase);
         List<string> warnings = [];
         List<StructuredDiagramCanonicalBinding> bindings = [];
         HashSet<string> mergedBindingKeys = new(StringComparer.OrdinalIgnoreCase);
