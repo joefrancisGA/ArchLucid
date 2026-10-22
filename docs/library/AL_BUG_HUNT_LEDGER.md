@@ -20,6 +20,16 @@
 - [ ] (candidate) humanizeAuthorizeCallbackError - invalid_state authorize-query copy - locus: default branch UX.
 - [ ] (candidate) refreshBffSessionCookie - refresh 463 shouldClearSession false - locus: transient refresh parity.
 - [ ] (candidate) exchangeAuthorizationCode - access_token JSON string word-joiner-only skips authorize retry marker - locus: literal whitespace token shape.
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed code_verifier_expired authorize-query UX, BFF refresh 462 parity (client + route opaque 462), and saturated readOAuthJsonErrorDescription thin-space multiply-encoded glue; regression documents authorize-retry is marked when authorization code exchange returns byte-order-mark-only access_token; scoped vitest 684/684.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - code_verifier_expired authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 462 shouldClearSession false - **regression 2026-10-22:** client soft-fail plus BFF route opaque 462 without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string byte-order-mark-only skips authorize retry marker - **regression 2026-10-22:** byte-order-mark-only tokens reject exchange and set retry marker.
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with thin-space glue - **cheap-disproof 2026-10-22:** saturated JSON encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - state_mismatch authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 463 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string object-replacement-character-only skips authorize retry marker - locus: literal whitespace token shape.
 - [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with narrow-no-break-space glue - locus: saturated encoding class.
 
 2026-10-22 seed hunt: ui-oidc - fixed soft-hyphen-only access_token accepted after authorization code exchange; cheap-disproof closed code_verifier_mismatch authorize-query UX and BFF refresh 461 parity; saturated decodeOAuthErrorDescription thin-space glue retired; scoped vitest 616/616.
