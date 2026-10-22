@@ -12470,18 +12470,23 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 91
-- **bugs-found:** 86
+- **hunts:** 92
+- **bugs-found:** 87
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — duplicate artifact rows union contributing decision links in provenance graph
+- **last-bug:** 2026-10-22 — sparse case-variant finding rows no longer wipe agent trace metadata
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted sparse duplicate finding row candidate; proved last-wins `AddNode` and `ComputeFindingsFingerprint` representative selection cleared `AgentExecutionTraceId` when a later case-variant row omitted trace fields; retain last non-empty scalar values per case-insensitive finding group and skip blank overwrites on duplicate node merge; regressions `Compute_unchanged_when_later_case_variant_finding_row_omits_agent_execution_trace_id` and `Build_preserves_agent_execution_trace_id_when_later_case_variant_row_omits_trace`; cheap-disproved diagram merger `DeclaredConnectionId` coalesce (`DeclaredConnectionId` is not populated on structured diagram compile paths); seeded sparse duplicate graph node label row follow-on; 387 KnowledgeGraph + 110 Provenance scoped tests passed.
+
+- [x] (proven) `ProvenanceSnapshotRevisionHasher.ComputeFindingsFingerprint` / `ProvenanceBuilder.AddNode` — sparse later case-variant finding rows cleared agent execution trace metadata — **hit 2026-10-22 seed hunt (seed→hit):** last non-empty field merge; regressions above.
+- [x] (invalid) `StructuredDiagramGraphMerger.Merge` — duplicate directed-edge coalesce may not refresh `DeclaredConnectionId` — **cheap-disproof 2026-10-22 seed hunt:** no `DeclaredConnectionId` assignments under `ArchLucid.KnowledgeGraph/`.
+
+- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` / `ProvenanceBuilder.AddNode` — sparse later case-variant graph node rows may clear label/type/category when appended after a populated row — locus: duplicate node merge; input: two nodes differing only by `NodeId` casing; wrong outcome: stale or blank graph node display metadata.
 
 2026-10-22 seed hunt (seed→hit): promoted duplicate artifact contributing-decision union candidate; proved revision fingerprint already unioned `ContributingDecisionIds` across duplicate rows but `ProvenanceBuilder` emitted `ContributedToArtifact` edges only from the last representative row, dropping decision links from earlier duplicate bundle entries; union decision ids per `ArtifactId` group when linking artifacts; regressions `Build_unions_contributing_decision_ids_when_bundle_lists_duplicate_artifact_rows` and `Compute_changes_when_later_duplicate_artifact_row_adds_contributing_decision_id`; seeded diagram merger duplicate-edge `DeclaredConnectionId` follow-on; 387 KnowledgeGraph + 108 Provenance scoped tests passed.
 
 - [x] (proven) `ProvenanceBuilder` — duplicate `ArtifactId` rows dropped earlier `ContributingDecisionIds` from `ContributedToArtifact` edges — **hit 2026-10-22 seed hunt (seed→hit):** union per artifact id group; regression above.
-
-- [ ] (candidate) `StructuredDiagramGraphMerger.Merge` — duplicate directed-edge coalesce may not refresh `DeclaredConnectionId` when later compile paths populate schema-v1 edge fields — locus: directed-edge dedup; input: two documents sharing endpoints; wrong outcome: stale declared-connection metadata on multi-document merge.
 
 2026-10-22 seed hunt (seed→hit): promoted duplicate artifact bundle row candidate; proved `ComputeArtifactsFingerprint` used `DistinctByArtifactId` (first-wins on equal `ContentHash`) so a later renamed duplicate row did not bust `ProvenanceGraphAccessService` revision cache and `ProvenanceBuilder` kept the first artifact display name; last-wins metadata per `ArtifactId` with max-`ContentHash` tie-break when hashes conflict (order-invariant); regressions `Compute_changes_when_later_duplicate_artifact_row_has_different_name_but_same_content_hash` and `Build_uses_last_artifact_name_when_bundle_lists_duplicate_artifact_ids`; seeded duplicate artifact contributing-decision-id union follow-on; 387 KnowledgeGraph + 106 Provenance scoped tests passed.
 
