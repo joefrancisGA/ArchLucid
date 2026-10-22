@@ -198,6 +198,31 @@ describe("refreshAccessToken", () => {
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });
 
+  it("marks authorize callback failed when authorization code exchange returns transient authorization_pending", async () => {
+    sessionStorage.clear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: false,
+        status: 400,
+        text: async () => JSON.stringify({ error: "authorization_pending" }),
+      })),
+    );
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/authorization pending/i);
+
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
+  });
+
   it("marks authorize callback failed when authorization code exchange returns transient slow_down", async () => {
     sessionStorage.clear();
 
@@ -737,6 +762,32 @@ describe("refreshAccessToken", () => {
 
     expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
     expect(isOAuthRefreshTokenRejectedError(caught)).toBe(false);
+  });
+
+  it("does not classify transient slow_down refresh failures for BFF session clearing", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "slow_down" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect(isOAuthRefreshTokenRejectedError(caught)).toBe(false);
+    expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("slow_down");
   });
 
   it("classifies humanized expired_token refresh failures for BFF session clearing", async () => {

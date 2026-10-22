@@ -103,6 +103,9 @@ function handleInitiateDiscoveryFailure(options: {
  *   unsafe values are dropped by `storePostSignInReturnUrl`, not rejected here).
  */
 export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
+  // Drop poisoned sessionStorage return paths before PKCE/redirect (safe paths are unchanged).
+  readPostSignInReturnUrl();
+
   const authority = getOidcAuthority();
   const clientId = getOidcClientId();
   const redirectUri = getOidcRedirectUri();
@@ -179,6 +182,8 @@ export async function initiateSupplementalOidcRedirect(
   if (provider !== "google") {
     throw new Error("Unsupported supplemental identity provider.");
   }
+
+  readPostSignInReturnUrl();
 
   const authority = getGoogleOidcAuthority();
   const clientId = getGoogleOidcClientId();
