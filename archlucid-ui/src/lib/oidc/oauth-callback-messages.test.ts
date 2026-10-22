@@ -123,6 +123,10 @@ describe("decodeOAuthErrorDescription", () => {
     expect(decodeOAuthErrorDescription("Policy%252Bdenied")).toBe("Policy denied");
   });
 
+  it("preserves percent-decoded plus in authorize descriptions when en-space glue separates words", () => {
+    expect(decodeOAuthErrorDescription("Policy\u2002denied%252Bextra")).toBe("Policy denied+extra");
+  });
+
   it("preserves literal plus in authorize error descriptions when form plus was already decoded to space", () => {
     const mixed = new URLSearchParams("error_description=User+denied%2Bextra").get("error_description");
 
@@ -626,6 +630,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toMatch(/invalid saml subject/i);
     expect(message).not.toContain("invalid_saml_subject");
+  });
+
+  it("humanizes invalid_saml_audience authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_saml_audience", "");
+
+    expect(message).toMatch(/invalid saml audience/i);
+    expect(message).not.toContain("invalid_saml_audience");
   });
 
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
