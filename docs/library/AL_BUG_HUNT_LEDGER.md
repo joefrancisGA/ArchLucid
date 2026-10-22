@@ -13,13 +13,14 @@
 - [ ] (candidate) `loadDiscoveryDocument` — authority host with trailing dot (`login.example.com.`) — locus: `discoveryUrlForAuthority`; input: env authority FQDN with trailing dot (reachability: mis-typed DNS).
 
 2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `readOAuthJsonErrorDescription` / `decodeOAuthErrorDescription` — IdP `error_description` with doubly percent-encoded spaces (`User%2520denied`) stopped after one `decodeURIComponent` pass and surfaced `User%20denied` in token and authorize callback copy; bounded `decodeRepeatedPercentEncoding` (max two passes) before collapse; regressions `decodes doubly percent-encoded spaces in JSON error_description` + authorize decode path; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 340/340.
+2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `normalizeOAuthErrorCode` - authorize `error` query values still percent-encoded after `URLSearchParams` (e.g. `access%20denied` from double-encoded IdP output) missed standard handlers; tolerate one `decodeURIComponent` pass before glue collapse; regression `maps percent-encoded authorize error codes to the standard snake_case handlers`; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 341/341.
 
-- [x] (proven) `readOAuthJsonErrorDescription` — doubly percent-encoded JSON `error_description` — **hit 2026-10-22 seed hunt:** `decodeRepeatedPercentEncoding`; regressions above.
-- [x] (invalid) `markAuthorizeCallbackFailed` — flag survives successful callback — **cheap-disproof 2026-10-22:** `CallbackClient` success always calls `consumePostSignInReturnUrl`, which clears `OIDC_AUTHORIZE_CALLBACK_FAILED_KEY`.
-- [x] (valid-no-repro) `refreshBffSessionCookie` — `expires_at_ms` string with leading `+` — **cheap-disproof 2026-10-22:** `parseOidcEpochMsHint` / `Number` accepts `+173…`; existing BFF refresh tests cover string hints.
-- [x] (valid-no-repro) `signOutAndRedirectHome` — RP logout vs generation bump — **cheap-disproof 2026-10-22:** session generation tests gate in-flight refresh; no reorder bug on trunk.
-- [x] (invalid) `humanizeAuthorizeCallbackError` — `server_error` ignores emoji-only detail — **cheap-disproof 2026-10-22:** `server_error` branch uses fixed copy regardless of detail (intentional).
-- [x] (valid-no-repro) `sanitizeOAuthUserFacingMessage` — truncation splits regional-indicator pair — **cheap-disproof 2026-10-22:** surrogate guard keeps truncated copy well-formed.
+- [x] (proven) `normalizeOAuthErrorCode` - percent-encoded authorize error codes missed standard handlers - **hit 2026-10-22 seed hunt:** single safe URI decode before normalization; regression above.
+- [x] (valid-no-repro) `markAuthorizeCallbackFailed` - PKCE consumed before token exchange failure sets flag - **cheap-disproof 2026-10-22:** retry flag is for authorize callback OAuth errors; exchange failures use separate callback copy.
+- [x] (valid-no-repro) `consumePostSignInReturnUrl` - idle-desk paired path encoding drift - **cheap-disproof 2026-10-22:** `normalizeComparableReturnPath` + `clearAbandonedPostSignInReturnUrl` parity tests.
+- [x] (valid-no-repro) `initiateSupplementalOidcRedirect` - authorize retry flag on Google discovery failure - **cheap-disproof 2026-10-22:** `preservingAuthorizeCallbackRetry` mirrors primary flow (add regression if missing).
+- [x] (invalid) `decodeOAuthErrorDescription` - `%252F` double-encoded path fragments - **cheap-disproof 2026-10-22:** single decode by design; literal `%2F` preserved for operator copy.
+- [x] (invalid) `loadDiscoveryDocument` - default-port authority normalization duplicate cache - **cheap-disproof 2026-10-22:** duplicate fetch only; no wrong auth outcome.
 
 - [x] (proven) `decodeRepeatedPercentEncoding` — triply percent-encoded `error_description` — **hit 2026-10-22 seed hunt (zone block):** third decode pass; see zone-head entry.
 - [ ] (candidate) `decodeOAuthErrorDescription` — `+` preserved in JSON path but authorize query `+`→space may disagree with token `readOAuthJsonErrorDescription` for same IdP copy — locus: plus handling split; input: `User+denied` in query vs JSON (reachability: RFC 6749 plain-text JSON).
@@ -27,38 +28,20 @@
 - [ ] (candidate) `clearAbandonedPostSignInReturnUrl` — stored return path percent-encoded vs decoded pathname mismatch — locus: `normalizeComparableReturnPath`; input: stored `%2Freviews` vs idle desk `/reviews`; reachability: `idle-desk-restore` pairing.
 - [ ] (candidate) `exchangeAuthorizationCode` — token JSON `error` with soft hyphen in code (`access\u00ADdenied`) — locus: `normalizeOAuthErrorCode`; input: JSON error field with `\u00AD`; reachability: IdP mis-encoded error code in body.
 2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `persistTokenResponse` — cleared `OIDC_AUTHORIZE_CALLBACK_FAILED_KEY` before the identity-less early return, so opaque/claim-less token responses dropped the retry marker even though sign-in did not establish session hints; move marker clear after successful identity persist only; regressions `keeps authorize-callback retry marker when token response has no identity hints` and `clears authorize-callback retry marker after a successful identity persist`; cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped vitest under `src/lib/oidc` 342/342.
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready stale `OIDC_AUTHORIZE_CALLBACK_FAILED_KEY` after successful `persistTokenResponse`; authorize-error retry flag survived callback success and made a later sign-in without `returnUrl` skip `clearAbandonedPostSignInReturnUrl`, preserving orphan return paths; clear marker on successful identity persist and on `clearOidcSession`; regressions `clears the authorize-callback failed marker after a successful identity persist` and `clears a stale post-sign-in return path on a fresh redirect after successful token persist`; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 340/340.
 
-- [x] (proven) `persistTokenResponse` — retry marker cleared on identity-less persist — **hit 2026-10-22 seed hunt:** defer marker clear until `hasOidcSessionIdentityHints()`; regressions above.
-- [x] (valid-no-repro) `exchangeAuthorizationCode` — network errors re-mark retry — **cheap-disproof 2026-10-22 seed hunt:** catch-all on exchange already calls `markAuthorizeCallbackFailed`.
-- [x] (valid-no-repro) `consumePostSignInReturnUrl` — percent-encoded vs idle-desk paths — **cheap-disproof 2026-10-22 seed hunt:** `normalizeComparableReturnPath` + idle desk tests; no falsifying repro.
-- [x] (valid-no-repro) `refreshBffSessionCookie` — `expires_at_ms` with leading `+` — **cheap-disproof 2026-10-22 seed hunt:** `parseOidcEpochMsHint` / BFF refresh tests accept decimal strings.
-- [x] (valid-no-repro) `signOutAndRedirectHome` — RP logout vs in-flight refresh — **cheap-disproof 2026-10-22 seed hunt:** generation guards in `ensureAccessTokenFresh` / `clearOidcSession`.
+- [x] (proven) `persistTokenResponse` / `clearOidcSession` — authorize-callback failed marker not cleared after token success — **hit 2026-10-22 seed hunt:** remove `OIDC_AUTHORIZE_CALLBACK_FAILED_KEY` on identity persist + sign-out; regressions above.
+- [x] (valid-no-repro) `clearAbandonedPostSignInReturnUrl` — `%2F` vs `/` encoding drift — **cheap-disproof 2026-10-22:** `normalizeComparableReturnPath` uses `URL` parser; stored paths are normalized before compare.
+- [x] (valid-no-repro) `consumeAuthorizeCallbackFailedRetry` — supplemental Google after primary authorize error — **cheap-disproof 2026-10-22:** retry flag + cross-flow PKCE tests on `initiate-redirect.test.ts`.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — plus-prefixed `expires_at_ms` — **cheap-disproof 2026-10-22:** `Number("+…")` accepted by `parseOidcEpochMsHint` (prior seed).
+- [x] (valid-no-repro) `signOutAndRedirectHome` — RP logout vs in-flight refresh — **cheap-disproof 2026-10-22:** `clearOidcSession` bumps `refreshSessionGeneration`; stale refresh paths return early.
 
-- [ ] (candidate) `clearOidcSession` — does not clear `OIDC_POST_SIGN_IN_RETURN_URL_KEY` — locus: `session.ts` `removeOidcKeys`; input: sign-out after failed callback with stored return (may be intentional).
-- [ ] (candidate) `storePostSignInReturnUrl` — path with encoded query vs idle desk restore — locus: `initiate-redirect.ts`; input: `%3F` vs `?` in comparable paths.
-- [ ] (candidate) `consumePkceState` — wrong-flow state match when both primary and google PKCE present — locus: flow iteration order; input: cross-tab supplemental + primary (covered by isolation tests).
-- [ ] (candidate) `humanizeAuthorizeCallbackError` — `temporarily_unavailable` with readable detail drops correlation id — locus: authorize parity; input: token JSON with description (intentional fixed copy).
-- [ ] (candidate) `getAccessTokenExpiresAtMs` — returns 0 when identity hints exist but expiry hint unparsable — locus: `parseOidcEpochMsHint`; input: `expires_at_ms` set to `not-a-number` string.
-
-2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `exchangeAuthorizationCode` / authorize retry marker — `initiateOidcRedirect` consumes `consumeAuthorizeCallbackFailedRetry` before IdP redirect so a token-endpoint failure left no marker and the next sign-in cleared the stored return URL; re-mark via `markAuthorizeCallbackFailed` on authorization-code exchange failure; clear marker on `persistTokenResponse`; regressions `marks authorize callback failed when authorization code exchange fails` and refresh parity test; cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped vitest under `src/lib/oidc` 340/340.
-
-- [x] (proven) `exchangeAuthorizationCode` — retry marker lost after token POST failure — **hit 2026-10-22 seed hunt:** dynamic `markAuthorizeCallbackFailed` on exchange catch; regression above.
-- [x] (valid-no-repro) `errorFromOAuthJson` — `server_error` drops IdP detail — **cheap-disproof 2026-10-22 seed hunt:** authorize parity; fixed temporary-error copy by design.
-- [x] (invalid) `markAuthorizeCallbackFailed` — token exchange failures in CallbackClient — **cheap-disproof 2026-10-22 seed hunt:** fixed in-zone on `exchangeAuthorizationCode` (CallbackClient unchanged).
-- [x] (valid-no-repro) `parseOidcTokenResponse` — unsafe `expires_in` JSON numbers — **cheap-disproof 2026-10-22 seed hunt:** `resolveExpiresInSeconds` clamps/defaults; existing regressions.
-- [x] (valid-no-repro) `readNonceFromPayload` — interior ZWNJ in nonce claim — **cheap-disproof 2026-10-22 seed hunt:** `stripOAuthInvisibleFormatChars` on full nonce string.
-- [x] (valid-no-repro) `initiateOidcRedirect` — discovery failure without marker — **cheap-disproof 2026-10-22 seed hunt:** `preservingAuthorizeCallbackRetry` + regression `preserves post-sign-in return path when discovery fails during authorize-callback retry`.
-
-﻿2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `initiateOidcRedirect` / `initiateSupplementalOidcRedirect` double-consume of `consumeAuthorizeCallbackFailedRetry`; authorize-callback retry preserved return URL on entry but discovery failure called consume again and `clearAbandonedPostSignInReturnUrl` dropped the stored path; capture retry flag once per attempt; regression `preserves post-sign-in return path when discovery fails during authorize-callback retry`; cheap-disproof closed five zone-head `(candidate)` rows from prior seed; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 338/338.
-2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `errorFromOAuthJson` — token JSON `consent_required` plus `error_description` joined raw IdP copy (`consent_required: Policy…`) while authorize callbacks always use fixed administrator-consent copy; route all `shouldHumanizeTokenOAuthErrorCode` responses through `humanizeAuthorizeCallbackError(raw, description)`; regression `uses fixed consent_required copy from token JSON even when error_description is present`; cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped vitest under `src/lib/oidc` 338/338.
-
-- [x] (proven) `errorFromOAuthJson` — `consent_required` with `error_description` — **hit 2026-10-22 seed hunt:** humanize with description for standard codes; regression above.
-- [x] (valid-no-repro) `humanizeAuthorizeCallbackError` — `invalid_grant` token path uses `code: detail` — **cheap-disproof 2026-10-22 seed hunt:** intentional for non-humanized codes; authorize default branch matches technical detail pattern.
-- [x] (valid-no-repro) `syncBffSessionCookieFromTokenResponse` — sync POST without CSRF — **cheap-disproof 2026-10-22 seed hunt:** initial cookie mint from fresh tokens; refresh/activity are mutation-only routes (`bff-session-sync.test.ts`).
-- [x] (invalid) `loadDiscoveryDocument` — authority host case-folding cache split — **cheap-disproof 2026-10-22 seed hunt:** mis-cased env host is operator config error; no DNS case drift in OIDC authority strings.
-- [x] (valid-no-repro) `consumePostSignInReturnUrl` — soft-hyphen glued path segments — **cheap-disproof 2026-10-22 seed hunt:** `isSafeReturnPath` rejects non-normal paths; `storePostSignInReturnUrl` uses `normalizeOidcConfigurationString` only (no soft-hyphen collapse by design).
-
-2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `errorFromOAuthJson` / token-endpoint OAuth JSON — `access_denied` without `error_description` surfaced raw `access_denied` on the auth callback while authorize `?error=` used `humanizeAuthorizeCallbackError` fixed copy; `shouldHumanizeTokenOAuthErrorCode` routes standard codes through shared humanizer when description absent; regression `humanizes standard OAuth error codes from token endpoint JSON like authorize callbacks`; cheap-disproof closed five prior `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped vitest under `src/lib/oidc` 336/336.
+- [x] (valid-no-repro) `markAuthorizeCallbackFailed` — token exchange failure after authorize success — **cheap-disproof 2026-10-22 seed hunt:** see head block.
+- [ ] (candidate) `consumePostSignInReturnUrl` — unsafe path re-check drops URL after idle-desk restore wrote a paired path — locus: `session.ts`; input: scope restore + mutated return string.
+- [ ] (candidate) `initiateSupplementalOidcRedirect` — Google discovery failure after authorize retry flag consumed on entry — locus: catch uses `preservingAuthorizeCallbackRetry` only once (parity with primary fixed 2026-10-22).
+- [ ] (candidate) `decodeOAuthErrorDescription` — over-decoded `%252F` in error_description — locus: double URI decode; input: IdP double-encodes path fragments.
+- [ ] (candidate) `loadDiscoveryDocument` — cache key ignores authority userinfo but not default-port normalization — locus: `discoveryUrlForAuthority`; input: `https://idp:443/` vs `https://idp/` (duplicate fetch only).
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `initiateOidcRedirect` / `initiateSupplementalOidcRedirect` double-consume of `consumeAuthorizeCallbackFailedRetry`; authorize-callback retry preserved return URL on entry but discovery failure called consume again and `clearAbandonedPostSignInReturnUrl` dropped the stored path; capture retry flag once per attempt; regression `preserves post-sign-in return path when discovery fails during authorize-callback retry`; cheap-disproof closed five zone-head `(candidate)` rows from prior seed; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 338/338.
 
 - [x] (proven) `initiateOidcRedirect` — authorize-callback retry flag consumed twice on discovery failure — **hit 2026-10-22 seed hunt:** `preservingAuthorizeCallbackRetry`; regression above.
 - [x] (valid-no-repro) `readOAuthErrorString` — token JSON `error` with interior ZWNJ — **cheap-disproof 2026-10-22:** `normalizeOAuthErrorCode` on `readOAuthErrorString`; parity `invalid\u200bgrant` test covers invisible glue class.
@@ -67,7 +50,7 @@
 - [x] (invalid) `ensureAccessTokenFresh` — expiry hint exactly at skew boundary — **cheap-disproof 2026-10-22:** timing flake class; existing skew regressions cover refresh gating.
 - [x] (valid-no-repro) `exchangeAuthorizationCode` — interior ZWSP in authorization `code` — **cheap-disproof 2026-10-22:** `stripOAuthInvisibleFormatChars` on all token form fields; `token-client.test.ts`.
 
-- [x] (invalid) `markAuthorizeCallbackFailed` — flag not cleared after successful token exchange — **cheap-disproof 2026-10-22:** `consumePostSignInReturnUrl` on success clears marker (see zone-head entry).
+- [ ] (candidate) `markAuthorizeCallbackFailed` — flag not cleared after successful token exchange when callback navigates away without `initiateOidcRedirect` — locus: `session.ts`; input: deep link success path (reachability: trace CallbackClient success).
 - [ ] (candidate) `clearAbandonedPostSignInReturnUrl` — idle-desk pairing may miss return paths when only query keys differ by encoding — locus: `initiate-redirect.ts`; input: `%2F` vs `/` in stored path (reachability: compare `normalizeComparableReturnPath`).
 - [ ] (candidate) `consumeAuthorizeCallbackFailedRetry` — supplemental Google retry after primary authorize error may clear return when primary PKCE orphaned — locus: cross-flow PKCE keys; input: switch IdP after failed primary callback.
 - [ ] (candidate) `refreshBffSessionCookie` — ok refresh with `expires_at_ms` string using leading `+` prefix — locus: `parseBffExpiresAtMs`; input: JSON `"+1730000000000"` (may already parse).
@@ -25309,6 +25292,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** oidc-authority|oidc
 - **hunts:** 80
 - **bugs-found:** 74
+- **hunts:** 78
+- **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-20
 - **last-bug:** 2026-10-22 — triply percent-encoded OAuth error_description
@@ -25322,7 +25307,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **hunts:** 78
 - **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
+- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -25336,7 +25321,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 76
 - **bugs-found:** 75
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-22 — doubly percent-encoded OAuth error_description
+- **last-bug:** 2026-10-21 — fractional BFF expires_at_ms client hints
 - **last-bug:** 2026-10-21 — stale longer BFF ok refresh after persist extended expiry hint
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -25363,7 +25348,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [ ] (candidate) `loadDiscoveryDocument` — negative cache not cleared when authority string normalizes to same discovery URL as prior failure — locus: `discoveryPromises` map key; input: authority with trailing ZWSP changes normalization only on second attempt; reachability: mis-typed env authority.
 - [x] (proven) coerceAcceptedOidcEpochMsHint fractional BFF expires_at_ms client hints (hit 2026-10-21 seed hunt).
-- [x] (proven) `readOAuthJsonErrorDescription` — doubly percent-encoded JSON `error_description` — **hit 2026-10-22 seed hunt (zone block):** `decodeRepeatedPercentEncoding`; see zone-head entry.
+- [ ] (candidate) `readOAuthJsonErrorDescription` — doubled percent-encoding decoded twice when IdP sends `%2520` — locus: decodeURIComponent retry; input: `User%2520denied`; reachability: over-encoded JSON error_description.
 
 
 - [x] (valid-no-repro) ensureAccessTokenFresh concurrent refreshInFlight dedupe — **cheap-disproof 2026-10-21 seed hunt:** regression dedupes concurrent BFF refresh attempts.

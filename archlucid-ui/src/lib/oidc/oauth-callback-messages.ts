@@ -154,8 +154,15 @@ export function collapseOAuthErrorDescriptionLineBreaks(text: string): string {
 
 /** Normalizes OAuth `error` codes from authorize query params or token JSON (collapse glue characters, snake_case). */
 export function normalizeOAuthErrorCode(value: string): string {
-  const tokenized = value
-    .trim()
+  let decoded = value.trim();
+
+  try {
+    decoded = decodeURIComponent(decoded.replace(/\+/g, " "));
+  } catch {
+    /* keep trimmed raw value when IdPs send literal percent signs */
+  }
+
+  const tokenized = decoded
     .replace(OAUTH_INVISIBLE_FORMAT_CHARS, "_")
     .replace(/[\u0000-\u001F\u007F\u2028\u2029\u0085\u00AD]/gu, "_");
   const collapsed = collapseOAuthErrorDescriptionLineBreaks(tokenized);
