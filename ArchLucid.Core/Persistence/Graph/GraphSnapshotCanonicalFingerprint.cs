@@ -137,7 +137,9 @@ public static class GraphSnapshotCanonicalFingerprint
         IEnumerable<string> parts = knowledgeModel.DeclaredPriorities
             .Select(static priority => NormalizeFingerprintText(priority))
             .Where(static priority => priority.Length > 0)
-            .OrderBy(static priority => priority, StringComparer.Ordinal);
+            .GroupBy(static priority => priority, StringComparer.OrdinalIgnoreCase)
+            .OrderBy(static group => group.Key, StringComparer.OrdinalIgnoreCase)
+            .Select(static group => group.OrderBy(static priority => priority, StringComparer.Ordinal).First());
 
         return string.Join(",", parts);
     }

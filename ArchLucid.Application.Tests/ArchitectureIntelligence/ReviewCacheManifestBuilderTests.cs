@@ -339,6 +339,104 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_baseline_element_provenance_notes_differ_only_by_unicode_normalization_form()
+    {
+        const string nfcNotes = "Cited from Caf\u00E9 runbook.";
+        const string nfdNotes = "Cited from Cafe\u0301 runbook.";
+
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-provenance-notes-unicode";
+
+        ArchitectureKnowledgeModel nfcModel = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance { Notes = nfcNotes },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel nfdModel = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance { Notes = nfdNotes },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, nfcModel).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, nfdModel).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_model_declared_priorities_differ_only_by_casing()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-declared-priority-casing";
+
+        ArchitectureKnowledgeModel mixedCase = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            DeclaredPriorities = ["Security", "security"],
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ArchitectureKnowledgeModel canonical = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            DeclaredPriorities = ["Security"],
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, mixedCase).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, canonical).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_model_declared_priorities_differ_only_by_surrounding_whitespace()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-declared-priority-trim";
+
+        ArchitectureKnowledgeModel padded = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            DeclaredPriorities = ["  Security  "],
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ArchitectureKnowledgeModel trimmed = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            DeclaredPriorities = ["Security"],
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, padded).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, trimmed).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_baseline_element_provenance_source_artifact_id_differs_only_by_surrounding_whitespace()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");

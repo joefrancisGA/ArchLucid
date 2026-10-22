@@ -8712,6 +8712,14 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted baseline model `DeclaredPriorities` case-duplicate lists splitting review-cache `modelfp`; `FormatDeclaredPriorities` now case-dedupes like `ClosedLoopDeclaredPrioritiesNormalizer` after FormC trim; regression `Build_matches_content_hash_when_baseline_model_declared_priorities_differ_only_by_casing` plus coverage for padded priorities and NFC provenance notes; 144 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatDeclaredPriorities` — `Security`/`security` duplicate baseline priorities split `modelfp` — **hit 2026-10-22 seed hunt:** case-insensitive group + ordinal tie-break; regression above.
+
+- (candidate) `ReviewResultCache.CoalesceAsync` — follower publish leak when publish intent false — locus: `CoalesceAsync_analysis_follower_strips_publish_block_from_blocked_leader`; input: re-verify strip flag on cache coordinator path.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — consolidated C0/C1 line-break audit (picker saturated `other`; batch only).
+
 2026-10-22 seed hunt (seed→hit): promoted baseline model `DeclaredPriorities` NFC vs NFD and padded element `SourceArtifactId` splitting review-cache `modelfp`; `FormatDeclaredPriorities` and `FormatElementProvenance` now use `NormalizeFingerprintText`; regressions `Build_matches_content_hash_when_baseline_model_declared_priorities_differ_only_by_unicode_normalization_form` and `Build_matches_content_hash_when_baseline_element_provenance_source_artifact_id_differs_only_by_surrounding_whitespace`; 141 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatDeclaredPriorities` — NFC vs NFD baseline declared priorities split `modelfp` — **hit 2026-10-22 seed hunt:** FormC on priority labels; regression above.
