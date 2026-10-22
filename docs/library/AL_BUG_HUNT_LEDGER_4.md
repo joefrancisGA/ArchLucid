@@ -12470,18 +12470,23 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 97
-- **bugs-found:** 92
+- **hunts:** 98
+- **bugs-found:** 93
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — later inferred diagram documents no longer downgrade asserted node inference metadata on merge
+- **last-bug:** 2026-10-22 — weaker inferred diagram recompiles no longer retarget source evidence after asserted merge
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted edge property-confidence candidate; proved edge property confidence already maxed with node coalesce helper but weaker later compiles still retargeted `structuredDiagram.sourceEvidenceItemId` (and diagram citation refs) while confidence stayed asserted-high; skip evidence-pointer properties when incoming compile confidence is lower; regressions `Merge_preserves_asserted_edge_inference_confidence_when_later_inferred_document_recompiles_same_endpoints` and `Merge_preserves_asserted_source_evidence_when_later_inferred_document_recompiles_same_node_id`; seeded structured diagram subgraph sparse label follow-on; 392 KnowledgeGraph + 116 Provenance scoped tests passed.
+
+- [x] (proven) `StructuredDiagramGraphMerger.Merge` — weaker inferred compile retargeted source evidence after asserted node/edge merge — **hit 2026-10-22 seed hunt (seed→hit):** guarded evidence properties on weaker incoming confidence; regressions above.
+- [x] (valid-no-repro) `StructuredDiagramGraphMerger.Merge` — edge property `structuredDiagram.inferenceConfidence` downgrade after asserted compile — **cheap-disproof 2026-10-22 seed hunt:** already covered by `CoalesceDiagramEdgeMetadata` max confidence; regression above.
+
+- [ ] (candidate) `StructuredDiagramCanonicalModelReconstructor` — duplicate canonical node rows within one `SourceId` group may emit blank `Label` on reconstruct when a later sparse row omits `text`/`Name` — locus: per-document node list append; input: two diagram canonical objects same node id in one document; wrong outcome: recompiled model carries empty label into merge.
 
 2026-10-22 seed hunt (seed→hit): promoted duplicate-node inference downgrade candidate; proved node coalesce last-wins property merge overwrote `structuredDiagram.inferenceConfidence` and reasoning trace when a later inferred document recompiled the same `NodeId` after an asserted document; retain max inference confidence and only refresh reasoning when incoming confidence is not weaker; mirror edge metadata coalesce for property confidence; regression `Merge_preserves_asserted_node_inference_confidence_when_later_inferred_document_recompiles_same_node_id`; seeded duplicate-edge inference-confidence property downgrade follow-on; 390 KnowledgeGraph + 116 Provenance scoped tests passed.
 
 - [x] (proven) `StructuredDiagramGraphMerger.Merge` — later inferred document downgraded asserted node inference metadata on duplicate node coalesce — **hit 2026-10-22 seed hunt (seed→hit):** max confidence + guarded reasoning merge; regression above.
-
-- [ ] (candidate) `StructuredDiagramGraphMerger.Merge` — duplicate directed-edge coalesce may downgrade `structuredDiagram.inferenceConfidence` in edge properties when a later inferred document follows an asserted edge compile — locus: edge property merge (weight already maxed); input: asserted then inferred topology for same endpoints; wrong outcome: edge property confidence below asserted `1`.
 
 2026-10-22 seed hunt (seed→hit): promoted diagram edge weight downgrade candidate after cheap-disproving sparse node label loss; proved duplicate directed-edge coalesce always assigned `existingEdge.Weight = edge.Weight`, so a later inferred document recompiling the same endpoints after an asserted document dropped buyer-visible confidence from `1.0` to label-only `0.5`; retain the higher weight on coalesce; regressions `Merge_preserves_asserted_edge_weight_when_later_inferred_document_recompiles_same_endpoints` and `Merge_preserves_diagram_label_when_later_document_omits_node_label` (sparse label guard); seeded duplicate-node diagram inference confidence downgrade follow-on; 389 KnowledgeGraph + 116 Provenance scoped tests passed.
 

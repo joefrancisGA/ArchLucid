@@ -146,10 +146,10 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
         {
             foreach (KeyValuePair<string, string> property in incoming.Properties)
             {
-                if (string.Equals(
+                if (ShouldSkipPropertyOnWeakerIncomingCompile(
                         property.Key,
-                        StructuredDiagramGraphPropertyKeys.InferenceConfidence,
-                        StringComparison.Ordinal))
+                        existingConfidence,
+                        incomingConfidence))
                 {
                     continue;
                 }
@@ -176,10 +176,10 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
         {
             foreach (KeyValuePair<string, string> property in incoming.Properties)
             {
-                if (string.Equals(
+                if (ShouldSkipPropertyOnWeakerIncomingCompile(
                         property.Key,
-                        StructuredDiagramGraphPropertyKeys.InferenceConfidence,
-                        StringComparison.Ordinal))
+                        existingConfidence,
+                        incomingConfidence))
                 {
                     continue;
                 }
@@ -195,6 +195,28 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
         {
             existing.ReasoningTrace = incoming.ReasoningTrace;
         }
+    }
+
+    private static bool ShouldSkipPropertyOnWeakerIncomingCompile(
+        string propertyKey,
+        double existingConfidence,
+        double incomingConfidence)
+    {
+        if (incomingConfidence >= existingConfidence)
+        {
+            return false;
+        }
+
+        if (string.Equals(
+                propertyKey,
+                StructuredDiagramGraphPropertyKeys.InferenceConfidence,
+                StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        return string.Equals(propertyKey, StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId, StringComparison.Ordinal)
+            || string.Equals(propertyKey, StructuredDiagramGraphPropertyKeys.DiagramCitationRef, StringComparison.Ordinal);
     }
 
     private static double ReadInferenceConfidence(IReadOnlyDictionary<string, string> properties)
