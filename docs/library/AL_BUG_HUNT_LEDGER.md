@@ -213436,6 +213436,14 @@ heap-disproved mermaid typed-topology candidate.
 
 2026-09-01 thorough hunt #416 (dry): twelve stale hunt-ready rows closed as valid-no-repro on master after combined PR #1046; eight regression tests passed; cheap-disproved workspace list and resolution optional-projectId candidates; ledger pushed to master to clear picker backlog.
 ## Zone: api-policy-packs
+2026-10-22 seed hunt (seed-only): re-read policy-pack controller partials (CRUD, assignment, catalog mutate/read, simulate/validate, sealed-manifest guards) after four same-day trim/JSON validator hits on trunk; no row met hunt-ready bar for a same-run failing repro; seeded five `(candidate)` rows; 103 scoped `PolicyPacksController` tests passed.
+
+- [ ] (candidate) `PolicyPacksController.SimulateBulk`  -  sealed-manifest preflight walks normalized `runIds` before `PolicyPackSimulateBulkHttpMapper.Validate` runs, so an otherwise invalid `blockCommitMinimumSeverity` still triggers per-run manifest lookups  -  locus: validation ordering in `SimulateBulk`; input: bulk body with valid padded run ids plus out-of-range severity ordinal; reachability: `POST /v1/policy-packs/{id}/simulate-bulk` OpenAPI.
+- [ ] (candidate) `PolicyPacksController.DuplicatePack`  -  success path returns `Ok(result.Value!)` without a `ValidationFailed` branch symmetric with `Publish`/`PromoteCatalogEntry`  -  locus: duplicate outcome switch; input: facade begins emitting validation failures on name collision or catalog limits; reachability: `POST …/duplicate` mutation route.
+- [ ] (candidate) `PolicyPacksController.Simulate`  -  optional `ProposedPolicyPackId` is forwarded to `SimulateAsync` without rejecting `Guid.Empty` at the controller/mapper layer  -  locus: dry-run label field; input: simulate body with `"proposedPolicyPackId": "00000000-0000-0000-0000-000000000000"`; reachability: `POST /v1/policy-packs/simulate`.
+- [ ] (candidate) `PolicyPacksController.Assign` / `AssignPolicyPackRequestValidator`  -  case-insensitive `scopeLevel` whitelist accepts variant spellings but `AssignAsync` forwards the original JSON string  -  locus: `PolicyPackAssignBody.ScopeLevel`; input: assign body with `"scopeLevel": "workspace"`; reachability: assignment mutation OpenAPI (workflow may normalize downstream).
+- [ ] (candidate) `PolicyPacksController.GetEffective` / `GetEffectiveContent`  -  conditional ETag fingerprints resolve `IScopeContextProvider` from `HttpContext.RequestServices` while sealed-manifest and scope mapping use the controller-injected `_scopeContextProvider`  -  locus: dual provider resolution; input: test host composition with distinct scoped instances; reachability: conditional GET on effective endpoints.
+
 
 2026-10-21 seed hunt (seed?hit): promoted padded semver on `POST ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½/publish` and `POST ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½/assign` passing FluentValidation via `BePolicyPackSemVerVersion` trim but forwarding untrimmed `Version` to `IPolicyPackHttpFacade`; controller now forwards `request.Version.Trim()`; regressions `Publish_forwards_trimmed_version_to_facade` and `Assign_forwards_trimmed_version_to_facade`; 84 scoped `PolicyPacksController` tests passed.
 
@@ -213446,10 +213454,10 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 43
+- **hunts:** 44
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
