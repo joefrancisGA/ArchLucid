@@ -11,6 +11,7 @@ import { OperatorMutationInlineError } from "@/components/operator/OperatorMutat
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ExtractUploadAcceptedPackageRecord } from "@/lib/extract-upload-accepted-package-record";
 import {
+  formatExtractUploadAcceptedActorLabel,
   formatExtractUploadAcceptedFileLabel,
   formatExtractUploadAcceptedLinkedReview,
 } from "@/lib/extract-upload-accepted-package-record";
@@ -124,7 +125,7 @@ export function ExtractUploadAcceptedPackagePanel(
                 Actor
               </dt>
               <dd className={cn("m-0 mt-0.5", OPERATOR_TYPOGRAPHY.body)} data-testid="extract-upload-accepted-actor">
-                {record.actorLabel.trim().length > 0 ? record.actorLabel : "Actor was not stored"}
+                {formatExtractUploadAcceptedActorLabel(record.actorLabel)}
               </dd>
             </div>
             <div>

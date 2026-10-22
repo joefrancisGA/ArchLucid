@@ -23,7 +23,7 @@ export function formatFindingHumanReviewStatusLabel(
     default:
       return status === null || status === undefined || (typeof status === "string" && status.trim().length === 0)
         ? "Human review status was not stored"
-        : "Human review status unknown";
+        : `Human review status ${String(status)} has no reviewer label.`;
   }
 }
 

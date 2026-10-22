@@ -49,7 +49,7 @@ export function formatDecisionPipelineBuyerLabel(pipeline: string): string {
   const normalized = pipeline.trim().toLowerCase();
 
   if (normalized.length === 0) {
-    return "Review pipeline";
+    return "Pipeline was not stored.";
   }
 
   if (normalized === "pipeline was not stored.") {
@@ -68,7 +68,9 @@ export function formatDecisionPipelineBuyerLabel(pipeline: string): string {
     return "Review record";
   }
 
-  return "Review pipeline";
+  const original = pipeline.trim();
+
+  return `Pipeline ${original} has no reviewer label.`;
 }
 
 export function resolveRecordedDecisionConfidenceNote(input: {

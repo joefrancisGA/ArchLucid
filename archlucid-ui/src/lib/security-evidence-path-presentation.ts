@@ -28,16 +28,16 @@ export function formatSecurityEvidencePathKindLabel(kind: string | null | undefi
   }
 
   if (kind === "") {
-    return "";
+    return "Path kind was stored empty.";
   }
 
-  const trimmed = kind?.trim() ?? "";
+  const trimmed = kind.trim();
 
-  if (trimmed.length === 0) {
-    return "Not recorded";
+  if (PATH_KIND_LABELS[trimmed] !== undefined) {
+    return PATH_KIND_LABELS[trimmed];
   }
 
-  return PATH_KIND_LABELS[trimmed] ?? trimmed;
+  return `Path kind ${trimmed} has no reviewer label.`;
 }
 
 export function formatSecurityEvidencePathConfidenceBandLabel(band: string | null | undefined): string {
