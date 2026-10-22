@@ -41,6 +41,8 @@ public sealed class LlmTenantWalletConsumeStage(
         if (command.MonthlyCapUsd.HasValue && !IsValidMonthlyCap(command.MonthlyCapUsd.Value))
             return null;
 
+        LlmTenantWalletStateReadModel? walletStateForEnableValidation = null;
+
         if (command.AutoReplenishEnabled == true)
         {
             if (command.MonthlyCapUsd is <= 0m)
@@ -48,11 +50,12 @@ public sealed class LlmTenantWalletConsumeStage(
 
             if (!command.MonthlyCapUsd.HasValue)
             {
-                LlmTenantWalletStateReadModel current = await _repository
+                walletStateForEnableValidation = await _repository
                     .GetOrCreateAsync(tenantId, cancellationToken)
                     .ConfigureAwait(false);
 
-                if (current.MonthlyCapUsd <= 0m || !IsValidMonthlyCap(current.MonthlyCapUsd))
+                if (walletStateForEnableValidation.MonthlyCapUsd <= 0m
+                    || !IsValidMonthlyCap(walletStateForEnableValidation.MonthlyCapUsd))
                     return null;
             }
         }
@@ -69,6 +72,32 @@ public sealed class LlmTenantWalletConsumeStage(
                 .ConfigureAwait(false))
         {
             return null;
+        }
+
+        if (command.AutoReplenishEnabled == true
+            && normalizedStripeCustomerId is null
+            && normalizedStripePaymentMethodId is null)
+        {
+            walletStateForEnableValidation ??= await _repository
+                .GetOrCreateAsync(tenantId, cancellationToken)
+                .ConfigureAwait(false);
+
+            string? persistedCustomerId = NormalizeOptionalStripeId(walletStateForEnableValidation.StripeCustomerId);
+            string? persistedPaymentMethodId = NormalizeOptionalStripeId(walletStateForEnableValidation.StripePaymentMethodId);
+
+            if (string.IsNullOrWhiteSpace(persistedCustomerId) || string.IsNullOrWhiteSpace(persistedPaymentMethodId))
+                return null;
+
+            if (!await _stripeWalletPaymentIdentifierGuard
+                    .AllowsWalletUpdateAsync(
+                        tenantId,
+                        persistedCustomerId,
+                        persistedPaymentMethodId,
+                        cancellationToken)
+                    .ConfigureAwait(false))
+            {
+                return null;
+            }
         }
 
         if (normalizedStripePaymentMethodId is not null && normalizedStripeCustomerId is null)

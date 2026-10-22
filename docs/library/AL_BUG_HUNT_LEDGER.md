@@ -16776,13 +16776,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** persistence billing stripe; stripe wallet integration; stripe billing persistence
 - **paths:** ArchLucid.Persistence/Billing/Stripe/; ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/Wallet/LlmTenantWalletConsumeStage.cs
 - **test-filter:** FullyQualifiedName~StripeWalletPaymentIdentifierGuard|FullyQualifiedName~UpdateWalletAsync_rejects_stripe_customer_id_that_guard_blocks
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 4
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — partial wallet PUT left stale Stripe customer id after payment-method-only update
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 — enabling auto-replenish skipped guard on persisted Stripe ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): `persistence-billing-stripe` — promoted hunt-ready `LlmTenantWalletConsumeStage.UpdateWalletAsync` auto-replenish enable — partial PUT with `AutoReplenishEnabled=true` and omitted Stripe fields called guard with `(null,null)` only, so legacy invalid persisted identifiers could be enabled and auto-refill failed later at `payment_identifier_guard`; re-validate persisted customer + payment method (and require both present) before enabling; regressions `UpdateWalletAsync_rejects_enabling_auto_replenish_when_persisted_stripe_identifiers_fail_guard` + `UpdateWalletAsync_rejects_enabling_auto_replenish_when_no_payment_method_is_persisted`; scoped `LlmTenantWalletServiceTests` 32/32 (`RunAnalyzers=false`).
+
+- [x] (proven) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — enable auto-replenish omitted Stripe fields so guard skipped persisted ids — **hit 2026-10-22 seed hunt:** persisted-id validation on enable; regressions above.
 
 2026-10-21 seed hunt (seed→hit): `persistence-billing-stripe` — promoted hunt-ready `LlmTenantWalletConsumeStage.UpdateWalletAsync` payment-method-only PUT — guard validated PM against tenant-linked Stripe customer when `StripeCustomerId` omitted but persisted legacy `StripeCustomerId` stayed stale, so auto-refill guard refused `payment_identifier_guard` after a seemingly successful wallet update; persist linked customer id when a guarded payment-method update omits customer id; regression `UpdateWalletAsync_persists_linked_stripe_customer_when_put_updates_payment_method_only`; scoped wallet + guard tests 32/32 (`RunAnalyzers=false`).
 
