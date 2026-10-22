@@ -1466,6 +1466,67 @@ public sealed class StructuredDiagramGraphMergerTests
     }
 
     [Fact]
+    public void Merge_collapses_legacy_padded_inference_confidence_key_after_coalesce()
+    {
+        ArchitectureDiagramModelRecord firstDocument = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        ArchitectureDiagramModelRecord secondDocument = firstDocument;
+
+        List<CanonicalObject> canonicalObjects = [];
+        canonicalObjects.AddRange(
+            ArchitectureDiagramCanonicalObjectMapper.Map(firstDocument, "doc-conf-collapse-a", labelOnlyInferenceConfidence: 0.5));
+        canonicalObjects.AddRange(
+            ArchitectureDiagramCanonicalObjectMapper.Map(secondDocument, "doc-conf-collapse-b", labelOnlyInferenceConfidence: 0.5));
+
+        ContextSnapshot snapshot = new()
+        {
+            SnapshotId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeed5"),
+            RunId = Guid.Parse("11111111-2222-3333-4444-55555555555b"),
+            ProjectId = "project-inference-confidence-key-collapse",
+            CanonicalObjects = canonicalObjects,
+        };
+
+        StructuredDiagramGraphMerger merger =
+            new StructuredDiagramGraphMerger(new PaddedThenStrongerInferenceConfidenceTestCompiler());
+        StructuredDiagramGraphMergeResult result = merger.Merge(snapshot, []);
+
+        GraphNode merged = result.Nodes
+            .Should()
+            .ContainSingle(node => node.NodeId == "diagram-node:api")
+            .Subject;
+
+        merged.Properties.Keys
+            .Count(key => string.Equals(
+                key.Trim(),
+                StructuredDiagramGraphPropertyKeys.InferenceConfidence,
+                StringComparison.OrdinalIgnoreCase))
+            .Should()
+            .Be(1);
+
+        GraphNodePropertyReader.TryGetPropertyValue(
+                merged.Properties,
+                StructuredDiagramGraphPropertyKeys.InferenceConfidence,
+                out string? confidence)
+            .Should()
+            .BeTrue();
+        confidence.Should().Be("1");
+        merged.Properties[StructuredDiagramGraphPropertyKeys.InferenceConfidence].Should().Be("1");
+    }
+
+    [Fact]
     public void Merge_coalesces_edges_when_directed_pair_key_differs_only_by_endpoint_or_type_padding()
     {
         ArchitectureDiagramModelRecord firstDocument = new()
@@ -1684,6 +1745,65 @@ public sealed class StructuredDiagramGraphMergerTests
                         CanonicalGraphNodeId = canonicalGraphNodeId,
                     },
                 ],
+            };
+        }
+    }
+
+    private sealed class PaddedThenStrongerInferenceConfidenceTestCompiler : IArchitectureDiagramToGraphCompiler
+    {
+        private int compileCount;
+
+        public StructuredDiagramGraphCompileResult Compile(
+            ArchitectureDiagramModelRecord model,
+            StructuredDiagramGraphCompileOptions options)
+        {
+            compileCount++;
+
+            if (compileCount == 1)
+            {
+                string paddedConfidenceKey = $"  {StructuredDiagramGraphPropertyKeys.InferenceConfidence}  ";
+
+                return new StructuredDiagramGraphCompileResult
+                {
+                    Snapshot = new GraphSnapshot
+                    {
+                        Nodes =
+                        [
+                            new GraphNode
+                            {
+                                NodeId = "diagram-node:api",
+                                NodeType = GraphNodeTypes.TopologyResource,
+                                Label = "API",
+                                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                                {
+                                    [paddedConfidenceKey] = "0.5",
+                                    [StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId] = "doc-conf-collapse-a",
+                                },
+                            },
+                        ],
+                    },
+                };
+            }
+
+            return new StructuredDiagramGraphCompileResult
+            {
+                Snapshot = new GraphSnapshot
+                {
+                    Nodes =
+                    [
+                        new GraphNode
+                        {
+                            NodeId = "diagram-node:api",
+                            NodeType = GraphNodeTypes.TopologyResource,
+                            Label = "API",
+                            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                            {
+                                [StructuredDiagramGraphPropertyKeys.InferenceConfidence] = "1",
+                                [StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId] = "doc-conf-collapse-b",
+                            },
+                        },
+                    ],
+                },
             };
         }
     }
