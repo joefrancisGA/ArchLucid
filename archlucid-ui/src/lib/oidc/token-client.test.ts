@@ -377,7 +377,7 @@ describe("refreshAccessToken", () => {
       "fetch",
       vi.fn(async () => ({
         ok: true,
-        text: async () => JSON.stringify({ access_token: "\uFEFF" }),
+        text: async () => JSON.stringify({ access_token: "\ufeff" }),
       })),
     );
 
@@ -402,6 +402,54 @@ describe("refreshAccessToken", () => {
       vi.fn(async () => ({
         ok: true,
         text: async () => JSON.stringify({ access_token: "\u2060" }),
+      })),
+    );
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/missing access_token/i);
+
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
+  });
+
+  it("marks authorize callback failed when authorization code exchange returns an object-replacement-character-only access_token", async () => {
+    sessionStorage.clear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        text: async () => JSON.stringify({ access_token: "\ufffc" }),
+      })),
+    );
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/missing access_token/i);
+
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
+  });
+
+  it("marks authorize callback failed when authorization code exchange returns a replacement-character-only access_token", async () => {
+    sessionStorage.clear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        text: async () => JSON.stringify({ access_token: "\ufffd" }),
       })),
     );
 
