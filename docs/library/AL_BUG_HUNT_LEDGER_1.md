@@ -7803,6 +7803,14 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-22 seed hunt (seed→hit): promoted JSON-string-wrapped IaC stub completions; regression `GenerateAndPersistStubsForRunAsync_unwraps_json_string_literal_completion_before_disclaimer_check`; 138 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `FindingIacStubGenerator.NormalizeLlmStubBody` — `CompleteJsonAsync` JSON string literals left leading `"` so disclaimer detection prepended a duplicate line — **hit 2026-10-22 seed hunt:** `TryUnwrapJsonStringLiteral` before fence/disclaimer normalization. [class:state-machine-gap]
+
+- (candidate) `TopologyProposalDualModelConsensusEnricher.EnrichAsync` — secondary tier disallowed by workspace engine set — verify invoker gate before promoting.
+- (candidate) `AgentConfidenceCalibrator.CalibrateAsync` — `ClampUnit` maps non-finite raw confidence to `0.0` — confirm intended fail-closed semantics.
+- (candidate) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — evaluation evidence omits harness script when summary file missing mid-import — out of scope unless transactional import required.
+
 2026-10-22 seed hunt (seed-only): re-read Agents/ after IaC fence hit; cheap-disproof on provenance token loop, design-gap enrichers, and saturated trim siblings; 137 scoped Application.Tests.Agents tests passed.
 
 - [x] (valid-no-repro) `ReviewRunEngineProvenanceAggregator.Aggregate` — separate reasoning loop double-counts output tokens — **cheap-disproof 2026-10-22 seed hunt:** `combinedOutputTokens = costSummary.CompletionTokens + reasoningTokens` matches `costSummary.CombinedOutputTokens`; regressions `Aggregate_reasoning_only_traces_include_reasoning_tokens_in_output_total` and `Aggregate_azure_traces_produce_azure_openai_provider_kind_and_token_totals`.
@@ -7964,11 +7972,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 60
-- **bugs-found:** 55
+- **hunts:** 61
+- **bugs-found:** 56
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — IaC stub fence stripping before disclaimer
+- **last-bug:** 2026-10-22 — IaC stub JSON string literal unwrap
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
 
