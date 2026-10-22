@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed insufficient_scope authorize-query UX, BFF refresh 422 parity, and saturated decodeOAuthErrorDescription pictograph glue; regression documents authorize-retry marking when authorization code exchange returns object access_token; scoped vitest 505/505.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - insufficient_scope authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 422 shouldClearSession false - **regression 2026-10-22:** transient refresh soft-fail without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - object access_token skips authorize retry marker - **regression 2026-10-22:** intentional retry marker on non-string token JSON (not skip).
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with pictograph glue - **cheap-disproof 2026-10-22:** saturated encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - account_selection_required authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 423 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string number skips authorize retry marker - locus: coerced token shape.
+- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with pictograph glue - locus: saturated JSON encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed expired_token authorize-query UX, BFF refresh 421 parity, and saturated readOAuthJsonErrorDescription regional-indicator glue; regression documents authorize-retry marking when authorization code exchange returns array access_token; scoped vitest 502/502.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - expired_token authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
@@ -26145,7 +26157,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: ui-oidc
 
 - **id:** ui-oidc
-- **hunts:** 92
 - **status:** open
 - **impact:** high
 - **aliases:** oidc authority; sign-in routing; OIDC host
