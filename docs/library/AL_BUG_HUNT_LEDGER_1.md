@@ -8712,6 +8712,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted fullwidth reverse-solidus (U+FF3C) and related backslash homoglyphs splitting `ContentHash` and `modelfp`; `NormalizeReviewCacheUnicodeSlashScalars` now maps U+FF3C, U+FE68, and U+2216 to `/`; regressions `Build_matches_content_hash_when_file_name_differs_only_by_fullwidth_reverse_solidus` and `Build_matches_content_hash_when_baseline_element_provenance_passage_artifact_id_differs_only_by_fullwidth_reverse_solidus`; 368 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` / `ClosedLoopReasoningSourceTextNormalizer` — Unicode backslash homoglyphs split review-cache fingerprints — **hit 2026-10-22 seed hunt:** extended `NormalizeReviewCacheUnicodeSlashScalars`; regressions above.
+
 2026-10-22 seed hunt (seed→hit): promoted fraction-slash (U+2044) drift splitting `ContentHash` and `modelfp`; `NormalizeReviewCacheUnicodeSlashScalars` now maps U+2044 to `/`; regressions `Build_matches_content_hash_when_file_name_differs_only_by_fraction_slash` and `Build_matches_content_hash_when_baseline_element_provenance_passage_artifact_id_differs_only_by_fraction_slash`; 366 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint` / `ClosedLoopReasoningSourceTextNormalizer` — fraction slash scalars split review-cache fingerprints — **hit 2026-10-22 seed hunt:** U+2044 in `NormalizeReviewCacheUnicodeSlashScalars`; regressions above.
