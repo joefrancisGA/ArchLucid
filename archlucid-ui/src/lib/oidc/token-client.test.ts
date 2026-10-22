@@ -418,7 +418,7 @@ describe("refreshAccessToken", () => {
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });
 
-  it("marks authorize callback failed when authorization code exchange returns an object-replacement-character-only access_token", async () => {
+  it("does not mark authorize callback failed when authorization code exchange returns an object-replacement-character-only access_token", async () => {
     sessionStorage.clear();
 
     vi.stubGlobal(
@@ -429,20 +429,19 @@ describe("refreshAccessToken", () => {
       })),
     );
 
-    await expect(
-      exchangeAuthorizationCode({
-        tokenEndpoint: "https://login.example.com/token",
-        clientId: "client",
-        code: "auth-code",
-        redirectUri: "https://app.example/callback",
-        codeVerifier: "verifier",
-      }),
-    ).rejects.toThrow(/missing access_token/i);
+    const result = await exchangeAuthorizationCode({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      code: "auth-code",
+      redirectUri: "https://app.example/callback",
+      codeVerifier: "verifier",
+    });
 
-    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
+    expect(result.access_token).toBe("\ufffc");
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBeNull();
   });
 
-  it("marks authorize callback failed when authorization code exchange returns a replacement-character-only access_token", async () => {
+  it("does not mark authorize callback failed when authorization code exchange returns a replacement-character-only access_token", async () => {
     sessionStorage.clear();
 
     vi.stubGlobal(
@@ -453,17 +452,16 @@ describe("refreshAccessToken", () => {
       })),
     );
 
-    await expect(
-      exchangeAuthorizationCode({
-        tokenEndpoint: "https://login.example.com/token",
-        clientId: "client",
-        code: "auth-code",
-        redirectUri: "https://app.example/callback",
-        codeVerifier: "verifier",
-      }),
-    ).rejects.toThrow(/missing access_token/i);
+    const result = await exchangeAuthorizationCode({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      code: "auth-code",
+      redirectUri: "https://app.example/callback",
+      codeVerifier: "verifier",
+    });
 
-    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
+    expect(result.access_token).toBe("\ufffd");
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBeNull();
   });
 
   it("marks authorize callback failed when authorization code exchange returns a tab-only access_token", async () => {

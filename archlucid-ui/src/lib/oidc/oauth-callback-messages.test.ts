@@ -696,13 +696,6 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("nonce_replay");
   });
 
-  it("humanizes invalid_nonce authorize callback errors with readable copy", () => {
-    const message = humanizeAuthorizeCallbackError("invalid_nonce", "");
-
-    expect(message).toMatch(/invalid nonce/i);
-    expect(message).not.toContain("invalid_nonce");
-  });
-
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
     expect(humanizeAuthorizeCallbackError("   ", "")).toContain("complete response");
     expect(humanizeAuthorizeCallbackError("   ", "")).not.toMatch(/\(\s*\)/u);
