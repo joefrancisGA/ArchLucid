@@ -9,7 +9,6 @@ import {
   OIDC_OAUTH_STATE_KEY,
   OIDC_AUTHORIZE_CALLBACK_FAILED_KEY,
   OIDC_POST_SIGN_IN_RETURN_URL_KEY,
-  OIDC_USER_SUBJECT_KEY,
 } from "@/lib/oidc/storage-keys";
 import {
   IDLE_DESK_RESTORE_STORAGE_KEY,
@@ -452,8 +451,53 @@ describe("initiate redirect PKCE isolation", () => {
     await initiateOidcRedirect();
 
     expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBe("/architecture/reviews/run-1");
-    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBeNull();
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
     expect(assignMock).toHaveBeenCalled();
+  });
+
+  it("preserves post-sign-in return path when a prior authorize retry reached the IdP but was abandoned", async () => {
+    sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, "/architecture/reviews/run-abandon");
+    sessionStorage.setItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY, "1");
+
+    const assignMock = vi.fn();
+    vi.stubGlobal("location", { assign: assignMock });
+
+    vi.doMock("@/lib/oidc/config", () => ({
+      getOidcAuthority: () => "https://issuer.example",
+      getOidcClientId: () => "client-id",
+      getOidcRedirectUri: () => "https://app.example/auth/callback",
+      getOidcScopes: () => "openid",
+    }));
+    vi.doMock("@/lib/oidc/pkce", () => ({
+      createPkcePair: vi.fn(async () => ({ verifier: "primary-verifier", challenge: "challenge" })),
+      randomOpaqueState: vi.fn(() => "primary-state"),
+    }));
+    vi.doMock("@/lib/oidc/discovery", () => ({
+      loadDiscoveryDocument: vi.fn(async () => ({
+        issuer: "https://issuer.example",
+        authorization_endpoint: "https://issuer.example/authorize",
+        token_endpoint: "https://issuer.example/token",
+      })),
+    }));
+    vi.doMock("@/lib/oidc/build-authorize-url", () => ({
+      buildAuthorizeUrl: vi.fn(() => "https://issuer.example/authorize?state=primary-state"),
+    }));
+
+    const { initiateOidcRedirect } = await import("@/lib/oidc/initiate-redirect");
+
+    await initiateOidcRedirect();
+    expect(assignMock).toHaveBeenCalledTimes(1);
+
+    vi.resetModules();
+    assignMock.mockClear();
+
+    const { initiateOidcRedirect: initiateAgain } = await import("@/lib/oidc/initiate-redirect");
+
+    await initiateAgain();
+
+    expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBe("/architecture/reviews/run-abandon");
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
+    expect(assignMock).toHaveBeenCalledTimes(1);
   });
 
   it("preserves post-sign-in return path when discovery fails during authorize-callback retry", async () => {
@@ -654,7 +698,6 @@ describe("initiate redirect PKCE isolation", () => {
   });
 
   it("clears stale post-sign-in return after sign-out even when authorize callback retry was pending", async () => {
-    sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, "signed-in-user");
     sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, "/stale-review");
     markAuthorizeCallbackFailed();
     clearOidcSession();
