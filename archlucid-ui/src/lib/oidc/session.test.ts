@@ -94,6 +94,19 @@ describe("storePostSignInReturnUrl / consumePostSignInReturnUrl", () => {
     expect(readPostSignInReturnUrl()).toBe("/architecture/reviews/run-keep");
   });
 
+  it("returns a control-stripped safe post-sign-in return path when session storage was tampered", () => {
+    sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, "/desk\u000B/reviews");
+
+    expect(consumePostSignInReturnUrl()).toBe("/desk/reviews");
+  });
+
+  it("persists a control-stripped post-sign-in return path when store receives smuggled control characters", () => {
+    storePostSignInReturnUrl("/desk\u000B/reviews");
+
+    expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBe("/desk/reviews");
+    expect(readPostSignInReturnUrl()).toBe("/desk/reviews");
+  });
+
   it("keeps authorize retry marker when consume rejects a zero-width-only return URL", () => {
     sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, "\u200b\u200b");
     sessionStorage.setItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY, "1");
