@@ -7803,6 +7803,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-22 seed hunt (seed→hit): promoted curated-evidence text field normalization; regressions `TryParseValid_WhenTitleHasSurroundingWhitespace_returns_trimmed_payload` and `NormalizeResponse_trims_surrounding_whitespace_on_text_fields`; 136 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `ProposedEvidencePayloadValidator.TryParseValid` — padded `title`/`description`/`rationale` passed substantive-text guards but persisted verbatim into tenant catalog on promotion — **hit 2026-10-22 seed hunt:** `ProposedEvidencePayloadNormalizer.NormalizeTextFields` shared by validator and proposer. [class:fail-open-validation]
+
+- (candidate) `AgentCuratedEvidenceProposer` — enricher ordering vs structural post-process — engineering hardening only.
+- (candidate) `AgentResultRegionMismatchEnricher` — restricted-region warnings without name/platform cues — design gap.
+- (candidate) `FindingIacStubGenerator.EnsureDisclaimerLine` — disclaimer detected with `StartsWith` only; leading markdown fences may duplicate disclaimer — verify LLM completion shape before promoting.
+- (candidate) `AgentModelCatalogFaithfulnessHarnessImporter.CollectApprovedTaskTypes` — duplicate casing variants — **invalid** after distinct ignore-case (no repro).
+
 2026-10-22 seed hunt (seed→hit): promoted faithfulness summary format version normalization; regressions `TryReadLatestAsync_when_format_version_is_whitespace_uses_default` and `TryReadLatestAsync_trims_surrounding_whitespace_on_format_version`; 134 scoped Application.Tests.Agents tests passed.
 
 - [x] (proven) `RepoFaithfulnessHarnessSummaryReader.TryReadLatestAsync` — whitespace-only `formatVersion` in `docs/quality/faithfulness-summary.json` bypassed `?? "1.0"` and flowed into harness import evidence — **hit 2026-10-22 seed hunt:** `ResolveFormatVersion` treats blank as default and trims non-empty values. [class:fail-open-validation]
@@ -7931,11 +7940,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 57
-- **bugs-found:** 53
+- **hunts:** 58
+- **bugs-found:** 54
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — faithfulness summary format version normalization
+- **last-bug:** 2026-10-22 — curated-evidence payload text normalization
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
 
