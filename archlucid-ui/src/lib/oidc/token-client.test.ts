@@ -148,6 +148,9 @@ describe("refreshAccessToken", () => {
       ),
     ).toBe(true);
     expect(shouldMarkAuthorizeCallbackFailedOnExchangeError(new Error("Token endpoint error 502"))).toBe(true);
+    expect(shouldMarkAuthorizeCallbackFailedOnExchangeError(new Error("Token response was not valid JSON"))).toBe(
+      true,
+    );
   });
 
   it("marks authorize callback failed when authorization code exchange returns an opaque HTTP error body", async () => {
@@ -171,6 +174,30 @@ describe("refreshAccessToken", () => {
         codeVerifier: "verifier",
       }),
     ).rejects.toThrow(/Token endpoint error 502/i);
+
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
+  });
+
+  it("marks authorize callback failed when authorization code exchange returns a non-JSON success body", async () => {
+    sessionStorage.clear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        text: async () => "<html>not json</html>",
+      })),
+    );
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/not valid JSON/i);
 
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });

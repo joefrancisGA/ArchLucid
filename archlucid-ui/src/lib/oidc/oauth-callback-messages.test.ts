@@ -338,6 +338,13 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("unauthorized_client");
   });
 
+  it("humanizes invalid_scope authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_scope", "");
+
+    expect(message).toMatch(/permissions/i);
+    expect(message).not.toContain("invalid_scope");
+  });
+
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
     expect(humanizeAuthorizeCallbackError("   ", "")).toContain("complete response");
     expect(humanizeAuthorizeCallbackError("   ", "")).not.toMatch(/\(\s*\)/u);

@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_scope authorize-query UX, BFF refresh 414 parity, and saturated decodeOAuthErrorDescription skin-tone glue; regression documents authorize-retry marking after non-JSON token success bodies during code exchange (parse failure still preserves return-path retry); scoped vitest 481/481.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - invalid_scope authorize-query copy - **cheap-disproof 2026-10-22:** fixed permissions UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 414 shouldClearSession false - **cheap-disproof 2026-10-22:** existing client regression on trunk.
+- [x] (valid-no-repro) exchangeAuthorizationCode - non-JSON success body skips authorize retry marker - **regression 2026-10-22:** intentional retry marker on parse failure (not skip).
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with skin-tone modifier glue - **cheap-disproof 2026-10-22:** saturated encoding class; skin-tone copy already covered.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_request authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 415 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - missing access_token skips authorize retry marker - locus: malformed JSON vs OAuth outcome.
+- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with skin-tone modifier glue - locus: saturated JSON encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed unauthorized_client authorize-query UX, BFF refresh 413 parity, and saturated readOAuthJsonErrorDescription regional-indicator glue; regression documents intentional authorize-retry marking after opaque token-endpoint HTTP errors during authorization code exchange; scoped vitest 475/475.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - unauthorized_client authorize-query copy - **cheap-disproof 2026-10-22:** fixed registration-route UX parity test.
