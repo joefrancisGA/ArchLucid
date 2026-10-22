@@ -870,6 +870,27 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_duplicate_framing_keys_include_whitespace_only_casing_variant()
+    {
+        ClosedLoopReasoningRequest duplicateKeys = CreateRequest("Architecture note.");
+        duplicateKeys.FramingAnswers = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["Scope"] = "   ",
+            ["scope"] = "security",
+        };
+
+        ClosedLoopReasoningRequest canonical = CreateRequest("Architecture note.");
+        canonical.FramingAnswers = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["scope"] = "security",
+        };
+
+        ReviewCacheManifestBuilder.Build(duplicateKeys).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(canonical).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_framing_answer_is_empty_vs_omitted()
     {
         ClosedLoopReasoningRequest emptyAnswer = CreateRequest("Architecture note.");

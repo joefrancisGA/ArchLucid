@@ -30,10 +30,12 @@ internal static class ClosedLoopFramingAnswersNormalizer
                      .OrderBy(group => group.Key, StringComparer.OrdinalIgnoreCase))
         {
             KeyValuePair<string, string> canonical = group
+                .Where(pair => !string.IsNullOrEmpty(pair.Value))
                 .OrderBy(pair => pair.Key, StringComparer.Ordinal)
+                .DefaultIfEmpty()
                 .First();
 
-            if (string.IsNullOrEmpty(canonical.Value))
+            if (string.IsNullOrEmpty(canonical.Key))
                 continue;
 
             normalized[canonical.Key] = canonical.Value;
