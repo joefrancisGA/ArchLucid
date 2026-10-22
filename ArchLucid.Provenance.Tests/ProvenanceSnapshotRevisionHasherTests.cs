@@ -546,6 +546,32 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     }
 
     [Fact]
+    public void Compute_unchanged_when_graph_lists_node_ids_differing_only_by_surrounding_whitespace()
+    {
+        GraphNode canonicalRow = new() { NodeId = "node-a", NodeType = "Resource", Label = "Node A" };
+        GraphNode paddedRow = new() { NodeId = "  node-a  ", NodeType = "Resource", Label = "Node A" };
+
+        ProvenanceBuildInput single = CreateInput([], graphNodes: [canonicalRow]);
+        ProvenanceBuildInput duplicate = CreateInput([], graphNodes: [canonicalRow, paddedRow]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(single, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(duplicate, BundleId));
+    }
+
+    [Fact]
+    public void Compute_changes_when_later_row_has_padded_node_id_and_different_label()
+    {
+        GraphNode firstRow = new() { NodeId = "node-a", NodeType = "Resource", Label = "Original label" };
+        GraphNode paddedAmendment = new() { NodeId = "  NODE-A  ", NodeType = "Resource", Label = "Renamed label" };
+
+        ProvenanceBuildInput baseline = CreateInput([], graphNodes: [firstRow]);
+        ProvenanceBuildInput updated = CreateInput([], graphNodes: [firstRow, paddedAmendment]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
     public void Compute_unchanged_when_later_case_variant_manifest_decision_row_omits_title()
     {
         ResolvedArchitectureDecision firstRow = new()
