@@ -101,9 +101,9 @@ export function QuickDecisionSummaryFindingRow({
         ) : null}
         {finding.confidenceLevel === "High" || finding.confidenceLevel === "Medium" || finding.confidenceLevel === "Low" ? (
           <FindingConfidenceBadge level={finding.confidenceLevel} />
-        ) : finding.confidenceLevel === null || finding.confidenceLevel === undefined ? (
-          <StatusTag kind="neutral" label="Confidence was not stored." className="shrink-0" />
-        ) : null}
+        ) : (
+          <StatusTag kind="neutral" label="Confidence level was not stored." className="shrink-0" />
+        )}
         <AiOutputGovernanceLabel findingId={finding.findingId} />
         <FindingTrustChip finding={finding} />
         <FindingClassificationChip
@@ -218,7 +218,7 @@ export function QuickDecisionSummaryFindingRow({
           Evaluation score was not stored
         </p>
       ) : null}
-      {snippet.length > 0 && !workspaceCardMode ? (
+      {workspaceCardMode || snippet.length > 0 ? (
         <p className={cn("m-0 mt-1 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           <span className="font-semibold text-neutral-700 dark:text-neutral-300">Recommended action: </span>
           <span>{snippet}</span>

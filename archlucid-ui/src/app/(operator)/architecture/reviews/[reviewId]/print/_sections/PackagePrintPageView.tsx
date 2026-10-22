@@ -30,8 +30,8 @@ import {
   REVIEW_MEETING_CAPTURE_DISCLAIMER,
   hasReviewMeetingCapture,
   buildReviewMeetingCaptureMetaParts,
-  formatReviewMeetingCaptureAnswerLine,
-  formatReviewMeetingCaptureQuestionLine,
+  formatReviewMeetingCaptureAnswer,
+  formatReviewMeetingCaptureQuestionLabel,
 } from "@/lib/reviews/review-meeting-capture-export";
 import {
   PACKAGE_PRINT_BACK_LABEL,
@@ -160,19 +160,17 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
         </p>
       </section>
 
-      {presentation.sponsorSynopsis !== null ? (
-        <section className="space-y-2" aria-labelledby="package-print-synopsis-heading">
-          <h2 id="package-print-synopsis-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            {PACKAGE_PRINT_SYNOPSIS_HEADING}
-          </h2>
-          <p
-            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-            data-testid="package-print-sponsor-synopsis"
-          >
-            {presentation.sponsorSynopsis}
-          </p>
-        </section>
-      ) : null}
+      <section className="space-y-2" aria-labelledby="package-print-synopsis-heading">
+        <h2 id="package-print-synopsis-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          {PACKAGE_PRINT_SYNOPSIS_HEADING}
+        </h2>
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="package-print-sponsor-synopsis"
+        >
+          {presentation.sponsorSynopsis ?? "Sponsor synopsis was not stored on this print."}
+        </p>
+      </section>
 
       {presentation.semanticSupportBandStampLine?.trim().length ? (
         <section className="space-y-2" aria-labelledby="package-print-semantic-support-heading">
@@ -211,10 +209,10 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
               return (
               <li key={`${entry.questionLabel}:${entry.answer}`} className="space-y-1">
                 <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                  {formatReviewMeetingCaptureQuestionLine(entry.questionLabel)}
+                  {formatReviewMeetingCaptureQuestionLabel(entry.questionLabel)}
                 </p>
                 <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                  {formatReviewMeetingCaptureAnswerLine(entry.answer)}
+                  {formatReviewMeetingCaptureAnswer(entry.answer)}
                 </p>
                 {meetingCaptureMeta.length > 0 ? (
                   <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>

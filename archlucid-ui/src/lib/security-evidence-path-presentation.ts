@@ -27,17 +27,19 @@ export function formatSecurityEvidencePathKindLabel(kind: string | null | undefi
     return "Path kind was not stored.";
   }
 
-  if (kind === "") {
-    return "Path kind was stored empty.";
-  }
-
   const trimmed = kind.trim();
 
-  if (PATH_KIND_LABELS[trimmed] !== undefined) {
-    return PATH_KIND_LABELS[trimmed];
+  if (trimmed.length === 0) {
+    return "Path kind was not stored.";
   }
 
-  return `Path kind ${trimmed} has no reviewer label.`;
+  const mapped = PATH_KIND_LABELS[trimmed];
+
+  if (mapped !== undefined) {
+    return mapped;
+  }
+
+  return "Path kind was not recognized.";
 }
 
 export function formatSecurityEvidencePathConfidenceBandLabel(band: string | null | undefined): string {

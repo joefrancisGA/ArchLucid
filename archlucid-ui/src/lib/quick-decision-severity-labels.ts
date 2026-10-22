@@ -19,8 +19,8 @@ export function firstRecommendationSentence(text: string): string {
 }
 
 export function severityBadgeLabel(severityValue: number | null | undefined): string {
-  if (severityValue == null) {
-    return "Severity was not stored";
+  if (severityValue == null || !Number.isFinite(severityValue)) {
+    return "Severity label was not stored.";
   }
 
   switch (severityValue) {
