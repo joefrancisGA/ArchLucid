@@ -144,6 +144,10 @@ describe("decodeOAuthErrorDescription", () => {
     expect(decodeOAuthErrorDescription("Policy\u2007denied%252Bextra")).toBe("Policy denied+extra");
   });
 
+  it("preserves percent-decoded plus in authorize descriptions when ZWJ glue separates words", () => {
+    expect(decodeOAuthErrorDescription("Policy\u200ddenied%252Bextra")).toBe("Policy denied+extra");
+  });
+
   it("preserves literal plus in authorize error descriptions when form plus was already decoded to space", () => {
     const mixed = new URLSearchParams("error_description=User+denied%2Bextra").get("error_description");
 
