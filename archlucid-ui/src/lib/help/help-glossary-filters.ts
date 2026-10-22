@@ -63,19 +63,11 @@ export function helpGlossarySearchHrefFromSearch(
   query: string,
   pathname: string = HELP_GLOSSARY_PATH,
 ): string {
-<<<<<<< HEAD
-  return buildOperatorHrefFromSearch(currentSearch, pathname, {
-    selectionSwitch: { kind: "disclosure-only" },
-    mutate: (params) => {
-      const trimmed = query.trim();
-
-=======
   const trimmed = query.trim();
 
   return buildOperatorHrefFromSearch(currentSearch, pathname, {
     selectionSwitch: { kind: "disclosure-only" },
     mutate: (params) => {
->>>>>>> 6fffd4ff08 (Fix operator URL codemod syntax damage)
       if (trimmed.length === 0) {
         params.delete(HELP_GLOSSARY_SEARCH_PARAM);
       } else {

@@ -11,6 +11,7 @@ public sealed class LlmTenantWalletConsumeStage(
     ILlmTenantWalletRepository repository,
     ILlmWalletSettlementQueue settlementQueue,
     IStripeWalletPaymentIdentifierGuard stripeWalletPaymentIdentifierGuard,
+    IStripeLinkedCustomerResolver stripeLinkedCustomerResolver,
     ILogger<LlmTenantWalletConsumeStage> logger) : ILlmTenantWalletConsumeStage
 {
     private readonly LlmTenantWalletConsumeRetry _consumeRetry = new(repository, settlementQueue, logger);
@@ -23,6 +24,9 @@ public sealed class LlmTenantWalletConsumeStage(
 
     private readonly IStripeWalletPaymentIdentifierGuard _stripeWalletPaymentIdentifierGuard =
         stripeWalletPaymentIdentifierGuard ?? throw new ArgumentNullException(nameof(stripeWalletPaymentIdentifierGuard));
+
+    private readonly IStripeLinkedCustomerResolver _stripeLinkedCustomerResolver =
+        stripeLinkedCustomerResolver ?? throw new ArgumentNullException(nameof(stripeLinkedCustomerResolver));
 
     public Task<LlmTenantWalletStateReadModel> GetOrCreateAsync(Guid tenantId, CancellationToken cancellationToken = default) =>
         _repository.GetOrCreateAsync(tenantId, cancellationToken);
@@ -37,6 +41,8 @@ public sealed class LlmTenantWalletConsumeStage(
         if (command.MonthlyCapUsd.HasValue && !IsValidMonthlyCap(command.MonthlyCapUsd.Value))
             return null;
 
+        LlmTenantWalletStateReadModel? walletStateForEnableValidation = null;
+
         if (command.AutoReplenishEnabled == true)
         {
             if (command.MonthlyCapUsd is <= 0m)
@@ -44,11 +50,12 @@ public sealed class LlmTenantWalletConsumeStage(
 
             if (!command.MonthlyCapUsd.HasValue)
             {
-                LlmTenantWalletStateReadModel current = await _repository
+                walletStateForEnableValidation = await _repository
                     .GetOrCreateAsync(tenantId, cancellationToken)
                     .ConfigureAwait(false);
 
-                if (current.MonthlyCapUsd <= 0m || !IsValidMonthlyCap(current.MonthlyCapUsd))
+                if (walletStateForEnableValidation.MonthlyCapUsd <= 0m
+                    || !IsValidMonthlyCap(walletStateForEnableValidation.MonthlyCapUsd))
                     return null;
             }
         }
@@ -65,6 +72,42 @@ public sealed class LlmTenantWalletConsumeStage(
                 .ConfigureAwait(false))
         {
             return null;
+        }
+
+        if (command.AutoReplenishEnabled == true
+            && normalizedStripeCustomerId is null
+            && normalizedStripePaymentMethodId is null)
+        {
+            walletStateForEnableValidation ??= await _repository
+                .GetOrCreateAsync(tenantId, cancellationToken)
+                .ConfigureAwait(false);
+
+            string? persistedCustomerId = NormalizeOptionalStripeId(walletStateForEnableValidation.StripeCustomerId);
+            string? persistedPaymentMethodId = NormalizeOptionalStripeId(walletStateForEnableValidation.StripePaymentMethodId);
+
+            if (string.IsNullOrWhiteSpace(persistedCustomerId) || string.IsNullOrWhiteSpace(persistedPaymentMethodId))
+                return null;
+
+            if (!await _stripeWalletPaymentIdentifierGuard
+                    .AllowsWalletUpdateAsync(
+                        tenantId,
+                        persistedCustomerId,
+                        persistedPaymentMethodId,
+                        cancellationToken)
+                    .ConfigureAwait(false))
+            {
+                return null;
+            }
+        }
+
+        if (normalizedStripePaymentMethodId is not null && normalizedStripeCustomerId is null)
+        {
+            string? linkedCustomerId = await _stripeLinkedCustomerResolver
+                .TryResolveLinkedCustomerIdAsync(tenantId, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (!string.IsNullOrWhiteSpace(linkedCustomerId))
+                normalizedStripeCustomerId = linkedCustomerId;
         }
 
         LlmTenantWalletStateReadModel? updated = await _repository

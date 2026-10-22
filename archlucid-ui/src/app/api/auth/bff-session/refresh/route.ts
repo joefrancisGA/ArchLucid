@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getOidcAuthority, getOidcClientId } from "@/lib/oidc/config";
 import { loadDiscoveryDocument } from "@/lib/oidc/discovery";
 import { resolveExpiresInSeconds } from "@/lib/oidc/resolve-expires-in-seconds";
-import { refreshAccessToken } from "@/lib/oidc/token-client";
+import { isOAuthRefreshTokenRejectedError, refreshAccessToken } from "@/lib/oidc/token-client";
 import { BFF_CSRF_HEADER } from "@/lib/proxy/bff-session-constants";
 import {
   BFF_SESSION_COOKIE_NAME,
@@ -38,13 +38,9 @@ function shouldClearSessionOnRefreshFailure(error: unknown): boolean {
     return false;
   }
 
-  return (
-    message.includes("invalid_grant") ||
-    message.includes("invalid_token") ||
-    message.includes("token endpoint error 400") ||
-    message.includes("token endpoint error 401") ||
-    message.includes("token endpoint error 403")
-  );
+  // Bare `Token endpoint error 4xx` without parseable OAuth JSON is opaque (proxy/HTML/malformed body).
+  // Legacy plain `Error` copies that embed snake_case codes are classified via `isOAuthRefreshTokenRejectedError`.
+  return isOAuthRefreshTokenRejectedError(error);
 }
 
 /** Refreshes the HttpOnly BFF session using the server-held refresh token (LK-06 P2). */

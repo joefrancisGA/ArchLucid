@@ -31,12 +31,37 @@ describe("readOAuthJsonErrorDescription", () => {
     expect(readOAuthJsonErrorDescription("User+denied")).toBe("User+denied");
   });
 
+  it("decodes mistaken percent-encoded plus in JSON error_description", () => {
+    expect(readOAuthJsonErrorDescription("Policy%2Bdenied")).toBe("Policy denied");
+    expect(readOAuthJsonErrorDescription("Policy%252Bdenied")).toBe("Policy denied");
+  });
+
+  it("preserves literal plus in JSON when the description also includes percent-encoded plus", () => {
+    expect(readOAuthJsonErrorDescription("User+denied%2Bextra")).toBe("User+denied extra");
+  });
+
   it("still decodes valid percent-escapes when IdPs send them in JSON", () => {
     expect(readOAuthJsonErrorDescription("User%20denied")).toBe("User denied");
   });
 
+  it("decodes doubly percent-encoded spaces in JSON error_description", () => {
+    expect(readOAuthJsonErrorDescription("User%2520denied")).toBe("User denied");
+  });
+
+  it("decodes triply percent-encoded spaces in JSON error_description", () => {
+    expect(readOAuthJsonErrorDescription("User%252520denied")).toBe("User denied");
+  });
+
   it("collapses interior zero-width characters to spaces instead of gluing words", () => {
     expect(readOAuthJsonErrorDescription("Policy\u200bdenied")).toBe("Policy denied");
+  });
+
+  it("collapses accidental ZWNJ glue between Latin words in JSON error_description", () => {
+    expect(readOAuthJsonErrorDescription("Policy\u200cdenied")).toBe("Policy denied");
+  });
+
+  it("collapses accidental ZWJ glue between Latin words in JSON error_description", () => {
+    expect(readOAuthJsonErrorDescription("Policy\u200ddenied")).toBe("Policy denied");
   });
 
   it("decodes percent-encoded newlines in JSON error_description", () => {
@@ -60,6 +85,41 @@ describe("readOAuthJsonErrorDescription", () => {
 
     expect(readOAuthJsonErrorDescription(detail)).toBe(detail);
   });
+
+  it("preserves literal plus in token error_description when skin-tone emoji modifiers are present", () => {
+    expect(readOAuthJsonErrorDescription("👍🏻+extra")).toBe("👍🏻+extra");
+    expect(readOAuthJsonErrorDescription("👋🏽+denied")).toBe("👋🏽+denied");
+  });
+
+  it("preserves literal plus in token error_description when emoji ZWJ sequences are present", () => {
+    expect(readOAuthJsonErrorDescription("👨\u200d👩\u200d👧+extra")).toBe("👨\u200d👩\u200d👧+extra");
+  });
+
+  it("preserves percent-decoded plus in JSON when authorize mixed-plus glue applies", () => {
+    expect(readOAuthJsonErrorDescription("👍🏻%2Bextra")).toBe("👍🏻+extra");
+    expect(readOAuthJsonErrorDescription("Policy%20denied%2Bextra")).toBe("Policy denied+extra");
+    expect(readOAuthJsonErrorDescription("User+denied%2B👍🏻")).toBe("User+denied+👍🏻");
+  });
+
+  it("preserves percent-decoded plus in JSON when thin-space glue separates words", () => {
+    expect(readOAuthJsonErrorDescription("Policy\u2009denied%252Bextra")).toBe("Policy denied+extra");
+  });
+
+  it("preserves percent-decoded plus in JSON when narrow-no-break-space glue separates words", () => {
+    expect(readOAuthJsonErrorDescription("Policy\u202fdenied%252Bextra")).toBe("Policy denied+extra");
+  });
+
+  it("preserves percent-decoded plus in JSON when hair-space glue separates words", () => {
+    expect(readOAuthJsonErrorDescription("Policy\u200adenied%252Bextra")).toBe("Policy denied+extra");
+  });
+
+  it("preserves percent-decoded plus in JSON when ZWNJ glue separates words", () => {
+    expect(readOAuthJsonErrorDescription("Policy\u200cdenied%252Bextra")).toBe("Policy denied+extra");
+  });
+
+  it("preserves percent-decoded plus in JSON when ZWJ glue separates words", () => {
+    expect(readOAuthJsonErrorDescription("Policy\u200ddenied%252Bextra")).toBe("Policy denied+extra");
+  });
 });
 
 describe("decodeOAuthErrorDescription", () => {
@@ -75,6 +135,60 @@ describe("decodeOAuthErrorDescription", () => {
     expect(decodeOAuthErrorDescription("Scope%20mismatch")).toBe("Scope mismatch");
   });
 
+  it("decodes percent-encoded plus in authorize error descriptions", () => {
+    expect(decodeOAuthErrorDescription("Policy%2Bdenied")).toBe("Policy denied");
+    expect(decodeOAuthErrorDescription("Policy%252Bdenied")).toBe("Policy denied");
+  });
+
+  it("preserves percent-decoded plus in authorize descriptions when hair-space glue separates words", () => {
+    expect(decodeOAuthErrorDescription("Policy\u200adenied%252Bextra")).toBe("Policy denied+extra");
+  });
+
+  it("preserves percent-decoded plus in authorize descriptions when figure-space glue separates words", () => {
+    expect(decodeOAuthErrorDescription("Policy\u2007denied%252Bextra")).toBe("Policy denied+extra");
+  });
+
+  it("preserves percent-decoded plus in authorize descriptions when ZWJ glue separates words", () => {
+    expect(decodeOAuthErrorDescription("Policy\u200ddenied%252Bextra")).toBe("Policy denied+extra");
+  });
+
+  it("preserves literal plus in authorize error descriptions when form plus was already decoded to space", () => {
+    const mixed = new URLSearchParams("error_description=User+denied%2Bextra").get("error_description");
+
+    expect(mixed).toBe("User denied+extra");
+    expect(decodeOAuthErrorDescription(mixed)).toBe("User denied+extra");
+  });
+
+  it("preserves literal plus in authorize error descriptions when zero-width glue separates words", () => {
+    expect(decodeOAuthErrorDescription("User\u200bdenied+extra")).toBe("User denied+extra");
+  });
+
+  it("preserves literal plus in authorize error descriptions when ZWNJ glue separates words", () => {
+    expect(decodeOAuthErrorDescription("Policy\u200cdenied+extra")).toBe("Policy denied+extra");
+  });
+
+  it("preserves literal plus in authorize error descriptions when emoji ZWJ sequences are present", () => {
+    expect(decodeOAuthErrorDescription("👨\u200d👩\u200d👧+extra")).toBe("👨\u200d👩\u200d👧+extra");
+  });
+
+  it("preserves literal plus in authorize error descriptions when regional-indicator flag emoji is present", () => {
+    expect(decodeOAuthErrorDescription("🇺🇸+extra")).toBe("🇺🇸+extra");
+    expect(decodeOAuthErrorDescription("🇺🇸%2Bextra")).toBe("🇺🇸+extra");
+  });
+
+  it("preserves literal plus in authorize error descriptions when skin-tone emoji modifiers are present", () => {
+    expect(decodeOAuthErrorDescription("👍🏻+extra")).toBe("👍🏻+extra");
+    expect(decodeOAuthErrorDescription("👋🏽+denied")).toBe("👋🏽+denied");
+  });
+
+  it("decodes doubly percent-encoded authorize error descriptions", () => {
+    expect(decodeOAuthErrorDescription("User%2520denied")).toBe("User denied");
+  });
+
+  it("decodes triply percent-encoded authorize error descriptions", () => {
+    expect(decodeOAuthErrorDescription("User%252520denied")).toBe("User denied");
+  });
+
   it("falls back safely on invalid percent sequences", () => {
     expect(decodeOAuthErrorDescription("%E0%A4%A")).toBe("%E0%A4%A");
   });
@@ -88,6 +202,14 @@ describe("decodeOAuthErrorDescription", () => {
     const detail = "دسترسی\u200cرد";
 
     expect(decodeOAuthErrorDescription(detail)).toBe(detail);
+  });
+
+  it("collapses accidental ZWNJ glue between Latin words in authorize error descriptions", () => {
+    expect(decodeOAuthErrorDescription("Policy\u200cdenied")).toBe("Policy denied");
+  });
+
+  it("collapses accidental ZWJ glue between Latin words in authorize error descriptions", () => {
+    expect(decodeOAuthErrorDescription("Policy\u200ddenied")).toBe("Policy denied");
   });
 
   it("preserves regional-indicator flag emoji in authorize error descriptions", () => {
@@ -197,6 +319,412 @@ describe("humanizeAuthorizeCallbackError", () => {
 
   it("uses readable unknown codes", () => {
     expect(humanizeAuthorizeCallbackError("custom_problem", "")).toContain("custom problem");
+  });
+
+  it("humanizes authorization_pending authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("authorization_pending", "");
+
+    expect(message).toMatch(/authorization pending/i);
+    expect(message).not.toContain("authorization_pending");
+  });
+
+  it("humanizes slow_down authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("slow_down", "");
+
+    expect(message).toMatch(/slow down/i);
+    expect(message).not.toContain("slow_down");
+  });
+
+  it("humanizes temporarily_unavailable authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("temporarily_unavailable", "");
+
+    expect(message).toMatch(/temporary error/i);
+    expect(message).not.toContain("temporarily_unavailable");
+  });
+
+  it("humanizes login_required authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("login_required", "");
+
+    expect(message).toMatch(/sign-in step/i);
+    expect(message).not.toContain("login_required");
+  });
+
+  it("humanizes interaction_required authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("interaction_required", "");
+
+    expect(message).toMatch(/sign-in step/i);
+    expect(message).not.toContain("interaction_required");
+  });
+
+  it("humanizes consent_required authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("consent_required", "");
+
+    expect(message).toMatch(/administrator consent/i);
+    expect(message).not.toContain("consent_required");
+  });
+
+  it("humanizes unauthorized_client authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("unauthorized_client", "");
+
+    expect(message).toMatch(/sign-in route/i);
+    expect(message).not.toContain("unauthorized_client");
+  });
+
+  it("humanizes invalid_scope authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_scope", "");
+
+    expect(message).toMatch(/permissions/i);
+    expect(message).not.toContain("invalid_scope");
+  });
+
+  it("humanizes invalid_request authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_request", "");
+
+    expect(message).toMatch(/not valid/i);
+    expect(message).not.toContain("invalid_request");
+  });
+
+  it("humanizes invalid_client authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_client", "");
+
+    expect(message).toMatch(/invalid client/i);
+    expect(message).not.toContain("invalid_client");
+  });
+
+  it("humanizes redirect_uri_mismatch authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("redirect_uri_mismatch", "");
+
+    expect(message).toMatch(/redirect uri mismatch/i);
+    expect(message).not.toContain("redirect_uri_mismatch");
+  });
+
+  it("humanizes invalid_grant authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_grant", "");
+
+    expect(message).toMatch(/invalid grant/i);
+    expect(message).not.toContain("invalid_grant");
+  });
+
+  it("humanizes unsupported_grant_type authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("unsupported_grant_type", "");
+
+    expect(message).toMatch(/unsupported grant type/i);
+    expect(message).not.toContain("unsupported_grant_type");
+  });
+
+  it("humanizes invalid_token authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_token", "");
+
+    expect(message).toMatch(/invalid token/i);
+    expect(message).not.toContain("invalid_token");
+  });
+
+  it("humanizes expired_token authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("expired_token", "");
+
+    expect(message).toMatch(/expired token/i);
+    expect(message).not.toContain("expired_token");
+  });
+
+  it("humanizes insufficient_scope authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("insufficient_scope", "");
+
+    expect(message).toMatch(/insufficient scope/i);
+    expect(message).not.toContain("insufficient_scope");
+  });
+
+  it("humanizes account_selection_required authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("account_selection_required", "");
+
+    expect(message).toMatch(/account selection required/i);
+    expect(message).not.toContain("account_selection_required");
+  });
+
+  it("humanizes registration_not_supported authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("registration_not_supported", "");
+
+    expect(message).toMatch(/registration not supported/i);
+    expect(message).not.toContain("registration_not_supported");
+  });
+
+  it("humanizes org_internal authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("org_internal", "");
+
+    expect(message).toMatch(/org internal/i);
+    expect(message).not.toContain("org_internal");
+  });
+
+  it("humanizes invalid_target authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_target", "");
+
+    expect(message).toMatch(/invalid target/i);
+    expect(message).not.toContain("invalid_target");
+  });
+
+  it("humanizes invalid_request_uri authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_request_uri", "");
+
+    expect(message).toMatch(/invalid request uri/i);
+    expect(message).not.toContain("invalid_request_uri");
+  });
+
+  it("humanizes invalid_resource authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_resource", "");
+
+    expect(message).toMatch(/invalid resource/i);
+    expect(message).not.toContain("invalid_resource");
+  });
+
+  it("humanizes invalid_client_metadata authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_client_metadata", "");
+
+    expect(message).toMatch(/invalid client metadata/i);
+    expect(message).not.toContain("invalid_client_metadata");
+  });
+
+  it("humanizes invalid_session authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_session", "");
+
+    expect(message).toMatch(/invalid session/i);
+    expect(message).not.toContain("invalid_session");
+  });
+
+  it("humanizes request_not_supported authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("request_not_supported", "");
+
+    expect(message).toMatch(/request not supported/i);
+    expect(message).not.toContain("request_not_supported");
+  });
+
+  it("humanizes request_uri_too_long authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("request_uri_too_long", "");
+
+    expect(message).toMatch(/request uri too long/i);
+    expect(message).not.toContain("request_uri_too_long");
+  });
+
+  it("humanizes invalid_dpop_proof authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_dpop_proof", "");
+
+    expect(message).toMatch(/invalid dpop proof/i);
+    expect(message).not.toContain("invalid_dpop_proof");
+  });
+
+  it("humanizes use_second_factor authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("use_second_factor", "");
+
+    expect(message).toMatch(/use second factor/i);
+    expect(message).not.toContain("use_second_factor");
+  });
+
+  it("humanizes user_cancelled authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("user_cancelled", "");
+
+    expect(message).toMatch(/user cancelled/i);
+    expect(message).not.toContain("user_cancelled");
+  });
+
+  it("humanizes verification_required authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("verification_required", "");
+
+    expect(message).toMatch(/verification required/i);
+    expect(message).not.toContain("verification_required");
+  });
+
+  it("humanizes mfa_required authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("mfa_required", "");
+
+    expect(message).toMatch(/mfa required/i);
+    expect(message).not.toContain("mfa_required");
+  });
+
+  it("humanizes server_error authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("server_error", "");
+
+    expect(message).toMatch(/temporary error/i);
+    expect(message).not.toContain("server_error");
+  });
+
+  it("humanizes session_expired authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("session_expired", "");
+
+    expect(message).toMatch(/session expired/i);
+    expect(message).not.toContain("session_expired");
+  });
+
+  it("humanizes invalid_code authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_code", "");
+
+    expect(message).toMatch(/invalid code/i);
+    expect(message).not.toContain("invalid_code");
+  });
+
+  it("humanizes invalid_credentials authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_credentials", "");
+
+    expect(message).toMatch(/invalid credentials/i);
+    expect(message).not.toContain("invalid_credentials");
+  });
+
+  it("humanizes invalid_username authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_username", "");
+
+    expect(message).toMatch(/invalid username/i);
+    expect(message).not.toContain("invalid_username");
+  });
+
+  it("humanizes invalid_password authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_password", "");
+
+    expect(message).toMatch(/invalid password/i);
+    expect(message).not.toContain("invalid_password");
+  });
+
+  it("humanizes invalid_client_id authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_client_id", "");
+
+    expect(message).toMatch(/invalid client id/i);
+    expect(message).not.toContain("invalid_client_id");
+  });
+
+  it("humanizes invalid_client_secret authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_client_secret", "");
+
+    expect(message).toMatch(/invalid client secret/i);
+    expect(message).not.toContain("invalid_client_secret");
+  });
+
+  it("humanizes invalid_grant_challenge authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_grant_challenge", "");
+
+    expect(message).toMatch(/invalid grant challenge/i);
+    expect(message).not.toContain("invalid_grant_challenge");
+  });
+
+  it("humanizes invalid_resource_owner authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_resource_owner", "");
+
+    expect(message).toMatch(/invalid resource owner/i);
+    expect(message).not.toContain("invalid_resource_owner");
+  });
+
+  it("humanizes invalid_saml_response authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_saml_response", "");
+
+    expect(message).toMatch(/invalid saml response/i);
+    expect(message).not.toContain("invalid_saml_response");
+  });
+
+  it("humanizes invalid_oidc_response authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_oidc_response", "");
+
+    expect(message).toMatch(/invalid oidc response/i);
+    expect(message).not.toContain("invalid_oidc_response");
+  });
+
+  it("humanizes invalid_authentication authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_authentication", "");
+
+    expect(message).toMatch(/invalid authentication/i);
+    expect(message).not.toContain("invalid_authentication");
+  });
+
+  it("humanizes authentication_required authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("authentication_required", "");
+
+    expect(message).toMatch(/authentication required/i);
+    expect(message).not.toContain("authentication_required");
+  });
+
+  it("humanizes credentials_required authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("credentials_required", "");
+
+    expect(message).toMatch(/credentials required/i);
+    expect(message).not.toContain("credentials_required");
+  });
+
+  it("humanizes binding_required authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("binding_required", "");
+
+    expect(message).toMatch(/binding required/i);
+    expect(message).not.toContain("binding_required");
+  });
+
+  it("humanizes device_authorization_required authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("device_authorization_required", "");
+
+    expect(message).toMatch(/device authorization required/i);
+    expect(message).not.toContain("device_authorization_required");
+  });
+
+  it("humanizes proof_key_required authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("proof_key_required", "");
+
+    expect(message).toMatch(/proof key required/i);
+    expect(message).not.toContain("proof_key_required");
+  });
+
+  it("humanizes code_challenge_required authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("code_challenge_required", "");
+
+    expect(message).toMatch(/code challenge required/i);
+    expect(message).not.toContain("code_challenge_required");
+  });
+
+  it("humanizes pkce_verification_failed authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("pkce_verification_failed", "");
+
+    expect(message).toMatch(/pkce verification failed/i);
+    expect(message).not.toContain("pkce_verification_failed");
+  });
+
+  it("humanizes invalid_code_verifier authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_code_verifier", "");
+
+    expect(message).toMatch(/invalid code verifier/i);
+    expect(message).not.toContain("invalid_code_verifier");
+  });
+
+  it("humanizes code_verifier_mismatch authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("code_verifier_mismatch", "");
+
+    expect(message).toMatch(/code verifier mismatch/i);
+    expect(message).not.toContain("code_verifier_mismatch");
+  });
+
+  it("humanizes state_mismatch authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("state_mismatch", "");
+
+    expect(message).toMatch(/state mismatch/i);
+    expect(message).not.toContain("state_mismatch");
+  });
+
+  it("humanizes invalid_state authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_state", "");
+
+    expect(message).toMatch(/invalid state/i);
+    expect(message).not.toContain("invalid_state");
+  });
+
+  it("humanizes invalid_nonce authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_nonce", "");
+
+    expect(message).toMatch(/invalid nonce/i);
+    expect(message).not.toContain("invalid_nonce");
+  });
+
+  it("humanizes nonce_replay authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("nonce_replay", "");
+
+    expect(message).toMatch(/nonce replay/i);
+    expect(message).not.toContain("nonce_replay");
+  });
+
+  it("humanizes invalid_session_id authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_session_id", "");
+
+    expect(message).toMatch(/invalid session id/i);
+    expect(message).not.toContain("invalid_session_id");
   });
 
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
@@ -408,6 +936,69 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toContain("canceled sign-in");
     expect(message.length).toBeLessThanOrEqual(280);
+  });
+
+  it("maps authorize error codes with ZWNJ glue to the standard snake_case handlers", () => {
+    const message = humanizeAuthorizeCallbackError("access\u200cdenied", "");
+
+    expect(message).toContain("canceled sign-in");
+    expect(message).not.toMatch(/accessdenied/i);
+  });
+
+  it("maps percent-encoded authorize error codes to the standard snake_case handlers", () => {
+    const message = humanizeAuthorizeCallbackError("access%20denied", "");
+
+    expect(message).toContain("canceled sign-in");
+    expect(message).not.toMatch(/access%20denied/i);
+  });
+
+  it("maps doubly percent-encoded authorize error codes to the standard snake_case handlers", () => {
+    const message = humanizeAuthorizeCallbackError("access%2520denied", "");
+
+    expect(message).toContain("canceled sign-in");
+    expect(message).not.toMatch(/access%20denied/i);
+  });
+
+  it("maps triply percent-encoded authorize error codes to the standard snake_case handlers", () => {
+    const message = humanizeAuthorizeCallbackError("access%252520denied", "");
+
+    expect(message).toContain("canceled sign-in");
+    expect(message).not.toMatch(/access%2520denied/i);
+  });
+
+  it("maps percent-encoded plus signs in authorize error codes to snake_case handlers", () => {
+    const message = humanizeAuthorizeCallbackError("invalid%2Bgrant", "");
+
+    expect(message).toContain("invalid grant");
+    expect(message).not.toContain("invalid+grant");
+  });
+
+  it("maps percent-encoded underscores in authorize error codes to snake_case handlers", () => {
+    const message = humanizeAuthorizeCallbackError("unauthorized%5fclient", "");
+
+    expect(message).toContain("not enabled");
+    expect(message).not.toMatch(/unauthorized%5fclient/i);
+  });
+
+  it("maps doubly percent-encoded underscores in authorize error codes to standard handlers", () => {
+    const message = humanizeAuthorizeCallbackError("access%255fdenied", "");
+
+    expect(message).toContain("canceled sign-in");
+    expect(message).not.toMatch(/access%5fdenied/i);
+  });
+
+  it("maps percent-encoded plus signs in authorize error codes to standard handlers", () => {
+    const message = humanizeAuthorizeCallbackError("unauthorized%2Bclient", "");
+
+    expect(message).toContain("not enabled");
+    expect(message).not.toMatch(/unauthorized\+client/i);
+  });
+
+  it("maps singly percent-encoded underscores in authorize error codes to standard handlers", () => {
+    const message = humanizeAuthorizeCallbackError("access%5fdenied", "");
+
+    expect(message).toContain("canceled sign-in");
+    expect(message).not.toMatch(/access%5fdenied/i);
   });
 
   it("includes numeric invalid_request error_description in callback copy", () => {

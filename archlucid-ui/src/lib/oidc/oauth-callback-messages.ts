@@ -115,8 +115,82 @@ export function parseOidcEpochMsHint(value: string): number {
   return coerceAcceptedOidcEpochMsHint(parsed);
 }
 
+/** ZWNJ/ZWJ between Latin tokens is usually accidental paste glue; keep joiners inside Persian/Arabic copy and emoji. */
+function collapseAccidentalLatinZwnjGlue(text: string): string {
+  return text.replace(/(?<=[A-Za-z0-9])[\u200c\u200d](?=[A-Za-z0-9])/gu, " ");
+}
+
+const MAX_OAUTH_PERCENT_DECODE_PASSES = 3;
+
+/** True when the string carries OAuth-style percent-encoded plus (`%2B`, including multiply-encoded `%252B`). */
+function includesPercentEncodedPlus(value: string): boolean {
+  return /%(?:25)*2[bB]/i.test(value);
+}
+
+/** Authorize query copy may mix literal plus with spaces or zero-width glue (ZWSP is not matched by `\s`). */
+function shouldPreserveLiteralPlusInAuthorizeDescription(decoded: string): boolean {
+  if (!decoded.includes("+")) {
+    return false;
+  }
+
+  if (/\s/u.test(decoded)) {
+    return true;
+  }
+
+  if (OIDC_DISPLAY_GLUE_FORMAT_CHARS.test(decoded)) {
+    return true;
+  }
+
+  // Family emoji uses ZWJ (U+200D); flag emoji uses regional indicators — neither matches ZWSP glue above.
+  if (/\u200d/u.test(decoded)) {
+    return true;
+  }
+
+  if (/\p{Regional_Indicator}/u.test(decoded)) {
+    return true;
+  }
+
+  // Fitzpatrick skin-tone modifiers (U+1F3FB–U+1F3FF) follow base emoji without ZWJ — mirror flag/ZWJ plus preservation.
+  if (/\p{Emoji_Modifier}/u.test(decoded)) {
+    return true;
+  }
+
+  // Keycap emoji (#️⃣, 1️⃣) uses U+FE0F + U+20E3 without ZWJ or Fitzpatrick modifiers.
+  if (/\u20e3/u.test(decoded)) {
+    return true;
+  }
+
+  // Presentation emoji (🏷️, ⚠️) and other pictographs without the glue signals above.
+  if (/\p{Extended_Pictographic}/u.test(decoded)) {
+    return true;
+  }
+
+  return /(?<=[A-Za-z0-9])[\u200c\u200d](?=[A-Za-z0-9+])/u.test(decoded);
+}
+
+/** Some IdPs over-encode `error_description` (proxy chains); decode until stable, capped, without breaking literal `%` copy. */
+function decodeRepeatedPercentEncoding(value: string): string {
+  let current = value;
+
+  for (let pass = 0; pass < MAX_OAUTH_PERCENT_DECODE_PASSES; pass += 1) {
+    try {
+      const next = decodeURIComponent(current);
+
+      if (next === current) {
+        break;
+      }
+
+      current = next;
+    } catch {
+      break;
+    }
+  }
+
+  return current;
+}
+
 export function collapseOAuthErrorDescriptionLineBreaks(text: string): string {
-  return text
+  return collapseAccidentalLatinZwnjGlue(text)
     .replace(OIDC_DISPLAY_GLUE_FORMAT_CHARS, " ")
     // Soft hyphens are optional break points; on single-line callback copy they glue words (Policy\u00ADdenied).
     .replace(/[\u0000-\u001F\u007F\u2028\u2029\u0085\u00AD]/gu, " ")
@@ -126,7 +200,14 @@ export function collapseOAuthErrorDescriptionLineBreaks(text: string): string {
 
 /** Normalizes OAuth `error` codes from authorize query params or token JSON (collapse glue characters, snake_case). */
 export function normalizeOAuthErrorCode(value: string): string {
-  const collapsed = collapseOAuthErrorDescriptionLineBreaks(value.trim());
+  let decoded = value.trim();
+
+  decoded = decodeRepeatedPercentEncoding(decoded.replace(/\+/g, " ")).replace(/\+/g, " ");
+
+  const tokenized = decoded
+    .replace(OAUTH_INVISIBLE_FORMAT_CHARS, "_")
+    .replace(/[\u0000-\u001F\u007F\u2028\u2029\u0085\u00AD]/gu, "_");
+  const collapsed = collapseOAuthErrorDescriptionLineBreaks(tokenized);
 
   return collapsed
     .replace(/\s+/gu, "_")
@@ -149,9 +230,21 @@ export function decodeOAuthErrorDescription(encoded: string | null | undefined):
   let decoded: string;
 
   try {
-    decoded = collapseOAuthErrorDescriptionLineBreaks(decodeURIComponent(trimmed.replace(/\+/g, " ")));
+    decoded = decodeRepeatedPercentEncoding(trimmed);
+
+    if (!shouldPreserveLiteralPlusInAuthorizeDescription(decoded)) {
+      decoded = decoded.replace(/\+/g, " ");
+    }
+
+    decoded = collapseOAuthErrorDescriptionLineBreaks(decoded);
   } catch {
-    decoded = collapseOAuthErrorDescriptionLineBreaks(trimmed.replace(/\+/g, " "));
+    let fallback = trimmed;
+
+    if (!shouldPreserveLiteralPlusInAuthorizeDescription(fallback)) {
+      fallback = fallback.replace(/\+/g, " ");
+    }
+
+    decoded = collapseOAuthErrorDescriptionLineBreaks(fallback);
   }
 
   return isReadableOAuthErrorDetail(decoded) ? decoded : "";
@@ -160,7 +253,7 @@ export function decodeOAuthErrorDescription(encoded: string | null | undefined):
 /**
  * RFC 6749 token JSON carries plain-text `error_description` (not query encoding).
  * Tolerate mistaken %-escapes from some IdPs; on decode failure keep the raw string.
- * Does not treat `+` as space (unlike authorize-callback query decoding).
+ * Does not treat literal `+` as space; mistaken `%2B` escapes in JSON are collapsed after decode.
  */
 export function readOAuthJsonErrorDescription(value: string): string {
   const collapsed = collapseOAuthErrorDescriptionLineBreaks(value.trim());
@@ -169,10 +262,28 @@ export function readOAuthJsonErrorDescription(value: string): string {
     return "";
   }
 
+  const percentEncodedPlus = includesPercentEncodedPlus(collapsed);
+  const literalPlusInSource = collapsed.includes("+");
   let decoded: string;
 
   try {
-    decoded = collapseOAuthErrorDescriptionLineBreaks(decodeURIComponent(collapsed));
+    if (percentEncodedPlus && literalPlusInSource) {
+      const fullyDecoded = decodeRepeatedPercentEncoding(collapsed);
+
+      decoded = shouldPreserveLiteralPlusInAuthorizeDescription(fullyDecoded)
+        ? fullyDecoded
+        : decodeRepeatedPercentEncoding(collapsed.replace(/%(?:25)*2[bB]/gi, " "));
+
+      decoded = collapseOAuthErrorDescriptionLineBreaks(decoded);
+    } else {
+      decoded = decodeRepeatedPercentEncoding(collapsed);
+
+      if (percentEncodedPlus && !literalPlusInSource && !shouldPreserveLiteralPlusInAuthorizeDescription(decoded)) {
+        decoded = decoded.replace(/\+/g, " ");
+      }
+
+      decoded = collapseOAuthErrorDescriptionLineBreaks(decoded);
+    }
   } catch {
     decoded = collapsed;
   }

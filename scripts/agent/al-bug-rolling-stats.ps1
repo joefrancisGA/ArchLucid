@@ -158,6 +158,11 @@ function Read-HuntRunLog {
 
         try {
             $parsed = $line | ConvertFrom-Json
+
+            if ($parsed.PSObject.Properties.Name -notcontains 'zoneId' -and ($parsed.PSObject.Properties.Name -contains 'zone')) {
+                $parsed | Add-Member -NotePropertyName zoneId -NotePropertyValue ([string]$parsed.zone) -Force
+            }
+
             $entries += ,$parsed
         }
         catch {

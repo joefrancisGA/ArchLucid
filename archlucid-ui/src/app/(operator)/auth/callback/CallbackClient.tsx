@@ -17,7 +17,10 @@ import {
   isJwtAuthMode,
 } from "@/lib/oidc/config";
 import { loadDiscoveryDocument } from "@/lib/oidc/discovery";
-import { exchangeAuthorizationCode } from "@/lib/oidc/token-client";
+import {
+  exchangeAuthorizationCode,
+  shouldMarkAuthorizeCallbackFailedOnExchangeError,
+} from "@/lib/oidc/token-client";
 import { decodeJwtPayload, readNonceFromPayload } from "@/lib/oidc/jwt-payload";
 import { AUTH_CALLBACK_LOADING_DETAIL } from "@/lib/auth/auth-callback-page-copy";
 import {
@@ -28,7 +31,12 @@ import {
   decodeOAuthErrorDescription,
   humanizeAuthorizeCallbackError,
 } from "@/lib/oidc/oauth-callback-messages";
-import { consumePkceState, persistTokenResponse, consumePostSignInReturnUrl } from "@/lib/oidc/session";
+import {
+  consumePkceState,
+  consumePostSignInReturnUrl,
+  markAuthorizeCallbackFailed,
+  persistTokenResponse,
+} from "@/lib/oidc/session";
 import { restoreIdleDeskScopeAfterSignIn } from "@/lib/auth/idle-desk-restore";
 import { clearFrictionlessTrialSessionForAuthenticatedOperator } from "@/lib/operator/operator-frictionless-trial-session-cleanup";
 import { readInvitationToken } from "@/lib/auth/email-otp-session";
@@ -39,6 +47,29 @@ const TOKEN_EXCHANGE_SLOW_HINT_MS = 8000;
 
 function authCallbackChrome(content: ReactNode): React.JSX.Element {
   return <AuthCallbackBuyerChrome>{content}</AuthCallbackBuyerChrome>;
+}
+
+/** Keep stored post-sign-in return paths when the browser already landed on an IdP callback query. */
+function shouldPreservePostSignInReturnForCallbackQuery(params: {
+  oauthError: string | null;
+  code: string | null;
+  state: string | null;
+}): boolean {
+  const { oauthError, code, state } = params;
+
+  if (oauthError !== null && oauthError.length > 0) {
+    return true;
+  }
+
+  if (code && state) {
+    return true;
+  }
+
+  if (!code || !state) {
+    return true;
+  }
+
+  return false;
 }
 
 /**
@@ -68,9 +99,13 @@ export function CallbackClient() {
       }
     };
 
-    const fail = (msg: string) => {
+    const fail = (msg: string, preserveReturnOnRetry = false) => {
       if (canceled) {
         return;
+      }
+
+      if (preserveReturnOnRetry) {
+        markAuthorizeCallbackFailed();
       }
 
       setShowSlowHint(false);
@@ -79,8 +114,14 @@ export function CallbackClient() {
       clearSlowHintTimer();
     };
 
+    const preserveReturnForQuery = shouldPreservePostSignInReturnForCallbackQuery({
+      oauthError,
+      code,
+      state,
+    });
+
     if (!isJwtAuthMode()) {
-      fail(BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE);
+      fail(BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE, preserveReturnForQuery);
 
       return () => {
         canceled = true;
@@ -91,7 +132,7 @@ export function CallbackClient() {
     const cfg = assertOidcSignInConfig();
 
     if (!cfg.ok) {
-      fail(cfg.message);
+      fail(cfg.message, preserveReturnForQuery);
 
       return () => {
         canceled = true;
@@ -100,8 +141,12 @@ export function CallbackClient() {
     }
 
     if (oauthError !== null && oauthError.length > 0) {
+      if (state) {
+        consumePkceState(state);
+      }
+
       const decoded = decodeOAuthErrorDescription(oauthErrorDescription);
-      fail(humanizeAuthorizeCallbackError(oauthError, decoded));
+      fail(humanizeAuthorizeCallbackError(oauthError, decoded), true);
 
       return () => {
         canceled = true;
@@ -110,7 +155,11 @@ export function CallbackClient() {
     }
 
     if (!code || !state) {
-      fail("We did not receive a complete response from your identity provider. Start sign-in again.");
+      if (state) {
+        consumePkceState(state);
+      }
+
+      fail("We did not receive a complete response from your identity provider. Start sign-in again.", true);
 
       return () => {
         canceled = true;
@@ -121,7 +170,7 @@ export function CallbackClient() {
     const stored = consumePkceState(state);
 
     if (!stored) {
-      fail("This sign-in attempt expired or was started in another window. Try signing in again.");
+      fail("This sign-in attempt expired or was started in another window. Try signing in again.", true);
 
       return () => {
         canceled = true;
@@ -159,7 +208,7 @@ export function CallbackClient() {
           const idNonce = readNonceFromPayload(decodeJwtPayload(tokens.id_token));
 
           if (idNonce !== stored.nonce) {
-            fail("Your identity response could not be verified securely. Try signing in again.");
+            fail("Your identity response could not be verified securely. Try signing in again.", true);
 
             return;
           }
@@ -192,7 +241,9 @@ export function CallbackClient() {
         clearSlowHintTimer();
 
         if (!canceled) {
-          fail(e instanceof Error ? e.message : String(e));
+          const message = e instanceof Error ? e.message : String(e);
+
+          fail(message, shouldMarkAuthorizeCallbackFailedOnExchangeError(e));
         }
       }
     })();

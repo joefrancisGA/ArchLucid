@@ -68,6 +68,18 @@ public sealed partial class TenantCatalogMigrationOrchestrator
         if (tenantAfterProbe?.OffboardedUtc is not null)
             return (TenantCatalogMigrationCommandOutcome.InErasureQuarantine, probe);
 
+        TenantRecord? tenantBeforeVerificationAudit =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenantBeforeVerificationAudit?.OffboardedUtc is not null)
+            return (TenantCatalogMigrationCommandOutcome.InErasureQuarantine, probe);
+
+        TenantRecord? tenantBeforeVerificationAuditAppend =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenantBeforeVerificationAuditAppend?.OffboardedUtc is not null)
+            return (TenantCatalogMigrationCommandOutcome.InErasureQuarantine, probe);
+
         string auditType = probe.Passed
             ? AuditEventTypes.TenantCatalogMigrationVerificationPassed
             : AuditEventTypes.TenantCatalogMigrationVerificationFailed;
@@ -149,6 +161,18 @@ public sealed partial class TenantCatalogMigrationOrchestrator
             await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
 
         if (tenantBeforeAudit?.OffboardedUtc is not null)
+            return TenantCatalogMigrationCommandOutcome.InErasureQuarantine;
+
+        TenantRecord? tenantBeforeCompletedAudit =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenantBeforeCompletedAudit?.OffboardedUtc is not null)
+            return TenantCatalogMigrationCommandOutcome.InErasureQuarantine;
+
+        TenantRecord? tenantBeforeCompletedAuditAppend =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenantBeforeCompletedAuditAppend?.OffboardedUtc is not null)
             return TenantCatalogMigrationCommandOutcome.InErasureQuarantine;
 
         await AppendPlatformAuditAsync(

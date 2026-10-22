@@ -26,9 +26,18 @@ public sealed class StripeWalletPaymentIdentifierGuard(
         if (string.IsNullOrWhiteSpace(stripeCustomerId) && string.IsNullOrWhiteSpace(stripePaymentMethodId))
             return true;
 
-        string? linkedCustomerId = await _linkedCustomerResolver
-            .TryResolveLinkedCustomerIdAsync(tenantId, cancellationToken)
-            .ConfigureAwait(false);
+        string? linkedCustomerId;
+
+        try
+        {
+            linkedCustomerId = await _linkedCustomerResolver
+                .TryResolveLinkedCustomerIdAsync(tenantId, cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (StripeException)
+        {
+            return false;
+        }
 
         if (string.IsNullOrWhiteSpace(linkedCustomerId))
             return false;

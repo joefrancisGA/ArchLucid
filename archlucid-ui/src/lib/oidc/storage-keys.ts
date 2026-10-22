@@ -18,3 +18,7 @@ export const OIDC_GOOGLE_NONCE_KEY = "archlucid_oidc_google_nonce";
  * Allows the app to restore the user's position after a session expiry sign-in.
  */
 export const OIDC_POST_SIGN_IN_RETURN_URL_KEY = "archlucid_oidc_post_sign_in_return_url";
+/** Set when the IdP returns an OAuth authorize error so a sign-in retry keeps the stored return URL. */
+export const OIDC_AUTHORIZE_CALLBACK_FAILED_KEY = "archlucid_oidc_authorize_callback_failed";
+/** Safe post-sign-in return path captured when authorize callback retry is marked. */
+export const OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY = "archlucid_oidc_authorize_retry_return_path";

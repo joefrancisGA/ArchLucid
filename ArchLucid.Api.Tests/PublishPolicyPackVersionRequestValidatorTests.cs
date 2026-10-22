@@ -42,6 +42,22 @@ public sealed class PublishPolicyPackVersionRequestValidatorTests
     }
 
     [Fact]
+    public void Whitespace_only_content_json_fails()
+    {
+        PublishPolicyPackVersionRequest request = new()
+        {
+            Version = "1.0.0",
+            ContentJson = "   ",
+        };
+
+        ValidationResult result = _validator.Validate(request);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == nameof(PublishPolicyPackVersionRequest.ContentJson));
+        result.Errors.Should().Contain(e => e.ErrorMessage.Contains("ContentJson is required"));
+    }
+
+    [Fact]
     public void Invalid_content_json_fails()
     {
         PublishPolicyPackVersionRequest request = new()

@@ -29,14 +29,20 @@ vi.mock("@/lib/oidc/discovery", () => ({
   })),
 }));
 
-vi.mock("@/lib/oidc/token-client", () => ({
-  exchangeAuthorizationCode: vi.fn(),
-}));
+vi.mock("@/lib/oidc/token-client", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/oidc/token-client")>();
+
+  return {
+    ...actual,
+    exchangeAuthorizationCode: vi.fn(),
+  };
+});
 
 vi.mock("@/lib/oidc/session", () => ({
   consumePkceState: vi.fn(),
   persistTokenResponse: vi.fn(),
   consumePostSignInReturnUrl: vi.fn(() => "/"),
+  markAuthorizeCallbackFailed: vi.fn(),
 }));
 
 vi.mock("@/lib/auth/email-otp-session", () => ({
@@ -51,8 +57,8 @@ import { CallbackClient } from "@/app/(operator)/auth/callback/CallbackClient";
 import { AUTH_CALLBACK_ACCESS_HEADING } from "@/lib/auth/access-request-copy";
 import { AUTH_CALLBACK_PAGE_TITLE } from "@/lib/auth/auth-callback-page-copy";
 import { loadDiscoveryDocument } from "@/lib/oidc/discovery";
-import { getGoogleOidcClientId } from "@/lib/oidc/config";
-import { consumePkceState } from "@/lib/oidc/session";
+import { assertOidcSignInConfig, getGoogleOidcClientId } from "@/lib/oidc/config";
+import { consumePkceState, markAuthorizeCallbackFailed } from "@/lib/oidc/session";
 import { exchangeAuthorizationCode } from "@/lib/oidc/token-client";
 
 describe("CallbackClient", () => {
@@ -118,6 +124,68 @@ describe("CallbackClient", () => {
     expect(loadDiscoveryDocument).toHaveBeenCalledWith("https://accounts.google.com");
   });
 
+  it("does not mark authorize callback failed when token exchange rejects an invalid token endpoint URL", async () => {
+    searchParamsMock.value = new URLSearchParams({
+      code: "auth-code",
+      state: "state-value",
+    });
+
+    vi.mocked(consumePkceState).mockReturnValueOnce({
+      state: "state-value",
+      codeVerifier: "verifier",
+      nonce: "nonce",
+      flow: "primary",
+    });
+    vi.mocked(exchangeAuthorizationCode).mockRejectedValueOnce(
+      new Error("Invalid token endpoint URL"),
+    );
+
+    render(<CallbackClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-callback-access-panel")).toBeInTheDocument();
+    });
+
+    expect(markAuthorizeCallbackFailed).not.toHaveBeenCalled();
+  });
+
+  it("marks authorize callback failed when sign-in config is invalid but the IdP returned an authorization code", async () => {
+    vi.mocked(assertOidcSignInConfig).mockReturnValueOnce({
+      ok: false,
+      message: "OIDC is not configured.",
+    });
+
+    searchParamsMock.value = new URLSearchParams({
+      code: "auth-code",
+      state: "state-value",
+    });
+
+    render(<CallbackClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-callback-access-panel")).toBeInTheDocument();
+    });
+
+    expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
+    expect(consumePkceState).not.toHaveBeenCalled();
+  });
+
+  it("marks authorize callback failed when the IdP returns an OAuth error", async () => {
+    searchParamsMock.value = new URLSearchParams({
+      error: "access_denied",
+      error_description: "User+canceled",
+    });
+
+    render(<CallbackClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-callback-access-panel")).toBeInTheDocument();
+    });
+
+    expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
+    expect(consumePkceState).not.toHaveBeenCalled();
+  });
+
   it("shows the access panel when the callback is missing required parameters", async () => {
     searchParamsMock.value = new URLSearchParams();
     vi.mocked(consumePkceState).mockReturnValueOnce(null);
@@ -132,5 +200,24 @@ describe("CallbackClient", () => {
     expect(screen.getByRole("link", { name: "Try again" })).toHaveAttribute("href", "/auth/signin");
     expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Back to sign in" })).toBeNull();
+    expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
+  });
+
+  it("marks authorize callback failed when sign-in config is invalid and the callback query is empty", async () => {
+    vi.mocked(assertOidcSignInConfig).mockReturnValueOnce({
+      ok: false,
+      message: "OIDC is not configured.",
+    });
+
+    searchParamsMock.value = new URLSearchParams();
+
+    render(<CallbackClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-callback-access-panel")).toBeInTheDocument();
+    });
+
+    expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
+    expect(consumePkceState).not.toHaveBeenCalled();
   });
 });

@@ -16,6 +16,8 @@ import {
   OIDC_ID_TOKEN_KEY,
   OIDC_NONCE_KEY,
   OIDC_OAUTH_STATE_KEY,
+  OIDC_AUTHORIZE_CALLBACK_FAILED_KEY,
+  OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY,
   OIDC_POST_SIGN_IN_RETURN_URL_KEY,
   OIDC_REFRESH_TOKEN_KEY,
   OIDC_USER_SUBJECT_KEY,
@@ -234,6 +236,11 @@ export function persistTokenResponse(tokens: OidcTokenResponse): void {
     return;
   }
 
+  if (typeof sessionStorage !== "undefined") {
+    sessionStorage.removeItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY);
+    sessionStorage.removeItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY);
+  }
+
   const identityHintsAfterPersist = readOidcIdentityHintsSnapshot();
 
   if (oidcIdentityHintsChanged(identityHintsBeforePersist, identityHintsAfterPersist)) {
@@ -259,10 +266,11 @@ export type ClearOidcSessionOptions = {
 };
 
 export function clearOidcSession(options?: ClearOidcSessionOptions): void {
+  const hadSignedInIdentity = hasOidcSessionIdentityHints();
   refreshSessionGeneration += 1;
   refreshInFlight = null;
   clearInfraEvidenceAskTranscriptStorage();
-  removeOidcKeys([
+  const keysToClear = [
     OIDC_ACCESS_TOKEN_KEY,
     OIDC_REFRESH_TOKEN_KEY,
     OIDC_EXPIRES_AT_MS_KEY,
@@ -275,8 +283,17 @@ export function clearOidcSession(options?: ClearOidcSessionOptions): void {
     OIDC_GOOGLE_OAUTH_STATE_KEY,
     OIDC_GOOGLE_CODE_VERIFIER_KEY,
     OIDC_GOOGLE_NONCE_KEY,
-    OIDC_POST_SIGN_IN_RETURN_URL_KEY,
-  ]);
+  ];
+
+  if (hadSignedInIdentity) {
+    keysToClear.push(
+      OIDC_POST_SIGN_IN_RETURN_URL_KEY,
+      OIDC_AUTHORIZE_CALLBACK_FAILED_KEY,
+      OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY,
+    );
+  }
+
+  removeOidcKeys(keysToClear);
   clearCachedColorModePreference();
   void clearBffSessionCookie();
 
@@ -392,8 +409,99 @@ export function storePostSignInReturnUrl(url: string): void {
   }
 }
 
+/** Reads the stored post-sign-in return URL without clearing it (safe paths only). */
+export function readPostSignInReturnUrl(): string | null {
+  const url = readSessionKey(OIDC_POST_SIGN_IN_RETURN_URL_KEY);
+
+  if (url === null) {
+    return null;
+  }
+
+  const normalized = normalizeOidcConfigurationString(url);
+
+  if (!isSafeReturnPath(normalized)) {
+    sessionStorage.removeItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY);
+
+    return null;
+  }
+
+  return normalized;
+}
+
 export function clearPostSignInReturnUrl(): void {
   sessionStorage.removeItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY);
+  sessionStorage.removeItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY);
+  sessionStorage.removeItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY);
+}
+
+function snapshotAuthorizeRetryReturnPath(): void {
+  const url = readSessionKey(OIDC_POST_SIGN_IN_RETURN_URL_KEY);
+
+  if (url === null) {
+    return;
+  }
+
+  const normalized = normalizeOidcConfigurationString(url);
+
+  if (!isSafeReturnPath(normalized)) {
+    return;
+  }
+
+  sessionStorage.setItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY, normalized);
+}
+
+/** Reads the safe return path captured when authorize callback retry was marked. */
+export function readAuthorizeRetryReturnPathSnapshot(): string | null {
+  const url = readSessionKey(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY);
+
+  if (url === null) {
+    return null;
+  }
+
+  const normalized = normalizeOidcConfigurationString(url);
+
+  if (!isSafeReturnPath(normalized)) {
+    sessionStorage.removeItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY);
+
+    return null;
+  }
+
+  return normalized;
+}
+
+/** Marks that the authorize callback returned an OAuth error so a retry keeps the stored return URL. */
+export function markAuthorizeCallbackFailed(): void {
+  if (typeof sessionStorage === "undefined") {
+    return;
+  }
+
+  snapshotAuthorizeRetryReturnPath();
+  sessionStorage.setItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY, "1");
+}
+
+/** True when the authorize callback set a retry marker that should keep the stored return URL. */
+export function hasAuthorizeCallbackFailedRetry(): boolean {
+  if (typeof sessionStorage === "undefined") {
+    return false;
+  }
+
+  return sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY) === "1";
+}
+
+/**
+ * Returns whether an authorize callback error is pending a sign-in retry and clears the marker.
+ */
+export function consumeAuthorizeCallbackFailedRetry(): boolean {
+  if (typeof sessionStorage === "undefined") {
+    return false;
+  }
+
+  const pending = sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY) === "1";
+
+  sessionStorage.removeItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY);
+  sessionStorage.removeItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY);
+
+  return pending;
 }
 
 /**
@@ -406,12 +514,22 @@ export function consumePostSignInReturnUrl(): string | null {
   sessionStorage.removeItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY);
 
   if (url === null) {
+    sessionStorage.removeItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY);
+    sessionStorage.removeItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY);
+
     return null;
   }
 
   const normalized = normalizeOidcConfigurationString(url);
 
-  return isSafeReturnPath(normalized) ? normalized : null;
+  if (!isSafeReturnPath(normalized)) {
+    return null;
+  }
+
+  sessionStorage.removeItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY);
+  sessionStorage.removeItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY);
+
+  return normalized;
 }
 
 function getExpiresAtMs(): number {

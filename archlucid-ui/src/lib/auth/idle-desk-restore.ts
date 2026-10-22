@@ -15,12 +15,13 @@ export const IDLE_DESK_RESTORE_STORAGE_KEY = "archlucid.session.idleDeskRestore_
 
 export type IdleDeskRestorePayload = {
   readonly returnPath: string;
-  readonly scope: OperatorScopeRecord;
+  readonly scope: OperatorScopeRecord | null;
   readonly savedAtUtc: string;
   readonly formSnapshots?: Readonly<Record<string, LivelihoodIdleFormSnapshot>>;
 };
 
-function normalizeComparableReturnPath(returnPath: string): string | null {
+/** Normalizes return paths for equality checks (pathname + search, trailing slash on pathname only). */
+export function normalizeComparableReturnPath(returnPath: string): string | null {
   const trimmed = returnPath.trim();
 
   if (trimmed.length === 0) {
@@ -29,8 +30,23 @@ function normalizeComparableReturnPath(returnPath: string): string | null {
 
   try {
     const url = new URL(trimmed, "http://localhost");
+    const sortedParams = new URLSearchParams();
+    const entries = [...new URLSearchParams(url.search).entries()].sort(([left], [right]) =>
+      left.localeCompare(right, undefined, { sensitivity: "variant" }),
+    );
 
-    return `${url.pathname}${url.search}`;
+    for (const [key, value] of entries) {
+      sortedParams.append(key, value);
+    }
+
+    const search = sortedParams.toString();
+    let pathname = url.pathname;
+
+    if (pathname.length > 1 && pathname.endsWith("/")) {
+      pathname = pathname.slice(0, -1);
+    }
+
+    return search.length > 0 ? `${pathname}?${search}` : pathname;
   } catch {
     return trimmed.startsWith("/") ? trimmed : null;
   }
@@ -148,9 +164,17 @@ export function readIdleDeskRestorePayload(): IdleDeskRestorePayload | null {
 
     const scope = parsed.scope;
 
+    if (scope === null) {
+      return {
+        returnPath,
+        scope: null,
+        savedAtUtc: String(parsed.savedAtUtc ?? new Date().toISOString()),
+        formSnapshots: parseIdleDeskFormSnapshots(parsed.formSnapshots),
+      };
+    }
+
     if (
-      scope === null
-      || scope === undefined
+      scope === undefined
       || typeof scope.tenantId !== "string"
       || typeof scope.workspaceId !== "string"
       || typeof scope.projectId !== "string"
@@ -241,9 +265,19 @@ export function persistIdleDeskRestoreBeforeSessionClear(returnPath: string): vo
     storePostSignInReturnUrl(safeReturnPath);
   }
 
+  if (safeReturnPath === null) {
+    return;
+  }
+
   const scope = readOperatorScopeFromStorage();
 
-  if (scope === null || safeReturnPath === null) {
+  if (scope === null) {
+    writeIdleDeskRestorePayload({
+      returnPath: safeReturnPath,
+      scope: null,
+      savedAtUtc: new Date().toISOString(),
+    });
+
     return;
   }
 
@@ -309,7 +343,9 @@ export function restoreIdleDeskScopeAfterSignIn(): boolean {
     return false;
   }
 
-  writeOperatorScopeToStorage(payload.scope);
+  if (payload.scope !== null) {
+    writeOperatorScopeToStorage(payload.scope);
+  }
 
   if (payload.formSnapshots !== undefined && Object.keys(payload.formSnapshots).length > 0) {
     writeIdleDeskRestorePayload({
