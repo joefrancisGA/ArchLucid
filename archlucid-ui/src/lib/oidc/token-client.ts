@@ -29,40 +29,6 @@ export class OAuthTokenEndpointError extends Error {
   }
 }
 
-const OAUTH_REFRESH_REJECTION_ERROR_CODES = new Set([
-  "expired_token",
-  "invalid_client",
-  "invalid_grant",
-  "invalid_scope",
-  "invalid_token",
-  "unauthorized_client",
-]);
-
-/**
- * True when the IdP rejected a refresh-token grant and the BFF session should be cleared.
- * Humanized operator copy no longer embeds snake_case codes in `Error.message`.
- */
-export function isOAuthRefreshTokenRejectedError(error: unknown): boolean {
-  if (error instanceof OAuthTokenEndpointError) {
-    return OAUTH_REFRESH_REJECTION_ERROR_CODES.has(error.normalizedErrorCode);
-  }
-
-  if (!(error instanceof Error)) {
-    return false;
-  }
-
-  const message = error.message.toLowerCase();
-
-  return (
-    message.includes("expired_token") ||
-    message.includes("invalid_client") ||
-    message.includes("invalid_grant") ||
-    message.includes("invalid_scope") ||
-    message.includes("invalid_token") ||
-    message.includes("unauthorized_client")
-  );
-}
-
 /** OAuth error codes that share fixed authorize-callback operator copy when description is absent. */
 function shouldHumanizeTokenOAuthErrorCode(normalizedErrorCode: string): boolean {
   switch (normalizedErrorCode) {
@@ -84,6 +50,45 @@ function shouldHumanizeTokenOAuthErrorCode(normalizedErrorCode: string): boolean
     default:
       return false;
   }
+}
+
+const OAUTH_TRANSIENT_TOKEN_ERROR_CODES = new Set(["server_error", "temporarily_unavailable"]);
+
+function shouldClearBffSessionForOAuthTokenErrorCode(normalizedErrorCode: string): boolean {
+  if (OAUTH_TRANSIENT_TOKEN_ERROR_CODES.has(normalizedErrorCode)) {
+    return false;
+  }
+
+  return shouldHumanizeTokenOAuthErrorCode(normalizedErrorCode);
+}
+
+/**
+ * True when the IdP rejected a refresh-token grant and the BFF session should be cleared.
+ * Humanized operator copy no longer embeds snake_case codes in `Error.message`.
+ */
+export function isOAuthRefreshTokenRejectedError(error: unknown): boolean {
+  if (error instanceof OAuthTokenEndpointError) {
+    return shouldClearBffSessionForOAuthTokenErrorCode(error.normalizedErrorCode);
+  }
+
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  const message = error.message.toLowerCase();
+
+  return (
+    message.includes("access_denied") ||
+    message.includes("consent_required") ||
+    message.includes("expired_token") ||
+    message.includes("interaction_required") ||
+    message.includes("invalid_client") ||
+    message.includes("invalid_grant") ||
+    message.includes("invalid_scope") ||
+    message.includes("invalid_token") ||
+    message.includes("login_required") ||
+    message.includes("unauthorized_client")
+  );
 }
 
 function readOAuthErrorString(value: unknown): string {
