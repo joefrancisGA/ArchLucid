@@ -2842,6 +2842,14 @@
 
 ## Zone: scim-users
 
+2026-10-22 thorough hunt #30 (dry): cheap-disproof closed five `(candidate)` rows (PATCH case-only `userName` self-skips conflict via `exceptUserId` + case-insensitive `GetByUserNameAsync`; `not (userName eq)` via `ScimNotNode` in list filter evaluator/SQL `NOT`; minimal POST `userName`-only defaults `externalId` and `active: true` in `ScimUserResourceParser`; empty `Operations` no-op per hunt #6/#8; PUT `active: false` deactivates via `TransitionSeatAsync` without tombstone—parity with PATCH soft-disable); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — case-only `userName` replace — **cheap-disproof 2026-10-22 #30:** `EnsureUserNameNotUsedByAnotherLiveUserAsync` skips same id; may persist new casing (RFC case-insensitive match).
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `not (userName eq "x")` — **cheap-disproof 2026-10-22 #30:** `ScimFilterInMemoryEvaluator` / `SqlScimUserFilterTranslator` `NOT`; parser regression `not (userName eq "x")`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — minimal POST only `userName` — **cheap-disproof 2026-10-22 #30:** `externalId` defaults to `userName`; omitted `active` → true; integration `Post_users_accepts_entra_style_payload`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `Operations: []` — **cheap-disproof 2026-10-22 #30:** duplicate of hunt #6/#8; `ApplyFlat` zero-op loop.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — PUT `active: false` on active user — **cheap-disproof 2026-10-22 #30:** `TransitionSeatAsync` decrement; row stays live (Entra soft-disable ≠ DELETE tombstone).
+
 2026-10-22 thorough hunt #29 (dry): cheap-disproof closed five `(candidate)` rows (`active eq "True"` via case-insensitive `bool.TryParse`; PATCH unknown flat keys not persisted—only core fields read; seat cap → 403 `mutability` proven class; PUT re-activate runs `TransitionSeatAsync` increment with compensate on failure; filter lexer uses simple backslash escape not `\\u` JSON); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
 
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq "True"` — **cheap-disproof 2026-10-22 #29:** `ScimActiveFilterLiteralParser` / `bool.TryParse` accepts Pascal case.
@@ -3103,9 +3111,9 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 63
+- **hunts:** 64
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 8
+- **consecutive-dry-hunts:** 9
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — SCIM PATCH remove on active returned silent no-op instead of mutability
 - **related-pd-tb:** none
@@ -3376,11 +3384,17 @@
 - [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — re-activate PUT — **cheap-disproof 2026-10-22 #29:** seat transition by design.
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — filter escapes — **cheap-disproof 2026-10-22 #29:** SCIM filter lexer semantics.
 
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `replace` `userName` with only case change — locus: `EnsureUserNameNotUsedByAnotherLiveUserAsync` + case-insensitive live lookup; input: idempotent case fold vs conflict (RFC `userName` case-insensitive storage).
-- [ ] (candidate) `ScimUsersController.ListAsync` — `not (userName eq "x")` — locus: `ScimNotNode` evaluation; input: complement excludes single user from tenant list.
-- [ ] (candidate) `ScimUsersController.CreateAsync` — minimal POST only `userName` — locus: `externalId` defaults to `userName`; input: Entra minimal body regression path.
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `Operations` array empty — locus: `ApplyFlat` no-op; input: hunt #8 empty operations (valid-no-repro).
-- [ ] (candidate) `ScimUsersController.ReplaceAsync` — PUT with `active: false` on active user — locus: seat decrement via `TransitionSeatAsync`; input: deprovision without DELETE tombstone (PATCH `active:false` parity).
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — case-only `userName` replace — **cheap-disproof 2026-10-22 #30:** self-skip + case-insensitive lookup (hunt #25 same-`userName` class).
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `not (userName eq "x")` — **cheap-disproof 2026-10-22 #30:** `ScimNotNode` evaluator/SQL `NOT`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — minimal POST only `userName` — **cheap-disproof 2026-10-22 #30:** `ScimUserResourceParser` defaults.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `Operations` array empty — **cheap-disproof 2026-10-22 #30:** hunt #6/#8 `ApplyFlat` no-op.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — PUT `active: false` — **cheap-disproof 2026-10-22 #30:** soft-disable seat transition; not tombstone.
+
+- [ ] (candidate) `ScimUsersController.ListAsync` — `not (active eq true)` — locus: `ScimNotNode` + `CompareActive`; input: complement returns inactive users only.
+- [ ] (candidate) `ScimUsersController.PatchAsync` — two `replace` ops on same path in one PATCH — locus: `ApplyFlat` last-wins overwrite; input: conflicting values in one request body.
+- [ ] (candidate) `ScimUsersController.CreateAsync` — POST `userName` + `active: false` without `externalId` — locus: skip seat increment when inactive; input: minimal inactive provision body.
+- [ ] (candidate) `ScimUsersController.GetAsync` — GET 200 after PUT `active: false` — locus: deprovision leaves `DirectoryRemovedUtc` null; input: Entra disable-before-delete workflow.
+- [ ] (candidate) `ScimUsersController.ListAsync` — `userName eq` with escaped quote in literal — locus: `ReadQuotedString` backslash escape; input: filter containing `\"` inside quoted operand.
 
 - [x] (proven) `ScimUserService.CreateAsync` / `PatchAsync` / `ScimUsersController` — a second live user with the same `userName` and a different `externalId` was stored, including case-only names — **hit 2026-10-09 seed hunt:** live `userName` lookup returns `uniqueness`. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
 - [x] (proven) `ScimFilterParser.ParseFilter` / `ScimUsersController.ListAsync` — ungrouped `or` before `and` was parsed left-to-right, so an active user matching only the left comparison was omitted — **hit 2026-10-09 seed hunt:** `not` over `and` over `or` per RFC 7644 §3.4.2.2. Regressions `ListAsync_filter_gives_and_precedence_over_or`, `Parse_or_binds_looser_than_and`, and `Parse_not_binds_tighter_than_and`.
