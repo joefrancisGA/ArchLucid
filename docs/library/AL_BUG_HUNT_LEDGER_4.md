@@ -12470,20 +12470,23 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 135
-- **bugs-found:** 129
+- **hunts:** 136
+- **bugs-found:** 130
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — provenance decision lookup ignored padded ReferenceId values
+- **last-bug:** 2026-10-22 — provenance node merge coalesce ignored padded reference ids and titles
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted `ProvenanceBuilder` merge coalesce padded `ReferenceId` and `ShouldSkipGraphNodeNameDowngrade` padded placeholder title candidates; proved duplicate-key merge copied raw incoming `ReferenceId` values and compared unpadded name/reference tokens, persisting padded reference ids and allowing human-readable decision titles to downgrade to padded id placeholders; centralize merge in `ProvenanceNodeCoalesce` with trim-normalized reference ids and skip-downgrade detection; regressions `ApplyMergedFields_normalizes_reference_id_when_incoming_value_has_surrounding_whitespace` and `ShouldSkipGraphNodeNameDowngrade_returns_true_when_incoming_name_has_surrounding_whitespace_matching_reference_id`; seeded `ProvenanceGraphViewMapper` padded node label display follow-on; 439 KnowledgeGraph + 140 Provenance scoped tests passed.
+
+- [x] (proven) `ProvenanceBuilder` / `ProvenanceNodeCoalesce` — padded `ReferenceId` on merge coalesce — **hit 2026-10-22 seed hunt (seed→hit):** normalize reference id on merge; regression above.
+- [x] (proven) `ProvenanceBuilder.ShouldSkipGraphNodeNameDowngrade` — padded placeholder title allowed name downgrade — **hit 2026-10-22 seed hunt (seed→hit):** trim name/reference compare; regression above.
+
+- [ ] (candidate) `ProvenanceGraphViewMapper.ToViewModel` — padded provenance node `Name` may surface surrounding whitespace in graph view labels — locus: `Label = n.Name`; input: decision node with padded `Name`; wrong outcome: buyer graph label shows leading/trailing spaces.
 
 2026-10-22 seed hunt (seed-only): cheap-disproved `TryResolveDecisionNodeId` padded GUID `ReferenceId` candidate (stored reference ids already trim-normalized in `ReferenceIdEquals` from prior hit; regression `TryResolveDecisionNodeId_Resolves_When_stored_guid_reference_id_has_surrounding_whitespace`); re-read `ProvenanceBuilder` merge and `ProvenanceSnapshotRevisionHasher` fingerprint paths (decision/finding/graph ids already normalize on ingest); seeded `ProvenanceBuilder` merge coalesce writing raw `ReferenceId` without `NormalizeId` follow-on and `ShouldSkipGraphNodeNameDowngrade` name/reference trim parity audit; 439 KnowledgeGraph + 138 Provenance scoped tests passed.
 
 - [x] (valid-no-repro) `ProvenanceGraphAlgorithms.TryResolveDecisionNodeId` — padded GUID `ReferenceId` on decision node — **cheap-disproof 2026-10-22 seed hunt:** trim on reference compare from prior hit; regression above.
-
-- [ ] (candidate) `ProvenanceBuilder.AddNode` merge — coalesce may persist non-normalized `ReferenceId` when duplicate keys merge — locus: `existingNode.ReferenceId = node.ReferenceId`; input: hand-built or deserialized provenance node with padded reference id merged into graph; wrong outcome: downstream lookup and display diverge from `NormalizeId` contract.
-
-- [ ] (candidate) `ProvenanceBuilder.ShouldSkipGraphNodeNameDowngrade` — padded `Name`/`ReferenceId` on merge may allow title downgrade when placeholder titles carry surrounding whitespace — locus: reference-id placeholder detection; input: duplicate decision rows where later row title is padded id token; wrong outcome: human-readable decision title overwritten.
 
 2026-10-22 seed hunt (seed→hit): cheap-disproved `TopologySensitivityClassifier` padded `resourceType` candidate (`Contains` substring checks already match ARM types with surrounding whitespace; regression `Classify_when_resource_type_has_surrounding_whitespace_returns_public_edge`); promoted `ProvenanceGraphAlgorithms.TryResolveDecisionNodeId` padded `ReferenceId` candidate; proved decision resolution compared raw stored `ReferenceId` strings while query keys were trimmed, failing lookups when graph nodes carried padded reference ids; trim stored reference ids before equality; regression `TryResolveDecisionNodeId_Resolves_When_stored_reference_id_has_surrounding_whitespace`; seeded `TryResolveDecisionNodeId` padded decision key matching padded stored GUID reference follow-on; 439 KnowledgeGraph + 137 Provenance scoped tests passed.
 
