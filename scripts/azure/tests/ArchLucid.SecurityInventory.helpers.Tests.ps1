@@ -821,6 +821,110 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
         @($bundle.warnings) | Should -Contain 'defender-plan-off:StorageAccounts'
     }
 
+    It 'collects governance, a failed compliance control, an active alert, an attack path, and vulnerability counts' {
+        function Invoke-AzRestMethod {
+            param(
+                [string] $Method,
+                [string] $Path,
+                [string] $Uri
+            )
+
+            [string]$target = $(if ([string]::IsNullOrWhiteSpace($Uri)) { $Path } else { $Uri })
+            [string]$storageId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1'
+
+            if ($target -like '*governanceAssignments*') {
+                return [PSCustomObject]@{
+                    Content = (@{
+                        value = @(@{
+                            id = "$storageId/providers/Microsoft.Security/assessments/key-1/governanceAssignments/g1"
+                            name = 'g1'
+                            properties = @{ owner = 'soc@contoso.com'; remediationDueDate = '2026-11-01T00:00:00Z'; isGracePeriod = $true }
+                        })
+                    } | ConvertTo-Json -Depth 6)
+                }
+            }
+
+            if ($target -like '*regulatoryComplianceControls*') {
+                return [PSCustomObject]@{
+                    Content = (@{ value = @(@{ name = 'failed-control'; properties = @{ state = 'Failed'; failedAssessments = 2 } }, @{ name = 'passed-control'; properties = @{ state = 'Passed' } }) } | ConvertTo-Json -Depth 6)
+                }
+            }
+
+            if ($target -like '*regulatoryComplianceStandards*') {
+                return [PSCustomObject]@{
+                    Content = (@{ value = @(@{ name = 'Azure-CIS'; properties = @{ state = 'Failed'; passedControls = 4; failedControls = 2; skippedControls = 1 } }) } | ConvertTo-Json -Depth 6)
+                }
+            }
+
+            if ($target -like '*alerts*') {
+                return [PSCustomObject]@{
+                    Content = (@{
+                        value = @(
+                            @{
+                                name = 'alert-1'
+                                properties = @{
+                                    alertDisplayName = 'Open alert'
+                                    severity = 'High'
+                                    status = 'Active'
+                                    entities = @(@{ commandLine = 'powershell.exe -enc SECRET' })
+                                    resourceIdentifiers = @(@{ type = 'AzureResource'; azureResourceId = $storageId })
+                                }
+                            },
+                            @{ name = 'closed'; properties = @{ status = 'Resolved'; severity = 'High' } }
+                        )
+                    } | ConvertTo-Json -Depth 8)
+                }
+            }
+
+            if ($target -like '*attackPaths*') {
+                return [PSCustomObject]@{
+                    Content = (@{
+                        value = @(@{
+                            name = 'path-1'
+                            properties = @{
+                                displayName = 'Internet to storage'
+                                description = 'DO_NOT_STORE_DESCRIPTION'
+                                riskLevel = 'High'
+                                entryPointEntityInformation = @{ azureResourceId = $storageId }
+                                targetEntityInformation = @{ azureResourceId = $storageId }
+                            }
+                        })
+                    } | ConvertTo-Json -Depth 8)
+                }
+            }
+
+            if ($target -like '*subAssessments*') {
+                return [PSCustomObject]@{
+                    Content = (@{
+                        value = @(@{
+                            name = 'finding-1'
+                            properties = @{
+                                displayName = 'OpenSSL'
+                                description = 'DO_NOT_STORE_VULN_DESCRIPTION'
+                                status = @{ severity = 'High' }
+                                resourceDetails = @{ id = $storageId }
+                                additionalData = @{ cve = @(@{ title = 'CVE-2024-9999' }) }
+                            }
+                        })
+                    } | ConvertTo-Json -Depth 8)
+                }
+            }
+
+            return [PSCustomObject]@{ Content = '{"value":[]}' }
+        }
+
+        [object]$bundle = Get-ArchLucidAzureDefenderFollowOnBundle -SubscriptionId '11111111-1111-1111-1111-111111111111'
+        $bundle.governance[0].owner | Should -Be 'soc@contoso.com'
+        $bundle.complianceControls[0].controlName | Should -Be 'failed-control'
+        $bundle.alerts[0].status | Should -Be 'Active'
+        ($bundle | ConvertTo-Json -Depth 8) | Should -Not -Match 'SECRET'
+        $bundle.attackPaths[0].riskLevel | Should -Be 'High'
+        ($bundle | ConvertTo-Json -Depth 8) | Should -Not -Match 'DO_NOT_STORE_DESCRIPTION'
+        $bundle.vulnerabilityCounts[0].highCount | Should -Be 1
+        $bundle.vulnerabilityFindings[0].findingId | Should -Be 'CVE-2024-9999'
+        ($bundle | ConvertTo-Json -Depth 8) | Should -Not -Match 'DO_NOT_STORE_VULN_DESCRIPTION'
+    }
+
     It 'detects password markers but still parses sql host' {
         Test-ArchLucidAzureAppSettingHostRejectedValue -Value 'Server=tcp:sql.database.windows.net;Password=secret' |
             Should -Be $true
