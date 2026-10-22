@@ -6611,16 +6611,24 @@
 
 ## Zone: application-billing-logic
 
+2026-10-22 thorough hunt (dry): cheap-disproved five open `(candidate)` rows on `ArchLucid.Application/Billing/` (symmetric `CostRatesConfigured` I/O/reasoning slots, `ReasoningTokens` on top-run rows, intentional `DeferredGaDisabled` for missing `planId`, Free-tier guidance copy vs commercial widen branch, intentional raw `Status` on non-subscribed rows); scoped billing tests not executed on this checkout (Application Defender WIP compile errors); added five replacement `(candidate)` rows.
+
+- [x] (invalid) `AdminFleetLlmCogsService.CostRatesConfigured` — positive global output with zeroed input still reports missing rates — **cheap-disproof 2026-10-22:** `OutputUsdPerMillionTokens > 0m` in the same OR-chain as input/reasoning (~130–132); mirror regression `BuildDashboardAsync_treats_positive_global_input_rate_as_configured_when_output_is_zeroed_for_default_fallback`.
+- [x] (invalid) `TenantLlmCostTopRunRanker.TryBuildRow` — `LlmCostTopRunRowResponse` omits `ReasoningTokens` while tie-break counts them — **cheap-disproof 2026-10-22:** row assigns `ReasoningTokens = aggregate.ReasoningTokens` (~103); regression `RankAsync_includes_reasoning_only_runs_when_cost_rate_is_unavailable`.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` returns `DeferredGaDisabled` indistinguishable from GA-off — **cheap-disproof 2026-10-22:** intentional defer without ledger mutation; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`; Persistence maps deferred outcomes to acknowledged webhook rows.
+- [x] (invalid) `TenantCostEstimateService.TryGetEstimateAsync` — Free tier adds commercial Azure OpenAI widen copy — **cheap-disproof 2026-10-22:** Free branch adds zero-band guidance only (~42–45); widen copy is Standard/Enterprise `else` (~48–49); regression `TryGetEstimateAsync_free_tenant_returns_zero_band_with_guidance`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — whitespace-only `Status` with `HasSubscription=false` still echoes raw status — **cheap-disproof 2026-10-22:** ledger writers persist canonical `Pending`/`Active`/`Suspended`/`Canceled`; prior hunt #1700 documented intentional lifecycle `Status` echo for pending/canceled.
+
 - **id:** application-billing-logic
 - **status:** open
 - **impact:** high
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 44
+- **hunts:** 45
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-21 — fleet COGS missing-rate when only global input rate configured
 - **related-pd-tb:** none
 
@@ -6685,11 +6693,11 @@
 - [x] (proven) `TenantCostEstimateService.TryGetEstimateAsync` — returns a non-zero Standard/Enterprise band when configured low/high rates are both zero (valid negatives already return null), surfacing a `0 — 0` commercial band without an explicit Free-tier style explanation. — **hit 2026-10-20 thorough hunt:** add unconfigured-rates guidance factor; regression `TryGetEstimateAsync_standard_tenant_with_zero_configured_rates_explains_unconfigured_band`.
 - [x] (proven) `AdminFleetLlmCogsService.CostRatesConfigured` — positive global input with zeroed output for default fallback still reported `missing-cost-rates` on fleet COGS rows — **hit 2026-10-21 seed hunt:** align configured check with `LlmCostEstimationEffectiveRates`; regression `BuildDashboardAsync_treats_positive_global_input_rate_as_configured_when_output_is_zeroed_for_default_fallback`.
 
-- [ ] (candidate) `AdminFleetLlmCogsService.CostRatesConfigured` — positive global output with zeroed input for default fallback — locus: same method as input-only fix; input: `Billing:LlmCostEstimation:OutputUsdPerMillionTokens` set while input zeroed for rollback.
-- [ ] (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — `LlmCostTopRunRowResponse` omits `ReasoningTokens` on ranked rows while tie-break logic counts them — locus: `TenantLlmCostTopRunRanker.TryBuildRow`; input: reasoning-only traces on `GET /v1/tenant/llm-cost-reporting` Top Runs panel.
-- [ ] (candidate) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` returns `DeferredGaDisabled` indistinguishable from GA-off deferral — locus: outcome after `TryGetPlanId` fails; input: Marketplace `ChangePlan` notification without `planId` when `BillingPlanMutationPolicy.WebhookPlanMutationsEnabled` is true.
-- [ ] (candidate) `TenantCostEstimateService.TryGetEstimateAsync` — Free-tier estimate always adds commercial Azure OpenAI widen copy even when band is `0 — 0` — locus: factors list line 30; input: `TenantTier.Free` tenant on Why ArchLucid cost guidance.
-- [ ] (candidate) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — whitespace-only ledger `Status` yields `HasSubscription=false` but echoes raw status string — locus: `HasSubscriptionForStatusQuery`; input: corrupted ledger row with `Status` of spaces (no production writer; verify Persistence invariants).
+- [ ] (candidate) `BillingCheckoutFacade.BlocksNewCheckout` / `HasSubscriptionForStatusQuery` — padded ledger `Status` (for example ` Active `) is neither blocking nor subscribed — locus: exact `string.Equals` without trim (~178–188); input: corrupted subscription row; reachability: verify `BillingLedgerCore.WithStatus` always normalizes.
+- [ ] (candidate) `AdminFleetLlmCogsService.BuildDashboardAsync` — fleet-wide `CostRatesConfigured` flag is copied onto every tenant row — locus: single `CostRatesConfigured(costOpts)` before tenant loop (~45, ~82); input: per-deployment overrides in `LlmCostEstimationOptions.Deployments` affecting only some tenants.
+- [ ] (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — daily chart buckets always emit zero prompt/completion tokens while `TopRuns` may show nonzero usage — locus: daily row init (~71–77); input: dashboard where top runs carry token totals; reachability: pressure-based daily estimate contract.
+- [ ] (candidate) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — gates on `AzureMarketplace.GaEnabled` only while `ChangePlan` uses `BillingPlanMutationPolicy.WebhookPlanMutationsEnabled` — locus: GA check ~28 vs plan handler ~34; input: Stripe provider with marketplace GA disabled (ledger #1700 may already close).
+- [ ] (candidate) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` — `messageId` is `{ProviderDedupeKey}:BillingMarketplaceWebhookReceivedV1` without empty-key guard — locus: ~41; input: webhook dispatch with blank dedupe key; reachability: `AzureMarketplaceBillingProvider` dedupe construction.
 
 - (candidate) `ReplayComparisonExportsDiffSlice.BuildExportPairingKey` — `CompareManifestVersion` differing only by outer whitespace splits pairing — locus: trim vs normalize; input: same version with padded spaces on left/right exports.
 - (candidate) `EndToEndReplayComparisonService.BuildAsync` — report `LeftRunId`/`RightRunId` echo caller format while audit columns canonicalize — locus: report assembly; input: dashed API route ids in regenerated report body.
@@ -6705,12 +6713,11 @@
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 43
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-12
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — zero-config commercial cost band lacked guidance copy
+- **hunts:** 45
+- **bugs-found:** 23
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-21 — fleet COGS missing-rate when only global input rate configured
 - **related-pd-tb:** none
 
 2026-10-11 seed hunt (seed-only): re-read the remaining billing interfaces, admin COGS tests, and scoped reporting edge cases; 26 scoped tests passed. No new row met the same-run failing-repro bar. Seeded two bounded candidates for requested dashboard-window clamping and suspended/offboarded tenant visibility.
