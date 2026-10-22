@@ -1656,3 +1656,4 @@
 {"at":"2026-10-22T20:25:49.2683360Z","zoneId":"knowledge-graph-provenance","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-22T20:27:57.6811645Z","zoneId":"knowledge-graph-provenance","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-22T20:29:39.0340637Z","zoneId":"knowledge-graph-provenance","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-22T20:31:54.5881475Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only","productLine":"archlucid-shared"}
