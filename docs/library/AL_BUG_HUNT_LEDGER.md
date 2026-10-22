@@ -1,3 +1,16 @@
+2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; cheap-disproof closed authorization_pending authorize UX and clearOidcSession retry-snapshot policy without signed-in identity; parity regressions zero-width-only authorize-retry snapshot purge, snapshot preserved on unsigned session clear, BFF refresh HTTP 410 and opaque token endpoint 410 without cookie clear; removed duplicate BFF client 425 test; scoped `src/lib/oidc` + BFF refresh route vitest 480/480.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - authorization_pending authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX; not a security defect.
+- [x] (valid-no-repro) clearOidcSession - clear retry snapshot without signed-in identity - **cheap-disproof 2026-10-22:** snapshot + retry marker intentionally preserved for unsigned retry flow.
+- [x] (valid-no-repro) readAuthorizeRetryReturnPathSnapshot - ZWSP-only snapshot purge - **regression 2026-10-22:** parity with post-sign-in zero-width tamper purge.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 410 shouldClearSession false - **regression 2026-10-22:** non-401/403 refresh failures soft-fail without cookie clear.
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** saturated encoding class on trunk.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - slow_down authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 408 shouldClearSession false - locus: client HTTP 408 parity (route opaque 408).
+- [ ] (candidate) exchangeAuthorizationCode - authorization_pending marks authorize retry - locus: device-flow vs code exchange policy.
+- [ ] (candidate) clearAbandonedPostSignInReturnUrl - tampered unsafe during retry - locus: shared prepare helper parity.
+
 2026-10-22 seed hunt (seed->hit): ui-oidc - persistTokenResponse cleared authorize retry marker on successful identity persist but left authorize-retry return snapshot in sessionStorage; clear snapshot with retry marker; parity BFF refresh 425 shouldClearSession false; scoped vitest 451/451.
 
 - [x] (proven) persistTokenResponse - orphan authorize retry return snapshot after success - **hit 2026-10-22:** remove OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY when clearing retry marker after identity persist.
@@ -25936,6 +25949,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
+- **hunts:** 82
 - **hunts:** 81
 - **hunts:** 87
 - **hunts:** 91
