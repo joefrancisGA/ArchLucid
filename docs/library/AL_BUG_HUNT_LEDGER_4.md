@@ -12470,10 +12470,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 182
-- **bugs-found:** 154
+- **hunts:** 183
+- **bugs-found:** 155
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — canonical bind stamp left padded provenance-kind alias keys on inventory nodes
+- **last-bug:** 2026-10-22 — canonical bind stamp left padded bound-diagram id alias keys on inventory nodes
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12497,7 +12497,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `StructuredDiagramCompiledGraphBinder.ApplyBindingsToGraphNodes` — padded `ProvenanceKind` alias keys remained after observed-fact stamp — **hit 2026-10-22 seed hunt (seed→hit):** canonical property writer with alias removal; regression above.
 
-- [ ] (candidate) `StructuredDiagramCompiledGraphBinder.ApplyBindingsToGraphNodes` — padded `BoundDiagramNodeId` or `BoundDiagramGraphNodeId` keys may duplicate bind metadata stamps — locus: bound-diagram property assignment; input: inventory node carries padded bound-diagram keys before bind; wrong outcome: parallel bound-diagram metadata entries after stamp.
+2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramCompiledGraphBinder` padded bound-diagram id bind-stamp candidate; proved `ApplyBindingsToGraphNodes` assigned canonical `BoundDiagramNodeId` / `BoundDiagramGraphNodeId` keys without removing trim-equivalent aliases, leaving stale padded entries beside fresh bind metadata; route bound-diagram stamps through `StructuredDiagramGraphCanonicalPropertyWriter`; regression `ApplyBindingsToGraphNodes_collapses_padded_bound_diagram_id_aliases_when_stamping_bind_metadata`; seeded `ApplyBindingsToGraphNodes` padded `SourceEvidenceItemId` alias cleanup on bind stamp follow-on; 474 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `StructuredDiagramCompiledGraphBinder.ApplyBindingsToGraphNodes` — padded `BoundDiagramNodeId` / `BoundDiagramGraphNodeId` alias keys remained after bind stamp — **hit 2026-10-22 seed hunt (seed→hit):** canonical property writer; regression above.
+
+- [ ] (candidate) `StructuredDiagramCompiledGraphBinder.ApplyBindingsToGraphNodes` — padded `SourceEvidenceItemId` key may duplicate bind citation metadata — locus: source-evidence assignment on bind; input: inventory node carries padded source-evidence key before bind; wrong outcome: parallel source-evidence entries after stamp.
+
+2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramCompiledGraphBinder` padded `ProvenanceKind` bind-stamp candidate; proved `ApplyBindingsToGraphNodes` assigned the canonical provenance-kind key without removing trim-equivalent aliases, leaving stale padded entries beside the observed-fact stamp; introduced `StructuredDiagramGraphCanonicalPropertyWriter` and refactored inference-confidence writes to share alias cleanup; regression `ApplyBindingsToGraphNodes_collapses_padded_provenance_kind_alias_when_stamping_bind_metadata`; seeded `ApplyBindingsToGraphNodes` padded `BoundDiagramNodeId` / `BoundDiagramGraphNodeId` alias cleanup follow-on; 473 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `StructuredDiagramCompiledGraphBinder.ApplyBindingsToGraphNodes` — padded `ProvenanceKind` alias keys remained after observed-fact stamp — **hit 2026-10-22 seed hunt (seed→hit):** canonical property writer with alias removal; regression above.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 

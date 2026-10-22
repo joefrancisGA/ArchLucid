@@ -106,8 +106,14 @@ public static class StructuredDiagramCompiledGraphBinder
                 continue;
             }
 
-            target.Properties[StructuredDiagramGraphPropertyKeys.BoundDiagramNodeId] = binding.DiagramSourceId;
-            target.Properties[StructuredDiagramGraphPropertyKeys.BoundDiagramGraphNodeId] = binding.DiagramGraphNodeId;
+            StructuredDiagramGraphCanonicalPropertyWriter.WriteString(
+                target.Properties,
+                StructuredDiagramGraphPropertyKeys.BoundDiagramNodeId,
+                binding.DiagramSourceId.Trim());
+            StructuredDiagramGraphCanonicalPropertyWriter.WriteString(
+                target.Properties,
+                StructuredDiagramGraphPropertyKeys.BoundDiagramGraphNodeId,
+                binding.DiagramGraphNodeId.Trim());
             StructuredDiagramGraphCanonicalPropertyWriter.WriteString(
                 target.Properties,
                 StructuredDiagramGraphPropertyKeys.ProvenanceKind,
