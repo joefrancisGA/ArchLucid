@@ -31,11 +31,18 @@ public sealed class StripeLinkedCustomerResolver(
         if (string.IsNullOrWhiteSpace(providerRef))
             return null;
 
-        return await TryResolveCustomerFromProviderRefAsync(
-            tenantId,
-            providerRef.Trim(),
-            secretKey,
-            cancellationToken).ConfigureAwait(false);
+        try
+        {
+            return await TryResolveCustomerFromProviderRefAsync(
+                tenantId,
+                providerRef.Trim(),
+                secretKey,
+                cancellationToken).ConfigureAwait(false);
+        }
+        catch (StripeException)
+        {
+            return null;
+        }
     }
 
     internal static async Task<string?> TryResolveCustomerFromProviderRefAsync(
