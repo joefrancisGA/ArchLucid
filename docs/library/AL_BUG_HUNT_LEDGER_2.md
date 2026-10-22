@@ -2842,6 +2842,14 @@
 
 ## Zone: scim-users
 
+2026-10-22 thorough hunt #39 (dry): cheap-disproof closed five `(candidate)` rows (`Guid.Empty` GET 404 hunt #4; `and` filter via `ScimAndNode`; PATCH whitespace `externalId` → `PatchAsync_replace_externalId_whitespace_only_throws`; seat cap hunt #13; `emails[…].value` alias hunt #21 integration); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (invalid) `ScimUsersController.GetAsync` — `Guid.Empty` — **cheap-disproof 2026-10-22 #39:** duplicate hunt #4; repository miss → 404.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `and` filter — **cheap-disproof 2026-10-22 #39:** `ScimAndNode` intersection in evaluator/SQL.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — whitespace `externalId` — **cheap-disproof 2026-10-22 #39:** `ReadPatchRequiredString` → `invalidValue`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — seat limit — **cheap-disproof 2026-10-22 #39:** hunt #13 `ScimSeatLimitExceededException` → 403.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — emails alias filter — **cheap-disproof 2026-10-22 #39:** hunt #21 integration test.
+
 2026-10-22 thorough hunt #38 (dry): cheap-disproof closed five `(candidate)` rows (negative `count` hunt #8 regression; PATCH numeric `userName` → `PatchAsync_replace_userName_non_string_throws`; `or` union via `ScimOrNode`; second DELETE 404 proven `DeactivateAsync_throws_not_found_when_user_already_directory_removed`; `add` `active` via `Add_inserts_value`/`ReadActive`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
 
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — negative `count` — **cheap-disproof 2026-10-22 #38:** duplicate hunt #8; `ListAsync_negative_count_clamped_to_empty_page`.
@@ -3175,9 +3183,9 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 72
+- **hunts:** 73
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 17
+- **consecutive-dry-hunts:** 18
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — SCIM PATCH remove on active returned silent no-op instead of mutability
 - **related-pd-tb:** none
@@ -3502,11 +3510,17 @@
 - [x] (valid-no-repro) `ScimUsersController.DeactivateAsync` — second DELETE — **cheap-disproof 2026-10-22 #38:** proven notFound.
 - [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `add active` — **cheap-disproof 2026-10-22 #38:** flat add path.
 
-- [ ] (candidate) `ScimUsersController.GetAsync` — `Guid.Empty` id — locus: controller/service not-found path; input: proven thorough-hunt dry row on empty guid.
-- [ ] (candidate) `ScimUsersController.ListAsync` — `and` of `userName eq` and `active eq true` — locus: `ScimAndNode`; input: intersection filter.
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `replace` `externalId` with whitespace-only — locus: `ReadPatchRequiredString` whitespace guard; input: `invalidValue` like POST `userName`.
-- [ ] (candidate) `ScimUsersController.CreateAsync` — seat limit on active create — locus: `ScimSeatLimitExceededException`; input: hunt #13 proven 403 `mutability`.
-- [ ] (candidate) `ScimUsersController.ListAsync` — `emails[type eq "work"].value eq` alias — locus: `IsEmailsWorkValuePath`; input: integration `Get_users_filter_emails_work_value_eq_entra_literal`.
+- [x] (invalid) `ScimUsersController.GetAsync` — `Guid.Empty` — **cheap-disproof 2026-10-22 #39:** hunt #4.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `and` filter — **cheap-disproof 2026-10-22 #39:** `ScimAndNode`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — whitespace `externalId` — **cheap-disproof 2026-10-22 #39:** type/whitespace guard.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — seat cap — **cheap-disproof 2026-10-22 #39:** hunt #13.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — emails alias — **cheap-disproof 2026-10-22 #39:** hunt #21.
+
+- [ ] (candidate) `ScimUsersController.PatchAsync` — `replace` `userName` with empty string — locus: `ReadPatchRequiredString`; input: `invalidValue` parity `PatchAsync_replace_userName_whitespace_only_throws`.
+- [ ] (candidate) `ScimUsersController.ListAsync` — malformed filter unclosed quote — locus: `ScimFilterParseException`; input: hunt #24 `invalidFilter`.
+- [ ] (candidate) `ScimUsersController.ReplaceAsync` — compensating seat on persistence failure — locus: `CompensateSeatTransitionAsync`; input: proven `ReplaceAsync_compensates_seat_when_persistence_fails_after_activation`.
+- [ ] (candidate) `ScimUsersController.CreateAsync` — compensating seat on insert failure — locus: create path catch decrement; input: proven `CreateAsync_releases_reserved_seat_when_insert_fails`.
+- [ ] (candidate) `ScimUsersController.PatchAsync` — `remove` on `externalId` — locus: `RejectRemovedRequiredAttribute`; input: proven hunt #9 `mutability`.
 
 - [x] (proven) `ScimUserService.CreateAsync` / `PatchAsync` / `ScimUsersController` — a second live user with the same `userName` and a different `externalId` was stored, including case-only names — **hit 2026-10-09 seed hunt:** live `userName` lookup returns `uniqueness`. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
 - [x] (proven) `ScimFilterParser.ParseFilter` / `ScimUsersController.ListAsync` — ungrouped `or` before `and` was parsed left-to-right, so an active user matching only the left comparison was omitted — **hit 2026-10-09 seed hunt:** `not` over `and` over `or` per RFC 7644 §3.4.2.2. Regressions `ListAsync_filter_gives_and_precedence_over_or`, `Parse_or_binds_looser_than_and`, and `Parse_not_binds_tighter_than_and`.
