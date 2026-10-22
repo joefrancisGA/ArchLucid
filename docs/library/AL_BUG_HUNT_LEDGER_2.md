@@ -2842,6 +2842,14 @@
 
 ## Zone: scim-users
 
+2026-10-22 thorough hunt #12 (dry): cheap-disproof closed five picker `(candidate)` rows (missing `userName` property → `invalidValue`; PATCH op without `op` → `invalidSyntax`; `count=201` clamps to 200 via `Math.Clamp`; `"True"` string `active` accepted by `bool.TryParse`; DELETE unknown id → `ScimNotFoundException` not 204); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
+
+- [x] (invalid) `ScimUsersController.CreateAsync` — missing `userName` property — **cheap-disproof 2026-10-22 #12:** `ReadRequiredString` ~21–22 → `invalidValue`.
+- [x] (invalid) `ScimUsersController.PatchAsync` — operation missing `op` — **cheap-disproof 2026-10-22 #12:** `ApplyOne` ~28–29 → `invalidSyntax`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count=201` — **cheap-disproof 2026-10-22 #12:** `Math.Clamp(count, 0, 200)` then `Take`; max page 200, no off-by-one past clamp.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `active` `"True"` — **cheap-disproof 2026-10-22 #12:** `bool.TryParse` is case-insensitive for Boolean strings.
+- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — unknown user id — **cheap-disproof 2026-10-22 #12:** `DeactivateAsync` ~129 `GetByIdAsync` miss → `ScimNotFoundException`; controller 404.
+
 2026-10-22 thorough hunt #11 (dry): cheap-disproof closed five picker `(candidate)` rows (GET hides directory-removed users via `GetAsync` null → 404; string `active` literals parsed in `ReadActive`; empty `userName` → `invalidValue`; `count=200` honored by single service clamp; PATCH on tombstone throws `ScimNotFoundException` like PUT); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
 
 - [x] (valid-no-repro) `ScimUsersController.GetAsync` — GET tombstoned user — **cheap-disproof 2026-10-22 #11:** `GetAsync` ~28–29 filters `DirectoryRemovedUtc`; controller 404 `notFound` (parity `DeactivateAsync_throws_not_found_when_user_already_directory_removed`).
@@ -2959,9 +2967,9 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 45
+- **hunts:** 46
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 11
+- **consecutive-dry-hunts:** 12
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — SCIM POST/PUT/PATCH mapped canceled JSON reads to invalidSyntax 400
 - **related-pd-tb:** none
@@ -3124,11 +3132,17 @@
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count=200` — **cheap-disproof 2026-10-22 #11:** service-only clamp.
 - [x] (valid-no-repro) `ScimUsersController.PatchAsync` — PATCH tombstone — **cheap-disproof 2026-10-22 #11:** `notFound`.
 
-- [ ] (candidate) `ScimUsersController.CreateAsync` — User JSON missing `userName` property — locus: `ReadRequiredString` ~21–22; input: `{"active":true}` only (expect `invalidValue`).
-- [ ] (candidate) `ScimUsersController.PatchAsync` — operation missing `op` — locus: `ApplyOne` ~28–29; input: `{"Operations":[{"path":"active","value":false}]}` (expect `invalidSyntax`).
-- [ ] (candidate) `ScimUsersController.ListAsync` — `count=201` query — locus: `Math.Clamp(count, 0, 200)`; input: returns at most 200 resources (verify no off-by-one past clamp).
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `active` string `"True"` mixed case — locus: `bool.TryParse` ~44; input: case-insensitive string booleans.
-- [ ] (candidate) `ScimUsersController.DeleteAsync` — DELETE unknown user id — locus: `DeactivateAsync` not-found path; input: random GUID → 404 (verify no 204).
+- [x] (invalid) `ScimUsersController.CreateAsync` — missing `userName` — **cheap-disproof 2026-10-22 #12:** `invalidValue`.
+- [x] (invalid) `ScimUsersController.PatchAsync` — missing `op` — **cheap-disproof 2026-10-22 #12:** `invalidSyntax`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count=201` — **cheap-disproof 2026-10-22 #12:** clamp to 200.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `"True"` active — **cheap-disproof 2026-10-22 #12:** case-insensitive parse.
+- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — unknown id — **cheap-disproof 2026-10-22 #12:** 404 not 204.
+
+- [ ] (candidate) `ScimUsersController.ListAsync` — malformed `filter` query — locus: `ScimFilterParser.Parse` / controller catch ~51–54; input: `?filter=not valid` (expect `invalidFilter` 400).
+- [ ] (candidate) `ScimUsersController.PatchAsync` — `replace` without `value` — locus: `ApplyOne` ~47–48; input: `{"Operations":[{"op":"replace","path":"active"}]}` (expect `invalidValue`; regression `Missing_value_on_replace_throws`).
+- [ ] (candidate) `ScimUsersController.GetAsync` — user id from another tenant — locus: `GetByIdAsync` tenant match; input: cross-tenant GUID returns 404 `notFound`.
+- [ ] (candidate) `ScimUsersController.CreateAsync` — enterprise seat limit exceeded — locus: `TryIncrementEnterpriseScimSeatAsync` ~62–65; input: active create when seats exhausted → 403 `mutability`.
+- [ ] (candidate) `ScimUsersController.PatchAsync` — `add` on existing `displayName` — locus: `ApplyOne` add/replace both set target key; input: verify add overwrites like replace (RFC flat PATCH semantics).
 
 - [x] (proven) `ScimUserService.CreateAsync` / `PatchAsync` / `ScimUsersController` — a second live user with the same `userName` and a different `externalId` was stored, including case-only names — **hit 2026-10-09 seed hunt:** live `userName` lookup returns `uniqueness`. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
 - [x] (proven) `ScimFilterParser.ParseFilter` / `ScimUsersController.ListAsync` — ungrouped `or` before `and` was parsed left-to-right, so an active user matching only the left comparison was omitted — **hit 2026-10-09 seed hunt:** `not` over `and` over `or` per RFC 7644 §3.4.2.2. Regressions `ListAsync_filter_gives_and_precedence_over_or`, `Parse_or_binds_looser_than_and`, and `Parse_not_binds_tighter_than_and`.
