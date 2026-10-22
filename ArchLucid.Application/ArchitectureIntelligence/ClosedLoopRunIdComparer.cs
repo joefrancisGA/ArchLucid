@@ -1,3 +1,5 @@
+using ArchLucid.Core.Persistence.Graph;
+
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
 internal static class ClosedLoopRunIdComparer
@@ -7,8 +9,9 @@ internal static class ClosedLoopRunIdComparer
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
         string trimmed = CollapseInteriorAsciiSpaces(NormalizeUnicodeSpaces(runId.Trim()));
+        string pathCanonical = GraphSnapshotCanonicalFingerprint.NormalizeReviewCachePathLikeToken(trimmed.ToLowerInvariant());
 
-        return trimmed.Replace("-", string.Empty, StringComparison.Ordinal).ToLowerInvariant();
+        return pathCanonical.Replace("-", string.Empty, StringComparison.Ordinal);
     }
 
     private static string NormalizeUnicodeSpaces(string value) =>

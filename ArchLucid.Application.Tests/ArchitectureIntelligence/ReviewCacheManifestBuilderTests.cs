@@ -7272,6 +7272,34 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_client_run_id_differs_only_by_backslash_vs_forward_slash_in_path()
+    {
+        ClosedLoopReasoningRequest forwardSlash = CreateRequest("Architecture note.");
+        forwardSlash.RunId = "tenants/acme/runs/42";
+
+        ClosedLoopReasoningRequest backslash = CreateRequest("Architecture note.");
+        backslash.RunId = "tenants\\acme\\runs\\42";
+
+        ReviewCacheManifestBuilder.Build(forwardSlash).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(backslash).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_request_framing_answer_key_differs_only_by_leading_dot_slash()
+    {
+        ClosedLoopReasoningRequest dotted = CreateRequest("Architecture note.");
+        dotted.FramingAnswers = new Dictionary<string, string> { ["./questions/cost/driver"] = "optimize" };
+
+        ClosedLoopReasoningRequest plain = CreateRequest("Architecture note.");
+        plain.FramingAnswers = new Dictionary<string, string> { ["questions/cost/driver"] = "optimize" };
+
+        ReviewCacheManifestBuilder.Build(dotted).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(plain).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_baseline_model_framing_answer_key_differs_only_by_casing_on_model()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
