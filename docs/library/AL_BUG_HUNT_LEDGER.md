@@ -31,6 +31,19 @@
 - [ ] (candidate) refreshBffSessionCookie - refresh 433 shouldClearSession false - locus: transient refresh parity.
 - [ ] (candidate) exchangeAuthorizationCode - access_token JSON string empty object skips authorize retry marker - locus: literal {} token shape.
 - [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with ZWJ glue - locus: saturated encoding class.
+2026-10-22 seed hunt (seed->hit): `application-tenancy-lifecycle` - promoted hunt-ready from seed re-read `TenantDeletionService.DeleteTenantAsync` - `TenantDataDeleted` platform audit appended after three post-purge tenant reads without a final re-read, so an active erasure legal hold activated between `tenantBeforeDeletionAuditAppend` and audit could still emit deletion audit after destructive purge; fourth pre-append `GetByIdAsync` with approval and legal-hold skip; regression `DeleteTenantAsync_returns_without_platform_audit_when_active_legal_hold_set_after_pre_deletion_audit_append_read_before_audit`; scoped tenancy filter 263/263.
+
+- [x] (proven) `DeleteTenantAsync` - active legal hold after pre-deletion audit append read before audit - **hit 2026-10-22 seed hunt:** fourth pre-append re-read + hold guard; regression above.
+- [x] (valid-no-repro) `DeleteTenantAsync` - active legal hold after purge before first post-purge read - **cheap-disproof 2026-10-22:** existing regression on trunk.
+- [x] (valid-no-repro) `DeleteTenantAsync` - erasure approval cleared after pre-deletion audit append read - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
+- [x] (valid-no-repro) `TryRestoreQuarantineAsync` - re-offboard after tenantBeforeRestoreAudit read - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
+- [x] (invalid) `DeleteTenantAsync` - legal hold before blob purge throws - **cheap-disproof 2026-10-22:** revalidate throws before destructive work.
+
+- [ ] (candidate) `DeleteTenantAsync` - erasure approval cleared after pre-deletion audit append read before fourth read - locus: saturated approval guards (reachability: admin delete job).
+- [ ] (candidate) `TryClearLegalHoldAsync` - hold re-applied after tenantBeforeClearAudit read - locus: fifth pre-append read gap (reachability: erasure command).
+- [ ] (candidate) `TrySetLegalHoldAsync` - hold cleared after tenantBeforeSetAudit read - locus: saturated set-hold path (reachability: erasure command).
+- [ ] (candidate) `TrialLifecycleTransitionEngine` - offboard between audit and expiration metric - locus: post-audit superseded read (reachability: saturated).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.StartAsync` - offboard after insert before started audit - locus: existing regression (reachability: saturated).
 
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_session authorize-query UX, BFF refresh 431 parity, and saturated decodeOAuthErrorDescription pictograph glue; regression documents authorize-retry is not marked when authorization code exchange returns Infinity-string access_token; scoped vitest 528/528.
 
@@ -217736,28 +217749,4 @@ ABQ-09 churn hotspot.
 2026-10-11 thorough hunt (dry): `host-core-jobs` ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ repeated unchanged candidate review after the 45-hunt threshold; no reachable failing repro or hunt-ready promotion. The scoped host-core job suite passed 76/76. No production change.
 2026-10-11 thorough hunt (dry): `host-core-jobs` ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ repeated the unchanged candidate set after 45 hunts; no reachable failing repro or hunt-ready promotion. The scoped host-core job suite passed 76/76. No production change.
 2026-10-11 thorough hunt (dry): `host-core-jobs` ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ repeated unchanged candidate review after the 45-hunt threshold; no reachable failing repro or hunt-ready promotion. The scoped host-core job suite passed 76/76. No production change.
-2026-10-11 thorough hunt (dry): `host-core-jobs` ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ repeated unchanged candidate review after the 45-hunt threshold; no reachable failing repro or hunt-ready promotion. The scoped host-core job suite passed 76/76. No production change.
-2026-10-11 thorough hunt (dry): `host-core-jobs` ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ repeated unchanged candidate review after the 45-hunt threshold; no reachable failing repro or hunt-ready promotion. The scoped host-core job suite passed 76/76. No production change.
-2026-10-11 seed hunt (seed?hit): `ui-infra-resource-hub` ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ `ResourceHubClient` supplied `shortcutsTestId` to `InfraEvidenceWorkbenchHeaderActions`, but the shared header action wrapper dropped it, making the shortcut region unqueryable and breaking the focused ResourceHubClient test. The wrapper now applies the supplied test id; the focused ResourceHubClient, working-mode, and buyer-polished suites passed 52/52.
-
-## Zone: api-request-null-collection-elements
-
-- **id:** api-request-null-collection-elements
-- **status:** open
-- **impact:** high
-- **aliases:** null collection elements; request body validation
-- **paths:** ArchLucid.Api/Filters/ApiRequestNullCollectionElementsFilter.cs; ArchLucid.Api/Validation/ApiRequestNullCollectionElementsGuard.cs; ArchLucid.Api/Http/ApiRequestBodyTypeCatalog.cs; ArchLucid.Api/Startup/MvcExtensions.cs
-- **test-filter:** FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests
-- **hunts:** 2
-- **bugs-found:** 1
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
-- **related-pd-tb:** none
-- **code-changed-since:** no
-
-2026-10-21 structural hunt (hit, lane B): shipped global guard; defect class marked closed in ledger preamble; no new unguarded 500 repro beyond already-fixed controller paths.
-
-- [x] (proven) **Defect class:** null elements inside request body collections ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ **closed 2026-10-21:** `ApiRequestNullCollectionElementsFilter` + guard; architecture reflection coverage over `[FromBody]` DTO collection properties.
-
----
+2026-10-11 thorough hunt (dry): `host-core-jobs` ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ repeated unchanged candidate review after the 45-hunt threshold; no reachable failing repro or hunt
