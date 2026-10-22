@@ -12470,8 +12470,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 205
-- **bugs-found:** 169
+- **hunts:** 206
+- **bugs-found:** 170
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-overlay rebind deduped parallel edges separately when EdgeType differed only by whitespace
 - **related-pd-tb:** none
@@ -12589,7 +12589,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — appended overlay warnings retained padded tokens and trim-equal duplicates — **hit 2026-10-22 seed hunt (seed→hit):** trim and dedupe merged warnings; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — overlay snapshots that carry warnings but no nodes or edges are ignored by early return — locus: empty overlay short-circuit before warning merge; input: inventory overlay warnings-only payload; wrong outcome: merged graph never receives overlay warnings.
+2026-10-22 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` overlay-only warnings skipped by early return candidate; proved merge returned the base graph when overlay nodes and edges were empty even if overlay warnings were present; only short-circuit when nodes, edges, and warnings are all empty; regression `Merge_appends_inventory_overlay_warnings_when_overlay_has_no_nodes_or_edges`; seeded `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder` padded diagram node id remap lookup follow-on; 498 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — warnings-only overlay payloads dropped overlay warnings — **hit 2026-10-22 seed hunt (seed→hit):** merge warnings without nodes/edges; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder` — diagram node id remap lookup may miss padded bound diagram node ids — locus: rebind remap dictionary keyed without trim-aware lookup parity; input: inventory overlay nodes cite padded `BoundDiagramNodeId` values; wrong outcome: diagram rebind fails to remap connectivity to canonical diagram ids.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 

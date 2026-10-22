@@ -15,7 +15,9 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
         ArgumentNullException.ThrowIfNull(baseGraph);
         ArgumentNullException.ThrowIfNull(inventoryOverlay);
 
-        if (inventoryOverlay.Nodes.Count == 0 && inventoryOverlay.Edges.Count == 0)
+        if (inventoryOverlay.Nodes.Count == 0
+            && inventoryOverlay.Edges.Count == 0
+            && inventoryOverlay.Warnings.Count == 0)
         {
             return baseGraph;
         }
