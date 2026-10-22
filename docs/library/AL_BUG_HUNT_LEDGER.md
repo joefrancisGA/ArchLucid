@@ -10,6 +10,19 @@
 - [ ] (candidate) humanizeAuthorizeCallbackError - slow_down authorize-query copy - locus: default branch UX.
 - [ ] (candidate) refreshBffSessionCookie - refresh 504 shouldClearSession false - locus: proxy transient policy.
 - [ ] (candidate) preparePostSignInReturnUrlForSignInStart - supplemental Google parity - locus: shared helper on supplemental initiate.
+2026-10-22 seed hunt (seed->hit): `application-tenancy-lifecycle` - promoted hunt-ready from seed re-read `TenantCatalogMigrationOrchestrator.AcknowledgeCatalogAttachDetachAsync` - catalog attach acknowledged platform audit appended after stage advance using only the post-update tenant read, so erasure offboard between that read and audit could emit `TenantCatalogMigrationCatalogAttachAcknowledged` for quarantined tenants; pre-audit `GetByIdAsync` guard; regression `AcknowledgeCatalogAttachDetachAsync_returns_in_erasure_quarantine_without_attach_audit_when_offboard_completes_after_stage_update_before_audit`; repaired malformed `AL_BUG_HUNT_RUN_LOG.jsonl` row (`zone` -> `zoneId`) that broke `al-bug-pick-zone.ps1`; scoped tenancy filter 250/250.
+
+- [x] (proven) `AcknowledgeCatalogAttachDetachAsync` - offboard after stage update before attach audit - **hit 2026-10-22 seed hunt:** pre-audit re-read; regression above.
+- [x] (valid-no-repro) `RunProjectionRefreshAsync` - offboard after stage update before refresh audit - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
+- [x] (valid-no-repro) `RunVerificationAsync` - offboard after mark before verification audit - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
+- [x] (invalid) `al-bug-pick-zone.ps1` - missing zoneId on run log row - **hit 2026-10-22:** corrected jsonl schema entry; picker preview restored.
+- [x] (valid-no-repro) `CompleteAsync` - offboard after repository complete before completed audit - **cheap-disproof 2026-10-22:** existing regression on trunk.
+
+- [ ] (candidate) `CompleteAsync` - offboard after pre-audit read before completed audit - locus: pre-audit read parity (reachability: migration complete).
+- [ ] (candidate) `TenantDeletionService.DeleteTenantAsync` - legal hold activated after sql purge before platform audit - locus: post-purge revalidate (reachability: admin delete job).
+- [ ] (candidate) `TenantErasureCommandService.TrySetLegalHoldAsync` - quarantine restored after set before legal-hold audit - locus: beforeSetAudit read (reachability: erasure command).
+- [ ] (candidate) `RunVerificationAsync` - offboard after failed probe mark before failed audit - locus: shared pre-audit guard (reachability: saturated).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.StartAsync` - offboard after insert before started audit - locus: existing regression (reachability: saturated).
 
 2026-10-22 seed hunt (seed-only): ui-oidc - aligned clearAbandonedPostSignInReturnUrl with readPostSignInReturnUrl purge semantics; parity regressions for discovery-fail tampered unsafe return + authorize retry, repeated safe read, authorization_pending refresh classifier, and BFF refresh 502 shouldClearSession false; scoped vitest 439/439.
 
