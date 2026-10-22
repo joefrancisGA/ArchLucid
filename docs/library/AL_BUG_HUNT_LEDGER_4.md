@@ -12470,18 +12470,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 93
-- **bugs-found:** 88
+- **hunts:** 94
+- **bugs-found:** 89
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — sparse case-variant graph node rows no longer wipe labels
+- **last-bug:** 2026-10-22 — sparse case-variant manifest decision rows no longer wipe titles
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted sparse duplicate manifest decision row candidate; proved `ComputeManifestDecisionsFingerprint` last-wins representative cleared title/category when a later `DEC-1` row omitted display fields (`ProvenanceBuilder.AddNode` already skipped blank overwrites); last non-empty title/category per case-insensitive decision id group; regressions `Compute_unchanged_when_later_case_variant_manifest_decision_row_omits_title` and `Build_preserves_decision_title_when_later_case_variant_row_omits_title`; seeded sparse duplicate artifact name row follow-on; 387 KnowledgeGraph + 114 Provenance scoped tests passed.
+
+- [x] (proven) `ProvenanceSnapshotRevisionHasher.ComputeManifestDecisionsFingerprint` — sparse later case-variant manifest decision rows cleared title/category in revision fingerprint — **hit 2026-10-22 seed hunt (seed→hit):** last non-empty decision fields; regressions above.
+
+- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeArtifactsFingerprint` / `ProvenanceBuilder` — sparse later duplicate artifact rows may clear name/format when appended at stable `ContentHash` — locus: artifact representative selection; input: two rows same `ArtifactId` and hash, second row omits name; wrong outcome: revision fingerprint drift or blank artifact node name.
 
 2026-10-22 seed hunt (seed→hit): promoted sparse duplicate graph node row candidate; proved `ComputeGraphFingerprint` last-wins representative and graph `AddNode` name fallback (`NodeId` when label empty) cleared buyer-visible labels when a later `NODE-A` row omitted `Label`; last non-empty label/type/category per case-insensitive node id group and skip graph name downgrade to bare reference id when a display name exists; regressions `Compute_unchanged_when_later_case_variant_graph_node_row_omits_label` and `Build_preserves_graph_node_label_when_later_case_variant_row_omits_label`; seeded sparse duplicate manifest decision title row follow-on; 387 KnowledgeGraph + 112 Provenance scoped tests passed.
 
 - [x] (proven) `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` / `ProvenanceBuilder.AddNode` — sparse later case-variant graph node rows cleared label metadata — **hit 2026-10-22 seed hunt (seed→hit):** last non-empty graph fields + name downgrade guard; regressions above.
-
-- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeManifestDecisionsFingerprint` / `ProvenanceBuilder.AddNode` — sparse later case-variant manifest decision rows may clear title/category when appended after a populated row — locus: duplicate decision merge; input: two decisions differing only by `DecisionId` casing; wrong outcome: blank decision node display metadata or revision fingerprint drift.
 
 2026-10-22 seed hunt (seed→hit): promoted sparse duplicate finding row candidate; proved last-wins `AddNode` and `ComputeFindingsFingerprint` representative selection cleared `AgentExecutionTraceId` when a later case-variant row omitted trace fields; retain last non-empty scalar values per case-insensitive finding group and skip blank overwrites on duplicate node merge; regressions `Compute_unchanged_when_later_case_variant_finding_row_omits_agent_execution_trace_id` and `Build_preserves_agent_execution_trace_id_when_later_case_variant_row_omits_trace`; cheap-disproved diagram merger `DeclaredConnectionId` coalesce (`DeclaredConnectionId` is not populated on structured diagram compile paths); seeded sparse duplicate graph node label row follow-on; 387 KnowledgeGraph + 110 Provenance scoped tests passed.
 
