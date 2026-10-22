@@ -1328,6 +1328,75 @@ public sealed class StructuredDiagramGraphMergerTests
         merged.EdgeId.Should().Be("diagram-edge:padded-second");
     }
 
+    [Fact]
+    public void Merge_deduplicates_canonical_bindings_when_canonical_graph_node_id_differs_only_by_surrounding_whitespace()
+    {
+        ArchitectureDiagramModelRecord diagramModel = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "sql",
+                    Label = "pay-sql",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        List<CanonicalObject> canonicalObjects = [];
+        canonicalObjects.AddRange(
+            ArchitectureDiagramCanonicalObjectMapper.Map(diagramModel, "doc-binding-key-a", labelOnlyInferenceConfidence: 0.7));
+        canonicalObjects.AddRange(
+            ArchitectureDiagramCanonicalObjectMapper.Map(diagramModel, "doc-binding-key-b", labelOnlyInferenceConfidence: 0.7));
+
+        ContextSnapshot snapshot = new()
+        {
+            SnapshotId = Guid.Parse("bbbbbbbb-cccc-dddd-eeee-ffffffffff03"),
+            RunId = Guid.Parse("22222222-3333-4444-5555-666666666668"),
+            ProjectId = "project-binding-key-trim",
+            CanonicalObjects = canonicalObjects,
+        };
+
+        StructuredDiagramGraphMerger merger =
+            new StructuredDiagramGraphMerger(new PaddedCanonicalBindingDedupeTestCompiler());
+        StructuredDiagramGraphMergeResult result = merger.Merge(snapshot, []);
+
+        result.CanonicalBindings.Should().ContainSingle(binding =>
+            binding.CanonicalGraphNodeId == "obj-sql-inv-1"
+            && binding.DiagramSourceId == "sql"
+            && binding.DiagramGraphNodeId == "diagram-node:sql");
+    }
+
+    private sealed class PaddedCanonicalBindingDedupeTestCompiler : IArchitectureDiagramToGraphCompiler
+    {
+        private int compileCount;
+
+        public StructuredDiagramGraphCompileResult Compile(
+            ArchitectureDiagramModelRecord model,
+            StructuredDiagramGraphCompileOptions options)
+        {
+            compileCount++;
+            string canonicalGraphNodeId = compileCount == 1 ? "obj-sql-inv-1" : "  obj-sql-inv-1  ";
+
+            return new StructuredDiagramGraphCompileResult
+            {
+                Snapshot = new GraphSnapshot(),
+                CanonicalBindings =
+                [
+                    new StructuredDiagramCanonicalBinding
+                    {
+                        DiagramGraphNodeId = "diagram-node:sql",
+                        DiagramSourceId = "sql",
+                        CanonicalGraphNodeId = canonicalGraphNodeId,
+                    },
+                ],
+            };
+        }
+    }
+
     private sealed class PaddedDuplicateNodeIdTestCompiler : IArchitectureDiagramToGraphCompiler
     {
         private int compileCount;

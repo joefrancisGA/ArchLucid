@@ -12470,18 +12470,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 146
-- **bugs-found:** 139
+- **hunts:** 147
+- **bugs-found:** 140
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — diagram merge dropped bound-only remapped edges
+- **last-bug:** 2026-10-22 — diagram merge duplicated canonical bindings on padded ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded `CanonicalGraphNodeId` binding dedupe candidate; proved `mergedBindingKeys` used raw canonical graph node ids so multi-document merge retained duplicate `StructuredDiagramCanonicalBinding` rows when only surrounding whitespace differed; trim-normalize binding dedupe keys; regression `Merge_deduplicates_canonical_bindings_when_canonical_graph_node_id_differs_only_by_surrounding_whitespace`; seeded `GraphNodeFactory` padded canonical `ObjectId` node id materialization follow-on; 447 KnowledgeGraph + 148 Provenance scoped tests passed.
+
+- [x] (proven) `StructuredDiagramGraphMerger.Merge` — padded `CanonicalGraphNodeId` duplicated canonical bindings — **hit 2026-10-22 seed hunt (seed→hit):** trim binding dedupe keys; regression above.
+
+- [ ] (candidate) `GraphNodeFactory.CreateNode` — padded canonical `ObjectId` may emit `obj-{id}` node ids with surrounding whitespace — locus: `NodeId` composition; input: `CanonicalObject.ObjectId` with padding; wrong outcome: topology node ids diverge from binder-trimmed canonical endpoints.
 
 2026-10-22 seed hunt (valid-no-repro): promoted `StructuredDiagramGraphMerger` remapped-edge endpoint node candidate; proved bound-only merge output intentionally omits canonical inventory rows from `mergeResult.Nodes` while `GraphMaterializationStages` unions `context.Nodes` (bind targets) before neighbor expansion; cheap-disproof regressions `BuildAsync_FullyBoundDiagramEdge_RemainsReachableViaGraphSnapshotNeighborExpansion` and merge-only vs bind-target union checks in `Merge_deduplicates_remapped_edges_when_inventory_node_id_has_surrounding_whitespace`; seeded `StructuredDiagramGraphMerger` `mergedBindingKeys` padded `CanonicalGraphNodeId` dedupe follow-on; 446 KnowledgeGraph + 148 Provenance scoped tests passed.
 
 - [x] (valid-no-repro) `StructuredDiagramGraphMerger.Merge` — remapped edges without merge-local node rows break neighbor expansion — **cheap-disproof 2026-10-22 seed hunt:** materialization unions bind targets; regressions above.
-
-- [ ] (candidate) `StructuredDiagramGraphMerger.Merge` — padded `CanonicalGraphNodeId` on `mergedBindingKeys` may duplicate canonical bindings — locus: binding dedupe key; input: bindings whose canonical ids differ only by surrounding whitespace; wrong outcome: duplicate `StructuredDiagramCanonicalBinding` rows.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded inventory bind plus merge e2e candidate; proved merge skipped compile snapshots whose diagram nodes were fully bound to canonical inventory (empty `Snapshot.Nodes`) even when `BindToCanonicalNodes` emitted remapped edges, dropping canonical endpoint edges across multi-document merge (reproduced with padded inventory `NodeId` bind targets); only skip empty node-and-edge snapshots; regressions `Merge_deduplicates_remapped_edges_when_inventory_node_id_has_surrounding_whitespace` and `BindToCanonicalNodes_remaps_edges_when_both_canonical_targets_have_surrounding_whitespace_on_node_id`; seeded `StructuredDiagramGraphMerger` bound-only snapshot with remapped edges but no orphan diagram nodes follow-on audit; 445 KnowledgeGraph + 148 Provenance scoped tests passed.
 

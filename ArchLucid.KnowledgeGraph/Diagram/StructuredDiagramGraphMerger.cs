@@ -58,8 +58,7 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
 
             foreach (StructuredDiagramCanonicalBinding binding in compileResult.CanonicalBindings)
             {
-                string bindingKey =
-                    $"{binding.CanonicalGraphNodeId}|{binding.DiagramSourceId}|{binding.DiagramGraphNodeId}";
+                string bindingKey = BuildBindingDedupeKey(binding);
 
                 if (!mergedBindingKeys.Add(bindingKey))
                 {
@@ -203,6 +202,9 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
 
     private static string NormalizeDiagramPropertyValue(string value) =>
         string.IsNullOrWhiteSpace(value) ? value : value.Trim();
+
+    private static string BuildBindingDedupeKey(StructuredDiagramCanonicalBinding binding) =>
+        $"{binding.CanonicalGraphNodeId.Trim()}|{binding.DiagramSourceId.Trim()}|{binding.DiagramGraphNodeId.Trim()}";
 
     private static string NormalizeNodeIdKey(string nodeId) => nodeId.Trim();
 
