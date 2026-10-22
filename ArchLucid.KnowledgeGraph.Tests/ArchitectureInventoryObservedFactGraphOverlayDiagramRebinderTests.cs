@@ -361,6 +361,57 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
     }
 
     [Fact]
+    public void Rebind_deduplicates_parallel_edges_when_edge_type_differs_only_by_surrounding_whitespace_after_remap()
+    {
+        GraphSnapshot overlay = BuildOverlayNode(label: "pay-sql-prod", armResourceId: ArmResourceId);
+        string cloudNodeId = CloudResourceId.ToString("D");
+        string paddedEdgeType = $"  {GraphEdgeTypes.ConnectsTo}  ";
+
+        GraphSnapshot merged = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                BuildDiagramNode("diagram-node:sql", "pay-sql-prod"),
+                overlay.Nodes[0],
+                new GraphNode
+                {
+                    NodeId = "context-node",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "Context",
+                },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "inventory-edge",
+                    FromNodeId = cloudNodeId,
+                    ToNodeId = "context-node",
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                },
+                new GraphEdge
+                {
+                    EdgeId = "diagram-edge",
+                    FromNodeId = "diagram-node:sql",
+                    ToNodeId = "context-node",
+                    EdgeType = paddedEdgeType,
+                },
+            ],
+        };
+
+        GraphSnapshot rebound = ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
+            .RebindLeftoverDiagramNodes(merged, overlay);
+
+        rebound.Edges.Should().ContainSingle(edge =>
+            edge.FromNodeId == cloudNodeId
+            && edge.ToNodeId == "context-node"
+            && edge.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
     public void Rebind_emptyOverlay_returnsMergedUnchanged()
     {
         GraphSnapshot merged = new()

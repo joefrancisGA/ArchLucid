@@ -169,7 +169,8 @@ public static class ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
                 continue;
             }
 
-            string edgeKey = $"{fromNodeId}|{toNodeId}|{edge.EdgeType}";
+            string edgeType = (edge.EdgeType ?? string.Empty).Trim();
+            string edgeKey = $"{fromNodeId}|{toNodeId}|{edgeType}";
 
             if (!edgeKeys.Add(edgeKey))
             {
@@ -181,7 +182,7 @@ public static class ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
                 EdgeId = edge.EdgeId,
                 FromNodeId = fromNodeId,
                 ToNodeId = toNodeId,
-                EdgeType = edge.EdgeType,
+                EdgeType = edgeType,
                 Label = edge.Label,
                 Weight = edge.Weight,
                 InferenceSource = edge.InferenceSource,
