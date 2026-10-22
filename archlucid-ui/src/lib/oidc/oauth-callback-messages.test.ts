@@ -145,6 +145,12 @@ describe("decodeOAuthErrorDescription", () => {
     expect(decodeOAuthErrorDescription("🇺🇸%252Bextra")).toBe("🇺🇸+extra");
   });
 
+  it("preserves literal plus in authorize error descriptions when pictograph emoji is present", () => {
+    expect(decodeOAuthErrorDescription("⚠️+extra")).toBe("⚠️+extra");
+    expect(decodeOAuthErrorDescription("⚠️%2Bextra")).toBe("⚠️+extra");
+    expect(decodeOAuthErrorDescription("⚠️%252Bextra")).toBe("⚠️+extra");
+  });
+
   it("preserves literal plus in authorize error descriptions when skin-tone emoji modifiers are present", () => {
     expect(decodeOAuthErrorDescription("👍🏻+extra")).toBe("👍🏻+extra");
     expect(decodeOAuthErrorDescription("👋🏽+denied")).toBe("👋🏽+denied");
@@ -393,6 +399,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toMatch(/expired token/i);
     expect(message).not.toContain("expired_token");
+  });
+
+  it("humanizes insufficient_scope authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("insufficient_scope", "");
+
+    expect(message).toMatch(/insufficient scope/i);
+    expect(message).not.toContain("insufficient_scope");
   });
 
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
