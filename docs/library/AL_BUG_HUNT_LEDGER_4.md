@@ -12470,18 +12470,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 161
+- **hunts:** 162
 - **bugs-found:** 149
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — graph node property reader returned padded property values
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-10-22 seed hunt (valid-no-repro): promoted `ProvenanceSnapshotRevisionHasher.ComputeManifestDecisionsFingerprint` case-variant duplicate manifest decision candidate; proved `SelectLastNonEmptyManifestDecisionField` already last-wins title/category per case-insensitive `DecisionId` group (parity with findings fingerprint); regressions `Compute_changes_when_later_case_variant_manifest_decision_row_has_different_title` and `Compute_changes_when_later_case_variant_manifest_decision_row_has_different_category`; seeded manifest `DecisionId` surrounding-whitespace group-key parity follow-on; 465 KnowledgeGraph + 149 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ProvenanceSnapshotRevisionHasher.ComputeManifestDecisionsFingerprint` — case-variant duplicate rows hid later title/category amendments — **cheap-disproof 2026-10-22 seed hunt:** last-wins fields per group; regressions above.
+
+- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeManifestDecisionsFingerprint` — padded `DecisionId` tokens may fingerprint as distinct groups — locus: `GroupBy` key trim; input: two manifest decisions whose ids differ only by surrounding whitespace; wrong outcome: duplicate revision groups and stale cache semantics.
+
 2026-10-22 seed hunt (valid-no-repro): promoted `DeclarationIdentityActorMaterializer` padded `k8s.kind` property-key ingress candidate; proved hunt 156 `GraphNodePropertyReader` key trim already resolves `"  k8s.kind  "` lookups for `TryMatchK8sIngress`; regression `MaterializeFromNodes_emits_actor_and_trust_boundary_for_k8s_ingress_when_kind_property_key_has_surrounding_whitespace`; seeded `ProvenanceSnapshotRevisionHasher.ComputeManifestDecisionsFingerprint` case-variant duplicate row follow-on; 465 KnowledgeGraph + 148 Provenance scoped tests passed.
 
 - [x] (valid-no-repro) `DeclarationIdentityActorMaterializer.TryMatchK8sIngress` — padded `k8s.kind` property key missed ingress actors — **cheap-disproof 2026-10-22 seed hunt:** closed by `GraphNodePropertyReader` key trim (#156); regression above.
-
-- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeManifestDecisionsFingerprint` — first case-insensitive duplicate manifest decision row may hide later title/category amendments — locus: manifest decisions group representative; input: two decisions differing only by `DecisionId` casing; wrong outcome: stale revision fingerprint vs buyer-visible decision rename on later row (re-verify `SelectLastNonEmptyManifestDecisionField` / `group.Last()` parity).
 
 2026-10-22 seed hunt (valid-no-repro): promoted `DeclarationIdentityActorMaterializer` padded `k8s.kind` ingress candidate; proved hunt 158 `GraphNodePropertyReader` value trim already normalizes `k8s.kind` before `TryMatchK8sIngress` equality; regression `MaterializeFromNodes_emits_actor_and_trust_boundary_for_k8s_ingress_when_kind_has_surrounding_whitespace`; seeded declaration identity padded `k8s.kind` property **key** ingress lookup follow-on; 464 KnowledgeGraph + 148 Provenance scoped tests passed.
 
@@ -12797,7 +12801,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `ProvenanceSnapshotRevisionHasher.ComputeFindingsFingerprint` / `ProvenanceBuilder.AddNode` — first case-insensitive duplicate finding row hid later trace/title amendments — **hit 2026-10-22 seed hunt (seed→hit):** last-wins per finding id group; regressions above.
 - [x] (invalid) `StructuredDiagramGraphMerger.Merge` — duplicate directed-edge coalesce may not refresh top-level `GraphEdge.ProvenanceKind` or `DeclaredConnectionId` — **cheap-disproof 2026-10-22 seed hunt:** diagram compile path does not populate those schema-v1 fields on `GraphEdge`.
 
-- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeManifestDecisionsFingerprint` — first case-insensitive duplicate manifest decision row may hide later title/category amendments when list order appends a case variant — locus: manifest decisions group representative; input: two decisions differing only by `DecisionId` casing; wrong outcome: stale revision fingerprint vs buyer-visible decision rename on later row.
+- [x] (valid-no-repro) `ProvenanceSnapshotRevisionHasher.ComputeManifestDecisionsFingerprint` — first case-insensitive duplicate manifest decision row may hide later title/category amendments when list order appends a case variant — **cheap-disproof 2026-10-22 seed hunt:** `SelectLastNonEmptyManifestDecisionField`; regressions `Compute_changes_when_later_case_variant_manifest_decision_row_has_different_title` and `Compute_changes_when_later_case_variant_manifest_decision_row_has_different_category`.
 
 2026-10-22 seed hunt (seed→hit): promoted duplicate-edge `EdgeId` coalesce candidate; proved connectivity tokens omitted diagram edge `Id`, so reconstruction synthesized `edge-0` and `StructuredDiagramGraphMerger` kept the first `EdgeId` when later documents recompiled the same directed edge with different buyer edge ids; encode edge id as a fourth connectivity segment, decode on reconstruct, and last-wins `EdgeId` on merge coalesce; regression `Merge_uses_latest_diagram_edge_id_when_multiple_documents_share_equivalent_endpoints` and `ReconstructModels_groups_by_document_and_rebuilds_edges` id assertion; cheap-disproved duplicate-edge `InferenceSource` coalesce (`ArchitectureDiagramToGraphCompiler` always sets `GraphEdgeInferenceSources.StructuredParse` for diagram `ConnectsTo` rows); seeded duplicate-edge top-level `ProvenanceKind` / `DeclaredConnectionId` coalesce follow-on; 387 KnowledgeGraph + 99 Provenance scoped tests passed.
 

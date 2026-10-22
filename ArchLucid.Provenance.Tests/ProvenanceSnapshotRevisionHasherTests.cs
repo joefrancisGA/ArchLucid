@@ -606,6 +606,36 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     }
 
     [Fact]
+    public void Compute_changes_when_later_case_variant_manifest_decision_row_has_different_category()
+    {
+        ResolvedArchitectureDecision firstRow = new()
+        {
+            DecisionId = "dec-1",
+            Category = "security",
+            Title = "Enable WAF",
+            SelectedOption = "opt",
+            Rationale = "why",
+            SupportingFindingIds = [],
+        };
+
+        ResolvedArchitectureDecision secondRow = new()
+        {
+            DecisionId = "DEC-1",
+            Category = "reliability",
+            Title = "Enable WAF",
+            SelectedOption = "opt",
+            Rationale = "why",
+            SupportingFindingIds = [],
+        };
+
+        ProvenanceBuildInput baseline = CreateInput([], decisions: [firstRow]);
+        ProvenanceBuildInput updated = CreateInput([], decisions: [firstRow, secondRow]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
     public void Compute_unchanged_when_later_case_variant_finding_row_omits_agent_execution_trace_id()
     {
         Finding firstRow = CreateSampleFinding();
