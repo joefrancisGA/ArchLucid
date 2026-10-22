@@ -33,6 +33,9 @@ internal static class ClosedLoopFramingAnswersNormalizer
                 .OrderBy(pair => pair.Key, StringComparer.Ordinal)
                 .First();
 
+            if (string.IsNullOrEmpty(canonical.Value))
+                continue;
+
             normalized[canonical.Key] = canonical.Value;
         }
 

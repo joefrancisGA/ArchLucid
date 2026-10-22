@@ -8712,6 +8712,28 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted cleared framing answers (`scope=` empty) splitting `ContentHash` from omitted keys; `ClosedLoopFramingAnswersNormalizer` now drops empty values after trim; regression `Build_matches_content_hash_when_framing_answer_is_empty_vs_omitted`; cheap-disproof null attachment content, eviction tie-break, anonymous `RunId`, and deferred invalidation rows; 103 scoped orchestrator/cache/manifest/framing tests passed.
+
+- [x] (proven) `ClosedLoopFramingAnswersNormalizer` — empty framing answer value emitted `scope=` line and split cache hash from omitted key — **hit 2026-10-22 seed hunt:** skip `string.IsNullOrEmpty` values after normalization; regression above.
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — `SourceTexts` with null `Content` vs empty string — **cheap-disproof 2026-10-22 seed hunt:** regression `Build_matches_content_hash_when_source_content_is_null_vs_empty_string`.
+
+- [x] (valid-no-repro) `ReviewResultCache.TryEvictOldestUnpinnedEntry` — equal `CreatedUtc` tie-break — **cheap-disproof 2026-10-22 seed hunt:** eviction only affects which unrelated unpinned entry drops; manifest-keyed `TryGet`/`Set` contract unchanged.
+
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — omitted `RunId` assigns new GUID each call — **cheap-disproof 2026-10-22 seed hunt:** intentional anonymous run identity; coalesce requires stable client `RunId`.
+
+- [x] (valid-no-repro) `ReviewResultCache.InvalidateForRun` — deferred flush on unpin — **cheap-disproof 2026-10-22 seed hunt:** regression `InvalidateForRun_defers_removal_while_pinned_then_flushes_on_unpin`.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — next-line (`\u0084`) and remaining C0 controls not in `UnicodeLineBreakScalars` — locus: consolidated scalar loop; input: batch audit (picker saturated `other`).
+
+- (candidate) `ReviewCacheManifestBuilder.HashTenantConfiguration` — non-GUID `ProjectId` with surrounding whitespace vs trimmed — locus: `ClosedLoopProjectIdNormalizer.NormalizeForHash`; input: project scope string padding from API deserialization.
+
+- (candidate) `ClosedLoopFramingAnswersNormalizer` — duplicate keys where one value is whitespace-only and another is substantive — locus: ignore-case merge picks ordinal-first key; input: `Scope` vs `scope` with distinct trimmed values.
+
+- (candidate) `ReviewResultCache.Set` — returns without writing when cache is at `MaxEntries` and every entry is pinned — locus: `Set` early return after failed eviction; input: 128 pinned distinct keys then new manifest insert.
+
+- (candidate) `ReviewCacheManifestBuilder.HashContent` — `continue=1|` prefix present on `Build` when `ContinueFromExistingRun` true but continue path uses separate coalesce manifest — locus: dual manifest builders; input: verify cross-path cache partition cannot false-hit.
+
 2026-10-22 seed hunt (seed→hit): promoted form feed (`\u000c`) in source `Content` splitting `ContentHash` from LF; extended consolidated `UnicodeLineBreakScalars` in `NormalizeLineEndings`; regression `Build_matches_content_hash_when_source_content_uses_unicode_line_separators` (`\u000c`); cheap-disproof interior BOM, null `FramingAnswers`, and publish+continue pin-scope candidates; 101 scoped orchestrator/cache/manifest tests passed.
 
 - [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — form feed (`\u000c`) split `ContentHash` from LF — **hit 2026-10-22 seed hunt:** added `\u000c` to `UnicodeLineBreakScalars`; regression above. [class:other]
@@ -8726,11 +8748,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 - (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — next-line (`\u0084`) and other rare C0 breaks not yet in `UnicodeLineBreakScalars` — locus: shared scalar loop; input: audit remaining C0 controls vs consolidated batch (avoid one-off hits).
 
-- (candidate) `ReviewCacheManifestBuilder.HashContent` — `SourceTexts` with null `Content` vs empty string after normalize — locus: `Normalize` whitespace collapse; input: attachment with `Content: null`; wrong outcome: verify hash parity with empty body.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — null `Content` vs empty string — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
 
-- (candidate) `ReviewResultCache.InvalidateForRun` — deferred tombstone flush when last pin releases under concurrent `Set` — locus: `FlushDeferredInvalidations`; input: pin scope dispose racing new `Set` for same run id.
+- [x] (valid-no-repro) `ReviewResultCache.InvalidateForRun` — deferred tombstone flush — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
 
-- (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — blank `RunId` generates new GUID per call so manifest `runid=` segment never enables coalesce across anonymous retries — locus: `RunAsync` run id assignment; input: two requests omitting `RunId` with identical attachments; wrong outcome: duplicate live reviews (verify product contract expects new run).
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — blank `RunId` — **cheap-disproof 2026-10-22 seed hunt:** see seed→hit row above.
 
 2026-10-22 seed hunt (seed-only): re-read orchestrator, review cache, and manifest hashing paths; cheap-disproof closed stale duplicate normalization candidates (`+` vs `%20`, NBSP priorities, vertical tab, framing-key NFC) and Turkish compatibility priority folding; deferred form-feed (`\u000c`) line-break parity to a consolidated `UnicodeLineBreakScalars` batch (picker saturated `other`); seeded five follow-on candidates; 100 scoped orchestrator/cache/manifest tests passed.
 
@@ -8815,11 +8837,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 48
-- **bugs-found:** 27
+- **hunts:** 49
+- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — form feed line break in review-cache content hash
+- **last-bug:** 2026-10-22 — empty framing answers in review-cache content hash
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

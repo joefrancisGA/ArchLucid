@@ -870,6 +870,22 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_framing_answer_is_empty_vs_omitted()
+    {
+        ClosedLoopReasoningRequest emptyAnswer = CreateRequest("Architecture note.");
+        emptyAnswer.FramingAnswers = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["scope"] = string.Empty,
+        };
+
+        ClosedLoopReasoningRequest omitted = CreateRequest("Architecture note.");
+
+        ReviewCacheManifestBuilder.Build(emptyAnswer).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(omitted).ContentHash);
+    }
+
+    [Fact]
     public void Build_normalizes_framing_answer_keys_and_values()
     {
         ClosedLoopReasoningRequest spaced = CreateRequest("Architecture note.");
