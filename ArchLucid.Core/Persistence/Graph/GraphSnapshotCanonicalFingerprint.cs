@@ -216,7 +216,7 @@ public static class GraphSnapshotCanonicalFingerprint
         string related = string.Join(
             ",",
             (element.RelatedElementIds ?? [])
-                .Select(static id => NormalizeElementIdForFingerprint(id))
+                .Select(static id => NormalizeArtifactReferenceForFingerprint(id))
                 .Where(static id => id.Length > 0)
                 .Distinct(StringComparer.Ordinal)
                 .OrderBy(static id => id, StringComparer.Ordinal));
@@ -235,7 +235,7 @@ public static class GraphSnapshotCanonicalFingerprint
         string passages = string.Join(
             ",",
             (element.SourcePassageIds ?? [])
-                .Select(static id => NormalizeElementIdForFingerprint(id))
+                .Select(static id => NormalizeArtifactReferenceForFingerprint(id))
                 .Where(static id => id.Length > 0)
                 .Distinct(StringComparer.Ordinal)
                 .OrderBy(static id => id, StringComparer.Ordinal));
@@ -263,7 +263,10 @@ public static class GraphSnapshotCanonicalFingerprint
     private static string NormalizeArtifactReferenceForFingerprint(string? value) =>
         NormalizePathLikeFingerprintToken(NormalizeElementIdForFingerprint(value));
 
-    private static string NormalizePathLikeFingerprintToken(string normalizedToken)
+    /// <summary>
+    ///     Canonicalizes slash-separated reference tokens for review-cache fingerprints after label/id normalization.
+    /// </summary>
+    public static string NormalizeReviewCachePathLikeToken(string normalizedToken)
     {
         if (normalizedToken.Length == 0)
             return normalizedToken;
@@ -287,6 +290,9 @@ public static class GraphSnapshotCanonicalFingerprint
 
         return CollapseParentPathSegments(path);
     }
+
+    private static string NormalizePathLikeFingerprintToken(string normalizedToken) =>
+        NormalizeReviewCachePathLikeToken(normalizedToken);
 
     private static string CollapseParentPathSegments(string path)
     {

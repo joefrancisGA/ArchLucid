@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
+using ArchLucid.Core.Persistence.Graph;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
@@ -63,7 +64,7 @@ public static class ReviewCacheLedgerFingerprint
 
         string normalized = CollapseInteriorAsciiSpaces(NormalizeUnicodeSpaces(evidenceRef.Trim())).Normalize(NormalizationForm.FormC);
 
-        return normalized.ToLowerInvariant();
+        return GraphSnapshotCanonicalFingerprint.NormalizeReviewCachePathLikeToken(normalized.ToLowerInvariant());
     }
 
     private static string NormalizeUnicodeSpaces(string value) =>
