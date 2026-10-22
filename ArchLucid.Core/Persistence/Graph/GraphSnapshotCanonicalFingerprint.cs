@@ -204,7 +204,7 @@ public static class GraphSnapshotCanonicalFingerprint
     {
         return (elements ?? [])
             .Where(static element => element is not null)
-            .GroupBy(element => NormalizeElementIdForFingerprint(element.ElementId), StringComparer.Ordinal)
+            .GroupBy(element => NormalizeArtifactReferenceForFingerprint(element.ElementId), StringComparer.Ordinal)
             .OrderBy(static group => group.Key, StringComparer.Ordinal)
             .Select(static group => group
                 .OrderBy(FormatKnowledgeModelElementFingerprint, StringComparer.Ordinal)
@@ -245,7 +245,7 @@ public static class GraphSnapshotCanonicalFingerprint
 
         return string.Join(
             "|",
-            NormalizeElementIdForFingerprint(element.ElementId),
+            NormalizeArtifactReferenceForFingerprint(element.ElementId),
             element.Kind.ToString(),
             name,
             description,

@@ -5216,6 +5216,314 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_ledger_evidence_ref_differs_only_by_dot_dot_slash_segment()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-ledger-evidence-dotdot";
+
+        TechnologyLedgerEntry collapsed = CreateLedgerEntry(request.RunId, evidenceRef: "evidence/overview.md");
+        TechnologyLedgerEntry withDotDot = CreateLedgerEntry(request.RunId, evidenceRef: "evidence/architecture/../overview.md");
+
+        ReviewCacheManifestBuilder.Build(request, null, [collapsed]).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, null, [withDotDot]).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_ledger_evidence_ref_differs_only_by_leading_dot_slash()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-ledger-evidence-dot-slash";
+
+        TechnologyLedgerEntry bare = CreateLedgerEntry(request.RunId, evidenceRef: "evidence/overview.md");
+        TechnologyLedgerEntry dotSlash = CreateLedgerEntry(request.RunId, evidenceRef: "./evidence/overview.md");
+
+        ReviewCacheManifestBuilder.Build(request, null, [bare]).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, null, [dotSlash]).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_source_passage_ids_differ_only_by_dot_dot_slash_segment()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-source-passage-dotdot";
+
+        ArchitectureKnowledgeModel collapsed = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    SourcePassageIds = ["passages/overview"],
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel withDotDot = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    SourcePassageIds = ["passages/architecture/../overview"],
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, collapsed).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, withDotDot).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_related_element_ids_differ_only_by_dot_dot_slash_segment()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-related-dotdot";
+
+        ArchitectureKnowledgeModel collapsed = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    RelatedElementIds = ["graph/api-gateway"],
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel withDotDot = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    RelatedElementIds = ["graph/nodes/../api-gateway"],
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, collapsed).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, withDotDot).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_element_provenance_passage_artifact_id_differs_only_by_double_slash()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-passage-artifact-double-slash";
+
+        ArchitectureKnowledgeModel singleSlash = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator { ArtifactId = "docs/architecture/overview.md" },
+                    },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel doubleSlash = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator { ArtifactId = "docs//architecture//overview.md" },
+                    },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, singleSlash).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, doubleSlash).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_element_id_differs_only_by_backslash_vs_forward_slash_in_path()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-element-id-path-backslash";
+
+        ArchitectureKnowledgeModel forwardSlash = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "graph/nodes/api-gateway",
+                    Name = "API",
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel backslash = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "graph\\nodes\\api-gateway",
+                    Name = "API",
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, forwardSlash).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, backslash).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_source_passage_ids_differ_only_by_leading_slash()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-source-passage-leading-slash";
+
+        ArchitectureKnowledgeModel bare = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    SourcePassageIds = ["passages/overview"],
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel leadingSlash = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    SourcePassageIds = ["/passages/overview"],
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, bare).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, leadingSlash).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_request_source_file_name_differs_only_by_backslash_vs_forward_slash()
+    {
+        ClosedLoopReasoningRequest forwardSlash = CreateRequest("Architecture note.");
+        forwardSlash.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/architecture/overview.md",
+                ContentType = "text/markdown",
+                Content = "Architecture note.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest backslash = CreateRequest("Architecture note.");
+        backslash.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs\\architecture\\overview.md",
+                ContentType = "text/markdown",
+                Content = "Architecture note.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(forwardSlash).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(backslash).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_element_provenance_source_artifact_id_differs_only_by_dot_dot_slash_segment()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-source-artifact-dotdot";
+
+        ArchitectureKnowledgeModel collapsed = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance { SourceArtifactId = "docs/overview.md" },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel withDotDot = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance { SourceArtifactId = "docs/architecture/../overview.md" },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, collapsed).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, withDotDot).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_baseline_element_provenance_passage_section_path_differs_only_by_consecutive_spaces()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
