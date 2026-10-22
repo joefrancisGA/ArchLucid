@@ -2842,6 +2842,14 @@
 
 ## Zone: scim-users
 
+2026-10-22 thorough hunt #41 (dry): cheap-disproof closed five `(candidate)` rows (PATCH persistence failure seat rollback via `catch`/`CompensateSeatTransitionAsync` sibling to Replace/DELETE; POST `userName` `""` → `ScimUserResourceParser.ReadRequiredString`; PATCH empty `externalId` → `PatchAsync_replace_externalId_whitespace_only_throws`; unbalanced-paren filter → `ScimFilterParseException`/`Expected ')'` hunt #24 malformed class; PATCH `remove` `userName` → proven `PatchAsync_remove_userName_rejects_required_attribute`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — seat compensate on persist failure — **cheap-disproof 2026-10-22 #41:** `catch` invokes `CompensateSeatTransitionAsync` (~66–70); parity Replace/DELETE proven regressions.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — POST `userName` `""` — **cheap-disproof 2026-10-22 #41:** `ReadRequiredString` → `invalidValue` must be non-empty.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — empty `externalId` — **cheap-disproof 2026-10-22 #41:** `ReadPatchRequiredString`; regression `PatchAsync_replace_externalId_whitespace_only_throws`.
+- [x] (invalid) `ScimUsersController.ListAsync` — unbalanced parentheses — **cheap-disproof 2026-10-22 #41:** malformed filter class hunt #24; `Expected ')'` → `invalidFilter`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `remove` `userName` — **cheap-disproof 2026-10-22 #41:** proven hunt #9 `mutability`; regression `PatchAsync_remove_userName_rejects_required_attribute`.
+
 2026-10-22 thorough hunt #40 (dry): cheap-disproof closed five `(candidate)` rows (PATCH empty `userName` → `ReadPatchRequiredString`/`PatchAsync_replace_userName_whitespace_only_throws`; unclosed filter quote hunt #24 `invalidFilter`; PUT seat compensate proven `ReplaceAsync_compensates_seat_when_persistence_fails_after_activation`; create seat compensate proven `CreateAsync_releases_reserved_seat_when_insert_fails`; PATCH `remove` `externalId` hunt #9 `mutability`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
 
 - [x] (valid-no-repro) `ScimUsersController.PatchAsync` — empty `userName` — **cheap-disproof 2026-10-22 #40:** `ReadPatchRequiredString` rejects `IsNullOrWhiteSpace`; regression `PatchAsync_replace_userName_whitespace_only_throws`.
@@ -3191,9 +3199,9 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 74
+- **hunts:** 75
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 19
+- **consecutive-dry-hunts:** 20
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — SCIM PATCH remove on active returned silent no-op instead of mutability
 - **related-pd-tb:** none
@@ -3530,11 +3538,17 @@
 - [x] (valid-no-repro) `ScimUsersController.CreateAsync` — insert seat compensate — **cheap-disproof 2026-10-22 #40:** proven regression.
 - [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `remove` `externalId` — **cheap-disproof 2026-10-22 #40:** hunt #9 `mutability`.
 
-- [ ] (candidate) `ScimUsersController.PatchAsync` — compensating seat when `_users.PatchAsync` fails after `TransitionSeatAsync` — locus: `catch` + `CompensateSeatTransitionAsync` ~66–70; input: sibling to proven Replace/DELETE regressions (no dedicated Patch persistence-failure test).
-- [ ] (candidate) `ScimUsersController.CreateAsync` — POST `userName` `""` — locus: `ScimUserResourceParser.ReadRequiredString`; input: `invalidValue` parity with PATCH required strings.
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `replace` `externalId` with empty string — locus: `ReadPatchRequiredString`; input: parity `PatchAsync_replace_externalId_whitespace_only_throws`.
-- [ ] (candidate) `ScimUsersController.ListAsync` — filter with unbalanced parentheses — locus: `ScimFilterParser` grouping; input: parse failure → `invalidFilter` (sibling hunt #24 malformed class).
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `remove` on `userName` — locus: `RejectRemovedRequiredAttribute`; input: proven `PatchAsync_remove_userName_rejects_required_attribute`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — persist failure seat compensate — **cheap-disproof 2026-10-22 #41:** `CompensateSeatTransitionAsync` in `catch`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — POST empty `userName` — **cheap-disproof 2026-10-22 #41:** `ReadRequiredString`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — empty `externalId` — **cheap-disproof 2026-10-22 #41:** whitespace regression.
+- [x] (invalid) `ScimUsersController.ListAsync` — unbalanced parens — **cheap-disproof 2026-10-22 #41:** hunt #24 malformed filter.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `remove` `userName` — **cheap-disproof 2026-10-22 #41:** proven mutability.
+
+- [ ] (candidate) `ScimUsersController.CreateAsync` — POST `userName` whitespace-only `"   "` — locus: `ReadRequiredString` trim + `IsNullOrWhiteSpace`; input: `invalidValue` parity empty string.
+- [ ] (candidate) `ScimUsersController.PatchAsync` — seat rollback when `EmitRoleOverriddenAuditAsync` fails before `_users.PatchAsync` — locus: shared `catch` ~66–70; input: seat already transitioned then audit throws.
+- [ ] (candidate) `ScimUsersController.ListAsync` — empty or whitespace-only `filter` query — locus: controller/service passes filter to parser; input: null/empty vs `invalidFilter` (RFC omission).
+- [ ] (candidate) `ScimUsersController.PatchAsync` — `replace` `userName` with JSON `null` — locus: flat map + `ReadPatchRequiredString` kind guard; input: `invalidValue` not silent fallback.
+- [ ] (candidate) `ScimUsersController.DeactivateAsync` — seat restore when deactivate persist fails — locus: proven `DeactivateAsync_restores_seat_when_persistence_fails` (state-machine-gap saturated).
 
 - [x] (proven) `ScimUserService.CreateAsync` / `PatchAsync` / `ScimUsersController` — a second live user with the same `userName` and a different `externalId` was stored, including case-only names — **hit 2026-10-09 seed hunt:** live `userName` lookup returns `uniqueness`. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
 - [x] (proven) `ScimFilterParser.ParseFilter` / `ScimUsersController.ListAsync` — ungrouped `or` before `and` was parsed left-to-right, so an active user matching only the left comparison was omitted — **hit 2026-10-09 seed hunt:** `not` over `and` over `or` per RFC 7644 §3.4.2.2. Regressions `ListAsync_filter_gives_and_precedence_over_or`, `Parse_or_binds_looser_than_and`, and `Parse_not_binds_tighter_than_and`.
