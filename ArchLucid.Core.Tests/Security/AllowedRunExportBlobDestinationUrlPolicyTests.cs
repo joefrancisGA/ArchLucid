@@ -25,6 +25,15 @@ public sealed class AllowedRunExportBlobDestinationUrlPolicyTests
             .Contain("embedded credentials");
     }
 
+    [Fact]
+    public void TryGetRejectionReason_WhenIpv4LiteralIsBlobAccountLabel_Rejects()
+    {
+        AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason(
+                "https://127.0.0.1.blob.core.windows.net/container/run.zip?sas=token")
+            .Should()
+            .Contain("private");
+    }
+
     [Theory]
     [InlineData("http://acct.blob.core.windows.net/c?sas=1", "https scheme")]
     [InlineData("https://127.0.0.1/c?sas=1", "private")]

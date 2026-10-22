@@ -5252,13 +5252,15 @@
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 944
-- **bugs-found:** 58
+- **hunts:** 945
+- **bugs-found:** 59
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — `ReplayExportAsync` omitted authority lifecycle Complete guard after sealed-hash verification
+- **last-bug:** 2026-10-22 — blob SAS host allowed IPv4 literal as storage account label before Azure suffix
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 thorough hunt (hit): promoted `AllowedRunExportBlobDestinationUrlPolicy` blob-account-label candidate; proved `https://127.0.0.1.blob.core.windows.net/...` passed sync allowlist because only the full host was checked while the account label is a forbidden loopback literal; reject forbidden literals on extracted account labels for both Azure blob host suffixes; regression `TryGetRejectionReason_WhenIpv4LiteralIsBlobAccountLabel_Rejects`; cheap-disproof closed compare diff malformed-GUID guard order, metadata replay lifecycle 409 parity, and IDN-only bypass; 29 scoped export tests passed (Application + Api + Core).
 
 2026-10-22 thorough hunt (hit): promoted `RunExportQueryFacade.ReplayExportAsync` lifecycle parity candidate; proved replay delegated to `ExportReplayService` after lineage/hash guard while `GetExportRecordAsync` already enforced `TryEnsureExportRunLifecycleCompleteAsync`; aligned replay with metadata read paths; regression `ReplayExportAsync_returns_lineage_unverified_when_authority_lifecycle_not_complete`; cheap-disproof closed `GetExportRecord` career gap (facade `EnsureCareerAllowsExportRecordMetadataOrThrowAsync` + controller catch), `ArchitectureExportController` review markdown (`CareerArtifactExportBlockedException` mapped on `ExportRunSummary`), `RunsExportController` career parity (`CareerArtifactExportBlockedException` catch on run export), and whitespace-padded `is_sample_run` string tokens (`double.TryParse` already coerces `" 1 "`); regression `ResolveFromDeltasJson_blocks_sample_run_when_is_sample_run_string_one_with_surrounding_whitespace`; 35 scoped export tests passed (Application + Api + Core).
 
@@ -7222,9 +7224,13 @@
 - [x] (valid-no-repro) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — whitespace-padded numeric string tokens (`" 1 "`, `" 1.0 "`) — **cheap-disproof 2026-10-22 thorough hunt:** invariant-culture `double.TryParse` on string elements already coerces padded whole numbers; regression `ResolveFromDeltasJson_blocks_sample_run_when_is_sample_run_string_one_with_surrounding_whitespace`.
 - [x] (invalid) `RunsExportController` — run export helpers omit career posture parity — **cheap-disproof 2026-10-22 thorough hunt:** `RunsExportController.Export` catches `CareerArtifactExportBlockedException`; regression `RunsExportControllerTests` career-block mapping.
 
-- [ ] (candidate) `RunExportQueryFacade.CompareExportRecordsAsync` — left/right lifecycle guards may run in different order than career gates when one run id is malformed GUID; reachable only on diff API with mixed valid/invalid run headers.
-- [ ] (candidate) `ExportsController.ReplayExportRecordMetadata` — metadata-only replay path may surface `LineageUnverified` without parity mapping when lifecycle regresses after record capture (controller outcome switch vs `GetExportRecord`).
-- [ ] (candidate) `AllowedRunExportBlobDestinationUrlPolicy` — internationalized domain name (IDN) host labels in blob destination URLs may pass allowlist while DNS resolution differs; reachable on operator-configured push destinations.
+- [x] (invalid) `RunExportQueryFacade.CompareExportRecordsAsync` — lifecycle vs career order with malformed GUID — **cheap-disproof 2026-10-22 thorough hunt:** persisted export `RunId` values are authority guids; `Guid.TryParse` failure skips lifecycle and career gates together; no metadata diff leak path.
+- [x] (invalid) `ExportsController.ReplayExportRecordMetadata` — metadata replay missing lifecycle 409 parity — **cheap-disproof 2026-10-22 thorough hunt:** controller maps `LineageUnverified` to `MapExportReplaySealedManifestConflict` on metadata replay; lifecycle regression uses same outcome after replay facade fix.
+- [x] (proven) `AllowedRunExportBlobDestinationUrlPolicy` — IPv4 literal storage account label before `.blob.core.windows.net` bypassed sync host checks — **hit 2026-10-22 thorough hunt:** `127.0.0.1.blob.core.windows.net` was allowed because suffix matched while account label is a forbidden loopback literal; extract account label and apply `PrivateNetworkAddressGuard` before allowlist; regression `TryGetRejectionReason_WhenIpv4LiteralIsBlobAccountLabel_Rejects`.
+
+- [ ] (candidate) `RunExportBlobPushService` — DNS resolution validation and `HttpClient.PutAsync` are separate steps; hostname rebinding between validate and PUT may still reach a private address unless the client pins resolved endpoints.
+- [ ] (candidate) `ExportsController.CompareExportRecordsSummary` — persist path records comparison audit before client receives 409 when career gate throws after diff formatting (ordering vs `CompareExportRecords` GET).
+- [ ] (candidate) `ArchitectureReviewExportService` — markdown/HTML export routes beyond `ExportRunSummary` may omit career-block HTTP mapping on sibling controller actions.
 
 - [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` / `ReviewCacheManifestBuilder.Build` — entry-time fingerprint snapshot — **closed 2026-10-05 thorough hunt (architecture-intelligence-orchestrator zone).**
 - [x] (valid-no-repro) `ReviewResultCache.PinScope` / composite pin cap — **closed 2026-10-05 thorough hunt (architecture-intelligence-orchestrator zone).**
