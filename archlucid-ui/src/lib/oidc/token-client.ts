@@ -50,6 +50,8 @@ function shouldHumanizeTokenOAuthErrorCode(normalizedErrorCode: string): boolean
     case "invalid_scope":
     case "server_error":
     case "temporarily_unavailable":
+    case "authorization_pending":
+    case "slow_down":
       return true;
     default:
       return false;
