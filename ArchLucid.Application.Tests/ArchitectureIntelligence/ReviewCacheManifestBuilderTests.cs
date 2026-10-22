@@ -965,6 +965,53 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_baseline_element_provenance_passage_locator_artifact_id_differs_only_by_casing()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-passage-artifact-casing";
+
+        ArchitectureKnowledgeModel lower = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator { ArtifactId = "artifact-1" },
+                    },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel upper = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator { ArtifactId = "ARTIFACT-1" },
+                    },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, lower).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, upper).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_baseline_element_id_is_whitespace_only_vs_empty_string()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
@@ -1078,6 +1125,47 @@ public sealed class ReviewCacheManifestBuilderTests
         ReviewCacheManifestBuilder.Build(request, paddedArtifact).ContentHash
             .Should()
             .Be(ReviewCacheManifestBuilder.Build(request, trimmedArtifact).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_element_provenance_source_artifact_id_differs_only_by_casing()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-provenance-artifact-casing";
+
+        ArchitectureKnowledgeModel lower = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance { SourceArtifactId = "artifact-1" },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel upper = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance { SourceArtifactId = "ARTIFACT-1" },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, lower).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, upper).ContentHash);
     }
 
     [Fact]
@@ -2426,6 +2514,23 @@ public sealed class ReviewCacheManifestBuilderTests
         ReviewCacheManifestBuilder.Build(request, null, [spaced]).ContentHash
             .Should()
             .Be(ReviewCacheManifestBuilder.Build(request, null, [nbsp]).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_ledger_technology_name_differs_only_by_casing()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-ledger-tech-casing";
+
+        TechnologyLedgerEntry lower = CreateLedgerEntry(request.RunId, evidenceRef: null);
+        lower.TechnologyName = "Microsoft Azure";
+
+        TechnologyLedgerEntry upper = CreateLedgerEntry(request.RunId, evidenceRef: null);
+        upper.TechnologyName = "microsoft azure";
+
+        ReviewCacheManifestBuilder.Build(request, null, [lower]).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, null, [upper]).ContentHash);
     }
 
     [Fact]

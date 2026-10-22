@@ -249,7 +249,7 @@ public static class GraphSnapshotCanonicalFingerprint
             ? string.Empty
             : string.Join(
                 ":",
-                NormalizeFingerprintText(provenance.PassageLocator.ArtifactId),
+                NormalizeElementIdForFingerprint(provenance.PassageLocator.ArtifactId),
                 provenance.PassageLocator.StartOffset?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty,
                 provenance.PassageLocator.EndOffset?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty,
                 NormalizeFingerprintText(provenance.PassageLocator.Quote));
@@ -259,7 +259,7 @@ public static class GraphSnapshotCanonicalFingerprint
             provenance.Origin.ToString(),
             provenance.SupportStatus.ToString(),
             provenance.Confidence.ToString(System.Globalization.CultureInfo.InvariantCulture),
-            NormalizeFingerprintText(provenance.SourceArtifactId),
+            NormalizeElementIdForFingerprint(provenance.SourceArtifactId),
             NormalizeFingerprintText(provenance.Notes),
             locator);
     }
