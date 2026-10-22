@@ -12470,8 +12470,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 197
-- **bugs-found:** 163
+- **hunts:** 198
+- **bugs-found:** 164
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-overlay rebind deduped parallel edges separately when EdgeType differed only by whitespace
 - **related-pd-tb:** none
@@ -12557,7 +12557,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — minted overlay rows carried padded property-bag keys — **cheap-disproof 2026-10-22 seed hunt:** canonical literal keys only; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — minted inventory overlay edges may retain padded `RelationshipType` on `EdgeType` and dedupe keys — locus: relationship projection uses raw `RelationshipType` without trim; input: snapshot relationships whose type differs only by surrounding whitespace; wrong outcome: duplicate overlay edges or padded edge types before merge normalization.
+2026-10-22 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` padded `RelationshipType` on minted overlay edges candidate; proved relationship projection composed edge dedupe keys and stored `EdgeType`/`Label` from raw `RelationshipType`, so padding-only type variants could emit duplicate observed edges or padded types before merge; trim relationship type before dedupe and edge materialization; regression `BuildOverlay_deduplicates_relationships_when_relationship_type_differs_only_by_surrounding_whitespace`; seeded `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` padded `FromAzureResourceId`/`ToAzureResourceId` relationship endpoint trim parity on edge attachment follow-on; 490 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — minted overlay edges retained padded `RelationshipType` — **hit 2026-10-22 seed hunt (seed→hit):** trim relationship type on overlay edge mint; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — inventory relationships with padded ARM endpoint ids may fail edge attachment despite trim-normalized node index — locus: `nodeIdByArmId` lookup uses `ArmResourceIdNormalizer` while relationship rows carry surrounding whitespace on endpoint ARM ids only; input: relationships whose endpoints trim-equal indexed nodes but raw ARM strings differ by padding; wrong outcome: overlay drops connectivity rows that should attach.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 

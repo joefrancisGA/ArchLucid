@@ -95,7 +95,8 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
                 continue;
             }
 
-            string edgeKey = $"{fromNodeId}|{toNodeId}|{relationship.RelationshipType}";
+            string relationshipType = (relationship.RelationshipType ?? string.Empty).Trim();
+            string edgeKey = $"{fromNodeId}|{toNodeId}|{relationshipType}";
 
             if (!edgeKeys.Add(edgeKey))
             {
@@ -107,8 +108,8 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
                 EdgeId = $"edge-{edgeKey}",
                 FromNodeId = fromNodeId,
                 ToNodeId = toNodeId,
-                EdgeType = relationship.RelationshipType,
-                Label = relationship.RelationshipType,
+                EdgeType = relationshipType,
+                Label = relationshipType,
                 Weight = 1.0,
                 Properties =
                 {
