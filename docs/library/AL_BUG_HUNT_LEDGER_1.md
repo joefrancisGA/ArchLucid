@@ -7803,6 +7803,16 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-22 seed hunt (seed→hit): promoted faithfulness import alias id trim; regression `Import_trims_surrounding_whitespace_on_alias_id`; 127 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — padded `aliasId` from admin route lookup missed catalog row and returned 404 — **hit 2026-10-22 seed hunt:** trim alias and actor ids before repository/recorder calls; regression above. [class:fail-open-validation]
+
+- [x] (invalid) `RepoFaithfulnessHarnessSummaryReader.TryReadLatestAsync` — omitted ratio keys default to `0.0` — **cheap-disproof 2026-10-22 seed hunt:** import `EnsureHarnessSummaryRatiosAreValid` rejects non-finite/out-of-range values; zero readiness with positive `casesEvaluated` records Failed evaluation (expected harness semantics).
+
+- (candidate) `AgentModelCatalogEvaluationRecorder.RecordTaskEvaluationAsync` — `aliasId` not trimmed at recorder entry when called from other admin paths — locus: recorder vs importer; input: compare other catalog controllers.
+- (candidate) `AgentCuratedEvidenceProposer` — enricher ordering vs structural post-process — engineering hardening.
+- (candidate) `RunToolInvocationForensicsBuilder.BuildFromTraces` — first trace row always null duration — locus: inter-trace delta; input: single-trace runs (by design).
+
 2026-10-22 seed hunt (seed→hit): consolidated harness summary validation; reject out-of-range ratios; regression `Import_rejects_summary_when_readiness_ratio_is_out_of_unit_interval`; 126 scoped Application.Tests.Agents tests passed.
 
 - [x] (proven) `AgentModelCatalogFaithfulnessHarnessImporter.EnsureHarnessSummaryRatiosAreValid` — negative readiness ratios were finite but still persisted in evaluation evidence — **hit 2026-10-22 seed hunt:** shared finite + `[0,1]` guard; regression above. [class:fail-open-validation]
@@ -7864,11 +7874,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 50
-- **bugs-found:** 47
+- **hunts:** 51
+- **bugs-found:** 48
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — faithfulness import rejects harness ratios outside [0,1]
+- **last-bug:** 2026-10-22 — faithfulness import trims padded model alias ids
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
 

@@ -35,11 +35,14 @@ public sealed class AgentModelCatalogFaithfulnessHarnessImporter(
         ArgumentException.ThrowIfNullOrWhiteSpace(aliasId);
         ArgumentException.ThrowIfNullOrWhiteSpace(actorUserId);
 
-        AgentModelCatalogRow? existing = await _catalogRepository.TryGetAsync(aliasId, cancellationToken).ConfigureAwait(false);
+        string normalizedAliasId = aliasId.Trim();
+        string normalizedActorUserId = actorUserId.Trim();
+
+        AgentModelCatalogRow? existing = await _catalogRepository.TryGetAsync(normalizedAliasId, cancellationToken).ConfigureAwait(false);
 
         if (existing is null)
         {
-            throw new KeyNotFoundException($"Model alias '{aliasId}' is not registered.");
+            throw new KeyNotFoundException($"Model alias '{normalizedAliasId}' is not registered.");
         }
 
         FaithfulnessHarnessSummary? summary =
@@ -85,7 +88,7 @@ public sealed class AgentModelCatalogFaithfulnessHarnessImporter(
         if (taskTypes.Count == 0)
         {
             throw new InvalidOperationException(
-                $"Model alias '{aliasId}' has no approved task types to attach faithfulness harness evidence.");
+                $"Model alias '{normalizedAliasId}' has no approved task types to attach faithfulness harness evidence.");
         }
 
         AgentModelCatalogRow updated = existing;
@@ -94,11 +97,11 @@ public sealed class AgentModelCatalogFaithfulnessHarnessImporter(
         {
             updated = await _evaluationRecorder
                 .RecordTaskEvaluationAsync(
-                    aliasId,
+                    normalizedAliasId,
                     taskType,
                     evaluationState,
                     evidenceJson,
-                    actorUserId,
+                    normalizedActorUserId,
                     cancellationToken)
                 .ConfigureAwait(false);
         }
