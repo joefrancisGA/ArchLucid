@@ -12470,7 +12470,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 252
+- **hunts:** 253
 - **bugs-found:** 177
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — fully empty overlay merge returned base graph without warning normalization
@@ -12777,7 +12777,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — case-variant overlay property conflicts merged silently — **cheap-disproof 2026-10-22 seed hunt:** duplicate-key guard throws; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — appended inventory overlay edge property keys differing only by casing with conflicting values may merge silently — locus: `NormalizeOverlayPropertyBag` on `NormalizeOverlayEdge`; input: overlay edge property bag with case-colliding keys and different values; wrong outcome: merged edge keeps both values or last-wins without error.
+2026-10-22 seed hunt (valid-no-repro): promoted `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` case-variant overlay edge property conflict candidate; proved `NormalizeOverlayEdge` routes property bags through the same `NormalizeOverlayPropertyBag` guard, throwing on case-colliding keys with conflicting trimmed values; regression `Merge_throws_when_overlay_edge_property_keys_differ_only_by_case_and_values_conflict`; seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` overlay edge property keys differing only by casing with identical values dedupe follow-on; 546 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — case-variant overlay edge property conflicts merged silently — **cheap-disproof 2026-10-22 seed hunt:** duplicate-key guard throws; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — appended inventory overlay edge property keys differing only by casing may duplicate logical metadata — locus: `NormalizeOverlayPropertyBag` on edge append; input: overlay edge property bag with keys differing only by casing and identical values; wrong outcome: duplicate property entries on merged edge.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
