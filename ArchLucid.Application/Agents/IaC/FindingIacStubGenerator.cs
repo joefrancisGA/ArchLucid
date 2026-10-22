@@ -114,7 +114,7 @@ public sealed class FindingIacStubGenerator(
 
     private static string NormalizeLlmStubBody(string stub)
     {
-        string trimmed = stub.Trim();
+        string trimmed = TryUnwrapJsonStringLiteral(stub.Trim());
 
         if (!trimmed.StartsWith("```", StringComparison.Ordinal))
             return trimmed;
@@ -130,6 +130,23 @@ public sealed class FindingIacStubGenerator(
             trimmed = trimmed[..^3].TrimEnd();
 
         return trimmed;
+    }
+
+    private static string TryUnwrapJsonStringLiteral(string value)
+    {
+        if (value.Length < 2 || value[0] != '"' || value[^1] != '"')
+            return value;
+
+        try
+        {
+            string? unwrapped = JsonSerializer.Deserialize<string>(value);
+
+            return string.IsNullOrEmpty(unwrapped) ? value : unwrapped;
+        }
+        catch (JsonException)
+        {
+            return value;
+        }
     }
 
     private static string EnsureDisclaimerLine(string stub)
