@@ -27,8 +27,9 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
             return new StructuredDiagramGraphMergeResult();
         }
 
-        List<GraphNode> nodes = [];
+        Dictionary<string, GraphNode> nodesById = new(StringComparer.OrdinalIgnoreCase);
         List<GraphEdge> edges = [];
+        HashSet<string> mergedDirectedPairs = new(StringComparer.OrdinalIgnoreCase);
         List<string> warnings = [];
         List<StructuredDiagramCanonicalBinding> bindings = [];
         Guid graphSnapshotId = Guid.NewGuid();
@@ -63,13 +64,27 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
                 continue;
             }
 
-            nodes.AddRange(compileResult.Snapshot.Nodes);
-            edges.AddRange(compileResult.Snapshot.Edges);
+            foreach (GraphNode node in compileResult.Snapshot.Nodes)
+            {
+                nodesById.TryAdd(node.NodeId, node);
+            }
+
+            foreach (GraphEdge edge in compileResult.Snapshot.Edges)
+            {
+                string directedPairKey = $"{edge.FromNodeId}|{edge.ToNodeId}|{edge.EdgeType}";
+
+                if (!mergedDirectedPairs.Add(directedPairKey))
+                {
+                    continue;
+                }
+
+                edges.Add(edge);
+            }
         }
 
         return new StructuredDiagramGraphMergeResult
         {
-            Nodes = nodes,
+            Nodes = nodesById.Values.ToList(),
             Edges = edges,
             Warnings = warnings,
             CanonicalBindings = bindings,

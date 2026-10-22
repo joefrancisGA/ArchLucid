@@ -12470,12 +12470,16 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 63
-- **bugs-found:** 53
+- **hunts:** 64
+- **bugs-found:** 54
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 - provenance revision hash ignored graph topology under stable snapshot id
+- **last-bug:** 2026-10-22 — multi-document structured diagram merge duplicated ConnectsTo edges
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted merger dedup candidate; proved `StructuredDiagramGraphMerger.Merge` appended parallel `ConnectsTo` edges when two reconstructed documents shared the same logical `api`→`db` connectivity; fixed with cross-document node id dedup and directed-pair edge dedup parity with `ArchitectureDiagramToGraphCompiler`; regression `Merge_deduplicates_connects_to_edges_when_multiple_documents_share_equivalent_endpoints`; 378 KnowledgeGraph + 67 Provenance scoped tests passed.
+
+- [x] (proven) `StructuredDiagramGraphMerger.Merge` — compiling multiple reconstructed documents appended parallel `ConnectsTo` edges when diagrams shared equivalent endpoints — **hit 2026-10-22 seed hunt (seed→hit):** cross-document `nodesById` and `mergedDirectedPairs` dedup; regression above.
 
 2026-10-22 seed hunt (seed→hit): reseeded revision-hasher surface; proved `ComputeArtifactsFingerprint` keyed only `ArtifactId` and `ContentHash`, so `ContributingDecisionIds` changes left `ProvenanceGraphAccessService` serving stale `ContributedToArtifact` edges when bundle content hash was unchanged; regression `Compute_changes_when_contributing_decision_ids_change_but_content_hash_is_unchanged`; 377 KnowledgeGraph + 62 Provenance scoped tests passed.
 
@@ -12499,7 +12503,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (valid-no-repro) `ProvenanceSnapshotRevisionHasher.Compute` — `RuleAuditTracePayload.RuleSetHash` changes with stable `DecisionTraceId` and `AppliedRuleIds` — **cheap-disproof 2026-10-22 seed hunt:** `ProvenanceBuilder` does not materialize rule-set hash into nodes or edges; regressions above document current contract.
 
-- [ ] (candidate) `StructuredDiagramGraphMerger.Merge` — compiling multiple reconstructed documents may append parallel `ConnectsTo` edges when diagrams share equivalent endpoints — locus: `StructuredDiagramGraphMerger.cs` merge loop; input: two structured-diagram documents with overlapping logical connectivity; wrong outcome: duplicate edges in merged graph payload.
 - [ ] (candidate) `ProvenanceSnapshotRevisionHasher.Compute` — `FindingsSnapshot.GenerationStatus` or withheld/demoted finding rows may change without changing decision-grade `Findings` list fingerprint — locus: revision canonical string vs `FindingsSnapshot` seal fields; input: snapshot re-opened from partial to complete under stable `FindingsSnapshotId`; wrong outcome: stale provenance while operators treat snapshot as sealed.
 - [ ] (candidate) `ProvenanceSnapshotRevisionHasher.Compute` — `RuleAuditTracePayload.RuleSetId` / `RuleSetVersion` changes may not change revision fingerprint when trace id and applied rules are unchanged — locus: canonical revision string; input: rule-set version bump without applied-rule delta; wrong outcome: stale provenance when rule metadata is buyer-visible on manifest only.
 
