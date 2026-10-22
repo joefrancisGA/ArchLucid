@@ -6132,3 +6132,25 @@
 {"outcome":"seed-only","zoneId":"ui-oidc","kind":"seed hunt","zone":"ui-oidc","at":"2026-10-22T04:18:49.288Z"}
 {"at":"2026-10-22T04:21:22.778Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-22T04:23:23.839Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-22T04:12:02.8982857Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-22T04:04:52.8465492Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-22T03:58:22.7396106Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-22T03:19:36.7638985Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/"]}
+{"at":"2026-10-22T03:14:25.0208980Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-22T03:19:10.5526765Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-22T03:23:45.6693246Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-22T03:28:17.4025994Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-22T03:33:02.2822167Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-22T03:37:59.4435571Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-22T03:42:20.2978505Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-22T03:43:15.5872727Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/"]}
+{"at":"2026-10-22T03:47:08.0252781Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-22T03:52:43.7821297Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-22T03:58:27.3461156Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-22T04:03:48.9985387Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-22T04:07:58.4437201Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-22T04:12:00.0542648Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-22T04:15:37.0779439Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-22T04:18:25.5113586Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-22T04:19:06.9675983Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-22T04:22:14.5795524Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}

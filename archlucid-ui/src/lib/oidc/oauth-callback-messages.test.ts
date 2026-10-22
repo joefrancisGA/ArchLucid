@@ -146,6 +146,8 @@ describe("decodeOAuthErrorDescription", () => {
 
   it("preserves literal plus in authorize error descriptions when skin-tone emoji modifiers are present", () => {
     expect(decodeOAuthErrorDescription("👍🏻+extra")).toBe("👍🏻+extra");
+    expect(decodeOAuthErrorDescription("👍🏻%2Bextra")).toBe("👍🏻+extra");
+    expect(decodeOAuthErrorDescription("👍🏻%252Bextra")).toBe("👍🏻+extra");
     expect(decodeOAuthErrorDescription("👋🏽+denied")).toBe("👋🏽+denied");
   });
 
