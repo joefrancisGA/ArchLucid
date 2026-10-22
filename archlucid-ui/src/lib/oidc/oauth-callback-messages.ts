@@ -212,12 +212,18 @@ export function readOAuthJsonErrorDescription(value: string): string {
   }
 
   const percentEncodedPlus = includesPercentEncodedPlus(collapsed);
+  const literalPlusInSource = collapsed.includes("+");
   let decoded: string;
 
   try {
-    decoded = decodeRepeatedPercentEncoding(collapsed);
+    const decodeSource =
+      percentEncodedPlus && literalPlusInSource
+        ? collapsed.replace(/%(?:25)*2[bB]/gi, " ")
+        : collapsed;
 
-    if (percentEncodedPlus) {
+    decoded = decodeRepeatedPercentEncoding(decodeSource);
+
+    if (percentEncodedPlus && !literalPlusInSource) {
       decoded = decoded.replace(/\+/g, " ");
     }
 
