@@ -8712,6 +8712,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted fraction-slash (U+2044) drift splitting `ContentHash` and `modelfp`; `NormalizeReviewCacheUnicodeSlashScalars` now maps U+2044 to `/`; regressions `Build_matches_content_hash_when_file_name_differs_only_by_fraction_slash` and `Build_matches_content_hash_when_baseline_element_provenance_passage_artifact_id_differs_only_by_fraction_slash`; 366 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` / `ClosedLoopReasoningSourceTextNormalizer` — fraction slash scalars split review-cache fingerprints — **hit 2026-10-22 seed hunt:** U+2044 in `NormalizeReviewCacheUnicodeSlashScalars`; regressions above.
+
 2026-10-22 seed hunt (seed→hit): promoted Unicode slash drift in **source file names** splitting `ContentHash` while `modelfp` already canonicalized Unicode slashes; `ClosedLoopReasoningSourceTextNormalizer` now applies `NormalizeReviewCacheUnicodeSlashScalars`; regressions `Build_matches_content_hash_when_file_name_differs_only_by_unicode_division_slash` and `Build_matches_content_hash_when_file_name_differs_only_by_fullwidth_slash`; cheap-disproof regressions for ledger evidence and passage `SectionPath` Unicode slashes; 364 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` — Unicode slash file names split content hash — **hit 2026-10-22 seed hunt:** shared Unicode slash scalar normalization; regressions above.
