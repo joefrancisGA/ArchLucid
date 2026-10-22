@@ -73,9 +73,13 @@ export function CallbackClient() {
       }
     };
 
-    const fail = (msg: string) => {
+    const fail = (msg: string, preserveReturnOnRetry = false) => {
       if (canceled) {
         return;
+      }
+
+      if (preserveReturnOnRetry) {
+        markAuthorizeCallbackFailed();
       }
 
       setShowSlowHint(false);
@@ -109,9 +113,8 @@ export function CallbackClient() {
         consumePkceState(state);
       }
 
-      markAuthorizeCallbackFailed();
       const decoded = decodeOAuthErrorDescription(oauthErrorDescription);
-      fail(humanizeAuthorizeCallbackError(oauthError, decoded));
+      fail(humanizeAuthorizeCallbackError(oauthError, decoded), true);
 
       return () => {
         canceled = true;
@@ -124,8 +127,7 @@ export function CallbackClient() {
         consumePkceState(state);
       }
 
-      markAuthorizeCallbackFailed();
-      fail("We did not receive a complete response from your identity provider. Start sign-in again.");
+      fail("We did not receive a complete response from your identity provider. Start sign-in again.", true);
 
       return () => {
         canceled = true;
@@ -136,7 +138,7 @@ export function CallbackClient() {
     const stored = consumePkceState(state);
 
     if (!stored) {
-      fail("This sign-in attempt expired or was started in another window. Try signing in again.");
+      fail("This sign-in attempt expired or was started in another window. Try signing in again.", true);
 
       return () => {
         canceled = true;
@@ -174,7 +176,7 @@ export function CallbackClient() {
           const idNonce = readNonceFromPayload(decodeJwtPayload(tokens.id_token));
 
           if (idNonce !== stored.nonce) {
-            fail("Your identity response could not be verified securely. Try signing in again.");
+            fail("Your identity response could not be verified securely. Try signing in again.", true);
 
             return;
           }
@@ -207,7 +209,7 @@ export function CallbackClient() {
         clearSlowHintTimer();
 
         if (!canceled) {
-          fail(e instanceof Error ? e.message : String(e));
+          fail(e instanceof Error ? e.message : String(e), true);
         }
       }
     })();

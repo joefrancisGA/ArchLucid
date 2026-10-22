@@ -148,6 +148,22 @@ describe("CallbackClient", () => {
     expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
   });
 
+  it("marks authorize failure when PKCE state does not match the callback", async () => {
+    searchParamsMock.value = new URLSearchParams({
+      code: "auth-code",
+      state: "stale-state",
+    });
+    vi.mocked(consumePkceState).mockReturnValueOnce(null);
+
+    render(<CallbackClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-callback-access-panel")).toBeInTheDocument();
+    });
+
+    expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
+  });
+
   it("marks authorize failure when the callback is missing required parameters", async () => {
     searchParamsMock.value = new URLSearchParams();
     vi.mocked(consumePkceState).mockReturnValueOnce(null);

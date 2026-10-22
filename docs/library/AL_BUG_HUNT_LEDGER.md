@@ -25277,11 +25277,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `CallbackClient` — incomplete callback left PKCE and dropped return on retry — **hit 2026-10-22 seed hunt:** parity with OAuth `?error=` cleanup; regressions above.
 
-- [ ] (candidate) `CallbackClient` — callback with `code` but missing `state` cannot consume PKCE yet still marks authorize failure — locus: incomplete branch; input: truncated redirect drops `state`; reachability: proxy strips query param.
-- [ ] (candidate) `readOAuthJsonErrorDescription` — token JSON `error_description` with soft hyphen word breaks may collapse differently than authorize query copy — locus: `oauth-callback-messages.ts`; input: `error_description` with `\u00AD` (reachability: token endpoint JSON).
-- [ ] (candidate) `getOidcRedirectUri` — window-less SSR path returns empty redirect URI while client path uses `window.location.origin` — locus: `config.ts`; input: initiate called during SSR guard (reachability: no production caller).
-- [ ] (candidate) `randomOpaqueState` — 16-byte state entropy vs dual-flow storage collision — locus: `pkce.ts`; input: misconfigured parallel flows (documented invalid).
-- [ ] (candidate) `clearOidcSession` — void `clearBffSessionCookie` vs in-flight `syncTokenToBff` — locus: sign-out ordering; input: sign-out during token persist (covered by generation guards).
+- [x] (valid-no-repro) `CallbackClient` — `code` without `state` — **cheap-disproof 2026-10-22 seed hunt:** incomplete branch calls `fail(..., true)`; return preserved on retry; PKCE cleared on next initiate.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — soft hyphen in token JSON — **cheap-disproof 2026-10-22 seed hunt:** `collapseOAuthErrorDescriptionLineBreaks` strips `\u00AD` on both paths.
+- [x] (invalid) `getOidcRedirectUri` — SSR empty redirect — **cheap-disproof 2026-10-22 seed hunt:** `initiateOidcRedirect` is client-only; no reachable SSR caller.
+- [x] (invalid) `randomOpaqueState` — dual-flow collision — **cheap-disproof 2026-10-22 seed hunt:** collision not reachable; cross-flow clears on initiate.
+- [x] (valid-no-repro) `clearOidcSession` vs in-flight BFF sync — **cheap-disproof 2026-10-22 seed hunt:** `session.test.ts` replacement-session and generation guards.
+
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `CallbackClient` / `consumePkceState` mismatch — callback with `code` + `state` but missing or stale PKCE showed the access panel without `markAuthorizeCallbackFailed`, so a sign-in retry without `returnUrl` cleared the post-sign-in return path; `fail(..., preserveReturnOnRetry)` now marks authorize failure for PKCE mismatch, nonce verification failure, and token-exchange errors; regression `marks authorize failure when PKCE state does not match the callback`; scoped `src/lib/oidc` + `CallbackClient` vitest 335/335.
+
+- [x] (proven) `CallbackClient` — PKCE mismatch and token-exchange failures dropped return on retry — **hit 2026-10-22 seed hunt:** `preserveReturnOnRetry` on operator-recoverable callback failures; regression above.
+
+- [ ] (candidate) `CallbackClient` — configuration failures (`assertOidcSignInConfig`) intentionally omit authorize-failure marker — locus: `fail` default; input: missing env on callback deep link (reachability: mis-deployed beta).
+- [ ] (candidate) `consumePostSignInReturnUrl` — unsafe path stripped at consume time after authorize failure retry succeeds — locus: `isSafeReturnPath`; input: return URL mutated in storage (defense in depth only).
+- [ ] (candidate) `initiateSupplementalOidcRedirect` — Google discovery failure clears return when primary PKCE slot repopulated mid-await — locus: discovery catch branch; input: race between flows (timing).
+- [ ] (candidate) `jwt-payload` — `pickDisplayNameFromPayload` prefers `name` over `preferred_username` when both present — locus: claim precedence; input: IdP emits both (display preference).
+- [ ] (candidate) `refreshAccessToken` — token client omits `redirect_uri` on refresh grant (RFC OK) but some IdPs require it — locus: `token-client.ts`; input: misconfigured IdP (deployment).
 
 ## Zone: ui-oidc
 
@@ -25291,11 +25301,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 88
-- **bugs-found:** 81
+- **hunts:** 89
+- **bugs-found:** 82
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — incomplete authorize callback dropped return on retry
+- **last-bug:** 2026-10-22 — callback PKCE mismatch dropped return on retry
 - **hunts:** 78
 - **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
