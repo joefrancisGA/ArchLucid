@@ -15,6 +15,19 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     private static readonly Guid ContextSnapshotId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
 
     [Fact]
+    public void Compute_changes_when_manifest_decision_trace_id_differs_but_trace_payload_decision_trace_id_and_decisions_are_unchanged()
+    {
+        ProvenanceBuildInput baseline = CreateInput([]);
+        ProvenanceBuildInput updated = CreateInput([]);
+        Guid traceDecisionTraceId = ((RuleAuditTraceDto)baseline.DecisionTrace).RuleAudit.DecisionTraceId;
+        baseline.Manifest.DecisionTraceId = traceDecisionTraceId;
+        updated.Manifest.DecisionTraceId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
     public void Compute_changes_when_manifest_context_snapshot_id_differs_but_manifest_id_hash_and_decisions_are_unchanged()
     {
         ProvenanceBuildInput baseline = CreateInput([]);
@@ -878,6 +891,7 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
                 ContextSnapshotId = ContextSnapshotId,
                 GraphSnapshotId = graphSnapshotId,
                 FindingsSnapshotId = findingsSnapshotId,
+                DecisionTraceId = decisionTraceId,
                 ManifestHash = manifestHash ?? "mh",
                 Decisions = decisions is null ? [] : [.. decisions],
             },
