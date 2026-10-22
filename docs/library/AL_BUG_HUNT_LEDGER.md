@@ -1,3 +1,11 @@
+2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; cheap-disproof closed authorization_pending authorize UX and clearOidcSession retry-snapshot policy without signed-in identity; parity regressions zero-width-only authorize-retry snapshot purge, snapshot preserved on unsigned session clear, BFF refresh HTTP 410 and opaque token endpoint 410 without cookie clear; removed duplicate BFF client 425 test; scoped `src/lib/oidc` + BFF refresh route vitest 480/480.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - authorization_pending authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX; not a security defect.
+- [x] (valid-no-repro) clearOidcSession - clear retry snapshot without signed-in identity - **cheap-disproof 2026-10-22:** snapshot + retry marker intentionally preserved for unsigned retry flow.
+- [x] (valid-no-repro) readAuthorizeRetryReturnPathSnapshot - ZWSP-only snapshot purge - **regression 2026-10-22:** parity with post-sign-in zero-width tamper purge.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 410 shouldClearSession false - **regression 2026-10-22:** non-401/403 refresh failures soft-fail without cookie clear.
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** saturated encoding class on trunk.
+
 ﻿2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed state_mismatch authorize-query UX (existing parity) and saturated decodeOAuthErrorDescription ZWJ multiply-encoded glue (existing parity); regression documents BFF refresh 507 parity (client opaque-sequence plus route opaque 507) and soft-hyphen replacement-character-only access_token rejection (existing parity); scoped vitest 796/796.
 ﻿2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_state authorize-query UX (existing parity) and saturated readOAuthJsonErrorDescription ZWJ multiply-encoded glue (existing parity); regression documents BFF refresh 508 parity (client opaque-sequence plus route opaque 508) and soft-hyphen object-replacement-only access_token rejection (existing parity); scoped vitest 798/798.
 
@@ -27511,6 +27519,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
+- **hunts:** 82
 - **hunts:** 81
 - **hunts:** 87
 - **hunts:** 91
