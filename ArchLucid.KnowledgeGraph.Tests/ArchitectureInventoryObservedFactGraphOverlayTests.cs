@@ -212,6 +212,53 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void Merge_deduplicates_overlay_warnings_when_base_and_overlay_messages_differ_only_by_casing()
+    {
+        const string sharedWarning = "inventory-overlay-warning";
+        const string overlayOnlyWarning = "overlay-only-warning";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "context-node",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "Context",
+                },
+            ],
+            Edges = [],
+            Warnings = [sharedWarning],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = CloudResourceId.ToString("D"),
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                },
+            ],
+            Edges = [],
+            Warnings = ["INVENTORY-OVERLAY-WARNING", overlayOnlyWarning],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Warnings.Should().Equal(sharedWarning, overlayOnlyWarning);
+    }
+
+    [Fact]
     public void Merge_appends_inventory_overlay_warnings_when_overlay_has_no_nodes_or_edges()
     {
         const string overlayWarning = "inventory-overlay-warning-only";

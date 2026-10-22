@@ -88,7 +88,7 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
             return [.. baseWarnings];
         }
 
-        HashSet<string> seen = new(StringComparer.Ordinal);
+        HashSet<string> seen = new(StringComparer.OrdinalIgnoreCase);
         List<string> merged = [];
 
         foreach (string warning in baseWarnings)

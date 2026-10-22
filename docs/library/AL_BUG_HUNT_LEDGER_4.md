@@ -12470,10 +12470,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 220
-- **bugs-found:** 174
+- **hunts:** 221
+- **bugs-found:** 175
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — structured diagram merge duplicated case-variant compile warnings
+- **last-bug:** 2026-10-22 — inventory overlay merge duplicated case-variant warnings
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12649,7 +12649,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `StructuredDiagramGraphMerger.Merge` — case-variant compile warnings duplicated on multi-document merge — **hit 2026-10-22 seed hunt (seed→hit):** case-insensitive warning dedupe keys; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.MergeWarnings` — overlay warning merge may retain case-variant duplicates when base and overlay warnings differ only by casing — locus: `seen` ordinal set in `MergeWarnings`; input: base and overlay warning lists with case-only variants; wrong outcome: merged graph warnings carry duplicate logical notices.
+2026-10-22 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphOverlayMerger.MergeWarnings` case-variant warning dedupe candidate; proved `seen` used ordinal comparison after trim (parity gap vs hunt 220 structured diagram merge fix), so base plus overlay warning lists retained duplicate logical notices when only casing differed; dedupe keys with `StringComparer.OrdinalIgnoreCase`; regression `Merge_deduplicates_overlay_warnings_when_base_and_overlay_messages_differ_only_by_casing`; seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.MergeWarnings` early return when overlay warnings empty skips trim/dedupe on base warnings follow-on; 513 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.MergeWarnings` — case-variant base/overlay warnings duplicated on merge — **hit 2026-10-22 seed hunt (seed→hit):** case-insensitive warning dedupe keys; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.MergeWarnings` — base graph warnings returned verbatim when overlay warnings list is empty — locus: early return before `MergeWarnings` normalization; input: base warnings with padding or case duplicates only; wrong outcome: merged graph warnings skip trim/dedupe.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
