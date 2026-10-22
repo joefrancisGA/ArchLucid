@@ -12470,8 +12470,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 201
-- **bugs-found:** 165
+- **hunts:** 202
+- **bugs-found:** 166
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-overlay rebind deduped parallel edges separately when EdgeType differed only by whitespace
 - **related-pd-tb:** none
@@ -12573,7 +12573,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — winning resource row stamped padded ARM citations — **hit 2026-10-22 seed hunt (seed→hit):** normalized ARM citations on mint; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — minted overlay nodes may retain padded `ResourceGroup` / `SubscriptionId` scalar fields on property bags — locus: `arm.resourceGroup` / `arm.subscriptionId` copy raw snapshot strings without trim; input: resource row carries surrounding whitespace on group or subscription ids; wrong outcome: citation metadata bags retain padding tokens.
+2026-10-22 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` padded `ResourceGroup`/`SubscriptionId` scalar citation fields candidate; proved `arm.resourceGroup` and `arm.subscriptionId` copied raw snapshot strings without trim; regression `BuildOverlay_stamps_trimmed_resource_group_and_subscription_id_on_minted_nodes`; seeded `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` padded `ResourceType` on `arm.type` follow-on; 494 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — minted nodes retained padded resource group / subscription id citations — **hit 2026-10-22 seed hunt (seed→hit):** trim scalar citation fields; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — minted overlay nodes may retain padded `ResourceType` on `arm.type` — locus: resource type citation copies raw `resource.ResourceType` without trim; input: resource row type string carries surrounding whitespace; wrong outcome: topology category resolution and `arm.type` citations diverge on padding-only differences.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 

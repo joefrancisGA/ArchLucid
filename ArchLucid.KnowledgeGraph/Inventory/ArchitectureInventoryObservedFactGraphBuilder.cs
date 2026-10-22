@@ -57,12 +57,12 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
 
             if (!string.IsNullOrWhiteSpace(resource.ResourceGroup))
             {
-                node.Properties["arm.resourceGroup"] = resource.ResourceGroup;
+                node.Properties["arm.resourceGroup"] = resource.ResourceGroup.Trim();
             }
 
             if (!string.IsNullOrWhiteSpace(resource.SubscriptionId))
             {
-                node.Properties["arm.subscriptionId"] = resource.SubscriptionId;
+                node.Properties["arm.subscriptionId"] = resource.SubscriptionId.Trim();
             }
 
             if (!string.IsNullOrWhiteSpace(resource.ParentResourceId))

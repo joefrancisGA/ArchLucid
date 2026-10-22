@@ -453,6 +453,46 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void BuildOverlay_stamps_trimmed_resource_group_and_subscription_id_on_minted_nodes()
+    {
+        const string armId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-prod";
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                CreatedUtc = new DateTime(2026, 7, 18, 12, 0, 0, DateTimeKind.Utc),
+            },
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("55555555-5555-5555-5555-555555555555"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = armId,
+                    ResourceType = "Microsoft.Network/virtualNetworks",
+                    ResourceGroup = "  rg  ",
+                    SubscriptionId = "  sub  ",
+                },
+            ],
+            Relationships = [],
+        };
+
+        GraphSnapshot overlay = ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay(
+            snapshot,
+            RunId,
+            ContextSnapshotId);
+
+        GraphNode node = overlay.Nodes.Should().ContainSingle().Subject;
+        node.Properties["arm.resourceGroup"].Should().Be("rg");
+        node.Properties["arm.subscriptionId"].Should().Be("sub");
+    }
+
+    [Fact]
     public void BuildOverlay_stamps_normalized_arm_citations_when_winning_resource_row_has_surrounding_whitespace_on_azure_resource_id()
     {
         const string armIdCanonical =
