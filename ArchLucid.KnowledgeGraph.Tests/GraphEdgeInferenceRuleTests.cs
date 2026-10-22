@@ -188,6 +188,96 @@ public sealed class GraphEdgeInferenceRuleTests
     }
 
     [Fact]
+    public void InferEdges_topology_relationship_rule_resolves_depends_on_target_when_topology_node_id_has_surrounding_whitespace()
+    {
+        ContextSnapshot snapshot = BuildSnapshot();
+        GraphNode compute = new()
+        {
+            NodeId = "cmp-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "api",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [CanonicalGraphPropertyKeys.DependsOnNodeIds] = "ds-1",
+            },
+        };
+        GraphNode data = new()
+        {
+            NodeId = "  ds-1  ",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "sql",
+        };
+
+        IReadOnlyList<GraphEdge> edges = _sut.InferEdges(snapshot, [compute, data]);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "cmp-1"
+            && e.ToNodeId == "ds-1"
+            && e.EdgeType == GraphEdgeTypes.DependsOn
+            && e.InferenceSource == GraphEdgeInferenceSources.TopologyDependsOn);
+    }
+
+    [Fact]
+    public void InferEdges_policy_applicability_rule_emits_trimmed_endpoints_when_topology_node_id_has_surrounding_whitespace()
+    {
+        ContextSnapshot snapshot = BuildSnapshot();
+        GraphNode resource = new()
+        {
+            NodeId = "  res-a  ",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "a",
+        };
+        GraphNode policy = new()
+        {
+            NodeId = "pol-1",
+            NodeType = GraphNodeTypes.PolicyControl,
+            Label = "policy",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [CanonicalGraphPropertyKeys.ApplicableTopologyNodeIds] = "res-a",
+            },
+        };
+
+        IReadOnlyList<GraphEdge> edges = _sut.InferEdges(snapshot, [resource, policy]);
+
+        edges.Should().ContainSingle(e =>
+            e.EdgeType == GraphEdgeTypes.AppliesTo
+            && e.FromNodeId == "pol-1"
+            && e.ToNodeId == "res-a"
+            && e.InferenceSource == GraphEdgeInferenceSources.PolicyTargeted);
+    }
+
+    [Fact]
+    public void InferEdges_requirement_relevance_rule_emits_trimmed_endpoints_when_topology_node_id_has_surrounding_whitespace()
+    {
+        ContextSnapshot snapshot = BuildSnapshot();
+        GraphNode resource = new()
+        {
+            NodeId = "  res-a  ",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "a",
+        };
+        GraphNode requirement = new()
+        {
+            NodeId = "req-1",
+            NodeType = GraphNodeTypes.Requirement,
+            Label = "req",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [CanonicalGraphPropertyKeys.RelatedTopologyNodeIds] = "res-a",
+            },
+        };
+
+        IReadOnlyList<GraphEdge> edges = _sut.InferEdges(snapshot, [resource, requirement]);
+
+        edges.Should().ContainSingle(e =>
+            e.EdgeType == GraphEdgeTypes.RelatesTo
+            && e.FromNodeId == "req-1"
+            && e.ToNodeId == "res-a"
+            && e.InferenceSource == GraphEdgeInferenceSources.RequirementTargeted);
+    }
+
+    [Fact]
     public void InferEdges_topology_relationship_rule_uses_canonical_target_node_id_when_depends_on_property_differs_only_by_case()
     {
         ContextSnapshot snapshot = BuildSnapshot();

@@ -12470,18 +12470,23 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 122
-- **bugs-found:** 117
+- **hunts:** 123
+- **bugs-found:** 118
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — inferred Protects edges kept padded topology endpoints
+- **last-bug:** 2026-10-22 — topology relationship rule missed depends-on targets when node ids were padded
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
-2026-10-22 seed hunt (seed→hit): promoted `SecurityProtectionEdgeInferenceRule` padded endpoint candidate; proved targeted protection matching already trimmed list tokens and node ids but `GraphEdgeInferenceHelpers.CreateEdge` copied raw `GraphNode.NodeId` values onto inferred edges, leaving `Protects` edges with padded `ToNodeId` endpoints that diverged from `GraphSnapshotExtensions` neighbor normalization; trim endpoints in `CreateEdge` (all inference rules); regressions `CreateEdge_trims_surrounding_whitespace_on_endpoints`, `InferEdges_security_protection_rule_matches_when_protected_topology_list_has_surrounding_whitespace`, and updated contract `InferEdges_WhenSecurityListsProtectedTopologyNodeIds_MatchesResourceWhenNodeIdHasSurroundingWhitespace`; seeded policy/requirement targeted-edge endpoint parity audit follow-on; 418 KnowledgeGraph + 136 Provenance scoped tests passed.
+2026-10-22 seed hunt (seed→hit): cheap-disproved policy/requirement padded-endpoint candidate (`CreateEdge` endpoint trim plus regressions `InferEdges_policy_applicability_rule_emits_trimmed_endpoints_when_topology_node_id_has_surrounding_whitespace` and `InferEdges_requirement_relevance_rule_emits_trimmed_endpoints_when_topology_node_id_has_surrounding_whitespace`); promoted topology relationship lookup candidate; proved `TopologyRelationshipEdgeInferenceRule` keyed `topologyById` on raw `NodeId` strings while property tokens were trimmed, so `DependsOn` / `ConnectsTo` edges were dropped when the target topology node id carried surrounding whitespace; trim-normalized topology lookup keys; regression `InferEdges_topology_relationship_rule_resolves_depends_on_target_when_topology_node_id_has_surrounding_whitespace`; seeded topology `connectedToNodeIds` padded-target follow-on; 422 KnowledgeGraph + 136 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `PolicyApplicabilityEdgeInferenceRule` / `RequirementRelevanceEdgeInferenceRule` — padded topology endpoints on targeted edges — **cheap-disproof 2026-10-22 seed hunt:** `CreateEdge` trim; regressions above.
+- [x] (proven) `TopologyRelationshipEdgeInferenceRule` — padded topology node ids broke depends-on target resolution — **hit 2026-10-22 seed hunt (seed→hit):** trim-normalized topology lookup; regression above.
+
+- [ ] (candidate) `TopologyRelationshipEdgeInferenceRule` — `connectedToNodeIds` comma list with padded target tokens may still fail lookup when stored topology node ids are canonical — locus: connects-to inference; input: `connectedToNodeIds` listing `" sql-1 "` against node id `sql-1`; wrong outcome: missing `ConnectsTo` edge (verify after lookup fix).
+
+2026-10-22 seed hunt (seed→hit): promoted `SecurityProtectionEdgeInferenceRule` padded endpoint candidate; proved targeted protection matching already trimmed list tokens and node ids but `GraphEdgeInferenceHelpers.CreateEdge` copied raw `GraphNode.NodeId` values onto inferred edges, leaving `Protects` edges with padded `ToNodeId` endpoints that diverged from `GraphSnapshotExtensions` neighbor normalization; trim endpoints in `CreateEdge` (all inference rules); regressions `CreateEdge_trims_surrounding_whitespace_on_endpoints`, `InferEdges_security_protection_rule_matches_when_protected_topology_list_has_surrounding_whitespace`, and updated contract `InferEdges_WhenSecurityListsProtectedTopologyNodeIds_MatchesResourceWhenNodeIdHasSurroundingWhitespace`; seeded policy/requirement targeted-edge endpoint parity audit follow-on; 419 KnowledgeGraph + 136 Provenance scoped tests passed.
 
 - [x] (proven) `GraphEdgeInferenceHelpers.CreateEdge` / `SecurityProtectionEdgeInferenceRule` — padded topology endpoints on inferred `Protects` edges — **hit 2026-10-22 seed hunt (seed→hit):** trim endpoints at edge creation; regressions above.
-
-- [ ] (candidate) `PolicyApplicabilityEdgeInferenceRule` / `RequirementRelevanceEdgeInferenceRule` — targeted list matching may still emit padded endpoints when topology node ids carry outer whitespace — locus: inference edge emission; input: same as security rule; wrong outcome: duplicate or dangling endpoints after `CreateEdge` trim (verify parity).
 
 2026-10-22 seed hunt (seed→hit): promoted `ArchitectureKnowledgeModelGraphDeltaExtractor` padded node-id candidate (prior invalid rows cited no production caller but the helper is zone-owned and unit-reproducible); proved `ExtractGraphDelta` built ordinal untrimmed node-id sets, emitting false Added entries when after-snapshot ids differed only by surrounding whitespace and mis-classifying case-variant `NodeType` values; trim/case-insensitive node-id sets, null-coalesce node lists, case-insensitive `InferElementKind`, and trim `FromGraphNodeId`; regressions `ExtractGraphDelta_emits_no_entries_when_node_ids_differ_only_by_surrounding_whitespace` and `ExtractGraphDelta_classifies_trust_boundary_when_node_type_differs_only_by_case`; seeded `SecurityProtectionEdgeInferenceRule` padded protected-node target token follow-on; 417 KnowledgeGraph + 136 Provenance scoped tests passed.
 
