@@ -187,6 +187,14 @@ describe("storePostSignInReturnUrl / consumePostSignInReturnUrl", () => {
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY)).toBe("/architecture/reviews/run-snapshot");
   });
 
+  it("captures a control-stripped authorize-retry snapshot when post-sign-in URL was tampered", () => {
+    sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, "/desk\u000B/reviews");
+    markAuthorizeCallbackFailed();
+
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY)).toBe("/desk/reviews");
+    expect(readAuthorizeRetryReturnPathSnapshot()).toBe("/desk/reviews");
+  });
+
   it("preserves authorize-retry return snapshot when retry is re-marked without a post-sign-in URL", () => {
     storePostSignInReturnUrl("/architecture/reviews/run-reremark");
     markAuthorizeCallbackFailed();
