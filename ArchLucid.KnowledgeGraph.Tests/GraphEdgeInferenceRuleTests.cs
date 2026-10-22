@@ -368,6 +368,73 @@ public sealed class GraphEdgeInferenceRuleTests
     }
 
     [Fact]
+    public void InferEdges_heuristic_network_subnet_rule_matches_parentNodeId_when_network_node_id_has_surrounding_whitespace()
+    {
+        ContextSnapshot snapshot = BuildSnapshot();
+        GraphNode networkEast = new()
+        {
+            NodeId = "  net-a  ",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "vnet-east",
+            Category = GraphTopologyCategories.Network,
+        };
+        GraphNode networkWest = new()
+        {
+            NodeId = "net-b",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "vnet-west",
+            Category = GraphTopologyCategories.Network,
+        };
+        GraphNode subnet = new()
+        {
+            NodeId = "subnet-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "subnet-vnet-east-tier",
+        };
+
+        IReadOnlyList<GraphEdge> edges = _sut.InferEdges(snapshot, [networkEast, networkWest, subnet]);
+
+        edges.Should().Contain(e =>
+            e.InferenceSource == GraphEdgeInferenceSources.HeuristicNetworkSubnet
+            && e.FromNodeId == "net-a"
+            && e.ToNodeId == "subnet-1"
+            && e.EdgeType == GraphEdgeTypes.ContainsResource);
+        edges.Should().NotContain(e =>
+            e.InferenceSource == GraphEdgeInferenceSources.HeuristicNetworkSubnet
+            && e.FromNodeId == "net-b");
+    }
+
+    [Fact]
+    public void InferEdges_security_protection_rule_matches_topology_resource_when_node_type_has_surrounding_whitespace()
+    {
+        ContextSnapshot snapshot = BuildSnapshot();
+        GraphNode resource = new()
+        {
+            NodeId = "res-a",
+            NodeType = $"  {GraphNodeTypes.TopologyResource}  ",
+            Label = "vm",
+        };
+        GraphNode security = new()
+        {
+            NodeId = "sec-1",
+            NodeType = GraphNodeTypes.SecurityBaseline,
+            Label = "baseline",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [CanonicalGraphPropertyKeys.ProtectedTopologyNodeIds] = "res-a",
+            },
+        };
+
+        IReadOnlyList<GraphEdge> edges = _sut.InferEdges(snapshot, [resource, security]);
+
+        edges.Should().ContainSingle(e =>
+            e.EdgeType == GraphEdgeTypes.Protects
+            && e.FromNodeId == "sec-1"
+            && e.ToNodeId == "res-a"
+            && e.InferenceSource == GraphEdgeInferenceSources.SecurityTargeted);
+    }
+
+    [Fact]
     public void InferEdges_topology_relationship_rule_uses_canonical_target_node_id_when_connected_to_property_differs_only_by_case()
     {
         ContextSnapshot snapshot = BuildSnapshot();
