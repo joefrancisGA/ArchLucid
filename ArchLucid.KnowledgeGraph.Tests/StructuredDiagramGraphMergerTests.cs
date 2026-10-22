@@ -3,6 +3,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.KnowledgeGraph.Diagram;
+using ArchLucid.KnowledgeGraph.Models;
 
 using FluentAssertions;
 
@@ -81,5 +82,63 @@ public sealed class StructuredDiagramGraphMergerTests
             .Where(node => node.NodeId.StartsWith("diagram-node:", StringComparison.Ordinal))
             .Should()
             .HaveCount(2);
+    }
+
+    [Fact]
+    public void Merge_deduplicates_canonical_bindings_when_multiple_documents_bind_the_same_inventory_node()
+    {
+        const string armSqlId =
+            "/subscriptions/11111111-2222-3333-4444-555555555555/resourceGroups/pay/providers/Microsoft.Sql/servers/pay-sql";
+
+        GraphNode inventorySql = new()
+        {
+            NodeId = "obj-sql-inv-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "pay-sql",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["azureResourceId"] = armSqlId,
+            },
+        };
+
+        ArchitectureDiagramModelRecord diagramModel = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "sql",
+                    Label = armSqlId,
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        List<CanonicalObject> canonicalObjects = [];
+        canonicalObjects.AddRange(
+            ArchitectureDiagramCanonicalObjectMapper.Map(diagramModel, "doc-bind-a", labelOnlyInferenceConfidence: 0.7));
+        canonicalObjects.AddRange(
+            ArchitectureDiagramCanonicalObjectMapper.Map(diagramModel, "doc-bind-b", labelOnlyInferenceConfidence: 0.7));
+
+        ContextSnapshot snapshot = new()
+        {
+            SnapshotId = Guid.Parse("bbbbbbbb-cccc-dddd-eeee-ffffffffffff"),
+            RunId = Guid.Parse("22222222-3333-4444-5555-666666666666"),
+            ProjectId = "project-binding-dedup",
+            CanonicalObjects = canonicalObjects,
+        };
+
+        StructuredDiagramGraphMerger merger = GraphMaterializationTestHelpers.CreateStructuredDiagramGraphMerger();
+        StructuredDiagramGraphMergeResult result = merger.Merge(snapshot, [inventorySql]);
+
+        result.CanonicalBindings.Should().ContainSingle(binding =>
+            binding.CanonicalGraphNodeId == "obj-sql-inv-1"
+            && binding.DiagramSourceId == "sql");
+
+        StructuredDiagramCompiledGraphBinder.ApplyBindingsToGraphNodes([inventorySql], result.CanonicalBindings);
+        inventorySql.Properties[StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId]
+            .Should().Be("doc-bind-a");
     }
 }

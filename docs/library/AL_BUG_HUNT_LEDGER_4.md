@@ -12470,20 +12470,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 66
-- **bugs-found:** 56
+- **hunts:** 67
+- **bugs-found:** 58
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — provenance revision hash ignored agent execution trace under stable snapshot id
+- **last-bug:** 2026-10-22 — graph label + duplicate diagram bindings under multi-document merge
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted graph-label fingerprint candidate; proved `ComputeGraphFingerprint` keyed only node ids, so in-place relabel under stable `GraphSnapshotId` left `ProvenanceGraphAccessService` serving stale graph node display names; include normalized `Label` per node id; regression `Compute_changes_when_graph_node_label_changes_but_graph_snapshot_id_and_node_ids_are_unchanged`. Promoted binding dedup candidate; proved `StructuredDiagramGraphMerger.Merge` accumulated duplicate canonical bindings so `ApplyBindingsToGraphNodes` last-wins overwrote `SourceEvidenceItemId` with a later document id; dedupe bindings by canonical/diagram source/graph node key with first-wins evidence; regression `Merge_deduplicates_canonical_bindings_when_multiple_documents_bind_the_same_inventory_node`; 379 KnowledgeGraph + 72 Provenance scoped tests passed.
+
+- [x] (proven) `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` — graph node `Label` changes did not change revision fingerprint when node ids were unchanged — **hit 2026-10-22 seed hunt (seed→hit):** node id + label pairs in graph fingerprint; regression above.
+- [x] (proven) `StructuredDiagramGraphMerger.Merge` — duplicate `CanonicalBindings` for the same canonical node dropped distinct `SourceEvidenceItemId` values on last-wins apply — **hit 2026-10-22 seed hunt (seed→hit):** cross-document binding-key dedup; regression above.
 
 2026-10-22 seed hunt (seed→hit): promoted agent-trace fingerprint candidate; proved `ComputeFindingsFingerprint` omitted `AgentExecutionTraceId` / trace linkage, so re-linked findings under a stable `FindingsSnapshotId` left `ProvenanceGraphAccessService` serving stale lineage metadata on finding nodes; include normalized trace id with parity to `ProvenanceBuilder.ResolveAgentExecutionTraceId`; regression `Compute_changes_when_agent_execution_trace_id_changes_but_finding_id_and_related_nodes_are_unchanged`; cheap-disproved duplicate `CanonicalBindings` list as redundant re-application on canonical nodes (no extra topology); seeded graph-node label fingerprint and merger binding dedup follow-ons; 378 KnowledgeGraph + 71 Provenance scoped tests passed.
 
 - [x] (proven) `ProvenanceSnapshotRevisionHasher.ComputeFindingsFingerprint` — `AgentExecutionTraceId` / trace linkage changes did not change revision fingerprint when finding id and related nodes were unchanged — **hit 2026-10-22 seed hunt (seed→hit):** normalized agent execution trace id in findings fingerprint; regression above.
 - [x] (valid-no-repro) `StructuredDiagramGraphMerger.Merge` — duplicate `CanonicalBindings` when multiple documents bind the same inventory node — **cheap-disproof 2026-10-22 seed hunt:** `ApplyBindingsToGraphNodes` overwrites the same canonical property keys; duplicate rows do not add nodes/edges after merger dedup.
-
-- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` — graph node `Label` changes may not change revision fingerprint when `NodeId` set is unchanged — locus: `ComputeGraphFingerprint`; input: in-place relabel under stable `GraphSnapshotId`; wrong outcome: stale provenance graph node display names.
-- [ ] (candidate) `StructuredDiagramGraphMerger.Merge` — duplicate `CanonicalBindings` for the same canonical node may drop distinct `SourceEvidenceItemId` values when later rows overwrite earlier ones — locus: `ApplyBindingsToGraphNodes` last-wins loop; input: two documents binding the same ARM id with different evidence item ids; wrong outcome: wrong source-evidence attribution on inventory nodes.
 
 2026-10-22 seed hunt (seed→hit): reseeded findings fingerprint surface; proved `ComputeFindingsFingerprint` keyed only finding id and `RelatedNodeIds`, so buyer-visible finding title changes under a stable `FindingsSnapshotId` left `ProvenanceGraphAccessService` serving stale finding node names; extended fingerprint with normalized title, finding type, and category; regression `Compute_changes_when_finding_title_changes_but_finding_id_and_related_nodes_are_unchanged`; cheap-disproved `GenerationStatus`-only and `RuleSetId`/`RuleSetVersion`-only drift with regressions `Compute_unchanged_when_only_findings_generation_status_changes` and `Compute_unchanged_when_only_rule_set_id_and_version_change`; seeded agent-trace and merger binding dedup candidates; 378 KnowledgeGraph + 70 Provenance scoped tests passed.
 

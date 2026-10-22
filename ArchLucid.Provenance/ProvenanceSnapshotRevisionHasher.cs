@@ -44,13 +44,21 @@ public static class ProvenanceSnapshotRevisionHasher
         if (graph.Nodes.Count == 0 && graph.Edges.Count == 0)
             return string.Empty;
 
-        string nodeIds = string.Join(
+        string nodeParts = string.Join(
             ",",
             graph.Nodes
-                .Select(static node => (node.NodeId ?? string.Empty).Trim())
-                .Where(static nodeId => nodeId.Length > 0)
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .OrderBy(static nodeId => nodeId, StringComparer.OrdinalIgnoreCase));
+                .Where(static node => !string.IsNullOrWhiteSpace(node.NodeId))
+                .GroupBy(
+                    static node => node.NodeId.Trim(),
+                    StringComparer.OrdinalIgnoreCase)
+                .OrderBy(static group => group.Key, StringComparer.OrdinalIgnoreCase)
+                .Select(static group =>
+                {
+                    GraphNode representative = group.First();
+                    string label = (representative.Label ?? string.Empty).Trim();
+
+                    return $"{group.Key}|{label}";
+                }));
 
         IEnumerable<string> edgeParts = graph.Edges
             .Select(static edge =>
@@ -59,7 +67,7 @@ public static class ProvenanceSnapshotRevisionHasher
 
         string edges = string.Join(";", edgeParts);
 
-        return $"{nodeIds}|{edges}";
+        return $"{nodeParts}|{edges}";
     }
 
     private static string ComputeManifestDecisionsFingerprint(ManifestDocument manifest)

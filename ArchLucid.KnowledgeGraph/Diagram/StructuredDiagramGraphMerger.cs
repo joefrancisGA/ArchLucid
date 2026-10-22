@@ -32,6 +32,7 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
         HashSet<string> mergedDirectedPairs = new(StringComparer.OrdinalIgnoreCase);
         List<string> warnings = [];
         List<StructuredDiagramCanonicalBinding> bindings = [];
+        HashSet<string> mergedBindingKeys = new(StringComparer.OrdinalIgnoreCase);
         Guid graphSnapshotId = Guid.NewGuid();
 
         foreach (StructuredDiagramReconstructedDocument document in documents)
@@ -54,9 +55,17 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
                 warnings.AddRange(compileResult.Warnings);
             }
 
-            if (compileResult.CanonicalBindings.Count > 0)
+            foreach (StructuredDiagramCanonicalBinding binding in compileResult.CanonicalBindings)
             {
-                bindings.AddRange(compileResult.CanonicalBindings);
+                string bindingKey =
+                    $"{binding.CanonicalGraphNodeId}|{binding.DiagramSourceId}|{binding.DiagramGraphNodeId}";
+
+                if (!mergedBindingKeys.Add(bindingKey))
+                {
+                    continue;
+                }
+
+                bindings.Add(binding);
             }
 
             if (compileResult.Snapshot.Nodes.Count == 0)
