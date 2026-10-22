@@ -309,6 +309,42 @@ public sealed class ArchitectureDiagramToGraphCompilerTests
     }
 
     [Fact]
+    public void Compile_trims_subgraph_record_id_when_minting_trust_boundary_subgraph_node()
+    {
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Subgraphs =
+            [
+                new ArchitectureDiagramSubgraphRecord
+                {
+                    Id = "  corp  ",
+                    Label = "Corporate network",
+                },
+            ],
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API",
+                    SubgraphId = "  corp  ",
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        StructuredDiagramGraphCompileResult result = new ArchitectureDiagramToGraphCompiler().Compile(
+            model,
+            CreateDefaultCompileOptions());
+
+        GraphNode subgraphNode = result.Snapshot.Nodes.Should().ContainSingle(node =>
+            node.NodeType == GraphNodeTypes.TrustBoundary).Subject;
+        subgraphNode.NodeId.Should().Be("diagram-subgraph:corp");
+        subgraphNode.SourceId.Should().Be("corp");
+        result.Snapshot.Edges.Should().ContainSingle(edge => edge.EdgeType == GraphEdgeTypes.Contains);
+    }
+
+    [Fact]
     public void Compile_corporate_network_subgraph_tags_member_nodes_as_trust_boundary()
     {
         ArchitectureDiagramModelRecord model = new()
