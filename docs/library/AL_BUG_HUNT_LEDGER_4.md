@@ -12470,20 +12470,25 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 67
-- **bugs-found:** 58
+- **hunts:** 68
+- **bugs-found:** 59
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — graph label + duplicate diagram bindings under multi-document merge
+- **last-bug:** 2026-10-22 — manifest decision title omitted from provenance revision fingerprint
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted manifest decision title candidate; proved `ComputeManifestDecisionsFingerprint` keyed only decision id and `SupportingFindingIds`, so in-place decision renames under stable `ManifestId` left `ProvenanceGraphAccessService` serving stale decision node names; include normalized title and category; regression `Compute_changes_when_manifest_decision_title_changes_but_manifest_id_and_supporting_findings_are_unchanged`; cheap-disproved graph edge label drift as non-material to provenance (`ProvenanceBuilder` does not materialize graph edges); regression `Compute_unchanged_when_only_graph_edge_label_changes`; seeded manifest selected-option and graph edge-type fingerprint follow-ons; 379 KnowledgeGraph + 74 Provenance scoped tests passed.
+
+- [x] (proven) `ProvenanceSnapshotRevisionHasher.ComputeManifestDecisionsFingerprint` — manifest decision `Title` changes did not change revision fingerprint when decision id and supporting findings were unchanged — **hit 2026-10-22 seed hunt (seed→hit):** title and category in manifest decisions fingerprint; regression above.
+- [x] (invalid) `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` — graph edge `Label` changes under stable snapshot id — **cheap-disproof 2026-10-22 seed hunt:** `ProvenanceBuilder` never reads `Graph.Edges`; edge labels are not buyer-visible provenance metadata today; regression above documents intentional omission.
+
+- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeManifestDecisionsFingerprint` — `SelectedOption` / `Rationale` changes may not change revision fingerprint when decision id and title are unchanged — locus: manifest decisions fingerprint; input: decision option swap under stable manifest hash; wrong outcome: stale provenance decision detail.
+- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` — `EdgeType` string changes (not casing-only) may not change revision fingerprint when endpoints are unchanged — locus: edge part of graph fingerprint; input: edge reclassification under stable snapshot id; wrong outcome: stale topology class in downstream graph analytics (not provenance graph today).
 
 2026-10-22 seed hunt (seed→hit): promoted graph-label fingerprint candidate; proved `ComputeGraphFingerprint` keyed only node ids, so in-place relabel under stable `GraphSnapshotId` left `ProvenanceGraphAccessService` serving stale graph node display names; include normalized `Label` per node id; regression `Compute_changes_when_graph_node_label_changes_but_graph_snapshot_id_and_node_ids_are_unchanged`. Promoted binding dedup candidate; proved `StructuredDiagramGraphMerger.Merge` accumulated duplicate canonical bindings so `ApplyBindingsToGraphNodes` last-wins overwrote `SourceEvidenceItemId` with a later document id; dedupe bindings by canonical/diagram source/graph node key with first-wins evidence; regression `Merge_deduplicates_canonical_bindings_when_multiple_documents_bind_the_same_inventory_node`; 379 KnowledgeGraph + 72 Provenance scoped tests passed.
 
 - [x] (proven) `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` — graph node `Label` changes did not change revision fingerprint when node ids were unchanged — **hit 2026-10-22 seed hunt (seed→hit):** node id + label pairs in graph fingerprint; regression above.
 - [x] (proven) `StructuredDiagramGraphMerger.Merge` — duplicate `CanonicalBindings` for the same canonical node dropped distinct `SourceEvidenceItemId` values on last-wins apply — **hit 2026-10-22 seed hunt (seed→hit):** cross-document binding-key dedup; regression above.
-
-- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` — graph edge `Label` or `EdgeType` casing changes may not change revision fingerprint when endpoint ids are unchanged — locus: `ComputeGraphFingerprint` edge loop; input: relabeled edge under stable snapshot id; wrong outcome: stale provenance edge display metadata.
-- [ ] (candidate) `ProvenanceBuilder.Build` — manifest decision `Title` changes may not invalidate revision fingerprint when decision id and supporting findings are unchanged — locus: decision node `Name` vs manifest decision fingerprint fields; input: in-place decision rename under stable manifest id.
 
 2026-10-22 seed hunt (seed→hit): promoted agent-trace fingerprint candidate; proved `ComputeFindingsFingerprint` omitted `AgentExecutionTraceId` / trace linkage, so re-linked findings under a stable `FindingsSnapshotId` left `ProvenanceGraphAccessService` serving stale lineage metadata on finding nodes; include normalized trace id with parity to `ProvenanceBuilder.ResolveAgentExecutionTraceId`; regression `Compute_changes_when_agent_execution_trace_id_changes_but_finding_id_and_related_nodes_are_unchanged`; cheap-disproved duplicate `CanonicalBindings` list as redundant re-application on canonical nodes (no extra topology); seeded graph-node label fingerprint and merger binding dedup follow-ons; 378 KnowledgeGraph + 71 Provenance scoped tests passed.
 

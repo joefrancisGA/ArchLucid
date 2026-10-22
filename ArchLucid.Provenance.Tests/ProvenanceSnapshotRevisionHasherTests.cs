@@ -106,6 +106,64 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     }
 
     [Fact]
+    public void Compute_changes_when_manifest_decision_title_changes_but_manifest_id_and_supporting_findings_are_unchanged()
+    {
+        ResolvedArchitectureDecision baselineDecision = new()
+        {
+            DecisionId = "dec-1",
+            Category = "arch",
+            Title = "Original decision title",
+            SelectedOption = "a",
+            Rationale = "r",
+            SupportingFindingIds = ["find-a"],
+        };
+
+        ResolvedArchitectureDecision updatedDecision = new()
+        {
+            DecisionId = "dec-1",
+            Category = "arch",
+            Title = "Renamed decision title",
+            SelectedOption = "a",
+            Rationale = "r",
+            SupportingFindingIds = ["find-a"],
+        };
+
+        ProvenanceBuildInput baseline = CreateInput([], manifestHash: "stale-hash", decisions: [baselineDecision]);
+        ProvenanceBuildInput updated = CreateInput([], manifestHash: "stale-hash", decisions: [updatedDecision]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
+    public void Compute_unchanged_when_only_graph_edge_label_changes()
+    {
+        GraphEdge baselineEdge = new()
+        {
+            EdgeId = "edge-1",
+            FromNodeId = "node-a",
+            ToNodeId = "node-b",
+            EdgeType = "ConnectsTo",
+            Label = "Original edge label",
+        };
+
+        GraphEdge updatedEdge = new()
+        {
+            EdgeId = "edge-1",
+            FromNodeId = "node-a",
+            ToNodeId = "node-b",
+            EdgeType = "ConnectsTo",
+            Label = "Renamed edge label",
+        };
+
+        ProvenanceBuildInput baseline = CreateInput([], graphNodes: [], graphEdges: [baselineEdge]);
+        ProvenanceBuildInput updated = CreateInput([], graphNodes: [], graphEdges: [updatedEdge]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
     public void Compute_changes_when_agent_execution_trace_id_changes_but_finding_id_and_related_nodes_are_unchanged()
     {
         Finding baselineFinding = CreateSampleFinding();
@@ -397,7 +455,8 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
         IReadOnlyList<Finding>? findings = null,
         string? manifestHash = null,
         IReadOnlyList<ResolvedArchitectureDecision>? decisions = null,
-        IReadOnlyList<GraphNode>? graphNodes = null)
+        IReadOnlyList<GraphNode>? graphNodes = null,
+        IReadOnlyList<GraphEdge>? graphEdges = null)
     {
         Guid findingsSnapshotId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
         Guid graphSnapshotId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
@@ -428,6 +487,7 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
                 GraphSnapshotId = graphSnapshotId,
                 RunId = RunId,
                 Nodes = graphNodes is null ? [] : [.. graphNodes],
+                Edges = graphEdges is null ? [] : [.. graphEdges],
             },
             Manifest = new ManifestDocument
             {

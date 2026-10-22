@@ -82,6 +82,8 @@ public static class ProvenanceSnapshotRevisionHasher
             .OrderBy(group => group.Key, StringComparer.OrdinalIgnoreCase)
             .Select(group =>
             {
+                ResolvedArchitectureDecision representative = group.First();
+
                 string supportingFindingIds = string.Join(
                     ",",
                     group.SelectMany(decision => decision.SupportingFindingIds)
@@ -90,7 +92,10 @@ public static class ProvenanceSnapshotRevisionHasher
                         .Distinct(StringComparer.OrdinalIgnoreCase)
                         .OrderBy(static findingId => findingId, StringComparer.OrdinalIgnoreCase));
 
-                return $"{group.Key}|{supportingFindingIds}";
+                string title = (representative.Title ?? string.Empty).Trim();
+                string category = (representative.Category ?? string.Empty).Trim();
+
+                return $"{group.Key}|{supportingFindingIds}|{title}|{category}";
             });
 
         return string.Join(";", parts);
