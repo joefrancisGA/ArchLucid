@@ -1729,6 +1729,52 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_tenant_configuration_hash_when_tenant_id_differs_only_by_nbsp_vs_space()
+    {
+        ClosedLoopReasoningRequest spaced = CreateRequest("Architecture note.");
+        spaced.TenantId = "tenant cache";
+
+        ClosedLoopReasoningRequest nbsp = CreateRequest("Architecture note.");
+        nbsp.TenantId = "tenant\u00A0cache";
+
+        ReviewCacheManifestBuilder.Build(spaced).TenantConfigurationHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(nbsp).TenantConfigurationHash);
+
+        ReviewCacheManifestBuilder.Build(spaced).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(nbsp).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_ledger_evidence_ref_differs_only_by_consecutive_spaces()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-ledger-evidence-spaces";
+
+        TechnologyLedgerEntry single = CreateLedgerEntry(request.RunId, evidenceRef: "artifact 1");
+        TechnologyLedgerEntry doubleSpaced = CreateLedgerEntry(request.RunId, evidenceRef: "artifact  1");
+
+        ReviewCacheManifestBuilder.Build(request, null, [single]).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, null, [doubleSpaced]).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_declared_priorities_hash_when_priority_differs_only_by_narrow_nbsp_vs_space()
+    {
+        ClosedLoopReasoningRequest spaced = CreateRequest("Architecture note.");
+        spaced.DeclaredPriorities = ["Cost Optimization"];
+
+        ClosedLoopReasoningRequest narrow = CreateRequest("Architecture note.");
+        narrow.DeclaredPriorities = ["Cost\u202FOptimization"];
+
+        ReviewCacheManifestBuilder.Build(spaced).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(narrow).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_declared_priorities_hash_when_priority_differs_only_by_nbsp_vs_space()
     {
         ClosedLoopReasoningRequest spaced = CreateRequest("Architecture note.");
