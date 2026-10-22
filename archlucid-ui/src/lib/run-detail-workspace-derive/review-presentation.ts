@@ -304,7 +304,19 @@ export function deriveEvidenceCoverageSummary(
     };
   }
 
-  const linkedCount = unresolved.filter((finding) => (finding.evidenceRefCount ?? 0) > 0).length;
+  const hasMissingEvidenceRefCount = unresolved.some(
+    (finding) => finding.evidenceRefCount === null || finding.evidenceRefCount === undefined,
+  );
+
+  if (hasMissingEvidenceRefCount) {
+    return {
+      linkedCount: 0,
+      totalCount,
+      summaryLine: "Evidence link count was not stored.",
+    };
+  }
+
+  const linkedCount = unresolved.filter((finding) => finding.evidenceRefCount > 0).length;
   const noun = totalCount === 1 ? "finding has" : "findings have";
 
   return {

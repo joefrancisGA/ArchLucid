@@ -6,7 +6,6 @@ import {
   phiMinimizationApprovalNarrative,
   phiMinimizationRecommendedActionFallback,
 } from "@/lib/findings/finding-display-from-inspect";
-import { resolveBuyerShowcaseResidualRiskNextReviewIso } from "@/lib/buyer/buyer-polish-copy";
 import { buyerFindingSeverityDisplayLabel } from "@/lib/buyer/buyer-finding-severity-display";
 import { formatQuickDecisionRecommendedAction } from "@/lib/quick-decision-finding-links";
 import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
@@ -69,56 +68,15 @@ export function resolveFindingRiskOwnerLabel(
   return RISK_OWNER_NOT_ASSIGNED;
 }
 
-function isShowcasePhiMinimizationFinding(
-  payload: FindingInspectPayload | null,
-  findingId: string,
-): boolean {
-  return isPhiMinimizationFindingId(findingId) || (payload !== null && isPhiMinimizationSampleFinding(payload));
-}
-
-function isPastRemediationDueUtc(remediationDueUtc: string | null | undefined): boolean {
-  if (remediationDueUtc === null || remediationDueUtc === undefined) {
-    return false;
-  }
-
-  const trimmed = remediationDueUtc.trim();
-
-  if (trimmed.length === 0) {
-    return false;
-  }
-
-  const parsed = new Date(trimmed);
-
-  if (Number.isNaN(parsed.getTime())) {
-    return false;
-  }
-
-  const todayUtc = new Date();
-
-  todayUtc.setUTCHours(0, 0, 0, 0);
-  parsed.setUTCHours(0, 0, 0, 0);
-
-  return parsed.getTime() < todayUtc.getTime();
-}
-
-/** Prefer remediation due date; PHI showcase may supply demo cadence when payload has none. */
+/** Prefer stored remediation due date, including when the date is already past. */
 export function resolveFindingNextReviewLabel(
   payload: FindingInspectPayload | null,
-  findingId: string,
+  _findingId: string,
 ): string {
-  const showcasePhi = isShowcasePhiMinimizationFinding(payload, findingId);
   const dueLabel = formatFindingRemediationDueLabel(payload?.remediationDueUtc);
 
   if (dueLabel !== null) {
-    if (showcasePhi && isPastRemediationDueUtc(payload?.remediationDueUtc)) {
-      return resolveBuyerShowcaseResidualRiskNextReviewIso();
-    }
-
     return dueLabel;
-  }
-
-  if (showcasePhi) {
-    return resolveBuyerShowcaseResidualRiskNextReviewIso();
   }
 
   return REMEDIATION_DUE_NOT_STORED;
@@ -176,13 +134,6 @@ export function fallbackImpactedScope(payload: FindingInspectPayload | null, fin
       return labels.impactedAreaLabel;
     }
 
-    if (isPhiMinimizationSampleFinding(payload)) {
-      return "Intake PHI boundary, adapters, OCR exception paths, and downstream adjudication handoff";
-    }
-  }
-
-  if (isPhiMinimizationFindingId(findingId)) {
-    return "Intake PHI boundary, adapters, OCR exception paths, and downstream adjudication handoff";
   }
 
   return "Impacted area was not stored.";
@@ -260,13 +211,33 @@ export function buyerFindingDecisionPanelCopy(payload: FindingInspectPayload | n
 }
 
 /** Top-of-page decision impact line for buyer-polished finding detail. */
-export function buyerFindingDecisionImpactCopy(payload: FindingInspectPayload | null, findingId: string): string {
-  if (payload !== null && isPhiMinimizationSampleFinding(payload)) {
-    return "Non-blocking for package approval — residual PHI minimization risk accepted with ingress classification, bounded adapters, and active exception monitoring.";
+function typedPayloadStoredEmptyString(payload: FindingInspectPayload, keys: readonly string[]): boolean {
+  const value: unknown = payload.typedPayload;
+
+  if (value === null || value === undefined || typeof value !== "object") {
+    return false;
   }
 
-  if (isPhiMinimizationFindingId(findingId)) {
-    return "Non-blocking for package approval — residual PHI minimization risk accepted with ingress classification, bounded adapters, and active exception monitoring.";
+  const record = value as Record<string, unknown>;
+
+  for (const key of keys) {
+    if (!(key in record)) {
+      continue;
+    }
+
+    const extracted = record[key];
+
+    if (typeof extracted === "string" && extracted.trim().length === 0) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+export function buyerFindingDecisionImpactCopy(payload: FindingInspectPayload | null, findingId: string): string {
+  if (payload !== null && typedPayloadStoredEmptyString(payload, ["businessImpact", "BusinessImpact", "impact", "Impact"])) {
+    return BUSINESS_IMPACT_STORED_EMPTY;
   }
 
   const storedImpact =

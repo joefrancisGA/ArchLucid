@@ -2,8 +2,6 @@ import { describe, expect, it } from "vitest";
 
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
-import { resolveBuyerShowcaseResidualRiskNextReviewIso } from "@/lib/buyer/buyer-polish-copy";
-
 import {
   buyerFindingDecisionImpactCopy,
   buyerFindingNextStepCopy,
@@ -32,27 +30,28 @@ function emptyPayload(overrides: Partial<FindingInspectPayload> = {}): FindingIn
 }
 
 describe("finding-detail-route-display buyer summary copy", () => {
-  it("returns decision impact and next step for the PHI showcase finding", () => {
-    expect(buyerFindingDecisionImpactCopy(null, "sensitive-data-minimization-risk")).toContain("Non-blocking for package approval");
-    expect(buyerFindingNextStepCopy(null, "sensitive-data-minimization-risk")).toContain("ingress PHI classification");
+  it("does not invent business impact for PHI showcase finding id without payload", () => {
+    expect(buyerFindingDecisionImpactCopy(null, "sensitive-data-minimization-risk")).toBe(
+      "Business impact was not stored",
+    );
   });
 
-  it("does not invent owner, status, or monitoring for PHI showcase finding id without payload (P-13–P-14, P-20)", () => {
+  it("does not invent owner, status, or monitoring for PHI showcase finding id without payload", () => {
     const summary = deriveFindingDecisionSummary(null, "sensitive-data-minimization-risk");
 
     expect(summary.disposition).toBe("Status was not stored");
     expect(summary.riskOwner).toBe("Risk owner was not stored");
     expect(summary.requiredMonitoring).toBe("Recommended action was not stored.");
-    expect(summary.nextReview).toBe(resolveBuyerShowcaseResidualRiskNextReviewIso(new Date("2026-08-22T12:00:00Z")));
+    expect(summary.nextReview).toBe("Remediation due date was not stored.");
   });
 
-  it("uses showcase next review when persisted remediation due is in the past", () => {
+  it("keeps a past stored remediation due date on the finding", () => {
     const payload = emptyPayload({
       remediationDueUtc: "2024-02-14T00:00:00Z",
     });
 
     expect(resolveFindingNextReviewLabel(payload, "sensitive-data-minimization-risk")).toBe(
-      resolveBuyerShowcaseResidualRiskNextReviewIso(new Date("2026-08-22T12:00:00Z")),
+      formatFindingRemediationDueLabel("2024-02-14T00:00:00Z"),
     );
   });
 

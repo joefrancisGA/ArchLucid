@@ -62,7 +62,7 @@ public static class DiagramNodeHumanCaptionFactory
                 return "App Service";
             }
 
-            return "Site kind was not stored.";
+            return $"Site kind {siteKind} has no reviewer label.";
         }
 
         return DiagramArmTypeFriendlyName.TryFormat(node.ArmResourceType);
