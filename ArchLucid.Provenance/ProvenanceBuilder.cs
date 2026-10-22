@@ -304,27 +304,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
             {
                 ProvenanceNode existingNode = result.Nodes.First(n => n.Id == existingId);
 
-                if (!string.IsNullOrWhiteSpace(node.Name)
-                    && !ShouldSkipGraphNodeNameDowngrade(existingNode, node))
-                {
-                    existingNode.Name = node.Name;
-                }
-
-                if (!string.IsNullOrWhiteSpace(node.ReferenceId))
-                    existingNode.ReferenceId = node.ReferenceId;
-
-                if (!string.IsNullOrWhiteSpace(node.AgentExecutionTraceId))
-                {
-                    existingNode.AgentExecutionTraceId = node.AgentExecutionTraceId;
-                    existingNode.Metadata[ProvenanceMetadataKeys.AgentExecutionTraceId] =
-                        node.AgentExecutionTraceId;
-                }
-
-                foreach (KeyValuePair<string, string> entry in node.Metadata)
-                {
-                    if (!string.IsNullOrWhiteSpace(entry.Value))
-                        existingNode.Metadata[entry.Key] = entry.Value;
-                }
+                ProvenanceNodeCoalesce.ApplyMergedFields(existingNode, node);
 
                 return existingId;
             }
@@ -351,35 +331,5 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                 .Where(static ruleId => ruleId.Length > 0)
                 .Distinct(StringComparer.OrdinalIgnoreCase);
 
-        static bool ShouldSkipGraphNodeNameDowngrade(ProvenanceNode existingNode, ProvenanceNode incomingNode)
-        {
-            if (existingNode.Type != incomingNode.Type
-                || (existingNode.Type != ProvenanceNodeType.GraphNode
-                    && existingNode.Type != ProvenanceNodeType.Finding
-                    && existingNode.Type != ProvenanceNodeType.Decision
-                    && existingNode.Type != ProvenanceNodeType.Artifact))
-            {
-                return false;
-            }
-
-            if (string.IsNullOrWhiteSpace(existingNode.Name)
-                || string.IsNullOrWhiteSpace(incomingNode.Name)
-                || string.IsNullOrWhiteSpace(incomingNode.ReferenceId))
-            {
-                return false;
-            }
-
-            bool incomingNameIsReferenceId = string.Equals(
-                incomingNode.Name,
-                incomingNode.ReferenceId,
-                StringComparison.OrdinalIgnoreCase);
-
-            bool existingNameIsReferenceId = string.Equals(
-                existingNode.Name,
-                existingNode.ReferenceId,
-                StringComparison.OrdinalIgnoreCase);
-
-            return incomingNameIsReferenceId && !existingNameIsReferenceId;
-        }
     }
 }
