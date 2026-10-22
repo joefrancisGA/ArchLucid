@@ -119,18 +119,26 @@ export function buildArchitectureDiagramNodeProvenanceDetail(input: {
   };
 }
 
+export const ARCHITECTURE_DIAGRAM_CONNECTION_LABEL_NOT_STORED =
+  "Connection label was not stored." as const;
+
+function resolveArchitectureDiagramEdgeDisplayLabel(edge: ArchitectureDiagramEdge): string {
+  return edge.label.length > 0 ? edge.label : ARCHITECTURE_DIAGRAM_CONNECTION_LABEL_NOT_STORED;
+}
+
 export function buildArchitectureDiagramEdgeProvenanceDetail(input: {
   readonly runId: string;
   readonly edge: ArchitectureDiagramEdge;
   readonly diagramVersionSource: ArchitectureDiagramVersionSource | null;
 }): ArchitectureDiagramElementProvenanceDetail {
   const provenanceClass = resolveEdgeProvenanceClass(input.edge, input.diagramVersionSource);
-  const sentence = buildProvenanceSentence("edge", input.edge.label, provenanceClass, false);
+  const displayLabel = resolveArchitectureDiagramEdgeDisplayLabel(input.edge);
+  const sentence = buildProvenanceSentence("edge", displayLabel, provenanceClass, false);
 
   return {
     kind: "edge",
     elementId: input.edge.id,
-    label: input.edge.label.length > 0 ? input.edge.label : `${input.edge.sourceId} → ${input.edge.targetId}`,
+    label: displayLabel,
     provenanceClass,
     sentence,
     sourceHref: buildEvidenceSourceHref(input.runId, provenanceClass),
@@ -171,7 +179,7 @@ export function listSelectableArchitectureDiagramElements(
     .map((edge) => ({
       kind: "edge" as const,
       id: edge.id,
-      label: edge.label.length > 0 ? edge.label : `${edge.sourceId} → ${edge.targetId}`,
+      label: resolveArchitectureDiagramEdgeDisplayLabel(edge),
     }));
 
   return [...nodes, ...edges];

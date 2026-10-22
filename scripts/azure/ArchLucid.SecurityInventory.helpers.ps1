@@ -3215,6 +3215,527 @@ function Get-ArchLucidAzureDefenderSecureScorePercent
     return $bestScore
 }
 
+function Get-ArchLucidAzureDefenderPropertyValue
+{
+    param(
+        [object] $Object,
+        [string] $Name
+    )
+
+    if ($null -eq $Object -or [string]::IsNullOrWhiteSpace($Name))
+    {
+        return $null
+    }
+
+    $property = $Object.PSObject.Properties[$Name]
+
+    if ($null -eq $property)
+    {
+        return $null
+    }
+
+    return $property.Value
+}
+
+function Get-ArchLucidAzureDefenderCompanionBundle
+{
+    param(
+        [string] $SubscriptionId,
+
+        [string] $ManagementGroupId,
+
+        [object[]] $InventoryResources = @()
+    )
+
+    [System.Collections.ArrayList]$pricings = [System.Collections.ArrayList]::new()
+    [System.Collections.ArrayList]$scoreControls = [System.Collections.ArrayList]::new()
+    [System.Collections.ArrayList]$assessments = [System.Collections.ArrayList]::new()
+    [System.Collections.ArrayList]$assessmentCounts = [System.Collections.ArrayList]::new()
+    [System.Collections.ArrayList]$securityContacts = [System.Collections.ArrayList]::new()
+    [System.Collections.ArrayList]$warnings = [System.Collections.ArrayList]::new()
+
+    if (-not (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue))
+    {
+        [void]$warnings.Add('defender-pricings.json collection failed; Invoke-AzRestMethod missing')
+        [void]$warnings.Add('defender-security-contacts-not-collected')
+        return [pscustomobject]@{
+            pricings = @()
+            scoreControls = @()
+            assessments = @()
+            assessmentCounts = @()
+            securityContacts = @()
+            warnings = @($warnings.ToArray())
+        }
+    }
+
+    [System.Collections.ArrayList]$subscriptionIds = [System.Collections.ArrayList]::new()
+
+    if (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)))
+    {
+        [void]$subscriptionIds.Add($SubscriptionId.Trim())
+    }
+    elseif (-not ([string]::IsNullOrWhiteSpace($ManagementGroupId)) -and (Get-Command Get-ArchLucidManagementGroupSubscriptionIds -ErrorAction SilentlyContinue))
+    {
+        foreach ($subId in @(Get-ArchLucidManagementGroupSubscriptionIds -ManagementGroupId $ManagementGroupId))
+        {
+            if (-not ([string]::IsNullOrWhiteSpace($subId)))
+            {
+                [void]$subscriptionIds.Add($subId.Trim())
+            }
+        }
+    }
+
+    foreach ($subId in @($subscriptionIds))
+    {
+        [object]$pricingPage = Get-ArchLucidAzureDefenderArmValues -SubscriptionId $subId -RelativePath 'providers/Microsoft.Security/pricings' -ApiVersion '2024-01-01' -CompanionName 'defender-pricings.json'
+        if (-not [string]::IsNullOrWhiteSpace($pricingPage.warning)) { [void]$warnings.Add($pricingPage.warning) }
+
+        foreach ($item in @($pricingPage.items))
+        {
+            $pricingProperties = Get-ArchLucidAzureDefenderPropertyValue -Object $item -Name 'properties'
+            $pricingTier = Get-ArchLucidAzureDefenderPropertyValue -Object $pricingProperties -Name 'pricingTier'
+            if ($null -eq $item -or [string]::IsNullOrWhiteSpace($item.name) -or $null -eq $pricingTier) { continue }
+
+            [System.Collections.ArrayList]$extensionPairs = [System.Collections.ArrayList]::new()
+
+            foreach ($extension in @(Get-ArchLucidAzureDefenderPropertyValue -Object $pricingProperties -Name 'extensions'))
+            {
+                if ($null -eq $extension -or [string]::IsNullOrWhiteSpace($extension.name)) { continue }
+                [string]$enabled = 'false'
+                if ($extension.isEnabled -eq $true -or "$($extension.isEnabled)" -eq 'True') { $enabled = 'true' }
+                [void]$extensionPairs.Add("$($extension.name)=$enabled")
+            }
+
+            [string]$extensions = ($extensionPairs -join ';')
+            if ($extensions.Length -gt 512) { $extensions = $extensions.Substring(0, 512) }
+
+            [void]$pricings.Add([ordered]@{
+                subscriptionId = $subId
+                pricingName = "$($item.name)".Trim()
+                tier = "$pricingTier".Trim()
+                extensions = $extensions
+            })
+        }
+
+        [object]$scorePage = Get-ArchLucidAzureDefenderArmValues -SubscriptionId $subId -RelativePath 'providers/Microsoft.Security/secureScores' -ApiVersion '2020-01-01' -CompanionName 'defender-score-controls.json'
+        [System.Collections.ArrayList]$scoreNames = [System.Collections.ArrayList]::new()
+
+        if (-not [string]::IsNullOrWhiteSpace($scorePage.warning))
+        {
+            [void]$warnings.Add($scorePage.warning)
+        }
+        else
+        {
+            foreach ($item in @($scorePage.items))
+            {
+                if ($null -eq $item -or [string]::IsNullOrWhiteSpace($item.name)) { continue }
+                if ($scoreNames -notcontains "$($item.name)".Trim() -and $scoreNames.Count -lt 5)
+                {
+                    [void]$scoreNames.Add("$($item.name)".Trim())
+                }
+            }
+
+            if ($scoreNames -notcontains 'ascScore')
+            {
+                if ($scoreNames.Count -ge 5) { $scoreNames[$scoreNames.Count - 1] = 'ascScore' }
+                else { $scoreNames.Insert(0, 'ascScore') }
+            }
+
+            foreach ($scoreName in @($scoreNames | Select-Object -First 5))
+            {
+                [string]$controlsPath = "providers/Microsoft.Security/secureScores/$scoreName/secureScoreControls"
+                [object]$controlsPage = Get-ArchLucidAzureDefenderArmValues -SubscriptionId $subId -RelativePath $controlsPath -ApiVersion '2020-01-01' -CompanionName 'defender-score-controls.json'
+                if (-not [string]::IsNullOrWhiteSpace($controlsPage.warning)) { [void]$warnings.Add($controlsPage.warning); continue }
+
+                foreach ($item in @($controlsPage.items))
+                {
+                    $controlProperties = Get-ArchLucidAzureDefenderPropertyValue -Object $item -Name 'properties'
+                    $controlScore = Get-ArchLucidAzureDefenderPropertyValue -Object $controlProperties -Name 'score'
+                    $currentValue = Get-ArchLucidAzureDefenderPropertyValue -Object $controlScore -Name 'current'
+                    $maxValue = Get-ArchLucidAzureDefenderPropertyValue -Object $controlScore -Name 'max'
+                    if ($null -eq $item -or [string]::IsNullOrWhiteSpace($item.name) -or $null -eq $controlScore) { continue }
+                    if ($null -eq $currentValue -and $null -eq $maxValue) { continue }
+
+                    [int]$current = 0
+                    [int]$max = 0
+                    [int]$percentage = 0
+                    try { if ($null -ne $currentValue) { $current = [int]$currentValue } } catch { }
+                    try { if ($null -ne $maxValue) { $max = [int]$maxValue } } catch { }
+                    $percentageValue = Get-ArchLucidAzureDefenderPropertyValue -Object $controlScore -Name 'percentage'
+                    try
+                    {
+                        if ($null -ne $percentageValue)
+                        {
+                            $percentage = [int][Math]::Round(([double]$percentageValue) * 100.0, [MidpointRounding]::AwayFromZero)
+                        }
+                        elseif ($max -gt 0)
+                        {
+                            $percentage = [int][Math]::Round(($current / [double]$max) * 100.0, [MidpointRounding]::AwayFromZero)
+                        }
+                    }
+                    catch { }
+
+                    $weightValue = Get-ArchLucidAzureDefenderPropertyValue -Object $controlProperties -Name 'weight'
+                    $unhealthyValue = Get-ArchLucidAzureDefenderPropertyValue -Object $controlProperties -Name 'unhealthyResourceCount'
+                    $healthyValue = Get-ArchLucidAzureDefenderPropertyValue -Object $controlProperties -Name 'healthyResourceCount'
+                    $controlDisplayName = Get-ArchLucidAzureDefenderPropertyValue -Object $controlProperties -Name 'displayName'
+
+                    [void]$scoreControls.Add([ordered]@{
+                        subscriptionId = $subId
+                        scoreName = $scoreName
+                        controlName = "$($item.name)".Trim()
+                        displayName = "$controlDisplayName".Trim()
+                        current = $current
+                        max = $max
+                        percentage = $percentage
+                        weight = $(if ($null -eq $weightValue) { 0 } else { [int]$weightValue })
+                        unhealthyResourceCount = $(if ($null -eq $unhealthyValue) { 0 } else { [int]$unhealthyValue })
+                        healthyResourceCount = $(if ($null -eq $healthyValue) { 0 } else { [int]$healthyValue })
+                    })
+                }
+            }
+        }
+
+        [hashtable]$counts = @{}
+        [int]$detailCount = 0
+        [object]$assessmentPage = Get-ArchLucidAzureDefenderArmValues -SubscriptionId $subId -RelativePath 'providers/Microsoft.Security/assessments' -ApiVersion '2021-06-01' -CompanionName 'defender-assessments.json'
+
+        if (-not [string]::IsNullOrWhiteSpace($assessmentPage.warning) -and @($assessmentPage.items).Count -eq 0)
+        {
+            [void]$warnings.Add($assessmentPage.warning)
+        }
+        else
+        {
+            if ($assessmentPage.truncated) { [void]$warnings.Add('defender-assessments-truncated') }
+            if (-not [string]::IsNullOrWhiteSpace($assessmentPage.warning)) { [void]$warnings.Add($assessmentPage.warning) }
+
+            foreach ($item in @($assessmentPage.items))
+            {
+                if ($null -eq $item -or [string]::IsNullOrWhiteSpace($item.name)) { continue }
+                [string]$status = 'Unknown'
+                [string]$cause = ''
+                try { if ($null -ne $item.properties.status.code) { $status = "$($item.properties.status.code)".Trim() } } catch { }
+                try { if ($null -ne $item.properties.status.cause) { $cause = "$($item.properties.status.cause)".Trim() } } catch { }
+                [string]$severity = 'Unknown'
+                [string]$category = ''
+                try { if ($null -ne $item.properties.metadata.severity) { $severity = "$($item.properties.metadata.severity)".Trim() } } catch { }
+                try { $category = @($item.properties.metadata.categories)[0] } catch { }
+                [string]$resourceId = ''
+                try { $resourceId = "$($item.properties.resourceDetails.id)".Trim() } catch { }
+                if ([string]::IsNullOrWhiteSpace($resourceId))
+                {
+                    try { $resourceId = "$($item.properties.resourceDetails.Id)".Trim() } catch { }
+                }
+
+                if (-not $counts.ContainsKey("$($item.name)"))
+                {
+                    $counts["$($item.name)"] = @{ displayName = "$($item.properties.displayName)"; severity = $severity; healthy = 0; unhealthy = 0; notApplicable = 0 }
+                }
+
+                if ($status -eq 'Healthy') { $counts["$($item.name)"].healthy++ }
+                elseif ($status -eq 'Unhealthy') { $counts["$($item.name)"].unhealthy++ }
+                elseif ($status -eq 'NotApplicable') { $counts["$($item.name)"].notApplicable++ }
+
+                if ($status -ne 'Unhealthy' -or [string]::IsNullOrWhiteSpace($resourceId)) { continue }
+                if ($detailCount -ge 4000) { [void]$warnings.Add('defender-assessments-truncated'); continue }
+                $detailCount++
+                if ($cause.Length -gt 240) { $cause = $cause.Substring(0, 240) }
+
+                [void]$assessments.Add([ordered]@{
+                    subscriptionId = $subId
+                    assessmentKey = "$($item.name)".Trim()
+                    displayName = "$($item.properties.displayName)".Trim()
+                    severity = $severity
+                    status = 'Unhealthy'
+                    statusCause = $cause
+                    category = "$category".Trim()
+                    resourceId = $resourceId
+                })
+            }
+        }
+
+        foreach ($key in @($counts.Keys))
+        {
+            [void]$assessmentCounts.Add([ordered]@{
+                subscriptionId = $subId
+                assessmentKey = $key
+                displayName = "$($counts[$key].displayName)".Trim()
+                severity = "$($counts[$key].severity)".Trim()
+                healthyCount = [int]$counts[$key].healthy
+                unhealthyCount = [int]$counts[$key].unhealthy
+                notApplicableCount = [int]$counts[$key].notApplicable
+            })
+        }
+
+        [object]$contactPage = Get-ArchLucidAzureDefenderArmValues -SubscriptionId $subId -RelativePath 'providers/Microsoft.Security/securityContacts' -ApiVersion '2020-01-01' -CompanionName 'defender-security-contacts.json'
+        if (-not [string]::IsNullOrWhiteSpace($contactPage.warning) -and @($contactPage.items).Count -eq 0)
+        {
+            [void]$warnings.Add('defender-security-contacts-not-collected')
+            [void]$warnings.Add($contactPage.warning)
+            [void]$securityContacts.Add([ordered]@{
+                subscriptionId = $subId
+                collectionStatus = 'Unavailable'
+                emailCount = 0
+                emails = ''
+                alertsToAdmins = $false
+                minimalSeverity = ''
+                notificationRoles = ''
+            })
+        }
+        else
+        {
+            [System.Collections.Generic.HashSet[string]]$emails = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+            [bool]$alertsToAdmins = $false
+            [string]$minimalSeverity = ''
+            [System.Collections.ArrayList]$roles = [System.Collections.ArrayList]::new()
+
+            foreach ($item in @($contactPage.items))
+            {
+                if ($null -eq $item) { continue }
+                foreach ($email in @("$($item.properties.emails)".Split(@(';', ','), [System.StringSplitOptions]::RemoveEmptyEntries)))
+                {
+                    [string]$trimmedEmail = $email.Trim()
+                    if (-not [string]::IsNullOrWhiteSpace($trimmedEmail) -and $trimmedEmail -ne 'null') { [void]$emails.Add($trimmedEmail) }
+                }
+                try
+                {
+                    if ("$($item.properties.alertNotifications.state)" -eq 'On') { $alertsToAdmins = $true }
+                    if ([string]::IsNullOrWhiteSpace($minimalSeverity) -and $null -ne $item.properties.alertNotifications.minimalSeverity)
+                    {
+                        $minimalSeverity = "$($item.properties.alertNotifications.minimalSeverity)".Trim()
+                    }
+                }
+                catch { }
+                try
+                {
+                    foreach ($role in @($item.properties.notificationsByRole.roles))
+                    {
+                        if (-not [string]::IsNullOrWhiteSpace($role)) { [void]$roles.Add("$role".Trim()) }
+                    }
+                }
+                catch { }
+            }
+
+            if ($emails.Count -eq 0) { [void]$warnings.Add('defender-security-contact-missing') }
+            [string]$emailText = (@($emails) | Sort-Object) -join ';'
+            if ($emailText.Length -gt 512) { $emailText = $emailText.Substring(0, 512) }
+
+            [void]$securityContacts.Add([ordered]@{
+                subscriptionId = $subId
+                collectionStatus = 'Collected'
+                emailCount = $emails.Count
+                emails = $emailText
+                alertsToAdmins = $alertsToAdmins
+                minimalSeverity = $minimalSeverity
+                notificationRoles = ((@($roles) | Sort-Object -Unique) -join ';')
+            })
+        }
+    }
+
+    [System.Collections.Generic.HashSet[string]]$planWarnings = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    [hashtable]$planTypes = @{
+        VirtualMachines = 'Microsoft.Compute/virtualMachines'
+        SqlServers = 'Microsoft.Sql/servers'
+        AppServices = 'Microsoft.Web/sites'
+        StorageAccounts = 'Microsoft.Storage/storageAccounts'
+        KeyVaults = 'Microsoft.KeyVault/vaults'
+        Containers = 'Microsoft.ContainerService/managedClusters'
+        Api = 'Microsoft.ApiManagement/service'
+    }
+
+    foreach ($pricing in @($pricings))
+    {
+        if ("$($pricing.tier)" -ne 'Free' -or -not $planTypes.ContainsKey($pricing.pricingName)) { continue }
+        [string]$prefix = $planTypes[$pricing.pricingName]
+        [string]$token = "/subscriptions/$($pricing.subscriptionId)/"
+        foreach ($resource in @($InventoryResources))
+        {
+            [string]$resourceId = "$($resource.resourceId)"
+            [string]$resourceType = "$($resource.resourceType)"
+            if ($resourceId.IndexOf($token, [StringComparison]::OrdinalIgnoreCase) -ge 0 -and ($resourceType -eq $prefix -or $resourceType.StartsWith("$prefix/", [StringComparison]::OrdinalIgnoreCase)))
+            {
+                [void]$planWarnings.Add("defender-plan-off:$($pricing.pricingName)")
+                break
+            }
+        }
+    }
+
+    foreach ($planWarning in @($planWarnings)) { [void]$warnings.Add($planWarning) }
+
+    return [pscustomobject]@{
+        pricings = @($pricings.ToArray())
+        scoreControls = @($scoreControls.ToArray())
+        assessments = @($assessments.ToArray())
+        assessmentCounts = @($assessmentCounts.ToArray())
+        securityContacts = @($securityContacts.ToArray())
+        warnings = @($warnings.ToArray())
+    }
+}
+
+function New-ArchLucidAzureDefenderArmValuesFailureWarning(
+    [Parameter(Mandatory = $true)]
+    [string] $CompanionName,
+
+    [int] $StatusCode = 0)
+{
+    if ($StatusCode -gt 0)
+    {
+        return "$CompanionName collection failed; HTTP $StatusCode"
+    }
+
+    return "$CompanionName collection failed"
+}
+
+function Format-ArchLucidAzureDefenderGovernanceCollectionFailedWarning(
+    [int[]] $StatusCodes = @())
+{
+    [string]$apiSuffix = 'api-version 2022-01-01-preview'
+    [int[]]$ordered = @(
+        @($StatusCodes) |
+            Where-Object { $_ -gt 0 } |
+            Sort-Object -Unique
+    )
+
+    if ($ordered.Count -eq 0)
+    {
+        return "defender-governance.json collection failed; $apiSuffix"
+    }
+
+    if ($ordered.Count -eq 1)
+    {
+        return "defender-governance.json collection failed; HTTP $($ordered[0]); $apiSuffix"
+    }
+
+    [string]$joined = ($ordered | ForEach-Object { "$_" }) -join ', '
+    return "defender-governance.json collection failed; HTTP $joined; $apiSuffix"
+}
+
+function Get-ArchLucidAzureDefenderGovernanceWarningStatusCodes(
+    [Parameter(Mandatory = $true)]
+    [string[]] $Warnings)
+{
+    [System.Collections.Generic.List[int]]$statuses = [System.Collections.Generic.List[int]]::new()
+
+    foreach ($warning in @($Warnings))
+    {
+        if (-not "$warning".Contains('defender-governance.json', [StringComparison]::Ordinal))
+        {
+            continue
+        }
+
+        if ("$warning" -match 'collection failed; HTTP (\d+)')
+        {
+            [void]$statuses.Add([int]$Matches[1])
+        }
+    }
+
+    return @($statuses.ToArray())
+}
+
+function Get-ArchLucidAzureDefenderArmValues
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $SubscriptionId,
+
+        [Parameter(Mandatory = $true)]
+        [string] $RelativePath,
+
+        [Parameter(Mandatory = $true)]
+        [string] $ApiVersion,
+
+        [Parameter(Mandatory = $true)]
+        [string] $CompanionName
+    )
+
+    [System.Collections.ArrayList]$items = [System.Collections.ArrayList]::new()
+    [string]$nextLink = "/subscriptions/$SubscriptionId/$RelativePath`?api-version=$ApiVersion"
+    [hashtable]$visited = @{}
+    [int]$requestCount = 0
+    [string]$warning = ''
+    [int]$httpStatusCode = 0
+    [bool]$truncated = $false
+
+    while (-not [string]::IsNullOrWhiteSpace($nextLink))
+    {
+        if ($visited.ContainsKey($nextLink)) { break }
+        $visited[$nextLink] = $true
+        $requestCount++
+        if ($requestCount -gt 64) { $truncated = $true; break }
+
+        try
+        {
+            if ($nextLink.StartsWith('https://', [StringComparison]::OrdinalIgnoreCase))
+            {
+                $response = Invoke-AzRestMethod -Method GET -Uri $nextLink -ErrorAction Stop
+            }
+            else
+            {
+                $response = Invoke-AzRestMethod -Method GET -Path $nextLink -ErrorAction Stop
+            }
+
+            try { $httpStatusCode = [int]$response.StatusCode } catch { $httpStatusCode = 0 }
+
+            if ($httpStatusCode -lt 200 -or $httpStatusCode -ge 300)
+            {
+                $warning = New-ArchLucidAzureDefenderArmValuesFailureWarning -CompanionName $CompanionName -StatusCode $httpStatusCode
+                break
+            }
+
+            $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+            foreach ($item in @($payload.value))
+            {
+                if ($null -ne $item) { [void]$items.Add($item) }
+            }
+
+            $nextLink = ''
+            $nextLinkProperty = $payload.PSObject.Properties['nextLink']
+            if ($null -ne $nextLinkProperty -and -not [string]::IsNullOrWhiteSpace("$($nextLinkProperty.Value)"))
+            {
+                [string]$candidate = "$($nextLinkProperty.Value)".Trim()
+                if ($candidate.IndexOf("/subscriptions/$SubscriptionId/", [StringComparison]::OrdinalIgnoreCase) -lt 0 -or $candidate.IndexOf("/$RelativePath", [StringComparison]::OrdinalIgnoreCase) -lt 0)
+                {
+                    throw [System.InvalidOperationException]::new('defender-companions-rejected-next-link')
+                }
+
+                $nextLink = $candidate
+            }
+        }
+        catch
+        {
+            if ("$($_.Exception.Message)" -eq 'defender-companions-rejected-next-link')
+            {
+                $warning = 'defender-companions-rejected-next-link'
+            }
+            else
+            {
+                [int]$errorStatus = 0
+
+                if ($null -ne $_.Exception -and $null -ne $_.Exception.Response)
+                {
+                    try { $errorStatus = [int]$_.Exception.Response.StatusCode } catch { }
+                }
+
+                if ($errorStatus -gt 0)
+                {
+                    $httpStatusCode = $errorStatus
+                }
+
+                $warning = New-ArchLucidAzureDefenderArmValuesFailureWarning -CompanionName $CompanionName -StatusCode $httpStatusCode
+            }
+
+            break
+        }
+    }
+
+    return [pscustomobject]@{
+        items = @($items.ToArray())
+        warning = $warning
+        httpStatusCode = $httpStatusCode
+        truncated = $truncated
+    }
+}
+
 function Test-ArchLucidAzureFactoryStyleResource
 {
     param(
