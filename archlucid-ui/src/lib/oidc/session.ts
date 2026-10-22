@@ -413,7 +413,13 @@ export function readPostSignInReturnUrl(): string | null {
 
   const normalized = normalizeOidcConfigurationString(url);
 
-  return isSafeReturnPath(normalized) ? normalized : null;
+  if (!isSafeReturnPath(normalized)) {
+    sessionStorage.removeItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY);
+
+    return null;
+  }
+
+  return normalized;
 }
 
 export function clearPostSignInReturnUrl(): void {

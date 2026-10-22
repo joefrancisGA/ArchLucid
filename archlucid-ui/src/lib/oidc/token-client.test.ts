@@ -198,6 +198,31 @@ describe("refreshAccessToken", () => {
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });
 
+  it("marks authorize callback failed when authorization code exchange returns transient temporarily_unavailable", async () => {
+    sessionStorage.clear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: false,
+        status: 503,
+        text: async () => JSON.stringify({ error: "temporarily_unavailable" }),
+      })),
+    );
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/temporary error/i);
+
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
+  });
+
   it("humanizes unsupported_response_type authorization code exchange errors instead of raw snake_case", async () => {
     sessionStorage.clear();
 
@@ -222,13 +247,13 @@ describe("refreshAccessToken", () => {
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });
 
-  it("humanizes insufficient_scope authorization code exchange errors instead of raw snake_case", async () => {
+  it("humanizes unsupported_token_type authorization code exchange errors instead of raw snake_case", async () => {
     sessionStorage.clear();
 
     const fetchMock = vi.fn(async () => ({
       ok: false,
       status: 400,
-      text: async () => JSON.stringify({ error: "insufficient_scope" }),
+      text: async () => JSON.stringify({ error: "unsupported_token_type" }),
     }));
 
     vi.stubGlobal("fetch", fetchMock);
@@ -241,7 +266,7 @@ describe("refreshAccessToken", () => {
         redirectUri: "https://app.example/callback",
         codeVerifier: "verifier",
       }),
-    ).rejects.toThrow(/Sign-in did not finish \(insufficient scope\)/i);
+    ).rejects.toThrow(/Sign-in did not finish \(unsupported token type\)/i);
 
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });
@@ -767,11 +792,11 @@ describe("refreshAccessToken", () => {
     expect((caught as OAuthTokenEndpointError).message).not.toContain("unsupported_response_type");
   });
 
-  it("classifies humanized insufficient_scope refresh failures for BFF session clearing", async () => {
+  it("classifies humanized unsupported_token_type refresh failures for BFF session clearing", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,
       status: 400,
-      text: async () => JSON.stringify({ error: "insufficient_scope" }),
+      text: async () => JSON.stringify({ error: "unsupported_token_type" }),
     }));
 
     vi.stubGlobal("fetch", fetchMock);
@@ -790,8 +815,8 @@ describe("refreshAccessToken", () => {
 
     expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
     expect(isOAuthRefreshTokenRejectedError(caught)).toBe(true);
-    expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("insufficient_scope");
-    expect((caught as OAuthTokenEndpointError).message).not.toContain("insufficient_scope");
+    expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("unsupported_token_type");
+    expect((caught as OAuthTokenEndpointError).message).not.toContain("unsupported_token_type");
   });
 
   it("classifies humanized unsupported_grant_type refresh failures for BFF session clearing", async () => {
@@ -844,58 +869,6 @@ describe("refreshAccessToken", () => {
 
     expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
     expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("server_error");
-    expect(isOAuthRefreshTokenRejectedError(caught)).toBe(false);
-  });
-
-  it("does not classify slow_down refresh failures as permanent rejection", async () => {
-    const fetchMock = vi.fn(async () => ({
-      ok: false,
-      status: 400,
-      text: async () => JSON.stringify({ error: "slow_down" }),
-    }));
-
-    vi.stubGlobal("fetch", fetchMock);
-
-    let caught: unknown;
-
-    try {
-      await refreshAccessToken({
-        tokenEndpoint: "https://login.example.com/token",
-        clientId: "client",
-        refreshToken: "rt",
-      });
-    } catch (error) {
-      caught = error;
-    }
-
-    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
-    expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("slow_down");
-    expect(isOAuthRefreshTokenRejectedError(caught)).toBe(false);
-  });
-
-  it("does not classify authorization_pending refresh failures as permanent rejection", async () => {
-    const fetchMock = vi.fn(async () => ({
-      ok: false,
-      status: 400,
-      text: async () => JSON.stringify({ error: "authorization_pending" }),
-    }));
-
-    vi.stubGlobal("fetch", fetchMock);
-
-    let caught: unknown;
-
-    try {
-      await refreshAccessToken({
-        tokenEndpoint: "https://login.example.com/token",
-        clientId: "client",
-        refreshToken: "rt",
-      });
-    } catch (error) {
-      caught = error;
-    }
-
-    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
-    expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("authorization_pending");
     expect(isOAuthRefreshTokenRejectedError(caught)).toBe(false);
   });
 

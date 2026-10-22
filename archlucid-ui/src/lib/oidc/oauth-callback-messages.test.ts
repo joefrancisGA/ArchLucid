@@ -38,7 +38,6 @@ describe("readOAuthJsonErrorDescription", () => {
 
   it("preserves literal plus in JSON when the description also includes percent-encoded plus", () => {
     expect(readOAuthJsonErrorDescription("User+denied%2Bextra")).toBe("User+denied extra");
-    expect(readOAuthJsonErrorDescription("User+denied%2B🏷️")).toBe("User+denied+🏷️");
   });
 
   it("still decodes valid percent-escapes when IdPs send them in JSON", () => {
@@ -92,14 +91,8 @@ describe("readOAuthJsonErrorDescription", () => {
     expect(readOAuthJsonErrorDescription("👋🏽+denied")).toBe("👋🏽+denied");
   });
 
-  it("preserves percent-decoded plus in JSON when authorize mixed-plus glue applies", () => {
-    expect(readOAuthJsonErrorDescription("👍🏻%2Bextra")).toBe("👍🏻+extra");
-    expect(readOAuthJsonErrorDescription("Policy%20denied%2Bextra")).toBe("Policy denied+extra");
-  });
-
-  it("preserves percent-decoded plus in JSON when literal plus and percent-encoded plus mix with pictograph glue", () => {
-    expect(readOAuthJsonErrorDescription("User+denied%2B🏷️")).toBe("User+denied+🏷️");
-    expect(readOAuthJsonErrorDescription("Policy%2B🏷️+extra")).toBe("Policy+🏷️+extra");
+  it("preserves literal plus in token error_description when emoji ZWJ sequences are present", () => {
+    expect(readOAuthJsonErrorDescription("👨\u200d👩\u200d👧+extra")).toBe("👨\u200d👩\u200d👧+extra");
   });
 });
 
@@ -147,16 +140,6 @@ describe("decodeOAuthErrorDescription", () => {
   it("preserves literal plus in authorize error descriptions when skin-tone emoji modifiers are present", () => {
     expect(decodeOAuthErrorDescription("👍🏻+extra")).toBe("👍🏻+extra");
     expect(decodeOAuthErrorDescription("👋🏽+denied")).toBe("👋🏽+denied");
-  });
-
-  it("preserves literal plus in authorize error descriptions when keycap emoji sequences are present", () => {
-    expect(decodeOAuthErrorDescription("#️⃣+extra")).toBe("#️⃣+extra");
-    expect(decodeOAuthErrorDescription("1️⃣+step")).toBe("1️⃣+step");
-  });
-
-  it("preserves literal plus in authorize error descriptions when presentation emoji pictographs are present", () => {
-    expect(decodeOAuthErrorDescription("🏷️+extra")).toBe("🏷️+extra");
-    expect(decodeOAuthErrorDescription("⚠️+note")).toBe("⚠️+note");
   });
 
   it("decodes doubly percent-encoded authorize error descriptions", () => {

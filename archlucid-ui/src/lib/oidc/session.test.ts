@@ -10,6 +10,7 @@ import {
   getAccessTokenForApi,
   isLikelySignedIn,
   persistTokenResponse,
+  readPostSignInReturnUrl,
   readSignedInDisplayName,
   readSignedInUserSubject,
   storePkceState,
@@ -89,6 +90,15 @@ describe("storePostSignInReturnUrl / consumePostSignInReturnUrl", () => {
     storePostSignInReturnUrl("/\\evil.example");
 
     expect(consumePostSignInReturnUrl()).toBeNull();
+  });
+
+  it("drops a tampered absolute return URL from sessionStorage without clearing authorize retry marker", () => {
+    sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, "https://evil.example/phish");
+    sessionStorage.setItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY, "1");
+
+    expect(readPostSignInReturnUrl()).toBeNull();
+    expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBeNull();
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });
 });
 
