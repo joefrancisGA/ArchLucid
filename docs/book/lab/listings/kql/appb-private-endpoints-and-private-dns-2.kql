@@ -1,7 +1,0 @@
-resources
-| where type =~ 'microsoft.network/privatednszones/virtualnetworklinks'
-| project
-    id,
-    zone = tostring(split(id, '/')[8]),
-    virtualNetworkId = tostring(properties.virtualNetwork.id),
-    registrationEnabled = tobool(properties.registrationEnabled)

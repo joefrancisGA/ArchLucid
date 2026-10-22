@@ -1,8 +1,0 @@
-flowchart LR
-  D["LLM draft pack JSON/YAML"] --> C["Critic review"]
-  C --> S["Human SME approve"]
-  S --> PUB["Curated pack in samples/<br/>or tenant library"]
-  PUB --> ASN["Assign Tenant / Workspace / Project"]
-  ASN --> MER["Effective governance merge"]
-  MER --> ADV["Advisory / findings / digests"]
-  ADV --> HIT["Operator sees hit on review"]

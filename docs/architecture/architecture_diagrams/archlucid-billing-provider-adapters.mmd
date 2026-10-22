@@ -1,8 +1,0 @@
-flowchart TB
-  Reg["BillingProviderRegistry"] --> Stripe["StripeBillingProvider"]
-  Reg --> Mkt["AzureMarketplaceBillingProvider"]
-  Reg --> Noop["NoopBillingProvider"]
-  Cfg["Billing Provider"] --> Reg
-  Stripe --> Checkout["BillingCheckoutController"]
-  Mkt --> WH["MarketplaceChangePlanWebhookMutationHandler"]
-  WH --> GA["GaEnabled ack without mutate"]

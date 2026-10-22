@@ -5252,13 +5252,15 @@
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 946
+- **hunts:** 947
 - **bugs-found:** 60
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — run export blob push HttpClient omitted connect-time private-network guard after DNS pre-check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 thorough hunt (dry): all three picker candidates cheap-disproved or documented; DNS pin TOCTOU (`valid-no-repro` — connect-time `OutboundHttpsConnectGuard` plus pre-PUT DNS guard matches TB-274 integration posture; no pinned-resolution transport in repo); compare-summary formatter-before-persist (`invalid` — `FormatMarkdown` runs before `RecordExportDiffAsync`; formatter throw yields 500 without audit row); percent-encoded/mixed-case blob hosts (`valid-no-repro` — percent-encoded dot hosts fail `Uri.TryCreate`; mixed-case Azure suffix still allowlisted; regressions `TryGetRejectionReason_WhenPercentEncodedDotsInHost_RejectsAsInvalidAbsoluteUrl` and `TryGetRejectionReason_WhenMixedCaseAzureBlobHost_Allows`); 32 scoped export tests passed (Application + Api + Core).
 
 2026-10-22 thorough hunt (hit): promoted `RunExportBlobPushService` DNS-rebind gap candidate; proved `RunExportBlobPush` `HttpClient` registered without `rejectPrivateNetworkConnectEndpoints` while `PushAsync` DNS-validates then `PutAsync` re-resolves; aligned with TB-274 integration clients by wiring `OutboundHttpsConnectGuard` on the named client; regression `RunExportBlobPush_http_client_wires_private_network_connect_guard`; cheap-disproof closed compare-summary persist vs career ordering (`EnsureCareerAllowsExportRecordMetadataOrThrowAsync` runs before `CompareAsync`) and `ArchitectureReviewExportService` sibling routes (`RunsExportController.Export` maps `CareerArtifactExportBlockedException`; `ArchitectureExportController` only exposes `ExportRunSummary`); 30 scoped export tests passed (Application + Api + Core + composition guard test).
 
@@ -7234,9 +7236,13 @@
 - [x] (invalid) `ExportsController.CompareExportRecordsSummary` — persist path audits before career 409 — **cheap-disproof 2026-10-22 thorough hunt:** `CompareExportRecordsSummaryAsync` invokes career gates before `CompareAsync` and audit persistence; hypothesis misread guard order.
 - [x] (invalid) `ArchitectureReviewExportService` — sibling routes missing career HTTP mapping — **cheap-disproof 2026-10-22 thorough hunt:** review docx/pdf/html export is `RunsExportController.Export` with `CareerArtifactExportBlockedException` mapping; `ArchitectureExportController` has only `ExportRunSummary`.
 
-- [ ] (candidate) `RunExportBlobPushService` — connect guard blocks private addresses at TCP time but does not pin first DNS resolution to the same addresses validated by `TryGetRejectionReasonAfterDnsResolveAsync` (full TOCTOU closure).
-- [ ] (candidate) `ExportsController.CompareExportRecordsSummary` — `persist=true` writes comparison audit even when downstream formatter throws after career gates pass (unexpected exception surfaces 500 with partial audit).
-- [ ] (candidate) `AllowedRunExportBlobDestinationUrlPolicy` — percent-encoded dot separators or mixed-case account labels in blob host may evade account-label extraction while still passing suffix checks.
+- [x] (valid-no-repro) `RunExportBlobPushService` — DNS validate then `PutAsync` without pinned resolution — **cheap-disproof 2026-10-22 thorough hunt:** connect-time private-network guard now wired on `RunExportBlobPush` client; full DNS pin-to-first-resolve is not used elsewhere and remains accepted residual TOCTOU for operator-supplied Azure SAS URLs.
+- [x] (invalid) `ExportsController.CompareExportRecordsSummary` — persist writes audit when formatter throws — **cheap-disproof 2026-10-22 thorough hunt:** `CompareExportRecordsSummaryAsync` formats markdown before `RecordExportDiffAsync`; formatter exceptions abort before persistence.
+- [x] (valid-no-repro) `AllowedRunExportBlobDestinationUrlPolicy` — percent-encoded dots / mixed-case hosts evade account-label guard — **cheap-disproof 2026-10-22 thorough hunt:** percent-encoded dot hosts fail absolute HTTPS parse; mixed-case suffix allowlist is intentional; regressions `TryGetRejectionReason_WhenPercentEncodedDotsInHost_RejectsAsInvalidAbsoluteUrl` and `TryGetRejectionReason_WhenMixedCaseAzureBlobHost_Allows`.
+
+- [ ] (candidate) `RunExportQueryFacade.GetRunExportHistoryAsync` — lineage verification skipped when `runId` parses as `AuthorityRunIdentifier` but not `Guid.TryParse`, leaving lifecycle-only guard for non-canonical guid text encodings.
+- [ ] (candidate) `ExportsController.CompareExportRecords` — sealed-manifest pre-check runs per export record id but does not verify both records belong to the same tenant scope before diff metadata compare.
+- [ ] (candidate) `AllowedRunExportBlobDestinationUrlPolicy` — blob host with trailing dot label (`acct.blob.core.windows.net.`) may pass suffix checks while DNS resolves differently from operator intent.
 
 - [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` / `ReviewCacheManifestBuilder.Build` — entry-time fingerprint snapshot — **closed 2026-10-05 thorough hunt (architecture-intelligence-orchestrator zone).**
 - [x] (valid-no-repro) `ReviewResultCache.PinScope` / composite pin cap — **closed 2026-10-05 thorough hunt (architecture-intelligence-orchestrator zone).**

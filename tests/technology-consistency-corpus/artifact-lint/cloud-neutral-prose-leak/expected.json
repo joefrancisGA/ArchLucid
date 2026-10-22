@@ -1,4 +1,0 @@
-{
-  "mode": "WarnOnly",
-  "ruleIds": ["CloudNeutralProseProviderLeak", "UnledgeredHyperscalerToken"]
-}

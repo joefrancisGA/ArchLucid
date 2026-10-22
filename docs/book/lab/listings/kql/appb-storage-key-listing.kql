@@ -1,4 +1,0 @@
-AzureActivity
-| where TimeGenerated > ago(1d)
-| where OperationNameValue =~ "MICROSOFT.STORAGE/STORAGEACCOUNTS/LISTKEYS/ACTION"
-| project TimeGenerated, Caller, ResourceGroup, _ResourceId, ActivityStatusValue

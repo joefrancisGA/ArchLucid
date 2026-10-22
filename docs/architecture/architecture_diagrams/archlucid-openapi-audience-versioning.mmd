@@ -1,9 +1,0 @@
-flowchart TB
-  Ver["ApiVersion 1.0"] --> Aud["OpenApiAudience"]
-  Aud --> Buyer["buyer"]
-  Aud --> Op["operator"]
-  Aud --> Int["internal"]
-  Aud --> For["forensics"]
-  Path["OpenApiAudiencePathClassifier"] --> Aud
-  Mut["OpenApiAuthDocumentMutator"] --> Ver
-  Snap["openapi-v1.contract.snapshot.json"] --> Ver

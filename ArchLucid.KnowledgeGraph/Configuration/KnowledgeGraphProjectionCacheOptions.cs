@@ -1,3 +1,0 @@
-namespace ArchLucid.KnowledgeGraph.Configuration;
-
-public class KnowledgeGraphProjectionCacheOptions : ArchLucid.Core.Configuration.KnowledgeGraphProjectionCacheOptions;
