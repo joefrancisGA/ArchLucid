@@ -1778,6 +1778,16 @@
 
 ## Zone: finding-inspect-sql
 
+2026-10-22 seed hunt (seed→hit): promoted hunt-ready `FindingInspectReadModelMapper` inspect enum columns that only `Trim()` while overlay semantic band already uses `NormalizeInspectEnumToken`; leading format characters (e.g. U+200B before `Accepted`) made `Enum.TryParse` fail so `LatestDisposition` and related inspect enums surfaced null/wrong defaults; mapper now normalizes tokens via shared `NormalizeInspectEnumToken`; regressions `ParseDisposition_parses_after_leading_invisible_format_characters`, `ParseHumanReview_parses_after_leading_invisible_format_characters`, `TryParseEvaluationConfidenceLevel_parses_after_leading_invisible_format_characters`, `ParseFindingSeverity_parses_after_leading_invisible_format_characters`; scoped inspect tests not run (RS1034 analyzer build block).
+
+- [x] (proven) `FindingInspectReadModelMapper.ParseDisposition` / `ParseHumanReview` / `TryParseEvaluationConfidenceLevel` / `ParseFindingSeverity` — persisted enum strings with leading/trailing format characters failed `Enum.TryParse` after whitespace trim only — **hit 2026-10-22 seed hunt:** parity with `ResolveInspectSemanticSupportBand` overlay normalization; shared `FindingInspectReadRepositoryCore.NormalizeInspectEnumToken`; regressions in `FindingInspectReadModelMapperTests`.
+
+- [ ] (candidate) `MapLatestDisposition` — disposition pointer join when `Disposition` column is invisible-only after normalize — locus: `MapDispositionPointerProjection` ~32–41; input: `FindingReviewEvents.Disposition` paste artifact only format chars (should remain null by design).
+- [ ] (candidate) `ResolveRuleFields` — `AppliedRuleIdsJson` array elements with embedded format characters mid-string — locus: `NormalizeInspectText` rejects embedded format; input: rule id `cost\u200B-guardrail` (display contract vs auth-style normalizer).
+- [ ] (candidate) `ResolveTypedPayloadForInspect` — corrupt payload fallback when title has leading format char but rationale substantive — locus: `BuildMetadataTypedPayload` ~115–118; input: title `\u200B`, rationale populated.
+- [ ] (candidate) `FindingInspectReadSql.FollowUpBatch` — disposition subquery `e.Disposition IS NOT NULL` with whitespace-only enum token — locus: SQL null guard; input: row with `"   "` disposition (mapper returns null after normalize).
+- [ ] (candidate) `InMemoryFindingInspectReadRepository.GetInspectAsync` — enum fields read from in-memory rows without SQL trim — locus: in-memory path uses same mapper; input: parity with Dapper after mapper fix (regression sibling).
+
 2026-10-12 seed hunt (seed-only): re-read the selected inspect repository, mapper, SQL batch, recent trace-rule parity change, and focused tests. No fresh reachable mechanism-backed candidate met the hunt-ready bar. The focused inspect-read filter passed 425/425. No production or regression change.
 
 - **id:** finding-inspect-sql
@@ -1786,11 +1796,11 @@
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 87
-- **bugs-found:** 26
+- **hunts:** 88
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — semantic support band overlay with leading format char fell back to typed payload
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 — inspect enum columns ignored format-character normalization on parse
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
