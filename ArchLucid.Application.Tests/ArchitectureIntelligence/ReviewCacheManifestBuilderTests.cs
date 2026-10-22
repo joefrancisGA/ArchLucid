@@ -3413,6 +3413,282 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_baseline_element_provenance_source_artifact_id_is_default_vs_empty_string()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-source-artifact-default-empty";
+
+        ArchitectureKnowledgeModel defaultArtifact = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance(),
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel emptyArtifact = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance { SourceArtifactId = string.Empty },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, defaultArtifact).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, emptyArtifact).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_element_provenance_passage_quote_is_null_vs_empty_string()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-passage-quote-null-empty";
+
+        ArchitectureKnowledgeModel nullQuote = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator
+                        {
+                            ArtifactId = "artifact-1",
+                            Quote = null,
+                        },
+                    },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel emptyQuote = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator
+                        {
+                            ArtifactId = "artifact-1",
+                            Quote = string.Empty,
+                        },
+                    },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, nullQuote).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, emptyQuote).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_element_provenance_passage_section_path_is_null_vs_empty_string()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-passage-section-null-empty";
+
+        ArchitectureKnowledgeModel nullSection = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator
+                        {
+                            ArtifactId = "artifact-1",
+                            SectionPath = null,
+                        },
+                    },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel emptySection = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator
+                        {
+                            ArtifactId = "artifact-1",
+                            SectionPath = string.Empty,
+                        },
+                    },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, nullSection).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, emptySection).ContentHash);
+    }
+
+    [Fact]
+    public void Build_changes_content_hash_when_baseline_element_provenance_passage_section_path_differs()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-passage-section-diff";
+
+        ArchitectureKnowledgeModel sectionA = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator
+                        {
+                            ArtifactId = "artifact-1",
+                            SectionPath = "intro",
+                        },
+                    },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel sectionB = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator
+                        {
+                            ArtifactId = "artifact-1",
+                            SectionPath = "architecture",
+                        },
+                    },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, sectionA).ContentHash
+            .Should()
+            .NotBe(ReviewCacheManifestBuilder.Build(request, sectionB).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_technology_ledger_is_null_vs_empty_list()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-ledger-null-empty";
+
+        ReviewCacheManifestBuilder.Build(request, baselineKnowledgeModel: new ArchitectureKnowledgeModel { ModelId = "m", RunId = request.RunId }, technologyLedgerEntries: null)
+            .ContentHash
+            .Should()
+            .Be(
+                ReviewCacheManifestBuilder.Build(
+                        request,
+                        baselineKnowledgeModel: new ArchitectureKnowledgeModel { ModelId = "m", RunId = request.RunId },
+                        technologyLedgerEntries: [])
+                    .ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_duplicate_element_ids_differ_only_by_provenance_support_status_list_order()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-duplicate-provenance-support";
+
+        ArchitectureKnowledgeModel unsupportedFirst = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance { SupportStatus = SupportStatus.Unsupported },
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance { SupportStatus = SupportStatus.DirectlyEstablished },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel establishedFirst = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance { SupportStatus = SupportStatus.DirectlyEstablished },
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance { SupportStatus = SupportStatus.Unsupported },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, unsupportedFirst).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, establishedFirst).ContentHash);
+    }
+
+    [Fact]
     public void Build_changes_content_hash_when_source_content_differs_only_by_casing()
     {
         ClosedLoopReasoningRequest lower = CreateRequest("public api gateway");

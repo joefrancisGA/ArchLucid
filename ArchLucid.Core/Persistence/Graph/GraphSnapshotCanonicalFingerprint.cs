@@ -272,16 +272,18 @@ public static class GraphSnapshotCanonicalFingerprint
             passageLocator.EndOffset,
             isStart: false);
         string quote = NormalizeLabelForFingerprint(passageLocator.Quote);
+        string sectionPath = NormalizeLabelForFingerprint(passageLocator.SectionPath);
 
         if (artifactId.Length == 0 &&
             startOffset.Length == 0 &&
             endOffset.Length == 0 &&
-            quote.Length == 0)
+            quote.Length == 0 &&
+            sectionPath.Length == 0)
         {
             return string.Empty;
         }
 
-        return string.Join(":", artifactId, startOffset, endOffset, quote);
+        return string.Join(":", artifactId, startOffset, endOffset, quote, sectionPath);
     }
 
     private static string FormatPassageOffsetToken(int? startOffset, int? endOffset, bool isStart)
