@@ -12470,19 +12470,23 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 118
-- **bugs-found:** 113
+- **hunts:** 119
+- **bugs-found:** 114
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — inventory overlay merge ignored padded EdgeType in edge dedupe keys
+- **last-bug:** 2026-10-22 — graph edge inference dedupe ignored padded endpoints and EdgeType
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted `GraphEdgeInferenceHelpers.Deduplicate` whitespace key candidate (prior inferrer-path cheap-disproofs did not cover merged inferrer + materializer edge lists); proved dedupe grouped on raw `FromNodeId` / `ToNodeId` / `EdgeType`, leaving parallel edges that differed only by padding; normalize endpoints and edge type in dedupe keys; regression `Deduplicate_merges_edges_when_endpoints_and_type_differ_only_by_surrounding_whitespace`; exposed helper to `ArchLucid.KnowledgeGraph.Tests` via `InternalsVisibleTo`; seeded `DefaultGraphBuilder` inferrer/materializer edge-list merge padding follow-on; 415 KnowledgeGraph + 134 Provenance scoped tests passed.
+
+- [x] (proven) `GraphEdgeInferenceHelpers.Deduplicate` — padded endpoints / `EdgeType` bypassed dedupe — **hit 2026-10-22 seed hunt (seed→hit):** trim in dedupe keys; regression above.
+
+- [ ] (candidate) `DefaultGraphBuilder.BuildAsync` — inferred and materialized edges merged without normalizing padded endpoints before `Deduplicate` — locus: graph build; input: materializer edge plus inferrer edge differing only by endpoint padding; wrong outcome: duplicate directed edges survive build when dedupe keys were raw (now fixed at helper; verify end-to-end build path).
 
 2026-10-22 seed hunt (seed→hit): cheap-disproved padded graph node `NodeType` / `Category` revision fingerprint candidate (`SelectLastNonEmptyGraphField` already trims; regressions `Compute_unchanged_when_graph_node_type_differs_only_by_surrounding_whitespace` and `Compute_unchanged_when_graph_node_category_differs_only_by_surrounding_whitespace`); promoted inventory overlay edge-key candidate; proved `ArchitectureInventoryObservedFactGraphOverlayMerger.BuildEdgeKey` trimmed endpoints but left raw `EdgeType`, so padded overlay edges duplicated directed relationships already present on the base graph; trim edge type in overlay edge keys; regression `Merge_skips_inventory_edge_when_directed_key_differs_only_by_edge_type_padding`; seeded `GraphEdgeInferenceHelpers.Deduplicate` whitespace endpoint key follow-on; 414 KnowledgeGraph + 134 Provenance scoped tests passed.
 
 - [x] (valid-no-repro) `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` — padded graph node `NodeType` / `Category` — **cheap-disproof 2026-10-22 seed hunt:** `SelectLastNonEmptyGraphField`; regressions above.
 - [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — padded `EdgeType` bypassed overlay edge dedupe — **hit 2026-10-22 seed hunt (seed→hit):** trim edge type in `BuildEdgeKey`; regression above.
-
-- [ ] (candidate) `GraphEdgeInferenceHelpers.Deduplicate` — edge dedupe keys use raw `FromNodeId` / `ToNodeId` / `EdgeType` without trim — locus: inference dedupe; input: parallel inferred edges differing only by endpoint or type padding; wrong outcome: duplicate directed edges in materialized graph.
 
 2026-10-22 seed hunt (seed→hit): cheap-disproved padded `GetNodesByType` candidate (`NormalizeGraphField` already trims stored and lookup types; regression `GetNodesByType_resolves_nodes_when_stored_node_type_has_surrounding_whitespace`); promoted graph revision fingerprint edge-type trim candidate; proved `ComputeGraphFingerprint` trimmed edge endpoints but hashed raw `EdgeType` strings, forcing `ProvenanceGraphAccessService` cache misses when edge types differed only by padding; trim edge types in fingerprint segments; regression `Compute_unchanged_when_graph_edge_type_differs_only_by_surrounding_whitespace`; seeded graph node type fingerprint trim parity follow-on; 413 KnowledgeGraph + 132 Provenance scoped tests passed.
 
