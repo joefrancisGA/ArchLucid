@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_grant authorize-query UX (existing parity), BFF refresh 468 parity (client + route opaque 468), figure-space-only access_token exchange (existing parity), and saturated decodeOAuthErrorDescription figure-space multiply-encoded glue; scoped vitest 706/706.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - invalid_grant authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 468 shouldClearSession false - **regression 2026-10-22:** client soft-fail plus BFF route opaque 468 without cookie clear.
+- [x] (invalid) exchangeAuthorizationCode - access_token JSON string figure-space-only skips authorize retry marker - **cheap-disproof 2026-10-22:** existing token-client regression.
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with figure-space glue - **cheap-disproof 2026-10-22:** saturated encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_grant_challenge authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 469 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string ogham-space-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with figure-space glue - locus: saturated JSON encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed session_expired authorize-query UX (existing parity), BFF refresh 467 parity (client + route opaque 467), and saturated decodeOAuthErrorDescription hair-space multiply-encoded glue; regression documents authorize-retry is marked when authorization code exchange returns variation-selector-16-only or ogham-space-only access_token; scoped vitest 703/703.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - session_expired authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
