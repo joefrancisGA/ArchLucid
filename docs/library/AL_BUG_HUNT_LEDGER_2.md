@@ -10977,12 +10977,14 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 ---
 
 ## Zone: api-tenancy-workspaces
-- (candidate) `TenantWorkspacesController.DeleteProjectAsync` — foreign-workspace default pin guard skipped when `ListActiveByTenantAsync` returns empty catalog but SQL row is still active — locus: `else if (ForeignWorkspacePinsProjectAsDefault)` + `projectIsActiveInCallerWorkspace` gate; input: reachable only when active catalog read is stale empty while `TrySoftDeleteAsync` would delete a live row; needs contract for fail-closed vs idempotent foreign-pin retry.
-- (candidate) `TenantWorkspacesController.DeleteProjectAsync` — foreign-workspace default pin guard skipped when `ListActiveByTenantAsync` returns null — locus: foreign branch `?? Array.Empty` before activity check; input: parity tension with caller-pin null fail-closed (`DeleteProjectAsync_returns_bad_request_when_deleting_caller_default_and_active_list_is_null`) vs `DeleteProjectAsync_returns_no_content_when_active_list_is_null_and_foreign_workspace_pins_project_metadata`.
-- (candidate) `TenantCatalogMigrationStatusController.GetCatalogMigrationStatusAsync` — tenant GET without workspace inventory preflight — locus: `GetByIdAsync` then migration service; input: tenant missing returns 404 after service read ordering (cheap-disproof pending explicit migration-service throw contract).
-- (candidate) `CorePilotTeamChecklistController.GetAsync` — `ICorePilotTeamChecklistRepository.ListAsync` null before projection — locus: `rows.Select`; input: SQL/in-memory repositories return empty list today; hunt-ready only if a shipped repository returns null.
-- (candidate) `TenantHomepageSettingsController.PutAsync` — `SelectedRunId` required rejects nullable clear-body contract — locus: `Guid.Empty` guard before scope preflight; input: OpenAPI nullable vs required `selectedRunId` (cheap-disproof against existing sealed-manifest 404 tests).
 
+2026-10-22 seed hunt (seed-only): re-read `TenantWorkspacesController` delete/list/recycle-bin paths and sibling tenancy controllers; cheap-disproof closed five orphaned `(candidate)` rows above zone header (foreign-pin idempotent null/empty catalog parity is proven by regression; catalog migration GET ordering; checklist null list; homepage `Guid.Empty` sealed-manifest guards); no hunt-ready promotion with failing repro; added five `(candidate)` rows under **Hypotheses**; scoped `TenantWorkspaces` tests not run on this checkout (Defender WIP compile errors).
+
+- [x] (valid-no-repro) `TenantWorkspacesController.DeleteProjectAsync` — foreign-pin guard skipped when active catalog empty but SQL row active — **cheap-disproof 2026-10-22:** idempotent foreign-pin retry when catalog null; regression `DeleteProjectAsync_returns_no_content_when_active_list_is_null_and_foreign_workspace_pins_project_metadata`; caller-pin fail-closed regression `DeleteProjectAsync_returns_bad_request_when_caller_default_pinned_and_active_catalog_is_empty`.
+- [x] (valid-no-repro) `TenantWorkspacesController.DeleteProjectAsync` — foreign branch null vs caller branch fail-closed — **cheap-disproof 2026-10-22:** intentional asymmetry documented by regressions above.
+- [x] (valid-no-repro) `TenantCatalogMigrationStatusController.GetCatalogMigrationStatusAsync` — tenant GET without workspace preflight — **cheap-disproof 2026-10-22:** tenant-scoped migration status by design; missing tenant returns 404 via `GetByIdAsync`.
+- [x] (invalid) `CorePilotTeamChecklistController.GetAsync` — null checklist `ListAsync` — **cheap-disproof 2026-10-22:** repositories materialize lists; prior hunt #7 closed.
+- [x] (valid-no-repro) `TenantHomepageSettingsController.PutAsync` — `Guid.Empty` selected run vs nullable clear — **cheap-disproof 2026-10-22:** `PutAsync_returns_not_found_when_selected_run_is_out_of_scope` and sealed-manifest guards.
 
 2026-10-21 thorough hunt (hit): lane B; DeleteProject empty active catalog fail-closed; 62/62 TenantWorkspaces tests.
 
@@ -10998,11 +11000,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 33
+- **hunts:** 34
 - **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-20 — workspace list null tenant workspace inventory
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-21 — DeleteProject caller-default fail-closed when active catalog empty
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -11102,6 +11104,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ### Hypotheses
+
+- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` — foreign-pin branch allows delete when `ListActiveByTenantAsync` is null/empty even though `TrySoftDeleteAsync` may still remove a live row — locus: `projectIsActiveInCallerWorkspace` gate ~75–77; input: idempotent retry contract vs fail-closed metadata protection (regressions above).
+- [ ] (candidate) `TenantWorkspacesController.ListAsync` — response `Workspaces` array contains only JWT-scoped workspace, not full tenant inventory — locus: single-element `Workspaces` list ~72–82; input: operator switching workspace in UI without scope change.
+- [ ] (candidate) `TenantWorkspacesController.ListRecycleBinAsync` — `preferInactiveScopedInventoryRow: true` may surface stale default metadata for inactive scoped project — locus: `ResolveScopedWorkspaceInventoryRow` ~59–65; input: scoped project soft-deleted but inventory row still pins default.
+- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` — `ListActiveByTenantAsync` invoked twice on delete path when both caller and foreign pin checks apply — locus: lines ~52–53 and ~71–73; input: duplicate repository round-trips under metadata disagreement (performance, not correctness).
+- [ ] (candidate) `TenantTrialController` / `TenantBaselineController` — sibling tenancy controllers may omit `TenantWorkspaceInventoryCoalesce` used by workspace routes — locus: compare `ListWorkspacesAsync` null handling across `ArchLucid.Api/Controllers/Tenancy/`; input: null workspace inventory on non-workspace GET.
+
 2026-09-12 seed hunt #1885 (seed-only): reseeded api-tenancy-workspaces; scoped tests passed; no hunt-ready defect proven this pass.
 
 
