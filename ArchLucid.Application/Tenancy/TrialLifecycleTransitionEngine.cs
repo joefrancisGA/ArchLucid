@@ -59,6 +59,9 @@ public sealed class TrialLifecycleTransitionEngine(
                 return deletedGateReturn;
             }
 
+            if (await IsErasureSupersededAsync(tenantId, cancellationToken))
+                return true;
+
             await _tenantHardPurgeService.PurgeTenantAsync(tenantId,
                 new TenantHardPurgeOptions { DryRun = false, MaxRowsPerStatement = options.HardPurgeMaxRowsPerStatement }, cancellationToken);
 
@@ -112,6 +115,9 @@ public sealed class TrialLifecycleTransitionEngine(
             {
                 return purgeGateReturn;
             }
+
+            if (await IsErasureSupersededAsync(tenantId, cancellationToken))
+                return true;
 
             TenantHardPurgeResult purgeResult = await _tenantHardPurgeService.PurgeTenantAsync(tenantId,
                 new TenantHardPurgeOptions { DryRun = false, MaxRowsPerStatement = options.HardPurgeMaxRowsPerStatement }, cancellationToken);
@@ -236,6 +242,12 @@ public sealed class TrialLifecycleTransitionEngine(
             await _tenantRepository.GetByIdAsync(tenant.Id, cancellationToken).ConfigureAwait(false);
 
         if (tenantBeforeAudit is null || tenantBeforeAudit.OffboardedUtc is not null)
+            return false;
+
+        TenantRecord? tenantBeforeAuditAppend =
+            await _tenantRepository.GetByIdAsync(tenant.Id, cancellationToken).ConfigureAwait(false);
+
+        if (tenantBeforeAuditAppend is null || tenantBeforeAuditAppend.OffboardedUtc is not null)
             return false;
 
         Guid workspaceId = workspace.WorkspaceId;

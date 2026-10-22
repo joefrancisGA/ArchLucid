@@ -90,6 +90,52 @@ public sealed class AwsResourceExplorerInventoryCollectorTests
     }
 
     [Fact]
+    public async Task CollectAsync_uses_iso_b_partition_query_for_us_isob_region()
+    {
+        Mock<IAmazonResourceExplorer2> explorerClient = new();
+        string? capturedQuery = null;
+
+        explorerClient
+            .Setup(c => c.SearchAsync(It.IsAny<SearchRequest>(), It.IsAny<CancellationToken>()))
+            .Callback<SearchRequest, CancellationToken>((request, _) => capturedQuery = request.QueryString)
+            .ReturnsAsync(new SearchResponse
+            {
+                Resources = [],
+                NextToken = null
+            });
+
+        await AwsResourceExplorerInventoryCollector.CollectAsync(
+            explorerClient.Object,
+            "us-isob-east-1",
+            CancellationToken.None);
+
+        capturedQuery.Should().Be("arn:aws-iso-b:*");
+    }
+
+    [Fact]
+    public async Task CollectAsync_uses_iso_partition_query_for_us_iso_region()
+    {
+        Mock<IAmazonResourceExplorer2> explorerClient = new();
+        string? capturedQuery = null;
+
+        explorerClient
+            .Setup(c => c.SearchAsync(It.IsAny<SearchRequest>(), It.IsAny<CancellationToken>()))
+            .Callback<SearchRequest, CancellationToken>((request, _) => capturedQuery = request.QueryString)
+            .ReturnsAsync(new SearchResponse
+            {
+                Resources = [],
+                NextToken = null
+            });
+
+        await AwsResourceExplorerInventoryCollector.CollectAsync(
+            explorerClient.Object,
+            "us-iso-east-1",
+            CancellationToken.None);
+
+        capturedQuery.Should().Be("arn:aws-iso:*");
+    }
+
+    [Fact]
     public async Task CollectAsync_uses_govcloud_partition_query_for_us_gov_region()
     {
         Mock<IAmazonResourceExplorer2> explorerClient = new();

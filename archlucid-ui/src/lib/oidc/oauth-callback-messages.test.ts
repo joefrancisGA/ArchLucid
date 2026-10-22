@@ -116,6 +116,10 @@ describe("readOAuthJsonErrorDescription", () => {
   it("preserves percent-decoded plus in JSON when ZWNJ glue separates words", () => {
     expect(readOAuthJsonErrorDescription("Policy\u200cdenied%252Bextra")).toBe("Policy denied+extra");
   });
+
+  it("preserves percent-decoded plus in JSON when ZWJ glue separates words", () => {
+    expect(readOAuthJsonErrorDescription("Policy\u200ddenied%252Bextra")).toBe("Policy denied+extra");
+  });
 });
 
 describe("decodeOAuthErrorDescription", () => {
@@ -142,6 +146,10 @@ describe("decodeOAuthErrorDescription", () => {
 
   it("preserves percent-decoded plus in authorize descriptions when figure-space glue separates words", () => {
     expect(decodeOAuthErrorDescription("Policy\u2007denied%252Bextra")).toBe("Policy denied+extra");
+  });
+
+  it("preserves percent-decoded plus in authorize descriptions when ZWJ glue separates words", () => {
+    expect(decodeOAuthErrorDescription("Policy\u200ddenied%252Bextra")).toBe("Policy denied+extra");
   });
 
   it("preserves literal plus in authorize error descriptions when form plus was already decoded to space", () => {
