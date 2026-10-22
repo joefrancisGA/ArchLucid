@@ -21,6 +21,7 @@ public static class ProvenanceSnapshotRevisionHasher
         Guid findingsSnapshotId = input.Findings.FindingsSnapshotId;
         string findingsFingerprint = ComputeFindingsFingerprint(input.Findings);
         Guid graphSnapshotId = input.Graph.GraphSnapshotId;
+        string graphFingerprint = ComputeGraphFingerprint(input.Graph);
         Guid manifestId = input.Manifest.ManifestId;
         string manifestHash = input.Manifest.ManifestHash ?? string.Empty;
         string manifestDecisionsFingerprint = ComputeManifestDecisionsFingerprint(input.Manifest);
@@ -31,11 +32,34 @@ public static class ProvenanceSnapshotRevisionHasher
 
         string canonical =
             FormattableString.Invariant(
-                $"{input.RunId:D}|{findingsSnapshotId:D}|{findingsFingerprint}|{graphSnapshotId:D}|{manifestId:D}|{manifestHash}|{manifestDecisionsFingerprint}|{decisionTraceId:D}|{appliedRuleIdsFingerprint}|{bundleId:D}|{artifactsFingerprint}");
+                $"{input.RunId:D}|{findingsSnapshotId:D}|{findingsFingerprint}|{graphSnapshotId:D}|{graphFingerprint}|{manifestId:D}|{manifestHash}|{manifestDecisionsFingerprint}|{decisionTraceId:D}|{appliedRuleIdsFingerprint}|{bundleId:D}|{artifactsFingerprint}");
 
         byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(canonical));
 
         return Convert.ToHexString(hash).ToLowerInvariant();
+    }
+
+    private static string ComputeGraphFingerprint(GraphSnapshot graph)
+    {
+        if (graph.Nodes.Count == 0 && graph.Edges.Count == 0)
+            return string.Empty;
+
+        string nodeIds = string.Join(
+            ",",
+            graph.Nodes
+                .Select(static node => (node.NodeId ?? string.Empty).Trim())
+                .Where(static nodeId => nodeId.Length > 0)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(static nodeId => nodeId, StringComparer.OrdinalIgnoreCase));
+
+        IEnumerable<string> edgeParts = graph.Edges
+            .Select(static edge =>
+                $"{edge.FromNodeId.Trim()}|{edge.ToNodeId.Trim()}|{edge.EdgeType}")
+            .OrderBy(static part => part, StringComparer.OrdinalIgnoreCase);
+
+        string edges = string.Join(";", edgeParts);
+
+        return $"{nodeIds}|{edges}";
     }
 
     private static string ComputeManifestDecisionsFingerprint(ManifestDocument manifest)
