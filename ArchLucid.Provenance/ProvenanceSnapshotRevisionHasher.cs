@@ -56,8 +56,10 @@ public static class ProvenanceSnapshotRevisionHasher
                 {
                     GraphNode representative = group.First();
                     string label = (representative.Label ?? string.Empty).Trim();
+                    string nodeType = (representative.NodeType ?? string.Empty).Trim();
+                    string category = (representative.Category ?? string.Empty).Trim();
 
-                    return $"{group.Key}|{label}";
+                    return $"{group.Key}|{label}|{nodeType}|{category}";
                 }));
 
         IEnumerable<string> edgeParts = graph.Edges

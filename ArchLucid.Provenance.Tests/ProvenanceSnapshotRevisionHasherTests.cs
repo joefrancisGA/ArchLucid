@@ -50,6 +50,32 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     }
 
     [Fact]
+    public void Compute_changes_when_graph_node_type_changes_but_node_id_and_label_are_unchanged()
+    {
+        GraphNode baselineNode = new()
+        {
+            NodeId = "node-a",
+            NodeType = "Resource",
+            Label = "Workload",
+            Category = "compute",
+        };
+
+        GraphNode updatedNode = new()
+        {
+            NodeId = "node-a",
+            NodeType = "Service",
+            Label = "Workload",
+            Category = "compute",
+        };
+
+        ProvenanceBuildInput baseline = CreateInput([], graphNodes: [baselineNode]);
+        ProvenanceBuildInput updated = CreateInput([], graphNodes: [updatedNode]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
     public void Compute_changes_when_graph_node_label_changes_but_graph_snapshot_id_and_node_ids_are_unchanged()
     {
         GraphNode baselineNode = new() { NodeId = "node-a", NodeType = "Resource", Label = "Original label" };
