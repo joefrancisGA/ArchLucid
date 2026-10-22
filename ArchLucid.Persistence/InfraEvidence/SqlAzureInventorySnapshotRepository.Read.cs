@@ -67,6 +67,30 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                                 SELECT ResourceId, SecureScore, SourceEvidenceReference
                                 FROM dbo.AzureInventoryDefenderSummaries
                                 WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId;
+
+                                SELECT SubscriptionId, PricingName, Tier, Extensions, SourceEvidenceReference
+                                FROM dbo.AzureInventoryDefenderPricings
+                                WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId;
+
+                                SELECT SubscriptionId, ScoreName, ControlName, DisplayName, CurrentScore, MaxScore,
+                                       Percentage, Weight, UnhealthyResourceCount, HealthyResourceCount, SourceEvidenceReference
+                                FROM dbo.AzureInventoryDefenderScoreControls
+                                WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId;
+
+                                SELECT SubscriptionId, AssessmentKey, DisplayName, Severity, Status, StatusCause,
+                                       Category, ResourceId, SourceEvidenceReference
+                                FROM dbo.AzureInventoryDefenderAssessments
+                                WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId;
+
+                                SELECT SubscriptionId, AssessmentKey, DisplayName, Severity, HealthyCount,
+                                       UnhealthyCount, NotApplicableCount, SourceEvidenceReference
+                                FROM dbo.AzureInventoryDefenderAssessmentCounts
+                                WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId;
+
+                                SELECT SubscriptionId, CollectionStatus, EmailCount, Emails, AlertsToAdmins,
+                                       MinimalSeverity, NotificationRoles, SourceEvidenceReference
+                                FROM dbo.AzureInventoryDefenderSecurityContacts
+                                WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId;
                                 """;
 
         using SqlMapper.GridReader reader = await conn.QueryMultipleAsync(
@@ -116,6 +140,16 @@ public sealed partial class SqlAzureInventorySnapshotRepository
             (await reader.ReadAsync<AzureInventoryDiagnosticConfigurationReadModel>()).ToList();
         List<AzureInventoryDefenderSummaryReadModel> defenderSummaries =
             (await reader.ReadAsync<AzureInventoryDefenderSummaryReadModel>()).ToList();
+        List<AzureInventoryDefenderPricingReadModel> defenderPricings =
+            (await reader.ReadAsync<AzureInventoryDefenderPricingReadModel>()).ToList();
+        List<AzureInventoryDefenderScoreControlReadModel> defenderScoreControls =
+            (await reader.ReadAsync<AzureInventoryDefenderScoreControlReadModel>()).ToList();
+        List<AzureInventoryDefenderAssessmentReadModel> defenderAssessments =
+            (await reader.ReadAsync<AzureInventoryDefenderAssessmentReadModel>()).ToList();
+        List<AzureInventoryDefenderAssessmentCountReadModel> defenderAssessmentCounts =
+            (await reader.ReadAsync<AzureInventoryDefenderAssessmentCountReadModel>()).ToList();
+        List<AzureInventoryDefenderSecurityContactReadModel> defenderSecurityContacts =
+            (await reader.ReadAsync<AzureInventoryDefenderSecurityContactReadModel>()).ToList();
 
         return new AzureInventorySnapshotDetailReadModel
         {
@@ -128,6 +162,11 @@ public sealed partial class SqlAzureInventorySnapshotRepository
             RoleAssignments = roleAssignments,
             Diagnostics = diagnostics,
             DefenderSummaries = defenderSummaries,
+            DefenderPricings = defenderPricings,
+            DefenderScoreControls = defenderScoreControls,
+            DefenderAssessments = defenderAssessments,
+            DefenderAssessmentCounts = defenderAssessmentCounts,
+            DefenderSecurityContacts = defenderSecurityContacts,
         };
     }
 

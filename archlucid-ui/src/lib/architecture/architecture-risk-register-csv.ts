@@ -4,6 +4,12 @@ export const ARCHITECTURE_RISK_REGISTER_OWNER_NOT_STORED = "Owner was not stored
 
 export const ARCHITECTURE_RISK_REGISTER_EVIDENCE_LINK_NOT_STORED = "Evidence link was not stored." as const;
 
+export const ARCHITECTURE_RISK_REGISTER_STALE_FLAG_NOT_STORED = "Stale flag was not stored." as const;
+
+export const ARCHITECTURE_RISK_REGISTER_LAST_REVIEWED_NOT_STORED = "Last reviewed was not stored." as const;
+
+export const ARCHITECTURE_RISK_REGISTER_LAST_REVIEWED_STORED_EMPTY = "Last reviewed was stored empty." as const;
+
 export type ArchitectureRiskRegisterCsvRow = {
   recordKind: "finding" | "decision";
   runId: string;
@@ -65,10 +71,10 @@ export function buildArchitectureRiskRegisterCsv(rows: readonly ArchitectureRisk
       row.recommended,
       row.status,
       row.evidenceHref ?? inspectPath(row.runId, row.findingId),
-      row.lastReviewedUtc ?? "",
+      formatRiskRegisterLastReviewedCell(row.lastReviewedUtc),
       row.revisitDueUtc ?? "",
       row.agingDays !== undefined ? String(row.agingDays) : "",
-      row.isStale ? "yes" : "no",
+      formatRiskRegisterStaleCell(row.isStale),
       row.humanReviewStatusLabel ?? "",
       row.itsmLinkedTicketsSummary ?? "",
     ].map((c) => escapeCsvCell(c));
@@ -77,6 +83,26 @@ export function buildArchitectureRiskRegisterCsv(rows: readonly ArchitectureRisk
   }
 
   return `${lines.join("\r\n")}\r\n`;
+}
+
+function formatRiskRegisterStaleCell(isStale: boolean | undefined): string {
+  if (isStale === undefined) {
+    return ARCHITECTURE_RISK_REGISTER_STALE_FLAG_NOT_STORED;
+  }
+
+  return isStale ? "yes" : "no";
+}
+
+function formatRiskRegisterLastReviewedCell(lastReviewedUtc: string | null | undefined): string {
+  if (lastReviewedUtc === null || lastReviewedUtc === undefined) {
+    return ARCHITECTURE_RISK_REGISTER_LAST_REVIEWED_NOT_STORED;
+  }
+
+  if (lastReviewedUtc.length === 0) {
+    return ARCHITECTURE_RISK_REGISTER_LAST_REVIEWED_STORED_EMPTY;
+  }
+
+  return lastReviewedUtc;
 }
 
 function formatRiskRegisterOwnerCell(ownerUserId: string | null | undefined): string {

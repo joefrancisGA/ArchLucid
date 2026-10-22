@@ -173,6 +173,14 @@ public sealed class TenantProvisioningService(
             return BuildErasureQuarantineProvisionResult(tenantId, workspaceId, projectId);
         }
 
+        TenantRecord? tenantBeforeNavSettingsUpsert =
+            await _tenantRepository.GetByIdAsync(tenantId, ct).ConfigureAwait(false);
+
+        if (IsErasureQuarantine(tenantBeforeNavSettingsUpsert))
+        {
+            return BuildErasureQuarantineProvisionResult(tenantId, workspaceId, projectId);
+        }
+
         // Default Advanced mode to OFF for new tenants to reduce cognitive load on first-run (Imp-2)
         await _tenantSettingsRepository.UpsertAsync(tenantId, "archlucid_nav_show_advanced", "0", ct).ConfigureAwait(false);
         await _tenantSettingsRepository.UpsertAsync(tenantId, "archlucid_nav_show_extended", "0", ct).ConfigureAwait(false);
@@ -187,6 +195,14 @@ public sealed class TenantProvisioningService(
 
         if (request.FirstTouch is not null)
         {
+            TenantRecord? tenantBeforeFirstTouchPersist =
+                await _tenantRepository.GetByIdAsync(tenantId, ct).ConfigureAwait(false);
+
+            if (IsErasureQuarantine(tenantBeforeFirstTouchPersist))
+            {
+                return BuildErasureQuarantineProvisionResult(tenantId, workspaceId, projectId);
+            }
+
             await _marketingAttributionService.PersistFirstTouchIfPresentAsync(tenantId, request.FirstTouch, ct)
                 .ConfigureAwait(false);
         }

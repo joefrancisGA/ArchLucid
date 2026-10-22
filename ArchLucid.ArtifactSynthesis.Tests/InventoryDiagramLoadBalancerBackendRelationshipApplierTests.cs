@@ -31,7 +31,7 @@ public sealed class InventoryDiagramLoadBalancerBackendRelationshipApplierTests
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
-        FindLoadBalancerToVmEdge(ast).Label.Should().Be("Sends traffic to 443");
+        FindLoadBalancerToVmEdge(ast).Label.Should().Be("Backend pool names port 443");
     }
 
     [Fact]

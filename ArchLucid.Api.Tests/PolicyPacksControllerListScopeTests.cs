@@ -200,6 +200,37 @@ public sealed class PolicyPacksControllerListScopeTests
     }
 
     [Fact]
+    public async Task Create_forwards_trimmed_name_and_description_to_facade()
+    {
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        httpFacade
+            .Setup(f => f.CreatePackAsync(
+                It.Is<PolicyPackCreateBody>(body =>
+                    body.Name == "baseline"
+                    && body.Description == "desc"
+                    && body.PackType == PolicyPackType.TenantCustom
+                    && body.InitialContentJson == "{}"),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(PolicyPackHttpResult<PolicyPack>.Success(
+                new PolicyPack { Name = "baseline", PackType = PolicyPackType.TenantCustom }));
+
+        PolicyPacksController sut = CreateSut(httpFacade, tenantExists: true);
+
+        IActionResult result = await sut.Create(
+            new CreatePolicyPackRequest
+            {
+                Name = "  baseline  ",
+                Description = "  desc  ",
+                PackType = PolicyPackType.TenantCustom,
+                InitialContentJson = "{}",
+            },
+            CancellationToken.None);
+
+        result.Should().BeOfType<OkObjectResult>();
+        httpFacade.VerifyAll();
+    }
+
+    [Fact]
     public async Task Create_returns_bad_request_when_description_is_whitespace_only_and_tenant_missing()
     {
         Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
