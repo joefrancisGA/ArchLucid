@@ -106,8 +106,18 @@ public sealed class TenantErasureCommandService(
             return null;
         }
 
-        DateTimeOffset offboardedUtc = immediatelyBeforeOffboardAudit.OffboardedUtc.Value;
-        DateTimeOffset erasureEligibleUtc = immediatelyBeforeOffboardAudit.ErasureEligibleUtc.Value;
+        TenantRecord? tenantBeforeOffboardAuditAppend =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+        if (tenantBeforeOffboardAuditAppend is null
+            || tenantBeforeOffboardAuditAppend.OffboardedUtc is null
+            || tenantBeforeOffboardAuditAppend.ErasureEligibleUtc is null)
+        {
+            return null;
+        }
+
+        DateTimeOffset offboardedUtc = tenantBeforeOffboardAuditAppend.OffboardedUtc.Value;
+        DateTimeOffset erasureEligibleUtc = tenantBeforeOffboardAuditAppend.ErasureEligibleUtc.Value;
         int quarantineDays = QuarantineDaysBetween(offboardedUtc, erasureEligibleUtc);
 
         await AppendPlatformAuditAsync(
@@ -125,7 +135,7 @@ public sealed class TenantErasureCommandService(
                 quarantineDays
             },
             cancellationToken,
-            CreateOffboardAuditEventId(immediatelyBeforeOffboardAudit.Id, offboardedUtc, erasureEligibleUtc));
+            CreateOffboardAuditEventId(tenantBeforeOffboardAuditAppend.Id, offboardedUtc, erasureEligibleUtc));
 
         return new TenantErasureOffboardResult(offboardedUtc, erasureEligibleUtc);
     }
@@ -486,13 +496,23 @@ public sealed class TenantErasureCommandService(
             return null;
         }
 
+        TenantRecord? tenantBeforeOffboardAuditAppend =
+            await _tenantRepository.GetByIdAsync(current.Id, cancellationToken);
+
+        if (tenantBeforeOffboardAuditAppend is null
+            || tenantBeforeOffboardAuditAppend.OffboardedUtc is null
+            || tenantBeforeOffboardAuditAppend.ErasureEligibleUtc is null)
+        {
+            return null;
+        }
+
         int quarantineDays = QuarantineDaysBetween(
-            beforeOffboardAudit.OffboardedUtc.Value,
-            beforeOffboardAudit.ErasureEligibleUtc.Value);
+            tenantBeforeOffboardAuditAppend.OffboardedUtc.Value,
+            tenantBeforeOffboardAuditAppend.ErasureEligibleUtc.Value);
 
         await AppendPlatformAuditAsync(
             AuditEventTypes.TenantErasureOffboarded,
-            beforeOffboardAudit.Id,
+            tenantBeforeOffboardAuditAppend.Id,
             actorUserId,
             actorUserName,
             correlationId,
@@ -500,19 +520,19 @@ public sealed class TenantErasureCommandService(
             {
                 priorOffboardedUtc = (DateTimeOffset?)null,
                 priorErasureEligibleUtc = (DateTimeOffset?)null,
-                offboardedUtc = beforeOffboardAudit.OffboardedUtc,
-                erasureEligibleUtc = beforeOffboardAudit.ErasureEligibleUtc,
+                offboardedUtc = tenantBeforeOffboardAuditAppend.OffboardedUtc,
+                erasureEligibleUtc = tenantBeforeOffboardAuditAppend.ErasureEligibleUtc,
                 quarantineDays
             },
             cancellationToken,
             CreateOffboardAuditEventId(
-                beforeOffboardAudit.Id,
-                beforeOffboardAudit.OffboardedUtc.Value,
-                beforeOffboardAudit.ErasureEligibleUtc.Value));
+                tenantBeforeOffboardAuditAppend.Id,
+                tenantBeforeOffboardAuditAppend.OffboardedUtc.Value,
+                tenantBeforeOffboardAuditAppend.ErasureEligibleUtc.Value));
 
         return new TenantErasureOffboardResult(
-            beforeOffboardAudit.OffboardedUtc.Value,
-            beforeOffboardAudit.ErasureEligibleUtc.Value);
+            tenantBeforeOffboardAuditAppend.OffboardedUtc.Value,
+            tenantBeforeOffboardAuditAppend.ErasureEligibleUtc.Value);
     }
 
     private static int QuarantineDaysBetween(DateTimeOffset offboardedUtc, DateTimeOffset eligibleUtc)
