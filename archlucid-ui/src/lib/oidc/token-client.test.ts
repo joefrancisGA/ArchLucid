@@ -222,6 +222,30 @@ describe("refreshAccessToken", () => {
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });
 
+  it("humanizes insufficient_scope authorization code exchange errors instead of raw snake_case", async () => {
+    sessionStorage.clear();
+
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "insufficient_scope" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/Sign-in did not finish \(insufficient scope\)/i);
+
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
+  });
+
   it("humanizes unsupported_grant_type authorization code exchange errors instead of raw snake_case", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,
@@ -741,6 +765,33 @@ describe("refreshAccessToken", () => {
     expect(isOAuthRefreshTokenRejectedError(caught)).toBe(true);
     expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("unsupported_response_type");
     expect((caught as OAuthTokenEndpointError).message).not.toContain("unsupported_response_type");
+  });
+
+  it("classifies humanized insufficient_scope refresh failures for BFF session clearing", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "insufficient_scope" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect(isOAuthRefreshTokenRejectedError(caught)).toBe(true);
+    expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("insufficient_scope");
+    expect((caught as OAuthTokenEndpointError).message).not.toContain("insufficient_scope");
   });
 
   it("classifies humanized unsupported_grant_type refresh failures for BFF session clearing", async () => {

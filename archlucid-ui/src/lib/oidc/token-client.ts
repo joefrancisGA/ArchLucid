@@ -46,6 +46,7 @@ function shouldHumanizeTokenOAuthErrorCode(normalizedErrorCode: string): boolean
     case "unsupported_grant_type":
     case "unsupported_response_type":
     case "unsupported_token_type":
+    case "insufficient_scope":
     case "invalid_scope":
     case "server_error":
     case "temporarily_unavailable":

@@ -47926,6 +47926,19 @@ ABQ-09 churn hotspot.
 - [ ] (candidate) `initiateOidcRedirect` — preserve returnUrl when discovery fails after retry marker — locus: sessionStorage; input: sign-in retry (reachability: initiate-redirect.test).
 - [ ] (candidate) `humanizeAuthorizeCallbackError` — hair-style emoji modifiers in description — locus: display copy; input: ZWJ vs modifier (reachability: authorize callback).
 - [ ] (candidate) `OAuthTokenEndpointError` — attach HTTP status for JSON OAuth on 502 — locus: readOAuthError; input: proxy (reachability: enhancement).
+2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `shouldHumanizeTokenOAuthErrorCode` - token JSON `insufficient_scope` on authorization code exchange and refresh surfaced raw snake_case in CallbackClient while sibling `invalid_scope` was already humanized; add `insufficient_scope` to the humanize allowlist; regressions `humanizes insufficient_scope authorization code exchange errors instead of raw snake_case` and `classifies humanized insufficient_scope refresh failures for BFF session clearing`; scoped token-client + BFF refresh route + bff-session-sync vitest 134/134.
+
+- [x] (proven) `shouldHumanizeTokenOAuthErrorCode` - raw `insufficient_scope` on token JSON - **hit 2026-10-22 seed hunt:** allowlist; regressions above.
+- [x] (valid-no-repro) `OAuthTokenEndpointError` - attach HTTP status from `readOAuthError` - **cheap-disproof 2026-10-22:** enhancement-only; not hunt-ready without proxy repro.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` - skin-tone modifier plus literal plus - **cheap-disproof 2026-10-22:** mixed-plus guards already cover ZWJ/ZWNJ/RI emoji paths on trunk.
+- [x] (invalid) `initiateOidcRedirect` - unsafe explicit returnUrl during authorize retry - **cheap-disproof 2026-10-22:** `isSafeReturnPath` already rejects open redirects.
+- [x] (invalid) `server_error` refresh - confirm route 503 transient - **cheap-disproof 2026-10-22:** existing BFF refresh route regression.
+
+- [ ] (candidate) `shouldHumanizeTokenOAuthErrorCode` - `authorization_pending` on token JSON - locus: device-flow polling code; input: humanize without clearing BFF session (reachability: transient policy).
+- [ ] (candidate) `humanizeAuthorizeCallbackError` - dedicated insufficient_scope copy - locus: switch case; input: UX parity with `invalid_scope` (reachability: default humanize).
+- [ ] (candidate) `session-ensure-fresh.test` - ensureAccessTokenFresh on refresh 403 - locus: mock refreshBffSessionCookie; input: mirror 401 (reachability: session.ts).
+- [ ] (candidate) `isReadableOAuthErrorCode` - tighten English false positives - locus: policy; input: word scan risk (reachability: underscore scan only on legacy).
+- [ ] (candidate) `exchangeAuthorizationCode` - CallbackClient shows humanized `login_required` from exchange - locus: integration test gap.
 
 2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `errorFromOAuthJson` / `isOAuthRefreshTokenRejectedError` — token JSON with only `error_description` (or unreadable `error` padding) returned a plain `Error`, so BFF refresh returned 503 instead of clearing cookies; wrap description-only bodies in `OAuthTokenEndpointError` with `invalid_request`, extend `shouldClearBffSessionForOAuthTokenErrorCode` with `isReadableOAuthErrorCode`, and classify legacy snake_case tokens via regex; regressions `classifies description-only OAuth JSON refresh failures for BFF session clearing`, underscore-only error test + `unsupported_grant_type` refresh classifier, route legacy/structured tests; scoped `src/lib/oidc` + BFF refresh route vitest 415/415.
 
