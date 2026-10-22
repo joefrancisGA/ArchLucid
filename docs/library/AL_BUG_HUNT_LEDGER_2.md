@@ -2842,6 +2842,14 @@
 
 ## Zone: scim-users
 
+2026-10-22 thorough hunt #25 (dry): cheap-disproof closed five `(candidate)` rows (`active eq "0"` via `ScimActiveFilterLiteralParser` mirror of `"1"`; `externalId gt` uses `OrderedCompareSql` on SQL / `LexGreater` in-memory; PATCH same `userName` self-skips in `EnsureUserNameNotUsedByAnotherLiveUserAsync`; omitted/blank `filter` → `Parse` null full list; PUT displayName-only leaves `active` unchanged so `TransitionSeatAsync` no-ops); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq "0"` — **cheap-disproof 2026-10-22 #25:** `"0"` → false in `ScimActiveFilterLiteralParser`; parity `ListAsync_active_eq_numeric_one_returns_only_active_users` for `"1"`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `externalId gt` — **cheap-disproof 2026-10-22 #25:** string ordered compare on case-exact `externalId`; SQL `OrderedCompareSql` / in-memory `LexGreater`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — same `userName` — **cheap-disproof 2026-10-22 #25:** `exceptUserId` self-skip in `EnsureUserNameNotUsedByAnotherLiveUserAsync`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — omitted/empty `filter` — **cheap-disproof 2026-10-22 #25:** `ScimFilterParser.Parse` null/whitespace → unfiltered list (hunt #5).
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — displayName-only PUT — **cheap-disproof 2026-10-22 #25:** `TransitionSeatAsync` returns when `wasActive == willBeActive`.
+
 2026-10-22 thorough hunt #24 (dry): cheap-disproof closed five `(candidate)` rows (`active eq "1"` via `ScimActiveFilterLiteralParser` + `ListAsync_active_eq_numeric_one_returns_only_active_users`; `displayName pr` excludes null optional field; PATCH same `externalId` skips self in `EnsureExternalIdNotUsedByAnotherUserAsync`; malformed filter → `ScimFilterParseException` / `invalidFilter`; POST without `schemas` still parses core User attributes); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
 
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq "1"` — **cheap-disproof 2026-10-22 #24:** literal parser accepts `"1"`; regression `ListAsync_active_eq_numeric_one_returns_only_active_users`.
@@ -3063,9 +3071,9 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 58
+- **hunts:** 59
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 3
+- **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — SCIM PATCH remove on active returned silent no-op instead of mutability
 - **related-pd-tb:** none
@@ -3306,11 +3314,17 @@
 - [x] (invalid) `ScimUsersController.ListAsync` — bad filter grammar — **cheap-disproof 2026-10-22 #24:** `invalidFilter`.
 - [x] (valid-no-repro) `ScimUsersController.CreateAsync` — no `schemas` — **cheap-disproof 2026-10-22 #24:** not required for `ParseUser`.
 
-- [ ] (candidate) `ScimUsersController.ListAsync` — `active eq "0"` string literal — locus: `ScimActiveFilterLiteralParser`; input: mirror `"1"` regression for inactive-only page.
-- [ ] (candidate) `ScimUsersController.ListAsync` — `externalId gt "a"` lex compare — locus: `LexGreater` on string attributes; input: verify ordering does not throw on SQL path for `externalId`.
-- [ ] (candidate) `ScimUsersController.PatchAsync` — replace `userName` to same trimmed value — locus: `EnsureUserNameNotUsedByAnotherLiveUserAsync` self-skip; input: idempotent PATCH must not 409.
-- [ ] (candidate) `ScimUsersController.ListAsync` — omitted `filter` query vs empty `filter=` — locus: `ScimFilterParser.Parse` null/whitespace; input: full tenant page (hunt #5 parity).
-- [ ] (candidate) `ScimUsersController.ReplaceAsync` — PUT changes only `displayName` — locus: seat `TransitionSeatAsync` when `active` unchanged; input: no spurious seat churn on profile-only replace.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq "0"` — **cheap-disproof 2026-10-22 #25:** literal parser `"0"` → false.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `externalId gt` — **cheap-disproof 2026-10-22 #25:** ordered compare supported.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — same `userName` — **cheap-disproof 2026-10-22 #25:** self-skip conflict guard.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — empty/omitted filter — **cheap-disproof 2026-10-22 #25:** `Parse` null → full list.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — displayName-only — **cheap-disproof 2026-10-22 #25:** no seat transition when active unchanged.
+
+- [ ] (candidate) `ScimUsersController.ListAsync` — `active eq "false"` string literal — locus: `ScimActiveFilterLiteralParser.TryParseEqualityOperand`; input: bool string on active filter (Entra probe).
+- [ ] (candidate) `ScimUsersController.PatchAsync` — replace `displayName` to same value — locus: optional-field no-op before repository write; input: idempotent PATCH must not spuriously audit or fail.
+- [ ] (candidate) `ScimUsersController.CreateAsync` — duplicate POST same `externalId` after soft-delete reactivate — locus: `ReactivateRemovedUserAsync`; input: regression `CreateAsync_after_directory_remove_reactivates_same_external_id` (proven path guard).
+- [ ] (candidate) `ScimUsersController.ListAsync` — `userName eq` with SQL wildcard `%` in literal — locus: `LIKE` binding for `eq` uses equality not `co`; input: `%` in email literal must not broaden matches.
+- [ ] (candidate) `ScimUsersController.DeleteAsync` — DELETE then GET — locus: `DirectoryRemovedUtc` + `GetAsync` null; input: tombstone hides from list and get (proven-class parity check).
 
 - [x] (proven) `ScimUserService.CreateAsync` / `PatchAsync` / `ScimUsersController` — a second live user with the same `userName` and a different `externalId` was stored, including case-only names — **hit 2026-10-09 seed hunt:** live `userName` lookup returns `uniqueness`. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
 - [x] (proven) `ScimFilterParser.ParseFilter` / `ScimUsersController.ListAsync` — ungrouped `or` before `and` was parsed left-to-right, so an active user matching only the left comparison was omitted — **hit 2026-10-09 seed hunt:** `not` over `and` over `or` per RFC 7644 §3.4.2.2. Regressions `ListAsync_filter_gives_and_precedence_over_or`, `Parse_or_binds_looser_than_and`, and `Parse_not_binds_tighter_than_and`.
