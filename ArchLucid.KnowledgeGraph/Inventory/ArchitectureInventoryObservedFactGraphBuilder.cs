@@ -155,7 +155,12 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
 
         if (lastSlash >= 0 && lastSlash < armId.Length - 1)
         {
-            return armId[(lastSlash + 1)..].Trim();
+            string segmentLabel = armId[(lastSlash + 1)..].Trim();
+
+            if (segmentLabel.Length > 0)
+            {
+                return segmentLabel;
+            }
         }
 
         return (resource.ResourceType ?? string.Empty).Trim();
