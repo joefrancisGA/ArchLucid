@@ -1187,16 +1187,18 @@
 
 ## Zone: tenant-scoped-analyzer
 
+2026-10-22 seed hunt (seed-only): re-read `TenantScopedQueryScopeBindingAnalyzer`, `TenantScopedSqlExpressionResolver`, and production Dapper call shapes (`QueryUnbufferedAsync`, `ExecuteAsync(CommandDefinition)`, exemption registration); no row met hunt-ready bar for a failing repro in this run; seeded five `(candidate)` rows under `### Hypotheses`; scoped `TenantScopedQueryScopeBindingAnalyzerTests` blocked locally (analyzer test host NuGet reference assembly resolution failure).
+
 - **id:** tenant-scoped-analyzer
 - **status:** open
 - **impact:** high
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 38
+- **hunts:** 39
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-21 — expression-bodied property get accessors bypassed ARCH006 SQL folding
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -1262,6 +1264,12 @@
 2026-10-01 seed hunt (seed-only): inspected `RunsListClient.tsx` for URL filter synchronization, inspector/card activation, filtering, sorting, and pagination boundaries; the exact `RunsListClient` filter passed 42 tests and no new reachable mechanism-backed candidate was found or promoted.
 
 ### Hypotheses
+
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.DapperQueryMethodNames` — `QueryUnbuffered` / `QueryUnbufferedAsync` are absent from the Dapper method allowlist — locus: `ImmutableHashSet` ~17–35; input: `ArchLucid.Persistence/Audit/DapperAuditRepository.ExportAndStream.cs` `QueryUnbufferedAsync` call (reachable production SQL; verify scope binding still satisfies ARCH006).
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — `ExecuteAsync(new CommandDefinition(sql, …))` routes the nested object creation through `TenantScopedSqlExpressionResolver` instead of `AnalyzeObjectCreation` — locus: `TryGetSqlArgument` + `AnalyzeSqlExpression` ~277–307; input: persistence `connection.ExecuteAsync(new CommandDefinition("SELECT … dbo.Runs …"))` (wrong outcome: silent miss vs ARCH006/ARCH006a only).
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.OnCompilationStart` — exemption validation registers `ClassDeclaration` only, not `struct` declarations — locus: `RegisterSyntaxNodeAction` ~71–73; input: `[TenantScopeExempt]` on a `struct` in `ArchLucid.Persistence` with blank justification (ARCH006b empty justification).
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.GuessTablesFromExpressionText` — unanalyzable-SQL fallback regex requires `DELETE FROM` rather than `DELETE alias FROM` — locus: regex ~267; input: dynamic SQL `DELETE r FROM dbo.Runs r WHERE …` when static resolution is empty (missed `dbo.Runs` guess).
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.LoadRegistry` — first `tenant_scoped_tables.v1.json` additional file wins and later files are ignored — locus: `LoadRegistry` ~82–93; input: analyzer options with two additional files sharing the suffix (stale or partial registry).
 
 - [x] (proven) `TenantScopedSqlExpressionResolver.TryGetPropertySqlExpression` — expression-bodied property getters — **hit 2026-10-21 seed hunt (lane C):** accessor-list `get =>` SQL not resolved; regression `ARCH006_reports_unscoped_sql_for_expression_bodied_property_get_accessor`.
 
