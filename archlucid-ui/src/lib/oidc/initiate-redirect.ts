@@ -77,15 +77,13 @@ function shouldConsumeAuthorizeRetryForReturnUrl(returnUrl: string): boolean {
 function handleInitiateDiscoveryFailure(options: {
   storedReturnUrlThisAttempt: boolean;
   preservingAuthorizeCallbackRetry: boolean;
-  authorizeRetryRepeatPath: boolean;
 }): void {
-  const { storedReturnUrlThisAttempt, preservingAuthorizeCallbackRetry, authorizeRetryRepeatPath } =
-    options;
+  const { storedReturnUrlThisAttempt, preservingAuthorizeCallbackRetry } = options;
 
   if (storedReturnUrlThisAttempt) {
-    if (preservingAuthorizeCallbackRetry && authorizeRetryRepeatPath) {
+    if (preservingAuthorizeCallbackRetry) {
       markAuthorizeCallbackFailed();
-    } else if (!preservingAuthorizeCallbackRetry) {
+    } else {
       clearPostSignInReturnUrl();
     }
 
@@ -117,13 +115,11 @@ export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
   storePkceState(state, verifier, nonce, "primary");
 
   let storedReturnUrlThisAttempt = false;
-  let authorizeRetryRepeatPath = false;
   const preservingAuthorizeCallbackRetry = hasAuthorizeCallbackFailedRetry();
 
   if (returnUrl !== undefined && isSafeReturnPath(returnUrl)) {
     const consumeAuthorizeRetryMarker = shouldConsumeAuthorizeRetryForReturnUrl(returnUrl);
 
-    authorizeRetryRepeatPath = !consumeAuthorizeRetryMarker;
     storePostSignInReturnUrl(returnUrl);
     storedReturnUrlThisAttempt = true;
 
@@ -146,7 +142,6 @@ export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
     handleInitiateDiscoveryFailure({
       storedReturnUrlThisAttempt,
       preservingAuthorizeCallbackRetry,
-      authorizeRetryRepeatPath,
     });
 
     if (
@@ -202,13 +197,11 @@ export async function initiateSupplementalOidcRedirect(
   storePkceState(state, verifier, nonce, "google");
 
   let storedReturnUrlThisAttempt = false;
-  let authorizeRetryRepeatPath = false;
   const preservingAuthorizeCallbackRetry = hasAuthorizeCallbackFailedRetry();
 
   if (returnUrl !== undefined && isSafeReturnPath(returnUrl)) {
     const consumeAuthorizeRetryMarker = shouldConsumeAuthorizeRetryForReturnUrl(returnUrl);
 
-    authorizeRetryRepeatPath = !consumeAuthorizeRetryMarker;
     storePostSignInReturnUrl(returnUrl);
     storedReturnUrlThisAttempt = true;
 
@@ -231,7 +224,6 @@ export async function initiateSupplementalOidcRedirect(
     handleInitiateDiscoveryFailure({
       storedReturnUrlThisAttempt,
       preservingAuthorizeCallbackRetry,
-      authorizeRetryRepeatPath,
     });
 
     if (
