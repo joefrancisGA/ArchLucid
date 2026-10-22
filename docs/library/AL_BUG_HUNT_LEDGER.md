@@ -11,6 +11,18 @@
 - [ ] (candidate) `ComparisonReplayPayloadComplexity` - manifest diff edge on empty export pairing - locus: complexity scoring (reachability: replay payload size warnings).
 - [ ] (candidate) `GraphAzureInventoryReconciliationAnalyzer` - reconciliation false positive on renamed nodes - locus: graph/inventory drift (reachability: analysis export).
 - [ ] (candidate) `RunExportLineageVerifier` - incomplete lifecycle vs sealed-hash-only block - locus: guard divergence (reachability: export history GET).
+﻿2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_state authorize-query UX (existing parity) and saturated readOAuthJsonErrorDescription ZWJ multiply-encoded glue (existing parity); regression documents BFF refresh 502 parity (client opaque-sequence plus route opaque 502) and soft-hyphen object-replacement-only access_token rejection (existing parity); scoped vitest 788/788.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - invalid_state authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 502 shouldClearSession false - **regression 2026-10-22:** opaque-sequence client soft-fail plus BFF route opaque 502 without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string soft-hyphen and object-replacement-only skips authorize retry marker - **cheap-disproof 2026-10-22:** existing normalizeTokenString strip parity test.
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** existing saturated JSON encoding class test.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - state_mismatch authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 503 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string soft-hyphen and replacement-character-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with ZWJ glue - locus: saturated encoding class.
+
 2026-10-22 seed hunt (seed-only): `application-tenancy-lifecycle` - continued seed hunt after picker blocked on legacy run-log rows; no new hunt-ready defect (migration `StartAsync` pre-started-audit guard and scoped regressions already on `bugsmash` tip); cheap-disproof closed prior zone-head `(candidate)` rows; scoped tenancy filter 284/284.
 
 - [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.StartAsync` - offboard between post-insert read and started audit - **cheap-disproof 2026-10-22:** `tenantBeforeStartedAuditAppend` guard + regression on trunk.
