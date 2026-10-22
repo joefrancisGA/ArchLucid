@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed session_expired authorize-query UX (existing parity), BFF refresh 467 parity (client + route opaque 467), and saturated decodeOAuthErrorDescription hair-space multiply-encoded glue; regression documents authorize-retry is marked when authorization code exchange returns variation-selector-16-only or ogham-space-only access_token; scoped vitest 703/703.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - session_expired authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 467 shouldClearSession false - **regression 2026-10-22:** client soft-fail plus BFF route opaque 467 without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string variation-selector-16-only skips authorize retry marker - **regression 2026-10-22:** variation-selector-16-only tokens reject exchange and set retry marker.
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with hair-space glue - **cheap-disproof 2026-10-22:** saturated encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_grant authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 468 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string figure-space-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with figure-space glue - locus: saturated encoding class.
+
 2026-10-22 seed hunt: ui-oidc - fixed variation-selector-only access_token accepted after authorization code exchange; cheap-disproof closed invalid_session_id authorize-query UX, BFF refresh 466 parity, and saturated readOAuthJsonErrorDescription hair-space glue; scoped vitest 631/631.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - invalid_session_id authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
