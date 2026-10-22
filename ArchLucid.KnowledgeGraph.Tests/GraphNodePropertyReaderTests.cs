@@ -37,6 +37,20 @@ public sealed class GraphNodePropertyReaderTests
     }
 
     [Fact]
+    public void TryGetPropertyValue_trims_surrounding_whitespace_on_returned_value()
+    {
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["k8s.kind"] = "  serviceaccount  ",
+        };
+
+        bool found = GraphNodePropertyReader.TryGetPropertyValue(properties, "k8s.kind", out string? value);
+
+        found.Should().BeTrue();
+        value.Should().Be("serviceaccount");
+    }
+
+    [Fact]
     public void Classify_when_category_property_key_has_surrounding_whitespace_returns_identity()
     {
         Dictionary<string, string> properties = new(StringComparer.Ordinal)

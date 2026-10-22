@@ -172,6 +172,33 @@ public sealed class DeclarationIdentityActorMaterializerTests
     }
 
     [Fact]
+    public void MaterializeFromNodes_emits_actor_for_k8s_service_account_when_kind_property_has_surrounding_whitespace()
+    {
+        Guid snapshotId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+
+        GraphNode serviceAccount = new()
+        {
+            NodeId = "obj-sa-1",
+            NodeType = GraphNodeTypes.SecurityBaseline,
+            Label = "payments/worker",
+            SourceType = "InfrastructureDeclaration",
+            SourceId = "decl-1",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["k8s.kind"] = "  serviceaccount  ",
+                ["k8s.name"] = "worker",
+                ["k8s.namespace"] = "payments",
+            },
+        };
+
+        IReadOnlyList<GraphNode> actors =
+            DeclarationIdentityActorMaterializer.MaterializeFromNodes([serviceAccount], snapshotId);
+
+        actors.Should().ContainSingle();
+        actors[0].Label.Should().Be("worker");
+    }
+
+    [Fact]
     public void MaterializeFromNodes_honors_trustOrigin_when_property_has_surrounding_whitespace()
     {
         Guid snapshotId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");

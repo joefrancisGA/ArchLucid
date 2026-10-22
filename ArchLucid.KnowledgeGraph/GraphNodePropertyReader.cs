@@ -25,7 +25,7 @@ internal static class GraphNodePropertyReader
             if (string.Equals(entry.Key.Trim(), normalizedKey, StringComparison.OrdinalIgnoreCase)
                 && !string.IsNullOrWhiteSpace(entry.Value))
             {
-                value = entry.Value;
+                value = entry.Value.Trim();
                 return true;
             }
         }
