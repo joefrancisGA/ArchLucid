@@ -15,8 +15,8 @@ export function AiComparisonExplanationView(props: { explanation: ComparisonExpl
     <section className="mt-7">
       <h3 className="mb-2">AI explanation</h3>
       <p className={cn("mt-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-        Generated from structured deltas. Treat as narrative assistance onl — onfirm every claim against the
-        structured and legacy tables before sign-off.
+        Generated from structured deltas. Treat this as narrative assistance only. Confirm every claim against the
+        structured comparison before you forward it.
       </p>
 
       <div className={sectionBoxCls}>
