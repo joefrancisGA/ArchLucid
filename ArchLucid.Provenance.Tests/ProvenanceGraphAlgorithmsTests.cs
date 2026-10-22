@@ -33,6 +33,33 @@ public sealed class ProvenanceGraphAlgorithmsTests
     }
 
     [Fact]
+    public void TryResolveDecisionNodeId_Resolves_When_stored_guid_reference_id_has_surrounding_whitespace()
+    {
+        Guid external = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+        DecisionProvenanceGraph graph = new()
+        {
+            Id = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            Nodes =
+            [
+                new ProvenanceNode
+                {
+                    Id = Guid.NewGuid(),
+                    Type = ProvenanceNodeType.Decision,
+                    ReferenceId = $"  {external:D}  ",
+                    Name = "D",
+                },
+            ],
+            Edges = [],
+        };
+
+        ProvenanceGraphAlgorithms.TryResolveDecisionNodeId(graph, external.ToString("D"), out Guid id)
+            .Should()
+            .BeTrue();
+        id.Should().Be(graph.Nodes[0].Id);
+    }
+
+    [Fact]
     public void TryResolveDecisionNodeId_Resolves_When_stored_reference_id_has_surrounding_whitespace()
     {
         DecisionProvenanceGraph graph = SampleGraph();

@@ -12470,27 +12470,25 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 133
-- **bugs-found:** 128
+- **hunts:** 135
+- **bugs-found:** 129
 - **last-hunt:** 2026-10-22
-<<<<<<< HEAD
-<<<<<<< HEAD
-- **last-bug:** 2026-10-22 — diagram edge id persists through canonical round-trip and merge coalesce
-=======
-- **last-bug:** 2026-10-22 — topology sensitivity missed padded publicNetworkAccess truthy values
->>>>>>> origin/bugsmash-4
-=======
 - **last-bug:** 2026-10-22 — provenance decision lookup ignored padded ReferenceId values
->>>>>>> 5e9758748d (Trim decision ReferenceId values during provenance graph lookup.)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed-only): cheap-disproved `TryResolveDecisionNodeId` padded GUID `ReferenceId` candidate (stored reference ids already trim-normalized in `ReferenceIdEquals` from prior hit; regression `TryResolveDecisionNodeId_Resolves_When_stored_guid_reference_id_has_surrounding_whitespace`); re-read `ProvenanceBuilder` merge and `ProvenanceSnapshotRevisionHasher` fingerprint paths (decision/finding/graph ids already normalize on ingest); seeded `ProvenanceBuilder` merge coalesce writing raw `ReferenceId` without `NormalizeId` follow-on and `ShouldSkipGraphNodeNameDowngrade` name/reference trim parity audit; 439 KnowledgeGraph + 138 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ProvenanceGraphAlgorithms.TryResolveDecisionNodeId` — padded GUID `ReferenceId` on decision node — **cheap-disproof 2026-10-22 seed hunt:** trim on reference compare from prior hit; regression above.
+
+- [ ] (candidate) `ProvenanceBuilder.AddNode` merge — coalesce may persist non-normalized `ReferenceId` when duplicate keys merge — locus: `existingNode.ReferenceId = node.ReferenceId`; input: hand-built or deserialized provenance node with padded reference id merged into graph; wrong outcome: downstream lookup and display diverge from `NormalizeId` contract.
+
+- [ ] (candidate) `ProvenanceBuilder.ShouldSkipGraphNodeNameDowngrade` — padded `Name`/`ReferenceId` on merge may allow title downgrade when placeholder titles carry surrounding whitespace — locus: reference-id placeholder detection; input: duplicate decision rows where later row title is padded id token; wrong outcome: human-readable decision title overwritten.
 
 2026-10-22 seed hunt (seed→hit): cheap-disproved `TopologySensitivityClassifier` padded `resourceType` candidate (`Contains` substring checks already match ARM types with surrounding whitespace; regression `Classify_when_resource_type_has_surrounding_whitespace_returns_public_edge`); promoted `ProvenanceGraphAlgorithms.TryResolveDecisionNodeId` padded `ReferenceId` candidate; proved decision resolution compared raw stored `ReferenceId` strings while query keys were trimmed, failing lookups when graph nodes carried padded reference ids; trim stored reference ids before equality; regression `TryResolveDecisionNodeId_Resolves_When_stored_reference_id_has_surrounding_whitespace`; seeded `TryResolveDecisionNodeId` padded decision key matching padded stored GUID reference follow-on; 439 KnowledgeGraph + 137 Provenance scoped tests passed.
 
 - [x] (valid-no-repro) `TopologySensitivityClassifier.IsPublicEdgeResource` — padded `resourceType` ARM substring — **cheap-disproof 2026-10-22 seed hunt:** substring `Contains` still matches; regression above.
 - [x] (proven) `ProvenanceGraphAlgorithms.TryResolveDecisionNodeId` — padded stored decision `ReferenceId` broke lookup — **hit 2026-10-22 seed hunt (seed→hit):** trim reference id compare; regression above.
-
-- [ ] (candidate) `ProvenanceGraphAlgorithms.TryResolveDecisionNodeId` — padded GUID `ReferenceId` on decision node may break N/D format resolution — locus: guid-to-reference branch; input: decision `ReferenceId` `" aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee "`; wrong outcome: lookup by canonical guid string returns false.
 
 2026-10-22 seed hunt (seed→hit): promoted `TopologySensitivityClassifier.IsPublicEdgeResource` padded `publicNetworkAccess` candidate; proved `IsTruthy` compared raw property tokens, classifying nodes with `publicNetworkAccess` `" true "` as `Internal` instead of `PublicEdge`; trim before truthy checks; regression `Classify_when_public_network_access_value_has_surrounding_whitespace_returns_public_edge`; seeded padded `resourceType` substring public-edge detection follow-on; 438 KnowledgeGraph + 136 Provenance scoped tests passed.
 
