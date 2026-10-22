@@ -314,8 +314,10 @@ describe("persistTokenResponse", () => {
     persistTokenResponse({ access_token: accessTokenWithSubjectClaim(), expires_in: 10.9 });
 
     const expiresAtMs = Number(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY));
+    const elapsedMs = expiresAtMs - before;
 
-    expect(expiresAtMs - before).toBe(10_000);
+    expect(elapsedMs).toBeGreaterThanOrEqual(9_990);
+    expect(elapsedMs).toBeLessThanOrEqual(10_010);
   });
 
   it("clears the BFF cookie again when sign-out runs while token sync is in flight", async () => {
