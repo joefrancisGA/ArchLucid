@@ -167,12 +167,15 @@ public static class GraphSnapshotCanonicalFingerprint
             ",",
             (element.SourcePassageIds ?? []).OrderBy(static id => id, StringComparer.OrdinalIgnoreCase));
 
+        string name = string.IsNullOrWhiteSpace(element.Name) ? string.Empty : element.Name.Trim();
+        string description = string.IsNullOrWhiteSpace(element.Description) ? string.Empty : element.Description.Trim();
+
         return string.Join(
             "|",
             element.ElementId,
             element.Kind.ToString(),
-            element.Name,
-            element.Description ?? string.Empty,
+            name,
+            description,
             element.LifecycleScope.ToString(),
             element.ExtractionConfidence.ToString(System.Globalization.CultureInfo.InvariantCulture),
             FormatElementProvenance(element.Provenance),

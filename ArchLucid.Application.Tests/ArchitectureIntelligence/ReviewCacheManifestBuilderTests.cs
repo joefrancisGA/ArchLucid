@@ -51,6 +51,31 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_baseline_element_name_differs_only_by_surrounding_whitespace()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-element-trim";
+
+        ArchitectureKnowledgeModel paddedName = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "  API  " }],
+        };
+
+        ArchitectureKnowledgeModel trimmedName = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, paddedName).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, trimmedName).ContentHash);
+    }
+
+    [Fact]
     public void Build_changes_content_hash_when_baseline_model_fingerprint_changes_for_supplied_run_id()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
