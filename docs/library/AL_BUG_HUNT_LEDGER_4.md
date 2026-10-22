@@ -12470,7 +12470,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 62
+- **hunts:** 63
 - **bugs-found:** 53
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 - provenance revision hash ignored graph topology under stable snapshot id
@@ -12495,7 +12495,13 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `ProvenanceSnapshotRevisionHasher.Compute` — graph node/edge payload changes did not change revision fingerprint when `GraphSnapshotId` was unchanged — **hit 2026-10-22 seed hunt (seed→hit):** `ComputeGraphFingerprint`; regression above.
 - [x] (valid-no-repro) `ProvenanceSnapshotRevisionHasher.Compute` — graph changes when `GraphSnapshotId` is regenerated per save — **cheap-disproof 2026-10-22 seed hunt:** production graph persistence assigns a new snapshot id per materialized graph; fingerprint defends in-place mutation and stale id reuse, not the normal save path.
 
-- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.Compute` — `RuleAuditTracePayload.RuleSetHash` changes may not change revision fingerprint when `DecisionTraceId` and `AppliedRuleIds` are unchanged — locus: canonical revision string; input: rule-set amendment under stable trace id; wrong outcome: stale rule-node provenance metadata.
+2026-10-22 seed hunt (seed-only): re-read revision-hasher and `ProvenanceBuilder` trace consumption after graph/findings/manifest fingerprint hits; cheap-disproved `RuleSetHash`-only drift (no provenance graph shape or revision contract for rule-set metadata); regressions `Compute_unchanged_when_only_rule_set_hash_changes` and `Build_produces_same_graph_shape_when_only_rule_set_hash_changes`; seeded merger dedup, partial findings seal, and rule-set id/version revision candidates; 377 KnowledgeGraph + 67 Provenance scoped tests passed; no production change.
+
+- [x] (valid-no-repro) `ProvenanceSnapshotRevisionHasher.Compute` — `RuleAuditTracePayload.RuleSetHash` changes with stable `DecisionTraceId` and `AppliedRuleIds` — **cheap-disproof 2026-10-22 seed hunt:** `ProvenanceBuilder` does not materialize rule-set hash into nodes or edges; regressions above document current contract.
+
+- [ ] (candidate) `StructuredDiagramGraphMerger.Merge` — compiling multiple reconstructed documents may append parallel `ConnectsTo` edges when diagrams share equivalent endpoints — locus: `StructuredDiagramGraphMerger.cs` merge loop; input: two structured-diagram documents with overlapping logical connectivity; wrong outcome: duplicate edges in merged graph payload.
+- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.Compute` — `FindingsSnapshot.GenerationStatus` or withheld/demoted finding rows may change without changing decision-grade `Findings` list fingerprint — locus: revision canonical string vs `FindingsSnapshot` seal fields; input: snapshot re-opened from partial to complete under stable `FindingsSnapshotId`; wrong outcome: stale provenance while operators treat snapshot as sealed.
+- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.Compute` — `RuleAuditTracePayload.RuleSetId` / `RuleSetVersion` changes may not change revision fingerprint when trace id and applied rules are unchanged — locus: canonical revision string; input: rule-set version bump without applied-rule delta; wrong outcome: stale provenance when rule metadata is buyer-visible on manifest only.
 
 2026-10-22 seed hunt (seed→hit): promoted revision-hasher candidates; proved `ProvenanceSnapshotRevisionHasher.Compute` omitted `Manifest.ManifestHash` and normalized `AppliedRuleIds` from the canonical fingerprint so `ProvenanceGraphAccessService` could reuse a stored snapshot after manifest refresh or rule-list amendment under the same ids; regressions `Compute_changes_when_manifest_hash_changes_but_manifest_id_is_unchanged` and `Compute_changes_when_applied_rule_ids_change_but_decision_trace_id_is_unchanged`; 377 KnowledgeGraph + 61 Provenance scoped tests passed.
 
