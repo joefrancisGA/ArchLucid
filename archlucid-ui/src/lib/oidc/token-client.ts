@@ -59,7 +59,12 @@ function shouldClearBffSessionForOAuthTokenErrorCode(normalizedErrorCode: string
     return false;
   }
 
-  return shouldHumanizeTokenOAuthErrorCode(normalizedErrorCode);
+  if (shouldHumanizeTokenOAuthErrorCode(normalizedErrorCode)) {
+    return true;
+  }
+
+  // IdPs may return extension OAuth codes on refresh that are not in the humanize allowlist.
+  return isReadableOAuthErrorCode(normalizedErrorCode);
 }
 
 /**

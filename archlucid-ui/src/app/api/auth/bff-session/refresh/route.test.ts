@@ -299,6 +299,33 @@ describe("POST /api/auth/bff-session/refresh", () => {
     expect(response.headers.get("set-cookie")).toContain("Max-Age=0");
   });
 
+  it("clears BFF session cookies when refreshAccessToken throws a non-humanized OAuth extension code", async () => {
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() + 3_600_000,
+      refreshToken: "refresh-token",
+      workingMode: true,
+    });
+
+    refreshAccessTokenMock.mockRejectedValue(
+      new OAuthTokenEndpointError("unsupported_grant_type", "unsupported_grant_type"),
+    );
+
+    const req = new NextRequest("http://localhost/api/auth/bff-session/refresh", {
+      method: "POST",
+      headers: {
+        cookie: `${BFF_SESSION_COOKIE_NAME}=${issueResult?.sessionCookieValue ?? ""}`,
+        [BFF_CSRF_HEADER]: issueResult?.csrfToken ?? "",
+      },
+    });
+
+    const response = await POST(req);
+
+    expect(response.status).toBe(401);
+    expect(response.headers.get("set-cookie")).toContain("archlucid-bff-session=");
+    expect(response.headers.get("set-cookie")).toContain("Max-Age=0");
+  });
+
   it("clears BFF session cookies when refreshAccessToken throws humanized access_denied", async () => {
     const issueResult = createBffSessionCookieValue({
       accessToken: "access-token",
