@@ -19,8 +19,8 @@ export function firstRecommendationSentence(text: string): string {
 }
 
 export function severityBadgeLabel(severityValue: number | null | undefined): string {
-  if (severityValue == null) {
-    return "Severity was not stored";
+  if (severityValue == null || !Number.isFinite(severityValue)) {
+    return "Severity label was not stored.";
   }
 
   switch (severityValue) {
@@ -33,7 +33,7 @@ export function severityBadgeLabel(severityValue: number | null | undefined): st
     case 0:
       return "Info";
     default:
-      return Number.isFinite(severityValue) ? String(severityValue) : "Severity unknown";
+      return `Severity ${severityValue} has no reviewer label.`;
   }
 }
 
