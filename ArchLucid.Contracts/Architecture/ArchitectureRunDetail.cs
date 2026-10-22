@@ -1,0 +1,123 @@
+using System.Text.Json.Serialization;
+
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
+using ArchLucid.Contracts.Serialization;
+
+namespace ArchLucid.Contracts.Architecture;
+
+/// <summary>
+///     Canonical aggregate for a single architecture run: the authoritative source for
+///     export, compare, governance, and explanation features. Assembled by
+///     <c>IRunDetailQueryService</c> — do not rebuild this by hand in controllers.
+/// </summary>
+public sealed class ArchitectureRunDetail
+{
+    /// <summary>Core run record including status, timestamps, and version references.</summary>
+    private ArchitectureRun run = new();
+
+    public ArchitectureRun Run
+    {
+        get => run;
+        set => run = value ?? new ArchitectureRun();
+    }
+
+    /// <summary>Agent tasks created for this run.</summary>
+    private List<AgentTask> tasks = [];
+
+    public List<AgentTask> Tasks
+    {
+        get => tasks;
+        set => tasks = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    /// <summary>Agent results produced during execution.</summary>
+    private List<AgentResult> results = [];
+
+    public List<AgentResult> Results
+    {
+        get => results;
+        set => results = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    /// <summary>
+    ///     Golden manifest produced during commit, or <see langword="null" /> when the run
+    ///     has not yet been committed or the manifest could not be loaded.
+    /// </summary>
+    public GoldenManifest? Manifest
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Decision traces recorded during commit; empty before commit.</summary>
+    private List<DecisionTraceDto> decisionTraces = [];
+
+    [JsonConverter(typeof(DecisionTraceDtoListJsonConverter))]
+    public List<DecisionTraceDto> DecisionTraces
+    {
+        get => decisionTraces;
+        set => decisionTraces = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    /// <summary>Summed LLM token usage and USD estimate from persisted execution traces (TB-106).</summary>
+    public ArchLucid.Contracts.Runs.RunAgentLlmCostEstimateDto? AgentExecutionLlmCostEstimate
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Convenience accessor: <see langword="true" /> when the run has a committed manifest.</summary>
+    public bool IsCommitted => Manifest is not null;
+
+    /// <summary>
+    ///     <see langword="true" /> when the run's <c>CurrentManifestVersion</c> is set but the
+    ///     corresponding <see cref="GoldenManifest" /> row could not be loaded from storage.
+    ///     Indicates a broken storage reference (e.g. the manifest was deleted or there is
+    ///     replication lag). Callers should treat this as a 409 Conflict / inconsistent state
+    ///     rather than a normal "not yet committed" case.
+    /// </summary>
+    public bool HasBrokenManifestReference
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     Authority pipeline complete: every authority stage in
+    ///     <c>context_ingestion</c>, <c>graph</c>, <c>findings</c>, <c>decisioning</c>, <c>artifacts</c>
+    ///     succeeded in <c>RunStageOutcomes</c>, and a golden manifest pointer is present
+    ///     (<c>GoldenManifestId</c> or <see cref="Manifest" /> not null — the same GET
+    ///     <c>/v1/architecture/review/{runId}</c> rules). Independent of
+    ///     <see cref="AgentTaskLoopComplete" />.
+    /// </summary>
+    public bool AuthorityPipelineComplete
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     Agent-task loop complete: run status is <c>ReadyForCommit</c> and
+    ///     <c>HasCommitReadyAgentResults</c> is true for Topology, Cost, Compliance, and Critic.
+    ///     Independent of <see cref="AuthorityPipelineComplete" />.
+    /// </summary>
+    public bool AgentTaskLoopComplete
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     Authority pipeline lifecycle phase (wave-3 suggestion 24). Independent of agent-task
+    ///     <see cref="ArchitectureRun.Status" />.
+    /// </summary>
+    public AuthorityRunLifecyclePhase AuthorityLifecyclePhase
+    {
+        get;
+        set;
+    }
+}

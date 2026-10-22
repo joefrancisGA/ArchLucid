@@ -1,0 +1,317 @@
+import {
+  resolveSystemNotJobPaletteCloneNewVersionVisible,
+  SYSTEM_NOT_JOB_PALETTE_CLONE_NEW_VERSION_EVENT,
+  SYSTEM_NOT_JOB_PALETTE_CLONE_NEW_VERSION_HANDLER,
+} from "@/lib/system-not-job-palette-clone-new-version";
+import {
+  isCommandPaletteExtractUploadCopyQuickStartAvailable,
+  isCommandPaletteExtractUploadFocusAvailable,
+  isCommandPaletteFinalizeReviewAvailable,
+  isCommandPaletteReviewSaveAvailable,
+  isCommandPaletteRoomElicitationAvailable,
+  isCommandPaletteTenantCostSettingsSaveAvailable,
+} from "@/lib/command-palette-work-action-dom";
+import { isExtractUploadSettingsRoutePath } from "@/lib/extract-upload-settings-route";
+import { COMMAND_PALETTE_GOVERNANCE_FINDINGS_PATH_INSPECT_EVENT } from "@/lib/governance/governance-findings-queue-command-palette-events";
+import { isSecureNowFindingsDeskRoutePath } from "@/lib/governance/is-securenow-findings-desk-route-path";
+import { isRemediationFactoryRoutePath } from "@/lib/product-line/securenow-remediation-factory-route";
+import {
+  COMMAND_PALETTE_REMEDIATION_FACTORY_EXPLAIN_EVENT,
+  COMMAND_PALETTE_REMEDIATION_FACTORY_INSPECT_EVENT,
+  COMMAND_PALETTE_REMEDIATION_FACTORY_NEXT_EVENT,
+  COMMAND_PALETTE_REMEDIATION_FACTORY_PREV_EVENT,
+} from "@/lib/remediation-factory/remediation-factory-command-palette-events";
+
+export const COMMAND_PALETTE_SAVE_DRAFT_EVENT = "archlucid-command-palette-save-draft";
+export const COMMAND_PALETTE_SAVE_TENANT_COST_SETTINGS_EVENT = "archlucid-command-palette-save-tenant-cost-settings";
+export const COMMAND_PALETTE_FINALIZE_REVIEW_EVENT = "archlucid-command-palette-finalize-review";
+export const COMMAND_PALETTE_UNDO_MUTATION_EVENT = "archlucid-command-palette-undo-mutation";
+export const COMMAND_PALETTE_FINDING_NEXT_EVENT = "archlucid-command-palette-finding-next";
+export const COMMAND_PALETTE_FINDING_PREV_EVENT = "archlucid-command-palette-finding-prev";
+/** Alias for WD-05 listeners that used the longer event name. */
+export const COMMAND_PALETTE_FINDING_PREVIOUS_EVENT = COMMAND_PALETTE_FINDING_PREV_EVENT;
+export const COMMAND_PALETTE_FINDING_ACCEPT_EVENT = "archlucid-command-palette-finding-accept";
+export const COMMAND_PALETTE_FINDING_REMEDIATE_EVENT = "archlucid-command-palette-finding-remediate";
+export const COMMAND_PALETTE_FINDING_REJECT_EVENT = "archlucid-command-palette-finding-reject";
+export const COMMAND_PALETTE_FINDING_CHECKLIST_BAND_EVENT = "archlucid-command-palette-finding-checklist-band";
+export const COMMAND_PALETTE_ALERT_NEXT_EVENT = "archlucid-command-palette-alert-next";
+export const COMMAND_PALETTE_ALERT_PREV_EVENT = "archlucid-command-palette-alert-prev";
+export const COMMAND_PALETTE_ALERT_ACKNOWLEDGE_EVENT = "archlucid-command-palette-alert-acknowledge";
+export const COMMAND_PALETTE_ALERT_RESOLVE_EVENT = "archlucid-command-palette-alert-resolve";
+export const COMMAND_PALETTE_ALERT_SUPPRESS_EVENT = "archlucid-command-palette-alert-suppress";
+export const COMMAND_PALETTE_ROOM_ELICITATION_EVENT = "archlucid-command-palette-room-elicitation";
+export const COMMAND_PALETTE_EXTRACT_UPLOAD_FOCUS_EVENT = "archlucid-command-palette-extract-upload-focus";
+export const COMMAND_PALETTE_EXTRACT_UPLOAD_COPY_QUICK_START_EVENT =
+  "archlucid-command-palette-extract-upload-copy-quick-start";
+export const COMMAND_PALETTE_CLONE_FROM_SNAPSHOT_EVENT = SYSTEM_NOT_JOB_PALETTE_CLONE_NEW_VERSION_EVENT;
+
+export type CommandPaletteHandlerActionId =
+  | "action-save-draft"
+  | "action-save-tenant-cost-settings"
+  | "action-finalize-review"
+  | "action-room-elicitation"
+  | "action-extract-upload-focus"
+  | "action-extract-upload-copy-quick-start"
+  | "action-clone-from-snapshot"
+  | "action-undo-mutation"
+  | "action-finding-next"
+  | "action-finding-prev"
+  | "action-finding-accept"
+  | "action-finding-remediate"
+  | "action-finding-reject"
+  | "action-finding-checklist-band"
+  | "action-alert-next"
+  | "action-alert-prev"
+  | "action-alert-acknowledge"
+  | "action-alert-resolve"
+  | "action-alert-suppress"
+  | "action-remediation-factory-next"
+  | "action-remediation-factory-prev"
+  | "action-remediation-factory-inspect"
+  | "action-remediation-factory-explain"
+  | "action-governance-findings-path-inspect";
+
+export type CommandPaletteHandlerAvailabilityContext = {
+  readonly reversibleUndoAvailable?: boolean;
+};
+
+export type CommandPaletteHandlerAction = {
+  readonly id: CommandPaletteHandlerActionId;
+  readonly label: string;
+  readonly searchValue: string;
+  readonly isAvailable: (pathname: string, context?: CommandPaletteHandlerAvailabilityContext) => boolean;
+};
+
+const architectureDraftPathPattern = /^\/architecture\/architectures(\/|$)/;
+const reviewDetailPathPattern = /^\/architecture\/reviews\/[^/]+/;
+const nestedReviewDetailPathPattern = /^\/architecture\/architectures\/[^/]+\/reviews\/[^/]+/;
+const nestedArchitectureFindingsPathPattern =
+  /^\/architecture\/architectures\/[^/]+\/findings(\/|$)/;
+const findingsQueuePathPattern = /^\/(?:governance|compliance)\/findings(\/|$)/;
+const alertsPathPattern = /^\/governance\/alerts(\/|$)/;
+const workspaceSettingsPathPattern = /^\/administration\/workspace-settings(\/|$)/;
+
+export function isWorkspaceSettingsWorkPath(pathname: string): boolean {
+  return workspaceSettingsPathPattern.test(pathname);
+}
+
+export function isArchitectureDraftWorkPath(pathname: string): boolean {
+  return architectureDraftPathPattern.test(pathname);
+}
+
+export function isFindingsWorkPath(pathname: string): boolean {
+  return (
+    findingsQueuePathPattern.test(pathname)
+    || nestedArchitectureFindingsPathPattern.test(pathname)
+    || reviewDetailPathPattern.test(pathname)
+    || nestedReviewDetailPathPattern.test(pathname)
+  );
+}
+
+export function isReviewDetailWorkPath(pathname: string): boolean {
+  return reviewDetailPathPattern.test(pathname) || nestedReviewDetailPathPattern.test(pathname);
+}
+
+export function isAlertsWorkPath(pathname: string): boolean {
+  return alertsPathPattern.test(pathname);
+}
+
+/** True when a reversible-mutation Undo control is on the page (LI-07 / WD-05). */
+export function isCommandPaletteReversibleUndoAvailable(): boolean {
+  if (typeof document === "undefined") {
+    return false;
+  }
+
+  return document.querySelector('[data-testid$="-undo"]:not([disabled])') !== null;
+}
+
+export const COMMAND_PALETTE_HANDLER_ACTIONS: readonly CommandPaletteHandlerAction[] = [
+  {
+    id: "action-save-draft",
+    label: "Save changes",
+    searchValue: "action save architecture draft workspace review disposition remediation",
+    isAvailable: (pathname) =>
+      isArchitectureDraftWorkPath(pathname)
+      || (isReviewDetailWorkPath(pathname) && isCommandPaletteReviewSaveAvailable()),
+  },
+  {
+    id: "action-save-tenant-cost-settings",
+    label: "Save cost settings",
+    searchValue: "action save tenant cost settings workspace settings roi rates",
+    isAvailable: (pathname) =>
+      isWorkspaceSettingsWorkPath(pathname) && isCommandPaletteTenantCostSettingsSaveAvailable(),
+  },
+  {
+    id: "action-finalize-review",
+    label: "Finalize review",
+    searchValue: "action finalize review commit seal scorecard ready",
+    isAvailable: (pathname) =>
+      (isReviewDetailWorkPath(pathname) || nestedArchitectureFindingsPathPattern.test(pathname))
+      && isCommandPaletteFinalizeReviewAvailable(),
+  },
+  {
+    id: "action-room-elicitation",
+    label: "Start room elicitation",
+    searchValue: "action room elicitation meeting mediate must questions presenter",
+    isAvailable: (pathname) =>
+      isReviewDetailWorkPath(pathname) && isCommandPaletteRoomElicitationAvailable(),
+  },
+  {
+    id: "action-extract-upload-focus",
+    label: "Focus inventory upload",
+    searchValue: "action extract upload focus inventory replace zip",
+    isAvailable: (pathname) =>
+      isExtractUploadSettingsRoutePath(pathname) && isCommandPaletteExtractUploadFocusAvailable(),
+  },
+  {
+    id: "action-extract-upload-copy-quick-start",
+    label: "Copy quick-start command",
+    searchValue: "action extract upload copy quick start packager command",
+    isAvailable: (pathname) =>
+      isExtractUploadSettingsRoutePath(pathname) && isCommandPaletteExtractUploadCopyQuickStartAvailable(),
+  },
+  {
+    id: SYSTEM_NOT_JOB_PALETTE_CLONE_NEW_VERSION_HANDLER.id,
+    label: SYSTEM_NOT_JOB_PALETTE_CLONE_NEW_VERSION_HANDLER.label,
+    searchValue: SYSTEM_NOT_JOB_PALETTE_CLONE_NEW_VERSION_HANDLER.searchValue,
+    isAvailable: (pathname) => resolveSystemNotJobPaletteCloneNewVersionVisible(pathname),
+  },
+  {
+    id: "action-undo-mutation",
+    label: "Undo last reversible change",
+    searchValue: "action undo disposition mutation reversible",
+    isAvailable: (_pathname, context) =>
+      context?.reversibleUndoAvailable === true || isCommandPaletteReversibleUndoAvailable(),
+  },
+  {
+    id: "action-finding-next",
+    label: "Focus next finding",
+    searchValue: "action finding next alt+j triage card",
+    isAvailable: (pathname) => isFindingsWorkPath(pathname),
+  },
+  {
+    id: "action-finding-prev",
+    label: "Focus previous finding",
+    searchValue: "action finding previous alt+k triage card",
+    isAvailable: (pathname) => isFindingsWorkPath(pathname),
+  },
+  {
+    id: "action-finding-accept",
+    label: "Accept focused finding",
+    searchValue: "action finding accept alt+1 disposition",
+    isAvailable: (pathname) => isFindingsWorkPath(pathname),
+  },
+  {
+    id: "action-finding-remediate",
+    label: "Mark focused finding remediated",
+    searchValue: "action finding remediate alt+2 disposition",
+    isAvailable: (pathname) => isFindingsWorkPath(pathname),
+  },
+  {
+    id: "action-finding-reject",
+    label: "Reject focused finding as not applicable",
+    searchValue: "action finding reject alt+3 disposition",
+    isAvailable: (pathname) => isFindingsWorkPath(pathname),
+  },
+  {
+    id: "action-finding-checklist-band",
+    label: "Open checklist band",
+    searchValue: "action finding checklist band classification coverage",
+    isAvailable: (pathname) => isReviewDetailWorkPath(pathname),
+  },
+  {
+    id: "action-alert-next",
+    label: "Focus next alert",
+    searchValue: "action alert next alt+j triage",
+    isAvailable: (pathname) => isAlertsWorkPath(pathname),
+  },
+  {
+    id: "action-alert-prev",
+    label: "Focus previous alert",
+    searchValue: "action alert previous alt+k triage",
+    isAvailable: (pathname) => isAlertsWorkPath(pathname),
+  },
+  {
+    id: "action-alert-acknowledge",
+    label: "Acknowledge focused alert",
+    searchValue: "action alert acknowledge alt+1 triage",
+    isAvailable: (pathname) => isAlertsWorkPath(pathname),
+  },
+  {
+    id: "action-alert-resolve",
+    label: "Resolve focused alert",
+    searchValue: "action alert resolve alt+2 triage",
+    isAvailable: (pathname) => isAlertsWorkPath(pathname),
+  },
+  {
+    id: "action-alert-suppress",
+    label: "Suppress focused alert",
+    searchValue: "action alert suppress alt+3 triage",
+    isAvailable: (pathname) => isAlertsWorkPath(pathname),
+  },
+  {
+    id: "action-remediation-factory-next",
+    label: "Select next remediation row",
+    searchValue: "action remediation factory next alt+j ranked queue",
+    isAvailable: (pathname) => isRemediationFactoryRoutePath(pathname),
+  },
+  {
+    id: "action-remediation-factory-prev",
+    label: "Select previous remediation row",
+    searchValue: "action remediation factory previous alt+k ranked queue",
+    isAvailable: (pathname) => isRemediationFactoryRoutePath(pathname),
+  },
+  {
+    id: "action-remediation-factory-inspect",
+    label: "Focus path inspect",
+    searchValue: "action remediation factory inspect alt+i path panel",
+    isAvailable: (pathname) => isRemediationFactoryRoutePath(pathname),
+  },
+  {
+    id: "action-governance-findings-path-inspect",
+    label: "Focus path inspect",
+    searchValue: "action findings queue inspect alt+i path panel assigned compliance",
+    isAvailable: (pathname) => isSecureNowFindingsDeskRoutePath(pathname),
+  },
+  {
+    id: "action-remediation-factory-explain",
+    label: "Explain selected finding score",
+    searchValue: "action remediation factory explain alt+e simulator score",
+    isAvailable: (pathname) => isRemediationFactoryRoutePath(pathname),
+  },
+];
+
+const HANDLER_ACTION_EVENTS: Record<CommandPaletteHandlerActionId, string> = {
+  "action-save-draft": COMMAND_PALETTE_SAVE_DRAFT_EVENT,
+  "action-save-tenant-cost-settings": COMMAND_PALETTE_SAVE_TENANT_COST_SETTINGS_EVENT,
+  "action-finalize-review": COMMAND_PALETTE_FINALIZE_REVIEW_EVENT,
+  "action-room-elicitation": COMMAND_PALETTE_ROOM_ELICITATION_EVENT,
+  "action-extract-upload-focus": COMMAND_PALETTE_EXTRACT_UPLOAD_FOCUS_EVENT,
+  "action-extract-upload-copy-quick-start": COMMAND_PALETTE_EXTRACT_UPLOAD_COPY_QUICK_START_EVENT,
+  "action-clone-from-snapshot": COMMAND_PALETTE_CLONE_FROM_SNAPSHOT_EVENT,
+  "action-undo-mutation": COMMAND_PALETTE_UNDO_MUTATION_EVENT,
+  "action-finding-next": COMMAND_PALETTE_FINDING_NEXT_EVENT,
+  "action-finding-prev": COMMAND_PALETTE_FINDING_PREV_EVENT,
+  "action-finding-accept": COMMAND_PALETTE_FINDING_ACCEPT_EVENT,
+  "action-finding-remediate": COMMAND_PALETTE_FINDING_REMEDIATE_EVENT,
+  "action-finding-reject": COMMAND_PALETTE_FINDING_REJECT_EVENT,
+  "action-finding-checklist-band": COMMAND_PALETTE_FINDING_CHECKLIST_BAND_EVENT,
+  "action-alert-next": COMMAND_PALETTE_ALERT_NEXT_EVENT,
+  "action-alert-prev": COMMAND_PALETTE_ALERT_PREV_EVENT,
+  "action-alert-acknowledge": COMMAND_PALETTE_ALERT_ACKNOWLEDGE_EVENT,
+  "action-alert-resolve": COMMAND_PALETTE_ALERT_RESOLVE_EVENT,
+  "action-alert-suppress": COMMAND_PALETTE_ALERT_SUPPRESS_EVENT,
+  "action-remediation-factory-next": COMMAND_PALETTE_REMEDIATION_FACTORY_NEXT_EVENT,
+  "action-remediation-factory-prev": COMMAND_PALETTE_REMEDIATION_FACTORY_PREV_EVENT,
+  "action-remediation-factory-inspect": COMMAND_PALETTE_REMEDIATION_FACTORY_INSPECT_EVENT,
+  "action-remediation-factory-explain": COMMAND_PALETTE_REMEDIATION_FACTORY_EXPLAIN_EVENT,
+  "action-governance-findings-path-inspect": COMMAND_PALETTE_GOVERNANCE_FINDINGS_PATH_INSPECT_EVENT,
+};
+
+export function dispatchCommandPaletteHandlerAction(actionId: CommandPaletteHandlerActionId): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.dispatchEvent(new CustomEvent(HANDLER_ACTION_EVENTS[actionId]));
+}

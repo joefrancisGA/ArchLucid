@@ -1,0 +1,17 @@
+# Staging-oriented private data plane example.
+#   terraform apply -var-file=staging.tfvars.example
+
+posture_tier              = "staging"
+enable_private_data_plane = true
+create_resource_group     = true
+resource_group_name       = "rg-archlucid-private-staging"
+location                  = "eastus2"
+
+sql_server_id      = "/subscriptions/<sub-id>/resourceGroups/rg-data-staging/providers/Microsoft.Sql/servers/archlucid-sql-staging"
+storage_account_id = "/subscriptions/<sub-id>/resourceGroups/rg-data-staging/providers/Microsoft.Storage/storageAccounts/starchlucidstaging"
+
+tags = {
+  workload    = "archlucid"
+  layer       = "private-data"
+  environment = "staging"
+}

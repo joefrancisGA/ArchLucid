@@ -1,0 +1,272 @@
+import { expect, type Locator, type Page, type Request } from "@playwright/test";
+
+import { injectDefaultTenantOperatorScope } from "./demo-workspace-live-scope";
+import { dismissBlockingModalOverlays, clickThroughBlockingOverlays } from "./dismiss-blocking-modal-overlays";
+import { primePrivateBetaBrowserSessionIfJwtMode } from "./live-private-beta-access";
+import { waitAndDismissFirstSessionPurposeChooser } from "./live-seat-scope-assertions";
+
+const LIVE_ADMIN_USERS_TAB_PATH = "/administration/users?tab=users";
+
+async function gotoAdminUsersTabAndWaitForMe(page: Page): Promise<void> {
+  const authMeSettled = page.waitForResponse(
+    (response) =>
+      response.url().includes("/api/proxy/api/auth/me") &&
+      response.request().method() === "GET" &&
+      response.ok(),
+    { timeout: 90_000 },
+  );
+
+  await page.goto(LIVE_ADMIN_USERS_TAB_PATH, { waitUntil: "domcontentloaded" });
+  await authMeSettled.catch(() => undefined);
+  await waitAndDismissFirstSessionPurposeChooser(page);
+}
+
+/**
+ * Revoked invitations leave the pending table and sit behind "Show resolved invitations".
+ * Wait for either the Revoked status on the row or the resolved toggle, then assert Revoked.
+ */
+export async function expectLiveAdminInvitationRevoked(page: Page, inviteEmail: string): Promise<void> {
+  const invitationRow = page.locator("tr", { hasText: inviteEmail });
+  const showResolved = page.getByTestId("settings-roles-toggle-resolved-invitations");
+
+  await expect(showResolved.or(invitationRow.getByText("Revoked"))).toBeVisible({ timeout: 60_000 });
+
+  const revokedAlreadyVisible = await invitationRow.getByText("Revoked").isVisible().catch(() => false);
+
+  if (!revokedAlreadyVisible) {
+    await showResolved.click();
+  }
+
+  await expect(invitationRow).toContainText("Revoked", { timeout: 60_000 });
+  await expect(invitationRow.getByRole("button", { name: "Revoke" })).toHaveCount(0);
+}
+
+/** JwtBearer admin users hub with default tenant scope and settled `/me` before assertions. */
+export async function gotoLiveAdminUsersInvitePage(page: Page): Promise<void> {
+  await primePrivateBetaBrowserSessionIfJwtMode(page);
+  await injectDefaultTenantOperatorScope(page);
+
+  await gotoAdminUsersTabAndWaitForMe(page);
+
+  if ((await page.getByText(/Something went wrong/i).count()) > 0) {
+    await primePrivateBetaBrowserSessionIfJwtMode(page);
+    await injectDefaultTenantOperatorScope(page);
+    await gotoAdminUsersTabAndWaitForMe(page);
+  }
+
+  await expect(page.getByTestId("settings-roles-page")).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByTestId("settings-roles-forbidden")).toHaveCount(0, { timeout: 60_000 });
+  await expect(page.getByTestId("settings-roles-tabpanel-users")).toBeVisible({ timeout: 60_000 });
+}
+
+async function openInviteForm(page: Page): Promise<Locator> {
+  const inviteForm = page.getByTestId("settings-roles-invite-form");
+
+  if (await inviteForm.isVisible().catch(() => false)) {
+    return inviteForm;
+  }
+
+  const invitePrimaryRegion = page.getByTestId("settings-roles-invite-primary-region");
+  const invitePrimaryAction = page.getByTestId("settings-roles-invite-primary-action");
+  const inviteStartHereAction = page.getByTestId("settings-roles-start-here-invite");
+  const inviteSection = page.getByTestId("settings-roles-invite-section");
+
+  if (await invitePrimaryRegion.isVisible().catch(() => false)) {
+    await invitePrimaryRegion.waitFor({ state: "visible", timeout: 60_000 });
+  } else if (await invitePrimaryAction.isVisible().catch(() => false)) {
+    await invitePrimaryAction.click();
+  } else if (await inviteStartHereAction.isVisible().catch(() => false)) {
+    await inviteStartHereAction.click();
+  } else {
+    await inviteSection.waitFor({ state: "visible", timeout: 60_000 });
+    await inviteSection.locator("summary").click();
+  }
+
+  await inviteForm.waitFor({ state: "visible", timeout: 60_000 });
+  return inviteForm;
+}
+
+async function selectInviteRole(page: Page, inviteForm: Locator, roleLabel: string): Promise<void> {
+  const roleTrigger = inviteForm.getByTestId("settings-roles-invite-role");
+  const hiddenRoleSelect = roleTrigger.locator("xpath=..//select");
+
+  if ((await hiddenRoleSelect.count()) > 0) {
+    await hiddenRoleSelect.selectOption({ label: roleLabel });
+    return;
+  }
+
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    await roleTrigger.click();
+    // Radix SelectContent is portaled outside the form; scope the trigger to the
+    // form, but resolve its option from the page.
+    const option = page.getByRole("option", { name: roleLabel, exact: true });
+
+    if (await option.isVisible().catch(() => false)) {
+      await option.click({ timeout: 15_000 });
+      await page.keyboard.press("Escape").catch(() => undefined);
+      await dismissBlockingModalOverlays(page);
+      return;
+    }
+
+    await page.keyboard.press("Escape").catch(() => undefined);
+    await dismissBlockingModalOverlays(page);
+  }
+
+  throw new Error(`Invite role option "${roleLabel}" was not visible after two selection attempts.`);
+}
+
+/** Submits the visible Users invite form and reports disabled-state diagnostics. */
+export async function submitAdminInviteFromUsersUi(
+  page: Page,
+  email: string,
+  roleLabel = "Reader",
+): Promise<void> {
+  const inviteForm = await openInviteForm(page);
+  const emailInput = inviteForm.getByTestId("settings-roles-invite-email");
+
+  // The settings surface can remount while its client state hydrates. Select the role
+  // first, then fill the controlled email input and prove the value committed. The
+  // post-role fill avoids a hydration/remount clearing email after it was entered.
+  await expect(inviteForm).toBeVisible({ timeout: 15_000 });
+  await expect(emailInput).toBeEditable({ timeout: 15_000 });
+  await selectInviteRole(page, inviteForm, roleLabel);
+
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      await emailInput.fill(email);
+      await expect(emailInput).toHaveValue(email, { timeout: 5_000 });
+      break;
+    } catch (error) {
+      if (attempt === 3) {
+        throw error;
+      }
+
+      // React controlled inputs can ignore Playwright's fill when the settings
+      // surface remounts. Commit through the native setter so onChange runs.
+      await emailInput.evaluate((element, value) => {
+        const input = element as HTMLInputElement;
+        const descriptor = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
+        descriptor?.set?.call(input, value);
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+      }, email);
+    }
+  }
+
+  const submitButton = inviteForm.getByTestId("settings-roles-invite-submit");
+  await submitButton.waitFor({ state: "visible", timeout: 15_000 });
+
+  if (!(await submitButton.isEnabled().catch(() => false))) {
+    const emailValue = await emailInput.inputValue().catch(() => "");
+    throw new Error(
+      `Invite submit remained disabled for ${email}; emailValue=${JSON.stringify(emailValue)}, role=${roleLabel}.`,
+    );
+  }
+
+  await expect(submitButton).toBeEnabled({ timeout: 15_000 });
+  await dismissBlockingModalOverlays(page);
+
+  const inviteRequestMatcher = (url: string, method: string): boolean =>
+    url.includes("/api/proxy/v1/admin/users/invite") && method === "POST";
+
+  const inviteResponsePromise = page.waitForResponse(
+    (response) => inviteRequestMatcher(response.url(), response.request().method()),
+    { timeout: 90_000 },
+  );
+  // Observe the waiter immediately so a fail-fast throw cannot leave its timeout unhandled.
+  void inviteResponsePromise.catch(() => undefined);
+
+  const invitePostStarted = await startAdminInvitePost(page, inviteForm, submitButton);
+
+  if (!invitePostStarted) {
+    throw new Error(
+      `Admin invite UI for ${email} did not start Invite POST after submit. url=${page.url()}`,
+    );
+  }
+
+  let inviteResponseStatus: number | undefined;
+  let inviteResponseBody = "";
+
+  try {
+    const inviteResponse = await inviteResponsePromise;
+    inviteResponseStatus = inviteResponse.status();
+    inviteResponseBody = await inviteResponse.text();
+  } catch {
+    throw new Error(
+      `Admin invite UI for ${email} Invite POST did not complete within 90s after submit. url=${page.url()}`,
+    );
+  }
+
+  const pendingRow = page.locator("tr", { hasText: email });
+  const conflictCopy = page.getByText(/Cannot invite this email|directory user already exists/i);
+
+  try {
+    await Promise.race([
+      pendingRow.waitFor({ state: "visible", timeout: 90_000 }),
+      conflictCopy.waitFor({ state: "visible", timeout: 90_000 }),
+    ]);
+  } catch {
+    throw new Error(
+      `Admin invite UI for ${email} did not show a pending row or conflict message within 90s after submit. Invite POST status=${inviteResponseStatus} body=${inviteResponseBody.slice(0, 240)}.`,
+    );
+  }
+}
+
+async function startAdminInvitePost(page: Page, inviteForm: Locator, submitButton: Locator): Promise<boolean> {
+  const inviteRequestMatcher = (request: { url(): string; method(): string }): boolean =>
+    request.url().includes("/api/proxy/v1/admin/users/invite") && request.method() === "POST";
+
+  const firstAttemptStarted = waitForInvitePostStarted(page, inviteRequestMatcher, 15_000);
+
+  await inviteForm.evaluate((element) => {
+    const form = element as HTMLFormElement;
+
+    if (typeof form.requestSubmit === "function") {
+      form.requestSubmit();
+    }
+  });
+
+  if (await firstAttemptStarted) {
+    return true;
+  }
+
+  return clickThroughOverlaysWatchingInvitePost(page, submitButton, inviteRequestMatcher, 15_000);
+}
+
+/** Watches for Invite POST during overlay cleanup, then starts the 15s waiter only after the click returns. */
+async function clickThroughOverlaysWatchingInvitePost(
+  page: Page,
+  submitButton: Locator,
+  matcher: (request: { url(): string; method(): string }) => boolean,
+  timeoutMs: number,
+): Promise<boolean> {
+  let started = false;
+
+  const onRequest = (request: Request): void => {
+    if (matcher(request)) {
+      started = true;
+    }
+  };
+
+  page.on("request", onRequest);
+
+  try {
+    await clickThroughBlockingOverlays(page, submitButton, { force: true });
+
+    if (started) {
+      return true;
+    }
+
+    return waitForInvitePostStarted(page, matcher, timeoutMs);
+  } finally {
+    page.off("request", onRequest);
+  }
+}
+
+function waitForInvitePostStarted(
+  page: Page,
+  matcher: (request: { url(): string; method(): string }) => boolean,
+  timeoutMs: number,
+): Promise<boolean> {
+  return page.waitForRequest(matcher, { timeout: timeoutMs }).then(() => true).catch(() => false);
+}

@@ -1,0 +1,69 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
+export const PILOT_ROI_WIZARD_OPEN_PARAM = "roiWizard";
+export const PILOT_ROI_WIZARD_STEP_PARAM = "roiStep";
+
+export const PILOT_ROI_WIZARD_STEP_COUNT = 2;
+
+export type PilotRoiBaselineWizardUrlState = {
+  readonly open: boolean;
+  readonly stepIndex: number | null;
+};
+
+export function parsePilotRoiWizardOpenFromSearch(raw: string | null | undefined): boolean {
+  if (raw === null || raw === undefined) {
+    return false;
+  }
+
+  const trimmed = raw.trim().toLowerCase();
+
+  return trimmed === "1" || trimmed === "true";
+}
+
+export function parsePilotRoiWizardStepFromSearch(raw: string | null | undefined): number | null {
+  if (raw === null || raw === undefined) {
+    return null;
+  }
+
+  const trimmed = raw.trim();
+
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  if (!/^\d+$/.test(trimmed)) {
+    return null;
+  }
+
+  const parsed = Number.parseInt(trimmed, 10);
+
+  if (!Number.isFinite(parsed) || parsed < 0 || parsed >= PILOT_ROI_WIZARD_STEP_COUNT) {
+    return null;
+  }
+
+  return parsed;
+}
+
+export function pilotRoiBaselineWizardHrefFromSearch(
+  currentSearch: string,
+  state: PilotRoiBaselineWizardUrlState,
+  pathname: string,
+): string {
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+
+    if (!state.open) {
+      params.delete(PILOT_ROI_WIZARD_OPEN_PARAM);
+      params.delete(PILOT_ROI_WIZARD_STEP_PARAM);
+    } else {
+      params.set(PILOT_ROI_WIZARD_OPEN_PARAM, "1");
+
+      if (state.stepIndex === null || state.stepIndex <= 0) {
+        params.delete(PILOT_ROI_WIZARD_STEP_PARAM);
+      } else {
+        params.set(PILOT_ROI_WIZARD_STEP_PARAM, String(state.stepIndex));
+      }
+    }
+    },
+  });
+}

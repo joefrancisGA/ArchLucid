@@ -1,0 +1,205 @@
+"""Tests for assert_rc_strict_signoff.py fail-closed RC guard."""
+
+from __future__ import annotations
+
+import json
+import shutil
+import subprocess
+import sys
+import tempfile
+import unittest
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[3]
+CI = REPO_ROOT / "scripts" / "ci"
+
+
+def run_assert(*args: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [sys.executable, str(CI / "assert_rc_strict_signoff.py"), *args],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+
+class AssertRcStrictSignoffTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temp_dir = Path(tempfile.mkdtemp(prefix="assert-rc-strict-"))
+
+    def tearDown(self) -> None:
+        shutil.rmtree(self.temp_dir, ignore_errors=True)
+
+    def _write_minimal_pass_bundle(self, bundle: Path) -> None:
+        (bundle / "release-confidence-rollup.json").write_text(
+            json.dumps(
+                {
+                    "schema": "archlucid.release-confidence-rollup.v1",
+                    "generatedUtc": datetime.now(timezone.utc).isoformat(),
+                    "strictDisposition": "PASS",
+                    "strictBlockingReasons": [],
+                }
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        (bundle / "rc-evidence-signoff-bundle.json").write_text(
+            json.dumps(
+                {
+                    "schema": "archlucid.rc-evidence-signoff-bundle.v1",
+                    "generatedUtc": datetime.now(timezone.utc).isoformat(),
+                    "overallDisposition": "PASS",
+                    "references": {
+                        "releaseConfidenceRollup": "release-confidence-rollup.json",
+                        "rcGoNoGoVerdict": "rc-go-no-go-verdict.json",
+                    },
+                }
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        (bundle / "rc-go-no-go-verdict.json").write_text(
+            json.dumps({"schema": "archlucid.rc-go-no-go-verdict.v1", "generatedUtc": datetime.now(timezone.utc).isoformat(), "verdict": "PASS"})
+            + "\n",
+            encoding="utf-8",
+        )
+        (bundle / "release-smoke-live-ui-sql-result.json").write_text(
+            json.dumps(
+                {
+                    "schema": "archlucid.release-smoke-result.v1",
+                    "profile": "ReleaseCandidate",
+                    "evidenceKind": "live-ui-sql-parity",
+                    "verdict": "Pass",
+                    "status": "PASS",
+                }
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+    def test_require_pass_fails_on_empty_bundle(self) -> None:
+        bundle = self.temp_dir / "empty"
+        bundle.mkdir()
+        result = run_assert("--bundle-dir", str(bundle), "--require-pass")
+        self.assertEqual(result.returncode, 1, msg=result.stderr or result.stdout)
+        self.assertIn("::error::", result.stderr)
+
+    def test_require_pass_succeeds_with_complete_bundle(self) -> None:
+        bundle = self.temp_dir / "pass"
+        bundle.mkdir()
+        self._write_minimal_pass_bundle(bundle)
+        result = run_assert(
+            "--bundle-dir",
+            str(bundle),
+            "--require-pass",
+            "--require-live-parity-artifact",
+        )
+        self.assertEqual(result.returncode, 0, msg=result.stderr or result.stdout)
+
+    def test_live_parity_artifact_validates_evidence_kind(self) -> None:
+        bundle = self.temp_dir / "bad-parity"
+        bundle.mkdir()
+        self._write_minimal_pass_bundle(bundle)
+        (bundle / "release-smoke-live-ui-sql-result.json").write_text(
+            json.dumps({"profile": "ReleaseCandidate", "evidenceKind": "release-smoke", "verdict": "Pass"})
+            + "\n",
+            encoding="utf-8",
+        )
+        result = run_assert(
+            "--bundle-dir",
+            str(bundle),
+            "--require-pass",
+            "--require-live-parity-artifact",
+        )
+        self.assertEqual(result.returncode, 1, msg=result.stderr or result.stdout)
+        self.assertIn("live-ui-sql-parity", result.stderr)
+
+    def test_reference_to_wrong_artifact_blocks_signoff(self) -> None:
+        bundle = self.temp_dir / "wrong-reference"
+        bundle.mkdir()
+        self._write_minimal_pass_bundle(bundle)
+        path = bundle / "rc-evidence-signoff-bundle.json"
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["references"]["releaseConfidenceRollup"] = "unrelated.json"
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        result = run_assert("--bundle-dir", str(bundle), "--require-pass")
+        self.assertEqual(result.returncode, 1, msg=result.stderr or result.stdout)
+        self.assertIn("references.releaseConfidenceRollup", result.stderr)
+
+    def test_non_pass_synonym_does_not_approve_strict_signoff(self) -> None:
+        bundle = self.temp_dir / "non-pass"
+        bundle.mkdir()
+        self._write_minimal_pass_bundle(bundle)
+        path = bundle / "release-confidence-rollup.json"
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["strictDisposition"] = "READY"
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        result = run_assert("--bundle-dir", str(bundle), "--require-pass")
+        self.assertEqual(result.returncode, 1, msg=result.stderr or result.stdout)
+        self.assertIn("strictDisposition", result.stderr)
+
+    def test_live_parity_conflicting_status_blocks_signoff(self) -> None:
+        bundle = self.temp_dir / "conflicting-parity"
+        bundle.mkdir()
+        self._write_minimal_pass_bundle(bundle)
+        path = bundle / "release-smoke-live-ui-sql-result.json"
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["status"] = "FAIL"
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        result = run_assert("--bundle-dir", str(bundle), "--require-pass", "--require-live-parity-artifact")
+        self.assertEqual(result.returncode, 1, msg=result.stderr or result.stdout)
+        self.assertIn("(status)", result.stderr)
+
+    def test_wrong_artifact_schema_blocks_signoff(self) -> None:
+        bundle = self.temp_dir / "wrong-schema"
+        bundle.mkdir()
+        self._write_minimal_pass_bundle(bundle)
+        path = bundle / "rc-go-no-go-verdict.json"
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["schema"] = "unrelated.v1"
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        result = run_assert("--bundle-dir", str(bundle), "--require-pass")
+        self.assertEqual(result.returncode, 1, msg=result.stderr or result.stdout)
+        self.assertIn("(schema)", result.stderr)
+
+    def test_stale_artifact_blocks_strict_signoff(self) -> None:
+        bundle = self.temp_dir / "stale"
+        bundle.mkdir()
+        self._write_minimal_pass_bundle(bundle)
+        path = bundle / "rc-go-no-go-verdict.json"
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["generatedUtc"] = (datetime.now(timezone.utc) - timedelta(days=8)).isoformat()
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        result = run_assert("--bundle-dir", str(bundle), "--require-pass")
+        self.assertEqual(result.returncode, 1, msg=result.stderr or result.stdout)
+        self.assertIn("(generatedUtc)", result.stderr)
+
+    def test_future_artifact_blocks_strict_signoff(self) -> None:
+        bundle = self.temp_dir / "future"
+        bundle.mkdir()
+        self._write_minimal_pass_bundle(bundle)
+        path = bundle / "release-confidence-rollup.json"
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["generatedUtc"] = (datetime.now(timezone.utc) + timedelta(days=30)).isoformat()
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        result = run_assert("--bundle-dir", str(bundle), "--require-pass")
+        self.assertEqual(result.returncode, 1, msg=result.stderr or result.stdout)
+        self.assertIn("timestamp is in the future", result.stderr)
+
+    def test_live_parity_wrong_schema_blocks_signoff(self) -> None:
+        bundle = self.temp_dir / "parity-schema"
+        bundle.mkdir()
+        self._write_minimal_pass_bundle(bundle)
+        path = bundle / "release-smoke-live-ui-sql-result.json"
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["schema"] = "unrelated.v1"
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        result = run_assert("--bundle-dir", str(bundle), "--require-pass", "--require-live-parity-artifact")
+        self.assertEqual(result.returncode, 1, msg=result.stderr or result.stdout)
+        self.assertIn("(schema)", result.stderr)
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1,0 +1,177 @@
+import {
+  RUN_DETAIL_GOVERNANCE_CTA_LABEL,
+  runDetailGovernanceWorkflowHref,
+  shouldShowRunDetailGovernanceCta,
+} from "@/lib/runs/run-detail-governance-cta-visibility";
+
+import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
+import { shortenNextActionForPrimaryCta } from "@/lib/run-detail-workspace-derive";
+import { SPONSOR_BRIEFING_EXPORT_LABEL } from "@/lib/usability/canonical-product-terms";
+import { isExportableDecisionVerdict } from "@/lib/decision-receipt-export";
+import type { FeasibilityVerdictKind } from "@/types/feasibility-verdict";
+
+import { resolveReviewPackageSummaryMode } from "./resolve-review-package-summary-mode";
+
+export type ReviewPackagePrimaryActionKind =
+  | "review-findings"
+  | "add-evidence"
+  | "finalize-package"
+  | "export-decision-receipt"
+  | "send-to-sponsor"
+  | "open-governance-decision";
+
+export type ReviewPackagePrimaryAction = {
+  readonly kind: ReviewPackagePrimaryActionKind;
+  readonly label: string;
+  /** In-page anchor or route href; null when the control is an in-place action (finalize). */
+  readonly href: string | null;
+};
+
+export type ResolveReviewPackagePrimaryActionInput = {
+  readonly runId: string;
+  readonly manifestId: string | null | undefined;
+  readonly hasCommitBlockingFailures: boolean;
+  readonly blockingFindingCount: number;
+  readonly buyerPolishedArtifactTable: boolean;
+  readonly operatorGovernanceDecision: string | null | undefined;
+  readonly manifestStatus: string | null | undefined;
+  readonly runCompleted: boolean;
+  readonly nextAction?: string | null;
+  readonly feasibilityVerdictKind?: FeasibilityVerdictKind | null;
+};
+
+const REVIEW_PACKAGE_PRIMARY_ACTION_LABELS: Record<
+  Exclude<ReviewPackagePrimaryActionKind, "open-governance-decision">,
+  string
+> = {
+  "review-findings": "Review findings",
+  "add-evidence": "Add evidence",
+  "finalize-package": "Finalize review",
+  "export-decision-receipt": "Export decision receipt",
+  "send-to-sponsor": `Send ${SPONSOR_BRIEFING_EXPORT_LABEL.toLowerCase()}`,
+};
+
+function reviewFindingsHref(runId: string): string {
+  return buildReviewDetailTabHref(runId, "findings");
+}
+
+function addEvidenceHref(runId: string): string {
+  return buildReviewDetailTabHref(runId, "evidence");
+}
+
+function sendToSponsorHref(runId: string): string {
+  return buildReviewDetailTabHref(runId, "review-package", { hash: "sponsor-handoff" });
+}
+
+function decisionReceiptHref(runId: string): string {
+  return buildReviewDetailTabHref(runId, "evidence", { hash: "artifacts-exports" });
+}
+
+function buildLinkAction(
+  runId: string,
+  kind: Exclude<ReviewPackagePrimaryActionKind, "finalize-package" | "open-governance-decision">,
+): ReviewPackagePrimaryAction {
+  const hrefByKind: Record<typeof kind, string> = {
+    "review-findings": reviewFindingsHref(runId),
+    "add-evidence": addEvidenceHref(runId),
+    "export-decision-receipt": decisionReceiptHref(runId),
+    "send-to-sponsor": sendToSponsorHref(runId),
+  };
+
+  return {
+    kind,
+    label: REVIEW_PACKAGE_PRIMARY_ACTION_LABELS[kind],
+    href: hrefByKind[kind],
+  };
+}
+
+function buildFinalizeAction(): ReviewPackagePrimaryAction {
+  return {
+    kind: "finalize-package",
+    label: REVIEW_PACKAGE_PRIMARY_ACTION_LABELS["finalize-package"],
+    href: null,
+  };
+}
+
+function buildGovernanceAction(runId: string): ReviewPackagePrimaryAction {
+  return {
+    kind: "open-governance-decision",
+    label: RUN_DETAIL_GOVERNANCE_CTA_LABEL,
+    href: runDetailGovernanceWorkflowHref(runId),
+  };
+}
+
+/**
+ * Only findings-tab CTAs may inherit the decision-snapshot next-action phrasing.
+ * Governance / sponsor / finalize labels must stay aligned with their href targets.
+ */
+function applyNextActionLabelForFindings(
+  action: ReviewPackagePrimaryAction,
+  nextAction: string | null | undefined,
+): ReviewPackagePrimaryAction {
+  if (action.kind !== "review-findings") {
+    return action;
+  }
+
+  const shortened = shortenNextActionForPrimaryCta(nextAction ?? "");
+
+  if (shortened === null) {
+    return action;
+  }
+
+  return {
+    ...action,
+    label: shortened,
+  };
+}
+
+/** Picks exactly one primary next-action CTA for the Review Package summary header (TB-618). */
+export function resolveReviewPackagePrimaryAction(
+  input: ResolveReviewPackagePrimaryActionInput,
+): ReviewPackagePrimaryAction {
+  const mode = resolveReviewPackageSummaryMode(input.manifestId);
+
+  if (input.hasCommitBlockingFailures) {
+    return applyNextActionLabelForFindings(
+      buildLinkAction(input.runId, "review-findings"),
+      input.nextAction,
+    );
+  }
+
+  if (mode === "finalized") {
+    if (input.blockingFindingCount > 0) {
+      return applyNextActionLabelForFindings(
+        buildLinkAction(input.runId, "review-findings"),
+        input.nextAction,
+      );
+    }
+
+    if (
+      shouldShowRunDetailGovernanceCta({
+        runId: input.runId,
+        manifestId: input.manifestId,
+        buyerPolishedArtifactTable: input.buyerPolishedArtifactTable,
+        operatorGovernanceDecision: input.operatorGovernanceDecision,
+        manifestStatus: input.manifestStatus,
+      })
+    ) {
+      return buildGovernanceAction(input.runId);
+    }
+
+    return buildLinkAction(input.runId, "send-to-sponsor");
+  }
+
+  if (!input.runCompleted) {
+    return buildLinkAction(input.runId, "add-evidence");
+  }
+
+  if (
+    input.feasibilityVerdictKind !== null
+    && input.feasibilityVerdictKind !== undefined
+    && isExportableDecisionVerdict(input.feasibilityVerdictKind)
+  ) {
+    return buildLinkAction(input.runId, "export-decision-receipt");
+  }
+
+  return buildFinalizeAction();
+}

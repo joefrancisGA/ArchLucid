@@ -1,0 +1,163 @@
+import { describe, expect, it } from "vitest";
+
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
+import { isSafeReturnPath, resolveSafeReturnPath } from "@/lib/navigation/safe-return-path";
+
+describe("isSafeReturnPath", () => {
+  it("accepts a simple local path", () => {
+    expect(isSafeReturnPath("/architecture/reviews/123")).toBe(true);
+  });
+
+  it("accepts the root path", () => {
+    expect(isSafeReturnPath("/")).toBe(true);
+  });
+
+  it("accepts a local path with a query string", () => {
+    expect(isSafeReturnPath("/architecture/reviews/123?tab=findings")).toBe(true);
+  });
+
+  it("rejects null", () => {
+    expect(isSafeReturnPath(null)).toBe(false);
+  });
+
+  it("rejects undefined", () => {
+    expect(isSafeReturnPath(undefined)).toBe(false);
+  });
+
+  it("rejects an empty string", () => {
+    expect(isSafeReturnPath("")).toBe(false);
+  });
+
+  it("rejects a path that does not start with a slash", () => {
+    expect(isSafeReturnPath("reviews/123")).toBe(false);
+  });
+
+  it("rejects an absolute external URL", () => {
+    expect(isSafeReturnPath("https://evil.example/phish")).toBe(false);
+  });
+
+  it("rejects a protocol-relative URL", () => {
+    expect(isSafeReturnPath("//evil.example")).toBe(false);
+  });
+
+  it("rejects a protocol-relative URL with a path", () => {
+    expect(isSafeReturnPath("//evil.example/steal")).toBe(false);
+  });
+
+  it("rejects a backslash-prefixed URL (browser slash-normalization trick)", () => {
+    expect(isSafeReturnPath("/\\evil.example")).toBe(false);
+  });
+
+  it("rejects a javascript: URL", () => {
+    expect(isSafeReturnPath("javascript:alert(1)")).toBe(false);
+  });
+
+  it("rejects a path embedding a scheme", () => {
+    expect(isSafeReturnPath("/redirect://evil.example")).toBe(false);
+  });
+
+  it("rejects a protocol-relative URL smuggled via a control character", () => {
+    expect(isSafeReturnPath("/\t/evil.example")).toBe(false);
+  });
+
+  it("rejects a NUL-smuggled protocol-relative URL", () => {
+    expect(isSafeReturnPath("/\u0000/evil.example")).toBe(false);
+  });
+
+  it("rejects a percent-encoded protocol-relative URL", () => {
+    expect(isSafeReturnPath("/%2f%2fevil.example")).toBe(false);
+  });
+
+  it("rejects a percent-encoded tab smuggling a protocol-relative URL", () => {
+    expect(isSafeReturnPath("/%09//evil.example")).toBe(false);
+  });
+
+  it("rejects a percent-encoded NUL smuggling a protocol-relative URL", () => {
+    expect(isSafeReturnPath("/%00//evil.example")).toBe(false);
+  });
+
+  it("rejects an embedded protocol-relative segment after percent-decoding", () => {
+    expect(isSafeReturnPath("/x%2F%2Fevil.example")).toBe(false);
+  });
+
+  it("rejects a deeply percent-encoded embedded protocol-relative segment", () => {
+    let payload = "//evil.example";
+
+    for (let pass = 0; pass < 4; pass++) {
+      payload = encodeURIComponent(payload);
+    }
+
+    expect(isSafeReturnPath(`/welcome${payload}`)).toBe(false);
+  });
+
+  it("rejects return paths that remain percent-encoded after the decode guard", () => {
+    let payload = "//evil.example";
+
+    for (let pass = 0; pass < 10; pass++) {
+      payload = encodeURIComponent(payload);
+    }
+
+    expect(isSafeReturnPath(`/welcome${payload}`)).toBe(false);
+  });
+
+  it("rejects backslash path separators that normalize to traversal after sign-in", () => {
+    expect(isSafeReturnPath("/welcome\\..\\..\\operator")).toBe(false);
+    expect(isSafeReturnPath("/foo\\..\\..\\evil")).toBe(false);
+    expect(isSafeReturnPath("/architecture\\reviews")).toBe(false);
+  });
+
+  it("rejects dot-segment traversal that normalizes outside the intended subtree after sign-in", () => {
+    expect(isSafeReturnPath("/signin/../../administration")).toBe(false);
+    expect(isSafeReturnPath("/app/foo/../bar")).toBe(false);
+    expect(isSafeReturnPath("/%2e%2e/admin")).toBe(false);
+  });
+
+  it("rejects fullwidth dot homoglyph segments that browsers normalize to parent traversal", () => {
+    expect(isSafeReturnPath("/signin/\uFF0E\uFF0E/administration")).toBe(false);
+    expect(isSafeReturnPath("/welcome\uFF0E\uFF0E/operator")).toBe(false);
+  });
+
+  it("rejects fullwidth solidus homoglyphs that normalize to protocol-relative URLs", () => {
+    expect(isSafeReturnPath("\uFF0F\uFF0Fevil.example")).toBe(false);
+    expect(isSafeReturnPath("/safe\uFF0F\uFF0Fevil.example")).toBe(false);
+  });
+
+  it("rejects at-sign in the path portion (userinfo open-redirect shape)", () => {
+    expect(isSafeReturnPath("/path@evil")).toBe(false);
+    expect(isSafeReturnPath("/user@evil.example/phish")).toBe(false);
+    expect(isSafeReturnPath("/user\uFF20evil.example/phish")).toBe(false);
+    expect(isSafeReturnPath("/user\uFE6Bevil.example/phish")).toBe(false);
+  });
+
+  it("allows at-sign in query or fragment only", () => {
+    expect(isSafeReturnPath("/architecture/reviews?notify=user@example.com")).toBe(true);
+    expect(isSafeReturnPath("/reviews/1#notes@team")).toBe(true);
+  });
+
+  it("rejects residual percent-encoded dot segments before traversal fully decodes", () => {
+    expect(isSafeReturnPath("/welcome%2e%2e/admin")).toBe(false);
+    expect(isSafeReturnPath("/segment%2e%2e%2foperator")).toBe(false);
+  });
+
+  it("rejects percent-encoded backslash segments after decoding", () => {
+    expect(isSafeReturnPath("/welcome%5c..%5c..%5coperator")).toBe(false);
+  });
+});
+
+describe("resolveSafeReturnPath", () => {
+  it("returns the candidate when it is safe", () => {
+    expect(resolveSafeReturnPath(SPONSOR_DASHBOARD_HREF)).toBe(SPONSOR_DASHBOARD_HREF);
+  });
+
+  it("falls back to '/' when the candidate is unsafe", () => {
+    expect(resolveSafeReturnPath("//evil.example")).toBe("/");
+  });
+
+  it("falls back to '/' when the candidate is absent", () => {
+    expect(resolveSafeReturnPath(undefined)).toBe("/");
+  });
+
+  it("honors a custom fallback", () => {
+    expect(resolveSafeReturnPath("https://evil.example", "/welcome")).toBe("/welcome");
+  });
+});

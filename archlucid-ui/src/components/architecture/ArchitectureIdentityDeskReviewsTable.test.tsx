@@ -1,0 +1,184 @@
+import { render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import type { ArchitectureIdentityChildReviewSummary } from "@/types/architecture-identity";
+
+const workspaceModeMock = vi.hoisted(() => ({ isWorkingMode: true }));
+
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => workspaceModeMock,
+}));
+
+vi.mock("next/link", () => ({
+  default: ({
+    href,
+    children,
+    ...rest
+  }: {
+    href: string;
+    children: React.ReactNode;
+    [key: string]: unknown;
+  }) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
+}));
+
+const searchParamsMock = vi.hoisted(() => ({ value: new URLSearchParams() }));
+
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => searchParamsMock.value,
+}));
+
+const useShellInFlightOperationsMock = vi.fn(() => []);
+
+vi.mock("@/hooks/use-shell-in-flight-operations", () => ({
+  useShellInFlightOperations: () => useShellInFlightOperationsMock(),
+}));
+
+import { ArchitectureIdentityDeskReviewsTable } from "@/components/architecture/ArchitectureIdentityDeskReviewsTable";
+
+const architectureId = "architecture-identity-001";
+const reviews: readonly ArchitectureIdentityChildReviewSummary[] = [
+  {
+    runId: "review-2",
+    description: "Second in-flight review",
+    createdUtc: "2026-01-02T11:00:00Z",
+  },
+  {
+    runId: "review-1",
+    description: "First sealed review",
+    createdUtc: "2026-01-01T10:00:00Z",
+  },
+];
+
+describe("ArchitectureIdentityDeskReviewsTable (AO-23)", () => {
+  beforeEach(() => {
+    workspaceModeMock.isWorkingMode = true;
+    searchParamsMock.value = new URLSearchParams();
+    useShellInFlightOperationsMock.mockReturnValue([]);
+  });
+
+  it("labels a missing review description without defaulting to Architecture review (P-11)", () => {
+    render(
+      <ArchitectureIdentityDeskReviewsTable
+        architectureId={architectureId}
+        reviews={[
+          {
+            runId: "review-missing-description",
+            description: null,
+            createdUtc: "2026-01-01T10:00:00Z",
+          },
+          {
+            runId: "review-empty-description",
+            description: "",
+            createdUtc: "2026-01-02T11:00:00Z",
+          },
+        ]}
+        reviewCount={2}
+        startReviewHref={null}
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "Review description was not stored." })).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-identity-review-link-review-empty-description")).toHaveTextContent("");
+    expect(screen.queryByRole("link", { name: "Architecture review" })).toBeNull();
+  });
+
+  it("links review rows to nested job paths", () => {
+    render(
+      <ArchitectureIdentityDeskReviewsTable
+        architectureId={architectureId}
+        reviews={reviews}
+        reviewCount={reviews.length}
+        startReviewHref="/architecture/architectures/architecture-identity-001/reviews/new"
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "Second in-flight review" })).toHaveAttribute(
+      "href",
+      "/architecture/architectures/architecture-identity-001/reviews/review-2",
+    );
+    expect(screen.getByTestId("architecture-identity-reviews-table")).toBeInTheDocument();
+  });
+
+  it("empty state offers Start review on the architecture desk, not the reviews hub", () => {
+    render(
+      <ArchitectureIdentityDeskReviewsTable
+        architectureId={architectureId}
+        reviews={[]}
+        startReviewHref="/architecture/architectures/architecture-identity-001/reviews/new"
+      />,
+    );
+
+    expect(screen.getByTestId("architecture-identity-start-review")).toHaveAttribute(
+      "href",
+      "/architecture/architectures/architecture-identity-001/reviews/new",
+    );
+    expect(screen.queryByRole("link", { name: /reviews hub/i })).toBeNull();
+  });
+
+  it("SN-030: in-flight child rows link to Activity and show step status", () => {
+    useShellInFlightOperationsMock.mockReturnValue([
+      {
+        operationId: "run:review-2",
+        title: "Architecture review analysis",
+        href: "/architecture/architectures/architecture-identity-001/reviews/review-2?reviewTab=activity",
+        startedAtMs: 1_700_000_000_000,
+        stepLabel: "Agents running",
+        state: "Running",
+        runId: "review-2",
+        architectureId,
+        retainUntilConsumed: false,
+        terminalToastShown: false,
+      },
+    ]);
+
+    render(
+      <ArchitectureIdentityDeskReviewsTable
+        architectureId={architectureId}
+        reviews={reviews}
+        reviewCount={reviews.length}
+        startReviewHref={null}
+      />,
+    );
+
+    expect(screen.getByTestId("architecture-identity-review-link-review-2")).toHaveAttribute(
+      "href",
+      "/architecture/architectures/architecture-identity-001/reviews/review-2?reviewTab=activity",
+    );
+    expect(screen.getByTestId("architecture-identity-review-in-flight-review-2")).toHaveTextContent(
+      "Agents running",
+    );
+    expect(screen.getByTestId("architecture-identity-review-row-review-2")).toHaveAttribute(
+      "data-in-flight",
+      "true",
+    );
+    expect(screen.getByTestId("architecture-identity-review-link-review-1")).toHaveAttribute(
+      "href",
+      "/architecture/architectures/architecture-identity-001/reviews/review-1",
+    );
+  });
+
+  it("AO-35: highlights the sealed child row from finalize success query param", () => {
+    searchParamsMock.value = new URLSearchParams({ highlightReviewId: "review-1" });
+
+    render(
+      <ArchitectureIdentityDeskReviewsTable
+        architectureId={architectureId}
+        reviews={reviews}
+        reviewCount={reviews.length}
+        startReviewHref={null}
+      />,
+    );
+
+    expect(screen.getByTestId("architecture-identity-review-row-review-1")).toHaveAttribute(
+      "data-highlighted",
+      "true",
+    );
+    expect(screen.getByTestId("architecture-identity-review-row-review-2")).not.toHaveAttribute(
+      "data-highlighted",
+    );
+  });
+});

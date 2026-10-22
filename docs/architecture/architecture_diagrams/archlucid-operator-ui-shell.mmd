@@ -1,0 +1,19 @@
+flowchart TB
+  subgraph browser["Browser"]
+    MKT["Marketing routes<br/>public"]
+    OPS["Operator shell<br/>authenticated"]
+  end
+
+  subgraph next["archlucid-ui Next.js"]
+    BFF["Server BFF proxy<br/>scope + correlation headers"]
+    HEAVY["Deferred heavy clients<br/>Mermaid · React Flow · charts"]
+  end
+
+  subgraph api["ArchLucid.Api"]
+    V1["/v1/... REST"]
+  end
+
+  MKT --> BFF
+  OPS --> BFF
+  BFF --> V1
+  OPS -.-> HEAVY

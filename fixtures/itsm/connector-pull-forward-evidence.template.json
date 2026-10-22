@@ -1,0 +1,14 @@
+{
+  "schema": "archlucid.connector-pull-forward-evidence.v1",
+  "recordedUtc": "",
+  "signals": {
+    "connectorPrimaryBlockerPilotCount": 0,
+    "sowContingentOnConnectorCount": 0,
+    "manualHandoffDominatesSecondReviewCount": 0
+  },
+  "notes": [
+    "Increment signals only from sanitized paid-pilot retros — no customer identifiers.",
+    "Pull-forward requires >=2 independent non-zero signals per GTM_BACKLOG.md closed hold decisions.",
+    "Default posture remains HOLD when signals are zero."
+  ]
+}

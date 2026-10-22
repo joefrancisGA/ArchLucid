@@ -1,0 +1,50 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "cis-gcp-001",
+    "cis-gcp-002",
+    "cis-gcp-003",
+    "cis-gcp-004",
+    "cis-gcp-005",
+    "cis-gcp-006",
+    "cis-gcp-007",
+    "cis-gcp-008",
+    "cis-gcp-009",
+    "cis-gcp-010",
+    "cis-gcp-011",
+    "cis-gcp-012",
+    "cis-gcp-013",
+    "cis-gcp-014",
+    "cis-gcp-015",
+    "cis-gcp-016",
+    "cis-gcp-017",
+    "cis-gcp-018",
+    "cis-gcp-019",
+    "cis-gcp-020",
+    "cis-gcp-021",
+    "cis-gcp-022",
+    "cis-gcp-023",
+    "cis-gcp-024",
+    "cis-gcp-025",
+    "cis-gcp-026",
+    "cis-gcp-027",
+    "cis-gcp-028"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "priorityFloor": "P0",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "cis-gcp-foundations-v1",
+    "pack.displayName": "CIS Google Cloud Platform Foundation Benchmark",
+    "pack.category": "Security",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "CIS-aligned GCP hardening themes for architecture review. Not CIS benchmark pass/fail.",
+    "frameworkMappingDisclaimer": "CIS references are thematic alignment only.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/cis-gcp-foundations-rules-v1.json"
+  }
+}

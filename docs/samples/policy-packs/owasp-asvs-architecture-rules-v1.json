@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "kind": "archlucid.policyPack.curatedRules.v1",
+  "pack": {
+    "name": "OWASP Application Security Verification Standard 5.0 architecture baseline",
+    "description": "Architecture checks mapped to selected OWASP ASVS 5.0 requirements. Not an OWASP certification or application test.",
+    "version": "1.0.0",
+    "category": "Application Security",
+    "isDefault": true,
+    "suggestedPackType": "PlatformDefault",
+    "policyPackContentDocumentPath": "docs/samples/policy-packs/owasp-asvs-architecture.json"
+  },
+  "rules": [
+    {
+      "id": "owasp-asvs-001",
+      "title": "Authentication boundary",
+      "description": "Architecture evidence should identify the authentication authority, trust boundary, and protection applied before an application accepts a session.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Document the identity provider, token validation boundary, session lifetime, and failure behavior.",
+      "evidenceHints": ["identity", "network", "governance.RequiredControls"],
+      "frameworkMappings": [{"framework": "OWASP ASVS 5.0", "control": "V1.1.1"}],
+      "applicabilityConditions": {"cloudProvider": ["Azure"]}
+    },
+    {
+      "id": "owasp-asvs-002",
+      "title": "Credential and secret handling",
+      "description": "Architecture evidence should show where application credentials are stored, how access is granted, and how rotation is performed.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Use managed identity or a governed secret store and record rotation ownership.",
+      "evidenceHints": ["identity", "datastores[]", "governance.PolicyConstraints"],
+      "frameworkMappings": [{"framework": "OWASP ASVS 5.0", "control": "V2.1.1"}],
+      "applicabilityConditions": {"cloudProvider": ["Azure"]}
+    },
+    {
+      "id": "owasp-asvs-003",
+      "title": "Authorization enforcement",
+      "description": "Architecture evidence should identify the component that enforces resource and function authorization for every trust boundary.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Map roles, resource ownership, tenant scope, and denial behavior to the authorization boundary.",
+      "evidenceHints": ["identity", "services[].Tags", "governance.RequiredControls"],
+      "frameworkMappings": [{"framework": "OWASP ASVS 5.0", "control": "V4.1.1"}],
+      "applicabilityConditions": {"cloudProvider": ["Azure"]}
+    },
+    {
+      "id": "owasp-asvs-004",
+      "title": "Input validation boundary",
+      "description": "Architecture evidence should show where untrusted input is validated before it reaches interpreters, data stores, or downstream services.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Identify validation ownership and reject or constrain unexpected input at each service boundary.",
+      "evidenceHints": ["network", "services[].Tags", "metadata.ChangeDescription"],
+      "frameworkMappings": [{"framework": "OWASP ASVS 5.0", "control": "V5.1.1"}],
+      "applicabilityConditions": {"cloudProvider": ["Azure"]}
+    },
+    {
+      "id": "owasp-asvs-005",
+      "title": "Output and browser boundary",
+      "description": "Architecture evidence should identify the controls that prevent untrusted output from becoming active content in a client or browser.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Document encoding, content policy, and browser boundary ownership for user-controlled output.",
+      "evidenceHints": ["services[].Tags", "governance.RequiredControls"],
+      "frameworkMappings": [{"framework": "OWASP ASVS 5.0", "control": "V6.1.1"}],
+      "applicabilityConditions": {"cloudProvider": ["Azure"]}
+    },
+    {
+      "id": "owasp-asvs-006",
+      "title": "Cryptographic services",
+      "description": "Architecture evidence should identify approved cryptographic services, key ownership, and the data flows that require protection.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Map encryption in transit and at rest to keys, rotation, recovery, and service boundaries.",
+      "evidenceHints": ["datastores[]", "network", "governance.PolicyConstraints"],
+      "frameworkMappings": [{"framework": "OWASP ASVS 5.0", "control": "V7.1.1"}],
+      "applicabilityConditions": {"cloudProvider": ["Azure"]}
+    },
+    {
+      "id": "owasp-asvs-007",
+      "title": "Error and exception handling",
+      "description": "Architecture evidence should show how failures are contained, logged, and returned without exposing sensitive implementation details.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document error ownership, safe client responses, correlation identifiers, and protected diagnostic storage.",
+      "evidenceHints": ["logging", "services[].Tags", "governance.RequiredControls"],
+      "frameworkMappings": [{"framework": "OWASP ASVS 5.0", "control": "V8.1.1"}],
+      "applicabilityConditions": {"cloudProvider": ["Azure"]}
+    },
+    {
+      "id": "owasp-asvs-008",
+      "title": "Data protection and privacy",
+      "description": "Architecture evidence should identify sensitive data classes, their storage locations, retention, and access boundaries.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Connect data classification to storage, access, deletion, export, and monitoring controls.",
+      "evidenceHints": ["datastores[]", "governance.PolicyConstraints", "governance.RequiredControls"],
+      "frameworkMappings": [{"framework": "OWASP ASVS 5.0", "control": "V9.1.1"}],
+      "applicabilityConditions": {"cloudProvider": ["Azure"]}
+    },
+    {
+      "id": "owasp-asvs-009",
+      "title": "Communication security",
+      "description": "Architecture evidence should identify protected communication paths between clients, services, data stores, and external dependencies.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Use authenticated encrypted channels and document termination, validation, and private connectivity points.",
+      "evidenceHints": ["network", "services[].Tags", "datastores[]"],
+      "frameworkMappings": [{"framework": "OWASP ASVS 5.0", "control": "V10.1.1"}],
+      "applicabilityConditions": {"cloudProvider": ["Azure"]}
+    },
+    {
+      "id": "owasp-asvs-010",
+      "title": "Malicious code and dependency controls",
+      "description": "Architecture evidence should show how third-party components and build outputs are selected, scanned, and promoted.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Record dependency provenance, scanning, approval, artifact integrity, and rollback ownership.",
+      "evidenceHints": ["services[].Tags", "metadata.ChangeDescription", "governance.RequiredControls"],
+      "frameworkMappings": [{"framework": "OWASP ASVS 5.0", "control": "V14.1.1"}],
+      "applicabilityConditions": {"cloudProvider": ["Azure"]}
+    },
+    {
+      "id": "owasp-asvs-011",
+      "title": "Business logic abuse boundaries",
+      "description": "Architecture evidence should identify rate, quota, replay, and workflow controls for operations that can be abused at scale.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document abuse assumptions, throttling ownership, idempotency, and escalation signals.",
+      "evidenceHints": ["services[].Tags", "network", "governance.RequiredControls"],
+      "frameworkMappings": [{"framework": "OWASP ASVS 5.0", "control": "V11.1.1"}],
+      "applicabilityConditions": {"cloudProvider": ["Azure"]}
+    },
+    {
+      "id": "owasp-asvs-012",
+      "title": "Secure development architecture",
+      "description": "Architecture evidence should connect security requirements, design review, testing, deployment approval, and residual risk ownership.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Maintain a trace from security requirements to architecture decisions, test evidence, and approved residual risks.",
+      "evidenceHints": ["governance.RequiredControls", "governance.PolicyConstraints", "metadata.ChangeDescription"],
+      "frameworkMappings": [{"framework": "OWASP ASVS 5.0", "control": "V1.14.1"}],
+      "applicabilityConditions": {"cloudProvider": ["Azure"]}
+    }
+  ]
+}

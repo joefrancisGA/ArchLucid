@@ -1,0 +1,392 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "HTTP server request duration (OpenTelemetry semantic conventions). Adjust metric name to match your scrape (`http.server.request.duration` vs legacy `http.server.duration`).",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_request_duration_seconds_bucket[5m])) by (le)) or histogram_quantile(0.95, sum(rate(http_server_duration_milliseconds_bucket[5m])) by (le)) / 1000",
+          "legendFormat": "p95 latency (s)",
+          "refId": "A"
+        }
+      ],
+      "title": "HTTP p95 latency (SLO view)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "Target: near-zero 5xx rate. Tune `http_response_status_code` label to match exporter.",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_request_duration_seconds_count{http_response_status_code=~\"5..\"}[5m])) or sum(rate(http_server_duration_milliseconds_count{http_response_status_code=~\"5..\"}[5m]))",
+          "legendFormat": "5xx req/s",
+          "refId": "A"
+        }
+      ],
+      "title": "HTTP 5xx rate (error budget signal)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
+      "id": 3,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(archlucid_llm_prompt_tokens_total[5m]))",
+          "legendFormat": "prompt tok/s",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(archlucid_llm_completion_tokens_total[5m]))",
+          "legendFormat": "completion tok/s",
+          "refId": "B"
+        }
+      ],
+      "title": "LLM token throughput (cost / SLO companion)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "Observable gauge `archlucid_integration_event_outbox_dead_letter` \u2014 integration outbox rows in dead-letter state. Prometheus **`ArchLucidIntegrationEventOutboxDeadLetter`** fires when **`> 0`** for **10m**; panel marks **\u22651** red.",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
+      "id": 4,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "expr": "archlucid_integration_event_outbox_dead_letter",
+          "legendFormat": "dead-letter rows",
+          "refId": "A"
+        }
+      ],
+      "title": "Integration event outbox dead letters",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": ""
+      },
+      "description": "Actionable rows in dbo.RunExportBlobPushOutbox (OutboxOperationalMetricsHostedService).",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "min": 0,
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 24
+      },
+      "id": 5,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "expr": "archlucid_run_export_blob_push_outbox_pending",
+          "legendFormat": "pending",
+          "refId": "A"
+        }
+      ],
+      "title": "Run-export outbox pending",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": ""
+      },
+      "description": "Oldest actionable row age; ArchLucidRunExportBlobPushOutboxStale fires above 900s for 15m.",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "min": 0,
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 24
+      },
+      "id": 6,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "expr": "archlucid_run_export_blob_push_outbox_oldest_pending_age_seconds",
+          "legendFormat": "oldest age (s)",
+          "refId": "A"
+        }
+      ],
+      "title": "Run-export outbox oldest age",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": ""
+      },
+      "description": "Dead-letter rows; ArchLucidRunExportBlobPushOutboxDeadLetter fires when > 0 for 10m.",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 24
+      },
+      "id": 7,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "expr": "archlucid_run_export_blob_push_outbox_dead_letter",
+          "legendFormat": "dead-letter rows",
+          "refId": "A"
+        }
+      ],
+      "title": "Run-export outbox dead letters",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": ""
+      },
+      "description": "Processor success vs retry vs dead-letter counters (5m rate).",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 32
+      },
+      "id": 8,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(archlucid_run_export_blob_push_outbox_processed_success_total[5m]))",
+          "legendFormat": "success/s",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(archlucid_run_export_blob_push_outbox_retry_scheduled_total[5m]))",
+          "legendFormat": "retry/s",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(rate(archlucid_run_export_blob_push_outbox_dead_lettered_total[5m]))",
+          "legendFormat": "dead-letter/s",
+          "refId": "C"
+        }
+      ],
+      "title": "Run-export outbox processing rates",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "tags": [
+    "archlucid",
+    "slo"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "hide": 0,
+        "label": "Datasource",
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "",
+        "type": "datasource"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "ArchLucid \u2014 SLO signals (HTTP + LLM)",
+  "uid": "archlucid-slo",
+  "version": 3,
+  "weekStart": ""
+}

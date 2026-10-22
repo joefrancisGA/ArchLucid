@@ -1,0 +1,76 @@
+import { StatusTag } from "@/components/ui/status-tag";
+import { ENTERPRISE_STATUS_LABELS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
+
+export type IntegrationConnectChecklistStep = {
+  readonly id: string;
+  readonly label: string;
+  readonly complete: boolean;
+};
+
+export type IntegrationConnectChecklistProps = {
+  readonly title: string;
+  readonly titleHeadingLevel?: "cardTitle" | "helper";
+  readonly description?: string;
+  readonly steps: readonly IntegrationConnectChecklistStep[];
+  readonly emphasizedStepId: string;
+  readonly testIdPrefix: string;
+};
+
+/** Reusable three-step integration setup checklist for connector pages. */
+export function IntegrationConnectChecklist(props: IntegrationConnectChecklistProps): React.JSX.Element {
+  const titleClass =
+    props.titleHeadingLevel === "helper"
+      ? OPERATOR_TYPOGRAPHY.helper
+      : OPERATOR_TYPOGRAPHY.cardTitle;
+
+  return (
+    <div className="rounded-md border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800">
+      {props.titleHeadingLevel === "helper" ? (
+        <p className={cn("m-0", titleClass)}>{props.title}</p>
+      ) : (
+        <h2 className={cn("m-0", titleClass)}>{props.title}</h2>
+      )}
+      {props.description !== undefined ? (
+        <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{props.description}</p>
+      ) : null}
+      <ol
+        className={cn("m-0 mt-3 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body)}
+        aria-label={`${props.title} progress`}
+        data-testid={`${props.testIdPrefix}-setup-progress`}
+      >
+        {props.steps.map((step) => {
+          const emphasized = step.id === props.emphasizedStepId;
+          const statusLabel = step.complete
+            ? "Done"
+            : emphasized
+              ? ENTERPRISE_STATUS_LABELS["in-progress"]
+              : "Pending";
+
+          return (
+            <li
+              key={step.id}
+              className="flex items-start justify-between gap-3"
+              aria-current={emphasized ? "step" : undefined}
+              data-emphasized={emphasized ? "true" : undefined}
+              data-testid={`${props.testIdPrefix}-setup-step-${step.id}`}
+            >
+              <span
+                className={cn(
+                  step.complete ? "text-al-text-primary" : "text-al-text-secondary",
+                  emphasized ? "font-medium text-al-text-primary" : undefined,
+                )}
+              >
+                {step.label}
+              </span>
+              <StatusTag
+                kind={step.complete ? "ready" : emphasized ? "in-progress" : "neutral"}
+                label={statusLabel}
+              />
+            </li>
+          );
+        })}
+      </ol>
+    </div>
+  );
+}

@@ -1,0 +1,23 @@
+# Example for a UHG in-tenant install. Replace the placeholder ids before apply.
+# Do not put sql_admin_password here. Export TF_VAR_sql_admin_password instead.
+# Do not run terraform apply from this example until those values are real.
+
+location   = "eastus"
+name_prefix = "securenow"
+edition    = "uhg"
+
+enable_support_telemetry = false
+enable_private_ingress   = true
+enable_cost_collection   = false
+
+collection_reader_resource_group_ids = []
+collection_schedule_start_time       = "2030-01-01T01:00:00Z"
+
+entra_admin_login     = "SecureNow SQL admins"
+entra_admin_object_id = "00000000-0000-0000-0000-000000000001"
+
+api_container_image    = "customer.example.invalid/api@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+worker_container_image = "customer.example.invalid/worker@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+ui_container_image     = "customer.example.invalid/ui@sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+
+ui_redirect_uris = []

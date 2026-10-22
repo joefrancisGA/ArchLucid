@@ -1,0 +1,26 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["status", "change", "preconditions", "verification", "rollback"],
+  "properties": {
+    "status": { "type": "string", "enum": ["answered", "insufficient_evidence"] },
+    "change": { "type": "string" },
+    "preconditions": { "$ref": "#/$defs/citedSteps" },
+    "verification": { "$ref": "#/$defs/citedSteps" },
+    "rollback": { "$ref": "#/$defs/citedSteps" }
+  },
+  "$defs": {
+    "citedSteps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["text", "cites"],
+        "properties": {
+          "text": { "type": "string" },
+          "cites": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

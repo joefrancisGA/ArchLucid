@@ -1,0 +1,61 @@
+import { resolveSystemNotJobWorkingPeerSearchPageSubtitle } from "@/lib/system-not-job-search-bound-to-open-package";
+import { EVIDENCE_TRAIL_SEARCH } from "@/lib/search-surface-disambiguation";
+
+/** Search page H1 when no review filter is set (TB-2196). */
+export const SEARCH_PAGE_TITLE = EVIDENCE_TRAIL_SEARCH.title;
+
+/** Search page subtitle — tenant-scoped retrieval over finalized review records and the evidence trail. */
+export const SEARCH_PAGE_SUBTITLE = EVIDENCE_TRAIL_SEARCH.pageSubtitle;
+
+/** Buyer-polished lead — shorter, sponsor-safe retrieval framing (SXX). */
+export const SEARCH_PAGE_SUBTITLE_BUYER =
+  "Find findings, decisions, and finalized review records across your workspace evidence index.";
+
+export function searchReviewEvidencePageSubtitle(
+  buyerPolishedShell: boolean,
+  workingMode = false,
+): string {
+  const guidedCopy = buyerPolishedShell ? SEARCH_PAGE_SUBTITLE_BUYER : SEARCH_PAGE_SUBTITLE;
+
+  if (workingMode) {
+    return resolveSystemNotJobWorkingPeerSearchPageSubtitle(guidedCopy);
+  }
+
+  return guidedCopy;
+}
+
+export const SEARCH_PAGE_LOADING_STATUS = "Loading search review evidence…";
+
+export const SEARCH_LOAD_RETRY_LABEL = "Retry search";
+
+export const SEARCH_QUERY_PLACEHOLDER = EVIDENCE_TRAIL_SEARCH.queryPlaceholder;
+
+/** Visible label above the evidence query field (TB-2196). */
+export const SEARCH_QUERY_FIELD_LABEL = EVIDENCE_TRAIL_SEARCH.queryFieldLabel;
+
+export const SEARCH_REVIEW_FILTER_LABEL = "Limit to review (optional)";
+
+export const SEARCH_REVIEW_FILTER_PLACEHOLDER = "All reviews";
+
+export const SEARCH_EXAMPLE_QUERIES = [
+  "PHI boundary",
+  "SSO risk",
+  "data residency",
+  "approval conditions",
+  "audit export",
+] as const;
+
+export type SearchExampleQueryChip = {
+  readonly id: string;
+  readonly label: string;
+  readonly query: string;
+};
+
+/** High-yield example queries as actionable chips on the search form (SXX). */
+export const SEARCH_EXAMPLE_QUERY_CHIPS: readonly SearchExampleQueryChip[] = [
+  { id: "finding-title", label: "Finding title", query: "cross-account access finding" },
+  { id: "service-name", label: "Service name", query: "payments API service" },
+  { id: "policy-rule", label: "Policy rule", query: "encryption at rest policy" },
+];
+
+export const SEARCH_EXAMPLE_QUERIES_LINE = `Try: ${SEARCH_EXAMPLE_QUERIES.map((q) => `"${q}"`).join(", ")}`;

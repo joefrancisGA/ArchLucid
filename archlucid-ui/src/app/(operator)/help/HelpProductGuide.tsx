@@ -1,0 +1,366 @@
+"use client";
+
+import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { useMemo, useState, useEffect, useCallback } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
+import { Button } from "@/components/ui/button";
+import { BUYER_HELP_SPONSOR_STEP_CTA } from "@/lib/buyer/buyer-polish-copy";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { getShowcaseSponsorHref } from "@/lib/buyer/buyer-safe-review-navigation";
+import {
+  filterHelpCenterTopicsByQuery,
+  getHelpCenterDisplay,
+  getHelpCenterTier,
+  listHelpCenterAdvancedGuideTopics,
+  listHelpCenterFeaturedSlugs,
+  listHelpCenterGuideTopics,
+} from "@/lib/help/help-center-catalog";
+import { HELP_PAGE_LAYOUT, HELP_PAGE_TOC } from "@/lib/help/help-page-layout";
+import {
+  helpHubClearSearchHrefFromSearch,
+  helpHubSearchHrefFromSearch,
+  parseHelpHubSearchQuery,
+} from "@/lib/help/help-hub-search-url";
+import {
+  helpAdvancedTopicsHrefFromSearch,
+  parseHelpAdvancedTopicsOpenFromSearch,
+} from "@/lib/help/help-advanced-topics-url";
+import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
+import { howProductWorksTitle, usingProductTitle } from "@/lib/product-line/product-line-display-name";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { inAppHelpHref, type ProductDocumentationEntry } from "@/lib/product-documentation-registry";
+
+/**
+ * Static, immediately-rendered product help (no fetch). Developer doc index is secondary in HelpDocsClient.
+ */
+export function HelpProductGuide() {
+  const { localize, productLine } = useLocalizedProductCopy();
+  const router = useRouter();
+  const pathname = usePathname() ?? "/help";
+  const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
+  const urlTopicQuery = parseHelpHubSearchQuery(searchParams.get("q"));
+  const helpAdvancedTopicsOpenParam = searchParams.get("helpAdvancedTopicsOpen");
+  const { callerAuthorityRank } = useOperatorNavAuthority();
+  const isAdmin = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
+  const [showAdvanced, setShowAdvancedState] = useState(() =>
+    parseHelpAdvancedTopicsOpenFromSearch(helpAdvancedTopicsOpenParam),
+  );
+  const [topicQuery, setTopicQuery] = useState(urlTopicQuery);
+
+  useEffect(() => {
+    setTopicQuery(urlTopicQuery);
+  }, [urlTopicQuery]);
+
+  const syncShowAdvancedToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(helpAdvancedTopicsHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setShowAdvanced = useCallback(
+    (value: boolean | ((current: boolean) => boolean)) => {
+      setShowAdvancedState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncShowAdvancedToUrl(next);
+
+        return next;
+      });
+    },
+    [syncShowAdvancedToUrl],
+  );
+
+  useEffect(() => {
+    setShowAdvancedState(parseHelpAdvancedTopicsOpenFromSearch(helpAdvancedTopicsOpenParam));
+  }, [helpAdvancedTopicsOpenParam]);
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      const nextHref = helpHubSearchHrefFromSearch(searchParams.toString(), topicQuery);
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [router, searchParams, topicQuery]);
+
+  const clearTopicSearch = useCallback(() => {
+    setTopicQuery("");
+    router.replace(helpHubClearSearchHrefFromSearch(currentSearch), { scroll: false });
+  }, [currentSearch, router]);
+
+  const topicFilters = useMemo(
+    () => ({
+      showAdvanced,
+      isAdmin,
+      isInternalOperator: isArchLucidInternalOperatorShellEnv(),
+      productLineId: productLine,
+    }),
+    [isAdmin, productLine, showAdvanced],
+  );
+
+  const visibleTopics = useMemo(() => listHelpCenterGuideTopics(topicFilters), [topicFilters]);
+  const filteredTopics = useMemo(
+    () => filterHelpCenterTopicsByQuery(visibleTopics, topicQuery, productLine),
+    [productLine, topicQuery, visibleTopics],
+  );
+  const advancedTopics = useMemo(() => listHelpCenterAdvancedGuideTopics(topicFilters), [topicFilters]);
+
+  const featuredSlugs = useMemo(() => listHelpCenterFeaturedSlugs(productLine), [productLine]);
+  const featuredTopics = filteredTopics.filter((entry) => featuredSlugs.includes(entry.slug));
+  const expandedAdvancedTopics = filteredTopics.filter((entry) => advancedTopics.some((advanced) => advanced.slug === entry.slug));
+
+  return (
+    <div className={OPERATOR_LAYOUT.sectionStack} aria-labelledby="help-product-guide-heading">
+      <h2
+        id="help-product-guide-heading"
+        className={`m-0 ${OPERATOR_TYPOGRAPHY.sectionTitle}`}
+      >
+        {usingProductTitle(productLine)}
+      </h2>
+
+      <section aria-labelledby="help-product-guide-getting-started" className={HELP_PAGE_LAYOUT.contentPanel}>
+        <h3 id="help-product-guide-getting-started" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          Getting started
+        </h3>
+        <div className={cn(OPERATOR_LAYOUT.controlClusterGap, OPERATOR_TYPOGRAPHY.body)}>
+          <p className="m-0">
+            <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("getting-started", "how-archlucid-works")}>
+              {howProductWorksTitle(productLine)}
+            </Link>{" "}
+            — workflow from evidence through findings, approval, and exports.
+          </p>
+          <p className="m-0">
+            <Link className={OPERATOR_LINK.inline} href="/faq">
+              Product FAQ
+            </Link>{" "}
+            — evaluation, pricing, evidence, and security answers for architects and sponsors.
+          </p>
+          <ol className="m-0 list-decimal space-y-2 pl-5">
+            <li>
+              <Link className={OPERATOR_LINK.inline} href="/architecture/reviews/new">
+                Start a review
+              </Link>{" "}
+              from a brief, diagram, document, or cloud evidence.
+            </li>
+            <li>Review findings and missing evidence.</li>
+            <li>Commit the review.</li>
+            <li>
+              Open the <strong>evidence trail</strong>, <strong>audit trail</strong>, and{" "}
+              <strong>finalized review record</strong>.
+            </li>
+            <li>
+              Share the{" "}
+              <Link className={OPERATOR_LINK.inline} href={getShowcaseSponsorHref()}>
+                sponsor report
+              </Link>{" "}
+              or{" "}
+              <Link className={OPERATOR_LINK.inline} href="/insights/sponsor-report">
+                value report
+              </Link>
+              .
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section aria-labelledby="help-product-guide-completed-review" className={HELP_PAGE_LAYOUT.contentPanel}>
+        <h3 id="help-product-guide-completed-review" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          Working with a completed review
+        </h3>
+        <ol className={cn("m-0 list-decimal space-y-2 pl-5", OPERATOR_TYPOGRAPHY.body)}>
+          <li>
+            <Link className={OPERATOR_LINK.inline} href={getShowcaseSponsorHref()}>
+              {BUYER_HELP_SPONSOR_STEP_CTA}
+            </Link>{" "}
+            — start with the business decision and monitored risks.
+          </li>
+          <li>
+            Open the <strong>finalized review record</strong> — the immutable package locked when this review was finalized.
+          </li>
+          <li>
+            Follow the{" "}
+            <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("evidence-trail")}>
+              evidence trail
+            </Link>{" "}
+            to see how findings tie to decisions and artifacts.
+          </li>
+          <li>
+            Review{" "}
+            <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("governance-approval")}>
+              approval
+            </Link>{" "}
+            and the{" "}
+            <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("audit-trail")}>
+              audit trail
+            </Link>{" "}
+            for accountability.
+          </li>
+          <li>
+            Use{" "}
+            <Link className={OPERATOR_LINK.inline} href="/insights/ask-review-questions">
+              Ask
+            </Link>{" "}
+            for evidence-backed questions in the context of the active review.
+          </li>
+        </ol>
+      </section>
+
+      <p className={`m-0 ${OPERATOR_TYPOGRAPHY.helper}`}>
+        {localize(
+          "ArchLucid turns an architecture review into an export-ready package: decisions, findings, artifacts, and an evidence trail you can export for diligence.",
+        )}
+      </p>
+
+      <section aria-labelledby="help-product-guide-troubleshooting" className={HELP_PAGE_LAYOUT.contentPanel}>
+        <h3 id="help-product-guide-troubleshooting" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          Troubleshooting
+        </h3>
+        <div className={cn(OPERATOR_LAYOUT.controlClusterGap, OPERATOR_TYPOGRAPHY.body)}>
+          <p className={`m-0 ${OPERATOR_TYPOGRAPHY.cardTitle}`}>If something fails:</p>
+          <ol className="m-0 list-decimal space-y-2 pl-5">
+            <li>Refresh once.</li>
+            <li>Check whether your session expired — return to{" "}
+              <Link className={OPERATOR_LINK.inline} href="/auth/signin">
+                Sign in
+              </Link>{" "}
+              if needed.
+            </li>
+            <li>Confirm the selected workspace.</li>
+            <li>Download a support bundle (below).</li>
+            <li>{localize("Contact your tenant admin or ArchLucid support.")}</li>
+          </ol>
+          <SupportBundleDownloadButton showDiagnosticsLink={isAdmin} />
+          <p className="m-0 mt-3">
+            <Link className={cn(OPERATOR_LINK.inline, "inline-flex min-h-6 items-center")} href={inAppHelpHref("troubleshooting")}>
+              Open full troubleshooting guide
+            </Link>
+          </p>
+        </div>
+      </section>
+
+      <section aria-labelledby="help-in-app-topics" className={OPERATOR_LAYOUT.sectionHeadingStack}>
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h3 id="help-in-app-topics" className={`m-0 ${OPERATOR_TYPOGRAPHY.sectionTitle}`}>
+              Guides
+            </h3>
+            <p className={`m-0 mt-1 ${OPERATOR_TYPOGRAPHY.helper}`}>
+              Product help for common tasks. Expand for admin and integration guides.
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            aria-expanded={showAdvanced}
+            onClick={() => {
+              setShowAdvanced((current) => !current);
+            }}
+          >
+            {showAdvanced ? "Hide advanced topics" : "Show advanced topics"}
+          </Button>
+        </div>
+
+        <label className={cn("block", OPERATOR_TYPOGRAPHY.navLabel, "text-al-text-primary")} htmlFor="help-topic-search">
+          Search guides
+        </label>
+        <input
+          id="help-topic-search"
+          type="search"
+          value={topicQuery}
+          onChange={(event) => {
+            setTopicQuery(event.target.value);
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "Escape" && topicQuery.trim().length > 0) {
+              event.preventDefault();
+              clearTopicSearch();
+            }
+          }}
+          placeholder="Filter guides by title or summary"
+          className={cn("max-w-xl", HELP_PAGE_TOC.referenceSearchInput)}
+          autoComplete="off"
+        />
+
+        <HelpTopicGrid topics={featuredTopics} heading="Start here" productLine={productLine} />
+
+        {showAdvanced && expandedAdvancedTopics.length > 0 ? (
+          <>
+            <HelpTopicGrid
+              topics={expandedAdvancedTopics.filter((entry) => getHelpCenterTier(entry) === "admin")}
+              heading="Admin and integration"
+              productLine={productLine}
+            />
+            <HelpTopicGrid
+              topics={expandedAdvancedTopics.filter((entry) => getHelpCenterTier(entry) === "internal")}
+              heading="System administration and engineering"
+              productLine={productLine}
+            />
+            <HelpTopicGrid
+              topics={expandedAdvancedTopics.filter((entry) => getHelpCenterTier(entry) === "product")}
+              heading="More product guides"
+              productLine={productLine}
+            />
+          </>
+        ) : null}
+
+        {filteredTopics.length === 0 ? (
+          <p className={`m-0 ${OPERATOR_TYPOGRAPHY.helper}`}>No guides match your search.</p>
+        ) : null}
+      </section>
+    </div>
+  );
+}
+
+type HelpTopicGridProps = {
+  topics: readonly ProductDocumentationEntry[];
+  heading: string;
+  productLine: ReturnType<typeof useLocalizedProductCopy>["productLine"];
+};
+
+function HelpTopicGrid({ topics, heading, productLine }: HelpTopicGridProps) {
+  if (topics.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className={OPERATOR_LAYOUT.sectionHeadingStack}>
+      <h4 className={`m-0 ${OPERATOR_NAV_GROUP_LABEL}`}>
+        {heading}
+      </h4>
+      <ul className="m-0 grid gap-2 sm:grid-cols-2">
+        {topics.map((topic) => {
+          const display = getHelpCenterDisplay(topic, productLine);
+
+          return (
+            <li key={topic.slug}>
+              <Link
+                href={inAppHelpHref(topic.slug)}
+                className={cn(
+                  "block rounded-md border border-neutral-200 bg-white px-3 py-2 shadow-sm hover:border-neutral-300 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-neutral-700",
+                  OPERATOR_TYPOGRAPHY.body,
+                )}
+              >
+                <span className={OPERATOR_TYPOGRAPHY.cardTitle}>{display.title}</span>
+                <span className={cn("mt-1 block", OPERATOR_TYPOGRAPHY.helper)}>{display.summary}</span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}

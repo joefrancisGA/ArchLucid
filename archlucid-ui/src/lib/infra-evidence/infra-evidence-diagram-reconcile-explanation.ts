@@ -1,0 +1,124 @@
+import { formatAzureResourceDisplay, normalizeSecureNowResourceNameForDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
+import {
+  formatDiagramReconcileMatchKindLabel,
+} from "@/lib/infra-evidence/diagram-reconcile-match-kind-display";
+import {
+  DIAGRAM_INFRASTRUCTURE_MATCH_KINDS,
+  type DiagramInfrastructureCorrespondenceRow,
+} from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-types";
+
+export function formatDiagramReconcileResourceLabelForDisplay(
+  row: DiagramInfrastructureCorrespondenceRow,
+): string {
+  const diagramNodeLabel = row.diagramNodeLabel?.trim() ?? "";
+
+  if (diagramNodeLabel.length > 0) {
+    return normalizeSecureNowResourceNameForDisplay(diagramNodeLabel);
+  }
+
+  const azureResourceId = row.azureResourceId?.trim() ?? "";
+
+  if (azureResourceId.length > 0) {
+    return formatAzureResourceDisplay(azureResourceId).primaryLabel;
+  }
+
+  return row.correspondenceId;
+}
+
+export const DIAGRAM_RECONCILE_NOTES_DO_NOT_RAISE_BAND_LINE =
+  "Reconciliation notes and AI rationale do not raise the confidence band." as const;
+
+/** Deterministic explanation column — AI rationale only on Possible/Unknown rows. */
+export function formatDiagramReconcileExplanation(row: DiagramInfrastructureCorrespondenceRow): string {
+  const parts: string[] = [];
+
+  parts.push(`Match kind: ${formatDiagramReconcileMatchKindLabel(row.matchKind)}.`);
+
+  if (row.matchKind === DIAGRAM_INFRASTRUCTURE_MATCH_KINDS.unknown) {
+    parts.push("Match severity was not stored.");
+  }
+
+  if (row.explainText == null) {
+    parts.push("Correspondence explanation was not stored.");
+  }
+
+  if (row.explainText != null && row.explainText.trim().length > 0) {
+    parts.push(row.explainText.trim());
+  }
+
+  const includeAiRationale =
+    row.matchKind === DIAGRAM_INFRASTRUCTURE_MATCH_KINDS.possible
+    || row.matchKind === DIAGRAM_INFRASTRUCTURE_MATCH_KINDS.unknown;
+
+  if (includeAiRationale && row.aiRationale != null && row.aiRationale.trim().length > 0) {
+    parts.push(`AI rationale: ${row.aiRationale.trim()}`);
+  }
+
+  if (row.securityDiscrepancy) {
+    parts.push("Security discrepancy flagged between diagram label and inventory posture.");
+  }
+
+  if (includeAiRationale && row.aiRationale != null && row.aiRationale.trim().length > 0) {
+    parts.push(DIAGRAM_RECONCILE_NOTES_DO_NOT_RAISE_BAND_LINE);
+  }
+
+  return parts.join(" ");
+}
+
+export function buildDiagramReconcileOperationalFindingFingerprint(
+  runId: string,
+  snapshotId: string,
+  correspondenceId: string,
+): string {
+  return `diagram-reconcile:${runId}:${snapshotId}:${correspondenceId}`;
+}
+
+export function buildDiagramReconcileOperationalFindingRequestItem(
+  row: DiagramInfrastructureCorrespondenceRow,
+  runId: string,
+  snapshotId: string,
+): {
+  provider: number;
+  sourceSystem: string;
+  sourceFindingId: string;
+  cloudResourceId?: string | null;
+  externalResourceId?: string | null;
+  resourceType?: string | null;
+  title: string;
+  description?: string | null;
+  severity?: string | null;
+  status?: string;
+  rawEvidenceReference?: string | null;
+  metadata?: Record<string, string | null>;
+} {
+  const label = formatDiagramReconcileResourceLabelForDisplay(row);
+  const severity =
+    row.matchKind === DIAGRAM_INFRASTRUCTURE_MATCH_KINDS.conflict
+      ? "high"
+      : row.matchKind === DIAGRAM_INFRASTRUCTURE_MATCH_KINDS.diagramOnly
+        || row.matchKind === DIAGRAM_INFRASTRUCTURE_MATCH_KINDS.infrastructureOnly
+        ? "medium"
+        : "low";
+
+  return {
+    provider: 1,
+    sourceSystem: "DiagramReconciliation",
+    sourceFindingId: buildDiagramReconcileOperationalFindingFingerprint(runId, snapshotId, row.correspondenceId),
+    cloudResourceId: row.cloudResourceId,
+    externalResourceId: row.azureResourceId,
+    resourceType: row.resourceType,
+    title: `Diagram reconciliation — ${row.matchKind}: ${label}`,
+    description: formatDiagramReconcileExplanation(row),
+    severity,
+    status: "Open",
+    rawEvidenceReference: `run:${runId};snapshot:${snapshotId};correspondence:${row.correspondenceId}`,
+    metadata: {
+      runId,
+      snapshotId,
+      correspondenceId: row.correspondenceId,
+      matchKind: row.matchKind ?? "",
+      confidenceBand: row.confidenceBand,
+      diagramNodeId: row.diagramNodeId,
+    },
+  };
+}

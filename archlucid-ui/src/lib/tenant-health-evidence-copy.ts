@@ -1,0 +1,21 @@
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+
+export const TENANT_HEALTH_CANONICAL_PATH = "/internal/tenant-health" as const;
+
+export const TENANT_HEALTH_HELP_TOPIC_LABEL = "How tenant health works" as const;
+
+export const TENANT_HEALTH_FOLLOW_UPS_TITLE = "Where to go next";
+
+export const TENANT_HEALTH_SOURCES_INTRO =
+  "Use these follow-ups when a low engagement score needs operational checks, isolation guidance, or product orientation.";
+
+/** Operator Sources — no self-href to tenant-health. */
+export const TENANT_HEALTH_SOURCES: readonly EvidenceSourceLink[] = [
+  { label: "System health", href: "/administration/system-health" },
+  { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
+  { label: "Data handling & isolation", href: inAppHelpHref("data-handling") },
+  { label: "Troubleshooting", href: inAppHelpHref("troubleshooting") },
+  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
+] as const;

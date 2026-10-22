@@ -1,0 +1,10 @@
+{
+  "status": "answered",
+  "sentences": [
+    {
+      "text": "Six access paths lead from people and pipelines to customer data in two storage accounts.",
+      "cites": ["P1", "P2", "P3", "P4", "P5", "P6"]
+    },
+    { "text": "All six pass through one deployment identity, payments-deploy.", "cites": ["H4"] }
+  ]
+}

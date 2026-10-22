@@ -1,0 +1,117 @@
+using ArchLucid.Core.Identity;
+using ArchLucid.Persistence.Identity;
+
+using FluentAssertions;
+
+namespace ArchLucid.Persistence.Tests.Identity;
+
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
+public sealed class InMemoryPlatformTenantAuthRecoveryGrantRepositoryCoverageTests
+{
+    [Fact]
+    public async Task Insert_active_lookup_revoke_and_notify_cover_branches()
+    {
+        InMemoryPlatformTenantAuthRecoveryGrantRepository sut = new();
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+
+        PlatformTenantAuthRecoveryGrantRecord stored = await sut.InsertAsync(
+            new PlatformTenantAuthRecoveryGrantRecord
+            {
+                TenantId = tenantId,
+                NormalizedDomain = "example.com",
+                Reason = "lost-idp",
+                EvidenceReference = "ticket-1",
+                GrantedByActorId = "ops",
+                GrantedUtc = now.AddMinutes(-10),
+                ExpiresUtc = now.AddHours(1),
+            },
+            CancellationToken.None);
+
+        stored.GrantId.Should().NotBe(Guid.Empty);
+        (await sut.GetByIdAsync(stored.GrantId, CancellationToken.None))!.NormalizedDomain.Should().Be("example.com");
+
+        (await sut.GetActiveByTenantAndDomainAsync(tenantId, "example.com", now, CancellationToken.None))!.GrantId
+            .Should()
+            .Be(stored.GrantId);
+        (await sut.GetActiveByTenantAndDomainAsync(tenantId, "other.com", now, CancellationToken.None))
+            .Should()
+            .BeNull();
+
+        (await sut.RevokeAsync(Guid.NewGuid(), "ops", now, CancellationToken.None)).Should().BeFalse();
+        (await sut.RevokeAsync(stored.GrantId, "ops", now, CancellationToken.None)).Should().BeTrue();
+        (await sut.GetActiveByTenantAndDomainAsync(tenantId, "example.com", now, CancellationToken.None))
+            .Should()
+            .BeNull();
+
+        await sut.MarkTenantNotifiedAsync(stored.GrantId, now.AddMinutes(1), CancellationToken.None);
+        await sut.MarkTenantNotifiedAsync(Guid.NewGuid(), now, CancellationToken.None);
+
+        (await sut.GetByIdAsync(stored.GrantId, CancellationToken.None))!.TenantNotifiedUtc
+            .Should()
+            .Be(now.AddMinutes(1));
+    }
+
+    [Fact]
+    public async Task InsertAsync_throws_when_grant_id_already_exists()
+    {
+        InMemoryPlatformTenantAuthRecoveryGrantRepository sut = new();
+        Guid grantId = Guid.NewGuid();
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+
+        PlatformTenantAuthRecoveryGrantRecord first = new()
+        {
+            GrantId = grantId,
+            TenantId = Guid.NewGuid(),
+            NormalizedDomain = "example.com",
+            Reason = "lost-idp",
+            EvidenceReference = "ticket-1",
+            GrantedByActorId = "ops",
+            GrantedUtc = now.AddMinutes(-10),
+            ExpiresUtc = now.AddHours(1),
+        };
+
+        await sut.InsertAsync(first, CancellationToken.None);
+
+        Func<Task> duplicate = () => sut.InsertAsync(
+            new PlatformTenantAuthRecoveryGrantRecord
+            {
+                GrantId = grantId,
+                TenantId = Guid.NewGuid(),
+                NormalizedDomain = "other.com",
+                Reason = "lost-idp",
+                EvidenceReference = "ticket-2",
+                GrantedByActorId = "ops",
+                GrantedUtc = now,
+                ExpiresUtc = now.AddHours(2),
+            },
+            CancellationToken.None);
+
+        await duplicate.Should().ThrowAsync<DuplicatePlatformTenantAuthRecoveryGrantException>();
+        (await sut.GetByIdAsync(grantId, CancellationToken.None))!.NormalizedDomain.Should().Be("example.com");
+    }
+
+    [Fact]
+    public async Task RevokeAsync_second_call_returns_false_when_grant_already_revoked()
+    {
+        InMemoryPlatformTenantAuthRecoveryGrantRepository sut = new();
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+
+        PlatformTenantAuthRecoveryGrantRecord stored = await sut.InsertAsync(
+            new PlatformTenantAuthRecoveryGrantRecord
+            {
+                TenantId = Guid.NewGuid(),
+                NormalizedDomain = "example.com",
+                Reason = "lost-idp",
+                EvidenceReference = "ticket-1",
+                GrantedByActorId = "ops",
+                GrantedUtc = now.AddMinutes(-10),
+                ExpiresUtc = now.AddHours(1),
+            },
+            CancellationToken.None);
+
+        (await sut.RevokeAsync(stored.GrantId, "ops", now, CancellationToken.None)).Should().BeTrue();
+        (await sut.RevokeAsync(stored.GrantId, "ops", now, CancellationToken.None)).Should().BeFalse();
+    }
+}

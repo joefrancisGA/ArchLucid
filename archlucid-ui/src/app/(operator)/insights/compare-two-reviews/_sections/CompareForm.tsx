@@ -1,0 +1,367 @@
+"use client";
+
+import Link from "next/link";
+
+import { ComparePageHeaderActions } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePageHeaderActions";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { CompareSourcesOrientationStrip } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareSourcesOrientationStrip";
+import { LayerHeader } from "@/components/LayerHeader";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { OperatorRelatedSurfacesDisclosure } from "@/components/operator/OperatorRelatedSurfacesDisclosure";
+import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
+import { ValidateCompareVocabularyRail } from "@/components/ValidateCompareVocabularyRail";
+import { ImpactPreviewCompareVocabularyRail } from "@/components/ImpactPreviewCompareVocabularyRail";
+import { CompareContinueLastComparisonRow } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareContinueLastComparisonRow";
+import { CompareNextReviewFooterClient } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareNextReviewFooterClient";
+import { CompareEmptyResultsPlaceholder } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareEmptyResultsPlaceholder";
+import { CompareHowComparisonWorksSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareHowComparisonWorksSection";
+import { CompareRelatedReviewLinks } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareRelatedReviewLinks";
+import { CompareSampleComparisonAction } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareSampleComparisonAction";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+import { CompareDemoQuickPick } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareDemoQuickPick";
+import { CompareNaturalPairSuggestion } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareNaturalPairSuggestion";
+import { CompareComparisonDimensionsPreview } from "./CompareComparisonDimensionsPreview";
+import { CompareInsufficientFinalizedEmptyState } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareInsufficientFinalizedEmptyState";
+import { CompareLastRequestOutcomeDetails } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareLastRequestOutcomeDetails";
+import { CompareResultsPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareResultsPanel";
+import { CompareAdvancedDiagnosticsSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareAdvancedDiagnosticsSection";
+import { CompareRunPickersSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareRunPickersSection";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
+import { compareTwoReviewsHref } from "@/lib/compare-two-reviews-route";
+import { COMPARE_CLAIM_DISCIPLINE } from "@/lib/compare-evidence-copy";
+import {
+  COMPARE_PAGE_SUBTITLE_BUYER,
+  COMPARE_PAGE_LEAD,
+  compareBuyerOverview,
+  COMPARE_START_HERE_HELPER,
+  COMPARE_TWO_REVIEWS_FIRST_VIEWPORT_TEST_ID,
+  COMPARE_TWO_REVIEWS_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  COMPARE_TWO_REVIEWS_PRIMARY_CONTENT_ID,
+  COMPARE_TWO_REVIEWS_SKIP_LINK_LABEL,
+  COMPARE_TWO_REVIEWS_SKIP_TARGET_ID,
+  COMPARE_TWO_REVIEWS_WORKSPACE_TEST_ID,
+} from "@/lib/compare-two-reviews-page-copy";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { cn } from "@/lib/utils";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
+import { useCompareForm } from "@/app/(operator)/insights/compare-two-reviews/_sections/use-compare-form";
+import { resolveSystemNotJobWorkingReviewOpenHref } from "@/lib/system-not-job-nested-review-job-mint";
+
+export type CompareFormProps = {
+  readonly basePathname?: string;
+};
+
+/**
+ * Compare form: two review IDs; structured manifest diff and optional legacy diff on Compare; optional AI explanation.
+ */
+export function CompareForm(props: CompareFormProps = {}) {
+  const evalChrome = useProductionEvalChrome();
+  const { productLine } = useProductLine();
+  const {
+    comparePagePath,
+    comparePageSubtitle,
+    buyerComparePageTitle,
+    buyerComparePrimaryActionLabel,
+    leftRunId,
+    rightRunId,
+    setLeftRunId,
+    setRightRunId,
+    result,
+    golden,
+    legacyFailure,
+    goldenFailure,
+    legacyMalformed,
+    goldenMalformed,
+    loading,
+    aiExplanation,
+    aiFailure,
+    aiMalformed,
+    aiLoading,
+    comparisonNarrative,
+    comparisonNarrativeLoading,
+    lastComparedPair,
+    leftPickedSummary,
+    rightPickedSummary,
+    leftSummaryBlockedReason,
+    rightSummaryBlockedReason,
+    continueLastPair,
+    syncSelectionToUrl,
+    handleLeftRunIdChange,
+    handleRightRunIdChange,
+    setLeftPickedSummary,
+    setRightPickedSummary,
+    leftTrim,
+    rightTrim,
+    sameCanonicalRunIdsBlocked,
+    leftFootnote,
+    rightFootnote,
+    pairAligned,
+    showStaleInputsWarning,
+    compareHasRenderableOutcome,
+    compareInsightFirstLayout,
+    compareChecklistSteps,
+    compareChecklistEmphasizedStepId,
+    onCompare,
+    loadAiExplanation,
+    hasResultsToNavigate,
+    buyerPolished,
+    finalizedCount,
+    leftPickerLabel,
+    rightPickerLabel,
+    pickClaimsIntakePair,
+    urlPairComplete,
+    showInsufficientFinalized,
+    showEmptyComparisonOutput,
+    loadBuyerSampleComparison,
+    showRelatedReviewLinks,
+    showContinueLastComparisonRow,
+    architectureId,
+  } = useCompareForm({ basePathname: props.basePathname });
+
+  const pageBody = (
+    <>
+      <OperatorPageHeader
+        navHref={comparePagePath}
+        title={buyerPolished ? buyerComparePageTitle : "Compare two reviews"}
+        titleTestId="compare-page-heading"
+        subtitle={buyerPolished ? COMPARE_PAGE_SUBTITLE_BUYER : comparePageSubtitle}
+        subtitleClassName={
+          buyerPolished ? cn("max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody) : "max-w-3xl"
+        }
+        claimDiscipline={buyerPolished ? COMPARE_CLAIM_DISCIPLINE : undefined}
+        claimDisciplineTestId={buyerPolished ? COMPARE_TWO_REVIEWS_HEADER_CLAIM_DISCIPLINE_TEST_ID : undefined}
+        actions={<ComparePageHeaderActions buyerPolished={buyerPolished} />}
+      />
+      {!buyerPolished ? (
+        <OperatorRelatedSurfacesDisclosure testId="compare-related-surfaces-disclosure">
+          <ValidateCompareVocabularyRail currentSurfaceId="compare" />
+          <ImpactPreviewCompareVocabularyRail currentSurfaceId="compare" />
+          <PageCapabilityBoundaryStrip surfaceId="compare" className="mb-0" />
+        </OperatorRelatedSurfacesDisclosure>
+      ) : null}
+      {showInsufficientFinalized ? (
+        <CompareInsufficientFinalizedEmptyState
+          finalizedCount={finalizedCount}
+          onLoadSampleComparison={loadBuyerSampleComparison}
+        />
+      ) : null}
+      {evalChrome && isStaticDemoPayloadFallbackEnabled() ? (
+        <CompareDemoQuickPick onPickClaimsIntake={pickClaimsIntakePair} />
+      ) : null}
+      {showContinueLastComparisonRow && continueLastPair !== null ? (
+        <CompareContinueLastComparisonRow pair={continueLastPair} />
+      ) : null}
+      {!evalChrome || !isStaticDemoPayloadFallbackEnabled() ? (
+        <CompareNaturalPairSuggestion
+          leftRunId={leftRunId}
+          rightRunId={rightRunId}
+          onApplyPair={(priorRunId, laterRunId) => {
+            setLeftRunId(priorRunId);
+            setRightRunId(laterRunId);
+            syncSelectionToUrl(priorRunId, laterRunId);
+          }}
+        />
+      ) : null}
+      {buyerPolished ? (
+        <div
+          id={COMPARE_TWO_REVIEWS_SKIP_TARGET_ID}
+          data-testid={COMPARE_TWO_REVIEWS_FIRST_VIEWPORT_TEST_ID}
+          className={cn(
+            "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+            OPERATOR_LAYOUT.sectionStack,
+          )}
+        >
+          <div className="space-y-4" data-testid="compare-two-reviews-buyer-intro">
+            <p
+              className={cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody)}
+              data-testid="compare-two-reviews-intro"
+            >
+              {COMPARE_PAGE_LEAD}
+            </p>
+          </div>
+          <CompareComparisonDimensionsPreview />
+          <div className="flex flex-wrap items-center gap-2">
+            {showRelatedReviewLinks ? (
+              <CompareRelatedReviewLinks
+                baselineRunId={leftTrim}
+                updatedRunId={rightTrim}
+                preferredRunId={lastComparedPair?.right ?? rightTrim}
+              />
+            ) : null}
+            {showEmptyComparisonOutput ? (
+              <CompareSampleComparisonAction onLoadSampleComparison={loadBuyerSampleComparison} />
+            ) : null}
+          </div>
+          <p
+            className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="compare-two-reviews-start-here-helper"
+          >
+            {COMPARE_START_HERE_HELPER}
+          </p>
+        </div>
+      ) : null}
+      {buyerPolished ? (
+        <p
+          className={cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody)}
+          data-testid="compare-two-reviews-overview"
+        >
+          {compareBuyerOverview(productLine)}
+        </p>
+      ) : null}
+      <section
+        className={cn("flex flex-col", OPERATOR_LAYOUT.unrelatedClusterGap)}
+        data-testid={COMPARE_TWO_REVIEWS_WORKSPACE_TEST_ID}
+      >
+
+        <IntegrationConnectChecklist
+          title="Compare checklist"
+          steps={compareChecklistSteps}
+          emphasizedStepId={compareChecklistEmphasizedStepId}
+          testIdPrefix="compare-two-reviews"
+        />
+
+        {urlPairComplete ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="compare-two-reviews-run-scope-banner"
+          >
+            {"Comparing reviews "}
+            <span className="font-mono text-al-text-primary">{leftTrim}</span>
+            {" and "}
+            <span className="font-mono text-al-text-primary">{rightTrim}</span>
+            {" · "}
+            <Link className={OPERATOR_LINK.inline} href={compareTwoReviewsHref()}>
+              Clear comparison scope
+            </Link>
+            {" · "}
+            <Link
+              className={OPERATOR_LINK.inline}
+              href={resolveSystemNotJobWorkingReviewOpenHref(rightTrim, architectureId)}
+            >
+              Open updated review
+            </Link>
+          </p>
+        ) : null}
+
+        <CompareRunPickersSection
+          leftPickerLabel={leftPickerLabel}
+          rightPickerLabel={rightPickerLabel}
+          leftRunId={leftRunId}
+          rightRunId={rightRunId}
+          onLeftRunIdChange={handleLeftRunIdChange}
+          onRightRunIdChange={handleRightRunIdChange}
+          leftFootnote={leftFootnote}
+          rightFootnote={rightFootnote}
+          leftTrim={leftTrim}
+          rightTrim={rightTrim}
+          loading={loading}
+          aiLoading={aiLoading}
+          pairAligned={pairAligned}
+          sameCanonicalRunIdsBlocked={sameCanonicalRunIdsBlocked}
+          onCompare={onCompare}
+          onSummarizeForSponsor={loadAiExplanation}
+          onLeftRunPicked={setLeftPickedSummary}
+          onRightRunPicked={setRightPickedSummary}
+          leftSummaryBlockedReason={leftSummaryBlockedReason}
+          rightSummaryBlockedReason={rightSummaryBlockedReason}
+          useBuyerFacingRunLabels={buyerPolished}
+          summarizeButtonLabel={buyerPolished ? "Summarize for leadership" : "Summarize for sponsor"}
+          compareButtonLabel={buyerPolished ? buyerComparePrimaryActionLabel : "Compare two reviews"}
+          collapseBelowResults={(compareInsightFirstLayout && buyerPolished) || urlPairComplete}
+        />
+
+        {!compareInsightFirstLayout && showEmptyComparisonOutput && !urlPairComplete ? (
+          <CompareEmptyResultsPlaceholder />
+        ) : null}
+
+        {urlPairComplete ? (
+          <CompareResultsPanel
+            showStaleInputsWarning={showStaleInputsWarning}
+            lastComparedPair={lastComparedPair}
+            leftPickedSummary={leftPickedSummary}
+            rightPickedSummary={rightPickedSummary}
+            loading={loading}
+            leftTrim={leftTrim}
+            rightTrim={rightTrim}
+            aiLoading={aiLoading}
+            legacyFailure={legacyFailure}
+            legacyMalformed={legacyMalformed}
+            goldenFailure={goldenFailure}
+            goldenMalformed={goldenMalformed}
+            aiFailure={aiFailure}
+            aiMalformed={aiMalformed}
+            hasResultsToNavigate={hasResultsToNavigate}
+            golden={golden}
+            result={result}
+            aiExplanation={aiExplanation}
+            comparisonNarrative={comparisonNarrative}
+            comparisonNarrativeLoading={comparisonNarrativeLoading}
+            buyerPolished={buyerPolished}
+            resultsFirst={compareInsightFirstLayout}
+          />
+        ) : null}
+      </section>
+
+      {urlPairComplete ? (
+        <CompareLastRequestOutcomeDetails
+          pairAligned={pairAligned}
+          loading={loading}
+          lastComparedPair={lastComparedPair}
+          showStaleInputsWarning={showStaleInputsWarning}
+          leftPickedSummary={leftPickedSummary}
+          rightPickedSummary={rightPickedSummary}
+          golden={golden}
+          goldenFailure={goldenFailure}
+          goldenMalformed={goldenMalformed}
+          result={result}
+          legacyFailure={legacyFailure}
+          legacyMalformed={legacyMalformed}
+          buyerPolished={buyerPolished}
+        />
+      ) : null}
+
+      {buyerPolished ? (
+        <CompareHowComparisonWorksSection />
+      ) : (
+        <>
+          <LayerHeader pageKey="compare" density="compact" collapsibleGuidance="How compare works" />
+          <CompareAdvancedDiagnosticsSection />
+        </>
+      )}
+
+      {leftTrim.length > 0 || rightTrim.length > 0 ? (
+        <CompareNextReviewFooterClient priorRunId={leftTrim} laterRunId={rightTrim} />
+      ) : null}
+
+      {buyerPolished ? <CompareSourcesOrientationStrip /> : null}
+    </>
+  );
+
+  return (
+    <OperatorPageContainer
+      variant="workflow"
+      className={OPERATOR_LAYOUT.sectionStack}
+      data-testid="compare-page-ready"
+    >
+      {buyerPolished ? (
+        <a href={`#${COMPARE_TWO_REVIEWS_SKIP_TARGET_ID}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+          {COMPARE_TWO_REVIEWS_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+
+      {buyerPolished ? (
+        <div
+          id={COMPARE_TWO_REVIEWS_PRIMARY_CONTENT_ID}
+          data-testid={COMPARE_TWO_REVIEWS_PRIMARY_CONTENT_ID}
+          className={cn("scroll-mt-24 space-y-6", OPERATOR_LAYOUT.sectionStack)}
+        >
+          {pageBody}
+        </div>
+      ) : (
+        pageBody
+      )}
+    </OperatorPageContainer>
+  );
+}

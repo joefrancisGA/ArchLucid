@@ -1,0 +1,40 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+import { RunRetrievalGroundingPanel } from "@/components/runs/RunRetrievalGroundingPanel";
+import { useRunRetrievalGroundingQuery } from "@/hooks/use-run-retrieval-grounding-query";
+import { runRetrievalGroundingBlockedReason } from "@/lib/runs/run-retrieval-grounding-blocked-reason";
+
+type RunDetailRetrievalGroundingSectionProps = {
+  readonly runId: string;
+  readonly showWhenFaithfulnessWarning?: boolean;
+};
+
+/** Collapsed retrieval-hit panel on run detail (TB-109). */
+export function RunDetailRetrievalGroundingSection(props: RunDetailRetrievalGroundingSectionProps) {
+  const { data: payload, isPending, failure, blockedReason } = useRunRetrievalGroundingQuery(props.runId);
+
+  if (isPending) {
+    return null;
+  }
+
+  const rowsNotReturned = payload !== undefined && payload !== null && !Array.isArray(payload.rows);
+  const rowCount = Array.isArray(payload?.rows) ? payload.rows.length : 0;
+
+  if (!rowsNotReturned && rowCount === 0 && failure === null && props.showWhenFaithfulnessWarning !== true) {
+    return null;
+  }
+
+  return (
+    <RunRetrievalGroundingPanel
+      payload={payload ?? null}
+      failure={failure}
+      blockedReason={
+        rowsNotReturned ? "Retrieval rows not returned" : runRetrievalGroundingBlockedReason(failure) ?? blockedReason
+      }
+      sectionId="run-retrieval-grounding"
+      title="Retrieval grounding"
+    />
+  );
+}

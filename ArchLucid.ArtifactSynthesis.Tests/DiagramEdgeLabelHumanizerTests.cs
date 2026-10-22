@@ -1,0 +1,128 @@
+using ArchLucid.ArtifactSynthesis.Compilers;
+using ArchLucid.Core.AzureExtractor;
+using ArchLucid.KnowledgeGraph;
+
+using FluentAssertions;
+
+namespace ArchLucid.ArtifactSynthesis.Tests;
+
+[Trait("Category", "Unit")]
+public sealed class DiagramEdgeLabelHumanizerTests
+{
+    [Theory]
+    [InlineData(GraphEdgeTypes.PeersWith, "peering")]
+    [InlineData(GraphEdgeTypes.ConnectsTo, "connects")]
+    [InlineData(GraphEdgeTypes.Contains, "contains")]
+    [InlineData(GraphEdgeTypes.ContainsResource, "contains")]
+    [InlineData(GraphEdgeTypes.Protects, "protects")]
+    [InlineData(GraphEdgeTypes.AppliesTo, "applies")]
+    [InlineData(GraphEdgeTypes.RelatesTo, "relates to")]
+    [InlineData(GraphEdgeTypes.DependsOn, "depends on")]
+    [InlineData(GraphEdgeTypes.Exposes, "exposes")]
+    [InlineData(GraphEdgeTypes.HasRole, "has role")]
+    [InlineData(GraphEdgeTypes.UsesIdentity, "uses")]
+    [InlineData(GraphEdgeTypes.CanRead, "reads")]
+    [InlineData(GraphEdgeTypes.CanWrite, "writes")]
+    [InlineData(GraphEdgeTypes.CanAssume, "can assume")]
+    [InlineData(GraphEdgeTypes.CanControlCode, "deploys code")]
+    [InlineData(GraphEdgeTypes.RoutesTo, "routes to")]
+    [InlineData(GraphEdgeTypes.FederatesAs, "federates")]
+    [InlineData(GraphEdgeTypes.MemberOf, "member of")]
+    public void ResolveDisplayLabel_humanizes_known_graph_edge_types(string edgeType, string expected)
+    {
+        DiagramEdgeLabelHumanizer.ResolveDisplayLabel(null, edgeType).Should().Be(expected);
+        DiagramEdgeLabelHumanizer.ResolveDisplayLabel(edgeType, edgeType).Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.VnetPeering, "peering")]
+    [InlineData(GraphEdgeInferenceSources.InventoryVnetPeering, "peering")]
+    [InlineData(GraphEdgeInferenceSources.InventoryNicSubnet, "in")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.NicToSubnet, "in")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedService, "Linked service")]
+    [InlineData(GraphEdgeInferenceSources.InventoryLogicAppConnection, "API connection")]
+    [InlineData(GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage, "Diagnostic setting names")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, "likely · in")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, "Reads from")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfWritesTo, "Writes to")]
+    [InlineData(GraphEdgeInferenceSources.InventoryAdfReadsFrom, "Reads from")]
+    [InlineData(GraphEdgeInferenceSources.InventoryAdfWritesTo, "Writes to")]
+    public void HumanizeLabel_maps_inventory_association_and_inference_aliases(string alias, string expected)
+    {
+        DiagramEdgeLabelHumanizer.HumanizeLabel(alias).Should().Be(expected);
+        DiagramEdgeLabelHumanizer.ResolveDisplayLabel(null, null, alias).Should().Be(expected);
+    }
+
+    [Fact]
+    public void ResolveDisplayLabel_uses_inference_source_when_label_and_type_are_blank()
+    {
+        DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
+                null,
+                string.Empty,
+                GraphEdgeInferenceSources.InventoryVnetPeering)
+            .Should()
+            .Be("peering");
+    }
+
+    [Fact]
+    public void ResolveDisplayLabel_maps_human_declared_connections_to_connects_verb()
+    {
+        DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
+                null,
+                GraphEdgeTypes.ConnectsTo,
+                GraphEdgeInferenceSources.HumanDeclaredConnection)
+            .Should()
+            .Be("connects");
+    }
+
+    [Fact]
+    public void HumanizeLabel_preserves_custom_non_canonical_labels()
+    {
+        DiagramEdgeLabelHumanizer.HumanizeLabel("reads").Should().Be("reads");
+    }
+
+    [Fact]
+    public void ResolveDisplayLabel_returns_relationship_not_stored_when_inputs_are_blank()
+    {
+        DiagramEdgeLabelHumanizer.ResolveDisplayLabel(null, null, null)
+            .Should()
+            .Be("Relationship was not stored");
+    }
+
+    [Fact]
+    public void ResolveDisplayLabel_maps_event_hub_may_publish_and_qualified_capture()
+    {
+        DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
+                null,
+                GraphEdgeTypes.CanWrite,
+                GraphEdgeInferenceSources.InventoryEventHubMayPublish)
+            .Should()
+            .Be("May publish");
+
+        DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
+                null,
+                GraphEdgeTypes.ConnectsTo,
+                GraphEdgeInferenceSources.WithQualifier(
+                    GraphEdgeInferenceSources.InventoryEventHubCapture,
+                    "orders"))
+            .Should()
+            .Be("orders · Captures to");
+    }
+
+    [Theory]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.DiagnosticToDestination, "Diagnostic setting names")]
+    [InlineData(GraphEdgeInferenceSources.InventoryDiagnosticDestination, "Diagnostic setting names")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.DiagnosticSettingToStorage, "Diagnostic setting names")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AppAuthorizedAccess, "May access")]
+    [InlineData(GraphEdgeTypes.MayAccess, "May access")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.EventGridToDestination, "Routes events to")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfTriggerSource, "Triggers")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfIntegrationRuntime, "Runs on")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.EventHubCapture, "Captures to")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AvdSessionHostToVm, "AVD session host")]
+    public void HumanizeLabel_maps_diagram_enrichment_association_aliases(string alias, string expected)
+    {
+        DiagramEdgeLabelHumanizer.HumanizeLabel(alias).Should().Be(expected);
+        DiagramEdgeLabelHumanizer.ResolveDisplayLabel(null, null, alias).Should().Be(expected);
+    }
+}

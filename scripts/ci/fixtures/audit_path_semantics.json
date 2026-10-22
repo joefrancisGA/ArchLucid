@@ -1,0 +1,41 @@
+{
+  "formatVersion": "1.0",
+  "flows": [
+    {
+      "name": "architecture-run-create",
+      "auditClass": "transactional",
+      "matrixHints": ["RunCreated", "ArchitectureRun"],
+      "notes": "Create run with optional Idempotency-Key replay protection."
+    },
+    {
+      "name": "architecture-run-commit",
+      "auditClass": "transactional",
+      "matrixHints": ["ManifestFinalized", "Commit"],
+      "notes": "Commit path must not succeed without durable manifest + audit contract."
+    },
+    {
+      "name": "governance-batch-review",
+      "auditClass": "transactional",
+      "matrixHints": ["Governance", "BatchReview"],
+      "notes": "Persisted governance mutations require Idempotency-Key."
+    },
+    {
+      "name": "billing-checkout-webhook",
+      "auditClass": "transactional",
+      "matrixHints": ["Billing", "Stripe", "Webhook"],
+      "notes": "Webhook idempotency + signature verification before dispatch."
+    },
+    {
+      "name": "integration-outbound-retry",
+      "auditClass": "informational-async",
+      "matrixHints": ["Integration", "Outbox"],
+      "notes": "Best-effort async audit per TB-001; metrics + retry."
+    },
+    {
+      "name": "notification-delivery",
+      "auditClass": "informational-async",
+      "matrixHints": ["Notification", "Email"],
+      "notes": "Channel delivery is observability-first; not a user-visible transaction."
+    }
+  ]
+}

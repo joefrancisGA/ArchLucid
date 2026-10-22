@@ -1,0 +1,101 @@
+---
+description: >-
+  Editing any TypeScript or TSX file under archlucid-ui/ — codifies conventions
+  from archlucid-ui/AGENTS.md so they travel with every .ts/.tsx edit without
+  requiring manual re-read of that file.
+globs:
+  - "archlucid-ui/**/*.ts"
+  - "archlucid-ui/**/*.tsx"
+alwaysApply: false
+---
+
+# Next.js / React conventions for `archlucid-ui`
+
+## Types: use the generated OpenAPI surface, not parallel DTOs
+
+- **Prefer `src/lib/openapi-schemas.ts`** as the single import surface for API shapes.
+  It re-exports `components` and `paths` from the generated `src/lib/api-types.generated.ts`.
+
+  ```ts
+  // Preferred — alias from the generated surface
+  import type { components } from "@/lib/openapi-schemas";
+  type Run = components["schemas"]["RunSummaryResponse"];
+
+  // Avoid — hand-written parallel DTO
+  type Run = { runId: string; status: string; /* ... */ };
+  ```
+
+- **`src/types/authority.ts`** shows the correct pattern for richer domain types: alias the
+  OpenAPI schema, then intersect or extend only with fields that are genuinely not in the contract
+  (e.g. local display enrichments). Do not restate fields that already exist on the schema.
+
+- If a shape you need is missing from the OpenAPI snapshot, the right fix is to add it to the
+  .NET contract and regenerate — not to author a shadow type in the UI.
+
+## Regenerating types after API surface changes
+
+When any edit touches the .NET HTTP surface (new route, changed DTO, added/removed property):
+
+1. From **`archlucid-ui/`** run `npm run generate:api-types` to rebuild `src/lib/api-types.generated.ts`.
+2. Follow the full checklist in **`.cursor/rules/Http-Surface-Docs-And-Clients.mdc`** (snapshot,
+   `.NET client`, TypeScript types, docs).
+
+Do **not** merge a `.NET` controller or Contracts change without the matching `api-types.generated.ts` update.
+
+## Server Components vs Client Components
+
+Next.js App Router default is **React Server Components (RSC)**.
+
+- Keep components **RSC** (no directive) unless they genuinely need `useState`, `useEffect`,
+  event handlers, browser APIs (`window`, `document`), or third-party hooks that require a client context.
+- Add `"use client"` **at the top of the file** only when required, and only to the smallest
+  component that needs it — avoid marking large layout or page files as client unless unavoidable.
+- Buyer-facing content (marketing pages, report views, review summaries) stays in RSC for
+  accessibility-from-source and faster TTFB; keep interactive islands small.
+
+## No `any` or `unknown` without justification
+
+Use concrete TypeScript types. Mirrors the C# "concrete types over `var`" rule.
+
+```ts
+// Avoid
+function process(data: any) { ... }
+const result: unknown = fetch(...);
+
+// Prefer
+function process(data: components["schemas"]["FindingSummaryResponse"]) { ... }
+const result: RunSummary = await fetchRun(runId);
+```
+
+When the type is genuinely opaque at a boundary (e.g. a `catch` clause or JSON parse), use
+`unknown` with an explicit narrowing guard — never re-cast to `any` to suppress errors.
+
+## Imports at the top of the file
+
+All imports must be at the **top of the file**, before any runtime code, component definitions,
+or type declarations. Do not use dynamic `require()` or mid-file `import` expressions except
+where genuinely needed (e.g. `next/dynamic` for code splitting, where the pattern is
+intentional and documented).
+
+```ts
+// Correct
+import type { components } from "@/lib/openapi-schemas";
+import { useState } from "react";
+
+export function MyComponent() { ... }
+
+// Avoid — import buried inside the file
+export function MyComponent() {
+  const { foo } = require("./foo"); // wrong
+  ...
+}
+```
+
+## Companion rules
+
+- **`.cursor/rules/Http-Surface-Docs-And-Clients.mdc`** — full checklist when the OpenAPI
+  surface changes.
+- **`archlucid-ui/AGENTS.md`** — canonical agent scope doc for the UI folder; read before
+  large refactors.
+- **`docs/library/UI_ARCHITECTURE_V1_1.md`** — deferred data-fetching and Suspense work;
+  check before altering the data-fetching layer.

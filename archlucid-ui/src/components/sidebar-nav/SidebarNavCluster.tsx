@@ -1,0 +1,308 @@
+"use client";
+
+import { cn } from "@/lib/utils";
+import { ChevronDown, ChevronRight } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { useEffect, useState, type ReactElement } from "react";
+
+import { AlertsOutstandingNavBadge } from "@/components/alerts/AlertsOutstandingNavBadge";
+import { GovernanceAssignedToMeFindingsNavBadge } from "@/components/governance/findings/GovernanceAssignedToMeFindingsNavBadge";
+import { GovernanceReviewsAwaitingNavBadge } from "@/components/governance/GovernanceReviewsAwaitingNavBadge";
+import { SidebarNavLink } from "@/components/sidebar-nav/SidebarNavLink";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { readCachedDeskContinuity, readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
+import {
+  GOVERNANCE_ALERTS_PATH,
+  GOVERNANCE_APPROVAL_QUEUE_PATH,
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+} from "@/lib/governance/governance-route-paths";
+import { isNavLinkActive } from "@/lib/nav-link-active";
+import {
+  filterSidebarNavClusterLinks,
+  presentSidebarNavLinkForCluster,
+  isSidebarNavLinkAdvancedInDemo,
+} from "@/lib/sidebar-nav-link-filters";
+import {
+  sidebarMoreLinksCollapseLabel,
+  sidebarMoreLinksAccessibleLabel,
+  sidebarMoreLinksLabel,
+  splitSidebarLinksDailyVsMore,
+} from "@/lib/sidebar-nav-daily-links";
+import { applyWorkingBindToolNavGateToLink } from "@/lib/apply-working-bind-tool-nav-gate";
+import { resolveWorkingInsightsNavHref } from "@/lib/resolve-working-insights-nav-href";
+import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
+import {
+  parseSidebarNavMoreGroupFromSearch,
+  sidebarNavMoreDisclosureHrefFromSearch,
+  sidebarNavMoreDisclosureHrefMatchesLocation,
+} from "@/lib/sidebar-nav/sidebar-nav-more-disclosure-url";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import type { SidebarCollapsibleNavGroupId } from "@/lib/sidebar-nav-group-expansion-storage";
+import type { OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
+
+/** Work-queue count badges for sidebar links that surface outstanding operator follow-up. */
+function sidebarNavLinkAfterLabel(href: string): ReactElement | null {
+  if (href === GOVERNANCE_APPROVAL_QUEUE_PATH) {
+    return <GovernanceReviewsAwaitingNavBadge />;
+  }
+
+  if (href === GOVERNANCE_ALERTS_PATH) {
+    return <AlertsOutstandingNavBadge />;
+  }
+
+  if (href === GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH) {
+    return <GovernanceAssignedToMeFindingsNavBadge />;
+  }
+
+  return null;
+}
+
+type SidebarNavClusterProps = {
+  readonly row: NavGroupWithVisibleLinks;
+  readonly pathname: string;
+  readonly demoUi: boolean;
+  readonly buyerPolishedShell: boolean;
+  readonly isGovernanceModeEnabled: boolean;
+  readonly hasCommittedArchitectureReview: boolean;
+  readonly effectiveOperateUnlockPhase: OperateNavUnlockPhase;
+  readonly isCollapsible: boolean;
+  readonly isExpanded: boolean;
+  readonly onToggleExpanded?: () => void;
+  readonly onNavLinkNavigate?: () => void;
+};
+
+function readSidebarMoreGroupFromWindowLocation(): string | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  return parseSidebarNavMoreGroupFromSearch(
+    new URLSearchParams(window.location.search).get("sidebarMoreGroup"),
+  );
+}
+
+export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
+  const pathname = usePathname() ?? "/";
+  const [openMoreGroupId, setOpenMoreGroupId] = useState<string | null>(() => readSidebarMoreGroupFromWindowLocation());
+  const { mode } = useWorkspaceMode();
+  const { productLine } = useProductLine();
+  const workingMode = isWorkingWorkspaceMode(mode);
+  const { group, visibleLinks } = props.row;
+  const linksForRender = filterSidebarNavClusterLinks({
+    visibleLinks,
+    demoUi: props.demoUi,
+    buyerPolishedShell: props.buyerPolishedShell,
+    hasCommittedArchitectureReview: props.hasCommittedArchitectureReview,
+  });
+  const hideGroupHeading = group.hideHeading === true;
+  const groupHeadingLabel = group.label;
+  const demoOrBuyer = props.demoUi || props.buyerPolishedShell;
+  const contentId = `sidebar-group-${group.id}-content`;
+  const headingId = `sidebar-group-heading-${group.id}`;
+  const { daily, more } = splitSidebarLinksDailyVsMore(
+    group.id,
+    linksForRender,
+    props.pathname ?? "/",
+    workingMode,
+  );
+  const moreOpen = more.length > 0 && openMoreGroupId === group.id;
+
+  useEffect(() => {
+    const syncOpenMoreGroupFromUrl = (): void => {
+      const nextOpenGroupId = readSidebarMoreGroupFromWindowLocation();
+
+      setOpenMoreGroupId((current) => (current === nextOpenGroupId ? current : nextOpenGroupId));
+    };
+
+    syncOpenMoreGroupFromUrl();
+    window.addEventListener("popstate", syncOpenMoreGroupFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenMoreGroupFromUrl);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (more.length > 0) {
+      return;
+    }
+
+    const openGroupId = readSidebarMoreGroupFromWindowLocation();
+
+    if (openGroupId === null) {
+      return;
+    }
+
+    const nextHref = sidebarNavMoreDisclosureHrefFromSearch(readWindowLocationSearch(), null, pathname);
+
+    if (sidebarNavMoreDisclosureHrefMatchesLocation(nextHref)) {
+      return;
+    }
+
+    commitHrefIfChanged(nextHref, { notify: false });
+    setOpenMoreGroupId(null);
+  }, [more.length, pathname]);
+
+  function replaceSidebarMoreGroupInUrl(groupId: string | null): void {
+    const nextHref = sidebarNavMoreDisclosureHrefFromSearch(readWindowLocationSearch(), groupId, pathname);
+
+    if (sidebarNavMoreDisclosureHrefMatchesLocation(nextHref)) {
+      return;
+    }
+
+    commitHrefIfChanged(nextHref, { notify: false });
+    setOpenMoreGroupId(groupId);
+  }
+
+  if (linksForRender.length === 0) {
+    return <div key={group.id} hidden />;
+  }
+
+  const headingClassName = cn(
+    OPERATOR_TYPOGRAPHY.helper,
+    "flex w-full min-w-0 items-center gap-1 rounded-md px-2 py-1.5 text-left font-medium text-al-text-secondary",
+  );
+
+  const collapsibleToggleClassName = cn(
+    OPERATOR_TYPOGRAPHY.helper,
+    "sidebar-disclosure-trigger inline-flex min-w-0 max-w-full items-center gap-2 rounded-md p-0 text-left font-medium text-al-text-secondary hover:bg-neutral-50 dark:hover:bg-neutral-800/80",
+  );
+
+  const collapsibleChevron = props.isExpanded ? (
+    <ChevronDown className="h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
+  ) : (
+    <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
+  );
+
+  const headingLabel = <span className="min-w-0 truncate">{groupHeadingLabel}</span>;
+
+  const headingInner = props.isCollapsible ? (
+    <>
+      {collapsibleChevron}
+      {headingLabel}
+    </>
+  ) : (
+    headingLabel
+  );
+
+  function renderLink(link: (typeof linksForRender)[number]): ReactElement {
+    const lastOpenArchitectureId = readCachedLastOpenArchitectureId();
+    const presented = presentSidebarNavLinkForCluster(
+      link,
+      props.buyerPolishedShell,
+      group.surface,
+      props.isGovernanceModeEnabled,
+      workingMode,
+      productLine,
+    );
+    const resolvedHref = workingMode
+      ? resolveWorkingInsightsNavHref({
+          href: presented.href,
+          pathname,
+          lastOpenReviewId: readCachedDeskContinuity().lastOpenReviewId,
+          lastOpenArchitectureId,
+        })
+      : presented.href;
+    const presentedWithHref =
+      resolvedHref === presented.href ? presented : { ...presented, href: resolvedHref };
+    const presentedForRender = workingMode
+      ? applyWorkingBindToolNavGateToLink(presentedWithHref, {
+          workingMode: true,
+          lastOpenArchitectureId,
+        })
+      : presentedWithHref;
+
+    return (
+      <SidebarNavLink
+        key={presentedForRender.href}
+        presented={presentedForRender}
+        active={isNavLinkActive(props.pathname, presentedForRender.href)}
+        advancedDemo={isSidebarNavLinkAdvancedInDemo(presentedForRender.href, demoOrBuyer)}
+        buyerPolishedShell={props.buyerPolishedShell}
+        navGroupId={group.id}
+        unlockPhase={props.effectiveOperateUnlockPhase}
+        onNavigate={props.onNavLinkNavigate}
+        afterLabel={sidebarNavLinkAfterLabel(presentedForRender.href)}
+      />
+    );
+  }
+
+  return (
+    <div key={group.id} data-testid={`sidebar-group-${group.id}`} className={cn("mt-1 first:mt-0", group.id === "operator-system-admin" && "mt-4 border-t border-neutral-200 pt-3 dark:border-neutral-800")}>
+      {!hideGroupHeading && props.isCollapsible ? (
+        <div className={headingClassName}>
+          <button
+            type="button"
+            className={collapsibleToggleClassName}
+            id={headingId}
+            data-testid={`sidebar-group-toggle-${group.id}`}
+            aria-expanded={props.isExpanded}
+            aria-controls={contentId}
+            onClick={() => {
+              props.onToggleExpanded?.();
+            }}
+          >
+            {headingInner}
+          </button>
+        </div>
+      ) : !hideGroupHeading ? (
+        <div
+          className={headingClassName}
+          id={headingId}
+          {...(group.id === "pilot" ? { "data-onboarding": "tour-nav-settings" } : {})}
+        >
+          {headingInner}
+        </div>
+      ) : null}
+
+      {props.isExpanded ? (
+        <div
+          id={contentId}
+          role="group"
+          className={cn(
+            "flex flex-col gap-0.5",
+            hideGroupHeading
+              ? "py-0"
+              : "border-l border-neutral-200 py-1 pl-1.5 dark:border-neutral-700",
+          )}
+          {...(hideGroupHeading ? { "aria-label": groupHeadingLabel } : { "aria-labelledby": headingId })}
+        >
+          {daily.map((link) => renderLink(link))}
+
+          {more.length > 0 ? (
+            <div className="mt-0.5">
+              <button
+                type="button"
+                className={cn(
+                  "sidebar-disclosure-trigger flex w-full items-center gap-1 rounded-md px-2 py-1 text-left text-al-text-primary hover:bg-neutral-50 dark:text-neutral-100 dark:hover:bg-neutral-800/80",
+                  OPERATOR_TYPOGRAPHY.helper,
+                )}
+                data-testid={`sidebar-group-more-${group.id}`}
+                aria-expanded={moreOpen}
+                aria-label={sidebarMoreLinksAccessibleLabel(group.id, more.length, moreOpen)}
+                onClick={() => {
+                  replaceSidebarMoreGroupInUrl(moreOpen ? null : group.id);
+                }}
+              >
+                {moreOpen ? (
+                  <ChevronDown className="h-3 w-3 shrink-0 opacity-80" aria-hidden />
+                ) : (
+                  <ChevronRight className="h-3 w-3 shrink-0 opacity-80" aria-hidden />
+                )}
+                <span>{sidebarMoreLinksLabel(group.id, more.length, moreOpen)}</span>
+              </button>
+              {moreOpen ? <div className="flex flex-col gap-0.5">{more.map((link) => renderLink(link))}</div> : null}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+export function sidebarClusterToggleId(groupId: SidebarCollapsibleNavGroupId): string {
+  return `sidebar-group-toggle-${groupId}`;
+}

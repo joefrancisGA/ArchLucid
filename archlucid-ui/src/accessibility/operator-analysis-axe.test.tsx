@@ -1,0 +1,99 @@
+import { render } from "@testing-library/react";
+import { axe, toHaveNoViolations } from "jest-axe";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
+  usePathname: () => "/insights/compare-two-reviews",
+  useSearchParams: () => ({
+    get: () => null,
+    toString: () => "",
+  }),
+  redirect: vi.fn(),
+}));
+
+vi.mock("@/lib/api", () => ({
+  apiGet: vi.fn().mockResolvedValue([]),
+  compareRuns: vi.fn().mockResolvedValue({}),
+  compareGoldenManifestRuns: vi.fn().mockResolvedValue({}),
+  explainComparisonRuns: vi.fn().mockResolvedValue({}),
+  replayRun: vi.fn().mockResolvedValue({}),
+  fetchEvolutionCandidates: vi.fn().mockResolvedValue([]),
+  fetchEvolutionResults: vi.fn().mockResolvedValue(null),
+  postEvolutionSimulate: vi.fn().mockResolvedValue({}),
+}));
+
+vi.mock("@/app/(operator)/insights/impact-preview/_sections/load-evolution-review-page-data", () => ({
+  loadEvolutionReviewPageData: () =>
+    Promise.resolve({
+      mode: "live" as const,
+      candidates: [],
+      selectedId: null,
+      detail: null,
+      listFailure: null,
+      detailFailure: null,
+    }),
+}));
+
+vi.mock("@/lib/graph-api", () => ({
+  getProvenanceGraph: vi.fn().mockResolvedValue({ nodes: [], edges: [] }),
+  getDecisionSubgraph: vi.fn().mockResolvedValue({ nodes: [], edges: [] }),
+  getNodeNeighborhood: vi.fn().mockResolvedValue({ nodes: [], edges: [] }),
+  getArchitectureGraph: vi.fn().mockResolvedValue({ nodes: [], edges: [] }),
+}));
+
+vi.mock("@/lib/toast", () => ({
+  showError: vi.fn(),
+  showSuccess: vi.fn(),
+}));
+
+import ComparePage from "@/app/(operator)/insights/compare-two-reviews/page";
+import ReplayPage from "@/app/(operator)/internal/validate-route/page";
+import GraphPage from "@/app/(operator)/insights/evidence-graph/page";
+import EvolutionReviewPage from "@/app/(operator)/insights/impact-preview/page";
+
+expect.extend(toHaveNoViolations);
+
+describe("operator analysis pages — axe (Vitest)", () => {
+  it(
+    "ComparePage has no serious axe violations",
+    async () => {
+      const { container } = render(<ComparePage />);
+
+      expect(await axe(container)).toHaveNoViolations();
+    },
+    20_000,
+  );
+
+  it(
+    "ReplayPage has no serious axe violations",
+    async () => {
+      const page = await ReplayPage();
+      const { container } = render(page);
+
+      expect(await axe(container)).toHaveNoViolations();
+    },
+    20_000,
+  );
+
+  it(
+    "GraphPage has no serious axe violations",
+    async () => {
+      const { container } = render(<GraphPage />);
+
+      expect(await axe(container)).toHaveNoViolations();
+    },
+    20_000,
+  );
+
+  it(
+    "EvolutionReviewPage has no serious axe violations",
+    async () => {
+      const page = await EvolutionReviewPage({});
+      const { container } = render(page);
+
+      expect(await axe(container)).toHaveNoViolations();
+    },
+    20_000,
+  );
+});

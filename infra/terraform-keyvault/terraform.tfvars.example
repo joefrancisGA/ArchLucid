@@ -1,0 +1,20 @@
+﻿# Example tfvars for infra/terraform-keyvault (operator-supplied; do not commit secrets).
+# See docs/library/CONFIGURATION_KEY_VAULT.md and TB-092 in docs/library/TECH_BACKLOG.md.
+
+enable_key_vault       = true
+create_resource_group  = true
+resource_group_name    = "rg-archlucid-secrets"
+location               = "centralus"
+key_vault_name         = "kv-archlucid-example"
+sku_name               = "standard"
+
+# Human break-glass only — not for Container Apps workloads (least privilege).
+admin_object_ids = []
+
+# TB-656 (default): user-assigned API/Worker identities are created in this root; RBAC is granted on first apply.
+enable_user_assigned_keyvault_workload_identities = true
+
+# TB-092 legacy fallback: populate only when enable_user_assigned_keyvault_workload_identities = false.
+# apply-saas.ps1 -MultiRoot -Apply runs a second keyvault apply with these IDs automatically.
+api_managed_identity_principal_id    = ""
+worker_managed_identity_principal_id = ""

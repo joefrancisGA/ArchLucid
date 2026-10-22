@@ -1,0 +1,116 @@
+import { render, screen, within } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
+
+import { TransparencyTrailPanel } from "@/components/feasibility/TransparencyTrailPanel";
+
+describe("TransparencyTrailPanel", () => {
+  it("renders asserted, inferred, and skipped MUST sections", () => {
+    render(
+      <TransparencyTrailPanel
+        trail={{
+          asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+          inferred: [{ key: "policy.violation.CIS-1.1", value: "Encrypt data at rest", confidence: 85 }],
+          skipped: [{ questionKey: "l0.pillar.security", tier: "Must" }],
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("transparency-trail-panel")).toBeInTheDocument();
+    expect(screen.getByText(/asserted \(1\)/i)).toBeInTheDocument();
+    expect(screen.getByTestId("transparency-trail-skipped-must")).toBeInTheDocument();
+    expect(screen.getByText("l0.pillar.security")).toBeInTheDocument();
+  });
+
+  it("renders nothing when the trail is not available yet", () => {
+    const { container } = render(<TransparencyTrailPanel trail={null} />);
+
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it("shows a defect callout when the trail is missing on a completed review", () => {
+    render(<TransparencyTrailPanel trail={null} missingTrailDefect />);
+
+    expect(screen.getByTestId("transparency-trail-missing-defect")).toBeInTheDocument();
+  });
+
+  it("shows an empty skipped MUST section when none are recorded", () => {
+    render(
+      <TransparencyTrailPanel
+        trail={{
+          asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+          inferred: [],
+          skipped: [],
+        }}
+      />,
+    );
+
+    const skippedMust = screen.getByTestId("transparency-trail-skipped-must");
+
+    expect(skippedMust).toBeInTheDocument();
+    expect(screen.getByText(/skipped must questions \(0\)/i)).toBeInTheDocument();
+    expect(within(skippedMust).getByText(/none recorded\./i)).toBeInTheDocument();
+  });
+
+  it("collapses behind a disclosure when defaultExpanded is false", () => {
+    render(
+      <TransparencyTrailPanel
+        defaultExpanded={false}
+        trail={{
+          asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+          inferred: [],
+          skipped: [],
+        }}
+      />,
+    );
+
+    const panel = screen.getByTestId("transparency-trail-panel");
+
+    expect(panel.tagName).toBe("DETAILS");
+    expect(panel).not.toHaveAttribute("open");
+  });
+
+  it("shows missing asserted metadata and preserves stored empty strings", () => {
+    const { rerender } = render(
+      <TransparencyTrailPanel
+        trail={{ asserted: [{ key: "outcome", value: "Ship" }], inferred: [], skipped: [] }}
+      />,
+    );
+
+    expect(screen.getByText(/Responder was not stored\./)).toBeInTheDocument();
+    expect(screen.getByText(/Question id was not stored\./)).toBeInTheDocument();
+    expect(screen.getByText(/Answer recorded time was not stored\./)).toBeInTheDocument();
+
+    rerender(
+      <TransparencyTrailPanel
+        trail={{
+          asserted: [{ key: "outcome", value: "Ship", responderLabel: "", questionId: "", recordedUtc: "" }],
+          inferred: [],
+          skipped: [],
+        }}
+      />,
+    );
+
+    expect(screen.queryByText(/was not stored\./)).not.toBeInTheDocument();
+  });
+
+  it("reports missing assertion keys and skipped tiers without classifying them as SHOULD", () => {
+    render(
+      <TransparencyTrailPanel
+        trail={{
+          asserted: [{ key: null, value: "Ship" }],
+          inferred: [],
+          skipped: [
+            { questionKey: "missing-tier", tier: null },
+            { questionKey: "should-question", tier: "Should" },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByText(/Assertion key was not stored\./)).toBeInTheDocument();
+    expect(screen.getByText("Question tier was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Skipped SHOULD questions (1)")).toBeInTheDocument();
+    expect(screen.getByText("should-question")).toBeInTheDocument();
+    expect(screen.queryByText("Skipped SHOULD questions (2)")).not.toBeInTheDocument();
+  });
+});

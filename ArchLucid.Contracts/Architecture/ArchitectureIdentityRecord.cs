@@ -1,0 +1,81 @@
+namespace ArchLucid.Contracts.Architecture;
+
+/// <summary>
+///     Tenant-scoped stable identity for a created architecture across review runs.
+///     Points at the current unsealed knowledge model and optional latest sealed manifest.
+/// </summary>
+public sealed class ArchitectureIdentityRecord
+{
+    public Guid ArchitectureId
+    {
+        get;
+        set;
+    }
+
+    public Guid TenantId
+    {
+        get;
+        set;
+    }
+
+    public Guid WorkspaceId
+    {
+        get;
+        set;
+    }
+
+    public Guid ScopeProjectId
+    {
+        get;
+        set;
+    }
+
+    public string DisplayName
+    {
+        get;
+        set;
+    } = ArchitectureIdentityDisplayNameDefaults.UntitledArchitecture;
+
+    public string? Description
+    {
+        get;
+        set;
+    }
+
+    public string? CurrentModelId
+    {
+        get;
+        set;
+    }
+
+    public Guid? LatestSealedManifestId
+    {
+        get;
+        set;
+    }
+
+    public DateTime CreatedUtc
+    {
+        get;
+        set;
+    }
+
+    public DateTime UpdatedUtc
+    {
+        get;
+        set;
+    }
+
+    public DateTime? ArchivedUtc
+    {
+        get;
+        set;
+    }
+
+    /// <summary>When false (default), the architecture remains visible to all workspace readers (AS-088 grandfather).</summary>
+    public bool RestrictToShares
+    {
+        get;
+        set;
+    }
+}

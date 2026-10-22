@@ -1,0 +1,164 @@
+﻿using ArchLucid.Application.Common;
+using ArchLucid.Application.Decisions;
+using ArchLucid.Application.Agents.IaC;
+using ArchLucid.Application.Governance;
+using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Finalization;
+using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Application.Runs.Orchestration.Commit;
+using ArchLucid.Application.Runs.Sample;
+using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
+using ArchLucid.Core.UserPreferences;
+using ArchLucid.Decisioning.Merge;
+using ArchLucid.KnowledgeGraph.Interfaces;
+using ArchLucid.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
+
+using FluentAssertions;
+
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+
+using Moq;
+
+namespace ArchLucid.Application.Tests.Runs.Orchestration;
+
+/// <summary>
+/// Guards and error mapping at the entry of <see cref="AuthorityDrivenArchitectureRunCommitOrchestrator.CommitRunAsync"/>.
+/// </summary>
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
+public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCommitRunAsyncGuardTests
+{
+    [SkippableFact]
+    public async Task CommitRunAsync_null_runId_throws_ArgumentNullException()
+    {
+        AuthorityDrivenArchitectureRunCommitOrchestrator sut = CreateSut(
+            out _,
+            out _,
+            out _);
+
+        string runIdNull = null!;
+
+        Func<Task> act = async () => await sut.CommitRunAsync(runIdNull, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentNullException>();
+    }
+
+    [SkippableFact]
+    public async Task CommitRunAsync_whitespace_runId_throws_ArgumentException()
+    {
+        AuthorityDrivenArchitectureRunCommitOrchestrator sut = CreateSut(
+            out _,
+            out _,
+            out _);
+
+        Func<Task> act = async () => await sut.CommitRunAsync("   ", CancellationToken.None);
+
+        (await act.Should().ThrowAsync<ArgumentException>())
+            .Which.ParamName.Should().Be("runId");
+    }
+
+    [SkippableFact]
+    public async Task CommitRunAsync_malformed_run_id_throws_RunNotFoundException_and_records_baseline_audit()
+    {
+        AuthorityDrivenArchitectureRunCommitOrchestrator sut = CreateSut(
+            out Mock<IAuthorityCommitFailureRecorder> failureRecorder,
+            out _,
+            out _);
+
+        Func<Task> act = async () => await sut.CommitRunAsync("not-a-guid", CancellationToken.None);
+
+        await act.Should().ThrowAsync<RunNotFoundException>();
+        failureRecorder.Verify(
+            b => b.RecordFailureAsync(
+                It.IsAny<string>(),
+                "not-a-guid",
+                "Run not found.",
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
+    public async Task CommitRunAsync_known_guid_missing_from_repository_throws_RunNotFoundException()
+    {
+        Guid runGuid = Guid.Parse("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        string runId = runGuid.ToString("N");
+        AuthorityDrivenArchitectureRunCommitOrchestrator sut = CreateSut(
+            out Mock<IAuthorityCommitFailureRecorder> failureRecorder,
+            out Mock<IRunRepository> runRepository,
+            out Mock<IScopeContextProvider> scopeProvider);
+
+        scopeProvider.Setup(p => p.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333")
+        });
+        runRepository
+            .Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
+
+        Func<Task> act = async () => await sut.CommitRunAsync(runId, CancellationToken.None);
+
+        await act.Should().ThrowAsync<RunNotFoundException>();
+        failureRecorder.Verify(
+            b => b.RecordFailureAsync(
+                It.IsAny<string>(),
+                runId,
+                "Run not found.",
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    private static AuthorityDrivenArchitectureRunCommitOrchestrator CreateSut(
+        out Mock<IAuthorityCommitFailureRecorder> failureRecorder,
+        out Mock<IRunRepository> runRepository,
+        out Mock<IScopeContextProvider> scopeProvider)
+    {
+        failureRecorder = new Mock<IAuthorityCommitFailureRecorder>();
+        failureRecorder
+            .Setup(b => b.RecordFailureAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        runRepository = new Mock<IRunRepository>();
+        scopeProvider = new Mock<IScopeContextProvider>();
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActor()).Returns("unit-test-actor");
+        actor.Setup(a => a.GetActorId()).Returns("unit-test-actor");
+
+        return new AuthorityDrivenArchitectureRunCommitOrchestrator(
+            runRepository.Object,
+            scopeProvider.Object,
+            Mock.Of<IAgentTaskRepository>(),
+            Mock.Of<IArchitectureRequestRepository>(),
+            Mock.Of<IAgentResultRepository>(),
+            actor.Object,
+            new RunStateTransitionService(),
+            Mock.Of<IAuthorityCommitIdempotencyHandler>(),
+            Mock.Of<IAuthorityCommitDecisionMaterializationStage>(),
+            Mock.Of<IAuthorityCommitGovernanceStage>(),
+            Mock.Of<IAuthorityCommitPersistenceStage>(),
+            failureRecorder.Object,
+            Mock.Of<IGoldenManifestRepository>(),
+            Mock.Of<IFindingsSnapshotRepository>(),
+            Mock.Of<IDecisionTraceRepository>(),
+            Mock.Of<IArtifactBundleRepository>(),
+            Mock.Of<IAuthorityCommitProjectionBuilder>(),
+            Mock.Of<IManifestHashService>(),
+            Mock.Of<IUserWorkspaceModeReader>(),
+            Mock.Of<ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator>>());
+    }
+}

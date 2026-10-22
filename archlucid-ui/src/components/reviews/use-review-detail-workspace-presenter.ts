@@ -1,0 +1,34 @@
+"use client";
+
+import { usePathname, useSearchParams } from "next/navigation";
+import { useCallback } from "react";
+
+import { reviewPresenterModeHrefFromSearch } from "@/lib/reviews/review-presenter-mode-url";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+
+export type UseReviewDetailWorkspacePresenterResult = {
+  readonly exitPresenter: () => void;
+  readonly enterPresenter: () => void;
+};
+
+export function useReviewDetailWorkspacePresenter(): UseReviewDetailWorkspacePresenterResult {
+  const pathname = usePathname() ?? "/architecture/reviews";
+  const searchParams = useSearchParams();
+
+  const exitPresenter = useCallback(() => {
+    // replaceState does not emit popstate. The workspace reads presenter mode from that event.
+    commitHrefIfChanged(
+      reviewPresenterModeHrefFromSearch(searchParams.toString(), false, pathname),
+      { notify: true },
+    );
+  }, [pathname, searchParams]);
+
+  const enterPresenter = useCallback(() => {
+    commitHrefIfChanged(
+      reviewPresenterModeHrefFromSearch(searchParams.toString(), true, pathname),
+      { notify: true },
+    );
+  }, [pathname, searchParams]);
+
+  return { exitPresenter, enterPresenter };
+}

@@ -1,0 +1,79 @@
+"use client";
+
+import Link from "next/link";
+
+import { AskRunIdPicker } from "@/components/AskRunIdPicker";
+import { Button } from "@/components/ui/button";
+import { listArchitectureDraftRegistryEntries } from "@/lib/architecture/architecture-draft-registry";
+import { resolveWorkingRunReviewLocator } from "@/lib/architecture/resolve-working-run-review-locator";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
+
+export type SponsorReportFinalizedReviewPickerStripProps = {
+  readonly hasFinalizedReviews: boolean;
+  readonly selectedReviewId: string;
+  readonly onSelectedReviewIdChange: (reviewId: string) => void;
+};
+
+/** Guides sponsors to open a finalized architecture package before reading aggregate outcomes. */
+export function SponsorReportFinalizedReviewPickerStrip(
+  props: SponsorReportFinalizedReviewPickerStripProps,
+): React.JSX.Element | null {
+  if (!props.hasFinalizedReviews) {
+    return null;
+  }
+
+  const openReviewId = props.selectedReviewId.trim();
+  const openReviewHref =
+    openReviewId.length > 0
+      ? resolveWorkingRunReviewLocator({
+          runId: openReviewId,
+          draftRegistryEntries: listArchitectureDraftRegistryEntries(),
+        }).href
+      : "#";
+
+  return (
+    <section
+      aria-labelledby="sponsor-report-finalized-review-picker-heading"
+      className="rounded-lg border border-neutral-200 bg-al-surface-raised px-4 py-3 dark:border-neutral-800"
+      data-testid="sponsor-report-finalized-review-picker-strip"
+    >
+      <h2
+        id="sponsor-report-finalized-review-picker-heading"
+        className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}
+      >
+        Pick a finalized review first
+      </h2>
+      <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        Open the architecture package behind a row in the timeline before sharing exports with stakeholders.
+      </p>
+      <div className="mt-3 flex flex-wrap items-end gap-3">
+        <div className="min-w-[16rem] max-w-xl flex-1">
+          <AskRunIdPicker
+            value={openReviewId}
+            onChange={(value) => {
+              props.onSelectedReviewIdChange(value.trim());
+            }}
+            selectedThreadId=""
+            committedOnly
+            preferAutoPick={false}
+            autoSelectSyntheticSample={false}
+            label="Finalized review"
+            fieldId="sponsor-report-finalized-review-picker"
+            hideFieldHelper
+          />
+        </div>
+        <Button
+          type="button"
+          variant="primary"
+          size="sm"
+          asChild
+          disabled={openReviewId.length === 0}
+          data-testid="sponsor-report-finalized-review-open"
+        >
+          <Link href={openReviewHref}>Open architecture package</Link>
+        </Button>
+      </div>
+    </section>
+  );
+}

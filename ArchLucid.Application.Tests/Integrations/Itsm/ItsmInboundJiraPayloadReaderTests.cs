@@ -1,0 +1,105 @@
+using System.Text.Json;
+
+using ArchLucid.Application.Integrations.Itsm;
+
+using FluentAssertions;
+
+namespace ArchLucid.Application.Tests.Integrations.Itsm;
+
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
+public sealed class ItsmInboundJiraPayloadReaderTests
+{
+    [Fact]
+    public void TryRead_accepts_PascalCase_issue_fields_status_name()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """{"Issue":{"Key":"PROJ-1","Fields":{"Status":{"Name":"Done"}}}}""");
+
+        bool ok = new ItsmInboundJiraPayloadReader().TryRead(document.RootElement, out ItsmInboundPayloadReadResult result);
+
+        ok.Should().BeTrue();
+        result.ExternalKey.Should().Be("PROJ-1");
+        result.StatusValue.Should().Be("Done");
+    }
+
+    [Fact]
+    public void TryRead_rejects_changelog_only_payload_without_issue_fields_status_name()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """{"issue":{"key":"PROJ-1"},"changelog":{"items":[{"field":"status","toString":"Done"}]}}""");
+
+        bool ok = new ItsmInboundJiraPayloadReader().TryRead(document.RootElement, out ItsmInboundPayloadReadResult _);
+
+        ok.Should().BeFalse("inbound Jira sync contract requires issue.fields.status.name; changelog-only bodies are out of scope");
+    }
+
+    [Fact]
+    public void TryRead_rejects_numeric_issue_key()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """{"issue":{"key":12345,"fields":{"status":{"name":"Done"}}}}""");
+
+        bool ok = new ItsmInboundJiraPayloadReader().TryRead(document.RootElement, out ItsmInboundPayloadReadResult _);
+
+        ok.Should().BeFalse("Jira issue keys are string tokens in vendor payloads; numeric keys are rejected by design");
+    }
+
+    [Fact]
+    public void TryRead_rejects_numeric_status_name()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """{"issue":{"key":"PROJ-1","fields":{"status":{"name":12345}}}}""");
+
+        bool ok = new ItsmInboundJiraPayloadReader().TryRead(document.RootElement, out ItsmInboundPayloadReadResult _);
+
+        ok.Should().BeFalse("Jira status names are string tokens in vendor payloads");
+    }
+
+    [Fact]
+    public void TryRead_trims_whitespace_from_status_name()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """{"issue":{"key":"PROJ-1","fields":{"status":{"name":"  Done  "}}}}""");
+
+        bool ok = new ItsmInboundJiraPayloadReader().TryRead(document.RootElement, out ItsmInboundPayloadReadResult result);
+
+        ok.Should().BeTrue();
+        result.StatusValue.Should().Be("Done");
+    }
+
+    [Fact]
+    public void TryRead_returns_false_when_status_name_is_whitespace_only()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """{"issue":{"key":"PROJ-1","fields":{"status":{"name":"   "}}}}""");
+
+        bool ok = new ItsmInboundJiraPayloadReader().TryRead(document.RootElement, out ItsmInboundPayloadReadResult _);
+
+        ok.Should().BeFalse("whitespace-only status names fail before mapper human-review guards");
+    }
+
+    [Fact]
+    public void TryRead_rejects_issue_key_with_internal_zero_width_space()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """{"issue":{"key":"PR\u200bOJ-1","fields":{"status":{"name":"Done"}}}}""");
+
+        Action act = () => new ItsmInboundJiraPayloadReader().TryRead(document.RootElement, out ItsmInboundPayloadReadResult _);
+
+        act.Should().Throw<ItsmInboundPayloadValidationException>()
+            .Which.ReasonCode.Should().Be("issue_key_invalid_format");
+    }
+
+    [Fact]
+    public void TryRead_trims_whitespace_from_issue_key_before_format_validation()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """{"issue":{"key":"  PROJ-9  ","fields":{"status":{"name":"Done"}}}}""");
+
+        bool ok = new ItsmInboundJiraPayloadReader().TryRead(document.RootElement, out ItsmInboundPayloadReadResult result);
+
+        ok.Should().BeTrue();
+        result.ExternalKey.Should().Be("PROJ-9");
+    }
+}

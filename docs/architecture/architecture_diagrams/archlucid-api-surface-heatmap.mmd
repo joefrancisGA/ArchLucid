@@ -1,0 +1,28 @@
+flowchart TB
+  subgraph public["Public / low auth"]
+    H["/health/* /version"]
+    D["/v1/demo/* /v1/public/*"]
+    M["Marketing BFF routes"]
+  end
+
+  subgraph core["Operator core — fixed / expensive limits"]
+    A["/v1/architecture/*<br/>request execute result finalize"]
+    R["Review detail / manifests / artifacts"]
+    E["Exports DOCX / ZIP"]
+  end
+
+  subgraph heavy["Heavy — expensive / replay limits"]
+    C["Comparisons replay / drift"]
+    ASK["Ask / RAG"]
+    REP["Reports / value-report"]
+  end
+
+  subgraph admin["Admin / authority"]
+    G["Governance / packs / promotions"]
+    ADM["Admin diagnostics / outbox retry"]
+    INT["Internal /* operator"]
+  end
+
+  public --> core
+  core --> heavy
+  core --> admin

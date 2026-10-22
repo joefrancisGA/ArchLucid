@@ -1,0 +1,47 @@
+{
+  "requestId": "starter-fabrikam-saas-soc-001",
+  "systemName": "Fabrikam.WorkforceCloud.Api",
+  "description": "Fabrikam (fictional) sells workforce analytics SaaS on Azure: multi-tenant API, background jobs, admin portal; buyers require SOC2-oriented diligence on access, change management, and subprocessors without exposing another customer's data.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "Tenant isolation: no cross-tenant reads in the OLTP path; defense in depth for support break-glass",
+    "CI/CD: production deploys from signed builds only; manual approval for schema migrations",
+    "Secrets via Key Vault + managed identity; no long-lived keys in app settings for production"
+  ],
+  "requiredCapabilities": [
+    "public-api",
+    "async-workers",
+    "admin-bff",
+    "tenant-isolation-boundary"
+  ],
+  "assumptions": [
+    "Greenfield service — illustrative only for pilot evaluation",
+    "Entra ID is IdP for workforce customers (OIDC); no legacy SAML in this starter"
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [
+    "Architecture review should surface evidence paths for change tickets, access reviews, and logging retention — as design hooks, not as proof of operating effectiveness",
+    "Vendor questionnaire mapping: logical access (CC6), change management (CC8) — narrative alignment only"
+  ],
+  "documents": [
+    {
+      "name": "starter-disclaimer.txt",
+      "contentType": "text/plain",
+      "content": "Synthetic starter for pilot evaluation. Not confidential data. No SOC 2 opinion implied."
+    }
+  ],
+  "policyReferences": [
+    "starter:regulated-saas-soc",
+    "assign-vertical-pack:saas"
+  ],
+  "topologyHints": [
+    "App Service or Container Apps behind Front Door; regional pairs for DR drill",
+    "Private endpoints for SQL and storage data planes in production"
+  ],
+  "securityBaselineHints": [
+    "SOC 2 CC6/CC7 used as review vocabulary only — see trust center for assurance posture",
+    "Conditional Access for admin paths; PIM for break-glass"
+  ],
+  "infrastructureDeclarations": []
+}

@@ -1,0 +1,132 @@
+"use client";
+
+import { cn } from "@/lib/utils";
+import Link from "next/link";
+import type { ReactNode } from "react";
+
+import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DIGESTS_SCHEDULE_TAB_PATH } from "@/lib/settings-admin-route-paths";
+
+import { TenantCostSettingsCard } from "./TenantCostSettingsCard";
+import { TenantFindingEngineControlsCard } from "./TenantFindingEngineControlsCard";
+import { TenantQualityGatesCard } from "./TenantQualityGatesCard";
+import { TenantWorkOwnershipDeletePolicyCard } from "./TenantWorkOwnershipDeletePolicyCard";
+
+type SectionHeadingProps = {
+  readonly id: string;
+  readonly children: ReactNode;
+};
+
+function SectionHeading({ id, children }: SectionHeadingProps) {
+  return (
+    <h2
+      id={id}
+      className={cn(
+        "m-0 scroll-mt-24 border-b border-neutral-200 pb-1 dark:border-neutral-800",
+        OPERATOR_TYPOGRAPHY.sectionTitle,
+      )}
+    >
+      {children}
+    </h2>
+  );
+}
+
+type Props = {
+  readonly canEdit: boolean;
+  readonly tenantDisplayName: string;
+  readonly buyerPolishedShell?: boolean;
+  readonly advancedQualityOpen: boolean;
+  readonly onAdvancedQualityToggle: (open: boolean) => void;
+};
+
+export function TenantSettingsBusinessSection({
+  canEdit,
+  tenantDisplayName,
+  buyerPolishedShell = false,
+  advancedQualityOpen,
+  onAdvancedQualityToggle,
+}: Props) {
+  return (
+    <>
+      <SectionHeading id="tenant-settings-section-business">Business settings</SectionHeading>
+
+      <TenantCostSettingsCard canEdit={canEdit} tenantDisplayName={tenantDisplayName} />
+
+      <Card>
+        <CardHeader>
+          <CardTitle as="h3" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+            Sponsor digest (email)
+          </CardTitle>
+        </CardHeader>
+        <CardContent className={cn("space-y-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          <p className="m-0">
+            Recipients, time zone, and send schedule are managed on the Digests hub, alongside delivery readiness and
+            subscription health.
+          </p>
+          <Button asChild variant="outline" size="sm">
+            <Link href={DIGESTS_SCHEDULE_TAB_PATH}>Open digest schedule</Link>
+          </Button>
+        </CardContent>
+      </Card>
+
+      <SectionHeading id="tenant-settings-section-support">Support &amp; diagnostics</SectionHeading>
+
+      {buyerPolishedShell ? null : (
+        <Card>
+          <CardHeader>
+            <CardTitle as="h3" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+              Support bundle
+            </CardTitle>
+          </CardHeader>
+          <CardContent className={cn("space-y-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            <p className="m-0">
+              Download a redacted diagnostics bundle to include with a support ticket.
+            </p>
+            <SupportBundleDownloadButton showDiagnosticsLink />
+          </CardContent>
+        </Card>
+      )}
+
+      <SectionHeading id="tenant-settings-section-governance">Governance</SectionHeading>
+
+      {buyerPolishedShell ? null : (
+        <Card>
+          <CardHeader>
+            <CardTitle as="h3" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+              Work ownership delete policy
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <TenantWorkOwnershipDeletePolicyCard />
+          </CardContent>
+        </Card>
+      )}
+
+      {buyerPolishedShell ? null : (
+        <div id="tenant-settings-section-advanced" className="scroll-mt-24">
+          <CollapsibleSection
+            title="Advanced — AI quality controls"
+            headingLevel={3}
+            defaultOpen={false}
+            open={advancedQualityOpen}
+            onToggle={onAdvancedQualityToggle}
+            sectionTestId="tenant-advanced-section"
+          >
+            <p className={cn("mb-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+              Configure how strictly ArchLucid evaluates generated review output before it is accepted. These settings affect
+              AI spend and review pipeline behavior — leave at host defaults unless directed by support.
+            </p>
+            <div className="space-y-4">
+              {advancedQualityOpen ? <TenantFindingEngineControlsCard /> : null}
+              {advancedQualityOpen ? <TenantQualityGatesCard /> : null}
+            </div>
+          </CollapsibleSection>
+        </div>
+      )}
+    </>
+  );
+}

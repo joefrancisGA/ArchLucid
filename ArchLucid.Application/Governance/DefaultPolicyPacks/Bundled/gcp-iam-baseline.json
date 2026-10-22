@@ -1,0 +1,50 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "iam-gcp-001",
+    "iam-gcp-002",
+    "iam-gcp-003",
+    "iam-gcp-004",
+    "iam-gcp-005",
+    "iam-gcp-006",
+    "iam-gcp-007",
+    "iam-gcp-008",
+    "iam-gcp-009",
+    "iam-gcp-010",
+    "iam-gcp-011",
+    "iam-gcp-012",
+    "iam-gcp-013",
+    "iam-gcp-014",
+    "iam-gcp-015",
+    "iam-gcp-016",
+    "iam-gcp-017",
+    "iam-gcp-018",
+    "iam-gcp-019",
+    "iam-gcp-020",
+    "iam-gcp-021",
+    "iam-gcp-022",
+    "iam-gcp-023",
+    "iam-gcp-024",
+    "iam-gcp-025",
+    "iam-gcp-026",
+    "iam-gcp-027",
+    "iam-gcp-028"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "priorityFloor": "P0",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "gcp-iam-baseline-v1",
+    "pack.displayName": "GCP Cloud IAM Architecture Baseline",
+    "pack.category": "Identity",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "Cloud IAM, org policies, service accounts, and workload identity themes for GCP architectures.",
+    "frameworkMappingDisclaimer": "Identity mapping is thematic only.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/gcp-iam-baseline-rules-v1.json"
+  }
+}

@@ -1,0 +1,175 @@
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const routing = vi.hoisted(() => ({
+  pathname: "/",
+  replace: vi.fn(),
+  searchParams: new URLSearchParams(),
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => routing.pathname,
+  useRouter: () => ({ replace: routing.replace }),
+  useSearchParams: () => routing.searchParams,
+}));
+
+vi.mock("next/link", () => ({
+  default: ({
+    href,
+    children,
+    ...rest
+  }: {
+    href: string;
+    children: React.ReactNode;
+  } & Record<string, unknown>) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
+}));
+
+import { ACCOUNT_PREFERENCES_PATH, ACCOUNT_SECURITY_PATH } from "@/lib/account-route-paths";
+import { OPERATOR_SHELL_GET_SUPPORT_MENU_ITEM } from "@/lib/operator/operator-shell-support-affordances";
+
+import {
+  AccountSettingsMenu,
+  computeAccountSettingsMenuPanelStyle,
+} from "./AccountSettingsMenu";
+
+function openMenu(): void {
+  fireEvent.click(screen.getByTestId("account-settings-menu-trigger"));
+}
+
+describe("AccountSettingsMenu", () => {
+  beforeEach(() => {
+    routing.pathname = "/";
+    routing.searchParams = new URLSearchParams();
+    routing.replace.mockClear();
+    window.history.replaceState(null, "", "/");
+  });
+
+  it("exposes user-scoped settings without consulting authority rank", () => {
+    render(<AccountSettingsMenu />);
+
+    openMenu();
+
+    expect(screen.getByTestId("account-settings-menu-item-user-preferences")).toHaveAttribute(
+      "href",
+      ACCOUNT_PREFERENCES_PATH,
+    );
+    expect(screen.getByTestId("account-settings-menu-item-account-security")).toHaveAttribute(
+      "href",
+      ACCOUNT_SECURITY_PATH,
+    );
+    expect(screen.getByTestId(`account-settings-menu-item-${OPERATOR_SHELL_GET_SUPPORT_MENU_ITEM.id}`)).toHaveAttribute(
+      "href",
+      OPERATOR_SHELL_GET_SUPPORT_MENU_ITEM.href,
+    );
+  });
+
+  it("marks the destination matching the current route as the current page", () => {
+    routing.pathname = ACCOUNT_PREFERENCES_PATH;
+
+    render(<AccountSettingsMenu />);
+
+    openMenu();
+
+    expect(screen.getByTestId("account-settings-menu-item-user-preferences")).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(screen.getByTestId("account-settings-menu-item-account-security")).not.toHaveAttribute(
+      "aria-current",
+    );
+  });
+
+  it("portals the menu to document.body so sticky top-bar overflow cannot trap a scrollbar", () => {
+    const { container } = render(<AccountSettingsMenu />);
+
+    openMenu();
+
+    const menu = screen.getByTestId("account-settings-menu");
+
+    expect(menu.parentElement).toBe(document.body);
+    expect(container.contains(menu)).toBe(false);
+    expect(menu.style.position).toBe("fixed");
+  });
+
+  it("closes on Escape", () => {
+    render(<AccountSettingsMenu />);
+
+    openMenu();
+    expect(screen.getByTestId("account-settings-menu")).toBeInTheDocument();
+
+    fireEvent.keyDown(document, { key: "Escape" });
+
+    expect(screen.queryByTestId("account-settings-menu")).not.toBeInTheDocument();
+  });
+
+  it("syncs open state to the accountMenuOpen search param after user interaction", () => {
+    render(<AccountSettingsMenu />);
+
+    openMenu();
+
+    expect(window.location.search).toBe("?accountMenuOpen=1");
+
+    fireEvent.keyDown(document, { key: "Escape" });
+
+    expect(window.location.search).toBe("");
+  });
+
+  it("exposes the preferences tooltip and toggles from F outside editable fields", () => {
+    render(<AccountSettingsMenu />);
+
+    const trigger = screen.getByTestId("account-settings-menu-trigger");
+    expect(trigger).toHaveAttribute("aria-label", "Your account settings");
+    expect(trigger).toHaveAttribute("title", "Open preferences (F)");
+    expect(trigger).toHaveAttribute("aria-keyshortcuts", "F");
+
+    fireEvent.keyDown(window, { key: "f" });
+    expect(screen.getByTestId("account-settings-menu")).toBeInTheDocument();
+
+    fireEvent.keyDown(window, { key: "f" });
+    expect(screen.queryByTestId("account-settings-menu")).not.toBeInTheDocument();
+  });
+
+  it("does not toggle from F while focus is in an editable field", () => {
+    render(
+      <>
+        <AccountSettingsMenu />
+        <input aria-label="Search" />
+      </>,
+    );
+
+    const input = screen.getByRole("textbox", { name: "Search" });
+    input.focus();
+    fireEvent.keyDown(input, { key: "f" });
+
+    expect(screen.queryByTestId("account-settings-menu")).not.toBeInTheDocument();
+  });
+});
+
+describe("computeAccountSettingsMenuPanelStyle", () => {
+  it("anchors the panel under the trigger's right edge", () => {
+    const trigger = document.createElement("button");
+
+    trigger.getBoundingClientRect = () =>
+      ({
+        top: 10,
+        bottom: 40,
+        left: 900,
+        right: 940,
+        width: 40,
+        height: 30,
+        x: 900,
+        y: 10,
+        toJSON: () => ({}),
+      }) as DOMRect;
+
+    const style = computeAccountSettingsMenuPanelStyle(trigger);
+
+    expect(style.position).toBe("fixed");
+    expect(style.top).toBe(44);
+    expect(style.left).toBe(940 - Math.min(288, window.innerWidth - 32));
+  });
+});

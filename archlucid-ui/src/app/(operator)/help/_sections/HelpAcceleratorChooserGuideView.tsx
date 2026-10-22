@@ -1,0 +1,442 @@
+"use client";
+
+import Link from "next/link";
+
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+
+import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { HelpAcceleratorChooserHeaderActions } from "@/app/(operator)/help/_sections/HelpAcceleratorChooserHeaderActions";
+import { HelpAcceleratorChooserPrerequisitePanel } from "@/app/(operator)/help/_sections/HelpAcceleratorChooserPrerequisitePanel";
+import { HelpAcceleratorChooserRelatedNextStepsLinks } from "@/app/(operator)/help/_sections/HelpAcceleratorChooserSourceLinks";
+import { AcceleratorChooserHelpClaimDisciplineStrip } from "@/components/help/AcceleratorChooserHelpClaimDisciplineStrip";
+import { AcceleratorChooserHelpSourcesOrientationStrip } from "@/components/help/AcceleratorChooserHelpSourcesOrientationStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
+import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { Button } from "@/components/ui/button";
+import { HelpAcceleratorCostGovernancePackCard } from "@/components/accelerator/HelpAcceleratorCostGovernancePackCard";
+import { AcceleratorPackStartCta } from "@/components/accelerator/AcceleratorPackStartCta";
+import { useAcceleratorChooserPrerequisitePresentation } from "@/hooks/use-accelerator-chooser-prerequisite-presentation";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { buildAcceleratorChooserGridItemsForPrerequisite } from "@/lib/accelerator-chooser-grid";
+import type { AcceleratorChooserEntry } from "@/lib/accelerator-chooser";
+import {
+  ACCELERATOR_CHOOSER_HELP_OVERVIEW,
+  ACCELERATOR_CHOOSER_HELP_PAGE_SUBTITLE,
+  ACCELERATOR_CHOOSER_HELP_PAGE_TITLE,
+  ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS,
+  ACCELERATOR_CHOOSER_HELP_WORKFLOW_STEPS,
+} from "@/lib/accelerator-chooser-help-guide-content";
+import {
+  ACCELERATOR_CHOOSER_HELP_CLAIM_DISCIPLINE,
+  ACCELERATOR_CHOOSER_HELP_RELATED_NEXT_STEPS_INTRO,
+} from "@/lib/accelerator-chooser-help-evidence-copy";
+import { ACCELERATOR_CHOOSER_HELP_PATH } from "@/lib/accelerator-chooser-help-route";
+import {
+  ACCELERATOR_CHOOSER_HELP_BUYER_OVERVIEW,
+  ACCELERATOR_CHOOSER_HELP_BUYER_START_HERE_HELPER,
+  ACCELERATOR_CHOOSER_HELP_FIRST_VIEWPORT_TEST_ID,
+  ACCELERATOR_CHOOSER_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  ACCELERATOR_CHOOSER_HELP_PAGE_LEAD,
+  ACCELERATOR_CHOOSER_HELP_PRIMARY_CONTENT_ID,
+  ACCELERATOR_CHOOSER_HELP_SKIP_LINK_LABEL,
+  ACCELERATOR_CHOOSER_HELP_SKIP_TARGET_ID,
+  ACCELERATOR_CHOOSER_HELP_START_HERE_CARD_TITLE,
+  ACCELERATOR_CHOOSER_HELP_WORKSPACE_TEST_ID,
+} from "@/lib/accelerator-chooser-help-page-copy";
+import {
+  ACCELERATOR_GREENFIELD_PACK_ID,
+  resolvePackCtaState,
+} from "@/lib/accelerator-chooser-pack-prerequisite";
+import { ACCELERATOR_JOB_CHOOSER_REQUIRED_INPUTS_LABEL } from "@/lib/accelerator-chooser-start-copy";
+import {
+  HELP_ACCELERATOR_CHOOSER_PACK_TECHNICAL_KEY_PARAM,
+  helpAcceleratorChooserPackTechnicalDisclosureHrefFromSearch,
+  parseHelpAcceleratorChooserPackTechnicalKeyFromSearch,
+} from "@/lib/help/help-accelerator-chooser-pack-technical-disclosure-url";
+import {
+  OPERATOR_LAYOUT,
+  OPERATOR_LINK,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
+import {
+  HELP_PAGE_LAYOUT,
+  HELP_PAGE_MIN_TOC_HEADINGS,
+  resolveHelpPageContentGridClass,
+} from "@/lib/help/help-page-layout";
+import {
+  inAppHelpHref,
+  type ProductDocumentationEntry,
+} from "@/lib/product-documentation-registry";
+import type { AcceleratorChooserPrerequisiteStatus } from "@/lib/resolve-accelerator-chooser-prerequisite-status";
+import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
+
+type HelpAcceleratorChooserGuideViewProps = {
+  readonly entry: ProductDocumentationEntry;
+};
+
+export const ACCELERATOR_CHOOSER_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
+  { level: 2, id: "accelerator-packs", title: "Accelerator packs" },
+  { level: 2, id: "how-to-start", title: "How to start in the architect workspace" },
+  { level: 2, id: "claim-discipline", title: "Claim discipline" },
+  { level: 2, id: "related-next-steps", title: "Related next steps" },
+];
+
+function resolveRequiredInputsHelpHref(packEntry: AcceleratorChooserEntry): string {
+  if (packEntry.id === ACCELERATOR_GREENFIELD_PACK_ID) {
+    return inAppHelpHref("getting-started");
+  }
+
+  return inAppHelpHref("evidence-intake");
+}
+
+type AcceleratorChooserPackCardProps = {
+  readonly packEntry: AcceleratorChooserEntry;
+  readonly prerequisiteStatus: AcceleratorChooserPrerequisiteStatus;
+  readonly onRetry?: () => void;
+  readonly openPackTechnicalKey: string;
+  readonly onPackTechnicalKeyOpenChange: (packKey: string | null) => void;
+};
+
+function AcceleratorChooserPackCard(props: AcceleratorChooserPackCardProps): React.ReactElement {
+  const { packEntry, prerequisiteStatus, onRetry, openPackTechnicalKey, onPackTechnicalKeyOpenChange } = props;
+  const ctaState = resolvePackCtaState(prerequisiteStatus, packEntry.id);
+  const hasTechnicalInputs = packEntry.technicalInputs !== undefined;
+
+  return (
+    <li
+      className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
+      data-testid={`help-accelerator-chooser-pack-${packEntry.id}`}
+    >
+      <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+        {packEntry.buyerJob}
+      </h3>
+      <p className={cn("m-0 mt-1 font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        {packEntry.packLabel}
+      </p>
+      <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{packEntry.summary}</p>
+      <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        <span className="font-medium text-al-text-primary">
+          {ACCELERATOR_JOB_CHOOSER_REQUIRED_INPUTS_LABEL}:{" "}
+        </span>
+        <Link href={resolveRequiredInputsHelpHref(packEntry)} className={OPERATOR_LINK.inline}>
+          {packEntry.requiredInputs}
+        </Link>
+      </p>
+      <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        <span className="font-medium text-al-text-primary">When not to use: </span>
+        {packEntry.doNotUseWhen}
+      </p>
+      <CollapsibleSection
+        title="Technical outputs and file detail"
+        summaryAriaLabel={`Technical outputs and file detail for ${packEntry.buyerJob}`}
+        sectionTestId={`help-accelerator-chooser-pack-${packEntry.id}-technical`}
+        open={openPackTechnicalKey === packEntry.id}
+        onToggle={(open) => onPackTechnicalKeyOpenChange(open ? packEntry.id : null)}
+      >
+        {hasTechnicalInputs ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            <span className="font-medium text-al-text-primary">Inputs: </span>
+            {packEntry.technicalInputs}
+          </p>
+        ) : null}
+        <p
+          className={cn(
+            hasTechnicalInputs ? "m-0 mt-2" : "m-0",
+            "text-al-text-secondary",
+            OPERATOR_TYPOGRAPHY.helper,
+          )}
+        >
+          <span className="font-medium text-al-text-primary">Outputs: </span>
+          {packEntry.expectedOutputs}
+        </p>
+      </CollapsibleSection>
+      <AcceleratorPackStartCta
+        packId={packEntry.id}
+        packLabel={packEntry.packLabel}
+        buyerJob={packEntry.buyerJob}
+        startHref={packEntry.startHref}
+        prerequisiteStatus={prerequisiteStatus}
+        startTestId={
+          ctaState === "ready" ? `help-accelerator-chooser-start-${packEntry.id}` : undefined
+        }
+        blockedMessageTestId={
+          ctaState !== "ready" ? `help-accelerator-chooser-pack-${packEntry.id}-blocked` : undefined
+        }
+        onRetry={onRetry}
+      />
+    </li>
+  );
+}
+
+function AcceleratorChooserStartHerePanel(): React.ReactElement {
+  return (
+    <section
+      className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+      data-testid="help-accelerator-chooser-start-here-panel"
+      aria-labelledby="help-accelerator-chooser-start-here-panel-heading"
+    >
+      <h2
+        id="help-accelerator-chooser-start-here-panel-heading"
+        className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+      >
+        {ACCELERATOR_CHOOSER_HELP_START_HERE_CARD_TITLE}
+      </h2>
+      <div className="flex flex-wrap items-center gap-2">
+        <Button asChild size="sm" variant="primary">
+          <Link href={ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.baselineReview.href}>
+            {ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.baselineReview.label}
+          </Link>
+        </Button>
+        <Button asChild size="sm" variant="outline">
+          <Link href={ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.pathChooser.href}>
+            {ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.pathChooser.label}
+          </Link>
+        </Button>
+      </div>
+      <p
+        className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="help-accelerator-chooser-start-here-helper"
+      >
+        {ACCELERATOR_CHOOSER_HELP_BUYER_START_HERE_HELPER}
+      </p>
+    </section>
+  );
+}
+
+/** Buyer-safe accelerator pack chooser for `/help/accelerator-chooser` (TB-1604). */
+export function HelpAcceleratorChooserGuideView(
+  props: HelpAcceleratorChooserGuideViewProps,
+): React.ReactElement {
+  const { entry } = props;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const presentation = useAcceleratorChooserPrerequisitePresentation();
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const helpAcceleratorChooserPackTechnicalKeyParam = searchParams.get(
+    HELP_ACCELERATOR_CHOOSER_PACK_TECHNICAL_KEY_PARAM,
+  );
+  const [openPackTechnicalKey, setOpenPackTechnicalKeyState] = useState(() =>
+    parseHelpAcceleratorChooserPackTechnicalKeyFromSearch(helpAcceleratorChooserPackTechnicalKeyParam),
+  );
+  const syncOpenPackTechnicalKeyToUrl = useCallback(
+    (packKey: string | null) => {
+      router.replace(
+        helpAcceleratorChooserPackTechnicalDisclosureHrefFromSearch(searchParams.toString(), packKey, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setOpenPackTechnicalKey = useCallback(
+    (packKey: string | null) => {
+      setOpenPackTechnicalKeyState(packKey ?? "");
+      syncOpenPackTechnicalKeyToUrl(packKey);
+    },
+    [syncOpenPackTechnicalKeyToUrl],
+  );
+  useEffect(() => {
+    setOpenPackTechnicalKeyState(
+      parseHelpAcceleratorChooserPackTechnicalKeyFromSearch(helpAcceleratorChooserPackTechnicalKeyParam),
+    );
+  }, [helpAcceleratorChooserPackTechnicalKeyParam]);
+  const gridItems = buildAcceleratorChooserGridItemsForPrerequisite(presentation.status);
+  const guideHeadings = resolveGuideHeadingsForStrip(
+    "help-accelerator-chooser",
+    ACCELERATOR_CHOOSER_GUIDE_HEADINGS,
+    "claim-discipline",
+  );
+  const contentGridClass = resolveHelpPageContentGridClass(
+    buyerPolishedShell ? 0 : guideHeadings.length,
+  );
+  const showSectionNav = !buyerPolishedShell && guideHeadings.length >= HELP_PAGE_MIN_TOC_HEADINGS;
+  const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
+
+  return (
+    <article
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
+      data-testid="help-accelerator-chooser-guide"
+    >
+      {buyerPolishedShell ? (
+        <a
+          href={`#${ACCELERATOR_CHOOSER_HELP_SKIP_TARGET_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {ACCELERATOR_CHOOSER_HELP_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+
+      <HelpTopicHashScroll />
+
+      <OperatorPageHeader
+        title={ACCELERATOR_CHOOSER_HELP_PAGE_TITLE}
+        titleTestId="help-accelerator-chooser-page-title"
+        subtitle={ACCELERATOR_CHOOSER_HELP_PAGE_SUBTITLE}
+        subtitleClassName={buyerPolishedShell ? cn("max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody) : undefined}
+        navHref={ACCELERATOR_CHOOSER_HELP_PATH}
+        claimDiscipline={buyerPolishedShell ? ACCELERATOR_CHOOSER_HELP_CLAIM_DISCIPLINE : undefined}
+        claimDisciplineTestId={
+          buyerPolishedShell ? ACCELERATOR_CHOOSER_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID : undefined
+        }
+        actions={
+          buyerPolishedShell ? (
+            <HelpAcceleratorChooserHeaderActions entry={entry} />
+          ) : (
+            <div className="flex flex-wrap items-center gap-2">
+              <PageContextualHelpButton />
+              <HelpAcceleratorChooserHeaderActions entry={entry} />
+            </div>
+          )
+        }
+      />
+
+      {buyerPolishedShell ? null : <AcceleratorChooserHelpClaimDisciplineStrip />}
+
+      <div className={contentGridClass}>
+        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
+          <div
+            id={buyerPolishedShell ? ACCELERATOR_CHOOSER_HELP_PRIMARY_CONTENT_ID : undefined}
+            data-testid={buyerPolishedShell ? ACCELERATOR_CHOOSER_HELP_PRIMARY_CONTENT_ID : undefined}
+            className={cn(buyerPolishedShell ? "scroll-mt-24 space-y-6" : "space-y-6")}
+          >
+          {buyerPolishedShell ? (
+            <div
+              id={ACCELERATOR_CHOOSER_HELP_SKIP_TARGET_ID}
+              data-testid={ACCELERATOR_CHOOSER_HELP_FIRST_VIEWPORT_TEST_ID}
+              className={cn(
+                "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+                OPERATOR_LAYOUT.sectionStack,
+              )}
+            >
+              <div className="space-y-4" data-testid="help-accelerator-chooser-buyer-intro">
+                <p className={readingBodyClass} data-testid="help-accelerator-chooser-intro">
+                  {ACCELERATOR_CHOOSER_HELP_PAGE_LEAD}
+                </p>
+              </div>
+              <AcceleratorChooserStartHerePanel />
+            </div>
+          ) : null}
+
+          {buyerPolishedShell ? (
+            <p className={readingBodyClass} data-testid="help-accelerator-chooser-overview">
+              {ACCELERATOR_CHOOSER_HELP_BUYER_OVERVIEW}
+            </p>
+          ) : null}
+
+          {buyerPolishedShell ? null : (
+            <HelpAcceleratorChooserPrerequisitePanel presentation={presentation} />
+          )}
+
+          <section
+            className={buyerPolishedShell ? cn("min-w-0", OPERATOR_LAYOUT.sectionStack) : undefined}
+            data-testid={buyerPolishedShell ? ACCELERATOR_CHOOSER_HELP_WORKSPACE_TEST_ID : undefined}
+          >
+          <section
+            aria-labelledby="help-accelerator-chooser-packs-heading"
+            data-testid="help-accelerator-chooser-packs"
+            id="accelerator-packs"
+          >
+            <h2
+              id="help-accelerator-chooser-packs-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              Accelerator packs
+            </h2>
+            <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {ACCELERATOR_CHOOSER_HELP_OVERVIEW}
+            </p>
+            <ul className="m-0 mt-3 grid list-none gap-3 p-0 sm:grid-cols-2">
+              {gridItems.map((gridItem) => {
+                if (gridItem.kind === "cost-governance-group") {
+                  return (
+                    <HelpAcceleratorCostGovernancePackCard
+                      key="cost-governance-group"
+                      prerequisiteStatus={presentation.status}
+                      onRetry={presentation.retry}
+                    />
+                  );
+                }
+
+                return (
+                  <AcceleratorChooserPackCard
+                    key={gridItem.entry.id}
+                    packEntry={gridItem.entry}
+                    prerequisiteStatus={presentation.status}
+                    onRetry={presentation.retry}
+                    openPackTechnicalKey={openPackTechnicalKey}
+                    onPackTechnicalKeyOpenChange={setOpenPackTechnicalKey}
+                  />
+                );
+              })}
+            </ul>
+          </section>
+
+          <section
+            aria-labelledby="help-accelerator-chooser-workflow-heading"
+            data-testid="help-accelerator-chooser-workflow"
+            id="how-to-start"
+          >
+            <h2
+              id="help-accelerator-chooser-workflow-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              How to start in the architect workspace
+            </h2>
+            <ol className={cn("m-0 mt-3 list-decimal space-y-2 pl-5", OPERATOR_TYPOGRAPHY.body)}>
+              {ACCELERATOR_CHOOSER_HELP_WORKFLOW_STEPS.map((step) => (
+                <li
+                  key={step.stepNumber}
+                  className="text-al-text-secondary"
+                  data-testid={`help-accelerator-chooser-step-${step.stepNumber}`}
+                >
+                  <span className="font-semibold text-al-text-primary">{step.title}. </span>
+                  {step.description}{" "}
+                  <Link href={step.href} className={OPERATOR_LINK.optional}>
+                    {step.ctaLabel}
+                  </Link>
+                </li>
+              ))}
+            </ol>
+          </section>
+          </section>
+
+          <SponsorSendPathHonestyPanel testIdPrefix="help-accelerator-chooser" showSsoOptional={false} />
+
+          {buyerPolishedShell ? null : (
+          <section
+            className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+            aria-labelledby="help-accelerator-chooser-related-next-steps-heading"
+            data-testid="help-accelerator-chooser-related-next-steps"
+            id="related-next-steps"
+          >
+            <h2
+              id="help-accelerator-chooser-related-next-steps-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              Related next steps
+            </h2>
+            <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {ACCELERATOR_CHOOSER_HELP_RELATED_NEXT_STEPS_INTRO}
+            </p>
+            <HelpAcceleratorChooserRelatedNextStepsLinks />
+          </section>
+          )}
+
+          {buyerPolishedShell ? (
+            <AcceleratorChooserHelpSourcesOrientationStrip />
+          ) : null}
+          </div>
+        </div>
+
+        {showSectionNav ? <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy /> : null}
+      </div>
+    </article>
+  );
+}

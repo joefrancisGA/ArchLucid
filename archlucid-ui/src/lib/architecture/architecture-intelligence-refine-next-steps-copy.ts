@@ -1,0 +1,22 @@
+export const ARCHITECTURE_INTELLIGENCE_REFINE_NEXT_STEPS_HEADING = "What to do next";
+
+export const ARCHITECTURE_INTELLIGENCE_REFINE_START_REVIEW_LABEL = "Start architecture review";
+
+export const ARCHITECTURE_INTELLIGENCE_REFINE_START_REVIEW_HINT =
+  "Capture these findings on a product review when the architecture draft is ready.";
+
+export const ARCHITECTURE_INTELLIGENCE_REFINE_OPEN_LINKED_REVIEW_LABEL = "Open linked review";
+
+export const ARCHITECTURE_INTELLIGENCE_REFINE_OPEN_FULL_LAB_LABEL = "Open full architecture intelligence";
+
+export const ARCHITECTURE_INTELLIGENCE_REFINE_ZERO_FINDINGS_HINT =
+  "No evidence-backed findings were returned. Add constraints or refine the overview, then start analysis again.";
+
+export const ARCHITECTURE_INTELLIGENCE_FINDING_COUNT_NOT_STORED = "Finding count was not stored." as const;
+
+export const ARCHITECTURE_INTELLIGENCE_FINDINGS_PREVIEW_REVIEW_LINK_NOT_STORED =
+  "Review link was not stored." as const;
+
+export const ARCHITECTURE_INTELLIGENCE_FINDINGS_PREVIEW_HEADING = "Evidence-backed findings";
+
+export const ARCHITECTURE_INTELLIGENCE_FINDINGS_PREVIEW_SHOW_ALL_LABEL = "View all findings in architecture intelligence";

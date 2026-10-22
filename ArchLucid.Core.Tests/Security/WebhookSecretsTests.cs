@@ -1,0 +1,123 @@
+using ArchLucid.Core.Security;
+
+using FluentAssertions;
+
+namespace ArchLucid.Core.Tests.Security;
+
+[Trait("Category", "Unit")]
+public sealed class WebhookSecretsTests
+{
+    [Fact]
+    public void SecureEquals_matches_equal_secrets()
+    {
+        WebhookSecrets.SecureEquals("same", "same").Should().BeTrue();
+    }
+
+    [Fact]
+    public void SecureEquals_rejects_mismatch_length_safe()
+    {
+        WebhookSecrets.SecureEquals("a", "ab").Should().BeFalse();
+    }
+
+    [Fact]
+    public void SecureEquals_rejects_null_or_empty()
+    {
+        WebhookSecrets.SecureEquals(null, "x").Should().BeFalse();
+        WebhookSecrets.SecureEquals("x", "").Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsValidHmacSha256LowerHex_accepts_known_vector()
+    {
+        const string secret = "test-secret";
+        const string body = """{"hello":"world"}""";
+        string hex = ComputeHmacHex(secret, body);
+
+        WebhookSecrets.IsValidHmacSha256LowerHex(secret, body, hex).Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsValidHmacSha256Signature_accepts_sha256_prefixed_header()
+    {
+        const string secret = "test-secret";
+        const string body = """{"hello":"world"}""";
+        string hex = ComputeHmacHex(secret, body);
+
+        WebhookSecrets.IsValidHmacSha256Signature(secret, body, "sha256=" + hex).Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsValidHmacSha256Signature_rejects_wrong_prefix_or_hex()
+    {
+        const string secret = "test-secret";
+        const string body = """{"hello":"world"}""";
+
+        WebhookSecrets.IsValidHmacSha256Signature(secret, body, "sha256=deadbeef").Should().BeFalse();
+        WebhookSecrets.IsValidHmacSha256Signature(secret, body, null).Should().BeFalse();
+    }
+
+    [Fact]
+    public void TimestampWithinSkew_rejects_when_skew_required_but_missing_header()
+    {
+        WebhookSecrets.TimestampWithinSkew(TimeProvider.System.GetUtcNow(), null, 60).Should().BeFalse();
+    }
+
+    [Fact]
+    public void TimestampWithinSkew_accepts_recent_epoch()
+    {
+        long now = TimeProvider.System.GetUtcNow().ToUnixTimeSeconds();
+
+        WebhookSecrets.TimestampWithinSkew(TimeProvider.System.GetUtcNow(), now.ToString(), 120).Should().BeTrue();
+    }
+
+    [Fact]
+    public void TimestampWithinSkew_accepts_string_encoded_whole_number_epoch()
+    {
+        long now = TimeProvider.System.GetUtcNow().ToUnixTimeSeconds();
+
+        WebhookSecrets.TimestampWithinSkew(
+                TimeProvider.System.GetUtcNow(),
+                $"{now.ToString()}.0",
+                120)
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
+    public void TimestampWithinSkew_accepts_timestamp_exactly_at_skew_boundary_inclusive()
+    {
+        DateTimeOffset now = DateTimeOffset.FromUnixTimeSeconds(1_700_000_000);
+        long payloadUnix = 1_700_000_000 - 120;
+
+        WebhookSecrets.TimestampWithinSkew(now, payloadUnix.ToString(), 120).Should().BeTrue();
+    }
+
+    [Fact]
+    public void TimestampWithinSkew_rejects_timestamp_one_second_beyond_skew_boundary()
+    {
+        DateTimeOffset now = DateTimeOffset.FromUnixTimeSeconds(1_700_000_000);
+        long payloadUnix = 1_700_000_000 - 121;
+
+        WebhookSecrets.TimestampWithinSkew(now, payloadUnix.ToString(), 120).Should().BeFalse();
+    }
+
+    [Fact]
+    public void TimestampWithinSkew_rejects_non_numeric_timestamp_when_skew_enabled()
+    {
+        WebhookSecrets.TimestampWithinSkew(
+                TimeProvider.System.GetUtcNow(),
+                "not-unix-seconds",
+                120)
+            .Should()
+            .BeFalse();
+    }
+
+    private static string ComputeHmacHex(string secret, string body)
+    {
+        byte[] key = System.Text.Encoding.UTF8.GetBytes(secret);
+        byte[] data = System.Text.Encoding.UTF8.GetBytes(body);
+        byte[] mac = System.Security.Cryptography.HMACSHA256.HashData(key, data);
+
+        return Convert.ToHexString(mac).ToLowerInvariant();
+    }
+}

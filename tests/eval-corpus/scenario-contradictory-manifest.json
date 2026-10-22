@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-contradictory-manifest",
+  "metadata": {
+    "title": "Contradictory manifest, diagrams, and compliance collateral",
+    "complexity": "medium",
+    "primaryAgents": ["Topology", "Critic", "Compliance"]
+  },
+  "inputSummary": "The YAML workload manifest declares Azure Functions on consumption plans while Visio diagrams show IIS VMs behind hardware load balancers. Encryption bullets promise KMS-backed AES-256 yet datastore icons omit key-management glyphs.",
+  "recording": "recordings/corpus-contradictory-manifest.findings.json",
+  "qualityEvidence": {
+    "mode": "simulator",
+    "agentType": "Critic",
+    "agentResultPath": "agent-results/corpus-contradictory-manifest.simulator.json",
+    "notes": "Adversarial probe: regress contradiction surfacing without live LLM calls."
+  },
+  "expectedFindings": [
+    {
+      "id": "e contradict manifest topology",
+      "category": "Topology",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["contradict", "manifest"]
+    },
+    {
+      "id": "e discrepancy reconcile critic",
+      "category": "Critic",
+      "minimumSeverity": "High",
+      "evidenceMustContain": ["discrep", "reconcil"]
+    },
+    {
+      "id": "e encryption alignment compliance",
+      "category": "Compliance",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["encryption", "alignment"]
+    }
+  ],
+  "unexpectedFindings": [
+    {
+      "category": "Topology",
+      "ifContainsAny": ["ignore manifest", "suppress drift"]
+    },
+    {
+      "category": "Cost",
+      "ifContainsAny": ["hide unused capacity", "finops blackout"]
+    }
+  ]
+}

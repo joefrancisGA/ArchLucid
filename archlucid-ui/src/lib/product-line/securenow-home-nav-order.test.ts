@@ -1,0 +1,55 @@
+import { describe, expect, it } from "vitest";
+
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { NAV_GROUPS } from "@/lib/nav-config";
+import { SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
+import { SECURENOW_COMPLIANCE_HOME_ROWS } from "@/lib/product-line/securenow-compliance-home-copy";
+import {
+  SECURENOW_INFRASTRUCTURE_DRIFT_LABEL,
+  SECURENOW_INFRASTRUCTURE_HOME_ROWS,
+} from "@/lib/product-line/securenow-infrastructure-home-copy";
+import {
+  SECURENOW_FINDINGS_HOME_ROWS,
+  SECURENOW_SECURITY_HOME_ROWS,
+} from "@/lib/product-line/securenow-security-home-copy";
+
+function listSecureNowSidebarHrefs(): string[] {
+  const rows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.AdminAuthority, "all", true, false, {
+    productLine: "security",
+    showVendorInternalNav: true,
+  });
+
+  return rows.flatMap((row) => row.visibleLinks.map((link) => link.href));
+}
+
+describe("SecureNow home destination order", () => {
+  it("keeps Terraform mapping last in the infrastructure home section", () => {
+    expect(SECURENOW_INFRASTRUCTURE_HOME_ROWS.at(-1)?.href).toBe(SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH);
+  });
+
+  it("labels the SecureNow drift destination Snapshots & Drift", () => {
+    const rows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.AdminAuthority, "all", true, false, {
+      productLine: "security",
+      showVendorInternalNav: true,
+    });
+    const driftLink = rows
+      .flatMap((row) => row.visibleLinks)
+      .find((link) => link.href === "/infrastructure/snapshots-drift");
+
+    expect(driftLink?.label).toBe(SECURENOW_INFRASTRUCTURE_DRIFT_LABEL);
+  });
+
+  it("keeps Home destinations aligned with matching navbar links", () => {
+    const homeHrefs = [
+      ...SECURENOW_FINDINGS_HOME_ROWS,
+      ...SECURENOW_SECURITY_HOME_ROWS,
+      ...SECURENOW_COMPLIANCE_HOME_ROWS,
+      ...SECURENOW_INFRASTRUCTURE_HOME_ROWS,
+    ].map((row) => row.href);
+    const homeHrefSet = new Set(homeHrefs);
+    const navbarHrefsOnHome = listSecureNowSidebarHrefs().filter((href) => homeHrefSet.has(href));
+
+    expect(new Set(homeHrefs)).toEqual(new Set(navbarHrefsOnHome));
+  });
+});

@@ -1,0 +1,175 @@
+import type { ReactElement, ReactNode } from "react";
+
+import Link from "next/link";
+
+import { Button } from "@/components/ui/button";
+import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  RUN_DETAIL_CREATE_HOME_ACTIVITY_ORIENTATION_LEAD,
+} from "@/lib/runs/run-detail-create-home-activity-copy";
+import type { RunSummary } from "@/types/authority";
+import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
+import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-state";
+import { cn } from "@/lib/utils";
+import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
+import { RunDetailLastFailureCard } from "@/components/runs/RunDetailLastFailureCard";
+
+import { RunDetailCreateHomeActivityTechnicalDisclosures } from "./RunDetailCreateHomeActivityTechnicalDisclosures";
+import { RunDetailProgressTrackerDeferred } from "./run-detail-page-view-deferred-chunks";
+
+function shouldShowCreateHomeProvenanceAsOf(label: string): boolean {
+  const trimmed = label.trim();
+
+  if (trimmed.length === 0 || trimmed === " — ") {
+    return false;
+  }
+
+  return trimmed !== "Not recorded" && trimmed !== "Date not readable";
+}
+
+export type RunDetailCreateHomeActivityPanelProps = {
+  readonly runId: string;
+  readonly routeRunId: string;
+  readonly manifestId: string | null;
+  readonly showProgressTracker: boolean;
+  readonly statusLine: string;
+  readonly provenanceAsOfLabel: string;
+  readonly preFinalizeReadyToFinalize: boolean;
+  readonly progressForPipelineUi: RunSummary;
+  readonly loadedFindingsCount?: number | null;
+  readonly pipelineDiagnosticContext?: ReviewPipelineDiagnosticContext | null;
+  readonly outcomeCards: ReactNode;
+  readonly midDeferred: ReactNode;
+  readonly sourcesPanel: ReactNode;
+  readonly lastFailureSummary?: RunDetailLastFailureSummary | null;
+  readonly legacyRunStatus?: string | null;
+  readonly failureRecordedAtUtc?: string | null;
+  /** When Do this next owns the page primary, keep orientation links secondary. */
+  readonly pagePrimaryOwnedElsewhere?: boolean;
+};
+
+function RunDetailCreateHomeActivityOrientation(props: {
+  readonly runId: string;
+  readonly pagePrimaryOwnedElsewhere?: boolean;
+}): ReactElement {
+  const overviewVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
+  const overviewHref = buildReviewWorkspaceTabHref(props.runId, "overview", { includeCreateIntent: true });
+  const findingsHref = buildReviewWorkspaceTabHref(props.runId, "findings", { includeCreateIntent: true });
+  const clarificationsHref = buildReviewWorkspaceTabHref(props.runId, "decisions-remediation", {
+    includeCreateIntent: true,
+  });
+
+  return (
+    <div
+      className="space-y-3 rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800"
+      data-testid="architecture-activity-orientation"
+    >
+      <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+        {RUN_DETAIL_CREATE_HOME_ACTIVITY_ORIENTATION_LEAD}
+      </p>
+      <div className="flex flex-wrap gap-2">
+        <Button type="button" variant={overviewVariant} size="sm" asChild>
+          <Link href={overviewHref}>Open overview</Link>
+        </Button>
+        <Button type="button" variant="outline" size="sm" asChild>
+          <Link href={findingsHref}>Review findings</Link>
+        </Button>
+        <Button type="button" variant="outline" size="sm" asChild>
+          <Link href={clarificationsHref}>Open clarifications</Link>
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+/** Create-home Activity archTab — timeline hero with deferred forensics under disclosure (TB-1832, TB-1834). */
+export function RunDetailCreateHomeActivityPanel(props: RunDetailCreateHomeActivityPanelProps): ReactElement {
+  const showTracker = props.showProgressTracker;
+  const hasManifest = props.manifestId !== null;
+
+  return (
+    <div className="space-y-4" data-testid="run-detail-create-home-activity">
+      <div className="space-y-4" data-testid="architecture-activity-primary-region">
+        <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+          Assessment progress
+        </h2>
+        <p
+          className={cn(
+            "m-0 rounded-md border border-neutral-200 bg-al-surface-raised font-medium leading-snug dark:border-neutral-800 p-3",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
+          role="status"
+          data-testid="run-detail-activity-status-headline"
+        >
+          {props.statusLine}
+        </p>
+        {props.loadedFindingsCount !== null && props.loadedFindingsCount !== undefined ? (
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="run-detail-activity-findings-delta">
+            {props.loadedFindingsCount > 0
+              ? `This analysis added ${props.loadedFindingsCount} findings.`
+              : "This analysis added no findings."}
+          </p>
+        ) : null}
+
+        {!hasManifest && showTracker ? (
+          <div id="architecture-assessment-progress" className="scroll-mt-24">
+            <RunDetailProgressTrackerDeferred
+              runId={props.routeRunId}
+              initialSummary={props.progressForPipelineUi}
+              preFinalizeReadyToFinalize={props.preFinalizeReadyToFinalize}
+              buyerAssessmentCopy
+              diagnosticContext={props.pipelineDiagnosticContext}
+              deferFailureRecoveryToDoThisNext
+            />
+          </div>
+        ) : null}
+
+        {!showTracker ? (
+          <RunDetailCreateHomeActivityOrientation
+            runId={props.runId}
+            pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}
+          />
+        ) : null}
+
+        {showTracker && hasManifest ? (
+          <RunDetailProgressTrackerDeferred
+            runId={props.routeRunId}
+            initialSummary={props.progressForPipelineUi}
+            diagnosticContext={props.pipelineDiagnosticContext}
+          />
+        ) : null}
+
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+          <Link
+            className={OPERATOR_LINK.nav}
+            href={`/architecture/reviews/${encodeURIComponent(props.runId)}/provenance`}
+            data-testid="run-detail-provenance-link"
+          >
+            Full provenance view
+          </Link>
+          {shouldShowCreateHomeProvenanceAsOf(props.provenanceAsOfLabel) ? (
+            <span className="text-al-text-secondary"> (as of {props.provenanceAsOfLabel})</span>
+          ) : null}
+        </p>
+        <div id="review-failure-details" className="scroll-mt-24">
+          {!props.pipelineDiagnosticContext ||
+          !isReviewPipelineTerminalFailure(props.pipelineDiagnosticContext) ? (
+            <RunDetailLastFailureCard
+              runId={props.runId}
+              summary={props.lastFailureSummary ?? null}
+              legacyRunStatus={props.legacyRunStatus ?? null}
+              failureRecordedAtUtc={props.failureRecordedAtUtc ?? null}
+            />
+          ) : null}
+        </div>
+      </div>
+
+      <RunDetailCreateHomeActivityTechnicalDisclosures
+        outcomeCards={props.outcomeCards}
+        midDeferred={props.midDeferred}
+        sourcesPanel={props.sourcesPanel}
+      />
+    </div>
+  );
+}

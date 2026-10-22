@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "id": "scenario-08-microservices",
+  "metadata": {
+    "title": "Northwind order platform — monolith decomposition review",
+    "complexity": "high",
+    "primaryAgents": ["Topology", "Critic"],
+    "rubricNotes": "4 MUSTs: hits 3/4 (75%) to clear the 70% recall floor."
+  },
+  "inputSource": "templates/architecture-requests/microservices-decomposition-review.json",
+  "recording": "tests/eval-corpus/templates-pack/recordings/scenario-08-microservices.findings.json",
+  "expectedFindings": [
+    {
+      "id": "must-event-driven-order-inventory",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["event-driven"]
+    },
+    {
+      "id": "must-per-service-observability",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["trace"]
+    },
+    {
+      "id": "must-api-versioning-mobile",
+      "category": "Critic",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["api version"]
+    },
+    {
+      "id": "must-strangler-fig-phasing",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["strangler"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Topology", "ifContainsAny": ["one shared database across all services", "single sql for every microservice"] },
+    { "category": "Critic", "ifContainsAny": ["big-bang cutover", "rewrite everything at once", "no phased rollout"] }
+  ]
+}

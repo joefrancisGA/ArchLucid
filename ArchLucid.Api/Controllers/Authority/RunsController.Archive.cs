@@ -1,0 +1,57 @@
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
+using ArchLucid.Application.Runs;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authorization;
+using ArchLucid.Host.Core.ProblemDetails;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace ArchLucid.Api.Controllers.Authority;
+
+/// <summary>Operator soft-archive for in-flight architecture reviews.</summary>
+public sealed partial class RunsController
+{
+    /// <summary>
+    ///     Soft-archives an in-flight review so it is hidden from default lists. Sealed reviews with a committed golden
+    ///     manifest cannot be archived.
+    /// </summary>
+    [HttpPost("runs/{runId:guid}/archive")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    [MutatingAuditExcluded("Audit: IArchitectureRunArchiveService logs ArchitectureReviewArchived via IAuditService.")]
+    public async Task<IActionResult> ArchiveRun(
+        [FromRoute] Guid runId,
+        [FromServices] IArchitectureRunArchiveService archiveService,
+        CancellationToken cancellationToken)
+    {
+        IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        ArchitectureRunArchiveOutcome outcome =
+            await archiveService.TryArchiveAsync(runId, cancellationToken).ConfigureAwait(false);
+
+        return outcome switch
+        {
+            ArchitectureRunArchiveOutcome.Archived or ArchitectureRunArchiveOutcome.AlreadyArchived => NoContent(),
+            ArchitectureRunArchiveOutcome.NotFound => this.NotFoundProblem(
+                $"Review '{runId:D}' was not found.",
+                ProblemTypes.ResourceNotFound),
+            ArchitectureRunArchiveOutcome.SealedReviewBlocked => MapRunsSealedManifestConflict(
+                new ConflictException(
+                    "Sealed reviews cannot be archived. Committed architecture packages and audit history remain until tenant offboarding.")),
+
+            ArchitectureRunArchiveOutcome.OwnershipDeleteForbidden => this.ForbiddenProblemWithErrorCode(
+                "Archive not permitted",
+                "Only the review creator or a workspace administrator may archive this in-flight review.",
+                ProblemErrorCodes.Forbidden),
+            _ => throw new InvalidOperationException($"Unhandled archive outcome '{outcome}'."),
+        };
+    }
+}

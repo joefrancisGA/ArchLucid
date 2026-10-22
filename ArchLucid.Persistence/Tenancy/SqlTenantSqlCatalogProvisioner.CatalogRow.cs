@@ -1,0 +1,231 @@
+namespace ArchLucid.Persistence.Tenancy;
+
+public sealed partial class SqlTenantSqlCatalogProvisioner
+{
+#pragma warning disable CA1812 // instantiated via Dapper
+    private sealed class CatalogTenantRow
+#pragma warning restore CA1812
+    {
+        public Guid Id
+        {
+            get;
+            init;
+        }
+
+        public string Name
+        {
+            get;
+            init;
+        } = string.Empty;
+
+        public string Slug
+        {
+            get;
+            init;
+        } = string.Empty;
+
+        public string Tier
+        {
+            get;
+            init;
+        } = string.Empty;
+
+        public Guid? EntraTenantId
+        {
+            get;
+            init;
+        }
+
+        public string DataRegion
+        {
+            get;
+            init;
+        } = string.Empty;
+
+        public DateTimeOffset CreatedUtc
+        {
+            get;
+            init;
+        }
+
+        public DateTimeOffset? SuspendedUtc
+        {
+            get;
+            init;
+        }
+
+        public DateTimeOffset? OffboardedUtc
+        {
+            get;
+            init;
+        }
+
+        public DateTimeOffset? ErasureEligibleUtc
+        {
+            get;
+            init;
+        }
+
+        public DateTimeOffset? LegalHoldUntilUtc
+        {
+            get;
+            init;
+        }
+
+        public string? LegalHoldReason
+        {
+            get;
+            init;
+        }
+
+        public string? LegalHoldSetByUserId
+        {
+            get;
+            init;
+        }
+
+        public DateTimeOffset? LegalHoldSetUtc
+        {
+            get;
+            init;
+        }
+
+        public DateTimeOffset? TrialStartUtc
+        {
+            get;
+            init;
+        }
+
+        public DateTimeOffset? TrialExpiresUtc
+        {
+            get;
+            init;
+        }
+
+        public int? TrialRunsLimit
+        {
+            get;
+            init;
+        }
+
+        public int TrialRunsUsed
+        {
+            get;
+            init;
+        }
+
+        public int? TrialSeatsLimit
+        {
+            get;
+            init;
+        }
+
+        public int TrialSeatsUsed
+        {
+            get;
+            init;
+        }
+
+        public string? TrialStatus
+        {
+            get;
+            init;
+        }
+
+        public Guid? TrialSampleRunId
+        {
+            get;
+            init;
+        }
+
+        public DateTimeOffset? TrialArchitecturePreseedEnqueuedUtc
+        {
+            get;
+            init;
+        }
+
+        public Guid? TrialWelcomeRunId
+        {
+            get;
+            init;
+        }
+
+        public DateTimeOffset? TrialFirstManifestCommittedUtc
+        {
+            get;
+            init;
+        }
+
+        public decimal? BaselineReviewCycleHours
+        {
+            get;
+            init;
+        }
+
+        public string? BaselineReviewCycleSource
+        {
+            get;
+            init;
+        }
+
+        public DateTimeOffset? BaselineReviewCycleCapturedUtc
+        {
+            get;
+            init;
+        }
+
+        public decimal? BaselineManualPrepHoursPerReview
+        {
+            get;
+            init;
+        }
+
+        public int? BaselinePeoplePerReview
+        {
+            get;
+            init;
+        }
+
+        public DateTimeOffset? BaselineManualPrepCapturedUtc
+        {
+            get;
+            init;
+        }
+
+        public string? CompanySize
+        {
+            get;
+            init;
+        }
+
+        public int? ArchitectureTeamSize
+        {
+            get;
+            init;
+        }
+
+        public string? IndustryVertical
+        {
+            get;
+            init;
+        }
+
+        public string? IndustryVerticalOther
+        {
+            get;
+            init;
+        }
+
+        public int? EnterpriseSeatsLimit
+        {
+            get;
+            init;
+        }
+
+        public int EnterpriseSeatsUsed
+        {
+            get;
+            init;
+        }
+    }
+}

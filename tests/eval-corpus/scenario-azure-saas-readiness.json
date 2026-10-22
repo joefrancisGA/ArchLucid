@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-azure-saas-readiness",
+  "metadata": {
+    "title": "Azure SaaS readiness — multi-tenant pilot deployment",
+    "complexity": "high",
+    "primaryAgents": ["Topology", "Cost", "Compliance"]
+  },
+  "inputSummary": "An ISV is preparing to deploy their SaaS product on Azure for the first time. The architecture uses Azure App Service, Azure SQL, Azure Front Door, and Key Vault. The team needs an architecture review to verify the design is production-ready, correctly isolated per tenant, and cost-aware before their first enterprise pilot.",
+  "recording": "recordings/corpus-azure-saas-readiness.findings.json",
+  "qualityEvidence": {
+    "mode": "simulator",
+    "agentType": "Topology",
+    "agentResultPath": "agent-results/scenario-azure-saas-readiness.simulator.json",
+    "notes": "Synthetic SaaS readiness scenario; not infrastructure deployment advice."
+  },
+  "expectedFindings": [
+    {
+      "id": "e managed identity",
+      "category": "Topology",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["managed identity", "key vault"]
+    },
+    {
+      "id": "e front door tls",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["front door", "tls"]
+    },
+    {
+      "id": "e availability zones",
+      "category": "Cost",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["availability zone", "app service"]
+    }
+  ],
+  "unexpectedFindings": [
+    {
+      "category": "Topology",
+      "ifContainsAny": ["disable tls", "skip managed identity"]
+    },
+    {
+      "category": "Compliance",
+      "ifContainsAny": ["public endpoint acceptable", "no audit logging needed"]
+    }
+  ]
+}

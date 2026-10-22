@@ -1,0 +1,131 @@
+import { cn } from "@/lib/utils";
+
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
+import { SeverityTag } from "@/components/ui/severity-tag";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
+import type { ResponsibleAiRulesResolution } from "@/lib/policy/responsible-ai-policy-pack-rules";
+
+type PolicyPackRulesTableSectionProps = {
+  readonly headingId: string;
+  readonly heading: string;
+  readonly intro: string;
+  readonly rulesResolution: ResponsibleAiRulesResolution;
+  readonly ariaLabel: string;
+  readonly emptyMessage?: string;
+  readonly ruleAnchorPrefix?: string;
+  readonly tableTestId?: string;
+};
+
+/** Shared rules table for policy pack detail variants (GPI). */
+export function PolicyPackRulesTableSection(props: PolicyPackRulesTableSectionProps): React.JSX.Element {
+  const { headingId, heading, intro, rulesResolution, ariaLabel, emptyMessage } = props;
+  const ruleCountLabel = finiteIntegerCountDisplay(rulesResolution.rows.length);
+
+  return (
+    <section className="space-y-3" aria-labelledby={headingId}>
+      <div className="space-y-1">
+        <h3 id={headingId} className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+          {heading}
+          <span className="ms-2 font-normal text-al-text-secondary">({ruleCountLabel})</span>
+        </h3>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="policy-pack-rules-intro">
+          {intro}
+        </p>
+        {rulesResolution.rulesSourceQualifier !== null ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="policy-pack-rules-source-qualifier">
+            {rulesResolution.rulesSourceQualifier}
+          </p>
+        ) : null}
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          Conditions describe when a rule is evaluated; they do not describe a remediation.
+        </p>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          The action is the governance outcome recorded when the rule applies. It does not change Azure.
+        </p>
+      </div>
+      {rulesResolution.rows.length === 0 ? (
+        <>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="policy-pack-rules-empty">
+            {emptyMessage ?? "No published rules are available for this pack yet."}
+          </p>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            This does not mean that no policy applies.
+          </p>
+        </>
+      ) : (
+        <EnterpriseTable ariaLabel={ariaLabel} data-testid={props.tableTestId ?? "policy-pack-rules-table"}>
+          <EnterpriseTableHead>
+            <EnterpriseTableHeadRow>
+              <EnterpriseTableHeaderCell>
+                <span>Rule key</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  The stable identifier for this rule. The key stays with the rule.
+                </span>
+              </EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Rule name</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  The plain-language name recorded for this rule.
+                </span>
+              </EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Severity</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  How serious a match against this rule is recorded as.
+                </span>
+              </EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Requirement</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  What the rule requires before it is satisfied.
+                </span>
+              </EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>
+                <span>Evidence expected</span>
+                <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                  The evidence this rule expects a review to cite.
+                </span>
+              </EnterpriseTableHeaderCell>
+            </EnterpriseTableHeadRow>
+          </EnterpriseTableHead>
+          <EnterpriseTableBody>
+            {rulesResolution.rows.map((row) => (
+              <EnterpriseTableRow
+                key={row.ruleKey}
+                id={props.ruleAnchorPrefix != null ? `${props.ruleAnchorPrefix}-${row.ruleKey}` : undefined}
+              >
+                <EnterpriseTableCell className="font-mono text-xs">
+                  {props.ruleAnchorPrefix != null ? (
+                    <a
+                      href={`#${props.ruleAnchorPrefix}-${row.ruleKey}`}
+                      className="text-al-link underline-offset-2 hover:underline"
+                    >
+                      {row.ruleKey}
+                    </a>
+                  ) : (
+                    row.ruleKey
+                  )}
+                </EnterpriseTableCell>
+                <EnterpriseTableCell>{row.ruleName}</EnterpriseTableCell>
+                <EnterpriseTableCell>
+                  <SeverityTag severity={row.severity} />
+                </EnterpriseTableCell>
+                <EnterpriseTableCell>{row.requirement}</EnterpriseTableCell>
+                <EnterpriseTableCell>{row.evidenceExpected}</EnterpriseTableCell>
+              </EnterpriseTableRow>
+            ))}
+          </EnterpriseTableBody>
+        </EnterpriseTable>
+      )}
+    </section>
+  );
+}

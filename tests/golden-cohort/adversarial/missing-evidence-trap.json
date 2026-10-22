@@ -1,0 +1,5 @@
+{
+  "trap": "missing-evidence-trap",
+  "description": "Unknown endpoints must be rejected by merge gate — not merged as pass.",
+  "expectGateRejectsAll": true
+}

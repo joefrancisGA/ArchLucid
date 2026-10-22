@@ -1,0 +1,159 @@
+"use client";
+
+import Link from "next/link";
+
+import { HelpCloudConnectionsPackagingScriptsDisclosure } from "@/app/(operator)/help/_sections/HelpCloudConnectionsPackagingScriptsDisclosure";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { Button } from "@/components/ui/button";
+import {
+  CLOUD_CONNECTIONS_HELP_CHOOSE_PLATFORM_TITLE,
+  cloudConnectionsHelpPrimaryActions,
+  cloudConnectionsHelpPrimaryCta,
+  cloudConnectionsHelpScheduledAgent,
+  cloudConnectionsHelpTier1,
+  cloudConnectionsHelpProviderScopeRows,
+  cloudConnectionsHelpTier2,
+} from "@/lib/cloud-connections-help-guide-content";
+import {
+  DESIGN_TOKENS,
+  OPERATOR_LINK,
+  OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { cn } from "@/lib/utils";
+
+function helpScrollableTableRegionLabel(sectionTitle: string, tableOrdinal: number): string {
+  const base = sectionTitle.length > 0 ? sectionTitle : "Reference";
+
+  return `Scrollable ${base} table ${tableOrdinal}`;
+}
+
+function TierCardEyebrow(props: { readonly children: string }): React.ReactElement {
+  return (
+    <p className={cn("m-0 uppercase tracking-wide text-al-text-secondary", OPERATOR_TYPOGRAPHY.label)}>
+      {props.children}
+    </p>
+  );
+}
+
+/** Evidence tiers and provider permission scope for `/help/cloud-connections` (HCE). */
+export function HelpCloudConnectionsProviderScopeSection(): React.ReactElement {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const { productLine } = useProductLine();
+  const scheduledAgent = cloudConnectionsHelpScheduledAgent(productLine);
+  const tier1 = cloudConnectionsHelpTier1(productLine);
+  const tier2 = cloudConnectionsHelpTier2(productLine);
+  const providerRows = cloudConnectionsHelpProviderScopeRows(productLine);
+  const primaryActions = cloudConnectionsHelpPrimaryActions(productLine);
+  const primaryCta = cloudConnectionsHelpPrimaryCta(productLine);
+
+  return (
+    <section
+      id="choose-your-cloud-platform"
+      aria-labelledby="help-cloud-connections-choose-platform-heading"
+      data-testid="help-cloud-connections-provider-scope"
+    >
+      <h2
+        id="help-cloud-connections-choose-platform-heading"
+        className={cn(
+          OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
+          "m-0 scroll-mt-24",
+          OPERATOR_TYPOGRAPHY.sectionTitle,
+        )}
+      >
+        {CLOUD_CONNECTIONS_HELP_CHOOSE_PLATFORM_TITLE}
+      </h2>
+
+      <div className="mt-4 grid gap-4 lg:grid-cols-3" data-testid="help-cloud-connections-tier-decision">
+        <div
+          className={cn(DESIGN_TOKENS.surface.card, HELP_PAGE_LAYOUT.tierEmphasisPanel, "space-y-3 p-4")}
+          data-testid="help-cloud-connections-scheduled-agent-card"
+        >
+          <TierCardEyebrow>{scheduledAgent.eyebrow}</TierCardEyebrow>
+          <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{scheduledAgent.title}</h3>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {scheduledAgent.useWhen}
+          </p>
+        </div>
+
+        <div
+          className={cn(DESIGN_TOKENS.surface.card, "space-y-3 p-4")}
+          data-testid="help-cloud-connections-tier-1-card"
+        >
+          <TierCardEyebrow>{tier1.eyebrow}</TierCardEyebrow>
+          <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{tier1.title}</h3>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {tier1.useWhen}
+          </p>
+          <HelpCloudConnectionsPackagingScriptsDisclosure />
+          {buyerPolishedShell ? null : (
+            <div className="flex flex-wrap items-center gap-2">
+              <Button asChild size="sm" variant="primary" data-testid="help-cloud-connections-primary-cta">
+                <Link href={primaryCta.href}>{primaryCta.label}</Link>
+              </Button>
+            </div>
+          )}
+        </div>
+
+        <div className={cn(DESIGN_TOKENS.surface.card, "space-y-3 p-4")} data-testid="help-cloud-connections-tier-2-card">
+          <TierCardEyebrow>{tier2.eyebrow}</TierCardEyebrow>
+          <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{tier2.title}</h3>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {tier2.useWhen}
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button asChild size="sm" variant="outline">
+              <Link href={primaryActions.openHub.href}>{primaryActions.openHub.label}</Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div
+        className={HELP_PAGE_LAYOUT.tableWrap}
+        tabIndex={0}
+        role="region"
+        aria-label={helpScrollableTableRegionLabel(CLOUD_CONNECTIONS_HELP_CHOOSE_PLATFORM_TITLE, 1)}
+        data-testid="help-cloud-connections-provider-scope-table"
+      >
+        <table className={HELP_PAGE_LAYOUT.table}>
+          <caption className="sr-only">Cloud platform connection scope comparison</caption>
+          <thead>
+            <tr>
+              <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>Platform</th>
+              <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>Identity model</th>
+              <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>Read-only role / scope</th>
+              <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>Scope unit</th>
+              <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>Setup guide</th>
+            </tr>
+          </thead>
+          <tbody>
+            {providerRows.map((row, index) => (
+              <tr
+                key={row.platform}
+                className={index % 2 === 0 ? HELP_PAGE_LAYOUT.tableRowOdd : HELP_PAGE_LAYOUT.tableRowEven}
+              >
+                <th scope="row" className={HELP_PAGE_LAYOUT.tableBodyCell}>
+                  {row.platform}
+                </th>
+                <td className={HELP_PAGE_LAYOUT.tableBodyCell}>{row.identityModel}</td>
+                <td className={HELP_PAGE_LAYOUT.tableBodyCell}>{row.roleOrScope}</td>
+                <td className={HELP_PAGE_LAYOUT.tableBodyCell}>{row.scopeUnit}</td>
+                <td className={HELP_PAGE_LAYOUT.tableBodyCell}>
+                  <Link
+                    href={row.guideHref}
+                    className={cn(OPERATOR_LINK.stepPill, "no-underline")}
+                  >
+                    {row.guideLabel}
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}

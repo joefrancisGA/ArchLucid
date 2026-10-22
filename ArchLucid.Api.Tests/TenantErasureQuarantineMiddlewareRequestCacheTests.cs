@@ -1,0 +1,843 @@
+using System.Security.Claims;
+
+using ArchLucid.Api.Middleware;
+using ArchLucid.Application.Tenancy;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Tenancy;
+
+using FluentAssertions;
+
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
+
+using Moq;
+
+namespace ArchLucid.Api.Tests;
+
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
+public sealed class TenantErasureQuarantineMiddlewareRequestCacheTests
+{
+    private static readonly Guid TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
+    [Fact]
+    public async Task Pipeline_trial_seat_then_erasure_quarantine_reads_tenant_once_per_request()
+    {
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(repository => repository.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantRecord
+                {
+                    Id = TenantId,
+                    Name = "Acme",
+                    Slug = "acme",
+                    TrialStatus = TrialLifecycleStatus.Converted,
+                });
+
+        DefaultHttpContext http = new()
+        {
+            Request = { Path = "/v1/runs" },
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                    [
+                        new Claim("sub", "user-1"),
+                        new Claim("tenant_id", TenantId.ToString("D")),
+                    ],
+                    "Bearer")),
+            Response = { Body = new MemoryStream() },
+        };
+
+        ServiceCollection services = [];
+        services.AddMemoryCache();
+        services.AddSingleton<IHttpContextAccessor>(_ => new HttpContextAccessor { HttpContext = http });
+        services.AddSingleton<IScopeContextProvider, HttpScopeContextProvider>();
+        services.AddSingleton(tenants.Object);
+        services.AddSingleton<ITenantGetByIdRequestCache, TenantGetByIdRequestCache>();
+        services.AddSingleton<ITenantTrialSeatSkipCache, TenantTrialSeatSkipCache>();
+        services.AddSingleton<TrialSeatAccountant>();
+        services.AddSingleton(TimeProvider.System);
+        http.RequestServices = services.BuildServiceProvider();
+
+        RequestDelegate terminal = _ =>
+        {
+            http.Response.StatusCode = StatusCodes.Status200OK;
+
+            return Task.CompletedTask;
+        };
+
+        RequestDelegate pipeline = async context =>
+        {
+            TenantErasureQuarantineMiddleware quarantine =
+                new(new TrialSeatReservationMiddleware(terminal).InvokeAsync);
+            await quarantine.InvokeAsync(context);
+        };
+
+        await pipeline(http);
+
+        http.Response.StatusCode.Should().Be(StatusCodes.Status200OK);
+        tenants.Verify(repository => repository.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Pipeline_erasure_quarantine_runs_before_trial_seat_claim_for_offboarded_trial()
+    {
+        InMemoryTenantRepository tenants = new();
+        await tenants.InsertTenantAsync(
+            TenantId,
+            "Quarantine Trial",
+            "quarantine-trial",
+            TenantTier.Standard,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+
+        DateTimeOffset trialStart = new(2026, 8, 1, 12, 0, 0, TimeSpan.Zero);
+        await tenants.CommitSelfServiceTrialAsync(
+            TenantId,
+            trialStart,
+            trialStart.AddDays(14),
+            runsLimit: 10,
+            seatsLimit: 3,
+            sampleRunId: Guid.NewGuid(),
+            baselineReviewCycleHours: null,
+            baselineReviewCycleSource: null,
+            baselineReviewCycleCapturedUtc: null,
+            companySize: null,
+            architectureTeamSize: null,
+            industryVertical: null,
+            industryVerticalOther: null,
+            CancellationToken.None);
+
+        DateTimeOffset offboardedUtc = new(2026, 8, 20, 12, 0, 0, TimeSpan.Zero);
+        (await tenants.TryStartTenantErasureOffboardAsync(
+                TenantId,
+                offboardedUtc,
+                offboardedUtc.AddDays(30),
+                CancellationToken.None))
+            .Should()
+            .BeTrue();
+
+        TenantRecord before = (await tenants.GetByIdAsync(TenantId, CancellationToken.None))!;
+        before.TrialSeatsUsed.Should().Be(0);
+
+        DefaultHttpContext http = new()
+        {
+            Request = { Path = "/v1/runs" },
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                    [
+                        new Claim("sub", "user-1"),
+                        new Claim("tenant_id", TenantId.ToString("D")),
+                    ],
+                    "Bearer")),
+            Response = { Body = new MemoryStream() },
+        };
+
+        ServiceCollection services = [];
+        services.AddMemoryCache();
+        services.AddSingleton<IHttpContextAccessor>(_ => new HttpContextAccessor { HttpContext = http });
+        services.AddSingleton<IScopeContextProvider, HttpScopeContextProvider>();
+        services.AddSingleton<ITenantRepository>(tenants);
+        services.AddSingleton<ITenantGetByIdRequestCache, TenantGetByIdRequestCache>();
+        services.AddSingleton<ITenantTrialSeatSkipCache, TenantTrialSeatSkipCache>();
+        services.AddSingleton<TrialSeatAccountant>();
+        services.AddSingleton(TimeProvider.System);
+        http.RequestServices = services.BuildServiceProvider();
+
+        RequestDelegate terminal = context =>
+        {
+            context.Response.StatusCode = StatusCodes.Status200OK;
+
+            return Task.CompletedTask;
+        };
+
+        RequestDelegate pipeline = async context =>
+        {
+            TenantErasureQuarantineMiddleware quarantine =
+                new(new TrialSeatReservationMiddleware(terminal).InvokeAsync);
+            await quarantine.InvokeAsync(context);
+        };
+
+        await pipeline(http);
+
+        http.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+        TenantRecord after = (await tenants.GetByIdAsync(TenantId, CancellationToken.None))!;
+        after.TrialSeatsUsed.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task Erasure_quarantine_allows_tenant_erasure_lifecycle_routes_for_offboarded_tenant()
+    {
+        InMemoryTenantRepository tenants = new();
+        await tenants.InsertTenantAsync(
+            TenantId,
+            "Offboarded",
+            "offboarded",
+            TenantTier.Standard,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+
+        DateTimeOffset offboardedUtc = new(2026, 8, 20, 12, 0, 0, TimeSpan.Zero);
+        (await tenants.TryStartTenantErasureOffboardAsync(
+                TenantId,
+                offboardedUtc,
+                offboardedUtc.AddDays(30),
+                CancellationToken.None))
+            .Should()
+            .BeTrue();
+
+        foreach (string path in new[] { "/v1/tenant/erasure/approve", "/v1/tenant/erasure/legal-hold" })
+        {
+            DefaultHttpContext http = new()
+            {
+                Request = { Path = path },
+                User = new ClaimsPrincipal(
+                    new ClaimsIdentity(
+                        [
+                            new Claim("sub", "user-1"),
+                            new Claim("tenant_id", TenantId.ToString("D")),
+                        ],
+                        "Bearer")),
+                Response = { Body = new MemoryStream() },
+            };
+
+            ServiceCollection services = [];
+            services.AddMemoryCache();
+            services.AddSingleton<IHttpContextAccessor>(_ => new HttpContextAccessor { HttpContext = http });
+            services.AddSingleton<IScopeContextProvider, HttpScopeContextProvider>();
+            services.AddSingleton<ITenantRepository>(tenants);
+            services.AddSingleton<ITenantGetByIdRequestCache, TenantGetByIdRequestCache>();
+            services.AddSingleton<ITenantTrialSeatSkipCache, TenantTrialSeatSkipCache>();
+            services.AddSingleton<TrialSeatAccountant>();
+            services.AddSingleton(TimeProvider.System);
+            http.RequestServices = services.BuildServiceProvider();
+
+            RequestDelegate terminal = context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status204NoContent;
+
+                return Task.CompletedTask;
+            };
+
+            TenantErasureQuarantineMiddleware middleware = new(terminal);
+            await middleware.InvokeAsync(http);
+
+            http.Response.StatusCode.Should().Be(
+                StatusCodes.Status204NoContent,
+                "tenant admins must approve erasure and set legal holds while quarantine is active");
+        }
+    }
+
+    [Fact]
+    public async Task Erasure_quarantine_allows_tenant_erasure_lifecycle_routes_with_duplicate_slashes_in_path()
+    {
+        InMemoryTenantRepository tenants = new();
+        await tenants.InsertTenantAsync(
+            TenantId,
+            "Offboarded",
+            "offboarded-dup-slash",
+            TenantTier.Standard,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+
+        DateTimeOffset offboardedUtc = new(2026, 8, 20, 12, 0, 0, TimeSpan.Zero);
+        (await tenants.TryStartTenantErasureOffboardAsync(
+                TenantId,
+                offboardedUtc,
+                offboardedUtc.AddDays(30),
+                CancellationToken.None))
+            .Should()
+            .BeTrue();
+
+        foreach (string path in new[] { "/v1/tenant//erasure/approve", "/v1//tenant/erasure/approve" })
+        {
+            DefaultHttpContext http = new()
+            {
+                Request = { Path = path },
+                User = new ClaimsPrincipal(
+                    new ClaimsIdentity(
+                        [
+                            new Claim("sub", "user-1"),
+                            new Claim("tenant_id", TenantId.ToString("D")),
+                        ],
+                        "Bearer")),
+                Response = { Body = new MemoryStream() },
+            };
+
+            ServiceCollection services = [];
+            services.AddMemoryCache();
+            services.AddSingleton<IHttpContextAccessor>(_ => new HttpContextAccessor { HttpContext = http });
+            services.AddSingleton<IScopeContextProvider, HttpScopeContextProvider>();
+            services.AddSingleton<ITenantRepository>(tenants);
+            services.AddSingleton<ITenantGetByIdRequestCache, TenantGetByIdRequestCache>();
+            services.AddSingleton(TimeProvider.System);
+            http.RequestServices = services.BuildServiceProvider();
+
+            RequestDelegate terminal = context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status204NoContent;
+
+                return Task.CompletedTask;
+            };
+
+            TenantErasureQuarantineMiddleware middleware = new(terminal);
+            await middleware.InvokeAsync(http);
+
+            http.Response.StatusCode.Should().Be(
+                StatusCodes.Status204NoContent,
+                $"duplicate-slash erasure lifecycle path must not be blocked by quarantine ({path})");
+        }
+    }
+
+    [Fact]
+    public async Task Erasure_quarantine_allows_tenant_erasure_lifecycle_routes_with_trailing_slash()
+    {
+        InMemoryTenantRepository tenants = new();
+        await tenants.InsertTenantAsync(
+            TenantId,
+            "Offboarded",
+            "offboarded-trailing-slash",
+            TenantTier.Standard,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+
+        DateTimeOffset offboardedUtc = new(2026, 8, 20, 12, 0, 0, TimeSpan.Zero);
+        (await tenants.TryStartTenantErasureOffboardAsync(
+                TenantId,
+                offboardedUtc,
+                offboardedUtc.AddDays(30),
+                CancellationToken.None))
+            .Should()
+            .BeTrue();
+
+        foreach (string path in new[] { "/v1/tenant/erasure/approve/", "/v1/tenant/erasure/legal-hold/" })
+        {
+            DefaultHttpContext http = new()
+            {
+                Request = { Path = path },
+                User = new ClaimsPrincipal(
+                    new ClaimsIdentity(
+                        [
+                            new Claim("sub", "user-1"),
+                            new Claim("tenant_id", TenantId.ToString("D")),
+                        ],
+                        "Bearer")),
+                Response = { Body = new MemoryStream() },
+            };
+
+            ServiceCollection services = [];
+            services.AddMemoryCache();
+            services.AddSingleton<IHttpContextAccessor>(_ => new HttpContextAccessor { HttpContext = http });
+            services.AddSingleton<IScopeContextProvider, HttpScopeContextProvider>();
+            services.AddSingleton<ITenantRepository>(tenants);
+            services.AddSingleton<ITenantGetByIdRequestCache, TenantGetByIdRequestCache>();
+            services.AddSingleton(TimeProvider.System);
+            http.RequestServices = services.BuildServiceProvider();
+
+            RequestDelegate terminal = context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status204NoContent;
+
+                return Task.CompletedTask;
+            };
+
+            TenantErasureQuarantineMiddleware middleware = new(terminal);
+            await middleware.InvokeAsync(http);
+
+            http.Response.StatusCode.Should().Be(
+                StatusCodes.Status204NoContent,
+                $"trailing-slash erasure lifecycle path must not be blocked by quarantine ({path})");
+        }
+    }
+
+    [Fact]
+    public async Task Erasure_quarantine_allows_tenant_erasure_lifecycle_routes_with_dot_segments_in_path()
+    {
+        InMemoryTenantRepository tenants = new();
+        await tenants.InsertTenantAsync(
+            TenantId,
+            "Offboarded",
+            "offboarded-dot-segment",
+            TenantTier.Standard,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+
+        DateTimeOffset offboardedUtc = new(2026, 8, 20, 12, 0, 0, TimeSpan.Zero);
+        (await tenants.TryStartTenantErasureOffboardAsync(
+                TenantId,
+                offboardedUtc,
+                offboardedUtc.AddDays(30),
+                CancellationToken.None))
+            .Should()
+            .BeTrue();
+
+        foreach (string path in new[] { "/v1/tenant/erasure/./approve", "/v1/tenant/./erasure/approve" })
+        {
+            DefaultHttpContext http = new()
+            {
+                Request = { Path = path },
+                User = new ClaimsPrincipal(
+                    new ClaimsIdentity(
+                        [
+                            new Claim("sub", "user-1"),
+                            new Claim("tenant_id", TenantId.ToString("D")),
+                        ],
+                        "Bearer")),
+                Response = { Body = new MemoryStream() },
+            };
+
+            ServiceCollection services = [];
+            services.AddMemoryCache();
+            services.AddSingleton<IHttpContextAccessor>(_ => new HttpContextAccessor { HttpContext = http });
+            services.AddSingleton<IScopeContextProvider, HttpScopeContextProvider>();
+            services.AddSingleton<ITenantRepository>(tenants);
+            services.AddSingleton<ITenantGetByIdRequestCache, TenantGetByIdRequestCache>();
+            services.AddSingleton(TimeProvider.System);
+            http.RequestServices = services.BuildServiceProvider();
+
+            RequestDelegate terminal = context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status204NoContent;
+
+                return Task.CompletedTask;
+            };
+
+            TenantErasureQuarantineMiddleware middleware = new(terminal);
+            await middleware.InvokeAsync(http);
+
+            http.Response.StatusCode.Should().Be(
+                StatusCodes.Status204NoContent,
+                $"dot-segment erasure lifecycle path must not be blocked by quarantine ({path})");
+        }
+    }
+
+    [Fact]
+    public async Task Erasure_quarantine_still_blocks_offboarded_tenant_on_non_erasure_routes()
+    {
+        InMemoryTenantRepository tenants = new();
+        await tenants.InsertTenantAsync(
+            TenantId,
+            "Offboarded",
+            "offboarded-blocked",
+            TenantTier.Standard,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+
+        DateTimeOffset offboardedUtc = new(2026, 8, 20, 12, 0, 0, TimeSpan.Zero);
+        (await tenants.TryStartTenantErasureOffboardAsync(
+                TenantId,
+                offboardedUtc,
+                offboardedUtc.AddDays(30),
+                CancellationToken.None))
+            .Should()
+            .BeTrue();
+
+        DefaultHttpContext http = new()
+        {
+            Request = { Path = "/v1/runs" },
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                    [
+                        new Claim("sub", "user-1"),
+                        new Claim("tenant_id", TenantId.ToString("D")),
+                    ],
+                    "Bearer")),
+            Response = { Body = new MemoryStream() },
+        };
+
+        ServiceCollection services = [];
+        services.AddMemoryCache();
+        services.AddSingleton<IHttpContextAccessor>(_ => new HttpContextAccessor { HttpContext = http });
+        services.AddSingleton<IScopeContextProvider, HttpScopeContextProvider>();
+        services.AddSingleton<ITenantRepository>(tenants);
+        services.AddSingleton<ITenantGetByIdRequestCache, TenantGetByIdRequestCache>();
+        services.AddSingleton<ITenantTrialSeatSkipCache, TenantTrialSeatSkipCache>();
+        services.AddSingleton<TrialSeatAccountant>();
+        services.AddSingleton(TimeProvider.System);
+        http.RequestServices = services.BuildServiceProvider();
+
+        RequestDelegate terminal = context =>
+        {
+            context.Response.StatusCode = StatusCodes.Status200OK;
+
+            return Task.CompletedTask;
+        };
+
+        TenantErasureQuarantineMiddleware middleware = new(terminal);
+        await middleware.InvokeAsync(http);
+
+        http.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task Erasure_quarantine_still_blocks_offboarded_tenant_when_path_traversal_reaches_admin_prefix()
+    {
+        InMemoryTenantRepository tenants = new();
+        await tenants.InsertTenantAsync(
+            TenantId,
+            "Offboarded",
+            "offboarded-traversal",
+            TenantTier.Standard,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+
+        DateTimeOffset offboardedUtc = new(2026, 8, 20, 12, 0, 0, TimeSpan.Zero);
+        (await tenants.TryStartTenantErasureOffboardAsync(
+                TenantId,
+                offboardedUtc,
+                offboardedUtc.AddDays(30),
+                CancellationToken.None))
+            .Should()
+            .BeTrue();
+
+        DefaultHttpContext http = new()
+        {
+            Request = { Path = "/v1/tenant/../admin/tenants" },
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                    [
+                        new Claim("sub", "user-1"),
+                        new Claim("tenant_id", TenantId.ToString("D")),
+                    ],
+                    "Bearer")),
+            Response = { Body = new MemoryStream() },
+        };
+
+        ServiceCollection services = [];
+        services.AddMemoryCache();
+        services.AddSingleton<IHttpContextAccessor>(_ => new HttpContextAccessor { HttpContext = http });
+        services.AddSingleton<IScopeContextProvider, HttpScopeContextProvider>();
+        services.AddSingleton<ITenantRepository>(tenants);
+        services.AddSingleton<ITenantGetByIdRequestCache, TenantGetByIdRequestCache>();
+        services.AddSingleton(TimeProvider.System);
+        http.RequestServices = services.BuildServiceProvider();
+
+        RequestDelegate terminal = context =>
+        {
+            context.Response.StatusCode = StatusCodes.Status200OK;
+
+            return Task.CompletedTask;
+        };
+
+        TenantErasureQuarantineMiddleware middleware = new(terminal);
+        await middleware.InvokeAsync(http);
+
+        http.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task Erasure_quarantine_passes_through_when_tenant_record_missing()
+    {
+        DefaultHttpContext http = new()
+        {
+            Request = { Path = "/v1/runs" },
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                    [
+                        new Claim("sub", "user-1"),
+                        new Claim("tenant_id", TenantId.ToString("D")),
+                    ],
+                    "Bearer")),
+            Response = { Body = new MemoryStream() },
+        };
+
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(repository => repository.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        ServiceCollection services = [];
+        services.AddMemoryCache();
+        services.AddSingleton<IHttpContextAccessor>(_ => new HttpContextAccessor { HttpContext = http });
+        services.AddSingleton<IScopeContextProvider, HttpScopeContextProvider>();
+        services.AddSingleton(tenants.Object);
+        services.AddSingleton<ITenantGetByIdRequestCache, TenantGetByIdRequestCache>();
+        services.AddSingleton(TimeProvider.System);
+        http.RequestServices = services.BuildServiceProvider();
+
+        bool terminalReached = false;
+
+        RequestDelegate terminal = context =>
+        {
+            terminalReached = true;
+            context.Response.StatusCode = StatusCodes.Status200OK;
+
+            return Task.CompletedTask;
+        };
+
+        TenantErasureQuarantineMiddleware middleware = new(terminal);
+        await middleware.InvokeAsync(http);
+
+        terminalReached.Should().BeTrue();
+        http.Response.StatusCode.Should().Be(StatusCodes.Status200OK);
+    }
+
+    [Fact]
+    public async Task Erasure_quarantine_blocks_past_due_scheduled_erasure_when_not_offboarded()
+    {
+        DateTimeOffset now = new(2026, 9, 26, 14, 0, 0, TimeSpan.Zero);
+        FakeTimeProvider clock = new(now);
+
+        DefaultHttpContext http = new()
+        {
+            Request = { Path = "/v1/runs" },
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                    [
+                        new Claim("sub", "user-1"),
+                        new Claim("tenant_id", TenantId.ToString("D")),
+                    ],
+                    "Bearer")),
+            Response = { Body = new MemoryStream() },
+        };
+
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(repository => repository.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantRecord
+                {
+                    Id = TenantId,
+                    Name = "Scheduled erasure",
+                    Slug = "scheduled-erasure",
+                    TenantErasureRequestedUtc = now.AddMinutes(-30),
+                    OffboardedUtc = null,
+                });
+
+        ServiceCollection services = [];
+        services.AddMemoryCache();
+        services.AddSingleton<IHttpContextAccessor>(_ => new HttpContextAccessor { HttpContext = http });
+        services.AddSingleton<IScopeContextProvider, HttpScopeContextProvider>();
+        services.AddSingleton(tenants.Object);
+        services.AddSingleton<ITenantGetByIdRequestCache, TenantGetByIdRequestCache>();
+        services.AddSingleton<TimeProvider>(clock);
+        http.RequestServices = services.BuildServiceProvider();
+
+        bool terminalReached = false;
+
+        RequestDelegate terminal = context =>
+        {
+            terminalReached = true;
+            context.Response.StatusCode = StatusCodes.Status200OK;
+
+            return Task.CompletedTask;
+        };
+
+        TenantErasureQuarantineMiddleware middleware = new(terminal);
+        await middleware.InvokeAsync(http);
+
+        terminalReached.Should().BeFalse();
+        http.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task Erasure_quarantine_skips_unauthenticated_tenant_scoped_routes()
+    {
+        DefaultHttpContext http = new()
+        {
+            Request = { Path = "/v1/runs" },
+            User = new ClaimsPrincipal(new ClaimsIdentity()),
+            Response = { Body = new MemoryStream() },
+        };
+
+        InMemoryTenantRepository tenants = new();
+        await tenants.InsertTenantAsync(
+            TenantId,
+            "Offboarded",
+            "offboarded-anon",
+            TenantTier.Standard,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+
+        DateTimeOffset offboardedUtc = new(2026, 8, 20, 12, 0, 0, TimeSpan.Zero);
+        (await tenants.TryStartTenantErasureOffboardAsync(
+                TenantId,
+                offboardedUtc,
+                offboardedUtc.AddDays(30),
+                CancellationToken.None))
+            .Should()
+            .BeTrue();
+
+        ServiceCollection services = [];
+        services.AddMemoryCache();
+        services.AddSingleton<IHttpContextAccessor>(_ => new HttpContextAccessor { HttpContext = http });
+        services.AddSingleton<IScopeContextProvider, HttpScopeContextProvider>();
+        services.AddSingleton<ITenantRepository>(tenants);
+        services.AddSingleton<ITenantGetByIdRequestCache, TenantGetByIdRequestCache>();
+        services.AddSingleton(TimeProvider.System);
+        http.RequestServices = services.BuildServiceProvider();
+
+        bool terminalReached = false;
+
+        RequestDelegate terminal = context =>
+        {
+            terminalReached = true;
+            context.Response.StatusCode = StatusCodes.Status200OK;
+
+            return Task.CompletedTask;
+        };
+
+        TenantErasureQuarantineMiddleware middleware = new(terminal);
+        await middleware.InvokeAsync(http);
+
+        terminalReached.Should().BeTrue();
+        http.Response.StatusCode.Should().Be(StatusCodes.Status200OK);
+    }
+
+    [Fact]
+    public async Task Erasure_quarantine_blocks_offboarded_tenant_when_register_or_erasure_prefix_traversal_normalizes_away_from_skip()
+    {
+        InMemoryTenantRepository tenants = await CreateOffboardedTenantRepositoryAsync();
+
+        foreach (string path in new[]
+                 {
+                     "/v1/register/../v1/runs",
+                     "/v1/register/../admin/tenants",
+                     "/v1//register//../v1/runs",
+                     "/v1/./register/../v1/runs",
+                     "/v1/tenant/erasure/../runs",
+                 })
+        {
+            int statusCode = await InvokeQuarantineMiddlewareAsync(tenants, path);
+
+            statusCode.Should().Be(
+                StatusCodes.Status403Forbidden,
+                $"normalized path must not retain register/erasure skip ({path})");
+        }
+    }
+
+    [Fact]
+    public async Task Erasure_quarantine_allows_tenant_apis_when_only_legal_hold_is_active_without_offboard()
+    {
+        DateTimeOffset now = new(2026, 10, 21, 12, 0, 0, TimeSpan.Zero);
+        FakeTimeProvider clock = new(now);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(repository => repository.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantRecord
+                {
+                    Id = TenantId,
+                    Name = "Legal hold only",
+                    Slug = "legal-hold-only",
+                    OffboardedUtc = null,
+                    TenantErasureRequestedUtc = null,
+                    LegalHoldUntilUtc = now.AddDays(30),
+                });
+
+        int statusCode = await InvokeQuarantineMiddlewareAsync(
+            tenants.Object,
+            "/v1/runs",
+            clock);
+
+        statusCode.Should().Be(
+            StatusCodes.Status200OK,
+            "legal hold without erasure quarantine is enforced on purge/lifecycle commands, not general API login");
+    }
+
+    [Fact]
+    public async Task Erasure_quarantine_blocks_offboarded_tenant_on_register_dot_segment_urls_that_fail_raw_prefix_guard()
+    {
+        InMemoryTenantRepository tenants = await CreateOffboardedTenantRepositoryAsync();
+
+        int statusCode = await InvokeQuarantineMiddlewareAsync(tenants, "/v1/./register/continue");
+
+        statusCode.Should().Be(
+            StatusCodes.Status403Forbidden,
+            "dot-segment register URLs fail raw /v1/register guard so quarantine applies (over-block, not bypass)");
+    }
+
+    [Fact]
+    public async Task Erasure_quarantine_blocks_offboarded_tenant_when_register_path_uses_percent_encoded_dot_segments()
+    {
+        InMemoryTenantRepository tenants = await CreateOffboardedTenantRepositoryAsync();
+
+        int statusCode = await InvokeQuarantineMiddlewareAsync(tenants, "/v1/register/%2e%2e/v1/runs");
+
+        statusCode.Should().Be(
+            StatusCodes.Status403Forbidden,
+            "framework PathString decodes `%2e` to `.` so traversal normalizes to /v1/runs and register skip does not apply");
+    }
+
+    private static async Task<InMemoryTenantRepository> CreateOffboardedTenantRepositoryAsync()
+    {
+        InMemoryTenantRepository tenants = new();
+        await tenants.InsertTenantAsync(
+            TenantId,
+            "Offboarded",
+            "offboarded-thorough-hunt",
+            TenantTier.Standard,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+
+        DateTimeOffset offboardedUtc = new(2026, 8, 20, 12, 0, 0, TimeSpan.Zero);
+        (await tenants.TryStartTenantErasureOffboardAsync(
+                TenantId,
+                offboardedUtc,
+                offboardedUtc.AddDays(30),
+                CancellationToken.None))
+            .Should()
+            .BeTrue();
+
+        return tenants;
+    }
+
+    private static async Task<int> InvokeQuarantineMiddlewareAsync(
+        ITenantRepository tenants,
+        string path,
+        TimeProvider? timeProvider = null,
+        Action<bool>? terminalReached = null)
+    {
+        DefaultHttpContext http = new()
+        {
+            Request = { Path = path },
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                    [
+                        new Claim("sub", "user-1"),
+                        new Claim("tenant_id", TenantId.ToString("D")),
+                    ],
+                    "Bearer")),
+            Response = { Body = new MemoryStream() },
+        };
+
+        ServiceCollection services = [];
+        services.AddMemoryCache();
+        services.AddSingleton<IHttpContextAccessor>(_ => new HttpContextAccessor { HttpContext = http });
+        services.AddSingleton<IScopeContextProvider, HttpScopeContextProvider>();
+        services.AddSingleton(tenants);
+        services.AddSingleton<ITenantGetByIdRequestCache, TenantGetByIdRequestCache>();
+        services.AddSingleton<TimeProvider>(timeProvider ?? TimeProvider.System);
+        http.RequestServices = services.BuildServiceProvider();
+
+        bool reached = false;
+
+        RequestDelegate terminal = context =>
+        {
+            reached = true;
+            context.Response.StatusCode = StatusCodes.Status200OK;
+
+            return Task.CompletedTask;
+        };
+
+        TenantErasureQuarantineMiddleware middleware = new(terminal);
+        await middleware.InvokeAsync(http);
+
+        terminalReached?.Invoke(reached);
+
+        return http.Response.StatusCode;
+    }
+
+    private sealed class FakeTimeProvider(DateTimeOffset utcNow) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => utcNow;
+    }
+}

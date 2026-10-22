@@ -1,0 +1,162 @@
+"use client";
+
+import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+
+import { useSampleReviewsOnOverviewVisible } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
+import { isRunNeedingAttention } from "@/components/operator-home/runs-dashboard-helpers";
+import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
+import { isDemoSeededOverviewInjectedRun } from "@/lib/demo-seeded-overview";
+import type { OperatorHomeLiveRunsSnapshot } from "@/lib/operator/operator-home-live-runs-dashboard";
+import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
+import type { RunSummary } from "@/types/authority";
+
+type OperatorHomeWorkspaceActivityContextValue = {
+  readonly hasWorkspaceReviews: boolean;
+  readonly hasOverviewReviewRows: boolean;
+  readonly hasActionNeededReviews: boolean;
+  readonly openFindingsCount: number;
+  readonly recentRunIds: readonly string[];
+  /** Null until the runs panel reports — consumers fall back to their server-rendered snapshot. */
+  readonly liveRunsSnapshot: OperatorHomeLiveRunsSnapshot | null;
+  /** Run ids already shown on unfinished-work rail awaiting-disposition rows (TB-2369). */
+  readonly homeAttentionPreviewExcludedRunIds: readonly string[];
+  /** Live unfinished-work rail total for attention chip parity. */
+  readonly unfinishedWorkRailCount: number | null;
+  readonly reportWorkspaceReviews: (items: readonly RunSummary[], totalCount?: number) => void;
+  readonly reportHomeAttentionPreviewExcludedRunIds: (runIds: readonly string[]) => void;
+  readonly reportUnfinishedWorkRailCount: (count: number) => void;
+};
+
+const defaultValue: OperatorHomeWorkspaceActivityContextValue = {
+  hasWorkspaceReviews: false,
+  hasOverviewReviewRows: false,
+  hasActionNeededReviews: false,
+  openFindingsCount: 0,
+  recentRunIds: [],
+  liveRunsSnapshot: null,
+  homeAttentionPreviewExcludedRunIds: [],
+  unfinishedWorkRailCount: null,
+  reportWorkspaceReviews: () => {},
+  reportHomeAttentionPreviewExcludedRunIds: () => {},
+  reportUnfinishedWorkRailCount: () => {},
+};
+
+const OperatorHomeWorkspaceActivityContext =
+  createContext<OperatorHomeWorkspaceActivityContextValue>(defaultValue);
+
+type OperatorHomeWorkspaceActivityProviderProps = {
+  readonly initialHasReviews: boolean;
+  readonly initialHasOverviewReviewRows?: boolean;
+  readonly initialOpenFindingsCount?: number;
+  readonly initialRecentRunIds?: readonly string[];
+  readonly children: ReactNode;
+};
+
+/** Shares live workspace review counts for state-aware homepage emphasis. */
+export function OperatorHomeWorkspaceActivityProvider(
+  props: OperatorHomeWorkspaceActivityProviderProps,
+): React.JSX.Element {
+  const [hasWorkspaceReviews, setHasWorkspaceReviews] = useState(props.initialHasReviews);
+  const [hasOverviewReviewRows, setHasOverviewReviewRows] = useState(
+    props.initialHasOverviewReviewRows ?? props.initialHasReviews,
+  );
+  const [hasActionNeededReviews, setHasActionNeededReviews] = useState(false);
+  const [openFindingsCount, setOpenFindingsCount] = useState(props.initialOpenFindingsCount ?? 0);
+  const [recentRunIds, setRecentRunIds] = useState<readonly string[]>(props.initialRecentRunIds ?? []);
+  const [liveRunsSnapshot, setLiveRunsSnapshot] = useState<OperatorHomeLiveRunsSnapshot | null>(null);
+  const [homeAttentionPreviewExcludedRunIds, setHomeAttentionPreviewExcludedRunIds] = useState<
+    readonly string[]
+  >([]);
+  const [unfinishedWorkRailCount, setUnfinishedWorkRailCount] = useState<number | null>(null);
+  const sampleReviewsVisible = useSampleReviewsOnOverviewVisible();
+
+  const reportUnfinishedWorkRailCount = useCallback((count: number) => {
+    setUnfinishedWorkRailCount((current) => (current === count ? current : count));
+  }, []);
+
+  const reportHomeAttentionPreviewExcludedRunIds = useCallback((runIds: readonly string[]) => {
+    setHomeAttentionPreviewExcludedRunIds((current) =>
+      current.length === runIds.length && current.every((runId, index) => runId === runIds[index])
+        ? current
+        : runIds,
+    );
+  }, []);
+
+  const reportWorkspaceReviews = useCallback((items: readonly RunSummary[], totalCount?: number) => {
+    const activeItems = items.filter((run) => run.isArchived !== true);
+    const isOverviewSampleRun = (run: RunSummary): boolean =>
+      isDemoSeededOverviewInjectedRun(run) || isShowcaseStaticDemoRunId(run.runId ?? "");
+    // Synthetic demo/seeded Overview rows stay visible in Recent reviews but must not flip
+    // empty-home off — otherwise Do-this-next / Open sample package disappears (TB-1039).
+    const realItems = activeItems.filter((run) => {
+      if (isDemoSeededOverviewInjectedRun(run)) {
+        return false;
+      }
+
+      if (!sampleReviewsVisible && isShowcaseStaticDemoRunId(run.runId ?? "")) {
+        return false;
+      }
+
+      return true;
+    });
+    const overviewVisibleItems = sampleReviewsVisible
+      ? activeItems
+      : activeItems.filter((run) => !isOverviewSampleRun(run));
+    const metrics = deriveOperatorHomeWorkspaceMetrics(realItems, realItems.length);
+
+    setHasWorkspaceReviews(realItems.length > 0);
+    setHasOverviewReviewRows(overviewVisibleItems.length > 0);
+    setHasActionNeededReviews(realItems.some(isRunNeedingAttention));
+    setOpenFindingsCount(metrics.openFindings);
+    setRecentRunIds(overviewVisibleItems.map((run) => run.runId));
+
+    const nextTotalCount = typeof totalCount === "number" ? totalCount : items.length;
+
+    // Reuse the previous snapshot object when nothing moved, so a repeated report does not
+    // re-render every runs-derived consumer with an equivalent value.
+    setLiveRunsSnapshot((current) =>
+      current !== null && current.items === items && current.totalCount === nextTotalCount
+        ? current
+        : { items, totalCount: nextTotalCount },
+    );
+  }, [sampleReviewsVisible]);
+
+  const value = useMemo(
+    (): OperatorHomeWorkspaceActivityContextValue => ({
+      hasWorkspaceReviews,
+      hasOverviewReviewRows,
+      hasActionNeededReviews,
+      openFindingsCount,
+      recentRunIds,
+      liveRunsSnapshot,
+      homeAttentionPreviewExcludedRunIds,
+      unfinishedWorkRailCount,
+      reportWorkspaceReviews,
+      reportHomeAttentionPreviewExcludedRunIds,
+      reportUnfinishedWorkRailCount,
+    }),
+    [
+      hasActionNeededReviews,
+      hasOverviewReviewRows,
+      hasWorkspaceReviews,
+      homeAttentionPreviewExcludedRunIds,
+      unfinishedWorkRailCount,
+      liveRunsSnapshot,
+      openFindingsCount,
+      recentRunIds,
+      reportHomeAttentionPreviewExcludedRunIds,
+      reportUnfinishedWorkRailCount,
+      reportWorkspaceReviews,
+    ],
+  );
+
+  return (
+    <OperatorHomeWorkspaceActivityContext.Provider value={value}>
+      {props.children}
+    </OperatorHomeWorkspaceActivityContext.Provider>
+  );
+}
+
+export function useOperatorHomeWorkspaceActivity(): OperatorHomeWorkspaceActivityContextValue {
+  return useContext(OperatorHomeWorkspaceActivityContext);
+}

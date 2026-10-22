@@ -1,0 +1,87 @@
+{
+  "rulePackId": "ps-vertical-v1",
+  "name": "EU GDPR public-sector digital service",
+  "version": "1.0.0",
+  "rules": [
+    {
+      "ruleId": "ps-ctrl-001",
+      "controlId": "PS-001",
+      "controlName": "EU GDPR public-sector digital service \u2014 control theme logging",
+      "appliesToCategory": "logging",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Centralized tamper-evident logging for regulated data flows (anchor: GDPR Art. 32 security; DPIA-driven proportionality for EU agency workloads)."
+    },
+    {
+      "ruleId": "ps-ctrl-002",
+      "controlId": "PS-002",
+      "controlName": "EU GDPR public-sector digital service \u2014 control theme encryption",
+      "appliesToCategory": "encryption",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Error",
+      "description": "Encryption in transit and at rest for regulated identifiers; key rotation cadence explicit."
+    },
+    {
+      "ruleId": "ps-ctrl-003",
+      "controlId": "PS-003",
+      "controlName": "EU GDPR public-sector digital service \u2014 control theme access",
+      "appliesToCategory": "access",
+      "requiredNodeType": "PolicyControl",
+      "requiredEdgeType": "APPLIES_TO",
+      "severity": "Warning",
+      "description": "Role-based access with periodic recertification; break-glass documented."
+    },
+    {
+      "ruleId": "ps-ctrl-004",
+      "controlId": "PS-004",
+      "controlName": "EU GDPR public-sector digital service \u2014 control theme thirdparty",
+      "appliesToCategory": "thirdparty",
+      "requiredNodeType": "PolicyControl",
+      "requiredEdgeType": "APPLIES_TO",
+      "severity": "Error",
+      "description": "Subprocessor inventory and DPAs / vendor risk reviews before production connectivity."
+    },
+    {
+      "ruleId": "ps-ctrl-005",
+      "controlId": "PS-005",
+      "controlName": "EU GDPR public-sector digital service \u2014 control theme segmentation",
+      "appliesToCategory": "segmentation",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Network segmentation between regulated and non-regulated tiers; deny-by-default east-west."
+    },
+    {
+      "ruleId": "ps-ctrl-006",
+      "controlId": "PS-006",
+      "controlName": "EU GDPR public-sector digital service \u2014 control theme dr",
+      "appliesToCategory": "dr",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Error",
+      "description": "Backup, restore, and RTO/RPO tested quarterly for regulated datasets."
+    },
+    {
+      "ruleId": "ps-ctrl-007",
+      "controlId": "PS-007",
+      "controlName": "EU GDPR public-sector digital service \u2014 control theme changes",
+      "appliesToCategory": "changes",
+      "requiredNodeType": "PolicyControl",
+      "requiredEdgeType": "APPLIES_TO",
+      "severity": "Warning",
+      "description": "Change windows, CAB approval, and automated drift detection for production configs."
+    },
+    {
+      "ruleId": "ps-ctrl-008",
+      "controlId": "PS-008",
+      "controlName": "EU GDPR public-sector digital service \u2014 control theme monitoring",
+      "appliesToCategory": "monitoring",
+      "requiredNodeType": "PolicyControl",
+      "requiredEdgeType": "APPLIES_TO",
+      "severity": "Error",
+      "description": "Security monitoring and alerting on privileged actions and data exfiltration patterns."
+    }
+  ]
+}

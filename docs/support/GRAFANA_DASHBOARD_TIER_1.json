@@ -1,0 +1,76 @@
+{
+  "title": "ArchLucid Tier 1 (starter)",
+  "schemaVersion": 38,
+  "version": 1,
+  "uid": "archlucid-tier1-starter",
+  "tags": ["archlucid", "tier1"],
+  "timezone": "browser",
+  "editable": true,
+  "graphTooltip": 0,
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Authority pipeline stage duration (p95) — archlucid_authority_pipeline_stage_duration_ms",
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le, stage) (rate(archlucid_authority_pipeline_stage_duration_ms_bucket[5m])))",
+          "legendFormat": "{{stage}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Data consistency orphans — archlucid_data_consistency_orphans_detected_total",
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "expr": "sum by (table, column) (increase(archlucid_data_consistency_orphans_detected_total[1h]))",
+          "legendFormat": "{{table}}/{{column}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Data consistency alerts — archlucid_data_consistency_alerts_total",
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "gridPos": { "h": 6, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        {
+          "expr": "sum by (table, column) (increase(archlucid_data_consistency_alerts_total[1h]))",
+          "legendFormat": "{{table}}/{{column}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Explanation cache hit ratio",
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "gridPos": { "h": 7, "w": 24, "x": 0, "y": 14 },
+      "targets": [
+        {
+          "expr": "rate(archlucid_explanation_cache_hits_total[5m]) / (rate(archlucid_explanation_cache_hits_total[5m]) + rate(archlucid_explanation_cache_misses_total[5m]))",
+          "legendFormat": "hit_ratio",
+          "refId": "A"
+        }
+      ]
+    }
+  ],
+  "time": { "from": "now-6h", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "name": "DS_PROMETHEUS",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": { "text": "Prometheus", "value": "Prometheus" },
+        "hide": 0
+      }
+    ]
+  }
+}

@@ -1,0 +1,88 @@
+[
+  {
+    "findingId": "6b7987ed-5d06-2c71-2274-9a8b5822b287",
+    "findingType": "InventoryReconciliationFinding",
+    "category": "Correctness",
+    "severity": "Warning",
+    "title": "Topology graph and Azure inventory are out of sync",
+    "rationale": "At least one topology resource identifier does not match the latest scoped Azure inventory snapshot.",
+    "relatedNodeIds": [],
+    "payloadType": "InventoryReconciliationFindingPayload",
+    "rulesApplied": [
+      "graph-azure-inventory-reconciliation"
+    ],
+    "decisionsTaken": [
+      "Compared topology resource ARM identifiers to scoped extractor resources.json rows."
+    ]
+  },
+  {
+    "findingId": "bbb62916-6a77-211a-f3ac-8879aa428b08",
+    "findingType": "SecretsLifecycleFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Stale secret rotation: orders-db-password in orders-kv",
+    "rationale": "Inventory shows the secret was last rotated or updated beyond the rotation threshold, or expiry is imminent, and the current graph references this vault or secret.",
+    "relatedNodeIds": [
+      "kv-secret-node-50"
+    ],
+    "payloadType": "SecretsLifecycleFindingPayload",
+    "rulesApplied": [
+      "secrets-lifecycle-inventory-rotation"
+    ],
+    "decisionsTaken": [
+      "Matched inventory secret rows to graph references before emitting rotation findings."
+    ]
+  },
+  {
+    "findingId": "2cc56f0d-bfe1-5569-10fe-6f1de5c3fa72",
+    "findingType": "SecurityControlFinding",
+    "category": "Security",
+    "severity": "Info",
+    "title": "Security baseline control: orders-db-password",
+    "rationale": "A security baseline node was found in the graph and should influence resolved architecture decisions.",
+    "relatedNodeIds": [
+      "kv-secret-node-50"
+    ],
+    "payloadType": "SecurityControlFindingPayload",
+    "rulesApplied": [
+      "security-baseline-coverage"
+    ],
+    "decisionsTaken": [
+      "Converted security graph node into a security finding."
+    ]
+  },
+  {
+    "findingId": "4cb1ce61-29b3-53cc-3ec4-8d7b4fe1cfc2",
+    "findingType": "SecurityGap",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Security baseline \u0027orders-db-password\u0027 protects no topology resources",
+    "rationale": "No PROTECTS edge links this security baseline to any graph node.",
+    "relatedNodeIds": [
+      "kv-secret-node-50"
+    ],
+    "payloadType": "TopologyGapFindingPayload",
+    "rulesApplied": [
+      "security-gap-security-baseline-without-protects"
+    ],
+    "decisionsTaken": [
+      "Detected security traceability gap: Security baseline \u0027orders-db-password\u0027 is isolated from topology resources."
+    ]
+  },
+  {
+    "findingId": "b7cd0803-a0f2-e73f-b426-60a9f1fa57c3",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "No topology resources were found",
+    "rationale": "The graph does not contain any TopologyResource nodes.",
+    "relatedNodeIds": [],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-presence"
+    ],
+    "decisionsTaken": [
+      "No TopologyResource nodes found in graph \u2014 emitted coverage warning."
+    ]
+  }
+]

@@ -1,0 +1,22 @@
+{
+  "resultId": "result-golden-no-claim-evidence",
+  "taskId": "task-golden-no-claim-evidence",
+  "runId": "run-golden-no-claim-evidence",
+  "agentType": 1,
+  "claims": [
+    {
+      "detail": "Regression guard: no evidenceRefs or evidence field on this claim."
+    }
+  ],
+  "evidenceRefs": [ "ev-1" ],
+  "confidence": 0.85,
+  "findings": [
+    {
+      "severity": "High",
+      "description": "Structured description exceeds minimum length for semantic scoring.",
+      "recommendation": "Apply the documented remediation pattern."
+    }
+  ],
+  "proposedChanges": null,
+  "createdUtc": "2026-04-14T12:00:00Z"
+}

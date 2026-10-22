@@ -1,0 +1,11 @@
+namespace ArchLucid.Core.AgentEvaluation;
+
+/// <summary>Test and default no-op implementation of <see cref="IAgentOutputTraceEvaluationHook" />.</summary>
+public sealed class NoOpAgentOutputTraceEvaluationHook : IAgentOutputTraceEvaluationHook
+{
+    /// <inheritdoc />
+    public Task AfterSuccessfulExecuteAsync(string runId, CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
+}

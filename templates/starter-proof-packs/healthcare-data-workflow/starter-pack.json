@@ -1,0 +1,31 @@
+{
+  "id": "healthcare-data-workflow",
+  "title": "Healthcare data workflow review",
+  "targetBuyer": "Healthcare platform or compliance lead",
+  "buyerJob": "Regulated healthcare workflow and PHI-handling architecture review (demo storyline)",
+  "owner": "ArchLucid GTM",
+  "lastReviewedUtc": "2026-05-29",
+  "requiredInputs": [
+    "second-run.json",
+    "architecture-request.json",
+    "policy-context.json"
+  ],
+  "expectedOutputs": [
+    "Healthcare policy-pack findings",
+    "Synthetic demo narrative only",
+    "proof-package-checklist.md satisfied"
+  ],
+  "scopeLabel": "V1-ready",
+  "doNotUseWhen": [
+    "Real PHI in inputs",
+    "Buyer requires HIPAA certification or BAA as product output",
+    "First session before Core Pilot commit"
+  ],
+  "deferredScopeNotes": "Demo seed only — not HIPAA attestation, not live commerce, not V1.1 connectors.",
+  "sourceConfidence": "synthetic-demo-labeled",
+  "acceptanceChecks": [
+    "architecture-request.json deserializes in Contracts.Tests dry-run",
+    "policy-context vertical resolves compliance rules",
+    "proof-package-checklist.md lists demo-only caveats"
+  ]
+}

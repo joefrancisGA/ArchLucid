@@ -1,0 +1,34 @@
+[
+  {
+    "findingId": "f9e7879c-7ed8-bdcd-de12-8edf730739e4",
+    "findingType": "AwsCostRecommendation",
+    "category": "CostOptimization",
+    "severity": "Warning",
+    "title": "Cost recommendation: Right-size EC2 instance",
+    "rationale": "AWS cost recommendation grounded in extractor inventory evidence.",
+    "relatedNodeIds": [],
+    "payloadType": "AdvisorCostRecommendationFindingPayload",
+    "rulesApplied": [
+      "extractor-aws-cost-json"
+    ],
+    "decisionsTaken": [
+      "Emitted a typed finding for each AWS cost recommendation row in the inventory ZIP."
+    ]
+  },
+  {
+    "findingId": "b7cd0803-a0f2-e73f-b426-60a9f1fa57c3",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "No topology resources were found",
+    "rationale": "The graph does not contain any TopologyResource nodes.",
+    "relatedNodeIds": [],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-presence"
+    ],
+    "decisionsTaken": [
+      "No TopologyResource nodes found in graph \u2014 emitted coverage warning."
+    ]
+  }
+]

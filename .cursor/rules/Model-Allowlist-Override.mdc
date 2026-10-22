@@ -1,0 +1,63 @@
+---
+description: Restrict agent and subagent models to Composer 2.5 slow and Grok 4.6 High slow unless the user explicitly authorizes an override with "ok" or "yes"
+alwaysApply: true
+---
+
+# Model allowlist — override required
+
+Restrict model selection for this workspace. **Default to the slow tier** unless the user has authorized a different model for the current request.
+
+## Allowed models (no override needed)
+
+| Display name | Model slug | Notes |
+|--------------|------------|-------|
+| **Composer 2.5 slow** (default) | `composer-2.5` | Standard tier — **not** `composer-2.5-fast` |
+| **Grok 4.6 High slow** | `cursor-grok-4.6-high` | Standard tier — **not** `cursor-grok-4.6-high-fast` |
+
+**Default:** when no model is specified or the choice is ambiguous, use **`composer-2.5`**.
+
+## When this rule applies
+
+- Selecting a `model` for **Task** subagents (`generalPurpose`, `explore`, `debug`, `computerUse`, etc.).
+- Launching **Cloud Agents** via `/al-api`, `/al-bug-api`, helper scripts, or API calls.
+- Recommending which model the user should pick in Cursor (Chat, Agent, Cloud Agent, subagent).
+- Any slash command, skill, or prompt that names a model outside the allowlist (e.g. Opus, Sonnet, Claude, Gemini, fast-tier variants).
+
+## Override protocol (strict)
+
+Before using **any model not in the allowlist**, or before recommending one:
+
+1. **Stop** and ask the user for explicit authorization. State:
+   - which non-allowlisted model you want to use (display name + slug),
+   - why it is needed for this request,
+   - that the default without approval is **Composer 2.5 slow** (`composer-2.5`).
+2. **Wait** for the user's reply in the **same conversation turn or a later message**.
+3. **Authorize only** if the user's reply is exactly **`ok`** or **`yes`** (case-insensitive; surrounding whitespace ignored). No other wording counts — including `sure`, `go ahead`, `yep`, `approved`, `do it`, or naming a different model without `ok`/`yes`.
+4. If authorization is **not** granted, use an allowlisted model or **`composer-2.5`** as default. Do **not** substitute a different non-allowlisted model.
+
+### Override scope
+
+- An `ok` / `yes` applies **only to the model named in that override prompt** for **that specific request or sub-task**.
+- A new non-allowlisted model later in the same session requires a **new** override prompt and `ok` / `yes`.
+
+## Fast-tier guard
+
+Even when a model family is allowlisted, **never** use the fast variant unless the user separately authorized that fast slug with `ok` / `yes`:
+
+- `composer-2.5-fast` — blocked without override
+- `cursor-grok-4.6-high-fast` — blocked without override
+
+## Examples
+
+| Situation | Action |
+|-----------|--------|
+| User asks to implement a feature | Use `composer-2.5`; no prompt needed |
+| User runs `/al-ui-rate` (Opus rating phase) | Prompt for override before Opus; if denied, use `composer-2.5` for rating or explain the workflow cannot run as written |
+| User says "use Opus for this" | Prompt: override required; wait for `ok` or `yes` |
+| User says "sure, use Opus" | **Not** authorized — ask again; only `ok` or `yes` count |
+| User says "yes" after override prompt | Proceed with the named non-allowlisted model for that task only |
+| Subagent model omitted | Default to `composer-2.5` |
+
+## Conflict resolution
+
+When another rule, command, or skill specifies a non-allowlisted model, **this rule wins** unless the user has already replied `ok` or `yes` to an override prompt for that model on this request.

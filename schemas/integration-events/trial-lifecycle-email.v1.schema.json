@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archlucid.dev/schemas/integration-events/trial-lifecycle-email.v1.schema.json",
+  "title": "com.archlucid.notifications.trial-lifecycle-email.v1",
+  "description": "Trial lifecycle transactional email dispatch request (worker consumes JSON payload).",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "trigger",
+    "tenantId",
+    "workspaceId",
+    "projectId"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "trigger": { "type": "string" },
+    "tenantId": { "type": "string", "format": "uuid" },
+    "workspaceId": { "type": "string", "format": "uuid" },
+    "projectId": { "type": "string", "format": "uuid" },
+    "runId": { "type": "string", "format": "uuid" },
+    "targetTier": { "type": "string" }
+  },
+  "additionalProperties": true
+}

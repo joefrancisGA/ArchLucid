@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "scenario-06-greenfield-web",
+  "source": "bootstrap_eval_template_recordings.py",
+  "note": "Synthetic baseline until live API capture; replace via eval_template_harness --mode capture.",
+  "findings": [
+    {
+      "findingId": "must-private-endpoint-sql",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "private endpoint sql",
+      "detail": "private endpoint sql",
+      "message": "private endpoint sql"
+    },
+    {
+      "findingId": "must-managed-identity-sql-keyvault",
+      "category": "Compliance",
+      "severity": "Medium",
+      "title": "managed identity",
+      "detail": "managed identity",
+      "message": "managed identity"
+    },
+    {
+      "findingId": "must-front-door-edge-isolation",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "front door",
+      "detail": "front door",
+      "message": "front door"
+    },
+    {
+      "findingId": "must-key-vault-no-plaintext",
+      "category": "Compliance",
+      "severity": "Medium",
+      "title": "key vault",
+      "detail": "key vault",
+      "message": "key vault"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+using ArchLucid.ContextIngestion.Infrastructure;
+using ArchLucid.ContextIngestion.Models;
+using FluentAssertions;
+using Microsoft.Extensions.Logging.Abstractions;
+
+namespace ArchLucid.ContextIngestion.Tests;
+
+[Trait("Category", "Unit")]
+public sealed class TerraformShowJsonTimeoutDeleteSnakeCaseTests
+{
+    private readonly TerraformShowJsonInfrastructureDeclarationParser _sut =
+        new(NullLogger<TerraformShowJsonInfrastructureDeclarationParser>.Instance);
+
+    [Fact]
+    public async Task ParseAsync_snake_case_timeout_delete_maps_tf_timeout_delete_property()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "timeout-delete-snake.json",
+            Format = "terraform-show-json",
+            DeclarationId = "d1",
+            Content = """{"values":{"root_module":{"resources":[{"type":"azurerm_resource_group","name":"main","timeout_delete":"45m","mode":"managed","provider_name":"registry.terraform.io/hashicorp/azurerm","values":{"name":"rg-a"}}]}}}"""
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        objects[0].Properties["tf.timeout_delete"].Should().Be("45m");
+    }
+}

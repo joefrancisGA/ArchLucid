@@ -1,0 +1,162 @@
+"use client";
+
+import { SignInCodeStep } from "@/app/(operator)/auth/signin/SignInCodeStep";
+import { SignInEmailStep } from "@/app/(operator)/auth/signin/SignInEmailStep";
+import { SignInMethodPicker } from "@/app/(operator)/auth/signin/SignInMethodPicker";
+import { SignInSsoRequiredStep } from "@/app/(operator)/auth/signin/SignInSsoRequiredStep";
+import { AuthErrorPanel } from "@/app/(operator)/auth/signin/AuthErrorPanel";
+import { SignInBuyerChrome } from "@/app/(operator)/auth/signin/SignInBuyerChrome";
+import { PostAuthBootstrapExitActions } from "@/app/(operator)/auth/bootstrap/PostAuthBootstrapExitActions";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
+import { AUTH_SIGNIN_FATAL_ERROR_TITLE } from "@/lib/auth/auth-signin-page-copy";
+import { shouldOfferSignInStepReportProblem } from "@/lib/auth/sign-in-step-error-recovery";
+import { BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE } from "@/lib/buyer/buyer-safe-auth-messages";
+
+import { SignInStepErrorRecovery } from "./SignInStepErrorRecovery";
+import type { SignInFlowState } from "./use-sign-in-flow-state";
+
+export type SignInFlowPanelShellProps = SignInFlowState;
+
+export function SignInFlowPanelShell(props: SignInFlowPanelShellProps): React.JSX.Element {
+  const {
+    hasReturnDestination,
+    methodOptions,
+    step,
+    email,
+    setEmail,
+    maskedEmail,
+    code,
+    setCode,
+    emailPending,
+    codePending,
+    resendPending,
+    emailError,
+    codeError,
+    emailStatus,
+    codeStatus,
+    ssoMessage,
+    fatalError,
+    resendSecondsRemaining,
+    turnstileRequired,
+    handleBotChallengeTokenChange,
+    hasAnySignInMethod,
+    beginWorkSchool,
+    beginSupplemental,
+    resetEmailOtpFlow,
+    handleEmailSubmit,
+    handleCodeSubmit,
+    sendChallenge,
+    handleDifferentEmail,
+    handleUseAnotherEmailFromSso,
+    handleBeginEmailCode,
+  } = props;
+
+  if (fatalError) {
+    return (
+      <SignInBuyerChrome hasReturnDestination={hasReturnDestination}>
+        <AuthErrorPanel
+          message={fatalError}
+          title={AUTH_SIGNIN_FATAL_ERROR_TITLE}
+          onTryAgain={beginWorkSchool}
+        />
+        <FatalPageReportProblemSupportRow
+          surfaceId="auth-signin-cannot-proceed"
+          routePath="/auth/signin"
+          errorTitle={AUTH_SIGNIN_FATAL_ERROR_TITLE}
+          errorCode="auth-signin-cannot-proceed"
+        />
+        <PostAuthBootstrapExitActions />
+      </SignInBuyerChrome>
+    );
+  }
+
+  if (!hasAnySignInMethod) {
+    return (
+      <SignInBuyerChrome hasReturnDestination={hasReturnDestination}>
+        <AuthErrorPanel
+          message={BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE}
+          title={AUTH_SIGNIN_FATAL_ERROR_TITLE}
+          onTryAgain={beginWorkSchool}
+        />
+        <FatalPageReportProblemSupportRow
+          surfaceId="auth-signin-cannot-proceed"
+          routePath="/auth/signin"
+          errorTitle={AUTH_SIGNIN_FATAL_ERROR_TITLE}
+          errorCode="auth-signin-not-configured"
+        />
+        <PostAuthBootstrapExitActions />
+      </SignInBuyerChrome>
+    );
+  }
+
+  if (step === "options") {
+    return (
+      <SignInBuyerChrome hasReturnDestination={hasReturnDestination}>
+        <SignInMethodPicker
+          options={methodOptions}
+          onWorkSchool={beginWorkSchool}
+          onEmailCode={handleBeginEmailCode}
+          onSupplemental={beginSupplemental}
+        />
+      </SignInBuyerChrome>
+    );
+  }
+
+  if (step === "email") {
+    return (
+      <SignInBuyerChrome hasReturnDestination={hasReturnDestination}>
+        <SignInEmailStep
+          email={email}
+          pending={emailPending}
+          errorMessage={emailError}
+          statusMessage={emailStatus}
+          onEmailChange={setEmail}
+          onSubmit={handleEmailSubmit}
+          onBack={resetEmailOtpFlow}
+          onBotChallengeTokenChange={turnstileRequired ? handleBotChallengeTokenChange : undefined}
+        />
+        {shouldOfferSignInStepReportProblem(emailError) ? (
+          <SignInStepErrorRecovery errorCode="auth-signin-email-step-failure" />
+        ) : null}
+      </SignInBuyerChrome>
+    );
+  }
+
+  if (step === "sso") {
+    return (
+      <SignInBuyerChrome hasReturnDestination={hasReturnDestination}>
+        <SignInSsoRequiredStep
+          message={ssoMessage}
+          onContinueOrganizationSignIn={beginWorkSchool}
+          onUseAnotherEmail={handleUseAnotherEmailFromSso}
+        />
+      </SignInBuyerChrome>
+    );
+  }
+
+  return (
+    <SignInBuyerChrome hasReturnDestination={hasReturnDestination}>
+      <SignInCodeStep
+        maskedEmail={maskedEmail}
+        code={code}
+        pending={codePending}
+        resendPending={resendPending}
+        resendSecondsRemaining={resendSecondsRemaining}
+        errorMessage={codeError}
+        statusMessage={codeStatus}
+        onCodeChange={setCode}
+        onSubmit={() => {
+          void handleCodeSubmit();
+        }}
+        onResend={() => {
+          void sendChallenge(email);
+        }}
+        onDifferentEmail={handleDifferentEmail}
+        onBotChallengeTokenChange={turnstileRequired ? handleBotChallengeTokenChange : undefined}
+      />
+      {shouldOfferSignInStepReportProblem(codeError) ? (
+        <SignInStepErrorRecovery errorCode="auth-signin-code-step-failure" />
+      ) : null}
+    </SignInBuyerChrome>
+  );
+}

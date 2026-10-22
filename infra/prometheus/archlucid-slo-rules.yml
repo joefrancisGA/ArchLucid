@@ -1,0 +1,258 @@
+# Recording rules for SLO-style dashboards. Metric names must match your OTel → Prometheus scrape.
+# Load alongside archlucid-alerts.yml in Prometheus operator or server config.
+#
+# HTTP availability burn-rate alerts assume a 99.9% availability SLO (0.1% error budget).
+# Multi-window pairs follow the Google SRE multi-burn pattern (fast: 5m+1h at 14.4×, slow: 30m+6h at 6×).
+# The 14.4 / 6 factors are the canonical pair from the workbook; with a 0.1% budget they page when the
+# short-window 5xx ratio exceeds ~1.44% and ~0.6% respectively (see docs/runbooks/SLO_PROMETHEUS_GRAFANA.md).
+groups:
+  - name: archlucid-slo-http
+    interval: 30s
+    rules:
+      - record: archlucid:slo:http_p95_seconds
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum(rate(http_server_request_duration_seconds_bucket[5m])) by (le)
+          )
+          or
+          histogram_quantile(
+            0.95,
+            sum(rate(http_server_duration_milliseconds_bucket[5m])) by (le)
+          ) / 1000
+        labels:
+          component: api
+      - record: archlucid:slo:http_5xx_rate
+        expr: |
+          sum(rate(http_server_request_duration_seconds_count{http_response_status_code=~"5.."}[5m]))
+          or
+          sum(rate(http_server_duration_milliseconds_count{http_response_status_code=~"5.."}[5m]))
+        labels:
+          component: api
+      # Good / total for availability SLI (non-5xx / all), OTel HTTP semantic conventions.
+      - record: archlucid:slo:http_availability:ratio
+        expr: |
+          (
+            sum(rate(http_server_request_duration_seconds_count{http_response_status_code!~"5.."}[5m]))
+            or sum(rate(http_server_duration_milliseconds_count{http_response_status_code!~"5.."}[5m]))
+          )
+          /
+          clamp_min(
+            sum(rate(http_server_request_duration_seconds_count[5m]))
+            or sum(rate(http_server_duration_milliseconds_count[5m]))
+          , 1e-9)
+        labels:
+          component: api
+      # Instantaneous burn vs a 99.9% target: (error_ratio) / 0.001 — 1 means consuming budget at nominal rate.
+      - record: archlucid:slo:http_error_budget_burn_rate:ratio
+        expr: |
+          clamp_min((1 - archlucid:slo:http_availability:ratio) / 0.001, 0)
+        labels:
+          component: api
+
+  - name: archlucid-slo-llm
+    interval: 30s
+    rules:
+      - record: archlucid:slo:llm_prompt_tokens_per_second
+        expr: |
+          sum(rate(archlucid_llm_prompt_tokens_total[5m]))
+        labels:
+          component: llm
+
+  - name: archlucid-slo-explanation-cache
+    interval: 30s
+    rules:
+      # Ratio of explanation summary cache hits to (hits + misses) by rate over 5m. Undefined when denominator is zero.
+      - record: archlucid:explanation_cache_hit_ratio
+        expr: |
+          rate(archlucid_explanation_cache_hits_total[5m])
+          / (rate(archlucid_explanation_cache_hits_total[5m]) + rate(archlucid_explanation_cache_misses_total[5m]))
+        labels:
+          component: api
+
+  - name: archlucid-slo-explanation-faithfulness
+    interval: 30s
+    rules:
+      # Maximum sustained aggregate explanation faithfulness fallback rate (events per second), expressed as a
+      # 1h rolling average: rate(counter[1h]) ≈ (increments in last hour) / 3600s. Default 3/3600 matches the
+      # heuristic used by ArchLucidExplanationFaithfulnessFallbackTrend (>3 increases per hour).
+      - record: archlucid:slo:explanation_faithfulness_fallback_budget
+        expr: vector(0.0008333333333333334)
+        labels:
+          component: api
+
+  - name: archlucid-slo-http-burn-alerts
+    interval: 30s
+    rules:
+      - alert: ArchLucidSloHttpErrorBudgetBurnFast
+        expr: |
+          (
+            (
+              sum(rate(http_server_request_duration_seconds_count{http_response_status_code=~"5.."}[5m]))
+              or sum(rate(http_server_duration_milliseconds_count{http_response_status_code=~"5.."}[5m]))
+            )
+            /
+            clamp_min(
+              sum(rate(http_server_request_duration_seconds_count[5m]))
+              or sum(rate(http_server_duration_milliseconds_count[5m]))
+            , 1e-9)
+          ) / 0.001 > 14.4
+          and
+          (
+            (
+              sum(rate(http_server_request_duration_seconds_count{http_response_status_code=~"5.."}[1h]))
+              or sum(rate(http_server_duration_milliseconds_count{http_response_status_code=~"5.."}[1h]))
+            )
+            /
+            clamp_min(
+              sum(rate(http_server_request_duration_seconds_count[1h]))
+              or sum(rate(http_server_duration_milliseconds_count[1h]))
+            , 1e-9)
+          ) / 0.001 > 14.4
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: HTTP SLO error budget burning fast (5m and 1h windows >14.4× vs 99.9% target)
+          description: >-
+            Multi-window burn-rate check: both short (5m) and long (1h) windows exceed 14.4× the nominal
+            0.1% error budget. See runbook docs/runbooks/SLO_PROMETHEUS_GRAFANA.md.
+
+      - alert: ArchLucidSloHttpErrorBudgetBurnSlow
+        expr: |
+          (
+            (
+              sum(rate(http_server_request_duration_seconds_count{http_response_status_code=~"5.."}[30m]))
+              or sum(rate(http_server_duration_milliseconds_count{http_response_status_code=~"5.."}[30m]))
+            )
+            /
+            clamp_min(
+              sum(rate(http_server_request_duration_seconds_count[30m]))
+              or sum(rate(http_server_duration_milliseconds_count[30m]))
+            , 1e-9)
+          ) / 0.001 > 6
+          and
+          (
+            (
+              sum(rate(http_server_request_duration_seconds_count{http_response_status_code=~"5.."}[6h]))
+              or sum(rate(http_server_duration_milliseconds_count{http_response_status_code=~"5.."}[6h]))
+            )
+            /
+            clamp_min(
+              sum(rate(http_server_request_duration_seconds_count[6h]))
+              or sum(rate(http_server_duration_milliseconds_count[6h]))
+            , 1e-9)
+          ) / 0.001 > 6
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: HTTP SLO error budget burning slowly (30m and 6h windows >6× vs 99.9% target)
+          description: >-
+            Sustained elevation: 30m and 6h 5xx ratios exceed 6× the 0.1% budget. Tune windows/thresholds
+            to match your paging policy; see docs/runbooks/SLO_PROMETHEUS_GRAFANA.md.
+
+  - name: archlucid-slo-http-p99
+    interval: 30s
+    rules:
+      - record: archlucid:slo:http_p99_seconds
+        expr: |
+          histogram_quantile(
+            0.99,
+            sum(rate(http_server_request_duration_seconds_bucket[5m])) by (le)
+          )
+          or
+          histogram_quantile(
+            0.99,
+            sum(rate(http_server_duration_milliseconds_bucket[5m])) by (le)
+          ) / 1000
+        labels:
+          component: api
+      - alert: ArchLucidSloHttpP99High
+        expr: archlucid:slo:http_p99_seconds > 12
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: HTTP p99 latency above 12s (5m histogram; mixed traffic)
+          description: >-
+            Global tail latency warning: p99 from http.server.request.duration (or legacy http_server_duration_milliseconds)
+            exceeds 12 seconds for 10 minutes (internal ceiling for AI-tier traffic until route-labeled histograms exist).
+            Tiered customer-facing targets are in docs/library/API_SLOS.md.
+
+  - name: archlucid-slo-http-error-ratio
+    interval: 30s
+    rules:
+      - alert: ArchLucidSloHttp5xxRatioEarlyWarning
+        expr: |
+          (
+            (
+              sum(rate(http_server_request_duration_seconds_count{http_response_status_code=~"5.."}[15m]))
+              or sum(rate(http_server_duration_milliseconds_count{http_response_status_code=~"5.."}[15m]))
+            )
+            /
+            clamp_min(
+              sum(rate(http_server_request_duration_seconds_count[15m]))
+              or sum(rate(http_server_duration_milliseconds_count[15m]))
+            , 1e-9)
+          ) > 0.0005
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: HTTP 5xx ratio above 0.05% (15m window; internal early warning)
+          description: >-
+            Engineering guardrail before the 0.1% customer-visible 5xx budget is at risk; pair with
+            docs/library/API_SLOS.md internal targets.
+
+      - alert: ArchLucidSloHttp5xxRatioElevated
+        expr: |
+          (
+            (
+              sum(rate(http_server_request_duration_seconds_count{http_response_status_code=~"5.."}[10m]))
+              or sum(rate(http_server_duration_milliseconds_count{http_response_status_code=~"5.."}[10m]))
+            )
+            /
+            clamp_min(
+              sum(rate(http_server_request_duration_seconds_count[10m]))
+              or sum(rate(http_server_duration_milliseconds_count[10m]))
+            , 1e-9)
+          ) > 0.02
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: HTTP 5xx ratio above 2% (10m window)
+          description: >-
+            Simple error-rate guardrail complementing multi-window burn alerts. Adjust 0.02 and duration for your SLO;
+            see docs/runbooks/SLO_PROMETHEUS_GRAFANA.md.
+
+  - name: archlucid-slo-outbox-convergence
+    interval: 30s
+    rules:
+      # Mirrors OTel gauge for dashboards / recording consistency (integration event publish path).
+      - record: archlucid:slo:integration_event_outbox_oldest_age_seconds
+        expr: archlucid_integration_event_outbox_oldest_actionable_pending_age_seconds
+
+      - record: archlucid:slo:run_export_blob_push_outbox_oldest_age_seconds
+        expr: archlucid_run_export_blob_push_outbox_oldest_pending_age_seconds
+        labels:
+          component: worker
+
+  - name: archlucid-slo-outbox-depth
+    interval: 30s
+    rules:
+      - alert: ArchLucidSloOutboxDepthCritical
+        expr: |
+          (archlucid_authority_pipeline_work_pending > 500)
+          or (archlucid_retrieval_indexing_outbox_pending > 500)
+          or (archlucid_integration_event_outbox_publish_pending > 500)
+          or (archlucid_run_export_blob_push_outbox_pending > 500)
+        for: 15m
+        labels:
+          severity: critical
+        annotations:
+          summary: Worst-case SQL outbox depth across authority, retrieval, and integration queues is very high
+          description: >-
+            At least one outbox gauge exceeded 500 pending rows for 15 minutes. Cross-check
+            infra/prometheus/archlucid-alerts.yml per-queue rules and workers; scale or fix root cause.

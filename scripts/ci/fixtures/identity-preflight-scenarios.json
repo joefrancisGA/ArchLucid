@@ -1,0 +1,51 @@
+{
+  "formatVersion": "1.0",
+  "scenarios": [
+    {
+      "id": "healthy-oidc-jwtbearer",
+      "title": "Healthy generic OIDC (JwtBearer)",
+      "authMode": "JwtBearer",
+      "configuredAuthority": "https://issuer.example/",
+      "configuredAudience": "api://archlucid-pilot",
+      "discoveryAttempted": true,
+      "discoveryReachable": true,
+      "diagnosticSummary": "Authority and audience configured; OpenID discovery document reachable."
+    },
+    {
+      "id": "failed-oidc-discovery",
+      "title": "OIDC discovery unreachable",
+      "authMode": "JwtBearer",
+      "configuredAuthority": "https://offline-idp.example/",
+      "configuredAudience": "api://archlucid-pilot",
+      "discoveryAttempted": true,
+      "discoveryReachable": false,
+      "diagnosticSummary": "Discovery document request failed — verify outbound HTTPS and issuer URL."
+    },
+    {
+      "id": "missing-audience",
+      "title": "Missing audience configuration",
+      "authMode": "JwtBearer",
+      "configuredAuthority": "https://issuer.example/",
+      "configuredAudience": null,
+      "discoveryAttempted": false,
+      "discoveryReachable": false,
+      "diagnosticSummary": "ArchLucidAuth:Audience is empty — access tokens will fail validation."
+    },
+    {
+      "id": "saml-metadata-missing",
+      "title": "SAML enabled but IdP metadata missing",
+      "authMode": "Saml2",
+      "samlEnabled": true,
+      "idpMetadataUrlConfigured": false,
+      "diagnosticSummary": "SAML SP enabled but IdP metadata URL is not configured."
+    },
+    {
+      "id": "saml-role-claim-unmapped",
+      "title": "SAML role claim not mapped",
+      "authMode": "Saml2",
+      "samlEnabled": true,
+      "roleClaimSourcesConfigured": false,
+      "diagnosticSummary": "No SAML role claim sources configured — operators may receive zero ArchLucid roles."
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "requestId": "TEMPLATE-SERVERLESS-LAMBDA",
+  "systemName": "ServerlessApiLambda",
+  "description": "Define an AWS Lambda–based HTTP and event-triggered API surface backed by DynamoDB for scalable key-value and document access patterns. Emphasize serverless scaling, API Gateway integration, SQS dead-letter paths for async triggers, and secure access via IAM roles and least-privilege policies — no long-lived access keys in function configuration.",
+  "environment": "prod",
+  "cloudProvider": "Aws",
+  "constraints": [
+    "DynamoDB access must honor least-privilege IAM policies; partition keys documented per table.",
+    "API Gateway routes must not expose unauthenticated mutating endpoints unless explicitly gated.",
+    "No plaintext storage of secrets — use Secrets Manager or SSM Parameter Store with rotation."
+  ],
+  "requiredCapabilities": [
+    "AWS Lambda for HTTP APIs and asynchronous queue/event processing",
+    "Amazon DynamoDB as primary scalable data store",
+    "Amazon SQS or EventBridge for asynchronous command and integration patterns",
+    "CloudWatch and X-Ray for cold start latency, failures, and dependency calls"
+  ],
+  "assumptions": [
+    "Traffic can burst; cost controls (concurrency caps, alerting) must be articulated alongside scale-out behavior.",
+    "Clients tolerate at-least-once delivery semantics for async paths with idempotent handlers."
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [],
+  "documents": [],
+  "policyReferences": [],
+  "topologyHints": [
+    "DynamoDB tables partitioned by tenant or aggregate root to contain hot partitions.",
+    "Separate HTTP façade functions from durable background processors driven from queues."
+  ],
+  "securityBaselineHints": [
+    "VPC-attached Lambdas and private API Gateway integrations where policy requires confined data-plane paths.",
+    "IAM Access Analyzer and GuardDuty recommendations tracked as operational backlog items."
+  ],
+  "infrastructureDeclarations": []
+}

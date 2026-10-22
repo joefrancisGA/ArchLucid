@@ -1,0 +1,460 @@
+"use client";
+import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+
+import { FileDown } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type SetStateAction } from "react";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+
+import { Button } from "@/components/ui/button";
+import { useEffectiveWorkingCareerRehearsalDoor } from "@/hooks/use-effective-working-career-rehearsal-door";
+import { useProductionDeskChrome } from "@/hooks/useProductionDeskChrome";
+import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
+import { BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer/buyer-polish-copy";
+import {
+  CAREER_EXPORT_EVAL_SAMPLE_LABEL,
+  CAREER_EXPORT_EVAL_SAMPLE_MAX_FINDINGS,
+  CAREER_EXPORT_INCOMPLETE_CONFIRM_LABEL,
+  capAdrGeneratorFindingsForExport,
+  formatCareerExportFindingInventoryLine,
+  resolveCareerExportFindingInventory,
+  resolveCareerExportMaxFindings,
+} from "@/lib/career-export-finding-inventory";
+import { formatCareerExportHonestyMarkdown, resolveCareerExportCoverageHonesty } from "@/lib/career-export-coverage-honesty";
+import { formatCareerAdrExportRehearsalHeaderMarkdown } from "@/lib/career-artifact/format-career-adr-export-rehearsal-header-markdown";
+import { evaluateCareerArtifactHonesty } from "@/lib/career-artifact/career-artifact-honesty";
+import {
+  resolveCareerArtifactExportHonestyDoorFields,
+  resolveSimulatorRehearsalBannerOnArtifactForExport,
+} from "@/lib/career-artifact/resolve-career-artifact-export-honesty-input";
+import { SIMULATOR_REHEARSAL_CAREER_BLOCK_REASON } from "@/lib/governance/simulator-career-honesty";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { buildMadrMarkdownFromRun, type AdrGeneratorRunInput } from "@/lib/adr-from-run";
+import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import {
+  parseReviewGenerateAdrOpenFromSearch,
+  reviewGenerateAdrPanelsHrefFromSearch,
+} from "@/lib/reviews/review-generate-adr-panels-url";
+
+import type { RunSummary } from "@/types/authority";
+
+export type GenerateAdrFromRunModalProps = {
+  input: AdrGeneratorRunInput;
+  /** Total findings on the review before any export cap (DA-11). */
+  totalFindingCount?: number;
+  /** Distinct engines that produced findings on this package snapshot (PC-01). */
+  enginesSucceeded?: number | null;
+  /** Graph + snapshot context for measurement-floor skipped-actor honesty (DX-15). */
+  graphSnapshot?: unknown;
+  progressSummary?: RunSummary | null;
+  findingsSnapshot?: unknown;
+  /** Recorded aggregate quality-gate outcome when the parent already loaded agent evaluation (DR-05). */
+  aggregateQualityGateOutcome?: number | null;
+  /** Buyer-polished review detail: soften ADR jargon into decision-record language. */
+  buyerPolished?: boolean;
+};
+
+/**
+ * Run detail action: drafts a MADR-style ADR in-browser from serialized run + explanation payload (no extra HTTP).
+ */
+export function GenerateAdrFromRunModal({
+  input,
+  totalFindingCount,
+  enginesSucceeded = null,
+  graphSnapshot = null,
+  progressSummary = null,
+  findingsSnapshot = null,
+  buyerPolished = false,
+}: GenerateAdrFromRunModalProps) {
+  const workingDesk = useProductionDeskChrome();
+  const { effectiveDoor } = useEffectiveWorkingCareerRehearsalDoor();
+  const healthQuery = useHealthReadySummaryQuery({ enabled: workingDesk });
+  const preCommitGateEnabled = healthQuery.data?.preCommitGateEnabled ?? null;
+  const hostQualityGateMode = healthQuery.data?.agentOutputQualityGateMode ?? null;
+  const hostAgentExecutionMode = healthQuery.data?.agentExecutionMode ?? null;
+  const pathname = usePathname() ?? `/architecture/reviews/${input.runId}`;
+  const [open, setOpenState] = useState(() =>
+    parseReviewGenerateAdrOpenFromSearch(null),
+  );
+  const openRef = useRef(open);
+  openRef.current = open;
+  const [markdown, setMarkdown] = useState<string>("");
+  const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState<string | null>(null);
+  const [incompleteExportConfirmed, setIncompleteExportConfirmed] = useState(false);
+  const evalSampleExport = buyerPolished && !workingDesk;
+  const exportMaxFindings = resolveCareerExportMaxFindings({
+    workingDesk,
+    evalSampleExport,
+  });
+  const totalEligibleFindings = totalFindingCount ?? input.findings.length;
+  const exportInput = capAdrGeneratorFindingsForExport(input, exportMaxFindings);
+  const exportInventory = resolveCareerExportFindingInventory({
+    included: exportInput.findings.length,
+    total: totalEligibleFindings,
+  });
+  const exportInventoryLine = formatCareerExportFindingInventoryLine(exportInventory);
+  const doorFields = resolveCareerArtifactExportHonestyDoorFields({
+    progressSummary,
+    structuralExecutionMode: input.structuralExecutionMode ?? null,
+    workingCareerRehearsalDoor: progressSummary?.workingCareerRehearsalDoor,
+    liveDoor: effectiveDoor,
+  });
+  const simulatorRehearsalBannerOnArtifact = resolveSimulatorRehearsalBannerOnArtifactForExport(doorFields);
+  const coverageHonesty = resolveCareerExportCoverageHonesty({
+    runId: input.runId,
+    progressSummary,
+    manifestSummary: null,
+    graphSnapshot,
+    findingsSnapshot,
+    enginesSucceeded,
+    workingDesk,
+    preCommitGateEnabled,
+    structuralExecutionMode: doorFields.structuralExecutionMode ?? null,
+    isSample: input.isSample ?? null,
+    hostAgentExecutionMode,
+    hostQualityGateMode,
+    aggregateQualityGateOutcome: input.aggregateQualityGateOutcome ?? null,
+  });
+  const careerArtifactVerdict = evaluateCareerArtifactHonesty({
+    artifactKind: "export",
+    runId: input.runId,
+    progressSummary,
+    manifestSummary: null,
+    graphSnapshot,
+    findingsSnapshot,
+    enginesSucceeded,
+    workingDesk,
+    preCommitGateEnabled,
+    structuralExecutionMode: doorFields.structuralExecutionMode ?? null,
+    isSample: input.isSample ?? null,
+    hostAgentExecutionMode,
+    hostQualityGateMode,
+    aggregateQualityGateOutcome: input.aggregateQualityGateOutcome ?? null,
+    simulatorRehearsalBannerOnArtifact,
+    effectiveWorkingCareerRehearsalDoor: doorFields.effectiveWorkingCareerRehearsalDoor,
+  });
+  const careerSimulatorHardBlocked = careerArtifactVerdict.blockedReasons.includes(
+    SIMULATOR_REHEARSAL_CAREER_BLOCK_REASON,
+  );
+  const otherCareerArtifactBlocked =
+    !careerArtifactVerdict.canRender && !careerSimulatorHardBlocked;
+  const inventoryExportBlocked =
+    workingDesk && !exportInventory.isComplete && !incompleteExportConfirmed;
+  const exportBlocked =
+    inventoryExportBlocked
+    || careerSimulatorHardBlocked
+    || (otherCareerArtifactBlocked && !incompleteExportConfirmed);
+
+  const buildExportMarkdown = useCallback(
+    (exportInput: AdrGeneratorRunInput): string => {
+      const rehearsalHeaderMarkdown = workingDesk
+        ? formatCareerAdrExportRehearsalHeaderMarkdown({
+            workingDesk: true,
+            isSample: input.isSample ?? null,
+            structuralExecutionMode: doorFields.structuralExecutionMode ?? null,
+            effectiveWorkingCareerRehearsalDoor: doorFields.effectiveWorkingCareerRehearsalDoor,
+          })
+        : null;
+      const careerExportHonestyMarkdown = workingDesk
+        ? formatCareerExportHonestyMarkdown({
+            runId: input.runId,
+            progressSummary,
+            manifestSummary: null,
+            graphSnapshot,
+            findingsSnapshot,
+            enginesSucceeded,
+            workingDesk: true,
+            preCommitGateEnabled,
+            structuralExecutionMode: doorFields.structuralExecutionMode ?? null,
+            isSample: input.isSample ?? null,
+            hostAgentExecutionMode,
+            hostQualityGateMode,
+            aggregateQualityGateOutcome: input.aggregateQualityGateOutcome ?? null,
+            exportFindings: exportInput.findings.map((finding) => ({
+              findingId: finding.findingId,
+              title: finding.title,
+              trustLabel: finding.trustLabel ?? null,
+              trustLabelReason: finding.trustLabelReason ?? null,
+            })) as QuickDecisionFinding[],
+          })
+        : null;
+      const careerExportHonestyPrefix = [rehearsalHeaderMarkdown, careerExportHonestyMarkdown]
+        .filter((section) => section !== null && section.trim().length > 0)
+        .join("\n\n");
+
+      return buildMadrMarkdownFromRun(exportInput, {
+        careerExportHonestyMarkdown:
+          careerExportHonestyPrefix.length > 0 ? careerExportHonestyPrefix : null,
+      });
+    },
+    [
+      doorFields.effectiveWorkingCareerRehearsalDoor,
+      doorFields.structuralExecutionMode,
+      enginesSucceeded,
+      findingsSnapshot,
+      graphSnapshot,
+      hostAgentExecutionMode,
+      hostQualityGateMode,
+      input.aggregateQualityGateOutcome,
+      input.isSample,
+      input.runId,
+      preCommitGateEnabled,
+      progressSummary,
+      workingDesk,
+    ],
+  );
+
+  const seedFromInput = useCallback(() => {
+    setMarkdown(buildExportMarkdown(exportInput));
+  }, [buildExportMarkdown, exportInput]);
+
+  const syncAdrOpenToUrl = useCallback(
+    (nextOpen: boolean) => {
+      commitHrefIfChanged(
+        reviewGenerateAdrPanelsHrefFromSearch(readWindowLocationSearch(), nextOpen, pathname),
+        { notify: false },
+      );
+    },
+    [pathname],
+  );
+
+  const setOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+
+        if (openRef.current === next) {
+          return current;
+        }
+
+        openRef.current = next;
+        syncAdrOpenToUrl(next);
+
+        return next;
+      });
+    },
+    [syncAdrOpenToUrl],
+  );
+
+  useEffect(() => {
+    const syncAdrOpenFromUrl = (): void => {
+      const next = parseReviewGenerateAdrOpenFromSearch(
+        new URLSearchParams(window.location.search).get("adrOpen"),
+      );
+
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+    };
+
+    syncAdrOpenFromUrl();
+    window.addEventListener("popstate", syncAdrOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncAdrOpenFromUrl);
+    };
+  }, []);
+
+  const onOpenChange = useCallback(
+    (next: boolean) => {
+      setOpen(next);
+
+      if (next) {
+        seedFromInput();
+        setCopied(false);
+        setCopyError(null);
+        setIncompleteExportConfirmed(false);
+      }
+    },
+    [seedFromInput],
+  );
+
+  const onCopy = useCallback(async () => {
+    if (exportBlocked) {
+      return;
+    }
+
+    const blockedReason = runCollateralSealedManifestCopyBlockedReason({
+      runId: input.runId,
+      manifestVersion: input.manifestStatusLabel,
+    });
+
+    if (blockedReason !== null) {
+      setCopyError(blockedReason);
+      return;
+    }
+
+    setCopyError(null);
+
+    try {
+      await navigator.clipboard.writeText(markdown);
+      setCopied(true);
+      window.setTimeout(() => {
+        setCopied(false);
+      }, 2_000);
+    } catch {
+      setCopyError("Clipboard unavailable — select the Markdown above and copy manually.");
+    }
+  }, [exportBlocked, input.manifestStatusLabel, input.runId, markdown]);
+
+  const onDownload = useCallback(() => {
+    if (exportBlocked) {
+      return;
+    }
+
+    const blockedReason = runCollateralSealedManifestCopyBlockedReason({
+      runId: input.runId,
+      manifestVersion: input.manifestStatusLabel,
+    });
+
+    if (blockedReason !== null) {
+      setCopyError(blockedReason);
+      return;
+    }
+
+    setCopyError(null);
+
+    const blob = new Blob([markdown], { type: "text/markdown;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+
+    a.href = url;
+    a.download = `adr-archlucid-${input.runId}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [exportBlocked, input.manifestStatusLabel, input.runId, markdown]);
+
+  return (
+    <>
+      <Button type="button" variant="outline" data-testid="generate-adr-button" onClick={() => onOpenChange(true)}>
+        {buyerPolished ? BUYER_VIEW_SIGNED_RECORD_CTA : "Generate ADR"}
+      </Button>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-h-[min(90vh,56rem)] max-w-3xl gap-4 overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{buyerPolished ? "Decision record draft" : "Architecture Decision Record"}</DialogTitle>
+            <DialogDescription>
+              {evalSampleExport
+                ? `${CAREER_EXPORT_EVAL_SAMPLE_LABEL}. MADR-style draft you can copy into your enterprise decision-register or CAB packet.`
+                : buyerPolished
+                  ? "MADR-style draft you can copy into your enterprise decision-register or CAB packet. Edit the Markdown, then copy or download — nothing is stored server-side."
+                  : "MADR-inspired draft from this review's findings and aggregate AI assessment. Edit the Markdown, then copy or download — nothing is stored server-side."}
+            </DialogDescription>
+          </DialogHeader>
+          {exportInventoryLine !== null ? (
+            <p
+              className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="generate-adr-export-inventory-line"
+              role="status"
+            >
+              {exportInventoryLine}
+            </p>
+          ) : null}
+          {workingDesk ? (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="generate-adr-measurement-floor-line"
+              role="status"
+            >
+              {coverageHonesty.measurementFloor.line}
+            </p>
+          ) : null}
+          {careerSimulatorHardBlocked ? (
+            <div
+              role="alert"
+              data-testid="generate-adr-career-artifact-gap"
+              className={cn(
+                "m-0 rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-rose-700/50",
+                OPERATOR_TYPOGRAPHY.body,
+              )}
+            >
+              <p className="m-0 font-semibold">Sealed-record honesty blocks ADR export</p>
+              {careerArtifactVerdict.blockedReasons.map((reason) => (
+                <p key={reason} className={cn("m-0 mt-1 leading-relaxed opacity-95", OPERATOR_TYPOGRAPHY.helper)}>
+                  {reason}
+                </p>
+              ))}
+            </div>
+          ) : null}
+          {evalSampleExport ? (
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="generate-adr-eval-sample-label">
+              Includes up to {CAREER_EXPORT_EVAL_SAMPLE_MAX_FINDINGS} findings in this sample export.
+            </p>
+          ) : null}
+          {inventoryExportBlocked ? (
+            <Button
+              type="button"
+              variant="outline"
+              data-testid="generate-adr-export-incomplete-confirm"
+              onClick={() => {
+                setIncompleteExportConfirmed(true);
+              }}
+            >
+              {CAREER_EXPORT_INCOMPLETE_CONFIRM_LABEL}
+            </Button>
+          ) : null}
+          <div className="space-y-2">
+            <label className={cn("font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)} htmlFor="adr-markdown-editor">
+              Markdown
+            </label>
+            <Textarea
+              id="adr-markdown-editor"
+              value={markdown}
+              onChange={(e) => {
+                setMarkdown(e.target.value);
+              }}
+              spellCheck={false}
+              className={cn("min-h-[14rem] font-mono leading-relaxed md:min-h-[18rem]", OPERATOR_TYPOGRAPHY.micro, (cn("md:font-normal md:leading-5 md:", OPERATOR_TYPOGRAPHY.helper)))}
+              aria-label="Architecture decision record markdown"
+            />
+          </div>
+          <DialogFooter className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:gap-2">
+            <Button type="button" variant="outline" onClick={seedFromInput} title="Discard edits and rebuild from run data">
+              Reset to template
+            </Button>
+            <div className="flex flex-wrap gap-2 sm:justify-end">
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={exportBlocked}
+                onClick={() => {
+                  void onCopy();
+                }}
+              >
+                {copied ? "Copied" : "Copy to clipboard"}
+              </Button>
+              <Button type="button" variant="default" disabled={exportBlocked} onClick={onDownload}>
+                <FileDown className="mr-2 size-4" aria-hidden />
+                Download .md
+              </Button>
+            </div>
+            {copyError !== null ? (
+              <p
+                role="alert"
+                className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="generate-adr-copy-error"
+              >
+                {copyError}
+              </p>
+            ) : null}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}

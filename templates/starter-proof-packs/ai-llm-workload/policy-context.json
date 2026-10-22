@@ -1,0 +1,5 @@
+{
+  "policyPackVerticalSlug": "ai-llm",
+  "policyPackRelativePath": "templates/policy-packs/ai-llm",
+  "intent": "Model governance, RAG segmentation, and observability vocabulary for LLM architecture reviews; not a responsible-AI attestation."
+}

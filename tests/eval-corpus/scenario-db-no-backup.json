@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "database-no-backup",
+  "metadata": {
+    "title": "Transactional database without backups",
+    "complexity": "medium",
+    "primaryAgents": ["Compliance", "Critic"]
+  },
+  "inputSummary": "Primary OLTP workload on Azure SQL with geo-redundant storage disabled and no documented backup SLA.",
+  "recording": "recordings/database-no-backup.findings.json",
+  "expectedFindings": [
+    {
+      "id": "e backup sla",
+      "category": "Compliance",
+      "minimumSeverity": "High",
+      "evidenceMustContain": ["backup", "RPO"]
+    },
+    {
+      "id": "e redundancy",
+      "category": "Topology",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["geo-redundant", "recovery"]
+    },
+    {
+      "id": "e resilience testing",
+      "category": "Critic",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["restore", "game day"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Cost", "ifContainsAny": ["delete backups", "eliminate redundancy"] },
+    { "category": "Topology", "ifContainsAny": ["backups validated weekly with evidence attached"] }
+  ]
+}

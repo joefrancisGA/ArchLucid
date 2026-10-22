@@ -1,0 +1,101 @@
+using ArchLucid.Application.Exports;
+using ArchLucid.Contracts.Findings;
+using ArchLucid.Decisioning.Findings;
+
+using FluentAssertions;
+
+namespace ArchLucid.Application.Tests.Exports;
+
+[Trait("Category", "Unit")]
+[Trait("Suite", "Application")]
+public sealed class CareerExportSemanticSupportBandMarkdownFormatterTests
+{
+    [Fact]
+    public void FormatMarkdown_includes_scorer_version_and_stamp_counts()
+    {
+        string markdown = CareerExportSemanticSupportBandMarkdownFormatter.FormatMarkdown(
+        [
+            new Finding
+            {
+                FindingId = "f-1",
+                Classification = FindingClassification.DecisionGradeFinding,
+                SemanticSupportBand = FindingSemanticSupportBand.Supported,
+            },
+            new Finding
+            {
+                FindingId = "f-2",
+                Classification = FindingClassification.DecisionGradeFinding,
+                SemanticSupportBand = FindingSemanticSupportBand.Unsupported,
+            },
+        ]);
+
+        markdown.Should().Contain("## Semantic support");
+        markdown.Should().Contain(FindingSemanticSupportBandScorerVersions.As057QuoteOverlapV1);
+        markdown.Should().Contain("1 Supported");
+        markdown.Should().Contain("1 Unsupported");
+        markdown.Should().NotContain(CareerExportSemanticSupportBandMarkdownFormatter.UncheckedWarnLine);
+    }
+
+    [Fact]
+    public void FormatMarkdown_prefers_as099_overlay_scorer_version_when_present()
+    {
+        string markdown = CareerExportSemanticSupportBandMarkdownFormatter.FormatMarkdown(
+        [
+            new Finding
+            {
+                FindingId = "f-heuristic",
+                Classification = FindingClassification.DecisionGradeFinding,
+                SemanticSupportBand = FindingSemanticSupportBand.Supported,
+            },
+            new Finding
+            {
+                FindingId = "f-llm",
+                Classification = FindingClassification.DecisionGradeFinding,
+                SemanticSupportBand = FindingSemanticSupportBand.Supported,
+                SemanticSupportBandScorerVersion = FindingSemanticSupportBandScorerVersions.As099LlmFinalizeV1,
+            },
+        ]);
+
+        markdown.Should().Contain(FindingSemanticSupportBandScorerVersions.As099LlmFinalizeV1);
+        markdown.Should().NotContain($"`{FindingSemanticSupportBandScorerVersions.As057QuoteOverlapV1}`");
+    }
+
+    [Fact]
+    public void FormatMarkdown_omits_checklist_coverage_rows()
+    {
+        string markdown = CareerExportSemanticSupportBandMarkdownFormatter.FormatMarkdown(
+        [
+            new Finding
+            {
+                FindingId = "checklist",
+                Classification = FindingClassification.ChecklistCoverage,
+                SemanticSupportBand = FindingSemanticSupportBand.Supported,
+            },
+        ]);
+
+        markdown.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void FormatMarkdown_warns_when_remaining_unchecked_decision_grade_rows_exist()
+    {
+        string markdown = CareerExportSemanticSupportBandMarkdownFormatter.FormatMarkdown(
+        [
+            new Finding
+            {
+                FindingId = "f-1",
+                Classification = FindingClassification.DecisionGradeFinding,
+                SemanticSupportBand = FindingSemanticSupportBand.Supported,
+            },
+            new Finding
+            {
+                FindingId = "f-unchecked",
+                Classification = FindingClassification.DecisionGradeFinding,
+                SemanticSupportBand = FindingSemanticSupportBand.Unchecked,
+            },
+        ]);
+
+        markdown.Should().Contain("Remaining Unchecked");
+        markdown.Should().Contain(CareerExportSemanticSupportBandMarkdownFormatter.UncheckedWarnLine);
+    }
+}

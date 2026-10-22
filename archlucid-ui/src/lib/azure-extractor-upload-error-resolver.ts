@@ -1,0 +1,232 @@
+import type { ApiProblemDetails } from "@/lib/api-problem";
+import { extractUploadPackagerScriptReference } from "@/lib/extract-upload-product-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+
+export type AzureExtractorUploadFailureKind = "schema" | "archive" | "validation" | "unknown";
+
+export const AZURE_EXTRACTOR_UPLOAD_DOC_PATHS = {
+  primary: "/docs/library/AZURE_EXTRACTOR.md",
+  ingestRunbook: "/docs/runbooks/AZURE_EXTRACTOR_INGEST.md",
+} as const;
+
+export type AzureExtractorUploadSemanticCode =
+  | "AZURE_EXTRACTOR_UNSUPPORTED_SCHEMA_VERSION"
+  | "AZURE_EXTRACTOR_MISSING_MANIFEST"
+  | "AZURE_EXTRACTOR_INVALID_MANIFEST_JSON"
+  | "AZURE_EXTRACTOR_MISSING_SCHEMA_VERSION"
+  | "AZURE_EXTRACTOR_COMPANION_NOT_ARRAY"
+  | "AZURE_EXTRACTOR_PACKAGE_SCHEMA_INVALID"
+  | "AZURE_EXTRACTOR_MISSING_RESOURCES_JSON"
+  | "AZURE_EXTRACTOR_INVALID_ZIP_ARCHIVE"
+  | "AZURE_EXTRACTOR_RUN_SCOPE_MISMATCH"
+  | "AZURE_EXTRACTOR_ZIP_TOO_LARGE"
+  | "AZURE_EXTRACTOR_NO_FILE_UPLOADED"
+  | "AZURE_EXTRACTOR_UPLOAD_PRODUCT_LINE_FORBIDDEN"
+  | "AZURE_EXTRACTOR_UPLOAD_UNKNOWN";
+
+export type AzureExtractorUploadErrorResolution = {
+  semanticCode: AzureExtractorUploadSemanticCode;
+  failureKind: AzureExtractorUploadFailureKind;
+  heading: string;
+  guidance: string;
+  docPath: string;
+};
+
+function readFailureKind(problem: ApiProblemDetails | null, detail: string): AzureExtractorUploadFailureKind {
+  const raw = problem?.failureKind;
+
+  if (raw === "schema" || raw === "archive" || raw === "validation") {
+    return raw;
+  }
+
+  const normalized = detail.toLowerCase();
+
+  if (normalized.includes("schemaversion") || normalized.includes("manifest.json")) {
+    return "schema";
+  }
+
+  if (normalized.includes("zip") || normalized.includes("archive")) {
+    return "archive";
+  }
+
+  if (normalized.includes("run id") || normalized.includes("resources.json") || normalized.includes("maximum size")) {
+    return "validation";
+  }
+
+  return "unknown";
+}
+
+function resolveSemanticCode(
+  detail: string,
+  failureKind: AzureExtractorUploadFailureKind,
+  apiErrorCode: string | undefined,
+): AzureExtractorUploadSemanticCode {
+  const normalized = detail.toLowerCase();
+
+  if (
+    detail === "The active product line cannot access this API route." &&
+    (apiErrorCode === undefined || apiErrorCode.toUpperCase() === "FORBIDDEN")
+  ) {
+    return "AZURE_EXTRACTOR_UPLOAD_PRODUCT_LINE_FORBIDDEN";
+  }
+
+  if (normalized.includes("unsupported manifest schemaversion")) {
+    return "AZURE_EXTRACTOR_UNSUPPORTED_SCHEMA_VERSION";
+  }
+
+  if (normalized.includes("missing or unsupported schemaversion")) {
+    return "AZURE_EXTRACTOR_MISSING_SCHEMA_VERSION";
+  }
+
+  if (normalized.includes("root must be a json array")) {
+    return "AZURE_EXTRACTOR_COMPANION_NOT_ARRAY";
+  }
+
+  if (normalized.includes("no manifest.json found") || normalized.includes("does not contain manifest.json")) {
+    return "AZURE_EXTRACTOR_MISSING_MANIFEST";
+  }
+
+  if (normalized.includes("could not read zip archive") || normalized.includes("not a valid zip archive")) {
+    return "AZURE_EXTRACTOR_INVALID_ZIP_ARCHIVE";
+  }
+
+  if (normalized.includes("exceeds maximum size") || normalized.includes("zip is too large")) {
+    return "AZURE_EXTRACTOR_ZIP_TOO_LARGE";
+  }
+
+  if (normalized.includes("not valid json")) {
+    return "AZURE_EXTRACTOR_INVALID_MANIFEST_JSON";
+  }
+
+  if (normalized.includes("schemaversion") && normalized.includes("missing")) {
+    return "AZURE_EXTRACTOR_MISSING_SCHEMA_VERSION";
+  }
+
+  if (normalized.includes("does not contain resources.json")) {
+    return "AZURE_EXTRACTOR_MISSING_RESOURCES_JSON";
+  }
+
+  if (normalized.includes("not a valid zip archive")) {
+    return "AZURE_EXTRACTOR_INVALID_ZIP_ARCHIVE";
+  }
+
+  if (normalized.includes("run id is not recognized")) {
+    return "AZURE_EXTRACTOR_RUN_SCOPE_MISMATCH";
+  }
+
+  if (normalized.includes("exceeds maximum size")) {
+    return "AZURE_EXTRACTOR_ZIP_TOO_LARGE";
+  }
+
+  if (normalized.includes("no file uploaded")) {
+    return "AZURE_EXTRACTOR_NO_FILE_UPLOADED";
+  }
+
+  if (failureKind === "schema") {
+    return "AZURE_EXTRACTOR_PACKAGE_SCHEMA_INVALID";
+  }
+
+  if (failureKind === "archive") {
+    return "AZURE_EXTRACTOR_INVALID_ZIP_ARCHIVE";
+  }
+
+  return "AZURE_EXTRACTOR_UPLOAD_UNKNOWN";
+}
+
+function guidanceForSemanticCode(
+  code: AzureExtractorUploadSemanticCode,
+  productLineId: ProductLineId = "architecture",
+): string {
+  const packagerScript = extractUploadPackagerScriptReference(productLineId);
+
+  switch (code) {
+    case "AZURE_EXTRACTOR_UNSUPPORTED_SCHEMA_VERSION":
+      return `Re-run ${packagerScript} from the current packager script download so manifest.json uses a supported schemaVersion, then upload the new ZIP.`;
+    case "AZURE_EXTRACTOR_MISSING_MANIFEST":
+      return "The ZIP must contain manifest.json at the archive root. Re-run the extractor script and upload the complete package.";
+    case "AZURE_EXTRACTOR_INVALID_MANIFEST_JSON":
+      return "manifest.json is not valid JSON. Re-run the extractor locally and confirm the file opens cleanly before uploading.";
+    case "AZURE_EXTRACTOR_MISSING_SCHEMA_VERSION":
+      return "manifest.json must include a supported schemaVersion (1–2). Download the latest extractor script and regenerate the ZIP.";
+    case "AZURE_EXTRACTOR_COMPANION_NOT_ARRAY":
+      return "A companion inventory file must be a JSON array. PowerShell ConvertTo-Json writes a single row as an object. Re-run the latest extractor script so files such as diagnostic-settings.json are arrays.";
+    case "AZURE_EXTRACTOR_PACKAGE_SCHEMA_INVALID":
+      return "The inventory ZIP failed package schema checks. Review the error detail, re-run the latest extractor script, and upload the new ZIP.";
+    case "AZURE_EXTRACTOR_MISSING_RESOURCES_JSON":
+      return `The ZIP must include resources.json from ${packagerScript}. Do not upload a manifest-only archive.`;
+    case "AZURE_EXTRACTOR_INVALID_ZIP_ARCHIVE":
+      return `Upload a complete .zip produced by ${packagerScript}. Partial downloads or renamed folders often fail archive validation.`;
+    case "AZURE_EXTRACTOR_RUN_SCOPE_MISMATCH":
+      return "The runId query parameter does not match a review in this workspace. Upload without runId or open the correct workspace scope first.";
+    case "AZURE_EXTRACTOR_ZIP_TOO_LARGE":
+      return "Reduce extractor scope (subscription or resource group) or use chunked upload when enabled. Confirm the ZIP is within the server size limit.";
+    case "AZURE_EXTRACTOR_NO_FILE_UPLOADED":
+      return "Select a .zip file in the upload control. The multipart form field must be named file.";
+    case "AZURE_EXTRACTOR_UPLOAD_PRODUCT_LINE_FORBIDDEN":
+      return "The ZIP was not inspected. The active product line cannot call this API route. Include the copied error details when opening a support ticket.";
+    case "AZURE_EXTRACTOR_UPLOAD_UNKNOWN":
+      return "Review the error detail, fix the extractor package, and retry. Include the copied error details when opening a support ticket.";
+    default: {
+      const exhaustive: never = code;
+      return exhaustive;
+    }
+  }
+}
+
+function headingForSemanticCode(
+  code: AzureExtractorUploadSemanticCode,
+  failureKind: AzureExtractorUploadFailureKind,
+): string {
+  if (code === "AZURE_EXTRACTOR_UPLOAD_PRODUCT_LINE_FORBIDDEN") {
+    return "This product cannot use this upload route";
+  }
+
+  if (code === "AZURE_EXTRACTOR_COMPANION_NOT_ARRAY" || code === "AZURE_EXTRACTOR_PACKAGE_SCHEMA_INVALID") {
+    return "Extractor package rejected";
+  }
+
+  return headingForFailureKind(failureKind);
+}
+
+function headingForFailureKind(failureKind: AzureExtractorUploadFailureKind): string {
+  if (failureKind === "schema") {
+    return "Extractor manifest rejected";
+  }
+
+  if (failureKind === "archive") {
+    return "Invalid ZIP archive";
+  }
+
+  return "Azure extractor upload failed";
+}
+
+function docPathForSemanticCode(code: AzureExtractorUploadSemanticCode): string {
+  if (
+    code === "AZURE_EXTRACTOR_RUN_SCOPE_MISMATCH" ||
+    code === "AZURE_EXTRACTOR_ZIP_TOO_LARGE" ||
+    code === "AZURE_EXTRACTOR_NO_FILE_UPLOADED"
+  ) {
+    return AZURE_EXTRACTOR_UPLOAD_DOC_PATHS.ingestRunbook;
+  }
+
+  return AZURE_EXTRACTOR_UPLOAD_DOC_PATHS.primary;
+}
+
+/** Maps Problem Details from extractor upload endpoints into semantic codes and remediation copy. */
+export function resolveAzureExtractorUploadError(
+  problem: ApiProblemDetails | null,
+  fallbackMessage: string,
+  productLineId: ProductLineId = "architecture",
+): AzureExtractorUploadErrorResolution {
+  const detail = problem?.detail?.trim() ?? fallbackMessage.trim();
+  const failureKind = readFailureKind(problem, detail);
+  const semanticCode = resolveSemanticCode(detail, failureKind, problem?.errorCode?.trim());
+
+  return {
+    semanticCode,
+    failureKind,
+    heading: headingForSemanticCode(semanticCode, failureKind),
+    guidance: guidanceForSemanticCode(semanticCode, productLineId),
+    docPath: docPathForSemanticCode(semanticCode),
+  };
+}

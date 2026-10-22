@@ -1,0 +1,11 @@
+{
+  "findings": [
+    {
+      "findingId": "adv-inv-fw-1",
+      "category": "Compliance",
+      "severity": "Medium",
+      "title": "Invented assurance framework",
+      "detail": "ISO-40499-Ultra is not a cataloged framework; compliance reviewers must verify citations before inheriting controls."
+    }
+  ]
+}

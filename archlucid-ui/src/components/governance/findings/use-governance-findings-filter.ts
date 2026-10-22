@@ -1,0 +1,281 @@
+"use client";
+
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import {
+  readGroupByResourcePreference,
+  writeGroupByResourcePreference,
+} from "@/lib/governance/governance-findings-group-by-resource-storage";
+import {
+  governanceFindingsGroupByHrefFromSearch,
+  parseGovernanceFindingsGroupByResourceFromSearch,
+} from "@/lib/governance/governance-findings-group-by-url";
+import {
+  patchGovernanceFindingsQueueFacets,
+  readGovernanceFindingsQueueFacets,
+} from "@/lib/governance/governance-findings-queue-facets-storage";
+import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
+import {
+  riskRegisterFilterFromQuery,
+  scopedRunIdFromQuery,
+  type RiskRegisterFilter,
+} from "@/lib/architecture/architecture-risk-register-page";
+import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
+import {
+  governanceFindingsArchitectureScopeHrefFromSearch,
+  resolveGovernanceFindingsArchitectureScopeFromUrl,
+  scopedArchitectureIdFromQuery,
+} from "@/lib/governance/governance-findings-architecture-scope";
+import { governanceFindingsRegisterFilterHrefFromSearch } from "@/lib/governance/governance-findings-register-filter-url";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+
+import {
+  GOVERNANCE_FINDINGS_FILTER_PRESET_LABELS,
+  loadGovernanceFindingsFilterPresets,
+  saveGovernanceFindingsFilterPresets,
+  type GovernanceFindingsFilterPreset,
+} from "@/components/governance/findings/governance-findings-filter-presets";
+
+function initialRegisterFilterFromUrlOrStorage(
+  rawFilter: string | null,
+  mode: GovernanceFindingsQueueMode,
+): RiskRegisterFilter {
+  if (rawFilter !== null && rawFilter.trim().length > 0) {
+    return riskRegisterFilterFromQuery(rawFilter);
+  }
+
+  return readGovernanceFindingsQueueFacets(mode).registerFilter;
+}
+
+function initialGroupByResourceFromUrlOrStorage(
+  rawGroupBy: string | null,
+): boolean {
+  if (rawGroupBy !== null && rawGroupBy.trim().length > 0) {
+    return parseGovernanceFindingsGroupByResourceFromSearch(rawGroupBy);
+  }
+
+  return readGroupByResourcePreference();
+}
+
+export type UseGovernanceFindingsFilterOptions = {
+  readonly mode?: GovernanceFindingsQueueMode;
+  readonly isWorkingMode?: boolean;
+};
+
+export function useGovernanceFindingsFilter(options?: UseGovernanceFindingsFilterOptions) {
+  const mode = options?.mode ?? "tenant";
+  const isWorkingMode = options?.isWorkingMode === true;
+  const { productLine } = useProductLine();
+  const isSecureNowFindingsQueue = isSecureNowProductLine(productLine);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname() ?? "";
+  const defaultArchitectureId =
+    isWorkingMode && !isSecureNowFindingsQueue ? readCachedLastOpenArchitectureId() : null;
+  const [registerFilter, setRegisterFilterState] = useState<RiskRegisterFilter>(() =>
+    initialRegisterFilterFromUrlOrStorage(searchParams.get("filter"), mode),
+  );
+  const [scopedRunId, setScopedRunId] = useState<string | null>(() =>
+    scopedRunIdFromQuery(searchParams.get("runId")),
+  );
+  const [scopedArchitectureId, setScopedArchitectureIdState] = useState<string | null>(() => {
+    if (isSecureNowFindingsQueue) {
+      return null;
+    }
+
+    const resolved = resolveGovernanceFindingsArchitectureScopeFromUrl(
+      searchParams.get("architectureId"),
+      defaultArchitectureId,
+    );
+
+    return scopedArchitectureIdFromQuery(resolved.architectureId);
+  });
+  const [savedPresets, setSavedPresets] = useState<GovernanceFindingsFilterPreset[]>(() =>
+    loadGovernanceFindingsFilterPresets(),
+  );
+  const [groupByResource, setGroupByResource] = useState(() =>
+    initialGroupByResourceFromUrlOrStorage(searchParams.get("groupBy")),
+  );
+  const hadRegisterFilterInUrlRef = useRef(
+    (searchParams.get("filter")?.trim().length ?? 0) > 0,
+  );
+  const hadGroupByInUrlRef = useRef((searchParams.get("groupBy")?.trim().length ?? 0) > 0);
+  const hadArchitectureIdInUrlRef = useRef(
+    (searchParams.get("architectureId")?.trim().length ?? 0) > 0,
+  );
+  const suppressDeskContinuityArchitectureRef = useRef(false);
+
+  useEffect(() => {
+    const rawFilter = searchParams.get("filter");
+    const hasActiveRegisterFilter = (rawFilter?.trim().length ?? 0) > 0;
+
+    if (hasActiveRegisterFilter) {
+      const fromUrl = riskRegisterFilterFromQuery(rawFilter);
+
+      setRegisterFilterState(fromUrl);
+      patchGovernanceFindingsQueueFacets({ registerFilter: fromUrl }, mode);
+      hadRegisterFilterInUrlRef.current = true;
+    } else if (hadRegisterFilterInUrlRef.current) {
+      setRegisterFilterState("all");
+      patchGovernanceFindingsQueueFacets({ registerFilter: "all" }, mode);
+      hadRegisterFilterInUrlRef.current = false;
+    }
+
+    setScopedRunId(scopedRunIdFromQuery(searchParams.get("runId")));
+
+    const rawArchitectureId = searchParams.get("architectureId");
+    const hasActiveArchitectureId = (rawArchitectureId?.trim().length ?? 0) > 0;
+
+    if (isSecureNowFindingsQueue) {
+      setScopedArchitectureIdState(null);
+    } else if (hasActiveArchitectureId) {
+      const resolvedArchitecture = resolveGovernanceFindingsArchitectureScopeFromUrl(
+        rawArchitectureId,
+        null,
+      );
+      setScopedArchitectureIdState(scopedArchitectureIdFromQuery(resolvedArchitecture.architectureId));
+      hadArchitectureIdInUrlRef.current = true;
+      suppressDeskContinuityArchitectureRef.current = false;
+    } else if (hadArchitectureIdInUrlRef.current) {
+      setScopedArchitectureIdState(null);
+      hadArchitectureIdInUrlRef.current = false;
+      suppressDeskContinuityArchitectureRef.current = true;
+    } else if (!suppressDeskContinuityArchitectureRef.current) {
+      const resolvedArchitecture = resolveGovernanceFindingsArchitectureScopeFromUrl(
+        rawArchitectureId,
+        isWorkingMode ? readCachedLastOpenArchitectureId() : null,
+      );
+      setScopedArchitectureIdState(scopedArchitectureIdFromQuery(resolvedArchitecture.architectureId));
+    }
+
+    const rawGroupBy = searchParams.get("groupBy");
+    const hasActiveGroupBy = (rawGroupBy?.trim().length ?? 0) > 0;
+
+    if (hasActiveGroupBy) {
+      setGroupByResource(parseGovernanceFindingsGroupByResourceFromSearch(rawGroupBy));
+      hadGroupByInUrlRef.current = true;
+    } else if (hadGroupByInUrlRef.current) {
+      setGroupByResource(false);
+      writeGroupByResourcePreference(false);
+      hadGroupByInUrlRef.current = false;
+    }
+  }, [isSecureNowFindingsQueue, isWorkingMode, mode, searchParams]);
+
+  useEffect(() => {
+    if (!isWorkingMode || isSecureNowFindingsQueue || suppressDeskContinuityArchitectureRef.current) {
+      return;
+    }
+
+    const rawArchitectureId = searchParams.get("architectureId");
+
+    if (rawArchitectureId !== null && rawArchitectureId.trim().length > 0) {
+      return;
+    }
+
+    const lastOpenArchitectureId = readCachedLastOpenArchitectureId();
+
+    if (lastOpenArchitectureId === null) {
+      return;
+    }
+
+    router.replace(
+      governanceFindingsArchitectureScopeHrefFromSearch(
+        searchParams.toString(),
+        lastOpenArchitectureId,
+        pathname,
+      ),
+      { scroll: false },
+    );
+  }, [isSecureNowFindingsQueue, isWorkingMode, pathname, router, searchParams]);
+
+  const setRegisterFilter = useCallback((next: RiskRegisterFilter): void => {
+    setRegisterFilterState(next);
+    patchGovernanceFindingsQueueFacets({ registerFilter: next }, mode);
+
+    router.replace(
+      governanceFindingsRegisterFilterHrefFromSearch(searchParams.toString(), next, pathname),
+      { scroll: false },
+    );
+  }, [mode, pathname, router, searchParams]);
+
+  const saveCurrentFilterAsPreset = useCallback((): void => {
+    if (registerFilter === "all") {
+      return;
+    }
+
+    const label = GOVERNANCE_FINDINGS_FILTER_PRESET_LABELS[registerFilter];
+    const alreadySaved = savedPresets.some((preset) => preset.filter === registerFilter);
+
+    if (alreadySaved) {
+      return;
+    }
+
+    const newPreset: GovernanceFindingsFilterPreset = {
+      id: `${registerFilter}-${Date.now()}`,
+      label,
+      filter: registerFilter,
+    };
+    const updated = [...savedPresets, newPreset];
+
+    setSavedPresets(updated);
+    saveGovernanceFindingsFilterPresets(updated);
+  }, [registerFilter, savedPresets]);
+
+  const removePreset = useCallback((id: string): void => {
+    setSavedPresets((current) => {
+      const updated = current.filter((preset) => preset.id !== id);
+
+      saveGovernanceFindingsFilterPresets(updated);
+
+      return updated;
+    });
+  }, []);
+
+  const toggleGroupByResource = useCallback((): void => {
+    const next = !groupByResource;
+
+    setGroupByResource(next);
+    writeGroupByResourcePreference(next);
+    router.replace(governanceFindingsGroupByHrefFromSearch(searchParams.toString(), next, pathname), { scroll: false });
+  }, [groupByResource, pathname, router, searchParams]);
+
+  const applyGroupByResource = useCallback((next: boolean): void => {
+    setGroupByResource(next);
+    writeGroupByResourcePreference(next);
+    router.replace(governanceFindingsGroupByHrefFromSearch(searchParams.toString(), next, pathname), { scroll: false });
+  }, [pathname, router, searchParams]);
+
+  const setScopedArchitectureId = useCallback((next: string | null): void => {
+    if (next === null) {
+      suppressDeskContinuityArchitectureRef.current = true;
+      hadArchitectureIdInUrlRef.current = false;
+    } else {
+      suppressDeskContinuityArchitectureRef.current = false;
+      hadArchitectureIdInUrlRef.current = true;
+    }
+
+    setScopedArchitectureIdState(next);
+    router.replace(
+      governanceFindingsArchitectureScopeHrefFromSearch(searchParams.toString(), next, pathname),
+      { scroll: false },
+    );
+  }, [pathname, router, searchParams]);
+
+  return {
+    registerFilter,
+    setRegisterFilter,
+    scopedRunId,
+    scopedArchitectureId,
+    setScopedArchitectureId,
+    architectureScopeFilterActive: scopedArchitectureId !== null,
+    lastOpenArchitectureId: defaultArchitectureId,
+    savedPresets,
+    saveCurrentFilterAsPreset,
+    removePreset,
+    groupByResource,
+    toggleGroupByResource,
+    applyGroupByResource,
+  };
+}

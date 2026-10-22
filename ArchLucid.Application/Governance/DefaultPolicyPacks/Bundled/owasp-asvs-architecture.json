@@ -1,0 +1,35 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "owasp-asvs-001",
+    "owasp-asvs-002",
+    "owasp-asvs-003",
+    "owasp-asvs-004",
+    "owasp-asvs-005",
+    "owasp-asvs-006",
+    "owasp-asvs-007",
+    "owasp-asvs-008",
+    "owasp-asvs-009",
+    "owasp-asvs-010",
+    "owasp-asvs-011",
+    "owasp-asvs-012"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "priorityFloor": "P0",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "owasp-asvs-architecture-v1",
+    "pack.displayName": "OWASP ASVS 5.0 architecture baseline",
+    "pack.category": "Application Security",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "Architecture checks mapped to selected OWASP ASVS 5.0 requirements. Not an OWASP certification or application test.",
+    "frameworkMappingDisclaimer": "OWASP ASVS mappings are thematic architecture guidance, not certification.",
+    "sourceLicense": "OWASP ASVS 5.0 is used under its published Creative Commons Attribution-ShareAlike license; rule narratives are original paraphrases.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/owasp-asvs-architecture-rules-v1.json"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "schema": "archlucid.pilot-decision-ledger.v1",
+  "pilotLabel": "sample-proof-pack",
+  "runId": "aaaaaaaa-1111-1111-1111-111111111111",
+  "recordedUtc": "2026-06-20T18:00:00Z",
+  "paidPilot": true,
+  "decisionsUnderReview": [
+    {
+      "decisionId": "d1",
+      "title": "Approve east-west firewall rule for subnet X",
+      "statusBeforeReview": "pending-approval",
+      "decisionOwner": "workload-security-lead",
+      "ownerOutcome": "accepted",
+      "outcomeRecordedUtc": "2026-06-20T19:00:00Z",
+      "itsmTicketRef": "INC-SAMPLE-001"
+    }
+  ],
+  "decisionChanges": [
+    {
+      "decisionId": "d1",
+      "changedBecauseOfArchLucidFinding": true,
+      "findingId": "finding-sample-001",
+      "evidenceChainId": "evidence-chain-sample-001",
+      "attributionConfidence": "high",
+      "notes": "Finding surfaced missing NSG rule."
+    }
+  ],
+  "noDecisionChangesConfirmed": false,
+  "sponsorAcceptance": {
+    "outcome": "accepted",
+    "recordedUtc": "2026-06-20T19:30:00Z",
+    "notes": "Sponsor accepted deferred approval with remediation plan attached."
+  }
+}

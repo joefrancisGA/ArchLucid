@@ -1,0 +1,65 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  GOVERNANCE_ALERT_RULES_PATH,
+  GOVERNANCE_ALERTS_PATH,
+  GOVERNANCE_DECISION_REGISTER_PATH,
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+  SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
+  GOVERNANCE_REMEDIATION_FACTORY_PATH,
+  SECURENOW_REMEDIATION_FACTORY_PATH,
+  GOVERNANCE_REMEDIATION_PATTERNS_PATH,
+  SECURENOW_REMEDIATION_PATTERNS_PATH,
+  GOVERNANCE_FINDINGS_PATH,
+  GOVERNANCE_WORKSPACE_HEALTH_HREF,
+  SECURENOW_FINDINGS_PATH,
+  SECURENOW_POLICY_PACKS_PATH,
+  SECURENOW_STANDARDS_AND_RULES_PATH,
+  buildCanonicalGovernanceAlertsInboxHref,
+  governanceAlertRulesTabHref,
+  governanceAlertsTabHref,
+} from "@/lib/governance/governance-route-paths";
+
+describe("governance-route-paths", () => {
+  it("exposes canonical approval alert paths", () => {
+    expect(GOVERNANCE_ALERTS_PATH).toBe("/governance/alerts");
+    expect(GOVERNANCE_ALERT_RULES_PATH).toBe("/governance/alert-rules");
+    expect(GOVERNANCE_DECISION_REGISTER_PATH).toBe("/governance/decision-register");
+    expect(GOVERNANCE_FINDINGS_PATH).toBe("/governance/findings");
+    expect(SECURENOW_FINDINGS_PATH).toBe("/compliance/findings");
+    expect(SECURENOW_POLICY_PACKS_PATH).toBe("/compliance/policy-packs");
+    expect(SECURENOW_STANDARDS_AND_RULES_PATH).toBe("/compliance/standards-and-rules");
+    expect(GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH).toBe("/governance/findings/assigned-to-me");
+    expect(SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH).toBe("/security/assigned-to-me");
+    expect(GOVERNANCE_REMEDIATION_FACTORY_PATH).toBe("/governance/remediation-factory");
+    expect(SECURENOW_REMEDIATION_FACTORY_PATH).toBe("/security/remediation-factory");
+    expect(GOVERNANCE_REMEDIATION_PATTERNS_PATH).toBe("/governance/remediation-patterns");
+    expect(SECURENOW_REMEDIATION_PATTERNS_PATH).toBe("/security/remediation-patterns");
+    expect(GOVERNANCE_WORKSPACE_HEALTH_HREF).toBe("/insights/workspace-health");
+  });
+
+  it("builds alert-rules tab hrefs on the dedicated configuration route", () => {
+    expect(governanceAlertRulesTabHref("rules")).toBe("/governance/alert-rules");
+    expect(governanceAlertRulesTabHref("notifications")).toBe("/governance/alert-rules?tab=notifications");
+    expect(governanceAlertRulesTabHref("advanced-rules")).toBe("/governance/alert-rules?tab=advanced-rules");
+    expect(governanceAlertRulesTabHref("test-alerts")).toBe("/governance/alert-rules?tab=test-alerts");
+  });
+
+  it("routes alerts tab deep links to alert-rules configuration", () => {
+    expect(governanceAlertsTabHref("inbox")).toBe("/governance/alerts");
+    expect(governanceAlertsTabHref("rules")).toBe("/governance/alert-rules");
+    expect(governanceAlertsTabHref("notifications")).toBe("/governance/alert-rules?tab=notifications");
+    expect(governanceAlertsTabHref("advanced-rules")).toBe("/governance/alert-rules?tab=advanced-rules");
+    expect(governanceAlertsTabHref("test-alerts")).toBe("/governance/alert-rules?tab=test-alerts");
+  });
+
+  it("strips retired tab=inbox while preserving inbox filters (TB-1594)", () => {
+    expect(buildCanonicalGovernanceAlertsInboxHref({ tab: "inbox" })).toBe("/governance/alerts");
+    expect(buildCanonicalGovernanceAlertsInboxHref({ tab: "inbox", status: "Open" })).toBe(
+      "/governance/alerts?status=Open",
+    );
+    expect(buildCanonicalGovernanceAlertsInboxHref({ status: "Open", cursor: "abc" })).toBe(
+      "/governance/alerts?status=Open&cursor=abc",
+    );
+  });
+});

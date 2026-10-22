@@ -1,0 +1,34 @@
+# One-shot queue relief: cancel CI workflow runs stuck in pending with zero jobs spawned.
+# Run manually from Actions when the PR queue is starved (ubuntu-latest backlog).
+name: Cancel stale pending CI (0 jobs)
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: List matching runs without cancelling
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    # Queue relief when trunk churn leaves 0-job pending runs on invite-wave workflows.
+    - cron: "0 */6 * * *"
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  cancel_stale_pending_ci:
+    name: Cancel pending CI runs with 0 jobs
+    runs-on: ubuntu-latest
+    steps:
+      # Runner workspace is empty until checkout; the cancel script lives in the repo.
+      - uses: actions/checkout@v7
+
+      - name: Cancel stale pending CI runs
+        env:
+          DRY_RUN: ${{ inputs.dry_run }}
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python3 scripts/ci/cancel_stale_pending_ci_runs.py

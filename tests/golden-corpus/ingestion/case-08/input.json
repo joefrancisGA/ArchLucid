@@ -1,0 +1,8 @@
+{
+  "infrastructureDeclaration": {
+    "name": "main.bicep",
+    "format": "bicep",
+    "declarationId": "ingestion-case-08",
+    "content": "resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {\n  properties: {\n    publicNetworkAccess: 'Enabled'\n  }\n}"
+  }
+}

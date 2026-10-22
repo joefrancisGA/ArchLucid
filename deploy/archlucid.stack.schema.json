@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archlucid.net/schemas/archlucid.stack.schema.json",
+  "title": "ArchLucid stack answers file",
+  "description": "TB-654 operator-owned deployment answers; consumed by archlucid stack init.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "azure",
+    "naming",
+    "containerRegistry",
+    "publicSite",
+    "keyVault",
+    "deployment"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "azure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["subscriptionId", "tenantId", "location", "environment"],
+      "properties": {
+        "subscriptionId": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+        },
+        "tenantId": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+        },
+        "location": {
+          "type": "string",
+          "minLength": 1
+        },
+        "environment": {
+          "type": "string",
+          "enum": ["dev", "staging", "production"]
+        }
+      }
+    },
+    "naming": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resourcePrefix"],
+      "properties": {
+        "resourcePrefix": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]{1,20}$"
+        }
+      }
+    },
+    "containerRegistry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["loginServer", "imageTag"],
+      "properties": {
+        "loginServer": {
+          "type": "string",
+          "minLength": 3
+        },
+        "imageTag": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "publicSite": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["baseUrl"],
+      "properties": {
+        "baseUrl": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "keyVault": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9-]{3,24}$"
+        }
+      }
+    },
+    "deployment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["multiRootApplyOptIn"],
+      "properties": {
+        "multiRootApplyOptIn": {
+          "type": "boolean"
+        },
+        "pilotMonthlyBudgetUsd": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "openAi": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "composeMode": {
+          "type": "string",
+          "enum": ["existing", "provision"]
+        },
+        "existingEndpoint": {
+          "type": "string",
+          "format": "uri"
+        },
+        "chatDeploymentName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "economyDeploymentName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "premiumDeploymentName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "embeddingDeploymentName": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "search": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "composeMode": {
+          "type": "string",
+          "enum": ["existing", "provision"]
+        },
+        "existingEndpoint": {
+          "type": "string",
+          "format": "uri"
+        },
+        "indexName": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

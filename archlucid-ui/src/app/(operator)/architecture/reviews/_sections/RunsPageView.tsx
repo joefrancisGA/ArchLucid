@@ -1,0 +1,189 @@
+import { cn } from "@/lib/utils";
+
+
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorDemoStaticBanner } from "@/components/operator/OperatorDemoStaticBanner";
+import { OperatorMalformedCallout, OperatorTryNext } from "@/components/operator/OperatorShellMessage";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
+import {
+  BUYER_RUNS_LIST_MALFORMED_BODY,
+  BUYER_RUNS_LIST_MALFORMED_HEADING,
+} from "@/lib/buyer/buyer-polish-copy";
+import { isApiNotFoundFailure } from "@/lib/api-load-failure";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  REVIEWS_HUB_FIRST_VIEWPORT_ID,
+  REVIEWS_HUB_PRIMARY_CONTENT_ID,
+  REVIEWS_HUB_SKIP_LINK_LABEL,
+  REVIEWS_HUB_SKIP_TARGET_ID,
+} from "@/lib/reviews-hub-page-copy";
+
+import {
+  REVIEWS_HUB_ADVANCED_LIST_DISCLOSURE,
+  REVIEWS_HUB_LIST_LOAD_FAILURE_TRY_NEXT,
+  REVIEWS_HUB_LIST_NOT_FOUND_TRY_NEXT,
+} from "./reviews-hub-copy";
+import { ReviewsHubPageHeader } from "./ReviewsHubPageHeader";
+import { ReviewsHubBuyerChrome } from "./ReviewsHubBuyerChrome";
+import {
+  OperatorWelcomeOnboardingDeferred,
+  ReviewsHubReviewInventoryDeferred,
+  RunsListAggregateErrorBoundaryDeferred,
+} from "./reviews-hub-deferred-chunks";
+import { ReviewsHubResumeDrafts } from "./ReviewsHubResumeDrafts";
+import { ReviewsHubContinueReviewStrip } from "./ReviewsHubContinueReviewStrip";
+import { resolveReviewsHubContinueReviewCandidate } from "@/lib/reviews-hub-continue-review";
+import { resolveReviewsHubAttentionSuppressKinds } from "@/lib/reviews-hub-attention-suppress";
+import { ReviewsHubDisclosuresClient } from "./ReviewsHubDisclosuresClient";
+import type { RunsPageModel } from "./runs-page-model";
+import { deriveReviewsWorkspaceSummary } from "./reviews-workspace-summary";
+
+type Props = {
+  readonly model: RunsPageModel;
+};
+
+const REVIEWS_HUB_BODY_STACK_CLASS = OPERATOR_LAYOUT.majorSectionGap;
+
+/** Server component: reviews index body (list fetch happens in `loadRunsPageModel`). */
+export function RunsPageView(props: Props) {
+  const m = props.model;
+  const loadFailure = m.loadFailure;
+  const malformedMessage = m.malformedMessage;
+  const isDev = process.env.NODE_ENV === "development";
+  const workspaceSummary = deriveReviewsWorkspaceSummary(m.runs);
+  const continueReviewCandidate = resolveReviewsHubContinueReviewCandidate(m.runs);
+  const attentionSuppressKinds = resolveReviewsHubAttentionSuppressKinds({
+    hasContinueStrip: continueReviewCandidate !== null,
+    hasInProgressInventory: workspaceSummary.inProgress > 0,
+    readyForGovernanceCount: workspaceSummary.readyForGovernance,
+  });
+  const hubLoadOk = loadFailure === null && malformedMessage === null;
+  const hasReviews = m.runs.length > 0;
+  // Advanced aggregate list only when the hub page cannot show the full inventory.
+  const showAdvancedList =
+    isOperatorExperienceFullShellEnv() && hubLoadOk && hasReviews && m.totalCount > m.pageSize;
+
+  return (
+    <OperatorPageContainer variant="full">
+      <a
+        href={`#${REVIEWS_HUB_SKIP_TARGET_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {REVIEWS_HUB_SKIP_LINK_LABEL}
+      </a>
+
+      <OperatorWelcomeOnboardingDeferred serverEligible={m.welcomeOnboardingEligible} />
+      <div
+        id={REVIEWS_HUB_PRIMARY_CONTENT_ID}
+        data-testid={REVIEWS_HUB_PRIMARY_CONTENT_ID}
+        className={cn("scroll-mt-24", REVIEWS_HUB_BODY_STACK_CLASS)}
+      >
+        <ReviewsHubPageHeader projectId={m.projectId} projectTitle={m.projectTitle} />
+
+        <div
+          id={REVIEWS_HUB_FIRST_VIEWPORT_ID}
+          data-testid={REVIEWS_HUB_FIRST_VIEWPORT_ID}
+          className={cn(
+            "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+            REVIEWS_HUB_BODY_STACK_CLASS,
+          )}
+        >
+        <ReviewsHubBuyerChrome />
+
+        {hubLoadOk ? (
+          <>
+            <ReviewsHubReviewInventoryDeferred
+              runs={m.runs}
+              summary={workspaceSummary}
+              totalCount={m.totalCount}
+              pageSize={m.pageSize}
+              hasMore={m.totalCount > m.runs.length || m.nextCursorForClient !== null}
+            />
+            {continueReviewCandidate !== null ? (
+              <ReviewsHubContinueReviewStrip candidate={continueReviewCandidate} />
+            ) : null}
+            <ReviewsHubResumeDrafts />
+          </>
+        ) : null}
+
+        {m.usedStaticRunsFallback && isOperatorExperienceFullShellEnv() ? (
+          <div className="max-w-5xl">
+            <OperatorDemoStaticBanner />
+          </div>
+        ) : null}
+
+        {loadFailure ? (
+          <>
+            <OperatorApiProblem failure={loadFailure} />
+            {m.listBlockedReason ? (
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="runs-page-list-blocked-reason"
+              >
+                {m.listBlockedReason}
+              </p>
+            ) : null}
+            <OperatorTryNext>
+              {isApiNotFoundFailure(loadFailure)
+                ? REVIEWS_HUB_LIST_NOT_FOUND_TRY_NEXT
+                : REVIEWS_HUB_LIST_LOAD_FAILURE_TRY_NEXT}
+            </OperatorTryNext>
+          </>
+        ) : null}
+
+        {!loadFailure && malformedMessage ? (
+          <>
+            <OperatorMalformedCallout>
+              <strong>{BUYER_RUNS_LIST_MALFORMED_HEADING}</strong>
+              <p className="mt-2">{isDev ? malformedMessage : BUYER_RUNS_LIST_MALFORMED_BODY}</p>
+              {isDev ? (
+                <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
+                  The HTTP call may have succeeded, but the JSON did not match the expected paged review summary shape. This is distinct from
+                  an empty project (zero reviews).
+                </p>
+              ) : null}
+            </OperatorMalformedCallout>
+            <FatalPageReportProblemSupportRow
+              surfaceId="reviews-hub-unexpected-response"
+              errorTitle={BUYER_RUNS_LIST_MALFORMED_HEADING}
+              errorCode="malformed-response"
+            />
+            {isDev ? (
+              <OperatorTryNext>The server response was unexpected. If this persists, contact support.</OperatorTryNext>
+            ) : null}
+          </>
+        ) : null}
+
+        {showAdvancedList ? (
+          <section data-testid="reviews-hub-paginated-inventory">
+            <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+              {REVIEWS_HUB_ADVANCED_LIST_DISCLOSURE}
+            </h2>
+            <div className="mt-4">
+              <RunsListAggregateErrorBoundaryDeferred
+                runs={m.runs}
+                projectId={m.projectId}
+                page={m.page}
+                pageSize={m.pageSize}
+                totalCount={m.totalCount}
+                nextCursor={m.nextCursorForClient}
+                continueStripRunId={continueReviewCandidate?.runId ?? null}
+              />
+            </div>
+          </section>
+        ) : null}
+        </div>
+
+        {hubLoadOk && hasReviews ? (
+          <ReviewsHubDisclosuresClient
+            attentionSuppressKinds={attentionSuppressKinds}
+            firstCommittedRunId={m.firstCommittedRunId}
+          />
+        ) : null}
+      </div>
+    </OperatorPageContainer>
+  );
+}

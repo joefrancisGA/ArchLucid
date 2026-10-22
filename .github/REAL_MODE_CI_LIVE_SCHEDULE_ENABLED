@@ -1,0 +1,7 @@
+# Weekly unattended live golden-cohort drift (Sunday 06:00 UTC schedule).
+#
+# Requires .github/REAL_MODE_CI_ENABLED (or ARCHLUCID_GOLDEN_COHORT_REAL_LLM=true)
+# and ARCHLUCID_GOLDEN_COHORT_API_HOST + Azure OpenAI secrets.
+#
+# Override off without deleting this file: set repository variable
+# ARCHLUCID_GOLDEN_COHORT_LIVE_SCHEDULE_ENABLED=false (takes precedence when false).

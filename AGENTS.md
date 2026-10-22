@@ -1,0 +1,50 @@
+<!-- **Scope:** Repo-root Cursor convention; canonical copy lives in docs/engineering/AGENTS.md. -->
+
+# Repository guidance — coding agents
+
+Full **monorepo map**, **`*.slnf`** filters, and assessment pointers: **`[docs/engineering/AGENTS.md](docs/engineering/AGENTS.md)`** · Next.js app only: **`[archlucid-ui/AGENTS.md](archlucid-ui/AGENTS.md)`**.
+
+## Compile verification (agents)
+
+**Debug `dotnet build` success is not evidence** that trunk will stay green. The **master/main push corset** (`.github/workflows/ui-typecheck-on-push.yml`) builds **Release** with `TreatWarningsAsErrors=true`. Prefer `scripts/ci/run_push_corset_dotnet.sh` or `scripts/ci/agent-compile-check.ps1` before claiming compile health.
+
+After `npm ci` in `archlucid-ui`, CI asserts a single resolved `@tanstack/query-core` version (`scripts/ci/assert_single_npm_dependency_version.py`). Stale `node_modules` can hide duplicate nested copies that fail clean install on CI. Locally, `npm ls @tanstack/query-core` should show one version under the override (same check CI runs after `npm ci`).
+
+## Cursor Cloud specific instructions
+
+Cursor Cloud Agent VMs are **Linux**. **`python3` is preinstalled**. The base image does not include the .NET SDK, Node.js, or PowerShell. **`.cursor/environment.json`** runs **`scripts/cloud-agent-install.sh`**: pinned **.NET SDK**, **Node.js 22** in **`$HOME/.local/node`**, **PowerShell 7 + Pester 5** in **`$HOME/.local/pwsh`**, **`npm ci`** in **`archlucid-ui`**, and (when disk allows) Debug **`ArchLucid.Api`**. **`scripts/cloud-agent-start.sh`** launches the API on **5128** (`ArchLucid__StorageProvider=InMemory`, `Demo__Enabled=true`, `Demo__SeedOnStartup=true`) and Next.js on **3000**. The install-time Debug build and `dotnet run` pass `-p:WarningsNotAsErrors=ARCH006%3BARCH006a%3BARCH006b` (`scripts/cloud-agent-dev-build.sh`) so current trunk Persistence analyzer warnings do not block the in-memory dev host. The push corset does not set that property. Open the UI at **`http://localhost:3000`** (not **`127.0.0.1`** for dev assets). Cloud Agent start runs `next dev` with Turbopack. `npm run dev` forces webpack, which has been OOM-killed on a 16 GB VM. Pester suites match CI `azure-extractor-pester`. If tools are missing, run **`./scripts/cloud-agent-install.sh`** from repo root with **`export PATH="$HOME/.local/bin:$HOME/.dotnet:$PATH"`**.
+
+**Manual PowerShell only** (fallback):
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+mkdir -p "$HOME/.local/pwsh" "$HOME/.local/bin"
+curl -fsSL "https://github.com/PowerShell/PowerShell/releases/download/v7.4.6/powershell-7.4.6-linux-x64.tar.gz" \
+  | tar -xzf - -C "$HOME/.local/pwsh"
+ln -sf "$HOME/.local/pwsh/pwsh" "$HOME/.local/bin/pwsh"
+pwsh -NoProfile -Command "Install-Module Pester -Scope CurrentUser -Force -SkipPublisherCheck -MinimumVersion 5.0.0 -MaximumVersion 5.99.99"
+```
+
+Do not commit extracted trees under **`$HOME/.local/pwsh`** or **`$HOME/.local/node`**. Keep this section in sync with **`docs/engineering/AGENTS.md`**.
+
+**Run repo scripts from repo root:**
+
+```bash
+pwsh -NoProfile -File scripts/agent/check-working-tree-path.ps1 -Path 'path/to/file'
+pwsh -NoProfile -Command "Invoke-Pester -Strict -EnableExit -Path 'scripts/tests/AlBugPickZone.Tests.ps1'"
+python3 scripts/agent/al-bug-audit-proven-rows.py
+python3 scripts/tests/test_al_bug_audit_proven_rows.py
+```
+
+**Scoped .NET:**
+
+```bash
+export PATH="$HOME/.dotnet:$PATH"
+dotnet build ArchLucid.Core.slnf
+dotnet test ArchLucid.Core.Tests/ArchLucid.Core.Tests.csproj --filter 'FullyQualifiedName~YourTests'
+dotnet test ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj --filter 'FullyQualifiedName~InventoryDiagramExcellence'
+dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj --filter 'FullyQualifiedName~InfraEvidenceMermaidCompleteness'
+pwsh -NoProfile -File scripts/ci/agent-compile-check.ps1 -ProjectPath 'ArchLucid.Core/ArchLucid.Core.csproj'
+```
+
+For commands expected **>15s**, emit `STILL EXECUTING... HH:mm:ss` every 8s (see `.cursor/rules/shell-heartbeat.mdc`). Keep this section in sync with **`docs/engineering/AGENTS.md`**.

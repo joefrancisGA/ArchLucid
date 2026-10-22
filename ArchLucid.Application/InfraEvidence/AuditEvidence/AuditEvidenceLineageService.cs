@@ -1,0 +1,320 @@
+using ArchLucid.Application.InfraEvidence.AuditEvidence;
+using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Queries;
+
+using Microsoft.Extensions.Logging;
+
+namespace ArchLucid.Application.InfraEvidence.AuditEvidence;
+
+public sealed class AuditEvidenceLineageService(
+    IProjectScopedAuditAssessmentRepository assessmentRepository,
+    IAuditFrameworkRepository frameworkRepository,
+    IAuditEvidenceRequirementRepository requirementRepository,
+    IProjectScopedAuditEvidenceSnapshotRepository snapshotRepository,
+    IAuditControlEvaluationRepository evaluationRepository,
+    IAuditManualEvidenceRepository manualEvidenceRepository,
+    IAuditEvidenceSnapshotVerificationService verificationService,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
+    IVerifiedRemediationControlAssociationRepository associationRepository,
+    IRemediationInstanceRepository remediationInstanceRepository,
+    ILogger<AuditEvidenceLineageService> logger) : IAuditEvidenceLineageService
+{
+    private readonly IVerifiedRemediationControlAssociationRepository _associationRepository =
+        associationRepository ?? throw new ArgumentNullException(nameof(associationRepository));
+
+    private readonly IRemediationInstanceRepository _remediationInstanceRepository =
+        remediationInstanceRepository ?? throw new ArgumentNullException(nameof(remediationInstanceRepository));
+
+    public async Task<AuditEvidenceLineageQueryResult> TryGetControlLineageAsync(
+        ScopeContext scope,
+        Guid assessmentId,
+        Guid auditEvidenceSnapshotId,
+        Guid controlId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        try
+        {
+            AuditAssessmentRecord? assessment =
+                await assessmentRepository.TryGetByIdInScopeAsync(
+                    scope.ToProjectScopeKey(),
+                    assessmentId,
+                    cancellationToken);
+
+            if (assessment is null)
+            {
+                return new AuditEvidenceLineageQueryResult
+                {
+                    Succeeded = false,
+                    ErrorMessage = "Assessment was not found in the current tenant scope.",
+                };
+            }
+
+            AuditEvidenceSnapshotHeaderRecord? snapshotHeader =
+                await snapshotRepository.TryGetHeaderInScopeAsync(
+                    scope.ToProjectScopeKey(),
+                    auditEvidenceSnapshotId,
+                    cancellationToken);
+
+            if (snapshotHeader is null || snapshotHeader.AssessmentId != assessmentId)
+            {
+                return new AuditEvidenceLineageQueryResult
+                {
+                    Succeeded = false,
+                    ErrorMessage = "Audit evidence snapshot was not found for the assessment.",
+                };
+            }
+
+            IReadOnlyList<AuditControlRecord> controls =
+                await frameworkRepository.ListControlsAsync(scope.TenantId, assessment.FrameworkId, cancellationToken);
+
+            AuditControlRecord? control = controls.FirstOrDefault(row => row.ControlId == controlId);
+
+            if (control is null)
+            {
+                return new AuditEvidenceLineageQueryResult
+                {
+                    Succeeded = false,
+                    ErrorMessage = "Control was not found in the imported framework catalog.",
+                };
+            }
+
+            IReadOnlyList<AuditEvidenceRequirementRecord> requirements =
+                await requirementRepository.ListByControlIdAsync(scope.TenantId, controlId, cancellationToken);
+
+            IReadOnlyList<AuditArchitectureEvidenceLinkRecord> architectureLinks =
+                await manualEvidenceRepository.ListArchitectureLinksByControlInScopeAsync(
+                    scope.ToProjectScopeKey(),
+                    assessmentId,
+                    controlId,
+                    cancellationToken);
+
+            if (architectureLinks.Count > 0)
+            {
+                await AuditArchitectureEvidenceSealedManifestHashGuard.EnsureLinkedRunsSealedManifestHashOrThrowAsync(
+                    architectureLinks,
+                    scope,
+                    authorityQueryService,
+                    manifestHashService,
+                    cancellationToken);
+            }
+
+            IReadOnlyList<AuditEvidenceSnapshotItemRecord> snapshotItems =
+                await snapshotRepository.ListItemsInScopeAsync(
+                    scope.ToProjectScopeKey(),
+                    auditEvidenceSnapshotId,
+                    cancellationToken);
+
+            AuditControlEvaluationRecord? evaluation =
+                await evaluationRepository.TryGetLatestByControlInScopeAsync(
+                    scope.ToProjectScopeKey(),
+                    controlId,
+                    auditEvidenceSnapshotId,
+                    cancellationToken);
+
+            IReadOnlyList<AuditEvidenceItemRecord> evaluationItems = evaluation is null
+                ? []
+                : await evaluationRepository.ListEvidenceItemsByEvaluationInScopeAsync(
+                    scope.ToProjectScopeKey(),
+                    evaluation.EvaluationId,
+                    cancellationToken);
+
+            AuditEvidenceSnapshotVerificationResult verification =
+                await verificationService.TryVerifyInScopeAsync(
+                    scope.ToProjectScopeKey(),
+                    auditEvidenceSnapshotId,
+                    cancellationToken);
+
+            List<AuditEvidenceLineageRequirementChain> requirementChains = [];
+            List<string> brokenLinkReasons = [];
+
+            foreach (AuditEvidenceRequirementRecord requirement in requirements)
+            {
+                List<AuditEvidenceSnapshotItemRecord> requirementItems = snapshotItems
+                    .Where(item => item.RequirementId == requirement.RequirementId)
+                    .ToList();
+
+                List<AuditEvidenceLineageEvidenceNode> evidenceNodes = [];
+
+                foreach (AuditEvidenceSnapshotItemRecord snapshotItem in requirementItems)
+                {
+                    AuditEvidenceItemRecord? evaluationItem = evaluationItems.FirstOrDefault(item =>
+                        item.RequirementId == requirement.RequirementId
+                        && item.CloudResourceId == snapshotItem.CloudResourceId
+                        && string.Equals(item.AzureResourceId, snapshotItem.AzureResourceId, StringComparison.OrdinalIgnoreCase));
+
+                    AuditEvidenceLineageEvidenceNode evidenceNode =
+                        AuditEvidenceLineageBuilder.BuildEvidenceNode(snapshotItem, evaluationItem);
+
+                    evidenceNodes.Add(evidenceNode);
+
+                    if (!evidenceNode.LinkComplete)
+                    {
+                        brokenLinkReasons.Add(
+                            $"Requirement {requirement.RequirementId} evidence row {snapshotItem.EvidenceRowId} missing: {string.Join(", ", evidenceNode.MissingLinkKinds)}.");
+                    }
+                }
+
+                requirementChains.Add(new AuditEvidenceLineageRequirementChain
+                {
+                    RequirementId = requirement.RequirementId,
+                    RequirementName = requirement.Name,
+                    EvidenceType = requirement.EvidenceType,
+                    Evidence = evidenceNodes,
+                });
+            }
+
+            if (evaluation is null)
+                brokenLinkReasons.Add("Automated evaluation is missing for this control and snapshot.");
+
+            if (!verification.IsValid)
+                brokenLinkReasons.Add(verification.FailureReason ?? "Snapshot hash verification failed.");
+
+            AuditEvidenceLineageEvaluationNode? evaluationNode = evaluation is null
+                ? null
+                : new AuditEvidenceLineageEvaluationNode
+                {
+                    EvaluationId = evaluation.EvaluationId,
+                    Outcome = evaluation.Outcome,
+                    Formula = evaluation.Formula,
+                    ExceptionIds = evaluation.ExceptionIds,
+                    ProvenanceKind = evaluation.ProvenanceKind,
+                };
+
+            bool chainComplete = evaluation is not null
+                && verification.IsValid
+                && requirementChains.Count > 0
+                && requirementChains.All(chain =>
+                    chain.Evidence.Count > 0 && chain.Evidence.All(evidence => evidence.LinkComplete && evidence.ItemHashVerified));
+
+            bool readyForPositiveCheckbox = AuditEvidenceLineageBuilder.IsReadyForPositiveCheckbox(
+                control,
+                evaluation,
+                requirementChains,
+                verification.IsValid);
+
+            IReadOnlyList<AuditEvidenceLineageVerifiedRemediationAssociation> verifiedRemediationAssociations =
+                await ListVerifiedRemediationAssociationsAsync(
+                    scope,
+                    controlId,
+                    snapshotHeader.InventorySnapshotIds,
+                    cancellationToken);
+
+            AuditEvidenceLineageLatestRemediationAttempt? latestRemediationAttempt =
+                await ResolveLatestRemediationAttemptAsync(
+                    scope,
+                    assessmentId,
+                    controlId,
+                    verifiedRemediationAssociations,
+                    cancellationToken);
+
+            return new AuditEvidenceLineageQueryResult
+            {
+                Succeeded = true,
+                Lineage = new AuditEvidenceLineageRecord
+                {
+                    AssessmentId = assessmentId,
+                    AuditEvidenceSnapshotId = auditEvidenceSnapshotId,
+                    ControlId = controlId,
+                    ControlNumber = control.ControlNumber,
+                    ControlTitle = control.Title,
+                    ChainComplete = chainComplete,
+                    SnapshotHashVerified = verification.IsValid,
+                    ReadyForPositiveCheckbox = readyForPositiveCheckbox,
+                    BrokenLinkReasons = brokenLinkReasons.Distinct(StringComparer.Ordinal).ToList(),
+                    Evaluation = evaluationNode,
+                    RequirementChains = requirementChains,
+                    VerifiedRemediationAssociations = verifiedRemediationAssociations,
+                    LatestRemediationAttempt = latestRemediationAttempt,
+                },
+            };
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException and not ConflictException)
+        {
+            logger.LogWarning(
+                ex,
+                "Audit evidence lineage query failed for AssessmentId={AssessmentId} ControlId={ControlId}.",
+                assessmentId,
+                controlId);
+
+            return new AuditEvidenceLineageQueryResult
+            {
+                Succeeded = false,
+                ErrorMessage = ex.Message,
+            };
+        }
+    }
+
+    private async Task<IReadOnlyList<AuditEvidenceLineageVerifiedRemediationAssociation>> ListVerifiedRemediationAssociationsAsync(
+        ScopeContext scope,
+        Guid controlId,
+        IReadOnlyList<Guid> linkedInventorySnapshotIds,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(linkedInventorySnapshotIds);
+
+        if (linkedInventorySnapshotIds.Count == 0)
+        {
+            return [];
+        }
+
+        IReadOnlyList<VerifiedRemediationControlAssociationRecord> rows =
+            await _associationRepository.ListByControlAndVerificationSnapshotIdsAsync(
+                scope.ToProjectScopeKey(),
+                controlId,
+                linkedInventorySnapshotIds,
+                cancellationToken);
+
+        return rows
+            .Select(MapVerifiedRemediationAssociation)
+            .ToList();
+    }
+
+    private async Task<AuditEvidenceLineageLatestRemediationAttempt?> ResolveLatestRemediationAttemptAsync(
+        ScopeContext scope,
+        Guid assessmentId,
+        Guid controlId,
+        IReadOnlyList<AuditEvidenceLineageVerifiedRemediationAssociation> verifiedRemediationAssociations,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(verifiedRemediationAssociations);
+
+        IReadOnlyList<RemediationInstanceRecord> instances =
+            await _remediationInstanceRepository.ListByControlIdInScopeAsync(
+                scope.ToProjectScopeKey(),
+                controlId,
+                cancellationToken);
+
+        IReadOnlyList<Guid> associatedInstanceIds = verifiedRemediationAssociations
+            .Select(association => association.InstanceId)
+            .ToList();
+
+        return AuditEvidenceLatestRemediationAttemptSelector.Select(
+            assessmentId,
+            controlId,
+            instances,
+            associatedInstanceIds);
+    }
+
+    private static AuditEvidenceLineageVerifiedRemediationAssociation MapVerifiedRemediationAssociation(
+        VerifiedRemediationControlAssociationRecord record)
+    {
+        ArgumentNullException.ThrowIfNull(record);
+
+        return new AuditEvidenceLineageVerifiedRemediationAssociation
+        {
+            AssociationId = record.AssociationId,
+            InstanceId = record.InstanceId,
+            Status = RemediationInstanceStatus.Verified,
+            VerificationSnapshotId = record.VerificationSnapshotId,
+            ControlId = record.ControlId,
+        };
+    }
+}

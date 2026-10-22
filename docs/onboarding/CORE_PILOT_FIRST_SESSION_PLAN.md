@@ -1,0 +1,36 @@
+> **Scope:** Core Pilot — first session plan (analysis) - full detail, tables, and links in the sections below.
+
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
+
+
+# Core Pilot — first session plan (analysis)
+
+**Objective.** Reduce time-to-value on the default **Core Pilot** path: architecture request → **review** (pipeline execution) → finalized architecture package → reviewable artifacts and aggregate explanation.
+
+> **Install order moved.** See [../engineering/INSTALL_ORDER.md](../engineering/INSTALL_ORDER.md). This file is analysis only (week-one tasks after install).
+
+## CLI ↔ API ↔ UI map
+
+| Step | `ArchLucid.Cli` (see `Program.cs` cases) | REST (`ArchLucid.Api`) | Architect workspace |
+|------|------------------------------------------|-------------------------|-------------|
+| Create / drive **review** | `run`, `status`, `submit`, `commit`, `seed`, `artifacts` | `/v1/...` authority and architecture routes (versioned under `/v1` per `README.md`) | [`architecture/reviews/new/page.tsx`](../../archlucid-ui/src/app/(operator)/architecture/reviews/new/page.tsx) → **review** detail [`architecture/reviews/[runId]/page.tsx`](../../archlucid-ui/src/app/(operator)/architecture/reviews/[runId]/page.tsx) (routes moved under `architecture/` per ADR 0064) |
+| Health / support | `health`, `doctor` / `check`, `trace <runId>`, `support-bundle` | `GET /health/live`, `GET /health/ready`, `GET /version` | Same **review** detail page surfaces pipeline + downloads |
+| Aggregate explanation | — | `GET /v1/explain/runs/{runId}/aggregate` (`ExplanationController`, **`ReadAuthority`**) | Collapsible “Explanation (aggregate)” on **review** detail |
+
+**Policies:** API uses `ReadAuthority` / `ExecuteAuthority` / `AdminAuthority` (see `README.md`); the architect workspace shapes visibility from `GET /api/auth/me` but **401/403 remain authoritative**.
+
+## Current friction (approximate)
+
+- Landing on **review detail** requires **navigating Reviews / Runs → selecting a row** (or deep link). First-time users must understand **pipeline completeness** (authority timeline, progress tracker) before the **manifest** and **explanation** sections unlock full value.
+- **Explanation** is **collapsed by default** (`defaultOpen={false}` on the collapsible) — one extra click to see aggregate narrative and **citations** (after this change set).
+- **Core vs Advanced** disclosure is intentional; users who expand Advanced/Enterprise early may feel **cognitive load** before Core Pilot success — align with [../OPERATOR_DECISION_GUIDE.md](../library/OPERATOR_DECISION_GUIDE.md).
+
+## Five concrete improvements (file-level)
+
+1. **`runs/[runId]/page.tsx` — open “Explanation” by default when `goldenManifestId` is present** so finalized reviews show citations without an extra expand (reduces one click post-finalize).
+2. **`(operator)/page.tsx` — add a one-line “Next: open your latest review”** when `getRunSummary` / recent run list is available (copy-only; optional follow-up).
+3. **`RunProgressTracker`** — ensure empty/error states link to **`docs/CORE_PILOT.md`** anchor (copy in component or tooltip).
+4. **CLI `archlucid doctor`** — already canonical; add **README** pointer to this doc for “first session under 15 minutes” expectation (docs-only).
+5. **Progressive disclosure** — keep Advanced/Enterprise links **collapsed** on first visit (`nav-shell-visibility` / tier model unchanged).
+
+*This file is analysis and planning; implementation toggles should be reviewed for a11y (collapsible default) and sponsor demo flow.*

@@ -1,0 +1,34 @@
+[
+  {
+    "findingId": "760ed0a1-43d2-e2a4-54f3-2509f1a5b77a",
+    "findingType": "AwsInventorySecurityBaseline",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "AWS inventory security baseline gap: AWS::EC2::SecurityGroup",
+    "rationale": "AWS inventory resources.json cross-check flagged a security baseline gap grounded in measured inventory.",
+    "relatedNodeIds": [],
+    "payloadType": "RequirementFindingPayload",
+    "rulesApplied": [
+      "aws-inventory-security-baseline-classifier"
+    ],
+    "decisionsTaken": [
+      "Mapped inventory row to control family \u0027network-isolation\u0027 and emitted a typed security finding."
+    ]
+  },
+  {
+    "findingId": "b7cd0803-a0f2-e73f-b426-60a9f1fa57c3",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "No topology resources were found",
+    "rationale": "The graph does not contain any TopologyResource nodes.",
+    "relatedNodeIds": [],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-presence"
+    ],
+    "decisionsTaken": [
+      "No TopologyResource nodes found in graph \u2014 emitted coverage warning."
+    ]
+  }
+]

@@ -1,0 +1,56 @@
+import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture/architecture-intelligence-route";
+import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
+import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { resolveWorkingArchitecturePortfolioParentLink } from "@/lib/resolve-working-evidence-parent-link";
+
+export const ARCHITECTURE_INTELLIGENCE_CANONICAL_PATH = ARCHITECTURE_INTELLIGENCE_PATH;
+
+export const ARCHITECTURE_INTELLIGENCE_HELP_TOPIC_LABEL = "How architecture intelligence works";
+
+export const ARCHITECTURE_INTELLIGENCE_CLAIM_DISCIPLINE =
+  "This Architecture intelligence page runs closed-loop reasoning and optional publish-to-findings — not a full audit export. Open Findings, Start a review, or Audit for live records.";
+
+export const ARCHITECTURE_INTELLIGENCE_SOURCES_INTRO =
+  "Use these follow-ups when reasoning output turns into findings triage, review intake, or official assurance materials.";
+
+
+/** Operator Sources - no self-href to architecture-intelligence. */
+export function buildArchitectureIntelligenceSources(
+  workingMode: boolean,
+): readonly EvidenceOrientationLink[] {
+  const reviewsParent = resolveWorkingArchitecturePortfolioParentLink(workingMode);
+
+  return [
+  {
+    label: "Findings",
+    href: GOVERNANCE_FINDINGS_PATH,
+    when: "Open the findings queue when published reasoning output needs triage",
+  },
+  {
+    label: "Start a review",
+    href: REVIEWS_NEW_PATH,
+    when: "Start an evidence-backed architecture review when reasoning should become a full package",
+  },
+  {
+    label: reviewsParent.label,
+    href: reviewsParent.href,
+    when: "Browse finalized reviews when reasoning should attach to an existing package",
+  },
+  {
+    label: "Evidence trail help",
+    href: inAppHelpHref("evidence-trail"),
+    when: "Learn how findings and finalized review records connect in the evidence trail",
+  },
+  {
+    label: "Audit",
+    href: GOVERNANCE_AUDIT_PATH,
+    when: "Open audit when published output needs an audit trail with saved references",
+  },
+] as const;
+}
+
+/** Guided default — prefer {@link buildArchitectureIntelligenceSources}. */
+export const ARCHITECTURE_INTELLIGENCE_SOURCES: readonly EvidenceOrientationLink[] =
+  buildArchitectureIntelligenceSources(false);

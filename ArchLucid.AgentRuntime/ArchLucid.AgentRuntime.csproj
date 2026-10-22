@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ArchLucid.AgentRuntime.Tests" />
+    <InternalsVisibleTo Include="ArchLucid.Api.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.AI.ContentSafety" />
+    <PackageReference Include="Azure.AI.OpenAI" />
+    <PackageReference Include="OpenTelemetry.Api" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
+    <PackageReference Include="Polly" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ArchLucid.Application\ArchLucid.Application.csproj" />
+    <ProjectReference Include="..\ArchLucid.ArtifactSynthesis\ArchLucid.ArtifactSynthesis.csproj" />
+    <ProjectReference Include="..\ArchLucid.Contracts\ArchLucid.Contracts.csproj" />
+    <ProjectReference Include="..\ArchLucid.Core\ArchLucid.Core.csproj" />
+    <ProjectReference Include="..\ArchLucid.Decisioning\ArchLucid.Decisioning.csproj" />
+    <ProjectReference Include="..\ArchLucid.Provenance\ArchLucid.Provenance.csproj" />
+    <ProjectReference Include="..\ArchLucid.Retrieval\ArchLucid.Retrieval.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="ArchLucid.Core" />
+    <Using Include="ArchLucid.Core.Manifest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ArchLucid.Analyzers\ArchLucid.Analyzers.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+</Project>

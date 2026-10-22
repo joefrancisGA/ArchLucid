@@ -1,0 +1,11 @@
+resources
+| where type in~ (
+    'microsoft.documentdb/databaseaccounts',
+    'microsoft.servicebus/namespaces',
+    'microsoft.eventhub/namespaces',
+    'microsoft.cognitiveservices/accounts')
+| extend localAuth = case(
+    isnull(properties.disableLocalAuth), 'not set (platform default)',
+    tobool(properties.disableLocalAuth), 'disabled',
+    'enabled')
+| project id, type, name, resourceGroup, subscriptionId, localAuth

@@ -1,0 +1,8 @@
+flowchart LR
+  IDP["Customer IdP SCIM client"] --> SCIM["/scim/v2/* ScimBearer"]
+  SCIM --> TOK["Per-tenant bearer token"]
+  SCIM --> MAP["Group to role mapping"]
+  MAP --> SEAT["Enterprise seat accounting"]
+  MAP --> USER["Users and roles in tenant"]
+  USER --> CLAIM["JWT / session claims"]
+  CLAIM --> POL["ArchLucid authZ policies"]

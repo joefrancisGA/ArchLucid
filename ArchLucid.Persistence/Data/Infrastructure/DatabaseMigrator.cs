@@ -1,0 +1,313 @@
+using System.Reflection;
+
+using DbUp;
+using DbUp.Engine;
+
+using Microsoft.Data.SqlClient;
+
+using ArchLucid.Core.Diagnostics;
+using ArchLucid.Persistence.Connections;
+
+namespace ArchLucid.Persistence.Data.Infrastructure;
+
+/// <summary>
+///     Runs SQL Server database migrations using DbUp.
+/// </summary>
+/// <remarks>
+///     Embedded scripts are limited to resources whose name contains <c>.Migrations.</c> and end with <c>.sql</c>,
+///     so ad-hoc SQL (e.g. consolidated reference scripts) is never applied by DbUp. Ordering is lexicographic on
+///     the full resource name; use <c>NNN_Name.sql</c> filenames under <c>Migrations/</c> (see unit tests).
+///     <para>
+///         <see cref="Run" /> / <see cref="RunExcludingTrailingScripts" /> take a process-wide mutex keyed by the
+///         connection string so
+///         parallel <c>dotnet test</c> processes (e.g. Persistence + Api integration) do not run greenfield / DbUp against
+///         the same
+///         catalog concurrently — that can duplicate FK hardening from <c>025_FindingsSnapshotRelational.sql</c> and
+///         similar scripts.
+///     </para>
+/// </remarks>
+public static class DatabaseMigrator
+{
+    private static readonly TimeSpan MigrationRunMutexWait = TimeSpan.FromMinutes(10);
+
+    /// <summary>
+    ///     Per-script DbUp execution timeout. Greenfield reset and cold local catalogs can exceed SqlClient's 30s default.
+    /// </summary>
+    public static readonly TimeSpan ScriptExecutionTimeout =
+        TimeSpan.FromSeconds(SqlCommandTimeouts.ExtendedSeconds);
+
+    /// <summary>
+    ///     Applies all embedded migration scripts to the SQL Server database.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">When DbUp reports a failed upgrade (inner exception has provider details).</exception>
+    public static void Run(string connectionString)
+    {
+        string secured = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(connectionString);
+        using (MigrationCatalogMutexScope.Acquire(secured, MigrationRunMutexWait))
+        {
+            GreenfieldBaselineMigrationRunner.TryApplyBaselineAndStampThrough050(secured);
+            RunWithScriptFilter(
+                secured,
+                static n => SqlMigrationPlanes.IsTenantPlaneScript(n) || SqlMigrationPlanes.IsSystemPlaneScript(n));
+            TryEnableReadCommittedSnapshotIfNeeded(secured);
+        }
+    }
+
+    /// <summary>Applies only <c>Migrations/System/*.sql</c> scripts (control-plane catalog).</summary>
+    public static void RunSystem(string connectionString)
+    {
+        string secured = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(connectionString);
+        using (MigrationCatalogMutexScope.Acquire(secured, MigrationRunMutexWait))
+        {
+            RunWithScriptFilter(secured, SqlMigrationPlanes.IsSystemPlaneScript);
+            TryEnableReadCommittedSnapshotIfNeeded(secured);
+        }
+    }
+
+    /// <summary>Applies tenant-plane scripts (all embedded migrations except Baseline/system control-plane).</summary>
+    public static void RunTenant(string connectionString)
+    {
+        string secured = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(connectionString);
+        using (MigrationCatalogMutexScope.Acquire(secured, MigrationRunMutexWait))
+        {
+            GreenfieldBaselineMigrationRunner.TryApplyBaselineAndStampThrough050(secured);
+            RunWithScriptFilter(secured, SqlMigrationPlanes.IsTenantPlaneScript);
+            TryEnableReadCommittedSnapshotIfNeeded(secured);
+        }
+    }
+
+    public static bool IsTenantUpgradeRequired(string connectionString)
+    {
+        string secured = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(connectionString);
+        Assembly assembly = Assembly.GetExecutingAssembly();
+        string catalogScopeLabel = CatalogScopeLabelFromConnectionString(secured);
+
+        List<SqlScript> scripts = assembly.GetManifestResourceNames()
+            .Where(static n =>
+                n.Contains(".Migrations.", StringComparison.OrdinalIgnoreCase) &&
+                n.EndsWith(".sql", StringComparison.OrdinalIgnoreCase) &&
+                !n.Contains(".Migrations.Baseline.", StringComparison.OrdinalIgnoreCase))
+            .Where(SqlMigrationPlanes.IsTenantPlaneScript)
+            .OrderBy(static n => n, StringComparer.OrdinalIgnoreCase)
+            .Select(name => CreateSqlScriptForMigration(assembly, name, catalogScopeLabel))
+            .ToList();
+
+        UpgradeEngine upgrader = DeployChanges.To
+            .SqlDatabase(secured)
+            .WithScripts(scripts)
+            .LogToConsole()
+            .Build();
+
+        return upgrader.IsUpgradeRequired();
+    }
+
+    /// <summary>
+    ///     Applies embedded migrations in order, excluding the last <paramref name="trailingScriptCountToSkip" /> scripts
+    ///     (upgrade-from-N-1 CI path).
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">When skip count is not between 1 and script count - 1.</exception>
+    /// <exception cref="InvalidOperationException">When DbUp reports a failed upgrade (inner exception has provider details).</exception>
+    public static void RunExcludingTrailingScripts(string connectionString, int trailingScriptCountToSkip)
+    {
+        IReadOnlyList<string> ordered = GetOrderedTenantMigrationResourceNames();
+
+        if (trailingScriptCountToSkip <= 0 || trailingScriptCountToSkip >= ordered.Count)
+
+            throw new ArgumentOutOfRangeException(
+                nameof(trailingScriptCountToSkip),
+                "Must be at least 1 and less than the total migration script count.");
+
+        string secured = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(connectionString);
+        using (MigrationCatalogMutexScope.Acquire(secured, MigrationRunMutexWait))
+        {
+            GreenfieldBaselineMigrationRunner.TryApplyBaselineAndStampThrough050(secured);
+
+            HashSet<string> allowed = ordered.Take(ordered.Count - trailingScriptCountToSkip)
+                .ToHashSet(StringComparer.Ordinal);
+            RunWithScriptFilter(
+                secured,
+                n => SqlMigrationPlanes.IsTenantPlaneScript(n) && allowed.Contains(n));
+            TryEnableReadCommittedSnapshotIfNeeded(secured);
+        }
+    }
+
+    /// <summary>Ordered embedded migration resource names (same order DbUp uses).</summary>
+    /// <remarks>
+    ///     Excludes <c>Migrations/Baseline/</c>; baseline is applied via <see cref="GreenfieldBaselineMigrationRunner" />
+    ///     on empty catalogs. Includes <c>Migrations/System/</c> scripts (after numeric tenant scripts lexicographically).
+    /// </remarks>
+    public static IReadOnlyList<string> GetOrderedMigrationResourceNames()
+    {
+        return GetAllOrderedNonBaselineMigrationResourceNames();
+    }
+
+    /// <summary>Tenant-plane scripts only (excludes <c>Migrations/System/</c> control-plane DDL).</summary>
+    public static IReadOnlyList<string> GetOrderedTenantMigrationResourceNames()
+    {
+        return GetAllOrderedNonBaselineMigrationResourceNames()
+            .Where(SqlMigrationPlanes.IsTenantPlaneScript)
+            .ToList();
+    }
+
+    private static IReadOnlyList<string> GetAllOrderedNonBaselineMigrationResourceNames()
+    {
+        Assembly assembly = Assembly.GetExecutingAssembly();
+
+        return assembly.GetManifestResourceNames()
+            .Where(static n =>
+                n.Contains(".Migrations.", StringComparison.OrdinalIgnoreCase) &&
+                n.EndsWith(".sql", StringComparison.OrdinalIgnoreCase) &&
+                !n.Contains(".Migrations.Baseline.", StringComparison.OrdinalIgnoreCase))
+            .OrderBy(static n => n, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
+    private static void RunWithScriptFilter(string connectionString, Func<string, bool> includeScript)
+    {
+        Assembly assembly = Assembly.GetExecutingAssembly();
+        string catalogScopeLabel = CatalogScopeLabelFromConnectionString(connectionString);
+
+        List<SqlScript> scripts = assembly.GetManifestResourceNames()
+            .Where(static n =>
+                n.Contains(".Migrations.", StringComparison.OrdinalIgnoreCase) &&
+                n.EndsWith(".sql", StringComparison.OrdinalIgnoreCase) &&
+                !n.Contains(".Migrations.Baseline.", StringComparison.OrdinalIgnoreCase))
+            .Where(includeScript)
+            .OrderBy(static n => n, StringComparer.OrdinalIgnoreCase)
+            .Select(name => CreateSqlScriptForMigration(assembly, name, catalogScopeLabel))
+            .ToList();
+
+        // Per-script transactions: a single transaction across all embedded scripts breaks SQL Server when later
+        // migrations include security-policy / RLS DDL and other statements that do not compose in one long transaction.
+        // Migration 091 (RCSI) is a no-op here; see TryEnableReadCommittedSnapshotIfNeeded (ALTER DATABASE cannot run in DbUp's transaction).
+        string timedConnectionString = SqlConnectionStringCommandTimeout.Apply(
+            connectionString,
+            SqlCommandTimeouts.ExtendedSeconds);
+        UpgradeEngine upgrader = DeployChanges.To
+            .SqlDatabase(timedConnectionString)
+            .WithScripts(scripts)
+            .WithTransactionPerScript()
+            .WithExecutionTimeout(ScriptExecutionTimeout)
+            .LogToConsole()
+            .Build();
+
+        DatabaseUpgradeResult result = upgrader.PerformUpgrade();
+
+        if (result.Successful)
+            return;
+
+        string detail = result.Error?.Message ?? "(no exception on DatabaseUpgradeResult)";
+
+        Console.Error.WriteLine("DbUp migration failed: " + detail);
+
+        throw new InvalidOperationException(
+            "Database migration failed. See inner exception for the SQL Server error. DbUp message: " + detail,
+            result.Error);
+    }
+
+    /// <summary>SQL catalog name for migration telemetry (<c>tenant_scope</c> on <see cref="ArchLucidInstrumentation" /> counters).</summary>
+    private static string CatalogScopeLabelFromConnectionString(string connectionString)
+    {
+        if (string.IsNullOrWhiteSpace(connectionString))
+            return "unknown";
+
+        try
+        {
+            SqlConnectionStringBuilder builder = new(
+                SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(connectionString));
+
+            return string.IsNullOrWhiteSpace(builder.InitialCatalog) ? "unknown" : builder.InitialCatalog;
+        }
+        catch (ArgumentException)
+        {
+            return "unknown";
+        }
+    }
+
+    private static SqlScript CreateSqlScriptForMigration(
+        Assembly assembly,
+        string resourceName,
+        string catalogScopeLabel)
+    {
+        string body = ReadEmbeddedScript(assembly, resourceName);
+
+        return new SqlScript(resourceName, body);
+    }
+
+    /// <summary>
+    ///     Enables READ_COMMITTED_SNAPSHOT outside DbUp: <c>ALTER DATABASE</c> is rejected inside DbUp's per-script
+    ///     transaction.
+    /// </summary>
+    private static void TryEnableReadCommittedSnapshotIfNeeded(string connectionString)
+    {
+        // Caller passes a string that already has Encrypt=Mandatory; normalize defensively (public migrator enforces it).
+        string secured = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(connectionString);
+        SqlConnectionStringBuilder catalogBuilder = new(secured);
+        string? rawCatalogName = catalogBuilder.InitialCatalog;
+
+        if (string.IsNullOrWhiteSpace(rawCatalogName))
+            return;
+
+        string catalogName = rawCatalogName.Trim();
+
+        // DbUp returns connections to the ADO.NET pool; ALTER DATABASE needs exclusive access to the target catalog.
+        SqlConnection.ClearAllPools();
+
+        SqlConnectionStringBuilder masterBuilder = new(catalogBuilder.ConnectionString)
+        {
+            InitialCatalog = "master"
+        };
+
+        using SqlConnection connection = new(masterBuilder.ConnectionString);
+        connection.Open();
+
+        const string checkSql = """
+                                SELECT is_read_committed_snapshot_on
+                                FROM sys.databases
+                                WHERE name = @catalogName;
+                                """;
+
+        using (SqlCommand checkCommand = new(checkSql, connection))
+        {
+            checkCommand.CommandTimeout = SqlCommandTimeouts.ExtendedSeconds;
+            checkCommand.Parameters.AddWithValue("@catalogName", catalogName);
+            object? scalar = checkCommand.ExecuteScalar();
+
+            if (scalar is bool isOn && isOn)
+            {
+                Console.WriteLine(
+                    $"Startup: READ_COMMITTED_SNAPSHOT already enabled on database [{catalogName}].");
+
+                return;
+            }
+        }
+
+        Console.WriteLine(
+            $"Startup: enabling READ_COMMITTED_SNAPSHOT on database [{catalogName}] "
+            + "(exclusive access; other connections to this catalog may delay startup).");
+
+        const string alterSql = """
+                                DECLARE @quoted sysname = QUOTENAME(@catalogName);
+                                DECLARE @sql nvarchar(max) =
+                                    N'ALTER DATABASE ' + @quoted + N' SET READ_COMMITTED_SNAPSHOT ON';
+                                EXEC sp_executesql @sql;
+                                """;
+
+        using SqlCommand alterCommand = new(alterSql, connection);
+        alterCommand.CommandTimeout = SqlCommandTimeouts.ExtendedSeconds;
+        alterCommand.Parameters.AddWithValue("@catalogName", catalogName);
+        alterCommand.ExecuteNonQuery();
+
+        Console.WriteLine($"Startup: READ_COMMITTED_SNAPSHOT enabled on database [{catalogName}].");
+    }
+
+    private static string ReadEmbeddedScript(Assembly assembly, string name)
+    {
+        using Stream? stream = assembly.GetManifestResourceStream(name);
+        if (stream is null)
+            throw new InvalidOperationException($"Missing embedded migration script '{name}'.");
+
+        using StreamReader reader = new(stream);
+        return reader.ReadToEnd();
+    }
+}

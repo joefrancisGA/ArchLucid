@@ -1,0 +1,258 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  architectureDraftFieldsFromDocument,
+  buildArchitectureDraftPatchPayload,
+  hasArchitectureDraftSaveableContent,
+  reviewReadinessFromDraftDocument,
+  validateArchitectureDraftIntegrity,
+  validateArchitectureReviewReadiness,
+} from "@/lib/architecture/architecture-draft-readiness";
+import {
+  ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL,
+  emptyArchitectureDraftStructuredBrief,
+} from "@/lib/architecture/architecture-draft-structured-brief";
+import type { ActorDescriptor, DraftRequestResponse } from "@/types/draft-intake";
+
+const assertedActor: ActorDescriptor = {
+  label: "Primary operator",
+  kind: "Human",
+  trustOrigin: "Internal",
+  contract: "Sync",
+  origin: "Asserted",
+  confidence: 100,
+};
+
+const readyOverview =
+  "We are designing a structured workflow platform for analysts with authentication, auditable evidence trails, and exportable architecture reviews.";
+
+function reviewReadyDraftDocument(): DraftRequestResponse {
+  return {
+    draftId: "draft-ready",
+    tenantId: "tenant",
+    workspaceId: "ws",
+    projectId: "default",
+    status: "Drafting",
+    document: {
+      freeTextIntent: readyOverview,
+      businessOutcome: "Reduce cycle time for architecture reviews.",
+      systemName: "Claims intake",
+      actorSet: {
+        actors: [assertedActor],
+      },
+    },
+    createdUtc: "2026-01-01T00:00:00.000Z",
+    updatedUtc: "2026-01-01T00:00:00.000Z",
+  };
+}
+
+function readyStructuredBrief() {
+  return {
+    ...emptyArchitectureDraftStructuredBrief(),
+    confirmedConstraints: ["Private endpoints required"],
+    confirmedAssumptions: ["Team operates in a single region"],
+    qualityAttribute: "RTO 4 hours",
+  };
+}
+
+describe("architecture-draft-readiness", () => {
+  it("includes confirmed scope in the draft PATCH sent before review handoff", () => {
+    const payload = buildArchitectureDraftPatchPayload(
+      {
+        freeTextIntent: readyOverview,
+        businessOutcome: "Reduce cycle time for architecture reviews.",
+        systemName: "Claims intake",
+        structuredBrief: readyStructuredBrief(),
+        openQuestions: "",
+      },
+      { actors: [assertedActor] },
+      [{ id: "scope-1", kind: "custom", label: "", value: "Claims records remain in the private network", source: "user" }],
+    );
+
+    expect(payload.freeTextIntent).toContain("Claims records remain in the private network");
+  });
+
+  it("permits incomplete draft saves while blocking review start", () => {
+    const incomplete = {
+      freeTextIntent: "",
+      businessOutcome: "",
+      systemName: "",
+      structuredBrief: emptyArchitectureDraftStructuredBrief(),
+    };
+
+    expect(validateArchitectureDraftIntegrity(incomplete).isValid).toBe(true);
+    expect(validateArchitectureReviewReadiness(incomplete, [assertedActor]).isValid).toBe(false);
+    expect(validateArchitectureReviewReadiness(incomplete, [assertedActor]).blockers).toContain("system-name");
+  });
+
+  it("blocks draft integrity only when partial fields violate format rules", () => {
+    const partialInvalidOutcome = {
+      freeTextIntent: "",
+      businessOutcome: "tiny",
+      systemName: "",
+      structuredBrief: emptyArchitectureDraftStructuredBrief(),
+    };
+
+    expect(validateArchitectureDraftIntegrity(partialInvalidOutcome).isValid).toBe(false);
+    expect(validateArchitectureReviewReadiness(partialInvalidOutcome, [assertedActor]).isValid).toBe(false);
+  });
+
+  it("requires a system name before review start even when overview and outcome are complete", () => {
+    const namedReadyExceptName = {
+      freeTextIntent: readyOverview,
+      businessOutcome: "Reduce cycle time for architecture reviews.",
+      systemName: "",
+      structuredBrief: readyStructuredBrief(),
+    };
+
+    expect(validateArchitectureReviewReadiness(namedReadyExceptName, [assertedActor]).isValid).toBe(false);
+    expect(validateArchitectureReviewReadiness(namedReadyExceptName, [assertedActor]).blockers).toEqual(["system-name"]);
+  });
+
+  it("does not block review start when constraints and assumptions are empty", () => {
+    const emptyLists = {
+      freeTextIntent: readyOverview,
+      businessOutcome: "Reduce cycle time for architecture reviews.",
+      systemName: "Claims intake",
+      structuredBrief: {
+        ...emptyArchitectureDraftStructuredBrief(),
+        qualityAttribute: "RTO 4 hours",
+      },
+    };
+
+    const result = validateArchitectureReviewReadiness(emptyLists, [assertedActor]);
+
+    expect(result.isValid).toBe(true);
+    expect(result.blockers).not.toContain("constraints");
+    expect(result.blockers).not.toContain("assumptions");
+  });
+
+  it("blocks review start when constraints and assumptions are unknown sentinels", () => {
+    const unknownLists = {
+      freeTextIntent: readyOverview,
+      businessOutcome: "Reduce cycle time for architecture reviews.",
+      systemName: "Claims intake",
+      structuredBrief: {
+        ...emptyArchitectureDraftStructuredBrief(),
+        confirmedConstraints: [ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL],
+        confirmedAssumptions: [ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL],
+        qualityAttribute: "RTO 4 hours",
+      },
+    };
+
+    const result = validateArchitectureReviewReadiness(unknownLists, [assertedActor]);
+
+    expect(result.isValid).toBe(false);
+    expect(result.blockers).toContain("structured-brief-placeholders");
+  });
+
+  it("does not block review start when quality attributes are empty (optional with encouragement modal)", () => {
+    const legacyMinimumOnly = {
+      freeTextIntent: readyOverview,
+      businessOutcome: "Reduce cycle time for architecture reviews.",
+      systemName: "Claims intake",
+      structuredBrief: emptyArchitectureDraftStructuredBrief(),
+    };
+
+    const result = validateArchitectureReviewReadiness(legacyMinimumOnly, [assertedActor]);
+
+    expect(result.isValid).toBe(true);
+    expect(result.blockers).not.toContain("quality-attributes");
+  });
+
+  it("blocks review start when only an unknown quality-attribute sentinel is present", () => {
+    const unknownQuality = {
+      freeTextIntent: readyOverview,
+      businessOutcome: "Reduce cycle time for architecture reviews.",
+      systemName: "Claims intake",
+      structuredBrief: {
+        ...emptyArchitectureDraftStructuredBrief(),
+        qualityAttribute: ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL,
+      },
+    };
+
+    const result = validateArchitectureReviewReadiness(unknownQuality, [assertedActor]);
+
+    expect(result.isValid).toBe(false);
+    expect(result.blockers).toContain("structured-brief-placeholders");
+  });
+
+  it("allows review start with qualitative-only quality attributes", () => {
+    const qualitativeOnly = {
+      freeTextIntent: readyOverview,
+      businessOutcome: "Reduce cycle time for architecture reviews.",
+      systemName: "Claims intake",
+      structuredBrief: {
+        ...readyStructuredBrief(),
+        qualityAttribute: "defense in depth; zero trust",
+      },
+    };
+
+    const result = validateArchitectureReviewReadiness(qualitativeOnly, [assertedActor]);
+
+    expect(result.isValid).toBe(true);
+    expect(result.blockers).not.toContain("quality-attributes");
+  });
+
+  it("gates deferred server create until at least one valid field has content", () => {
+    const empty = {
+      freeTextIntent: "",
+      businessOutcome: "",
+      systemName: "",
+      structuredBrief: emptyArchitectureDraftStructuredBrief(),
+    };
+
+    expect(hasArchitectureDraftSaveableContent(empty)).toBe(false);
+
+    const systemNameOnly = {
+      ...empty,
+      systemName: "Claims intake",
+    };
+
+    expect(hasArchitectureDraftSaveableContent(systemNameOnly)).toBe(true);
+
+    const partialInvalidOutcome = {
+      ...empty,
+      businessOutcome: "tiny",
+    };
+
+    expect(hasArchitectureDraftSaveableContent(partialInvalidOutcome)).toBe(false);
+  });
+
+  it("omits freeTextIntent from PATCH payload until the overview meets server minimum length", () => {
+    const actorSet = { actors: [assertedActor] };
+    const systemNameOnly = {
+      freeTextIntent: "",
+      businessOutcome: "Reduce cycle time for architecture reviews.",
+      systemName: "Claims intake",
+      structuredBrief: emptyArchitectureDraftStructuredBrief(),
+    };
+
+    expect(buildArchitectureDraftPatchPayload(systemNameOnly, actorSet).freeTextIntent).toBeUndefined();
+
+    const withOverview = {
+      ...systemNameOnly,
+      freeTextIntent: readyOverview,
+    };
+
+    expect(buildArchitectureDraftPatchPayload(withOverview, actorSet).freeTextIntent).toBe(readyOverview);
+  });
+
+  it("derives review readiness from persisted draft documents", () => {
+    const readyDraft = reviewReadyDraftDocument();
+
+    expect(architectureDraftFieldsFromDocument(readyDraft).systemName).toBe("Claims intake");
+    expect(reviewReadinessFromDraftDocument(readyDraft).isValid).toBe(true);
+
+    const incompleteDraft: DraftRequestResponse = {
+      ...readyDraft,
+      document: {
+        ...readyDraft.document,
+        systemName: "",
+      },
+    };
+
+    expect(reviewReadinessFromDraftDocument(incompleteDraft).isValid).toBe(false);
+    expect(reviewReadinessFromDraftDocument(incompleteDraft).blockers).toContain("system-name");
+  });
+});

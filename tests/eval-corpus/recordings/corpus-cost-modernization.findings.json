@@ -1,0 +1,32 @@
+{
+  "findings": [
+    {
+      "findingId": "corp-cm-1",
+      "category": "Cost",
+      "severity": "Medium",
+      "title": "Right-size IaaS",
+      "detail": "Lift-and-shift Windows VMs target burstable SKUs after 30-day utilization sampling; dev clusters move to Azure Dev/Test pricing."
+    },
+    {
+      "findingId": "corp-cm-2",
+      "category": "Cost",
+      "severity": "Low",
+      "title": "Reserved instances",
+      "detail": "Steady-state SQL pools and compute clusters plan for one-year reserved instances once baselines stabilize."
+    },
+    {
+      "findingId": "corp-cm-3",
+      "category": "Topology",
+      "severity": "Low",
+      "title": "Retire idle sandboxes",
+      "detail": "Quarterly automation tags candidate resource groups whose CPU is flat for 60 days for manual sunset review."
+    },
+    {
+      "findingId": "corp-cm-4",
+      "category": "Critic",
+      "severity": "Low",
+      "title": "Lift-shift risk",
+      "detail": "Some monolith components still assume local disk paths; container migration not yet scheduled."
+    }
+  ]
+}

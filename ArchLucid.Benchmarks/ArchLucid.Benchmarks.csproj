@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <NoWarn>$(NoWarn);CA1812</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ArchLucid.Contracts\ArchLucid.Contracts.csproj" />
+    <ProjectReference Include="..\ArchLucid.Core\ArchLucid.Core.csproj" />
+    <ProjectReference Include="..\ArchLucid.Decisioning\ArchLucid.Decisioning.csproj" />
+    <ProjectReference Include="..\ArchLucid.Persistence\ArchLucid.Persistence.csproj" />
+  </ItemGroup>
+
+  <!-- SchemaValidationService loads JSON Schemas from ./schemas at runtime; BenchmarkDotNet spawns a child output dir that must include them. -->
+  <ItemGroup>
+    <None Include="..\schemas\*.json" Link="schemas\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="ArchLucid.Core" />
+    <Using Include="ArchLucid.Core.Manifest" />
+  </ItemGroup>
+
+</Project>

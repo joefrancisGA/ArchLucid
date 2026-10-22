@@ -1,0 +1,11 @@
+﻿.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!terraform.tfvars.example
+!staging.tfvars.example
+!production.tfvars.example
+crash.log
+override.tf
+override.tf.json
+.terraform.lock.hcl

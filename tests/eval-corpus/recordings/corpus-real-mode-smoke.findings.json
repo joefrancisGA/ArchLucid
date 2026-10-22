@@ -1,0 +1,32 @@
+{
+  "findings": [
+    {
+      "findingId": "rms-1",
+      "category": "Topology",
+      "severity": "Low",
+      "title": "Ingress",
+      "detail": "Workload routes user HTTPS traffic through Azure Front Door so App Service origins never terminate raw HTTP from the Internet."
+    },
+    {
+      "findingId": "rms-2",
+      "category": "Compliance",
+      "severity": "Low",
+      "title": "Secret storage",
+      "detail": "Configuration references Key Vault for database connection material—no plaintext secret strings checked into source."
+    },
+    {
+      "findingId": "rms-3",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "Service map",
+      "detail": "Application Insights maps HTTP requests into dependency nodes so regressions surface as failing outbound calls rather than silent drop-offs."
+    },
+    {
+      "findingId": "rms-4",
+      "category": "Topology",
+      "severity": "Informational",
+      "title": "Scale headroom",
+      "detail": "Autoscale schedules exist but should be correlated with Front Door POP latency before widening max instances."
+    }
+  ]
+}

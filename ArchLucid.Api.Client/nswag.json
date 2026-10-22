@@ -1,0 +1,36 @@
+{
+  "runtime": "Net100",
+  "documentGenerator": {
+    "fromDocument": {
+      "url": "../ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json",
+      "newLineBehavior": "Auto"
+    }
+  },
+  "codeGenerators": {
+    "openApiToCSharpClient": {
+      "className": "ArchLucidApiClient",
+      "namespace": "ArchLucid.Api.Client.Generated",
+      "output": "Generated/ArchLucidApiClient.g.cs",
+      "generateClientClasses": true,
+      "generateClientInterfaces": true,
+      "injectHttpClient": true,
+      "disposeHttpClient": false,
+      "httpClientType": "System.Net.Http.HttpClient",
+      "useHttpClientCreationMethod": false,
+      "useHttpRequestMessageCreationMethod": false,
+      "generateExceptionClasses": true,
+      "exceptionClass": "ArchLucidApiException",
+      "wrapDtoExceptions": true,
+      "useBaseUrl": true,
+      "generateBaseUrlProperty": true,
+      "generateSyncMethods": false,
+      "jsonLibrary": "SystemTextJson",
+      "exposeJsonSerializerSettings": false,
+      "clientClassAccessModifier": "public",
+      "generateContractsOutput": false,
+      "newLineBehavior": "Auto",
+      "generateNullableReferenceTypes": true,
+      "generateOptionalPropertiesAsNullable": true
+    }
+  }
+}

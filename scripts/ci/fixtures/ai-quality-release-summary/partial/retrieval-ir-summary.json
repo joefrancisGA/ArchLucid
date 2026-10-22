@@ -1,0 +1,8 @@
+﻿{
+  "formatVersion": "1.0",
+  "casesEvaluated": 10,
+  "meanRecallAt5": 0.95,
+  "meanMrr": 0.9,
+  "floorRecallAt5": 0.85,
+  "floorMrr": 0.75
+}

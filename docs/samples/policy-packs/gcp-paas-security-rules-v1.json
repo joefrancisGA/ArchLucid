@@ -1,0 +1,848 @@
+{
+  "schemaVersion": 1,
+  "kind": "archlucid.policyPack.curatedRules.v1",
+  "pack": {
+    "name": "GCP Serverless & PaaS Security",
+    "description": "Cloud Run, Cloud Functions, and App Engine ingress, secrets, and VPC connector themes.",
+    "version": "1.0.0",
+    "category": "Application Platform",
+    "isDefault": true,
+    "suggestedPackType": "PlatformDefault",
+    "policyPackContentDocumentPath": "docs/samples/policy-packs/gcp-paas-security.json"
+  },
+  "rules": [
+    {
+      "id": "gcp-paas-001",
+      "title": "Public network access disabled by default",
+      "description": "Cloud Run, Cloud Functions, and App Engine must document public ingress disabled or restricted with IAM, VPC connector, or internal load balancers only.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Tag public-access posture on services[].Tags; verify ingress settings and allUsers/allAuthenticatedUsers bindings in gcpExtractor.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP PaaS",
+          "theme": "GCP PaaS \u2014 Public access disabled"
+        }
+      ]
+    },
+    {
+      "id": "gcp-paas-002",
+      "title": "Serverless VPC Access for Cloud Run and Cloud Functions",
+      "description": "Serverless compute must document VPC connector or Direct VPC egress for outbound private connectivity to Cloud SQL, Memorystore, and internal APIs.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Describe VPC connector and egress settings in governance.RequiredControls and services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP PaaS",
+          "theme": "GCP PaaS \u2014 Serverless VPC Access"
+        }
+      ]
+    },
+    {
+      "id": "gcp-paas-003",
+      "title": "Private Service Connect for data-plane access",
+      "description": "Cloud Storage, Cloud SQL, Spanner, and Secret Manager should use Private Service Connect or private IP \u2014 not public data endpoints.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Map PSC endpoints in metadata.ChangeDescription; align with gcpExtractor private-service inventory.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP PaaS",
+          "theme": "GCP PaaS \u2014 Private Service Connect"
+        }
+      ]
+    },
+    {
+      "id": "gcp-paas-004",
+      "title": "Dedicated service accounts for PaaS to GCP resources",
+      "description": "Cloud Run, Cloud Functions, and App Engine must use least-privilege service accounts with workload identity \u2014 not the default compute service account.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Tag service-account on services[].Tags; document SA emails in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP PaaS",
+          "theme": "GCP PaaS \u2014 Managed identity"
+        }
+      ]
+    },
+    {
+      "id": "gcp-paas-005",
+      "title": "TLS 1.2 minimum on all endpoints",
+      "description": "HTTPS endpoints must document minimum TLS version and deprecated protocol disablement.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Capture TLS policy in governance.PolicyConstraints; verify Cloud Run/Load Balancer minimum TLS versions from gcpExtractor.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP PaaS",
+          "theme": "GCP PaaS \u2014 TLS minimum"
+        }
+      ]
+    },
+    {
+      "id": "gcp-paas-006",
+      "title": "Authentication enabled on Cloud Run and App Engine",
+      "description": "Public HTTP(S) entry points must document IAP, OIDC, or Cloud Run invoker IAM \u2014 not unauthenticated invoke.",
+      "severity": "Critical",
+      "priority": "P1",
+      "remediationGuidance": "Record auth mode in services[].Tags and governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP PaaS",
+          "theme": "GCP PaaS \u2014 App authentication"
+        }
+      ]
+    },
+    {
+      "id": "gcp-paas-007",
+      "title": "Cloud Run ingress restricted",
+      "description": "Cloud Run services must document internal-only ingress or Cloud Armor allowlists \u2014 not open internet exposure without WAF.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Document ingress controls in governance.PolicyConstraints and services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP PaaS",
+          "theme": "GCP PaaS \u2014 Cloud Run ingress"
+        }
+      ]
+    },
+    {
+      "id": "gcp-paas-008",
+      "title": "Cloud Functions auth keys not used for production auth",
+      "description": "Production Cloud Functions invoke paths must use IAM invoker roles or OIDC \u2014 not unauthenticated HTTP triggers or long-lived API keys.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Describe function auth in governance.RequiredControls and services[].Purpose.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP PaaS",
+          "theme": "GCP PaaS \u2014 Cloud Functions auth"
+        }
+      ]
+    },
+    {
+      "id": "gcp-paas-009",
+      "title": "Deployment slots for zero-downtime releases",
+      "description": "Production Cloud Run and Cloud Functions should document traffic-splitting revisions or blue/green deployment with warm-up.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Note slot strategy in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP PaaS",
+          "theme": "GCP PaaS \u2014 Deployment slots"
+        }
+      ]
+    },
+    {
+      "id": "gcp-paas-010",
+      "title": "CORS restricted to approved origins",
+      "description": "Browser-facing APIs must document explicit CORS allowlists \u2014 not wildcard in production.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Capture CORS policy in governance.PolicyConstraints and services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP PaaS",
+          "theme": "GCP PaaS \u2014 CORS restriction"
+        }
+      ]
+    },
+    {
+      "id": "gcp-paas-011",
+      "title": "IP restrictions on management planes",
+      "description": "scm and management endpoints should document IP allowlists or private access only.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Document SCM restrictions in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP PaaS",
+          "theme": "GCP PaaS \u2014 Management plane restriction"
+        }
+      ]
+    },
+    {
+      "id": "gcp-paas-012",
+      "title": "Cloud Armor for public edges",
+      "description": "Internet-facing Cloud Run, API Gateway, and external HTTPS load balancers must document Cloud Armor security policies.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Tag DDoS coverage in services[].Tags and governance.ComplianceTags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP PaaS",
+          "theme": "GCP PaaS \u2014 DDoS protection"
+        }
+      ]
+    },
+    {
+      "id": "gcp-paas-013",
+      "title": "Web Application Firewall on public HTTP(S)",
+      "description": "Public HTTP(S) must document Cloud Armor or Cloud CDN with WAF policies on load balancers.",
+      "severity": "Critical",
+      "priority": "P1",
+      "remediationGuidance": "Document WAF attachment in governance.RequiredControls and metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP PaaS",
+          "theme": "GCP PaaS \u2014 WAF protection"
+        }
+      ]
+    },
+    {
+      "id": "gcp-paas-014",
+      "title": "Secrets in Secret Manager \u2014 not plaintext environment variables",
+      "description": "Cloud Run and Cloud Functions must reference Secret Manager \u2014 not plaintext secrets in environment variables.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Describe Cloud KMS reference pattern in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP PaaS",
+          "theme": "GCP PaaS \u2014 Cloud KMS references"
+        }
+      ]
+    },
+    {
+      "id": "gcp-paas-015",
+      "title": "Diagnostic logs enabled for all PaaS tiers",
+      "description": "Cloud Run, Cloud Functions, and App Engine must export diagnostics to Cloud Logging and optional Cloud Trace.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "List log sinks and tracing flags in governance.RequiredControls; align with gcpExtractor.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP PaaS",
+          "theme": "GCP PaaS \u2014 Diagnostic logging"
+        }
+      ]
+    },
+    {
+      "id": "gcp-paas-016",
+      "title": "Health checks and minimum instances for production PaaS",
+      "description": "Production Cloud Run services must document startup probes, min instances, or CPU always allocated for availability.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Tag health-check and min-instances posture in services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP PaaS",
+          "theme": "GCP PaaS \u2014 Production availability"
+        }
+      ]
+    },
+    {
+      "id": "gcp-paas-017",
+      "title": "Container image scanning in Artifact Registry",
+      "description": "Cloud Run must pull from Artifact Registry with vulnerability scanning or Binary Authorization policies enabled.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Document Artifact Registry scanning in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP PaaS",
+          "theme": "GCP PaaS \u2014 Container image security"
+        }
+      ]
+    },
+    {
+      "id": "gcp-paas-018",
+      "title": "Environment separation (dev/stage/prod)",
+      "description": "PaaS workloads must be segregated by GCP project, folder, or resource labels with distinct service accounts.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Tag environment on services[].Tags; document isolation in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP PaaS",
+          "theme": "GCP PaaS \u2014 Environment separation"
+        }
+      ]
+    },
+    {
+      "id": "gcp-paas-019",
+      "title": "API Gateway as security gateway",
+      "description": "Public APIs should route through API Gateway with quotas and auth backends \u2014 not direct unauthenticated Cloud Run URLs.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Describe APIM policies in governance.RequiredControls and services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP PaaS",
+          "theme": "GCP PaaS \u2014 API Gateway gateway"
+        }
+      ]
+    },
+    {
+      "id": "gcp-paas-020",
+      "title": "Event-driven triggers secured",
+      "description": "Pub/Sub, Eventarc, and Cloud Scheduler triggers must document least-privilege IAM and dead-letter topics.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Map trigger auth in services[].Tags and governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP PaaS",
+          "theme": "GCP PaaS \u2014 Secure event triggers"
+        }
+      ]
+    },
+    {
+      "id": "gcp-paas-021",
+      "title": "Cloud Storage IAM for Cloud Functions integrations",
+      "description": "Cloud Functions with GCS event sources must document bucket IAM allowing only the function service account from approved VPC contexts.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Document storage network rules in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP PaaS",
+          "theme": "GCP PaaS \u2014 Storage binding security"
+        }
+      ]
+    },
+    {
+      "id": "gcp-paas-022",
+      "title": "Runtime version supported and patched",
+      "description": "PaaS runtime stacks (.NET, Node, Java) must document supported versions and auto-patch channel.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Capture runtime version in services[].Tags and metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP PaaS",
+          "theme": "GCP PaaS \u2014 Runtime patching"
+        }
+      ]
+    },
+    {
+      "id": "gcp-paas-023",
+      "title": "Custom domain and certificate management",
+      "description": "TLS certificates must document renewal automation via Google-managed certificates or Certificate Manager.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Note cert management in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP PaaS",
+          "theme": "GCP PaaS \u2014 Certificate lifecycle"
+        }
+      ]
+    },
+    {
+      "id": "gcp-paas-024",
+      "title": "Outbound SNAT and NAT gateway for scale",
+      "description": "High-outbound serverless workloads must document VPC connector egress or Cloud NAT routing for SNAT at scale.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Describe outbound connectivity in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP PaaS",
+          "theme": "GCP PaaS \u2014 Outbound connectivity"
+        }
+      ]
+    },
+    {
+      "id": "gcp-paas-025",
+      "title": "Workflows secure connector authentication",
+      "description": "Workflows and Eventarc integrations must document service accounts or OAuth for connectors \u2014 not stored passwords.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Record connector auth in governance.RequiredControls for integration services.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP PaaS",
+          "theme": "GCP PaaS \u2014 Workflows auth"
+        }
+      ]
+    },
+    {
+      "id": "gcp-paas-026",
+      "title": "Firebase Hosting or Cloud Run auth for static API routes",
+      "description": "Static frontends with API routes must document IAP or IAM auth on Cloud Run backends \u2014 not open invoke.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Describe SWA auth in services[].Tags when Firebase Hosting appear in architecture.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP PaaS",
+          "theme": "GCP PaaS \u2014 Firebase Hosting security"
+        }
+      ]
+    },
+    {
+      "id": "gcp-paas-027",
+      "title": "PaaS backup and geo-replication",
+      "description": "State held in PaaS storage bindings must document backup and replication for tier-1 data.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Align backup tags on datastores[].Tags with PaaS dependencies.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP PaaS",
+          "theme": "GCP PaaS \u2014 PaaS data protection"
+        }
+      ]
+    },
+    {
+      "id": "gcp-paas-028",
+      "title": "Threat modeling for serverless attack surface",
+      "description": "Serverless components must document abuse cases (event injection, oversized payloads) and mitigations.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Add serverless threat notes in metadata.ChangeDescription and governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP PaaS",
+          "theme": "GCP PaaS \u2014 Serverless threat model"
+        }
+      ]
+    }
+  ]
+}

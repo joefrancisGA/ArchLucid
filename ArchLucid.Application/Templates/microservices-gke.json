@@ -1,0 +1,35 @@
+{
+  "requestId": "TEMPLATE-MICROSERVICES-GKE",
+  "systemName": "GkeMicroservicesMesh",
+  "description": "Kubernetes microservices on Google Kubernetes Engine exchanging messages through Pub/Sub with ingress through Cloud Load Balancing or Apigee-style API management expectations. Document service identity (Workload Identity), observability (Cloud Logging, Cloud Monitoring, trace correlation), and private connectivity to Cloud SQL or AlloyDB where relational state is required.",
+  "environment": "prod",
+  "cloudProvider": "Gcp",
+  "constraints": [
+    "East-west service calls must use TLS — no cleartext on the cluster network.",
+    "No more than four domain services in the first delivery increment unless explicitly approved.",
+    "Pub/Sub subscriptions must define dead-letter topics and replay procedures."
+  ],
+  "requiredCapabilities": [
+    "GKE cluster with autoscaling node pools and workload identity",
+    "Cloud Pub/Sub for async integration between bounded contexts",
+    "Cloud Load Balancing or API management layer for north-south traffic",
+    "Cloud SQL or AlloyDB for authoritative relational state where required"
+  ],
+  "assumptions": [
+    "Teams own bounded contexts with independent release cadence.",
+    "Shared VPC or host project patterns align to organizational landing zone guardrails."
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [],
+  "documents": [],
+  "policyReferences": [],
+  "topologyHints": [
+    "Prefer outbox or transactional inbox patterns when bridging database commits and Pub/Sub publication.",
+    "Separate ingress controllers from internal-only admin APIs."
+  ],
+  "securityBaselineHints": [
+    "Binary Authorization or equivalent image signing where supply-chain policy requires it.",
+    "Private Service Connect or authorized networks for managed data stores."
+  ],
+  "infrastructureDeclarations": []
+}

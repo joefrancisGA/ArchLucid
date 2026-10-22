@@ -1,0 +1,19 @@
+{
+  "schema": "archlucid.weekly-proof-cadence-schema.v1",
+  "requiredFields": [
+    "schema",
+    "cadenceId",
+    "generatedUtc",
+    "gates",
+    "overallDisposition",
+    "stage1Readiness",
+    "runIdsReferenced",
+    "executionModeSummary",
+    "evidenceFreshness",
+    "missingRealModeEvidence"
+  ],
+  "gateIds": ["G1", "G2", "G3", "G4", "G5", "G6"],
+  "allowedGateStatuses": ["PASS", "HOLD", "WARN", "NOT_RUN"],
+  "allowedOverallDispositions": ["PASS", "PASS_WITH_WARNINGS", "HOLD"],
+  "allowedStage1Readiness": ["READY", "NOT_READY"]
+}

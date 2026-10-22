@@ -1,0 +1,146 @@
+using System.Net;
+
+using ArchLucid.Application;
+using ArchLucid.Application.Operator;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Identity;
+using ArchLucid.Core.Notifications.Email;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
+
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+
+namespace ArchLucid.Application.Notifications.Email;
+
+public sealed class CommitSponsorEmailNotifier(
+    ITenantTrialEmailContactLookup contactLookup,
+    IEmailProvider emailProvider,
+    IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
+    IRunRepository runRepository,
+    IScopeContextProvider scopeContextProvider,
+    ILogger<CommitSponsorEmailNotifier> logger) : ICommitSponsorEmailNotifier
+{
+    private const string TemplateId = "architecture-commit-sponsor";
+    private readonly ITenantTrialEmailContactLookup _contactLookup = contactLookup ?? throw new ArgumentNullException(nameof(contactLookup));
+
+    private readonly IOptionsMonitor<EmailNotificationOptions> _emailOptionsMonitor =
+        emailOptionsMonitor ?? throw new ArgumentNullException(nameof(emailOptionsMonitor));
+
+    private readonly IEmailProvider _emailProvider = emailProvider ?? throw new ArgumentNullException(nameof(emailProvider));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
+    private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly ILogger<CommitSponsorEmailNotifier> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+    /// <inheritdoc/>
+    public async Task NotifyAfterCommitAsync(Guid tenantId, string runId, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(runId);
+        if (tenantId == Guid.Empty)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+                _logger.LogWarning("Commit sponsor email skipped: empty tenant id for run {RunId}.", LogSanitizer.Sanitize(runId));
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(runId))
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+                _logger.LogWarning("Commit sponsor email skipped: empty run id for tenant {TenantId}.", tenantId);
+            return;
+        }
+
+        string trimmedRunId = runId.Trim();
+
+        try
+        {
+            await CommitSponsorEmailDispatchSealedManifestHashGuard.EnsureRunSealedOrThrowAsync(
+                tenantId,
+                trimmedRunId,
+                _authorityQueryService,
+                _manifestHashService,
+                cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+                _logger.LogWarning(
+                    ex,
+                    "Commit sponsor email skipped: sealed manifest hash verification failed for tenant {TenantId}, run {RunId}.",
+                    tenantId,
+                    LogSanitizer.Sanitize(trimmedRunId));
+            return;
+        }
+
+        string? to = await _contactLookup.TryResolveAdminEmailAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (string.IsNullOrWhiteSpace(to)
+            || !IdentityEmailNormalizer.TryNormalize(to, out string normalizedMailbox, out _))
+        {
+            if (_logger.IsEnabled(LogLevel.Information))
+                _logger.LogInformation("Commit sponsor email skipped: no admin mailbox for tenant {TenantId}, run {RunId}.", tenantId,
+                    LogSanitizer.Sanitize(trimmedRunId));
+            return;
+        }
+
+        to = normalizedMailbox;
+
+        EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
+        string productName = EmailProductDisplayNameResolver.Resolve(emailOptions);
+        string? operatorBase = EmailBrandingUrls.TryNormalizeOperatorBaseAuthority(emailOptions.OperatorBaseUrl);
+        Guid? architectureId = await WorkingOperatorRunArchitectureIdResolver.TryResolveFromScopeProviderAsync(
+            _runRepository,
+            _scopeContextProvider,
+            trimmedRunId,
+            cancellationToken);
+        string runUrlText = operatorBase is null
+            ? $"(configure {nameof(EmailNotificationOptions.OperatorBaseUrl)}) {WorkingOperatorReviewLinks.BuildReviewWorkspaceRelativePath(trimmedRunId, architectureId)}"
+            : WorkingOperatorReviewLinks.BuildReviewWorkspaceUrl(operatorBase, trimmedRunId, architectureId);
+        string runUrlHref = operatorBase is null ? "#" : runUrlText;
+        string safeRun = WebUtility.HtmlEncode(trimmedRunId);
+        string safeProduct = WebUtility.HtmlEncode(productName);
+        string safeUrlText = WebUtility.HtmlEncode(runUrlText);
+        string subject = $"{productName}: architecture run finalized — sponsor link";
+        string html = $"<p>{safeProduct}: an architecture run was finalized.</p>" + $"<p>Run id: <strong>{safeRun}</strong></p>" +
+                      $"<p>Operator link: <a href=\"{WebUtility.HtmlEncode(runUrlHref)}\">{safeUrlText}</a></p>" +
+                      "<p>This message was sent because someone chose to notify the tenant admin contact when finalizing the manifest.</p>";
+        string text = $"{productName}: an architecture run was finalized.\n" + $"Run id: {trimmedRunId}\n" + $"Link: {runUrlText}\n";
+        string idempotencyKey = $"architecture-commit-sponsor:{tenantId:N}:{trimmedRunId}";
+        EmailMessage message = new()
+        {
+            To = to,
+            Subject = subject,
+            HtmlBody = html,
+            TextBody = text,
+            IdempotencyKey = idempotencyKey,
+            Tags = new EmailMessageTags { TenantId = tenantId, EventType = TemplateId }
+        };
+        try
+        {
+            await _emailProvider.SendAsync(message, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex)when (!cancellationToken.IsCancellationRequested)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+                _logger.LogWarning(ex, "Commit sponsor email send failed for tenant {TenantId}, run {RunId}.", tenantId,
+                    LogSanitizer.Sanitize(trimmedRunId)); // codeql[cs/log-forging]: run id sanitized; TenantId is Guid.
+        }
+    }
+
+}

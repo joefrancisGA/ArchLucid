@@ -1,0 +1,473 @@
+import { render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { PilotValueReportPageView } from "./PilotValueReportPageView";
+import type { PilotValueReportPilotPageViewModel } from "./pilot-value-report-pilot-page-view-model";
+import { LAYER_PAGE_GUIDANCE } from "@/lib/layer-guidance";
+import { BUYER_VALUE_REPORT_PAGE_SUBTITLE } from "@/lib/buyer/buyer-polish-copy";
+import { PILOT_OUTCOMES_CLAIM_DISCIPLINE, PILOT_OUTCOMES_FOLLOW_UPS_TITLE } from "@/lib/pilot-outcomes-evidence-copy";
+import {
+  PILOT_OUTCOMES_LOAD_RETRY_LABEL,
+  PILOT_OUTCOMES_PRIMARY_CONTENT_ID,
+  PILOT_OUTCOMES_SKIP_LINK_LABEL,
+} from "@/lib/pilot-outcomes-page-copy";
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...mod,
+    isBuyerPolishedOperatorShellEnv: vi.fn(() => false),
+  };
+});
+
+vi.mock("@/components/LayerHeader", () => ({
+  LayerHeader: () => <div data-testid="layer-header" />,
+}));
+
+vi.mock("@/components/usability/ValueReportOutcomesNav", () => ({
+  ValueReportOutcomesNav: () => <nav data-testid="value-report-outcomes-nav" />,
+}));
+
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
+
+vi.mock("@/components/pilots/PilotRoiValidationHandoffCard", () => ({
+  PilotRoiValidationHandoffClient: () => null,
+}));
+
+vi.mock("@/components/WorkspaceActiveRunContext", () => ({
+  useWorkspaceActiveRun: () => ({ runId: "", displayTitle: "" }),
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/insights/sponsor-report",
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams("runId=run-sponsor-test"),
+}));
+
+vi.mock("./SponsorReportNextReviewFooterClient", () => ({
+  SponsorReportNextReviewFooterClient: () => <div data-testid="sponsor-report-next-review-footer-client" />,
+}));
+
+const roiTileHonestyMock = vi.hoisted(() => ({
+  presentation: null as {
+    cellId: string;
+    title: string;
+    body: string;
+    roiSectionQualifier: string;
+  } | null,
+}));
+
+vi.mock("@/hooks/use-roi-tile-career-honesty", () => ({
+  useRoiTileCareerHonesty: () => roiTileHonestyMock.presentation,
+}));
+
+vi.mock("@/components/roi/RoiTileCareerHonestyStrip", () => ({
+  RoiTileCareerHonestyStrip: () =>
+    roiTileHonestyMock.presentation === null ? null : <div data-testid="roi-tile-career-honesty-strip" />,
+}));
+
+const valueReportHonestyMock = vi.hoisted(() => ({
+  presentation: null as {
+    kind: "scoped" | "period-mix";
+    title: string;
+    body: string;
+  } | null,
+}));
+
+vi.mock("@/hooks/use-value-report-career-honesty", () => ({
+  useValueReportCareerHonesty: () => valueReportHonestyMock.presentation,
+}));
+
+vi.mock("@/components/insights/ValueReportCareerHonestyStrip", () => ({
+  ValueReportCareerHonestyStrip: () =>
+    valueReportHonestyMock.presentation === null
+      ? null
+      : <div data-testid="value-report-career-honesty-strip" />,
+}));
+
+function buildModel(overrides: Partial<PilotValueReportPilotPageViewModel> = {}): PilotValueReportPilotPageViewModel {
+  return {
+    fromUtc: "2026-03-01T00:00",
+    setFromUtc: vi.fn(),
+    toUtc: "2026-04-01T00:00",
+    setToUtc: vi.fn(),
+    periodPreset: "last-30",
+    setPeriodPreset: vi.fn(),
+    applyPeriodPreset: vi.fn(),
+    data: null,
+    busy: false,
+    exportBusy: false,
+    emailBusy: false,
+    error: null,
+    load: vi.fn(),
+    onDownloadReport: vi.fn(),
+    onGenerateDocx: vi.fn(),
+    onBoardPack: vi.fn(),
+    docxBusy: false,
+    boardBusy: false,
+    canMutate: true,
+    emailPreviewOpen: false,
+    emailPreview: null,
+    openEmailPreview: vi.fn(),
+    closeEmailPreview: vi.fn(),
+    confirmSendEmail: vi.fn(),
+    includesSampleData: false,
+    reportingTimezoneLabel: "UTC",
+    ...overrides,
+  };
+}
+
+describe("PilotValueReportPageView", () => {
+  beforeEach(() => {
+    roiTileHonestyMock.presentation = null;
+    valueReportHonestyMock.presentation = null;
+  });
+
+  it("mounts contextual help (TB-1968)", () => {
+    render(<PilotValueReportPageView model={buildModel()} />);
+
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+  });
+
+  it("renders sponsor report title and reporting period controls", () => {
+    render(<PilotValueReportPageView model={buildModel()} />);
+
+    expect(screen.getByRole("heading", { name: "Sponsor report" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Start date")).toBeInTheDocument();
+    expect(screen.getByLabelText("End date")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Apply period" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Download report" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Send sponsor briefing" })).toBeInTheDocument();
+  });
+
+  it("carries the merged sponsor exports and explains why they are disabled without finalized reviews", () => {
+    render(<PilotValueReportPageView model={buildModel()} />);
+
+    expect(screen.getByRole("button", { name: "Export sponsor report (.docx)" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /Export board pack \(\.pdf\)/ })).toBeDisabled();
+    expect(screen.getByTestId("value-report-export-disabled-reason")).toBeInTheDocument();
+  });
+
+  it("explains sponsor exports are permission-gated when the operator cannot execute", () => {
+    render(<PilotValueReportPageView model={buildModel({ canMutate: false })} />);
+
+    expect(screen.getByTestId("value-report-export-disabled-reason").textContent).toContain(
+      "Elevated workspace permissions",
+    );
+  });
+
+  it("shows explicit empty state when no finalized reviews exist", () => {
+    render(
+      <PilotValueReportPageView
+        model={buildModel({
+          data: {
+            tenantId: "tenant-1",
+            fromUtc: "2026-03-01T00:00:00.000Z",
+            toUtc: "2026-04-01T00:00:00.000Z",
+            totalRunsCommitted: 0,
+            runDetailsTruncated: false,
+            runDetailCap: 50,
+            totalFindings: 0,
+            findingsBySeverity: { critical: 0, high: 0, medium: 0, low: 0, info: 0 },
+            totalRecommendationsProduced: 0,
+            averagePipelineCompletionSeconds: null,
+            governanceApprovals: 0,
+            governanceRejections: 0,
+            policyPackAssignments: 0,
+            comparisonOrDriftDetections: 0,
+            uniqueAgentTypes: [],
+            committedRunsTimeline: [],
+            governancePendingApprovalsNow: 0,
+            auditExportTruncated: false,
+          },
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("pilot-outcomes-empty-state")).toBeInTheDocument();
+    expect(screen.getByText("No finalized reviews in this reporting period")).toBeInTheDocument();
+    expect(screen.queryByText("Severity distribution")).not.toBeInTheDocument();
+  });
+
+  it("deep-links empty-state most recent finalized review CTA to the run (TB-1967)", () => {
+    render(
+      <PilotValueReportPageView
+        model={buildModel({
+          data: {
+            tenantId: "tenant-1",
+            fromUtc: "2026-03-01T00:00:00.000Z",
+            toUtc: "2026-04-01T00:00:00.000Z",
+            totalRunsCommitted: 0,
+            runDetailsTruncated: false,
+            runDetailCap: 50,
+            totalFindings: 0,
+            findingsBySeverity: { critical: 0, high: 0, medium: 0, low: 0, info: 0 },
+            totalRecommendationsProduced: 0,
+            averagePipelineCompletionSeconds: null,
+            governanceApprovals: 0,
+            governanceRejections: 0,
+            policyPackAssignments: 0,
+            comparisonOrDriftDetections: 0,
+            uniqueAgentTypes: [],
+            committedRunsTimeline: [
+              {
+                runId: "run-most-recent",
+                createdUtc: "2026-03-10T08:00:00.000Z",
+                committedUtc: "2026-03-11T08:00:00.000Z",
+                systemName: "Claims Intake",
+              },
+            ],
+            governancePendingApprovalsNow: 0,
+            auditExportTruncated: false,
+          },
+        })}
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "Open most recent finalized review" })).toHaveAttribute(
+      "href",
+      "/architecture/reviews/run-most-recent",
+    );
+  });
+
+  it("renders populated report summary when finalized reviews exist", () => {
+    render(
+      <PilotValueReportPageView
+        model={buildModel({
+          data: {
+            tenantId: "tenant-1",
+            fromUtc: "2026-03-01T00:00:00.000Z",
+            toUtc: "2026-04-01T00:00:00.000Z",
+            totalRunsCommitted: 2,
+            runDetailsTruncated: false,
+            runDetailCap: 50,
+            totalFindings: 3,
+            findingsBySeverity: { critical: 1, high: 1, medium: 1, low: 0, info: 0 },
+            totalRecommendationsProduced: 2,
+            averagePipelineCompletionSeconds: 90,
+            governanceApprovals: 1,
+            governanceRejections: 0,
+            policyPackAssignments: 1,
+            comparisonOrDriftDetections: 0,
+            uniqueAgentTypes: ["ArchitectureReviewer"],
+            committedRunsTimeline: [
+              {
+                runId: "run-1",
+                createdUtc: "2026-03-10T08:00:00.000Z",
+                committedUtc: "2026-03-11T08:00:00.000Z",
+                systemName: "Claims Intake",
+              },
+            ],
+            governancePendingApprovalsNow: 0,
+            auditExportTruncated: false,
+          },
+        })}
+      />,
+    );
+
+    expect(screen.getByRole("heading", { name: "Report summary" })).toBeInTheDocument();
+    expect(screen.getByTestId("value-report-reporting-setup-progress")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Finalized reviews" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Download report" })).toBeEnabled();
+    expect(screen.queryByTestId("pilot-outcomes-empty-state")).not.toBeInTheDocument();
+  });
+
+  it("shows CG-035 rehearsal honesty strip above sponsor metrics when stamp is not record-complete", () => {
+    roiTileHonestyMock.presentation = {
+      cellId: "rehearsal-simulator",
+      title: "Practice incomplete — ROI is practice only",
+      body: "Directional savings stay visible for practice.",
+      roiSectionQualifier: "Rehearsal ROI",
+    };
+
+    render(
+      <PilotValueReportPageView
+        model={buildModel({
+          data: {
+            tenantId: "tenant-1",
+            fromUtc: "2026-03-01T00:00:00.000Z",
+            toUtc: "2026-04-01T00:00:00.000Z",
+            totalRunsCommitted: 2,
+            runDetailsTruncated: false,
+            runDetailCap: 50,
+            totalFindings: 3,
+            findingsBySeverity: { critical: 1, high: 1, medium: 1, low: 0, info: 0 },
+            totalRecommendationsProduced: 2,
+            averagePipelineCompletionSeconds: 90,
+            governanceApprovals: 1,
+            governanceRejections: 0,
+            policyPackAssignments: 1,
+            comparisonOrDriftDetections: 0,
+            uniqueAgentTypes: ["ArchitectureReviewer"],
+            committedRunsTimeline: [
+              {
+                runId: "run-1",
+                createdUtc: "2026-03-10T08:00:00.000Z",
+                committedUtc: "2026-03-11T08:00:00.000Z",
+                systemName: "Claims Intake",
+              },
+            ],
+            governancePendingApprovalsNow: 0,
+            auditExportTruncated: false,
+          },
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("roi-tile-career-honesty-strip")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Review activity — Rehearsal ROI" })).toBeInTheDocument();
+  });
+
+  it("shows CG-090 route honesty strip for deep-linked rehearsal reviews", () => {
+    valueReportHonestyMock.presentation = {
+      kind: "scoped",
+      title: "Practice incomplete — sponsor report is practice only",
+      body: "Not measured procurement savings.",
+    };
+
+    render(
+      <PilotValueReportPageView
+        model={buildModel({
+          data: {
+            tenantId: "tenant-1",
+            fromUtc: "2026-03-01T00:00:00.000Z",
+            toUtc: "2026-04-01T00:00:00.000Z",
+            totalRunsCommitted: 1,
+            runDetailsTruncated: false,
+            runDetailCap: 50,
+            totalFindings: 1,
+            findingsBySeverity: { critical: 0, high: 1, medium: 0, low: 0, info: 0 },
+            totalRecommendationsProduced: 1,
+            averagePipelineCompletionSeconds: 90,
+            governanceApprovals: 0,
+            governanceRejections: 0,
+            policyPackAssignments: 0,
+            comparisonOrDriftDetections: 0,
+            uniqueAgentTypes: ["ArchitectureReviewer"],
+            committedRunsTimeline: [
+              {
+                runId: "run-sponsor-test",
+                createdUtc: "2026-03-10T08:00:00.000Z",
+                committedUtc: "2026-03-11T08:00:00.000Z",
+                systemName: "Claims Intake",
+              },
+            ],
+            governancePendingApprovalsNow: 0,
+            auditExportTruncated: false,
+          },
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("value-report-career-honesty-strip")).toBeInTheDocument();
+  });
+
+  it("labels sample sponsor report without a duplicate CG-090 strip", () => {
+    render(
+      <PilotValueReportPageView
+        model={buildModel({
+          includesSampleData: true,
+          data: {
+            tenantId: "tenant-1",
+            fromUtc: "2026-03-01T00:00:00.000Z",
+            toUtc: "2026-04-01T00:00:00.000Z",
+            totalRunsCommitted: 1,
+            runDetailsTruncated: false,
+            runDetailCap: 50,
+            totalFindings: 0,
+            findingsBySeverity: { critical: 0, high: 0, medium: 0, low: 0, info: 0 },
+            totalRecommendationsProduced: 0,
+            averagePipelineCompletionSeconds: null,
+            governanceApprovals: 0,
+            governanceRejections: 0,
+            policyPackAssignments: 0,
+            comparisonOrDriftDetections: 0,
+            uniqueAgentTypes: [],
+            committedRunsTimeline: [],
+            governancePendingApprovalsNow: 0,
+            auditExportTruncated: false,
+          },
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("pilot-outcomes-sample-banner").textContent).toContain(
+      "not measured procurement savings",
+    );
+    expect(screen.queryByTestId("value-report-career-honesty-strip")).not.toBeInTheDocument();
+  });
+});
+
+describe("PilotValueReportPageView buyer-polished chrome (TB-1969)", () => {
+  it("shows one page hero — no LayerHeader guidance above the reporting period controls", async () => {
+    const { isBuyerPolishedOperatorShellEnv } = await import("@/lib/demo-ui-env");
+    vi.mocked(isBuyerPolishedOperatorShellEnv).mockReturnValue(true);
+
+    render(<PilotValueReportPageView model={buildModel()} />);
+
+    expect(screen.getAllByText(BUYER_VALUE_REPORT_PAGE_SUBTITLE)).toHaveLength(1);
+    expect(screen.queryByText(LAYER_PAGE_GUIDANCE["value-report-pilot"].headline)).not.toBeInTheDocument();
+    expect(screen.queryByTestId("layer-header")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Start date")).toBeInTheDocument();
+  });
+
+  it("renders skip link, breadcrumb, and orientation above reporting period in buyer shell", async () => {
+    const { isBuyerPolishedOperatorShellEnv } = await import("@/lib/demo-ui-env");
+    vi.mocked(isBuyerPolishedOperatorShellEnv).mockReturnValue(true);
+
+    render(<PilotValueReportPageView model={buildModel()} />);
+
+    expect(screen.getByRole("link", { name: PILOT_OUTCOMES_SKIP_LINK_LABEL })).toHaveAttribute(
+      "href",
+      `#${PILOT_OUTCOMES_PRIMARY_CONTENT_ID}`,
+    );
+    expect(screen.getByTestId("pilot-outcomes-orientation-top")).toBeInTheDocument();
+    expect(screen.getByTestId("pilot-outcomes-claim-discipline").textContent).toContain(
+      PILOT_OUTCOMES_CLAIM_DISCIPLINE.slice(0, 40),
+    );
+    expect(screen.getByRole("heading", { level: 2, name: PILOT_OUTCOMES_FOLLOW_UPS_TITLE })).toBeInTheDocument();
+    expect(screen.queryByTestId("page-contextual-help-button")).toBeNull();
+    expect(screen.queryByTestId("value-report-outcomes-nav")).toBeNull();
+
+    const orientationTop = screen.getByTestId("pilot-outcomes-orientation-top");
+    const reportingPeriod = screen.getByRole("heading", { name: "Reporting period" });
+
+    expect(orientationTop.compareDocumentPosition(reportingPeriod) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("renders load-failure retry and loading skeleton in buyer shell", async () => {
+    const { isBuyerPolishedOperatorShellEnv } = await import("@/lib/demo-ui-env");
+    vi.mocked(isBuyerPolishedOperatorShellEnv).mockReturnValue(true);
+
+    const load = vi.fn();
+    const { rerender } = render(
+      <PilotValueReportPageView
+        model={buildModel({
+          error: { message: "Sponsor report unavailable.", problem: null, correlationId: null },
+          load,
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("pilot-outcomes-load-failure")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: PILOT_OUTCOMES_LOAD_RETRY_LABEL })).toBeInTheDocument();
+    screen.getByRole("button", { name: PILOT_OUTCOMES_LOAD_RETRY_LABEL }).click();
+    expect(load).toHaveBeenCalledTimes(1);
+
+    rerender(<PilotValueReportPageView model={buildModel({ busy: true, data: null })} />);
+    expect(screen.getByTestId("pilot-outcomes-loading-skeleton")).toBeInTheDocument();
+  });
+
+  it("omits page subtitle when LayerHeader owns the lead in enterprise shell", async () => {
+    const { isBuyerPolishedOperatorShellEnv } = await import("@/lib/demo-ui-env");
+    vi.mocked(isBuyerPolishedOperatorShellEnv).mockReturnValue(false);
+
+    render(<PilotValueReportPageView model={buildModel()} />);
+
+    expect(screen.getByTestId("layer-header")).toBeInTheDocument();
+    expect(screen.queryByText(BUYER_VALUE_REPORT_PAGE_SUBTITLE)).not.toBeInTheDocument();
+  });
+});

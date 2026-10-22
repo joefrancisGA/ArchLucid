@@ -1,0 +1,26 @@
+{
+  "requestId": "REQ-CORE-PILOT-GOLDEN-001",
+  "requiredFirstValueReportPhrases": [
+    "Sponsor send readiness (buyer-safe gate)",
+    "First-value evidence completeness"
+  ],
+  "forbiddenBuyerSafeArtifactPhrases": [
+    "raw prompt",
+    "raw completion",
+    "AZURE_OPENAI_API_KEY",
+    "ConnectionStrings:"
+  ],
+  "requiredProofPackageFields": {
+    "committedManifestPresent": true,
+    "findingsBySeverityPresent": true,
+    "auditRowsPresentOrLowerBound": true
+  },
+  "minimumFindingsBySeverityTotal": 1,
+  "requiredTraceabilityZipEntryPrefixes": [
+    "run-summary",
+    "audit-events",
+    "decision-traces",
+    "README"
+  ],
+  "requiredAuditEventTypesAfterCommit": []
+}

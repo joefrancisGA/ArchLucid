@@ -1,0 +1,15 @@
+{
+  "_comment": "Floors are merge-blocking via PromptRegressionBaselineContractTests + assert_prompt_regression.py. Each agent type now has a dedicated golden fixture (golden-agent-result-{type}.json) with correct agentType and domain content.",
+  "minStructuralCompletenessByAgentType": {
+    "Topology": 0.95,
+    "Cost": 0.95,
+    "Compliance": 0.95,
+    "Critic": 0.95
+  },
+  "minSemanticScoreByAgentType": {
+    "Topology": 0.85,
+    "Cost": 0.85,
+    "Compliance": 0.85,
+    "Critic": 0.85
+  }
+}

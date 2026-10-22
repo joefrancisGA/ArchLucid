@@ -1,0 +1,32 @@
+# TB-654 canonical operator answers file — copy to archlucid.stack.yaml and edit.
+# Generate deployment artifacts: archlucid stack init --answers archlucid.stack.yaml
+schemaVersion: 1
+azure:
+  subscriptionId: "00000000-0000-0000-0000-000000000000"
+  tenantId: "00000000-0000-0000-0000-000000000001"
+  location: eastus2
+  environment: dev
+naming:
+  resourcePrefix: archlucid
+containerRegistry:
+  loginServer: acrarchluciddev.azurecr.io
+  imageTag: "2026.07.1"
+publicSite:
+  baseUrl: https://app.example.com
+keyVault:
+  name: kv-archlucid-dev
+deployment:
+  multiRootApplyOptIn: true
+  pilotMonthlyBudgetUsd: 800
+openAi:
+  composeMode: existing
+  existingEndpoint: https://oai-archlucid-dev.openai.azure.com/
+  # GPT-5.6 tier stack: Economy=Luna, Standard/default=Terra, Premium=Sol
+  chatDeploymentName: gpt-5.6-terra
+  economyDeploymentName: gpt-5.6-luna
+  premiumDeploymentName: gpt-5.6-sol
+  embeddingDeploymentName: text-embedding-3-small
+search:
+  composeMode: existing
+  existingEndpoint: https://srch-archlucid-dev.search.windows.net
+  indexName: archlucid-vectors

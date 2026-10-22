@@ -1,0 +1,246 @@
+"use client";
+
+import { cn } from "@/lib/utils";
+import { useCallback, useState } from "react";
+
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
+import { POLICY_PACK_INFLUENCE_HONESTY_LINE } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
+import { Button } from "@/components/ui/button";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
+import {
+  BUYER_MANIFEST_AUTHORITY_SUMMARY,
+  BUYER_MANIFEST_DELIVERABLES_HEADING,
+  BUYER_MANIFEST_DELIVERABLE_DOCX_DESC,
+  BUYER_MANIFEST_DELIVERABLE_DOCX_TITLE,
+  BUYER_MANIFEST_DELIVERABLE_SPONSOR_PDF_DESC,
+  BUYER_MANIFEST_DELIVERABLE_SPONSOR_PDF_TITLE,
+  BUYER_MANIFEST_DELIVERABLE_MARKDOWN_DESC,
+  BUYER_MANIFEST_DELIVERABLE_MARKDOWN_TITLE,
+  BUYER_MANIFEST_DELIVERABLE_ZIP_DESC,
+  BUYER_MANIFEST_DELIVERABLE_ZIP_TITLE,
+} from "@/lib/buyer/buyer-polish-copy";
+import { downloadArchitecturePackageDocx } from "@/lib/api/downloads-blob-trigger-architecture-package-docx";
+import { downloadArtifactBundleZip } from "@/lib/api/downloads-blob-trigger-artifact-bundle";
+import { downloadFirstValueReportPdf } from "@/lib/api";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
+import { triggerGoldenManifestMarkdownDownload } from "@/lib/export-markdown";
+import { OPERATOR_TYPE_SCALE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { firstValueReportMutationBlockedReason } from "@/lib/pilots/first-value-report-mutation-blocked-reason";
+import { architecturePackageDocxMutationBlockedReason } from "@/lib/runs/architecture-package-docx-mutation-blocked-reason";
+import { artifactBundleMutationBlockedReason } from "@/lib/runs/artifact-bundle-mutation-blocked-reason";
+import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import { showError, showSuccess } from "@/lib/toast";
+import { whyDisabledNeedsPrerequisite } from "@/lib/why-disabled-cta";
+
+export type ManifestDeliverableGridProps = {
+  readonly manifestId: string;
+  readonly runId: string;
+  readonly buyerPolished: boolean;
+  readonly systemName?: string;
+};
+
+type DeliverableTileProps = {
+  readonly title: string;
+  readonly description: string;
+  readonly testId: string;
+  readonly children: React.ReactNode;
+};
+
+function DeliverableTile(props: DeliverableTileProps): React.JSX.Element {
+  const { title, description, testId, children } = props;
+
+  return (
+    <div
+      className="flex flex-col rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
+      data-testid={testId}
+    >
+      <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{title}</p>
+      <p className={cn("m-0 mt-1 flex-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{description}</p>
+      <div className="mt-3">{children}</div>
+    </div>
+  );
+}
+
+/** Visual deliverables climax for buyer-polished signed-manifest pages. */
+export function ManifestDeliverableGrid(props: ManifestDeliverableGridProps): React.JSX.Element | null {
+  const { manifestId, runId, buyerPolished, systemName } = props;
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const [docxBusy, setDocxBusy] = useState(false);
+  const [zipBusy, setZipBusy] = useState(false);
+  const runIdTrimmed = runId.trim();
+  const manifestIdTrimmed = manifestId.trim();
+  const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({
+    runId: runIdTrimmed,
+    manifestVersion: manifestIdTrimmed,
+  });
+  const deliverableDisabledReason =
+    sealedManifestBlockedReason === null ? null : whyDisabledNeedsPrerequisite(sealedManifestBlockedReason);
+  const blockedHintId = "manifest-deliverable-grid-blocked-hint";
+
+  const onPdfDownload = useCallback(async () => {
+    if (deliverableDisabledReason !== null) {
+      return;
+    }
+
+    setPdfBusy(true);
+
+    try {
+      await downloadFirstValueReportPdf(runIdTrimmed);
+      showSuccess("Sponsor PDF download started.");
+    } catch (error: unknown) {
+      const failure = toApiLoadFailure(error);
+      const blocked = firstValueReportMutationBlockedReason(failure);
+
+      showError("Sponsor PDF download failed", blocked ?? failure.message);
+    } finally {
+      setPdfBusy(false);
+    }
+  }, [deliverableDisabledReason, runIdTrimmed]);
+
+  const onMarkdownDownload = useCallback(() => {
+    if (deliverableDisabledReason !== null) {
+      return;
+    }
+
+    const headline = systemName?.trim() ?? "Signed review";
+    const body = [
+      `# ${headline}`,
+      "",
+      BUYER_MANIFEST_AUTHORITY_SUMMARY,
+      "",
+      `Review ID: ${runIdTrimmed}`,
+      "",
+      `**Sponsor ROI honesty:** ${SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}`,
+      `**Policy influence:** ${POLICY_PACK_INFLUENCE_HONESTY_LINE}`,
+    ].join("\n");
+    const slug = headline.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+    triggerGoldenManifestMarkdownDownload(body, `decision-receipt-${slug || runIdTrimmed}.md`);
+    showSuccess("Decision receipt download started.");
+  }, [deliverableDisabledReason, runIdTrimmed, systemName]);
+
+  if (!buyerPolished) {
+    return null;
+  }
+
+  const showPdfTile = isCtoDemoPackEnv();
+  const downloadsDisabled = deliverableDisabledReason !== null;
+
+  return (
+    <section aria-label={BUYER_MANIFEST_DELIVERABLES_HEADING} data-testid="manifest-deliverable-grid" className="space-y-3">
+      <h2 className={cn("m-0", OPERATOR_TYPE_SCALE.cardTitle)}>{BUYER_MANIFEST_DELIVERABLES_HEADING}</h2>
+      {deliverableDisabledReason !== null ? (
+        <WhyDisabledCtaHint id={blockedHintId} reason={deliverableDisabledReason} />
+      ) : null}
+      <SponsorExportSendHonestyStrip testIdPrefix="manifest-deliverable" />
+      <div className="grid gap-3 sm:grid-cols-2">
+        {showPdfTile ? (
+          <DeliverableTile
+            title={BUYER_MANIFEST_DELIVERABLE_SPONSOR_PDF_TITLE}
+            description={BUYER_MANIFEST_DELIVERABLE_SPONSOR_PDF_DESC}
+            testId="deliverable-tile-sponsor-pdf"
+          >
+            <Button
+              type="button"
+              size="sm"
+              variant="default"
+              disabled={pdfBusy || downloadsDisabled}
+              aria-describedby={downloadsDisabled ? blockedHintId : undefined}
+              onClick={() => void onPdfDownload()}
+            >
+              {pdfBusy ? "Downloading…" : "Download PDF"}
+            </Button>
+          </DeliverableTile>
+        ) : null}
+        <DeliverableTile
+          title={BUYER_MANIFEST_DELIVERABLE_DOCX_TITLE}
+          description={BUYER_MANIFEST_DELIVERABLE_DOCX_DESC}
+          testId="deliverable-tile-docx"
+        >
+          {downloadsDisabled ? (
+            <Button variant="outline" size="sm" disabled aria-describedby={blockedHintId}>
+              Download DOCX
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={docxBusy}
+              onClick={() => {
+                setDocxBusy(true);
+
+                void downloadArchitecturePackageDocx(runIdTrimmed)
+                  .catch((error: unknown) => {
+                    const failure = toApiLoadFailure(error);
+                    const blocked = architecturePackageDocxMutationBlockedReason(failure);
+
+                    showError("Architecture package DOCX", blocked ?? failure.message);
+                  })
+                  .finally(() => {
+                    setDocxBusy(false);
+                  });
+              }}
+            >
+              {docxBusy ? "Downloading…" : "Download DOCX"}
+            </Button>
+          )}
+        </DeliverableTile>
+        <DeliverableTile
+          title={BUYER_MANIFEST_DELIVERABLE_ZIP_TITLE}
+          description={BUYER_MANIFEST_DELIVERABLE_ZIP_DESC}
+          testId="deliverable-tile-zip"
+        >
+          {downloadsDisabled ? (
+            <Button variant="outline" size="sm" disabled aria-describedby={blockedHintId}>
+              Download ZIP
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={zipBusy}
+              onClick={() => {
+                setZipBusy(true);
+
+                void downloadArtifactBundleZip(manifestIdTrimmed)
+                  .catch((error: unknown) => {
+                    const failure = toApiLoadFailure(error);
+                    const blocked = artifactBundleMutationBlockedReason(failure);
+
+                    showError("Artifact bundle", blocked ?? failure.message);
+                  })
+                  .finally(() => {
+                    setZipBusy(false);
+                  });
+              }}
+            >
+              {zipBusy ? "Downloading…" : "Download ZIP"}
+            </Button>
+          )}
+        </DeliverableTile>
+        {runIdTrimmed.length > 0 ? (
+          <DeliverableTile
+            title={BUYER_MANIFEST_DELIVERABLE_MARKDOWN_TITLE}
+            description={BUYER_MANIFEST_DELIVERABLE_MARKDOWN_DESC}
+            testId="deliverable-tile-markdown"
+          >
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={downloadsDisabled}
+              aria-describedby={downloadsDisabled ? blockedHintId : undefined}
+              onClick={onMarkdownDownload}
+            >
+              Download Markdown
+            </Button>
+          </DeliverableTile>
+        ) : null}
+      </div>
+    </section>
+  );
+}

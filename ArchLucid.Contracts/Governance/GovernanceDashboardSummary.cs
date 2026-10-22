@@ -1,0 +1,58 @@
+using ArchLucid.Contracts.Serialization;
+
+namespace ArchLucid.Contracts.Governance;
+
+/// <summary>
+///     Read-only aggregate for the governance dashboard: pending approvals, recent decisions, and policy-pack change
+///     history for a tenant.
+/// </summary>
+public sealed class GovernanceDashboardSummary
+{
+    /// <summary>Pending approval requests (Draft or Submitted), newest first.</summary>
+    private IReadOnlyList<GovernanceApprovalRequest> pendingApprovals = [];
+
+    public IReadOnlyList<GovernanceApprovalRequest> PendingApprovals
+    {
+        get => pendingApprovals;
+        init => pendingApprovals = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    /// <summary>Recent terminal decisions (Approved, Rejected, Promoted), newest by review time first.</summary>
+    private IReadOnlyList<GovernanceApprovalRequest> recentDecisions = [];
+
+    public IReadOnlyList<GovernanceApprovalRequest> RecentDecisions
+    {
+        get => recentDecisions;
+        init => recentDecisions = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    /// <summary>Recent policy pack change log entries for the tenant, newest first.</summary>
+    private IReadOnlyList<PolicyPackChangeLogEntry> recentChanges = [];
+
+    public IReadOnlyList<PolicyPackChangeLogEntry> RecentChanges
+    {
+        get => recentChanges;
+        init => recentChanges = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    /// <summary>Count of items in <see cref="PendingApprovals" /> (same cap as the list; not a separate total).</summary>
+    public int PendingCount
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Sum of prompt tokens across recent committed runs included in the aggregation window.</summary>
+    public long TotalPromptTokens
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Sum of completion tokens across recent committed runs included in the aggregation window.</summary>
+    public long TotalCompletionTokens
+    {
+        get;
+        init;
+    }
+}

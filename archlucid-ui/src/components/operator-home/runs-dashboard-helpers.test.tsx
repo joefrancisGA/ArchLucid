@@ -1,0 +1,243 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  ArchitecturePackageOriginBadge,
+  ArchitecturePackageOriginMetadataLine,
+  deriveRunsDashboardTabCounts,
+  formatRunsDashboardTabLabelWithCount,
+  isRunApprovedPackage,
+  isRunApprovedWithMonitoringPackage,
+  isRunNeedingAttention,
+  resolveAwaitingApprovalTabItems,
+  resolveRunHomeStatusTag,
+  resolveShowcaseDemoRunForItems,
+  runListPrimaryTitle,
+  runsDashboardTabLabel,
+} from "@/components/operator-home/runs-dashboard-helpers";
+import { render, screen } from "@testing-library/react";
+import type { RunSummary } from "@/types/authority";
+
+describe("runListPrimaryTitle", () => {
+  const architectureReviewPacketDescription = [
+    "> **Reviewed:** 2026-07-26",
+    "# Architecture Review Packet: B2B SaaS Tenant Migration Platform",
+    "**Classification:** Synthetic sanitized packet.",
+    "Domain: Multi-tenant SaaS / tenant migration / audit exports.",
+    "1. Business context",
+    "2. System overview",
+  ].join("\n\n");
+
+  it("uses a short normalized title instead of the full review packet body", () => {
+    expect(
+      runListPrimaryTitle({
+        runId: "tenant-migration-run",
+        projectId: "default",
+        description: architectureReviewPacketDescription,
+      }),
+    ).toBe("Architecture Review Packet: B2B SaaS Tenant Migration Platform");
+  });
+});
+
+describe("runsDashboardTabLabel (TB-667)", () => {
+  it("uses operator vocabulary in full-operator shell", () => {
+    expect(runsDashboardTabLabel("all", false)).toBe("Recent");
+    expect(runsDashboardTabLabel("attention", false)).toBe("Needs attention");
+    expect(runsDashboardTabLabel("outcomes", false)).toBe("Outcomes");
+  });
+
+  it("renames the attention tab on home preview to avoid clashing with approval chips", () => {
+    expect(runsDashboardTabLabel("attention", false, 0, { homePreviewMode: true })).toBe("Findings (0)");
+  });
+
+  it("uses buyer-polished vocabulary in buyer shell", () => {
+    expect(runsDashboardTabLabel("all", true)).toBe("All");
+    expect(runsDashboardTabLabel("approved", true)).toBe("Approved");
+    expect(runsDashboardTabLabel("attention", true)).toBe("Action needed");
+    expect(runsDashboardTabLabel("outcomes", true)).toBe("Approved with monitoring");
+  });
+
+  it("appends counts when provided", () => {
+    expect(runsDashboardTabLabel("all", true, 7)).toBe("All (7)");
+    expect(runsDashboardTabLabel("approved", true, 0)).toBe("Approved (0)");
+    expect(formatRunsDashboardTabLabelWithCount("Monitoring", 2)).toBe("Monitoring (2)");
+  });
+
+  it("labels home preview Recent tabs with visible and total counts", () => {
+    expect(
+      runsDashboardTabLabel("all", false, 2, { homePreviewMode: true, recentTotalCount: 4 }),
+    ).toBe("Recent (2 of 4)");
+    expect(runsDashboardTabLabel("all", false, 2, { homePreviewMode: true })).toBe("Recent (2)");
+  });
+});
+
+describe("resolveAwaitingApprovalTabItems", () => {
+  it("includes governance-queue rows that are outside the home preview snapshot", () => {
+    const snapshotRun: RunSummary = {
+      runId: "in-snapshot",
+      projectId: "default",
+      createdUtc: "2026-01-01T00:00:00.000Z",
+      displayName: "In snapshot",
+    };
+    const items = resolveAwaitingApprovalTabItems(
+      [snapshotRun],
+      [
+        { runId: "in-snapshot", name: "In snapshot", sourceRunId: "source-1", newFindingCount: 0 },
+        {
+          runId: "outside-snapshot",
+          name: "Outside snapshot",
+          sourceRunId: "source-2",
+          newFindingCount: 1,
+          executedUtc: "2026-02-01T12:00:00.000Z",
+        },
+      ],
+      "default",
+    );
+
+    expect(items.map((run) => run.runId)).toEqual(["in-snapshot", "outside-snapshot"]);
+    expect(items[1]?.displayName).toBe("Outside snapshot");
+  });
+});
+
+describe("runs dashboard status filters", () => {
+  it("maps approved and attention filters from run summary flags", () => {
+    const approvedRun: RunSummary = {
+      runId: "approved-run",
+      projectId: "default",
+      hasGoldenManifest: true,
+      hasGovernanceWarnings: false,
+    };
+
+    const monitoredRun: RunSummary = {
+      runId: "monitored-run",
+      projectId: "default",
+      hasGoldenManifest: true,
+      hasGovernanceWarnings: true,
+    };
+
+    const attentionRun: RunSummary = {
+      runId: "attention-run",
+      projectId: "default",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: false,
+    };
+
+    expect(isRunApprovedPackage(approvedRun)).toBe(true);
+    expect(isRunApprovedPackage(monitoredRun)).toBe(false);
+    expect(isRunApprovedWithMonitoringPackage(monitoredRun)).toBe(true);
+    expect(isRunApprovedWithMonitoringPackage(approvedRun)).toBe(false);
+    expect(isRunNeedingAttention(attentionRun)).toBe(true);
+  });
+
+  it("derives tab counts from run summary flags", () => {
+    const approvedRun: RunSummary = {
+      runId: "approved-run",
+      projectId: "default",
+      hasGoldenManifest: true,
+      hasGovernanceWarnings: false,
+    };
+    const monitoredRun: RunSummary = {
+      runId: "monitored-run",
+      projectId: "default",
+      hasGoldenManifest: true,
+      hasGovernanceWarnings: true,
+    };
+    const attentionRun: RunSummary = {
+      runId: "attention-run",
+      projectId: "default",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: false,
+    };
+
+    expect(deriveRunsDashboardTabCounts([approvedRun, monitoredRun, attentionRun])).toEqual({
+      all: 3,
+      approved: 1,
+      "awaiting-approval": 0,
+      attention: 1,
+      outcomes: 1,
+    });
+  });
+
+  it("maps review rows to canonical status tags", () => {
+    expect(
+      resolveRunHomeStatusTag({
+        runId: "attention",
+        projectId: "default",
+        hasFindingsSnapshot: true,
+        hasGoldenManifest: false,
+      }).kind,
+    ).toBe("needs-attention");
+
+    expect(
+      resolveRunHomeStatusTag({
+        runId: "approved",
+        projectId: "default",
+        hasGoldenManifest: true,
+        hasGovernanceWarnings: false,
+      }).kind,
+    ).toBe("approved");
+  });
+
+  it("resolves showcase demo only when that run is in the active filter set", () => {
+    const showcase: RunSummary = {
+      runId: "customer-intake-modernization",
+      projectId: "default",
+      hasGoldenManifest: true,
+      hasGovernanceWarnings: true,
+    };
+    const other: RunSummary = {
+      runId: "other-run",
+      projectId: "default",
+      hasGoldenManifest: true,
+    };
+
+    expect(resolveShowcaseDemoRunForItems([showcase, other], showcase)?.runId).toBe(showcase.runId);
+    expect(resolveShowcaseDemoRunForItems([other], showcase)).toBeUndefined();
+    expect(resolveShowcaseDemoRunForItems([showcase], undefined)).toBeUndefined();
+  });
+});
+
+describe("ArchitecturePackageOriginBadge (TB-740)", () => {
+  it("renders Created badge in buyer-polished shell only", () => {
+    const run: RunSummary = {
+      runId: "created-run",
+      projectId: "default",
+      packageOrigin: "Created",
+    };
+
+    const { rerender } = render(<ArchitecturePackageOriginBadge run={run} buyerPolishedShell />);
+
+    expect(screen.getByTestId("architecture-package-origin-created")).toHaveTextContent("Created");
+
+    rerender(<ArchitecturePackageOriginBadge run={run} buyerPolishedShell={false} />);
+
+    expect(screen.queryByTestId("architecture-package-origin-created")).toBeNull();
+  });
+});
+
+describe("ArchitecturePackageOriginMetadataLine", () => {
+  it("names the origin axis so Reviewed cannot read as a governance verdict", () => {
+    const run: RunSummary = {
+      runId: "reviewed-run",
+      projectId: "default",
+      packageOrigin: "Reviewed",
+    };
+
+    render(<ArchitecturePackageOriginMetadataLine run={run} buyerPolishedShell />);
+
+    expect(screen.getByTestId("architecture-package-origin-reviewed").textContent).toMatch(
+      /Package origin:\s*Reviewed/,
+    );
+  });
+
+  it("stays hidden outside the buyer-polished shell", () => {
+    const run: RunSummary = {
+      runId: "reviewed-run",
+      projectId: "default",
+      packageOrigin: "Reviewed",
+    };
+
+    render(<ArchitecturePackageOriginMetadataLine run={run} buyerPolishedShell={false} />);
+
+    expect(screen.queryByTestId("architecture-package-origin-reviewed")).toBeNull();
+  });
+});

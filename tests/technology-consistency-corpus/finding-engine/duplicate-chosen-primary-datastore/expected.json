@@ -1,0 +1,6 @@
+{
+  "mode": "WarnOnly",
+  "findingTitles": ["DuplicateChosenLedgerRole"],
+  "minimumCount": 1,
+  "maximumCount": 1
+}

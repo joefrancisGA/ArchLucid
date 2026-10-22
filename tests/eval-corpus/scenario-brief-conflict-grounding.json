@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-brief-conflict-grounding",
+  "metadata": {
+    "title": "Brief-conflict structural grounding (TB-2349)",
+    "complexity": "low",
+    "primaryAgents": ["Topology"]
+  },
+  "inputSummary": "Confirmed brief requires HTTPS-only public endpoints; simulator proposes a public-http gateway service that should be dropped by structural grounding.",
+  "recording": "recordings/corpus-brief-conflict-grounding.findings.json",
+  "qualityEvidence": {
+    "mode": "simulator",
+    "agentType": "Topology",
+    "agentResultPath": "agent-results/corpus-brief-conflict-grounding.simulator.json",
+    "notes": "TB-2349 ApplyBriefGrounding removes services contradicting confirmed HTTPS constraints."
+  },
+  "expectedFindings": [],
+  "unexpectedFindings": []
+}

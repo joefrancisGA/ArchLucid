@@ -1,0 +1,858 @@
+{
+  "schemaVersion": 1,
+  "kind": "archlucid.policyPack.curatedRules.v1",
+  "pack": {
+    "name": "AWS Data-Layer Security",
+    "description": "RDS, DynamoDB, S3, and KMS encryption and private access themes for AWS data platforms.",
+    "version": "1.0.0",
+    "category": "Data Platform",
+    "isDefault": true,
+    "suggestedPackType": "PlatformDefault",
+    "policyPackContentDocumentPath": "docs/samples/policy-packs/aws-data-layer-security.json"
+  },
+  "rules": [
+    {
+      "id": "aws-data-001",
+      "title": "RDS encryption at rest enabled for all databases",
+      "description": "Every RDS or Aurora database storing sensitive data must document encryption at rest with AWS KMS.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Tag encryption-at-rest on datastores[].Tags; verify storageEncrypted in awsExtractor RDS inventory.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "AWS SQL \u2014 TDE"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-002",
+      "title": "RDS and database audit logs to secure destination",
+      "description": "Database audit and activity logs must route to CloudWatch Logs, S3, or CloudTrail data events \u2014 not disabled.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "List audit destination in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "AWS SQL \u2014 Auditing"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-003",
+      "title": "RDS threat detection and Security Hub controls",
+      "description": "RDS instances must document GuardDuty RDS protection findings or Security Hub database security controls enabled.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Record threat detection in governance.ComplianceTags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "AWS SQL \u2014 Threat detection"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-004",
+      "title": "RDS security groups and VPC-only access",
+      "description": "RDS must document security-group allowlists and private subnet placement \u2014 not public internet accessibility.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Map VPC security groups in metadata.ChangeDescription; align with awsExtractor RDS inventory.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "AWS SQL \u2014 Network isolation"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-005",
+      "title": "IAM database authentication preferred over passwords",
+      "description": "RDS and Aurora should document IAM database authentication or Secrets Manager rotation \u2014 not long-lived master passwords in application config.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Capture auth mode in governance.RequiredControls and datastores[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "AWS SQL \u2014 IAM authentication"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-006",
+      "title": "Row-level or tenant isolation documented where multi-tenant",
+      "description": "Multi-tenant data stores must document application-level RLS, schema separation, or per-tenant DynamoDB partition keys.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Describe RLS in governance.PolicyConstraints and metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "AWS SQL \u2014 Row-level security"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-007",
+      "title": "Field-level encryption for highly sensitive columns",
+      "description": "Highly sensitive columns must document KMS envelope encryption, DynamoDB client-side encryption, or application-layer tokenization.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Note column encryption in datastores[].Tags and governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "AWS SQL \u2014 Column encryption"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-008",
+      "title": "DynamoDB VPC endpoints and resource policies",
+      "description": "DynamoDB tables must document VPC interface endpoints and restrictive resource policies \u2014 not open public access.",
+      "severity": "Critical",
+      "priority": "P1",
+      "remediationGuidance": "Verify ipRules and VPC endpoints in awsExtractor DynamoDB properties.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "DynamoDB DB \u2014 Network security"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-009",
+      "title": "DynamoDB encryption with customer-managed KMS keys",
+      "description": "DynamoDB tables storing regulated data must document server-side encryption with customer-managed KMS keys.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Record CMK usage in governance.PolicyConstraints and datastores[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "DynamoDB DB \u2014 CMK encryption"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-010",
+      "title": "DynamoDB IAM policies over long-lived access keys",
+      "description": "Application access to DynamoDB must use IAM roles and fine-grained resource policies \u2014 not embedded access keys.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Document RBAC model in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "DynamoDB DB \u2014 Data plane RBAC"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-011",
+      "title": "DynamoDB consistency and conditional writes for isolation",
+      "description": "DynamoDB access patterns must document consistent reads or conditional writes where tenant isolation depends on item-level guards.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Capture consistency in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "DynamoDB DB \u2014 Consistency model"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-012",
+      "title": "S3 bucket encryption and bucket-key optimization",
+      "description": "S3 buckets must document SSE-KMS or SSE-S3 with bucket keys for data at rest.",
+      "severity": "Critical",
+      "priority": "P1",
+      "remediationGuidance": "Cite encryption from awsExtractor storage accounts.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "AWS Storage \u2014 Encryption"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-013",
+      "title": "S3 Object Lock for audit and compliance objects",
+      "description": "Audit and compliance S3 prefixes must document Object Lock governance or compliance mode.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Tag immutability on datastores[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "AWS Storage \u2014 Immutability"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-014",
+      "title": "S3 presigned URLs with minimal permission and short expiry",
+      "description": "Presigned URL patterns must document least-privilege actions and short TTL \u2014 not broad read/write grants.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Describe SAS policy in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "AWS Storage \u2014 SAS governance"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-015",
+      "title": "S3 prefix policies and Lake Formation-style access",
+      "description": "Data lake S3 layouts must document prefix-scoped IAM policies or Lake Formation grants for fine-grained access.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Map lake zones in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "AWS Data Lake \u2014 ACL model"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-016",
+      "title": "Redshift and analytics VPC endpoints",
+      "description": "Redshift, Athena, or analytics workspaces must document VPC endpoints or private connectivity \u2014 not public query endpoints.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Describe Redshift networking in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "AWS Redshift \u2014 Private connectivity"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-017",
+      "title": "Macie or Glue data classification coverage",
+      "description": "Sensitive data stores must document Macie classification jobs or Glue Data Catalog sensitivity labels.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Note Macie coverage in governance.ComplianceTags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "Microsoft Macie \u2014 Classification scans"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-018",
+      "title": "Masked or redacted non-production database copies",
+      "description": "Non-production RDS snapshots or restores must document masking, subsetting, or synthetic data substitution.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Describe masking in governance.RequiredControls and datastores[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "AWS SQL \u2014 Dynamic data masking"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-019",
+      "title": "Backup encryption and cross-region replication for databases",
+      "description": "RDS automated backups and cross-region replicas must document KMS encryption and geo-redundancy expectations.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Align backup tags with governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "AWS data \u2014 Backup encryption"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-020",
+      "title": "KMS key separation for data encryption keys",
+      "description": "Data encryption keys must use dedicated KMS keys \u2014 not reused application or logging keys.",
+      "severity": "Critical",
+      "priority": "P2",
+      "remediationGuidance": "Map AWS KMS to datastores in relationships[] and governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "AWS data \u2014 Key management"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-021",
+      "title": "IAM roles for application data-plane access",
+      "description": "Applications accessing RDS, DynamoDB, or S3 must use IAM roles \u2014 not long-lived credentials in configuration.",
+      "severity": "Critical",
+      "priority": "P2",
+      "remediationGuidance": "Tag mi-data-access on services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "AWS data \u2014 Managed identity access"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-022",
+      "title": "RDS vulnerability assessment remediation",
+      "description": "RDS instances must document Security Hub/Inspector findings remediation for known database misconfigurations.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Note VA program in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "AWS SQL \u2014 Vulnerability assessment"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-023",
+      "title": "DynamoDB partition key prevents cross-tenant leakage",
+      "description": "Multi-tenant DynamoDB designs must document tenant-scoped partition keys and condition expressions.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Describe partition strategy in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "DynamoDB DB \u2014 Tenant isolation"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-024",
+      "title": "Diagnostic logs for all data services",
+      "description": "RDS, DynamoDB, and S3 must export audit and access logs to CloudWatch or S3 logging buckets.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "List diagnostics in governance.RequiredControls; align with awsExtractor.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "AWS data \u2014 Diagnostic logging"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-025",
+      "title": "S3 data exfiltration monitoring",
+      "description": "S3 buckets must document access logging, Macie findings, or anomaly detection for unusual download patterns.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Describe exfiltration monitoring in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "AWS Storage \u2014 Exfiltration detection"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-026",
+      "title": "Aurora Serverless and capacity SKU security implications",
+      "description": "Serverless or burstable database SKUs must document scaling, credential rotation, and network exposure trade-offs.",
+      "severity": "Low",
+      "priority": "P2",
+      "remediationGuidance": "Note SKU security in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "AWS SQL \u2014 SKU security posture"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-027",
+      "title": "Cross-account data access documented",
+      "description": "Cross-account RDS snapshots, S3 replication, or DynamoDB access must document resource policies and approval workflow.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Map cross-AWS account paths on relationships[].",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "AWS data \u2014 Cross-AWS account access"
+        }
+      ]
+    },
+    {
+      "id": "aws-data-028",
+      "title": "Data-layer DR tested with KMS keys available",
+      "description": "Database DR runbooks must document KMS key availability in the failover region and encrypted backup restore validation.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Cross-reference DR and AWS KMS replication in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS data services",
+          "theme": "AWS data \u2014 DR key availability"
+        }
+      ]
+    }
+  ]
+}

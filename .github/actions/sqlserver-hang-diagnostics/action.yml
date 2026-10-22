@@ -1,0 +1,93 @@
+name: "SQL Server hang diagnostics"
+description: "On test failure, dump active SQL sessions, blocked waiters, ArchLucid catalogs, and MSSQL service container logs."
+inputs:
+  sa-password:
+    description: "SA password for the CI SQL Server service container."
+    required: false
+    default: "LocalTesting123!"
+  server:
+    description: "SQL Server host:port for sqlcmd."
+    required: false
+    default: "127.0.0.1,1433"
+runs:
+  using: "composite"
+  steps:
+    - name: SQL Server session and catalog diagnostics
+      shell: bash
+      run: |
+        set -uo pipefail
+
+        sa_password='${{ inputs.sa-password }}'
+        server='${{ inputs.server }}'
+
+        run_sqlcmd() {
+          local query="$1"
+          if [ -x "/opt/mssql-tools18/bin/sqlcmd" ]; then
+            /opt/mssql-tools18/bin/sqlcmd -S "${server}" -U sa -P "${sa_password}" -C -Q "${query}"
+            return $?
+          fi
+
+          if command -v sqlcmd >/dev/null 2>&1; then
+            sqlcmd -S "${server}" -U sa -P "${sa_password}" -C -Q "${query}"
+            return $?
+          fi
+
+          docker run --rm --network host --entrypoint /opt/mssql-tools18/bin/sqlcmd \
+            mcr.microsoft.com/mssql/server:2022-latest \
+            -S "${server}" -U sa -P "${sa_password}" -C -Q "${query}"
+        }
+
+        run_query() {
+          local title="$1"
+          local query="$2"
+          echo "--- ${title} ---"
+          run_sqlcmd "${query}" || echo "(sqlcmd failed for: ${title})"
+        }
+
+        run_query "Active requests (session_id > 50)" \
+          "SET NOCOUNT ON;
+           SELECT TOP 25
+             r.session_id,
+             r.status,
+             r.blocking_session_id,
+             r.wait_type,
+             r.wait_time,
+             DB_NAME(r.database_id) AS db_name,
+             LEFT(t.text, 200) AS sql_snippet
+           FROM sys.dm_exec_requests r
+           CROSS APPLY sys.dm_exec_sql_text(r.sql_handle) t
+           WHERE r.session_id > 50
+           ORDER BY r.wait_time DESC;"
+
+        run_query "Blocked waiter count" \
+          "SELECT COUNT(*) AS blocked_session_count
+           FROM sys.dm_os_waiting_tasks
+           WHERE blocking_session_id IS NOT NULL AND blocking_session_id <> 0;"
+
+        run_query "ArchLucid catalogs" \
+          "SELECT name, state_desc, log_reuse_wait_desc
+           FROM sys.databases
+           WHERE name LIKE 'ArchLucid%'
+           ORDER BY name;"
+
+        run_query "Tempdb space (MB)" \
+          "SELECT
+             SUM(unallocated_extent_page_count) * 8 / 1024 AS free_space_mb,
+             SUM(internal_object_reserved_page_count) * 8 / 1024 AS internal_object_mb,
+             SUM(version_store_reserved_page_count) * 8 / 1024 AS version_store_mb
+           FROM sys.dm_db_file_space_usage
+           WHERE database_id = 2;"
+
+    - name: MSSQL service container logs
+      shell: bash
+      run: |
+        set -uo pipefail
+        echo "--- Docker containers (mssql) ---"
+        docker ps -a --filter "ancestor=mcr.microsoft.com/mssql/server:2022-latest" || true
+        container_id="$(docker ps -aq --filter "ancestor=mcr.microsoft.com/mssql/server:2022-latest" | head -n 1 || true)"
+        if [ -n "${container_id}" ]; then
+          echo "--- docker logs ${container_id} (last 200 lines) ---"
+          docker logs "${container_id}" 2>&1 | tail -n 200 || true
+        else
+          echo "No MSSQL service container found via docker ps."
+        fi

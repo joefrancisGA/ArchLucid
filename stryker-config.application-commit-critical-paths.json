@@ -1,0 +1,18 @@
+{
+  "stryker-config": {
+    "project": "ArchLucid.Application/ArchLucid.Application.csproj",
+    "test-projects": ["ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj"],
+    "mutate": [
+      "**/Governance/**/*.cs",
+      "**/Runs/Orchestration/AuthorityDrivenArchitectureRunCommitOrchestrator.cs",
+      "**/Runs/Finalization/ManifestFinalizationService.cs"
+    ],
+    "test-case-filter": "((FullyQualifiedName~ArchLucid.Application.Tests.Governance)|(FullyQualifiedName~ArchLucid.Application.Tests.Runs.Finalization)|(FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestrator))&Category!=Integration&Category!=Slow&Category!=SqlServerContainer&Category!=GoldenCorpusRecord",
+    "reporters": ["progress", "html", "json"],
+    "thresholds": {
+      "high": 80,
+      "low": 22,
+      "break": 22
+    }
+  }
+}

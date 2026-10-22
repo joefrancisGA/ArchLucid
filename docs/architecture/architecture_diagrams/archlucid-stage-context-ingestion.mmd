@@ -1,0 +1,12 @@
+sequenceDiagram
+  participant Pipe as AuthorityPipelineStagesExecutor
+  participant Stage as Context ingestion stage
+  participant Ctx as ArchLucid.ContextIngestion
+  participant SQL as Tenant SQL catalog
+  Note over Pipe,Stage: OTel span authority.context_ingestion<br/>tag archlucid.stage.name
+
+  Pipe->>Stage: Run stage (inline or queued)
+  Stage->>Ctx: Normalize ArchitectureRequest + evidence
+  Ctx->>SQL: Persist context snapshot / evidence refs
+  Ctx-->>Stage: ContextSnapshotId
+  Stage-->>Pipe: Stage complete → next authority.graph

@@ -1,0 +1,6 @@
+{
+  "mode": "WarnOnly",
+  "findingTitles": ["MissingChosenCloudPlatform"],
+  "minimumCount": 1,
+  "maximumCount": 1
+}

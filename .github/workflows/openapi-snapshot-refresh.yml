@@ -1,0 +1,183 @@
+# Regenerate ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json in CI and commit back.
+# Use when API surface changes make openapi-contract-snapshot fail locally is slow or unavailable.
+#
+# Triggers:
+#   - workflow_dispatch — manual refresh on any branch
+#   - pull_request (same-repo only) — auto-commit when OpenAPI-relevant paths change
+#   - push to main/master/RC35 (same paths) — auto-commit when contract-layer changes land directly on default or RC35
+#
+# See docs/library/OPENAPI_CONTRACT_DRIFT.md
+name: "Refresh OpenAPI v1 snapshot"
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_ref:
+        description: "Git ref to refresh (defaults to the branch that ran the workflow)"
+        required: false
+        type: string
+      regenerate_ui_api_types:
+        description: "Also regenerate split archlucid-ui/src/lib/api-types/ (default on; CI assert_api_types_in_sync requires this)"
+        required: false
+        type: boolean
+        default: true
+      commit_and_push:
+        description: "Commit and push when generated files differ"
+        required: false
+        type: boolean
+        default: true
+
+  push:
+    branches: [main, master, RC35]
+    paths: &openapi-contract-paths
+      - 'ArchLucid.Api/**'
+      - 'ArchLucid.Api.Tests/**'
+      - 'ArchLucid.Application/**'
+      - 'ArchLucid.ArtifactSynthesis/**'
+      - 'ArchLucid.ContextIngestion/**'
+      - 'ArchLucid.Contracts/**'
+      - 'ArchLucid.Core/**'
+      - 'ArchLucid.Decisioning/**'
+      - 'ArchLucid.KnowledgeGraph/**'
+      - 'ArchLucid.Mcp/**'
+      - 'ArchLucid.Provenance/**'
+      - 'ArchLucid.Retrieval/**'
+      - 'ArchLucid.Host.Composition/**'
+      - 'ArchLucid.Host.Core/**'
+      - 'ArchLucid.Persistence/**'
+      - 'ArchLucid.Persistence.Integration/**'
+      - 'ArchLucid.Persistence.Runtime/**'
+      - 'schemas/**'
+      - 'Directory.Build.props'
+      - 'Directory.Build.targets'
+      - 'Directory.Packages.props'
+      - 'global.json'
+
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths: *openapi-contract-paths
+
+concurrency:
+  group: openapi-snapshot-refresh-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  refresh:
+    name: "Regenerate OpenAPI v1 contract snapshot"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: >-
+      github.event_name == 'workflow_dispatch'
+      || github.event_name == 'push'
+      || (
+        github.event_name == 'pull_request'
+        && github.event.pull_request.head.repo.full_name == github.repository
+      )
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: >-
+            ${{
+              github.event_name == 'pull_request'
+              && format('{0}', github.event.pull_request.head.sha)
+              || (inputs.target_ref != '' && inputs.target_ref || github.ref)
+            }}
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - name: Setup Node (UI api-types)
+        if: >-
+          github.event_name != 'workflow_dispatch'
+          || inputs.regenerate_ui_api_types
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+
+      - name: Regenerate OpenAPI snapshot (+ UI api-types)
+        env:
+          # Push/PR must regenerate split api-types or CI assert_api_types_in_sync fails.
+          # workflow_dispatch can opt out via regenerate_ui_api_types=false.
+          ARCHLUCID_REGENERATE_UI_API_TYPES: >-
+            ${{
+              github.event_name == 'workflow_dispatch' && inputs.regenerate_ui_api_types == false
+              && '0'
+              || '1'
+            }}
+        run: bash scripts/ci/update_openapi_contract_snapshot.sh
+
+      - name: Commit and push
+        if: >-
+          (github.event_name == 'workflow_dispatch' && inputs.commit_and_push)
+          || github.event_name == 'pull_request'
+          || github.event_name == 'push'
+        env:
+          PUSH_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          paths=(
+            ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json
+            ArchLucid.Api.Tests/Contracts/buyer-contract.openapi.snapshot.json
+            archlucid-ui/src/lib/api-types.generated.ts
+            archlucid-ui/src/lib/api-types
+            archlucid-ui/packages/api-types/src/api-types
+          )
+
+          changed=0
+          for path in "${paths[@]}"; do
+            if git status --porcelain -- "$path" | grep -q .; then
+              changed=1
+              git add -- "$path"
+            fi
+          done
+
+          if [ "$changed" -eq 0 ]; then
+            echo "No OpenAPI snapshot or client files changed; nothing to commit."
+            exit 0
+          fi
+
+          commit_message="chore: refresh OpenAPI v1 contract snapshot"
+          git commit -m "${commit_message}"
+
+          # Default-branch pushes are ruleset-protected; open a PR instead of direct push (#1635).
+          if [ "${{ github.event_name }}" = "push" ] && { [ "${{ github.ref_name }}" = "master" ] || [ "${{ github.ref_name }}" = "main" ]; }; then
+            branch_name="chore/openapi-snapshot-${GITHUB_SHA::12}"
+            git checkout -b "${branch_name}"
+            git push -u origin "HEAD:${branch_name}"
+            pr_url="https://github.com/${GITHUB_REPOSITORY}/compare/${{ github.ref_name }}...${branch_name}?expand=1"
+            if gh pr create \
+              --base "${{ github.ref_name }}" \
+              --head "${branch_name}" \
+              --title "${commit_message}" \
+              --body "Automated OpenAPI v1 + buyer snapshot refresh from \`${GITHUB_SHA}\`. Direct pushes to the default branch are blocked by repository rules; merge this PR after corset is green."; then
+              echo "Opened OpenAPI snapshot PR for ${branch_name}."
+            else
+              echo "::warning::OpenAPI snapshot branch ${branch_name} pushed but gh pr create failed (enable Settings → Actions → Workflow permissions → Allow GitHub Actions to create pull requests). Open manually: ${pr_url}"
+            fi
+            exit 0
+          fi
+
+          git pull --rebase origin "${PUSH_REF}"
+          git push origin "HEAD:${PUSH_REF}"

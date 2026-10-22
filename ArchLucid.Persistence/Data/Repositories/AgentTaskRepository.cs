@@ -1,0 +1,206 @@
+using System.Data;
+using System.Diagnostics.CodeAnalysis;
+
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Infrastructure;
+
+using Dapper;
+
+namespace ArchLucid.Persistence.Data.Repositories;
+
+/// <summary>
+///     Dapper-backed persistence for <see cref="AgentTask" /> entities.
+/// </summary>
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
+public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) : IAgentTaskRepository
+{
+    public async Task CreateManyAsync(
+        IEnumerable<AgentTask> tasks,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
+    {
+        ArgumentNullException.ThrowIfNull(tasks);
+
+        const string sql = """
+                           INSERT INTO AgentTasks
+                           (
+                               TaskId,
+                               RunId,
+                               AgentType,
+                               Objective,
+                               Status,
+                               CreatedUtc,
+                               CompletedUtc,
+                               EvidenceBundleRef
+                           )
+                           VALUES
+                           (
+                               @TaskId,
+                               @RunId,
+                               @AgentType,
+                               @Objective,
+                               @Status,
+                               @CreatedUtc,
+                               @CompletedUtc,
+                               @EvidenceBundleRef
+                           );
+                           """;
+
+        IEnumerable<object> rows = tasks.Select(object (t) => new
+        {
+            t.TaskId,
+            RunId = SqlRunIdMapping.ToSqlRunId(t.RunId),
+            AgentType = t.AgentType.ToString(),
+            t.Objective,
+            Status = t.Status.ToString(),
+            t.CreatedUtc,
+            t.CompletedUtc,
+            t.EvidenceBundleRef
+        });
+
+        (IDbConnection conn, bool ownsConnection) =
+            await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
+
+        try
+        {
+            if (transaction is not null)
+
+                await conn.ExecuteAsync(new CommandDefinition(
+                    sql,
+                    rows,
+                    transaction,
+                    cancellationToken: cancellationToken));
+
+            else
+            {
+                using IDbTransaction tx = conn.BeginTransaction();
+
+                await conn.ExecuteAsync(new CommandDefinition(
+                    sql,
+                    rows,
+                    tx,
+                    cancellationToken: cancellationToken));
+
+                tx.Commit();
+            }
+        }
+        finally
+        {
+            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
+        }
+    }
+
+    public async Task<IReadOnlyList<AgentTask>> GetByRunIdAsync(
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        PersistenceTenantScope.RequireRunChildScope(scope);
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        string sql = $"""
+                      SELECT
+                          at.TaskId,
+                          at.RunId,
+                          at.AgentType,
+                          at.Objective,
+                          at.Status,
+                          at.CreatedUtc,
+                          at.CompletedUtc,
+                          at.EvidenceBundleRef
+                      FROM AgentTasks at
+                      {PersistenceTenantScope.InnerJoinRuns("at")}
+                      WHERE at.RunId = @RunId
+                        AND {PersistenceTenantScope.RunChildScopeWhereClause}
+                      ORDER BY at.CreatedUtc
+                      {SqlPagingSyntax.FirstRowsOnly(500)};
+                      """;
+
+        IEnumerable<AgentTaskRow> rows = await connection.QueryAsync<AgentTaskRow>(new CommandDefinition(
+            sql,
+            new
+            {
+                RunId = SqlRunIdMapping.ToSqlRunId(runId),
+                scope.TenantId,
+                scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+            },
+            cancellationToken: cancellationToken));
+
+        return
+        [
+            .. rows.Select(r => new AgentTask
+            {
+                TaskId = r.TaskId,
+                RunId = SqlRunIdMapping.ToContractRunId(r.RunId),
+                AgentType = Enum.TryParse(r.AgentType, true, out AgentType agentType)
+                    ? agentType
+                    : throw new InvalidOperationException($"Unknown AgentType '{r.AgentType}' for task '{r.TaskId}'."),
+                Objective = r.Objective,
+                Status = Enum.TryParse(r.Status, true, out AgentTaskStatus status)
+                    ? status
+                    : throw new InvalidOperationException(
+                        $"Unknown AgentTaskStatus '{r.Status}' for task '{r.TaskId}'."),
+                CreatedUtc = r.CreatedUtc,
+                CompletedUtc = r.CompletedUtc,
+                EvidenceBundleRef = r.EvidenceBundleRef
+            })
+        ];
+    }
+
+    private sealed class AgentTaskRow
+    {
+        public string TaskId
+        {
+            get;
+            init;
+        } = string.Empty;
+
+        public Guid RunId
+        {
+            get;
+            init;
+        }
+
+        public string AgentType
+        {
+            get;
+            init;
+        } = string.Empty;
+
+        public string Objective
+        {
+            get;
+            init;
+        } = string.Empty;
+
+        public string Status
+        {
+            get;
+            init;
+        } = string.Empty;
+
+        public DateTime CreatedUtc
+        {
+            get;
+            init;
+        }
+
+        public DateTime? CompletedUtc
+        {
+            get;
+            init;
+        }
+
+        public string? EvidenceBundleRef
+        {
+            get;
+            init;
+        }
+    }
+}

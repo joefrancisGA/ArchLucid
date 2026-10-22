@@ -1,0 +1,17 @@
+{
+  "upwork_grc_jd.txt": {
+    "domain_fit": "REJECT-AS-WRITTEN",
+    "classification": "Out-of-domain input with partially recoverable architecture intent",
+    "rationale": "This is a freelance job posting describing a role for a person to hire, not a software or cloud system to design. It contains none of the primitives ArchLucid verifies: no components or services, no data stores, no trust boundaries, no deployment target, no data flows, no infrastructure. ArchLucid reviews software architectures; it cannot and must not produce an architecture review from a hiring requisition. Doing so would be a hallucination.",
+    "inferred_intent": "Buried in the responsibilities is a latent designable system: an AI-assisted GRC automation platform that uses an LLM (Claude) for document analysis, risk summarization, policy drafting, and compliance Q&A, integrated with Vanta for evidence collection and control mapping across SOC 2 / ISO 27001 / ISO 42001 / PCI-DSS.",
+    "clarifying_questions": [
+      "Where will this run -- your own cloud (Azure / AWS / GCP), Vanta-hosted, or local?",
+      "What documents feed the LLM, and do any contain regulated data (PII / PHI) that constrains where they can be processed?",
+      "Is this read-only (summarize and draft for humans) or does it write back into Vanta or take automated actions?",
+      "Expected volume -- a few policies per month, or continuous monitoring of thousands of controls?",
+      "Who are the users and what are their trust levels -- internal engineers, GRC analysts, or external auditors?"
+    ],
+    "verdict": "As pasted, ArchLucid will NOT produce an architecture review because there is no architecture in this input. If you confirm you want the AI GRC automation system described under inferred_intent, ArchLucid can proceed once the clarifying questions are answered. Otherwise this input is correctly scored as out-of-domain and rejected with explanation.",
+    "confidence": "High that it is out-of-domain as written; Medium that the recovered intent matches what the user actually wants."
+  }
+}

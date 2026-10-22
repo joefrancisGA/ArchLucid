@@ -1,0 +1,20 @@
+﻿using ArchLucid.Persistence.Utilities;
+
+namespace ArchLucid.Persistence.Tests;
+[Trait("Category", "Unit")]
+
+public sealed class DapperRowExpectTests
+{
+    [SkippableFact]
+    public void Required_returns_row_when_not_null()
+    {
+        string row = DapperRowExpect.Required("a", "missing");
+        Assert.Equal("a", row);
+    }
+
+    [SkippableFact]
+    public void Required_throws_when_null()
+    {
+        Assert.Throws<InvalidOperationException>(() => DapperRowExpect.Required<string>(null!, "missing"));
+    }
+}

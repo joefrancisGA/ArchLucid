@@ -1,0 +1,20 @@
+---
+description: Choose a deterministic branch name when the user delegates branch naming
+alwaysApply: true
+---
+
+# Delegated branch naming
+
+When the user explicitly delegates branch naming (for example, "you pick the branch
+name"), choose a new lowercase branch matching:
+
+`cursor/<short-descriptive-name>-4156`
+
+Use the task's primary outcome in `<short-descriptive-name>`, keep it concise, and
+check existing local and remote branches before creating it.
+
+This convention does not override higher-priority safety requirements. If the user
+requests commit or push without naming a target branch and has not delegated branch
+naming in that same request, ask which branch to use. Do not switch branches merely
+to satisfy this convention when the current branch is already the explicitly
+delegated target.

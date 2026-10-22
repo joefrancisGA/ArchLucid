@@ -1,0 +1,285 @@
+using System.Text.Json;
+
+using ArchLucid.Api.Attributes;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
+using ArchLucid.Application;
+using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Explanation;
+using ArchLucid.Application.Exports;
+using ArchLucid.Application.Runs;
+using ArchLucid.ArtifactSynthesis.Docx;
+using ArchLucid.ArtifactSynthesis.Docx.Models;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Explanation;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
+using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Provenance;
+using ArchLucid.Persistence.Queries;
+using ArchLucid.Persistence.Serialization;
+using ArchLucid.Provenance;
+
+using Asp.Versioning;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+
+namespace ArchLucid.Api.Controllers.Authority;
+
+/// <summary>
+///     Downloads a Word architecture package for a run, with optional compare run, optional run explanation, and optional
+///     comparison narrative.
+/// </summary>
+/// <remarks>
+///     Route prefix <c>api/docx</c>; combines <see cref="IAuthorityQueryService" />, artifacts,
+///     <see cref="IComparisonService" />, and <see cref="IExplanationService" />.
+/// </remarks>
+[ApiController]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+[ApiVersion("1.0")]
+[Route("v{version:apiVersion}/docx")]
+[EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
+public sealed partial class DocxExportController(
+    IAuthorityQueryService authorityQueryService,
+    IRunDetailQueryService runDetailQueryService,
+    IArtifactQueryService artifactQueryService,
+    IDocxExportService docxExportService,
+    IComparisonService comparisonService,
+    IExplanationService explanationService,
+    IProvenanceSnapshotRepository provenanceSnapshotRepository,
+    IScopeContextProvider scopeProvider,
+    IManifestHashService manifestHashService,
+    IGraphSnapshotRepository graphSnapshotRepository,
+    IAgentExecutionTraceRepository agentExecutionTraceRepository,
+    IConfiguration configuration,
+    IAuditService auditService,
+    ILogger<DocxExportController> logger,
+    IRunRepository runRepository,
+    IArchitectureInventoryBindingRepository architectureInventoryBindingRepository)
+    : ControllerBase
+{
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
+    private readonly ILogger<DocxExportController> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private readonly IRunDetailQueryService _runDetailQueryService =
+        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+
+    private readonly IGraphSnapshotRepository _graphSnapshotRepository =
+        graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
+
+    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
+        agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
+
+    private readonly IConfiguration _configuration =
+        configuration ?? throw new ArgumentNullException(nameof(configuration));
+
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IArchitectureInventoryBindingRepository _architectureInventoryBindingRepository =
+        architectureInventoryBindingRepository ?? throw new ArgumentNullException(nameof(architectureInventoryBindingRepository));
+
+    /// <summary>Streams a DOCX architecture package for <paramref name="runId" />.</summary>
+    /// <param name="runId">Primary run (must have golden manifest).</param>
+    /// <param name="compareWithRunId">When set, embeds manifest comparison (and optional comparison narrative) vs this run.</param>
+    /// <param name="explainRun">When <see langword="true" />, generates run-level <see cref="ExplanationResult" /> via LLM.</param>
+    /// <param name="includeComparisonExplanation">
+    ///     When <see langword="true" /> and comparison exists, generates
+    ///     <see cref="ComparisonExplanationResult" />.
+    /// </param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>DOCX file download, or 404 when primary (or compare) run/manifest is missing.</returns>
+    [HttpGet("reviews/{runId:guid}/architecture-package")]
+    [Authorize(Policy = ArchLucidPolicies.CanExportConsultingDocx)]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK,
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document")]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> ExportRunDocx(
+        Guid runId,
+        [FromQuery] Guid? compareWithRunId,
+        [FromQuery] bool explainRun = false,
+        [FromQuery] bool includeComparisonExplanation = true,
+        CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        Task<RunDetailDto?> runDetailTask = authorityQueryService.GetRunDetailAsync(scope, runId, ct);
+        Task<RunDetailDto?> compareDetailTask = compareWithRunId is null
+            ? Task.FromResult<RunDetailDto?>(null)
+            : authorityQueryService.GetRunDetailAsync(scope, compareWithRunId.Value, ct);
+        await Task.WhenAll(runDetailTask, compareDetailTask);
+        RunDetailDto? runDetail = await runDetailTask;
+
+        if (runDetail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        if (runDetail.GoldenManifest is null)
+            return this.NotFoundProblem($"Run '{runId}' does not have a committed golden manifest.",
+                ProblemTypes.ManifestNotFound);
+
+        ArchitectureRunDetail? architectureDetail =
+            await _runDetailQueryService.GetRunDetailAsync(runId.ToString("N"), ct).ConfigureAwait(false);
+
+        if (architectureDetail is null)
+            return MapDocxExportSealedManifestConflict(
+                new ConflictException($"Export blocked: run '{runId:N}' lifecycle detail was not found."));
+
+        try
+        {
+            AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(architectureDetail, runId.ToString("N"));
+        }
+        catch (ConflictException ex)
+        {
+            return MapDocxExportSealedManifestConflict(ex);
+        }
+
+        IActionResult? docxSealedGuardResult =
+            await EnsureArchitecturePackageDocxSealedManifestAllowedAsync(runId, scope, ct);
+
+        if (docxSealedGuardResult is not null)
+            return docxSealedGuardResult;
+
+        ManifestDocument? manifest = runDetail.GoldenManifest;
+        IReadOnlyList<SynthesizedArtifact> artifacts = await artifactQueryService.GetArtifactsByManifestIdAsync(
+            scope,
+            manifest.ManifestId,
+            ct);
+
+        ComparisonResult? manifestComparison = null;
+
+        if (compareWithRunId is not null)
+        {
+            RunDetailDto? targetDetail = await compareDetailTask;
+
+            if (targetDetail is null)
+                return this.NotFoundProblem($"Compare run '{compareWithRunId.Value}' was not found.",
+                    ProblemTypes.RunNotFound);
+
+            if (targetDetail.GoldenManifest is null)
+                return this.NotFoundProblem(
+                    $"Compare run '{compareWithRunId.Value}' does not have a committed golden manifest.",
+                    ProblemTypes.ManifestNotFound);
+
+            ArchitectureRunDetail? compareArchitectureDetail =
+                await _runDetailQueryService
+                    .GetRunDetailAsync(compareWithRunId.Value.ToString("N"), ct)
+                    .ConfigureAwait(false);
+
+            if (compareArchitectureDetail is not null)
+            {
+                try
+                {
+                    AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(
+                        compareArchitectureDetail,
+                        compareWithRunId.Value.ToString("N"));
+                }
+                catch (ConflictException ex)
+                {
+                    return MapDocxExportSealedManifestConflict(ex);
+                }
+            }
+
+            IActionResult? compareSealedGuardResult =
+                await EnsureCompareRunDocxSealedManifestAllowedAsync(compareWithRunId.Value, scope, ct);
+
+            if (compareSealedGuardResult is not null)
+                return compareSealedGuardResult;
+
+            manifestComparison = comparisonService.Compare(manifest, targetDetail.GoldenManifest);
+        }
+
+        ComparisonExplanationResult? comparisonNarrative = null;
+
+        if (manifestComparison is not null && includeComparisonExplanation)
+            comparisonNarrative = await explanationService.ExplainComparisonAsync(manifestComparison, ct);
+
+        ExplanationResult? runNarrative = null;
+
+        if (explainRun)
+        {
+            ArchLucid.Contracts.Persistence.Data.DecisionProvenanceSnapshot? snapshot =
+                await provenanceSnapshotRepository.GetByRunIdAsync(scope, runId, ct);
+            DecisionProvenanceGraph? graph =
+                snapshot is null ? null : ProvenanceGraphSerializer.Deserialize(snapshot.GraphJson);
+            runNarrative = await explanationService.ExplainRunAsync(manifest, graph, ct);
+        }
+
+        int docxFindingCount = runDetail.FindingsSnapshot?.Findings?.Count ?? 0;
+        FindingsListAccessTelemetry.LogFindingSnapshotExpose(
+            _logger,
+            scope,
+            runId,
+            nameof(ExportRunDocx),
+            docxFindingCount);
+
+        try
+        {
+            CareerExportCoverageHonestyInput careerExportHonesty = await CareerExportCoverageHonestyMaterialLoader.LoadAsync(
+                architectureDetail,
+                _authorityQueryService,
+                _graphSnapshotRepository,
+                _agentExecutionTraceRepository,
+                scope,
+                workingDesk: true,
+                _configuration,
+                ct,
+                _runRepository,
+                _architectureInventoryBindingRepository);
+            CareerArtifactExportCompletenessGate.EnsureCanExportFromHonestyMaterial(careerExportHonesty);
+            string careerExportHonestyPlainText = CareerExportCoverageHonestyComposer.FormatPlainText(careerExportHonesty);
+
+            DocxExportResult result = await docxExportService.ExportAsync(
+                DocxExportRequest.ForArchitecturePackage(
+                    runId,
+                    manifest.ManifestId,
+                    "ArchLucid Architecture Package",
+                    $"Generated for Run {runId}",
+                    manifestComparison,
+                    comparisonNarrative,
+                    runNarrative,
+                    runDetail.FindingsSnapshot,
+                    careerExportHonestyPlainText),
+                manifest,
+                artifacts,
+                ct);
+
+            await auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.ArchitectureDocxExportGenerated,
+                    RunId = runId,
+                    ManifestId = manifest.ManifestId,
+                    DataJson = JsonSerializer.Serialize(
+                        new { runId, compareWithRunId, byteCount = result.Content.Length },
+                        AuditJsonSerializationOptions.Instance)
+                },
+                ct);
+
+            return File(result.Content, result.ContentType, result.FileName);
+        }
+        catch (CareerArtifactExportBlockedException ex)
+        {
+            return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
+        }
+    }
+}

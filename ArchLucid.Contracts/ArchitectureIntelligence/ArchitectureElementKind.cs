@@ -1,0 +1,30 @@
+namespace ArchLucid.Contracts.ArchitectureIntelligence;
+
+public enum ArchitectureElementKind
+{
+    BusinessObjective = 0,
+    Stakeholder = 1,
+    FunctionalRequirement = 2,
+    QualityAttribute = 3,
+    Constraint = 4,
+    Assumption = 5,
+    Decision = 6,
+    Alternative = 7,
+    Component = 8,
+    Interface = 9,
+    DataFlow = 10,
+    TrustBoundary = 11,
+    DeploymentTopology = 12,
+    FailureMode = 13,
+    RecoveryObjective = 14,
+    CapacityExpectation = 15,
+    CostDriver = 16,
+    OperationalOwnership = 17,
+    ComplianceObligation = 18,
+    Evidence = 19,
+    Risk = 20,
+    Recommendation = 21,
+    UnresolvedQuestion = 22,
+    TradeOff = 23,
+    Contradiction = 24,
+}

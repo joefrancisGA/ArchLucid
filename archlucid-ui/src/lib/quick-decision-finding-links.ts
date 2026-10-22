@@ -1,0 +1,66 @@
+import { firstRecommendationSentence, severityBadgeLabel } from "@/lib/quick-decision-summary-derive";
+import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/findings/finding-inspect-graph-evidence";
+import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
+import {
+  defaultManifestIdForShowcaseFinding,
+  primaryFindingEvidenceNavigationHref,
+  runDetailSectionHref,
+} from "@/lib/findings/finding-source-evidence-links";
+
+/** Shown when a finding carries no recommendation text of its own. */
+export const QUICK_DECISION_RECOMMENDATION_FALLBACK = "No recommended action recorded for this finding.";
+
+export const QUICK_DECISION_RECOMMENDATION_STORED_EMPTY =
+  "Recommended action was stored empty." as const;
+
+/** First recommendation sentence, or the shared fallback when the finding has no recommendation. */
+export function quickDecisionRecommendationSnippet(finding: QuickDecisionFinding): string {
+  if (finding.recommendation.length === 0) {
+    return QUICK_DECISION_RECOMMENDATION_FALLBACK;
+  }
+
+  if (finding.recommendation.trim().length === 0) {
+    return QUICK_DECISION_RECOMMENDATION_STORED_EMPTY;
+  }
+
+  return firstRecommendationSentence(finding.recommendation);
+}
+
+/** Severity wording used by ITSM / work-item payloads (coarser than the severity badge scale). */
+export function quickDecisionWorkItemSeverityLabel(severityValue: number | null): string {
+  return severityBadgeLabel(severityValue);
+}
+
+/** Evidence navigation targets derived for a single finding row (no API calls). */
+export type QuickDecisionFindingEvidenceLinks = {
+  readonly evidenceRefCount: number | null;
+  readonly manifestHref: string | null;
+  readonly graphHref: string | null;
+  /** Preferred single chip target: manifest section first, then graph evidence trail. */
+  readonly viewEvidenceHref: string | null;
+};
+
+export function buildQuickDecisionFindingEvidenceLinks(
+  runId: string,
+  finding: QuickDecisionFinding,
+): QuickDecisionFindingEvidenceLinks {
+  const evidenceRefCount = finding.evidenceRefCount ?? null;
+  const graphFocusId = preferredGraphNodeIdForFindingDeepLink(runId, finding.findingId);
+  const manifestId = defaultManifestIdForShowcaseFinding(runId, finding.findingId);
+  const manifestHref = manifestId !== null ? runDetailSectionHref(runId, "manifest-summary") : null;
+  const graphHref =
+    (evidenceRefCount !== null && evidenceRefCount > 0) || graphFocusId !== null
+      ? graphTrailHrefWithOptionalNode(runId, graphFocusId)
+      : null;
+  const viewEvidenceHref =
+    primaryFindingEvidenceNavigationHref(
+      manifestHref !== null
+        ? [{ kind: "manifestSection", label: "Manifest", detail: null, href: manifestHref }]
+        : graphHref !== null
+          ? [{ kind: "graphNode", label: "Graph", detail: null, href: graphHref }]
+          : [],
+    ) ?? graphHref;
+
+  return { evidenceRefCount, manifestHref, graphHref, viewEvidenceHref };
+}

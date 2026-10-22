@@ -1,0 +1,19 @@
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
+
+namespace ArchLucid.AgentRuntime.Prompts;
+
+/// <summary>Materialized system prompt plus reproducibility metadata for tracing and OTel.</summary>
+public sealed record ResolvedSystemPrompt(
+    string Text,
+    string TemplateId,
+    string TemplateVersion,
+    string ContentSha256Hex,
+    string? ReleaseLabel,
+    string? PromptVariantKey = null)
+{
+    public AgentPromptReproMetadata ToReproMetadata()
+    {
+        return new AgentPromptReproMetadata(TemplateId, TemplateVersion, ContentSha256Hex, ReleaseLabel);
+    }
+}

@@ -1,0 +1,380 @@
+using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Http;
+using ArchLucid.Api.Http.Governance;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
+using ArchLucid.Application.Governance;
+using ArchLucid.Application.Http;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Scoping;
+
+using Microsoft.AspNetCore.Mvc;
+
+namespace ArchLucid.Api.Controllers.Governance;
+
+public sealed partial class GovernanceStickinessController
+{
+    [HttpGet("risk-register")]
+    [ProducesResponseType(typeof(ArchitectureRiskRegisterResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    [RequiresGovernanceScopePostureSealedManifest("Risk register surfaces committed-run disposition rows.")]
+    public async Task<IActionResult> GetRiskRegister(
+        [FromQuery] Guid? projectId,
+        [FromQuery] int maxRows = 200,
+        [FromQuery] bool assignedToMe = false,
+        CancellationToken cancellationToken = default)
+    {
+        IActionResult? queryProblem =
+            GovernanceStickinessControllerCore.ValidateRegisterListQuery(projectId, maxRows)
+                .ToBadRequestProblemOrNull(this);
+
+        if (queryProblem is not null)
+            return queryProblem;
+
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
+        IActionResult? sealedGuardResult =
+            await EnsureRegistersSealedManifestAllowedAsync(projectId, cancellationToken).ConfigureAwait(false);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        try
+        {
+            ArchitectureRiskRegisterResponse response = await _facade.GetRiskRegisterAsync(
+                projectId,
+                maxRows,
+                assignedToMe,
+                cancellationToken);
+
+            IActionResult? rowGuardResult = await EnsureRegisterRunsSealedManifestAllowedAsync(
+                response.Entries.Select(static entry => entry.RunId),
+                cancellationToken).ConfigureAwait(false);
+
+            if (rowGuardResult is not null)
+                return rowGuardResult;
+
+            return Ok(response);
+        }
+        catch (ConflictException ex)
+        {
+            return MapGovernanceStickinessSealedManifestConflict(ex);
+        }
+    }
+
+    [HttpGet("risk-register/assigned-to-me-count")]
+    [ProducesResponseType(typeof(GovernanceAssignedToMeFindingsCountResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    [RequiresGovernanceScopePostureSealedManifest("Register counts derive from sealed findings inventory.")]
+    public async Task<IActionResult> GetAssignedToMeFindingsCount(
+        [FromQuery] Guid? projectId,
+        CancellationToken cancellationToken = default)
+    {
+        IActionResult? projectIdProblem =
+            GovernanceStickinessControllerCore.ValidateProjectScopedQuery(projectId)
+                .ToBadRequestProblemOrNull(this);
+
+        if (projectIdProblem is not null)
+            return projectIdProblem;
+
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
+        IActionResult? sealedGuardResult =
+            await EnsureRegistersSealedManifestAllowedAsync(projectId, cancellationToken).ConfigureAwait(false);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        try
+        {
+            // Count has no run id in the response. Seal the assigned register page before returning the number.
+            ArchitectureRiskRegisterResponse assignedRegister = await _facade.GetRiskRegisterAsync(
+                projectId,
+                maxRows: 200,
+                assignedToMe: true,
+                cancellationToken);
+
+            IActionResult? rowGuardResult = await EnsureRegisterRunsSealedManifestAllowedAsync(
+                (assignedRegister.Entries ?? []).Select(static entry => entry.RunId),
+                cancellationToken).ConfigureAwait(false);
+
+            if (rowGuardResult is not null)
+                return rowGuardResult;
+
+            int count = await _facade.GetAssignedToMeFindingsCountAsync(projectId, cancellationToken);
+
+            return Ok(new GovernanceAssignedToMeFindingsCountResponse { Count = count });
+        }
+        catch (ConflictException ex)
+        {
+            return MapGovernanceStickinessSealedManifestConflict(ex);
+        }
+    }
+
+    [HttpGet("reviews-awaiting-action")]
+    [ProducesResponseType(typeof(GovernanceReviewsAwaitingActionResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    [RequiresGovernanceScopePostureSealedManifest("Review queue reads committed-run examination state.")]
+    public async Task<IActionResult> GetReviewsAwaitingAction(CancellationToken cancellationToken = default)
+    {
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
+        IActionResult? sealedGuardResult =
+            await EnsureRegistersSealedManifestAllowedAsync(null, cancellationToken).ConfigureAwait(false);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        try
+        {
+            GovernanceReviewsAwaitingActionResponse response =
+                await _facade.GetReviewsAwaitingActionAsync(cancellationToken);
+
+            // The item RunId is the ReadyForCommit review and has no golden manifest yet.
+            // SourceRunId is the committed recurrence baseline whose agent results were compared.
+            IActionResult? sourceRunGuard = await EnsureRegisterRunsSealedManifestAllowedAsync(
+                response.Items.Select(static item => (Guid?)item.SourceRunId),
+                cancellationToken).ConfigureAwait(false);
+
+            if (sourceRunGuard is not null)
+                return sourceRunGuard;
+
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            string fingerprint =
+                $"reviews-awaiting|tenant={scope.TenantId:N}|workspace={scope.WorkspaceId:N}|project={scope.ProjectId:N}";
+            string etag = ConditionalGetNegotiation.ComputeJsonResponseEtag(
+                response,
+                ContractJson.CamelCaseIgnoreNullCompact,
+                fingerprint);
+
+            return this.OkWithConditionalEtag(response, etag);
+        }
+        catch (ConflictException ex)
+        {
+            return MapGovernanceStickinessSealedManifestConflict(ex);
+        }
+    }
+
+    [HttpGet("decisions-needed-summary")]
+    [ProducesResponseType(typeof(GovernanceDecisionsNeededSummaryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    [RequiresGovernanceScopePostureSealedManifest("Decision summary aggregates run-linked governance rows.")]
+    public async Task<IActionResult> GetDecisionsNeededSummary(
+        [FromQuery] Guid? projectId,
+        CancellationToken cancellationToken = default)
+    {
+        IActionResult? projectIdProblem =
+            GovernanceStickinessControllerCore.ValidateProjectScopedQuery(projectId)
+                .ToBadRequestProblemOrNull(this);
+
+        if (projectIdProblem is not null)
+            return projectIdProblem;
+
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
+        IActionResult? sealedGuardResult =
+            await EnsureRegistersSealedManifestAllowedAsync(projectId, cancellationToken).ConfigureAwait(false);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        try
+        {
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+            // Waiver expiry totals come from active exceptions. Fail closed with HTTP 409 when any active
+            // waiver references an unsealed run (same EnsureRiskExceptionRecordsSealedManifestAllowedAsync
+            // path as GET risk-exceptions); do not omit unsealed waivers from totals or return warning counts.
+            IReadOnlyList<RiskExceptionRecord> activeWaivers =
+                await _facade.ListRiskExceptionsAsync(projectId, cancellationToken);
+
+            IActionResult? waiverGuardResult = await EnsureRiskExceptionRecordsSealedManifestAllowedAsync(
+                activeWaivers,
+                cancellationToken).ConfigureAwait(false);
+
+            if (waiverGuardResult is not null)
+                return waiverGuardResult;
+
+            GovernanceDecisionsNeededSummaryResponse response =
+                await _facade.GetDecisionsNeededSummaryAsync(projectId, cancellationToken);
+
+            // Summary stale and unowned counts are this register page. Seal those runs before the totals are returned.
+            ArchitectureRiskRegisterResponse register = await _facade.GetRiskRegisterAsync(
+                projectId,
+                GovernanceDigestDecisionNeededComposer.DecisionsNeededRiskRegisterPageSize,
+                assignedToMe: false,
+                cancellationToken);
+
+            IActionResult? rowGuardResult = await EnsureRegisterRunsSealedManifestAllowedAsync(
+                register.Entries.Select(static entry => entry.RunId),
+                cancellationToken).ConfigureAwait(false);
+
+            if (rowGuardResult is not null)
+                return rowGuardResult;
+
+            string fingerprint =
+                $"decisions-needed|tenant={scope.TenantId:N}|workspace={scope.WorkspaceId:N}|project={projectId ?? scope.ProjectId:N}";
+            string etag = ConditionalGetNegotiation.ComputeJsonResponseEtag(
+                response,
+                ContractJson.CamelCaseIgnoreNullCompact,
+                fingerprint);
+
+            return this.OkWithConditionalEtag(response, etag);
+        }
+        catch (ConflictException ex)
+        {
+            return MapGovernanceStickinessSealedManifestConflict(ex);
+        }
+    }
+
+    [HttpGet("findings-registers-bundle")]
+    [ProducesResponseType(typeof(GovernanceFindingsRegistersBundleResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    [RequiresGovernanceScopePostureSealedManifest("Bundled registers project sealed findings.")]
+    public async Task<IActionResult> GetFindingsRegistersBundle(
+        [FromQuery] Guid? projectId,
+        [FromQuery] int maxRows = 200,
+        CancellationToken cancellationToken = default)
+    {
+        IActionResult? queryProblem =
+            GovernanceStickinessControllerCore.ValidateRegisterListQuery(projectId, maxRows)
+                .ToBadRequestProblemOrNull(this);
+
+        if (queryProblem is not null)
+            return queryProblem;
+
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
+        IActionResult? sealedGuardResult =
+            await EnsureRegistersSealedManifestAllowedAsync(projectId, cancellationToken).ConfigureAwait(false);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        try
+        {
+            GovernanceFindingsRegistersBundleResponse body =
+                await _facade.GetFindingsRegistersBundleAsync(projectId, maxRows, cancellationToken);
+
+            IActionResult? rowGuardResult = await EnsureRegisterRunsSealedManifestAllowedAsync(
+                body.RiskRegister.Entries
+                    .Select(static entry => entry.RunId)
+                    .Concat(body.DecisionRegister.Decisions.Select(static entry => (Guid?)entry.RunId)),
+                cancellationToken).ConfigureAwait(false);
+
+            if (rowGuardResult is not null)
+                return rowGuardResult;
+
+            return Ok(body);
+        }
+        catch (ConflictException ex)
+        {
+            return MapGovernanceStickinessSealedManifestConflict(ex);
+        }
+    }
+
+    [HttpGet("decision-register")]
+    [ProducesResponseType(typeof(ArchitectureDecisionRegisterResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    [RequiresGovernanceScopePostureSealedManifest("Decision register lists run-backed disposition rows.")]
+    public async Task<IActionResult> GetDecisionRegister(
+        [FromQuery] Guid? projectId,
+        [FromQuery] int maxRows = 200,
+        [FromQuery] string? category = null,
+        [FromQuery] DateTimeOffset? recordedAfterUtc = null,
+        [FromQuery] DateTimeOffset? recordedBeforeUtc = null,
+        [FromQuery] double? minConfidence = null,
+        [FromQuery] double? maxConfidence = null,
+        [FromQuery] string? buyerConfidenceSource = null,
+        CancellationToken cancellationToken = default)
+    {
+        IActionResult? queryProblem = GovernanceStickinessControllerCore.ValidateDecisionRegisterListQuery(
+                projectId,
+                maxRows,
+                category,
+                recordedAfterUtc,
+                recordedBeforeUtc,
+                minConfidence,
+                maxConfidence,
+                buyerConfidenceSource)
+            .ToBadRequestProblemOrNull(this);
+
+        if (queryProblem is not null)
+            return queryProblem;
+
+        category = category?.Trim();
+        buyerConfidenceSource = buyerConfidenceSource?.Trim();
+
+        IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
+
+        if (tenantProblem is not null)
+            return tenantProblem;
+
+        IActionResult? sealedGuardResult =
+            await EnsureRegistersSealedManifestAllowedAsync(projectId, cancellationToken).ConfigureAwait(false);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        ArchitectureDecisionRegisterQueryOptions filters = new()
+        {
+            Category = category,
+            RecordedAfterUtc = recordedAfterUtc,
+            RecordedBeforeUtc = recordedBeforeUtc,
+            MinConfidence = minConfidence,
+            MaxConfidence = maxConfidence,
+            BuyerConfidenceSource = buyerConfidenceSource,
+        };
+
+        try
+        {
+            ArchitectureDecisionRegisterResponse response = await _facade.GetDecisionRegisterAsync(
+                projectId,
+                maxRows,
+                filters,
+                cancellationToken);
+
+            IActionResult? rowGuardResult = await EnsureRegisterRunsSealedManifestAllowedAsync(
+                response.Decisions.Select(static entry => (Guid?)entry.RunId),
+                cancellationToken).ConfigureAwait(false);
+
+            if (rowGuardResult is not null)
+                return rowGuardResult;
+
+            return Ok(response);
+        }
+        catch (ConflictException ex)
+        {
+            return MapGovernanceStickinessSealedManifestConflict(ex);
+        }
+    }
+}

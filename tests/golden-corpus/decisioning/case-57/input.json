@@ -1,0 +1,26 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000057",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000057",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000057-0000-4000-8000-000000000057",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000057",
+    "runId": "20000000-0000-4000-8000-000000000057",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [],
+    "edges": [],
+    "warnings": []
+  },
+  "merge": null,
+  "inventoryFixture": {
+    "cloudProvider": "Gcp",
+    "cloudPackageId": "30000000-0000-4000-8000-000000000057",
+    "cloudResourcesJson": "[]",
+    "extraZipEntries": [
+      {
+        "fileName": "recommender-cost.json",
+        "jsonBody": "{\n  \"recommendations\": [\n    {\n      \"name\": \"golden-gcp-rec-57\",\n      \"recommenderSubtype\": \"MACHINE_TYPE_RECOMMENDATION\",\n      \"primaryImpact\": {\n        \"costProjection\": {\n          \"cost\": {\n            \"units\": \"-30\"\n          }\n        }\n      }\n    }\n  ]\n}"
+      }
+    ]
+  }
+}

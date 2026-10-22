@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "scenario-07-web-app-database",
+  "source": "bootstrap_eval_template_recordings.py",
+  "note": "Synthetic baseline until live API capture; replace via eval_template_harness --mode capture.",
+  "findings": [
+    {
+      "findingId": "must-private-endpoint-sql",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "private endpoint sql",
+      "detail": "private endpoint sql",
+      "message": "private endpoint sql"
+    },
+    {
+      "findingId": "must-blue-green-deployment-slot",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "deployment slot",
+      "detail": "deployment slot",
+      "message": "deployment slot"
+    },
+    {
+      "findingId": "must-rto-rpo-documentation",
+      "category": "Critic",
+      "severity": "Medium",
+      "title": "rto",
+      "detail": "rto",
+      "message": "rto"
+    },
+    {
+      "findingId": "must-centralized-structured-logging",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "application insights",
+      "detail": "application insights",
+      "message": "application insights"
+    }
+  ]
+}

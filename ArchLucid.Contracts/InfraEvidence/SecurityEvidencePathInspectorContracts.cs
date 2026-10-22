@@ -1,0 +1,411 @@
+using ArchLucid.Contracts.Serialization;
+
+namespace ArchLucid.Contracts.InfraEvidence;
+
+public sealed class SecurityEvidencePathSummaryResponse
+{
+    public Guid PathId
+    {
+        get;
+        init;
+    }
+
+    public Guid SnapshotId
+    {
+        get;
+        init;
+    }
+
+    public string PathKind
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public string PathConfidenceBand
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public int WeakestHopOrdinal
+    {
+        get;
+        init;
+    }
+
+    public string WeakestHopReason
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public DateTime CreatedUtc
+    {
+        get;
+        init;
+    }
+
+    public DateTime UpdatedUtc
+    {
+        get;
+        init;
+    }
+}
+
+public sealed class SecurityEvidencePathDetailResponse
+{
+    public Guid PathId
+    {
+        get;
+        init;
+    }
+
+    public Guid SnapshotId
+    {
+        get;
+        init;
+    }
+
+    public string PathKind
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public string PathConfidenceBand
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public int WeakestHopOrdinal
+    {
+        get;
+        init;
+    }
+
+    public string WeakestHopReason
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public Guid? CrownJewelAssertionId
+    {
+        get;
+        init;
+    }
+
+    private IReadOnlyList<SecurityEvidencePathHopResponse> hops = [];
+
+    public IReadOnlyList<SecurityEvidencePathHopResponse> Hops
+    {
+        get => hops;
+        init => hops = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<Guid> citingFindingIds = [];
+
+    public IReadOnlyList<Guid> CitingFindingIds
+    {
+        get => citingFindingIds;
+        init => citingFindingIds = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    public SecurityEvidencePathWeakestHopResponse? WeakestHop
+    {
+        get;
+        init;
+    }
+
+    private SecurityEvidencePathExplanationTemplateResponse explanationTemplate = new();
+
+    public SecurityEvidencePathExplanationTemplateResponse ExplanationTemplate
+    {
+        get => explanationTemplate;
+        init => explanationTemplate = value ?? new();
+    }
+
+    private IReadOnlyList<SecurityEvidenceCutPointSummaryResponse> relatedCutPoints = [];
+
+    public IReadOnlyList<SecurityEvidenceCutPointSummaryResponse> RelatedCutPoints
+    {
+        get => relatedCutPoints;
+        init => relatedCutPoints = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<SecurityEvidencePathRoutingResponse> routing = [];
+
+    public IReadOnlyList<SecurityEvidencePathRoutingResponse> Routing
+    {
+        get => routing;
+        init => routing = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<SecureNowHypothesisResponse> hypotheses = [];
+
+    public IReadOnlyList<SecureNowHypothesisResponse> Hypotheses
+    {
+        get => hypotheses;
+        init => hypotheses = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+}
+
+public sealed class SecureNowHypothesisResponse
+{
+    public Guid HypothesisId
+    {
+        get;
+        init;
+    }
+
+    public string Kind
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public string Status
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public string Reason
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public string PathConfidenceBand
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    private IReadOnlyList<Guid> citedPathIds = [];
+
+    public IReadOnlyList<Guid> CitedPathIds
+    {
+        get => citedPathIds;
+        init => citedPathIds = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<Guid> citedFindingIds = [];
+
+    public IReadOnlyList<Guid> CitedFindingIds
+    {
+        get => citedFindingIds;
+        init => citedFindingIds = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<string> evidenceReferences = [];
+
+    public IReadOnlyList<string> EvidenceReferences
+    {
+        get => evidenceReferences;
+        init => evidenceReferences = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    public string? SharedDependencyNodeId
+    {
+        get;
+        init;
+    }
+
+    private IReadOnlyList<string> dependentResourceIds = [];
+
+    public IReadOnlyList<string> DependentResourceIds
+    {
+        get => dependentResourceIds;
+        init => dependentResourceIds = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    public string? SeparationDimension
+    {
+        get;
+        init;
+    }
+}
+
+public sealed class SecurityEvidencePathRoutingResponse
+{
+    public string Role
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public string? PrincipalId
+    {
+        get;
+        init;
+    }
+
+    public string? DisplayName
+    {
+        get;
+        init;
+    }
+
+    public string ProvenanceKind
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public string SourceReference
+    {
+        get;
+        init;
+    } = string.Empty;
+}
+
+public sealed class SecurityEvidencePathHopResponse
+{
+    public int HopOrdinal
+    {
+        get;
+        init;
+    }
+
+    public string FromNodeLabel
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public string ToNodeLabel
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public string EdgeType
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public string ProvenanceKind
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public string HopConfidenceBand
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public string? InferenceSource
+    {
+        get;
+        init;
+    }
+
+    public string EvidenceReference
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public Guid? CloudResourceId
+    {
+        get;
+        init;
+    }
+}
+
+public sealed class SecurityEvidencePathWeakestHopResponse
+{
+    public int HopOrdinal
+    {
+        get;
+        init;
+    }
+
+    public string EdgeType
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public string HopConfidenceBand
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public string ProvenanceKind
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public string Reason
+    {
+        get;
+        init;
+    } = string.Empty;
+}
+
+/// <summary>
+///     Lecture template slots for SecureNow architect explanations (SA-04).
+///     Values use short labels — not raw ARM JSON blobs.
+/// </summary>
+public sealed class SecurityEvidencePathExplanationTemplateResponse
+{
+    public string? Actor
+    {
+        get;
+        init;
+    }
+
+    public string? Identity
+    {
+        get;
+        init;
+    }
+
+    public string? Network
+    {
+        get;
+        init;
+    }
+
+    public string? Asset
+    {
+        get;
+        init;
+    }
+
+    public string? WeakControl
+    {
+        get;
+        init;
+    }
+
+    public string? Verify
+    {
+        get;
+        init;
+    }
+
+    public string? ProposedChange
+    {
+        get;
+        init;
+    }
+
+    /// <summary>
+    ///     Deterministic architect sentence assembled from the slots above (SA-21).
+    /// </summary>
+    public string? ArchitectSentence
+    {
+        get;
+        init;
+    }
+}

@@ -1,0 +1,242 @@
+﻿/**
+ * Surfaces whose title block already carries folded claim-discipline copy omit the shared
+ * claim-discipline hero band — operators should not see the same negation twice.
+ *
+ * Exception: {@link expectsVisibleClaimDisciplineBand} returns true for `package-print` (print
+ * orientation must stay on the artifact surface, not only in a web header).
+ */
+export const CLAIM_DISCIPLINE_BAND_OMIT_SLUGS: ReadonlySet<string> = new Set([
+  "access-denied",
+  "accessibility",
+  "account-security-settings",
+  "admin-configuration",
+  "admin-diagnostics-help",
+  "admin-health",
+  "admin-itsm-connectors",
+  "admin-tenants",
+  "agent-model-catalog",
+  "ai-usage-settings",
+  "alerts-inbox",
+  "alert-rules-hub",
+  "approval-queue",
+  "api-keys-settings",
+  "architecture-draft-detail",
+  "architecture-intelligence",
+  "architecture-scorecard",
+  "architecture-sponsor-dashboard",
+  "architectures-hub",
+  "architectures-new",
+  "audit-trail",
+  "audit-trail-help",
+  "auth-callback",
+  "auth-domains-settings",
+  "auth-invite",
+  "azure-boards-integration",
+  "azure-permissions-help",
+  "baseline-settings",
+  "cloud-connections",
+  "cloud-connections-aws",
+  "cloud-connections-azure",
+  "cloud-connections-gcp",
+  "comparison-replay-help",
+  "compliance-journey",
+  "connection-status",
+  "contextual-help-drawer",
+  "decision-register",
+  "demo-readiness",
+  "deployment-status",
+  "digest-sponsor",
+  "digests-browse",
+  "digests-schedule",
+  "developer-settings",
+  "evidence-graph",
+  "evidence-proposals",
+  "enterprise-onboarding-help",
+  "extract-upload-settings",
+  "faq",
+  "finding-detail",
+  "finding-eru",
+  "first-review-guide",
+  "findings-help",
+  "fleet-llm-cogs",
+  "get-started",
+  "governance-findings",
+  "governance-assigned-to-me",
+  "help-ai-usage",
+  "help-advisory-scans",
+  "help-api-contracts",
+  "help-cli-usage",
+  "help-accelerator-chooser",
+  "help-alerts",
+  "help-api-keys",
+  "help-architecture-drafts",
+  "help-baseline-settings",
+  "help-billing-and-plans",
+  "help-connection-status",
+  "help-architecture-intelligence",
+  "help-architecture-scorecard",
+  "help-azure-boards",
+  "help-caiq-sig-response",
+  "help-configuration-reference",
+  "help-decision-register",
+  "help-digests",
+  "help-dpa-template",
+  "help-impact-preview",
+  "help-improvement-planning",
+  "help-integration-readiness",
+  "help-evidence-graph",
+  "help-evidence-intake",
+  "help-evidence-trail",
+  "help-engineering-troubleshooting",
+  "help-first-review",
+  "help-first-value-20-minutes",
+  "help-getting-started",
+  "help-glossary",
+  "help-governance-approval",
+  "help-hub",
+  "help-jira-integration",
+  "help-model-governance",
+  "help-notifications",
+  "help-pilot-feedback",
+  "help-pilot-guide",
+  "help-policy-packs",
+  "help-prior-manifest-retrieval",
+  "help-policy-pack-delta-demo",
+  "help-path-chooser",
+  "help-preferences",
+  "help-recurrence-schedules",
+  "help-review-guide",
+  "help-roi-summary",
+  "help-search-review-evidence",
+  "help-servicenow-integration",
+  "help-specialty-walkthroughs",
+  "help-troubleshooting",
+  "help-standards-rules",
+  "help-structured-brief",
+  "help-slack-integration",
+  "help-soc2-self-assessment",
+  "help-sponsor-dashboard",
+  "help-sponsor-report",
+  "help-system-health",
+  "help-teams-integration",
+  "help-topic-catchall",
+  "help-webhooks-integration",
+  "help-workspace-settings",
+  "identity-providers-diagnostics-settings",
+  "identity-providers-oidc-settings",
+  "identity-providers-saml-settings",
+  "identity-providers-settings",
+  "impact-preview",
+  "improvement-planning",
+  "integration-events-dlq",
+  "integration-readiness-help",
+  "itsm-oauth-callback",
+  "invite-reviewer",
+  "jira-integration",
+  "model-governance-settings",
+  "notification-preference-center",
+  "operator-billing-settings",
+  "operator-home",
+  "pattern-library",
+  "pattern-library-detail",
+  "pilot-outcomes",
+  "planning-plan-detail",
+  "platform-bundled-policy-packs",
+  "policy-pack-detail",
+  "policy-packs-hub",
+  "post-auth-bootstrap",
+  "preferences-settings",
+  "pricing-quote-aging",
+  "product-learning",
+  "projects-recycle-bin",
+  "procurement",
+  "provenance",
+  "quick-scan",
+  "rag-health",
+  "recommendation-learning",
+  "repeat-review-loop-help",
+  "reviews-new",
+  "risk-exceptions",
+  "roi-summary",
+  "role-mapping-settings",
+  "scim-provisioning-settings",
+  "scope-help",
+  "search-review-evidence",
+  "sealed-record-detail",
+  "settings-hub",
+  "settings-roles-settings",
+  "security-trust-help",
+  "servicenow-integration",
+  "session-expired",
+  "showcase",
+  "signup",
+  "signup-verify",
+  "slack-integration",
+  "sso-wizard-settings",
+  "subprocessors-help",
+  "support-workspace",
+  "teams-integration",
+  "tenant-health",
+  "tenant-settings",
+  "trial-funnel",
+  "trust-center",
+  "troubleshooting-help",
+  "validate-route",
+  "webhooks-integration",
+  "welcome",
+  "why",
+  "why-archlucid",
+]);
+
+/**
+ * Legacy orientation-strip ids and registry slug variants that should share the same omit decision
+ * as the canonical help-topic slug in {@link CLAIM_DISCIPLINE_BAND_OMIT_SLUGS}.
+ */
+const CLAIM_DISCIPLINE_BAND_OMIT_STRIP_SLUG_ALIASES: ReadonlyMap<string, string> = new Map([
+  ["connect-aws-securely-help", "cloud-connections-aws"],
+  ["connect-azure-securely-help", "cloud-connections-azure"],
+  ["connect-gcp-securely-help", "cloud-connections-gcp"],
+  ["evidence-trail", "help-evidence-trail"],
+  ["evidence-trail-help", "help-evidence-trail"],
+  ["glossary-help", "help-glossary"],
+  ["pilot-guide-help", "help-pilot-guide"],
+  ["procurement-help", "procurement"],
+  ["policy-packs-help", "help-policy-packs"],
+  ["help-path-chooser-bottom", "help-path-chooser"],
+]);
+
+function resolveStripSlugForOmitPolicy(stripSlug: string): string {
+  return CLAIM_DISCIPLINE_BAND_OMIT_STRIP_SLUG_ALIASES.get(stripSlug) ?? stripSlug;
+}
+
+export function shouldOmitClaimDisciplineBand(stripSlug: string): boolean {
+  return CLAIM_DISCIPLINE_BAND_OMIT_SLUGS.has(resolveStripSlugForOmitPolicy(stripSlug));
+}
+
+export function expectsVisibleClaimDisciplineBand(stripSlug: string): boolean {
+  return !shouldOmitClaimDisciplineBand(stripSlug);
+}
+
+export function resolveClaimDisciplineForStrip(
+  stripSlug: string,
+  claim: string | undefined,
+): string | undefined {
+  if (shouldOmitClaimDisciplineBand(stripSlug)) {
+    return undefined;
+  }
+
+  return claim;
+}
+
+/** Drops the claim-discipline TOC entry when the strip omits the band so scroll-spy links stay valid. */
+export function resolveGuideHeadingsForStrip<T extends { readonly id: string }>(
+  stripSlug: string,
+  headings: readonly T[],
+  claimHeadingId: string,
+): readonly T[] {
+  if (!shouldOmitClaimDisciplineBand(stripSlug)) {
+    return headings;
+  }
+
+  return headings.filter((heading) => heading.id !== claimHeadingId);
+}

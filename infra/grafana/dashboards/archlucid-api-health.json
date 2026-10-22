@@ -1,0 +1,54 @@
+{
+  "title": "ArchLucid API Health",
+  "description": "Standard Grafana dashboard for ArchLucid API metrics",
+  "tags": ["archlucid", "api", "health"],
+  "timezone": "browser",
+  "panels": [
+    {
+      "title": "HTTP Request Rate",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{job=\"archlucid-api\"}[5m])) by (route)",
+          "legendFormat": "{{route}}"
+        }
+      ]
+    },
+    {
+      "title": "HTTP Error Rates (4xx/5xx)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{job=\"archlucid-api\", status=~\"4..|5..\"}[5m])) by (status)",
+          "legendFormat": "HTTP {{status}}"
+        }
+      ]
+    },
+    {
+      "title": "Average Latency (/v1/architecture/request)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "expr": "rate(http_server_requests_seconds_sum{job=\"archlucid-api\", route=\"/v1/architecture/request\"}[5m]) / rate(http_server_requests_seconds_count{job=\"archlucid-api\", route=\"/v1/architecture/request\"}[5m])",
+          "legendFormat": "Latency (s)"
+        }
+      ]
+    },
+    {
+      "title": "Active Agent Tasks",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        {
+          "expr": "sum(archlucid_active_agent_tasks{job=\"archlucid-api\"})",
+          "legendFormat": "Active Tasks"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 36,
+  "version": 1
+}

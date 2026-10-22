@@ -1,0 +1,23 @@
+{
+  "resultId": "result-golden-01",
+  "taskId": "task-golden-01",
+  "runId": "run-golden-01",
+  "agentType": 1,
+  "claims": [
+    {
+      "evidenceRefs": [ "ev-1" ],
+      "detail": "claim object with evidenceRefs satisfies semantic claim coverage"
+    }
+  ],
+  "evidenceRefs": [ "ev-1" ],
+  "confidence": 0.85,
+  "findings": [
+    {
+      "severity": "High",
+      "description": "Structured description exceeds minimum length for semantic scoring.",
+      "recommendation": "Apply the documented remediation pattern."
+    }
+  ],
+  "proposedChanges": null,
+  "createdUtc": "2026-04-14T12:00:00Z"
+}

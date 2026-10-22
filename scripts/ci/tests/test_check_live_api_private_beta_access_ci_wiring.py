@@ -1,0 +1,276 @@
+"""Unit tests for check_live_api_private_beta_access_ci_wiring.py."""
+
+from __future__ import annotations
+
+import subprocess
+import sys
+import unittest
+from pathlib import Path
+
+_CI_ROOT = Path(__file__).resolve().parents[1]
+if str(_CI_ROOT) not in sys.path:
+    sys.path.insert(0, str(_CI_ROOT))
+
+import check_live_api_private_beta_access_ci_wiring as sut
+
+REPO_ROOT = Path(__file__).resolve().parents[3]
+
+
+class TestCheckLiveApiPrivateBetaAccessCiWiring(unittest.TestCase):
+    def test_guard_passes_on_repo(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(REPO_ROOT / "scripts" / "ci" / "check_live_api_private_beta_access_ci_wiring.py"),
+            ],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(
+            result.returncode,
+            0,
+            msg=result.stdout + result.stderr,
+        )
+
+    def test_playwright_timeout_wiring_rejects_legacy_run_cycle_helper(self) -> None:
+        errors: list[str] = []
+
+        sut._require_private_beta_playwright_timeout_wiring(
+            "test.setTimeout(liveE2eArchitectureRunCyclePlaywrightTimeoutMs());",
+            f"export function {sut._PRIVATE_BETA_TIMEOUT_FN}() {{ if (process.env.CI) {{ return 2700000; }} }}",
+            errors,
+        )
+
+        self.assertTrue(any("must not use" in error for error in errors))
+
+    def test_playwright_timeout_wiring_rejects_low_ci_budget(self) -> None:
+        errors: list[str] = []
+
+        sut._require_private_beta_playwright_timeout_wiring(
+            f"test.setTimeout({sut._PRIVATE_BETA_TIMEOUT_FN}());",
+            f"export function {sut._PRIVATE_BETA_TIMEOUT_FN}() {{ if (process.env.CI) {{ return 600000; }} }}",
+            errors,
+        )
+
+        self.assertTrue(any("below" in error for error in errors))
+
+    def test_playwright_timeout_wiring_rejects_before_all_without_hook_timeout(self) -> None:
+        errors: list[str] = []
+        timeout_fn = sut._PRIVATE_BETA_TIMEOUT_FN
+        spec_text = "\n".join(
+            [
+                f"test.describe.configure({{ timeout: {timeout_fn}() }});",
+                "test.beforeAll(async ({ request }) => {",
+                "  await waitForLiveApiReady(request);",
+                "});",
+                f"test.setTimeout({timeout_fn}());",
+            ]
+        )
+
+        sut._require_private_beta_playwright_timeout_wiring(
+            spec_text,
+            f"export function {timeout_fn}() {{ if (process.env.CI) {{ return 2700000; }} }}",
+            errors,
+        )
+
+        self.assertTrue(any("test.beforeAll must call" in error for error in errors))
+
+    def test_playwright_timeout_wiring_accepts_before_all_hook_timeout(self) -> None:
+        errors: list[str] = []
+        timeout_fn = sut._PRIVATE_BETA_TIMEOUT_FN
+        spec_text = "\n".join(
+            [
+                f"test.describe.configure({{ timeout: {timeout_fn}() }});",
+                "test.beforeAll(async ({ request }) => {",
+                f"  test.setTimeout({timeout_fn}());",
+                "  await waitForLiveApiReady(request);",
+                "});",
+            ]
+        )
+
+        sut._require_private_beta_playwright_timeout_wiring(
+            spec_text,
+            f"export function {timeout_fn}() {{ if (process.env.CI) {{ return 2_700_000; }} }}",
+            errors,
+        )
+
+        self.assertEqual(errors, [])
+
+    def test_push_workflow_requires_failure_triage_rollup(self) -> None:
+        push_text = (REPO_ROOT / ".github/workflows/private-beta-access-on-push.yml").read_text(
+            encoding="utf-8",
+        )
+        errors: list[str] = []
+
+        sut._require_private_beta_failure_triage_wiring(
+            sut._PUSH_REL,
+            push_text,
+            sut._PUSH_TRIAGE_ARTIFACT,
+            errors,
+        )
+
+        self.assertEqual(errors, [])
+
+    def test_ci_workflow_requires_failure_triage_rollup(self) -> None:
+        ci_text = (REPO_ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+        errors: list[str] = []
+
+        sut._require_private_beta_failure_triage_wiring(
+            sut._CI_REL,
+            ci_text,
+            sut._CI_TRIAGE_ARTIFACT,
+            errors,
+        )
+
+        self.assertEqual(errors, [])
+
+    def test_push_workflow_requires_ref_level_concurrency(self) -> None:
+        push_text = (REPO_ROOT / ".github/workflows/private-beta-access-on-push.yml").read_text(
+            encoding="utf-8",
+        )
+        errors: list[str] = []
+
+        if "private-beta-access-on-push-${{ github.ref }}" not in push_text:
+            errors.append("missing ref-level concurrency group")
+
+        if "cancel-in-progress: false" not in push_text:
+            errors.append("missing cancel-in-progress: false")
+
+        self.assertEqual(errors, [])
+
+    def test_push_workflow_requires_invite_flow_spec(self) -> None:
+        push_text = (REPO_ROOT / ".github/workflows/private-beta-access-on-push.yml").read_text(
+            encoding="utf-8",
+        )
+
+        self.assertIn(sut._INVITE_FLOW_SPEC, push_text)
+
+    def test_push_workflow_runs_claim_boundary_checks_before_the_access_smoke(self) -> None:
+        push_text = (REPO_ROOT / ".github/workflows/private-beta-access-on-push.yml").read_text(
+            encoding="utf-8",
+        )
+
+        self.assertIn("python3 scripts/ci/check_buyer_claim_drift.py", push_text)
+        self.assertIn("python3 scripts/ci/check_claim_evidence_consistency.py", push_text)
+
+    def test_private_beta_workflows_restart_api_after_enterprise_grant(self) -> None:
+        for rel_path in (sut._CI_REL, sut._PUSH_REL, sut._SMOKE_REL):
+            errors: list[str] = []
+            sut._require_enterprise_grant_api_restart(
+                rel_path,
+                (REPO_ROOT / rel_path).read_text(encoding="utf-8"),
+                errors,
+            )
+            self.assertEqual(errors, [], msg=rel_path)
+
+    def test_tb927_invitee_role_wiring_requires_direct_me_helper(self) -> None:
+        helper_text = (REPO_ROOT / sut._PRIVATE_BETA_HELPER_REL).read_text(encoding="utf-8")
+        spec_text = (REPO_ROOT / "archlucid-ui" / "e2e" / sut._SPEC).read_text(encoding="utf-8")
+        errors: list[str] = []
+
+        sut._require_tb927_invitee_role_wiring(spec_text, helper_text, errors)
+
+        self.assertEqual(errors, [])
+
+    def test_tb927_invitee_role_wiring_rejects_missing_bearer_helper(self) -> None:
+        errors: list[str] = []
+
+        sut._require_tb927_invitee_role_wiring(
+            "fetchAuthMeWithBearer(request, token)",
+            "export async function fetchAuthMeViaProxy() {}",
+            errors,
+        )
+
+        self.assertTrue(any("fetchAuthMeWithBearer" in error for error in errors))
+
+    def test_tb927_invitee_role_wiring_rejects_page_request_bff_post(self) -> None:
+        errors: list[str] = []
+
+        sut._require_tb927_invitee_role_wiring(
+            "fetchAuthMeWithBearer",
+            "\n".join(
+                [
+                    "export async function fetchAuthMeWithBearer() {}",
+                    "export async function writeJwtBrowserSession() {}",
+                    "await writeJwtBrowserSession(page, trimmedToken)",
+                    "await page.request.post(`${appOrigin}/api/auth/bff-session`",
+                ]
+            ),
+            errors,
+        )
+
+        self.assertTrue(any("page.request" in error for error in errors))
+
+    def test_invite_flow_requires_jwt_priming_helper(self) -> None:
+        errors: list[str] = []
+
+        sut._require_invite_flow_jwt_priming_wiring(
+            "await page.goto('/administration/users');",
+            errors,
+        )
+
+        self.assertTrue(any("primePrivateBetaBrowserSessionIfJwtMode" in error for error in errors))
+
+        errors.clear()
+        sut._require_invite_flow_jwt_priming_wiring(
+            "await primePrivateBetaBrowserSessionIfJwtMode(page);",
+            errors,
+        )
+
+        self.assertEqual(errors, [])
+
+    def test_sandbox_mock_json_import_attribute_required(self) -> None:
+        errors: list[str] = []
+
+        sut._require_sandbox_mock_json_import_attribute(errors)
+
+        self.assertEqual(errors, [])
+
+    def test_smoke_branch_wiring_requires_frozen_pin(self) -> None:
+        errors: list[str] = []
+
+        sut._require_smoke_branch_wiring(REPO_ROOT, errors)
+
+        self.assertEqual(errors, [])
+
+    def test_bff_origin_header_required_on_jwt_session_write(self) -> None:
+        helper_text = (REPO_ROOT / sut._PRIVATE_BETA_HELPER_REL).read_text(encoding="utf-8")
+
+        self.assertIn('credentials: "same-origin"', helper_text)
+        self.assertNotIn("page.request.post", helper_text)
+        self.assertIn("/api/auth/bff-session", helper_text)
+    def test_recovery_cases_required_on_access_spec(self) -> None:
+        spec_text = (REPO_ROOT / "archlucid-ui" / "e2e" / sut._SPEC).read_text(encoding="utf-8")
+        errors: list[str] = []
+
+        sut._require_private_beta_recovery_cases(spec_text, errors)
+
+        self.assertEqual(errors, [])
+
+    def test_recovery_cases_reject_missing_expired_invite(self) -> None:
+        errors: list[str] = []
+
+        sut._require_private_beta_recovery_cases("revoked invitation token surfaces recovery copy", errors)
+
+        self.assertTrue(any("expired invite recovery" in error for error in errors))
+
+    def test_wait_for_api_ready_http_000_fail_fast_required(self) -> None:
+        errors: list[str] = []
+
+        sut._require_wait_for_api_ready_http_000_fail_fast(errors)
+
+        self.assertEqual(errors, [])
+
+    def test_wait_for_api_ready_http_000_fail_fast_required(self) -> None:
+        errors: list[str] = []
+
+        sut._require_wait_for_api_ready_http_000_fail_fast(errors)
+
+        self.assertEqual(errors, [])
+
+
+if __name__ == "__main__":
+    unittest.main()

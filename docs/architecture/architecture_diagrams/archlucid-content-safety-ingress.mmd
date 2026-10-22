@@ -1,0 +1,11 @@
+sequenceDiagram
+  participant Run as CreateRun
+  participant Pre as DefaultRequestContentSafetyPrecheck
+  participant Guard as IContentSafetyGuard
+  participant Exec as ContentSafetyEnforcingAgentCompletionClient
+  participant San as AgentEvidenceUntrustedInputSanitizer
+  participant Red as PromptFieldRedactor
+  Run->>Pre: ingress precheck
+  Pre->>Guard: evaluate
+  Exec->>Guard: completion IO
+  San->>Red: sanitize evidence then redact

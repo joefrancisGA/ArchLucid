@@ -1,0 +1,918 @@
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { describe, expect, it, vi, beforeEach } from "vitest";
+
+import { buildInfraResourceHubTechnicalDisclosureScopedHref } from "@/lib/infra-evidence/infra-resource-hub-technical-disclosure-url";
+
+import { ResourceHubClient } from "./ResourceHubClient";
+import {
+  buildResourceHubTestMockHub,
+  RESOURCE_HUB_TEST_AUDIT_SUFFIX,
+  RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID,
+  RESOURCE_HUB_TEST_SNAPSHOT_ID,
+} from "./resource-hub-test-mock-hub";
+
+const replace = vi.fn();
+const push = vi.fn();
+let searchParams = new URLSearchParams(`tab=overview&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+
+const fetchCachedInfraEvidenceResourceHub = vi.fn(async () => buildResourceHubTestMockHub());
+const matchOperationalFinding = vi.fn(async () => undefined);
+const createRemediationInstance = vi.fn(async () => ({
+  succeeded: true,
+  instanceId: "new-instance-1",
+  blockers: [] as string[],
+  errorMessage: null as string | null,
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace, push }),
+  usePathname: () => `/governance/infrastructure/resources/${RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID}`,
+  useSearchParams: () => searchParams,
+}));
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: (): boolean => false,
+  useProductionDeskChrome: (): boolean => true,
+}));
+
+vi.mock("@/components/product-line/ProductLineProvider", () => ({
+  useProductLine: () => ({ productLine: "archlucid" }),
+}));
+
+vi.mock("@/lib/infra-evidence/infra-evidence-resource-hub-cache", () => ({
+  fetchCachedInfraEvidenceResourceHub: (...args: unknown[]) => fetchCachedInfraEvidenceResourceHub(...args),
+  invalidateInfraEvidenceResourceHubCacheForResource: vi.fn(),
+}));
+
+vi.mock("@/lib/infra-evidence/infra-evidence-remediation-api", () => ({
+  matchOperationalFinding: (...args: unknown[]) => matchOperationalFinding(...args),
+  createRemediationInstance: (...args: unknown[]) => createRemediationInstance(...args),
+  formatInfraEvidenceRemediationApiError: (error: unknown) => String(error),
+}));
+
+vi.mock("@/lib/infra-evidence/infra-evidence-hub-api", () => ({
+  formatInfraEvidenceHubApiError: (error: unknown) => String(error),
+}));
+
+vi.mock("@/lib/use-nav-surface", () => ({
+  useNavSurface: () => ({
+    layerGuidance: {
+      layerBadge: "Advanced operations",
+      headline: "Resource hub",
+      useWhen: "Inspect evidence",
+      firstPilotNote: null,
+    },
+    contextHints: { layerHeaderEnterpriseRankCue: null },
+  }),
+}));
+
+describe("buildInfraResourceHubTechnicalDisclosureScopedHref", () => {
+  it("pins hub snapshot and runId when syncing buyer-polished technical disclosure", () => {
+    const href = buildInfraResourceHubTechnicalDisclosureScopedHref(
+      RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID,
+      "tab=overview&runId=run-1",
+      "cloudResourceId",
+      `/governance/infrastructure/resources/${RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID}`,
+      {
+        snapshotId: RESOURCE_HUB_TEST_SNAPSHOT_ID,
+        runId: "run-1",
+      },
+    );
+
+    expect(href).toContain(`snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    expect(href).toContain("runId=run-1");
+    expect(href).toContain("infraResourceHubTechnicalKey=cloudResourceId");
+  });
+
+  it("preserves explorer workQueue when syncing buyer-polished technical disclosure", () => {
+    const href = buildInfraResourceHubTechnicalDisclosureScopedHref(
+      RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID,
+      "tab=overview&workQueue=open-findings&runId=run-1",
+      "cloudResourceId",
+      `/governance/infrastructure/resources/${RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID}`,
+      {
+        snapshotId: RESOURCE_HUB_TEST_SNAPSHOT_ID,
+        runId: "run-1",
+      },
+    );
+
+    expect(href).toContain("workQueue=open-findings");
+  });
+});
+
+describe("ResourceHubClient", () => {
+  beforeEach(() => {
+    replace.mockClear();
+    matchOperationalFinding.mockClear();
+    createRemediationInstance.mockClear();
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () => buildResourceHubTestMockHub());
+    searchParams = new URLSearchParams(`tab=overview&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+  });
+
+  it("falls back to the external resource name when the configuration id has a trailing slash", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementationOnce(async () =>
+      buildResourceHubTestMockHub({
+        currentConfiguration: {
+          ...buildResourceHubTestMockHub().currentConfiguration,
+          azureResourceId:
+            "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/",
+        },
+      }),
+    );
+
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-page-title")).toHaveTextContent("gateway");
+  });
+
+  it("clears hub evidence when a newer URL selection fails to load", async () => {
+    const nextSnapshotId = "33333333-3333-3333-3333-333333333333";
+
+    const { rerender } = render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-tabs")).toBeInTheDocument();
+    expect(screen.getByText("Peering")).toBeInTheDocument();
+
+    searchParams = new URLSearchParams(`tab=overview&snapshotId=${nextSnapshotId}`);
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () => {
+      throw new Error("Captured evidence unavailable for snapshot.");
+    });
+    rerender(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-load-error")).toBeInTheDocument();
+    expect(screen.queryByText("Peering")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infra-resource-hub-tabs")).not.toBeInTheDocument();
+  });
+
+  it("does not let a stale resource request overwrite a newer URL selection", async () => {
+    let resolveFirstRequest: ((hub: ReturnType<typeof buildResourceHubTestMockHub>) => void) | undefined;
+    let resolveSecondRequest: ((hub: ReturnType<typeof buildResourceHubTestMockHub>) => void) | undefined;
+    const firstRequest = new Promise<ReturnType<typeof buildResourceHubTestMockHub>>((resolve) => {
+      resolveFirstRequest = resolve;
+    });
+    const secondRequest = new Promise<ReturnType<typeof buildResourceHubTestMockHub>>((resolve) => {
+      resolveSecondRequest = resolve;
+    });
+
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(
+      async (_resourceId: string, options: { readonly runId?: string }) =>
+        options.runId === "newer-run" ? secondRequest : firstRequest,
+    );
+
+    const { rerender } = render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    searchParams = new URLSearchParams(
+      `tab=overview&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=newer-run`,
+    );
+    rerender(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await waitFor(() => {
+      expect(resolveFirstRequest).toBeDefined();
+      expect(resolveSecondRequest).toBeDefined();
+    });
+
+    if (resolveFirstRequest == null || resolveSecondRequest == null) {
+      throw new Error("Expected both resource requests to be started.");
+    }
+
+    await act(async () => {
+      resolveSecondRequest(
+        buildResourceHubTestMockHub({
+          externalResourceId:
+            "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/newer-gateway",
+          currentConfiguration: {
+            ...buildResourceHubTestMockHub().currentConfiguration,
+            azureResourceId:
+              "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/newer-gateway",
+          },
+        }),
+      );
+      await Promise.resolve();
+    });
+    expect(await screen.findByTestId("infra-resource-hub-page-title")).toHaveTextContent("newer-gateway");
+
+    await act(async () => {
+      resolveFirstRequest(
+        buildResourceHubTestMockHub({
+          externalResourceId:
+            "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/stale-gateway",
+          currentConfiguration: {
+            ...buildResourceHubTestMockHub().currentConfiguration,
+            azureResourceId:
+              "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/stale-gateway",
+          },
+        }),
+      );
+      await Promise.resolve();
+    });
+
+    expect(screen.getByTestId("infra-resource-hub-page-title")).toHaveTextContent("newer-gateway");
+  });
+
+  it("renders cross-workbench overview links without hub tab switchers", async () => {
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-open-remediation-work")).toHaveAttribute(
+      "href",
+      `/governance/infrastructure/remediation?cloudResourceId=${RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID}&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}${RESOURCE_HUB_TEST_AUDIT_SUFFIX}`,
+    );
+    expect(screen.getByTestId("infra-resource-hub-open-drift-work")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-resource-hub-open-diagrams-work")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-resource-hub-open-findings-tab")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infra-resource-hub-open-drift-tab")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infra-resource-hub-open-terraform-work")).not.toBeInTheDocument();
+  });
+
+  it("shows snapshot scope strip with pinned label when snapshotId is in the URL", async () => {
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-snapshot-scope-strip")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-resource-hub-snapshot-id")).toHaveTextContent("22222222");
+  });
+
+  it("shows paginated finding stream caption when hasMore", async () => {
+    searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-findings-stream-more-OperationalSecurity")).toHaveTextContent(
+      "Showing 1 of 40",
+    );
+  });
+
+  it("derives diagram correspondence status from match kind", async () => {
+    searchParams = new URLSearchParams(`tab=diagram&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await screen.findByText("Diagram node conflicts with inventory public IP configuration.");
+    const diagramSection = screen.getByText("Diagram node conflicts with inventory public IP configuration.").closest("section");
+    expect(diagramSection).not.toBeNull();
+    expect(within(diagramSection as HTMLElement).getByText("Conflict")).toBeInTheDocument();
+    expect(within(diagramSection as HTMLElement).getByText("Likely")).toBeInTheDocument();
+  });
+
+  it("renders configuration properties, tags, RBAC, network, and evidence tables on overview", async () => {
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await screen.findByText("Properties");
+    expect(screen.getAllByText("sku").length).toBeGreaterThan(0);
+    expect(screen.getByText("env")).toBeInTheDocument();
+    expect(screen.getByText("principal-1")).toBeInTheDocument();
+    expect(screen.getByText("Peering")).toBeInTheDocument();
+    expect(screen.getByText("snapshots/222/properties.json")).toBeInTheDocument();
+  });
+
+  it("uses shared drift table with old and new values on overview and drift tab", async () => {
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-drift-change-change-1")).toBeInTheDocument();
+    expect(screen.getAllByText("Basic").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Standard").length).toBeGreaterThan(0);
+
+    searchParams = new URLSearchParams(`tab=drift&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    const { unmount } = render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+    expect(await screen.findByTestId("infra-resource-hub-drift-tab-change-change-1")).toBeInTheDocument();
+    unmount();
+  });
+
+  it("does not render hub tab cross-links on drift tab", async () => {
+    searchParams = new URLSearchParams(`tab=drift&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await screen.findByTestId("infra-resource-hub-open-drift");
+    expect(screen.queryByTestId("infra-resource-hub-drift-open-overview-tab")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infra-resource-hub-drift-open-findings-tab")).not.toBeInTheDocument();
+  });
+
+  it("opens confirm dialog before creating remediation and calls API only on confirm", async () => {
+    searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    fireEvent.click(await screen.findByTestId("infra-resource-hub-create-remediation-finding-1"));
+    const dialog = await screen.findByTestId("infra-resource-hub-create-remediation-dialog");
+    expect(within(dialog).getByText("Public endpoint")).toBeInTheDocument();
+    expect(matchOperationalFinding).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByTestId("infra-resource-hub-create-remediation-confirm"));
+    await waitFor(() => {
+      expect(matchOperationalFinding).toHaveBeenCalledWith("finding-1");
+      expect(createRemediationInstance).toHaveBeenCalledWith("finding-1");
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-resource-hub-finding-message-finding-1")).toHaveTextContent(
+        "Remediation instance created.",
+      );
+      expect(screen.getByTestId("infra-resource-hub-finding-created-factory-finding-1")).toBeInTheDocument();
+    });
+  });
+
+  it("clears per-finding remediation message when switching tabs", async () => {
+    searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    fireEvent.click(await screen.findByTestId("infra-resource-hub-create-remediation-finding-1"));
+    fireEvent.click(screen.getByTestId("infra-resource-hub-create-remediation-confirm"));
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-resource-hub-finding-message-finding-1")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("infra-resource-hub-tab-overview"));
+    expect(replace).toHaveBeenCalled();
+    expect(screen.queryByTestId("infra-resource-hub-finding-message-finding-1")).not.toBeInTheDocument();
+  });
+
+  it("registers Alt+number tab shortcuts in page shortcuts disclosure", async () => {
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-page-shortcuts")).toBeInTheDocument();
+  });
+
+  it("switches hub tabs with Alt+number keyboard shortcuts", async () => {
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+    await screen.findByTestId("infra-resource-hub-tabs");
+
+    fireEvent.keyDown(window, { key: "2", altKey: true });
+    expect(replace).toHaveBeenCalledWith(expect.stringContaining("tab=drift"));
+  });
+
+  it("preserves explorer workQueue when switching hub tabs via keyboard shortcut", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&workQueue=open-remediation&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
+    );
+    replace.mockClear();
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+    await screen.findByTestId("infra-resource-hub-tabs");
+
+    fireEvent.keyDown(window, { key: "6", altKey: true });
+
+    expect(replace).toHaveBeenCalledWith(expect.stringContaining("workQueue=open-remediation"));
+    expect(replace).toHaveBeenCalledWith(expect.stringContaining("tab=remediation"));
+  });
+
+  it("threads explorer workQueue on back-to-explorer link", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    const backLink = await screen.findByTestId("infra-resource-hub-explorer-work-queue-back-link");
+
+    expect(backLink).toHaveAttribute("href", expect.stringContaining("workQueue=open-findings"));
+  });
+
+  it("shows tab count badges for findings and drift", async () => {
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-tab-findings")).toHaveTextContent("Findings (41)");
+    expect(screen.getByTestId("infra-resource-hub-tab-drift")).toHaveTextContent("Drift (1)");
+  });
+
+  it("preserves runId on drift Infrastructure Ask links", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-drift-ask-change-1")).toHaveAttribute(
+      "href",
+      expect.stringContaining("runId=run-1"),
+    );
+  });
+
+  it("preserves explorer workQueue on overview Infrastructure Ask link", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-open-ask")).toHaveAttribute(
+      "href",
+      expect.stringContaining("workQueue=open-findings"),
+    );
+  });
+
+  it("preserves explorer workQueue on drift Infrastructure Ask links", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-drift-ask-change-1")).toHaveAttribute(
+      "href",
+      expect.stringContaining("workQueue=open-findings"),
+    );
+  });
+
+  it("preserves explorer workQueue on findings Infrastructure Ask links", async () => {
+    searchParams = new URLSearchParams(
+      `tab=findings&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-finding-ask-finding-1")).toHaveAttribute(
+      "href",
+      expect.stringContaining("workQueue=open-findings"),
+    );
+  });
+
+  it("preserves runId on overview drift change workbench links", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-drift-change-change-1")).toHaveAttribute(
+      "href",
+      expect.stringContaining("runId=run-1"),
+    );
+  });
+
+  it("preserves runId on findings stream more remediation link", async () => {
+    searchParams = new URLSearchParams(
+      `tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-findings-stream-more-OperationalSecurity")).toHaveAttribute(
+      "href",
+      expect.stringContaining("runId=run-1"),
+    );
+  });
+
+  it("preserves runId when switching hub tabs from the tab bar", async () => {
+    searchParams = new URLSearchParams(
+      `tab=diagram&runId=run-1&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`,
+    );
+    replace.mockClear();
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    fireEvent.click(await screen.findByTestId("infra-resource-hub-tab-drift"));
+
+    expect(replace).toHaveBeenCalledWith(expect.stringContaining("runId=run-1"));
+  });
+
+  it("pins hub snapshotId on audit scope chip when URL omits snapshotId", async () => {
+    searchParams = new URLSearchParams(
+      "tab=overview&runId=run-1&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc",
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    const chip = await screen.findByTestId("infra-resource-hub-audit-scope-chip");
+
+    expect(chip).toHaveAttribute("href", expect.stringContaining(`snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`));
+    expect(chip).toHaveAttribute("href", expect.stringContaining("runId=run-1"));
+  });
+
+  it("pins hub snapshotId when switching tabs without snapshot in URL", async () => {
+    searchParams = new URLSearchParams("tab=overview&runId=run-1");
+    replace.mockClear();
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    fireEvent.click(await screen.findByTestId("infra-resource-hub-tab-drift"));
+
+    expect(replace).toHaveBeenCalledWith(
+      expect.stringContaining(`snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`),
+    );
+    expect(replace).toHaveBeenCalledWith(expect.stringContaining("runId=run-1"));
+  });
+
+  it("surfaces stale audit banner for partial URL audit params", async () => {
+    searchParams = new URLSearchParams("tab=overview&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-stale-audit-scope")).toBeInTheDocument();
+  });
+
+  it("preserves hub snapshot and runId on stale audit scope banner audit tab link", async () => {
+    searchParams = new URLSearchParams(
+      "tab=overview&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&runId=run-1",
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    const banner = await screen.findByTestId("infra-resource-hub-stale-audit-scope");
+    const auditTabLink = within(banner).getByRole("link", { name: "Open audit tab" });
+
+    expect(auditTabLink).toHaveAttribute(
+      "href",
+      expect.stringContaining(`snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`),
+    );
+    expect(auditTabLink).toHaveAttribute("href", expect.stringContaining("runId=run-1"));
+
+    const clearLink = within(banner).getByRole("link", { name: "Clear stale audit scope" });
+    expect(clearLink).toHaveAttribute(
+      "href",
+      expect.stringContaining(`snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`),
+    );
+    expect(clearLink).toHaveAttribute("href", expect.stringContaining("runId=run-1"));
+    expect(clearLink.getAttribute("href")).not.toContain("assessmentId=");
+  });
+
+  it("preserves explorer workQueue on stale audit scope banner links", async () => {
+    searchParams = new URLSearchParams(
+      "tab=overview&workQueue=open-findings&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&runId=run-1",
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    const banner = await screen.findByTestId("infra-resource-hub-stale-audit-scope");
+    const auditTabLink = within(banner).getByRole("link", { name: "Open audit tab" });
+    const clearLink = within(banner).getByRole("link", { name: "Clear stale audit scope" });
+
+    expect(auditTabLink).toHaveAttribute("href", expect.stringContaining("workQueue=open-findings"));
+    expect(clearLink).toHaveAttribute("href", expect.stringContaining("workQueue=open-findings"));
+  });
+
+  it("preserves hub snapshot and runId when clearing active audit scope", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&runId=run-1&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc`,
+    );
+    replace.mockClear();
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    fireEvent.click(await screen.findByTestId("infra-resource-hub-audit-scope-bar-clear-scope"));
+
+    expect(replace).toHaveBeenCalledWith(
+      expect.stringContaining(`snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`),
+    );
+    expect(replace).toHaveBeenCalledWith(expect.stringContaining("runId=run-1"));
+    expect(replace).toHaveBeenCalledWith(
+      expect.not.stringMatching(/assessmentId=|auditEvidenceSnapshotId=|controlId=/),
+    );
+  });
+
+  it("preserves explorer workQueue when clearing active audit scope", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&workQueue=open-findings&runId=run-1${RESOURCE_HUB_TEST_AUDIT_SUFFIX}`,
+    );
+    replace.mockClear();
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    fireEvent.click(await screen.findByTestId("infra-resource-hub-audit-scope-bar-clear-scope"));
+
+    expect(replace).toHaveBeenCalledWith(expect.stringContaining("workQueue=open-findings"));
+  });
+
+  it("preserves hub snapshot and runId when switching audit control via inline picker", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        auditLineageLink: {
+          ...buildResourceHubTestMockHub().auditLineageLink,
+          matches: [
+            {
+              assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              controlId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+              controlNumber: "AC-2",
+              controlTitle: "Account management",
+              snapshotCreatedUtc: "2026-01-01T00:00:00Z",
+            },
+            {
+              assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              controlId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
+              controlNumber: "AC-3",
+              controlTitle: "Access enforcement",
+              snapshotCreatedUtc: "2026-01-02T00:00:00Z",
+            },
+          ],
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(
+      `tab=overview&runId=run-1&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc`,
+    );
+    replace.mockClear();
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    const picker = await screen.findByTestId("infra-resource-hub-audit-scope-bar-control-picker");
+    fireEvent.change(picker, { target: { value: "dddddddd-dddd-dddd-dddd-dddddddddddd" } });
+
+    expect(replace).toHaveBeenCalledWith(
+      expect.stringContaining(`snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`),
+    );
+    expect(replace).toHaveBeenCalledWith(expect.stringContaining("runId=run-1"));
+    expect(replace).toHaveBeenCalledWith(
+      expect.stringContaining("controlId=dddddddd-dddd-dddd-dddd-dddddddddddd"),
+    );
+  });
+
+  it("preserves explorer workQueue on audit scope bar change-control link", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&workQueue=open-findings&runId=run-1${RESOURCE_HUB_TEST_AUDIT_SUFFIX}`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    const changeControlLink = await screen.findByTestId("infra-resource-hub-audit-scope-bar-change-control");
+    expect(changeControlLink).toHaveAttribute("href", expect.stringContaining("workQueue=open-findings"));
+  });
+
+  it("preserves explorer workQueue on audit scope chip href", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&workQueue=open-findings&runId=run-1&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    const chip = await screen.findByTestId("infra-resource-hub-audit-scope-chip");
+
+    expect(chip).toHaveAttribute("href", expect.stringContaining("workQueue=open-findings"));
+    expect(chip).toHaveAttribute("href", expect.stringContaining(`snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`));
+  });
+
+  it("preserves explorer workQueue on overview audit lineage cross-link", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-open-audit-work")).toHaveAttribute(
+      "href",
+      expect.stringContaining("workQueue=open-findings"),
+    );
+  });
+
+  it("preserves explorer workQueue on remediation Infrastructure Ask links", async () => {
+    searchParams = new URLSearchParams(
+      `tab=remediation&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-remediation-ask-instance-1")).toHaveAttribute(
+      "href",
+      expect.stringContaining("workQueue=open-findings"),
+    );
+  });
+
+  it("preserves explorer workQueue on audit Infrastructure Ask link", async () => {
+    searchParams = new URLSearchParams(
+      `tab=audit&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1${RESOURCE_HUB_TEST_AUDIT_SUFFIX}`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-audit-ask")).toHaveAttribute(
+      "href",
+      expect.stringContaining("workQueue=open-findings"),
+    );
+  });
+
+  it("preserves explorer workQueue on diagram Infrastructure Ask link", async () => {
+    searchParams = new URLSearchParams(
+      `tab=diagram&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-diagram-ask")).toHaveAttribute(
+      "href",
+      expect.stringContaining("workQueue=open-findings"),
+    );
+  });
+
+  it("preserves explorer workQueue when switching audit control via inline picker", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        auditLineageLink: {
+          ...buildResourceHubTestMockHub().auditLineageLink,
+          matches: [
+            {
+              assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              controlId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+              controlNumber: "AC-2",
+              controlTitle: "Account management",
+              snapshotCreatedUtc: "2026-01-01T00:00:00Z",
+            },
+            {
+              assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              controlId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
+              controlNumber: "AC-3",
+              controlTitle: "Access enforcement",
+              snapshotCreatedUtc: "2026-01-02T00:00:00Z",
+            },
+          ],
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(
+      `tab=overview&workQueue=open-findings&runId=run-1&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc`,
+    );
+    replace.mockClear();
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    const picker = await screen.findByTestId("infra-resource-hub-audit-scope-bar-control-picker");
+    fireEvent.change(picker, { target: { value: "dddddddd-dddd-dddd-dddd-dddddddddddd" } });
+
+    expect(replace).toHaveBeenCalledWith(expect.stringContaining("workQueue=open-findings"));
+  });
+
+  it("uses the selected audit snapshot when duplicate control ids are linked", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        auditLineageLink: {
+          ...buildResourceHubTestMockHub().auditLineageLink,
+          assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          auditEvidenceSnapshotId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
+          controlId: "shared-control",
+          controlNumber: "AC-9",
+          controlTitle: "Second control",
+          matches: [
+            {
+              assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              controlId: "shared-control",
+              controlNumber: "AC-2",
+              controlTitle: "First control",
+              snapshotCreatedUtc: "2026-01-01T00:00:00Z",
+            },
+            {
+              assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              auditEvidenceSnapshotId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
+              controlId: "shared-control",
+              controlNumber: "AC-9",
+              controlTitle: "Second control",
+              snapshotCreatedUtc: "2026-01-02T00:00:00Z",
+            },
+          ],
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(
+      "tab=audit&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=dddddddd-dddd-dddd-dddd-dddddddddddd&controlId=shared-control",
+    );
+
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("AE-10 chain of custody for AC-9 · Second control.")).toBeInTheDocument();
+  });
+
+  it("lists every non-active audit control when a later match is selected", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        auditLineageLink: {
+          ...buildResourceHubTestMockHub().auditLineageLink,
+          assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          auditEvidenceSnapshotId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
+          controlId: "control-two",
+          controlNumber: "AC-3",
+          controlTitle: "Second control",
+          matches: [
+            {
+              assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              controlId: "control-one",
+              controlNumber: "AC-2",
+              controlTitle: "First control",
+              snapshotCreatedUtc: "2026-01-01T00:00:00Z",
+            },
+            {
+              assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              auditEvidenceSnapshotId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
+              controlId: "control-two",
+              controlNumber: "AC-3",
+              controlTitle: "Second control",
+              snapshotCreatedUtc: "2026-01-02T00:00:00Z",
+            },
+          ],
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(
+      "tab=audit&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=dddddddd-dddd-dddd-dddd-dddddddddddd&controlId=control-two",
+    );
+
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-audit-ask-control-one")).toBeInTheDocument();
+  });
+
+  it("preserves explorer workQueue when switching hub tabs from the tab bar", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
+    );
+    replace.mockClear();
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    fireEvent.click(await screen.findByTestId("infra-resource-hub-tab-drift"));
+
+    expect(replace).toHaveBeenCalledWith(expect.stringContaining("workQueue=open-findings"));
+    expect(replace).toHaveBeenCalledWith(expect.stringContaining("runId=run-1"));
+  });
+
+  it("preserves explorer workQueue when switching hub tabs without snapshot in URL", async () => {
+    searchParams = new URLSearchParams("tab=overview&workQueue=open-findings&runId=run-1");
+    replace.mockClear();
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    fireEvent.click(await screen.findByTestId("infra-resource-hub-tab-findings"));
+
+    expect(replace).toHaveBeenCalledWith(expect.stringContaining("workQueue=open-findings"));
+    expect(replace).toHaveBeenCalledWith(
+      expect.stringContaining(`snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`),
+    );
+  });
+
+  it("clears overview arm path technical disclosure key when switching away from overview tab", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&infraResourceHubTechnicalKey=armResourcePath&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
+    );
+    replace.mockClear();
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    fireEvent.click(await screen.findByTestId("infra-resource-hub-tab-findings"));
+
+    expect(replace).toHaveBeenCalledWith(
+      expect.not.stringContaining("infraResourceHubTechnicalKey=armResourcePath"),
+    );
+    expect(replace).toHaveBeenCalledWith(expect.stringContaining("workQueue=open-findings"));
+  });
+
+  it("clears terraform technical disclosure key when switching away from terraform tab", async () => {
+    searchParams = new URLSearchParams(
+      `tab=terraform&infraResourceHubTechnicalKey=terraformAddress&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
+    );
+    replace.mockClear();
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    fireEvent.click(await screen.findByTestId("infra-resource-hub-tab-overview"));
+
+    expect(replace).toHaveBeenCalledWith(expect.not.stringContaining("infraResourceHubTechnicalKey=terraformAddress"));
+    expect(replace).toHaveBeenCalledWith(expect.stringContaining("workQueue=open-findings"));
+  });
+
+  it("threads explorer workQueue when using G then E keyboard shortcut to return to explorer", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`,
+    );
+    push.mockClear();
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+    await screen.findByTestId("infra-resource-hub-tabs");
+
+    fireEvent.keyDown(window, { key: "g" });
+    fireEvent.keyDown(window, { key: "e" });
+
+    expect(push).toHaveBeenCalledWith(expect.stringContaining("workQueue=open-findings"));
+  });
+
+  it("preserves explorer workQueue on overview view all drift hub tab link", async () => {
+    const baseChange = buildResourceHubTestMockHub().recentChanges[0];
+    const manyChanges = Array.from({ length: 6 }, (_, index) => ({
+      ...baseChange,
+      changeId: `change-${index + 1}`,
+      diffId: `diff-${index + 1}`,
+    }));
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({ recentChanges: manyChanges }),
+    );
+    searchParams = new URLSearchParams(
+      `tab=overview&workQueue=recent-drift&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-overview-view-all-drift")).toHaveAttribute(
+      "href",
+      expect.stringContaining("workQueue=recent-drift"),
+    );
+    expect(screen.getByTestId("infra-resource-hub-overview-view-all-drift")).toHaveAttribute(
+      "href",
+      expect.stringContaining("tab=drift"),
+    );
+  });
+
+  it("omits terraform mapping from overview when address is absent", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({ terraformAddress: null, terraformGenerationMethod: null }),
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await screen.findByTestId("infra-resource-hub-open-remediation-work");
+    expect(screen.queryByTestId("infra-resource-hub-open-terraform-work")).not.toBeInTheDocument();
+  });
+
+  it("labels missing resource group and region with omission copy (P-13)", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        currentConfiguration: {
+          ...buildResourceHubTestMockHub().currentConfiguration,
+          resourceGroup: null,
+          region: null,
+        },
+      }),
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Resource group was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Azure region was not stored.")).toBeInTheDocument();
+  });
+
+  it("surfaces stale audit banner when URL audit scope is not linked in hub matches", async () => {
+    searchParams = new URLSearchParams(
+      "tab=audit&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+    );
+
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-stale-audit-scope")).toBeInTheDocument();
+    expect(
+      screen.queryByText("AE-10 chain of custody for AC-2 · Account management."),
+    ).not.toBeInTheDocument();
+  });
+
+});

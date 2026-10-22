@@ -1,0 +1,867 @@
+import { INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_OBSERVED } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
+import { normalizeSecureNowResourceNameForDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
+import { findUnquotedMermaidCommentIndex } from "@/lib/mermaid/find-unquoted-mermaid-comment-index";
+
+/** Lightweight Mermaid flowchart outline for accessible diagram peers (nodes + edges only). */
+
+export type InfraEvidenceMermaidOutlineNode = {
+  readonly id: string;
+  readonly label: string;
+  readonly resourceType: string | null;
+  readonly resourceGroup: string | null;
+  readonly connectionState?: "Connected" | "Used" | "Orphaned" | "Unconnected" | "Unknown" | null;
+  readonly seedNodeId?: string | null;
+  /** True when the node stays in the Nodes outline but is omitted from painted diagram canvases. */
+  readonly outlineOnlyOnCanvas?: boolean;
+  readonly unresolvedRelationshipDetails?: readonly string[];
+  readonly questionableReason?: string | null;
+  readonly questionableAction?: string | null;
+};
+
+export type InfraEvidenceMermaidLedgerDrop = {
+  readonly reason: string;
+  readonly from: string;
+  readonly to: string | null;
+};
+
+export type InfraEvidenceDiagramOutlineEdgeSource =
+  | "missing"
+  | "observed"
+  | "declared"
+  | "probable"
+  | "inferred";
+
+export type InfraEvidenceDiagramOutlineConfidenceBand =
+  InfraEvidenceDiagramOutlineEdgeSource;
+
+export type InfraEvidenceMermaidOutlineEdge = {
+  readonly from: string;
+  readonly to: string;
+  readonly label: string | null;
+  readonly source: InfraEvidenceDiagramOutlineEdgeSource;
+  readonly confidenceBand: InfraEvidenceDiagramOutlineConfidenceBand;
+  readonly provenanceKind: string | null;
+  readonly inferenceSource: string | null;
+  readonly declaredConnectionId: string | null;
+};
+
+export type InfraEvidenceMermaidDropGateRow = {
+  readonly reason: string;
+  readonly from: string;
+  readonly to: string;
+};
+
+export type InfraEvidenceMermaidOutline = {
+  readonly nodes: readonly InfraEvidenceMermaidOutlineNode[];
+  readonly edges: readonly InfraEvidenceMermaidOutlineEdge[];
+  readonly dropGateRows?: readonly InfraEvidenceMermaidDropGateRow[];
+  readonly ledgerDrops?: readonly InfraEvidenceMermaidLedgerDrop[];
+};
+
+const NODE_WITH_LABEL =
+  /^([A-Za-z0-9_-]+)(?:\[\[([^\]]+)\]\]|\[([^\]]+)\]|\(\(([^)]+)\)\)|\(([^)]+)\)|\{\{([^}]+)\}\}|\{([^}]+)\}|>([^<]+)<)?/u;
+
+const EDGE_THICK = /==+(?:\|([^|]+)\|)?/u;
+
+const EDGE_DOTTED = /\.-+>/u;
+
+type MermaidEdgeArrowMatch = {
+  readonly index: number;
+  readonly length: number;
+  readonly label: string | null;
+};
+
+function readSolidMermaidEdgeArrow(line: string): MermaidEdgeArrowMatch | null {
+  const solidIndex = line.indexOf("-->");
+
+  if (solidIndex < 0) {
+    return null;
+  }
+
+  let length = 3;
+  let label: string | null = null;
+  const afterArrow = line.slice(solidIndex + 3);
+
+  if (afterArrow.startsWith("|")) {
+    const closingPipe = afterArrow.indexOf("|", 1);
+
+    if (closingPipe > 0) {
+      label = afterArrow.slice(1, closingPipe);
+      length = 3 + closingPipe + 1;
+    }
+  }
+
+  return { index: solidIndex, length, label };
+}
+
+function readDashedMermaidEdgeArrow(line: string): MermaidEdgeArrowMatch | null {
+  const dashedIndex = line.indexOf("-.->");
+
+  if (dashedIndex < 0) {
+    return null;
+  }
+
+  let length = 4;
+  let label: string | null = null;
+  const afterArrow = line.slice(dashedIndex + length);
+
+  if (afterArrow.startsWith("|")) {
+    const closingPipe = afterArrow.indexOf("|", 1);
+
+    if (closingPipe > 0) {
+      label = afterArrow.slice(1, closingPipe);
+      length = 4 + closingPipe + 1;
+    }
+  }
+
+  return { index: dashedIndex, length, label };
+}
+
+function readMermaidEdgeArrow(line: string): MermaidEdgeArrowMatch | null {
+  const candidates: MermaidEdgeArrowMatch[] = [];
+  const solid = readSolidMermaidEdgeArrow(line);
+
+  if (solid !== null) {
+    candidates.push(solid);
+  }
+
+  const dashed = readDashedMermaidEdgeArrow(line);
+
+  if (dashed !== null) {
+    candidates.push(dashed);
+  }
+
+  const thickMatch = EDGE_THICK.exec(line);
+
+  if (thickMatch !== null && thickMatch.index !== undefined) {
+    candidates.push({
+      index: thickMatch.index,
+      length: thickMatch[0].length,
+      label: thickMatch[1] ?? null,
+    });
+  }
+
+  const dottedMatch = EDGE_DOTTED.exec(line);
+
+  if (dottedMatch !== null && dottedMatch.index !== undefined) {
+    candidates.push({
+      index: dottedMatch.index,
+      length: dottedMatch[0].length,
+      label: null,
+    });
+  }
+
+  if (candidates.length === 0) {
+    return null;
+  }
+
+  candidates.sort((left, right) => left.index - right.index);
+
+  return candidates[0] ?? null;
+}
+
+const INVISIBLE_LAYOUT_LINK = /~{2,}/u;
+
+const DIAGRAM_HEADER = /^(?:flowchart|graph|sequenceDiagram|classDiagram|stateDiagram-v2|erDiagram|gantt|pie|mindmap|timeline|gitGraph|C4Context)\b/u;
+
+const STRUCTURAL_LINE =
+  /^(?:subgraph\b|end\b|direction\s+(?:TB|TD|BT|RL|LR|DT|DR)\b)/iu;
+
+const SUBGRAPH_LABEL = /^subgraph\s+([A-Za-z0-9_-]+)(?:\["([^"]+)"\]|\[([^\]]+)\])?/iu;
+
+const RG_SUBGRAPH_LABEL = /^RG\s+(.+)$/iu;
+
+const OUTLINE_METADATA_TOKEN =
+  /(?:^|\s)(al-type|al-rg|al-seed|al-state|al-outline-only|al-unresolved|al-questionable-reason|al-questionable-action)=("([^"\\]*(?:\\.[^"\\]*)*)"|([^\s]+))/gu;
+
+const LEDGER_DROP_COMMENT = /^%%\s+al-ledger-drop\s+(\S+)\s+(\S+)\s+(\S+)/u;
+
+const EDGE_OUTLINE_METADATA_TOKEN =
+  /(?:^|\s)(al-provenance|al-inference|al-declared-id)=("([^"\\]*(?:\\.[^"\\]*)*)"|([^\s]+))/gu;
+
+type OutlineNodeMetadata = {
+  readonly resourceType: string | null;
+  readonly resourceGroup: string | null;
+  readonly connectionState: InfraEvidenceMermaidOutlineNode["connectionState"];
+  readonly seedNodeId: string | null;
+  readonly outlineOnlyOnCanvas: boolean;
+  readonly unresolvedRelationshipDetails: readonly string[];
+  readonly questionableReason?: string | null;
+  readonly questionableAction?: string | null;
+};
+
+type OutlineEdgeMetadata = {
+  readonly source: InfraEvidenceDiagramOutlineEdgeSource;
+  readonly provenanceKind: string | null;
+  readonly inferenceSource: string | null;
+  readonly declaredConnectionId: string | null;
+};
+
+function normalizeOutlineLabel(raw: string | undefined, fallback: string): string {
+  const trimmed = raw?.trim() ?? "";
+
+  if (trimmed.length === 0) {
+    return fallback;
+  }
+
+  return trimmed.replace(/^["']|["']$/g, "");
+}
+
+function unquoteMetadataValue(raw: string): string {
+  const trimmed = raw.trim();
+
+  if (trimmed.startsWith("\"") && trimmed.endsWith("\"") && trimmed.length >= 2) {
+    return trimmed.slice(1, -1).replace(/\\"/gu, "\"");
+  }
+
+  return trimmed;
+}
+
+function parseOutlineNodeMetadata(comment: string): OutlineNodeMetadata {
+  let resourceType: string | null = null;
+  let resourceGroup: string | null = null;
+  let connectionState: InfraEvidenceMermaidOutlineNode["connectionState"] = null;
+  let seedNodeId: string | null = null;
+  let outlineOnlyOnCanvas = false;
+  let questionableReason: string | null = null;
+  let questionableAction: string | null = null;
+  const unresolvedRelationshipDetails: string[] = [];
+
+  for (const match of comment.matchAll(OUTLINE_METADATA_TOKEN)) {
+    const key = match[1];
+    const value = unquoteMetadataValue(match[3] ?? match[4] ?? "");
+
+    if (value.length === 0) {
+      continue;
+    }
+
+    if (key === "al-type") {
+      resourceType = value;
+    }
+
+    if (key === "al-rg") {
+      resourceGroup = value;
+    }
+
+    if (key === "al-seed") {
+      seedNodeId = value;
+    }
+
+    if (
+      key === "al-state"
+      && (value === "Connected"
+        || value === "Used"
+        || value === "Orphaned"
+        || value === "Unconnected"
+        || value === "Unknown")
+    ) {
+      connectionState = value;
+    }
+
+    if (key === "al-outline-only" && (value === "true" || value === "1")) {
+      outlineOnlyOnCanvas = true;
+    }
+
+    if (key === "al-questionable-reason") {
+      questionableReason = value;
+    }
+
+    if (key === "al-questionable-action") {
+      questionableAction = value;
+    }
+
+    if (key === "al-unresolved") {
+      unresolvedRelationshipDetails.push(value);
+    }
+  }
+
+  return {
+    resourceType,
+    resourceGroup,
+    connectionState,
+    seedNodeId,
+    outlineOnlyOnCanvas,
+    unresolvedRelationshipDetails,
+    ...(questionableReason === null ? {} : { questionableReason }),
+    ...(questionableAction === null ? {} : { questionableAction }),
+  };
+}
+
+function emptyOutlineNodeMetadata(): OutlineNodeMetadata {
+  return {
+    resourceType: null,
+    resourceGroup: null,
+    connectionState: null,
+    seedNodeId: null,
+    outlineOnlyOnCanvas: false,
+    unresolvedRelationshipDetails: [],
+  };
+}
+
+function emptyOutlineEdgeMetadata(): OutlineEdgeMetadata {
+  return {
+    source: "missing",
+    provenanceKind: null,
+    inferenceSource: null,
+    declaredConnectionId: null,
+  };
+}
+
+export function formatInfraEvidenceOutlineProvenanceReviewerBand(provenanceKind: string): string {
+  if (provenanceKind === "ObservedFact") {
+    return INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_OBSERVED;
+  }
+
+  return `Provenance "${provenanceKind}" has no reviewer band.`;
+}
+
+function resolveOutlineEdgeSourceFromProvenance(provenanceKind: string): InfraEvidenceDiagramOutlineEdgeSource {
+  const normalized = provenanceKind.toLowerCase();
+
+  if (normalized === "humanassertion") {
+    return "declared";
+  }
+
+  if (normalized === "aiinference") {
+    return "inferred";
+  }
+
+  if (normalized === "derivedfact") {
+    return "probable";
+  }
+
+  if (normalized === "deterministicinference") {
+    return "inferred";
+  }
+
+  if (normalized === "observedfact") {
+    return "observed";
+  }
+
+  return "missing";
+}
+
+function parseOutlineEdgeMetadata(comment: string): OutlineEdgeMetadata {
+  let source: InfraEvidenceDiagramOutlineEdgeSource = "missing";
+  let provenanceKind: string | null = null;
+  let inferenceSource: string | null = null;
+  let declaredConnectionId: string | null = null;
+
+  for (const match of comment.matchAll(EDGE_OUTLINE_METADATA_TOKEN)) {
+    const key = match[1];
+    const value = unquoteMetadataValue(match[3] ?? match[4] ?? "");
+
+    if (value.length === 0) {
+      continue;
+    }
+
+    if (key === "al-provenance") {
+      provenanceKind = value;
+      source = resolveOutlineEdgeSourceFromProvenance(value);
+    }
+
+    if (key === "al-inference") {
+      inferenceSource = value;
+
+      if (value.toLowerCase() === "human-declared-connection") {
+        source = "declared";
+      }
+    }
+
+    if (key === "al-declared-id") {
+      declaredConnectionId = value;
+    }
+  }
+
+  return { source, provenanceKind, inferenceSource, declaredConnectionId };
+}
+
+function mergeOutlineEdgeMetadata(
+  preferred: OutlineEdgeMetadata,
+  fallback: OutlineEdgeMetadata,
+): OutlineEdgeMetadata {
+  return {
+    source: preferred.source !== "missing" ? preferred.source : fallback.source,
+    provenanceKind: preferred.provenanceKind ?? fallback.provenanceKind,
+    inferenceSource: preferred.inferenceSource ?? fallback.inferenceSource,
+    declaredConnectionId: preferred.declaredConnectionId ?? fallback.declaredConnectionId,
+  };
+}
+
+function resolveEdgeSourceFromArrow(line: string, metadata: OutlineEdgeMetadata): InfraEvidenceDiagramOutlineEdgeSource {
+  if (metadata.source !== "missing") {
+    return metadata.source;
+  }
+
+  return "missing";
+}
+
+export function hasInfraEvidenceDeclaredDiagramEdges(
+  outline: InfraEvidenceMermaidOutline | null,
+  mermaidSource?: string | null,
+): boolean {
+  if (outline != null && outline.edges.some((edge) => edge.source === "declared")) {
+    return true;
+  }
+
+  const source = mermaidSource?.trim() ?? "";
+
+  if (source.length === 0) {
+    return false;
+  }
+
+  return source.includes("-.->") || /declared\s·/u.test(source);
+}
+
+export function hasInfraEvidenceProbableDiagramEdges(
+  outline: InfraEvidenceMermaidOutline | null,
+  mermaidSource?: string | null,
+): boolean {
+  if (outline != null && outline.edges.some((edge) => edge.source === "probable")) {
+    return true;
+  }
+
+  const source = mermaidSource?.trim() ?? "";
+
+  if (source.length === 0) {
+    return false;
+  }
+
+  return /al-provenance=DerivedFact/iu.test(source);
+}
+
+export function hasInfraEvidenceUnclassifiedDiagramEdges(
+  outline: InfraEvidenceMermaidOutline | null,
+  layoutSvg?: string | null,
+): boolean {
+  if (outline != null && outline.edges.some((edge) => edge.source === "missing")) {
+    return true;
+  }
+
+  const svg = layoutSvg?.trim() ?? "";
+
+  return svg.length > 0 && /stroke-dasharray\s*=\s*["']2\s+2["']/iu.test(svg);
+}
+
+export function hasInfraEvidenceInferredDiagramEdges(
+  outline: InfraEvidenceMermaidOutline | null,
+  mermaidSource?: string | null,
+): boolean {
+  if (outline != null && outline.edges.some((edge) => edge.source === "inferred")) {
+    return true;
+  }
+
+  const source = mermaidSource?.trim() ?? "";
+
+  if (source.length === 0) {
+    return false;
+  }
+
+  return (
+    /al-provenance=AiInference/iu.test(source)
+    || /al-provenance=DeterministicInference/iu.test(source)
+    || /inferred\s·/u.test(source)
+    || /likely\s·/u.test(source)
+  );
+}
+
+function mergeOutlineNodeMetadata(
+  preferred: OutlineNodeMetadata,
+  fallback: OutlineNodeMetadata,
+): OutlineNodeMetadata {
+  return {
+    resourceType: preferred.resourceType ?? fallback.resourceType,
+    resourceGroup: preferred.resourceGroup ?? fallback.resourceGroup,
+    connectionState: preferred.connectionState ?? fallback.connectionState,
+    seedNodeId: preferred.seedNodeId ?? fallback.seedNodeId,
+    outlineOnlyOnCanvas: preferred.outlineOnlyOnCanvas || fallback.outlineOnlyOnCanvas,
+    unresolvedRelationshipDetails:
+      preferred.unresolvedRelationshipDetails.length > 0
+        ? preferred.unresolvedRelationshipDetails
+        : fallback.unresolvedRelationshipDetails,
+    questionableReason: preferred.questionableReason ?? fallback.questionableReason,
+    questionableAction: preferred.questionableAction ?? fallback.questionableAction,
+  };
+}
+
+function withPrecedingMetadata(
+  node: InfraEvidenceMermaidOutlineNode | null,
+  preceding: OutlineNodeMetadata,
+): InfraEvidenceMermaidOutlineNode | null {
+  if (node == null) {
+    return null;
+  }
+
+  return {
+    ...node,
+    resourceType: node.resourceType ?? preceding.resourceType,
+    resourceGroup: node.resourceGroup ?? preceding.resourceGroup,
+    connectionState: node.connectionState ?? preceding.connectionState,
+    seedNodeId: node.seedNodeId ?? preceding.seedNodeId,
+    outlineOnlyOnCanvas: node.outlineOnlyOnCanvas === true || preceding.outlineOnlyOnCanvas,
+    unresolvedRelationshipDetails:
+      preceding.unresolvedRelationshipDetails.length > 0
+        ? preceding.unresolvedRelationshipDetails
+        : node.unresolvedRelationshipDetails,
+    questionableReason: node.questionableReason ?? preceding.questionableReason,
+    questionableAction: node.questionableAction ?? preceding.questionableAction,
+  };
+}
+
+function splitNodeLine(line: string): { readonly nodeToken: string; readonly metadata: OutlineNodeMetadata } {
+  const commentIndex = findUnquotedMermaidCommentIndex(line);
+
+  if (commentIndex < 0) {
+    return {
+      nodeToken: line.trim(),
+      metadata: emptyOutlineNodeMetadata(),
+    };
+  }
+
+  return {
+    nodeToken: line.slice(0, commentIndex).trim(),
+    metadata: parseOutlineNodeMetadata(line.slice(commentIndex)),
+  };
+}
+
+function readNodeToken(
+  token: string,
+  metadata: OutlineNodeMetadata,
+  subgraphResourceGroup: string | null,
+): InfraEvidenceMermaidOutlineNode | null {
+  const match = NODE_WITH_LABEL.exec(token.trim());
+
+  if (match == null) {
+    return null;
+  }
+
+  const id = match[1];
+  const label = normalizeOutlineLabel(
+    match[2] ?? match[3] ?? match[4] ?? match[5] ?? match[6] ?? match[7] ?? match[8],
+    id,
+  );
+
+  return {
+    id,
+    label,
+    resourceType: metadata.resourceType,
+    resourceGroup: metadata.resourceGroup ?? subgraphResourceGroup,
+    connectionState: metadata.connectionState,
+    seedNodeId: metadata.seedNodeId,
+    outlineOnlyOnCanvas: metadata.outlineOnlyOnCanvas ? true : undefined,
+    unresolvedRelationshipDetails:
+      metadata.unresolvedRelationshipDetails.length > 0
+        ? metadata.unresolvedRelationshipDetails
+        : undefined,
+    questionableReason: metadata.questionableReason,
+    questionableAction: metadata.questionableAction,
+  };
+}
+
+function upsertNode(
+  nodeMap: Map<string, InfraEvidenceMermaidOutlineNode>,
+  node: InfraEvidenceMermaidOutlineNode,
+): void {
+  const existing = nodeMap.get(node.id);
+
+  if (existing != null && existing.label !== existing.id) {
+    if (existing.resourceType == null && node.resourceType != null) {
+      nodeMap.set(node.id, { ...existing, resourceType: node.resourceType });
+    }
+
+    if (existing.resourceGroup == null && node.resourceGroup != null) {
+      const next = nodeMap.get(node.id)!;
+
+      nodeMap.set(node.id, { ...next, resourceGroup: node.resourceGroup });
+    }
+
+    if (existing.seedNodeId == null && node.seedNodeId != null) {
+      const next = nodeMap.get(node.id)!;
+
+      nodeMap.set(node.id, { ...next, seedNodeId: node.seedNodeId });
+    }
+
+    if (existing.connectionState == null && node.connectionState != null) {
+      const next = nodeMap.get(node.id)!;
+
+      nodeMap.set(node.id, { ...next, connectionState: node.connectionState });
+    }
+
+    if (existing.outlineOnlyOnCanvas !== true && node.outlineOnlyOnCanvas === true) {
+      const next = nodeMap.get(node.id)!;
+
+      nodeMap.set(node.id, { ...next, outlineOnlyOnCanvas: true });
+    }
+
+    if ((existing.unresolvedRelationshipDetails?.length ?? 0) === 0
+      && (node.unresolvedRelationshipDetails?.length ?? 0) > 0) {
+      const next = nodeMap.get(node.id)!;
+
+      nodeMap.set(node.id, { ...next, unresolvedRelationshipDetails: node.unresolvedRelationshipDetails });
+    }
+
+    if (existing.questionableReason == null && node.questionableReason != null) {
+      const next = nodeMap.get(node.id)!;
+
+      nodeMap.set(node.id, { ...next, questionableReason: node.questionableReason });
+    }
+
+    if (existing.questionableAction == null && node.questionableAction != null) {
+      const next = nodeMap.get(node.id)!;
+
+      nodeMap.set(node.id, { ...next, questionableAction: node.questionableAction });
+    }
+
+    return;
+  }
+
+  nodeMap.set(node.id, node);
+}
+
+function resolveSubgraphResourceGroup(label: string | null): string | null {
+  if (label == null || label.trim().length === 0) {
+    return null;
+  }
+
+  const match = RG_SUBGRAPH_LABEL.exec(label.trim());
+
+  if (match == null) {
+    return null;
+  }
+
+  const resourceGroup = match[1].trim();
+
+  return resourceGroup.length > 0 ? resourceGroup : null;
+}
+
+function readSubgraphLabel(line: string): string | null {
+  const match = SUBGRAPH_LABEL.exec(line.trim());
+
+  if (match == null) {
+    return null;
+  }
+
+  const label = normalizeOutlineLabel(match[2] ?? match[3], match[1]);
+
+  return label.length > 0 ? label : null;
+}
+
+export function resolveInfraEvidenceOutlineNodeLabel(
+  nodes: readonly InfraEvidenceMermaidOutlineNode[],
+  nodeId: string,
+): string {
+  const match = nodes.find((node) => node.id === nodeId);
+
+  if (match == null) {
+    return "Endpoint was not in this diagram outline";
+  }
+
+  const trimmedLabel = match.label.trim();
+
+  if (trimmedLabel.length === 0 || trimmedLabel === "—" || trimmedLabel === "-") {
+    return "Node name was not stored";
+  }
+
+  return normalizeSecureNowResourceNameForDisplay(match.label);
+}
+
+export function resolveInfraEvidenceOutlineSeedNodeId(node: InfraEvidenceMermaidOutlineNode): string {
+  const seed = node.seedNodeId?.trim() ?? "";
+
+  if (seed.length > 0) {
+    return seed;
+  }
+
+  return node.id;
+}
+
+export function isInfraEvidenceVirtualNetworkResourceType(resourceType: string | null | undefined): boolean {
+  if (resourceType == null) {
+    return false;
+  }
+
+  const trimmed = resourceType.trim();
+
+  if (trimmed.length === 0) {
+    return false;
+  }
+
+  const lower = trimmed.toLowerCase();
+
+  return lower.includes("/virtualnetworks") && !lower.includes("/subnets");
+}
+
+export function resolveInfraEvidenceOutlineEdgeLabel(
+  edge: InfraEvidenceMermaidOutlineEdge,
+  nodes: readonly InfraEvidenceMermaidOutlineNode[],
+): string | null {
+  if (edge.label == null) {
+    return null;
+  }
+
+  const explicit = edge.label?.trim() ?? "";
+
+  if (explicit.length > 0) {
+    return explicit;
+  }
+
+  return "";
+}
+
+export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceMermaidOutline {
+  const nodeMap = new Map<string, InfraEvidenceMermaidOutlineNode>();
+  const edges: InfraEvidenceMermaidOutlineEdge[] = [];
+  const dropGateRows: InfraEvidenceMermaidDropGateRow[] = [];
+  const ledgerDrops: InfraEvidenceMermaidLedgerDrop[] = [];
+  const subgraphResourceGroups: string[] = [];
+  let pendingMetadata: OutlineNodeMetadata = emptyOutlineNodeMetadata();
+  let pendingEdgeMetadata: OutlineEdgeMetadata = emptyOutlineEdgeMetadata();
+
+  const attachPendingMetadata = (
+    node: InfraEvidenceMermaidOutlineNode | null,
+  ): InfraEvidenceMermaidOutlineNode | null => {
+    const merged = withPrecedingMetadata(node, pendingMetadata);
+
+    if (merged != null) {
+      pendingMetadata = emptyOutlineNodeMetadata();
+    }
+
+    return merged;
+  };
+
+  for (const rawLine of source.split(/\r?\n/u)) {
+    const line = rawLine.trim();
+
+    if (line.length === 0) {
+      continue;
+    }
+
+    if (line.startsWith("%%{")) {
+      continue;
+    }
+
+    // Own-line comments: mermaid.js only strips %% at line start. Inventory metadata
+    // is emitted that way so the diagram parses; attach tokens to the next node.
+    if (line.startsWith("%%")) {
+      const ledgerMatch = LEDGER_DROP_COMMENT.exec(line);
+
+      if (ledgerMatch != null) {
+        const reason = ledgerMatch[1];
+        const from = ledgerMatch[2];
+        const toRaw = ledgerMatch[3];
+        ledgerDrops.push({
+          reason,
+          from,
+          to: toRaw === "_" ? null : toRaw,
+        });
+        dropGateRows.push({
+          reason,
+          from,
+          to: toRaw,
+        });
+        continue;
+      }
+
+      pendingMetadata = mergeOutlineNodeMetadata(parseOutlineNodeMetadata(line), pendingMetadata);
+      pendingEdgeMetadata = mergeOutlineEdgeMetadata(parseOutlineEdgeMetadata(line), pendingEdgeMetadata);
+      continue;
+    }
+
+    if (line.startsWith("classDef ") || line.startsWith("class ") || DIAGRAM_HEADER.test(line)) {
+      continue;
+    }
+
+    if (/^end\b/iu.test(line)) {
+      if (subgraphResourceGroups.length > 0) {
+        subgraphResourceGroups.pop();
+      }
+
+      continue;
+    }
+
+    const subgraphLabel = readSubgraphLabel(line);
+
+    if (subgraphLabel != null) {
+      const resourceGroup = resolveSubgraphResourceGroup(subgraphLabel);
+
+      if (resourceGroup != null) {
+        subgraphResourceGroups.push(resourceGroup);
+      }
+
+      continue;
+    }
+
+    if (STRUCTURAL_LINE.test(line)) {
+      continue;
+    }
+
+    const activeSubgraphResourceGroup =
+      subgraphResourceGroups.length > 0 ? subgraphResourceGroups[subgraphResourceGroups.length - 1] : null;
+
+    const invisibleLinkMatch = INVISIBLE_LAYOUT_LINK.exec(line);
+
+    if (invisibleLinkMatch != null) {
+      continue;
+    }
+
+    const arrowMatch = readMermaidEdgeArrow(line);
+
+    if (arrowMatch != null) {
+      const arrowIndex = arrowMatch.index;
+      const fromParts = splitNodeLine(line.slice(0, arrowIndex));
+      const toParts = splitNodeLine(line.slice(arrowIndex + arrowMatch.length));
+      const fromNode = attachPendingMetadata(
+        readNodeToken(fromParts.nodeToken, fromParts.metadata, activeSubgraphResourceGroup),
+      );
+      const toNode = readNodeToken(toParts.nodeToken, toParts.metadata, activeSubgraphResourceGroup);
+      const edgeLabel = normalizeOutlineLabel(arrowMatch.label ?? undefined, "");
+      const edgeMetadata = pendingEdgeMetadata;
+      pendingEdgeMetadata = emptyOutlineEdgeMetadata();
+      const edgeSource = resolveEdgeSourceFromArrow(line, edgeMetadata);
+
+      if (fromNode != null) {
+        upsertNode(nodeMap, fromNode);
+      }
+
+      if (toNode != null) {
+        upsertNode(nodeMap, toNode);
+      }
+
+      if (fromNode != null && toNode != null) {
+        edges.push({
+          from: fromNode.id,
+          to: toNode.id,
+          label: edgeLabel.length > 0 ? edgeLabel : null,
+          source: edgeSource,
+          confidenceBand: edgeSource,
+          provenanceKind: edgeMetadata.provenanceKind,
+          inferenceSource: edgeMetadata.inferenceSource,
+          declaredConnectionId: edgeMetadata.declaredConnectionId,
+        });
+      }
+
+      continue;
+    }
+
+    const standaloneParts = splitNodeLine(line);
+    const standaloneNode = attachPendingMetadata(
+      readNodeToken(
+        standaloneParts.nodeToken,
+        standaloneParts.metadata,
+        activeSubgraphResourceGroup,
+      ),
+    );
+
+    if (standaloneNode != null) {
+      pendingEdgeMetadata = emptyOutlineEdgeMetadata();
+      upsertNode(nodeMap, standaloneNode);
+    }
+  }
+
+  return {
+    nodes: [...nodeMap.values()],
+    edges,
+    dropGateRows,
+    ledgerDrops,
+  };
+}

@@ -1,0 +1,1 @@
+export { GovernanceApprovalLineageSourcesOrientationStrip as GovernanceApprovalLineageClaimOrientationStrip } from "./GovernanceApprovalLineageSourcesOrientationStrip";

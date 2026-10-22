@@ -1,0 +1,159 @@
+using ArchLucid.Core.Scoping;
+using ArchLucid.Api.Tests.Http;
+using ArchLucid.Host.Core.Middleware;
+
+using FluentAssertions;
+
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+
+using Moq;
+
+namespace ArchLucid.Api.Tests;
+
+/// <summary>
+///     Unit tests for <see cref="HttpRequestLoggingMiddleware" />.
+/// </summary>
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
+public sealed class HttpRequestLoggingMiddlewareTests
+{
+    [Fact]
+    public void ResolveCorrelationIdentifier_reads_response_header_trimmed()
+    {
+        DefaultHttpContext context = new();
+
+        context.Response.Headers["X-Correlation-ID"] = "  corr-xyz  ";
+
+        HttpRequestLoggingMiddleware.ResolveCorrelationIdentifierForLogging(context)
+            .Should()
+            .Be("corr-xyz");
+    }
+
+    [Fact]
+    public void ResolveCorrelationIdentifier_falls_back_when_header_blank()
+    {
+        DefaultHttpContext context = new()
+        {
+            TraceIdentifier = "trace-fallback"
+        };
+
+        context.Response.Headers["X-Correlation-ID"] = "    ";
+
+        HttpRequestLoggingMiddleware.ResolveCorrelationIdentifierForLogging(context)
+            .Should()
+            .Be("trace-fallback");
+    }
+
+    [Fact]
+    public void ResolveCorrelationIdentifier_returns_null_when_no_signals()
+    {
+        DefaultHttpContext context = new()
+        {
+            TraceIdentifier = string.Empty
+        };
+
+        HttpRequestLoggingMiddleware.ResolveCorrelationIdentifierForLogging(context)
+            .Should()
+            .BeNull();
+    }
+
+    [Fact]
+    public async Task Middleware_logs_started_entry_only()
+    {
+        RecordingLoggerProvider sink = new();
+
+        using ILoggerFactory factory = LoggerFactory.Create(b =>
+        {
+            b.AddProvider(sink);
+            b.SetMinimumLevel(LogLevel.Information);
+        });
+        ILogger<HttpRequestLoggingMiddleware> logger =
+            factory.CreateLogger<HttpRequestLoggingMiddleware>();
+
+        HttpRequestLoggingMiddleware sut = new(Terminator, logger);
+
+        DefaultHttpContext context = new()
+        {
+            Request = { Method = HttpMethods.Get, Path = "/v1/sample" },
+            TraceIdentifier = "trace-under-test"
+        };
+
+        context.Response.Headers["X-Correlation-ID"] = "trace-under-test";
+
+        await sut.InvokeAsync(context);
+
+        IList<(LogLevel Level, EventId EventId, string Message)> entries = sink.Entries;
+
+        entries.Should().HaveCount(1);
+
+        entries.Should()
+            .Contain(e =>
+                e.Message.StartsWith("HTTP request started", StringComparison.Ordinal)
+                && e.Message.Contains(HttpMethods.Get, StringComparison.Ordinal)
+                && e.Message.Contains("trace-under-test", StringComparison.Ordinal));
+
+        return;
+
+        Task Terminator(HttpContext ctx)
+        {
+            ctx.Response.StatusCode = StatusCodes.Status418ImATeapot;
+
+            return Task.CompletedTask;
+        }
+    }
+
+    [Fact]
+    public async Task After_correlation_middleware_client_header_is_logged()
+    {
+        RecordingLoggerProvider sink = new();
+
+        using ILoggerFactory factory = LoggerFactory.Create(b =>
+        {
+            b.AddProvider(sink);
+            b.SetMinimumLevel(LogLevel.Information);
+        });
+        ILogger<HttpRequestLoggingMiddleware> logger =
+            factory.CreateLogger<HttpRequestLoggingMiddleware>();
+
+        HttpRequestLoggingMiddleware logging = new(
+            ctx =>
+            {
+                ctx.Response.StatusCode = StatusCodes.Status204NoContent;
+
+                return Task.CompletedTask;
+            },
+            logger);
+
+        CorrelationIdMiddleware corr = new(logging.InvokeAsync, CreateScopeProvider());
+
+        DefaultHttpContext context = new()
+        {
+            TraceIdentifier = "server-fallback-if-invalid",
+            Request = { Method = HttpMethods.Put, Path = "/v1/widget", Headers = { ["X-Correlation-ID"] = "client-supplied-99" }
+            }
+        };
+
+        await corr.InvokeAsync(context);
+
+        IList<(LogLevel Level, EventId EventId, string Message)> joined = sink.Entries;
+
+        joined.Should()
+            .Contain(e =>
+                e.Message.Contains("HTTP request started", StringComparison.Ordinal)
+                && e.Message.Contains("client-supplied-99", StringComparison.Ordinal));
+
+        joined.Should()
+            .NotContain(e => e.Message.Contains("HTTP request finished", StringComparison.Ordinal));
+    }
+
+    private static IScopeContextProvider CreateScopeProvider()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider
+            .Setup(p => p.GetCurrentScope())
+            .Returns(new ScopeContext());
+
+        return scopeProvider.Object;
+    }
+}

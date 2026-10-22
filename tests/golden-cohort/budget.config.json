@@ -1,0 +1,9 @@
+{
+  "monthlyTokenBudgetUsd": 15,
+  "warnThresholdPercent": 80,
+  "killSwitchThresholdPercent": 95,
+  "deploymentName": "archlucid-golden-cohort",
+  "region": "eastus",
+  "baselineModelSku": "gpt-5.6-terra",
+  "driftRunMaxTotalPromptCompletionTokens": 180000
+}

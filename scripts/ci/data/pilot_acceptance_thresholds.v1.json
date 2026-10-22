@@ -1,0 +1,14 @@
+{
+  "schema": "archlucid.pilot-acceptance-thresholds.v1",
+  "canonicalDoc": "docs/go-to-market/PILOT_ACCEPTANCE_THRESHOLDS.md",
+  "outcomes": ["PASS", "HOLD", "DEFERRED_SCOPE"],
+  "qualityLevels": ["Strong", "Sufficient", "Weak", "Missing"],
+  "requiredArtifacts": [
+    "go-no-go-summary.json",
+    "quote-to-proof-readiness.json",
+    "first-pilot-evidence/first-value-report.md"
+  ],
+  "sendDispositions": ["SEND", "READY", "WARN"],
+  "strongRoiBasis": ["buyer-provided"],
+  "weakRoiBasis": ["demo-derived", "not-collected", "hold_missing_sources"]
+}

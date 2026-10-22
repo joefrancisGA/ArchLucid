@@ -1,0 +1,81 @@
+{
+  "demoLabel": "policy-ab-demo (synthetic - internal demo validation only)",
+  "runId": "dddddddddddddddddddddddddddddddd",
+  "before": {
+    "configurationLabel": "Configuration A \u2014 default pack (allow path)",
+    "priorityFloor": "P0",
+    "activeComplianceRuleKeysOrdered": [
+      "demo-ctrl-audit-logging",
+      "demo-ctrl-encryption-at-rest"
+    ],
+    "findings": [
+      {
+        "findingId": "demo-finding-critical",
+        "severity": "Critical",
+        "title": "Demo critical compliance gap (synthetic)",
+        "blocksCommitUnderConfiguration": false
+      }
+    ],
+    "gateBlocked": false,
+    "sponsorReportLines": [
+      "Pre-commit gate: allowed (commit would proceed)",
+      "Active compliance rules (2, priority floor P0): demo-ctrl-audit-logging, demo-ctrl-encryption-at-rest",
+      "Committed findings in scope (1): demo-finding-critical (Critical)",
+      "Enforcement: blockCommitOnCritical=False, blockCommitMinimumSeverity=null"
+    ]
+  },
+  "after": {
+    "configurationLabel": "Configuration B \u2014 strict pack (block path)",
+    "priorityFloor": "P1",
+    "activeComplianceRuleKeysOrdered": [
+      "demo-ctrl-audit-logging",
+      "demo-ctrl-encryption-at-rest",
+      "demo-ctrl-network-isolation"
+    ],
+    "findings": [
+      {
+        "findingId": "demo-finding-critical",
+        "severity": "Critical",
+        "title": "Demo critical compliance gap (synthetic)",
+        "blocksCommitUnderConfiguration": true
+      }
+    ],
+    "gateBlocked": true,
+    "sponsorReportLines": [
+      "Pre-commit gate: blocked (commit would not proceed)",
+      "Active compliance rules (3, priority floor P1): demo-ctrl-audit-logging, demo-ctrl-encryption-at-rest, demo-ctrl-network-isolation",
+      "Committed findings in scope (1): demo-finding-critical (Critical)",
+      "Enforcement: blockCommitOnCritical=True, blockCommitMinimumSeverity=3"
+    ]
+  },
+  "changes": {
+    "addedComplianceRuleKeys": [
+      "demo-ctrl-network-isolation"
+    ],
+    "removedComplianceRuleKeys": [],
+    "findingsNewlyBlockingCommit": [
+      "demo-finding-critical"
+    ],
+    "findingsNoLongerBlockingCommit": [],
+    "sponsorReportLinesAdded": [
+      "Pre-commit gate: blocked (commit would not proceed)",
+      "Active compliance rules (3, priority floor P1): demo-ctrl-audit-logging, demo-ctrl-encryption-at-rest, demo-ctrl-network-isolation",
+      "Enforcement: blockCommitOnCritical=True, blockCommitMinimumSeverity=3"
+    ],
+    "sponsorReportLinesRemoved": [
+      "Pre-commit gate: allowed (commit would proceed)",
+      "Active compliance rules (2, priority floor P0): demo-ctrl-audit-logging, demo-ctrl-encryption-at-rest",
+      "Enforcement: blockCommitOnCritical=False, blockCommitMinimumSeverity=null"
+    ],
+    "gateBlockedFlipped": true
+  },
+  "auditTrailCitations": [
+    {
+      "eventType": "PolicyPackAssignmentCreated",
+      "runId": "dddddddddddddddddddddddddddddddd",
+      "assignmentId": "11111111-1111-1111-1111-111111111111",
+      "policyPackId": "22222222-2222-2222-2222-222222222222",
+      "policyPackVersion": "1.0.0"
+    }
+  ]
+}

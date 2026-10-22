@@ -1,0 +1,50 @@
+[
+  {
+    "findingId": "6b7987ed-5d06-2c71-2274-9a8b5822b287",
+    "findingType": "InventoryReconciliationFinding",
+    "category": "Correctness",
+    "severity": "Warning",
+    "title": "Topology graph and Azure inventory are out of sync",
+    "rationale": "At least one topology resource identifier does not match the latest scoped Azure inventory snapshot.",
+    "relatedNodeIds": [],
+    "payloadType": "InventoryReconciliationFindingPayload",
+    "rulesApplied": [
+      "graph-azure-inventory-reconciliation"
+    ],
+    "decisionsTaken": [
+      "Compared topology resource ARM identifiers to scoped extractor resources.json rows."
+    ]
+  },
+  {
+    "findingId": "528a8c1a-deef-3336-0c5b-7ef008caa290",
+    "findingType": "OrphanedAzureResource",
+    "category": "CostOptimization",
+    "severity": "Warning",
+    "title": "Orphaned resource: Microsoft.Compute/disks",
+    "rationale": "Unattached managed disk (no managedBy).",
+    "relatedNodeIds": [],
+    "payloadType": "RequirementFindingPayload",
+    "rulesApplied": [
+      "orphaned-azure-resource-classifier"
+    ],
+    "decisionsTaken": [
+      "Flagged unattached disk, NIC, public IP, load balancer, NSG, or route table from extractor inventory."
+    ]
+  },
+  {
+    "findingId": "b7cd0803-a0f2-e73f-b426-60a9f1fa57c3",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "No topology resources were found",
+    "rationale": "The graph does not contain any TopologyResource nodes.",
+    "relatedNodeIds": [],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-presence"
+    ],
+    "decisionsTaken": [
+      "No TopologyResource nodes found in graph \u2014 emitted coverage warning."
+    ]
+  }
+]

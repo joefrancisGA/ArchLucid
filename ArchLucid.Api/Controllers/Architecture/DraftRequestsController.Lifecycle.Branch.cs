@@ -1,0 +1,161 @@
+using System.Text.Json;
+
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
+using ArchLucid.Application.Exports;
+using ArchLucid.Contracts.Drafts;
+using ArchLucid.Contracts.Exports;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scoping;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace ArchLucid.Api.Controllers.Architecture;
+
+public sealed partial class DraftRequestsController
+{
+    /// <summary>Downloads the ADR 0052 decision receipt JSON for a redirected intake draft.</summary>
+    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+    [HttpGet("{draftId:guid}/decision-receipt")]
+    [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> DownloadDraftDecisionReceipt(Guid draftId, CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        IActionResult? sealedGuardResult =
+            await EnsureDraftIntakeSealedManifestReadAllowedAsync(scope, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        try
+        {
+            DecisionReceiptDocument? receipt =
+                await _decisionReceiptService.BuildForDraftAsync(scope, draftId, cancellationToken);
+
+            if (receipt is null)
+                return this.NotFoundProblem(
+                    $"Decision receipt for draft '{draftId}' was not found or is not exportable.",
+                    ProblemTypes.ValidationFailed);
+
+            await _auditService.LogAsync(
+                BuildDraftAuditEvent(
+                    scope,
+                    AuditEventTypes.DecisionReceiptExported,
+                    new { draftId, source = receipt.Source.ToString() }),
+                cancellationToken);
+
+            string json = JsonSerializer.Serialize(receipt, new JsonSerializerOptions { WriteIndented = true });
+            byte[] body = System.Text.Encoding.UTF8.GetBytes(json);
+
+            return File(body, "application/json", DecisionReceiptComposer.BuildFilename(receipt.DraftId, receipt.RunId));
+        }
+        catch (ConflictException ex)
+        {
+            return MapDraftRequestSealedManifestConflict(ex);
+        }
+    }
+
+    /// <summary>Returns what-if branch quota and estimated run cost for an admitted parent draft (R12).</summary>
+    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+    [HttpGet("{draftId:guid}/branch-quota")]
+    [ProducesResponseType(typeof(DraftBranchQuotaResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> GetDraftBranchQuota(Guid draftId, CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        IActionResult? sealedGuardResult =
+            await EnsureDraftIntakeSealedManifestReadAllowedAsync(scope, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        try
+        {
+            DraftBranchQuotaResponse? quota =
+                await _draftRequestService.GetBranchQuotaAsync(scope, draftId, cancellationToken);
+
+            if (quota is null)
+                return this.NotFoundProblem($"Draft '{draftId}' was not found.", ProblemTypes.ValidationFailed);
+
+            return Ok(quota);
+        }
+        catch (ConflictException ex)
+        {
+            return MapDraftRequestSealedManifestConflict(ex);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return this.InvalidOperationProblem(ex, ProblemTypes.ValidationFailed);
+        }
+    }
+
+    /// <summary>Clones an admitted or run-spawned draft with one ceteris-paribus override (R12).</summary>
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    // idempotency-posture: operator-documented-safe-retry
+    [HttpPost("{draftId:guid}/branch")]
+    [ProducesResponseType(typeof(BranchDraftResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> BranchDraft(
+        Guid draftId,
+        [FromBody] BranchDraftRequest? body,
+        CancellationToken cancellationToken)
+    {
+        if (body is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        string actorUserId = _actorContext.GetActorId();
+
+        IActionResult? sealedGuardResult =
+            await EnsureDraftIntakeSealedManifestReadAllowedAsync(scope, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        try
+        {
+            BranchDraftResponse? result = await _draftRequestService.BranchAsync(
+                scope,
+                draftId,
+                actorUserId,
+                body,
+                cancellationToken);
+
+            if (result is null)
+                return this.NotFoundProblem($"Draft '{draftId}' was not found.", ProblemTypes.ValidationFailed);
+
+            await _auditService.LogAsync(
+                BuildDraftAuditEvent(
+                    scope,
+                    AuditEventTypes.DraftIntakeBranched,
+                    new
+                    {
+                        parentDraftId = draftId,
+                        branchDraftId = result.Branch.DraftId,
+                        overrideKind = body.OverrideKind.ToString(),
+                    }),
+                cancellationToken);
+
+            return CreatedAtAction(nameof(GetDraft), new { draftId = result.Branch.DraftId }, result);
+        }
+        catch (ConflictException ex)
+        {
+            return MapDraftRequestSealedManifestConflict(ex);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return this.InvalidOperationProblem(ex, ProblemTypes.ValidationFailed);
+        }
+    }
+}

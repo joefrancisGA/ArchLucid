@@ -1,0 +1,300 @@
+"use client";
+
+import { cn } from "@/lib/utils";
+import { RunIdPicker } from "@/components/runs/RunIdPicker";
+import { Button } from "@/components/ui/button";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
+import { BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY } from "@/lib/buyer/buyer-polish-copy";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  compareChangeReviewsDisclosureHrefFromSearch,
+  parseCompareChangeReviewsOpenFromSearch,
+} from "@/lib/insights/compare-change-reviews-disclosure-url";
+import {
+  compareManualReviewIdsDisclosureHrefFromSearch,
+  parseCompareManualReviewIdsOpenFromSearch,
+} from "@/lib/insights/compare-manual-review-ids-disclosure-url";
+import { COMPARE_RUN_PICKERS_REQUIRE_COMMITTED_MANIFESTS } from "@/lib/system-not-job-compare-labeled-envelope-runs";
+import { firstWhyDisabledCtaReason, whyDisabledBusy, whyDisabledIncompleteInput } from "@/lib/why-disabled-cta";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import type { RunSummary } from "@/types/authority";
+
+export type CompareRunPickersSectionProps = {
+  leftPickerLabel: string;
+  rightPickerLabel: string;
+  leftRunId: string;
+  rightRunId: string;
+  onLeftRunIdChange: (value: string) => void;
+  onRightRunIdChange: (value: string) => void;
+  leftFootnote: string | null;
+  rightFootnote: string | null;
+  leftTrim: string;
+  rightTrim: string;
+  loading: boolean;
+  aiLoading: boolean;
+  pairAligned: boolean;
+  sameCanonicalRunIdsBlocked: boolean;
+  onCompare: () => void;
+  onSummarizeForSponsor: () => void;
+  onLeftRunPicked: (summary: RunSummary | null) => void;
+  onRightRunPicked: (summary: RunSummary | null) => void;
+  leftSummaryBlockedReason?: string | null;
+  rightSummaryBlockedReason?: string | null;
+  /** Buyer shell: show review titles in inputs while retaining technical ids for requests. */
+  useBuyerFacingRunLabels?: boolean;
+  /** Buyer shell: replaces “Summarize for sponsor” with procurement-oriented language. */
+  summarizeButtonLabel?: string;
+  /** Buyer shell: primary compare action label. */
+  compareButtonLabel?: string;
+  /** Buyer shell: collapse pickers below results when comparison is on screen. */
+  collapseBelowResults?: boolean;
+};
+
+export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const architectureId = searchParams?.get("architectureId")?.trim() ?? "";
+  const compareChangeReviewsOpenParam = searchParams.get("compareChangeReviewsOpen");
+  const compareManualReviewIdsOpenParam = searchParams.get("compareManualReviewIdsOpen");
+  const [changeReviewsOpen, setChangeReviewsOpenState] = useState(() =>
+    parseCompareChangeReviewsOpenFromSearch(compareChangeReviewsOpenParam),
+  );
+  const [manualReviewIdsOpen, setManualReviewIdsOpenState] = useState(() =>
+    parseCompareManualReviewIdsOpenFromSearch(compareManualReviewIdsOpenParam),
+  );
+
+  const syncChangeReviewsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        compareChangeReviewsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setChangeReviewsOpen = useCallback(
+    (open: boolean) => {
+      setChangeReviewsOpenState(open);
+      syncChangeReviewsOpenToUrl(open);
+    },
+    [syncChangeReviewsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setChangeReviewsOpenState(parseCompareChangeReviewsOpenFromSearch(compareChangeReviewsOpenParam));
+  }, [compareChangeReviewsOpenParam]);
+
+  const syncManualReviewIdsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        compareManualReviewIdsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setManualReviewIdsOpen = useCallback(
+    (open: boolean) => {
+      setManualReviewIdsOpenState(open);
+      syncManualReviewIdsOpenToUrl(open);
+    },
+    [syncManualReviewIdsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setManualReviewIdsOpenState(parseCompareManualReviewIdsOpenFromSearch(compareManualReviewIdsOpenParam));
+  }, [compareManualReviewIdsOpenParam]);
+
+  const {
+    leftPickerLabel,
+    rightPickerLabel,
+    leftRunId,
+    rightRunId,
+    onLeftRunIdChange,
+    onRightRunIdChange,
+    leftFootnote,
+    rightFootnote,
+    leftTrim,
+    rightTrim,
+    loading,
+    aiLoading,
+    pairAligned,
+    sameCanonicalRunIdsBlocked,
+    onCompare,
+    onSummarizeForSponsor,
+    onLeftRunPicked,
+    onRightRunPicked,
+    leftSummaryBlockedReason = null,
+    rightSummaryBlockedReason = null,
+    useBuyerFacingRunLabels = false,
+    summarizeButtonLabel = "Summarize for sponsor",
+    compareButtonLabel = "Compare two reviews",
+    collapseBelowResults = false,
+  } = props;
+
+  const compareActionsDisabled =
+    loading ||
+    !leftTrim ||
+    !rightTrim ||
+    sameCanonicalRunIdsBlocked ||
+    leftSummaryBlockedReason !== null ||
+    rightSummaryBlockedReason !== null;
+  const compareDisabledReason = firstWhyDisabledCtaReason([
+    loading ? whyDisabledBusy("Comparison") : null,
+    !leftTrim || !rightTrim ? whyDisabledIncompleteInput("Choose a baseline and updated review to continue.") : null,
+    sameCanonicalRunIdsBlocked
+      ? { kind: "prerequisite", message: "These two selections resolve to the same review." }
+      : null,
+    leftSummaryBlockedReason !== null
+      ? { kind: "prerequisite", message: leftSummaryBlockedReason }
+      : null,
+    rightSummaryBlockedReason !== null
+      ? { kind: "prerequisite", message: rightSummaryBlockedReason }
+      : null,
+  ]);
+  const showSummarizeForSponsor = (pairAligned && !loading) || aiLoading;
+
+  const pickerFields = (
+    <>
+      <div className="grid gap-3">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-review-selection-scope">
+          Choose a baseline review and an updated review to compare changes.
+        </p>
+        <RunIdPicker
+          preferAutoPick={false}
+          autoFocus
+          label={leftPickerLabel}
+          placeholder="Choose a baseline review"
+          value={leftRunId}
+          onChange={onLeftRunIdChange}
+          inputId="compare-left-run-id"
+          forCompare
+          committedOnly={COMPARE_RUN_PICKERS_REQUIRE_COMMITTED_MANIFESTS}
+          onRunPicked={onLeftRunPicked}
+          useBuyerFacingRunLabels={useBuyerFacingRunLabels}
+          architectureId={architectureId.length > 0 ? architectureId : undefined}
+        />
+        {leftFootnote !== null ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            <span className="font-medium text-al-text-primary">Showing:</span> {leftFootnote}
+          </p>
+        ) : null}
+        {leftSummaryBlockedReason !== null ? (
+          <p
+            role="alert"
+            className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="compare-left-summary-blocked-reason"
+          >
+            {leftSummaryBlockedReason}
+          </p>
+        ) : null}
+        <RunIdPicker
+          preferAutoPick={false}
+          label={rightPickerLabel}
+          placeholder="Choose an updated review"
+          value={rightRunId}
+          onChange={onRightRunIdChange}
+          inputId="compare-right-run-id"
+          forCompare
+          committedOnly={COMPARE_RUN_PICKERS_REQUIRE_COMMITTED_MANIFESTS}
+          onRunPicked={onRightRunPicked}
+          useBuyerFacingRunLabels={useBuyerFacingRunLabels}
+          architectureId={architectureId.length > 0 ? architectureId : undefined}
+        />
+        {rightFootnote !== null ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            <span className="font-medium text-al-text-primary">Showing:</span> {rightFootnote}
+          </p>
+        ) : null}
+        {rightSummaryBlockedReason !== null ? (
+          <p
+            role="alert"
+            className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="compare-right-summary-blocked-reason"
+          >
+            {rightSummaryBlockedReason}
+          </p>
+        ) : null}
+        <details
+          className={cn(
+            "rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40",
+            OPERATOR_TYPOGRAPHY.helper,
+          )}
+          open={manualReviewIdsOpen}
+          onToggle={(event) => {
+            setManualReviewIdsOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
+        >
+          <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
+            Advanced: enter review IDs manually
+          </summary>
+          <p className={cn("mt-2 m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Type or paste a sealed review ID in either field above when the review is not in the recent list. Compare
+            lists committed manifests only — rehearsal-stamped envelope runs and Career seals both qualify.
+          </p>
+        </details>
+        {sameCanonicalRunIdsBlocked ? (
+          <p
+            role="alert"
+            className={cn(
+              "m-0 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50",
+              OPERATOR_TYPOGRAPHY.body,
+            )}
+          >
+            These two selections resolve to the same review. Choose a different prior or later review to compare.
+          </p>
+        ) : null}
+        <div className="flex flex-wrap items-center gap-3">
+          <Button
+            type="button"
+            variant="primary"
+            data-testid="compare-submit-button"
+            onClick={() => void onCompare()}
+            disabled={compareActionsDisabled}
+          >
+            {loading ? "Comparing…" : compareButtonLabel}
+          </Button>
+          {showSummarizeForSponsor ? (
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => void onSummarizeForSponsor()}
+              disabled={aiLoading}
+            >
+              {aiLoading ? "Summarizing…" : summarizeButtonLabel}
+            </Button>
+          ) : null}
+        </div>
+        <WhyDisabledCtaHint reason={compareActionsDisabled ? compareDisabledReason : null} />
+      </div>
+    </>
+  );
+
+  return (
+    <section
+      className={cn("scroll-mt-8 space-y-4", collapseBelowResults && "order-2")}
+      aria-label={collapseBelowResults ? "Change compared reviews" : "Select reviews to compare"}
+    >
+      {collapseBelowResults ? (
+        <details
+          className="rounded-lg border border-neutral-200 bg-neutral-50/50 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/30"
+          open={changeReviewsOpen}
+          onToggle={(event) => {
+            setChangeReviewsOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
+        >
+          <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
+            {BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY}
+          </summary>
+          <div className="mt-3 space-y-4">{pickerFields}</div>
+        </details>
+      ) : (
+        pickerFields
+      )}
+    </section>
+  );
+}

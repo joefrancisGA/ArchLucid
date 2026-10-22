@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat Code Coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <!-- One comma-separated Exclude element (Coverlet VSTest); includes ArchLucid.Api Microsoft.AspNetCore.OpenApi.Generated*. -->
+          <Exclude>[*Tests]*,[ArchLucid.TestSupport]*,[ArchLucid.Cli]*ArchLucidApiClient*,[ArchLucid.Api]Microsoft.AspNetCore.OpenApi.Generated*</Exclude>
+          <!-- Line-rate gates: use merged Cobertura in CI, not per-project <Threshold> here. -->
+          <ExcludeByFile>**/obj/**/OpenApiXmlCommentSupport.generated.cs,**/obj/**/LoggerMessage.g.cs,**/obj/**/Microsoft.Gen.Logging/**,**/obj/**/System.Text.Json.SourceGeneration/**,**/obj/**/Microsoft.DurableTask.Generators/**,**/ArchLucid.Api.Client/Generated/**,**/RegexGenerator.g.cs,**/ArchLucid.Worker/Program.cs</ExcludeByFile>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

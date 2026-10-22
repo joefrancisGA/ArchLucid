@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-closed-loop-strengthening",
+  "metadata": {
+    "title": "Closed-loop package strengthening (TB-2352 lift)",
+    "complexity": "medium",
+    "primaryAgents": ["Topology"]
+  },
+  "inputSummary": "Golden-cohort Azure web application brief used to exercise closed-loop manifest merge (findings, recommendations, κ-backed topology).",
+  "recording": "recordings/corpus-azure-web-app.findings.json",
+  "qualityEvidence": {
+    "mode": "simulator",
+    "agentType": "Topology",
+    "agentResultPath": "agent-results/corpus-azure-web-app.simulator.json",
+    "notes": "TB-2352 lift: AuthorityClosedLoopStrengtheningPass merges publishable κ topology and grounded recommendations before manifest persist."
+  },
+  "expectedFindings": [],
+  "unexpectedFindings": []
+}

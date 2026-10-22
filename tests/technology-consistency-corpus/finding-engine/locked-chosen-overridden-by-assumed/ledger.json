@@ -1,0 +1,38 @@
+[
+  {
+    "entryId": "locked-azure-cloud",
+    "runId": "cccccccccccccccccccccccccccccccc",
+    "role": "CloudPlatform",
+    "technologyName": "Microsoft Azure",
+    "providerFamily": "Azure",
+    "status": "Chosen",
+    "source": "User",
+    "isLocked": false,
+    "createdUtc": "2026-01-01T00:00:00.000Z",
+    "updatedUtc": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "entryId": "locked-chosen-ds",
+    "runId": "cccccccccccccccccccccccccccccccc",
+    "role": "PrimaryDatastore",
+    "technologyName": "Azure SQL Database",
+    "providerFamily": "Azure",
+    "status": "Chosen",
+    "source": "User",
+    "isLocked": true,
+    "createdUtc": "2026-01-01T00:00:00.000Z",
+    "updatedUtc": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "entryId": "assumed-ds",
+    "runId": "cccccccccccccccccccccccccccccccc",
+    "role": "PrimaryDatastore",
+    "technologyName": "Amazon RDS",
+    "providerFamily": "Aws",
+    "status": "Assumed",
+    "source": "AgentProposed",
+    "isLocked": false,
+    "createdUtc": "2026-01-01T00:00:00.000Z",
+    "updatedUtc": "2026-01-01T00:00:00.000Z"
+  }
+]

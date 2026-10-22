@@ -1,0 +1,21 @@
+{
+  "schema": "archlucid.pilot-dismissal-trigger.v1",
+  "sessionId": "",
+  "runId": "",
+  "pilotLabel": "",
+  "sessionUtc": "",
+  "paidPilot": true,
+  "noDismissalObserved": false,
+  "dismissalCapture": {
+    "primaryCategory": "equivalent-to-frontier-ai",
+    "evidenceSnippet": "",
+    "triggerTiming": "after-first-committed-run",
+    "mitigationAttempted": "",
+    "finalOutcome": "continued-evaluation"
+  },
+  "notes": [
+    "Record the primary dismissal or near-dismissal trigger from pilot debrief or principal-architect session.",
+    "Use noDismissalObserved=true when no dismissal signal occurred.",
+    "Keep evidence snippets redacted — no customer-identifying content in committed artifacts."
+  ]
+}

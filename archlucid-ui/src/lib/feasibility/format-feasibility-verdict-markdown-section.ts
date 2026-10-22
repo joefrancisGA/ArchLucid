@@ -1,0 +1,198 @@
+import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
+
+import { isExportableDecisionVerdict } from "@/lib/decision-receipt-export";
+import {
+  HARD_INFEASIBLE_MISSING_CITATION_EXPORT_BLOCKED_REASON,
+  hasHardInfeasibleCitation,
+  resolveHardInfeasibleCitationExportBlockedReason,
+} from "@/lib/feasibility/feasibility-verdict-citation";
+import { resolveFeasibilityVerdictForDisplay } from "@/lib/feasibility/resolve-feasibility-verdict-for-display";
+
+export {
+  HARD_INFEASIBLE_MISSING_CITATION_EXPORT_BLOCKED_REASON,
+  resolveHardInfeasibleCitationExportBlockedReason,
+};
+
+export const SOFT_INFEASIBLE_ENVELOPE_EXPORT_LEAD =
+  "This verdict is soft infeasible within the stated operating envelope — treat as a bounded decision record, not a failed review.";
+
+function formatHardCitationLines(verdict: ManifestFeasibilityVerdict): string[] {
+  const lines: string[] = [];
+  const citations = verdict.hardCitations;
+
+  if (citations === null || citations === undefined) {
+    return ["### Authority citations", "", "Authority citations were not stored.", ""];
+  }
+
+  if (citations.length > 0) {
+    lines.push("### Authority citations");
+    lines.push("");
+
+    for (const citation of citations) {
+      const reference = citation.reference === null || citation.reference === undefined
+        ? ""
+        : citation.reference.trim();
+      const kind = citation.kind === null || citation.kind === undefined
+        ? ""
+        : citation.kind.trim();
+      const invariantKeys = citation.invariantKeys;
+      const suffix =
+        invariantKeys !== null && invariantKeys !== undefined && invariantKeys.length > 0
+          ? ` (${invariantKeys.join(", ")})`
+          : "";
+
+      if (reference.length > 0) {
+        lines.push(`- ${reference}${kind.length > 0 ? ` — ${kind}` : ""}${suffix}`);
+      }
+
+      if (citation.reference === null || citation.reference === undefined) {
+        lines.push("- Citation reference was not stored.");
+      }
+
+      if (citation.kind === null || citation.kind === undefined) {
+        lines.push("- Citation kind was not stored.");
+      }
+
+      if (invariantKeys === null || invariantKeys === undefined) {
+        lines.push("- Citation invariant keys were not stored.");
+      }
+    }
+
+    lines.push("");
+  }
+
+  const unsatCore = verdict.unsatCoreInvariantKeys ?? [];
+
+  if (unsatCore.length > 0) {
+    lines.push(`**Unsat core:** ${unsatCore.join(", ")}`);
+    lines.push("");
+  }
+
+  return lines;
+}
+
+function formatSoftEnvelopeLines(verdict: ManifestFeasibilityVerdict): string[] {
+  const envelope = verdict.softEnvelope;
+
+  if (envelope === null || envelope === undefined) {
+    return ["Operating envelope was not stored.", ""];
+  }
+
+  const lines: string[] = [];
+
+  lines.push(SOFT_INFEASIBLE_ENVELOPE_EXPORT_LEAD);
+  lines.push("");
+  lines.push(`- **Confidence band:** ${envelope.confidenceLow}–${envelope.confidenceHigh}`);
+  lines.push(
+    `- **Envelope:** ${
+      envelope.envelopeDescription === null || envelope.envelopeDescription === undefined
+        ? "Envelope description was not stored."
+        : envelope.envelopeDescription
+    }`,
+  );
+  lines.push(
+    `- **Soft assumption:** ${
+      envelope.softAssumption === null || envelope.softAssumption === undefined
+        ? "Soft assumption was not stored."
+        : envelope.softAssumption
+    }`,
+  );
+
+  if (envelope.costOfBeingWrong === null || envelope.costOfBeingWrong === undefined) {
+    lines.push("- Cost of being wrong was not stored.");
+  } else if (envelope.costOfBeingWrong.trim().length > 0) {
+    lines.push(`- **Cost of being wrong:** ${envelope.costOfBeingWrong}`);
+  }
+
+  lines.push("");
+
+  return lines;
+}
+
+function formatProposedRelaxationLines(verdict: ManifestFeasibilityVerdict): string[] {
+  const proposedRelaxations = verdict.proposedRelaxations;
+
+  if (proposedRelaxations === null || proposedRelaxations === undefined) {
+    return ["### Proposed relaxations", "", "Proposed relaxations were not stored.", ""];
+  }
+
+  const lines: string[] = ["### Proposed relaxations", ""];
+
+  for (const relaxation of proposedRelaxations) {
+    const invariantKey =
+      relaxation.invariantKey === null || relaxation.invariantKey === undefined
+        ? "Relaxation invariant key was not stored."
+        : relaxation.invariantKey;
+    const tradeOffDescription =
+      relaxation.tradeOffDescription === null || relaxation.tradeOffDescription === undefined
+        ? "Trade-off description was not stored."
+        : relaxation.tradeOffDescription;
+
+    lines.push(`- **${invariantKey}**: ${tradeOffDescription}`);
+  }
+
+  lines.push("");
+
+  return lines;
+}
+
+/** Shared markdown section for feasibility verdict honesty on career exports (FC-30 / FC-31). */
+export function formatFeasibilityVerdictMarkdownSection(
+  verdict: ManifestFeasibilityVerdict | null | undefined,
+): string {
+  if (verdict === null || verdict === undefined) {
+    return "Feasibility verdict was not stored.";
+  }
+
+  const lines: string[] = [];
+  const blockedReason = resolveHardInfeasibleCitationExportBlockedReason(verdict);
+  const display = resolveFeasibilityVerdictForDisplay(verdict);
+
+  if (blockedReason !== null) {
+    lines.push(`> **Record export blocked:** ${blockedReason}`);
+    lines.push("");
+  }
+
+  lines.push("## Feasibility verdict");
+  lines.push("");
+  lines.push(`- **Class:** ${display.kindLabel}`);
+
+  if (isExportableDecisionVerdict(verdict.kind)) {
+    lines.push(
+      "- **Decision record:** Treat exports as a reasoned decision record, not approval to proceed.",
+    );
+  }
+
+  lines.push("");
+  if (verdict.summary === null || verdict.summary === undefined) {
+    lines.push("Verdict summary was not stored.");
+  } else {
+    lines.push(verdict.summary.trim());
+  }
+  lines.push("");
+
+  if (verdict.kind === "SoftInfeasible") {
+    lines.push(...formatSoftEnvelopeLines(verdict));
+  }
+
+  if (
+    verdict.kind === "HardInfeasible" &&
+    (
+      hasHardInfeasibleCitation(verdict)
+      || verdict.hardCitations === null
+      || verdict.hardCitations === undefined
+      || verdict.hardCitations.length > 0
+    )
+  ) {
+    lines.push(...formatHardCitationLines(verdict));
+  } else if (verdict.kind === "HardInfeasible" && display.missingHardCitationDefect) {
+    lines.push(
+      "_Hard infeasibility cannot be exported without a law, theorem, or invariant contradiction reference._",
+    );
+    lines.push("");
+  }
+
+  lines.push(...formatProposedRelaxationLines(verdict));
+
+  return lines.join("\n");
+}

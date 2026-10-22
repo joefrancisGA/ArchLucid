@@ -1,0 +1,270 @@
+using ArchLucid.Api.Controllers.Governance;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Alerts.Delivery;
+using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Governance.PolicyPacks;
+using ArchLucid.Core.Governance.PolicyPacks;
+using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
+
+using FluentAssertions;
+
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+using Moq;
+using ArchLucid.TestSupport.SealedManifest;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
+
+namespace ArchLucid.Api.Tests;
+
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
+public sealed class GovernanceSetupControllerTests
+{
+    private static readonly ScopeContext Scope = new()
+    {
+        TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+        WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+        ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
+    };
+
+    [Fact]
+    public async Task GetSetupGuideBundle_reaches_resolver_when_scope_posture_sealed_manifest_would_conflict()
+    {
+        Guid committedRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IPolicyPackResolver> resolver = new(MockBehavior.Strict);
+        resolver
+            .Setup(r => r.ResolveAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new EffectivePolicyPackSet { Packs = [] });
+
+        Mock<IAlertRoutingSubscriptionRepository> subscriptions = new(MockBehavior.Strict);
+        subscriptions
+            .Setup(r => r.ListEnabledByScopeAsync(
+                Scope.TenantId,
+                Scope.WorkspaceId,
+                Scope.ProjectId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(service => service.ListRunSummariesKeysetAsync(
+                It.IsAny<string?>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            (
+                new[]
+                {
+                    new RunSummary
+                    {
+                        RunId = committedRunId.ToString("D"),
+                        Status = nameof(ArchitectureRunStatus.Committed),
+                    },
+                },
+                false,
+                (string?)null));
+
+        GovernanceSetupController controller = new(
+            scopeProvider.Object,
+            resolver.Object,
+            subscriptions.Object,
+            tenants.Object,
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun("stored-hash"),
+            SealedManifestHashTestSupport.CreateManifestHashService("computed-hash"),
+            runDetails.Object);
+
+        IActionResult action = await controller.GetSetupGuideBundle(CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        resolver.VerifyAll();
+    }
+
+    [Fact]
+    public async Task GetSetupGuideBundle_lists_only_enabled_alert_routing_subscriptions()
+    {
+        AlertRoutingSubscription enabled = new()
+        {
+            RoutingSubscriptionId = Guid.NewGuid(),
+            TenantId = Scope.TenantId,
+            WorkspaceId = Scope.WorkspaceId,
+            ProjectId = Scope.ProjectId,
+            IsEnabled = true,
+            Name = "enabled-route",
+            ChannelType = "email",
+            Destination = "ops@contoso.test",
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IPolicyPackResolver> resolver = new();
+        resolver
+            .Setup(r => r.ResolveAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new EffectivePolicyPackSet { Packs = [] });
+
+        Mock<IAlertRoutingSubscriptionRepository> subscriptions = new();
+        subscriptions
+            .Setup(r => r.ListEnabledByScopeAsync(
+                Scope.TenantId,
+                Scope.WorkspaceId,
+                Scope.ProjectId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([enabled]);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
+
+        GovernanceSetupController controller = new(
+            scopeProvider.Object,
+            resolver.Object,
+            subscriptions.Object,
+            tenants.Object,
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns());
+
+        IActionResult action = await controller.GetSetupGuideBundle(CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        GovernanceSetupGuideBundleResponse body =
+            ok.Value.Should().BeOfType<GovernanceSetupGuideBundleResponse>().Subject;
+
+        body.AlertRoutingSubscriptions.Should().ContainSingle().Which.Name.Should().Be("enabled-route");
+        subscriptions.Verify(
+            r => r.ListEnabledByScopeAsync(
+                Scope.TenantId,
+                Scope.WorkspaceId,
+                Scope.ProjectId,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        subscriptions.Verify(
+            r => r.ListByScopeAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task GetSetupGuideBundle_returns_not_found_when_workspace_missing()
+    {
+        Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Scope.TenantId,
+            WorkspaceId = foreignWorkspaceId,
+            ProjectId = Scope.ProjectId,
+        });
+
+        Mock<IPolicyPackResolver> resolver = new(MockBehavior.Strict);
+        Mock<IAlertRoutingSubscriptionRepository> subscriptions = new(MockBehavior.Strict);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = Scope.WorkspaceId,
+                    Name = "primary",
+                },
+            ]);
+
+        GovernanceSetupController controller = new(
+            scopeProvider.Object,
+            resolver.Object,
+            subscriptions.Object,
+            tenants.Object,
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult action = await controller.GetSetupGuideBundle(CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        resolver.VerifyNoOtherCalls();
+        subscriptions.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task GetSetupGuideBundle_returns_not_found_when_tenant_missing()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IPolicyPackResolver> resolver = new(MockBehavior.Strict);
+        Mock<IAlertRoutingSubscriptionRepository> subscriptions = new(MockBehavior.Strict);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        GovernanceSetupController controller = new(
+            scopeProvider.Object,
+            resolver.Object,
+            subscriptions.Object,
+            tenants.Object,
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult action = await controller.GetSetupGuideBundle(CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        resolver.VerifyNoOtherCalls();
+        subscriptions.VerifyNoOtherCalls();
+    }
+}

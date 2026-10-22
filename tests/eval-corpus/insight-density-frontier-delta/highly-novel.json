@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "id": "highly-novel",
+  "inputSummary": "Azure web app with private endpoints and cross-region replication.",
+  "archlucidFindings": [
+    {
+      "findingId": "f1",
+      "engineType": "topology",
+      "category": "Reliability",
+      "title": "Cross-region replication lacks documented RPO for patient intake queue",
+      "policyRuleId": null,
+      "classification": "DecisionGradeFinding"
+    },
+    {
+      "findingId": "f2",
+      "engineType": "topology",
+      "category": "Security",
+      "title": "Private endpoint subnet allows outbound internet without egress firewall",
+      "policyRuleId": null,
+      "classification": "DecisionGradeFinding"
+    },
+    {
+      "findingId": "f3",
+      "engineType": "compliance",
+      "category": "Security",
+      "title": "Enable MFA for privileged operator accounts",
+      "policyRuleId": null,
+      "classification": "DecisionGradeFinding"
+    },
+    {
+      "findingId": "f4",
+      "engineType": "declaration-security-baseline",
+      "category": "Security",
+      "title": "Storage account allows public blob access",
+      "policyRuleId": "storage.public-access",
+      "classification": "DecisionGradeFinding"
+    }
+  ],
+  "frontierBaseline": {
+    "model": "baseline-a",
+    "capturedUtc": "2026-08-26T00:00:00Z",
+    "promptRef": "docs/quality/insight-density-frontier-delta-fixture-authorship",
+    "findings": [
+      {
+        "category": "Security",
+        "title": "Enable MFA for privileged operator accounts",
+        "ruleId": null
+      }
+    ]
+  },
+  "expectedNoveltyPercentage": 75.0
+}

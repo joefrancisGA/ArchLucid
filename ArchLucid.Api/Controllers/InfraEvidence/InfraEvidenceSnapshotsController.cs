@@ -1,0 +1,364 @@
+using ArchLucid.Api.Attributes;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
+using ArchLucid.Application.InfraEvidence;
+using ArchLucid.Application.InfraEvidence.Mermaid;
+using ArchLucid.Contracts.InfraEvidence;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.InfraEvidence;
+
+using Asp.Versioning;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using ArchLucid.Core.InfraEvidence;
+
+namespace ArchLucid.Api.Controllers.InfraEvidence;
+
+[ApiController]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+[ApiVersion("1.0")]
+[Route("v{version:apiVersion}/infra-evidence/snapshots")]
+[EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
+public sealed partial class InfraEvidenceSnapshotsController(
+    IInfraEvidenceDriftWorkbenchQueryService driftWorkbenchQueryService,
+    IAdvisoryTerraformRepresentationService advisoryTerraformService,
+    IInfraEvidenceSnapshotMermaidService snapshotMermaidService,
+    IAzureInventorySnapshotDeleteService snapshotDeleteService,
+    IAuditService auditService,
+    IScopeContextProvider scopeProvider) : ControllerBase
+{
+    private readonly IAzureInventorySnapshotDeleteService _snapshotDeleteService =
+        snapshotDeleteService ?? throw new ArgumentNullException(nameof(snapshotDeleteService));
+
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    [HttpGet]
+    [ProducesResponseType(typeof(PagedResponse<AzureInventorySnapshotRecord>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> ListSnapshots(
+        [FromQuery] int page = PaginationDefaults.DefaultPage,
+        [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
+        [FromQuery] string? subscriptionId = null,
+        CancellationToken cancellationToken = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        try
+        {
+            PagedResponse<AzureInventorySnapshotRecord> response = await driftWorkbenchQueryService.ListSnapshotsAsync(
+                scope,
+                page,
+                pageSize,
+                subscriptionId,
+                cancellationToken);
+
+            return Ok(response);
+        }
+        catch (ConflictException ex)
+        {
+            return MapSnapshotSealedManifestConflict(ex);
+        }
+    }
+
+    [HttpGet("{snapshotId:guid}/inventory-rows")]
+    [ProducesResponseType(typeof(PagedResponse<AzureInventoryChangeRecord>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> ListInventoryRowsForSnapshot(
+        Guid snapshotId,
+        [FromQuery] Guid? cloudResourceId,
+        [FromQuery] int page = PaginationDefaults.DefaultPage,
+        [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
+        CancellationToken cancellationToken = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        try
+        {
+            PagedResponse<AzureInventoryChangeRecord>? response = await driftWorkbenchQueryService.ListInventoryRowsForSnapshotAsync(
+                scope,
+                snapshotId,
+                page,
+                pageSize,
+                cloudResourceId,
+                cancellationToken);
+
+            if (response is null)
+            {
+                return this.NotFoundProblem(
+                    $"Snapshot '{snapshotId}' was not found.",
+                    ProblemTypes.ResourceNotFound);
+            }
+
+            return Ok(response);
+        }
+        catch (ConflictException ex)
+        {
+            return MapSnapshotSealedManifestConflict(ex);
+        }
+    }
+
+    [HttpGet("{snapshotId:guid}/diffs")]
+    [ProducesResponseType(typeof(IReadOnlyList<AzureInventoryDiffSummaryRecord>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> ListDiffsForSnapshot(
+        Guid snapshotId,
+        CancellationToken cancellationToken = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        try
+        {
+            IReadOnlyList<AzureInventoryDiffSummaryRecord>? diffs =
+                await driftWorkbenchQueryService.ListDiffsForSnapshotAsync(scope, snapshotId, cancellationToken);
+
+            if (diffs is null)
+            {
+                return this.NotFoundProblem(
+                    $"Snapshot '{snapshotId}' was not found.",
+                    ProblemTypes.ResourceNotFound);
+            }
+
+            return Ok(diffs);
+        }
+        catch (ConflictException ex)
+        {
+            return MapSnapshotSealedManifestConflict(ex);
+        }
+    }
+
+    [HttpGet("{snapshotId:guid}/terraform-advisory")]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> DownloadTerraformAdvisory(
+        Guid snapshotId,
+        CancellationToken cancellationToken = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        try
+        {
+            AdvisoryTerraformRepresentationResult result = await advisoryTerraformService.TryBuildFromSnapshotAsync(
+                scope,
+                snapshotId,
+                aztfexportAvailable: false,
+                cancellationToken);
+
+            if (!result.Succeeded)
+            {
+                return this.NotFoundProblem(
+                    result.ErrorMessage ?? $"Terraform advisory for snapshot '{snapshotId}' was not found.",
+                    ProblemTypes.ResourceNotFound);
+            }
+
+            byte[] zipBytes = AdvisoryTerraformZipBuilder.BuildZip(result);
+            string filename = $"terraform-advisory-{snapshotId:D}.zip";
+
+            return File(zipBytes, "application/zip", filename);
+        }
+        catch (ConflictException ex)
+        {
+            return MapSnapshotSealedManifestConflict(ex);
+        }
+    }
+
+    [HttpGet("{snapshotId:guid}/mermaid/preview")]
+    [ProducesResponseType(typeof(InfraEvidenceMermaidPreviewResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> GetMermaidPreview(
+        Guid snapshotId,
+        [FromQuery] bool includeNeverShow = false,
+        [FromQuery] bool includePrivateEndpointNodes = false,
+        [FromQuery] bool includeRecoveryServices = false,
+        [FromQuery] bool includeCrossGroupFanOut = false,
+        [FromQuery] bool includeAvdAssets = false,
+        [FromQuery] bool includeNetworkDetails = false,
+        CancellationToken cancellationToken = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        try
+        {
+            InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse> result =
+                await snapshotMermaidService.TryGetPreviewAsync(
+                    scope,
+                    snapshotId,
+                    includeNeverShow,
+                    cancellationToken,
+                    includePrivateEndpointNodes,
+                    includeRecoveryServices,
+                    includeCrossGroupFanOut,
+                    includeAvdAssets,
+                    includeNetworkDetails);
+
+            if (result.IsNotFound)
+            {
+                return this.NotFoundProblem(
+                    result.ErrorMessage ?? $"Snapshot '{snapshotId}' was not found.",
+                    ProblemTypes.ResourceNotFound);
+            }
+
+            if (!result.Succeeded || result.Value is null)
+            {
+                return this.BadRequestProblem(
+                    result.ErrorMessage ?? "Mermaid preview failed.",
+                    ProblemTypes.ValidationFailed);
+            }
+
+            return Ok(result.Value);
+        }
+        catch (ConflictException ex)
+        {
+            return MapSnapshotSealedManifestConflict(ex);
+        }
+    }
+
+    [HttpGet("{snapshotId:guid}/mermaid")]
+    [ProducesResponseType(typeof(InfraEvidenceMermaidRenderResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> GetMermaid(
+        Guid snapshotId,
+        [FromQuery] string? mode,
+        [FromQuery] string? fallbackKey,
+        [FromQuery] string? seedNodeId,
+        [FromQuery] bool includeNeverShow = false,
+        [FromQuery] string? hideTiers = null,
+        [FromQuery] bool includePrivateEndpointNodes = false,
+        [FromQuery] bool includeRecoveryServices = false,
+        [FromQuery] bool includeCrossGroupFanOut = false,
+        [FromQuery] bool includeAvdAssets = false,
+        [FromQuery] bool includeNetworkDetails = false,
+        CancellationToken cancellationToken = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        try
+        {
+            InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
+                await snapshotMermaidService.TryGetMermaidAsync(
+                    scope,
+                    snapshotId,
+                    mode,
+                    fallbackKey,
+                    seedNodeId,
+                    includeNeverShow,
+                    hideTiers,
+                    cancellationToken,
+                    includePrivateEndpointNodes,
+                    includeRecoveryServices,
+                    includeCrossGroupFanOut,
+                    includeAvdAssets,
+                    includeNetworkDetails);
+
+            if (result.IsNotFound)
+            {
+                return this.NotFoundProblem(
+                    result.ErrorMessage ?? $"Snapshot '{snapshotId}' was not found.",
+                    ProblemTypes.ResourceNotFound);
+            }
+
+            if (result.IsBadRequest)
+            {
+                return this.BadRequestProblem(
+                    result.ErrorMessage ?? "Invalid Mermaid mode.",
+                    ProblemTypes.ValidationFailed);
+            }
+
+            if (!result.Succeeded || result.Value is null)
+            {
+                return this.BadRequestProblem(
+                    result.ErrorMessage ?? "Mermaid render failed.",
+                    ProblemTypes.ValidationFailed);
+            }
+
+            return Ok(result.Value);
+        }
+        catch (ConflictException ex)
+        {
+            return MapSnapshotSealedManifestConflict(ex);
+        }
+    }
+
+    [HttpGet("{snapshotId:guid}/mermaid/export.png")]
+    [Produces("image/png")]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> ExportMermaidPng(
+        Guid snapshotId,
+        [FromQuery] string? mode,
+        [FromQuery] string? fallbackKey,
+        [FromQuery] string? seedNodeId,
+        [FromQuery] bool includeNeverShow = false,
+        [FromQuery] string? hideTiers = null,
+        [FromQuery] bool includePrivateEndpointNodes = false,
+        [FromQuery] bool includeRecoveryServices = false,
+        [FromQuery] bool includeCrossGroupFanOut = false,
+        [FromQuery] bool includeAvdAssets = false,
+        [FromQuery] bool includeNetworkDetails = false,
+        CancellationToken cancellationToken = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        try
+        {
+            InfraEvidenceMermaidServiceResult<byte[]> result = await snapshotMermaidService.TryExportPngAsync(
+                scope,
+                snapshotId,
+                mode,
+                fallbackKey,
+                seedNodeId,
+                includeNeverShow,
+                hideTiers,
+                cancellationToken,
+                includePrivateEndpointNodes,
+                includeRecoveryServices,
+                includeCrossGroupFanOut,
+                includeAvdAssets,
+                includeNetworkDetails);
+
+            if (result.IsNotFound)
+            {
+                return this.NotFoundProblem(
+                    result.ErrorMessage ?? $"Snapshot '{snapshotId}' was not found.",
+                    ProblemTypes.ResourceNotFound);
+            }
+
+            if (result.IsBadRequest)
+            {
+                return this.BadRequestProblem(
+                    result.ErrorMessage ?? "Invalid Mermaid export request.",
+                    ProblemTypes.ValidationFailed);
+            }
+
+            if (!result.Succeeded || result.Value is null || result.Value.Length == 0)
+            {
+                return this.BadRequestProblem(
+                    result.ErrorMessage ?? "Mermaid PNG export failed.",
+                    ProblemTypes.ValidationFailed);
+            }
+
+            string filename = $"infra-evidence-mermaid-{snapshotId:D}.png";
+
+            return File(result.Value, "image/png", filename);
+        }
+        catch (ConflictException ex)
+        {
+            return MapSnapshotSealedManifestConflict(ex);
+        }
+    }
+}

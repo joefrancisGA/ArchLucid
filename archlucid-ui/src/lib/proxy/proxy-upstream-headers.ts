@@ -1,0 +1,106 @@
+import type { NextRequest } from "next/server";
+
+import {
+  CORRELATION_ID_HEADER,
+  TRACE_PARENT_HEADER,
+  generateCorrelationId,
+  isSafeCorrelationId,
+  isValidTraceParent,
+} from "@/lib/correlation";
+import { readServerSideApiKey } from "@/lib/legacy-arch-env";
+import { resolveBffSessionBearerFromRequest } from "@/lib/proxy/bff-session-cookie";
+import { applyDevAgentExecutionModeUpstreamHeader } from "@/lib/proxy/dev-agent-execution-mode-upstream";
+import { applyDevRoleOverrideUpstreamHeader } from "@/lib/proxy/dev-role-override-upstream";
+import { applyProductLineUpstreamHeader } from "@/lib/proxy/product-line-upstream-header";
+import { isPublicAnonymousProxyPath } from "@/lib/proxy-anonymous-marketing-paths";
+import {
+  resolveAnonymousPublicProxyScopeHeaders,
+  resolveProxyUpstreamScopeHeaders,
+} from "@/lib/proxy-scope-resolution";
+
+export const IDEMPOTENCY_KEY_HEADER = "Idempotency-Key";
+/** Matches `ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength` on the API. */
+export const MAX_IDEMPOTENCY_KEY_LENGTH = 256;
+export const IDEMPOTENCY_REPLAYED_HEADER = "X-Idempotency-Replayed";
+
+/**
+ * Builds headers for the upstream C# API request.
+ * Attaches API key, forwards browser Authorization header, and merges scope headers
+ * In production-like posture, client scope headers are ignored (see `proxy-scope-resolution.ts`).
+ */
+export function buildProxyUpstreamHeaders(request: NextRequest, proxyPath?: string): Headers {
+  const h = new Headers();
+  const key = readServerSideApiKey()?.trim() ?? "";
+  const authHeader = request.headers.get("authorization");
+  const browserBearer = authHeader?.trim() ?? "";
+  const cookieBearer = resolveBffSessionBearerFromRequest(request);
+  const serverBearerToken = process.env.ARCHLUCID_PROXY_BEARER_TOKEN?.trim() ?? "";
+  const skipPrivilegedUpstreamAuth =
+    proxyPath !== undefined &&
+    proxyPath.length > 0 &&
+    isPublicAnonymousProxyPath(proxyPath);
+  const bearerToUse = skipPrivilegedUpstreamAuth
+    ? browserBearer.length > 0
+      ? browserBearer
+      : ""
+    : cookieBearer.length > 0
+      ? cookieBearer
+      : browserBearer.length > 0
+        ? browserBearer
+        : serverBearerToken.length > 0
+          ? `Bearer ${serverBearerToken}`
+          : "";
+  const hasBearer = bearerToUse.length > 0;
+
+  if (key && !hasBearer && !skipPrivilegedUpstreamAuth) {
+    h.set("X-Api-Key", key);
+  }
+
+  if (hasBearer) {
+    h.set("Authorization", bearerToUse);
+  }
+
+  const scopeResolutionHeaders = new Headers(request.headers);
+
+  if (!skipPrivilegedUpstreamAuth && bearerToUse.length > 0) {
+    scopeResolutionHeaders.set("authorization", bearerToUse);
+  }
+
+  const scopeHeaders = skipPrivilegedUpstreamAuth
+    ? resolveAnonymousPublicProxyScopeHeaders(request.headers, proxyPath)
+    : resolveProxyUpstreamScopeHeaders(scopeResolutionHeaders, undefined, proxyPath);
+
+  for (const [k, v] of Object.entries(scopeHeaders)) {
+    h.set(k, v);
+  }
+
+  const incomingCorrelation = request.headers.get(CORRELATION_ID_HEADER);
+  const correlationId =
+    incomingCorrelation !== null &&
+    incomingCorrelation !== undefined &&
+    isSafeCorrelationId(incomingCorrelation)
+      ? incomingCorrelation.trim()
+      : generateCorrelationId();
+  h.set(CORRELATION_ID_HEADER, correlationId);
+
+  const incomingTraceParent = request.headers.get(TRACE_PARENT_HEADER);
+
+  if (typeof incomingTraceParent === "string" && isValidTraceParent(incomingTraceParent)) {
+    h.set(TRACE_PARENT_HEADER, incomingTraceParent.trim());
+  }
+
+  const incomingIdempotencyKey = request.headers.get(IDEMPOTENCY_KEY_HEADER)?.trim() ?? "";
+
+  if (
+    incomingIdempotencyKey.length > 0 &&
+    incomingIdempotencyKey.length <= MAX_IDEMPOTENCY_KEY_LENGTH
+  ) {
+    h.set(IDEMPOTENCY_KEY_HEADER, incomingIdempotencyKey);
+  }
+
+  applyDevAgentExecutionModeUpstreamHeader(h, request);
+  applyDevRoleOverrideUpstreamHeader(h, request);
+  applyProductLineUpstreamHeader(h, request);
+
+  return h;
+}

@@ -1,0 +1,628 @@
+using ArchLucid.Application.Billing;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Billing;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Billing;
+
+using FluentAssertions;
+
+using Moq;
+
+namespace ArchLucid.Application.Tests.Billing;
+
+[Trait("Category", "Unit")]
+public sealed class BillingCheckoutFacadeTests
+{
+    [SkippableFact]
+    public async Task CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription()
+    {
+        Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid workspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        Guid projectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+        });
+
+        InMemoryBillingLedger ledger = new();
+        await ledger.UpsertPendingCheckoutAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            BillingProviderNames.Stripe,
+            "cs_pending_abandoned",
+            nameof(ArchLucid.Core.Tenancy.TenantTier.Standard),
+            seats: 2,
+            workspaces: 1,
+            CancellationToken.None);
+
+        Mock<IBillingProvider> provider = new();
+        provider.SetupGet(static p => p.ProviderName).Returns(BillingProviderNames.Stripe);
+        provider
+            .Setup(p => p.CreateCheckoutSessionAsync(It.IsAny<BillingCheckoutRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new BillingCheckoutResult
+            {
+                CheckoutUrl = "https://checkout.example/session",
+                ProviderSessionId = "cs_retry",
+            });
+
+        Mock<IBillingProviderRegistry> registry = new();
+        registry.Setup(registry => registry.ResolveActiveProvider()).Returns(provider.Object);
+
+        BillingCheckoutFacade sut = new(
+            registry.Object,
+            ledger,
+            scopeProvider.Object,
+            Mock.Of<IAuditService>(),
+            Mock.Of<IMarketplaceWebhookConnectivityService>());
+
+        BillingCheckoutSessionResult result = await sut.CreateCheckoutSessionAsync(
+            new BillingCheckoutPostBody
+            {
+                ReturnUrl = "https://app.example.com/ok",
+                CancelUrl = "https://app.example.com/cancel",
+                TargetTier = "Team",
+                Seats = 2,
+                Workspaces = 1,
+            },
+            "admin@example.com",
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(BillingCheckoutValidationOutcome.Success);
+        result.Checkout.Should().NotBeNull();
+        result.Checkout!.ProviderSessionId.Should().Be("cs_retry");
+    }
+
+    [SkippableTheory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("NotARealTier")]
+    public async Task CreateCheckoutSessionAsync_rejects_missing_or_unknown_target_tier(string? targetTier)
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        });
+
+        Mock<IBillingProvider> provider = new();
+        provider.SetupGet(static p => p.ProviderName).Returns(BillingProviderNames.Stripe);
+        provider
+            .Setup(p => p.CreateCheckoutSessionAsync(It.IsAny<BillingCheckoutRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new BillingCheckoutResult
+            {
+                CheckoutUrl = "https://checkout.example/session",
+                ProviderSessionId = "cs_unknown-tier",
+            });
+
+        Mock<IBillingProviderRegistry> registry = new();
+        registry.Setup(registry => registry.ResolveActiveProvider()).Returns(provider.Object);
+
+        BillingCheckoutFacade sut = new(
+            registry.Object,
+            new InMemoryBillingLedger(),
+            scopeProvider.Object,
+            Mock.Of<IAuditService>(),
+            Mock.Of<IMarketplaceWebhookConnectivityService>());
+
+        BillingCheckoutSessionResult result = await sut.CreateCheckoutSessionAsync(
+            new BillingCheckoutPostBody
+            {
+                ReturnUrl = "https://app.example.com/ok",
+                CancelUrl = "https://app.example.com/cancel",
+                TargetTier = targetTier,
+            },
+            "admin@example.com",
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(BillingCheckoutValidationOutcome.RequestBodyRequired);
+        provider.Verify(
+            p => p.CreateCheckoutSessionAsync(It.IsAny<BillingCheckoutRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
+    public async Task CreateCheckoutSessionAsync_maps_transport_failures_to_provider_error()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        });
+
+        Mock<IBillingProvider> provider = new();
+        provider.SetupGet(static p => p.ProviderName).Returns(BillingProviderNames.Stripe);
+        provider
+            .Setup(p => p.CreateCheckoutSessionAsync(It.IsAny<BillingCheckoutRequest>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new HttpRequestException("billing provider unavailable"));
+
+        Mock<IBillingProviderRegistry> registry = new();
+        registry.Setup(registry => registry.ResolveActiveProvider()).Returns(provider.Object);
+
+        BillingCheckoutFacade sut = new(
+            registry.Object,
+            new InMemoryBillingLedger(),
+            scopeProvider.Object,
+            Mock.Of<IAuditService>(),
+            Mock.Of<IMarketplaceWebhookConnectivityService>());
+
+        BillingCheckoutSessionResult result = await sut.CreateCheckoutSessionAsync(
+            new BillingCheckoutPostBody
+            {
+                ReturnUrl = "https://app.example.com/ok",
+                CancelUrl = "https://app.example.com/cancel",
+                TargetTier = "Team",
+            },
+            "admin@example.com",
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(BillingCheckoutValidationOutcome.ProviderError);
+        result.ErrorMessage.Should().Be("billing provider unavailable");
+    }
+
+    [SkippableFact]
+    public async Task CreateCheckoutSessionAsync_rejects_incomplete_provider_result()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        });
+
+        Mock<IBillingProvider> provider = new();
+        provider.SetupGet(static p => p.ProviderName).Returns(BillingProviderNames.Stripe);
+        provider
+            .Setup(p => p.CreateCheckoutSessionAsync(It.IsAny<BillingCheckoutRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new BillingCheckoutResult
+            {
+                CheckoutUrl = string.Empty,
+                ProviderSessionId = "cs_incomplete",
+            });
+
+        Mock<IBillingProviderRegistry> registry = new();
+        registry.Setup(registry => registry.ResolveActiveProvider()).Returns(provider.Object);
+
+        BillingCheckoutFacade sut = new(
+            registry.Object,
+            new InMemoryBillingLedger(),
+            scopeProvider.Object,
+            Mock.Of<IAuditService>(),
+            Mock.Of<IMarketplaceWebhookConnectivityService>());
+
+        BillingCheckoutSessionResult result = await sut.CreateCheckoutSessionAsync(
+            new BillingCheckoutPostBody
+            {
+                ReturnUrl = "https://app.example.com/ok",
+                CancelUrl = "https://app.example.com/cancel",
+                TargetTier = "Team",
+            },
+            "admin@example.com",
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(BillingCheckoutValidationOutcome.ProviderError);
+        result.ErrorMessage.Should().Contain("incomplete");
+    }
+
+    [SkippableFact]
+    public async Task CreatePortalSessionAsync_rejects_incomplete_provider_result()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        });
+
+        Mock<IBillingProvider> provider = new();
+        provider.SetupGet(static p => p.ProviderName).Returns(BillingProviderNames.Stripe);
+        provider
+            .Setup(p => p.CreateBillingPortalSessionAsync(It.IsAny<BillingPortalRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new BillingPortalResult
+            {
+                PortalUrl = string.Empty,
+                ProviderSessionId = "bps_incomplete",
+            });
+
+        Mock<IBillingProviderRegistry> registry = new();
+        registry.Setup(registry => registry.ResolveActiveProvider()).Returns(provider.Object);
+
+        BillingCheckoutFacade sut = new(
+            registry.Object,
+            new InMemoryBillingLedger(),
+            scopeProvider.Object,
+            Mock.Of<IAuditService>(),
+            Mock.Of<IMarketplaceWebhookConnectivityService>());
+
+        BillingPortalSessionResult result = await sut.CreatePortalSessionAsync(
+            new BillingPortalPostBody { ReturnUrl = "https://app.example.com/return" },
+            "admin@example.com",
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(BillingCheckoutValidationOutcome.ProviderError);
+        result.ErrorMessage.Should().Contain("incomplete");
+    }
+
+    [SkippableFact]
+    public async Task CreateCheckoutSessionAsync_blocks_when_active_subscription_exists()
+    {
+        Guid tenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid workspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        Guid projectId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+        });
+
+        InMemoryBillingLedger ledger = new();
+        await ledger.ActivateSubscriptionAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            BillingProviderNames.Stripe,
+            "sub_active",
+            nameof(ArchLucid.Core.Tenancy.TenantTier.Standard),
+            seats: 2,
+            workspaces: 1,
+            rawWebhookJson: null,
+            CancellationToken.None);
+
+        Mock<IBillingProviderRegistry> registry = new();
+        registry.Setup(registry => registry.ResolveActiveProvider()).Returns(Mock.Of<IBillingProvider>());
+
+        BillingCheckoutFacade sut = new(
+            registry.Object,
+            ledger,
+            scopeProvider.Object,
+            Mock.Of<IAuditService>(),
+            Mock.Of<IMarketplaceWebhookConnectivityService>());
+
+        BillingCheckoutSessionResult result = await sut.CreateCheckoutSessionAsync(
+            new BillingCheckoutPostBody
+            {
+                ReturnUrl = "https://app.example.com/ok",
+                CancelUrl = "https://app.example.com/cancel",
+                TargetTier = "Team",
+                Seats = 2,
+                Workspaces = 1,
+            },
+            "admin@example.com",
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(BillingCheckoutValidationOutcome.ActiveSubscriptionConflict);
+    }
+
+    [SkippableFact]
+    public async Task CreateCheckoutSessionAsync_blocks_when_subscription_is_suspended_past_due()
+    {
+        Guid tenantId = Guid.Parse("12121212-1212-1212-1212-121212121212");
+        Guid workspaceId = Guid.Parse("23232323-2323-2323-2323-232323232323");
+        Guid projectId = Guid.Parse("34343434-3434-3434-3434-343434343434");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+        });
+
+        InMemoryBillingLedger ledger = new();
+        await ledger.ActivateSubscriptionAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            BillingProviderNames.Stripe,
+            "sub_suspended",
+            nameof(ArchLucid.Core.Tenancy.TenantTier.Standard),
+            seats: 2,
+            workspaces: 1,
+            rawWebhookJson: null,
+            CancellationToken.None);
+        await ledger.SuspendSubscriptionAsync(tenantId, CancellationToken.None);
+
+        Mock<IBillingProviderRegistry> registry = new();
+        registry.Setup(registry => registry.ResolveActiveProvider()).Returns(Mock.Of<IBillingProvider>());
+
+        BillingCheckoutFacade sut = new(
+            registry.Object,
+            ledger,
+            scopeProvider.Object,
+            Mock.Of<IAuditService>(),
+            Mock.Of<IMarketplaceWebhookConnectivityService>());
+
+        BillingCheckoutSessionResult result = await sut.CreateCheckoutSessionAsync(
+            new BillingCheckoutPostBody
+            {
+                ReturnUrl = "https://app.example.com/ok",
+                CancelUrl = "https://app.example.com/cancel",
+                TargetTier = "Team",
+                Seats = 2,
+                Workspaces = 1,
+            },
+            "admin@example.com",
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(BillingCheckoutValidationOutcome.ActiveSubscriptionConflict);
+    }
+
+    [SkippableFact]
+    public async Task CreateCheckoutSessionAsync_accepts_case_insensitive_target_tier()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        });
+
+        Mock<IBillingProvider> provider = new();
+        provider.SetupGet(static p => p.ProviderName).Returns(BillingProviderNames.Stripe);
+        provider
+            .Setup(p => p.CreateCheckoutSessionAsync(It.IsAny<BillingCheckoutRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new BillingCheckoutResult
+            {
+                CheckoutUrl = "https://checkout.example/session",
+                ProviderSessionId = "cs_lower_tier",
+            });
+
+        Mock<IBillingProviderRegistry> registry = new();
+        registry.Setup(registry => registry.ResolveActiveProvider()).Returns(provider.Object);
+
+        BillingCheckoutFacade sut = new(
+            registry.Object,
+            new InMemoryBillingLedger(),
+            scopeProvider.Object,
+            Mock.Of<IAuditService>(),
+            Mock.Of<IMarketplaceWebhookConnectivityService>());
+
+        BillingCheckoutSessionResult result = await sut.CreateCheckoutSessionAsync(
+            new BillingCheckoutPostBody
+            {
+                ReturnUrl = "https://app.example.com/ok",
+                CancelUrl = "https://app.example.com/cancel",
+                TargetTier = "team",
+            },
+            "admin@example.com",
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(BillingCheckoutValidationOutcome.Success);
+        provider.Verify(
+            p => p.CreateCheckoutSessionAsync(
+                It.Is<BillingCheckoutRequest>(request => request.TargetTier == BillingCheckoutTier.Team),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
+    public async Task CreateCheckoutSessionAsync_requires_target_tier()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        });
+
+        Mock<IBillingProvider> provider = new();
+        provider.SetupGet(static p => p.ProviderName).Returns(BillingProviderNames.Stripe);
+        Mock<IBillingProviderRegistry> registry = new();
+        registry.Setup(registry => registry.ResolveActiveProvider()).Returns(provider.Object);
+
+        BillingCheckoutFacade sut = new(
+            registry.Object,
+            new InMemoryBillingLedger(),
+            scopeProvider.Object,
+            Mock.Of<IAuditService>(),
+            Mock.Of<IMarketplaceWebhookConnectivityService>());
+
+        BillingCheckoutSessionResult result = await sut.CreateCheckoutSessionAsync(
+            new BillingCheckoutPostBody
+            {
+                ReturnUrl = "https://app.example.com/ok",
+                CancelUrl = "https://app.example.com/cancel",
+                TargetTier = null,
+            },
+            "admin@example.com",
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(BillingCheckoutValidationOutcome.RequestBodyRequired);
+        provider.Verify(
+            p => p.CreateCheckoutSessionAsync(It.IsAny<BillingCheckoutRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
+    public async Task GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription()
+    {
+        Guid tenantId = Guid.Parse("77777777-7777-7777-7777-777777777777");
+        Guid workspaceId = Guid.Parse("88888888-8888-8888-8888-888888888888");
+        Guid projectId = Guid.Parse("99999999-9999-9999-9999-999999999999");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+        });
+
+        InMemoryBillingLedger ledger = new();
+        await ledger.UpsertPendingCheckoutAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            BillingProviderNames.Stripe,
+            "cs_pending_status",
+            nameof(ArchLucid.Core.Tenancy.TenantTier.Standard),
+            seats: 2,
+            workspaces: 1,
+            CancellationToken.None);
+
+        BillingCheckoutFacade sut = new(
+            Mock.Of<IBillingProviderRegistry>(),
+            ledger,
+            scopeProvider.Object,
+            Mock.Of<IAuditService>(),
+            Mock.Of<IMarketplaceWebhookConnectivityService>());
+
+        BillingSubscriptionStatusQueryResult result =
+            await sut.GetSubscriptionStatusAsync(CancellationToken.None);
+
+        result.HasSubscription.Should().BeFalse();
+        result.Status.Should().Be("Pending");
+        result.Provider.Should().BeNull();
+        result.TierCode.Should().BeNull();
+        result.IsPaymentPastDue.Should().BeFalse();
+    }
+
+    [SkippableFact]
+    public async Task GetSubscriptionStatusAsync_canceled_subscription_reports_no_subscription()
+    {
+        Guid tenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+        Guid workspaceId = Guid.Parse("bbbbbbbb-cccc-dddd-eeee-ffffffffffff");
+        Guid projectId = Guid.Parse("cccccccc-dddd-eeee-ffff-000000000000");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+        });
+
+        InMemoryBillingLedger ledger = new();
+        await ledger.ActivateSubscriptionAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            BillingProviderNames.Stripe,
+            "sub_canceled",
+            nameof(ArchLucid.Core.Tenancy.TenantTier.Standard),
+            seats: 2,
+            workspaces: 1,
+            rawWebhookJson: null,
+            CancellationToken.None);
+        await ledger.CancelSubscriptionAsync(tenantId, CancellationToken.None);
+
+        BillingCheckoutFacade sut = new(
+            Mock.Of<IBillingProviderRegistry>(),
+            ledger,
+            scopeProvider.Object,
+            Mock.Of<IAuditService>(),
+            Mock.Of<IMarketplaceWebhookConnectivityService>());
+
+        BillingSubscriptionStatusQueryResult result =
+            await sut.GetSubscriptionStatusAsync(CancellationToken.None);
+
+        result.HasSubscription.Should().BeFalse();
+        result.Status.Should().Be("Canceled");
+        result.Provider.Should().BeNull();
+        result.TierCode.Should().BeNull();
+        result.IsPaymentPastDue.Should().BeFalse();
+    }
+
+    [SkippableFact]
+    public async Task GetSubscriptionStatusAsync_maps_suspended_status_to_payment_past_due()
+    {
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid workspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        Guid projectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+        });
+
+        InMemoryBillingLedger ledger = new();
+        await ledger.ActivateSubscriptionAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            BillingProviderNames.Stripe,
+            "sub_suspended",
+            nameof(ArchLucid.Core.Tenancy.TenantTier.Standard),
+            seats: 2,
+            workspaces: 1,
+            rawWebhookJson: null,
+            CancellationToken.None);
+        await ledger.SuspendSubscriptionAsync(tenantId, CancellationToken.None);
+
+        BillingCheckoutFacade sut = new(
+            Mock.Of<IBillingProviderRegistry>(),
+            ledger,
+            scopeProvider.Object,
+            Mock.Of<IAuditService>(),
+            Mock.Of<IMarketplaceWebhookConnectivityService>());
+
+        BillingSubscriptionStatusQueryResult result =
+            await sut.GetSubscriptionStatusAsync(CancellationToken.None);
+
+        result.HasSubscription.Should().BeTrue();
+        result.Status.Should().Be("Suspended");
+        result.IsPaymentPastDue.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task GetSubscriptionStatusAsync_does_not_flag_active_subscription_as_payment_past_due()
+    {
+        Guid tenantId = Guid.Parse("44444444-4444-4444-4444-444444444444");
+        Guid workspaceId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+        Guid projectId = Guid.Parse("66666666-6666-6666-6666-666666666666");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+        });
+
+        InMemoryBillingLedger ledger = new();
+        await ledger.ActivateSubscriptionAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            BillingProviderNames.Stripe,
+            "sub_active",
+            nameof(ArchLucid.Core.Tenancy.TenantTier.Standard),
+            seats: 2,
+            workspaces: 1,
+            rawWebhookJson: null,
+            CancellationToken.None);
+
+        BillingCheckoutFacade sut = new(
+            Mock.Of<IBillingProviderRegistry>(),
+            ledger,
+            scopeProvider.Object,
+            Mock.Of<IAuditService>(),
+            Mock.Of<IMarketplaceWebhookConnectivityService>());
+
+        BillingSubscriptionStatusQueryResult result =
+            await sut.GetSubscriptionStatusAsync(CancellationToken.None);
+
+        result.HasSubscription.Should().BeTrue();
+        result.Status.Should().Be("Active");
+        result.IsPaymentPastDue.Should().BeFalse();
+    }
+}

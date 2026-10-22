@@ -1,0 +1,219 @@
+import { fireEvent, render, screen, within } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { GenerateAdrFromRunModal } from "@/components/GenerateAdrFromRunModal";
+import type { AdrGeneratorRunInput } from "@/lib/adr-from-run";
+import { PACKAGE_PRINT_REHEARSAL_STRIP_TITLE } from "@/lib/package-print-rehearsal-honesty";
+import { StructuralExecutionModeWire } from "@/lib/structural-execution-mode";
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/architecture/reviews/r1",
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => true,
+}));
+
+const effectiveDoorMock = vi.hoisted(() => ({ value: "career" as "career" | "rehearsal" }));
+
+vi.mock("@/hooks/use-effective-working-career-rehearsal-door", () => ({
+  useEffectiveWorkingCareerRehearsalDoor: () => ({
+    door: effectiveDoorMock.value,
+    effectiveDoor: effectiveDoorMock.value,
+    mounted: true,
+  }),
+}));
+
+function buildFinding(index: number) {
+  return {
+    findingId: `finding-${index}`,
+    title: `Finding ${index}`,
+    recommendation: "Fix it",
+    severityLabel: "High",
+    aiReasoningExcerpt: "Reason",
+  };
+}
+
+function buildInput(findingCount: number): AdrGeneratorRunInput {
+  return {
+    ...minimalInput,
+    findings: Array.from({ length: findingCount }, (_, index) => buildFinding(index)),
+  };
+}
+
+const minimalInput: AdrGeneratorRunInput = {
+  runId: "6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c501",
+  projectId: "p1",
+  reviewTitle: "Test review",
+  createdUtc: "2026-05-11T00:00:00.000Z",
+  manifestStatusLabel: "manifest-v1",
+  policyPackLabel: null,
+  manifestCounts: null,
+  explanation: null,
+  findings: [],
+};
+
+describe("GenerateAdrFromRunModal", () => {
+  beforeEach(() => {
+    effectiveDoorMock.value = "career";
+  });
+
+  it("opens with markdown seeded from input and supports reset", async () => {
+    render(<GenerateAdrFromRunModal input={minimalInput} />);
+
+    fireEvent.click(screen.getByTestId("generate-adr-button"));
+
+    const dialog = await screen.findByRole("dialog");
+    const editor = within(dialog).getByRole("textbox", { name: /architecture decision record markdown/i });
+    const ta = editor as HTMLTextAreaElement;
+
+    expect(ta.value).toContain("# ADR:");
+    expect(ta.value).toContain(minimalInput.runId);
+
+    fireEvent.change(editor, { target: { value: "edited" } });
+
+    fireEvent.click(within(dialog).getByRole("button", { name: /reset to template/i }));
+
+    expect(ta.value).not.toBe("edited");
+    expect(ta.value).toContain("# ADR:");
+  });
+
+  it("copies markdown to clipboard when available", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.assign(navigator, { clipboard: { writeText } });
+
+    render(<GenerateAdrFromRunModal input={minimalInput} enginesSucceeded={41} />);
+
+    fireEvent.click(screen.getByTestId("generate-adr-button"));
+    fireEvent.click(await screen.findByRole("button", { name: /copy to clipboard/i }));
+
+    expect(writeText).toHaveBeenCalledTimes(1);
+    expect(writeText.mock.calls[0]?.[0]).toContain("# ADR:");
+  });
+
+  it("uses decision-record wording in buyer-polished shell", async () => {
+    render(<GenerateAdrFromRunModal input={minimalInput} buyerPolished />);
+
+    expect(screen.getByTestId("generate-adr-button")).toHaveTextContent("View finalized record");
+
+    fireEvent.click(screen.getByTestId("generate-adr-button"));
+
+    const dialog = await screen.findByRole("dialog");
+
+    expect(within(dialog).getByRole("heading", { name: /decision record draft/i })).toBeInTheDocument();
+  });
+
+  it("PC-13: Working ADR markdown prepends shared career export honesty block", async () => {
+    render(<GenerateAdrFromRunModal input={minimalInput} enginesSucceeded={41} />);
+
+    fireEvent.click(screen.getByTestId("generate-adr-button"));
+
+    const dialog = await screen.findByRole("dialog");
+    const editor = within(dialog).getByRole("textbox", { name: /architecture decision record markdown/i });
+    const ta = editor as HTMLTextAreaElement;
+
+    expect(ta.value.indexOf("Measurement floor")).toBeLessThan(ta.value.indexOf("# ADR:"));
+    expect(screen.getByTestId("generate-adr-measurement-floor-line")).toBeInTheDocument();
+  });
+
+  it("DX-15: names skipped actor engines on IaC-only graphs in the measurement floor line", async () => {
+    render(
+      <GenerateAdrFromRunModal
+        input={minimalInput}
+        enginesSucceeded={12}
+        graphSnapshot={{ nodes: [] }}
+        progressSummary={{
+          runId: minimalInput.runId,
+          projectId: minimalInput.projectId,
+          createdUtc: minimalInput.createdUtc,
+          hasFindingsSnapshot: true,
+          hasGraphSnapshot: true,
+          hasContextSnapshot: true,
+        }}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("generate-adr-button"));
+
+    expect(screen.getByTestId("generate-adr-measurement-floor-line")).toHaveTextContent("external-exposure");
+    expect(screen.getByTestId("generate-adr-measurement-floor-line")).toHaveTextContent("no Actor nodes");
+  });
+
+  it("CG-024: hard-blocks ADR export for Working Career simulator without rehearsal stamp", async () => {
+    render(
+      <GenerateAdrFromRunModal
+        input={{
+          ...minimalInput,
+          structuralExecutionMode: StructuralExecutionModeWire.Simulator,
+        }}
+        enginesSucceeded={41}
+        progressSummary={{
+          runId: minimalInput.runId,
+          projectId: minimalInput.projectId,
+          createdUtc: minimalInput.createdUtc,
+          structuralExecutionMode: StructuralExecutionModeWire.Simulator,
+          workingCareerRehearsalDoor: "career",
+        }}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("generate-adr-button"));
+
+    const dialog = await screen.findByRole("dialog");
+
+    expect(screen.getByTestId("generate-adr-career-artifact-gap")).toBeInTheDocument();
+    expect(within(dialog).getByRole("button", { name: /download \.md/i })).toBeDisabled();
+    expect(screen.queryByTestId("generate-adr-export-incomplete-confirm")).not.toBeInTheDocument();
+  });
+
+  it("CG-024: prepends rehearsal header for Working Rehearsal simulator ADR export", async () => {
+    effectiveDoorMock.value = "rehearsal";
+
+    render(
+      <GenerateAdrFromRunModal
+        input={{
+          ...minimalInput,
+          structuralExecutionMode: StructuralExecutionModeWire.Simulator,
+        }}
+        enginesSucceeded={41}
+        progressSummary={{
+          runId: minimalInput.runId,
+          projectId: minimalInput.projectId,
+          createdUtc: minimalInput.createdUtc,
+          structuralExecutionMode: StructuralExecutionModeWire.Simulator,
+          workingCareerRehearsalDoor: "rehearsal",
+        }}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("generate-adr-button"));
+
+    const dialog = await screen.findByRole("dialog");
+    const editor = within(dialog).getByRole("textbox", { name: /architecture decision record markdown/i });
+    const ta = editor as HTMLTextAreaElement;
+
+    expect(ta.value.indexOf(PACKAGE_PRINT_REHEARSAL_STRIP_TITLE)).toBeLessThan(ta.value.indexOf("# ADR:"));
+    expect(ta.value).toMatch(/Rehearsal/i);
+    expect(within(dialog).getByRole("button", { name: /download \.md/i })).not.toBeDisabled();
+  });
+
+  it("CA-41: Working blocks download until incomplete export is confirmed when only 20 of 25 are included", async () => {
+    render(<GenerateAdrFromRunModal input={buildInput(20)} totalFindingCount={25} />);
+
+    fireEvent.click(screen.getByTestId("generate-adr-button"));
+
+    const dialog = await screen.findByRole("dialog");
+
+    expect(screen.getByTestId("generate-adr-export-inventory-line")).toHaveTextContent(
+      "This export includes 20 of 25 findings",
+    );
+    expect(screen.getByTestId("generate-adr-export-incomplete-confirm")).toBeInTheDocument();
+    expect(within(dialog).getByRole("button", { name: /download \.md/i })).toBeDisabled();
+
+    fireEvent.click(screen.getByTestId("generate-adr-export-incomplete-confirm"));
+
+    expect(within(dialog).getByRole("button", { name: /download \.md/i })).not.toBeDisabled();
+  });
+});

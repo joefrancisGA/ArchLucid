@@ -1,0 +1,205 @@
+"use client";
+
+import Link from "next/link";
+
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+import { OPERATOR_LINK, OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  GOVERNANCE_INFRASTRUCTURE_OVERVIEW_HUB_INTRO,
+  SECURENOW_HOME_GROUPED_SECTIONS_INTRO,
+  GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_LEAD,
+  GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PRIMARY_CONTENT_ID,
+  GOVERNANCE_INFRASTRUCTURE_OVERVIEW_SKIP_LINK_LABEL,
+  SECURENOW_HOME_CLAIM_DISCIPLINE,
+  SECURENOW_HOME_PAGE_LEAD,
+  GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_ACTION,
+  GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_BADGE,
+  GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_BODY,
+  GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_OVERVIEW_WORKBENCHES_HEADING,
+  INFRASTRUCTURE_WORKBENCH_ROWS,
+} from "@/lib/governance/governance-infrastructure-copy";
+import { GOVERNANCE_INFRASTRUCTURE_OVERVIEW_CLAIM_DISCIPLINE } from "@/lib/governance/governance-infrastructure-evidence-copy";
+import { GOVERNANCE_INFRASTRUCTURE_PATH, GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { SECURITY_PRODUCT_HOME_TITLE } from "@/lib/product-line/product-line-copy";
+import { isSecureNowUhgEdition } from "@/lib/product-line/resolve-securenow-edition-id";
+import { cn } from "@/lib/utils";
+
+import { SecureNowComplianceHomeSection } from "@/components/product-line/SecureNowComplianceHomeSection";
+import { SecureNowDataSourcesHomeSection } from "@/components/product-line/SecureNowDataSourcesHomeSection";
+import { SecureNowFindingsHomeSection } from "@/components/product-line/SecureNowFindingsHomeSection";
+import { SecureNowInfrastructureHomeSection } from "@/components/product-line/SecureNowInfrastructureHomeSection";
+import { SecureNowRemediationHomeSection } from "@/components/product-line/SecureNowRemediationHomeSection";
+import { SecureNowHomeEnvironmentContext } from "@/components/product-line/SecureNowHomeEnvironmentContext";
+import { SecureNowHomeWorkSummary } from "@/components/product-line/SecureNowHomeWorkSummary";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+
+import { InfrastructureOverviewClaimOrientationStrip } from "./InfrastructureOverviewClaimOrientationStrip";
+
+export type InfrastructureOverviewClientProps = {
+  /** SecureNow `/` home — page title and nav target differ from the infrastructure overview hub. */
+  readonly secureNowHome?: boolean;
+};
+
+/** Infrastructure overview hub — lists all infrastructure evidence workbench destinations. */
+export function InfrastructureOverviewClient(props: InfrastructureOverviewClientProps = {}) {
+  const buyerPolishedShell = useProductionEvalChrome();
+  const { productLine } = useProductLine();
+  const showSecureNowGroupedHomeSections = productLine === "security";
+  const secureNowHome = props.secureNowHome === true;
+  const pageTitle = secureNowHome ? SECURITY_PRODUCT_HOME_TITLE : GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE;
+  const pageNavHref = secureNowHome ? "/" : GOVERNANCE_INFRASTRUCTURE_PATH;
+
+  return (
+    <OperatorPageContainer
+      variant="full"
+      className="py-4"
+      data-testid="governance-infrastructure-overview-page"
+    >
+      <a
+        href={`#${GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {GOVERNANCE_INFRASTRUCTURE_OVERVIEW_SKIP_LINK_LABEL}
+      </a>
+
+      <OperatorPageHeader
+        navHref={pageNavHref}
+        title={pageTitle}
+        subtitle={secureNowHome ? SECURENOW_HOME_PAGE_LEAD : GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_LEAD}
+        claimDiscipline={
+          secureNowHome
+            ? isSecureNowUhgEdition()
+              ? undefined
+              : SECURENOW_HOME_CLAIM_DISCIPLINE
+            : GOVERNANCE_INFRASTRUCTURE_OVERVIEW_CLAIM_DISCIPLINE
+        }
+        claimDisciplineTestId="governance-infrastructure-overview-claim-discipline"
+        titleTestId="governance-infrastructure-overview-page-title"
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <PageContextualHelpButton />
+          </div>
+        }
+      />
+
+      <main
+        id={GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PRIMARY_CONTENT_ID}
+        className={cn("min-w-0 space-y-4 scroll-mt-24")}
+        data-testid="governance-infrastructure-overview-primary-content"
+      >
+        {buyerPolishedShell ? (
+          <section
+            aria-labelledby="governance-infrastructure-start-here-heading"
+            className="rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
+            data-testid="governance-infrastructure-start-here-panel"
+          >
+            <h2
+              id="governance-infrastructure-start-here-heading"
+              className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}
+            >
+              {GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_TITLE}
+            </h2>
+            <p
+              className={cn(
+                "m-0 mt-2 text-al-text-secondary",
+                OPERATOR_SHORT_HELPER_MEASURE_CLASS,
+                OPERATOR_TYPOGRAPHY.helper,
+              )}
+            >
+              {GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_BODY}
+            </p>
+            <div className="mt-3">
+              <Button variant="primary" size="sm" asChild>
+                <Link
+                  href={GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH}
+                  data-testid="governance-infrastructure-start-here-link"
+                >
+                  {GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_ACTION}
+                </Link>
+              </Button>
+            </div>
+          </section>
+        ) : secureNowHome ? null : (
+          <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+            {showSecureNowGroupedHomeSections
+              ? SECURENOW_HOME_GROUPED_SECTIONS_INTRO
+              : GOVERNANCE_INFRASTRUCTURE_OVERVIEW_HUB_INTRO}
+          </p>
+        )}
+
+        {showSecureNowGroupedHomeSections ? (
+          <div className="mt-6 space-y-4" data-testid="securenow-grouped-home-sections">
+            {secureNowHome ? <SecureNowHomeEnvironmentContext /> : null}
+            {secureNowHome ? <SecureNowHomeWorkSummary /> : null}
+            <SecureNowFindingsHomeSection />
+            <SecureNowInfrastructureHomeSection />
+            <SecureNowRemediationHomeSection />
+            <SecureNowComplianceHomeSection />
+            <SecureNowDataSourcesHomeSection />
+          </div>
+        ) : (
+          <section aria-labelledby="governance-infrastructure-workbenches-heading">
+            <h2
+              id="governance-infrastructure-workbenches-heading"
+              className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}
+            >
+              {GOVERNANCE_INFRASTRUCTURE_OVERVIEW_WORKBENCHES_HEADING}
+            </h2>
+            <EnterpriseTable
+              ariaLabel="Infrastructure evidence workbenches"
+              className="mt-3"
+            >
+              <EnterpriseTableHead>
+                <EnterpriseTableRow>
+                  <EnterpriseTableHeaderCell>Workbench</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>Summary</EnterpriseTableHeaderCell>
+                </EnterpriseTableRow>
+              </EnterpriseTableHead>
+              <EnterpriseTableBody>
+                {INFRASTRUCTURE_WORKBENCH_ROWS.map((row) => (
+                  <EnterpriseTableRow key={row.href}>
+                    <EnterpriseTableCell>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Link
+                          className={cn("font-medium", OPERATOR_LINK.inline)}
+                          href={row.href}
+                          data-testid={`governance-infrastructure-workbench-link-${row.href}`}
+                        >
+                          {row.label}
+                        </Link>
+                        {buyerPolishedShell && row.recommendedFirst === true ? (
+                          <StatusTag kind="neutral" label={GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_BADGE} />
+                        ) : null}
+                      </div>
+                    </EnterpriseTableCell>
+                    <EnterpriseTableCell>{row.summary}</EnterpriseTableCell>
+                  </EnterpriseTableRow>
+                ))}
+              </EnterpriseTableBody>
+            </EnterpriseTable>
+          </section>
+        )}
+
+        {buyerPolishedShell ? <InfrastructureOverviewClaimOrientationStrip /> : null}
+      </main>
+    </OperatorPageContainer>
+  );
+}
+
+export { GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE };

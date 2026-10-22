@@ -1,0 +1,56 @@
+{
+  "shards": [
+    {
+      "id": "api",
+      "label": "Api.Tests",
+      "projects": ["ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj"]
+    },
+    {
+      "id": "host-application",
+      "label": "Application + AgentRuntime + Decisioning + Host",
+      "projects": [
+        "ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj",
+        "ArchLucid.AgentRuntime.Tests/ArchLucid.AgentRuntime.Tests.csproj",
+        "ArchLucid.Decisioning.Tests/ArchLucid.Decisioning.Tests.csproj",
+        "ArchLucid.Host.Core.Tests/ArchLucid.Host.Core.Tests.csproj"
+      ]
+    },
+    {
+      "id": "host-composition",
+      "label": "Host composition (full DI graph)",
+      "projects": [
+        "ArchLucid.Host.Composition.Tests/ArchLucid.Host.Composition.Tests.csproj"
+      ]
+    },
+    {
+      "id": "data-core",
+      "label": "Core + Persistence + retrieval stack",
+      "projects": [
+        "ArchLucid.Core.Tests/ArchLucid.Core.Tests.csproj",
+        "ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj",
+        "ArchLucid.Retrieval.Tests/ArchLucid.Retrieval.Tests.csproj",
+        "ArchLucid.Provenance.Tests/ArchLucid.Provenance.Tests.csproj",
+        "ArchLucid.ContextIngestion.Tests/ArchLucid.ContextIngestion.Tests.csproj",
+        "ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj",
+        "ArchLucid.KnowledgeGraph.Tests/ArchLucid.KnowledgeGraph.Tests.csproj"
+      ]
+    },
+    {
+      "id": "surface-misc",
+      "label": "Contracts + integrations + CLI + misc",
+      "projects": [
+        "ArchLucid.Contracts.Tests/ArchLucid.Contracts.Tests.csproj",
+        "ArchLucid.Integrations.AzureDevOps.Tests/ArchLucid.Integrations.AzureDevOps.Tests.csproj",
+        "ArchLucid.Integrations.AzureExtractor.Tests/ArchLucid.Integrations.AzureExtractor.Tests.csproj",
+        "ArchLucid.Capabilities.Cost.Tests/ArchLucid.Capabilities.Cost.Tests.csproj",
+        "ArchLucid.Notifications.Tests/ArchLucid.Notifications.Tests.csproj",
+        "ArchLucid.Architecture.Tests/ArchLucid.Architecture.Tests.csproj",
+        "ArchLucid.Analyzers.Tests/ArchLucid.Analyzers.Tests.csproj",
+        "ArchLucid.Cli.Tests/ArchLucid.Cli.Tests.csproj",
+        "ArchLucid.Worker.Tests/ArchLucid.Worker.Tests.csproj",
+        "ArchLucid.Jobs.Cli.Tests/ArchLucid.Jobs.Cli.Tests.csproj",
+        "ArchLucid.Api.Client.Tests/ArchLucid.Api.Client.Tests.csproj"
+      ]
+    }
+  ]
+}

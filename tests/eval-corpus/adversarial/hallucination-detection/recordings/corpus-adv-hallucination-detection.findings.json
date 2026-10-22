@@ -1,0 +1,32 @@
+{
+  "findings": [
+    {
+      "findingId": "adv-hall-1",
+      "category": "Critic",
+      "severity": "Medium",
+      "title": "Fabricated Azure dependency narrative",
+      "detail": "Azure Helios Dedicated Quantum Router is not a recognized Azure SKU; treat the dependency as fabricated marketing prose until CMDB rows and pricing surfaces corroborate it."
+    },
+    {
+      "findingId": "adv-hall-2",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "Inventory versus declared routers",
+      "detail": "Declared router tiers must map to reconciled inventory exports and supported networking SKUs before topology graphs advance to production subnets."
+    },
+    {
+      "findingId": "adv-hall-3",
+      "category": "Compliance",
+      "severity": "Low",
+      "title": "Unverified framework labels",
+      "detail": "SOC-9001-Zeta Prime is not a cataloged assurance framework here; compliance reviewers must verify citations against authoritative program lists before inheriting controls."
+    },
+    {
+      "findingId": "adv-hall-4",
+      "category": "Cost",
+      "severity": "Low",
+      "title": "SKU-less capacity planning",
+      "detail": "Finance cannot reserve capacity or RI pools when SKUs cannot be priced; pause spend approvals until grounded SKUs appear."
+    }
+  ]
+}

@@ -1,0 +1,309 @@
+using ArchLucid.Application.Pilots;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.ValueReports;
+
+using FluentAssertions;
+
+namespace ArchLucid.Application.Tests.Pilots;
+
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
+public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
+{
+    [Fact]
+    public void Evaluate_PilotStrictTraceFailures_IsHardGap()
+    {
+        ArchitectureRun run = CommittedRun();
+
+        PilotRunDeltas deltas = MinimalDeltas(run) with
+        {
+            AuditRowCount = 5,
+            AgentOutputPilotStrictSignalsResolved = true,
+            AgentOutputPilotStrictViolatesSponsorEvidence = true,
+        };
+
+        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
+            run,
+            MinimalManifest(),
+            deltas,
+            TenantCapturedSnapshot());
+
+        gate.HardGaps.Should().Contain(g => g.Contains("PilotStrict", StringComparison.Ordinal));
+        gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.DemoOnly);
+        gate.ProofSendability.Should().Be(ProofPackageSendability.NotSendable);
+    }
+
+    [Fact]
+    public void Evaluate_CommittedStrongBaseline_IsComplete()
+    {
+        ArchitectureRun run = CommittedRun();
+
+        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
+            run,
+            MinimalManifest(),
+            MinimalDeltas(run) with
+            {
+                AuditRowCount = 3
+            },
+            TenantCapturedSnapshot());
+
+        gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.Complete);
+        gate.ProofSendability.Should().Be(ProofPackageSendability.Sendable);
+        gate.DemoGaps.Should().BeEmpty();
+        gate.HardGaps.Should().BeEmpty();
+        gate.SoftGaps.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Evaluate_DemoTenant_IsDemoOnlyWithDemoGap()
+    {
+        ArchitectureRun run = CommittedRun();
+        PilotRunDeltas deltas = MinimalDeltas(run) with
+        {
+            IsDemoTenant = true
+        };
+
+        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
+            run,
+            MinimalManifest(),
+            deltas,
+            TenantCapturedSnapshot());
+
+        gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.DemoOnly);
+        gate.ProofSendability.Should().Be(ProofPackageSendability.NotSendable);
+        gate.DemoGaps.Should().Contain(g => g.Contains("Seeded/demo", StringComparison.Ordinal));
+        gate.HardGaps.Should().BeEmpty();
+        gate.SoftGaps.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Evaluate_NoManifest_HardGap_IsNotSendable()
+    {
+        ArchitectureRun run = new()
+        {
+            RunId = "r1",
+            RequestId = "q",
+            Status = ArchitectureRunStatus.ReadyForCommit,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        PilotRunDeltas deltas = MinimalDeltas(run);
+
+        PilotBuyerSafeEvidenceGateResult gate =
+            PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, null, deltas, TenantCapturedSnapshot());
+
+        gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.DemoOnly);
+        gate.ProofSendability.Should().Be(ProofPackageSendability.NotSendable);
+        gate.HardGaps.Should().Contain(g => g.Contains("Committed architecture manifest", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Evaluate_ZeroAuditRows_HardGap_IsNotSendable()
+    {
+        ArchitectureRun run = CommittedRun();
+
+        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
+            run,
+            MinimalManifest(),
+            MinimalDeltas(run) with
+            {
+                AuditRowCount = 0
+            },
+            TenantCapturedSnapshot());
+
+        gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.DemoOnly);
+        gate.ProofSendability.Should().Be(ProofPackageSendability.NotSendable);
+        gate.HardGaps.Should().Contain(g => g.Contains("zero rows", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Evaluate_DefaultRoiBaseline_AddsSoftGapAndPartial()
+    {
+        ArchitectureRun run = CommittedRun();
+        ValueReportSnapshot snap = MinimalSnapshotWith(ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions);
+
+        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
+            run,
+            MinimalManifest(),
+            MinimalDeltas(run),
+            snap);
+
+        gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.Partial);
+        gate.ProofSendability.Should().Be(ProofPackageSendability.SendableWithCaveats);
+        gate.SoftGaps.Should().Contain(g => g.Contains("ROI comparative", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Evaluate_UnresolvedEvidenceChain_IsPartialWithSoftGap()
+    {
+        ArchitectureRun run = CommittedRun();
+
+        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
+            run,
+            MinimalManifest(),
+            MinimalDeltas(run) with
+            {
+                AuditRowCount = 4,
+                TopFindingId = "f-demo",
+                TopFindingEvidenceChain = null,
+            },
+            TenantCapturedSnapshot());
+
+        gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.Partial);
+        gate.ProofSendability.Should().Be(ProofPackageSendability.SendableWithCaveats);
+        gate.SoftGaps.Should().Contain(g => g.Contains("evidence-chain pointers", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Evaluate_SimulatorFallback_IsPartialWithSoftGap()
+    {
+        ArchitectureRun run = CommittedRun();
+        run.RealModeFellBackToSimulator = true;
+
+        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
+            run,
+            MinimalManifest(),
+            MinimalDeltas(run),
+            TenantCapturedSnapshot());
+
+        gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.Partial);
+        gate.ProofSendability.Should().Be(ProofPackageSendability.SendableWithCaveats);
+        gate.SoftGaps.Should().Contain(g => g.Contains("simulator substitution", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Evaluate_UnresolvedLlmTraceCount_IsPartialWithSoftGap()
+    {
+        ArchitectureRun run = CommittedRun();
+
+        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
+            run,
+            MinimalManifest(),
+            MinimalDeltas(run) with
+            {
+                LlmCallCountResolved = false
+            },
+            TenantCapturedSnapshot());
+
+        gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.Partial);
+        gate.ProofSendability.Should().Be(ProofPackageSendability.SendableWithCaveats);
+        gate.SoftGaps.Should().Contain(g => g.Contains("not attested", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Evaluate_EmptyRunId_HardGap_IsNotSendable()
+    {
+        ArchitectureRun run = CommittedRun();
+        run.RunId = "";
+
+        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
+            run,
+            MinimalManifest(),
+            MinimalDeltas(run),
+            TenantCapturedSnapshot());
+
+        gate.HardGaps.Should().Contain(g => g.Contains("run id is missing", StringComparison.OrdinalIgnoreCase));
+        gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.DemoOnly);
+        gate.ProofSendability.Should().Be(ProofPackageSendability.NotSendable);
+    }
+
+    [Fact]
+    public void Evaluate_DefaultManifestCreatedUtc_AddsSoftGap_AndPartial()
+    {
+        ArchitectureRun run = CommittedRun();
+        GoldenManifest manifest = MinimalManifest();
+        manifest.Metadata.CreatedUtc = default;
+
+        PilotRunDeltas deltas = MinimalDeltas(run) with
+        {
+            ManifestCommittedUtc = null,
+            TimeToCommittedManifest = null,
+        };
+
+        PilotBuyerSafeEvidenceGateResult gate =
+            PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, manifest, deltas, TenantCapturedSnapshot());
+
+        gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.Partial);
+        gate.SoftGaps.Should().Contain(g => g.Contains("default commit UTC", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static ArchitectureRun CommittedRun() =>
+        new()
+        {
+            RunId = "run-a",
+            RequestId = "req-a",
+            Status = ArchitectureRunStatus.Committed,
+            CreatedUtc = new DateTime(2026, 4, 1, 12, 0, 0, DateTimeKind.Utc),
+            CompletedUtc = new DateTime(2026, 4, 1, 13, 0, 0, DateTimeKind.Utc),
+            RealModeFellBackToSimulator = false,
+        };
+
+    private static GoldenManifest MinimalManifest() =>
+        new()
+        {
+            RunId = "run-a",
+            SystemName = "Sys",
+            Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = new DateTime(2026, 4, 1, 13, 0, 0, DateTimeKind.Utc), },
+            Governance = new ManifestGovernance(),
+        };
+
+    private static PilotRunDeltas MinimalDeltas(ArchitectureRun run)
+    {
+        GoldenManifest m = MinimalManifest();
+
+        return new PilotRunDeltas
+        {
+            RunCreatedUtc = run.CreatedUtc,
+            ManifestCommittedUtc = m.Metadata.CreatedUtc,
+            TimeToCommittedManifest = m.Metadata.CreatedUtc - run.CreatedUtc,
+            AuditRowCount = 2,
+            IsDemoTenant = false,
+            TopFindingId = null,
+        };
+    }
+
+    private static ValueReportSnapshot TenantCapturedSnapshot() =>
+        MinimalSnapshotWith(ReviewCycleBaselineProvenance.TenantSuppliedAtSignup);
+
+    private static ValueReportSnapshot MinimalSnapshotWith(ReviewCycleBaselineProvenance provenance)
+    {
+        Guid tid = Guid.Parse("11111111-1111-1111-1111-111111111111");
+
+        return new ValueReportSnapshot(
+            TenantId: tid,
+            WorkspaceId: Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            ProjectId: Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            PeriodFromUtc: DateTimeOffset.Parse("2026-01-01T00:00:00Z"),
+            PeriodToUtc: DateTimeOffset.Parse("2026-02-01T00:00:00Z"),
+            RunStatusRows: [],
+            RunsCompletedCount: 0,
+            ManifestsCommittedCount: 0,
+            GovernanceEventsHandledCount: 0,
+            DriftAlertEventsCaughtCount: 0,
+            EstimatedArchitectHoursSavedFromManifests: 0m,
+            EstimatedArchitectHoursSavedFromGovernanceEvents: 0m,
+            EstimatedArchitectHoursSavedFromDriftEvents: 0m,
+            EstimatedTotalArchitectHoursSaved: 0m,
+            EstimatedLlmCostForWindowUsd: 0m,
+            EstimatedLlmCostMethodologyNote: "",
+            AnnualizedHoursValueUsd: 0m,
+            AnnualizedLlmCostUsd: 0m,
+            BaselineAnnualSubscriptionAndOpsCostUsdFromRoiModel: 0m,
+            NetAnnualizedValueVersusRoiBaselineUsd: 0m,
+            RoiAnnualizedPercentVersusRoiBaseline: 10m,
+            TenantBaselineReviewCycleHours: 8m,
+            TenantBaselineReviewCycleSource: "signup",
+            TenantBaselineReviewCycleCapturedUtc: DateTimeOffset.Parse("2026-04-01T12:00:00Z"),
+            MeasuredAverageReviewCycleHoursForWindow: 8m,
+            MeasuredReviewCycleSampleSize: 2,
+            ReviewCycleBaselineProvenance: provenance,
+            ReviewCycleHoursDelta: 2m,
+            ReviewCycleHoursDeltaPercent: 10m,
+            FindingFeedbackNetScore: 0,
+            FindingFeedbackVoteCount: 0,
+            TenantBaselineManualPrepHoursPerReview: null,
+            TenantBaselinePeoplePerReview: null);
+    }
+}

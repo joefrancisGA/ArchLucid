@@ -1,0 +1,90 @@
+---
+description: >-
+  C# primary constructors, backing-field null checks, simple one-line properties,
+  whitespace discipline, and named bounds — construction and layout of types.
+globs: "**/*.cs"
+alwaysApply: false
+---
+
+# C# type construction and layout
+
+---
+
+## Primary constructors
+
+Use **C# 12 primary constructors** for classes whose constructor only **captures dependencies / values** to private state. Prefer `record` primary constructors for value-shaped types.
+
+Primary constructors **do not** throw on null — validate in the first member that uses each parameter, or use **backing-field coalescing** below.
+
+Avoid hand-written ctors that only assign to fields when a primary ctor would do. Avoid primary ctors when you need overload chaining or heavy constructor logic.
+
+Each class still goes in **its own file**.
+
+Compose with **`CSharp-Terse-Modern-Language.mdc`** (collection literals on fields) and **`CSharp-Terse-Guards-And-Flow.mdc`** (same-line guards in methods).
+
+---
+
+## Primary constructor null checks — backing fields
+
+When a **public class** uses a **primary constructor** and must reject null non-nullable dependencies, capture with explicit backing fields and **coalesce to `throw`:**
+
+```csharp
+public sealed class MyService(IFoo foo, IBar bar) : IMyService
+{
+    private readonly IFoo _foo = foo ?? throw new ArgumentNullException(nameof(foo));
+    private readonly IBar _bar = bar ?? throw new ArgumentNullException(nameof(bar));
+}
+```
+
+Use primary-constructor parameter names only in those initializers; use `_foo` / `_bar` in instance members.
+
+### Do not use
+
+- **`byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(...)`** tricks
+- **`static byte __ValidatePrimaryConstructorArguments`** helpers that only exist for side-effect validation
+
+### Records / DTOs
+
+Prefer **explicit constructors** that assign `init` properties when you need ctor-time validation, or positional records without redundant scaffolding.
+
+**Tooling:** `tools/ApplicationThrowIfNullCodemod` — migrate legacy validation; then `dotnet build` affected projects.
+
+---
+
+## Simple properties — one line
+
+**Simple** auto-implemented properties (no custom accessor bodies) = **one physical line** for the whole declaration.
+
+Do **not** put blank lines between **consecutive** simple one-line auto-properties. **Do** put a blank line before the next different member (method, field, non-simple property, etc.).
+
+**Bulk fix:** `python scripts/collapse_simple_properties.py`
+
+Does **not** apply when either accessor has a body (`get =>`, `set { }`, etc.).
+
+---
+
+## Whitespace — never stack blank lines
+
+Inside `*.cs`, never use **more than one** consecutive blank line.
+
+Interpret “blank line before `if` / `foreach`” as **at most one** separating newline between logical lines — combining rules never means stacking empties.
+
+After `continue;`, `return`, `throw`, or `}` before the next peer statement, use **zero** blanks unless the peer is `if`/`foreach` and the blank-before-control-flow rule applies — **one** blank total.
+
+No extra empty lines inside `try` / `catch` / `finally` structure.
+
+---
+
+## Named bounds — avoid magic numbers
+
+Unexplained literals in **loops**, **timeouts**, **caps**, and **seed sizes** should be **named** (options types, `private const`, shared limits).
+
+**Product code:** centralize caps in options / limit types; do not scatter the same literal twice.
+
+**Tests:** `private const` or `private static readonly` with a short remark; reuse **`ArchLucid.TestSupport`** for cross-project seeds.
+
+**`for` bodies** that are not a single simple statement **must** use `{ }`.
+
+**Generated `*.g.cs`:** do not hand-fix; change templates / NSwag / post-gen. See **`docs/NEXT_REFACTORINGS.md`** (MN-1).
+
+**Moq / expression trees:** `is null` may hit **CS8122** — use `== null` with a comment. See **`CSharp-Terse-Modern-Language.mdc`** (null patterns).

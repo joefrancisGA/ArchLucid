@@ -1,0 +1,35 @@
+{
+  "requestId": "TEMPLATE-PCI-GATEWAY",
+  "systemName": "PciPaymentGatewayReference",
+  "description": "Outline a payment-gateway style workload aimed at PCI DSS scoping for card-not-present or API-driven payments. Azure Front Door with Web Application Firewall (WAF) sits at the edge to absorb bot traffic, apply OWASP-oriented rules, and terminate TLS before traffic reaches regional Azure Container Apps that host stateless payment orchestration. Azure Key Vault stores keys, certificates, and optional HSM-backed material so secrets never live in environment variables or container images—addressing common PCI DSS expectations around key management, access separation, and auditability. This template is for architecture analysis: it explains *why* these components reduce cardholder data environment (CDE) sprawl and support compensating controls around segmentation, not a self-attestation of PCI compliance.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "Primary account data (PAN, sensitive authentication data) must not be persisted in application logs, APM traces, or Front Door raw logs; tokenization or PSP-hosted fields preferred where feasible.",
+    "Secrets, signing keys, and TLS certificates must be sourced from Azure Key Vault with least-privilege RBAC and no long-lived shared credentials in Container Apps configuration.",
+    "Front Door WAF must be enabled on routes that accept payment-adjacent traffic; default-deny and rate limits documented for assessor review."
+  ],
+  "requiredCapabilities": [
+    "Azure Front Door with WAF for global edge protection and TLS termination",
+    "Azure Container Apps for horizontally scaled, revision-based compute behind private or controlled ingress",
+    "Azure Key Vault for secrets and keys with managed identity access from Container Apps",
+    "Integration with a PCI-validated payment service provider (PSP) or token vault when raw card data would otherwise enter the CDE"
+  ],
+  "assumptions": [
+    "Scope reduction (network segmentation, tokenization) is explicitly documented so QSA review can bound the CDE.",
+    "Observability pipelines redact or drop fields that could contain PAN before central storage."
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [],
+  "documents": [],
+  "policyReferences": [],
+  "topologyHints": [
+    "Edge: Front Door -> origin (Container Apps ingress or internal load balancer); keep payment microservices out of shared multitenant clusters without documented isolation.",
+    "Separate environments so production keys and PSP credentials never serve non-prod traffic."
+  ],
+  "securityBaselineHints": [
+    "Microsoft Defender for Cloud recommendations on exposed management planes and container registries feed PCI vulnerability management evidence.",
+    "Break-glass access to Key Vault and production Container Apps revisions is ticketed and logged for PCI access reviews."
+  ],
+  "infrastructureDeclarations": []
+}

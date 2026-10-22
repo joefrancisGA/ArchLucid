@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>ArchLucid.Worker</RootNamespace>
+    <AssemblyName>ArchLucid.Worker</AssemblyName>
+    <UserSecretsId>archlucid-worker-host</UserSecretsId>
+  </PropertyGroup>
+
+  <Import Project="..\ArchLucid.Host.Runtime.props" />
+
+  <ItemGroup>
+    <ProjectReference Include="..\ArchLucid.Host.Core\ArchLucid.Host.Core.csproj" />
+    <ProjectReference Include="..\ArchLucid.Host.Composition\ArchLucid.Host.Composition.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\schemas\*.schema.json" Link="schemas\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

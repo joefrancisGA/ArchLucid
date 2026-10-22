@@ -1,0 +1,83 @@
+{
+  "schema": "archlucid.roi-baseline-send-policy.v1",
+  "effectiveUtc": "2026-06-07T00:00:00Z",
+  "ownerDecision": "Default V1 commercial SEND policy — sponsor-owner may override with documented artifact.",
+  "baselineCompletenessStatuses": {
+    "COMPLETE": "All required baseline fields are sponsor-safe and non-defaulted.",
+    "PARTIAL": "Some labels exist but required fields are demo-derived, stale, or weakly classified.",
+    "DEFAULTED": "Scorecard or ROI model used default placeholders.",
+    "NOT_COLLECTED": "Required baselines missing or explicitly not collected."
+  },
+  "sendThreshold": {
+    "requiredBaselineFields": [
+      {
+        "id": "reviewCycleHoursBaseline",
+        "label": "Review cycle hours (baseline)",
+        "description": "Wall-clock hours from review requested to approved manifest — PILOT_SUCCESS_SCORECARD §2."
+      },
+      {
+        "id": "architectHoursPerReviewBaseline",
+        "label": "Architect hours per review (baseline)",
+        "description": "Person-hours of architect effort per review — PILOT_SUCCESS_SCORECARD §2."
+      },
+      {
+        "id": "roiBasisSource",
+        "label": "ROI basis source classification",
+        "description": "Mapped from go-no-go-summary.json roiBasisStatus."
+      }
+    ],
+    "optionalBaselineFields": [
+      {
+        "id": "documentationHoursBaseline",
+        "label": "Documentation hours per review (baseline)",
+        "description": "Recommended for ARB/annual conversations; not blocking SEND."
+      }
+    ],
+    "roiBasisStatusComplete": [
+      "buyer-provided",
+      "uploaded-actual-or-amortized",
+      "azure-retail",
+      "classified"
+    ],
+    "roiBasisStatusPartial": [
+      "labeled-other",
+      "stale"
+    ],
+    "roiBasisStatusDefaulted": [
+      "defaulted"
+    ],
+    "roiBasisStatusNotCollected": [
+      "not-collected",
+      "missing",
+      "demo-derived",
+      "hold_missing_sources"
+    ],
+    "requiresRoiSponsorSafe": true,
+    "requiresSponsorPacketReady": true
+  },
+  "override": {
+    "artifactFileName": "roi-baseline-send-override.json",
+    "schema": "archlucid.roi-baseline-send-override.v1",
+    "approverRoles": [
+      "sponsor-owner",
+      "cfo-delegate"
+    ],
+    "recorderRoles": [
+      "sales",
+      "pilot-operator"
+    ],
+    "requiredFields": [
+      "approvedByRole",
+      "recordedBy",
+      "rationale",
+      "acceptedRisk",
+      "validForRunId"
+    ],
+    "rationaleMinLength": 24,
+    "notes": "Override permits SEND when baselineCompletenessStatus is not COMPLETE. Does not clear proof BLOCK rows or DEFERRED_SCOPE."
+  },
+  "docOwners": [
+    "docs/go-to-market/QUOTE_TO_PROOF_PACKET.md",
+    "docs/go-to-market/ROI_MODEL.md"
+  ]
+}

@@ -1,0 +1,152 @@
+using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Http;
+using ArchLucid.Api.Http.Governance;
+using ArchLucid.Api.Mapping;
+using ArchLucid.Api.Models.Coverage;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
+using ArchLucid.Application.Governance.Coverage;
+using ArchLucid.Application.Governance.Posture;
+using ArchLucid.Contracts.Governance.Coverage;
+using ArchLucid.Contracts.Governance.PolicyPacks;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
+
+using Asp.Versioning;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+
+namespace ArchLucid.Api.Controllers.Governance;
+
+/// <summary>Read-only coverage disclosure for the active tenant/workspace/project scope.</summary>
+[ApiController]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+[ApiVersion("1.0")]
+[Route("v{version:apiVersion}/governance")]
+[EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+[ProducesResponseType(StatusCodes.Status403Forbidden)]
+[ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
+[ProducesResponseType(StatusCodes.Status404NotFound)]
+public sealed partial class GovernanceCoverageController(
+    ICoverageQueryService coverageQueryService,
+    ICoveragePreviewService coveragePreviewService,
+    IPolicyPackRepository policyPackRepository,
+    IScopeContextProvider scopeContextProvider,
+    ITenantRepository tenantRepository,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
+    IRunDetailQueryService runDetailQueryService) : ControllerBase
+{
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
+    private readonly IRunDetailQueryService _runDetailQueryService =
+        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
+    // idempotency-posture: dry-run-no-persist
+    [HttpPost("coverage/preview")]
+    [MutatingAuditExcluded("Read-only coverage preview; does not persist domain mutations.")]
+    [ProducesResponseType(typeof(CoveragePreviewResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> PreviewCoverage(
+        [FromBody] CoveragePreviewRequest? request,
+        CancellationToken cancellationToken)
+    {
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        IActionResult? validationProblem = CoveragePreviewHttpMapper.Validate(request).ToBadRequestProblemOrNull(this);
+
+        if (validationProblem is not null)
+            return validationProblem;
+
+        (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+            this,
+            _scopeContextProvider,
+            _tenantRepository,
+            cancellationToken).ConfigureAwait(false);
+
+        if (scopeProblem is not null)
+            return scopeProblem;
+
+        IActionResult? sealedGuardResult =
+            await EnsureGovernanceCoveragePreviewSealedManifestReadAllowedAsync(scope, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        CoveragePreviewInput input = CoveragePreviewMapper.ToInput(request);
+
+        try
+        {
+            CoveragePreviewResult preview =
+                await coveragePreviewService.PreviewAsync(scope, input, cancellationToken);
+            CoveragePreviewResponse response = CoveragePreviewMapper.ToResponse(preview);
+
+            return Ok(response);
+        }
+        catch (ConflictException ex)
+        {
+            return MapGovernanceCoverageSealedManifestConflict(ex);
+        }
+    }
+
+    [HttpGet("coverage")]
+    [ProducesResponseType(typeof(CoverageSummaryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> GetScopeCoverage(CancellationToken cancellationToken)
+    {
+        (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
+            this,
+            _scopeContextProvider,
+            _tenantRepository,
+            cancellationToken).ConfigureAwait(false);
+
+        if (scopeProblem is not null)
+            return scopeProblem;
+
+        CoverageSummary summary;
+
+        try
+        {
+            summary = await coverageQueryService.GetByScopeAsync(scope, cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return MapGovernanceCoverageSealedManifestConflict(ex);
+        }
+
+        Dictionary<Guid, PolicyPack> packById = summary.Assignments.Count == 0
+            ? new Dictionary<Guid, PolicyPack>()
+            : (await policyPackRepository.GetByIdsAsync(
+                summary.Assignments.Select(static row => row.PolicyPackId).Distinct().ToList(),
+                cancellationToken))
+            .Where(pack => pack.TenantId == scope.TenantId
+                && pack.WorkspaceId == scope.WorkspaceId
+                && pack.ProjectId == scope.ProjectId)
+            .ToDictionary(static pack => pack.PolicyPackId);
+
+        CoverageSummaryResponse response = CoverageAssignmentMapper.ToSummaryResponse(summary, packById);
+        return Ok(response);
+    }
+}

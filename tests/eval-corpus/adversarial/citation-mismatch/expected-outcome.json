@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "corpus-adv-citation-mismatch",
+  "adversarialTheme": "citation-mismatch",
+  "offlineQualityGateExpectation": "warned",
+  "rationale": "Thin AgentResult mirrors low overlap between contradictory summary intent and frozen-context facts; corpus heuristic warns instead of accepting polished-but-unmoored claims.",
+  "recordingExpectations": [
+    "Recorded findings name the Redis freeze versus HA-summary contradiction and demand traceability."
+  ]
+}

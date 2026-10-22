@@ -1,0 +1,435 @@
+using ArchLucid.Api.Controllers.Authority;
+using ArchLucid.Api.Models;
+using ArchLucid.Api.Services.Authority;
+using ArchLucid.Application;
+using ArchLucid.Application.Architecture;
+using ArchLucid.Application.Explanation;
+using ArchLucid.Application.Findings;
+using ArchLucid.Application.Integrations.Itsm;
+using ArchLucid.Application.Integrations.Itsm.Outbound;
+using ArchLucid.Application.Reporting;
+using ArchLucid.Application.Runs.Query;
+using ArchLucid.Application.Runs.Query.Stages;
+using ArchLucid.Application.Traceability;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Explanation;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Persistence.ApplicationPorts.Agents;
+using ArchLucid.Core.Persistence.ApplicationPorts.Findings;
+using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
+using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
+
+using FluentAssertions;
+
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+using Moq;
+
+namespace ArchLucid.Api.Tests;
+
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
+public sealed class RunQueryControllerTests
+{
+    private static readonly string RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd").ToString("N");
+
+    [Fact]
+    public async Task GetRun_returns_not_found_when_detail_missing()
+    {
+        Mock<IRunGraphQueryService> graph = new();
+        graph
+            .Setup(s => s.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunGraphDetailQueryResult
+            {
+                Outcome = RunGraphQueryOutcome.NotFound,
+                ProblemDetail = "Run not found."
+            });
+
+        RunQueryController controller = CreateController(runGraphQueryService: graph.Object);
+
+        IActionResult action = await controller.GetRun(RunId, CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task GetRun_returns_ok_for_successful_detail()
+    {
+        RunDetailsResponse response = new()
+        {
+            Run = new ArchitectureRun { RunId = RunId, RequestId = "REQ-2" }
+        };
+
+        Mock<IRunGraphQueryService> graph = new();
+        graph
+            .Setup(s => s.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunGraphDetailQueryResult
+            {
+                Outcome = RunGraphQueryOutcome.Success,
+                Response = response,
+                Etag = "\"etag\""
+            });
+
+        RunQueryController controller = CreateController(runGraphQueryService: graph.Object);
+
+        IActionResult action = await controller.GetRun(RunId, CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        ok.Value.Should().BeSameAs(response);
+    }
+
+    [Fact]
+    public async Task GetRunRoiEstimate_returns_not_found_for_whitespace_run_id_like_GetRun()
+    {
+        Mock<IRunGraphQueryService> graph = new();
+        graph
+            .Setup(s => s.GetRunRoiEstimateAsync("   ", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRoiEstimateQueryResult
+            {
+                Outcome = RunGraphQueryOutcome.NotFound,
+                ProblemDetail = "Run '   ' was not found."
+            });
+
+        RunQueryController controller = CreateController(runGraphQueryService: graph.Object);
+
+        IActionResult action = await controller.GetRunRoiEstimate("   ", CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task GetRunStageTimeline_returns_not_found_for_whitespace_run_id_like_GetRun()
+    {
+        Mock<IRunGraphQueryService> graph = new();
+        graph
+            .Setup(s => s.GetRunStageTimelineAsync("   ", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunStageTimelineQueryResult
+            {
+                Outcome = RunGraphQueryOutcome.NotFound,
+                ProblemDetail = "Run '   ' was not found."
+            });
+
+        RunQueryController controller = CreateController(runGraphQueryService: graph.Object);
+
+        IActionResult action = await controller.GetRunStageTimeline("   ", CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task GetInteractiveGraphSnapshot_returns_not_found_for_whitespace_run_id_like_GetRun()
+    {
+        Mock<IRunGraphQueryService> graph = new();
+        graph
+            .Setup(s => s.GetInteractiveGraphSnapshotAsync("   ", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunInteractiveGraphQueryResult
+            {
+                Outcome = RunGraphQueryOutcome.NotFound,
+                ProblemDetail = "Run '   ' was not found."
+            });
+
+        RunQueryController controller = CreateController(runGraphQueryService: graph.Object);
+
+        IActionResult action = await controller.GetInteractiveGraphSnapshot("   ", CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task GetProvenanceNodeExplanation_returns_not_found_for_whitespace_run_id_like_GetArchitectureRunProvenance()
+    {
+        Mock<IRunProvenanceQueryService> provenance = new();
+        provenance
+            .Setup(s => s.AuthorityRunExistsInScopeAsync("   ", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        RunQueryController controller = CreateController(runProvenanceQueryService: provenance.Object);
+
+        IActionResult action = await controller.GetProvenanceNodeExplanation("   ", "node-1", CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task GetRunRoiEstimate_returns_scorecard_from_graph_service()
+    {
+        RunRoiScorecardDto scorecard = new()
+        {
+            RunId = RunId,
+            ComputationNotes = "test",
+            EstimatedManualHoursSaved = 4.5
+        };
+
+        Mock<IRunGraphQueryService> graph = new();
+        graph
+            .Setup(s => s.GetRunRoiEstimateAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRoiEstimateQueryResult
+            {
+                Outcome = RunGraphQueryOutcome.Success,
+                Estimate = scorecard
+            });
+
+        RunQueryController controller = CreateController(runGraphQueryService: graph.Object);
+
+        IActionResult action = await controller.GetRunRoiEstimate(RunId, CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        ok.Value.Should().BeSameAs(scorecard);
+    }
+
+    [Fact]
+    public async Task GetRunStageTimeline_returns_timeline_when_run_exists()
+    {
+        DateTime started = DateTime.UtcNow;
+        List<StageTimelineSummary> timeline =
+        [
+            new("Execute", started, started.AddMinutes(1), "Succeeded", 60_000)
+        ];
+
+        Mock<IRunGraphQueryService> graph = new();
+        graph
+            .Setup(s => s.GetRunStageTimelineAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunStageTimelineQueryResult
+            {
+                Outcome = RunGraphQueryOutcome.Success,
+                Timeline = timeline
+            });
+
+        RunQueryController controller = CreateController(runGraphQueryService: graph.Object);
+
+        IActionResult action = await controller.GetRunStageTimeline(RunId, CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        IReadOnlyList<StageTimelineSummary> body =
+            ok.Value.Should().BeAssignableTo<IReadOnlyList<StageTimelineSummary>>().Subject;
+
+        body.Should().ContainSingle();
+        body[0].StageName.Should().Be("Execute");
+    }
+
+    [Fact]
+    public async Task ListRuns_returns_offset_page()
+    {
+        CursorPagedResponse<RunListItemResponse> body = new()
+        {
+            Items = [new RunListItemResponse { RunId = RunId, RequestId = "REQ-5" }],
+            HasMore = false
+        };
+
+        Mock<IRunGraphQueryService> graph = new();
+        graph
+            .Setup(s => s.ListRunsAsync(
+                It.IsAny<string?>(),
+                It.IsAny<int?>(),
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunListQueryResult { Body = body, Etag = "\"etag\"" });
+
+        RunQueryController controller = CreateController(runGraphQueryService: graph.Object);
+
+        IActionResult action = await controller.ListRuns(cancellationToken: CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
+    public async Task ExportRunFindingsCsv_returns_conflict_when_run_not_committed()
+    {
+        Mock<IRunFindingsQueryService> findings = new();
+        findings
+            .Setup(s => s.ExportRunFindingsCsvAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunFindingsCsvExportQueryResult
+            {
+                Outcome = RunFindingsQueryOutcome.Conflict,
+                ProblemDetail = "Export requires a finalized review with a committed architecture snapshot."
+            });
+
+        RunQueryController controller = CreateController(runFindingsQueryService: findings.Object);
+
+        IActionResult action = await controller.ExportRunFindingsCsv(
+            RunId,
+            Mock.Of<IAuditService>(),
+            CancellationToken.None);
+
+        ObjectResult conflict = action.Should().BeOfType<ObjectResult>().Subject;
+        conflict.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+    }
+
+    [Fact]
+    public async Task GetFindingEvidenceChain_returns_not_found_when_service_returns_null()
+    {
+        Mock<IRunFindingsQueryService> findings = new();
+        findings
+            .Setup(s => s.GetFindingEvidenceChainAsync(RunId, "finding-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingEvidenceChainQueryResult
+            {
+                Outcome = RunFindingsQueryOutcome.NotFound,
+                ProblemDetail = "Not found."
+            });
+
+        RunQueryController controller = CreateController(runFindingsQueryService: findings.Object);
+
+        IActionResult action = await controller.GetFindingEvidenceChain(
+            RunId,
+            "finding-1",
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task ListRunFindings_returns_not_found_for_whitespace_run_id_like_GetRunExportHistory()
+    {
+        RunQueryController controller = CreateController(runFindingsQueryService: CreateFindingsQueryService());
+
+        IActionResult action = await controller.ListRunFindings(
+            "   ",
+            orderBy: null,
+            take: null,
+            cursorSortOrder: null,
+            cursorPriorityRank: null,
+            cursorFindingRecordId: null,
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task GetFindingInspectForRun_returns_not_found_for_whitespace_run_id_like_GetRunExportHistory()
+    {
+        RunQueryController controller = CreateController(runFindingsQueryService: CreateFindingsQueryService());
+
+        IActionResult action = await controller.GetFindingInspectForRun(
+            "   ",
+            "finding-1",
+            includeTypedPayload: true,
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task GetRunDecisions_returns_not_found_for_whitespace_run_id_like_GetRunExportHistory()
+    {
+        RunQueryController controller = CreateController(runProvenanceQueryService: CreateProvenanceQueryService());
+
+        IActionResult action = await controller.GetRunDecisions("   ", CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task GetRunEvidence_returns_not_found_for_whitespace_run_id_like_GetRunExportHistory()
+    {
+        RunQueryController controller = CreateController(runProvenanceQueryService: CreateProvenanceQueryService());
+
+        IActionResult action = await controller.GetRunEvidence("   ", CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task GetRunToolInvocationForensics_returns_not_found_for_whitespace_run_id_like_GetRunExportHistory()
+    {
+        RunQueryController controller = CreateController(runProvenanceQueryService: CreateProvenanceQueryService());
+
+        IActionResult action = await controller.GetRunToolInvocationForensics("   ", CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    private static RunProvenanceQueryService CreateProvenanceQueryService()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(p => p.GetCurrentScope()).Returns(new ScopeContext());
+
+        return new RunProvenanceQueryService(
+            Mock.Of<IArchitectureRunProvenanceService>(),
+            Mock.Of<IRunRepository>(),
+            Mock.Of<IDecisionNodeRepository>(),
+            Mock.Of<IAgentEvidencePackageRepository>(),
+            Mock.Of<IAgentExecutionTraceRepository>(),
+            Mock.Of<IAgentToolInvocationRecordRepository>(),
+            scopeProvider.Object);
+    }
+
+    private static RunFindingsQueryService CreateFindingsQueryService()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(p => p.GetCurrentScope()).Returns(new ScopeContext());
+
+        Mock<IRunRepository> runs = new();
+
+        return new RunFindingsQueryService(
+            new RunFindingsListStage(
+                runs.Object,
+                Mock.Of<IFindingsSnapshotRepository>(),
+                CreateExternalTrackingEnrichmentService(),
+                scopeProvider.Object),
+            new RunFindingsCsvExportStage(
+                Mock.Of<IRunDetailQueryService>(),
+                runs.Object,
+                CreateExternalTrackingEnrichmentService(),
+                scopeProvider.Object,
+                Mock.Of<IAuthorityQueryService>(),
+                Mock.Of<IManifestHashService>(),
+                new ExportFormatterService()),
+            new RunFindingsInspectStage(
+                runs.Object,
+                Mock.Of<IFindingInspectReadRepository>(),
+                Mock.Of<IFindingTrustLabelMapper>(),
+                Mock.Of<IReasoningSummaryBuilder>(),
+                scopeProvider.Object,
+                Mock.Of<IAuthorityQueryService>()),
+            runs.Object,
+            Mock.Of<IFindingEvidenceChainService>(),
+            scopeProvider.Object);
+    }
+
+    private static RunFindingExternalTrackingEnrichmentService CreateExternalTrackingEnrichmentService() =>
+        new(
+            Mock.Of<IRunFindingExternalTrackingReadRepository>(),
+            new ItsmExternalTicketUrlBuilder(Mock.Of<IExternalTicketConnectorRegistry>()));
+
+    private static RunQueryController CreateController(
+        IRunGraphQueryService? runGraphQueryService = null,
+        IRunFindingsQueryService? runFindingsQueryService = null,
+        IRunProvenanceQueryService? runProvenanceQueryService = null,
+        ITraceabilityBundleExportApplicationService? traceabilityExport = null) =>
+        new(
+            runGraphQueryService ?? Mock.Of<IRunGraphQueryService>(),
+            runFindingsQueryService ?? Mock.Of<IRunFindingsQueryService>(),
+            runProvenanceQueryService ?? Mock.Of<IRunProvenanceQueryService>(),
+            traceabilityExport ?? Mock.Of<ITraceabilityBundleExportApplicationService>(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IScopeContextProvider>(),
+            Mock.Of<IManifestHashService>(),
+            Mock.Of<ArchLucid.Api.Support.IArchitectureShareAccessGate>())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+}

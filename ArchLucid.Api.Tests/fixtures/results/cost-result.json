@@ -1,0 +1,32 @@
+{
+  "resultId": "RES-COST-001",
+  "taskId": "TASK-COST-001",
+  "runId": "RUN-FIXTURE",
+  "agentType": "Cost",
+  "claims": [
+    "Managed services selected for predictable operational cost.",
+    "Monitor search and token usage from day one."
+  ],
+  "evidenceRefs": [
+    "request",
+    "pricing-profile"
+  ],
+  "confidence": 0.82,
+  "findings": [
+    {
+      "findingId": "FIND-COST-001",
+      "sourceAgent": "Cost",
+      "severity": "Info",
+      "category": "Cost",
+      "message": "Managed services selected for predictable operational cost.",
+      "evidenceRefs": ["pricing-profile"]
+    }
+  ],
+  "proposedChanges": {
+    "proposalId": "PROP-COST-001",
+    "sourceAgent": "Cost",
+    "warnings": [
+      "Search and token usage should be tracked from day one."
+    ]
+  }
+}

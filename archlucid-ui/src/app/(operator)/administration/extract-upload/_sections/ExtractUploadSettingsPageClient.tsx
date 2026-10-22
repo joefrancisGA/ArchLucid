@@ -1,0 +1,536 @@
+"use client";
+
+import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+
+import { AzureExtractorUploadFailureCallout } from "@/components/AzureExtractorUploadFailureCallout";
+import { AzureExtractorZipDropZone } from "@/components/AzureExtractorZipDropZone";
+import { ExtractUploadCloudConnectionsVocabularyRail } from "@/components/ExtractUploadCloudConnectionsVocabularyRail";
+import { ExtractUploadFileProgressList } from "@/components/usability/ExtractUploadFileProgressList";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatusTag } from "@/components/ui/status-tag";
+import { AzureLabDemoScenarioPicker } from "@/components/wizard/AzureLabDemoScenarioPicker";
+import { AzureExtractorDemoScenarioPicker } from "@/components/wizard/AzureExtractorDemoScenarioPicker";
+import { CloudInventoryExtractorCommandPanel } from "@/components/wizard/CloudInventoryExtractorCommandPanel";
+import { buildGetArchLucidCloudPackageCommandLine } from "@/lib/get-archlucid-cloud-package-command";
+import { cloudInventoryPlatformLabel } from "@/lib/cloud-inventory-platform";
+import {
+  DESIGN_TOKENS,
+  OPERATOR_DISCLOSURE_TRIGGER_CLASS,
+  OPERATOR_LAYOUT,
+  OPERATOR_LINK,
+  OPERATOR_PAGE_CONTAINER,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
+import {
+  COMMAND_PALETTE_EXTRACT_UPLOAD_COPY_QUICK_START_EVENT,
+  COMMAND_PALETTE_EXTRACT_UPLOAD_FOCUS_EVENT,
+} from "@/lib/command-palette-handler-actions";
+import {
+  extractUploadAdvancedCommandDisclosureSummary,
+  EXTRACT_UPLOAD_DEMO_ASIDE_DESCRIPTION,
+  EXTRACT_UPLOAD_DEMO_ASIDE_TITLE,
+  EXTRACT_UPLOAD_DEMO_CONFIRM_ACTION_LABEL,
+  EXTRACT_UPLOAD_DEMO_CONFIRM_DESCRIPTION,
+  EXTRACT_UPLOAD_DEMO_CONFIRM_TITLE,
+  EXTRACT_UPLOAD_LAB_DEMO_DISCLOSURE_DESCRIPTION,
+  EXTRACT_UPLOAD_LAB_DEMO_DISCLOSURE_SUMMARY,
+  EXTRACT_UPLOAD_DROP_ZONE_ARIA_LABEL,
+  EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF,
+  EXTRACT_UPLOAD_EVIDENCE_TRAIL_LINK_LABEL,
+  extractUploadNonAzureScriptSourceHint,
+  EXTRACT_UPLOAD_EXECUTION_POLICY_SCOPE_PROCESS_COMMAND,
+  EXTRACT_UPLOAD_REVIEW_BINDING_PREFIX,
+  extractUploadScriptDownloadLabel,
+  EXTRACT_UPLOAD_STEP_COLLECT_DESCRIPTION,
+  EXTRACT_UPLOAD_STEP_COLLECT_TITLE,
+  EXTRACT_UPLOAD_SCHEDULED_AGENT_DESCRIPTION,
+  EXTRACT_UPLOAD_SCHEDULED_AGENT_HELP_HREF,
+  EXTRACT_UPLOAD_SCHEDULED_AGENT_HELP_LABEL,
+  EXTRACT_UPLOAD_SCHEDULED_AGENT_TITLE,
+  EXTRACT_UPLOAD_ONE_TIME_LOCAL_DISCLOSURE,
+  EXTRACT_UPLOAD_STEP_UPLOAD_DESCRIPTION,
+  EXTRACT_UPLOAD_STEP_UPLOAD_TITLE,
+  EXTRACT_UPLOAD_UPLOADING_PACKAGE_STATUS_LABEL,
+  EXTRACT_UPLOAD_UPLOAD_ERROR_TOAST_TITLE,
+  EXTRACT_UPLOAD_VALIDATE_DISCLOSURE_SUMMARY,
+  extractUploadValidateCliCommand,
+  EXTRACT_UPLOAD_SETTINGS_FIRST_VIEWPORT_TEST_ID,
+  EXTRACT_UPLOAD_SETTINGS_PRIMARY_CONTENT_ID,
+  EXTRACT_UPLOAD_SETTINGS_SKIP_LINK_LABEL,
+  EXTRACT_UPLOAD_SETTINGS_SKIP_TARGET_ID,
+} from "@/lib/extract-upload-settings-page-copy";
+import { truncateExtractUploadPackageId } from "@/lib/extract-upload-accepted-package-record";
+import { ExtractUploadSettingsPageHeader } from "./ExtractUploadSettingsPageHeader";
+import { ExtractUploadSettingsBuyerChrome } from "./ExtractUploadSettingsBuyerChrome";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
+import {
+  extractUploadSettingsSources,
+  extractUploadSettingsSourcesIntro,
+} from "@/lib/extract-upload-settings-evidence-copy";
+import { shouldShowExtractUploadPackageChecklist } from "@/lib/extract-upload-package-checklist";
+import { ExtractUploadSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { useExtractUploadPageClient } from "./use-extract-upload-page-client";
+import { useExtractUploadShortcuts } from "./use-extract-upload-shortcuts";
+import { ExtractUploadAcceptedPackagePanel } from "./ExtractUploadAcceptedPackagePanel";
+import { isAzureLabDemoScenarioId } from "@/lib/azure-lab-inventory-demo-scenarios";
+
+function reviewBindingStepLabel(associateRunId: string | null): string | null {
+  const trimmed = associateRunId?.trim() ?? "";
+
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  return `${EXTRACT_UPLOAD_REVIEW_BINDING_PREFIX} ${truncateExtractUploadPackageId(trimmed, 12)}`;
+}
+
+/**
+ * Guided Extract & Upload settings page — PowerShell script, validate hint, and server ZIP upload.
+ */
+export function ExtractUploadSettingsPageClient() {
+  return <ExtractUploadSettingsPageClientInner />;
+}
+
+function ExtractUploadSettingsPageClientInner() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname() ?? "/administration/extract-upload";
+  const viewModel = useExtractUploadPageClient({
+    router,
+    pathname,
+    searchParams,
+  });
+  const [demoConfirmOpen, setDemoConfirmOpen] = useState(false);
+
+  useExtractUploadShortcuts();
+
+  const {
+    productLine,
+    extractorScriptDownloadUrl,
+    validateDisclosureOpen,
+    setValidateDisclosureOpen,
+    advancedCommandOpen,
+    setAdvancedCommandOpen,
+    buyerPolishedShell,
+    baselineLoading,
+    hasInventoryOnFile,
+    extractorScriptVersion,
+    extractorUpdateBanner,
+    lastAcceptedPackage,
+    associateRunId,
+    selectedPlatform,
+    extractUploadSteps,
+    extractUploadEmphasizedStepId,
+    upload,
+    folderZip,
+    demo,
+    showAcceptedDropZone,
+  } = viewModel;
+
+  useEffect(() => {
+    function onFocusUpload() {
+      document.querySelector<HTMLElement>('[data-testid="extract-upload-drop-zone-surface"]')?.focus();
+    }
+
+    function onCopyQuickStart() {
+      document.querySelector<HTMLButtonElement>('[data-testid="extract-upload-quick-start-copy"]')?.click();
+    }
+
+    window.addEventListener(COMMAND_PALETTE_EXTRACT_UPLOAD_FOCUS_EVENT, onFocusUpload);
+    window.addEventListener(COMMAND_PALETTE_EXTRACT_UPLOAD_COPY_QUICK_START_EVENT, onCopyQuickStart);
+
+    return () => {
+      window.removeEventListener(COMMAND_PALETTE_EXTRACT_UPLOAD_FOCUS_EVENT, onFocusUpload);
+      window.removeEventListener(COMMAND_PALETTE_EXTRACT_UPLOAD_COPY_QUICK_START_EVENT, onCopyQuickStart);
+    };
+  }, []);
+
+  const validateCommand = extractUploadValidateCliCommand(selectedPlatform, productLine);
+  const orientationSources = extractUploadSettingsSources(productLine);
+  const orientationSourcesIntro = extractUploadSettingsSourcesIntro(productLine);
+  const platformLabel = cloudInventoryPlatformLabel(selectedPlatform);
+  const showScriptDownload = selectedPlatform === "azure";
+  const reviewBindingLabel = reviewBindingStepLabel(associateRunId);
+  const showUploadChecklist = shouldShowExtractUploadPackageChecklist(lastAcceptedPackage !== null, extractUploadSteps);
+
+  return (
+    <div
+      className={cn(OPERATOR_PAGE_CONTAINER.base, OPERATOR_PAGE_CONTAINER.variant.workflow, OPERATOR_LAYOUT.majorSectionGap)}
+      data-testid="extract-upload-settings-page"
+    >
+      <a
+        href={`#${EXTRACT_UPLOAD_SETTINGS_SKIP_TARGET_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {EXTRACT_UPLOAD_SETTINGS_SKIP_LINK_LABEL}
+      </a>
+
+      <div
+        id={EXTRACT_UPLOAD_SETTINGS_PRIMARY_CONTENT_ID}
+        data-testid="extract-upload-settings-primary-content"
+        className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+      >
+        <ExtractUploadSettingsPageHeader
+          baselineLoading={baselineLoading}
+          hasInventoryOnFile={hasInventoryOnFile}
+          extractorScriptVersion={extractorScriptVersion}
+          associateRunId={associateRunId}
+          uploadBusy={upload.busy}
+        />
+
+        {!buyerPolishedShell ? (
+          <ExtractUploadCloudConnectionsVocabularyRail
+            currentSurfaceId="extract-upload"
+            className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+          />
+        ) : null}
+
+        <div
+          id={EXTRACT_UPLOAD_SETTINGS_SKIP_TARGET_ID}
+          data-testid={EXTRACT_UPLOAD_SETTINGS_FIRST_VIEWPORT_TEST_ID}
+          className={cn(
+            "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+            OPERATOR_LAYOUT.majorSectionGap,
+          )}
+        >
+          <ExtractUploadSettingsBuyerChrome
+            sources={orientationSources}
+            sourcesIntro={orientationSourcesIntro}
+          />
+
+          {!buyerPolishedShell ? (
+            <ExtractUploadSettingsEvidenceOrientationStrip
+              sources={orientationSources}
+              sourcesIntro={orientationSourcesIntro}
+            />
+          ) : null}
+
+          {lastAcceptedPackage !== null ? (
+            <ExtractUploadAcceptedPackagePanel record={lastAcceptedPackage} productLineId={productLine} />
+          ) : null}
+
+          {showUploadChecklist ? (
+            <IntegrationConnectChecklist
+              title="Upload checklist"
+              steps={extractUploadSteps}
+              emphasizedStepId={extractUploadEmphasizedStepId}
+              testIdPrefix="extract-upload-package"
+            />
+          ) : null}
+
+          {extractorUpdateBanner ? (
+            <div
+              className={cn(DESIGN_TOKENS.callout.warn, "px-4 py-3", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="extractor-version-banner"
+            >
+              {extractorUpdateBanner}
+            </div>
+          ) : null}
+
+          <div
+            className={cn(OPERATOR_LAYOUT.mainWithStickyAside)}
+            data-testid="extract-upload-page-layout"
+          >
+            <div className={cn("min-w-0", OPERATOR_LAYOUT.sectionStack)} data-testid="extract-upload-page-main">
+              <Card>
+                <CardHeader>
+                  <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{EXTRACT_UPLOAD_STEP_COLLECT_TITLE}</CardTitle>
+                  <CardDescription>{EXTRACT_UPLOAD_STEP_COLLECT_DESCRIPTION}</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div
+                    className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-950/80"
+                    data-testid="extract-upload-scheduled-agent-panel"
+                  >
+                    <p className={cn("m-0 font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
+                      {EXTRACT_UPLOAD_SCHEDULED_AGENT_TITLE}
+                    </p>
+                    <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                      {EXTRACT_UPLOAD_SCHEDULED_AGENT_DESCRIPTION}
+                    </p>
+                    <Link
+                      href={EXTRACT_UPLOAD_SCHEDULED_AGENT_HELP_HREF}
+                      className={cn("mt-3 inline-block", OPERATOR_LINK.nav)}
+                      data-testid="extract-upload-scheduled-agent-help"
+                    >
+                      {EXTRACT_UPLOAD_SCHEDULED_AGENT_HELP_LABEL}
+                    </Link>
+                  </div>
+                  <details
+                    className={cn("rounded-md border border-neutral-200 p-3 dark:border-neutral-700", OPERATOR_TYPOGRAPHY.body)}
+                    data-testid="extract-upload-one-time-local-disclosure"
+                  >
+                    <summary
+                      className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}
+                    >
+                      {EXTRACT_UPLOAD_ONE_TIME_LOCAL_DISCLOSURE}
+                    </summary>
+                    <div className="mt-3 space-y-4">
+                      <CloudInventoryExtractorCommandPanel
+                        platform={selectedPlatform}
+                        testIdPrefix="extract-upload-quick-start"
+                      />
+                      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                        <span className="font-medium text-al-text-primary">Process scope:</span>{" "}
+                        <code className="rounded bg-neutral-100 px-1 py-0.5 dark:bg-neutral-800">
+                          {EXTRACT_UPLOAD_EXECUTION_POLICY_SCOPE_PROCESS_COMMAND}
+                        </code>
+                      </p>
+                  <details
+                    className={cn("rounded-md border border-neutral-200 p-3 dark:border-neutral-700", OPERATOR_TYPOGRAPHY.body)}
+                    open={advancedCommandOpen}
+                    onToggle={(event) => {
+                      setAdvancedCommandOpen((event.currentTarget as HTMLDetailsElement).open);
+                    }}
+                  >
+                    <summary
+                      className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}
+                    >
+                      {extractUploadAdvancedCommandDisclosureSummary(productLine).replace("Azure", platformLabel)}
+                    </summary>
+                    <pre
+                      className={cn(
+                        "mt-3 overflow-auto whitespace-pre-wrap break-words rounded-md border border-neutral-200 bg-white p-3 leading-relaxed dark:border-neutral-700 dark:bg-neutral-900",
+                        OPERATOR_TYPOGRAPHY.micro,
+                      )}
+                      data-testid="extract-upload-advanced-command"
+                    >
+                      <code className="whitespace-pre-wrap break-words">
+                        {buildGetArchLucidCloudPackageCommandLine({
+                          platform: selectedPlatform,
+                          productLineId: productLine,
+                          quickStart: false,
+                        })}
+                      </code>
+                    </pre>
+                  </details>
+                  {showScriptDownload ? (
+                    <a
+                      href={extractorScriptDownloadUrl}
+                      className={cn("inline-block", OPERATOR_LINK.nav)}
+                      target="_blank"
+                      rel="noreferrer"
+                      data-testid="extract-upload-script-download"
+                    >
+                      {extractUploadScriptDownloadLabel(productLine)}
+                    </a>
+                  ) : (
+                    <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                      {extractUploadNonAzureScriptSourceHint(selectedPlatform, productLine)}
+                    </p>
+                  )}
+                    </div>
+                  </details>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{EXTRACT_UPLOAD_STEP_UPLOAD_TITLE}</CardTitle>
+                  <CardDescription>
+                    {EXTRACT_UPLOAD_STEP_UPLOAD_DESCRIPTION}
+                  </CardDescription>
+                  {reviewBindingLabel !== null ? (
+                    <p
+                      className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                      data-testid="extract-upload-step-review-binding"
+                    >
+                      {reviewBindingLabel}
+                    </p>
+                  ) : null}
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {upload.uploadError !== null ? (
+                    <div role="alert" data-testid="extract-upload-error-live">
+                      <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                        {EXTRACT_UPLOAD_UPLOAD_ERROR_TOAST_TITLE}
+                      </p>
+                      <AzureExtractorUploadFailureCallout
+                        fallbackMessage={upload.uploadError.message}
+                        problem={upload.uploadError.problem}
+                        correlationId={upload.uploadError.correlationId}
+                      />
+                    </div>
+                  ) : null}
+                  {showAcceptedDropZone ? (
+                    <div
+                      className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+                      data-testid="extract-upload-accepted-drop-summary"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div className="space-y-1">
+                          <StatusTag kind="ready" label="Package accepted" />
+                          <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                            <span className="font-mono">{upload.packageId}</span>
+                            {folderZip.selectedFileLabel !== null ? (
+                              <span className="text-al-text-secondary"> — {folderZip.selectedFileLabel}</span>
+                            ) : null}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <AzureExtractorZipDropZone
+                        ariaLabel={EXTRACT_UPLOAD_DROP_ZONE_ARIA_LABEL}
+                        busy={upload.busy}
+                        busyLabel={EXTRACT_UPLOAD_UPLOADING_PACKAGE_STATUS_LABEL}
+                        testId="extract-upload-drop-zone"
+                        hint={
+                          folderZip.selectedFileLabel !== null ? (
+                            <p
+                              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}
+                              data-testid="extract-upload-file-meta"
+                            >
+                              Selected: {folderZip.selectedFileLabel}
+                            </p>
+                          ) : null
+                        }
+                        onZipSelected={folderZip.onZipSelected}
+                        onFolderSelected={folderZip.onFolderSelected}
+                      />
+                      <ExtractUploadFileProgressList fileStatuses={folderZip.fileStatuses} />
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            <aside
+              className={cn(OPERATOR_LAYOUT.stickyAsideTop, OPERATOR_LAYOUT.sectionStack)}
+              data-testid="extract-upload-page-aside"
+            >
+              <details
+                className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+                data-testid="extract-upload-validate-disclosure"
+                open={validateDisclosureOpen}
+                onToggle={(event) => {
+                  setValidateDisclosureOpen((event.currentTarget as HTMLDetailsElement).open);
+                }}
+              >
+                <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
+                  {EXTRACT_UPLOAD_VALIDATE_DISCLOSURE_SUMMARY}
+                </summary>
+                <div className={cn("m-0 mt-3 space-y-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                  <p className="m-0">
+                    <span className="font-medium">{platformLabel}:</span>{" "}
+                    <code
+                      className={cn(
+                        "inline-block whitespace-pre-wrap break-words rounded bg-neutral-100 px-1 py-0.5 dark:bg-neutral-800",
+                        OPERATOR_TYPOGRAPHY.micro,
+                      )}
+                    >
+                      {validateCommand}
+                    </code>
+                  </p>
+                </div>
+              </details>
+
+              <section
+                className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+                data-testid="extract-upload-demo-aside"
+              >
+                <h3 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                  {EXTRACT_UPLOAD_DEMO_ASIDE_TITLE}
+                </h3>
+                <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+                  {EXTRACT_UPLOAD_DEMO_ASIDE_DESCRIPTION}
+                </p>
+                <div className="mt-3 space-y-3">
+                  <AzureExtractorDemoScenarioPicker
+                    layout="stack"
+                    selectedScenarioId={
+                      isAzureLabDemoScenarioId(demo.selectedDemoScenarioId)
+                        ? "customer-intake-modernization"
+                        : demo.selectedDemoScenarioId
+                    }
+                    onSelectScenario={(scenarioId) => demo.setSelectedDemoScenarioId(scenarioId)}
+                    testIdPrefix="extract-upload-demo"
+                  />
+                  <details
+                    className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-950"
+                    data-testid="extract-upload-lab-demo-disclosure"
+                    open={isAzureLabDemoScenarioId(demo.selectedDemoScenarioId)}
+                  >
+                    <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
+                      {EXTRACT_UPLOAD_LAB_DEMO_DISCLOSURE_SUMMARY}
+                    </summary>
+                    <p className={cn("m-0 mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                      {EXTRACT_UPLOAD_LAB_DEMO_DISCLOSURE_DESCRIPTION}
+                    </p>
+                    <div className="mt-3">
+                      <AzureLabDemoScenarioPicker
+                        selectedScenarioId={
+                          isAzureLabDemoScenarioId(demo.selectedDemoScenarioId)
+                            ? demo.selectedDemoScenarioId
+                            : null
+                        }
+                        onSelectScenario={demo.setSelectedDemoScenarioId}
+                      />
+                    </div>
+                  </details>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    disabled={upload.busy}
+                    data-testid="extract-upload-try-demo-data"
+                    onClick={() => {
+                      if (hasInventoryOnFile === true) {
+                        setDemoConfirmOpen(true);
+
+                        return;
+                      }
+
+                      void demo.onTryDemoData();
+                    }}
+                  >
+                    {upload.busy
+                      ? EXTRACT_UPLOAD_UPLOADING_PACKAGE_STATUS_LABEL
+                      : "Try with Demo Data"}
+                  </Button>
+                </div>
+              </section>
+            </aside>
+          </div>
+        </div>
+      </div>
+
+      <AlertDialog open={demoConfirmOpen} onOpenChange={setDemoConfirmOpen}>
+        <AlertDialogContent data-testid="extract-upload-demo-confirm-dialog">
+          <AlertDialogHeader>
+            <AlertDialogTitle>{EXTRACT_UPLOAD_DEMO_CONFIRM_TITLE}</AlertDialogTitle>
+            <AlertDialogDescription>{EXTRACT_UPLOAD_DEMO_CONFIRM_DESCRIPTION}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              data-testid="extract-upload-demo-confirm-action"
+              onClick={() => {
+                setDemoConfirmOpen(false);
+                void demo.onTryDemoData();
+              }}
+            >
+              {EXTRACT_UPLOAD_DEMO_CONFIRM_ACTION_LABEL}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}

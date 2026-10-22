@@ -1,0 +1,383 @@
+import {
+  findingInspectPrimaryLabels,
+  typedPayloadLookupString,
+  isPhiMinimizationFindingId,
+  isPhiMinimizationSampleFinding,
+  phiMinimizationApprovalNarrative,
+  phiMinimizationRecommendedActionFallback,
+} from "@/lib/findings/finding-display-from-inspect";
+import { resolveBuyerShowcaseResidualRiskNextReviewIso } from "@/lib/buyer/buyer-polish-copy";
+import { buyerFindingSeverityDisplayLabel } from "@/lib/buyer/buyer-finding-severity-display";
+import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
+import type { FindingConfidenceLevel } from "@/types/explanation";
+import type { FindingInspectPayload } from "@/types/finding-inspect";
+import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+
+export type FindingDecisionSummary = {
+  readonly severity: string;
+  readonly disposition: string;
+  readonly businessImpact: string;
+  readonly requiredMonitoring: string;
+  readonly evidenceConfidenceLabel: string;
+  readonly evidenceConfidenceLevel: FindingConfidenceLevel | null;
+  readonly nextReview: string;
+  readonly riskOwner: string;
+};
+
+const NO_RECOMMENDED_ACTION_RECORDED = "No recommended action recorded for this finding.";
+const REMEDIATION_DUE_NOT_STORED = "Remediation due date was not stored.";
+const REMEDIATION_DUE_STORED_EMPTY = "Remediation due date was stored empty.";
+const RISK_OWNER_NOT_ASSIGNED = "Risk owner was not stored";
+const STATUS_NOT_STORED = "Status was not stored";
+const SEVERITY_NOT_STORED = "Severity was not stored";
+const BUSINESS_IMPACT_NOT_STORED = "Business impact was not stored";
+
+export function deriveFindingDecisionSummary(
+  payload: FindingInspectPayload | null,
+  findingId: string,
+): FindingDecisionSummary {
+  const confidenceLevel = payload?.confidenceLevel ?? null;
+  const evidenceConfidenceLabel =
+    confidenceLevel === "High" || confidenceLevel === "Medium" || confidenceLevel === "Low"
+      ? `${confidenceLevel} confidence`
+      : "Confidence level was not stored";
+
+  return {
+    severity: fallbackSeverity(payload, findingId),
+    disposition: fallbackStatus(payload, findingId),
+    businessImpact: buyerFindingDecisionImpactCopy(payload, findingId),
+    requiredMonitoring: mitigationPosture(payload, findingId),
+    evidenceConfidenceLabel,
+    evidenceConfidenceLevel: confidenceLevel,
+    nextReview: resolveFindingNextReviewLabel(payload, findingId),
+    riskOwner: resolveFindingRiskOwnerLabel(payload, findingId),
+  };
+}
+
+/** Prefer payload assignee; PHI showcase may supply demo owner when payload has none. */
+export function resolveFindingRiskOwnerLabel(
+  payload: FindingInspectPayload | null,
+  findingId: string,
+): string {
+  const assigned = payload?.assignedToUserId?.trim() ?? "";
+
+  if (assigned.length > 0) {
+    return assigned;
+  }
+
+  return RISK_OWNER_NOT_ASSIGNED;
+}
+
+function isShowcasePhiMinimizationFinding(
+  payload: FindingInspectPayload | null,
+  findingId: string,
+): boolean {
+  return isPhiMinimizationFindingId(findingId) || (payload !== null && isPhiMinimizationSampleFinding(payload));
+}
+
+function isPastRemediationDueUtc(remediationDueUtc: string | null | undefined): boolean {
+  if (remediationDueUtc === null || remediationDueUtc === undefined) {
+    return false;
+  }
+
+  const trimmed = remediationDueUtc.trim();
+
+  if (trimmed.length === 0) {
+    return false;
+  }
+
+  const parsed = new Date(trimmed);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return false;
+  }
+
+  const todayUtc = new Date();
+
+  todayUtc.setUTCHours(0, 0, 0, 0);
+  parsed.setUTCHours(0, 0, 0, 0);
+
+  return parsed.getTime() < todayUtc.getTime();
+}
+
+/** Prefer remediation due date; PHI showcase may supply demo cadence when payload has none. */
+export function resolveFindingNextReviewLabel(
+  payload: FindingInspectPayload | null,
+  findingId: string,
+): string {
+  const showcasePhi = isShowcasePhiMinimizationFinding(payload, findingId);
+  const dueLabel = formatFindingRemediationDueLabel(payload?.remediationDueUtc);
+
+  if (dueLabel !== null) {
+    if (showcasePhi && isPastRemediationDueUtc(payload?.remediationDueUtc)) {
+      return resolveBuyerShowcaseResidualRiskNextReviewIso();
+    }
+
+    return dueLabel;
+  }
+
+  if (showcasePhi) {
+    return resolveBuyerShowcaseResidualRiskNextReviewIso();
+  }
+
+  return REMEDIATION_DUE_NOT_STORED;
+}
+
+export function formatFindingRemediationDueLabel(remediationDueUtc: string | null | undefined): string | null {
+  if (remediationDueUtc === null || remediationDueUtc === undefined) {
+    return null;
+  }
+
+  const trimmed = remediationDueUtc.trim();
+
+  if (trimmed.length === 0) {
+    return REMEDIATION_DUE_STORED_EMPTY;
+  }
+
+  const parsed = new Date(trimmed);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return trimmed;
+  }
+
+  return parsed.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+export function summarizeEvidenceBasis(payload: FindingInspectPayload | null): string {
+  if (payload === null) {
+    return "Finding detail has not loaded.";
+  }
+
+  const evidenceCount = payload.evidence.length;
+  const ruleLabel = payload.decisionRuleName ?? payload.decisionRuleId;
+  const citationLabel = evidenceCount === 1 ? "citation" : "citations";
+
+  if (evidenceCount === 0) {
+    return "0 evidence citations were stored.";
+  }
+
+  if (ruleLabel !== null && ruleLabel.trim().length > 0) {
+    return `${evidenceCount} evidence ${citationLabel} tied to ${ruleLabel}.`;
+  }
+
+  return `${evidenceCount} evidence ${citationLabel}. Rule was not stored.`;
+}
+
+export function fallbackImpactedScope(payload: FindingInspectPayload | null, findingId: string): string {
+  if (payload !== null) {
+    const labels = findingInspectPrimaryLabels(payload);
+
+    if (labels.impactedAreaLabel !== null && labels.impactedAreaLabel.trim().length > 0) {
+      return labels.impactedAreaLabel;
+    }
+
+    if (isPhiMinimizationSampleFinding(payload)) {
+      return "Intake PHI boundary, adapters, OCR exception paths, and downstream adjudication handoff";
+    }
+  }
+
+  if (isPhiMinimizationFindingId(findingId)) {
+    return "Intake PHI boundary, adapters, OCR exception paths, and downstream adjudication handoff";
+  }
+
+  return "Impacted area was not stored.";
+}
+
+export function fallbackStatus(payload: FindingInspectPayload | null, findingId: string): string {
+  if (payload !== null) {
+    const status = findingInspectPrimaryLabels(payload).statusLabel;
+
+    if (status !== null && status.trim().length > 0) {
+      return status;
+    }
+  }
+
+  return STATUS_NOT_STORED;
+}
+
+export function fallbackSeverity(payload: FindingInspectPayload | null, findingId: string): string {
+  if (payload !== null) {
+    const severity = findingInspectPrimaryLabels(payload).severityLabel;
+
+    if (resolveProductionEvalChromeFromStorage()) {
+      return buyerFindingSeverityDisplayLabel(severity, payload.findingId ?? findingId);
+    }
+
+    if (severity !== null && severity.trim().length > 0) {
+      return severity;
+    }
+
+    if (isPhiMinimizationSampleFinding(payload)) {
+      return "High";
+    }
+  }
+
+  if (isPhiMinimizationFindingId(findingId)) {
+    return resolveProductionEvalChromeFromStorage() ? "High" : "High severity";
+  }
+
+  return SEVERITY_NOT_STORED;
+}
+
+/**
+ * Monitoring / recommended-action posture for decision summary.
+ * PHI showcase may supply control narrative; never invent PHI copy for other findings.
+ */
+export function mitigationPosture(payload: FindingInspectPayload | null, findingId: string): string {
+  if (payload !== null) {
+    const action = findingInspectPrimaryLabels(payload).recommendedAction;
+
+    if (action !== null && action.trim().length > 0) {
+      return action;
+    }
+  }
+
+  return NO_RECOMMENDED_ACTION_RECORDED;
+}
+
+/** Buyer decision panel — from payload/status, not a scripted default (BDA-012). */
+export function buyerFindingDecisionPanelCopy(payload: FindingInspectPayload | null, findingId: string): string {
+  if (payload !== null) {
+    const status = findingInspectPrimaryLabels(payload).statusLabel;
+
+    if (status !== null && status.trim().length > 0) {
+      return `Disposition: ${status}. See acceptance record below for recorded controls.`;
+    }
+  }
+
+  const status = fallbackStatus(payload, findingId);
+
+  if (status === STATUS_NOT_STORED) {
+    return "No disposition recorded for this finding.";
+  }
+
+  return `Disposition: ${status}. See acceptance record below for recorded controls.`;
+}
+
+/** Top-of-page decision impact line for buyer-polished finding detail. */
+export function buyerFindingDecisionImpactCopy(payload: FindingInspectPayload | null, findingId: string): string {
+  if (payload !== null && isPhiMinimizationSampleFinding(payload)) {
+    return "Non-blocking for package approval — residual PHI minimization risk accepted with ingress classification, bounded adapters, and active exception monitoring.";
+  }
+
+  if (isPhiMinimizationFindingId(findingId)) {
+    return "Non-blocking for package approval — residual PHI minimization risk accepted with ingress classification, bounded adapters, and active exception monitoring.";
+  }
+
+  const storedImpact =
+    payload === null
+      ? null
+      : typedPayloadLookupString(payload, "businessImpact")
+        ?? typedPayloadLookupString(payload, "BusinessImpact")
+        ?? typedPayloadLookupString(payload, "impact")
+        ?? typedPayloadLookupString(payload, "Impact");
+
+  if (storedImpact !== null) {
+    return storedImpact;
+  }
+
+  const storedStatus = payload === null ? null : findingInspectPrimaryLabels(payload).statusLabel;
+
+  if (storedStatus === null || storedStatus.trim().length === 0) {
+    return BUSINESS_IMPACT_NOT_STORED;
+  }
+
+  return BUSINESS_IMPACT_NOT_STORED;
+}
+
+/** Top-of-page next step for buyer-polished finding detail. */
+export function buyerFindingNextStepCopy(payload: FindingInspectPayload | null, findingId: string): string {
+  if (payload !== null) {
+    const action = findingInspectPrimaryLabels(payload).recommendedAction;
+
+    if (action !== null && action.trim().length > 0) {
+      return action;
+    }
+
+    if (isPhiMinimizationSampleFinding(payload)) {
+      return phiMinimizationRecommendedActionFallback();
+    }
+  }
+
+  if (isPhiMinimizationFindingId(findingId)) {
+    return phiMinimizationRecommendedActionFallback();
+  }
+
+  return mitigationPosture(payload, findingId);
+}
+
+export function validationRequirement(payload: FindingInspectPayload | null, findingId: string): string {
+  if (payload !== null && isPhiMinimizationSampleFinding(payload)) {
+    return phiMinimizationApprovalNarrative();
+  }
+
+  if (isPhiMinimizationFindingId(findingId)) {
+    return phiMinimizationApprovalNarrative();
+  }
+
+  return "No audit requirement was stored on this finding.";
+}
+
+/** Buyer-polished fallback when inspect payload has not loaded yet. */
+export function findingDetailLeadFallback(findingId: string): string {
+  if (isPhiMinimizationFindingId(findingId) && resolveProductionEvalChromeFromStorage()) {
+    return "Residual risk record for the finalized Claims Intake review.";
+  }
+
+  return "Finding detail has not loaded.";
+}
+
+/** Map free-text finding status labels onto enterprise StatusTag kinds. */
+export function findingStatusTagKind(statusLabel: string): EnterpriseStatusKind {
+  const normalized = statusLabel.trim().toLowerCase();
+
+  if (normalized.includes("monitoring")) {
+    return "approved-with-monitoring";
+  }
+
+  if (normalized.includes("approved") || normalized.includes("accepted")) {
+    return "approved";
+  }
+
+  if (normalized.includes("reject") || normalized.includes("block") || normalized.includes("fail")) {
+    return "blocked";
+  }
+
+  if (
+    normalized.includes("triage") ||
+    normalized.includes("progress") ||
+    normalized.includes("review") ||
+    normalized.includes("open")
+  ) {
+    return "in-progress";
+  }
+
+  if (normalized.includes("draft")) {
+    return "draft";
+  }
+
+  return "neutral";
+}
+
+/** Recommended-action paragraph: PHI showcase only; otherwise fail closed. */
+export function findingRecommendedActionParagraph(
+  payload: FindingInspectPayload,
+  findingId: string,
+): string {
+  const labels = findingInspectPrimaryLabels(payload);
+  const structured = labels.recommendedAction?.trim() ?? "";
+
+  if (structured.length > 0) {
+    return structured;
+  }
+
+  if (isPhiMinimizationSampleFinding(payload) || isPhiMinimizationFindingId(findingId)) {
+    return phiMinimizationRecommendedActionFallback();
+  }
+
+  return NO_RECOMMENDED_ACTION_RECORDED;
+}

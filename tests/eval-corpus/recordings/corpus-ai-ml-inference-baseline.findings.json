@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "findingId": "f-ml-1",
+      "category": "Cost",
+      "severity": "Medium",
+      "title": "GPU pool utilization",
+      "detail": "NC-series training clusters power batch scoring but average forty percent utilization; queue-aware autoscale could reduce GPU minutes."
+    },
+    {
+      "findingId": "f-ml-2",
+      "category": "Topology",
+      "severity": "High",
+      "title": "Managed batch inferencing",
+      "detail": "Azure Machine Learning batch endpoints package ONNX models behind AKS inferencing pools with blue-green releases."
+    },
+    {
+      "findingId": "f-ml-3",
+      "category": "Compliance",
+      "severity": "Medium",
+      "title": "Model registry RBAC",
+      "detail": "Workspace RBAC separates data scientists from production operators; model registry keeps immutable artifacts with signed manifests."
+    }
+  ]
+}

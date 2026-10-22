@@ -1,0 +1,24 @@
+namespace ArchLucid.Application.Runs.ExecuteOwnership;
+
+/// <summary>Acquires and releases per-run execute ownership leases (TB-943).</summary>
+public interface IRunExecuteOwnershipLeaseService
+{
+    bool IsEnabled { get; }
+
+    /// <summary>True when this process instance has successfully acquired execute ownership for the run on this host.</summary>
+    bool IsLocallyHoldingExecuteOwnership(Guid runId);
+
+    /// <summary>Throws <see cref="ArchLucid.Contracts.Common.ConflictException" /> when another holder owns a live lease.</summary>
+    Task AcquireAsync(Guid runId, CancellationToken cancellationToken);
+
+    /// <summary>Extends the lease TTL when this instance already holds it (heartbeat during long execute).</summary>
+    Task RenewAsync(Guid runId, CancellationToken cancellationToken);
+
+    /// <summary>Starts periodic lease renewal until disposed (no-op when leasing is disabled).</summary>
+    IAsyncDisposable BeginRenewalScope(Guid runId, CancellationTokenSource executeCancellationSource);
+
+    Task ReleaseAsync(Guid runId, CancellationToken cancellationToken);
+
+    /// <summary>TB-961: release every lease held by this process instance.</summary>
+    Task<int> ReleaseAllHeldByThisInstanceAsync(CancellationToken cancellationToken);
+}

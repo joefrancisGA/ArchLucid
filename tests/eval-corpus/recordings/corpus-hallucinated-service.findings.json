@@ -1,0 +1,32 @@
+{
+  "findings": [
+    {
+      "findingId": "corp-hall-1",
+      "category": "Critic",
+      "severity": "Medium",
+      "title": "Manifest reconciliation gap",
+      "detail": "The proposed NeoQuantumMeshOrchestrator tier does not appear in the authoritative workload manifest or CMDB inventory export; treat it as a hallucinated dependency until reconciled."
+    },
+    {
+      "findingId": "corp-hall-2",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "Declared versus inventoried edges",
+      "detail": "Cross-check declared REST edges against the reconciled inventory export before accepting new synchronous callers into production subnets."
+    },
+    {
+      "findingId": "corp-hall-3",
+      "category": "Compliance",
+      "severity": "Low",
+      "title": "Promotion gates",
+      "detail": "Block production promotion paths when undocumented components lack CAB approvals tied to the signed service manifest baseline."
+    },
+    {
+      "findingId": "corp-hall-4",
+      "category": "Cost",
+      "severity": "Low",
+      "title": "Unused SKU exposure",
+      "detail": "Idle premium clusters inflate monthly burn until finance closes the corresponding billing ownership tickets."
+    }
+  ]
+}

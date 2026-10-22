@@ -1,0 +1,570 @@
+using System.Text.Json;
+using System.Text.RegularExpressions;
+
+namespace ArchLucid.ContextIngestion.Infrastructure;
+
+/// <summary>
+///     Lightweight scanner for <c>simple-terraform</c> resource blocks (not a full HCL parser).
+/// </summary>
+internal static class SimpleTerraformResourceBlockParser
+{
+    private static readonly Regex ResourceHeaderRegex = new(
+        """
+        resource\s+"(?<type>[^"]+)"\s+"(?<name>[^"]+)"|resource\s+'(?<type>[^']+)'\s+'(?<name>[^']+)'
+        """,
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    private static readonly Regex ScalarAssignmentRegex = new(
+        """
+        ^\s*(?<key>[A-Za-z0-9_-]+)\s*=\s*(?<value>.+?)\s*$
+        """,
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    private static readonly Regex ArrayAssignmentRegex = new(
+        """
+        ^\s*(?<key>[A-Za-z0-9_-]+)\s*=\s*(?:#[^[]*|//[^[]*)?\[
+        """,
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    private static readonly Regex MultilineArrayAssignmentRegex = new(
+        """
+        ^\s*(?<key>[A-Za-z0-9_-]+)\s*=\s*$
+        """,
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    private static readonly Regex NestedBlockStartRegex = new(
+        """
+        ^\s*(?<block>[A-Za-z0-9_-]+)\s*(?:#[^{]*|//[^{]*)?\{
+        """,
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    internal readonly record struct SimpleTerraformResourceBlock(string TerraformType, string Name, string Body);
+
+    private static readonly Regex ForEachAssignmentRegex = new(
+        """
+        ^\s*for_each\s*=\s*(?:#[^{]*|//[^{]*)?\{
+        """,
+        RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
+
+    private static readonly Regex ForEachMultilineAssignmentRegex = new(
+        """
+        ^\s*for_each\s*=\s*$
+        """,
+        RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
+
+    private static readonly Regex MapEntryKeyRegex = new(
+        """
+        ^\s*(?<key>[A-Za-z0-9_-]+)\s*(?:=|:)\s*
+        """,
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    private static readonly Regex ModuleHeaderRegex = new(
+        """
+        module\s+"(?<name>[^"]+)"|module\s+'(?<name>[^']+)'
+        """,
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    private static readonly Regex ModuleSourceAssignmentRegex = new(
+        """
+        ^\s*source\s*=\s*(?<value>.+?)\s*$
+        """,
+        RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
+
+    internal readonly record struct SimpleTerraformModuleBlock(string Name, string Source, string Body);
+
+    internal static bool TryExtractLiteralForEachKeys(string body, out IReadOnlyList<string> keys)
+    {
+        keys = [];
+
+        if (string.IsNullOrWhiteSpace(body))
+            return false;
+
+        if (!TryExtractLiteralForEachMapBody(body, out string mapBody))
+            return false;
+
+        List<string> parsedKeys = [];
+
+        foreach (string line in mapBody.Split('\n'))
+        {
+            string trimmed = line.Trim();
+
+            if (trimmed.Length == 0 || trimmed.StartsWith('#') || trimmed.StartsWith("//", StringComparison.Ordinal))
+                continue;
+
+            Match keyMatch = MapEntryKeyRegex.Match(trimmed);
+
+            if (!keyMatch.Success)
+                continue;
+
+            string key = keyMatch.Groups["key"].Value.Trim();
+
+            if (!string.IsNullOrWhiteSpace(key))
+                parsedKeys.Add(key.ToLowerInvariant());
+        }
+
+        if (parsedKeys.Count == 0)
+            return false;
+
+        keys = parsedKeys;
+
+        return true;
+    }
+
+    private static bool TryExtractLiteralForEachMapBody(string body, out string mapBody)
+    {
+        mapBody = string.Empty;
+
+        Match inlineMatch = ForEachAssignmentRegex.Match(body);
+
+        if (inlineMatch.Success)
+        {
+            int braceIndex = body.IndexOf('{', inlineMatch.Index);
+
+            if (braceIndex >= 0)
+            {
+                mapBody = InfrastructureDeclarationBraceBodyExtractor.ExtractBalancedBraceBody(body, braceIndex);
+
+                return !string.IsNullOrWhiteSpace(mapBody);
+            }
+        }
+
+        Match multilineMatch = ForEachMultilineAssignmentRegex.Match(body);
+
+        if (!multilineMatch.Success)
+            return false;
+
+        string[] lines = body.Split('\n');
+        int startLineIndex = body[..multilineMatch.Index].Count(static c => c == '\n');
+        bool inBlockComment = false;
+
+        for (int lineIndex = startLineIndex + 1; lineIndex < lines.Length; lineIndex++)
+        {
+            string line = lines[lineIndex].Trim();
+
+            if (InfrastructureDeclarationLineCommentScanner.TryConsumeBlockComment(ref line, ref inBlockComment))
+                continue;
+
+            if (line.Length == 0 || line.StartsWith('#') || line.StartsWith("//", StringComparison.Ordinal))
+                continue;
+
+            if (!line.StartsWith("{", StringComparison.Ordinal))
+                return false;
+
+            string fromHere = string.Join('\n', lines[lineIndex..]);
+            int braceIndex = fromHere.IndexOf('{', StringComparison.Ordinal);
+            mapBody = InfrastructureDeclarationBraceBodyExtractor.ExtractBalancedBraceBody(fromHere, braceIndex);
+
+            return !string.IsNullOrWhiteSpace(mapBody);
+        }
+
+        return false;
+    }
+
+    internal static IReadOnlyList<SimpleTerraformResourceBlock> ExtractBlocks(string content)
+    {
+        if (string.IsNullOrWhiteSpace(content))
+            return [];
+
+        MatchCollection matches = ResourceHeaderRegex.Matches(MaskComments(content));
+
+        if (matches.Count == 0)
+            return [];
+
+        List<SimpleTerraformResourceBlock> blocks = [];
+
+        for (int index = 0; index < matches.Count; index++)
+        {
+            Match match = matches[index];
+            string terraformType = match.Groups["type"].Value.Trim();
+            string name = match.Groups["name"].Value.Trim();
+
+            if (string.IsNullOrWhiteSpace(terraformType) || string.IsNullOrWhiteSpace(name))
+                continue;
+
+            int bodyStart = match.Index + match.Length;
+            int bodyEnd = index + 1 < matches.Count ? matches[index + 1].Index : content.Length;
+            string body = content[bodyStart..bodyEnd];
+
+            blocks.Add(new SimpleTerraformResourceBlock(terraformType, name, body));
+        }
+
+        return blocks;
+    }
+
+    internal static IReadOnlyList<SimpleTerraformModuleBlock> ExtractModuleBlocks(string content)
+    {
+        if (string.IsNullOrWhiteSpace(content))
+            return [];
+
+        MatchCollection matches = ModuleHeaderRegex.Matches(MaskComments(content));
+
+        if (matches.Count == 0)
+            return [];
+
+        List<SimpleTerraformModuleBlock> blocks = [];
+
+        for (int index = 0; index < matches.Count; index++)
+        {
+            Match match = matches[index];
+            string name = match.Groups["name"].Value.Trim();
+
+            if (string.IsNullOrWhiteSpace(name))
+                continue;
+
+            int bodyStart = match.Index + match.Length;
+            int bodyEnd = index + 1 < matches.Count ? matches[index + 1].Index : content.Length;
+            string body = content[bodyStart..bodyEnd];
+
+            if (!TryExtractModuleSource(body, out string source))
+                continue;
+
+            blocks.Add(new SimpleTerraformModuleBlock(name, source, body));
+        }
+
+        return blocks;
+    }
+
+    private static bool TryExtractModuleSource(string moduleBody, out string source)
+    {
+        source = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(moduleBody))
+            return false;
+
+        Match match = ModuleSourceAssignmentRegex.Match(moduleBody);
+
+        if (!match.Success)
+            return false;
+
+        source = match.Groups["value"].Value.Trim();
+        source = CanonicalInfrastructurePropertyBag.StripTrailingSlashSlashComment(source);
+        source = CanonicalInfrastructurePropertyBag.StripTrailingBlockComment(source);
+        source = CanonicalInfrastructurePropertyBag.UnquoteInfrastructureScalar(source);
+
+        return !string.IsNullOrWhiteSpace(source);
+    }
+
+    internal static void ParseBodyIntoProperties(string body, Dictionary<string, string> properties)
+    {
+        ArgumentNullException.ThrowIfNull(properties);
+
+        if (string.IsNullOrWhiteSpace(body))
+            return;
+
+        string[] lines = body.Split('\n');
+        bool inBlockComment = false;
+
+        for (int lineIndex = 0; lineIndex < lines.Length; lineIndex++)
+        {
+            string line = lines[lineIndex].Trim();
+
+            if (InfrastructureDeclarationLineCommentScanner.TryConsumeBlockComment(ref line, ref inBlockComment))
+                continue;
+
+            if (line.Length == 0 || line.StartsWith('#') || line.StartsWith("//", StringComparison.Ordinal))
+                continue;
+
+            if (line.StartsWith("${", StringComparison.Ordinal))
+                continue;
+
+            if (string.Equals(line, "for_each", StringComparison.OrdinalIgnoreCase)
+                || line.StartsWith("for_each ", StringComparison.OrdinalIgnoreCase)
+                || line.StartsWith("for_each=", StringComparison.OrdinalIgnoreCase)
+                || line.StartsWith("for_each =", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            Match arrayMatch = ArrayAssignmentRegex.Match(line);
+
+            if (arrayMatch.Success)
+            {
+                if (TryConsumeArrayAssignment(lines, ref lineIndex, arrayMatch.Groups["key"].Value, properties))
+                    continue;
+            }
+
+            Match multilineArrayMatch = MultilineArrayAssignmentRegex.Match(line);
+
+            if (multilineArrayMatch.Success)
+            {
+                if (TryConsumeMultilineArrayAssignment(lines, ref lineIndex, multilineArrayMatch.Groups["key"].Value, properties))
+                    continue;
+
+                if (TryConsumeMultilineNestedBlockAssignment(lines, ref lineIndex, multilineArrayMatch.Groups["key"].Value, properties))
+                    continue;
+            }
+
+            Match nestedBlockMatch = NestedBlockStartRegex.Match(line);
+
+            if (nestedBlockMatch.Success)
+            {
+                string blockName = nestedBlockMatch.Groups["block"].Value;
+                string fromHere = string.Join('\n', lines[lineIndex..]);
+                int braceIndex = fromHere.IndexOf('{', StringComparison.Ordinal);
+                string blockBody = InfrastructureDeclarationBraceBodyExtractor.ExtractBalancedBraceBody(fromHere, braceIndex);
+
+                if (!string.IsNullOrWhiteSpace(blockBody))
+                {
+                    if (IsFlattenableBlockName(blockName))
+                        ParseBodyIntoProperties(blockBody, properties);
+                    else
+                    {
+                        string innerBody = blockBody.Trim();
+
+                        if (innerBody.StartsWith("{", StringComparison.Ordinal) && innerBody.EndsWith("}", StringComparison.Ordinal))
+                            innerBody = innerBody[1..^1].Trim();
+
+                        CanonicalInfrastructurePropertyBag.TryAddTfBlockProperty(properties, blockName, innerBody);
+                    }
+                }
+
+                int consumedLines = CountConsumedLines(fromHere, blockBody);
+                lineIndex += consumedLines;
+                continue;
+            }
+
+            Match scalarMatch = ScalarAssignmentRegex.Match(line);
+
+            if (!scalarMatch.Success)
+                continue;
+
+            string key = scalarMatch.Groups["key"].Value;
+            string rawValue = scalarMatch.Groups["value"].Value.Trim();
+
+            if (rawValue.StartsWith("${", StringComparison.Ordinal))
+                continue;
+
+            rawValue = CanonicalInfrastructurePropertyBag.StripTrailingHclComment(rawValue);
+            rawValue = CanonicalInfrastructurePropertyBag.StripTrailingSlashSlashComment(rawValue);
+            rawValue = CanonicalInfrastructurePropertyBag.StripTrailingBlockComment(rawValue);
+            string scalarValue = CanonicalInfrastructurePropertyBag.UnquoteInfrastructureScalar(rawValue);
+
+            CanonicalInfrastructurePropertyBag.TryAddTfProperty(properties, key, scalarValue);
+        }
+    }
+
+    private static bool TryConsumeArrayAssignment(
+        string[] lines,
+        ref int lineIndex,
+        string arrayKey,
+        Dictionary<string, string> properties)
+    {
+        string fromHere = string.Join('\n', lines[lineIndex..]);
+        int bracketIndex = fromHere.IndexOf('[', StringComparison.Ordinal);
+        string arrayBody = InfrastructureDeclarationBraceBodyExtractor.ExtractBalancedBracketBody(fromHere, bracketIndex);
+
+        if (!string.IsNullOrWhiteSpace(arrayBody)
+            && BicepArrayLiteralConverter.TryParseToJsonElement(arrayBody, out JsonElement arrayElement))
+        {
+            BicepArrayLiteralConverter.TryAddParsedArrayProperty(properties, arrayKey, arrayElement);
+        }
+
+        int consumedArrayLines = CountConsumedLines(fromHere, arrayBody);
+        lineIndex += consumedArrayLines;
+
+        return true;
+    }
+
+    private static bool TryConsumeMultilineArrayAssignment(
+        string[] lines,
+        ref int lineIndex,
+        string arrayKey,
+        Dictionary<string, string> properties)
+    {
+        int probeIndex = lineIndex + 1;
+        bool inBlockComment = false;
+
+        while (probeIndex < lines.Length)
+        {
+            string probeLine = lines[probeIndex].Trim();
+
+            if (InfrastructureDeclarationLineCommentScanner.TryConsumeBlockComment(ref probeLine, ref inBlockComment))
+            {
+                probeIndex++;
+                continue;
+            }
+
+            if (probeLine.Length == 0
+                || probeLine.StartsWith('#')
+                || probeLine.StartsWith("//", StringComparison.Ordinal))
+            {
+                probeIndex++;
+                continue;
+            }
+
+            if (!probeLine.StartsWith("[", StringComparison.Ordinal))
+                return false;
+
+            string fromHere = string.Join('\n', lines[probeIndex..]);
+            int bracketIndex = fromHere.IndexOf('[', StringComparison.Ordinal);
+            string arrayBody = InfrastructureDeclarationBraceBodyExtractor.ExtractBalancedBracketBody(fromHere, bracketIndex);
+
+            if (!string.IsNullOrWhiteSpace(arrayBody)
+                && BicepArrayLiteralConverter.TryParseToJsonElement(arrayBody, out JsonElement arrayElement))
+            {
+                BicepArrayLiteralConverter.TryAddParsedArrayProperty(properties, arrayKey, arrayElement);
+            }
+
+            int consumedArrayLines = CountConsumedLines(fromHere, arrayBody);
+            lineIndex += probeIndex - lineIndex + consumedArrayLines;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryConsumeMultilineNestedBlockAssignment(
+        string[] lines,
+        ref int lineIndex,
+        string blockKey,
+        Dictionary<string, string> properties)
+    {
+        int probeIndex = lineIndex + 1;
+        bool inBlockComment = false;
+
+        while (probeIndex < lines.Length)
+        {
+            string probeLine = lines[probeIndex].Trim();
+
+            if (InfrastructureDeclarationLineCommentScanner.TryConsumeBlockComment(ref probeLine, ref inBlockComment))
+            {
+                probeIndex++;
+                continue;
+            }
+
+            if (probeLine.Length == 0
+                || probeLine.StartsWith('#')
+                || probeLine.StartsWith("//", StringComparison.Ordinal))
+            {
+                probeIndex++;
+                continue;
+            }
+
+            if (!probeLine.StartsWith("{", StringComparison.Ordinal))
+                return false;
+
+            string fromHere = string.Join('\n', lines[probeIndex..]);
+            int braceIndex = fromHere.IndexOf('{', StringComparison.Ordinal);
+            string blockBody = InfrastructureDeclarationBraceBodyExtractor.ExtractBalancedBraceBody(fromHere, braceIndex);
+
+            if (!string.IsNullOrWhiteSpace(blockBody))
+            {
+                if (IsFlattenableBlockName(blockKey))
+                {
+                    ParseBodyIntoProperties(blockBody, properties);
+                }
+                else
+                {
+                    string innerBody = blockBody.Trim();
+
+                    if (innerBody.StartsWith("{", StringComparison.Ordinal) && innerBody.EndsWith("}", StringComparison.Ordinal))
+                        innerBody = innerBody[1..^1].Trim();
+
+                    CanonicalInfrastructurePropertyBag.TryAddTfBlockProperty(properties, blockKey, innerBody);
+                }
+            }
+
+            int consumedBlockLines = CountConsumedLines(fromHere, blockBody);
+            lineIndex += probeIndex - lineIndex + consumedBlockLines;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsFlattenableBlockName(string blockName) =>
+        string.Equals(blockName, "properties", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(blockName, "siteConfig", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(blockName, "site_config", StringComparison.OrdinalIgnoreCase);
+
+    private static int CountConsumedLines(string fromHere, string arrayBody)
+    {
+        if (string.IsNullOrEmpty(arrayBody) || string.IsNullOrEmpty(fromHere))
+            return 1;
+
+        int length = Math.Min(arrayBody.Length, fromHere.Length);
+        int newlineCount = 0;
+
+        for (int index = 0; index < length; index++)
+        {
+            if (fromHere[index] == '\n')
+                newlineCount++;
+        }
+
+        return newlineCount + 1;
+    }
+
+    private static string MaskComments(string content)
+    {
+        char[] masked = content.ToCharArray();
+        bool inBlockComment = false;
+        char quotedBy = '\0';
+        bool escaped = false;
+
+        for (int index = 0; index < masked.Length; index++)
+        {
+            char current = content[index];
+
+            if (inBlockComment)
+            {
+                if (current == '*' && index + 1 < masked.Length && content[index + 1] == '/')
+                {
+                    masked[index] = ' ';
+                    masked[++index] = ' ';
+                    inBlockComment = false;
+                    continue;
+                }
+
+                if (current is not '\r' and not '\n')
+                    masked[index] = ' ';
+
+                continue;
+            }
+
+            if (quotedBy != '\0')
+            {
+                if (escaped)
+                {
+                    escaped = false;
+                    continue;
+                }
+
+                if (current == '\\')
+                {
+                    escaped = true;
+                    continue;
+                }
+
+                if (current == quotedBy)
+                    quotedBy = '\0';
+
+                continue;
+            }
+
+            if (current is '"' or '\'')
+            {
+                quotedBy = current;
+                continue;
+            }
+
+            if (current == '/' && index + 1 < masked.Length && content[index + 1] == '*')
+            {
+                masked[index] = ' ';
+                masked[++index] = ' ';
+                inBlockComment = true;
+                continue;
+            }
+
+            if (current == '#'
+                || (current == '/' && index + 1 < masked.Length && content[index + 1] == '/'))
+            {
+                while (index < masked.Length && content[index] is not '\r' and not '\n')
+                    masked[index++] = ' ';
+
+                index--;
+            }
+        }
+
+        return new string(masked);
+    }
+}

@@ -1,0 +1,612 @@
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+using ArchLucid.Application.Runs;
+using ArchLucid.Capabilities.Cost;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Contracts.Findings.Payloads;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
+using ArchLucid.Decisioning.Decisions;
+using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Audit;
+using ArchLucid.Decisioning.Analysis;
+using ArchLucid.Decisioning.Compliance.Evaluators;
+using ArchLucid.Decisioning.Compliance.Loaders;
+using ArchLucid.Decisioning.Configuration;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Models;
+using ArchLucid.Decisioning.Manifest.Builders;
+using ArchLucid.Decisioning.Merge;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Decisioning.Rules;
+using ArchLucid.Core.Findings;
+using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Decisioning.Services;
+using ArchLucid.Decisioning.Validation;
+using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.TestSupport.GoldenCorpus;
+
+using JetBrains.Annotations;
+
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
+
+using Moq;
+
+namespace ArchLucid.Decisioning.Tests.GoldenCorpus;
+
+/// <summary>
+/// Runs the in-process authority decisioning slice used on commit: findings orchestration →
+/// <see cref="RuleBasedDecisionEngine.DecideAsync"/> → optional <see cref="DecisionEngineService.MergeResults"/>,
+/// mirroring <see cref="ArchLucid.Application.Runs.Orchestration.Pipeline.AuthorityPipelineStagesExecutor"/> audit for manifest generation.
+/// </summary>
+public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider timeProvider)
+{
+    private readonly string _complianceRulesPath =
+        complianceRulesPath ?? throw new ArgumentNullException(nameof(complianceRulesPath));
+
+    private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
+
+    private readonly GoldenCorpusFixedScopeContextProvider _scopeContextProvider = new();
+
+    /// <summary>Runs findings + authority decisioning (+ optional merge) and returns normalized JSON artifacts.</summary>
+    public async Task<GoldenCorpusRunArtifacts> RunAsync(
+        Guid runId,
+        Guid contextSnapshotId,
+        GraphSnapshot graph,
+        CollectingAuditService audit,
+        GoldenCorpusMergeInput? merge,
+        CancellationToken ct,
+        GoldenCorpusInventoryFixtureDocument? inventoryFixture = null,
+        GoldenCorpusPriorGraphFixtureDocument? priorGraphFixture = null,
+        GoldenCorpusAssignedPackFixtureDocument? assignedPackFixture = null)
+    {
+        ArgumentNullException.ThrowIfNull(graph);
+        ArgumentNullException.ThrowIfNull(audit);
+
+        (FindingsOrchestrator orchestrator, FindingAnalysisContext? analysisContext) =
+            CreateOrchestrator(runId, contextSnapshotId, inventoryFixture, priorGraphFixture, assignedPackFixture);
+
+        FindingsSnapshot findings = await orchestrator.GenerateFindingsSnapshotAsync(
+            runId,
+            contextSnapshotId,
+            graph,
+            ct,
+            analysisContext);
+
+        RuleBasedDecisionEngine decisionEngine = Feasibility.RuleBasedDecisionEngineTestDependencies.CreateEngine(
+            new InMemoryDecisionRuleProvider());
+
+        (ManifestDocument manifest, DecisionTraceDto trace) =
+            await decisionEngine.DecideAsync(runId, contextSnapshotId, graph, findings, ct);
+
+        await audit.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.ManifestGenerated,
+                RunId = runId,
+                ManifestId = manifest.ManifestId,
+                ActorUserId = "golden-corpus",
+                ActorUserName = "golden-corpus",
+                TenantId = Guid.Empty,
+                WorkspaceId = Guid.Empty,
+                ProjectId = Guid.Empty,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        manifest.ManifestHash,
+                        manifest.RuleSetId,
+                    }),
+            },
+            ct);
+
+        _ = trace;
+
+        GoldenCorpusMergeSummary? mergeSummary = merge is null ? null : RunMerge(merge);
+
+        return new GoldenCorpusRunArtifacts(
+            FindingsJson: GoldenCorpusNormalization.SerializeFindings(findings),
+            DecisionsJson: GoldenCorpusNormalization.SerializeDecisions(manifest, mergeSummary),
+            AuditTypesJson: GoldenCorpusNormalization.SerializeAuditTypes(audit));
+    }
+
+    /// <summary>Runs findings orchestration only (no authority decisioning).</summary>
+    public async Task<FindingsSnapshot> GenerateFindingsSnapshotAsync(
+        Guid runId,
+        Guid contextSnapshotId,
+        GraphSnapshot graph,
+        CancellationToken ct,
+        GoldenCorpusInventoryFixtureDocument? inventoryFixture = null,
+        GoldenCorpusPriorGraphFixtureDocument? priorGraphFixture = null,
+        GoldenCorpusAssignedPackFixtureDocument? assignedPackFixture = null)
+    {
+        ArgumentNullException.ThrowIfNull(graph);
+
+        (FindingsOrchestrator orchestrator, FindingAnalysisContext? analysisContext) =
+            CreateOrchestrator(runId, contextSnapshotId, inventoryFixture, priorGraphFixture, assignedPackFixture);
+
+        return await orchestrator.GenerateFindingsSnapshotAsync(
+            runId,
+            contextSnapshotId,
+            graph,
+            ct,
+            analysisContext);
+    }
+
+    private (FindingsOrchestrator Orchestrator, FindingAnalysisContext? AnalysisContext) CreateOrchestrator(
+        Guid runId,
+        Guid contextSnapshotId,
+        GoldenCorpusInventoryFixtureDocument? inventoryFixture,
+        GoldenCorpusPriorGraphFixtureDocument? priorGraphFixture,
+        GoldenCorpusAssignedPackFixtureDocument? assignedPackFixture)
+    {
+        (
+            IAzureExtractorPackageRepository azureRepository,
+            ICloudInventoryExtractorPackageRepository cloudRepository,
+            FindingAnalysisContext? analysisContext) =
+            ResolveInventoryFixture(runId, contextSnapshotId, inventoryFixture);
+
+        IGraphSnapshotRepository graphSnapshotRepository = new Moq.Mock<IGraphSnapshotRepository>().Object;
+
+        if (priorGraphFixture is not null)
+        {
+            (graphSnapshotRepository, analysisContext) = GoldenCorpusPriorGraphSupport.CreatePriorFixture(
+                runId,
+                contextSnapshotId,
+                priorGraphFixture,
+                analysisContext);
+        }
+
+        IFindingEngine[] engines = CreateEngines(
+            graphSnapshotRepository,
+            includeCrossRunDiffEngines: priorGraphFixture is not null);
+        FileComplianceRulePackLoader complianceLoader = new(_complianceRulesPath);
+        FileComplianceRulePackProvider defaultComplianceProvider = new(complianceLoader);
+        ArchLucid.Decisioning.Compliance.Loaders.IComplianceRulePackProvider effectfulRulePackProvider = assignedPackFixture is null
+            ? defaultComplianceProvider
+            : GoldenCorpusAssignedPackSupport.CreateProvider(assignedPackFixture);
+        IEffectfulFindingEngine[] effectfulEngines = GoldenCorpusEffectfulEngineFactory.Create(
+            _scopeContextProvider,
+            azureRepository,
+            cloudRepository,
+            effectfulRulePackProvider,
+            _timeProvider,
+            assignedPackFixture);
+
+        FindingsOrchestrator orchestrator = FindingsOrchestratorComposer.Compose(
+            engines,
+            new FindingPayloadValidator(),
+            Options.Create(new HumanReviewFindingOptions()),
+            Options.Create(new InsightDensityGateOptions()),
+            _timeProvider,
+            effectfulEngines,
+            _scopeContextProvider);
+
+        return (orchestrator, analysisContext);
+    }
+
+    private (
+        IAzureExtractorPackageRepository AzureRepository,
+        ICloudInventoryExtractorPackageRepository CloudRepository,
+        FindingAnalysisContext? AnalysisContext) ResolveInventoryFixture(
+        Guid runId,
+        Guid contextSnapshotId,
+        GoldenCorpusInventoryFixtureDocument? inventoryFixture)
+    {
+        if (inventoryFixture is null)
+            return (new NoOpAzureExtractorPackageRepository(), new NoOpCloudInventoryExtractorPackageRepository(), null);
+
+        DateTime collectionUtc = _timeProvider.GetUtcNow().UtcDateTime;
+        ScopeContext scope = GoldenCorpusFixedScopeContextProvider.Scope;
+        List<EvidencePackagePin> evidencePins = [];
+        IAzureExtractorPackageRepository azureRepository = new NoOpAzureExtractorPackageRepository();
+        ICloudInventoryExtractorPackageRepository cloudRepository = new NoOpCloudInventoryExtractorPackageRepository();
+
+        if (inventoryFixture.AzurePackageId != Guid.Empty)
+        {
+            AzureExtractorPackageDownloadRecord azureDownload = GoldenCorpusEffectfulInventorySupport.CreateAzurePackage(
+                inventoryFixture.AzurePackageId,
+                inventoryFixture.ResourcesJson,
+                inventoryFixture.ExtraZipEntries);
+
+            azureRepository = GoldenCorpusEffectfulInventorySupport.CreateSeededAzureRepository(
+                scope,
+                azureDownload,
+                collectionUtc).Object;
+
+            evidencePins.Add(
+                new EvidencePackagePin
+                {
+                    Provider = RunEvidencePackagePinService.AzureProvider,
+                    PackageId = inventoryFixture.AzurePackageId,
+                    CollectionUtc = collectionUtc,
+                });
+        }
+
+        if (!string.IsNullOrWhiteSpace(inventoryFixture.CloudProvider))
+        {
+            if (inventoryFixture.CloudPackageId == Guid.Empty)
+            {
+                throw new InvalidOperationException(
+                    "Golden corpus cloud inventory fixture requires cloudPackageId when cloudProvider is set.");
+            }
+
+            CloudProvider cloudProvider = GoldenCorpusEffectfulCloudInventorySupport.ParseCloudProvider(
+                inventoryFixture.CloudProvider);
+
+            string cloudResourcesJson = string.IsNullOrWhiteSpace(inventoryFixture.CloudResourcesJson)
+                ? inventoryFixture.ResourcesJson
+                : inventoryFixture.CloudResourcesJson;
+
+            if (string.IsNullOrWhiteSpace(cloudResourcesJson))
+            {
+                throw new InvalidOperationException(
+                    "Golden corpus cloud inventory fixture requires cloudResourcesJson or resourcesJson.");
+            }
+
+            CloudInventoryExtractorPackageDownloadRecord cloudDownload =
+                GoldenCorpusEffectfulCloudInventorySupport.CreateCloudPackage(
+                    inventoryFixture.CloudPackageId,
+                    cloudResourcesJson,
+                    inventoryFixture.ExtraZipEntries);
+
+            cloudRepository = GoldenCorpusEffectfulCloudInventorySupport.CreateSeededCloudRepository(
+                scope,
+                cloudProvider,
+                cloudDownload,
+                collectionUtc).Object;
+
+            evidencePins.Add(
+                GoldenCorpusEffectfulCloudInventorySupport.CreateCloudEvidencePin(
+                    cloudProvider,
+                    inventoryFixture.CloudPackageId,
+                    collectionUtc));
+        }
+
+        if (evidencePins.Count == 0)
+            return (azureRepository, cloudRepository, null);
+
+        // DeclarationInventoryContradictionFindingEngine always probes Azure freshness; stub a pin when only cloud inventory is pinned.
+        if (evidencePins.All(static pin =>
+                !string.Equals(pin.Provider, RunEvidencePackagePinService.AzureProvider, StringComparison.OrdinalIgnoreCase)))
+        {
+            evidencePins.Insert(
+                0,
+                new EvidencePackagePin
+                {
+                    Provider = RunEvidencePackagePinService.AzureProvider,
+                    PackageId = Guid.Empty,
+                    CollectionUtc = collectionUtc,
+                });
+        }
+
+        FindingAnalysisContext analysisContext = GoldenCorpusEffectfulInventorySupport.CreateMultiProviderPinnedContext(
+            runId,
+            contextSnapshotId,
+            evidencePins);
+
+        return (azureRepository, cloudRepository, analysisContext);
+    }
+
+    private IFindingEngine[] CreateEngines(
+        IGraphSnapshotRepository graphSnapshotRepository,
+        bool includeCrossRunDiffEngines = false)
+    {
+        ArgumentNullException.ThrowIfNull(graphSnapshotRepository);
+
+        GraphCoverageAnalyzer analyzer = new();
+        FileComplianceRulePackLoader complianceLoader = new(_complianceRulesPath);
+        FileComplianceRulePackProvider complianceProvider = new(complianceLoader);
+        ComplianceRulePackValidator complianceValidator = new();
+        GraphComplianceEvaluator complianceEvaluator = new();
+
+        // WK-06 actor slice: ExternalExposure was already in the prior 14-engine set;
+        // TrustBoundary + PrivilegedAccess join it. Policy-filtered packs stay in sibling tests (WK-22).
+        List<IFindingEngine> engines =
+        [
+            new RequirementFindingEngine(),
+            new RequirementGapFindingEngine(),
+            new RequirementExpectationFindingEngine(analyzer),
+            new RequirementCoverageFindingEngine(analyzer),
+            new TopologyCoverageFindingEngine(analyzer),
+            new TopologyStructureFindingEngine(),
+            new SecurityBaselineFindingEngine(),
+            new SecurityBaselineCompletenessFindingEngine(analyzer),
+            new SecurityBaselineExpectationFindingEngine(analyzer),
+            new SecurityGapFindingEngine(),
+            new SecurityCoverageFindingEngine(analyzer),
+            new ExternalExposureFindingEngine(complianceProvider),
+            new TrustBoundaryFindingEngine(complianceProvider),
+            new PrivilegedAccessFindingEngine(complianceProvider),
+            new IdentityBlastRadiusFindingEngine(),
+            new SegmentationSemanticsFindingEngine(),
+            new DrRpoTopologyFindingEngine(),
+            new ComplianceFindingEngine(complianceProvider, complianceValidator, complianceEvaluator),
+            new CostConstraintFindingEngine(),
+            new DanglingDeclarationReferenceFindingEngine(),
+            new DiagramDeclarationOmissionFindingEngine(),
+            new DeclarationSecurityBaselineFindingEngine(complianceProvider),
+            new DeclarationPremiseConflictFindingEngine(complianceProvider),
+            new RequirementSkuTierFindingEngine(),
+            new RequiredCapabilityCoverageFindingEngine(new RequiredCapabilityCoverageAnalyzer()),
+            new DataFlowTrustBoundaryFindingEngine(),
+            new TopologyAntiPatternFindingEngine(),
+            new TopologySecurityDriftFindingEngine(graphSnapshotRepository, _scopeContextProvider),
+        ];
+
+        if (includeCrossRunDiffEngines)
+        {
+            engines.Add(new RequirementCrossRunDiffFindingEngine(graphSnapshotRepository, _scopeContextProvider));
+            engines.Add(new TopologyCrossRunDiffFindingEngine(graphSnapshotRepository, _scopeContextProvider));
+        }
+
+        return engines.ToArray();
+    }
+
+    private GoldenCorpusMergeSummary RunMerge(GoldenCorpusMergeInput merge)
+    {
+        SchemaValidationService validationService = new(
+            NullLogger<SchemaValidationService>.Instance,
+            Options.Create(new SchemaValidationOptions()));
+
+        DecisionEngineService service = new(validationService);
+
+        DecisionMergeResult result = service.MergeResults(
+            merge.MergeRunId,
+            merge.Request,
+            merge.ManifestVersion,
+            merge.AgentResults,
+            merge.Evaluations,
+            merge.DecisionNodes,
+            merge.ParentManifestVersion);
+
+        List<string> errors = result.Errors.OrderBy(static e => e, StringComparer.Ordinal).ToList();
+        List<string> serviceIds = result.Manifest.Services.Select(static s => s.ServiceId).OrderBy(static id => id, StringComparer.Ordinal).ToList();
+
+        return new GoldenCorpusMergeSummary(result.Success, errors, serviceIds);
+    }
+}
+
+/// <summary>Optional coordinator-style merge payload (same inputs as <see cref="DecisionEngineService.MergeResults"/>).</summary>
+public sealed class GoldenCorpusMergeInput
+{
+    public required string MergeRunId
+    {
+        get; init;
+    }
+
+    public required ArchitectureRequest Request
+    {
+        get; init;
+    }
+
+    public required string ManifestVersion
+    {
+        get; init;
+    }
+
+    public required IReadOnlyList<AgentResult> AgentResults
+    {
+        get; init;
+    }
+
+    public required IReadOnlyList<AgentEvaluation> Evaluations
+    {
+        get; init;
+    }
+
+    public required IReadOnlyList<DecisionNode> DecisionNodes
+    {
+        get; init;
+    }
+
+    public string? ParentManifestVersion
+    {
+        get; init;
+    }
+}
+
+public sealed record GoldenCorpusMergeSummary(bool Success, IReadOnlyList<string> Errors, IReadOnlyList<string> ServiceIds);
+
+public sealed record GoldenCorpusRunArtifacts(string FindingsJson, string DecisionsJson, string AuditTypesJson);
+
+/// <summary>Deterministic projections for golden file comparison (sorted keys / lists).</summary>
+public static class GoldenCorpusNormalization
+{
+    private static readonly JsonSerializerOptions WriteOptions = new(GoldenCorpusJson.SerializerOptions)
+    {
+        WriteIndented = true,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+    };
+
+    public static string SerializeFindings(FindingsSnapshot snapshot)
+    {
+        ArgumentNullException.ThrowIfNull(snapshot);
+
+        List<Finding> findings = snapshot.Findings
+            .Concat(snapshot.ChecklistCoverage)
+            .ToList();
+
+        Dictionary<string, string> stableIdByRuntimeId = BuildStableFindingIdMap(findings);
+
+        Dictionary<string, Finding> findingsByRuntimeId = findings
+            .ToDictionary(static finding => finding.FindingId, static finding => finding, StringComparer.Ordinal);
+
+        List<FindingGoldenRow> rows = findings
+            .Select(finding => ToGoldenRow(finding, stableIdByRuntimeId, findingsByRuntimeId))
+            .OrderBy(static r => r.FindingType, StringComparer.Ordinal)
+            .ThenBy(static r => r.Title, StringComparer.Ordinal)
+            .ToList();
+
+        return JsonSerializer.Serialize(rows, WriteOptions);
+    }
+
+    private static Dictionary<string, string> BuildStableFindingIdMap(IReadOnlyList<Finding> findings)
+    {
+        Dictionary<string, Finding> findingsByRuntimeId = findings
+            .ToDictionary(static finding => finding.FindingId, static finding => finding, StringComparer.Ordinal);
+
+        Dictionary<string, string> stableIdByRuntimeId = new(StringComparer.Ordinal);
+
+        foreach (Finding finding in findings)
+        {
+            if (string.Equals(finding.FindingType, "DecisionGradeFusionFinding", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            stableIdByRuntimeId[finding.FindingId] = FindingGoldenRow.ComputeStableFindingId(
+                finding,
+                finding.Rationale);
+        }
+
+        foreach (Finding finding in findings)
+        {
+            if (!string.Equals(finding.FindingType, "DecisionGradeFusionFinding", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            string normalizedRationale = NormalizeFusionRationale(finding, findingsByRuntimeId, stableIdByRuntimeId);
+            stableIdByRuntimeId[finding.FindingId] = FindingGoldenRow.ComputeStableFindingId(
+                finding,
+                normalizedRationale);
+        }
+
+        return stableIdByRuntimeId;
+    }
+
+    internal static string NormalizeFusionRationale(
+        Finding fusionFinding,
+        IReadOnlyDictionary<string, Finding> findingsByRuntimeId,
+        IReadOnlyDictionary<string, string> stableIdByRuntimeId)
+    {
+        if (fusionFinding.Payload is not DecisionGradeFusionFindingPayload payload)
+        {
+            return fusionFinding.Rationale;
+        }
+
+        List<string> descriptionLines = payload.ConstituentFindingIds
+            .Where(findingsByRuntimeId.ContainsKey)
+            .Select(runtimeId => findingsByRuntimeId[runtimeId])
+            .OrderBy(static finding => finding.EngineType, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(static finding => finding.Title, StringComparer.Ordinal)
+            .Select(finding => $"- {stableIdByRuntimeId[finding.FindingId]}: {finding.Title}")
+            .ToList();
+
+        return string.Join('\n', descriptionLines);
+    }
+
+    private static FindingGoldenRow ToGoldenRow(
+        Finding finding,
+        IReadOnlyDictionary<string, string> stableIdByRuntimeId,
+        IReadOnlyDictionary<string, Finding> findingsByRuntimeId)
+    {
+        string rationale = string.Equals(finding.FindingType, "DecisionGradeFusionFinding", StringComparison.Ordinal)
+            ? NormalizeFusionRationale(finding, findingsByRuntimeId, stableIdByRuntimeId)
+            : finding.Rationale;
+
+        return new FindingGoldenRow(
+            stableIdByRuntimeId[finding.FindingId],
+            finding.FindingType,
+            finding.Category,
+            finding.Severity.ToString(),
+            finding.Title,
+            rationale,
+            finding.RelatedNodeIds.OrderBy(static x => x, StringComparer.Ordinal).ToList(),
+            finding.PayloadType,
+            finding.Trace.RulesApplied.OrderBy(static x => x, StringComparer.Ordinal).ToList(),
+            finding.Trace.DecisionsTaken.OrderBy(static x => x, StringComparer.Ordinal).ToList());
+    }
+
+    public static string SerializeDecisions(ManifestDocument manifest, GoldenCorpusMergeSummary? merge)
+    {
+        ArgumentNullException.ThrowIfNull(manifest);
+
+        List<DecisionGoldenRow> authority = manifest.Decisions
+            .Select(static d => new DecisionGoldenRow(d.Category, d.SelectedOption, d.Title, d.Rationale))
+            .OrderBy(static r => r.Category, StringComparer.Ordinal)
+            .ThenBy(static r => r.Title, StringComparer.Ordinal)
+            .ToList();
+
+        object payload = new
+        {
+            authority,
+            merge = merge is null
+                ? null
+                : new
+                {
+                    merge.Success,
+                    merge.Errors,
+                    merge.ServiceIds,
+                },
+        };
+
+        return JsonSerializer.Serialize(payload, WriteOptions);
+    }
+
+    public static string SerializeAuditTypes(CollectingAuditService audit)
+    {
+        ArgumentNullException.ThrowIfNull(audit);
+
+        List<string> sorted = audit.EventTypes
+            .OrderBy(static t => t, StringComparer.Ordinal)
+            .ToList();
+
+        return JsonSerializer.Serialize(sorted, WriteOptions);
+    }
+
+    private sealed record FindingGoldenRow(
+        string FindingId,
+        string FindingType,
+        [UsedImplicitly] string Category,
+        string Severity,
+        string Title,
+        string Rationale,
+        IReadOnlyList<string> RelatedNodeIds,
+        string? PayloadType,
+        IReadOnlyList<string> RulesApplied,
+        IReadOnlyList<string> DecisionsTaken)
+    {
+        /// <summary>
+        /// Production engines assign runtime <see cref="Finding.FindingId"/> values; golden JSON must not depend on those.
+        /// This surrogate is stable for the same logical finding across record/replay and CI machines.
+        /// </summary>
+        internal static string ComputeStableFindingId(Finding finding, string rationale)
+        {
+            ArgumentNullException.ThrowIfNull(finding);
+
+            string related = string.Join('|', finding.RelatedNodeIds.OrderBy(static x => x, StringComparer.Ordinal));
+            string rules = string.Join('|', finding.Trace.RulesApplied.OrderBy(static x => x, StringComparer.Ordinal));
+            string decisions = string.Join('|', finding.Trace.DecisionsTaken.OrderBy(static x => x, StringComparer.Ordinal));
+            string canonical = string.Join(
+                '\n',
+                new[]
+                {
+                    finding.FindingType,
+                    finding.Category,
+                    finding.Title,
+                    rationale,
+                    related,
+                    finding.PayloadType ?? string.Empty,
+                    rules,
+                    decisions,
+                });
+
+            byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(canonical));
+            Span<byte> guidBytes = stackalloc byte[16];
+            hash.AsSpan(0, 16).CopyTo(guidBytes);
+
+            return new Guid(guidBytes).ToString("d");
+        }
+    }
+
+    private sealed record DecisionGoldenRow(string Category, [UsedImplicitly] string SelectedOption, string Title, string Rationale);
+}

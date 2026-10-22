@@ -1,0 +1,126 @@
+variable "enable_front_door_waf" {
+  type        = bool
+  description = "When true, deploy Azure Front Door (Standard) with a WAF policy in Prevention mode. Keep false until Azure resources and backend hostnames exist."
+  default     = false
+}
+
+variable "create_resource_group" {
+  type        = bool
+  description = "When true and enable_front_door_waf is true, create the resource group."
+  default     = false
+}
+
+variable "resource_group_name" {
+  type        = string
+  description = "Resource group for Front Door profile and WAF policy."
+  default     = ""
+}
+
+variable "location" {
+  type        = string
+  description = "Azure region for the resource group (when create_resource_group is true)."
+  default     = ""
+}
+
+variable "front_door_profile_name" {
+  type        = string
+  description = "Globally unique Front Door profile name (alphanumeric/dash)."
+  default     = ""
+}
+
+variable "backend_hostname" {
+  type        = string
+  description = "Public hostname of the origin (e.g. myapim.azure-api.net or api.contoso.com). No https:// prefix."
+  default     = ""
+}
+
+variable "origin_host_header" {
+  type        = string
+  description = "Optional Host header sent to origin; defaults to backend_hostname when empty."
+  default     = ""
+}
+
+variable "route_patterns" {
+  type        = list(string)
+  description = "Path patterns served by this route (default all paths)."
+  default     = ["/*"]
+}
+
+variable "tags" {
+  type    = map(string)
+  default = {}
+}
+
+variable "front_door_health_probe_path" {
+  type        = string
+  description = "Origin health probe path. Use /health/ready when the origin is the ArchLucid API (ASP.NET). Use / when the origin is the Next.js UI only (no readiness route)."
+  default     = "/health/ready"
+}
+
+variable "secondary_backend_hostname" {
+  type        = string
+  description = "Optional passive standby origin (paired region API or APIM). Empty = single origin. Front Door sends traffic to priority 1 first; priority 2 used when primary is unhealthy."
+  default     = ""
+}
+
+variable "secondary_origin_host_header" {
+  type        = string
+  description = "Optional Host header for secondary origin; defaults to secondary_backend_hostname when empty."
+  default     = ""
+}
+
+variable "enable_pricing_json_to_pricing_page_redirect" {
+  type        = bool
+  description = "When Front Door is enabled, attach a rule set that 301-redirects /pricing.json to /pricing (HTML marketing route on the Next.js origin)."
+  default     = true
+}
+
+variable "marketing_custom_domain_hostname" {
+  type        = string
+  description = "Optional public marketing hostname (e.g. www.contoso.com). Empty = no Front Door custom-domain resources in this module; operators bind DNS + cert in a follow-on change set."
+  default     = ""
+}
+
+variable "marketing_backend_hostname" {
+  type        = string
+  description = "Public FQDN of the marketing Next.js Container App revision (no scheme), e.g. archlucid-ui.internal.xxx.azurecontainerapps.io. Empty = legacy single-route mode (var.route_patterns only)."
+  default     = ""
+}
+
+variable "marketing_origin_host_header" {
+  type        = string
+  description = "Optional Host header for the marketing origin; defaults to marketing_backend_hostname when empty."
+  default     = ""
+}
+
+variable "marketing_site_route_patterns" {
+  type        = list(string)
+  description = "Path patterns routed to the marketing UI origin when marketing_backend_hostname is set. Include /_next/* so Next assets resolve on the same hostname."
+  default = [
+    "/",
+    "/pricing",
+    "/pricing.json",
+    "/welcome",
+    "/signup",
+    "/signup/*",
+    "/_next/*",
+    "/favicon.ico",
+    "/robots.txt",
+    "/sitemap.xml",
+  ]
+}
+
+variable "api_route_patterns_when_marketing_enabled" {
+  type        = list(string)
+  description = "Path patterns routed to the primary API origin when marketing_backend_hostname is set (must cover ArchLucid.Api + probes)."
+  default = [
+    "/v1/*",
+    "/v2/*",
+    "/health",
+    "/health/*",
+    "/openapi/*",
+    "/swagger/*",
+    "/scalar/*",
+    "/metrics",
+  ]
+}

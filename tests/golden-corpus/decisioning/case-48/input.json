@@ -1,0 +1,19 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000048",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000048",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000048-0000-4000-8000-000000000048",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000048",
+    "runId": "20000000-0000-4000-8000-000000000048",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [],
+    "edges": [],
+    "warnings": []
+  },
+  "merge": null,
+  "inventoryFixture": {
+    "azurePackageId": "30000000-0000-4000-8000-000000000048",
+    "resourcesJson": "[\n  {\n    \"resourceType\": \"Microsoft.Compute/disks\",\n    \"resourceId\": \"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/disks/orphan-disk-48\",\n    \"properties\": {}\n  }\n]"
+  }
+}

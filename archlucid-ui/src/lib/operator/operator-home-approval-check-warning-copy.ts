@@ -1,0 +1,8 @@
+/** @deprecated Use `operator-home-governance-approval-warning-copy.ts`. */
+export {
+  OPERATOR_HOME_GOVERNANCE_APPROVAL_WARNING_SINGULAR as OPERATOR_HOME_APPROVAL_CHECK_WARNING_SINGULAR,
+  OPERATOR_HOME_GOVERNANCE_APPROVAL_WARNING_PLURAL as OPERATOR_HOME_APPROVAL_CHECK_WARNING_PLURAL,
+  formatOperatorHomeGovernanceApprovalWarningCount as formatOperatorHomeApprovalCheckWarningCount,
+  formatOperatorHomeGovernanceApprovalWarningFilterLabel as formatOperatorHomeApprovalCheckWarningFilterLabel,
+  formatOperatorHomeGovernanceApprovalWarningActiveFilterLine as formatOperatorHomeApprovalCheckWarningActiveFilterLine,
+} from "@/lib/operator/operator-home-governance-approval-warning-copy";

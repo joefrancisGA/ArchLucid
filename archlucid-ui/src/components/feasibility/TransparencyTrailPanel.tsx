@@ -1,0 +1,248 @@
+"use client";
+
+import { cn } from "@/lib/utils";
+import type { ReactElement } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import { formatInferredTrailEntryLabel } from "@/lib/feasibility/format-inferred-trail-entry-label";
+import type { FindingTrustPresentationInput } from "@/lib/findings/finding-trust-presentation";
+import {
+  parseTransparencyTrailOpenFromSearch,
+  transparencyTrailHrefFromSearch} from "@/lib/reviews/transparency-trail-open-url";
+import type { TransparencyTrail } from "@/types/feasibility-verdict";
+
+export type TransparencyTrailPanelProps = {
+  readonly trail: TransparencyTrail | null | undefined;
+  readonly className?: string;
+  readonly missingTrailDefect?: boolean;
+  /** Working mode keeps the trail expanded; Guided collapses behind a disclosure. */
+  readonly defaultExpanded?: boolean;
+  /** Controlled disclosure open state when `defaultExpanded` is false. */
+  readonly detailsOpen?: boolean;
+  /** Called when the guided-mode disclosure open state changes. */
+  readonly onDetailsOpenChange?: (open: boolean) => void;
+  /** FC-14: wire trust labels for `finding.blocking.*` inferred rows. */
+  readonly inferredFindingTrustById?: ReadonlyMap<string, FindingTrustPresentationInput>;
+};
+
+function MustSkippedEntries(trail: TransparencyTrail): TransparencyTrail["skipped"] {
+  return trail.skipped.filter((entry) => entry.tier === "Must");
+}
+
+function ShouldSkippedEntries(trail: TransparencyTrail): TransparencyTrail["skipped"] {
+  return trail.skipped.filter((entry) => entry.tier === "Should");
+}
+
+function MissingTierSkippedEntries(trail: TransparencyTrail): TransparencyTrail["skipped"] {
+  return trail.skipped.filter((entry) => entry.tier === null || entry.tier === undefined);
+}
+
+/** ADR 0050 asserted / inferred / skipped transparency record for review surfaces. */
+export function TransparencyTrailPanel(props: TransparencyTrailPanelProps): ReactElement | null {
+  const pathname = usePathname() ?? "/";
+  const [internalDetailsOpen, setInternalDetailsOpenState] = useState(() =>
+    parseTransparencyTrailOpenFromSearch(null),
+  );
+  const syncInternalDetailsOpenToUrl = useCallback(
+    (open: boolean) => {
+      commitHrefIfChanged(transparencyTrailHrefFromSearch(window.location.search.slice(1), open, pathname), {
+        notify: false});
+    },
+    [pathname],
+  );
+  const setInternalDetailsOpen = useCallback(
+    (open: boolean) => {
+      if (internalDetailsOpen === open) {
+        return;
+      }
+
+      setInternalDetailsOpenState(open);
+      syncInternalDetailsOpenToUrl(open);
+    },
+    [internalDetailsOpen, syncInternalDetailsOpenToUrl],
+  );
+  const trail = props.trail;
+
+  useEffect(() => {
+    const syncInternalDetailsOpenFromUrl = (): void => {
+      const nextOpen = parseTransparencyTrailOpenFromSearch(
+        new URLSearchParams(window.location.search).get("transparencyTrailOpen"),
+      );
+
+      setInternalDetailsOpenState((current) => (current === nextOpen ? current : nextOpen));
+    };
+
+    if (props.detailsOpen === undefined) {
+      syncInternalDetailsOpenFromUrl();
+      window.addEventListener("popstate", syncInternalDetailsOpenFromUrl);
+    }
+
+    return () => {
+      window.removeEventListener("popstate", syncInternalDetailsOpenFromUrl);
+    };
+  }, [props.detailsOpen]);
+
+  if (props.missingTrailDefect === true && (trail === null || trail === undefined)) {
+    return (
+      <div
+        className={cn(
+          "rounded-md border border-rose-300 bg-rose-50 px-4 py-3 text-rose-900 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-100",
+          props.className,
+        )}
+        data-testid="transparency-trail-missing-defect"
+      >
+        <p className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.body)}>Transparency record missing</p>
+        <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+          This review should include an Asserted / Inferred / Skipped trail. Do not finalize or defend outcomes without
+          that record.
+        </p>
+      </div>
+    );
+  }
+
+  if (trail === null || trail === undefined) {
+    return null;
+  }
+
+  const mustSkipped = MustSkippedEntries(trail);
+  const shouldSkipped = ShouldSkippedEntries(trail);
+  const defaultExpanded = props.defaultExpanded ?? true;
+
+  const panelBody = (
+    <div className={cn("space-y-4", OPERATOR_TYPOGRAPHY.body)}>
+      <div>
+        <p className="m-0 font-medium">Asserted ({trail.asserted.length})</p>
+        {trail.asserted.length > 0 ? (
+          <ul className="mt-1 list-disc pl-5">
+            {trail.asserted.map((entry) => (
+              <li key={entry.key}>
+                {entry.key === null || entry.key === undefined
+                  ? `Assertion key was not stored. Value: ${entry.value}`
+                  : `${entry.key}: ${entry.value}`}
+                {typeof entry.responderLabel === "string" && entry.responderLabel.length > 0
+                  ? ` — ${entry.responderLabel}`
+                  : entry.responderLabel === null || entry.responderLabel === undefined
+                    ? " — Responder was not stored."
+                    : ""}
+                {typeof entry.questionId === "string" && entry.questionId.length > 0
+                  ? ` — Question id: ${entry.questionId}`
+                  : entry.questionId === null || entry.questionId === undefined
+                    ? " — Question id was not stored."
+                    : ""}
+                {typeof entry.recordedUtc === "string" && entry.recordedUtc.length > 0
+                  ? ` — Answer recorded time: ${entry.recordedUtc}`
+                  : entry.recordedUtc === null || entry.recordedUtc === undefined
+                    ? " — Answer recorded time was not stored."
+                    : ""}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="m-0 mt-1 text-al-text-secondary">None recorded.</p>
+        )}
+      </div>
+      <div>
+        <p className="m-0 font-medium">Inferred ({trail.inferred.length})</p>
+        {trail.inferred.length > 0 ? (
+          <ul className="mt-1 list-disc pl-5">
+            {trail.inferred.map((entry) => (
+              <li key={entry.key}>
+                {formatInferredTrailEntryLabel(entry, props.inferredFindingTrustById)}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="m-0 mt-1 text-al-text-secondary">None recorded.</p>
+        )}
+      </div>
+      {mustSkipped.length > 0 ? (
+        <div data-testid="transparency-trail-skipped-must">
+          <p className="m-0 font-medium text-rose-800 dark:text-rose-200">
+            Skipped MUST questions ({mustSkipped.length})
+          </p>
+          <ul className="mt-1 list-disc pl-5">
+            {mustSkipped.map((entry) => (
+              <li key={entry.questionKey}>{entry.questionKey}</li>
+            ))}
+          </ul>
+        </div>
+      ) : (
+        <div data-testid="transparency-trail-skipped-must">
+          <p className="m-0 font-medium">Skipped MUST questions (0)</p>
+          <p className="m-0 mt-1 text-al-text-secondary">None recorded.</p>
+        </div>
+      )}
+      {shouldSkipped.length > 0 ? (
+        <div>
+          <p className="m-0 font-medium">Skipped SHOULD questions ({shouldSkipped.length})</p>
+          <ul className="mt-1 list-disc pl-5">
+            {shouldSkipped.map((entry) => (
+              <li key={entry.questionKey}>{entry.questionKey}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+      {MissingTierSkippedEntries(trail).map((entry) => (
+        <p key={entry.questionKey} className="m-0">
+          Question tier was not stored.
+        </p>
+      ))}
+    </div>
+  );
+
+  if (!defaultExpanded) {
+    const detailsOpen = props.detailsOpen;
+    const onDetailsOpenChange = props.onDetailsOpenChange;
+    const isExternallyControlled = detailsOpen !== undefined;
+    const usesInternalUrlSync = !isExternallyControlled;
+    const resolvedOpen = isExternallyControlled ? detailsOpen : internalDetailsOpen;
+
+    return (
+      <details
+        className={cn("rounded-md border border-neutral-200 p-4 dark:border-neutral-800", props.className)}
+        data-testid="transparency-trail-panel"
+        open={resolvedOpen}
+        onToggle={(event) => {
+          const nextOpen = (event.currentTarget as HTMLDetailsElement).open;
+
+          if (isExternallyControlled) {
+            event.preventDefault();
+            onDetailsOpenChange?.(!detailsOpen);
+
+            return;
+          }
+
+          if (usesInternalUrlSync) {
+            setInternalDetailsOpen(nextOpen);
+          }
+
+          onDetailsOpenChange?.(nextOpen);
+        }}
+      >
+        <summary className={cn("cursor-pointer font-semibold", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+          Transparency trail
+        </summary>
+        <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          What you asserted, what ArchLucid inferred, and what was skipped.
+        </p>
+        <div className="mt-4">{panelBody}</div>
+      </details>
+    );
+  }
+
+  return (
+    <section
+      className={cn("rounded-md border border-neutral-200 p-4 dark:border-neutral-800", props.className)}
+      data-testid="transparency-trail-panel"
+    >
+      <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Transparency trail</h3>
+      <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        What you asserted, what ArchLucid inferred, and what was skipped.
+      </p>
+      <div className="mt-4">{panelBody}</div>
+    </section>
+  );
+}

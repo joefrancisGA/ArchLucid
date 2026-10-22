@@ -1,0 +1,14 @@
+{
+  "requiredScenarioIds": [
+    "missingCredentials",
+    "contentSafetyRejection",
+    "schemaViolation",
+    "groundingInsufficiency",
+    "timeout",
+    "budgetCutoff",
+    "fallbackToSimulator",
+    "partialRequiredAgentsIncomplete"
+  ],
+  "runbookPath": "docs/runbooks/AGENT_EXECUTION_FAILURES.md",
+  "catalogSourceTest": "ArchLucid.Application.Tests/Runs/RealAgentFailureTriageTests.cs"
+}

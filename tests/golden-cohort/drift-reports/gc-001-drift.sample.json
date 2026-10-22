@@ -1,0 +1,46 @@
+{
+  "scenarioName": "gc-001",
+  "scenarioTitle": "Baseline Azure web workload (single region)",
+  "timestampUtc": "2026-05-11T12:00:00.0000000Z",
+  "simulatorFindings": {
+    "findingCount": 4,
+    "severityCounts": {
+      "Info": 2,
+      "Warning": 2,
+      "Error": 0,
+      "Critical": 0
+    },
+    "normalizedTitles": [
+      "example topology gap (simulator)",
+      "example cost consideration (simulator)"
+    ],
+    "normalizedRecommendations": [
+      "prefer managed sql",
+      "enable private endpoints"
+    ]
+  },
+  "realFindings": {
+    "findingCount": 5,
+    "severityCounts": {
+      "Info": 1,
+      "Warning": 3,
+      "Error": 1,
+      "Critical": 0
+    },
+    "normalizedTitles": [
+      "example topology gap (simulator)",
+      "latency risk on cross-region calls"
+    ],
+    "normalizedRecommendations": [
+      "prefer managed sql",
+      "review app insights sampling"
+    ]
+  },
+  "countDelta": 1,
+  "severityDivergence": 0.25,
+  "titleOverlap": 0.33,
+  "recommendationOverlap": 0.5,
+  "realModeInputTokens": 12000,
+  "realModeOutputTokens": 3400,
+  "realExecutionError": null
+}

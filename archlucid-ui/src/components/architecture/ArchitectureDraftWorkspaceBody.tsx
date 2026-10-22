@@ -1,0 +1,379 @@
+"use client";
+
+import { type Dispatch, type SetStateAction } from "react";
+import dynamic from "next/dynamic";
+
+import { ArchitectureDraftHandoffPanel } from "@/components/architecture/ArchitectureDraftHandoffPanel";
+import { ArchitectureDraftDetailBuyerChrome } from "@/app/(operator)/architecture/architectures/_sections/ArchitectureDraftDetailBuyerChrome";
+import { ArchitectureDraftDetailLoadFailure } from "@/components/architecture/ArchitectureDraftDetailLoadFailure";
+import { ArchitectureDraftWorkspaceHeaderChrome } from "@/components/architecture/ArchitectureDraftWorkspaceHeaderChrome";
+import { WorkingNestedArchitectureIdentityChromeMount } from "@/components/architecture/WorkingNestedArchitectureIdentityChromeMount";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
+import { ARCHITECTURE_IDENTITY_DESK_LEGACY_DRAFT_HONESTY } from "@/lib/architecture/architecture-identity-desk-copy";
+import {
+  architectureIdentityPath,
+  ARCHITECTURES_LIST_PATH,
+} from "@/lib/architecture/architecture-routes";
+import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
+import { OPERATOR_LINK } from "@/lib/design-tokens";
+import Link from "next/link";
+import { ArchitectureDraftFormFields } from "@/components/architecture/ArchitectureDraftFormFields";
+import { ArchitectureDraftNextDraftFooter } from "@/components/architecture/ArchitectureDraftNextDraftFooter";
+import { ArchitectureDraftStartReviewGate } from "@/components/architecture/ArchitectureDraftStartReviewGate";
+import { DraftInvariantEnvelopePreview } from "@/components/architecture/DraftInvariantEnvelopePreview";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { ArchitectureDraftWorkspaceIntakeStack } from "@/components/architecture/ArchitectureDraftWorkspaceIntakeStack";
+import { ArchitectureDraftWorkspaceLoadingSkeleton } from "@/components/architecture/ArchitectureDraftWorkspaceLoadingSkeleton";
+import { ArchitectureDraftWorkspaceStartReviewFooter } from "@/components/architecture/ArchitectureDraftWorkspaceStartReviewFooter";
+import { ArchitectureScopeUnderstandingCheckPanel } from "@/components/architecture/ArchitectureScopeUnderstandingCheckPanel";
+import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
+import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import type { ArchitectureDraftSaveState } from "@/hooks/use-architecture-draft-autosave";
+import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  ARCHITECTURE_DRAFT_DETAIL_FIRST_VIEWPORT_TEST_ID,
+  ARCHITECTURE_DRAFT_DETAIL_PRIMARY_CONTENT_ID,
+  ARCHITECTURE_DRAFT_DETAIL_SKIP_LINK_LABEL,
+  ARCHITECTURE_DRAFT_DETAIL_SKIP_TARGET_ID,
+} from "@/lib/architecture/architecture-draft-detail-page-copy";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import type { ReviewStartStageId } from "@/lib/review-start-progress-stages";
+import { shouldRenderSpawnLockedHandoffLayout } from "@/lib/system-not-job-spawn-lock-handoff-layout";
+import { cn } from "@/lib/utils";
+import type { ActorSet, DraftRequestResponse } from "@/types/draft-intake";
+
+const ArchitectureDraftAiRefinePanel = dynamic(
+  async () => {
+    const loaded = await import("@/components/architecture/ArchitectureDraftAiRefinePanel");
+    return loaded.ArchitectureDraftAiRefinePanel;
+  },
+  { loading: () => null },
+);
+
+const DraftIntakeAdvancedSection = dynamic(
+  async () => {
+    const loaded = await import("@/components/draft-intake/DraftIntakeAdvancedSection");
+    return loaded.DraftIntakeAdvancedSection;
+  },
+  { loading: () => null },
+);
+
+const DraftIntakeReasoningPanel = dynamic(
+  async () => {
+    const loaded = await import("@/components/draft-intake/DraftIntakeReasoningPanel");
+    return loaded.DraftIntakeReasoningPanel;
+  },
+  { loading: () => null },
+);
+
+export type ArchitectureDraftWorkspaceBodyProps = {
+  readonly draftId: string;
+  readonly parentArchitectureId?: string | null;
+  readonly legacyDraftWithoutIdentity?: boolean;
+  readonly suppressWorkingNestedIdentityAnchors?: boolean;
+  readonly loading: boolean;
+  readonly loadError: string | null;
+  readonly isNewDraft: boolean;
+  readonly isDetailDraft: boolean;
+  readonly buyerPolishedShell: boolean;
+  readonly workspaceHeading: string;
+  readonly workspaceLead: string;
+  readonly linkedReviewId: string | null;
+  readonly linkedReviewTitle: string;
+  readonly intakeModeActive: boolean;
+  readonly briefFrozen: boolean;
+  readonly canUnlockBrief: boolean;
+  readonly unlockBusy: boolean;
+  readonly unlockError: string | null;
+  readonly onUnlockBrief: () => void;
+  readonly draft: DraftRequestResponse | null;
+  readonly conflictMessage: string | null;
+  readonly onReloadDraft: () => void;
+  readonly onKeepLocalDraft: () => void | Promise<void>;
+  readonly onLoadDraft: () => void;
+  readonly draftStartReviewSteps: Parameters<typeof IntegrationConnectChecklist>[0]["steps"];
+  readonly draftStartReviewEmphasizedStepId: string;
+  readonly fields: ArchitectureDraftFieldState;
+  readonly actorSet: ActorSet;
+  readonly editorLocked: boolean;
+  readonly handoffEditorLocked: boolean;
+  readonly blocksLlmExecution: boolean;
+  readonly effectiveDraftId: string;
+  readonly reviewReadiness: Parameters<typeof ArchitectureDraftStartReviewGate>[0]["reviewReadiness"];
+  readonly needsPersistedDraftBeforeStart: boolean;
+  readonly scopeGateOpen: boolean;
+  readonly actorSuggestionsUnresolved: boolean;
+  readonly startReviewError: string | null;
+  readonly saveState: ArchitectureDraftSaveState;
+  readonly scopeUnderstandingInput: Parameters<typeof ArchitectureScopeUnderstandingCheckPanel>[0]["input"];
+  readonly persistedScopeFingerprint: string | null;
+  readonly persistScopeConfirmation: Parameters<
+    typeof ArchitectureScopeUnderstandingCheckPanel
+  >[0]["onConfirm"];
+  readonly setScopeBullets: Parameters<typeof ArchitectureScopeUnderstandingCheckPanel>[0]["onBulletsChange"];
+  readonly setScopeGateOpen: Parameters<typeof ArchitectureScopeUnderstandingCheckPanel>[0]["onGateChange"];
+  readonly setActorSuggestionsUnresolved: (value: boolean) => void;
+  readonly actorSuggestionGateRequestId: number;
+  readonly setFields: Dispatch<SetStateAction<ArchitectureDraftFieldState>>;
+  readonly setActorSet: Dispatch<SetStateAction<ActorSet>>;
+  readonly refinementDraftId: string | null;
+  readonly exitPending: boolean;
+  readonly reviewStartProgress: {
+    readonly isPending: boolean;
+    readonly loadingLabel: string;
+    readonly stageId: ReviewStartStageId | null;
+    readonly stages: Parameters<typeof ReviewStartStagedProgress>[0]["stages"];
+    readonly waitCopy: { readonly detail: string };
+    readonly stalled: boolean;
+  };
+  readonly canStartReview: boolean;
+  readonly handleStartReview: () => void | Promise<void>;
+  readonly saveDraft: () => Promise<boolean>;
+  readonly wasLastSaveConflict?: () => boolean;
+  readonly setExitPending: (pending: boolean) => void;
+  readonly hasPersistedDraft: boolean;
+  readonly qualityAttributesEncouragementOpen: boolean;
+  readonly setQualityAttributesEncouragementOpen: (open: boolean) => void;
+  readonly handleEncourageAddQualityAttributes: () => void;
+  readonly handleContinueWithoutQualityAttributes: () => void;
+  readonly nextDraft: Parameters<typeof ArchitectureDraftNextDraftFooter>[0]["target"] | null;
+  readonly workLeaseBanner?: React.ReactNode;
+};
+
+function WorkingNestedDraftIdentityAnchors(props: {
+  readonly parentArchitectureId?: string | null;
+  readonly handoffEditorLocked?: boolean;
+  readonly suppressWorkingNestedIdentityAnchors?: boolean;
+}): React.JSX.Element | null {
+  const { isWorkingMode } = useWorkspaceMode();
+  const architectureId = props.parentArchitectureId?.trim() ?? "";
+
+  if (props.suppressWorkingNestedIdentityAnchors === true || !isWorkingMode || architectureId.length === 0) {
+    return null;
+  }
+
+  if (props.handoffEditorLocked === true) {
+    return <WorkingNestedArchitectureIdentityChromeMount parentArchitectureId={architectureId} />;
+  }
+
+  return (
+    <>
+      <WorkingNestedArchitectureIdentityChromeMount parentArchitectureId={architectureId} />
+      <p className={OPERATOR_TYPOGRAPHY.body} data-testid="architecture-draft-back-to-desk">
+        <Link href={architectureIdentityPath(architectureId)} className={OPERATOR_LINK.nav}>
+          Back to architecture desk
+        </Link>
+      </p>
+    </>
+  );
+}
+
+export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspaceBodyProps): React.JSX.Element {
+  const {
+    loading,
+    loadError,
+    isDetailDraft,
+    buyerPolishedShell,
+    onLoadDraft: loadDraft,
+    fields,
+    actorSet,
+    editorLocked,
+    handoffEditorLocked,
+    blocksLlmExecution,
+    draftId,
+    workspaceHeading,
+    effectiveDraftId,
+    linkedReviewId,
+    linkedReviewTitle,
+    reviewReadiness,
+    setActorSuggestionsUnresolved,
+    actorSuggestionGateRequestId,
+    setFields,
+    setActorSet,
+    refinementDraftId,
+    exitPending,
+  } = props;
+
+  const { isWorkingMode } = useWorkspaceMode();
+
+  if (loading) {
+    return (
+      <div className="space-y-3" data-testid="architecture-draft-workspace-loading">
+        <ArchitectureDraftWorkspaceLoadingSkeleton />
+      </div>
+    );
+  }
+
+  if (loadError !== null) {
+    if (isDetailDraft && buyerPolishedShell) {
+      return (
+        <ArchitectureDraftDetailLoadFailure
+          message={loadError}
+          onRetry={() => {
+            void loadDraft();
+          }}
+        />
+      );
+    }
+
+    const presentation = errorRecoveryContractForScenario("architecture-draft-load", {
+      failureSummary: loadError,
+    });
+
+    return (
+      <div className="space-y-3" data-testid="architecture-draft-workspace-error">
+        <OperatorErrorRecoveryContract
+          testId="architecture-draft-workspace-load-recovery"
+          presentation={presentation}
+        />
+        <div className="flex flex-wrap items-center gap-2">
+          <Button type="button" variant="outline" size="sm" onClick={() => void loadDraft()}>
+            Retry
+          </Button>
+          <Link href={ARCHITECTURES_LIST_PATH} className={OPERATOR_LINK.nav}>
+            Back to architectures list
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (shouldRenderSpawnLockedHandoffLayout({ handoffEditorLocked, linkedReviewId })) {
+    const resolvedLinkedReviewId = linkedReviewId!.trim();
+
+    return (
+      <div className="space-y-4" data-testid="architecture-draft-workspace">
+        <WorkingNestedDraftIdentityAnchors
+          parentArchitectureId={props.parentArchitectureId}
+          handoffEditorLocked={handoffEditorLocked}
+          suppressWorkingNestedIdentityAnchors={props.suppressWorkingNestedIdentityAnchors}
+        />
+        <ArchitectureDraftWorkspaceHeaderChrome {...props} />
+        <ArchitectureDraftHandoffPanel
+          draftId={draftId}
+          parentArchitectureId={props.parentArchitectureId}
+          workspaceHeading={workspaceHeading}
+          linkedReviewId={resolvedLinkedReviewId}
+          linkedReviewTitle={linkedReviewTitle}
+          fields={fields}
+        />
+      </div>
+    );
+  }
+
+  const showDetailBuyerLayout = isDetailDraft && buyerPolishedShell;
+
+  const architectureDraftWorkspaceMainBody = (
+    <>
+      <ArchitectureDraftWorkspaceIntakeStack {...props} />
+
+      <Card>
+        <CardContent className="space-y-6 pt-6">
+          <ArchitectureDraftFormFields
+            fields={fields}
+            actorSet={actorSet}
+            disabled={editorLocked}
+            blocksLlmExecution={blocksLlmExecution}
+            draftId={effectiveDraftId}
+            markReviewReadinessInvalid={linkedReviewId === null && !reviewReadiness.isValid}
+            actorSuggestionGateRequestId={actorSuggestionGateRequestId}
+            onActorSuggestionsUnresolvedChange={setActorSuggestionsUnresolved}
+            onFieldsChange={setFields}
+            onActorSetChange={setActorSet}
+          />
+        </CardContent>
+      </Card>
+
+      {isWorkingMode && !handoffEditorLocked ? (
+        <DraftInvariantEnvelopePreview
+          baselineOutcome={fields.businessOutcome}
+          baselineIntent={fields.freeTextIntent}
+        />
+      ) : null}
+
+      {refinementDraftId !== null && !editorLocked ? (
+        <>
+          <ArchitectureDraftAiRefinePanel
+            fields={fields}
+            linkedReviewId={linkedReviewId}
+            disabled={exitPending || blocksLlmExecution}
+          />
+          <DraftIntakeAdvancedSection defaultOpen={false}>
+            <AiBudgetSpendNotice
+              action="Architecture reasoning"
+              testId="architecture-draft-ai-budget-notice"
+            />
+            <DraftIntakeReasoningPanel
+              draftId={refinementDraftId}
+              disabled={exitPending || blocksLlmExecution}
+              embedded
+            />
+          </DraftIntakeAdvancedSection>
+        </>
+      ) : null}
+
+      <ArchitectureDraftWorkspaceStartReviewFooter {...props} />
+    </>
+  );
+
+  const architectureDraftWorkspacePrefix = (
+    <>
+      {props.legacyDraftWithoutIdentity === true ? (
+        <p
+          className={cn(OPERATOR_TYPOGRAPHY.body, "rounded-md border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-900")}
+          data-testid="architecture-draft-legacy-honesty"
+        >
+          {ARCHITECTURE_IDENTITY_DESK_LEGACY_DRAFT_HONESTY}
+        </p>
+      ) : null}
+      <WorkingNestedDraftIdentityAnchors
+        parentArchitectureId={props.parentArchitectureId}
+        handoffEditorLocked={props.handoffEditorLocked}
+        suppressWorkingNestedIdentityAnchors={props.suppressWorkingNestedIdentityAnchors}
+      />
+    </>
+  );
+
+  if (showDetailBuyerLayout) {
+    return (
+      <div className="space-y-4" data-testid="architecture-draft-workspace">
+        {architectureDraftWorkspacePrefix}
+        <a
+          href={`#${ARCHITECTURE_DRAFT_DETAIL_SKIP_TARGET_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {ARCHITECTURE_DRAFT_DETAIL_SKIP_LINK_LABEL}
+        </a>
+
+        <div
+          id={ARCHITECTURE_DRAFT_DETAIL_PRIMARY_CONTENT_ID}
+          data-testid="architecture-draft-detail-primary-content"
+          className="scroll-mt-24 space-y-4"
+        >
+          <ArchitectureDraftWorkspaceHeaderChrome {...props} />
+
+          <div
+            id={ARCHITECTURE_DRAFT_DETAIL_SKIP_TARGET_ID}
+            data-testid={ARCHITECTURE_DRAFT_DETAIL_FIRST_VIEWPORT_TEST_ID}
+            className="scroll-mt-24 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
+          >
+            <ArchitectureDraftDetailBuyerChrome />
+            {architectureDraftWorkspaceMainBody}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4" data-testid="architecture-draft-workspace">
+      {architectureDraftWorkspacePrefix}
+      <ArchitectureDraftWorkspaceHeaderChrome {...props} />
+      {architectureDraftWorkspaceMainBody}
+    </div>
+  );
+}

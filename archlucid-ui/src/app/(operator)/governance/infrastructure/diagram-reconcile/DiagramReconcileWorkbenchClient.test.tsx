@@ -1,0 +1,398 @@
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import {
+  DiagramReconcileWorkbenchClient,
+  formatDiagramReconcileAssociationType,
+  formatDiagramReconcileAzureResourceId,
+  formatDocumentationDecisionState,
+} from "@/app/(operator)/governance/infrastructure/diagram-reconcile/DiagramReconcileWorkbenchClient";
+
+const {
+  ingestArchitectureDiagramMock,
+  reconcileArchitectureDiagramMock,
+  fetchArchitectureDiagramReconciliationMock,
+  fetchAbsentInfrastructureDiagramDocumentationDecisionsMock,
+  lookupOperationalSecurityFindingsMock,
+} = vi.hoisted(() => ({
+  ingestArchitectureDiagramMock: vi.fn(async () => ({ warnings: [], sourceFingerprints: ["fp1"], model: { nodes: [], edges: [] } })),
+  reconcileArchitectureDiagramMock: vi.fn(),
+  fetchArchitectureDiagramReconciliationMock: vi.fn(),
+  fetchAbsentInfrastructureDiagramDocumentationDecisionsMock: vi.fn(async () => []),
+  lookupOperationalSecurityFindingsMock: vi.fn(),
+}));
+
+let searchParams = new URLSearchParams(
+  "runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111",
+);
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: vi.fn() }),
+  usePathname: () => "/governance/infrastructure/diagram-reconcile",
+  useSearchParams: () => searchParams,
+}));
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: () => false,
+}));
+
+vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
+  fetchInfraEvidenceSnapshots: vi.fn(async () => ({
+    items: [
+      {
+        snapshotId: "11111111-1111-1111-1111-111111111111",
+        subscriptionId: "sub-1",
+        subscriptionName: "Prod",
+        capturedUtc: "2026-09-01T12:00:00Z",
+        captureStatus: 1,
+        resourceCount: 12,
+        relationshipCount: 4,
+      },
+    ],
+    totalCount: 1,
+    page: 1,
+    pageSize: 50,
+    hasMore: false,
+  })),
+  formatInfraEvidenceApiError: (error: unknown) => String(error),
+}));
+
+vi.mock("@/hooks/use-effective-operator-scope", () => ({
+  useEffectiveOperatorScopeRecord: () => ({
+    tenantId: "tenant-1",
+    workspaceId: "workspace-1",
+    projectId: "default",
+    workspaceLabel: "",
+    projectLabel: "",
+  }),
+}));
+
+vi.mock("@/lib/operator/operator-run-picker-client", () => ({
+  loadProjectRunsMergedWithDemoFallback: vi.fn(async () => ({ items: [], loadError: false })),
+}));
+
+vi.mock("@/hooks/use-run-summary-query", () => ({
+  useRunSummaryQuery: () => ({
+    data: {
+      runId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      projectId: "project-1",
+      createdUtc: "2026-01-01T00:00:00Z",
+      displayName: "Claims intake modernization",
+      hasGoldenManifest: true,
+      completedUtc: "2026-01-02T00:00:00Z",
+    },
+    isLoading: false,
+    isFetching: false,
+    failure: null,
+    blockedReason: null,
+  }),
+}));
+
+vi.mock("@/lib/infra-evidence/infra-evidence-diagram-reconcile-api", () => ({
+  fetchArchitectureDiagramModel: vi.fn(async () => ({ nodes: [{ id: "n1", label: "api" }], edges: [] })),
+  fetchArchitectureDiagramReconciliation: fetchArchitectureDiagramReconciliationMock,
+  fetchAbsentInfrastructureDiagramDocumentationDecisions: fetchAbsentInfrastructureDiagramDocumentationDecisionsMock,
+  fetchSealedInfrastructureDiagramDocumentationDecisions: vi.fn(async () => []),
+  ingestArchitectureDiagram: ingestArchitectureDiagramMock,
+  reconcileArchitectureDiagram: reconcileArchitectureDiagramMock,
+  ingestOperationalSecurityFindings: vi.fn(async () => ({ items: [] })),
+  lookupOperationalSecurityFindings: lookupOperationalSecurityFindingsMock,
+  saveSealedInfrastructureDiagramDocumentationDecision: vi.fn(),
+  formatInfraEvidenceDiagramReconcileApiError: (error: unknown) => String(error),
+}));
+
+vi.mock("@/lib/use-nav-surface", () => ({
+  useNavSurface: () => ({
+    layerGuidance: {
+      layerBadge: "Advanced operations",
+      headline: "Diagram reconciliation",
+      useWhen: "Reconcile diagrams",
+      firstPilotNote: null,
+    },
+    contextHints: { layerHeaderEnterpriseRankCue: null },
+  }),
+}));
+
+describe("DiagramReconcileWorkbenchClient", () => {
+  it("uses omission copy for missing correspondence values", () => {
+    expect(formatDiagramReconcileAssociationType(null)).toBe("Association type was not stored.");
+    expect(formatDiagramReconcileAssociationType("PrivateEndpoint")).toBe("PrivateEndpoint");
+    expect(formatDiagramReconcileAzureResourceId(null)).toBe("Azure resource id was not stored.");
+    expect(formatDiagramReconcileAzureResourceId("/subscriptions/sub/resource")).toBe("/subscriptions/sub/resource");
+    expect(formatDocumentationDecisionState(null)).toBe("Carry-forward state was not stored.");
+    expect(formatDocumentationDecisionState("StillOpen")).toBe("Still open");
+    expect(formatDocumentationDecisionState("EvidenceChanged")).toBe("Evidence changed");
+    expect(formatDocumentationDecisionState("NoLongerInCapture")).toBe("No longer in this capture");
+    expect(formatDocumentationDecisionState("")).toBe("Still open");
+  });
+
+  beforeEach(() => {
+    window.sessionStorage.clear();
+    searchParams = new URLSearchParams(
+      "runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
+    ingestArchitectureDiagramMock.mockReset();
+    ingestArchitectureDiagramMock.mockResolvedValue({
+      warnings: [],
+      sourceFingerprints: ["fp1"],
+      model: { nodes: [], edges: [] },
+    });
+    reconcileArchitectureDiagramMock.mockReset();
+    fetchArchitectureDiagramReconciliationMock.mockReset();
+    fetchArchitectureDiagramReconciliationMock.mockResolvedValue({
+      runId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      diagramNodeCount: 1,
+      inventoryResourceCount: 2,
+      rows: [
+        {
+          correspondenceId: "diagram-node-1",
+          diagramNodeId: "node-1",
+          diagramNodeLabel: "private gateway (rg-net)",
+          cloudResourceId: "22222222-3333-4444-5555-666666666666",
+          azureResourceId: "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/gateway",
+          resourceType: "Microsoft.Network/publicIPAddresses",
+          resourceGroup: "rg-net",
+          terraformAddress: null,
+          matchKind: "Conflict",
+          confidenceBand: "Likely",
+          explainText: "Multiple inventory resources matched the diagram node.",
+          aiRationale: null,
+          securityDiscrepancy: true,
+        },
+        {
+          correspondenceId: "infra-only-1",
+          diagramNodeId: null,
+          diagramNodeLabel: null,
+          cloudResourceId: "33333333-4444-5555-6666-777777777777",
+          azureResourceId: "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Storage/storageAccounts/orphan",
+          resourceType: "Microsoft.Storage/storageAccounts",
+          resourceGroup: "rg-net",
+          terraformAddress: null,
+          matchKind: "InfrastructureOnly",
+          confidenceBand: "InsufficientEvidence",
+          explainText: "Inventory resource has no corresponding diagram node.",
+          aiRationale: null,
+          securityDiscrepancy: false,
+        },
+      ],
+    });
+    lookupOperationalSecurityFindingsMock.mockReset();
+    lookupOperationalSecurityFindingsMock.mockResolvedValue([]);
+  });
+
+  it("renders wizard controls, filter, and conflict row with both sides", async () => {
+    render(<DiagramReconcileWorkbenchClient />);
+
+    const primaryContent = await screen.findByTestId("infra-diagram-reconcile-primary-content");
+    expect(primaryContent.className).not.toMatch(/mx-auto/);
+    expect(primaryContent).toHaveClass("w-full");
+    expect(await screen.findByTestId("infra-diagram-reconcile-run-id")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-diagram-reconcile-snapshot-picker")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-diagram-reconcile-filter")).toBeInTheDocument();
+
+    const conflictRow = await screen.findByTestId("infra-diagram-reconcile-row-diagram-node-1");
+    expect(within(conflictRow).getByText("Conflict")).toBeInTheDocument();
+    expect(within(conflictRow).getByText(/private gateway/)).toBeInTheDocument();
+    expect(within(conflictRow).getAllByText(/publicIPAddresses\/gateway/).length).toBeGreaterThan(0);
+    expect(within(conflictRow).getByTestId("infra-diagram-reconcile-ask-diagram-node-1")).toHaveAttribute(
+      "href",
+      expect.stringContaining("correspondenceId=diagram-node-1"),
+    );
+    expect(within(conflictRow).getByTestId("infra-diagram-reconcile-remediation-diagram-node-1")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/remediation?cloudResourceId=22222222-3333-4444-5555-666666666666&correspondenceId=diagram-node-1&runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
+    expect(
+      within(conflictRow).queryByTestId("infra-diagram-reconcile-remediation-infra-only-1"),
+    ).not.toBeInTheDocument();
+
+    const filter = screen.getByTestId("infra-diagram-reconcile-filter");
+    fireEvent.change(filter, { target: { value: "Conflict" } });
+
+    expect(screen.getByTestId("infra-diagram-reconcile-row-diagram-node-1")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-diagram-reconcile-row-infra-only-1")).not.toBeInTheDocument();
+  });
+
+  it("reloads a recorded finding and keeps the finding and factory links", async () => {
+    lookupOperationalSecurityFindingsMock.mockResolvedValueOnce([
+      {
+        findingId: "99999999-aaaa-bbbb-cccc-dddddddddddd",
+        sourceFindingId: "diagram-reconcile:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee:11111111-1111-1111-1111-111111111111:diagram-node-1",
+        status: "Open",
+      },
+    ]);
+
+    render(<DiagramReconcileWorkbenchClient />);
+
+    const conflictRow = await screen.findByTestId("infra-diagram-reconcile-row-diagram-node-1");
+
+    await waitFor(() => {
+      expect(within(conflictRow).getByText("Finding recorded")).toBeInTheDocument();
+    });
+
+    expect(within(conflictRow).getByTestId("infra-diagram-reconcile-finding-link-diagram-node-1")).toHaveAttribute(
+      "href",
+      "/architecture/reviews/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/findings/99999999-aaaa-bbbb-cccc-dddddddddddd/evidence-trace",
+    );
+    expect(within(conflictRow).getByTestId("infra-diagram-reconcile-remediation-diagram-node-1")).toHaveAttribute(
+      "href",
+      expect.stringContaining("findingId=99999999-aaaa-bbbb-cccc-dddddddddddd"),
+    );
+    expect(within(conflictRow).queryByText("Create operational finding")).not.toBeInTheDocument();
+  });
+
+  it("clears selected correspondence when match-kind filter hides the selected row", async () => {
+    render(<DiagramReconcileWorkbenchClient />);
+
+    const correspondenceRow = await screen.findByTestId("infra-diagram-reconcile-row-diagram-node-1");
+    fireEvent.click(correspondenceRow);
+    expect(correspondenceRow).toHaveAttribute("aria-selected", "true");
+
+    const filter = screen.getByTestId("infra-diagram-reconcile-filter");
+    fireEvent.change(filter, { target: { value: "DiagramOnly" } });
+
+    expect(screen.queryByTestId("infra-diagram-reconcile-row-diagram-node-1")).not.toBeInTheDocument();
+  });
+
+  it("navigates only rendered correspondence rows and counts grouped inventory rows", async () => {
+    render(<DiagramReconcileWorkbenchClient />);
+
+    const correspondenceRow = await screen.findByTestId("infra-diagram-reconcile-row-diagram-node-1");
+    expect(screen.getByText("1 resource(s)")).toBeInTheDocument();
+    expect(screen.getByText(/2 visible row\(s\)/)).toBeInTheDocument();
+
+    fireEvent.keyDown(window, { key: "j" });
+    expect(correspondenceRow).toHaveAttribute("aria-selected", "true");
+
+    fireEvent.keyDown(window, { key: "j" });
+    expect(correspondenceRow).toHaveAttribute("aria-selected", "true");
+    expect(screen.queryByTestId("infra-diagram-reconcile-row-infra-only-1")).not.toBeInTheDocument();
+  });
+
+  it("highlights and scrolls to a deep-linked correspondence row", async () => {
+    searchParams = new URLSearchParams(
+      "runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111&correspondenceId=diagram-node-1",
+    );
+    render(<DiagramReconcileWorkbenchClient />);
+
+    const conflictRow = await screen.findByTestId("infra-diagram-reconcile-row-diagram-node-1");
+    expect(conflictRow).toHaveAttribute("aria-selected", "true");
+  });
+
+  it("does not select a deep-linked inventory row hidden inside a group", async () => {
+    searchParams = new URLSearchParams(
+      "runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111&correspondenceId=infra-only-1",
+    );
+    render(<DiagramReconcileWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-diagram-reconcile-correspondence-deep-link-missing")).toHaveTextContent(
+      "not visible in the displayed results",
+    );
+    expect(screen.queryByTestId("infra-diagram-reconcile-row-infra-only-1")).not.toBeInTheDocument();
+    expect(screen.getByText("1 resource(s)")).toBeInTheDocument();
+  });
+
+  it("shows missing copy when correspondence deep link is absent from reconciliation", async () => {
+    searchParams = new URLSearchParams(
+      "runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111&correspondenceId=missing-correspondence",
+    );
+    render(<DiagramReconcileWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-diagram-reconcile-correspondence-deep-link-missing")).toHaveTextContent(
+      "linked diagram correspondence row is not visible in the displayed results",
+    );
+  });
+
+  it("shows resource scope banner and filters rows when cloudResourceId is in the URL", async () => {
+    searchParams = new URLSearchParams(
+      "runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111&cloudResourceId=22222222-3333-4444-5555-666666666666",
+    );
+    render(<DiagramReconcileWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-diagram-reconcile-resource-scope-banner")).toHaveTextContent(
+      "22222222-3333-4444-5555-666666666666",
+    );
+    expect(screen.getByTestId("infra-diagram-reconcile-open-primary-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/22222222-3333-4444-5555-666666666666?tab=diagram&runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
+    expect(screen.getByRole("link", { name: "View diagram correspondence in hub" })).toBeInTheDocument();
+    expect(screen.getByTestId("infra-diagram-reconcile-open-diagrams")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/diagrams?snapshotId=11111111-1111-1111-1111-111111111111&cloudResourceId=22222222-3333-4444-5555-666666666666",
+    );
+    expect(screen.getByTestId("infra-diagram-reconcile-open-terraform-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/22222222-3333-4444-5555-666666666666?tab=terraform&runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
+    expect(screen.getByTestId("infra-diagram-reconcile-open-findings-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/22222222-3333-4444-5555-666666666666?tab=findings&runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
+    expect(screen.getByTestId("infra-diagram-reconcile-open-remediation-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/22222222-3333-4444-5555-666666666666?tab=remediation&runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
+    expect(screen.getByTestId("infra-diagram-reconcile-open-drift-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/22222222-3333-4444-5555-666666666666?tab=drift&runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
+    expect(screen.getByTestId("infra-diagram-reconcile-row-diagram-node-1")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-diagram-reconcile-row-infra-only-1")).not.toBeInTheDocument();
+  });
+
+  it("keeps ingest disabled until mermaid source is provided", async () => {
+    render(<DiagramReconcileWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-diagram-reconcile-ingest")).toBeDisabled();
+    expect(ingestArchitectureDiagramMock).not.toHaveBeenCalled();
+  });
+
+  it("shows sealed review record verification strip for a valid run id", async () => {
+    render(<DiagramReconcileWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-diagram-reconcile-sealed-record-strip")).toHaveTextContent(
+      "Claims intake modernization",
+    );
+    expect(screen.getByTestId("infra-diagram-reconcile-sealed-record-status")).toHaveTextContent("Sealed");
+  });
+
+  it("distinguishes missing saved reconciliation from load errors", async () => {
+    fetchArchitectureDiagramReconciliationMock.mockReset();
+    fetchArchitectureDiagramReconciliationMock.mockRejectedValue({
+      message: "not found",
+      problem: { status: 404 },
+      correlationId: null,
+      httpStatus: 404,
+      retryAfterSeconds: null,
+    });
+    searchParams = new URLSearchParams(
+      "runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111&compareMode=sealed",
+    );
+
+    render(<DiagramReconcileWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(fetchArchitectureDiagramReconciliationMock).toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-diagram-reconcile-no-saved-reconciliation")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("infra-diagram-reconcile-reconciliation-load-error")).not.toBeInTheDocument();
+  });
+
+  it("shows an inline error instead of a toast when reconciliation fails", async () => {
+    reconcileArchitectureDiagramMock.mockRejectedValueOnce(new Error("Reconciliation blocked for this snapshot."));
+
+    render(<DiagramReconcileWorkbenchClient />);
+
+    fireEvent.click(await screen.findByTestId("infra-diagram-reconcile-run"));
+
+    expect(await screen.findByTestId("infra-diagram-reconcile-run-error")).toHaveTextContent("Reconciliation failed");
+    expect(screen.getByTestId("infra-diagram-reconcile-run-error")).toHaveTextContent(
+      "Reconciliation blocked for this snapshot.",
+    );
+  });
+});

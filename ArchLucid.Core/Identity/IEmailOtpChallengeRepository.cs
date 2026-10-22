@@ -1,0 +1,73 @@
+namespace ArchLucid.Core.Identity;
+
+public interface IEmailOtpChallengeRepository
+{
+    Task<EmailOtpChallengeRecord> InsertAsync(EmailOtpChallengeInsert insert, CancellationToken cancellationToken);
+
+    Task<EmailOtpChallengeRecord?> GetByIdAsync(Guid challengeId, CancellationToken cancellationToken);
+
+    Task<int> CountRecentRequestsByEmailAsync(
+        string normalizedEmail,
+        DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc,
+        CancellationToken cancellationToken);
+
+    Task<int> CountRecentRequestsByClientIpHashAsync(
+        string clientIpHash,
+        DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc,
+        CancellationToken cancellationToken);
+
+    /// <summary>Single round-trip read of hourly email and client-IP OTP request counts.</summary>
+    Task<EmailOtpRecentRequestCounts> CountRecentRequestsForRateLimitAsync(
+        string normalizedEmail,
+        string? clientIpHash,
+        DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc,
+        CancellationToken cancellationToken);
+
+    Task<int> CountRecentFailedVerificationsByEmailAsync(
+        string normalizedEmail,
+        DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc,
+        CancellationToken cancellationToken);
+
+    Task<DateTimeOffset?> GetLatestRequestUtcByEmailAsync(
+        string normalizedEmail,
+        DateTimeOffset nowUtc,
+        CancellationToken cancellationToken);
+
+    Task InvalidateActiveChallengesForEmailAsync(
+        string normalizedEmail,
+        DateTimeOffset invalidatedUtc,
+        CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Removes active challenges for <paramref name="normalizedEmail" /> when delivery never succeeded
+    ///     (so hourly request limits do not count undelivered attempts).
+    /// </summary>
+    Task DeleteActiveChallengesForEmailAsync(
+        string normalizedEmail,
+        CancellationToken cancellationToken);
+
+    /// <summary>Removes one active challenge after its own delivery attempt fails.</summary>
+    Task DeleteActiveChallengeAsync(
+        Guid challengeId,
+        CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Atomically invalidates active challenges for <paramref name="insert.NormalizedEmail" /> and inserts
+    ///     <paramref name="insert" /> so concurrent resends cannot leave multiple active rows.
+    /// </summary>
+    Task<EmailOtpChallengeRecord> ReplaceActiveChallengeForEmailAsync(
+        EmailOtpChallengeInsert insert,
+        DateTimeOffset invalidatedUtc,
+        CancellationToken cancellationToken);
+
+    Task<EmailOtpChallengeCompletionOutcome> TryCompleteAsync(
+        Guid challengeId,
+        string codeHash,
+        DateTimeOffset nowUtc,
+        int maxFailedAttempts,
+        CancellationToken cancellationToken);
+}

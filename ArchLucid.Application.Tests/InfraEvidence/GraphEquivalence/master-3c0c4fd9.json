@@ -1,0 +1,650 @@
+{
+  "baselineCommit": "3c0c4fd94336844e6288e4d4fb52895dfb48ab13",
+  "cases": {
+    "explicit": {
+      "nodes": [
+        {
+          "identity": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet-a",
+          "NodeType": "TopologyResource",
+          "Label": "vnet-a",
+          "Category": "network",
+          "SourceType": "azure-inventory-snapshot",
+          "properties": {
+            "arm.id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-a",
+            "arm.resourceGroup": "rg",
+            "arm.subscriptionId": "sub",
+            "arm.type": "Microsoft.Network/virtualNetworks"
+          }
+        },
+        {
+          "identity": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/storage-a",
+          "NodeType": "TopologyResource",
+          "Label": "storage-a",
+          "Category": "storage",
+          "SourceType": "azure-inventory-snapshot",
+          "properties": {
+            "arm.id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/storage-a",
+            "arm.resourceGroup": "rg",
+            "arm.subscriptionId": "sub",
+            "arm.type": "Microsoft.Storage/storageAccounts"
+          }
+        }
+      ],
+      "edges": [
+        {
+          "from": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet-a",
+          "to": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/storage-a",
+          "EdgeType": "DEPENDS_ON",
+          "Label": "DEPENDS_ON",
+          "ProvenanceKind": "ObservedFact",
+          "InferenceSource": "captured-fixture",
+          "Weight": 1,
+          "DeclaredConnectionId": null,
+          "properties": {}
+        }
+      ],
+      "diagramGroups": [
+        {
+          "identity": "/Subscription sub",
+          "parent": "",
+          "Label": "Subscription sub"
+        },
+        {
+          "identity": "/Subscription sub/RG rg",
+          "parent": "/Subscription sub",
+          "Label": "RG rg"
+        }
+      ],
+      "diagramNodes": [
+        {
+          "identity": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet-a",
+          "group": "/Subscription sub/RG rg",
+          "Label": "vnet-a",
+          "NodeType": "TopologyResource",
+          "ArmResourceType": "Microsoft.Network/virtualNetworks",
+          "HasPrivateEndpointAccess": false,
+          "state": "Connected",
+          "ConnectionStateMessage": null
+        },
+        {
+          "identity": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/storage-a",
+          "group": "/Subscription sub/RG rg",
+          "Label": "storage-a",
+          "NodeType": "TopologyResource",
+          "ArmResourceType": "Microsoft.Storage/storageAccounts",
+          "HasPrivateEndpointAccess": false,
+          "state": "Connected",
+          "ConnectionStateMessage": null
+        }
+      ],
+      "diagramEdges": [
+        {
+          "from": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet-a",
+          "to": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/storage-a",
+          "Label": "depends on",
+          "ProvenanceKind": "ObservedFact",
+          "InferenceSource": "captured-fixture",
+          "DeclaredConnectionId": null,
+          "IsDataFlowNsgBlocked": false
+        }
+      ]
+    },
+    "hidden-default": {
+      "nodes": [
+        {
+          "identity": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet-a",
+          "NodeType": "TopologyResource",
+          "Label": "vnet-a",
+          "Category": "network",
+          "SourceType": "azure-inventory-snapshot",
+          "properties": {
+            "arm.id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-a",
+            "arm.resourceGroup": "rg",
+            "arm.subscriptionId": "sub",
+            "arm.type": "Microsoft.Network/virtualNetworks"
+          }
+        }
+      ],
+      "edges": [],
+      "diagramGroups": [
+        {
+          "identity": "/Subscription sub",
+          "parent": "",
+          "Label": "Subscription sub"
+        },
+        {
+          "identity": "/Subscription sub/RG rg",
+          "parent": "/Subscription sub",
+          "Label": "RG rg"
+        }
+      ],
+      "diagramNodes": [
+        {
+          "identity": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet-a",
+          "group": "/Subscription sub/RG rg",
+          "Label": "vnet-a",
+          "NodeType": "TopologyResource",
+          "ArmResourceType": "Microsoft.Network/virtualNetworks",
+          "HasPrivateEndpointAccess": false,
+          "state": "Unknown",
+          "ConnectionStateMessage": null
+        }
+      ],
+      "diagramEdges": []
+    },
+    "hidden-included": {
+      "nodes": [
+        {
+          "identity": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.managedidentity/userassignedidentities/identity-a",
+          "NodeType": "TopologyResource",
+          "Label": "identity-a",
+          "Category": "identity",
+          "SourceType": "azure-inventory-snapshot",
+          "properties": {
+            "arm.id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/identity-a",
+            "arm.resourceGroup": "rg",
+            "arm.subscriptionId": "sub",
+            "arm.type": "Microsoft.ManagedIdentity/userAssignedIdentities"
+          }
+        },
+        {
+          "identity": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet-a",
+          "NodeType": "TopologyResource",
+          "Label": "vnet-a",
+          "Category": "network",
+          "SourceType": "azure-inventory-snapshot",
+          "properties": {
+            "arm.id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-a",
+            "arm.resourceGroup": "rg",
+            "arm.subscriptionId": "sub",
+            "arm.type": "Microsoft.Network/virtualNetworks"
+          }
+        }
+      ],
+      "edges": [
+        {
+          "from": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet-a",
+          "to": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.managedidentity/userassignedidentities/identity-a",
+          "EdgeType": "DEPENDS_ON",
+          "Label": "DEPENDS_ON",
+          "ProvenanceKind": "ObservedFact",
+          "InferenceSource": "captured-fixture",
+          "Weight": 1,
+          "DeclaredConnectionId": null,
+          "properties": {}
+        }
+      ],
+      "diagramGroups": [
+        {
+          "identity": "/Subscription sub",
+          "parent": "",
+          "Label": "Subscription sub"
+        },
+        {
+          "identity": "/Subscription sub/RG rg",
+          "parent": "/Subscription sub",
+          "Label": "RG rg"
+        }
+      ],
+      "diagramNodes": [
+        {
+          "identity": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.managedidentity/userassignedidentities/identity-a",
+          "group": "/Subscription sub/RG rg",
+          "Label": "identity-a",
+          "NodeType": "TopologyResource",
+          "ArmResourceType": "Microsoft.ManagedIdentity/userAssignedIdentities",
+          "HasPrivateEndpointAccess": false,
+          "state": "Connected",
+          "ConnectionStateMessage": null
+        },
+        {
+          "identity": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet-a",
+          "group": "/Subscription sub/RG rg",
+          "Label": "vnet-a",
+          "NodeType": "TopologyResource",
+          "ArmResourceType": "Microsoft.Network/virtualNetworks",
+          "HasPrivateEndpointAccess": false,
+          "state": "Connected",
+          "ConnectionStateMessage": null
+        }
+      ],
+      "diagramEdges": [
+        {
+          "from": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet-a",
+          "to": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.managedidentity/userassignedidentities/identity-a",
+          "Label": "depends on",
+          "ProvenanceKind": "ObservedFact",
+          "InferenceSource": "captured-fixture",
+          "DeclaredConnectionId": null,
+          "IsDataFlowNsgBlocked": false
+        }
+      ]
+    },
+    "missing-source": {
+      "nodes": [
+        {
+          "identity": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet-a",
+          "NodeType": "TopologyResource",
+          "Label": "vnet-a",
+          "Category": "network",
+          "SourceType": "azure-inventory-snapshot",
+          "properties": {
+            "arm.id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-a",
+            "arm.resourceGroup": "rg",
+            "arm.subscriptionId": "sub",
+            "arm.type": "Microsoft.Network/virtualNetworks"
+          }
+        },
+        {
+          "identity": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/storage-a",
+          "NodeType": "TopologyResource",
+          "Label": "storage-a (Referenced; details not collected)",
+          "Category": "storage",
+          "SourceType": "azure-inventory-snapshot",
+          "properties": {
+            "arm.id": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/storage-a",
+            "arm.stub": "referenced-resource",
+            "arm.type": "microsoft.storage/storageaccounts",
+            "inventory.collectionStatus": "referenced-not-collected"
+          }
+        }
+      ],
+      "edges": [
+        {
+          "from": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/storage-a",
+          "to": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet-a",
+          "EdgeType": "DEPENDS_ON",
+          "Label": "DEPENDS_ON",
+          "ProvenanceKind": "ObservedFact",
+          "InferenceSource": "captured-fixture",
+          "Weight": 1,
+          "DeclaredConnectionId": null,
+          "properties": {}
+        }
+      ],
+      "diagramGroups": [
+        {
+          "identity": "/Subscription sub",
+          "parent": "",
+          "Label": "Subscription sub"
+        },
+        {
+          "identity": "/Subscription sub/RG rg",
+          "parent": "/Subscription sub",
+          "Label": "RG rg"
+        }
+      ],
+      "diagramNodes": [
+        {
+          "identity": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet-a",
+          "group": "/Subscription sub/RG rg",
+          "Label": "vnet-a",
+          "NodeType": "TopologyResource",
+          "ArmResourceType": "Microsoft.Network/virtualNetworks",
+          "HasPrivateEndpointAccess": false,
+          "state": "Connected",
+          "ConnectionStateMessage": null
+        },
+        {
+          "identity": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/storage-a",
+          "group": "/Subscription sub/RG rg",
+          "Label": "storage-a (Referenced; details not collected)",
+          "NodeType": "TopologyResource",
+          "ArmResourceType": "microsoft.storage/storageaccounts",
+          "HasPrivateEndpointAccess": false,
+          "state": "Connected",
+          "ConnectionStateMessage": null
+        }
+      ],
+      "diagramEdges": [
+        {
+          "from": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/storage-a",
+          "to": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet-a",
+          "Label": "depends on",
+          "ProvenanceKind": "ObservedFact",
+          "InferenceSource": "captured-fixture",
+          "DeclaredConnectionId": null,
+          "IsDataFlowNsgBlocked": false
+        }
+      ]
+    },
+    "missing-target": {
+      "nodes": [
+        {
+          "identity": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet-a",
+          "NodeType": "TopologyResource",
+          "Label": "vnet-a",
+          "Category": "network",
+          "SourceType": "azure-inventory-snapshot",
+          "properties": {
+            "arm.id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-a",
+            "arm.resourceGroup": "rg",
+            "arm.subscriptionId": "sub",
+            "arm.type": "Microsoft.Network/virtualNetworks"
+          }
+        },
+        {
+          "identity": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/storage-a",
+          "NodeType": "TopologyResource",
+          "Label": "storage-a (Referenced; details not collected)",
+          "Category": "storage",
+          "SourceType": "azure-inventory-snapshot",
+          "properties": {
+            "arm.id": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/storage-a",
+            "arm.stub": "referenced-resource",
+            "arm.type": "microsoft.storage/storageaccounts",
+            "inventory.collectionStatus": "referenced-not-collected"
+          }
+        }
+      ],
+      "edges": [
+        {
+          "from": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet-a",
+          "to": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/storage-a",
+          "EdgeType": "DEPENDS_ON",
+          "Label": "DEPENDS_ON",
+          "ProvenanceKind": "ObservedFact",
+          "InferenceSource": "captured-fixture",
+          "Weight": 1,
+          "DeclaredConnectionId": null,
+          "properties": {}
+        }
+      ],
+      "diagramGroups": [
+        {
+          "identity": "/Subscription sub",
+          "parent": "",
+          "Label": "Subscription sub"
+        },
+        {
+          "identity": "/Subscription sub/RG rg",
+          "parent": "/Subscription sub",
+          "Label": "RG rg"
+        }
+      ],
+      "diagramNodes": [
+        {
+          "identity": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet-a",
+          "group": "/Subscription sub/RG rg",
+          "Label": "vnet-a",
+          "NodeType": "TopologyResource",
+          "ArmResourceType": "Microsoft.Network/virtualNetworks",
+          "HasPrivateEndpointAccess": false,
+          "state": "Connected",
+          "ConnectionStateMessage": null
+        },
+        {
+          "identity": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/storage-a",
+          "group": "/Subscription sub/RG rg",
+          "Label": "storage-a (Referenced; details not collected)",
+          "NodeType": "TopologyResource",
+          "ArmResourceType": "microsoft.storage/storageaccounts",
+          "HasPrivateEndpointAccess": false,
+          "state": "Connected",
+          "ConnectionStateMessage": null
+        }
+      ],
+      "diagramEdges": [
+        {
+          "from": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet-a",
+          "to": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/storage-a",
+          "Label": "depends on",
+          "ProvenanceKind": "ObservedFact",
+          "InferenceSource": "captured-fixture",
+          "DeclaredConnectionId": null,
+          "IsDataFlowNsgBlocked": false
+        }
+      ]
+    },
+    "nested-target": {
+      "nodes": [
+        {
+          "identity": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/privateendpoints/pe-a",
+          "NodeType": "TopologyResource",
+          "Label": "pe-a",
+          "Category": "network",
+          "SourceType": "azure-inventory-snapshot",
+          "properties": {
+            "arm.id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe-a",
+            "arm.resourceGroup": "rg",
+            "arm.subscriptionId": "sub",
+            "arm.type": "Microsoft.Network/privateEndpoints"
+          }
+        },
+        {
+          "identity": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet-a",
+          "NodeType": "TopologyResource",
+          "Label": "vnet-a",
+          "Category": "network",
+          "SourceType": "azure-inventory-snapshot",
+          "properties": {
+            "arm.id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-a",
+            "arm.resourceGroup": "rg",
+            "arm.subscriptionId": "sub",
+            "arm.type": "Microsoft.Network/virtualNetworks"
+          }
+        }
+      ],
+      "edges": [
+        {
+          "from": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/privateendpoints/pe-a",
+          "to": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet-a",
+          "EdgeType": "DEPENDS_ON",
+          "Label": "DEPENDS_ON",
+          "ProvenanceKind": "ObservedFact",
+          "InferenceSource": "captured-fixture",
+          "Weight": 1,
+          "DeclaredConnectionId": null,
+          "properties": {}
+        }
+      ],
+      "diagramGroups": [
+        {
+          "identity": "/Subscription sub",
+          "parent": "",
+          "Label": "Subscription sub"
+        },
+        {
+          "identity": "/Subscription sub/RG rg",
+          "parent": "/Subscription sub",
+          "Label": "RG rg"
+        }
+      ],
+      "diagramNodes": [
+        {
+          "identity": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet-a",
+          "group": "/Subscription sub/RG rg",
+          "Label": "vnet-a",
+          "NodeType": "TopologyResource",
+          "ArmResourceType": "Microsoft.Network/virtualNetworks",
+          "HasPrivateEndpointAccess": false,
+          "state": "Unknown",
+          "ConnectionStateMessage": null
+        }
+      ],
+      "diagramEdges": []
+    },
+    "private-link-property": {
+      "nodes": [
+        {
+          "identity": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/privateendpoints/pe-a",
+          "NodeType": "TopologyResource",
+          "Label": "pe-a",
+          "Category": "network",
+          "SourceType": "azure-inventory-snapshot",
+          "properties": {
+            "arm.id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe-a",
+            "arm.resourceGroup": "rg",
+            "arm.subscriptionId": "sub",
+            "arm.type": "Microsoft.Network/privateEndpoints"
+          }
+        },
+        {
+          "identity": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/storage-a",
+          "NodeType": "TopologyResource",
+          "Label": "storage-a",
+          "Category": "storage",
+          "SourceType": "azure-inventory-snapshot",
+          "properties": {
+            "arm.id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/storage-a",
+            "arm.resourceGroup": "rg",
+            "arm.subscriptionId": "sub",
+            "arm.type": "Microsoft.Storage/storageAccounts"
+          }
+        }
+      ],
+      "edges": [
+        {
+          "from": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/privateendpoints/pe-a",
+          "to": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/storage-a",
+          "EdgeType": "CONNECTS_TO",
+          "Label": "CONNECTS_TO",
+          "ProvenanceKind": "DeterministicInference",
+          "InferenceSource": "inventory-property-arm-id",
+          "Weight": 1,
+          "DeclaredConnectionId": null,
+          "properties": {
+            "inventory.indirectRelationship.evidenceCurrency": "Current",
+            "inventory.indirectRelationship.evidenceSource": "inventory-property-arm-id"
+          }
+        },
+        {
+          "from": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/privateendpoints/pe-a",
+          "to": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/storage-a",
+          "EdgeType": "privateEndpointTarget",
+          "Label": "privateEndpointTarget",
+          "ProvenanceKind": null,
+          "InferenceSource": "inventory-private-endpoint",
+          "Weight": 1,
+          "DeclaredConnectionId": null,
+          "properties": {
+            "inventory.indirectRelationship.evidenceCurrency": "Current",
+            "inventory.indirectRelationship.evidenceSource": "inventory-private-endpoint"
+          }
+        }
+      ],
+      "diagramGroups": [
+        {
+          "identity": "/Subscription sub",
+          "parent": "",
+          "Label": "Subscription sub"
+        },
+        {
+          "identity": "/Subscription sub/RG rg",
+          "parent": "/Subscription sub",
+          "Label": "RG rg"
+        }
+      ],
+      "diagramNodes": [
+        {
+          "identity": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/storage-a",
+          "group": "/Subscription sub/RG rg",
+          "Label": "storage-a",
+          "NodeType": "TopologyResource",
+          "ArmResourceType": "Microsoft.Storage/storageAccounts",
+          "HasPrivateEndpointAccess": true,
+          "state": "Unconnected",
+          "ConnectionStateMessage": null
+        }
+      ],
+      "diagramEdges": []
+    },
+    "remote-peering": {
+      "nodes": [
+        {
+          "identity": "/subscriptions/remote/resourcegroups/remote-rg/providers/microsoft.network/virtualnetworks/vnet-b",
+          "NodeType": "TopologyResource",
+          "Label": "vnet-b",
+          "Category": "network",
+          "SourceType": "azure-inventory-snapshot",
+          "properties": {
+            "arm.id": "/subscriptions/remote/resourcegroups/remote-rg/providers/microsoft.network/virtualnetworks/vnet-b",
+            "arm.stub": "remote-vnet",
+            "arm.type": "Microsoft.Network/virtualNetworks"
+          }
+        },
+        {
+          "identity": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet-a",
+          "NodeType": "TopologyResource",
+          "Label": "vnet-a",
+          "Category": "network",
+          "SourceType": "azure-inventory-snapshot",
+          "properties": {
+            "arm.id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-a",
+            "arm.resourceGroup": "rg",
+            "arm.subscriptionId": "sub",
+            "arm.type": "Microsoft.Network/virtualNetworks"
+          }
+        }
+      ],
+      "edges": [
+        {
+          "from": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet-a",
+          "to": "/subscriptions/remote/resourcegroups/remote-rg/providers/microsoft.network/virtualnetworks/vnet-b",
+          "EdgeType": "PEERS_WITH",
+          "Label": "PEERS_WITH",
+          "ProvenanceKind": "ObservedFact",
+          "InferenceSource": "captured-fixture",
+          "Weight": 1,
+          "DeclaredConnectionId": null,
+          "properties": {}
+        }
+      ],
+      "diagramGroups": [
+        {
+          "identity": "/Subscription remote",
+          "parent": "",
+          "Label": "Subscription remote"
+        },
+        {
+          "identity": "/Subscription remote/RG remote-rg",
+          "parent": "/Subscription remote",
+          "Label": "RG remote-rg"
+        },
+        {
+          "identity": "/Subscription sub",
+          "parent": "",
+          "Label": "Subscription sub"
+        },
+        {
+          "identity": "/Subscription sub/RG rg",
+          "parent": "/Subscription sub",
+          "Label": "RG rg"
+        }
+      ],
+      "diagramNodes": [
+        {
+          "identity": "/subscriptions/remote/resourcegroups/remote-rg/providers/microsoft.network/virtualnetworks/vnet-b",
+          "group": "/Subscription remote/RG remote-rg",
+          "Label": "vnet-b",
+          "NodeType": "TopologyResource",
+          "ArmResourceType": "Microsoft.Network/virtualNetworks",
+          "HasPrivateEndpointAccess": false,
+          "state": "Connected",
+          "ConnectionStateMessage": null
+        },
+        {
+          "identity": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet-a",
+          "group": "/Subscription sub/RG rg",
+          "Label": "vnet-a",
+          "NodeType": "TopologyResource",
+          "ArmResourceType": "Microsoft.Network/virtualNetworks",
+          "HasPrivateEndpointAccess": false,
+          "state": "Connected",
+          "ConnectionStateMessage": null
+        }
+      ],
+      "diagramEdges": [
+        {
+          "from": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet-a",
+          "to": "/subscriptions/remote/resourcegroups/remote-rg/providers/microsoft.network/virtualnetworks/vnet-b",
+          "Label": "peering",
+          "ProvenanceKind": "ObservedFact",
+          "InferenceSource": "captured-fixture",
+          "DeclaredConnectionId": null,
+          "IsDataFlowNsgBlocked": false
+        }
+      ]
+    }
+  }
+}

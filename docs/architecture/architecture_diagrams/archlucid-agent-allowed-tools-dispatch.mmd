@@ -1,0 +1,8 @@
+flowchart TB
+  Task["AgentTask AllowedTools"] --> Guard["AgentTaskAllowedToolsDispatchGuard"]
+  Guard --> Deny["AgentToolNotAllowedException"]
+  Guard --> Allow["dispatch allowed tool"]
+  Unres["AgentTypeKeys UnrestrictedDispatch"] --> Guard
+  Allow --> Rec["IAgentToolInvocationRecordWriter"]
+  Rec --> Sql["SqlAgentToolInvocationRecordRepository"]
+  Rec --> Trace["AgentExecutionTraceRecorder"]

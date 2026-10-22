@@ -1,0 +1,77 @@
+namespace ArchLucid.Core.Retrieval;
+
+/// <summary>
+///     One ranked chunk returned from <see cref="IRetrievalQueryService.SearchAsync" />.
+/// </summary>
+public class RetrievalHit
+{
+    /// <summary>Stable chunk key in the vector index.</summary>
+    public string ChunkId
+    {
+        get;
+        set;
+    } = null!;
+
+    /// <summary>Parent logical document id (e.g. manifest or artifact).</summary>
+    public string DocumentId
+    {
+        get;
+        set;
+    } = null!;
+
+    /// <summary>Typed corpus discriminator when indexed with <c>CorpusKind</c>.</summary>
+    public string CorpusKind
+    {
+        get;
+        set;
+    } = "Conversation";
+
+    /// <summary>High-level source discriminator (Manifest, Artifact, ConversationMessage, etc.).</summary>
+    public string SourceType
+    {
+        get;
+        set;
+    } = null!;
+
+    /// <summary>Source-specific id string.</summary>
+    public string SourceId
+    {
+        get;
+        set;
+    } = null!;
+
+    /// <summary>Short label for UI or prompt formatting.</summary>
+    public string Title
+    {
+        get;
+        set;
+    } = null!;
+
+    /// <summary>Chunk text snippet.</summary>
+    public string Text
+    {
+        get;
+        set;
+    } = null!;
+
+    /// <summary>Similarity score (higher is more relevant; exact scale depends on the vector index).</summary>
+    public double Score
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Optional decision ID if the chunk is derived from a decision.</summary>
+    public string? DecisionId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Optional finding ID if the chunk is derived from a finding.</summary>
+    public string? FindingId
+    {
+        get;
+        set;
+    }
+}

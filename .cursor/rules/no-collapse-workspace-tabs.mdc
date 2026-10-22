@@ -1,0 +1,28 @@
+---
+description: Do not suggest hiding or collapsing review workspace / table tabs for usability work.
+alwaysApply: true
+---
+
+# No workspace tab collapse suggestions
+
+When proposing usability improvements for ArchLucid review workspaces, **do not** suggest:
+
+- Hiding "rare" desktop review workspace tabs behind a **More** menu or overflow
+- Collapsing table-style tab strips to reduce visible tab count
+- Demoting primary workspace sections into disclosure solely to shrink the tab bar
+
+## Why
+
+Review workspace tabs are the primary navigation model for in-review work. Collapsing them trades scanability for marginal chrome savings and has been explicitly rejected by product direction.
+
+## What to do instead
+
+Prefer improvements that:
+
+- Clarify tab labels and ordering without removing tabs from the default strip
+- Improve mobile-specific patterns (e.g. select-based **More sections**) where viewport constraints already justify a different control
+- Reduce duplicate CTAs, unify search, or consolidate header actions — without hiding core workspace tabs on desktop
+
+## Scope
+
+Applies to assessment batches, usability suggestion lists, and agent prompts for review detail / workspace chrome — not to unrelated collapsible UI (metadata disclosures, advanced lists, optional intake paths).

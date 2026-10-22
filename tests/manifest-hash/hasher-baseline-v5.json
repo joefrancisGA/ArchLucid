@@ -1,0 +1,6 @@
+{
+  "hasherSchemaVersion": "v5",
+  "fixtureName": "BaseManifest",
+  "description": "Pinned SHA-256 for ManifestHashService over the BaseManifest fixture in ManifestHashServiceTests (wave-10 create-time κ content hash binding).",
+  "expectedManifestHashSha256": "8C3A01C5026F0FF55AF44D254A4976A5F1EC33AAE8A54FEB234F951F67DB16DF"
+}

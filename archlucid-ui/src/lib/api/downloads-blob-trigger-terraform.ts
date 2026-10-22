@@ -1,0 +1,54 @@
+import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { terraformAdvisoryExportMutationBlockedReason } from "@/lib/runs/terraform-advisory-export-mutation-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { buildApiRequestErrorFromParts } from "@/lib/api-error";
+import {
+  ensureOidcBearerReady,
+  isBrowser,
+} from "./http";
+import { getTerraformAdvisoryExportDownloadUrl } from "./downloads-blob-urls";
+import {
+  fetchBrowserDownload,
+  parseFilenameFromContentDisposition,
+  triggerBrowserBlobDownload,
+} from "./downloads-blob-trigger-browser";
+import { assertBinaryDownloadContentType } from "./downloads-blob-trigger-guard";
+
+/**
+ * GET advisory Terraform ZIP (`ReadAuthority`, Standard+ tier on API). Browser-only download through the BFF proxy.
+ */
+export async function downloadTerraformAdvisoryExportZip(runId: string): Promise<void> {
+  if (!isBrowser()) {
+    throw new Error("downloadTerraformAdvisoryExportZip is only supported in the browser.");
+  }
+
+  await ensureOidcBearerReady();
+  const url = getTerraformAdvisoryExportDownloadUrl(runId);
+  const headers = new Headers();
+  headers.set("Accept", "application/zip, application/json");
+
+  const init = mergeRegistrationScopeForProxy({
+    method: "GET",
+    headers,
+    credentials: "same-origin",
+    cache: "no-store",
+  });
+  const { response, correlationId } = await fetchBrowserDownload(url, { ...init, method: "GET" });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, errText, correlationId));
+    const blockedReason = terraformAdvisoryExportMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
+
+  assertBinaryDownloadContentType(response, ["application/zip"]);
+
+  const fileName =
+    parseFilenameFromContentDisposition(response.headers.get("Content-Disposition")) ??
+    `archlucid-terraform-advisory-${runId}.zip`;
+  const blob = await response.blob();
+  await triggerBrowserBlobDownload(blob, fileName);
+}

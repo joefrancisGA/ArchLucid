@@ -1,0 +1,17 @@
+# Production Key Vault example (pair with terraform-private for private endpoints).
+#   terraform apply -var-file=production.tfvars.example
+
+posture_tier         = "production"
+enable_key_vault     = true
+create_resource_group = true
+resource_group_name  = "rg-archlucid-secrets-prod"
+location             = "centralus"
+key_vault_name       = "kv-archlucid-prod-example"
+sku_name             = "standard"
+
+enable_user_assigned_keyvault_workload_identities = true
+
+tags = {
+  environment = "production"
+  workload    = "archlucid"
+}

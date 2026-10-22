@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archlucid.dev/schemas/integration-events/seat-reservation-released.v1.schema.json",
+  "title": "com.archlucid.seat.reservation.released",
+  "description": "Emitted when a trial seat reservation is released or expires and capacity is freed (Teams opt-in trigger).",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "tenantId",
+    "workspaceId",
+    "projectId",
+    "reservationId",
+    "releasedUtc"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "tenantId": { "type": "string", "format": "uuid" },
+    "workspaceId": { "type": "string", "format": "uuid" },
+    "projectId": { "type": "string", "format": "uuid" },
+    "reservationId": { "type": "string", "format": "uuid" },
+    "releasedUtc": { "type": "string", "format": "date-time" },
+    "releaseReason": { "type": "string" }
+  },
+  "additionalProperties": true
+}

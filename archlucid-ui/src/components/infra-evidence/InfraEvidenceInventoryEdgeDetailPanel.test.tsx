@@ -1,0 +1,54 @@
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
+
+import { InfraEvidenceInventoryEdgeDetailPanel } from "@/components/infra-evidence/InfraEvidenceInventoryEdgeDetailPanel";
+import type { InfraEvidenceMermaidOutlineEdge } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
+
+function edge(inferenceSource: string): InfraEvidenceMermaidOutlineEdge {
+  return {
+    from: "a",
+    to: "b",
+    label: "Linked backend",
+    source: "observed",
+    confidenceBand: "observed",
+    provenanceKind: "ObservedFact",
+    inferenceSource,
+    declaredConnectionId: null,
+  };
+}
+
+describe("InfraEvidenceInventoryEdgeDetailPanel (P-15)", () => {
+  it("shows app-settings hostname copy for storage host-ref edges", () => {
+    render(
+      <InfraEvidenceInventoryEdgeDetailPanel edge={edge("inventory-storage-host-ref")} onClose={() => undefined} />,
+    );
+
+    expect(screen.getByText(/read from app settings/i)).toBeInTheDocument();
+  });
+
+  it("shows configuration copy instead of inference slugs for static site backends", () => {
+    render(
+      <InfraEvidenceInventoryEdgeDetailPanel edge={edge("inventory-static-site-backend")} onClose={() => undefined} />,
+    );
+
+    expect(screen.getByText(/Static Web App linked backend in configuration/)).toBeInTheDocument();
+    expect(screen.queryByText("inventory-static-site-backend")).not.toBeInTheDocument();
+  });
+
+  it("labels stored empty provenance and inference source", () => {
+    render(
+      <InfraEvidenceInventoryEdgeDetailPanel
+        edge={{
+          ...edge("inventory-custom-edge"),
+          provenanceKind: "",
+          inferenceSource: "",
+          confidenceBand: "observed",
+        }}
+        onClose={() => undefined}
+      />,
+    );
+
+    expect(screen.getByText("Provenance was stored empty.")).toBeInTheDocument();
+    expect(screen.getByText("Inference source was stored empty.")).toBeInTheDocument();
+  });
+});

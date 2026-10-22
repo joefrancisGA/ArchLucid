@@ -1,0 +1,196 @@
+import { cleanup, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+
+import { architectureNestedFindingsPath } from "@/lib/architecture/architecture-routes";
+
+import { QuickDecisionWorkspacePrimaryFindingCard } from "@/components/findings/QuickDecisionWorkspacePrimaryFindingCard";
+import { QuickDecisionWorkspaceSecondaryFindingCard } from "@/components/findings/QuickDecisionWorkspaceSecondaryFindingCard";
+import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+
+vi.mock("@/hooks/useArchitectWorkspaceChrome", () => ({
+  useArchitectWorkspaceChrome: () => true,
+}));
+
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => ({ isWorkingMode: true, mode: "working" }),
+}));
+
+function buildFinding(wireJson: string): QuickDecisionFinding {
+  return {
+    findingId: "finding-1",
+    title: "Sample finding",
+    recommendation: "Fix it.",
+    severityValue: 2,
+    findingOrder: 0,
+    aiReasoning: { wireJson, reasoningTraceJson: null },
+    isMuted: false,
+    muteReason: null,
+    enforcementTier: "Violation",
+    confidenceLevel: "High",
+  };
+}
+
+const cardContext = {
+  runId: "run-1",
+  architectureId: "architecture-identity-001",
+  allFindings: [],
+};
+
+describe("QuickDecisionWorkspace finding cards (PC-10)", () => {
+  it("primary card mounts record correction when a disposition is on the wire", () => {
+    const finding = buildFinding(JSON.stringify({ latestDisposition: "Accepted" }));
+
+    render(
+      <QuickDecisionWorkspacePrimaryFindingCard
+        context={cardContext}
+        finding={finding}
+        canMutate={false}
+        askPanelOpen={false}
+        onToggleAskPanel={vi.fn()}
+        onViewReasoning={vi.fn()}
+        onMute={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByTestId("finding-workspace-record-correction-finding-1")).toBeInTheDocument();
+  });
+
+  it("secondary card mounts record correction when a disposition is on the wire", () => {
+    const finding = buildFinding(JSON.stringify({ latestDisposition: "Accepted" }));
+
+    render(<QuickDecisionWorkspaceSecondaryFindingCard context={cardContext} finding={finding} />);
+
+    expect(screen.getByTestId("finding-workspace-record-correction-finding-1")).toBeInTheDocument();
+  });
+
+  it("hides record correction when no disposition is recorded", () => {
+    const finding = buildFinding(JSON.stringify({}));
+
+    render(
+      <QuickDecisionWorkspacePrimaryFindingCard
+        context={cardContext}
+        finding={finding}
+        canMutate={false}
+        askPanelOpen={false}
+        onToggleAskPanel={vi.fn()}
+        onViewReasoning={vi.fn()}
+        onMute={vi.fn()}
+      />,
+    );
+
+    expect(screen.queryByTestId("finding-workspace-record-correction-finding-1")).not.toBeInTheDocument();
+  });
+
+  it("IP-005: primary card Open finding uses nested focusedFinding when architecture is known", () => {
+    const finding = buildFinding(JSON.stringify({}));
+
+    render(
+      <QuickDecisionWorkspacePrimaryFindingCard
+        context={cardContext}
+        finding={finding}
+        canMutate={false}
+        askPanelOpen={false}
+        onToggleAskPanel={vi.fn()}
+        onViewReasoning={vi.fn()}
+        onMute={vi.fn()}
+      />,
+    );
+
+    const openFinding = screen.getByRole("link", { name: "Open finding" });
+
+    expect(openFinding).toHaveAttribute(
+      "href",
+      `${architectureNestedFindingsPath("architecture-identity-001")}?runId=run-1&focusedFinding=finding-1`,
+    );
+    expect(openFinding.getAttribute("href")).not.toContain("/architecture/reviews/run-1/findings/");
+  });
+
+  it("shows checklist-demoted classification chip on primary card", () => {
+    const finding = {
+      ...buildFinding(JSON.stringify({})),
+      classification: "ChecklistCoverage" as const,
+      treatment: 1,
+    };
+
+    render(
+      <QuickDecisionWorkspacePrimaryFindingCard
+        context={cardContext}
+        finding={finding}
+        canMutate={false}
+        askPanelOpen={false}
+        onToggleAskPanel={vi.fn()}
+        onViewReasoning={vi.fn()}
+        onMute={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByTestId("finding-classification-chip-finding-1")).toHaveTextContent("Checklist-demoted");
+  });
+
+  it("distinguishes a missing category from a stored empty category", () => {
+    const finding = buildFinding(JSON.stringify({}));
+
+    render(
+      <QuickDecisionWorkspacePrimaryFindingCard
+        context={cardContext}
+        finding={{ ...finding, category: null }}
+        canMutate={false}
+        askPanelOpen={false}
+        onToggleAskPanel={vi.fn()}
+        onViewReasoning={vi.fn()}
+        onMute={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("Finding category was not stored")).toBeInTheDocument();
+    cleanup();
+
+    render(
+      <QuickDecisionWorkspacePrimaryFindingCard
+        context={cardContext}
+        finding={{ ...finding, category: "" }}
+        canMutate={false}
+        askPanelOpen={false}
+        onToggleAskPanel={vi.fn()}
+        onViewReasoning={vi.fn()}
+        onMute={vi.fn()}
+      />,
+    );
+
+    expect(screen.queryByText("Finding category was not stored")).not.toBeInTheDocument();
+  });
+
+  it("labels missing finding metadata while preserving a stored zero evidence count", () => {
+    const finding = buildFinding(JSON.stringify({}));
+
+    render(
+      <QuickDecisionWorkspacePrimaryFindingCard
+        context={cardContext}
+        finding={{ ...finding, evidenceRefCount: null, humanReviewStatus: null, assignedToUserId: null }}
+        canMutate={false}
+        askPanelOpen={false}
+        onToggleAskPanel={vi.fn()}
+        onViewReasoning={vi.fn()}
+        onMute={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("Evidence reference count was not stored")).toBeInTheDocument();
+    expect(screen.getByText("Remediation owner was not stored")).toBeInTheDocument();
+    expect(screen.getAllByText("Human review status was not stored").length).toBeGreaterThan(0);
+
+    render(
+      <QuickDecisionWorkspacePrimaryFindingCard
+        context={cardContext}
+        finding={{ ...finding, evidenceRefCount: 0 }}
+        canMutate={false}
+        askPanelOpen={false}
+        onToggleAskPanel={vi.fn()}
+        onViewReasoning={vi.fn()}
+        onMute={vi.fn()}
+      />,
+    );
+
+    expect(screen.getAllByText("0 references").length).toBeGreaterThan(0);
+  });
+});

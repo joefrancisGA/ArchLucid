@@ -1,0 +1,142 @@
+import { cn } from "@/lib/utils";
+import type { ReactElement } from "react";
+
+import { TransparencyTrailPanel } from "@/components/feasibility/TransparencyTrailPanel";
+import { DecisionReceiptExportButton } from "@/components/draft-intake/DecisionReceiptExportButton";
+import { FeasibilityVerdictDriversPanel } from "@/components/feasibility/FeasibilityVerdictDriversPanel";
+import { isExportableDecisionVerdict } from "@/lib/decision-receipt-export";
+import {
+  parseFeasibilityVerdictDrivers,
+} from "@/lib/feasibility-verdict-transparency-trail";
+import { resolveFeasibilityVerdictForDisplay } from "@/lib/feasibility/resolve-feasibility-verdict-for-display";
+import { LIVELIHOOD_GRADE_NO_DESK_FALSE_HARD_DEMOTED_LINE } from "@/lib/livelihood-grade-no-desk-false-hard-copy";
+import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+
+import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
+
+type RunDetailFeasibilityVerdictSectionProps = {
+  readonly verdict: ManifestFeasibilityVerdict;
+  readonly runId: string;
+  readonly manifestVersion?: string | null;
+};
+
+function toneClassName(tone: "success" | "warning" | "danger"): string {
+  if (tone === "success") {
+    return "border-emerald-300 bg-emerald-50 text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-100";
+  }
+
+  if (tone === "danger") {
+    return "border-rose-300 bg-rose-50 text-rose-900 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-100";
+  }
+
+  return "border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100";
+}
+
+export function RunDetailFeasibilityVerdictSection(
+  props: RunDetailFeasibilityVerdictSectionProps,
+): ReactElement {
+  const { verdict } = props;
+  const reviewId = props.runId.trim();
+  const display = resolveFeasibilityVerdictForDisplay(verdict);
+  const trail = verdict.transparencyTrail;
+  const verdictDrivers = parseFeasibilityVerdictDrivers(trail);
+
+  return (
+    <section id="feasibility-verdict" className="scroll-mt-24" data-testid="run-detail-feasibility-verdict">
+      <div className={`rounded-lg border p-4 ${toneClassName(display.tone)}`}>
+        <h4 className={`${runDetailSectionHeadingClass} mb-2`}>Feasibility verdict</h4>
+        {display.missingHardCitationDefect ? (
+          <div
+            className="mb-3 rounded-md border border-rose-300 bg-rose-50 px-3 py-2 text-rose-900 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-100"
+            data-testid="feasibility-verdict-missing-hard-citation-defect"
+          >
+            <p className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.body)}>
+              Hard infeasibility requires a citation
+            </p>
+            <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+              {LIVELIHOOD_GRADE_NO_DESK_FALSE_HARD_DEMOTED_LINE}
+            </p>
+          </div>
+        ) : null}
+        <p className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.body)}>{display.kindLabel}</p>
+        <p className={cn("mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{verdict.summary}</p>
+
+        <FeasibilityVerdictDriversPanel
+          drivers={verdictDrivers}
+          reviewId={reviewId}
+          className="mt-4"
+        />
+
+        {verdict.softEnvelope !== undefined && verdict.softEnvelope !== null ? (
+          <dl className={cn("mt-4 grid gap-2 sm:grid-cols-[minmax(8rem,auto)_1fr] sm:gap-x-4", OPERATOR_TYPOGRAPHY.body)}>
+            <dt className="font-medium">Confidence band</dt>
+            <dd className="m-0 tabular-nums">
+              {verdict.softEnvelope.confidenceLow}–{verdict.softEnvelope.confidenceHigh}
+            </dd>
+            <dt className="font-medium">Envelope</dt>
+            <dd className="m-0">{verdict.softEnvelope.envelopeDescription}</dd>
+            <dt className="font-medium">Soft assumption</dt>
+            <dd className="m-0">
+              {verdict.softEnvelope.softAssumption === null || verdict.softEnvelope.softAssumption === undefined
+                ? "Soft assumption was not stored."
+                : verdict.softEnvelope.softAssumption}
+            </dd>
+            <dt className="font-medium">Cost of being wrong</dt>
+            <dd className="m-0">
+              {verdict.softEnvelope.costOfBeingWrong === null || verdict.softEnvelope.costOfBeingWrong === undefined
+                ? "Cost of being wrong was not stored."
+                : verdict.softEnvelope.costOfBeingWrong}
+            </dd>
+          </dl>
+        ) : null}
+
+        {verdict.proposedRelaxations === null || verdict.proposedRelaxations === undefined ? (
+          <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.body)}>Proposed relaxations were not stored.</p>
+        ) : verdict.proposedRelaxations.length > 0 ? (
+          <div className={cn("mt-4", OPERATOR_TYPOGRAPHY.body)}>
+            <p className="m-0 font-medium">Proposed relaxations</p>
+            <ul className="m-0 mt-1 list-disc pl-5">
+              {verdict.proposedRelaxations.map((relaxation, index) => (
+                <li key={`${relaxation.invariantKey ?? "missing"}-${index}`}>
+                  <strong>
+                    {relaxation.invariantKey === null || relaxation.invariantKey === undefined
+                      ? "Relaxation invariant key was not stored."
+                      : relaxation.invariantKey}
+                  </strong>
+                  {": "}
+                  {relaxation.tradeOffDescription === null || relaxation.tradeOffDescription === undefined
+                    ? "Trade-off description was not stored."
+                    : relaxation.tradeOffDescription}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
+        {verdict.unsatCoreInvariantKeys === null || verdict.unsatCoreInvariantKeys === undefined ? (
+          <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.body)}>Unsat core was not stored.</p>
+        ) : verdict.unsatCoreInvariantKeys.length > 0 ? (
+          <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.body)}>
+            Unsat core: {verdict.unsatCoreInvariantKeys.join(", ")}
+          </p>
+        ) : null}
+
+        {isExportableDecisionVerdict(verdict.kind) ? (
+          <div className="mt-4">
+            <DecisionReceiptExportButton
+              context={{
+                source: "committed-run",
+                runId: props.runId,
+                verdict,
+              }}
+              manifestVersion={props.manifestVersion}
+            />
+          </div>
+        ) : null}
+      </div>
+
+      <TransparencyTrailPanel trail={trail} className="mt-4" />
+    </section>
+  );
+}

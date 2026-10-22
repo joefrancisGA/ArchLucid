@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-real-mode-database-backup",
+  "metadata": {
+    "title": "Real-mode database backup posture (offline AgentResult scorer)",
+    "complexity": "medium",
+    "primaryAgents": ["Compliance", "Critic"]
+  },
+  "inputSummary": "OLTP without documented backup SLA — Compliance AgentResult exemplar aligns with recording probes.",
+  "recording": "recordings/database-no-backup.findings.json",
+  "qualityEvidence": {
+    "mode": "real",
+    "agentType": "Compliance",
+    "agentResultPathEnv": "ARCHLUCID_EVAL_CORPUS_REAL_MODE_DATABASE_BACKUP_AGENT_RESULT",
+    "notes": "Synthetic Compliance exemplar for expanded cohort; do not commit customer RCA text."
+  },
+  "expectedFindings": [
+    {
+      "id": "e backup sla",
+      "category": "Compliance",
+      "minimumSeverity": "High",
+      "evidenceMustContain": ["backup", "RPO"]
+    },
+    {
+      "id": "e redundancy",
+      "category": "Topology",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["geo-redundant", "recovery"]
+    },
+    {
+      "id": "e resilience testing",
+      "category": "Critic",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["restore", "game day"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Cost", "ifContainsAny": ["delete backups", "eliminate redundancy"] },
+    { "category": "Topology", "ifContainsAny": ["backups validated weekly with evidence attached"] }
+  ]
+}
