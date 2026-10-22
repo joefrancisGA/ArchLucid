@@ -2842,6 +2842,14 @@
 
 ## Zone: scim-users
 
+2026-10-22 thorough hunt #38 (dry): cheap-disproof closed five `(candidate)` rows (negative `count` hunt #8 regression; PATCH numeric `userName` → `PatchAsync_replace_userName_non_string_throws`; `or` union via `ScimOrNode`; second DELETE 404 proven `DeactivateAsync_throws_not_found_when_user_already_directory_removed`; `add` `active` via `Add_inserts_value`/`ReadActive`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — negative `count` — **cheap-disproof 2026-10-22 #38:** duplicate hunt #8; `ListAsync_negative_count_clamped_to_empty_page`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — numeric `userName` — **cheap-disproof 2026-10-22 #38:** regression `PatchAsync_replace_userName_non_string_throws`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName eq` `or` — **cheap-disproof 2026-10-22 #38:** `ScimOrNode` disjunction in evaluator/SQL.
+- [x] (valid-no-repro) `ScimUsersController.DeactivateAsync` — repeat DELETE — **cheap-disproof 2026-10-22 #38:** proven 2026-08-25 notFound guard.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `add` `active` — **cheap-disproof 2026-10-22 #38:** flat add + `ReadActive` (hunt #23 `add` class).
+
 2026-10-22 thorough hunt #37 (dry): cheap-disproof closed five `(candidate)` rows (`count=0` empty page hunt #6 regression; missing PATCH `value` → `invalidValue` `Missing_value_on_replace_throws`; filter literal spaces compared without auto-trim—intentional; PUT `active` string via `ScimUserResourceParser.ReadActive`; remove unknown flat key no-op on persist hunt #29 class); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
 
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count=0` — **cheap-disproof 2026-10-22 #37:** duplicate hunt #6; `ListAsync_count_zero_returns_empty_page_with_total_results`.
@@ -3167,9 +3175,9 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 71
+- **hunts:** 72
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 16
+- **consecutive-dry-hunts:** 17
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — SCIM PATCH remove on active returned silent no-op instead of mutability
 - **related-pd-tb:** none
@@ -3488,11 +3496,17 @@
 - [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — string `active` — **cheap-disproof 2026-10-22 #37:** parser `ReadActive`.
 - [x] (valid-no-repro) `ScimUsersController.PatchAsync` — remove unknown key — **cheap-disproof 2026-10-22 #37:** hunt #29.
 
-- [ ] (candidate) `ScimUsersController.ListAsync` — negative `count` clamped — locus: `Math.Clamp(count, 0, 200)`; input: `count=-5` (regression `ListAsync_negative_count_clamped_to_empty_page`).
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `replace` with JSON number on `userName` — locus: `ReadPatchRequiredString` type guard; input: non-string `userName` value.
-- [ ] (candidate) `ScimUsersController.ListAsync` — `or` of two `userName eq` — locus: `ScimOrNode`; input: union returns both users.
-- [ ] (candidate) `ScimUsersController.DeactivateAsync` — second DELETE 404 — locus: `DirectoryRemovedUtc` guard; input: proven `DeactivateAsync_throws_not_found_when_user_already_directory_removed`.
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `add` on `active` when absent — locus: flat add then `ReadActive`; input: first assignment of boolean field.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — negative `count` — **cheap-disproof 2026-10-22 #38:** hunt #8 regression.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — numeric `userName` — **cheap-disproof 2026-10-22 #38:** type guard regression.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `or` filter — **cheap-disproof 2026-10-22 #38:** `ScimOrNode`.
+- [x] (valid-no-repro) `ScimUsersController.DeactivateAsync` — second DELETE — **cheap-disproof 2026-10-22 #38:** proven notFound.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `add active` — **cheap-disproof 2026-10-22 #38:** flat add path.
+
+- [ ] (candidate) `ScimUsersController.GetAsync` — `Guid.Empty` id — locus: controller/service not-found path; input: proven thorough-hunt dry row on empty guid.
+- [ ] (candidate) `ScimUsersController.ListAsync` — `and` of `userName eq` and `active eq true` — locus: `ScimAndNode`; input: intersection filter.
+- [ ] (candidate) `ScimUsersController.PatchAsync` — `replace` `externalId` with whitespace-only — locus: `ReadPatchRequiredString` whitespace guard; input: `invalidValue` like POST `userName`.
+- [ ] (candidate) `ScimUsersController.CreateAsync` — seat limit on active create — locus: `ScimSeatLimitExceededException`; input: hunt #13 proven 403 `mutability`.
+- [ ] (candidate) `ScimUsersController.ListAsync` — `emails[type eq "work"].value eq` alias — locus: `IsEmailsWorkValuePath`; input: integration `Get_users_filter_emails_work_value_eq_entra_literal`.
 
 - [x] (proven) `ScimUserService.CreateAsync` / `PatchAsync` / `ScimUsersController` — a second live user with the same `userName` and a different `externalId` was stored, including case-only names — **hit 2026-10-09 seed hunt:** live `userName` lookup returns `uniqueness`. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
 - [x] (proven) `ScimFilterParser.ParseFilter` / `ScimUsersController.ListAsync` — ungrouped `or` before `and` was parsed left-to-right, so an active user matching only the left comparison was omitted — **hit 2026-10-09 seed hunt:** `not` over `and` over `or` per RFC 7644 §3.4.2.2. Regressions `ListAsync_filter_gives_and_precedence_over_or`, `Parse_or_binds_looser_than_and`, and `Parse_not_binds_tighter_than_and`.
