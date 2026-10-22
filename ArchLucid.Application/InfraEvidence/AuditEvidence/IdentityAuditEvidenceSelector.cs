@@ -29,7 +29,7 @@ public sealed class IdentityAuditEvidenceSelector : IAuditEvidenceSelector
         {
             return AuditEvidenceSelectorSupport.Unsupported(
                 requirement,
-                "Entra, PIM, Conditional Access, and Defender evidence are not present in inventory snapshots.");
+                "Entra, PIM, and Conditional Access evidence are not present in inventory snapshots.");
         }
 
         List<AzureInventoryResourceRecord> identityResources = snapshot.Resources

@@ -110,6 +110,7 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<GovernanceAuditEvidenceSelector>();
         services.AddScoped<PostureAuditEvidenceSelector>();
         services.AddScoped<ResilienceAuditEvidenceSelector>();
+        services.AddScoped<DefenderAuditEvidenceSelector>();
         services.AddScoped<IAzureInventoryDiffConsumer, AuditContinuousReadinessDiffConsumer>();
         services.AddScoped<IAzureInventoryDiffConsumer, SecureNowArchitectDiffConsumer>();
         services.AddScoped<IStructuredDiagramIngestService, StructuredDiagramIngestService>();

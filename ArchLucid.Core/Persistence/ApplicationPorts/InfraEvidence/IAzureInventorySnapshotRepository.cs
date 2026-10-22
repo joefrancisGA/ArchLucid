@@ -293,6 +293,36 @@ public sealed class AzureInventorySnapshotMaterializeWriteRequest
         get;
         init;
     } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderPricingWrite> DefenderPricings
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderScoreControlWrite> DefenderScoreControls
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderAssessmentWrite> DefenderAssessments
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderAssessmentCountWrite> DefenderAssessmentCounts
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderSecurityContactWrite> DefenderSecurityContacts
+    {
+        get;
+        init;
+    } = [];
 }
 
 public sealed class AzureInventoryResourcePropertyWrite

@@ -192,6 +192,16 @@ public sealed class AzureInventorySnapshotMaterializer(
 
             IReadOnlyList<AzureInventoryDefenderSummaryWrite> defenderSummaries =
                 DefenderSummaryCompanionMaterializer.Materialize(inventory.DefenderSummary);
+            IReadOnlyList<AzureInventoryDefenderPricingWrite> defenderPricings =
+                DefenderCompanionMaterializer.MaterializePricings(inventory.DefenderPricings);
+            IReadOnlyList<AzureInventoryDefenderScoreControlWrite> defenderScoreControls =
+                DefenderCompanionMaterializer.MaterializeScoreControls(inventory.DefenderScoreControls);
+            IReadOnlyList<AzureInventoryDefenderAssessmentWrite> defenderAssessments =
+                DefenderCompanionMaterializer.MaterializeAssessments(inventory.DefenderAssessments);
+            IReadOnlyList<AzureInventoryDefenderAssessmentCountWrite> defenderAssessmentCounts =
+                DefenderCompanionMaterializer.MaterializeAssessmentCounts(inventory.DefenderAssessmentCounts);
+            IReadOnlyList<AzureInventoryDefenderSecurityContactWrite> defenderSecurityContacts =
+                DefenderCompanionMaterializer.MaterializeSecurityContacts(inventory.DefenderSecurityContacts);
 
             AzureInventorySecurityEdgeMaterializeResult securityEdges =
                 AzureInventorySecurityEdgeMaterializer.Materialize(
@@ -297,6 +307,11 @@ public sealed class AzureInventorySnapshotMaterializer(
                     Diagnostics = diagnostics,
                     UnknownResources = unknowns,
                     DefenderSummaries = defenderSummaries,
+                    DefenderPricings = defenderPricings,
+                    DefenderScoreControls = defenderScoreControls,
+                    DefenderAssessments = defenderAssessments,
+                    DefenderAssessmentCounts = defenderAssessmentCounts,
+                    DefenderSecurityContacts = defenderSecurityContacts,
                 },
                 cancellationToken);
 

@@ -27,6 +27,16 @@ public static class AzureExtractorPackageZipEntryNames
 
     public const string DefenderSummary = "defender-summary.json";
 
+    public const string DefenderPricings = "defender-pricings.json";
+
+    public const string DefenderScoreControls = "defender-score-controls.json";
+
+    public const string DefenderAssessments = "defender-assessments.json";
+
+    public const string DefenderAssessmentCounts = "defender-assessment-counts.json";
+
+    public const string DefenderSecurityContacts = "defender-security-contacts.json";
+
     public const string EffectiveNetworkControls = "effective-network-controls.json";
 
     public const string AdfLinkedServices = "adf-linked-services.json";
@@ -71,6 +81,11 @@ public static class AzureExtractorPackageZipEntryNames
         DirectoryRoleAssignments,
         GraphAppRoleAssignments,
         DefenderSummary,
+        DefenderPricings,
+        DefenderScoreControls,
+        DefenderAssessments,
+        DefenderAssessmentCounts,
+        DefenderSecurityContacts,
         EffectiveNetworkControls,
         AdfLinkedServices,
         AdfDatasets,

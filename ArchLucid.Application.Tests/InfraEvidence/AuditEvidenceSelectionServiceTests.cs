@@ -127,6 +127,58 @@ public sealed class AuditEvidenceSelectionServiceTests
         AuditEvidenceRequirementSelectionRecord selection = selector.Select(snapshot, requirement);
 
         selection.CollectionStatus.Should().Be(AuditEvidenceCollectionStatus.Unsupported);
+        selection.Gaps.Should().ContainSingle().Which.Reason.Should().NotContain("Defender");
+    }
+
+    [Fact]
+    public void Defender_selector_uses_an_unhealthy_assessment_resource()
+    {
+        DefenderAuditEvidenceSelector selector = new();
+        AuditEvidenceRequirementRecord requirement = new()
+        {
+            RequirementId = Guid.NewGuid(),
+            EvidenceType = "defender",
+            Name = "Defender posture",
+        };
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord(),
+            DefenderAssessments =
+            [
+                new AzureInventoryDefenderAssessmentReadModel
+                {
+                    AssessmentKey = "key-1",
+                    DisplayName = "Storage should be private",
+                    Severity = "High",
+                    Status = "Unhealthy",
+                    ResourceId = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                },
+            ],
+        };
+
+        AuditEvidenceRequirementSelectionRecord selection = selector.Select(snapshot, requirement);
+
+        selection.CollectionStatus.Should().Be(AuditEvidenceCollectionStatus.Collected);
+        selection.Candidates.Should().ContainSingle()
+            .Which.AzureResourceId.Should().Contain("storageaccounts/sa1");
+    }
+
+    [Fact]
+    public void Defender_selector_is_insufficient_when_the_snapshot_has_no_defender_rows()
+    {
+        DefenderAuditEvidenceSelector selector = new();
+        AuditEvidenceRequirementRecord requirement = new()
+        {
+            RequirementId = Guid.NewGuid(),
+            EvidenceType = "defender",
+            Name = "Defender posture",
+        };
+
+        AuditEvidenceRequirementSelectionRecord selection = selector.Select(
+            new AzureInventorySnapshotDetailReadModel { Header = new AzureInventorySnapshotRecord() },
+            requirement);
+
+        selection.CollectionStatus.Should().Be(AuditEvidenceCollectionStatus.Insufficient);
     }
 
     private static AuditEvidenceSelectorRegistry BuildRegistry() =>
@@ -139,5 +191,6 @@ public sealed class AuditEvidenceSelectionServiceTests
             new LoggingAuditEvidenceSelector(),
             new GovernanceAuditEvidenceSelector(),
             new PostureAuditEvidenceSelector(),
-            new ResilienceAuditEvidenceSelector());
+            new ResilienceAuditEvidenceSelector(),
+            new DefenderAuditEvidenceSelector());
 }

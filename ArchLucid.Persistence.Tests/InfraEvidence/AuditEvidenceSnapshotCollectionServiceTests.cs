@@ -535,5 +535,6 @@ internal static class AuditEvidenceSelectionServiceTestsSupport
             new LoggingAuditEvidenceSelector(),
             new GovernanceAuditEvidenceSelector(),
             new PostureAuditEvidenceSelector(),
-            new ResilienceAuditEvidenceSelector());
+            new ResilienceAuditEvidenceSelector(),
+            new DefenderAuditEvidenceSelector());
 }
