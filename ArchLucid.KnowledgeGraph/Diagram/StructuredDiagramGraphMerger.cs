@@ -259,8 +259,10 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
 
     private static double ReadInferenceConfidence(IReadOnlyDictionary<string, string> properties)
     {
-        if (!properties.TryGetValue(StructuredDiagramGraphPropertyKeys.InferenceConfidence, out string? raw)
-            || string.IsNullOrWhiteSpace(raw))
+        if (!GraphNodePropertyReader.TryGetPropertyValue(
+                properties,
+                StructuredDiagramGraphPropertyKeys.InferenceConfidence,
+                out string? raw))
         {
             return 0d;
         }

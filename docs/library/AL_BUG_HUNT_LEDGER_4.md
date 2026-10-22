@@ -12470,10 +12470,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 178
-- **bugs-found:** 150
+- **hunts:** 179
+- **bugs-found:** 151
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — structured diagram merge coalesce stored padded property keys and left stale source-evidence reads
+- **last-bug:** 2026-10-22 — diagram merge read padded inference-confidence keys as zero and let weaker compiles overwrite source evidence
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12481,7 +12481,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (valid-no-repro) `StructuredDiagramGraphMerger.CoalesceDiagramEdgeMetadata` — padded property keys on edge metadata duplicated source-evidence entries — **cheap-disproof 2026-10-22 seed hunt:** closed by hunt 177 key trim on edge coalesce; regression above.
 
-- [ ] (candidate) `StructuredDiagramGraphMerger.ReadInferenceConfidence` — padded `InferenceConfidence` property key on existing node/edge metadata may read as zero confidence and skew weaker-incoming property skip — locus: `ReadInferenceConfidence` canonical key lookup; input: merged row retains legacy padded confidence key while incoming compile is weaker; wrong outcome: stale source-evidence or citation properties not skipped when they should be.
+2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger.ReadInferenceConfidence` padded `InferenceConfidence` property-key candidate; proved `ReadInferenceConfidence` used `TryGetValue` on the canonical key only, so legacy or test-compile rows with padded confidence keys read as `0` and weaker incoming compiles overwrote higher-confidence `SourceEvidenceItemId`; resolve confidence via `GraphNodePropertyReader.TryGetPropertyValue`; regression `Merge_skips_weaker_incoming_source_evidence_when_existing_metadata_uses_padded_inference_confidence_key`; seeded `StructuredDiagramGraphMerger.WriteInferenceConfidence` legacy padded confidence key cleanup on merge follow-on; 470 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `StructuredDiagramGraphMerger.ReadInferenceConfidence` — padded `InferenceConfidence` property key on existing metadata read as zero confidence — **hit 2026-10-22 seed hunt (seed→hit):** trim-normalized property read; regression above.
+
+- [ ] (candidate) `StructuredDiagramGraphMerger.WriteInferenceConfidence` — after coalesce, canonical confidence key is written but a legacy padded `InferenceConfidence` key may remain in the property bag — locus: `WriteInferenceConfidence` dictionary assign; input: first compile snapshot carries padded confidence key; wrong outcome: duplicate confidence entries and ambiguous reads outside merge coalesce.
+
+2026-10-22 seed hunt (valid-no-repro): promoted `StructuredDiagramGraphMerger` diagram edge metadata padded property-key coalesce follow-on; proved hunt 177 `NormalizeDiagramPropertyKey` already trims keys in `CoalesceDiagramEdgeMetadata` before skip/coalesce, so padded `SourceEvidenceItemId` keys coalesce to a single bag entry and honor higher-confidence incoming evidence; regression `Merge_coalesces_edge_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded `StructuredDiagramGraphMerger.ReadInferenceConfidence` padded `InferenceConfidence` property-key on pre-existing merged metadata follow-on; 469 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `StructuredDiagramGraphMerger.CoalesceDiagramEdgeMetadata` — padded property keys on edge metadata duplicated source-evidence entries — **cheap-disproof 2026-10-22 seed hunt:** closed by hunt 177 key trim on edge coalesce; regression above.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
