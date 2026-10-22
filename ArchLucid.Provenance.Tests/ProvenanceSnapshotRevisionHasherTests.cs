@@ -12,6 +12,33 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
 {
     private static readonly Guid RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
     private static readonly Guid BundleId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+    private static readonly Guid ContextSnapshotId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+    [Fact]
+    public void Compute_changes_when_manifest_context_snapshot_id_differs_but_manifest_id_hash_and_decisions_are_unchanged()
+    {
+        ProvenanceBuildInput baseline = CreateInput([]);
+        ProvenanceBuildInput updated = CreateInput([]);
+        baseline.Manifest.ContextSnapshotId = ContextSnapshotId;
+        updated.Manifest.ContextSnapshotId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
+    public void Compute_changes_when_findings_context_snapshot_id_differs_but_findings_snapshot_id_and_payload_are_unchanged()
+    {
+        Finding finding = CreateSampleFinding();
+
+        ProvenanceBuildInput baseline = CreateInput([], findings: [finding]);
+        ProvenanceBuildInput updated = CreateInput([], findings: [finding]);
+        baseline.Findings.ContextSnapshotId = ContextSnapshotId;
+        updated.Findings.ContextSnapshotId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
 
     [Fact]
     public void Compute_changes_when_manifest_graph_snapshot_id_differs_but_manifest_id_hash_and_graph_topology_are_unchanged()
@@ -55,7 +82,7 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
         ProvenanceBuildInput updated = CreateInput([], graphNodes: [node]);
         baseline.Graph.GraphSnapshotId = graphSnapshotId;
         updated.Graph.GraphSnapshotId = graphSnapshotId;
-        baseline.Graph.ContextSnapshotId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        baseline.Graph.ContextSnapshotId = ContextSnapshotId;
         updated.Graph.ContextSnapshotId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
 
         ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
@@ -832,13 +859,14 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
             {
                 FindingsSnapshotId = findingsSnapshotId,
                 RunId = RunId,
+                ContextSnapshotId = ContextSnapshotId,
                 GraphSnapshotId = graphSnapshotId,
                 Findings = findings is null ? [] : [.. findings],
             },
             Graph = new GraphSnapshot
             {
                 GraphSnapshotId = graphSnapshotId,
-                ContextSnapshotId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                ContextSnapshotId = ContextSnapshotId,
                 RunId = RunId,
                 Nodes = graphNodes is null ? [] : [.. graphNodes],
                 Edges = graphEdges is null ? [] : [.. graphEdges],
@@ -847,6 +875,7 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
             {
                 ManifestId = manifestId,
                 RunId = RunId,
+                ContextSnapshotId = ContextSnapshotId,
                 GraphSnapshotId = graphSnapshotId,
                 FindingsSnapshotId = findingsSnapshotId,
                 ManifestHash = manifestHash ?? "mh",
