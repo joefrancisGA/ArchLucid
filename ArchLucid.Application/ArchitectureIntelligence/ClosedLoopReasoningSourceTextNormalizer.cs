@@ -41,6 +41,7 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
 
         fileName = DecodePercentEncodedFileNameTokens(fileName);
         fileName = GraphSnapshotCanonicalFingerprint.NormalizeReviewCacheUnicodeSlashScalars(fileName);
+        fileName = GraphSnapshotCanonicalFingerprint.NormalizeReviewCacheUnicodeDotScalars(fileName);
         fileName = fileName.Replace('\\', '/');
 
         while (fileName.StartsWith("./", StringComparison.Ordinal))

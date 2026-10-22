@@ -8712,6 +8712,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted Unicode **dot** homoglyph parent segments (U+FF0E) and box-drawing slash scalars (U+2571/U+2572) splitting `ContentHash`/`modelfp`; added `NormalizeReviewCacheUnicodeDotScalars` and extended slash scalar mapping; regressions `Build_matches_content_hash_when_request_source_file_name_differs_only_by_unicode_dot_homoglyph_parent_segment`, `Build_matches_content_hash_when_baseline_element_id_differs_only_by_unicode_dot_homoglyph_parent_segment`, and `Build_matches_content_hash_when_file_name_differs_only_by_box_drawings_slash`; 371 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint` / `ClosedLoopReasoningSourceTextNormalizer` — Unicode dot/slash homoglyphs split path canonicalization — **hit 2026-10-22 seed hunt:** dot + box-drawing slash normalization; regressions above.
+
 2026-10-22 seed hunt (seed→hit): promoted fullwidth reverse-solidus (U+FF3C) and related backslash homoglyphs splitting `ContentHash` and `modelfp`; `NormalizeReviewCacheUnicodeSlashScalars` now maps U+FF3C, U+FE68, and U+2216 to `/`; regressions `Build_matches_content_hash_when_file_name_differs_only_by_fullwidth_reverse_solidus` and `Build_matches_content_hash_when_baseline_element_provenance_passage_artifact_id_differs_only_by_fullwidth_reverse_solidus`; 368 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint` / `ClosedLoopReasoningSourceTextNormalizer` — Unicode backslash homoglyphs split review-cache fingerprints — **hit 2026-10-22 seed hunt:** extended `NormalizeReviewCacheUnicodeSlashScalars`; regressions above.

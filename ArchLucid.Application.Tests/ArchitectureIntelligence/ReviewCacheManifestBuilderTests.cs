@@ -5423,6 +5423,31 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_baseline_element_id_differs_only_by_unicode_dot_homoglyph_parent_segment()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-element-id-dot-homoglyph";
+
+        ArchitectureKnowledgeModel ascii = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements = [new ArchitectureModelElement { ElementId = "docs/acme/../reviews/gateway", Name = "API" }],
+        };
+
+        ArchitectureKnowledgeModel homoglyph = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements = [new ArchitectureModelElement { ElementId = "docs/acme/\uFF0E\uFF0E/reviews/gateway", Name = "API" }],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, ascii).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, homoglyph).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_baseline_element_id_differs_only_by_dot_dot_slash_segment()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
@@ -5678,6 +5703,36 @@ public sealed class ReviewCacheManifestBuilderTests
         ReviewCacheManifestBuilder.Build(collapsed).TenantConfigurationHash
             .Should()
             .Be(ReviewCacheManifestBuilder.Build(withDotDot).TenantConfigurationHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_request_source_file_name_differs_only_by_unicode_dot_homoglyph_parent_segment()
+    {
+        ClosedLoopReasoningRequest ascii = CreateRequest("Same body.");
+        ascii.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/acme/../reviews/overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest homoglyph = CreateRequest("Same body.");
+        homoglyph.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/acme/\uFF0E\uFF0E/reviews/overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(ascii).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(homoglyph).ContentHash);
     }
 
     [Fact]
@@ -7099,6 +7154,36 @@ public sealed class ReviewCacheManifestBuilderTests
         ReviewCacheManifestBuilder.Build(ascii).ContentHash
             .Should()
             .Be(ReviewCacheManifestBuilder.Build(fraction).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_file_name_differs_only_by_box_drawings_slash()
+    {
+        ClosedLoopReasoningRequest ascii = CreateRequest("Same body.");
+        ascii.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/architecture/overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest boxDrawing = CreateRequest("Same body.");
+        boxDrawing.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs\u2571architecture\u2571overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(ascii).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(boxDrawing).ContentHash);
     }
 
     [Fact]

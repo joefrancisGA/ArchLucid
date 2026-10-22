@@ -270,6 +270,12 @@ public static class GraphSnapshotCanonicalFingerprint
         NormalizeUnicodeSlashScalars(value);
 
     /// <summary>
+    ///     Maps Unicode dot lookalikes to ASCII <c>.</c> for review-cache path parent-segment canonicalization.
+    /// </summary>
+    public static string NormalizeReviewCacheUnicodeDotScalars(string value) =>
+        NormalizeUnicodeDotScalars(value);
+
+    /// <summary>
     ///     Canonicalizes slash-separated reference tokens for review-cache fingerprints after label/id normalization.
     /// </summary>
     public static string NormalizeReviewCachePathLikeToken(string normalizedToken)
@@ -277,7 +283,9 @@ public static class GraphSnapshotCanonicalFingerprint
         if (normalizedToken.Length == 0)
             return normalizedToken;
 
-        string path = NormalizeUnicodeSlashScalars(DecodePercentEncodedPathTokens(normalizedToken)).Replace('\\', '/');
+        string path = NormalizeUnicodeDotScalars(
+                NormalizeUnicodeSlashScalars(DecodePercentEncodedPathTokens(normalizedToken)))
+            .Replace('\\', '/');
 
         while (path.Contains("//", StringComparison.Ordinal))
             path = path.Replace("//", "/", StringComparison.Ordinal);
@@ -326,9 +334,21 @@ public static class GraphSnapshotCanonicalFingerprint
             .Replace('\u2044', '/')
             .Replace('\u2215', '/')
             .Replace('\u2216', '/')
+            .Replace('\u2571', '/')
+            .Replace('\u2572', '/')
             .Replace('\uFE68', '/')
             .Replace('\uFF0F', '/')
             .Replace('\uFF3C', '/');
+    }
+
+    private static string NormalizeUnicodeDotScalars(string value)
+    {
+        if (value.Length == 0)
+            return value;
+
+        return value
+            .Replace('\uFF0E', '.')
+            .Replace('\uFE52', '.');
     }
 
     private static string CollapseParentPathSegments(string path)
