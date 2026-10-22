@@ -1,3 +1,4 @@
+2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; repaired malformed `AL_BUG_HUNT_RUN_LOG.jsonl` row (`zone` -> `zoneId`) that broke `al-bug-pick-zone`; cheap-disproof closed saturated encoding/UX `(candidate)` rows; parity regressions safe return path preserved after sign-in start read, supplemental Google discovery-fail tampered-return purge, BFF client refresh HTTP 408 without `shouldClearSession`, and BFF route opaque `Token endpoint error 429`; scoped `src/lib/oidc` + BFF refresh route vitest.
 2026-10-22 seed hunt (seed-only): ui-oidc - aligned clearAbandonedPostSignInReturnUrl with readPostSignInReturnUrl purge semantics; parity regressions for discovery-fail tampered unsafe return + authorize retry, repeated safe read, authorization_pending refresh classifier, and BFF refresh 502 shouldClearSession false; scoped vitest 439/439.
 
 - [x] (valid-no-repro) clearAbandonedPostSignInReturnUrl - align with readPostSignInReturnUrl purge - **regression 2026-10-22:** abandoned-path cleanup uses readPostSignInReturnUrl so unsafe tampered values are purged without clearPostSignInReturnUrl side effects.
@@ -25817,7 +25818,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 88
+- **hunts:** 89
 - **bugs-found:** 78
 - **consecutive-dry-hunts:** 0
 2026-10-22 seed hunt (seed-only): `ui-oidc` - no new hunt-ready defect after cheap-disproof of BFF `OAuthTokenEndpointError` / refresh classifier candidates; added parity regressions for supplemental Google discovery re-mark follow-up, non-JWT empty callback retry marker, and `shouldMarkAuthorizeCallbackFailedOnExchangeError` with `OAuthTokenEndpointError`; repaired canonical `at` timestamps in `AL_BUG_HUNT_RUN_LOG.jsonl`; restored `token-client.test.ts` suite after accidental truncation in prior push; scoped `src/lib/oidc` vitest 408/408.
