@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed request_not_supported authorize-query UX, BFF refresh 432 parity (client + route opaque 431-432), and saturated readOAuthJsonErrorDescription pictograph multiply-encoded glue; regression documents authorize-retry is not marked when authorization code exchange returns negative-Infinity-string access_token; scoped vitest 576/576.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - request_not_supported authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 432 shouldClearSession false - **regression 2026-10-22:** client soft-fail plus BFF route opaque 431-432 without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string -Infinity skips authorize retry marker - **regression 2026-10-22:** literal negative-Infinity-string tokens are valid (retry marker not set).
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with pictograph glue - **cheap-disproof 2026-10-22:** saturated JSON encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - request_uri_not_supported authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 433 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string empty object skips authorize retry marker - locus: literal {} token shape.
+- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with ZWJ glue - locus: saturated encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_session authorize-query UX, BFF refresh 431 parity, and saturated decodeOAuthErrorDescription pictograph glue; regression documents authorize-retry is not marked when authorization code exchange returns Infinity-string access_token; scoped vitest 528/528.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - invalid_session authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
@@ -26264,6 +26276,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: ui-oidc
 
 - **id:** ui-oidc
+- **hunts:** 97
 - **hunts:** 96
 - **hunts:** 95
 - **hunts:** 94
