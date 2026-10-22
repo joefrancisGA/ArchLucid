@@ -25,6 +25,21 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     }
 
     [Fact]
+    public void Compute_unchanged_when_only_rule_set_hash_changes()
+    {
+        ProvenanceBuildInput baseline = CreateInput([], ["rule-a"]);
+        ProvenanceBuildInput updated = CreateInput([], ["rule-a"]);
+
+        RuleAuditTraceDto baselineTrace = (RuleAuditTraceDto)baseline.DecisionTrace;
+        RuleAuditTraceDto updatedTrace = (RuleAuditTraceDto)updated.DecisionTrace;
+        baselineTrace.RuleAudit.RuleSetHash = "rules-v1";
+        updatedTrace.RuleAudit.RuleSetHash = "rules-v2";
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
     public void Compute_changes_when_applied_rule_ids_change_but_decision_trace_id_is_unchanged()
     {
         ProvenanceBuildInput baseline = CreateInput([], ["rule-a"]);

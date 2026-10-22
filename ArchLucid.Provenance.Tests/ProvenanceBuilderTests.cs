@@ -41,6 +41,38 @@ public sealed class ProvenanceBuilderTests
     }
 
     [Fact]
+    public void Build_produces_same_graph_shape_when_only_rule_set_hash_changes()
+    {
+        RuleAuditTracePayload baselineAudit = new() { AppliedRuleIds = ["rule-a"], RuleSetHash = "hash-1" };
+        RuleAuditTracePayload updatedAudit = new() { AppliedRuleIds = ["rule-a"], RuleSetHash = "hash-2" };
+
+        ProvenanceBuildInput baselineInput = new()
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot { Nodes = [] },
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(baselineAudit),
+            Artifacts = [],
+        };
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph baselineGraph = sut.Build(baselineInput);
+        DecisionProvenanceGraph updatedGraph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot { Nodes = [] },
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(updatedAudit),
+            Artifacts = [],
+        });
+
+        baselineGraph.Nodes.Select(n => n.Type).Should().Equal(updatedGraph.Nodes.Select(n => n.Type));
+        baselineGraph.Edges.Select(e => e.Type).Should().Equal(updatedGraph.Edges.Select(e => e.Type));
+    }
+
+    [Fact]
     public void Build_finding_node_includes_agent_execution_trace_correlation()
     {
         const string traceId = "abc123def456";
