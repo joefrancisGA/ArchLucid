@@ -275,10 +275,7 @@ public static class GraphSnapshotCanonicalFingerprint
             return startOffset.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
         }
 
-        if (endOffset is null)
-            return string.Empty;
-
-        if (startOffset is 0 && endOffset is 0)
+        if (endOffset is null or 0)
             return string.Empty;
 
         return endOffset.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);

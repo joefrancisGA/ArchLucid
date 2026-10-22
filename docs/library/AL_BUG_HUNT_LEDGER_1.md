@@ -8712,6 +8712,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted baseline passage locator with non-zero `StartOffset` and unset `EndOffset` splitting review-cache `modelfp` from `EndOffset=0`; `FormatPassageOffsetToken` treats null or zero end as unset when start is set; regression `Build_matches_content_hash_when_baseline_element_provenance_passage_end_is_null_vs_zero_with_start_offset`; 237 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatPassageOffsetToken` — null end vs zero end with start offset split `modelfp` — **hit 2026-10-22 seed hunt:** unset end normalization; regression above.
+
 2026-10-22 seed hunt (seed→hit): promoted baseline passage locator with unset `StartOffset` but non-zero `EndOffset` splitting review-cache `modelfp` from explicit `StartOffset=0`; `FormatPassageOffsetToken` now treats null start as document origin when an end bound is set; regression `Build_matches_content_hash_when_baseline_element_provenance_passage_start_is_null_vs_zero_with_end_offset`; 236 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatPassageOffsetToken` — null start vs zero start with end offset split `modelfp` — **hit 2026-10-22 seed hunt:** implicit start at `0`; regression above.
@@ -9248,11 +9252,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 95
-- **bugs-found:** 83
+- **hunts:** 96
+- **bugs-found:** 84
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — passage locator null start vs zero start with end offset in review-cache modelfp
+- **last-bug:** 2026-10-22 — passage locator null end vs zero end with start offset in review-cache modelfp
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
