@@ -1,3 +1,4 @@
+2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; repaired malformed `AL_BUG_HUNT_RUN_LOG.jsonl` rows using `zone` instead of `zoneId`; cheap-disproof closed saturated encoding and authorize-retry snapshot policy candidates; parity regressions `readAuthorizeRetryReturnPathSnapshot` unsafe tamper purge, `consumeAuthorizeCallbackFailedRetry` clears retry snapshot, and BFF client refresh HTTP 429 without `shouldClearSession`; scoped vitest 465/465.
 2026-10-22 seed hunt (seed->hit): ui-oidc - authorize retry rehydration after unsafe return purge preferred stale idle-desk backup over the active post-sign-in return path captured at callback failure; snapshot safe return when marking authorize retry and prefer snapshot before idle-desk fallback; supplemental Google parity regression; scoped vitest 443/443.
 
 - [x] (proven) preparePostSignInReturnUrlForSignInStart - stale idle-desk overwrites authorize retry return - **hit 2026-10-22:** OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY snapshot on markAuthorizeCallbackFailed; rehydrate prefers snapshot before idle desk.
@@ -25870,7 +25871,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 90
+- **hunts:** 91
 - **hunts:** 89
 - **bugs-found:** 78
 - **consecutive-dry-hunts:** 0
