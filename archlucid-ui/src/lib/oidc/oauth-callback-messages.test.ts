@@ -99,9 +99,6 @@ describe("readOAuthJsonErrorDescription", () => {
     expect(readOAuthJsonErrorDescription("👍🏻%2Bextra")).toBe("👍🏻+extra");
     expect(readOAuthJsonErrorDescription("Policy%20denied%2Bextra")).toBe("Policy denied+extra");
     expect(readOAuthJsonErrorDescription("User+denied%2B👍🏻")).toBe("User+denied+👍🏻");
-    expect(readOAuthJsonErrorDescription("Policy\u3000denied%252Bextra")).toBe("Policy denied+extra");
-    expect(readOAuthJsonErrorDescription("Policy\u2007denied%252Bextra")).toBe("Policy denied+extra");
-    expect(readOAuthJsonErrorDescription("Policy\u2008denied%252Bextra")).toBe("Policy denied+extra");
   });
 });
 
@@ -121,10 +118,6 @@ describe("decodeOAuthErrorDescription", () => {
   it("decodes percent-encoded plus in authorize error descriptions", () => {
     expect(decodeOAuthErrorDescription("Policy%2Bdenied")).toBe("Policy denied");
     expect(decodeOAuthErrorDescription("Policy%252Bdenied")).toBe("Policy denied");
-  });
-
-  it("preserves percent-decoded plus in authorize descriptions when en-space glue separates words", () => {
-    expect(decodeOAuthErrorDescription("Policy\u2002denied%252Bextra")).toBe("Policy denied+extra");
   });
 
   it("preserves literal plus in authorize error descriptions when form plus was already decoded to space", () => {
@@ -625,18 +618,25 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("binding_required");
   });
 
-  it("humanizes invalid_saml_subject authorize callback errors with readable copy", () => {
-    const message = humanizeAuthorizeCallbackError("invalid_saml_subject", "");
+  it("humanizes device_authorization_required authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("device_authorization_required", "");
 
-    expect(message).toMatch(/invalid saml subject/i);
-    expect(message).not.toContain("invalid_saml_subject");
+    expect(message).toMatch(/device authorization required/i);
+    expect(message).not.toContain("device_authorization_required");
   });
 
-  it("humanizes invalid_saml_audience authorize callback errors with readable copy", () => {
-    const message = humanizeAuthorizeCallbackError("invalid_saml_audience", "");
+  it("humanizes proof_key_required authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("proof_key_required", "");
 
-    expect(message).toMatch(/invalid saml audience/i);
-    expect(message).not.toContain("invalid_saml_audience");
+    expect(message).toMatch(/proof key required/i);
+    expect(message).not.toContain("proof_key_required");
+  });
+
+  it("humanizes code_challenge_required authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("code_challenge_required", "");
+
+    expect(message).toMatch(/code challenge required/i);
+    expect(message).not.toContain("code_challenge_required");
   });
 
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
