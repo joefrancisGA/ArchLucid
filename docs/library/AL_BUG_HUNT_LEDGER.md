@@ -1,3 +1,18 @@
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `errorFromOAuthJson` / token-endpoint OAuth JSON — `access_denied` without `error_description` surfaced raw `access_denied` on the auth callback while authorize `?error=` used `humanizeAuthorizeCallbackError` fixed copy; `shouldHumanizeTokenOAuthErrorCode` routes standard codes through shared humanizer when description absent; regression `humanizes standard OAuth error codes from token endpoint JSON like authorize callbacks`; cheap-disproof closed five prior `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped vitest under `src/lib/oidc` 336/336.
+
+- [x] (proven) `errorFromOAuthJson` — token JSON `access_denied` without description — **hit 2026-10-22 seed hunt:** humanize parity with authorize callback; regression above.
+- [x] (valid-no-repro) `readOAuthErrorString` — interior ZWNJ in token `error` field — **cheap-disproof 2026-10-22 seed hunt:** `normalizeOAuthErrorCode` + regression `preserves OAuth error codes when JSON error field contains interior zero-width characters`.
+- [x] (invalid) `discoveryUrlForAuthority` — authority URL with embedded userinfo — **cheap-disproof 2026-10-22 seed hunt:** discovery fetch uses `URL.origin` (credentials stripped); endpoint safety checks cover discovery document URLs.
+- [x] (invalid) `normalizeOAuthErrorCode` — ZWJ-only glue in flag emoji error codes — **cheap-disproof 2026-10-22 seed hunt:** no reachable IdP error-code shape; emoji detail path uses `readOAuthJsonErrorDescription`.
+- [x] (invalid) `ensureAccessTokenFresh` — `expires_at_ms` exactly at `EXPIRY_SKEW_MS` boundary — **cheap-disproof 2026-10-22 seed hunt:** strict `< exp - skew` compare; timing flake class.
+- [x] (valid-no-repro) `exchangeAuthorizationCode` — interior ZWSP inside `code` — **cheap-disproof 2026-10-22 seed hunt:** `normalizeTokenString` strips format chars before token POST (IdP codes are base64url).
+
+- [ ] (candidate) `errorFromOAuthJson` — token JSON `consent_required` with long `error_description` should use fixed consent copy like authorize callback — locus: `token-client.ts`; input: 400 `{ "error": "consent_required", "error_description": "…" }` (reachability: rare token-endpoint consent errors).
+- [ ] (candidate) `humanizeAuthorizeCallbackError` — `invalid_grant` with detail still uses `code: detail` on token path while authorize uses default branch — locus: dual-path operator copy; input: compare callback vs token exchange failure UX (may be intentional).
+- [ ] (candidate) `syncBffSessionCookieFromTokenResponse` — POST omits CSRF header while refresh/activity use `buildBffMutationHeaders` — locus: `bff-session-sync.ts`; input: BFF route requires CSRF on sync POST in hardened deployments.
+- [ ] (candidate) `loadDiscoveryDocument` — cache key ignores case-folding on authority host — locus: `discoveryPromises` map; input: `LOGIN.EXAMPLE.com` vs `login.example.com` (reachability: misconfigured env casing).
+- [ ] (candidate) `consumePostSignInReturnUrl` — return path with only soft hyphen word glue — locus: `normalizeOidcConfigurationString`; input: stored path `/architecture\u00ADreviews` (reachability: copy/paste from Word).
+
 2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `collapseOAuthErrorDescriptionLineBreaks` for Latin ZWNJ-glued `error_description` copy; regressions above; scoped `src/lib/oidc` vitest 325/325.
 
 - [x] (proven) `collapseOAuthErrorDescriptionLineBreaks` - Latin ZWNJ glue in OAuth error descriptions - **hit 2026-10-22 seed hunt (second pass):** `collapseAccidentalLatinZwnjGlue`.

@@ -256,6 +256,24 @@ describe("refreshAccessToken", () => {
     expect(message).not.toMatch(/403: true/i);
   });
 
+  it("humanizes standard OAuth error codes from token endpoint JSON like authorize callbacks", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "access_denied" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/canceled sign-in/i);
+  });
+
   it("preserves literal percent signs in JSON error_description on token responses", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,

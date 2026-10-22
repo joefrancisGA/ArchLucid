@@ -1,5 +1,6 @@
 import { isSafeOidcEndpointUrl } from "@/lib/oidc/discovery";
 import {
+  humanizeAuthorizeCallbackError,
   isReadableOAuthErrorCode,
   normalizeOAuthErrorCode,
   readOAuthJsonErrorDescription,
@@ -16,6 +17,24 @@ export type OidcTokenResponse = {
   id_token?: string;
   scope?: string;
 };
+
+/** OAuth error codes that share fixed authorize-callback operator copy when description is absent. */
+function shouldHumanizeTokenOAuthErrorCode(normalizedErrorCode: string): boolean {
+  switch (normalizedErrorCode) {
+    case "access_denied":
+    case "login_required":
+    case "interaction_required":
+    case "consent_required":
+    case "invalid_request":
+    case "unauthorized_client":
+    case "invalid_scope":
+    case "server_error":
+    case "temporarily_unavailable":
+      return true;
+    default:
+      return false;
+  }
+}
 
 function readOAuthErrorString(value: unknown): string {
   if (typeof value !== "string") {
@@ -37,16 +56,26 @@ function errorFromOAuthJson(json: unknown): Error | null {
   }
 
   const record = json as { error?: unknown; error_description?: unknown };
+  const rawErrorCode = typeof record.error === "string" ? record.error : "";
   const errorCode = readOAuthErrorString(record.error);
   const errorDescription =
     typeof record.error_description === "string"
       ? readOAuthJsonErrorDescription(record.error_description)
       : "";
-  const msg = [errorCode, errorDescription].filter((part) => part.length > 0).join(": ");
 
-  if (!msg) {
+  if (errorCode.length === 0 && errorDescription.length === 0) {
     return null;
   }
+
+  if (errorCode.length === 0) {
+    return new Error(sanitizeOAuthUserFacingMessage(errorDescription));
+  }
+
+  if (errorDescription.length === 0 && shouldHumanizeTokenOAuthErrorCode(errorCode)) {
+    return new Error(humanizeAuthorizeCallbackError(rawErrorCode, ""));
+  }
+
+  const msg = [errorCode, errorDescription].filter((part) => part.length > 0).join(": ");
 
   return new Error(sanitizeOAuthUserFacingMessage(msg));
 }
