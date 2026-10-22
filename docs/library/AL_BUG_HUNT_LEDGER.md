@@ -1,4 +1,17 @@
-﻿2026-10-22 seed hunt (seed-only): `application-tenancy-lifecycle` - continued seed hunt after picker blocked on legacy run-log rows; no new hunt-ready defect (migration `StartAsync` pre-started-audit guard and scoped regressions already on `bugsmash` tip); cheap-disproof closed prior zone-head `(candidate)` rows; scoped tenancy filter 284/284.
+﻿2026-10-22 seed hunt (seed-only): `application-analysis` - no hunt-ready product defect; cheap-disproof closed dashed-run-id export history and career-gate-on-history candidates; `RunExportRecordRepository.GetByRunIdAsync` already uses `RunExportRecordRunIdSql.LookupKeys`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 45/45.
+
+- [x] (valid-no-repro) `RunExportQueryFacade.GetRunExportHistoryAsync` - career posture gate parity with `GetExportRecordAsync` - **cheap-disproof 2026-10-22:** intentional metadata index surface after lifecycle guard (ledger 2026-10-06).
+- [x] (valid-no-repro) `EndToEndReplayComparisonService.BuildAsync` - export pairing without canonical run id on repository lookup - **cheap-disproof 2026-10-22:** persistence `LookupKeys` accepts dashed/N-format equivalents.
+- [x] (valid-no-repro) `RunExportQueryFacade.ReplayExportAsync` - facade skips `TryEnsureExportRunLifecycleCompleteAsync` - **cheap-disproof 2026-10-22:** `ExportReplayService.ReplayAsync` enforces `AuthorityLifecycleCompareExportGuard` before regenerate.
+- [x] (invalid) `ComparisonReplayManifestHashGuard` - dashed run id sealed-hash skip - **cheap-disproof 2026-10-16:** `Guid.TryParse` accepts both formats on trunk.
+- [x] (valid-no-repro) `RunExportQueryFacade.CompareExportRecords*` career gate - **cheap-disproof 2026-10-21:** shared `EnsureCareerAllowsExportRecordMetadataOrThrowAsync` on compare/replay paths.
+
+- [ ] (candidate) `RunExportQueryFacade.ReplayExportAsync` - map lifecycle `ConflictException` to `LineageUnverified` outcome at facade - locus: API 409 parity vs `GetExportRecordAsync` (reachability: controller exception mapping).
+- [ ] (candidate) `ConsultingDocxExportWhitelabelPrefill` - `GetByRunIdAsync` without canonical lookup - locus: whitelabel prefill path (reachability: export record run id formats).
+- [ ] (candidate) `ComparisonReplayPayloadComplexity` - manifest diff edge on empty export pairing - locus: complexity scoring (reachability: replay payload size warnings).
+- [ ] (candidate) `GraphAzureInventoryReconciliationAnalyzer` - reconciliation false positive on renamed nodes - locus: graph/inventory drift (reachability: analysis export).
+- [ ] (candidate) `RunExportLineageVerifier` - incomplete lifecycle vs sealed-hash-only block - locus: guard divergence (reachability: export history GET).
+2026-10-22 seed hunt (seed-only): `application-tenancy-lifecycle` - continued seed hunt after picker blocked on legacy run-log rows; no new hunt-ready defect (migration `StartAsync` pre-started-audit guard and scoped regressions already on `bugsmash` tip); cheap-disproof closed prior zone-head `(candidate)` rows; scoped tenancy filter 284/284.
 
 - [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.StartAsync` - offboard between post-insert read and started audit - **cheap-disproof 2026-10-22:** `tenantBeforeStartedAuditAppend` guard + regression on trunk.
 - [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.CompleteAsync` - offboard between pre-audit read and completed audit - **cheap-disproof 2026-10-22:** pre-audit guard + regression on trunk.
