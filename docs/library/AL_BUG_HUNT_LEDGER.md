@@ -21,6 +21,12 @@
 - [x] (valid-no-repro) `initiateSupplementalOidcRedirect` - authorize retry flag on Google discovery failure - **cheap-disproof 2026-10-22:** `preservingAuthorizeCallbackRetry` mirrors primary flow (add regression if missing).
 - [x] (invalid) `decodeOAuthErrorDescription` - `%252F` double-encoded path fragments - **cheap-disproof 2026-10-22:** single decode by design; literal `%2F` preserved for operator copy.
 - [x] (invalid) `loadDiscoveryDocument` - default-port authority normalization duplicate cache - **cheap-disproof 2026-10-22:** duplicate fetch only; no wrong auth outcome.
+- [ ] (candidate) `humanizeAuthorizeCallbackError` — `access%5fdenied` percent-encoded underscore in authorize `error` — locus: `normalizeOAuthErrorCode` decode; input: single-encoded underscore (reachability: IdP emits `%5f` not space).
+- [ ] (candidate) `readOAuthJsonErrorDescription` — `%2520` double-encoded spaces in token JSON — locus: single decodeURIComponent; input: `User%2520denied` (reachability: mis-encoded JSON body).
+- [ ] (candidate) `initiateSupplementalOidcRedirect` — preserves return URL on Google discovery failure during authorize-callback retry — locus: `preservingAuthorizeCallbackRetry`; input: mirror primary regression (reachability: add test).
+- [ ] (candidate) `normalizeOAuthErrorCode` — token JSON `error` with literal `+` glue — locus: plus-to-space before decode; input: `{ "error": "invalid+grant" }` (reachability: token-client path).
+- [ ] (candidate) `decodeOAuthErrorDescription` — NBSP `%C2%A0` between Latin words in authorize descriptions — locus: collapse `\s`; input: `Policy%C2%A0denied` (may already collapse via `\s+`).
+
 
 - [x] (proven) `decodeRepeatedPercentEncoding` — triply percent-encoded `error_description` — **hit 2026-10-22 seed hunt (zone block):** third decode pass; see zone-head entry.
 - [ ] (candidate) `decodeOAuthErrorDescription` — `+` preserved in JSON path but authorize query `+`→space may disagree with token `readOAuthJsonErrorDescription` for same IdP copy — locus: plus handling split; input: `User+denied` in query vs JSON (reachability: RFC 6749 plain-text JSON).
