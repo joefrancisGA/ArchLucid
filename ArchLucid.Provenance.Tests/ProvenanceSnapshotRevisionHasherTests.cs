@@ -34,6 +34,40 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     }
 
     [Fact]
+    public void Compute_changes_when_finding_related_node_ids_change_but_findings_snapshot_id_is_unchanged()
+    {
+        Finding baselineFinding = new()
+        {
+            FindingId = "find-1",
+            FindingType = "Compliance",
+            Category = "sec",
+            EngineType = "compliance",
+            Severity = FindingSeverity.Warning,
+            Title = "Finding",
+            Rationale = "r",
+            RelatedNodeIds = ["node-a"],
+        };
+
+        Finding updatedFinding = new()
+        {
+            FindingId = "find-1",
+            FindingType = "Compliance",
+            Category = "sec",
+            EngineType = "compliance",
+            Severity = FindingSeverity.Warning,
+            Title = "Finding",
+            Rationale = "r",
+            RelatedNodeIds = ["node-b"],
+        };
+
+        ProvenanceBuildInput baseline = CreateInput([], findings: [baselineFinding]);
+        ProvenanceBuildInput updated = CreateInput([], findings: [updatedFinding]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
     public void Compute_changes_when_contributing_decision_ids_change_but_content_hash_is_unchanged()
     {
         Guid artifactId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
@@ -196,7 +230,8 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
 
     private static ProvenanceBuildInput CreateInput(
         IReadOnlyList<SynthesizedArtifact> artifacts,
-        IReadOnlyList<string>? appliedRuleIds = null)
+        IReadOnlyList<string>? appliedRuleIds = null,
+        IReadOnlyList<Finding>? findings = null)
     {
         Guid findingsSnapshotId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
         Guid graphSnapshotId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
@@ -220,7 +255,7 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
                 FindingsSnapshotId = findingsSnapshotId,
                 RunId = RunId,
                 GraphSnapshotId = graphSnapshotId,
-                Findings = [],
+                Findings = findings is null ? [] : [.. findings],
             },
             Graph = new GraphSnapshot
             {

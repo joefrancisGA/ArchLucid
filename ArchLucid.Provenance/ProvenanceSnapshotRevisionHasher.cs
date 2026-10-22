@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Core.Artifacts;
 
@@ -17,6 +18,7 @@ public static class ProvenanceSnapshotRevisionHasher
         ArgumentNullException.ThrowIfNull(input);
 
         Guid findingsSnapshotId = input.Findings.FindingsSnapshotId;
+        string findingsFingerprint = ComputeFindingsFingerprint(input.Findings);
         Guid graphSnapshotId = input.Graph.GraphSnapshotId;
         Guid manifestId = input.Manifest.ManifestId;
         string manifestHash = input.Manifest.ManifestHash ?? string.Empty;
@@ -27,11 +29,37 @@ public static class ProvenanceSnapshotRevisionHasher
 
         string canonical =
             FormattableString.Invariant(
-                $"{input.RunId:D}|{findingsSnapshotId:D}|{graphSnapshotId:D}|{manifestId:D}|{manifestHash}|{decisionTraceId:D}|{appliedRuleIdsFingerprint}|{bundleId:D}|{artifactsFingerprint}");
+                $"{input.RunId:D}|{findingsSnapshotId:D}|{findingsFingerprint}|{graphSnapshotId:D}|{manifestId:D}|{manifestHash}|{decisionTraceId:D}|{appliedRuleIdsFingerprint}|{bundleId:D}|{artifactsFingerprint}");
 
         byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(canonical));
 
         return Convert.ToHexString(hash).ToLowerInvariant();
+    }
+
+    private static string ComputeFindingsFingerprint(FindingsSnapshot findings)
+    {
+        if (findings.Findings.Count == 0)
+            return string.Empty;
+
+        IEnumerable<string> parts = findings.Findings
+            .GroupBy(
+                finding => (finding.FindingId ?? string.Empty).Trim(),
+                StringComparer.OrdinalIgnoreCase)
+            .OrderBy(group => group.Key, StringComparer.OrdinalIgnoreCase)
+            .Select(group =>
+            {
+                string relatedNodeIds = string.Join(
+                    ",",
+                    group.SelectMany(finding => finding.RelatedNodeIds)
+                        .Select(static nodeId => nodeId.Trim())
+                        .Where(static nodeId => nodeId.Length > 0)
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .OrderBy(static nodeId => nodeId, StringComparer.OrdinalIgnoreCase));
+
+                return $"{group.Key}|{relatedNodeIds}";
+            });
+
+        return string.Join(";", parts);
     }
 
     private static string ComputeArtifactsFingerprint(IReadOnlyList<SynthesizedArtifact> artifacts)
