@@ -8712,6 +8712,12 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted NBSP/consecutive-space drift in request framing answers, `ModelAliasId`, and baseline property values splitting review-cache hash; `ClosedLoopFramingAnswersNormalizer` and `ClosedLoopModelAliasIdNormalizer` now unicode-space + collapse ASCII runs; `NormalizeFingerprintText` collapses interior spaces for modelfp tokens; regressions `Build_matches_content_hash_when_framing_answer_key_differs_only_by_nbsp_vs_space`, `Build_matches_content_hash_when_framing_answer_value_differs_only_by_consecutive_spaces`, `Build_matches_content_hash_when_model_alias_id_differs_only_by_nbsp_vs_space`, `Build_matches_content_hash_when_baseline_element_property_value_differs_only_by_consecutive_spaces`, and `Build_matches_content_hash_when_ledger_evidence_ref_differs_only_by_nbsp_vs_space`; 183 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ClosedLoopFramingAnswersNormalizer` — NBSP keys and double spaces in framing values split `ContentHash` — **hit 2026-10-22 seed hunt:** unicode space + collapse; regressions above.
+- [x] (proven) `ClosedLoopModelAliasIdNormalizer.NormalizeForHash` — NBSP in alias id split `ContentHash` — **hit 2026-10-22 seed hunt:** same normalize chain; regression above.
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.NormalizeFingerprintText` — consecutive spaces in property values split `modelfp` — **hit 2026-10-22 seed hunt:** collapse in fingerprint text; regression above.
+
 2026-10-22 seed hunt (seed→hit): promoted NBSP in ledger `TechnologyName` and consecutive ASCII spaces in source `Content` splitting review-cache hash; `ReviewCacheLedgerFingerprint` unicode-space normalizes technology/evidence tokens; `CollapseInteriorAsciiSpaces` in source normalizer; regressions `Build_matches_content_hash_when_ledger_technology_name_differs_only_by_nbsp_vs_space` and `Build_matches_content_hash_when_source_content_differs_only_by_consecutive_spaces`; added coverage for narrow-NBSP filenames, property-value NBSP, duplicate element canonical pick, and permuted `SourceTexts` list order; 178 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `ReviewCacheLedgerFingerprint.NormalizeTechnologyName` — NBSP in ledger labels split `ledgerfp` — **hit 2026-10-22 seed hunt:** unicode space normalize; regression above.
@@ -9166,11 +9172,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 77
-- **bugs-found:** 59
+- **hunts:** 78
+- **bugs-found:** 61
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — narrow NBSP and framing-key NBSP in review-cache hash
+- **last-bug:** 2026-10-22 — ledger technology NBSP and consecutive spaces in review-cache hash
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

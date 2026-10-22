@@ -159,13 +159,21 @@ public static class GraphSnapshotCanonicalFingerprint
         if (string.IsNullOrWhiteSpace(value))
             return string.Empty;
 
-        return NormalizeUnicodeSpaces(value.Trim()).Normalize(NormalizationForm.FormC);
+        return CollapseInteriorAsciiSpaces(NormalizeUnicodeSpaces(value.Trim())).Normalize(NormalizationForm.FormC);
     }
 
     private static string NormalizeUnicodeSpaces(string value) =>
         value
             .Replace('\u00a0', ' ')
             .Replace('\u202f', ' ');
+
+    private static string CollapseInteriorAsciiSpaces(string content)
+    {
+        while (content.Contains("  ", StringComparison.Ordinal))
+            content = content.Replace("  ", " ", StringComparison.Ordinal);
+
+        return content;
+    }
 
     private static IEnumerable<ArchitectureModelElement> SelectCanonicalKnowledgeModelElements(
         IReadOnlyList<ArchitectureModelElement>? elements)

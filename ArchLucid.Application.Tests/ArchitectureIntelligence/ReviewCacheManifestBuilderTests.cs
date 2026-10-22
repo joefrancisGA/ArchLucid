@@ -1729,6 +1729,103 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_framing_answer_key_differs_only_by_nbsp_vs_space()
+    {
+        ClosedLoopReasoningRequest spaced = CreateRequest("Architecture note.");
+        spaced.FramingAnswers = new Dictionary<string, string> { ["business outcome"] = "Secure intake." };
+
+        ClosedLoopReasoningRequest nbsp = CreateRequest("Architecture note.");
+        nbsp.FramingAnswers = new Dictionary<string, string> { ["business\u00A0outcome"] = "Secure intake." };
+
+        ReviewCacheManifestBuilder.Build(spaced).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(nbsp).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_framing_answer_value_differs_only_by_consecutive_spaces()
+    {
+        ClosedLoopReasoningRequest single = CreateRequest("Architecture note.");
+        single.FramingAnswers = new Dictionary<string, string> { ["business-outcome"] = "Secure intake." };
+
+        ClosedLoopReasoningRequest doubleSpaced = CreateRequest("Architecture note.");
+        doubleSpaced.FramingAnswers = new Dictionary<string, string> { ["business-outcome"] = "Secure  intake." };
+
+        ReviewCacheManifestBuilder.Build(single).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(doubleSpaced).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_model_alias_id_differs_only_by_nbsp_vs_space()
+    {
+        ClosedLoopReasoningRequest spaced = CreateRequest("Architecture note.");
+        spaced.ModelAliasId = "gpt 4.1";
+
+        ClosedLoopReasoningRequest nbsp = CreateRequest("Architecture note.");
+        nbsp.ModelAliasId = "gpt\u00A04.1";
+
+        ReviewCacheManifestBuilder.Build(spaced).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(nbsp).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_element_property_value_differs_only_by_consecutive_spaces()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-property-value-spaces";
+
+        ArchitectureKnowledgeModel single = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Properties = new Dictionary<string, string> { ["env"] = "prod tier" },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel doubleSpaced = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Properties = new Dictionary<string, string> { ["env"] = "prod  tier" },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, single).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, doubleSpaced).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_ledger_evidence_ref_differs_only_by_nbsp_vs_space()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-ledger-evidence-nbsp";
+
+        TechnologyLedgerEntry spaced = CreateLedgerEntry(request.RunId, evidenceRef: "artifact 1");
+        TechnologyLedgerEntry nbsp = CreateLedgerEntry(request.RunId, evidenceRef: "artifact\u00A01");
+
+        ReviewCacheManifestBuilder.Build(request, null, [spaced]).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, null, [nbsp]).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_ledger_technology_name_differs_only_by_nbsp_vs_space()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");

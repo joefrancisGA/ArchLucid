@@ -22,6 +22,19 @@ internal static class ClosedLoopModelAliasIdNormalizer
         if (string.IsNullOrWhiteSpace(modelAliasId))
             return string.Empty;
 
-        return modelAliasId.Trim();
+        return CollapseInteriorAsciiSpaces(NormalizeUnicodeSpaces(modelAliasId.Trim()));
+    }
+
+    private static string NormalizeUnicodeSpaces(string value) =>
+        value
+            .Replace('\u00a0', ' ')
+            .Replace('\u202f', ' ');
+
+    private static string CollapseInteriorAsciiSpaces(string content)
+    {
+        while (content.Contains("  ", StringComparison.Ordinal))
+            content = content.Replace("  ", " ", StringComparison.Ordinal);
+
+        return content;
     }
 }

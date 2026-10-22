@@ -44,6 +44,24 @@ internal static class ClosedLoopFramingAnswersNormalizer
         return normalized;
     }
 
-    private static string NormalizeUnicode(string value) =>
-        value.Length == 0 ? value : value.Normalize(NormalizationForm.FormC);
+    private static string NormalizeUnicode(string value)
+    {
+        if (value.Length == 0)
+            return value;
+
+        return CollapseInteriorAsciiSpaces(NormalizeUnicodeSpaces(value)).Normalize(NormalizationForm.FormC);
+    }
+
+    private static string NormalizeUnicodeSpaces(string value) =>
+        value
+            .Replace('\u00a0', ' ')
+            .Replace('\u202f', ' ');
+
+    private static string CollapseInteriorAsciiSpaces(string content)
+    {
+        while (content.Contains("  ", StringComparison.Ordinal))
+            content = content.Replace("  ", " ", StringComparison.Ordinal);
+
+        return content;
+    }
 }
