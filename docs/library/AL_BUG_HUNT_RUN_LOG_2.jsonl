@@ -1466,3 +1466,4 @@
 {"at":"2026-10-22T22:02:43.1321619Z","zoneId":"tenant-data-export","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-22T22:15:00.0000000Z","zoneId":"tenant-data-export","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Host.Composition/Startup/Modules/PipelineCompositionModule.cs","ArchLucid.Host.Composition.Tests/Http/RunExportBlobPushHttpClientTests.cs"]}
 {"at":"2026-10-22T22:20:00.0000000Z","zoneId":"tenant-data-export","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Core.Tests/Security/AllowedRunExportBlobDestinationUrlPolicyTests.cs"]}
+{"at":"2026-10-22T22:28:00.0000000Z","zoneId":"api-policy-packs","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Validators/PolicyPackSimulateRequestValidator.cs","ArchLucid.Api.Tests/PolicyPackSimulateRequestValidatorTests.cs"]}
