@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed consent_required authorize-query UX, BFF refresh 411 parity, invalid token endpoint skip of authorize-retry marker, and saturated decodeOAuthErrorDescription regional-indicator glue; scoped vitest 473/473.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - consent_required authorize-query copy - **cheap-disproof 2026-10-22:** fixed administrator-consent UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 411 shouldClearSession false - **cheap-disproof 2026-10-22:** existing client regression on trunk.
+- [x] (valid-no-repro) exchangeAuthorizationCode - invalid token endpoint URL skips authorize retry marker - **cheap-disproof 2026-10-22:** existing token-client regression; misconfiguration not OAuth outcome.
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with regional-indicator glue - **cheap-disproof 2026-10-22:** saturated encoding class; flag emoji copy already covered on trunk.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - unauthorized_client authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 413 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - opaque token endpoint HTTP error marks authorize retry - locus: proxy HTML vs OAuth JSON policy.
+- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with regional-indicator glue - locus: saturated JSON encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed interaction_required authorize-query UX, BFF refresh 503 parity, and invalid_grant authorize-retry marking policy; regression Google supplemental sign-in rehydrates authorize-retry snapshot with in-flight primary PKCE + tampered unsafe URL; scoped vitest 470/470.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - interaction_required authorize-query copy - **cheap-disproof 2026-10-22:** fixed interaction-required UX parity with login_required.

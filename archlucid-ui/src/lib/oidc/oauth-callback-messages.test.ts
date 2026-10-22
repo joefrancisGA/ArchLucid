@@ -324,6 +324,13 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("interaction_required");
   });
 
+  it("humanizes consent_required authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("consent_required", "");
+
+    expect(message).toMatch(/administrator consent/i);
+    expect(message).not.toContain("consent_required");
+  });
+
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
     expect(humanizeAuthorizeCallbackError("   ", "")).toContain("complete response");
     expect(humanizeAuthorizeCallbackError("   ", "")).not.toMatch(/\(\s*\)/u);
