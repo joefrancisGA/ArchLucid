@@ -8712,6 +8712,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted path-shaped `ElementId` values splitting review-cache `modelfp` on separator drift; element fingerprinting and canonical grouping now use `NormalizeArtifactReferenceForFingerprint`; regression `Build_matches_content_hash_when_baseline_element_id_differs_only_by_backslash_vs_forward_slash_in_path`; cheap-disproof regressions for ledger/source passage/related `..` and `./` path drift, double-slash passage artifacts, source-artifact `..` segments, leading-slash passage ids, and request attachment path separators; 301 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.SelectCanonicalKnowledgeModelElements` — path-shaped element ids split `modelfp` — **hit 2026-10-22 seed hunt:** artifact reference normalization on `ElementId`; regression above.
+
 2026-10-22 seed hunt (seed→hit): promoted `SourcePassageIds`, `RelatedElementIds`, and ledger `EvidenceRef` path separator drift splitting review-cache `modelfp`/`ledgerfp`; list fingerprints now use `NormalizeArtifactReferenceForFingerprint`; `ReviewCacheLedgerFingerprint` applies `NormalizeReviewCachePathLikeToken`; regressions `Build_matches_content_hash_when_baseline_source_passage_ids_differ_only_by_backslash_vs_forward_slash`, `Build_matches_content_hash_when_baseline_related_element_ids_differ_only_by_backslash_vs_forward_slash`, and `Build_matches_content_hash_when_ledger_evidence_ref_differs_only_by_backslash_vs_forward_slash`; cheap-disproof regression for passage artifact `..` segment collapse; 292 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — passage/related id path separators split `modelfp` — **hit 2026-10-22 seed hunt:** artifact reference normalization on cross-ref lists; regressions above.
