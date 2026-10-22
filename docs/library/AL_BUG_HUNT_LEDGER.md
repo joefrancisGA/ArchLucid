@@ -9,6 +9,18 @@
 - [ ] (candidate) refreshBffSessionCookie - refresh 493 shouldClearSession false - locus: transient refresh parity.
 - [ ] (candidate) exchangeAuthorizationCode - access_token JSON string soft-hyphen object-replacement replacement-character and variation-selector-16-only skips authorize retry marker - locus: literal whitespace token shape.
 - [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with ZWJ glue - locus: saturated encoding class.
+2026-10-22 seed hunt (seed->hit): `api-request-null-collection-elements` - promoted hunt-ready from seed re-read `ApiRequestNullCollectionElementsGuard.VisitCollection` - dictionary properties enumerate `KeyValuePair` entries so null `TValue` slots (e.g. `PolicyPackDryRunRequest.ProposedThresholds`) bypassed list-style null-element detection and reached controller code; validate dictionary values using owning property `TValue` nullability; regressions `ContainsNullCollectionElement_returns_true_for_null_dictionary_value_on_non_nullable_value_type` and `ContainsNullCollectionElement_allows_null_dictionary_value_when_value_type_is_nullable`; scoped filter 22/22.
+
+- [x] (proven) `ApiRequestNullCollectionElementsGuard` - null dictionary values on non-nullable TValue - **hit 2026-10-22 seed hunt:** KeyValuePair value nullability from dictionary property generic args; regressions above.
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsFilter` - skips non-body parameters - **cheap-disproof 2026-10-22:** existing filter tests on trunk.
+- [x] (valid-no-repro) `ApiRequestBodyTypeCatalog` - dictionary paths skipped by null-element probes - **cheap-disproof 2026-10-22:** probe factory skips value-type element collections by design; dictionary values covered by dedicated guard regression.
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard` - null non-dictionary collection elements - **cheap-disproof 2026-10-22:** existing regressions on trunk.
+
+- [ ] (candidate) `ApiRequestNullCollectionProbeFactory` - construct null TValue probes for dictionary collection paths - locus: architecture enumeration (reachability: CI guard coverage).
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard` - null dictionary keys when TKey non-nullable - locus: JSON map keys (reachability: rare client payloads).
+- [ ] (candidate) `ApiRequestNullCollectionElementsFilter` - multiple `[FromBody]` parameters ordering - locus: filter iteration (reachability: API conventions).
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard` - `IReadOnlyDictionary` parity with `Dictionary` - locus: interface-typed properties (reachability: request DTOs).
+- [ ] (candidate) `MvcExtensions` - filter registration order vs model binding - locus: pipeline (reachability: startup).
 
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed state_mismatch authorize-query UX (existing parity) and saturated decodeOAuthErrorDescription ZWJ multiply-encoded glue (existing parity); regression documents BFF refresh 491 parity (client + route opaque 491) and soft-hyphen replacement-character variation-selector-16-only access_token rejection; scoped vitest 764/764.
 
@@ -74855,11 +74867,11 @@ ABQ-09 churn hotspot.
 - **aliases:** null collection elements; request body validation
 - **paths:** ArchLucid.Api/Filters/ApiRequestNullCollectionElementsFilter.cs; ArchLucid.Api/Validation/ApiRequestNullCollectionElementsGuard.cs; ArchLucid.Api/Http/ApiRequestBodyTypeCatalog.cs; ArchLucid.Api/Startup/MvcExtensions.cs
 - **test-filter:** FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests
-- **hunts:** 2
-- **bugs-found:** 1
+- **hunts:** 3
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 - null dictionary TValue in request body guard
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -122707,11 +122719,11 @@ ABQ-09 churn hotspot.
 - **aliases:** null collection elements; request body validation
 - **paths:** ArchLucid.Api/Filters/ApiRequestNullCollectionElementsFilter.cs; ArchLucid.Api/Validation/ApiRequestNullCollectionElementsGuard.cs; ArchLucid.Api/Http/ApiRequestBodyTypeCatalog.cs; ArchLucid.Api/Startup/MvcExtensions.cs
 - **test-filter:** FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests
-- **hunts:** 2
-- **bugs-found:** 1
+- **hunts:** 3
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 - null dictionary TValue in request body guard
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -170557,11 +170569,11 @@ ABQ-09 churn hotspot.
 - **aliases:** null collection elements; request body validation
 - **paths:** ArchLucid.Api/Filters/ApiRequestNullCollectionElementsFilter.cs; ArchLucid.Api/Validation/ApiRequestNullCollectionElementsGuard.cs; ArchLucid.Api/Http/ApiRequestBodyTypeCatalog.cs; ArchLucid.Api/Startup/MvcExtensions.cs
 - **test-filter:** FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests
-- **hunts:** 2
-- **bugs-found:** 1
+- **hunts:** 3
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 - null dictionary TValue in request body guard
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -218460,11 +218472,11 @@ ABQ-09 churn hotspot.
 - **aliases:** null collection elements; request body validation
 - **paths:** ArchLucid.Api/Filters/ApiRequestNullCollectionElementsFilter.cs; ArchLucid.Api/Validation/ApiRequestNullCollectionElementsGuard.cs; ArchLucid.Api/Http/ApiRequestBodyTypeCatalog.cs; ArchLucid.Api/Startup/MvcExtensions.cs
 - **test-filter:** FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests
-- **hunts:** 2
-- **bugs-found:** 1
+- **hunts:** 3
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 - null dictionary TValue in request body guard
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
