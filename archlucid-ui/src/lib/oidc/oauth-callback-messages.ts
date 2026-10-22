@@ -141,8 +141,12 @@ function shouldPreserveLiteralPlusInAuthorizeDescription(decoded: string): boole
     return true;
   }
 
-  // Family/regional-indicator emoji and Persian copy use ZWJ (U+200D), not ZWSP glue chars above.
+  // Family emoji uses ZWJ (U+200D); flag emoji uses regional indicators — neither matches ZWSP glue above.
   if (/\u200d/u.test(decoded)) {
+    return true;
+  }
+
+  if (/\p{Regional_Indicator}/u.test(decoded)) {
     return true;
   }
 
