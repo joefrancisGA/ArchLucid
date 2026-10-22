@@ -1,14 +1,50 @@
-2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed binding_required authorize-query UX (existing parity) and saturated decodeOAuthErrorDescription ZWJ multiply-encoded glue (existing parity); regression documents BFF refresh 483 parity (client + route opaque 483) and variation-selector-16-only access_token rejection; scoped vitest 744/744.
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed pkce_verification_failed authorize-query UX (existing parity) and saturated readOAuthJsonErrorDescription ZWJ glue; regression documents BFF refresh 486 parity and replacement-character plus variation-selector-16-only access_token rejection; scoped vitest 669/669.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - pkce_verification_failed authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 486 shouldClearSession false - **regression 2026-10-22:** transient refresh soft-fail without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string replacement-character and variation-selector-16-only skips authorize retry marker - **regression 2026-10-22:** normalizeTokenString strip parity.
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** saturated JSON encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_code_verifier authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 487 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string soft-hyphen and object-replacement-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with ZWJ glue - locus: saturated encoding class.
+
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed code_challenge_required authorize-query UX (existing parity) and saturated decodeOAuthErrorDescription ZWJ glue; regression documents BFF refresh 485 parity and object-replacement plus variation-selector-16-only access_token rejection; scoped vitest 667/667.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - code_challenge_required authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 485 shouldClearSession false - **regression 2026-10-22:** transient refresh soft-fail without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string object-replacement and variation-selector-16-only skips authorize retry marker - **regression 2026-10-22:** normalizeTokenString strip parity.
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** saturated encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - pkce_verification_failed authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 486 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string replacement-character and variation-selector-16-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - locus: saturated encoding class.
+
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed proof_key_required authorize-query UX (existing parity) and saturated readOAuthJsonErrorDescription ZWJ glue; regression documents BFF refresh 484 parity and soft-hyphen plus variation-selector-16-only access_token rejection; scoped vitest 665/665.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - proof_key_required authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 484 shouldClearSession false - **regression 2026-10-22:** transient refresh soft-fail without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string soft-hyphen and variation-selector-16-only skips authorize retry marker - **regression 2026-10-22:** normalizeTokenString strip parity.
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** saturated JSON encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - code_challenge_required authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 485 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string object-replacement and variation-selector-16-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with ZWJ glue - locus: saturated encoding class.
+
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed binding_required authorize-query UX (existing parity), variation-selector-16-only token (duplicate of variation-selector-only FE0F test), and saturated decodeOAuthErrorDescription ZWJ glue; regression documents BFF refresh 483 parity; scoped vitest 663/663.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - binding_required authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
-- [x] (valid-no-repro) refreshBffSessionCookie - refresh 483 shouldClearSession false - **regression 2026-10-22:** client soft-fail plus BFF route opaque 483 without cookie clear.
-- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string variation-selector-16-only skips authorize retry marker - **regression 2026-10-22:** variation-selector strip parity (U+FE0F).
-- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** existing saturated encoding class test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 483 shouldClearSession false - **regression 2026-10-22:** transient refresh soft-fail without cookie clear.
+- [x] (invalid) exchangeAuthorizationCode - access_token JSON string variation-selector-16-only skips authorize retry marker - **cheap-disproof 2026-10-22:** duplicate of variation-selector-only (U+FE0F) regression.
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** saturated encoding class.
 
-- [ ] (candidate) humanizeAuthorizeCallbackError - consent_required authorize-query copy - locus: default branch UX.
+- [ ] (candidate) humanizeAuthorizeCallbackError - proof_key_required authorize-query copy - locus: default branch UX.
 - [ ] (candidate) refreshBffSessionCookie - refresh 484 shouldClearSession false - locus: transient refresh parity.
-- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string variation-selector-15-only skips authorize retry marker - locus: literal whitespace token shape.
-- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with thin-space glue - locus: saturated JSON encoding class.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string soft-hyphen and variation-selector-16-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - locus: saturated encoding class.
 
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed credentials_required authorize-query UX (existing parity) and saturated readOAuthJsonErrorDescription ZWJ glue; regression documents BFF refresh 482 parity and variation-selector-1-only access_token rejection; scoped vitest 662/662.
 
@@ -45,28 +81,6 @@
 - [ ] (candidate) refreshBffSessionCookie - refresh 481 shouldClearSession false - locus: transient refresh parity.
 - [ ] (candidate) exchangeAuthorizationCode - access_token JSON string variation-selector-2-only skips authorize retry marker - locus: literal whitespace token shape.
 - [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with ZWJ glue - locus: saturated encoding class.
-2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_authentication authorize-query UX (existing parity) and saturated readOAuthJsonErrorDescription ZWJ multiply-encoded glue (existing parity); regression documents BFF refresh 480 parity (client + route opaque 480) and variation-selector-3-only access_token rejection; scoped vitest 737/737.
-
-- [x] (invalid) humanizeAuthorizeCallbackError - invalid_authentication authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
-- [x] (valid-no-repro) refreshBffSessionCookie - refresh 480 shouldClearSession false - **regression 2026-10-22:** client soft-fail plus BFF route opaque 480 without cookie clear.
-- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string variation-selector-3-only skips authorize retry marker - **regression 2026-10-22:** variation-selector strip parity (U+FE02).
-- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** existing saturated JSON encoding class test.
-
-- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_client authorize-query copy - locus: default branch UX.
-- [ ] (candidate) refreshBffSessionCookie - refresh 481 shouldClearSession false - locus: transient refresh parity.
-- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string variation-selector-2-only skips authorize retry marker - locus: literal whitespace token shape.
-- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with thin-space glue - locus: saturated encoding class.
-2026-10-22 seed hunt (seed->hit): `application-tenancy-lifecycle` - promoted hunt-ready from seed re-read `TenantProvisioningService.ProvisionAsync` - nav settings upserts ran after `tenantBeforeNavSettings` without a final re-read, so erasure offboard between that read and `UpsertAsync` could write default nav settings for quarantined tenants; pre-upsert `GetByIdAsync` quarantine guard (`tenantBeforeNavSettingsUpsert`); regression `ProvisionAsync_skips_nav_settings_when_offboard_completes_after_tenant_before_nav_settings_read_before_upsert`; tightened marketing and provisioned-audit race mock read counters (+1 active); scoped tenancy filter 281/281.
-
-- [x] (proven) `ProvisionAsync` - offboard after tenantBeforeNavSettings read before nav upsert - **hit 2026-10-22 seed hunt:** `tenantBeforeNavSettingsUpsert` re-read + quarantine guard; regression above.
-- [x] (valid-no-repro) `ProvisionAsync` - offboard after policy pack seed before nav settings read - **cheap-disproof 2026-10-22:** existing five-read regression on trunk.
-- [x] (valid-no-repro) `ProvisionAsync` - offboard after tenantBeforePolicyPackSeed read - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
-- [x] (valid-no-repro) `ProvisionAsync` - offboard after tenantBeforeProvisionedAudit read - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
-
-- [ ] (candidate) `TenantProvisioningService` - offboard after tenantBeforeMarketingAttribution read before first-touch persist - locus: marketing attribution side-effect race (reachability: provision path).
-- [ ] (candidate) `TrialLifecycleTransitionEngine` - offboard on deleted-transition purge gate after audit - locus: deleted-path automation gate (reachability: trial scheduler).
-- [ ] (candidate) `TenantErasureCommandService` - consolidate pre-append audit re-read helpers - locus: refactor batch (not hunt-ready defect).
-- [ ] (candidate) `DeleteTenantAsync` - further pre-append read stacking - locus: defer to helper refactor (reachability: low).
 
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_oidc_response authorize-query UX (existing parity) and saturated decodeOAuthErrorDescription ZWJ glue; regression documents BFF refresh 479 parity and variation-selector-4-only access_token rejection; scoped vitest 656/656.
 
