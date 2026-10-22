@@ -2842,6 +2842,14 @@
 
 ## Zone: scim-users
 
+2026-10-22 thorough hunt #8 (dry): cheap-disproof closed five picker `(candidate)` rows (PATCH missing `path` returns `invalidPath`; `userName: null` fails `ReadRequiredString`; omitted `active` defaults true and reserves seat when active per `CreateAsync`; negative `count` clamped with regression `ListAsync_negative_count_clamped_to_empty_page`; `null` operation entry fails `ApplyOne` object guard); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
+
+- [x] (invalid) `ScimUsersController.PatchAsync` — operation missing `path` — **cheap-disproof 2026-10-22 #8:** `ScimPatchOpEvaluator.ApplyOne` ~31–32 → `invalidPath`.
+- [x] (invalid) `ScimUsersController.ReplaceAsync` — `userName` JSON `null` — **cheap-disproof 2026-10-22 #8:** `ReadRequiredString` requires string kind → `invalidValue`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — omit `active` — **cheap-disproof 2026-10-22 #8:** `ReadActive` defaults `true`; `CreateAsync` increments seat when `active` (~60–68); intended provisioning default.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — negative `count` — **cheap-disproof 2026-10-22 #8:** `Math.Clamp(count, 0, 200)`; regression `ListAsync_negative_count_clamped_to_empty_page`.
+- [x] (invalid) `ScimUsersController.PatchAsync` — `Operations` contains `null` — **cheap-disproof 2026-10-22 #8:** `ApplyOne` ~26–27 non-object → `invalidSyntax`.
+
 2026-10-22 thorough hunt #7 (dry): cheap-disproof closed five picker `(candidate)` rows (JSON `null` POST root fails `ParseUser` non-object `invalidSyntax`; negative `startIndex` matches #6 paging clamp; missing `userName` on PUT returns `invalidValue`; PATCH string root fails `ApplyFlat` object guard; numeric `active` on create is intentional `ReadActive` coercion for provisioner literals); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
 
 - [x] (invalid) `ScimUsersController.CreateAsync` — JSON `null` root — **cheap-disproof 2026-10-22 #7:** deserialized `JsonElement` with `ValueKind.Null` → `ParseUser` `invalidSyntax` (non-object).
@@ -2927,9 +2935,9 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 41
+- **hunts:** 42
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 7
+- **consecutive-dry-hunts:** 8
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — SCIM POST/PUT/PATCH mapped canceled JSON reads to invalidSyntax 400
 - **related-pd-tb:** none
@@ -3068,11 +3076,17 @@
 - [x] (invalid) `ScimUsersController.PatchAsync` — string PATCH root — **cheap-disproof 2026-10-22 #7:** `ApplyFlat` object guard.
 - [x] (valid-no-repro) `ScimUsersController.CreateAsync` — numeric `active` — **cheap-disproof 2026-10-22 #7:** intentional `ReadActive` number coercion.
 
-- [ ] (candidate) `ScimUsersController.PatchAsync` — operation object missing `path` — locus: `ScimPatchOpEvaluator.ApplyOne` ~31–32; input: `{"Operations":[{"op":"replace","value":true}]}` (expect `invalidPath`).
-- [ ] (candidate) `ScimUsersController.ReplaceAsync` — PUT with `userName` JSON `null` — locus: `ReadRequiredString` ~21–22; input: `{"userName":null,"active":true}` (expect `invalidValue`).
-- [ ] (candidate) `ScimUsersController.CreateAsync` — User with only `userName` (omit `active`) — locus: `ReadActive` default `true` ~38–39; input: verify enterprise seat reserved on create without explicit `active`.
-- [ ] (candidate) `ScimUsersController.ListAsync` — negative `count` query — locus: `Math.Clamp(count, 0, 200)` in `ScimUserService.ListAsync`; input: `?count=-10` returns empty page with preserved `totalResults`.
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `Operations` array containing JSON `null` entry — locus: `ApplyFlat` foreach → `ApplyOne` ~26–27; input: `{"Operations":[null]}` (expect `invalidSyntax`).
+- [x] (invalid) `ScimUsersController.PatchAsync` — missing `path` — **cheap-disproof 2026-10-22 #8:** `invalidPath`.
+- [x] (invalid) `ScimUsersController.ReplaceAsync` — `userName: null` — **cheap-disproof 2026-10-22 #8:** `invalidValue`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — omitted `active` — **cheap-disproof 2026-10-22 #8:** default active + seat path.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — negative `count` — **cheap-disproof 2026-10-22 #8:** clamp + unit regression.
+- [x] (invalid) `ScimUsersController.PatchAsync` — `null` in `Operations` — **cheap-disproof 2026-10-22 #8:** `invalidSyntax`.
+
+- [ ] (candidate) `ScimUsersController.PatchAsync` — unsupported `op` (e.g. `copy`) — locus: `ScimPatchOpEvaluator.ApplyOne` ~45–46; input: `{"Operations":[{"op":"copy","path":"userName","value":"x"}]}` (expect `invalidSyntax`).
+- [ ] (candidate) `ScimUsersController.CreateAsync` — `active: false` on create — locus: `CreateAsync` ~60–68; input: verify inactive create skips `TryIncrementEnterpriseScimSeatAsync`.
+- [ ] (candidate) `ScimUsersController.ReplaceAsync` — whitespace-only `userName` — locus: `ReadRequiredString` trim ~23–24; input: `{"userName":"   ","active":true}` (expect `invalidValue`).
+- [ ] (candidate) `ScimUsersController.PatchAsync` — empty string `path` — locus: `ApplyOne` ~35–37; input: `{"Operations":[{"op":"replace","path":"","value":true}]}` (expect `invalidPath`).
+- [ ] (candidate) `ScimUsersController.CreateAsync` — omit `externalId` (defaults to `userName`) — locus: `ParseUser` ~15; input: duplicate detection uses trimmed `userName` as `externalId` for Entra-style minimal POST.
 
 - [x] (proven) `ScimUserService.CreateAsync` / `PatchAsync` / `ScimUsersController` — a second live user with the same `userName` and a different `externalId` was stored, including case-only names — **hit 2026-10-09 seed hunt:** live `userName` lookup returns `uniqueness`. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
 - [x] (proven) `ScimFilterParser.ParseFilter` / `ScimUsersController.ListAsync` — ungrouped `or` before `and` was parsed left-to-right, so an active user matching only the left comparison was omitted — **hit 2026-10-09 seed hunt:** `not` over `and` over `or` per RFC 7644 §3.4.2.2. Regressions `ListAsync_filter_gives_and_precedence_over_or`, `Parse_or_binds_looser_than_and`, and `Parse_not_binds_tighter_than_and`.
