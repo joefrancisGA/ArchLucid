@@ -14,12 +14,17 @@
 
 - [x] (invalid) humanizeAuthorizeCallbackError - invalid_client_id authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
 - [x] (valid-no-repro) refreshBffSessionCookie - refresh 445 shouldClearSession false - **regression 2026-10-22:** transient refresh soft-fail without cookie clear.
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_client_id authorize-query UX, BFF refresh 445 parity (client + route opaque 445), and saturated decodeOAuthErrorDescription hair-space multiply-encoded glue; regression documents authorize-retry marking when authorization code exchange returns hair-space-only access_token; scoped vitest 621/621.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - invalid_client_id authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 445 shouldClearSession false - **regression 2026-10-22:** client soft-fail plus BFF route opaque 445 without cookie clear.
 - [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string hair-space-only skips authorize retry marker - **regression 2026-10-22:** hair-space-only tokens reject exchange and set retry marker.
 - [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with hair-space glue - **cheap-disproof 2026-10-22:** saturated encoding class.
 
 - [ ] (candidate) humanizeAuthorizeCallbackError - invalid_client_secret authorize-query copy - locus: default branch UX.
 - [ ] (candidate) refreshBffSessionCookie - refresh 446 shouldClearSession false - locus: transient refresh parity.
 - [ ] (candidate) exchangeAuthorizationCode - access_token JSON string narrow-no-break-space-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string punctuation-space-only skips authorize retry marker - locus: literal whitespace token shape.
 - [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with hair-space glue - locus: saturated JSON encoding class.
 
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_password authorize-query UX, BFF refresh 444 parity, and saturated readOAuthJsonErrorDescription ZWNJ glue; regression documents authorize-retry is marked when authorization code exchange returns thin-space-only access_token; scoped vitest 566/566.
