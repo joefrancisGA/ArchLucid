@@ -237,6 +237,35 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     }
 
     [Fact]
+    public void Compute_unchanged_when_artifact_display_fields_differ_only_by_surrounding_whitespace()
+    {
+        Guid artifactId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+        SynthesizedArtifact baseline = new()
+        {
+            ArtifactId = artifactId,
+            ArtifactType = "doc",
+            Name = "overview.md",
+            Format = "md",
+            Content = "v1",
+            ContentHash = "hash-v1",
+        };
+
+        SynthesizedArtifact updated = new()
+        {
+            ArtifactId = artifactId,
+            ArtifactType = "  doc  ",
+            Name = "  overview.md  ",
+            Format = "  md  ",
+            Content = "v1",
+            ContentHash = "hash-v1",
+        };
+
+        ProvenanceSnapshotRevisionHasher.Compute(CreateInput([baseline]), BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(CreateInput([updated]), BundleId));
+    }
+
+    [Fact]
     public void Compute_unchanged_when_only_rule_audit_trace_tenant_id_changes()
     {
         ProvenanceBuildInput baseline = CreateInput([], ["rule-a"]);
