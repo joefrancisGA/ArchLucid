@@ -77,10 +77,12 @@ public sealed partial class GovernanceStickinessFacade
 
         RiskExceptionRecord? existing = await _riskExceptionService.GetByIdAsync(scope.TenantId, riskExceptionId, ct);
 
-        if (existing?.RunId is { } revokeRunId && revokeRunId != Guid.Empty)
+        Guid revokeRunIdForGuard = await ResolveRiskExceptionSealedManifestRunIdAsync(existing, scope, ct);
+
+        if (revokeRunIdForGuard != Guid.Empty)
         {
             await GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync(
-                revokeRunId,
+                revokeRunIdForGuard,
                 scope,
                 _authorityQueryService,
                 _manifestHashService,
@@ -106,10 +108,12 @@ public sealed partial class GovernanceStickinessFacade
 
         RiskExceptionRecord? existing = await _riskExceptionService.GetByIdAsync(scope.TenantId, riskExceptionId, ct);
 
-        if (existing?.RunId is { } renewRunId && renewRunId != Guid.Empty)
+        Guid renewRunIdForGuard = await ResolveRiskExceptionSealedManifestRunIdAsync(existing, scope, ct);
+
+        if (renewRunIdForGuard != Guid.Empty)
         {
             await GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync(
-                renewRunId,
+                renewRunIdForGuard,
                 scope,
                 _authorityQueryService,
                 _manifestHashService,
@@ -130,5 +134,20 @@ public sealed partial class GovernanceStickinessFacade
 
         if (!RiskExceptionScope.IsVisibleInScope(record, scope))
             throw new InvalidOperationException("Risk exception was not found.");
+    }
+
+    private async Task<Guid> ResolveRiskExceptionSealedManifestRunIdAsync(
+        RiskExceptionRecord? record,
+        ScopeContext scope,
+        CancellationToken ct)
+    {
+        Guid runId = record?.RunId ?? Guid.Empty;
+
+        if (runId != Guid.Empty || string.IsNullOrWhiteSpace(record?.FindingId))
+            return runId;
+
+        FindingInspectResponse finding = await RequireFindingInspectInScopeAsync(scope, record.FindingId.Trim(), ct);
+
+        return finding.RunId;
     }
 }

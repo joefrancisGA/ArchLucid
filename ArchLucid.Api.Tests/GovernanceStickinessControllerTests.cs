@@ -819,6 +819,10 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task RevokeRiskException_blocks_older_unsealed_finding_run_when_waiver_run_id_is_empty() =>
+        await AssertRevokeBlocksUnsealedFindingRunWhenWaiverRunIdEmpty();
+
+    [Fact]
     public async Task GetAssignedToMeFindingsCount_returns_not_found_when_tenant_missing()
     {
         GovernanceStickinessController sut = BuildSut(tenantRepository: TenantMissingRepository());
@@ -5470,6 +5474,43 @@ public sealed class GovernanceStickinessControllerTests
 
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    private static async Task AssertRevokeBlocksUnsealedFindingRunWhenWaiverRunIdEmpty()
+    {
+        Guid latestRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid olderRunId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        Guid exceptionId = Guid.Parse("44444444-4444-4444-4444-444444444444");
+        const string findingId = "finding-older-revoke";
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(service => service.ListRunSummariesKeysetAsync(null, 50, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((new[] { new RunSummary { RunId = latestRunId.ToString("N"), Status = nameof(ArchitectureRunStatus.Committed), CreatedUtc = DateTime.UtcNow } }, false, (string?)null));
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority.Setup(q => q.GetRunDetailForManifestCompareAsync(It.IsAny<ScopeContext>(), latestRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto { Run = new RunRecord { RunId = latestRunId }, GoldenManifest = new ManifestDocument { RunId = latestRunId, ManifestHash = SealedManifestHash } });
+        authority.Setup(q => q.GetRunDetailForManifestCompareAsync(It.IsAny<ScopeContext>(), olderRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto { Run = new RunRecord { RunId = olderRunId }, GoldenManifest = null });
+
+        Mock<IManifestHashService> manifestHash = new();
+        manifestHash.Setup(s => s.ComputeHash(It.IsAny<ManifestDocument>())).Returns(SealedManifestHash);
+
+        Mock<IRiskExceptionService> riskExceptions = new();
+        riskExceptions.Setup(s => s.GetByIdAsync(Scope.TenantId, exceptionId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RiskExceptionRecord { RiskExceptionId = exceptionId, TenantId = Scope.TenantId, WorkspaceId = Scope.WorkspaceId, ProjectId = Scope.ProjectId, FindingId = findingId, RunId = null, Status = RiskExceptionStatus.Active, ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(30) });
+
+        Mock<IFindingInspectReadRepository> findingInspect = new();
+        findingInspect.Setup(r => r.GetInspectAsync(Scope, findingId, It.IsAny<CancellationToken>(), It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse { FindingId = findingId, RunId = olderRunId });
+
+        GovernanceStickinessController sut = BuildSut(riskExceptions: riskExceptions, findingInspect: findingInspect, authorityQueryService: authority.Object, manifestHashService: manifestHash.Object, runDetailQueryService: runDetails.Object);
+
+        IActionResult action = await sut.RevokeRiskException(exceptionId, CancellationToken.None);
+
+        action.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        riskExceptions.Verify(s => s.RevokeAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     private static Mock<IArchitectureReviewRecurrenceNextRunCalculator> BuildRealRecurrenceCalculator()

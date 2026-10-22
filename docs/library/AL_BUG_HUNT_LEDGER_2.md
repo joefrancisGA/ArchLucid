@@ -9834,6 +9834,16 @@
 
 ## Zone: api-governance-tenancy-controllers
 
+2026-10-22 seed hunt #3 (seed→hit): promoted `EnsureRiskExceptionRunSealedManifestAllowedAsync` finding-id fallback for revoke when waiver `RunId` empty; regression `RevokeRiskException_blocks_older_unsealed_finding_run_when_waiver_run_id_is_empty`; facade `ResolveRiskExceptionSealedManifestRunIdAsync` for revoke/renew; cheap-disproof closed prior open candidates (caller-pin null list ~55–59, bulk unknown finding ids, recurrence update NotFound path, register scope 409 intentional, workspace list coalesce); scoped test run blocked by API file lock — regression added.
+
+- [x] (proven) `GovernanceStickinessController.EnsureRiskExceptionRunSealedManifestAllowedAsync` — revoke reached facade when waiver `RunId` null but `FindingId` on older unsealed run while list returned 409 — regression above.
+
+- [ ] (candidate) `GovernanceStickinessController.RenewRiskException` — renew shares revoke sealed guard — locus: `Exceptions.cs` ~202–207; input: renew regression when `RunId` empty.
+- [ ] (candidate) `GovernanceController.DryRunPolicyPack` — single vs batch sealed guard detail sources — locus: `PolicyPacks.DryRun.cs` ~75–83 vs ~198–200; input: null golden skip parity.
+- [ ] (candidate) `TenantBaselineController` — baseline PUT scope — locus: `TenantBaselineController.Put.cs`; input: cross-workspace mutation guard.
+- [ ] (candidate) `GovernanceStickinessController.ListDispositions` — missing finding history — locus: `ListDispositions` ~225–230; input: 404 vs empty when finding purged.
+- [ ] (candidate) `TenantWorkspacesController.ListRecycleBinAsync` — active list null coalesce — locus: `RetentionPurge.cs` ~37–39; input: recycle-bin when repository returns null.
+
 2026-10-22 seed hunt (seed-only): re-read governance preview/stickiness sealed-manifest guards and tenancy project delete paths; cheap-disproof closed stale open `(candidate)` rows (`GovernancePreviewController.Preview` skips sealed guard when manifest-compare detail is null ~28–31; insights dashboard/drift scope-posture over-block proven 2026-10-20; `DeleteProjectAsync` foreign-workspace branch uses `?? Array.Empty` ~73; recurrence create sealed guard shares disposition null-detail skip ~35–38); no hunt-ready row promoted; five replacement `(candidate)` rows; scoped Governance/Tenancy controller tests not run.
 
 - [x] (invalid) `GovernancePreviewController.Preview` — sealed guard before 404 — **cheap-disproof 2026-10-22 seed hunt:** `EnsureGovernancePreviewRunSealedManifestReadAllowedAsync` returns null when `detail is null` ~30–31; `RunNotFoundException` maps to 404 ~127–130.
@@ -9841,11 +9851,11 @@
 - [x] (invalid) `TenantWorkspacesController.DeleteProjectAsync` — `ListActiveByTenantAsync` null — **cheap-disproof 2026-10-22 seed hunt:** foreign-workspace branch coalesces ~73; proven 2026-10-20 hit.
 - [x] (valid-no-repro) `GovernanceStickinessController` revoke/renew sealed guard — **cheap-disproof 2026-10-22 seed hunt:** duplicate lane-C closure 2026-10-21.
 
-- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` — caller-workspace default pin uses null `ListActiveByTenantAsync` as empty without `?? Array.Empty` — locus: `activeProjects is null || activeProjects.Count == 0` ~55–56; input: repository returns null on caller-workspace pin branch only.
-- [ ] (candidate) `GovernanceStickinessController.EnsureBulkDispositionSealedManifestAllowedAsync` — missing finding ids skipped silently — locus: `finding is null` continue ~95–96; input: bulk disposition POST includes unknown finding id alongside valid ids.
-- [ ] (candidate) `GovernanceStickinessController.EnsureRecurrenceScheduleUpdateSealedManifestAllowedAsync` — missing schedule skips sealed guard — locus: `existing is null` ~126–127; input: PUT recurrence schedule for unknown id reaches 404 after guard skip.
-- [ ] (candidate) `GovernanceStickinessController.EnsureRegistersSealedManifestAllowedAsync` — scope posture preflight may 409 register reads — locus: `GovernanceScopePostureSealedManifestPreflight` ~141–148; input: verify read-only register list when latest committed run fails sealed hash.
-- [ ] (candidate) `TenantWorkspacesController` workspace list — `ListActiveByTenantAsync` without null coalesce on list path — locus: `WorkspaceList.cs` ~35; input: align delete/restore null-safe patterns across tenancy controllers.
+- [x] (valid-no-repro) `TenantWorkspacesController.DeleteProjectAsync` — caller-workspace default pin null list — **cheap-disproof 2026-10-22 seed hunt #3:** explicit null/empty guard ~55–59.
+- [x] (valid-no-repro) `GovernanceStickinessController.EnsureBulkDispositionSealedManifestAllowedAsync` — missing finding ids — **cheap-disproof 2026-10-22 seed hunt #3:** facade not-found ~190–192.
+- [x] (valid-no-repro) `GovernanceStickinessController.EnsureRecurrenceScheduleUpdateSealedManifestAllowedAsync` — missing schedule — **cheap-disproof 2026-10-22 seed hunt #3:** facade NotFound ~191–193.
+- [x] (valid-no-repro) `GovernanceStickinessController.EnsureRegistersSealedManifestAllowedAsync` — register 409 — **cheap-disproof 2026-10-22 seed hunt #3:** intentional fail-closed posture.
+- [x] (invalid) `TenantWorkspacesController.ListAsync` — workspace list null coalesce — **cheap-disproof 2026-10-22 seed hunt #3:** `?? Array.Empty` ~35–36.
 
 2026-10-21 seed hunt (seed→hit): promoted recurrence schedule create sealed guard 409-vs-404 for missing source run; regression `CreateRecurrenceSchedule_returns_not_found_for_missing_run_before_sealed_manifest_check`.
 
@@ -9857,11 +9867,11 @@
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER_2.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 332
+- **hunts:** 334
+- **bugs-found:** 527
+- **last-bug:** 2026-10-22 - risk exception revoke sealed guard resolves finding run when waiver RunId empty
 - **last-hunt:** 2026-10-22
-- **bugs-found:** 526
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

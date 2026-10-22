@@ -66,7 +66,21 @@ public sealed partial class GovernanceStickinessController
         RiskExceptionRecord? record =
             await _riskExceptionService.GetByIdAsync(scope.TenantId, riskExceptionId, cancellationToken);
 
-        if (record?.RunId is not { } runId || runId == Guid.Empty)
+        Guid runId = record?.RunId ?? Guid.Empty;
+
+        if (runId == Guid.Empty && !string.IsNullOrWhiteSpace(record?.FindingId))
+        {
+            FindingInspectResponse? finding = await _findingInspectReadRepository.GetInspectAsync(
+                scope,
+                record.FindingId.Trim(),
+                cancellationToken,
+                FindingInspectReadOptions.MetadataOnly);
+
+            if (finding is not null && finding.RunId != Guid.Empty)
+                runId = finding.RunId;
+        }
+
+        if (runId == Guid.Empty)
             return null;
 
         return await EnsureGovernanceDispositionRunSealedManifestAllowedAsync(runId, cancellationToken);
