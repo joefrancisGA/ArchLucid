@@ -19,6 +19,7 @@ import { normalizeOidcConfigurationString } from "@/lib/oidc/oauth-callback-mess
 import {
   clearPkceState,
   clearPostSignInReturnUrl,
+  consumeAuthorizeCallbackFailedRetry,
   readPkceState,
   storePkceState,
   storePostSignInReturnUrl,
@@ -81,7 +82,9 @@ export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
     storePostSignInReturnUrl(returnUrl);
     storedReturnUrlThisAttempt = true;
   } else if (readPkceState("google") === null) {
-    clearAbandonedPostSignInReturnUrl();
+    if (!consumeAuthorizeCallbackFailedRetry()) {
+      clearAbandonedPostSignInReturnUrl();
+    }
   }
 
   let doc;
@@ -94,7 +97,9 @@ export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
     if (storedReturnUrlThisAttempt) {
       clearPostSignInReturnUrl();
     } else if (readPkceState("google") === null) {
-      clearAbandonedPostSignInReturnUrl();
+      if (!consumeAuthorizeCallbackFailedRetry()) {
+        clearAbandonedPostSignInReturnUrl();
+      }
     }
 
     throw error;
@@ -147,7 +152,9 @@ export async function initiateSupplementalOidcRedirect(
     storePostSignInReturnUrl(returnUrl);
     storedReturnUrlThisAttempt = true;
   } else if (readPkceState("primary") === null) {
-    clearAbandonedPostSignInReturnUrl();
+    if (!consumeAuthorizeCallbackFailedRetry()) {
+      clearAbandonedPostSignInReturnUrl();
+    }
   }
 
   let doc;
@@ -160,7 +167,9 @@ export async function initiateSupplementalOidcRedirect(
     if (storedReturnUrlThisAttempt) {
       clearPostSignInReturnUrl();
     } else if (readPkceState("primary") === null) {
-      clearAbandonedPostSignInReturnUrl();
+      if (!consumeAuthorizeCallbackFailedRetry()) {
+        clearAbandonedPostSignInReturnUrl();
+      }
     }
 
     throw error;

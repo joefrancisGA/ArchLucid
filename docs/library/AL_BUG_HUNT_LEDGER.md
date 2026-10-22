@@ -25248,11 +25248,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `postTokenForm` — HTML 200 token body — **cheap-disproof 2026-10-22 seed hunt:** throws `Token response was not valid JSON` without echoing proxy HTML (`token-client.test.ts`).
 - [x] (valid-no-repro) `resolveRpLogoutUrlFromBffSession` — empty JSON url — **cheap-disproof 2026-10-22 seed hunt:** returns null when `url` missing/blank; sign-out falls back to authority logout.
 
-- [ ] (candidate) `consumePkceState` — authorize callback `?error=` path leaves PKCE keys until the next initiate overwrites them — locus: `CallbackClient` early fail before `consumePkceState`; input: `access_denied` return with matching `state`; reachability: operator cancels IdP consent and retries sign-in.
-- [ ] (candidate) `refreshBffSessionCookie` — non-401/403 error responses set `shouldClearSession` false — locus: status branch in `bff-session-sync.ts`; input: BFF refresh `500` after session skew; reachability: proxy outage during `ensureAccessTokenFresh`.
-- [ ] (candidate) `exchangeAuthorizationCode` — `redirect_uri` must match initiate-time `getOidcRedirectUri()` after env trim — locus: token POST body; input: `NEXT_PUBLIC_OIDC_REDIRECT_URI` gains interior ZWSP between sign-in start and callback; reachability: misconfigured SPA redirect env.
-- [ ] (candidate) `loadDiscoveryDocument` — authority keys differing only by default-scheme injection share cache — locus: `discoveryUrlForAuthority`; input: `login.example.com/tenant` vs `https://login.example.com/tenant`; reachability: mixed env authority strings across routes.
-- [ ] (candidate) `signOutAndRedirectHome` — `clearOidcSession` drops `OIDC_POST_SIGN_IN_RETURN_URL_KEY` before RP logout navigation — locus: `session.ts` sign-out ordering; input: sign-out during session-expired flow with pending return hint; reachability: intentional discard vs callback restore.
+
+- [x] (valid-no-repro) `refreshBffSessionCookie` — non-401/403 error responses set `shouldClearSession` false — **cheap-disproof 2026-10-22 seed hunt:** intentional best-effort refresh; 500 does not imply revoked session.
+- [x] (valid-no-repro) `exchangeAuthorizationCode` — `redirect_uri` must match initiate-time `getOidcRedirectUri()` after env trim — **cheap-disproof 2026-10-22 seed hunt:** `getOidcRedirectUri` normalizes via `normalizeOidcConfigurationString` at read time; env does not change mid-tab.
+- [x] (valid-no-repro) `loadDiscoveryDocument` — authority keys differing only by default-scheme injection share cache — **cheap-disproof 2026-10-22 seed hunt:** cache key is canonical `discoveryUrlForAuthority` URL; scheme-less authorities prefix `https://`.
+- [x] (valid-no-repro) `signOutAndRedirectHome` — `clearOidcSession` drops `OIDC_POST_SIGN_IN_RETURN_URL_KEY` before RP logout navigation — **cheap-disproof 2026-10-22 seed hunt:** intentional discard of pending return on explicit sign-out.
+
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `consumePkceState` / authorize callback `?error=` — IdP `access_denied` returned before PKCE was consumed so a sign-in retry without `returnUrl` cleared the stored post-sign-in return path; callback now consumes matching PKCE and marks authorize failure, and `initiateOidcRedirect` preserves the return URL on that retry; regressions `consumes PKCE and marks authorize failure when the IdP returns an OAuth error` and `preserves post-sign-in return path when retrying after an authorize callback OAuth error`; scoped `src/lib/oidc` + `CallbackClient` vitest 331/331.
+
+- [x] (proven) `consumePkceState` — authorize callback `?error=` left PKCE until next initiate and dropped return on retry — **hit 2026-10-22 seed hunt:** `markAuthorizeCallbackFailed` + `consumeAuthorizeCallbackFailedRetry`; regressions above.
+
+- [ ] (candidate) `CallbackClient` — incomplete callback (`?code=` without `state`) leaves PKCE keys until the next initiate — locus: missing-parameter branch before `consumePkceState`; input: malformed callback URL; reachability: bookmarked or truncated redirect.
+- [ ] (candidate) `ensureAccessTokenFresh` — rejected refresh with `shouldClearSession: false` on malformed `expires_at_ms` leaves identity hints while access is expired — locus: `refreshBffSessionCookie` ok:false non-401 branch; input: refresh JSON with stale numeric hint; reachability: clock skew + proxy bug.
+- [ ] (candidate) `buildAuthorizeUrl` — `response_mode` query not pinned for providers that default to fragment — locus: authorize URL builder; input: IdP that returns tokens in fragment on misconfigured SPA; reachability: provider-specific discovery metadata.
+- [ ] (candidate) `pulseBffSessionActivity` — `ignored` on non-401 errors during presenter keepalive may let server idle out while client thinks session is warm — locus: activity pulse status mapping; input: BFF activity route 503 during export; reachability: LK-07 keepalive loop.
+- [ ] (candidate) `getOidcPostLogoutRedirectUri` — relative env override without scheme may diverge from discovery `end_session_endpoint` post_logout redirect registration — locus: config normalization; input: `NEXT_PUBLIC_OIDC_POST_LOGOUT_REDIRECT_URI=/` only; reachability: deployment env.
 
 ## Zone: ui-oidc
 
@@ -25262,11 +25272,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 86
-- **bugs-found:** 79
-- **consecutive-dry-hunts:** 1
+- **hunts:** 87
+- **bugs-found:** 80
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — idle-desk return query order compare drift
+- **last-bug:** 2026-10-22 — authorize callback OAuth error dropped return on retry
 - **hunts:** 78
 - **bugs-found:** 72
 - **consecutive-dry-hunts:** 0

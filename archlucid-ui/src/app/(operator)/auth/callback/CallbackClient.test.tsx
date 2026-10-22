@@ -37,6 +37,7 @@ vi.mock("@/lib/oidc/session", () => ({
   consumePkceState: vi.fn(),
   persistTokenResponse: vi.fn(),
   consumePostSignInReturnUrl: vi.fn(() => "/"),
+  markAuthorizeCallbackFailed: vi.fn(),
 }));
 
 vi.mock("@/lib/auth/email-otp-session", () => ({
@@ -52,7 +53,7 @@ import { AUTH_CALLBACK_ACCESS_HEADING } from "@/lib/auth/access-request-copy";
 import { AUTH_CALLBACK_PAGE_TITLE } from "@/lib/auth/auth-callback-page-copy";
 import { loadDiscoveryDocument } from "@/lib/oidc/discovery";
 import { getGoogleOidcClientId } from "@/lib/oidc/config";
-import { consumePkceState } from "@/lib/oidc/session";
+import { consumePkceState, markAuthorizeCallbackFailed } from "@/lib/oidc/session";
 import { exchangeAuthorizationCode } from "@/lib/oidc/token-client";
 
 describe("CallbackClient", () => {
@@ -116,6 +117,22 @@ describe("CallbackClient", () => {
     });
 
     expect(loadDiscoveryDocument).toHaveBeenCalledWith("https://accounts.google.com");
+  });
+
+  it("consumes PKCE and marks authorize failure when the IdP returns an OAuth error", async () => {
+    searchParamsMock.value = new URLSearchParams({
+      error: "access_denied",
+      state: "primary-state",
+    });
+
+    render(<CallbackClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-callback-access-panel")).toBeInTheDocument();
+    });
+
+    expect(consumePkceState).toHaveBeenCalledWith("primary-state");
+    expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
   });
 
   it("shows the access panel when the callback is missing required parameters", async () => {

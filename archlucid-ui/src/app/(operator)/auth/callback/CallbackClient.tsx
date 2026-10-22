@@ -28,7 +28,12 @@ import {
   decodeOAuthErrorDescription,
   humanizeAuthorizeCallbackError,
 } from "@/lib/oidc/oauth-callback-messages";
-import { consumePkceState, persistTokenResponse, consumePostSignInReturnUrl } from "@/lib/oidc/session";
+import {
+  consumePkceState,
+  consumePostSignInReturnUrl,
+  markAuthorizeCallbackFailed,
+  persistTokenResponse,
+} from "@/lib/oidc/session";
 import { restoreIdleDeskScopeAfterSignIn } from "@/lib/auth/idle-desk-restore";
 import { clearFrictionlessTrialSessionForAuthenticatedOperator } from "@/lib/operator/operator-frictionless-trial-session-cleanup";
 import { readInvitationToken } from "@/lib/auth/email-otp-session";
@@ -100,6 +105,11 @@ export function CallbackClient() {
     }
 
     if (oauthError !== null && oauthError.length > 0) {
+      if (state) {
+        consumePkceState(state);
+      }
+
+      markAuthorizeCallbackFailed();
       const decoded = decodeOAuthErrorDescription(oauthErrorDescription);
       fail(humanizeAuthorizeCallbackError(oauthError, decoded));
 

@@ -16,6 +16,7 @@ import {
   OIDC_ID_TOKEN_KEY,
   OIDC_NONCE_KEY,
   OIDC_OAUTH_STATE_KEY,
+  OIDC_AUTHORIZE_CALLBACK_FAILED_KEY,
   OIDC_POST_SIGN_IN_RETURN_URL_KEY,
   OIDC_REFRESH_TOKEN_KEY,
   OIDC_USER_SUBJECT_KEY,
@@ -394,6 +395,30 @@ export function storePostSignInReturnUrl(url: string): void {
 
 export function clearPostSignInReturnUrl(): void {
   sessionStorage.removeItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY);
+}
+
+/** Marks that the authorize callback returned an OAuth error so a retry keeps the stored return URL. */
+export function markAuthorizeCallbackFailed(): void {
+  if (typeof sessionStorage === "undefined") {
+    return;
+  }
+
+  sessionStorage.setItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY, "1");
+}
+
+/**
+ * Returns whether an authorize callback error is pending a sign-in retry and clears the marker.
+ */
+export function consumeAuthorizeCallbackFailedRetry(): boolean {
+  if (typeof sessionStorage === "undefined") {
+    return false;
+  }
+
+  const pending = sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY) === "1";
+
+  sessionStorage.removeItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY);
+
+  return pending;
 }
 
 /**
