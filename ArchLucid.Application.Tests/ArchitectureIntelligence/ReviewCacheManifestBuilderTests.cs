@@ -2969,6 +2969,69 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_baseline_element_provenance_passage_offsets_are_null_vs_zero()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-passage-offset-null-zero";
+
+        ArchitectureKnowledgeModel nullOffsets = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator { ArtifactId = "artifact-1" },
+                    },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel zeroOffsets = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator
+                        {
+                            ArtifactId = "artifact-1",
+                            StartOffset = 0,
+                            EndOffset = 0,
+                        },
+                    },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, nullOffsets).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, zeroOffsets).ContentHash);
+    }
+
+    [Fact]
+    public void Build_changes_content_hash_when_source_content_differs_only_by_casing()
+    {
+        ClosedLoopReasoningRequest lower = CreateRequest("public api gateway");
+        ClosedLoopReasoningRequest upper = CreateRequest("Public API Gateway");
+
+        ReviewCacheManifestBuilder.Build(lower).ContentHash
+            .Should()
+            .NotBe(ReviewCacheManifestBuilder.Build(upper).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_source_content_differs_only_by_consecutive_spaces()
     {
         ClosedLoopReasoningRequest single = CreateRequest("Claims intake for architects.");
@@ -3767,6 +3830,89 @@ public sealed class ReviewCacheManifestBuilderTests
                 "run-continue");
 
         lowerTenant.ContentHash.Should().Be(upperTenant.ContentHash);
+    }
+
+    [Fact]
+    public void BuildContinueFromExistingRunCoalesceManifest_matches_hash_when_tenant_slug_differs_only_by_casing()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.ContinueFromExistingRun = true;
+
+        ReviewCacheDependencyManifest lowerTenant =
+            ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                request,
+                "tenant-slug",
+                "run-continue");
+
+        ReviewCacheDependencyManifest upperTenant =
+            ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                request,
+                "Tenant-Slug",
+                "run-continue");
+
+        lowerTenant.ContentHash.Should().Be(upperTenant.ContentHash);
+    }
+
+    [Fact]
+    public void BuildContinueFromExistingRunCoalesceManifest_matches_hash_when_run_id_differs_only_by_casing()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.ContinueFromExistingRun = true;
+
+        ReviewCacheDependencyManifest lowerRun =
+            ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                request,
+                "tenant-cache",
+                "run-continue");
+
+        ReviewCacheDependencyManifest upperRun =
+            ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                request,
+                "tenant-cache",
+                "RUN-CONTINUE");
+
+        lowerRun.ContentHash.Should().Be(upperRun.ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_client_run_id_differs_only_by_casing()
+    {
+        ClosedLoopReasoningRequest lower = CreateRequest("Architecture note.");
+        lower.RunId = "run-continue";
+
+        ClosedLoopReasoningRequest upper = CreateRequest("Architecture note.");
+        upper.RunId = "RUN-CONTINUE";
+
+        ReviewCacheManifestBuilder.Build(lower).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(upper).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_model_framing_answer_key_differs_only_by_casing_on_model()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-framing-key-casing-model";
+
+        ArchitectureKnowledgeModel lower = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            FramingAnswers = new Dictionary<string, string> { ["business-outcome"] = "Secure intake." },
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ArchitectureKnowledgeModel upper = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            FramingAnswers = new Dictionary<string, string> { ["Business-Outcome"] = "Secure intake." },
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, lower).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, upper).ContentHash);
     }
 
     [Fact]

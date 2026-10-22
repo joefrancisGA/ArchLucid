@@ -257,6 +257,19 @@ public static class GraphSnapshotCanonicalFingerprint
             properties);
     }
 
+    private static string FormatPassageOffsetToken(int? startOffset, int? endOffset, bool isStart)
+    {
+        int? offset = isStart ? startOffset : endOffset;
+
+        if (offset is null)
+            return string.Empty;
+
+        if (startOffset is 0 && endOffset is 0)
+            return string.Empty;
+
+        return offset.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+    }
+
     private static string FormatElementProvenance(ClaimProvenance? provenance)
     {
         if (provenance is null)
@@ -267,8 +280,8 @@ public static class GraphSnapshotCanonicalFingerprint
             : string.Join(
                 ":",
                 NormalizeElementIdForFingerprint(provenance.PassageLocator.ArtifactId),
-                provenance.PassageLocator.StartOffset?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty,
-                provenance.PassageLocator.EndOffset?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty,
+                FormatPassageOffsetToken(provenance.PassageLocator.StartOffset, provenance.PassageLocator.EndOffset, isStart: true),
+                FormatPassageOffsetToken(provenance.PassageLocator.StartOffset, provenance.PassageLocator.EndOffset, isStart: false),
                 NormalizeLabelForFingerprint(provenance.PassageLocator.Quote));
 
         return string.Join(
