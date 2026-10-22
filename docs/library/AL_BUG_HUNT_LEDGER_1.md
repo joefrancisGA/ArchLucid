@@ -7803,6 +7803,14 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-22 seed hunt (seed→hit): promoted IaC stub UTF-8 BOM strip; regression `GenerateAndPersistStubsForRunAsync_strips_utf8_bom_before_disclaimer_check`; 139 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `FindingIacStubGenerator.NormalizeLlmStubBody` — UTF-8 BOM prefix prevented `StartsWith` disclaimer match and duplicated disclaimer line — **hit 2026-10-22 seed hunt:** `TrimStart('\uFEFF')` after JSON unwrap in shared normalizer. [class:state-machine-gap]
+
+- (candidate) `TopologyProposalDualModelConsensusEnricher.EnrichAsync` — secondary tier disallowed — verify test host wiring before promoting.
+- (candidate) `AgentModelCatalogFaithfulnessHarnessImporter` — inclusive readiness `>=` floor threshold — document operator semantics before promoting.
+- (candidate) `RunToolInvocationForensicsBuilder.Build` — structured ledger preferred when traces empty — by design for TB-110 structured path.
+
 2026-10-22 seed hunt (seed-only): re-read Agents/ after IaC JSON unwrap hit; closed stale candidates; no hunt-ready row promoted (saturated `other`); 138 scoped Application.Tests.Agents tests passed.
 
 - [x] (invalid) `FindingIacStubGenerator.TryGenerateStubAsync` — JSON-string-wrapped Bicep — **cheap-disproof 2026-10-22 seed hunt:** proven-class hit `TryUnwrapJsonStringLiteral` in prior run; regression `GenerateAndPersistStubsForRunAsync_unwraps_json_string_literal_completion_before_disclaimer_check`.
@@ -7987,11 +7995,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 62
-- **bugs-found:** 56
+- **hunts:** 63
+- **bugs-found:** 57
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — IaC stub JSON string literal unwrap
+- **last-bug:** 2026-10-22 — IaC stub UTF-8 BOM strip
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
 
