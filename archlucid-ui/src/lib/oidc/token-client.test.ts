@@ -562,14 +562,14 @@ describe("refreshAccessToken", () => {
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });
 
-  it("marks authorize callback failed when authorization code exchange returns a variation-selector-11-only access_token", async () => {
+  it("marks authorize callback failed when authorization code exchange returns a variation-selector-12-only access_token", async () => {
     sessionStorage.clear();
 
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => ({
         ok: true,
-        text: async () => JSON.stringify({ access_token: "\uFE0A" }),
+        text: async () => JSON.stringify({ access_token: "\uFE0B" }),
       })),
     );
 
@@ -586,14 +586,14 @@ describe("refreshAccessToken", () => {
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });
 
-  it("marks authorize callback failed when authorization code exchange returns a variation-selector-12-only access_token", async () => {
+  it("marks authorize callback failed when authorization code exchange returns a variation-selector-11-only access_token", async () => {
     sessionStorage.clear();
 
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => ({
         ok: true,
-        text: async () => JSON.stringify({ access_token: "\uFE0B" }),
+        text: async () => JSON.stringify({ access_token: "\uFE0A" }),
       })),
     );
 
@@ -642,6 +642,30 @@ describe("refreshAccessToken", () => {
       vi.fn(async () => ({
         ok: true,
         text: async () => JSON.stringify({ access_token: "\uFE08" }),
+      })),
+    );
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/missing access_token/i);
+
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
+  });
+
+  it("marks authorize callback failed when authorization code exchange returns a variation-selector-8-only access_token", async () => {
+    sessionStorage.clear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        text: async () => JSON.stringify({ access_token: "\uFE07" }),
       })),
     );
 
