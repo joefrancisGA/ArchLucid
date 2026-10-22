@@ -80,17 +80,17 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
                 {
                     if (!string.IsNullOrWhiteSpace(node.Label))
                     {
-                        existing.Label = node.Label;
+                        existing.Label = node.Label.Trim();
                     }
 
                     if (!string.IsNullOrWhiteSpace(node.NodeType))
                     {
-                        existing.NodeType = node.NodeType;
+                        existing.NodeType = node.NodeType.Trim();
                     }
 
                     if (!string.IsNullOrWhiteSpace(node.Category))
                     {
-                        existing.Category = node.Category;
+                        existing.Category = node.Category.Trim();
                     }
 
                     CoalesceDiagramNodeMetadata(existing, node);
@@ -114,7 +114,7 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
 
                     if (!string.IsNullOrWhiteSpace(edge.Label))
                     {
-                        existingEdge.Label = edge.Label;
+                        existingEdge.Label = edge.Label.Trim();
                     }
 
                     existingEdge.Weight = Math.Max(existingEdge.Weight, edge.Weight);
@@ -154,7 +154,7 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
                     continue;
                 }
 
-                existing.Properties[property.Key] = property.Value;
+                existing.Properties[property.Key] = NormalizeDiagramPropertyValue(property.Value);
             }
         }
 
@@ -163,7 +163,7 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
         if (!string.IsNullOrWhiteSpace(incoming.ReasoningTrace)
             && incomingConfidence >= existingConfidence)
         {
-            existing.ReasoningTrace = incoming.ReasoningTrace;
+            existing.ReasoningTrace = incoming.ReasoningTrace.Trim();
         }
     }
 
@@ -184,7 +184,7 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
                     continue;
                 }
 
-                existing.Properties[property.Key] = property.Value;
+                existing.Properties[property.Key] = NormalizeDiagramPropertyValue(property.Value);
             }
         }
 
@@ -193,9 +193,12 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
         if (!string.IsNullOrWhiteSpace(incoming.ReasoningTrace)
             && incomingConfidence >= existingConfidence)
         {
-            existing.ReasoningTrace = incoming.ReasoningTrace;
+            existing.ReasoningTrace = incoming.ReasoningTrace.Trim();
         }
     }
+
+    private static string NormalizeDiagramPropertyValue(string value) =>
+        string.IsNullOrWhiteSpace(value) ? value : value.Trim();
 
     private static bool ShouldSkipPropertyOnWeakerIncomingCompile(
         string propertyKey,

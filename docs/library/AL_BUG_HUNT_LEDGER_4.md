@@ -12470,24 +12470,28 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 141
-- **bugs-found:** 135
+- **hunts:** 142
+- **bugs-found:** 136
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — merge coalesce kept padded display names on overwrite
+- **last-bug:** 2026-10-22 — structured diagram merge kept padded node labels
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded label merge candidate; proved multi-document merge copied raw incoming `Label`/`NodeType`/`Category`, diagram property bags, and reasoning traces without trim when coalescing duplicate diagram node ids; trim on merge assign; regression `Merge_trims_surrounding_whitespace_on_label_when_later_document_overwrites_node`; cheap-disproved `ProvenanceBuilder` duplicate decision/artifact padded display-name merge candidate (resolve trim on node build plus coalesce trim from prior hit; regressions `Build_trims_decision_title_on_duplicate_key_merge_when_later_row_has_padded_title` and `Build_trims_artifact_name_on_duplicate_key_merge_when_later_row_has_padded_name`); seeded `StructuredDiagramGraphMerger` padded `NodeId` dictionary keys and edge directed-pair keys follow-on; 439 KnowledgeGraph + 148 Provenance scoped tests passed.
+
+- [x] (proven) `StructuredDiagramGraphMerger.Merge` — padded diagram labels persisted on duplicate node merge — **hit 2026-10-22 seed hunt (seed→hit):** trim label/type/category and diagram metadata on merge; regression above.
+
+- [ ] (candidate) `StructuredDiagramGraphMerger.Merge` — padded `NodeId` or edge endpoint tokens may bypass `nodesById` / `edgesByDirectedPair` dedupe — locus: dictionary keys; input: compile results whose ids differ only by surrounding whitespace; wrong outcome: duplicate diagram graph nodes or parallel edges.
+
+- [x] (valid-no-repro) `ProvenanceBuilder.Build` — duplicate decision/artifact padded `Title`/`Name` on later merge — **cheap-disproof 2026-10-22 seed hunt:** `ResolveDecisionDisplayTitle` / `ResolveArtifactDisplayName` trim on ingest and `ProvenanceNodeCoalesce` trims on merge; regressions above.
 
 2026-10-22 seed hunt (seed→hit): promoted `ProvenanceNodeCoalesce` padded incoming `Name` merge candidate; proved duplicate-key `ApplyMergedFields` copied raw incoming display titles when overwriting human-readable names (outside placeholder downgrade skip), persisting padded labels that diverged from `ProvenanceBuilder` title trim on first insert; trim name on merge assign; regressions `ApplyMergedFields_trims_incoming_name_when_overwriting_display_title` and `Build_trims_finding_title_on_duplicate_key_merge_when_later_row_has_padded_title`; seeded `ProvenanceBuilder` duplicate decision/artifact display-name merge padding parity follow-on; 439 KnowledgeGraph + 146 Provenance scoped tests passed.
 
 - [x] (proven) `ProvenanceNodeCoalesce.ApplyMergedFields` — padded incoming `Name` persisted on merge overwrite — **hit 2026-10-22 seed hunt (seed→hit):** trim name on assign; regressions above.
 
-- [ ] (candidate) `ProvenanceBuilder.Build` — duplicate decision/artifact rows with padded `Title`/`Name` on later merge may persist padding — locus: `AddNode` coalesce for non-finding node types; input: second manifest/decision or artifact row with padded display name; wrong outcome: stored provenance node name diverges from builder resolve trim.
-
 2026-10-22 seed hunt (seed→hit): promoted `ProvenanceNodeCoalesce` padded metadata merge candidate; proved duplicate-key `ApplyMergedFields` copied raw incoming metadata tokens, persisting padded finding-type/category values that diverged from `ProvenanceBuilder.NormalizeProvenanceMetadataValue` on first insert; trim metadata values (and trace id metadata) on merge; regression `ApplyMergedFields_trims_metadata_values_when_incoming_has_surrounding_whitespace`; seeded `ProvenanceNodeCoalesce` padded `Name` overwrite on merge when not a placeholder downgrade follow-on; 439 KnowledgeGraph + 144 Provenance scoped tests passed.
 
 - [x] (proven) `ProvenanceNodeCoalesce.ApplyMergedFields` — padded metadata values persisted on duplicate-key merge — **hit 2026-10-22 seed hunt (seed→hit):** trim metadata on merge; regression above.
-
-- [ ] (candidate) `ProvenanceNodeCoalesce.ApplyMergedFields` — padded incoming `Name` may overwrite display title on merge when skip-downgrade does not apply — locus: name assign branch; input: incoming human-readable name with surrounding whitespace; wrong outcome: stored provenance node name diverges from builder title trim.
 
 2026-10-22 seed hunt (seed→hit): promoted `ProvenanceGraphViewMapper` padded metadata value candidate; proved `ToViewModel` shallow-copied metadata bags without trimming values, surfacing padded finding-type and trace metadata in buyer graph views; trim values in `CopyViewMetadata`; regression `ToViewModel_MapsNodes_Trims_surrounding_whitespace_on_metadata_values`; seeded `ProvenanceNodeCoalesce` padded metadata merge overwrite follow-on; 439 KnowledgeGraph + 143 Provenance scoped tests passed.
 
