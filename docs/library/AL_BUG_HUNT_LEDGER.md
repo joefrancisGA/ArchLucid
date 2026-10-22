@@ -1,3 +1,17 @@
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `readOAuthJsonErrorDescription` — token JSON `error_description` with only `%2B` (no literal `+`) collapsed decoded plus to space even when authorize mixed-plus glue (spaces, emoji pictographs) would preserve it; apply `shouldPreserveLiteralPlusInAuthorizeDescription` before plus collapse; regression `preserves percent-decoded plus in JSON when authorize mixed-plus glue applies`; scoped `src/lib/oidc` vitest 413/413.
+
+- [x] (proven) `readOAuthJsonErrorDescription` — percent-encoded plus with emoji/space glue — **hit 2026-10-22 seed hunt:** mixed-plus parity; regression above.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — lone pictograph without FE0F plus literal plus — **cheap-disproof 2026-10-22:** `Extended_Pictographic` guard on authorize path.
+- [x] (invalid) `isReadableOAuthErrorDetail` — pictographic-only authorize detail — **cheap-disproof 2026-10-22:** intentional non-actionable emoji-only omission.
+- [x] (valid-no-repro) `initiateOidcRedirect` — discovery failure after retry marker without returnUrl — **cheap-disproof 2026-10-22:** `handleInitiateDiscoveryFailure` + preservingAuthorizeCallbackRetry on trunk.
+- [x] (invalid) `exchangeAuthorizationCode` — skip mark for `temporarily_unavailable` — **cheap-disproof 2026-10-22:** preserve-return retry policy matches `server_error`.
+
+- [ ] (candidate) `readOAuthJsonErrorDescription` — mixed literal and `%2B` plus with pictograph glue — locus: decodeSource branch; input: `User+denied%2B🏷️` (reachability: token JSON).
+- [ ] (candidate) `humanizeAuthorizeCallbackError` — dedicated `temporarily_unavailable` admin copy — locus: UX switch (reachability: default humanize).
+- [ ] (candidate) BFF refresh route — explicit `temporarily_unavailable` 503 cookie test — locus: mirror `server_error` route assertion (reachability: refresh route.test).
+- [ ] (candidate) `normalizeOAuthErrorCode` — percent-encoded pictograph in `error` field — locus: normalize path (reachability: rare IdP).
+- [ ] (candidate) `decodeOAuthErrorDescription` — multiply-encoded `%252B` with pictograph glue — locus: repeated decode + preserve (reachability: authorize query).
+
 2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; cheap-disproof closed zone-head `(candidate)` rows (transient `server_error` code exchange still preserves authorize-retry marking by design, JSON skin-tone plus already preserved, unsafe returnUrl during retry intentionally ignored); stabilized flaky `ensureAccessTokenFresh` wall-clock race with frozen `Date.now`; parity regressions for JSON skin-tone literal plus, and `exchangeAuthorizationCode` marks retry on transient `server_error`; scoped `src/lib/oidc` + callback vitest 421/421.
 2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `decodeOAuthErrorDescription` / `shouldPreserveLiteralPlusInAuthorizeDescription` — presentation emoji pictographs (`🏷️`, `⚠️`) with literal `+` collapsed the plus because only ZWJ/regional/skin-tone/keycap glue was recognized; preserve when `\p{Extended_Pictographic}` is present; regression `preserves literal plus in authorize error descriptions when presentation emoji pictographs are present`; scoped `src/lib/oidc` vitest 410/410.
 
@@ -25665,11 +25679,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 80
-- **bugs-found:** 74
+- **hunts:** 81
+- **bugs-found:** 75
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — presentation emoji pictograph plus preservation in authorize error_description
+- **last-bug:** 2026-10-22 — JSON error_description percent-plus parity with authorize mixed-plus glue
 
 - **id:** ui-oidc
 - **status:** open
