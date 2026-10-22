@@ -8712,6 +8712,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted passage `SectionPath` slash, `..`, and whitespace variants splitting review-cache `modelfp`; `NormalizeSectionPathForFingerprint` canonicalizes section paths before locator fingerprinting; regressions `Build_matches_content_hash_when_baseline_element_provenance_passage_section_path_differs_only_by_dot_dot_slash_segment` and `Build_matches_content_hash_when_baseline_element_provenance_passage_section_path_differs_only_by_leading_or_trailing_slash`; added cheap-disproof coverage for section casing/NBSP/whitespace, passage locator null vs section-only, hyphen-only run ids, model/request framing duplicates, and related regression guards; 284 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.NormalizeSectionPathForFingerprint` — unnormalized section paths split `modelfp` — **hit 2026-10-22 seed hunt:** path canonicalization; regressions above.
+
 2026-10-22 seed hunt (seed→hit): promoted `SourcePassageLocator.SectionPath` omitted from review-cache `modelfp`, collapsing distinct passage anchors; `FormatPassageLocatorFingerprint` now includes normalized section path and treats null vs empty section as unset; regression `Build_changes_content_hash_when_baseline_element_provenance_passage_section_path_differs` plus `Build_matches_content_hash_when_baseline_element_provenance_passage_section_path_is_null_vs_empty_string`; cheap-disproof regressions for default vs empty provenance `SourceArtifactId`, null vs empty passage `Quote`, null vs empty technology ledger, and duplicate provenance support-status list order; 250 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatPassageLocatorFingerprint` — section path omitted from `modelfp` — **hit 2026-10-22 seed hunt:** include `SectionPath` token; regressions above.
