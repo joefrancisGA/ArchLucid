@@ -257,6 +257,33 @@ public static class GraphSnapshotCanonicalFingerprint
             properties);
     }
 
+    private static string FormatPassageLocatorFingerprint(SourcePassageLocator? passageLocator)
+    {
+        if (passageLocator is null)
+            return string.Empty;
+
+        string artifactId = NormalizeElementIdForFingerprint(passageLocator.ArtifactId);
+        string startOffset = FormatPassageOffsetToken(
+            passageLocator.StartOffset,
+            passageLocator.EndOffset,
+            isStart: true);
+        string endOffset = FormatPassageOffsetToken(
+            passageLocator.StartOffset,
+            passageLocator.EndOffset,
+            isStart: false);
+        string quote = NormalizeLabelForFingerprint(passageLocator.Quote);
+
+        if (artifactId.Length == 0 &&
+            startOffset.Length == 0 &&
+            endOffset.Length == 0 &&
+            quote.Length == 0)
+        {
+            return string.Empty;
+        }
+
+        return string.Join(":", artifactId, startOffset, endOffset, quote);
+    }
+
     private static string FormatPassageOffsetToken(int? startOffset, int? endOffset, bool isStart)
     {
         if (isStart)
@@ -286,14 +313,7 @@ public static class GraphSnapshotCanonicalFingerprint
         if (provenance is null)
             return string.Empty;
 
-        string locator = provenance.PassageLocator is null
-            ? string.Empty
-            : string.Join(
-                ":",
-                NormalizeElementIdForFingerprint(provenance.PassageLocator.ArtifactId),
-                FormatPassageOffsetToken(provenance.PassageLocator.StartOffset, provenance.PassageLocator.EndOffset, isStart: true),
-                FormatPassageOffsetToken(provenance.PassageLocator.StartOffset, provenance.PassageLocator.EndOffset, isStart: false),
-                NormalizeLabelForFingerprint(provenance.PassageLocator.Quote));
+        string locator = FormatPassageLocatorFingerprint(provenance.PassageLocator);
 
         return string.Join(
             ":",

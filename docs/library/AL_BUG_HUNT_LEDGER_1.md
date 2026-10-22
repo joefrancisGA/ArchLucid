@@ -8712,6 +8712,12 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted baseline provenance with null `PassageLocator` vs empty `SourcePassageLocator` splitting review-cache `modelfp`; `FormatPassageLocatorFingerprint` omits locator tokens when artifact, offsets, and quote are all unset; regression `Build_matches_content_hash_when_baseline_element_provenance_passage_locator_is_null_vs_empty_object`; cheap-disproof regressions for default vs empty passage `ArtifactId` and duplicate provenance origin list order; 244 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatElementProvenance` — null vs empty passage locator split `modelfp` — **hit 2026-10-22 seed hunt:** `FormatPassageLocatorFingerprint`; regression above.
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint.FormatPassageLocatorFingerprint` — default vs empty passage artifact id — **cheap-disproof 2026-10-22 seed hunt:** `NormalizeElementIdForFingerprint`; regression `Build_matches_content_hash_when_baseline_element_provenance_passage_artifact_id_is_null_vs_empty_string`.
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint.SelectCanonicalKnowledgeModelElements` — duplicate provenance origin list order — **cheap-disproof 2026-10-22 seed hunt:** fingerprint tie-break; regression `Build_matches_content_hash_when_baseline_duplicate_element_ids_differ_only_by_provenance_origin_list_order`.
+
 2026-10-22 seed hunt (seed→hit): promoted baseline passage locator with `StartOffset=0` and unset `EndOffset` splitting review-cache `modelfp` from fully unset offsets; `FormatPassageOffsetToken` treats open-ended zero start like unset start; regression `Build_matches_content_hash_when_baseline_element_provenance_passage_start_is_zero_vs_null_with_unset_end`; cheap-disproof regressions for null vs empty element description, duplicate provenance confidence list order, and empty vs omitted request framing answers; 241 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatPassageOffsetToken` — zero start vs null start with unset end split `modelfp` — **hit 2026-10-22 seed hunt:** open-range start normalization; regression above.
