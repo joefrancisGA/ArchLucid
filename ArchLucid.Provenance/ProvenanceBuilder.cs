@@ -111,7 +111,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                 Name = "ManifestDocument",
                 Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
-                    ["manifestHash"] = manifest.ManifestHash
+                    ["manifestHash"] = NormalizeProvenanceMetadataValue(manifest.ManifestHash),
                 }
             });
 

@@ -12470,18 +12470,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 110
-- **bugs-found:** 105
+- **hunts:** 111
+- **bugs-found:** 106
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — whitespace-only artifact metadata leaked into provenance
+- **last-bug:** 2026-10-22 — manifest hash metadata not trimmed in provenance graph
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted manifest hash metadata whitespace candidate; proved manifest provenance nodes copied padded or whitespace-only `ManifestHash` into metadata while `ProvenanceSnapshotRevisionHasher` already trimmed hashes for revision fingerprints; `NormalizeProvenanceMetadataValue` on manifest hash metadata; regressions `Build_normalizes_manifest_hash_metadata` and `Build_normalizes_whitespace_only_manifest_hash_metadata_to_empty`; seeded graph κ-merge context edge weight enrichment follow-on; 403 KnowledgeGraph + 129 Provenance scoped tests passed.
+
+- [x] (proven) `ProvenanceBuilder` — padded or whitespace-only `ManifestHash` in manifest provenance metadata — **hit 2026-10-22 seed hunt (seed→hit):** manifest hash metadata normalization; regressions above.
+
+- [ ] (candidate) `GraphSnapshotKnowledgeModelMerger.Merge` — colliding model/context edges may ignore higher context `Weight` when model edge already has a label — locus: `CoalesceGraphEdgeFromContext`; input: labeled model edge with low weight and context edge with higher weight; wrong outcome: stale edge weight after κ merge.
 
 2026-10-22 seed hunt (seed→hit): promoted artifact metadata whitespace candidate; proved artifact provenance nodes copied whitespace-only `ArtifactType` and `Format` into metadata while graph/finding/decision fields were already normalized; extended `NormalizeProvenanceMetadataValue` to artifact metadata emission; regression `Build_normalizes_whitespace_only_artifact_type_and_format_in_metadata`; seeded manifest hash metadata whitespace follow-on; 403 KnowledgeGraph + 127 Provenance scoped tests passed.
 
 - [x] (proven) `ProvenanceBuilder` — whitespace-only artifact `ArtifactType` / `Format` in provenance metadata — **hit 2026-10-22 seed hunt (seed→hit):** artifact metadata normalization; regression above.
-
-- [ ] (candidate) `ProvenanceBuilder` — manifest provenance node may copy whitespace-only `ManifestHash` into metadata without trim — locus: manifest `AddNode` metadata; input: padded `ManifestHash`; wrong outcome: misleading manifest hash metadata in provenance graph.
 
 2026-10-22 seed hunt (seed→hit): cheap-disproved context category κ-merge candidate (`CoalesceGraphNodeFromContext` already fills empty model categories when labels are populated; regression `Merge_enriches_model_node_category_from_context_when_model_label_is_populated`); promoted provenance graph-node metadata whitespace candidate; proved `ProvenanceBuilder` copied whitespace-only `GraphNode.Category` and `NodeType` into buyer-visible provenance metadata; `NormalizeProvenanceMetadataValue` on graph/finding/decision metadata emission; regression `Build_normalizes_whitespace_only_graph_node_category_and_node_type_in_metadata`; seeded artifact metadata whitespace follow-on; 403 KnowledgeGraph + 126 Provenance scoped tests passed.
 

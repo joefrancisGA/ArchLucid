@@ -988,6 +988,52 @@ public sealed class ProvenanceBuilderTests
     }
 
     [Fact]
+    public void Build_normalizes_manifest_hash_metadata()
+    {
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot { Nodes = [] },
+            Manifest = new ManifestDocument
+            {
+                ManifestId = ManifestId,
+                ManifestHash = "  deadbeef  ",
+                Decisions = [],
+            },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        ProvenanceNode manifestNode = graph.Nodes.Should().ContainSingle(n => n.Type == ProvenanceNodeType.Manifest).Subject;
+        manifestNode.Metadata["manifestHash"].Should().Be("deadbeef");
+    }
+
+    [Fact]
+    public void Build_normalizes_whitespace_only_manifest_hash_metadata_to_empty()
+    {
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot { Nodes = [] },
+            Manifest = new ManifestDocument
+            {
+                ManifestId = ManifestId,
+                ManifestHash = "   ",
+                Decisions = [],
+            },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        ProvenanceNode manifestNode = graph.Nodes.Should().ContainSingle(n => n.Type == ProvenanceNodeType.Manifest).Subject;
+        manifestNode.Metadata["manifestHash"].Should().BeEmpty();
+    }
+
+    [Fact]
     public void Build_normalizes_whitespace_only_artifact_type_and_format_in_metadata()
     {
         SynthesizedArtifact artifact = new()
