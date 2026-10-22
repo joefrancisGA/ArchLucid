@@ -170,7 +170,7 @@ public static class GraphSnapshotCanonicalFingerprint
 
         IEnumerable<string> propertyParts = (element.Properties ?? [])
             .OrderBy(static pair => pair.Key, StringComparer.OrdinalIgnoreCase)
-            .Select(static pair => $"{pair.Key}={pair.Value}");
+            .Select(static pair => $"{NormalizeFingerprintText(pair.Key)}={NormalizeFingerprintText(pair.Value)}");
 
         string properties = string.Join(",", propertyParts);
         string passages = string.Join(
