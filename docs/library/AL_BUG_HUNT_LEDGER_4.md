@@ -12470,18 +12470,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 142
-- **bugs-found:** 136
+- **hunts:** 143
+- **bugs-found:** 137
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — structured diagram merge kept padded node labels
+- **last-bug:** 2026-10-22 — structured diagram merge dedupe keys ignored id padding
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded `NodeId` / edge directed-pair key candidate; proved `nodesById` and `edgesByDirectedPair` indexed raw compile tokens so ids or endpoints differing only by surrounding whitespace bypassed merge coalesce and emitted duplicate nodes or parallel edges; trim-normalize node keys, directed-pair keys, and stored edge endpoints; regressions `Merge_coalesces_nodes_when_compile_result_node_ids_differ_only_by_surrounding_whitespace` and `Merge_coalesces_edges_when_directed_pair_key_differs_only_by_endpoint_or_type_padding`; seeded `StructuredDiagramCompiledGraphBinder` canonical bind target padded `NodeId` remap follow-on; 441 KnowledgeGraph + 148 Provenance scoped tests passed.
+
+- [x] (proven) `StructuredDiagramGraphMerger.Merge` — padded `NodeId` / edge keys bypassed merge dedupe — **hit 2026-10-22 seed hunt (seed→hit):** trim-normalized dictionary keys; regressions above.
+
+- [ ] (candidate) `StructuredDiagramCompiledGraphBinder.BindToCanonicalNodes` — padded canonical `bindTargets` `NodeId` may remap diagram edges to distinct endpoint tokens — locus: `diagramNodeIdRemap` values; input: inventory/canonical node ids with surrounding whitespace; wrong outcome: parallel edges or orphan endpoints after binder remap.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded label merge candidate; proved multi-document merge copied raw incoming `Label`/`NodeType`/`Category`, diagram property bags, and reasoning traces without trim when coalescing duplicate diagram node ids; trim on merge assign; regression `Merge_trims_surrounding_whitespace_on_label_when_later_document_overwrites_node`; cheap-disproved `ProvenanceBuilder` duplicate decision/artifact padded display-name merge candidate (resolve trim on node build plus coalesce trim from prior hit; regressions `Build_trims_decision_title_on_duplicate_key_merge_when_later_row_has_padded_title` and `Build_trims_artifact_name_on_duplicate_key_merge_when_later_row_has_padded_name`); seeded `StructuredDiagramGraphMerger` padded `NodeId` dictionary keys and edge directed-pair keys follow-on; 439 KnowledgeGraph + 148 Provenance scoped tests passed.
 
 - [x] (proven) `StructuredDiagramGraphMerger.Merge` — padded diagram labels persisted on duplicate node merge — **hit 2026-10-22 seed hunt (seed→hit):** trim label/type/category and diagram metadata on merge; regression above.
-
-- [ ] (candidate) `StructuredDiagramGraphMerger.Merge` — padded `NodeId` or edge endpoint tokens may bypass `nodesById` / `edgesByDirectedPair` dedupe — locus: dictionary keys; input: compile results whose ids differ only by surrounding whitespace; wrong outcome: duplicate diagram graph nodes or parallel edges.
 
 - [x] (valid-no-repro) `ProvenanceBuilder.Build` — duplicate decision/artifact padded `Title`/`Name` on later merge — **cheap-disproof 2026-10-22 seed hunt:** `ResolveDecisionDisplayTitle` / `ResolveArtifactDisplayName` trim on ingest and `ProvenanceNodeCoalesce` trims on merge; regressions above.
 

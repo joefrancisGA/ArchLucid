@@ -1106,4 +1106,199 @@ public sealed class StructuredDiagramGraphMergerTests
         merged.Properties[StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId].Should().Be("doc-edge-conf-a");
         merged.ReasoningTrace.Should().Contain("asserted diagram source");
     }
+
+    [Fact]
+    public void Merge_coalesces_nodes_when_compile_result_node_ids_differ_only_by_surrounding_whitespace()
+    {
+        ArchitectureDiagramModelRecord firstDocument = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "First",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        ArchitectureDiagramModelRecord secondDocument = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "Second",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        List<CanonicalObject> canonicalObjects = [];
+        canonicalObjects.AddRange(
+            ArchitectureDiagramCanonicalObjectMapper.Map(firstDocument, "doc-node-key-a", labelOnlyInferenceConfidence: 0.5));
+        canonicalObjects.AddRange(
+            ArchitectureDiagramCanonicalObjectMapper.Map(secondDocument, "doc-node-key-b", labelOnlyInferenceConfidence: 0.5));
+
+        ContextSnapshot snapshot = new()
+        {
+            SnapshotId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeed1"),
+            RunId = Guid.Parse("11111111-2222-3333-4444-555555555557"),
+            ProjectId = "project-node-id-key-trim",
+            CanonicalObjects = canonicalObjects,
+        };
+
+        StructuredDiagramGraphMerger merger =
+            new StructuredDiagramGraphMerger(new PaddedDuplicateNodeIdTestCompiler());
+        StructuredDiagramGraphMergeResult result = merger.Merge(snapshot, []);
+
+        GraphNode merged = result.Nodes
+            .Should()
+            .ContainSingle(node => node.NodeId == "diagram-node:api")
+            .Subject;
+        merged.Label.Should().Be("Second");
+    }
+
+    [Fact]
+    public void Merge_coalesces_edges_when_directed_pair_key_differs_only_by_endpoint_or_type_padding()
+    {
+        ArchitectureDiagramModelRecord firstDocument = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "db",
+                    Label = "DB",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        ArchitectureDiagramModelRecord secondDocument = firstDocument;
+
+        List<CanonicalObject> canonicalObjects = [];
+        canonicalObjects.AddRange(
+            ArchitectureDiagramCanonicalObjectMapper.Map(firstDocument, "doc-edge-key-a", labelOnlyInferenceConfidence: 0.5));
+        canonicalObjects.AddRange(
+            ArchitectureDiagramCanonicalObjectMapper.Map(secondDocument, "doc-edge-key-b", labelOnlyInferenceConfidence: 0.5));
+
+        ContextSnapshot snapshot = new()
+        {
+            SnapshotId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeed2"),
+            RunId = Guid.Parse("11111111-2222-3333-4444-555555555558"),
+            ProjectId = "project-edge-key-trim",
+            CanonicalObjects = canonicalObjects,
+        };
+
+        StructuredDiagramGraphMerger merger =
+            new StructuredDiagramGraphMerger(new PaddedDuplicateEdgeKeyTestCompiler());
+        StructuredDiagramGraphMergeResult result = merger.Merge(snapshot, []);
+
+        GraphEdge merged = result.Edges
+            .Should()
+            .ContainSingle(edge =>
+                edge.EdgeType == GraphEdgeTypes.ConnectsTo
+                && edge.FromNodeId == "diagram-node:api"
+                && edge.ToNodeId == "diagram-node:db")
+            .Subject;
+
+        merged.EdgeId.Should().Be("diagram-edge:padded-second");
+    }
+
+    private sealed class PaddedDuplicateNodeIdTestCompiler : IArchitectureDiagramToGraphCompiler
+    {
+        private int compileCount;
+
+        public StructuredDiagramGraphCompileResult Compile(
+            ArchitectureDiagramModelRecord model,
+            StructuredDiagramGraphCompileOptions options)
+        {
+            compileCount++;
+            string nodeId = compileCount == 1 ? "diagram-node:api" : "  diagram-node:api  ";
+            string label = compileCount == 1 ? "First" : "Second";
+
+            return new StructuredDiagramGraphCompileResult
+            {
+                Snapshot = new GraphSnapshot
+                {
+                    Nodes =
+                    [
+                        new GraphNode
+                        {
+                            NodeId = nodeId,
+                            NodeType = GraphNodeTypes.TopologyResource,
+                            Label = label,
+                        },
+                    ],
+                },
+            };
+        }
+    }
+
+    private sealed class PaddedDuplicateEdgeKeyTestCompiler : IArchitectureDiagramToGraphCompiler
+    {
+        private int compileCount;
+
+        public StructuredDiagramGraphCompileResult Compile(
+            ArchitectureDiagramModelRecord model,
+            StructuredDiagramGraphCompileOptions options)
+        {
+            compileCount++;
+
+            GraphEdge edge = compileCount == 1
+                ? new GraphEdge
+                {
+                    EdgeId = "diagram-edge:first",
+                    FromNodeId = "diagram-node:api",
+                    ToNodeId = "diagram-node:db",
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                }
+                : new GraphEdge
+                {
+                    EdgeId = "diagram-edge:padded-second",
+                    FromNodeId = "  diagram-node:api  ",
+                    ToNodeId = "  diagram-node:db  ",
+                    EdgeType = $"  {GraphEdgeTypes.ConnectsTo}  ",
+                };
+
+            return new StructuredDiagramGraphCompileResult
+            {
+                Snapshot = new GraphSnapshot
+                {
+                    Nodes =
+                    [
+                        new GraphNode
+                        {
+                            NodeId = "diagram-node:api",
+                            NodeType = GraphNodeTypes.TopologyResource,
+                            Label = "API",
+                        },
+                        new GraphNode
+                        {
+                            NodeId = "diagram-node:db",
+                            NodeType = GraphNodeTypes.TopologyResource,
+                            Label = "DB",
+                        },
+                    ],
+                    Edges = [edge],
+                },
+            };
+        }
+    }
 }

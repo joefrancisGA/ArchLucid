@@ -76,7 +76,9 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
 
             foreach (GraphNode node in compileResult.Snapshot.Nodes)
             {
-                if (nodesById.TryGetValue(node.NodeId, out GraphNode? existing))
+                string nodeKey = NormalizeNodeIdKey(node.NodeId);
+
+                if (nodesById.TryGetValue(nodeKey, out GraphNode? existing))
                 {
                     if (!string.IsNullOrWhiteSpace(node.Label))
                     {
@@ -98,12 +100,13 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
                     continue;
                 }
 
-                nodesById[node.NodeId] = node;
+                node.NodeId = nodeKey;
+                nodesById[nodeKey] = node;
             }
 
             foreach (GraphEdge edge in compileResult.Snapshot.Edges)
             {
-                string directedPairKey = $"{edge.FromNodeId}|{edge.ToNodeId}|{edge.EdgeType}";
+                string directedPairKey = BuildDirectedPairKey(edge);
 
                 if (edgesByDirectedPair.TryGetValue(directedPairKey, out GraphEdge? existingEdge))
                 {
@@ -124,6 +127,7 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
                     continue;
                 }
 
+                NormalizeEdgeEndpoints(edge);
                 edgesByDirectedPair[directedPairKey] = edge;
             }
         }
@@ -199,6 +203,18 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
 
     private static string NormalizeDiagramPropertyValue(string value) =>
         string.IsNullOrWhiteSpace(value) ? value : value.Trim();
+
+    private static string NormalizeNodeIdKey(string nodeId) => nodeId.Trim();
+
+    private static string BuildDirectedPairKey(GraphEdge edge) =>
+        $"{edge.FromNodeId.Trim()}|{edge.ToNodeId.Trim()}|{(edge.EdgeType ?? string.Empty).Trim()}";
+
+    private static void NormalizeEdgeEndpoints(GraphEdge edge)
+    {
+        edge.FromNodeId = edge.FromNodeId.Trim();
+        edge.ToNodeId = edge.ToNodeId.Trim();
+        edge.EdgeType = (edge.EdgeType ?? string.Empty).Trim();
+    }
 
     private static bool ShouldSkipPropertyOnWeakerIncomingCompile(
         string propertyKey,
