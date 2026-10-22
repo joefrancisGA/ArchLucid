@@ -6691,6 +6691,18 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-22 seed hunt (seed-only): `application-analysis` - no hunt-ready product defect; cheap-disproof closed four zone-head `(candidate)` rows on comparison/export career-gate edge cases (null anchor run ids, regenerate-only gate, non-GUID export run id, missing hydrate locus); scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 45/45.
+
+- [x] (valid-no-repro) `ComparisonReplayService.ReplayExportDiffAsync` - career gate uses comparison `LeftRunId`/`RightRunId` only when export record ids are present - **cheap-disproof 2026-10-22:** `RecordExportDiffAsync` and compare paths always persist canonical run ids from export records; null-anchor replay is not reachable on current write paths.
+- [x] (valid-no-repro) `ComparisonReplayService.RegenerateExportDiffAsync` - regenerate export-diff replay does not re-invoke career gate on export-record `RunId` - **cheap-disproof 2026-10-22:** `ReplayExportDiffAsync` gates both anchor run ids before `regenerate`/`verify` modes run.
+- [x] (invalid) `RunExportQueryFacade.ReplayExportAsync` - dashed `record.RunId` bypasses career gate when `Guid.TryParse` fails - **cheap-disproof 2026-10-22:** dashed GUIDs parse successfully; regression `ArchitectureAnalysis_export_replay_applies_career_gate_when_record_run_id_uses_dashed_guid_format`.
+- [x] (invalid) `ComparisonsApplicationService.TryHydrateRunMetadataAsync` - hydrates run detail without career posture gate - **cheap-disproof 2026-10-22:** no such method; scope uses `IsComparisonRecordInScopeAsync` / `LoadScopedComparisonRecordAsync`.
+
+- [ ] (candidate) `ComparisonsApplicationService.TryListByRunIdAsync` - lists comparison records for a run after `GetRunDetailAsync` scope check only (reachable input: simulator-rehearsal run id with persisted comparison summaries).
+- [ ] (candidate) `ComparisonsApplicationService.SearchAsync` - returns comparison `SummaryMarkdown` without career metadata gate (reachable input: history search filtered by export record ids tied to blocked runs).
+- [ ] (candidate) `ComparisonReplayCostEstimator.TryEstimateAsync` - estimates replay cost from stored payload without career posture gate (reachable input: preflight cost for export-diff replay on blocked run).
+- [ ] (candidate) `ComparisonReplayService.EnsureCareerAllowsExportRecordMetadataOrThrowAsync` - non-GUID anchor run id skips gate via early return (reachable input: legacy comparison row with whitespace-only `LeftRunId`).
+
 2026-10-22 seed hunt (seed-only): `application-analysis` - no hunt-ready product defect after re-read of export compare/replay career-gate parity on trunk; cheap-disproof closed four legacy `(candidate)` rows (delta coverage heuristic, summary-without-evidence UX, cross-format manifest diff ordering, preload optimization); scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 45/45.
 
 - [x] (valid-no-repro) `CompareQualityDeltaCalculator.Build` - functional requirement coverage uses requirements-minus-covered heuristic when requirements lack design links - **cheap-disproof 2026-10-22:** intentional coverage math; existing `CompareQualityDeltaCalculator` regressions document the heuristic.
@@ -6716,7 +6728,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 60
+- **hunts:** 61
 - **bugs-found:** 57
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
