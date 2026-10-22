@@ -16776,13 +16776,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** persistence billing stripe; stripe wallet integration; stripe billing persistence
 - **paths:** ArchLucid.Persistence/Billing/Stripe/; ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/Wallet/LlmTenantWalletConsumeStage.cs
 - **test-filter:** FullyQualifiedName~StripeWalletPaymentIdentifierGuard|FullyQualifiedName~UpdateWalletAsync_rejects_stripe_customer_id_that_guard_blocks
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — auto-refill charged without re-validating persisted Stripe ids
+- **last-bug:** 2026-10-21 — partial wallet PUT left stale Stripe customer id after payment-method-only update
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-21 seed hunt (seed→hit): `persistence-billing-stripe` — promoted hunt-ready `LlmTenantWalletConsumeStage.UpdateWalletAsync` payment-method-only PUT — guard validated PM against tenant-linked Stripe customer when `StripeCustomerId` omitted but persisted legacy `StripeCustomerId` stayed stale, so auto-refill guard refused `payment_identifier_guard` after a seemingly successful wallet update; persist linked customer id when a guarded payment-method update omits customer id; regression `UpdateWalletAsync_persists_linked_stripe_customer_when_put_updates_payment_method_only`; scoped wallet + guard tests 32/32 (`RunAnalyzers=false`).
+
+- [x] (proven) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — payment-method-only PUT left stale `StripeCustomerId` while guard validated PM against linked customer — **hit 2026-10-21 seed hunt:** normalize linked customer on PM-only persist; regression above.
 
 2026-10-21 follow-up hunt (hit, lane C): auto-refill `TryAutoRefillAsync` now re-runs `IStripeWalletPaymentIdentifierGuard` on persisted Stripe ids before `ChargeRefillAsync`, logging `LlmWalletRefillFailed` with decline code `payment_identifier_guard` and skipping Stripe when legacy rows fail validation. Regression `TryAutoRefillAsync_skips_stripe_charge_when_persisted_identifiers_fail_guard`; 29 scoped wallet tests passed.
 

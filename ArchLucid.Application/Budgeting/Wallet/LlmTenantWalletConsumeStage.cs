@@ -11,6 +11,7 @@ public sealed class LlmTenantWalletConsumeStage(
     ILlmTenantWalletRepository repository,
     ILlmWalletSettlementQueue settlementQueue,
     IStripeWalletPaymentIdentifierGuard stripeWalletPaymentIdentifierGuard,
+    IStripeLinkedCustomerResolver stripeLinkedCustomerResolver,
     ILogger<LlmTenantWalletConsumeStage> logger) : ILlmTenantWalletConsumeStage
 {
     private readonly LlmTenantWalletConsumeRetry _consumeRetry = new(repository, settlementQueue, logger);
@@ -23,6 +24,9 @@ public sealed class LlmTenantWalletConsumeStage(
 
     private readonly IStripeWalletPaymentIdentifierGuard _stripeWalletPaymentIdentifierGuard =
         stripeWalletPaymentIdentifierGuard ?? throw new ArgumentNullException(nameof(stripeWalletPaymentIdentifierGuard));
+
+    private readonly IStripeLinkedCustomerResolver _stripeLinkedCustomerResolver =
+        stripeLinkedCustomerResolver ?? throw new ArgumentNullException(nameof(stripeLinkedCustomerResolver));
 
     public Task<LlmTenantWalletStateReadModel> GetOrCreateAsync(Guid tenantId, CancellationToken cancellationToken = default) =>
         _repository.GetOrCreateAsync(tenantId, cancellationToken);
@@ -65,6 +69,16 @@ public sealed class LlmTenantWalletConsumeStage(
                 .ConfigureAwait(false))
         {
             return null;
+        }
+
+        if (normalizedStripePaymentMethodId is not null && normalizedStripeCustomerId is null)
+        {
+            string? linkedCustomerId = await _stripeLinkedCustomerResolver
+                .TryResolveLinkedCustomerIdAsync(tenantId, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (!string.IsNullOrWhiteSpace(linkedCustomerId))
+                normalizedStripeCustomerId = linkedCustomerId;
         }
 
         LlmTenantWalletStateReadModel? updated = await _repository
