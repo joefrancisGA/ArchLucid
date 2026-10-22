@@ -8712,6 +8712,17 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted baseline model `DeclaredPriorities` NFC vs NFD and padded element `SourceArtifactId` splitting review-cache `modelfp`; `FormatDeclaredPriorities` and `FormatElementProvenance` now use `NormalizeFingerprintText`; regressions `Build_matches_content_hash_when_baseline_model_declared_priorities_differ_only_by_unicode_normalization_form` and `Build_matches_content_hash_when_baseline_element_provenance_source_artifact_id_differs_only_by_surrounding_whitespace`; 141 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatDeclaredPriorities` — NFC vs NFD baseline declared priorities split `modelfp` — **hit 2026-10-22 seed hunt:** FormC on priority labels; regression above.
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatElementProvenance` — padded `SourceArtifactId` split `modelfp` — **hit 2026-10-22 seed hunt:** normalize provenance strings; regression above.
+
+- (candidate) `GraphSnapshotCanonicalFingerprint.FormatElementProvenance` — NFC vs NFD `Notes` or passage `Quote` — locus: provenance segment; input: citation metadata with decomposed Unicode.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — consolidated C0/C1 line-break audit (picker saturated `other`; batch only).
+
+- (candidate) `ReviewResultCache.CoalesceAsync` — follower publish leak when publish intent false — locus: existing analysis-follower regressions; input: verify no new partition gap.
+
 2026-10-22 seed hunt (seed→hit): promoted baseline element `Name`/`Description` NFC vs NFD splitting review-cache `modelfp`; `FormatKnowledgeModelElementFingerprint` now uses `NormalizeFingerprintText` for substantive name/description tokens; regressions `Build_matches_content_hash_when_baseline_element_name_differs_only_by_unicode_normalization_form` and `Build_matches_content_hash_when_baseline_element_description_differs_only_by_unicode_normalization_form`; 139 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — NFC vs NFD element `Name`/`Description` split `modelfp` — **hit 2026-10-22 seed hunt:** FormC on name/description; regressions above.
@@ -9095,11 +9106,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 67
-- **bugs-found:** 43
+- **hunts:** 69
+- **bugs-found:** 46
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — padded baseline related element ids in review-cache modelfp
+- **last-bug:** 2026-10-22 — baseline declared priorities and provenance artifact id in review-cache modelfp
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

@@ -135,9 +135,9 @@ public static class GraphSnapshotCanonicalFingerprint
             return string.Empty;
 
         IEnumerable<string> parts = knowledgeModel.DeclaredPriorities
-            .Where(static priority => !string.IsNullOrWhiteSpace(priority))
-            .Select(static priority => priority.Trim())
-            .OrderBy(static priority => priority, StringComparer.OrdinalIgnoreCase);
+            .Select(static priority => NormalizeFingerprintText(priority))
+            .Where(static priority => priority.Length > 0)
+            .OrderBy(static priority => priority, StringComparer.Ordinal);
 
         return string.Join(",", parts);
     }
@@ -200,24 +200,27 @@ public static class GraphSnapshotCanonicalFingerprint
             properties);
     }
 
-    private static string FormatElementProvenance(ClaimProvenance provenance)
+    private static string FormatElementProvenance(ClaimProvenance? provenance)
     {
+        if (provenance is null)
+            return string.Empty;
+
         string locator = provenance.PassageLocator is null
             ? string.Empty
             : string.Join(
                 ":",
-                provenance.PassageLocator.ArtifactId ?? string.Empty,
+                NormalizeFingerprintText(provenance.PassageLocator.ArtifactId),
                 provenance.PassageLocator.StartOffset?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty,
                 provenance.PassageLocator.EndOffset?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty,
-                provenance.PassageLocator.Quote ?? string.Empty);
+                NormalizeFingerprintText(provenance.PassageLocator.Quote));
 
         return string.Join(
             ":",
             provenance.Origin.ToString(),
             provenance.SupportStatus.ToString(),
             provenance.Confidence.ToString(System.Globalization.CultureInfo.InvariantCulture),
-            provenance.SourceArtifactId ?? string.Empty,
-            provenance.Notes ?? string.Empty,
+            NormalizeFingerprintText(provenance.SourceArtifactId),
+            NormalizeFingerprintText(provenance.Notes),
             locator);
     }
 }

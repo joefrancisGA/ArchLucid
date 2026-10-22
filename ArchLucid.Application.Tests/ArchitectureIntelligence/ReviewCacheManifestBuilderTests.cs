@@ -309,6 +309,77 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_baseline_model_declared_priorities_differ_only_by_unicode_normalization_form()
+    {
+        const string nfcPriority = "Caf\u00E9";
+        const string nfdPriority = "Cafe\u0301";
+
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-declared-priority-unicode";
+
+        ArchitectureKnowledgeModel nfcModel = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            DeclaredPriorities = [nfcPriority],
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ArchitectureKnowledgeModel nfdModel = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            DeclaredPriorities = [nfdPriority],
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, nfcModel).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, nfdModel).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_element_provenance_source_artifact_id_differs_only_by_surrounding_whitespace()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-provenance-trim";
+
+        ArchitectureKnowledgeModel paddedArtifact = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance { SourceArtifactId = "  artifact-1  " },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel trimmedArtifact = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance { SourceArtifactId = "artifact-1" },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, paddedArtifact).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, trimmedArtifact).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_baseline_element_description_differs_only_by_unicode_normalization_form()
     {
         const string nfcDescription = "Handles Caf\u00E9 traffic.";
