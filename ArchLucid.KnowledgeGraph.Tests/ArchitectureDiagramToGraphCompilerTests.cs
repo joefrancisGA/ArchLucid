@@ -274,6 +274,24 @@ public sealed class ArchitectureDiagramToGraphCompilerTests
     }
 
     [Fact]
+    public void Compile_trims_trust_boundary_label_when_trust_boundary_label_has_surrounding_whitespace()
+    {
+        ArchitectureDiagramModelRecord model = new()
+        {
+            TrustBoundaryLabels = ["  Corporate network  "],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        StructuredDiagramGraphCompileResult result = new ArchitectureDiagramToGraphCompiler().Compile(
+            model,
+            CreateDefaultCompileOptions());
+
+        result.Snapshot.Nodes.Should().ContainSingle(node =>
+            node.NodeType == GraphNodeTypes.TrustBoundary
+            && node.Label == "Corporate network");
+    }
+
+    [Fact]
     public void Compile_uses_trimmed_diagram_node_id_as_label_when_record_label_is_whitespace_only()
     {
         const string PaddedTerraformAddress = "  azurerm_mssql_server.pay_sql  ";
