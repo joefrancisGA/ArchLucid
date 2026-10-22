@@ -59,6 +59,9 @@ public sealed class TrialLifecycleTransitionEngine(
                 return deletedGateReturn;
             }
 
+            if (await IsErasureSupersededAsync(tenantId, cancellationToken))
+                return true;
+
             await _tenantHardPurgeService.PurgeTenantAsync(tenantId,
                 new TenantHardPurgeOptions { DryRun = false, MaxRowsPerStatement = options.HardPurgeMaxRowsPerStatement }, cancellationToken);
 
@@ -112,6 +115,9 @@ public sealed class TrialLifecycleTransitionEngine(
             {
                 return purgeGateReturn;
             }
+
+            if (await IsErasureSupersededAsync(tenantId, cancellationToken))
+                return true;
 
             TenantHardPurgeResult purgeResult = await _tenantHardPurgeService.PurgeTenantAsync(tenantId,
                 new TenantHardPurgeOptions { DryRun = false, MaxRowsPerStatement = options.HardPurgeMaxRowsPerStatement }, cancellationToken);
