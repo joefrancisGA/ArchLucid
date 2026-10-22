@@ -193255,14 +193255,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: application-billing-logic
 
 - **id:** application-billing-logic
-- **status:** cooling
+- **status:** exhausted
 - **impact:** high
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 48
+- **hunts:** 49
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 5
+- **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-21 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ fleet COGS missing-rate when only global input rate configured
 - **related-pd-tb:** none
@@ -193374,11 +193374,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 
 2026-10-22 thorough hunt (dry): `application-billing-logic` — pass 5 — cheap-disproof closed five pass-4 seed (candidate) rows (estimation Enabled guard, fleet pressure warn without utilization, Stripe ChangePlan policy, top-runs vs days, subscription status display); no hunt-ready rows; 47 scoped billing tests passed; consecutive dry hunts 5; seeded five follow-on (candidate) rows.
-- [ ] (candidate) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — gates only on `AzureMarketplace.GaEnabled` while sibling `ChangePlan` honors `BillingPlanMutationPolicy.WebhookPlanMutationsEnabled` — locus: GA guard vs policy helper; input: Stripe tenant `ChangeQuantity` when GA flag false (verify no Stripe quantity dispatch path exists).
-- [ ] (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `BillingCheckoutInitiated` audit is written before provider validation of seat/workspace clamps — locus: audit before `CreateCheckoutSessionAsync` provider call; input: checkout that fails at provider with invalid seat metadata.
-- [ ] (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — `ByWorkspaceProject` row sets `PromptTokens`/`CompletionTokens` to zero while month pressure is nonzero — locus: breakdown row initializer; input: tenant dashboard with settled month pressure.
-- [ ] (candidate) `AdminFleetLlmCogsService.BuildDashboardAsync` — `MissingRateTenantCount` increments per row sharing one global `CostRatesConfigured` boolean — locus: dashboard aggregate counters; input: fleet with estimation disabled shows all tenants as missing rates.
-- [ ] (candidate) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — uses the same `actorUserName` for `ActorUserId` and `ActorUserName` audit fields — locus: `LogAsync` payload; input: operator dry-run probe (verify API always supplies distinct id vs display name).
+- [x] (invalid) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — gates only on `AzureMarketplace.GaEnabled` while sibling `ChangePlan` honors `BillingPlanMutationPolicy.WebhookPlanMutationsEnabled` — **cheap-disproof 2026-10-22 thorough hunt pass 6:** no Stripe `ChangeQuantity` dispatch path; GA-only gate matches Marketplace-only quantity mutations (2026-09-11 thorough hunt #1700).
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `BillingCheckoutInitiated` audit is written before provider validation of seat/workspace clamps — **cheap-disproof 2026-10-22 thorough hunt pass 6:** initiated/completed audit pairing documents operator-visible checkout attempts; seat clamps occur in Persistence provider, not a silent facade success.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — `ByWorkspaceProject` row sets `PromptTokens`/`CompletionTokens` to zero while month pressure is nonzero — **cheap-disproof 2026-10-22 thorough hunt pass 6:** breakdown row is tenant-wide USD pressure only (`Tenant-wide (estimated)`); token rollups live on `TopRuns`, not workspace breakdown.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — `MissingRateTenantCount` increments per row sharing one global `CostRatesConfigured` boolean — **cheap-disproof 2026-10-22 thorough hunt pass 6:** fleet dashboard uses one estimation config snapshot; per-tenant missing-rate flag matches global `CostRatesConfigured` by design.
+- [x] (valid-no-repro) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — uses the same `actorUserName` for `ActorUserId` and `ActorUserName` audit fields — **cheap-disproof 2026-10-22 thorough hunt pass 6:** API passes `User.Identity?.Name ?? "admin"` for both fields; dry-run probe is not a distinct service principal id surface.
+
+
+2026-10-22 thorough hunt (dry): `application-billing-logic` — pass 6 — cheap-disproof closed five pass-5 seed (candidate) rows; no hunt-ready rows and no failing repro; 47 scoped billing tests passed; six consecutive dry hunts with no `ArchLucid.Application/Billing/` production commits since 2026-10-21; zone marked **exhausted** (no new candidate seed — re-open on billing path churn or fresh seed hunt).
 
 
 - **id:** application-billing-logic
