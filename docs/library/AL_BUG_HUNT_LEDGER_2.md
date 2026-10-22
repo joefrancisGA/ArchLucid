@@ -9834,6 +9834,20 @@
 
 ## Zone: api-governance-tenancy-controllers
 
+2026-10-22 seed hunt #9 (seed-only, picker `-Refresh`): refresh did not deprioritize mega-zone; re-read create-risk sealed layering, customer-success health scope, dry-run validation order, workspace inventory row preference, and disposition guard null golden handling; cheap-disproof closed five open `(candidate)` rows (facade `CreateRiskExceptionAsync` still 409 via `runIdForGuard`; health-score uses `TenantWorkspaceScopePreflight` ~21–33; `DryRunPolicyPack` validates run ids before sealed guard ~162–200; recycle-bin `preferInactiveScopedInventoryRow: true` intentional ~65; null `GoldenManifest` throws `ConflictException` ~49–52 mapped to 409 ~42–49); no hunt-ready row promoted; five replacement `(candidate)` rows; scoped Governance/Tenancy controller tests not run.
+
+- [x] (valid-no-repro) `GovernanceStickinessController.CreateRiskException` — controller guard skips null `request.RunId` — **cheap-disproof 2026-10-22 seed hunt #9:** facade sealed guard ~33–43 returns 409.
+- [x] (valid-no-repro) `TenantCustomerSuccessController` health endpoints — **cheap-disproof 2026-10-22 seed hunt #9:** `GetHealthScoreAsync` scoped ~30–34.
+- [x] (valid-no-repro) `GovernanceController.DryRunPolicyPack` — validation ordering — **cheap-disproof 2026-10-22 seed hunt #9:** run id validation precedes sealed guard ~162–200.
+- [x] (valid-no-repro) `TenantWorkspacesController.ResolveScopedWorkspaceInventoryRow` — inactive row preference — **cheap-disproof 2026-10-22 seed hunt #9:** recycle-bin sets `preferInactiveScopedInventoryRow: true` by design.
+- [x] (valid-no-repro) `EnsureGovernanceDispositionRunSealedManifestAllowedAsync` — null golden — **cheap-disproof 2026-10-22 seed hunt #9:** `EnsureRunSealedManifestHashOrThrow` 409 when golden null ~49–52.
+
+- [ ] (candidate) `GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync` — null `detail` throws 409 not 404 — locus: `GovernanceDispositionSealedManifestGuard.cs` ~32–36; input: facade callers vs HTTP stickiness null-detail skip divergence.
+- [ ] (candidate) `GovernanceController.MutationCorrections` — correction POST sealed guard ordering — locus: `GovernanceController.MutationCorrections.cs`; input: missing run 404 vs 409.
+- [ ] (candidate) `TenantCustomerSuccessController` feedback POST — locus: `TenantCustomerSuccessController.Feedback.cs`; input: tenant scope on write path.
+- [ ] (candidate) `GovernanceStickinessController.RecordDisposition` — sealed guard on nullable `body.RunId` only — locus: `Dispositions.cs` ~81–83; input: finding-bound run omitted from body (revisit after `EnsureRunMatchesFindingAuthorityRun`).
+- [ ] (candidate) `GovernancePreviewController.Preview` — run id trim/normalization before sealed guard — locus: `GovernancePreviewController.cs` ~113; input: whitespace-padded run id reachability.
+
 2026-10-22 seed hunt #8 (seed-only): re-read risk-exception create/revoke guard layers, tenant baseline GET, and batch approval review entry; cheap-disproof closed five open `(candidate)` rows (`RenewRiskException` shares `EnsureRiskExceptionRunSealedManifestAllowedAsync` with revoke after `33ef2a457a`; Approve sealed-before-SoD intentional ~53–98; `TenantBaselineController.GetAsync` returns tenant-row baseline only ~20–26; `CreateRiskExceptionAsync` seals via `runIdForGuard = request.RunId ?? finding.RunId` ~33–43 when controller guard skips null `request.RunId`; `BatchReviewApprovalRequests` no longer applies scope posture controller guard—facade-only ~48–56 post-2026-10-20); no hunt-ready row promoted; five replacement `(candidate)` rows; scoped Governance/Tenancy controller tests not run.
 
 - [x] (valid-no-repro) `GovernanceStickinessController.RenewRiskException` — renew regression gap — **cheap-disproof 2026-10-22 seed hunt #8:** shared sealed guard with revoke; optional parity test only.
@@ -9841,12 +9855,6 @@
 - [x] (valid-no-repro) `TenantBaselineController.GetAsync` — cross-workspace leak — **cheap-disproof 2026-10-22 seed hunt #8:** tenant-scoped DTO ~40–50; no workspace route.
 - [x] (valid-no-repro) `GovernanceStickinessFacade.CreateRiskExceptionAsync` — omitted request `RunId` — **cheap-disproof 2026-10-22 seed hunt #8:** facade seals on finding authority run ~33–43.
 - [x] (invalid) `GovernanceController.BatchReviewApprovalRequests` — scope posture guard — **cheap-disproof 2026-10-22 seed hunt #8:** controller guard removed; proven 2026-10-20 behavior superseded.
-
-- [ ] (candidate) `GovernanceStickinessController.CreateRiskException` — controller sealed guard uses `request.RunId` only before facade finding fallback — locus: `Exceptions.cs` ~46–48 vs facade ~33–43; input: verify 409 still surfaces when controller guard skips.
-- [ ] (candidate) `TenantCustomerSuccessController` health endpoints — locus: `TenantCustomerSuccessController.Health.cs`; input: scope preflight parity with funnel routes.
-- [ ] (candidate) `GovernanceController.DryRunPolicyPack` — pagination params ignored sealed guard — locus: `PolicyPacks.DryRun.cs` ~198–211; input: verify run list validation ordering.
-- [ ] (candidate) `TenantWorkspacesController` — `ResolveScopedWorkspaceInventoryRow` prefer inactive row — locus: `TenantWorkspacesController.cs` ~105–113; input: recycle-bin vs list display divergence.
-- [ ] (candidate) `GovernanceStickinessController.EnsureGovernanceDispositionRunSealedManifestAllowedAsync` — null `GoldenManifest` on detail — locus: `SealedManifestGuard.cs` ~37–38; input: 409 vs pass-through when manifest compare returns detail without golden.
 
 2026-10-22 seed hunt #7 (seed-only): re-read disposition sealed guards, approval review ordering, customer-success stickiness scope, and workspace default-project resolution; cheap-disproof closed five open `(candidate)` rows (`RecordDisposition`/`RecordDispositionAsync` require `RunId` when finding authority-bound ~87–94; `Approve` runs sealed guard before facade SoD ~53–98 by design; stickiness snapshot reader uses same tenant/workspace/project triple ~65–71; bulk sealed preflight collects `finding.RunId` and facade re-seals ~79–92; `ResolveScopedWorkspaceDefaultProjectId` ignores metadata pins not in active catalog ~80–81); no hunt-ready row promoted; five replacement `(candidate)` rows; scoped Governance/Tenancy controller tests not run.
 
@@ -9907,7 +9915,7 @@
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER_2.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 339
+- **hunts:** 340
 - **bugs-found:** 527
 - **last-bug:** 2026-10-22 - risk exception revoke sealed guard resolves finding run when waiver RunId empty
 - **last-hunt:** 2026-10-22
