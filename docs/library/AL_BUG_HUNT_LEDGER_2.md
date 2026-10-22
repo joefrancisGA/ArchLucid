@@ -2842,6 +2842,14 @@
 
 ## Zone: scim-users
 
+2026-10-22 thorough hunt #32 (dry): cheap-disproof closed five `(candidate)` rows (PATCH `REPLACE` op accepted via `OrdinalIgnoreCase`; `active pr` always present via synthetic `GetString` bool strings; `userName co ""` broad filter sibling to hunt #28 `sw ""`; PUT omitted `externalId` defaults to `userName` per docs/parser by design; tombstone reactivate with `active: false` skips seat in `ReactivateRemovedUserAsync`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — uppercase `REPLACE` — **cheap-disproof 2026-10-22 #32:** `ApplyOne` case-insensitive op name check.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active pr` — **cheap-disproof 2026-10-22 #32:** `GetString("active")` never null; matches all live users.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName co ""` — **cheap-disproof 2026-10-22 #32:** empty `Contains` matches all (hunt #28 `sw ""` class).
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — omitted `externalId` — **cheap-disproof 2026-10-22 #32:** `ScimUserResourceParser` default documented in `SCIM_ENTRA_ID_SETUP.md`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — reactivate inactive — **cheap-disproof 2026-10-22 #32:** `ReactivateRemovedUserAsync` seat only when `active` true.
+
 2026-10-22 thorough hunt #31 (dry): cheap-disproof closed five `(candidate)` rows (`not (active eq true)` via `ScimNotNode` + `CompareActive`/`TryParseEqualityOperand`; duplicate PATCH `replace` on same path last-wins per `Sequential_ops_apply_in_order`; inactive create skips seat increment per hunt #27; GET after PUT soft-disable intentional—`DirectoryRemovedUtc` null; escaped quote in filter literal per hunt #29 `ReadQuotedString`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
 
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — `not (active eq true)` — **cheap-disproof 2026-10-22 #31:** `ScimFilterInMemoryEvaluator` negates `CompareActive`; parser `Parse_active_eq_true` / `Parse_not`.
@@ -3119,9 +3127,9 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 65
+- **hunts:** 66
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 10
+- **consecutive-dry-hunts:** 11
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — SCIM PATCH remove on active returned silent no-op instead of mutability
 - **related-pd-tb:** none
@@ -3404,11 +3412,17 @@
 - [x] (valid-no-repro) `ScimUsersController.GetAsync` — GET after soft-disable PUT — **cheap-disproof 2026-10-22 #31:** by design vs DELETE tombstone.
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — escaped quote in filter — **cheap-disproof 2026-10-22 #31:** hunt #29 class.
 
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `op` value `REPLACE` (uppercase) — locus: `ApplyOne` `OrdinalIgnoreCase` on op name; input: Entra mixed-case op strings.
-- [ ] (candidate) `ScimUsersController.ListAsync` — `active pr` — locus: `ScimPresentNode` on `active`; input: presence filter includes all users with boolean field.
-- [ ] (candidate) `ScimUsersController.ListAsync` — `userName co ""` — locus: `Contains` with empty substring; input: overly broad filter (not injection).
-- [ ] (candidate) `ScimUsersController.ReplaceAsync` — PUT omits `externalId` — locus: `ScimUserResourceParser` defaults to `userName`; input: partial PUT body from misconfigured client.
-- [ ] (candidate) `ScimUsersController.CreateAsync` — reactivate tombstoned `externalId` with `active: false` — locus: `ReactivateRemovedUserAsync` seat path; input: Entra recreate-before-enable ordering.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — uppercase `REPLACE` — **cheap-disproof 2026-10-22 #32:** case-insensitive `op`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active pr` — **cheap-disproof 2026-10-22 #32:** synthetic active string always present.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `userName co ""` — **cheap-disproof 2026-10-22 #32:** empty substring filter.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — omitted `externalId` — **cheap-disproof 2026-10-22 #32:** parser default to `userName`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — inactive reactivate — **cheap-disproof 2026-10-22 #32:** no seat when `active: false`.
+
+- [ ] (candidate) `ScimUsersController.PatchAsync` — `path` casing `Active` vs `active` — locus: flat map `OrdinalIgnoreCase`; input: mixed-case path from client.
+- [ ] (candidate) `ScimUsersController.ListAsync` — `displayName pr` — locus: `ScimPresentNode` excludes null optional `DisplayName`; input: users without display name omitted.
+- [ ] (candidate) `ScimUsersController.PatchAsync` — `remove` on `displayName` clears to empty — locus: `ResolvePatchDisplayName`; input: Entra clearing display name.
+- [ ] (candidate) `ScimUsersController.ListAsync` — `id eq` with uppercase GUID — locus: canonical `D` format compare; input: filter literal casing.
+- [ ] (candidate) `ScimUsersController.CreateAsync` — seat cap with `active: true` after inactive reactivate of same `externalId` — locus: `ReactivateRemovedUserAsync` then later PATCH `active:true`; input: two-step Entra enable.
 
 - [x] (proven) `ScimUserService.CreateAsync` / `PatchAsync` / `ScimUsersController` — a second live user with the same `userName` and a different `externalId` was stored, including case-only names — **hit 2026-10-09 seed hunt:** live `userName` lookup returns `uniqueness`. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
 - [x] (proven) `ScimFilterParser.ParseFilter` / `ScimUsersController.ListAsync` — ungrouped `or` before `and` was parsed left-to-right, so an active user matching only the left comparison was omitted — **hit 2026-10-09 seed hunt:** `not` over `and` over `or` per RFC 7644 §3.4.2.2. Regressions `ListAsync_filter_gives_and_precedence_over_or`, `Parse_or_binds_looser_than_and`, and `Parse_not_binds_tighter_than_and`.
