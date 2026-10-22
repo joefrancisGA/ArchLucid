@@ -152,6 +152,34 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
     }
 
     [Fact]
+    public void Rebind_classifies_inventory_overlay_when_source_type_has_surrounding_whitespace_and_no_property_markers()
+    {
+        GraphSnapshot overlay = BuildOverlayNode(label: "pay-sql-prod", armResourceId: ArmResourceId);
+        GraphNode overlayNode = overlay.Nodes[0];
+        overlayNode.SourceType = $"  {ArchitectureInventoryGraphSourceTypes.AzureInventorySnapshot}  ";
+        overlayNode.Properties.Clear();
+
+        GraphSnapshot merged = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                BuildDiagramNode("diagram-node:sql", "pay-sql-prod"),
+                overlayNode,
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot rebound = ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
+            .RebindLeftoverDiagramNodes(merged, overlay);
+
+        rebound.Nodes.Should().NotContain(node => node.NodeId == "diagram-node:sql");
+        rebound.Nodes.Should().ContainSingle(node => node.NodeId == CloudResourceId.ToString("D"));
+    }
+
+    [Fact]
     public void Rebind_reads_source_evidence_id_when_persisted_property_key_uses_different_casing()
     {
         GraphSnapshot overlay = BuildOverlayNode(label: "pay-sql-prod", armResourceId: ArmResourceId);

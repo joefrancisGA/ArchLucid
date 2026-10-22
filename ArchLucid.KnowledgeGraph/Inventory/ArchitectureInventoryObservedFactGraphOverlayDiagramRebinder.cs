@@ -91,8 +91,9 @@ public static class ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
 
     private static bool IsInventoryObservedFact(GraphNode node)
     {
-        if (string.Equals(
-                node.SourceType,
+        if (!string.IsNullOrWhiteSpace(node.SourceType)
+            && string.Equals(
+                node.SourceType.Trim(),
                 ArchitectureInventoryGraphSourceTypes.AzureInventorySnapshot,
                 StringComparison.OrdinalIgnoreCase))
         {
