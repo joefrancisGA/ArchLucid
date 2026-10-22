@@ -2842,6 +2842,14 @@
 
 ## Zone: scim-users
 
+2026-10-22 thorough hunt #35 (dry): cheap-disproof closed five `(candidate)` rows (`startIndex=1` → offset 0 in repository list; PATCH `active` string `"false"` via `ReadActive` `bool.TryParse`; parenthesized `and` filter via `Parse_deep_parentheses`/grouping; PATCH path trim in `ApplyOne`/`ScimPatchValuePathParser`; POST `userName` trimmed in `ReadRequiredString`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `startIndex=1` — **cheap-disproof 2026-10-22 #35:** 1-based index; `offset = startIndex - 1`; regressions `ListAsync_normalizes_start_index_below_one`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `active` string `"false"` — **cheap-disproof 2026-10-22 #35:** `ReadActive` `JsonValueKind.String` + `bool.TryParse`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — parenthesized `and` — **cheap-disproof 2026-10-22 #35:** `ScimFilterParser` grouping; `Parse_deep_parentheses`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — path whitespace — **cheap-disproof 2026-10-22 #35:** `path.Trim()` before flat key assignment.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — padded `userName` — **cheap-disproof 2026-10-22 #35:** required string trim on ingest (intentional normalization).
+
 2026-10-22 thorough hunt #34 (dry): cheap-disproof closed five `(candidate)` rows (`externalId ne` case-exact `Ordinal` compare per RFC 7643; `replace displayName` JSON `null` clears via `ResolvePatchDisplayName`; `userName gt ""` matches all non-null names via `LexGreater`; flat `add` on `displayName` via `Add_inserts_value`/`ApplyFlat`; unknown `nickName` filter → `invalidFilter` hunt #21 class); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
 
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — `externalId ne` — **cheap-disproof 2026-10-22 #34:** `ne` + case-exact `externalId` in `Compare`.
@@ -3143,9 +3151,9 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 68
+- **hunts:** 69
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 13
+- **consecutive-dry-hunts:** 14
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — SCIM PATCH remove on active returned silent no-op instead of mutability
 - **related-pd-tb:** none
@@ -3446,11 +3454,17 @@
 - [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `add displayName` — **cheap-disproof 2026-10-22 #34:** flat add path.
 - [x] (invalid) `ScimUsersController.ListAsync` — `nickName` filter — **cheap-disproof 2026-10-22 #34:** hunt #21 unknown attribute.
 
-- [ ] (candidate) `ScimUsersController.ListAsync` — `startIndex=1` first page — locus: RFC 7644 1-based `startIndex` normalization in `ListAsync`; input: default pagination omits no first user.
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `replace` `active` with string `"false"` — locus: `ReadActive` `bool.TryParse`; input: Entra string boolean PATCH.
-- [ ] (candidate) `ScimUsersController.ListAsync` — `userName eq` and `active eq false` grouped with parentheses — locus: parser grouping; input: `(userName eq "x") and (active eq false)`.
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `replace` on path with surrounding whitespace — locus: `path.Trim()` in `ApplyOne`; input: `" path ": "active"`.
-- [ ] (candidate) `ScimUsersController.CreateAsync` — trimmed `userName` on POST — locus: `ReadRequiredString` trim; input: leading/trailing spaces in `userName`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `startIndex=1` — **cheap-disproof 2026-10-22 #35:** 1-based pagination contract.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — string `"false"` active — **cheap-disproof 2026-10-22 #35:** `ReadActive` string arm.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — parenthesized filter — **cheap-disproof 2026-10-22 #35:** parser grouping tests.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — whitespace path — **cheap-disproof 2026-10-22 #35:** trim before key.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — trim `userName` — **cheap-disproof 2026-10-22 #35:** `ReadRequiredString` trim.
+
+- [ ] (candidate) `ScimUsersController.ListAsync` — `count` above 200 — locus: `Math.Clamp(count, 0, 200)` in `ListAsync`; input: client requests oversized page.
+- [ ] (candidate) `ScimUsersController.PatchAsync` — unsupported `op` value — locus: `ApplyOne` throws `invalidSyntax`; input: `op: "move"` flat user PATCH.
+- [ ] (candidate) `ScimUsersController.ListAsync` — `active eq "FALSE"` string literal — locus: `ScimActiveFilterLiteralParser` case-insensitive bool parse; input: uppercase false filter.
+- [ ] (candidate) `ScimUsersController.PatchAsync` — `replace` `active` with string `"True"` — locus: PATCH `ReadActive` `bool.TryParse`; input: Pascal-case Entra disable/enable strings.
+- [ ] (candidate) `ScimUsersController.ListAsync` — tombstoned user excluded before filter — locus: `ListAsync` excludes `DirectoryRemovedUtc`; input: filter would match deleted row if included.
 
 - [x] (proven) `ScimUserService.CreateAsync` / `PatchAsync` / `ScimUsersController` — a second live user with the same `userName` and a different `externalId` was stored, including case-only names — **hit 2026-10-09 seed hunt:** live `userName` lookup returns `uniqueness`. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
 - [x] (proven) `ScimFilterParser.ParseFilter` / `ScimUsersController.ListAsync` — ungrouped `or` before `and` was parsed left-to-right, so an active user matching only the left comparison was omitted — **hit 2026-10-09 seed hunt:** `not` over `and` over `or` per RFC 7644 §3.4.2.2. Regressions `ListAsync_filter_gives_and_precedence_over_or`, `Parse_or_binds_looser_than_and`, and `Parse_not_binds_tighter_than_and`.
