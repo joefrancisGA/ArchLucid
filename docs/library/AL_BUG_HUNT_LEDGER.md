@@ -187315,11 +187315,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-22 seed hunt (seed-only): re-read `IdentityProviderConfigurationController` and `IdentityProviderActivationService` after billing dry hunt; compared discover/test-login/activate validation branches and protocol transition matrix tests; no row met hunt-ready bar for a same-run failing repro; seeded five `(candidate)` rows; 84 scoped activation + controller tests passed.
 
-- [ ] (candidate) `IdentityProviderConfigurationController.DiscoverAsync` — `EnsureIssuerUriFits` runs only when `DiscoverySucceeded` is true, so a failed discovery envelope may still echo an overlong `IssuerUri` without HTTP 400 — locus: post-`DiscoverAsync` validation; input: discovery service returns `DiscoverySucceeded: false` with diagnostic issuer text; reachability: `IdentityProviderDiscoveryService` failure payloads.
-- [ ] (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` — returns HTTP 200 with stored `IssuerUri` when `TryGetCanonicalAbsoluteHttpOrHttps` fails, skipping length guard — locus: `PrepareConfigurationResponse` + GET validation branch; input: legacy non-HTTP(S) issuer persisted outside activate path; reachability: manual SQL row only.
-- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — cross-protocol activation (`sameProtocol` false) passes `null` into `ResolveOptionalPersistedField` for existing optional fields, clearing SAML metadata or OIDC secret even when the wizard omits those keys on a protocol switch — locus: `sameProtocol ? existing?.MetadataXml : null`; input: POST activate after protocol change in SSO wizard (`use-sso-wizard-page.ts`).
-- [ ] (candidate) `IdentityProviderConfigurationController.WithCanonicalWizardUris` — when `DiscoverySucceeded` is true, non-HTTP(S) `JwksUri` values are left unchanged while invalid `IssuerUri` prevents canonicalization — locus: independent issuer/JWKS branches; input: discovery response with http issuer and malformed `jwks_uri`; reachability: OIDC metadata fetch.
-- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — `JsonSerializer.Serialize(mapping, JsonOptions)` does not preflight `ClaimMappingJson` length against the persistence column before upsert — locus: between serialize and `UpsertAsync`; input: very large role mapping payloads from admin API; reachability: `POST /v1/admin/identity/activate` OpenAPI body.
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.DiscoverAsync` - failed discovery overlong issuer echo - **cheap-disproof 2026-10-22:** discover envelope uses `DiscoverySucceeded: false`; wizard reads diagnostics (2026-10-20 valid-no-repro).
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.GetConfigurationAsync` - GET 200 when issuer not canonical HTTP(S) - **cheap-disproof 2026-10-22:** legacy/manual row class; activate path enforces canonical issuer on write.
+- [x] (invalid) `IdentityProviderActivationService.ActivateAsync` - cross-protocol optional field clearing - **cheap-disproof 2026-10-22:** regressions `ActivateAsync_protocol_switch_clears_saml_metadata_xml_when_omitted` and `ActivateAsync_protocol_switch_clears_oidc_key_vault_secret_when_omitted`.
+- [x] (invalid) `IdentityProviderConfigurationController.WithCanonicalWizardUris` - independent issuer/JWKS branches - **cheap-disproof 2026-10-22:** duplicate of 2026-10-21 `DiscoverAsync_returns_canonical_issuer_and_jwks_uris`.
+- [x] (invalid) `IdentityProviderActivationService.ActivateAsync` - `ClaimMappingJson` length preflight - **cheap-disproof 2026-10-22:** column is `NVARCHAR(MAX)` with ISJSON check; duplicate 2026-10-21 #78.
+
+2026-10-22 seed hunt #2 (seed-only): closed prior pass candidates; re-read discover/test-login/activate/GET configuration paths and protocol transition matrix; no hunt-ready promotion; seeded five follow-on `(candidate)` rows; 84 scoped activation + controller tests passed.
+
+- [ ] (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` - OIDC GET path runs `EnsureIssuerUriFits` when canonicalization succeeds but does not call `EnsureKeyVaultSecretNameFits` on stored `KeyVaultSecretName`, so legacy rows with secret names longer than 256 characters may return HTTP 200 - locus: `PrepareConfigurationResponse` + GET validation; input: persisted OIDC row with overlong secret name; reachability: `GET /v1/admin/identity/configuration`.
+- [ ] (candidate) `IdentityProviderConfigurationController.ActivateAsync` - audit event sets `ActorUserName` from `User.Identity?.Name` while `ActorUserId` uses persisted `record.UpdatedByActorId`, so audit forensics may show mismatched display name vs explicit actor id when the JWT name claim differs - locus: `LogAsync` payload; input: activate with trimmed oid actor id and a different `User.Identity.Name`; reachability: `POST /v1/admin/identity/activate`.
+- [ ] (candidate) `IdentityProviderConfigurationController.DiscoverAsync` - successful discovery canonicalizes issuer/JWKS URIs but does not apply `EnsureKeyVaultSecretNameFits`-style length guards to `JwksUri` in the discover envelope (only issuer length is checked post-canonicalization) - locus: discover success response; input: metadata returning very long `jwks_uri`; reachability: OIDC discover wizard step.
+- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` - `ResolveOptionalPersistedField` treats whitespace-only request values as clear-to-null on same-protocol reactivate, which can wipe SAML metadata or OIDC secret when a client sends explicit blank strings instead of omitting keys - locus: optional field resolver; input: same-protocol activate with `"   "` metadata or secret; reachability: OpenAPI activate body (wizard sends null).
+- [ ] (candidate) `IdentityProviderConfigurationController.TestLogin` - validates issuer length via `EnsureIssuerUriFits` but does not validate claim-mapping JSON serialized size before sandbox execution, unlike activate which persists `ClaimMappingJson` - locus: test-login preflight; input: extremely large mapping graph; reachability: `POST /v1/admin/identity/test-login`.
+
+
 
 2026-10-20 seed hunt (seed->hit): promoted GET /v1/admin/identity/configuration returning legacy MetadataXml on OIDC rows (and KeyVaultSecretName on SAML) after activate began stripping cross-protocol fields; PrepareConfigurationResponse omits protocol-inapplicable columns on read; regression GetConfigurationAsync_omits_metadata_xml_when_stored_protocol_is_oidc; 16 scoped IdentityProviderConfigurationControllerTests passed.
 
@@ -187368,7 +187378,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 61
+- **hunts:** 62
 - **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
