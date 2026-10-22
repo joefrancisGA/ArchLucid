@@ -2842,6 +2842,14 @@
 
 ## Zone: scim-users
 
+2026-10-22 thorough hunt #10 (dry): cheap-disproof closed five picker `(candidate)` rows (non-string `displayName` → `invalidValue`; uppercase PATCH `op` accepted via `OrdinalIgnoreCase`; directory-removed PUT throws `ScimNotFoundException` → 404; `startIndex` past end yields empty page with stable `totalResults`; PATCH `remove` ignores extraneous `value`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
+
+- [x] (invalid) `ScimUsersController.CreateAsync` — `displayName` number — **cheap-disproof 2026-10-22 #10:** `ReadOptionalString` ~33 → `invalidValue`; PATCH parity `PatchAsync_replace_displayName_non_string_throws`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — uppercase `REPLACE` — **cheap-disproof 2026-10-22 #10:** `ApplyOne` uses `OrdinalIgnoreCase` for `add`/`replace`/`remove`.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — PUT on directory-removed user — **cheap-disproof 2026-10-22 #10:** `ReplaceAsync` ~97–98 `DirectoryRemovedUtc` → `ScimNotFoundException`; controller maps `notFound` (parity GET via `GetAsync` ~28–29).
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `startIndex` beyond total — **cheap-disproof 2026-10-22 #10:** repository `Skip(offset).Take(count)` returns empty items; `total` unchanged (RFC 7644 list response).
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `remove` with extra `value` — **cheap-disproof 2026-10-22 #10:** `ApplyOne` remove branch returns before reading `value`; regression `PatchAsync_remove_displayName_clears_display_name`.
+
 2026-10-22 thorough hunt #9 (dry): cheap-disproof closed five picker `(candidate)` rows (unsupported PATCH `op` → `invalidSyntax`; inactive create correctly skips seat increment; whitespace `userName` on PUT → `invalidValue`; empty PATCH `path` → `invalidPath`; omitted `externalId` defaults to trimmed `userName` for duplicate checks per RFC/Entra minimal POST); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
 
 - [x] (invalid) `ScimUsersController.PatchAsync` — unsupported `op` (`copy`) — **cheap-disproof 2026-10-22 #9:** `ScimPatchOpEvaluator.ApplyOne` ~45–46 → `invalidSyntax`.
@@ -2943,9 +2951,9 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 43
+- **hunts:** 44
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 9
+- **consecutive-dry-hunts:** 10
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — SCIM POST/PUT/PATCH mapped canceled JSON reads to invalidSyntax 400
 - **related-pd-tb:** none
@@ -3096,11 +3104,17 @@
 - [x] (invalid) `ScimUsersController.PatchAsync` — empty `path` — **cheap-disproof 2026-10-22 #9:** `invalidPath`.
 - [x] (valid-no-repro) `ScimUsersController.CreateAsync` — default `externalId` — **cheap-disproof 2026-10-22 #9:** `userName` fallback by design.
 
-- [ ] (candidate) `ScimUsersController.CreateAsync` — `displayName` as JSON number — locus: `ReadOptionalString` ~33; input: `{"userName":"a@b.com","displayName":1}` (expect `invalidValue`).
-- [ ] (candidate) `ScimUsersController.PatchAsync` — uppercase `op` (`REPLACE`) — locus: `ApplyOne` ~45 `OrdinalIgnoreCase`; input: verify case-insensitive op names match Entra payloads.
-- [ ] (candidate) `ScimUsersController.ReplaceAsync` — PUT on directory-removed user — locus: `ReplaceAsync` ~97–98 `DirectoryRemovedUtc`; input: same 404 `notFound` as GET (verify controller mapping).
-- [ ] (candidate) `ScimUsersController.ListAsync` — `startIndex` greater than `totalResults` — locus: repository offset paging; input: empty `Resources` with `totalResults` unchanged (RFC list semantics).
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `remove` with extraneous `value` — locus: `ApplyOne` remove branch ~39–42; input: `{"Operations":[{"op":"remove","path":"displayName","value":"x"}]}` (expect remove succeeds ignoring value).
+- [x] (invalid) `ScimUsersController.CreateAsync` — numeric `displayName` — **cheap-disproof 2026-10-22 #10:** `invalidValue`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — uppercase `op` — **cheap-disproof 2026-10-22 #10:** case-insensitive ops by design.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — PUT tombstoned user — **cheap-disproof 2026-10-22 #10:** `notFound` parity with GET.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — past-end `startIndex` — **cheap-disproof 2026-10-22 #10:** empty page + stable total.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `remove` + `value` — **cheap-disproof 2026-10-22 #10:** value ignored on remove.
+
+- [ ] (candidate) `ScimUsersController.GetAsync` — GET directory-removed user by id — locus: `ScimUserService.GetAsync` ~28–29; input: tombstoned row returns null → controller 404 `notFound`.
+- [ ] (candidate) `ScimUsersController.PatchAsync` — PATCH `active` as string `"false"` — locus: `ReadActive` string branch ~44–46; input: stringified booleans from provisioners.
+- [ ] (candidate) `ScimUsersController.CreateAsync` — empty string `userName` — locus: `ReadRequiredString` ~23–24; input: `{"userName":"","active":true}` (expect `invalidValue`).
+- [ ] (candidate) `ScimUsersController.ListAsync` — `count=200` page cap — locus: `Math.Clamp(count, 0, 200)`; input: verify max page size without controller-level clamp duplication bug.
+- [ ] (candidate) `ScimUsersController.PatchAsync` — PATCH on directory-removed user — locus: `PatchAsync` directory guard (service); input: same `notFound` as PUT/GET.
 
 - [x] (proven) `ScimUserService.CreateAsync` / `PatchAsync` / `ScimUsersController` — a second live user with the same `userName` and a different `externalId` was stored, including case-only names — **hit 2026-10-09 seed hunt:** live `userName` lookup returns `uniqueness`. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
 - [x] (proven) `ScimFilterParser.ParseFilter` / `ScimUsersController.ListAsync` — ungrouped `or` before `and` was parsed left-to-right, so an active user matching only the left comparison was omitted — **hit 2026-10-09 seed hunt:** `not` over `and` over `or` per RFC 7644 §3.4.2.2. Regressions `ListAsync_filter_gives_and_precedence_over_or`, `Parse_or_binds_looser_than_and`, and `Parse_not_binds_tighter_than_and`.
