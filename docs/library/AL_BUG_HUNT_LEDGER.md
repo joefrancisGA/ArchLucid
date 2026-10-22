@@ -1,3 +1,18 @@
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `shouldConsumeAuthorizeRetryForReturnUrl` — `handleInitiateDiscoveryFailure` refactor regressed consume order so `shouldConsumeAuthorizeRetryForReturnUrl` ran after `storePostSignInReturnUrl` and never cleared the retry marker when explicit `returnUrl` changed; evaluate consumption before store on primary and supplemental initiate; regression `clears authorize retry marker when retry uses a different explicit return URL`; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 367/367.
+
+- [x] (proven) `shouldConsumeAuthorizeRetryForReturnUrl` — consume after store — **hit 2026-10-22 seed hunt:** read prior path before `storePostSignInReturnUrl`; regression above.
+- [x] (valid-no-repro) `initiateSupplementalOidcRedirect` — Google discovery retry same returnUrl — **cheap-disproof 2026-10-22 seed hunt:** shared consume-order fix + `handleInitiateDiscoveryFailure`.
+- [x] (valid-no-repro) `handleInitiateDiscoveryFailure` — different returnUrl clears on discovery fail — **cheap-disproof 2026-10-22 seed hunt:** intentional when `keepAuthorizeRetryReturnPath` false after marker consumed.
+- [x] (valid-no-repro) `storePostSignInReturnUrl` — trailing slash comparable drift — **cheap-disproof 2026-10-22 seed hunt:** `normalizeComparableReturnPath` in consume helper.
+- [x] (valid-no-repro) `errorFromOAuthJson` — description-only token errors — **cheap-disproof 2026-10-22 seed hunt:** existing token-client description-only tests.
+- [x] (invalid) `decodePercentEncodedOAuthCopy` — quadruple-encoded descriptions — **cheap-disproof 2026-10-22 seed hunt:** three-pass cap by design.
+
+- [ ] (candidate) `initiateSupplementalOidcRedirect` — explicit Google retry discovery-failure regression test — locus: test gap; input: mirror primary same-return discovery test.
+- [ ] (candidate) `readPostSignInReturnUrl` — used only before store in consume helper — locus: API contract; input: document non-clearing read (reachability: docs).
+- [ ] (candidate) `exchangeAuthorizationCode` — invalid_grant humanize with raw error glue — locus: `humanizeAuthorizeCallbackError(raw, …)`; input: ZWNJ in raw code (covered elsewhere).
+- [ ] (candidate) `bff-session-sync` — refresh ok with missing `expires_at_ms` — locus: `parseBffExpiresAtMs`; input: empty JSON field (existing tests).
+- [ ] (candidate) `jwt-payload` — id_token nonce with interior ZWSP — locus: strip invisible; input: parity PKCE state tests.
+
 2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `initiateOidcRedirect` discovery failure after authorize retry with repeated explicit `returnUrl`; `storedReturnUrlThisAttempt` always called `clearPostSignInReturnUrl` and dropped the stored path even when the retry marker was kept for the same deep link; `handleInitiateDiscoveryFailure` re-marks without clearing when repeat-path authorize retry; regression `preserves post-sign-in return path when discovery fails during authorize retry with the same explicit return URL`; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 366/366.
 
 - [x] (proven) `initiateOidcRedirect` - discovery failure cleared return URL on same-path authorize retry - **hit 2026-10-22:** `handleInitiateDiscoveryFailure`; regression above.
