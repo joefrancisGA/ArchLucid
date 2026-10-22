@@ -12470,18 +12470,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 173
+- **hunts:** 174
 - **bugs-found:** 149
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — graph node property reader returned padded property values
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-10-22 seed hunt (invalid): promoted `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` graph node `Properties` omission candidate; proved revision fingerprint and `ProvenanceBuilder` intentionally materialize only node id, label, type, and category on graph provenance nodes (property bags drive separate materialization paths, not cached provenance graph shape); regressions `Compute_unchanged_when_only_graph_node_properties_change` and `Build_produces_same_graph_provenance_node_when_only_property_bag_differs`; seeded `ComputeGraphFingerprint` graph edge `Properties` amendment revision-cache follow-on; 465 KnowledgeGraph + 167 Provenance scoped tests passed.
+
+- [x] (invalid) `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` — graph node `Properties` amendments did not bust revision when display fields were unchanged — **cheap-disproof 2026-10-22 seed hunt:** property bag out of provenance revision scope; regressions above.
+
+- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` — graph edge `Properties` or diagram inference metadata amendments may not bust revision under stable directed connectivity — locus: edge fingerprint segment omits property bag and edge metadata; input: `GraphEdge.Properties` value changes with unchanged endpoints and type; wrong outcome: `ProvenanceGraphAccessService` cache hit when diagram source-evidence metadata drifts.
+
 2026-10-22 seed hunt (invalid): promoted `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` edge-id omission candidate; proved revision fingerprint intentionally keys directed connectivity (`from|to|type`) only so duplicate parallel edges and buyer `EdgeId` renames do not force `ProvenanceGraphAccessService` rebuild when provenance graph topology is unchanged (parity with hunt that deduped parallel edges); regressions `Compute_unchanged_when_graph_edge_id_changes_but_directed_endpoints_and_type_are_unchanged` and existing `Compute_unchanged_when_duplicate_parallel_graph_edge_is_removed`; seeded graph node `Properties` bag amendment revision-cache follow-on; 465 KnowledgeGraph + 165 Provenance scoped tests passed.
 
 - [x] (invalid) `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` — `EdgeId`-only changes did not bust revision fingerprint — **cheap-disproof 2026-10-22 seed hunt:** directed-key dedupe is intentional provenance topology identity; regressions above.
-
-- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` — graph node `Properties` amendments may not bust revision when label/type/category are unchanged — locus: node fingerprint segment omits property bag; input: `GraphNode.Properties` value changes under stable display fields; wrong outcome: `ProvenanceGraphAccessService` cache hit when property-backed graph semantics drift.
 
 2026-10-22 seed hunt (valid-no-repro): promoted `ProvenanceBuilder` padded graph node display-metadata candidate; proved graph nodes already trim `Label` via `ResolveGraphNodeDisplayName` and `nodeType`/`category` via `NormalizeProvenanceMetadataValue`; regressions `Build_trims_surrounding_whitespace_on_graph_node_display_name` and `Build_trims_padded_graph_node_type_and_category_in_metadata`; seeded `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` edge-id omission revision-cache follow-on; 465 KnowledgeGraph + 164 Provenance scoped tests passed.
 

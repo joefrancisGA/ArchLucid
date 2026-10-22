@@ -1655,6 +1655,61 @@ public sealed class ProvenanceBuilderTests
     }
 
     [Fact]
+    public void Build_produces_same_graph_provenance_node_when_only_property_bag_differs()
+    {
+        GraphNode baselineNode = new()
+        {
+            NodeId = "node-a",
+            NodeType = "Service",
+            Label = "API Gateway",
+            Category = "network",
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["k8s.kind"] = "Deployment",
+            },
+        };
+
+        GraphNode updatedNode = new()
+        {
+            NodeId = "node-a",
+            NodeType = "Service",
+            Label = "API Gateway",
+            Category = "network",
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["k8s.kind"] = "Service",
+            },
+        };
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph baselineGraph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot { Nodes = [baselineNode] },
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        DecisionProvenanceGraph updatedGraph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot { Nodes = [updatedNode] },
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        ProvenanceNode baselineProvenanceNode = baselineGraph.Nodes.Should().ContainSingle(n => n.Type == ProvenanceNodeType.GraphNode).Subject;
+        ProvenanceNode updatedProvenanceNode = updatedGraph.Nodes.Should().ContainSingle(n => n.Type == ProvenanceNodeType.GraphNode).Subject;
+
+        updatedProvenanceNode.Name.Should().Be(baselineProvenanceNode.Name);
+        updatedProvenanceNode.Metadata.Should().BeEquivalentTo(baselineProvenanceNode.Metadata);
+    }
+
+    [Fact]
     public void Build_normalizes_whitespace_only_graph_node_category_and_node_type_in_metadata()
     {
         GraphNode node = new()

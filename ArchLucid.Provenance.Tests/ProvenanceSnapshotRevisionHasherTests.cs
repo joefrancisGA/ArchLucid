@@ -1196,6 +1196,40 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     }
 
     [Fact]
+    public void Compute_unchanged_when_only_graph_node_properties_change()
+    {
+        GraphNode baselineNode = new()
+        {
+            NodeId = "node-a",
+            Label = "API",
+            NodeType = "Service",
+            Category = "network",
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["k8s.kind"] = "Deployment",
+            },
+        };
+
+        GraphNode updatedNode = new()
+        {
+            NodeId = "node-a",
+            Label = "API",
+            NodeType = "Service",
+            Category = "network",
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["k8s.kind"] = "Service",
+            },
+        };
+
+        ProvenanceBuildInput baseline = CreateInput([], graphNodes: [baselineNode]);
+        ProvenanceBuildInput updated = CreateInput([], graphNodes: [updatedNode]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
     public void Compute_changes_when_contributing_decision_ids_change_but_content_hash_is_unchanged()
     {
         Guid artifactId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
