@@ -213454,11 +213454,19 @@ heap-disproved mermaid typed-topology candidate.
 
 2026-10-22 seed hunt #3 (seed-only): closed pass-2 candidates; re-read CRUD, assignment, catalog, simulate, and effective read partials; no hunt-ready promotion; seeded five new `(candidate)` rows; 103 scoped `PolicyPacksController` tests passed.
 
-- [ ] (candidate) `PolicyPacksController.SimulateBulk` / `MapBulkSummary` - `MapBulkSummary` enumerates `summary.Results` without null-coalescing, so a Success-shaped bulk summary with null `Results` would throw during response mapping - locus: bulk response mapper; input: constructed facade success with null list; reachability: mock-only unless workflow regresses.
-- [ ] (candidate) `PolicyPacksController.Simulate` - `PolicyPackSimulateHttpMapper` validates presence and gate ordinals only, not `PolicyPackContentDocumentValidator` structural rules, so invalid rule shapes may enter `SimulateAsync` without HTTP 400 at the controller boundary - locus: simulate vs validate parity; input: POST simulate with malformed `PolicyPackContentDocument`; reachability: OpenAPI simulate body.
-- [ ] (candidate) `PolicyPacksController.SimulateBulk` - sealed-manifest preflight iterates every normalized slot in `normalizedRunIds` (including duplicates) while `TrySimulateBulkAsync` evaluates a distinct run-id set, so duplicate submitted ids can multiply manifest lookups without changing evaluated count - locus: preflight loop vs workflow dedupe; input: bulk body with duplicate run ids; reachability: `POST .../simulate-bulk`.
-- [ ] (candidate) `PolicyPacksController.ExplainPack` - `ExplainPackMarkdownAsync` treats non-null whitespace-only markdown as Success, yielding HTTP 200 with an empty `text/markdown` body - locus: explain facade null vs empty string; input: LLM returns whitespace-only markdown; reachability: `GET .../explain`.
-- [ ] (candidate) `PolicyPacksController.SetAssignmentOrganizationRequired` - organization-required/inactive-pack `PolicyPackHttpOutcome.Conflict` outcomes are mapped through `MapPolicyPackSealedManifestConflict` like sealed-manifest guard failures - locus: assignment toggle conflict mapping; input: set org-required on inactive platform pack; reachability: `PUT .../assignments/{id}/organization-required`.
+- [x] (invalid) `PolicyPacksController.SimulateBulk` / `MapBulkSummary` - null `Results` on Success - **cheap-disproof 2026-10-22:** workflow always sets `Results = runResults`; null list is mock-only constructed state.
+- [x] (valid-no-repro) `PolicyPacksController.Simulate` - simulate skips `PolicyPackContentDocumentValidator` - **cheap-disproof 2026-10-22:** simulate is dry-run evaluation; `POST validate` returns 200 with issue payload rather than rejecting the same structural defects at HTTP 400.
+- [x] (valid-no-repro) `PolicyPacksController.SimulateBulk` - duplicate ids in sealed preflight loop - **cheap-disproof 2026-10-22:** extra manifest lookups do not change HTTP outcome or evaluated-run summary semantics.
+- [x] (valid-no-repro) `PolicyPacksController.ExplainPack` - whitespace-only markdown Success - **cheap-disproof 2026-10-22:** duplicate advisory-empty-body class from pass 2; acceptable explain contract.
+- [x] (valid-no-repro) `PolicyPacksController.SetAssignmentOrganizationRequired` - Conflict via sealed-manifest mapper - **cheap-disproof 2026-10-22:** duplicate of pass-2 assignment 409 parity; controller tests assert status code.
+
+2026-10-22 seed hunt #4 (seed-only): closed pass-3 candidates; re-read policy-pack controller partials with focus on catalog promotion, delete/duplicate, and read bundles; no hunt-ready row promoted; seeded five follow-on `(candidate)` rows; 103 scoped `PolicyPacksController` tests passed.
+
+- [ ] (candidate) `PolicyPacksController.PromoteCatalogEntry` - maps `CrossTenantDistributionBlocked` to HTTP 400 `ValidationFailed` problem details rather than a cross-tenant/forbidden-specific type - locus: catalog promote outcome mapping; input: promote source pack outside distribution policy; reachability: `POST /v1/policy-packs/catalog/promote`.
+- [ ] (candidate) `PolicyPacksController.DeletePack` - returns `NoContent()` after not-found mapping only; no branch for a future facade `Conflict` when delete is blocked by active assignments - locus: delete outcome switch; input: delete pack with active assignments once facade emits conflict; reachability: `DELETE .../policy-packs/{id}`.
+- [ ] (candidate) `PolicyPacksController.GetPageBundle` - `Ok(result.Value!)` without distinguishing empty bundle vs scope-not-found beyond `MapScopeOrNull` - locus: hub read fall-through; input: facade success with null page-bundle value; reachability: `GET .../policy-packs/page-bundle`.
+- [ ] (candidate) `PolicyPacksController.ListVersions` - `Ok(result.Value!)` when versions list reference is null on Success outcome - locus: list versions response mapping; input: constructed facade success with null list; reachability: `GET .../{id}/versions`.
+- [ ] (candidate) `PolicyPacksController.Simulate` - `PolicyPackGovernanceDryRunService.EvaluateAsync` label uses `proposedPolicyPackId?.ToString("N")` so explicit `Guid.Empty` is not treated as absent (unlike omitted JSON) - locus: dry-run pack label/audit metadata; input: simulate with `proposedPolicyPackId` all-zero guid; reachability: `POST /v1/policy-packs/simulate`.
 
 
 
@@ -213472,7 +213480,7 @@ heap-disproved mermaid typed-topology candidate.
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 46
+- **hunts:** 47
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
