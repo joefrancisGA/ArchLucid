@@ -2842,6 +2842,14 @@
 
 ## Zone: scim-users
 
+2026-10-22 thorough hunt #27 (dry): cheap-disproof closed five `(candidate)` rows (idempotent PATCH `externalId` self-skip; `active ne true` via `CompareActive`/`SqlScimUserFilterTranslator` `ne`; inactive create skips seat increment; bracket PATCH paths rejected by `ParseForUserFlatPatchPath`; huge `startIndex` yields empty page via `Skip` without throw); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — same `externalId` — **cheap-disproof 2026-10-22 #27:** `other.Id != userId` guard (mirror #24).
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active ne true` — **cheap-disproof 2026-10-22 #27:** active `ne` in in-memory `CompareActive` and SQL translator.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — `active: false` — **cheap-disproof 2026-10-22 #27:** seat increment only when `active` true (hunt #9).
+- [x] (invalid) `ScimUsersController.PatchAsync` — bracket path — **cheap-disproof 2026-10-22 #27:** `notImplemented`/`invalidPath` from `ParseForUserFlatPatchPath`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `startIndex` very large — **cheap-disproof 2026-10-22 #27:** offset `Skip` returns empty items; stable `totalResults` (hunt #10).
+
 2026-10-22 thorough hunt #26 (dry): cheap-disproof closed five `(candidate)` rows (`active eq "false"` via `bool.TryParse` in `ScimActiveFilterLiteralParser`; PATCH same `displayName` is benign no-op with audit; POST after DELETE reactivates per proven regression; `userName eq` with `%` uses `EqualitySql` not `LIKE`; DELETE tombstone hides GET via `DirectoryRemovedUtc`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
 
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq "false"` — **cheap-disproof 2026-10-22 #26:** `TryParseEqualityOperand` accepts bool strings; used in `ListAsync_filter_gives_and_precedence_over_or`.
@@ -3079,9 +3087,9 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 60
+- **hunts:** 61
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 5
+- **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — SCIM PATCH remove on active returned silent no-op instead of mutability
 - **related-pd-tb:** none
@@ -3334,11 +3342,17 @@
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — `%` in `eq` literal — **cheap-disproof 2026-10-22 #26:** equality not LIKE.
 - [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — GET after DELETE — **cheap-disproof 2026-10-22 #26:** tombstone 404.
 
-- [ ] (candidate) `ScimUsersController.PatchAsync` — replace `externalId` to same trimmed value — locus: `EnsureExternalIdNotUsedByAnotherUserAsync` self-skip; input: idempotent PATCH (mirror #24 externalId row).
-- [ ] (candidate) `ScimUsersController.ListAsync` — `active ne true` unquoted — locus: active filter `ne` branch in SQL/in-memory; input: returns inactive users only.
-- [ ] (candidate) `ScimUsersController.CreateAsync` — inactive user create — locus: `CreateAsync` skips seat increment when `active` false; input: regression path for seat cap (hunt #9).
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `replace` path with URL-encoded bracket — locus: `ScimPatchValuePathParser`; input: flat paths only; complex paths → `notImplemented`/`invalidPath`.
-- [ ] (candidate) `ScimUsersController.ListAsync` — `startIndex` max int — locus: `Skip` offset; input: empty page without overflow exception.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — same `externalId` — **cheap-disproof 2026-10-22 #27:** self-skip.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active ne true` — **cheap-disproof 2026-10-22 #27:** `ne` supported on active.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — inactive create — **cheap-disproof 2026-10-22 #27:** no seat reserve.
+- [x] (invalid) `ScimUsersController.PatchAsync` — bracket path — **cheap-disproof 2026-10-22 #27:** flat-path only.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — huge `startIndex` — **cheap-disproof 2026-10-22 #27:** empty page.
+
+- [ ] (candidate) `ScimUsersController.PatchAsync` — `replace` `active` to same boolean — locus: `TransitionSeatAsync` no-op when unchanged; input: idempotent deactivate/reactivate guard (mirror displayName-only PUT).
+- [ ] (candidate) `ScimUsersController.ListAsync` — `userName sw` with empty suffix — locus: `sw` operator / `StartsWith`; input: parser rejects or matches all (Entra edge probe).
+- [ ] (candidate) `ScimUsersController.ReplaceAsync` — PUT `userName` change only — locus: `EnsureUserNameNotUsedByAnotherLiveUserAsync`; input: conflict when target name taken (proven-class duplicate).
+- [ ] (candidate) `ScimUsersController.GetAsync` — unknown guid — locus: repository miss; input: 404 `notFound` (hunt #12 parity).
+- [ ] (candidate) `ScimUsersController.PatchAsync` — bulk `Operations` with 50 no-op replaces — locus: `ApplyFlat` loop; input: performance/timeout class (valid-no-repro unless measurable regression).
 
 - [x] (proven) `ScimUserService.CreateAsync` / `PatchAsync` / `ScimUsersController` — a second live user with the same `userName` and a different `externalId` was stored, including case-only names — **hit 2026-10-09 seed hunt:** live `userName` lookup returns `uniqueness`. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
 - [x] (proven) `ScimFilterParser.ParseFilter` / `ScimUsersController.ListAsync` — ungrouped `or` before `and` was parsed left-to-right, so an active user matching only the left comparison was omitted — **hit 2026-10-09 seed hunt:** `not` over `and` over `or` per RFC 7644 §3.4.2.2. Regressions `ListAsync_filter_gives_and_precedence_over_or`, `Parse_or_binds_looser_than_and`, and `Parse_not_binds_tighter_than_and`.
