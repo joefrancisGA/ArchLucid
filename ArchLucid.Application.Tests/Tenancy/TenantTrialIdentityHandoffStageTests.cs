@@ -280,6 +280,7 @@ public sealed class TenantTrialIdentityHandoffStageTests
             .SetupSequence(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(active)
             .ReturnsAsync(active)
+            .ReturnsAsync(active)
             .ReturnsAsync(offboarded);
 
         Mock<ITrialIdentityUserRepository> trialUsers = new(MockBehavior.Strict);
@@ -363,6 +364,7 @@ public sealed class TenantTrialIdentityHandoffStageTests
             .ReturnsAsync(true);
         tenants
             .SetupSequence(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(active)
             .ReturnsAsync(active)
             .ReturnsAsync(active)
             .ReturnsAsync(active)
@@ -732,6 +734,158 @@ public sealed class TenantTrialIdentityHandoffStageTests
             scope,
             "admin",
             normalizedEmail,
+            hasIdentityPayload: true,
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(TenantTrialHttpOutcome.Success);
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.TrialLocalIdentityLinkedToEntra),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task LinkEntraAsync_returns_success_without_directory_audit_when_offboard_completes_after_tenant_before_directory_audit_read_before_audit()
+    {
+        Guid tenantId = Guid.Parse("20202020-2020-2020-2020-202020202020");
+        Guid entraTenantId = Guid.Parse("21212121-2121-2121-2121-212121212121");
+        DateTimeOffset anchor = new(2026, 10, 22, 7, 0, 0, TimeSpan.Zero);
+
+        TenantRecord tenant = new()
+        {
+            Id = tenantId,
+            Name = "home",
+            Slug = "home",
+            Tier = TenantTier.Standard,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
+            TrialStatus = TrialLifecycleStatus.Converted,
+        };
+
+        TenantRecord offboarded = new()
+        {
+            Id = tenantId,
+            Name = tenant.Name,
+            Slug = tenant.Slug,
+            Tier = tenant.Tier,
+            CreatedUtc = tenant.CreatedUtc,
+            TrialStatus = tenant.TrialStatus,
+            OffboardedUtc = anchor,
+            ErasureEligibleUtc = anchor.AddDays(30),
+        };
+
+        ScopeContext scope = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        tenants
+            .Setup(t => t.UpdateEntraTenantIdAsync(tenantId, entraTenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        tenants
+            .SetupSequence(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(tenant)
+            .ReturnsAsync(tenant)
+            .ReturnsAsync(offboarded);
+
+        Mock<IAuditService> audit = new(MockBehavior.Strict);
+
+        TenantTrialIdentityHandoffStage sut = new(tenants.Object, Mock.Of<ITrialIdentityUserRepository>(), audit.Object);
+
+        TenantTrialLinkEntraResult result = await sut.LinkEntraAsync(
+            new TenantTrialLinkEntraBody { EntraTenantId = entraTenantId },
+            tenant,
+            scope,
+            "admin",
+            normalizedLocalEmail: null,
+            hasIdentityPayload: false,
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(TenantTrialHttpOutcome.Success);
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.TenantEntraDirectoryBound),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task LinkEntraAsync_returns_success_without_identity_audit_when_offboard_completes_after_tenant_before_identity_audit_read_before_audit()
+    {
+        Guid tenantId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        Guid entraTenantId = Guid.Parse("23232323-2323-2323-2323-232323232323");
+        const string normalizedEmail = "owner@customer.com";
+        DateTimeOffset anchor = new(2026, 10, 22, 7, 30, 0, TimeSpan.Zero);
+
+        TenantRecord tenant = new()
+        {
+            Id = tenantId,
+            Name = "home",
+            Slug = "home",
+            Tier = TenantTier.Standard,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
+            TrialStatus = TrialLifecycleStatus.Converted,
+            EntraTenantId = entraTenantId,
+        };
+
+        TenantRecord offboarded = new()
+        {
+            Id = tenantId,
+            Name = tenant.Name,
+            Slug = tenant.Slug,
+            Tier = tenant.Tier,
+            CreatedUtc = tenant.CreatedUtc,
+            TrialStatus = tenant.TrialStatus,
+            EntraTenantId = entraTenantId,
+            OffboardedUtc = anchor,
+            ErasureEligibleUtc = anchor.AddDays(30),
+        };
+
+        ScopeContext scope = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        tenants
+            .Setup(t => t.UpdateEntraTenantIdAsync(tenantId, entraTenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        tenants
+            .SetupSequence(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(tenant)
+            .ReturnsAsync(tenant)
+            .ReturnsAsync(tenant)
+            .ReturnsAsync(tenant)
+            .ReturnsAsync(offboarded);
+
+        Mock<ITrialIdentityUserRepository> trialUsers = new(MockBehavior.Strict);
+        trialUsers
+            .Setup(r => r.GetByNormalizedEmailAsync(normalizedEmail, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TrialIdentityUserRecord?)null);
+        trialUsers
+            .Setup(r => r.TryLinkLocalIdentityToEntraAsync(normalizedEmail, "oid-home", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        Mock<IAuditService> audit = new(MockBehavior.Strict);
+
+        TenantTrialIdentityHandoffStage sut = new(tenants.Object, trialUsers.Object, audit.Object);
+
+        TenantTrialLinkEntraResult result = await sut.LinkEntraAsync(
+            new TenantTrialLinkEntraBody
+            {
+                EntraTenantId = entraTenantId,
+                LocalEmail = "owner@customer.com",
+                EntraOid = "oid-home",
+            },
+            tenant,
+            scope,
+            "admin",
+            normalizedLocalEmail: normalizedEmail,
             hasIdentityPayload: true,
             CancellationToken.None);
 

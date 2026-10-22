@@ -174,7 +174,8 @@ function PathHopsTable(props: {
               <EnterpriseTableCell>{hop.hopOrdinal}</EnterpriseTableCell>
               <EnterpriseTableCell>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-                  {securityEvidencePathHopNodeName(hop.fromNodeLabel)} to {securityEvidencePathHopNodeName(hop.toNodeLabel)} by {hop.edgeType}. Source:{" "}
+                  {securityEvidencePathHopNodeName(hop.fromNodeLabel)} to {securityEvidencePathHopNodeName(hop.toNodeLabel)} by{" "}
+                  {formatSecurityEvidencePathRelationshipLabel(hop.edgeType)}. Source:{" "}
                   {formatSecurityEvidenceProvenanceKindLabel(hop.provenanceKind)}.
                 </p>
                 {hop.hopOrdinal === internetHopOrdinal ? (
@@ -194,7 +195,9 @@ function PathHopsTable(props: {
                       Open resource evidence
                     </Link>
                   </p>
-                ) : null}
+                ) : (
+                  <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>Resource evidence link was not stored.</p>
+                )}
               </EnterpriseTableCell>
               <EnterpriseTableCell title={hop.fromNodeLabel}>{securityEvidencePathHopNodeName(hop.fromNodeLabel)}</EnterpriseTableCell>
               <EnterpriseTableCell title={hop.toNodeLabel}>{securityEvidencePathHopNodeName(hop.toNodeLabel)}</EnterpriseTableCell>
@@ -376,13 +379,12 @@ function RecommendedActionSection(props: {
 }): React.JSX.Element {
   const firstCutPoint = props.path.relatedCutPoints[0];
   const firstRoute = props.path.routing[0];
+  const architectSentence = props.path.explanationTemplate?.architectSentence?.trim() ?? "";
+
   const lines = [
     {
       label: "Problem",
-      value:
-        props.path.explanationTemplate?.architectSentence ??
-        props.rank?.explanationSummary ??
-        "Problem statement was not stored.",
+      value: architectSentence.length > 0 ? architectSentence : "Problem statement was not stored.",
     },
     {
       label: "Evidence",
@@ -404,7 +406,10 @@ function RecommendedActionSection(props: {
     },
     {
       label: "Owner",
-      value: firstRoute?.displayName?.trim() || firstRoute?.role?.trim() || "Not cited.",
+      value:
+        firstRoute?.displayName?.trim() && firstRoute.displayName.trim().length > 0
+          ? firstRoute.displayName.trim()
+          : "Owner was not stored.",
     },
     {
       label: "How to check",
@@ -819,18 +824,17 @@ export function SecurityEvidencePathInspectPanel(props: {
             onGenerate={generateExplanation}
           />
 
-          {pathQuery.data.explanationTemplate?.architectSentence != null
-          && pathQuery.data.explanationTemplate.architectSentence.trim().length > 0 ? (
-            <div
-              className="rounded border border-border bg-muted/30 p-3"
-              data-testid="security-evidence-path-architect-sentence"
-            >
-              <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>{SECURENOW_PATH_INSPECT_ARCHITECT_SENTENCE_TITLE}</h3>
-              <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
-                {pathQuery.data.explanationTemplate.architectSentence}
-              </p>
-            </div>
-          ) : null}
+          <div
+            className="rounded border border-border bg-muted/30 p-3"
+            data-testid="security-evidence-path-architect-sentence"
+          >
+            <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>{SECURENOW_PATH_INSPECT_ARCHITECT_SENTENCE_TITLE}</h3>
+            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
+              {(pathQuery.data.explanationTemplate?.architectSentence?.trim() ?? "").length > 0
+                ? pathQuery.data.explanationTemplate!.architectSentence!.trim()
+                : "Architect path summary was not stored."}
+            </p>
+          </div>
 
           {pathQuery.data.weakestHop != null ? (
             <div
@@ -842,13 +846,18 @@ export function SecurityEvidencePathInspectPanel(props: {
                 This hop limits how strong the path evidence can be.
               </p>
               <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body)}>
-                Hop {pathQuery.data.weakestHop.hopOrdinal}: {pathQuery.data.weakestHop.edgeType}
+                Hop {pathQuery.data.weakestHop.hopOrdinal}:{" "}
+                {formatSecurityEvidencePathRelationshipLabel(pathQuery.data.weakestHop.edgeType)}
               </p>
               <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
                 {formatSecurityEvidenceProvenanceKindLabel(pathQuery.data.weakestHop.provenanceKind)} ·{" "}
                 {formatSecurityEvidencePathConfidenceBandLabel(pathQuery.data.weakestHop.hopConfidenceBand)}
               </p>
-              <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>{pathQuery.data.weakestHop.reason}</p>
+              <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
+                {pathQuery.data.weakestHop.reason.trim().length > 0
+                  ? pathQuery.data.weakestHop.reason
+                  : "Weakest-hop reason was not stored."}
+              </p>
             </div>
           ) : null}
 
@@ -873,16 +882,19 @@ export function SecurityEvidencePathInspectPanel(props: {
                   >
                     <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
                       {cutPoint.cutKind}
-                      {cutPoint.fromNodeLabel != null && cutPoint.toNodeLabel != null
+                      {cutPoint.fromNodeLabel != null &&
+                      cutPoint.toNodeLabel != null &&
+                      cutPoint.fromNodeLabel.trim().length > 0 &&
+                      cutPoint.toNodeLabel.trim().length > 0
                         ? ` · ${cutPoint.fromNodeLabel} → ${cutPoint.toNodeLabel}`
-                        : ""}
+                        : " · Endpoint was not stored."}
                     </p>
                     <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>{cutPoint.explanationSummary}</p>
-                    {cutPoint.suggestedPatternKey != null ? (
-                      <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-                        Pattern: {cutPoint.suggestedPatternKey}
-                      </p>
-                    ) : null}
+                    <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                      {cutPoint.suggestedPatternKey != null && cutPoint.suggestedPatternKey.trim().length > 0
+                        ? `Pattern: ${cutPoint.suggestedPatternKey}`
+                        : "Pattern was not stored."}
+                    </p>
                   </li>
                 ))}
               </ul>

@@ -8,6 +8,7 @@ import {
 } from "@/lib/findings/finding-display-from-inspect";
 import { resolveBuyerShowcaseResidualRiskNextReviewIso } from "@/lib/buyer/buyer-polish-copy";
 import { buyerFindingSeverityDisplayLabel } from "@/lib/buyer/buyer-finding-severity-display";
+import { formatQuickDecisionRecommendedAction } from "@/lib/quick-decision-finding-links";
 import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
 import type { FindingConfidenceLevel } from "@/types/explanation";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
@@ -24,7 +25,7 @@ export type FindingDecisionSummary = {
   readonly riskOwner: string;
 };
 
-const NO_RECOMMENDED_ACTION_RECORDED = "No recommended action recorded for this finding.";
+const BUSINESS_IMPACT_STORED_EMPTY = "Business impact was stored empty.";
 const REMEDIATION_DUE_NOT_STORED = "Remediation due date was not stored.";
 const REMEDIATION_DUE_STORED_EMPTY = "Remediation due date was stored empty.";
 const RISK_OWNER_NOT_ASSIGNED = "Risk owner was not stored";
@@ -231,12 +232,12 @@ export function mitigationPosture(payload: FindingInspectPayload | null, finding
   if (payload !== null) {
     const action = findingInspectPrimaryLabels(payload).recommendedAction;
 
-    if (action !== null && action.trim().length > 0) {
-      return action;
+    if (action !== null) {
+      return formatQuickDecisionRecommendedAction(action);
     }
   }
 
-  return NO_RECOMMENDED_ACTION_RECORDED;
+  return formatQuickDecisionRecommendedAction("");
 }
 
 /** Buyer decision panel — from payload/status, not a scripted default (BDA-012). */
@@ -277,6 +278,10 @@ export function buyerFindingDecisionImpactCopy(payload: FindingInspectPayload | 
         ?? typedPayloadLookupString(payload, "Impact");
 
   if (storedImpact !== null) {
+    if (storedImpact.length === 0) {
+      return BUSINESS_IMPACT_STORED_EMPTY;
+    }
+
     return storedImpact;
   }
 
@@ -369,15 +374,23 @@ export function findingRecommendedActionParagraph(
   findingId: string,
 ): string {
   const labels = findingInspectPrimaryLabels(payload);
-  const structured = labels.recommendedAction?.trim() ?? "";
+  const structured = labels.recommendedAction;
 
-  if (structured.length > 0) {
-    return structured;
+  if (structured !== null && structured !== undefined) {
+    if (structured.trim().length > 0) {
+      return formatQuickDecisionRecommendedAction(structured);
+    }
+
+    if (isPhiMinimizationSampleFinding(payload) || isPhiMinimizationFindingId(findingId)) {
+      return phiMinimizationRecommendedActionFallback();
+    }
+
+    return formatQuickDecisionRecommendedAction(structured);
   }
 
   if (isPhiMinimizationSampleFinding(payload) || isPhiMinimizationFindingId(findingId)) {
     return phiMinimizationRecommendedActionFallback();
   }
 
-  return NO_RECOMMENDED_ACTION_RECORDED;
+  return formatQuickDecisionRecommendedAction("");
 }
