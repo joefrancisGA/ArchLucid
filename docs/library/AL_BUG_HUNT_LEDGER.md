@@ -193255,14 +193255,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: application-billing-logic
 
 - **id:** application-billing-logic
-- **status:** open
+- **status:** cooling
 - **impact:** high
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 45
+- **hunts:** 46
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-21 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ fleet COGS missing-rate when only global input rate configured
 - **related-pd-tb:** none
@@ -193350,11 +193350,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-20 thorough hunt (hit): application-billing-logic ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ `TenantCostEstimateService.TryGetEstimateAsync` returned a 0ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½0 Standard monthly band when `Billing:UnitRates` low/high were both zero without explaining unconfigured commercial rates; add guidance factor matching Free-tier honesty. Regression `TryGetEstimateAsync_standard_tenant_with_zero_configured_rates_explains_unconfigured_band`. Cheap-disproof closed duplicate `CostBasisLabel` ternary (contract always estimated), workspace GUID fallback when workspace list omits active id (intentional), whitespace-only optional `BillingEmail` (Stripe treats as unset), and marketplace integration event shape (planId/quantity populated in Persistence dispatch, not Application publisher alone). 36 scoped billing tests passed.
 
 2026-10-22 thorough hunt (dry): `application-billing-logic` — pass 2 — cheap-disproof closed five follow-on (candidate) rows (per-deployment COGS rates, unpriced top-run sort key, boolean ChangeQuantity, unknown checkout status, workspace breakdown sum); retired five misplaced replay/export candidates as (invalid); 47 scoped billing tests passed; seeded five follow-on (candidate) rows.
-- [ ] (candidate) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — `quantity: false` defers without ledger mutation while `quantity: true` applies one seat — locus: `MarketplaceQuantityReader.TryReadQuantity` boolean branch; input: GA-enabled ChangeQuantity JSON boolean false vs true.
-- [ ] (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — daily chart buckets always emit zero `PromptTokens`/`CompletionTokens` while `TopRuns` lists nonzero token columns — locus: `dailyRows.Add` loop; input: `GET /v1/tenant/llm-cost-reporting` when traces back top runs.
-- [ ] (candidate) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` — integration outbox body omits `planId`, `quantity`, and raw webhook payload — locus: anonymous `body` object; input: `BillingMarketplaceWebhookReceivedV1` consumers correlating ChangePlan/ChangeQuantity.
-- [ ] (candidate) `AdminFleetLlmCogsService.BuildDashboardAsync` — `HardCapUsdUtcMonth` null when monthly budget monitoring disabled even if `EstimatedUsdPressureUtcMonth` is positive — locus: `hardCap` assignment in fleet row builder; input: fleet COGS with `Billing:LlmMonthlyTenantDollarBudget:Enabled=false`.
-- [ ] (candidate) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — whitespace-only `planId` string defers like missing planId — locus: `MarketplaceChangePlanReader.TryGetPlanId`; input: ChangePlan notification with `"planId":"   "` when webhook plan mutations enabled.
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — `quantity: false` defers without ledger mutation while `quantity: true` applies one seat — **cheap-disproof 2026-10-22 thorough hunt pass 3:** `MarketplaceQuantityReader.TryReadQuantity` treats JSON false like absent quantity; true→1 is documented defensive parse (`ReadQuantity_reads_boolean_quantity_instead_of_fallback`); handler defers whenever `TryReadQuantity` fails.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — daily chart buckets always emit zero `PromptTokens`/`CompletionTokens` while `TopRuns` lists nonzero token columns — **cheap-disproof 2026-10-22 thorough hunt pass 3:** daily buckets allocate month USD pressure only; scoped tests assert `EstimatedCostUsd` sums (`BuildDashboardAsync_daily_buckets_sum_to_month_pressure_when_rounded_share_would_overshoot`), not per-day token rollups.
+- [x] (valid-no-repro) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` — integration outbox body omits `planId`, `quantity`, and raw webhook payload — **cheap-disproof 2026-10-22 thorough hunt pass 3:** publisher serializes fields present on `MarketplaceWebhookReceivedIntegrationPayload`; enrichment belongs to Persistence dispatch (see 2026-10-20 thorough hunt valid-no-repro on sibling row).
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — `HardCapUsdUtcMonth` null when monthly budget monitoring disabled even if `EstimatedUsdPressureUtcMonth` is positive — **cheap-disproof 2026-10-22 thorough hunt pass 3:** `hardCap` is zero when `opts.Enabled` is false; omitting cap fields is intentional when monitoring is off.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — whitespace-only `planId` string defers like missing planId — **cheap-disproof 2026-10-22 thorough hunt pass 3:** `MarketplaceChangePlanReader.TryGetPlanId` rejects `IsNullOrWhiteSpace`; same no-mutation defer as missing `planId` (`Ga_enabled_missing_planId_defers_without_ledger_mutation`).
+
+
+2026-10-22 thorough hunt (dry): `application-billing-logic` — pass 3 — cheap-disproof closed five seeded (candidate) rows (boolean quantity false vs true, daily chart token columns, integration event body shape, fleet hard-cap when monitoring disabled, whitespace planId); no hunt-ready rows; 47 scoped billing tests passed; zone status cooling after 3 consecutive dry hunts; seeded five follow-on (candidate) rows.
+- [ ] (candidate) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — `quantity: 0` defers without ledger mutation while positive integers apply — locus: `TryReadQuantity` rejects `wholeNumber < 1`; input: GA-enabled ChangeQuantity with numeric zero seats.
+- [ ] (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — omitted `Seats`/`Workspaces` become zero on provider request before Persistence clamps — locus: `Seats = body.Seats ?? 0`; input: checkout POST with null seat counts (verify Stripe `Math.Max(1, …)` parity).
+- [ ] (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — `CostBasisLabel` uses identical `estimated` branches for `hardCap > 0` vs zero — locus: response `CostBasisLabel` ternary; input: tenant dashboard with monthly budget monitoring on vs off.
+- [ ] (candidate) `AdminFleetLlmCogsService.BuildDashboardAsync` — `BlocksAdditionalLlmExecution` stays false when monthly budget monitoring disabled even if stored month pressure exceeds configured hard cutoff — locus: `blocks` predicate requires `opts.Enabled`; input: fleet COGS row with positive pressure and `Billing:LlmMonthlyTenantDollarBudget:Enabled=false`.
+- [ ] (candidate) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` — `messageId` is only `ProviderDedupeKey:eventType` with no tenant suffix — locus: `messageId` format line; input: distinct tenants replaying the same Marketplace dedupe key (verify Persistence dedupe key includes tenant/subscription).
 
 
 - **id:** application-billing-logic
