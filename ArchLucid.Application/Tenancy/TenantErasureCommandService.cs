@@ -316,6 +316,18 @@ public sealed class TenantErasureCommandService(
         if (tenantBeforeSetAuditAppend.LegalHoldUntilUtc is null && afterSet.LegalHoldUntilUtc is not null)
             return true;
 
+        TenantRecord? tenantImmediatelyBeforeSetHoldAuditAppend =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+        if (tenantImmediatelyBeforeSetHoldAuditAppend is null)
+            return false;
+
+        if (tenantImmediatelyBeforeSetHoldAuditAppend.OffboardedUtc is null && tenant.OffboardedUtc is not null)
+            return true;
+
+        if (tenantImmediatelyBeforeSetHoldAuditAppend.LegalHoldUntilUtc is null && afterSet.LegalHoldUntilUtc is not null)
+            return true;
+
         await AppendPlatformAuditAsync(
             AuditEventTypes.TenantErasureLegalHoldSet,
             tenantId,
