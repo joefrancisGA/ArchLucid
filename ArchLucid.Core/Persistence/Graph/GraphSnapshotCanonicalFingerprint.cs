@@ -133,7 +133,7 @@ public static class GraphSnapshotCanonicalFingerprint
             return string.Empty;
 
         IEnumerable<string> parts = knowledgeModel.DeclaredPriorities
-            .Select(static priority => NormalizeLabelForFingerprint(priority))
+            .Select(static priority => NormalizeArtifactReferenceForFingerprint(priority))
             .Where(static priority => priority.Length > 0)
             .GroupBy(static priority => priority, StringComparer.Ordinal)
             .OrderBy(static group => group.Key, StringComparer.Ordinal)
@@ -149,7 +149,7 @@ public static class GraphSnapshotCanonicalFingerprint
 
         IEnumerable<string> parts = knowledgeModel.FramingAnswers
             .Select(static pair => (
-                Key: NormalizeLabelForFingerprint(pair.Key),
+                Key: NormalizeArtifactReferenceForFingerprint(pair.Key),
                 Value: NormalizeArtifactReferenceForFingerprint(pair.Value)))
             .Where(static pair => pair.Key.Length > 0)
             .GroupBy(static pair => pair.Key, StringComparer.Ordinal)
@@ -240,8 +240,8 @@ public static class GraphSnapshotCanonicalFingerprint
                 .Distinct(StringComparer.Ordinal)
                 .OrderBy(static id => id, StringComparer.Ordinal));
 
-        string name = NormalizeLabelForFingerprint(element.Name);
-        string description = NormalizeLabelForFingerprint(element.Description);
+        string name = NormalizeArtifactReferenceForFingerprint(element.Name);
+        string description = NormalizeArtifactReferenceForFingerprint(element.Description);
 
         return string.Join(
             "|",
