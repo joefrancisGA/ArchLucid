@@ -9834,15 +9834,23 @@
 
 ## Zone: api-governance-tenancy-controllers
 
+2026-10-22 seed hunt #4 (seed-only): shipped pending seed→hit `33ef2a457a` (revoke sealed guard finding-id fallback); regression `RevokeRiskException_blocks_older_unsealed_finding_run_when_waiver_run_id_is_empty` passed (1/1); cheap-disproof closed five open `(candidate)` rows (renew uses same `EnsureRiskExceptionRunSealedManifestAllowedAsync` ~202–207 as revoke fix; dry-run batch validates run ids before sealed loop ~162–200; tenant baseline PUT is tenant-scoped via `GetCurrentScope` ~68–72 not cross-workspace; `ListDispositionsAsync` returns `[]` when finding missing ~187–188 and sealed-guards when `RunId` set ~190–197; recycle bin coalesces active list ~37–39); five replacement `(candidate)` rows.
+
+- [x] (valid-no-repro) `GovernanceStickinessController.RenewRiskException` — renew sealed guard when `RunId` empty — **cheap-disproof 2026-10-22 seed hunt #4:** shares `EnsureRiskExceptionRunSealedManifestAllowedAsync` with revoke; hit `33ef2a457a`.
+- [x] (invalid) `GovernanceController.DryRunPolicyPack` — malformed run ids skip sealed loop — **cheap-disproof 2026-10-22 seed hunt #4:** validation returns 400 before sealed guard ~162–174.
+- [x] (valid-no-repro) `TenantBaselineController.PutAsync` — cross-workspace baseline mutation — **cheap-disproof 2026-10-22 seed hunt #4:** tenant-scoped PUT; no workspace id route parameter.
+- [x] (invalid) `GovernanceStickinessController.ListDispositions` — missing finding 404 vs empty — **cheap-disproof 2026-10-22 seed hunt #4:** facade returns empty list ~187–188; sealed guard when run present ~190–197.
+- [x] (invalid) `TenantWorkspacesController.ListRecycleBinAsync` — null active list — **cheap-disproof 2026-10-22 seed hunt #4:** `?? Array.Empty` ~37–39.
+
+- [ ] (candidate) `GovernanceStickinessController.ListDispositions` — missing finding returns empty history not 404 — locus: `GovernanceStickinessFacade.Findings.Dispositions.cs` ~187–188; input: operator expects 404 when finding purged.
+- [ ] (candidate) `GovernanceController.EvaluateGovernanceDryRun` — single `TargetRunId` sealed guard uses `GetRunDetailAsync` — locus: `GovernanceController.SealedManifestGuard.cs` ~70–78; input: parity with manifest-compare simulate path.
+- [ ] (candidate) `TenantCustomerSuccessController` — funnel/health routes vs workspace scope — locus: `TenantCustomerSuccessController.Funnel.cs`; input: verify tenant-only reads cannot leak sibling workspace metrics.
+- [ ] (candidate) `GovernanceStickinessController` — bulk disposition skips unknown finding ids in sealed preflight — locus: `EnsureBulkDispositionSealedManifestAllowedAsync` ~95–96; input: partial bulk with one foreign finding id.
+- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` — caller-pin branch treats null active list as empty catalog — locus: `ProjectCrud.cs` ~55–59; input: distinguish DB null from legitimately empty tenant catalog.
+
 2026-10-22 seed hunt #3 (seed→hit): promoted `EnsureRiskExceptionRunSealedManifestAllowedAsync` finding-id fallback for revoke when waiver `RunId` empty; regression `RevokeRiskException_blocks_older_unsealed_finding_run_when_waiver_run_id_is_empty`; facade `ResolveRiskExceptionSealedManifestRunIdAsync` for revoke/renew; cheap-disproof closed prior open candidates (caller-pin null list ~55–59, bulk unknown finding ids, recurrence update NotFound path, register scope 409 intentional, workspace list coalesce); scoped test run blocked by API file lock — regression added.
 
 - [x] (proven) `GovernanceStickinessController.EnsureRiskExceptionRunSealedManifestAllowedAsync` — revoke reached facade when waiver `RunId` null but `FindingId` on older unsealed run while list returned 409 — regression above.
-
-- [ ] (candidate) `GovernanceStickinessController.RenewRiskException` — renew shares revoke sealed guard — locus: `Exceptions.cs` ~202–207; input: renew regression when `RunId` empty.
-- [ ] (candidate) `GovernanceController.DryRunPolicyPack` — single vs batch sealed guard detail sources — locus: `PolicyPacks.DryRun.cs` ~75–83 vs ~198–200; input: null golden skip parity.
-- [ ] (candidate) `TenantBaselineController` — baseline PUT scope — locus: `TenantBaselineController.Put.cs`; input: cross-workspace mutation guard.
-- [ ] (candidate) `GovernanceStickinessController.ListDispositions` — missing finding history — locus: `ListDispositions` ~225–230; input: 404 vs empty when finding purged.
-- [ ] (candidate) `TenantWorkspacesController.ListRecycleBinAsync` — active list null coalesce — locus: `RetentionPurge.cs` ~37–39; input: recycle-bin when repository returns null.
 
 2026-10-22 seed hunt (seed-only): re-read governance preview/stickiness sealed-manifest guards and tenancy project delete paths; cheap-disproof closed stale open `(candidate)` rows (`GovernancePreviewController.Preview` skips sealed guard when manifest-compare detail is null ~28–31; insights dashboard/drift scope-posture over-block proven 2026-10-20; `DeleteProjectAsync` foreign-workspace branch uses `?? Array.Empty` ~73; recurrence create sealed guard shares disposition null-detail skip ~35–38); no hunt-ready row promoted; five replacement `(candidate)` rows; scoped Governance/Tenancy controller tests not run.
 
@@ -9867,7 +9875,7 @@
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER_2.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 334
+- **hunts:** 335
 - **bugs-found:** 527
 - **last-bug:** 2026-10-22 - risk exception revoke sealed guard resolves finding run when waiver RunId empty
 - **last-hunt:** 2026-10-22
