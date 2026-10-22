@@ -95,6 +95,40 @@ public sealed class PostAuthBootstrapServiceTests
     }
 
     [Fact]
+    public async Task CreateWorkspaceAsync_denies_when_data_region_not_in_supported_list()
+    {
+        Mock<IOptionsMonitor<TenantProvisioningOptions>> options = new();
+        options
+            .Setup(monitor => monitor.CurrentValue)
+            .Returns(new TenantProvisioningOptions { SupportedDataRegions = ["default"] });
+
+        Mock<ITenantProvisioningService> provisioning = new();
+        PostAuthBootstrapService sut = CreateSut(
+            new Mock<ITrialTenantBootstrapService>().Object,
+            provisioning.Object,
+            options.Object);
+
+        PostAuthCreateWorkspaceResult result = await sut.CreateWorkspaceAsync(
+            Guid.NewGuid(),
+            "new@example.com",
+            "new@example.com",
+            new PostAuthCreateWorkspaceRequest
+            {
+                WorkspaceName = "Region Workspace",
+                OrganizationName = "Region Org",
+                TermsAccepted = true,
+                DataRegion = "eastus",
+            },
+            CancellationToken.None);
+
+        Assert.False(result.Succeeded);
+        Assert.Contains("not in the supported list", result.CustomerMessage, StringComparison.OrdinalIgnoreCase);
+        provisioning.Verify(
+            service => service.ProvisionAsync(It.IsAny<TenantProvisioningRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task CreateWorkspaceAsync_denies_when_industry_vertical_not_in_curated_list()
     {
         (PostAuthBootstrapService sut, Guid userId, _, _) = CreateSut();
@@ -393,13 +427,20 @@ public sealed class PostAuthBootstrapServiceTests
         Assert.Equal(PostAuthBootstrapDestination.Complete, status.Destination);
     }
 
-    private static (PostAuthBootstrapService sut, Guid userId, InMemoryWorkspaceMembershipRepository memberships, InMemoryUserInvitationRepository invitations) CreateSut() =>
-        CreateSut(out _);
+    private static (PostAuthBootstrapService sut, Guid userId, InMemoryWorkspaceMembershipRepository memberships, InMemoryUserInvitationRepository invitations) CreateSut()
+    {
+        (PostAuthBootstrapService sut, Guid userId, InMemoryWorkspaceMembershipRepository memberships, InMemoryUserInvitationRepository invitations, _) =
+            CreateSut(out _);
+
+        return (sut, userId, memberships, invitations);
+    }
 
     private static PostAuthBootstrapService CreateSut(
         ITrialTenantBootstrapService trialBootstrap,
-        ITenantProvisioningService provisioning)
+        ITenantProvisioningService provisioning,
+        IOptionsMonitor<TenantProvisioningOptions>? tenantProvisioningOptions = null)
     {
+        tenantProvisioningOptions ??= CreateDefaultTenantProvisioningOptions();
         InMemoryWorkspaceMembershipRepository memberships = new();
         InMemoryUserInvitationRepository invitations = new();
         InMemoryTenantRepository tenants = new();
@@ -450,16 +491,23 @@ public sealed class PostAuthBootstrapServiceTests
             abusePolicy.Object,
             new WorkspacePackagingLimitEvaluator(Mock.Of<ITenantUsageStatusService>()),
             audit.Object,
+            tenantProvisioningOptions,
             TimeProvider.System);
 
         return new PostAuthBootstrapService(memberships, invitationBootstrap, workspaceBootstrap);
     }
 
-    private static (PostAuthBootstrapService sut, Guid userId, InMemoryWorkspaceMembershipRepository memberships, InMemoryUserInvitationRepository invitations) CreateSut(out Mock<IAuditService> audit)
+    private static (
+        PostAuthBootstrapService sut,
+        Guid userId,
+        InMemoryWorkspaceMembershipRepository memberships,
+        InMemoryUserInvitationRepository invitations,
+        InMemoryTenantRepository tenants) CreateSut(out Mock<IAuditService> audit, ITenantRepository? tenantRepository = null)
     {
         InMemoryWorkspaceMembershipRepository memberships = new();
         InMemoryUserInvitationRepository invitations = new();
-        InMemoryTenantRepository tenants = new();
+        InMemoryTenantRepository tenants = tenantRepository as InMemoryTenantRepository ?? new InMemoryTenantRepository();
+        ITenantRepository tenantStore = tenantRepository ?? tenants;
         Mock<ITenantProvisioningService> provisioning = new();
         Mock<ITrialTenantBootstrapService> trialBootstrap = new();
         Mock<IEmailOtpSignInDomainPolicyService> domainPolicy = new();
@@ -504,18 +552,27 @@ public sealed class PostAuthBootstrapServiceTests
 
         PostAuthWorkspaceBootstrapService workspaceBootstrap = new(
             memberships,
-            tenants,
+            tenantStore,
             provisioning.Object,
             trialBootstrap.Object,
             domainPolicy.Object,
             abusePolicy.Object,
             new WorkspacePackagingLimitEvaluator(Mock.Of<ITenantUsageStatusService>()),
             audit.Object,
+            CreateDefaultTenantProvisioningOptions(),
             TimeProvider.System);
 
         PostAuthBootstrapService sut = new(memberships, invitationBootstrap, workspaceBootstrap);
 
-        return (sut, userId, memberships, invitations);
+        return (sut, userId, memberships, invitations, tenants);
+    }
+
+    private static IOptionsMonitor<TenantProvisioningOptions> CreateDefaultTenantProvisioningOptions()
+    {
+        Mock<IOptionsMonitor<TenantProvisioningOptions>> options = new();
+        options.Setup(monitor => monitor.CurrentValue).Returns(new TenantProvisioningOptions());
+
+        return options.Object;
     }
 
     [Fact]
@@ -631,6 +688,57 @@ public sealed class PostAuthBootstrapServiceTests
         Assert.NotNull(capturedProfile);
         Assert.Equal("Healthcare", capturedProfile!.IndustryVertical);
         Assert.Null(capturedProfile.IndustryVerticalOther);
+    }
+
+    [Fact]
+    public async Task CreateWorkspaceAsync_denies_when_owned_trial_active_status_differs_only_by_casing()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Mock<ITenantRepository> tenantRepository = new();
+        tenantRepository
+            .Setup(repository => repository.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantRecord
+                {
+                    Id = tenantId,
+                    Name = "Existing Trial Org",
+                    Slug = "existing-trial-org",
+                    Tier = TenantTier.Standard,
+                    DataRegion = TenantDataRegions.Default,
+                    CreatedUtc = DateTimeOffset.UtcNow,
+                    TrialStatus = "active",
+                });
+
+        (PostAuthBootstrapService sut, Guid userId, InMemoryWorkspaceMembershipRepository memberships, _, _) =
+            CreateSut(out _, tenantRepository.Object);
+
+        await memberships.UpsertAsync(
+            new WorkspaceMembershipInsert
+            {
+                UserId = userId,
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                Role = ArchLucidRoles.WorkspaceAdmin,
+                Status = WorkspaceMembershipStatus.Active
+            },
+            DateTimeOffset.UtcNow,
+            CancellationToken.None);
+
+        PostAuthCreateWorkspaceResult result = await sut.CreateWorkspaceAsync(
+            userId,
+            "owner@example.com",
+            "owner@example.com",
+            new PostAuthCreateWorkspaceRequest
+            {
+                WorkspaceName = "Second",
+                OrganizationName = "Second Org",
+                TermsAccepted = true
+            },
+            CancellationToken.None);
+
+        Assert.False(result.Succeeded);
+        Assert.Contains("active evaluation workspace", result.CustomerMessage, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
