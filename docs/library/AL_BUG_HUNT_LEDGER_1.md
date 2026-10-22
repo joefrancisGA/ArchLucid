@@ -8712,6 +8712,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted path-shaped tenant/workspace/project scope slugs and baseline model `TenantId` splitting review-cache `TenantConfigurationHash`/`modelfp`; `ClosedLoopScopeIdHashNormalizer` applies `NormalizeReviewCachePathLikeToken` for non-GUID slugs and review-cache `modelfp` tenant header uses artifact reference normalization; regressions `Build_matches_tenant_configuration_hash_when_workspace_slug_differs_only_by_backslash_vs_forward_slash`, `Build_matches_tenant_configuration_hash_when_project_slug_differs_only_by_backslash_vs_forward_slash`, and `Build_matches_content_hash_when_baseline_model_tenant_id_differs_only_by_backslash_vs_forward_slash_in_path_slug`; cheap-disproof regressions for element-id `..` segments and leading-slash related ids; 306 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ClosedLoopScopeIdHashNormalizer.Normalize` / `ComputeReviewCacheKnowledgeModelFingerprint` — path-shaped scope and tenant slugs split cache hash — **hit 2026-10-22 seed hunt:** path token on scope ids + tenant header; regressions above.
+
 2026-10-22 seed hunt (seed→hit): promoted path-shaped `ElementId` values splitting review-cache `modelfp` on separator drift; element fingerprinting and canonical grouping now use `NormalizeArtifactReferenceForFingerprint`; regression `Build_matches_content_hash_when_baseline_element_id_differs_only_by_backslash_vs_forward_slash_in_path`; cheap-disproof regressions for ledger/source passage/related `..` and `./` path drift, double-slash passage artifacts, source-artifact `..` segments, leading-slash passage ids, and request attachment path separators; 301 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint.SelectCanonicalKnowledgeModelElements` — path-shaped element ids split `modelfp` — **hit 2026-10-22 seed hunt:** artifact reference normalization on `ElementId`; regression above.
