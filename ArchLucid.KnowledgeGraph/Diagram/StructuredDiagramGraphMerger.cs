@@ -75,7 +75,17 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
 
             foreach (GraphNode node in compileResult.Snapshot.Nodes)
             {
-                nodesById.TryAdd(node.NodeId, node);
+                if (nodesById.TryGetValue(node.NodeId, out GraphNode? existing))
+                {
+                    if (!string.IsNullOrWhiteSpace(node.Label))
+                    {
+                        existing.Label = node.Label;
+                    }
+
+                    continue;
+                }
+
+                nodesById[node.NodeId] = node;
             }
 
             foreach (GraphEdge edge in compileResult.Snapshot.Edges)
