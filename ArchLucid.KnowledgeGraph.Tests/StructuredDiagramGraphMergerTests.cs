@@ -1275,6 +1275,80 @@ public sealed class StructuredDiagramGraphMergerTests
     }
 
     [Fact]
+    public void Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace()
+    {
+        ArchitectureDiagramModelRecord firstDocument = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        ArchitectureDiagramModelRecord secondDocument = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        List<CanonicalObject> canonicalObjects = [];
+        canonicalObjects.AddRange(
+            ArchitectureDiagramCanonicalObjectMapper.Map(firstDocument, "doc-node-prop-a", labelOnlyInferenceConfidence: 0.5));
+        canonicalObjects.AddRange(
+            ArchitectureDiagramCanonicalObjectMapper.Map(secondDocument, "doc-node-prop-b", labelOnlyInferenceConfidence: 0.5));
+
+        ContextSnapshot snapshot = new()
+        {
+            SnapshotId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeed2"),
+            RunId = Guid.Parse("11111111-2222-3333-4444-555555555558"),
+            ProjectId = "project-node-property-key-trim",
+            CanonicalObjects = canonicalObjects,
+        };
+
+        StructuredDiagramGraphMerger merger =
+            new StructuredDiagramGraphMerger(new PaddedDiagramPropertyKeyTestCompiler());
+        StructuredDiagramGraphMergeResult result = merger.Merge(snapshot, []);
+
+        GraphNode merged = result.Nodes
+            .Should()
+            .ContainSingle(node => node.NodeId == "diagram-node:api")
+            .Subject;
+
+        merged.Properties[StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId].Should().Be("doc-node-prop-b");
+        merged.Properties.Keys
+            .Count(key => string.Equals(
+                key.Trim(),
+                StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId,
+                StringComparison.OrdinalIgnoreCase))
+            .Should()
+            .Be(1);
+
+        GraphNodePropertyReader.TryGetPropertyValue(
+                merged.Properties,
+                StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId,
+                out string? evidence)
+            .Should()
+            .BeTrue();
+        evidence.Should().Be("doc-node-prop-b");
+    }
+
+    [Fact]
     public void Merge_coalesces_edges_when_directed_pair_key_differs_only_by_endpoint_or_type_padding()
     {
         ArchitectureDiagramModelRecord firstDocument = new()
@@ -1493,6 +1567,65 @@ public sealed class StructuredDiagramGraphMergerTests
                         CanonicalGraphNodeId = canonicalGraphNodeId,
                     },
                 ],
+            };
+        }
+    }
+
+    private sealed class PaddedDiagramPropertyKeyTestCompiler : IArchitectureDiagramToGraphCompiler
+    {
+        private int compileCount;
+
+        public StructuredDiagramGraphCompileResult Compile(
+            ArchitectureDiagramModelRecord model,
+            StructuredDiagramGraphCompileOptions options)
+        {
+            compileCount++;
+
+            if (compileCount == 1)
+            {
+                return new StructuredDiagramGraphCompileResult
+                {
+                    Snapshot = new GraphSnapshot
+                    {
+                        Nodes =
+                        [
+                            new GraphNode
+                            {
+                                NodeId = "diagram-node:api",
+                                NodeType = GraphNodeTypes.TopologyResource,
+                                Label = "API",
+                                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                                {
+                                    [StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId] = "doc-node-prop-a",
+                                    [StructuredDiagramGraphPropertyKeys.InferenceConfidence] = "0.5",
+                                },
+                            },
+                        ],
+                    },
+                };
+            }
+
+            string paddedEvidenceKey = $"  {StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId}  ";
+
+            return new StructuredDiagramGraphCompileResult
+            {
+                Snapshot = new GraphSnapshot
+                {
+                    Nodes =
+                    [
+                        new GraphNode
+                        {
+                            NodeId = "diagram-node:api",
+                            NodeType = GraphNodeTypes.TopologyResource,
+                            Label = "API",
+                            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                            {
+                                [paddedEvidenceKey] = "doc-node-prop-b",
+                                [StructuredDiagramGraphPropertyKeys.InferenceConfidence] = "1",
+                            },
+                        },
+                    ],
+                },
             };
         }
     }

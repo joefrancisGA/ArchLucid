@@ -12470,18 +12470,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 176
-- **bugs-found:** 149
+- **hunts:** 177
+- **bugs-found:** 150
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — graph node property reader returned padded property values
+- **last-bug:** 2026-10-22 — structured diagram merge coalesce stored padded property keys and left stale source-evidence reads
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `StructuredDiagramGraphMerger.CoalesceDiagramNodeMetadata` / `CoalesceDiagramEdgeMetadata` — padded property keys duplicated logical metadata on merge — **hit 2026-10-22 seed hunt (seed→hit):** trim property keys on coalesce; regression above.
+
+- [ ] (candidate) `StructuredDiagramGraphMerger.CoalesceDiagramEdgeMetadata` — padded property keys on edge metadata may duplicate source-evidence entries — locus: edge coalesce trim parity; input: second compile edge row with padded `SourceEvidenceItemId` key; wrong outcome: stale edge property reads after merge.
 
 2026-10-22 seed hunt (valid-no-repro): promoted `GraphNodeFactory.NormalizePropertyBag` padded duplicate property-key candidate; proved factory trims keys before ordinal case-insensitive dedupe, collapses padding-only key variants with identical values, and throws on conflicting values; regressions `CreateNode_deduplicates_property_keys_differing_only_by_surrounding_whitespace_on_key` and `CreateNode_throws_when_padded_duplicate_property_keys_have_conflicting_values` (parity with `CreateNode_trims_surrounding_whitespace_on_property_bag_keys`); seeded `StructuredDiagramGraphMerger` diagram property-key trim on merge coalesce parity follow-on; 467 KnowledgeGraph + 170 Provenance scoped tests passed.
 
 - [x] (valid-no-repro) `GraphNodeFactory.NormalizePropertyBag` — property keys differing only by surrounding whitespace collided or duplicated after trim — **cheap-disproof 2026-10-22 seed hunt:** trim before dedupe; regressions above.
-
-- [ ] (candidate) `StructuredDiagramGraphMerger.CoalesceDiagramNodeMetadata` / `CoalesceDiagramEdgeMetadata` — property keys not trimmed on merge coalesce — locus: raw `property.Key` indexer vs `GraphNodeFactory` trim; input: incoming compile rows with padded semantic property keys; wrong outcome: duplicate logical keys in merged bags and stale reads via `GraphNodePropertyReader`.
 
 2026-10-22 seed hunt (invalid): promoted `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` graph edge metadata omission candidate; proved revision fingerprint keys directed connectivity only and `ProvenanceBuilder` does not materialize graph snapshot edges into provenance edges (diagram source-evidence and inference metadata are out of provenance revision scope); regressions `Compute_unchanged_when_only_graph_edge_properties_change`, `Compute_unchanged_when_only_graph_edge_inference_metadata_changes`, and `Build_produces_same_provenance_graph_when_only_graph_edge_metadata_differs`; seeded `GraphNodeFactory.NormalizePropertyBag` duplicate property keys differing only by surrounding whitespace on key follow-on; 465 KnowledgeGraph + 170 Provenance scoped tests passed.
 

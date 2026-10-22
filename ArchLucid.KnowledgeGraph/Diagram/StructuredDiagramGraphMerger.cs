@@ -149,15 +149,22 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
         {
             foreach (KeyValuePair<string, string> property in incoming.Properties)
             {
+                string propertyKey = NormalizeDiagramPropertyKey(property.Key);
+
+                if (string.IsNullOrWhiteSpace(propertyKey))
+                {
+                    continue;
+                }
+
                 if (ShouldSkipPropertyOnWeakerIncomingCompile(
-                        property.Key,
+                        propertyKey,
                         existingConfidence,
                         incomingConfidence))
                 {
                     continue;
                 }
 
-                existing.Properties[property.Key] = NormalizeDiagramPropertyValue(property.Value);
+                existing.Properties[propertyKey] = NormalizeDiagramPropertyValue(property.Value);
             }
         }
 
@@ -179,15 +186,22 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
         {
             foreach (KeyValuePair<string, string> property in incoming.Properties)
             {
+                string propertyKey = NormalizeDiagramPropertyKey(property.Key);
+
+                if (string.IsNullOrWhiteSpace(propertyKey))
+                {
+                    continue;
+                }
+
                 if (ShouldSkipPropertyOnWeakerIncomingCompile(
-                        property.Key,
+                        propertyKey,
                         existingConfidence,
                         incomingConfidence))
                 {
                     continue;
                 }
 
-                existing.Properties[property.Key] = NormalizeDiagramPropertyValue(property.Value);
+                existing.Properties[propertyKey] = NormalizeDiagramPropertyValue(property.Value);
             }
         }
 
@@ -199,6 +213,9 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
             existing.ReasoningTrace = incoming.ReasoningTrace.Trim();
         }
     }
+
+    private static string NormalizeDiagramPropertyKey(string key) =>
+        string.IsNullOrWhiteSpace(key) ? key : key.Trim();
 
     private static string NormalizeDiagramPropertyValue(string value) =>
         string.IsNullOrWhiteSpace(value) ? value : value.Trim();
