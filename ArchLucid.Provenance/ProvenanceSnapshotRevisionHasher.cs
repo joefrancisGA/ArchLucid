@@ -64,7 +64,7 @@ public static class ProvenanceSnapshotRevisionHasher
                 .OrderBy(static group => group.Key, StringComparer.OrdinalIgnoreCase)
                 .Select(static group =>
                 {
-                    GraphNode representative = group.First();
+                    GraphNode representative = group.Last();
                     string label = (representative.Label ?? string.Empty).Trim();
                     string nodeType = (representative.NodeType ?? string.Empty).Trim();
                     string category = (representative.Category ?? string.Empty).Trim();

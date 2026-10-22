@@ -510,6 +510,49 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     }
 
     [Fact]
+    public void Compute_changes_when_later_case_variant_graph_node_has_different_label()
+    {
+        GraphNode firstRow = new() { NodeId = "node-a", NodeType = "Resource", Label = "Original label" };
+        GraphNode secondRow = new() { NodeId = "NODE-A", NodeType = "Resource", Label = "Renamed label" };
+
+        ProvenanceBuildInput baseline = CreateInput([], graphNodes: [firstRow]);
+        ProvenanceBuildInput updated = CreateInput([], graphNodes: [firstRow, secondRow]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
+    public void Compute_changes_when_later_case_variant_manifest_decision_row_has_different_title()
+    {
+        ResolvedArchitectureDecision firstRow = new()
+        {
+            DecisionId = "dec-1",
+            Category = "c",
+            Title = "Original title",
+            SelectedOption = "opt",
+            Rationale = "why",
+            SupportingFindingIds = [],
+        };
+
+        ResolvedArchitectureDecision secondRow = new()
+        {
+            DecisionId = "DEC-1",
+            Category = "c",
+            Title = "Renamed title",
+            SelectedOption = "opt",
+            Rationale = "why",
+            SupportingFindingIds = [],
+        };
+
+        ProvenanceBuildInput baseline = CreateInput([], decisions: [firstRow]);
+        ProvenanceBuildInput updated = CreateInput([], decisions: [firstRow, secondRow]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
     public void Compute_changes_when_later_case_variant_finding_row_has_different_agent_execution_trace_id()
     {
         Finding firstRow = CreateSampleFinding();

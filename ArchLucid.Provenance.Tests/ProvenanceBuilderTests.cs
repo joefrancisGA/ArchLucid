@@ -614,6 +614,39 @@ public sealed class ProvenanceBuilderTests
     }
 
     [Fact]
+    public void Build_uses_last_graph_node_label_when_snapshot_lists_case_variant_node_ids()
+    {
+        GraphNode firstRow = new()
+        {
+            NodeId = "node-a",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "First label",
+        };
+
+        GraphNode secondRow = new()
+        {
+            NodeId = "NODE-A",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "Last label",
+        };
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot { Nodes = [firstRow, secondRow] },
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        graph.Nodes
+            .Should()
+            .ContainSingle(n => n.Type == ProvenanceNodeType.GraphNode && n.Name == "Last label");
+    }
+
+    [Fact]
     public void Build_uses_last_finding_title_when_findings_list_case_variant_ids()
     {
         Finding firstRow = new()
