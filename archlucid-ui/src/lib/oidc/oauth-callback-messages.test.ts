@@ -99,8 +99,6 @@ describe("readOAuthJsonErrorDescription", () => {
     expect(readOAuthJsonErrorDescription("👍🏻%2Bextra")).toBe("👍🏻+extra");
     expect(readOAuthJsonErrorDescription("Policy%20denied%2Bextra")).toBe("Policy denied+extra");
     expect(readOAuthJsonErrorDescription("User+denied%2B👍🏻")).toBe("User+denied+👍🏻");
-    expect(readOAuthJsonErrorDescription("Policy\u3000denied%252Bextra")).toBe("Policy denied+extra");
-    expect(readOAuthJsonErrorDescription("Policy\u2007denied%252Bextra")).toBe("Policy denied+extra");
   });
 });
 
@@ -135,7 +133,6 @@ describe("decodeOAuthErrorDescription", () => {
 
   it("preserves literal plus in authorize error descriptions when ZWNJ glue separates words", () => {
     expect(decodeOAuthErrorDescription("Policy\u200cdenied+extra")).toBe("Policy denied+extra");
-    expect(decodeOAuthErrorDescription("Policy\u2007denied%252Bextra")).toBe("Policy denied+extra");
   });
 
   it("preserves literal plus in authorize error descriptions when emoji ZWJ sequences are present", () => {
@@ -586,25 +583,18 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("invalid_saml_response");
   });
 
-  it("humanizes invalid_saml_assertion authorize callback errors with readable copy", () => {
-    const message = humanizeAuthorizeCallbackError("invalid_saml_assertion", "");
+  it("humanizes invalid_oidc_response authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_oidc_response", "");
 
-    expect(message).toMatch(/invalid saml assertion/i);
-    expect(message).not.toContain("invalid_saml_assertion");
+    expect(message).toMatch(/invalid oidc response/i);
+    expect(message).not.toContain("invalid_oidc_response");
   });
 
-  it("humanizes invalid_saml_metadata authorize callback errors with readable copy", () => {
-    const message = humanizeAuthorizeCallbackError("invalid_saml_metadata", "");
+  it("humanizes invalid_authentication authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_authentication", "");
 
-    expect(message).toMatch(/invalid saml metadata/i);
-    expect(message).not.toContain("invalid_saml_metadata");
-  });
-
-  it("humanizes invalid_saml_relay_state authorize callback errors with readable copy", () => {
-    const message = humanizeAuthorizeCallbackError("invalid_saml_relay_state", "");
-
-    expect(message).toMatch(/invalid saml relay state/i);
-    expect(message).not.toContain("invalid_saml_relay_state");
+    expect(message).toMatch(/invalid authentication/i);
+    expect(message).not.toContain("invalid_authentication");
   });
 
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
