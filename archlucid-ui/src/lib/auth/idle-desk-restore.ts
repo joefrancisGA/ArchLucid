@@ -20,7 +20,8 @@ export type IdleDeskRestorePayload = {
   readonly formSnapshots?: Readonly<Record<string, LivelihoodIdleFormSnapshot>>;
 };
 
-function normalizeComparableReturnPath(returnPath: string): string | null {
+/** Normalizes return paths for equality checks (pathname + search, trailing slash on pathname only). */
+export function normalizeComparableReturnPath(returnPath: string): string | null {
   const trimmed = returnPath.trim();
 
   if (trimmed.length === 0) {

@@ -10,7 +10,10 @@ import {
 import { buildAuthorizeUrl } from "@/lib/oidc/build-authorize-url";
 import { loadDiscoveryDocument } from "@/lib/oidc/discovery";
 import { createPkcePair, randomOpaqueState } from "@/lib/oidc/pkce";
-import { readIdleDeskRestorePayload } from "@/lib/auth/idle-desk-restore";
+import {
+  normalizeComparableReturnPath,
+  readIdleDeskRestorePayload,
+} from "@/lib/auth/idle-desk-restore";
 import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
 import { normalizeOidcConfigurationString } from "@/lib/oidc/oauth-callback-messages";
 import {
@@ -21,6 +24,22 @@ import {
   storePostSignInReturnUrl,
 } from "@/lib/oidc/session";
 import { OIDC_POST_SIGN_IN_RETURN_URL_KEY } from "@/lib/oidc/storage-keys";
+
+function stripTrailingSlashOnComparablePath(comparable: string): string {
+  if (comparable.length <= 1) {
+    return comparable;
+  }
+
+  const questionIndex = comparable.indexOf("?");
+  const pathPart = questionIndex === -1 ? comparable : comparable.slice(0, questionIndex);
+  const queryPart = questionIndex === -1 ? "" : comparable.slice(questionIndex);
+
+  if (pathPart.length > 1 && pathPart.endsWith("/")) {
+    return `${pathPart.slice(0, -1)}${queryPart}`;
+  }
+
+  return comparable;
+}
 
 function clearAbandonedPostSignInReturnUrl(): void {
   if (typeof sessionStorage === "undefined") {
@@ -37,12 +56,14 @@ function clearAbandonedPostSignInReturnUrl(): void {
 
   if (idle !== null) {
     const currentNormalized = normalizeOidcConfigurationString(current);
-    const idleNormalized = normalizeOidcConfigurationString(idle.returnPath);
+    const currentComparable = normalizeComparableReturnPath(currentNormalized);
+    const idleComparable = normalizeComparableReturnPath(idle.returnPath);
 
     if (
-      currentNormalized.length > 0 &&
-      idleNormalized.length > 0 &&
-      currentNormalized === idleNormalized &&
+      currentComparable !== null &&
+      idleComparable !== null &&
+      stripTrailingSlashOnComparablePath(currentComparable) ===
+        stripTrailingSlashOnComparablePath(idleComparable) &&
       isSafeReturnPath(currentNormalized)
     ) {
       return;

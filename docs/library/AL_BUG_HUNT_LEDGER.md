@@ -25270,6 +25270,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `initiateOidcRedirect` — idle-desk restore return cleared as stale on sign-in without returnUrl — **hit 2026-10-22 seed hunt:** preserve when OIDC key matches idle restore returnPath; regression above.
 
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `clearAbandonedPostSignInReturnUrl` trailing-slash drift — idle-desk restore `returnPath` and `OIDC_POST_SIGN_IN_RETURN_URL_KEY` compared with raw string equality after configuration-string normalize, so `/architecture/reviews/run-1` vs `/architecture/reviews/run-1/` cleared the paired hint on sign-in without `returnUrl`; compare via `normalizeComparableReturnPath` with trailing-slash collapse on pathname; regression `preserves idle-desk restore return path when session hint differs only by a trailing slash`; scoped `src/lib/oidc` + idle-desk vitest 334/334.
+
+- [x] (proven) `clearAbandonedPostSignInReturnUrl` — idle-desk return path mismatch on trailing slash — **hit 2026-10-22 seed hunt:** comparable path equality; regression above.
+
 ## Zone: ui-oidc
 
 - **id:** ui-oidc
@@ -25278,11 +25282,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 82
-- **bugs-found:** 76
+- **hunts:** 83
+- **bugs-found:** 77
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — idle-desk restore return cleared as stale
+- **last-bug:** 2026-10-22 — idle-desk return trailing-slash compare drift
 
 - **id:** ui-oidc
 - **status:** open
