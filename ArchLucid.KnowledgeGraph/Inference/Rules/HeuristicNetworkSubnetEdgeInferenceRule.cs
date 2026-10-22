@@ -9,7 +9,7 @@ internal sealed class HeuristicNetworkSubnetEdgeInferenceRule : IGraphEdgeInfere
     public void InferEdges(GraphEdgeInferenceContext context, List<GraphEdge> edges)
     {
         List<GraphNode> networks = context.TopologyNodes
-            .Where(x => string.Equals(x.Category, GraphTopologyCategories.Network, StringComparison.OrdinalIgnoreCase))
+            .Where(static node => CategoryEquals(node.Category, GraphTopologyCategories.Network))
             .ToList();
 
         List<GraphNode> subnets = context.TopologyNodes
@@ -50,4 +50,7 @@ internal sealed class HeuristicNetworkSubnetEdgeInferenceRule : IGraphEdgeInfere
 
         return subnet.Label.Contains(netLabel, StringComparison.OrdinalIgnoreCase);
     }
+
+    private static bool CategoryEquals(string? actual, string expected) =>
+        string.Equals((actual ?? string.Empty).Trim(), expected, StringComparison.OrdinalIgnoreCase);
 }

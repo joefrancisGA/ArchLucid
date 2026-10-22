@@ -12470,19 +12470,23 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 125
-- **bugs-found:** 120
+- **hunts:** 126
+- **bugs-found:** 121
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — graph inferer excluded topology nodes when NodeType was padded
+- **last-bug:** 2026-10-22 — heuristic network/subnet rule excluded networks when Category was padded
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted `HeuristicNetworkSubnetEdgeInferenceRule` padded `Category` candidate; proved network bucket filter used literal `Category` equality against `GraphTopologyCategories.Network`, excluding topology nodes whose category carried surrounding whitespace from heuristic subnet containment when only one network was present; trim-normalized category comparison; regression `InferEdges_heuristic_network_subnet_rule_includes_network_when_category_has_surrounding_whitespace`; seeded padded network `Label` substring containment follow-on when multiple networks compete; 427 KnowledgeGraph + 136 Provenance scoped tests passed.
+
+- [x] (proven) `HeuristicNetworkSubnetEdgeInferenceRule` — padded `Category` value excluded network nodes from heuristic subnet containment — **hit 2026-10-22 seed hunt (seed→hit):** trim-normalized category filter; regression above.
+
+- [ ] (candidate) `HeuristicNetworkSubnetEdgeInferenceRule` — padded network `Label` may break label-substring containment when multiple networks exist — locus: `ShouldInferNetworkContainsSubnet` netLabel compare; input: two networks and subnet label embedding trimmed network name; wrong outcome: missing heuristic containment edge for the padded-label network.
 
 2026-10-22 seed hunt (seed→hit): cheap-disproved heuristic network/subnet padded-network-id candidate (`network.NodeId.Trim()` parent match plus regression `InferEdges_heuristic_network_subnet_rule_matches_parentNodeId_when_network_node_id_has_surrounding_whitespace`); promoted `DefaultGraphEdgeInferer` topology classification candidate; proved inferrer bucketed `TopologyNodes` / `SecurityNodes` with literal `NodeType` equality, excluding resources whose `NodeType` carried surrounding whitespace from targeted `Protects` inference; trim-normalized node-type classification; regression `InferEdges_security_protection_rule_matches_topology_resource_when_node_type_has_surrounding_whitespace`; seeded padded `Category` on network heuristic follow-on; 426 KnowledgeGraph + 136 Provenance scoped tests passed.
 
 - [x] (valid-no-repro) `HeuristicNetworkSubnetEdgeInferenceRule` — padded network `NodeId` parent match with multiple networks — **cheap-disproof 2026-10-22 seed hunt:** trim parent id comparison; regression above.
 - [x] (proven) `DefaultGraphEdgeInferer` — padded `NodeType` excluded nodes from topology/security buckets — **hit 2026-10-22 seed hunt (seed→hit):** trim node-type classification; regression above.
-
-- [ ] (candidate) `HeuristicNetworkSubnetEdgeInferenceRule` — padded `Category` value may exclude network nodes from heuristic subnet containment — locus: network bucket filter; input: network with `Category` `" Network "`; wrong outcome: missing heuristic containment edges.
 
 2026-10-22 seed hunt (seed→hit): cheap-disproved `connectedToNodeIds` padded-token candidate (`Split` trim entries plus trim-normalized topology lookup; regression `InferEdges_topology_relationship_rule_resolves_connects_to_target_when_property_token_has_surrounding_whitespace`); promoted `DefaultGraphEdgeInferer` `NodeById` lookup candidate; proved explicit parent-child containment trimmed `parentNodeId` properties but indexed `NodeById` on raw `GraphNode.NodeId` values, dropping `ContainsResource` edges when the parent node id carried surrounding whitespace; trim-normalized `NodeById` keys and trim parent id comparison in heuristic network/subnet rule; regression `InferEdges_explicit_parent_child_rule_honors_parentNodeId_when_parent_node_id_has_surrounding_whitespace`; seeded `HeuristicNetworkSubnetEdgeInferenceRule` padded network id parent match follow-on; 424 KnowledgeGraph + 136 Provenance scoped tests passed.
 

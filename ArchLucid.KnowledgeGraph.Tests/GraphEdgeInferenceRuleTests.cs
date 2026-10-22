@@ -405,6 +405,33 @@ public sealed class GraphEdgeInferenceRuleTests
     }
 
     [Fact]
+    public void InferEdges_heuristic_network_subnet_rule_includes_network_when_category_has_surrounding_whitespace()
+    {
+        ContextSnapshot snapshot = BuildSnapshot();
+        GraphNode network = new()
+        {
+            NodeId = "net-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "hub-vnet",
+            Category = $"  {GraphTopologyCategories.Network}  ",
+        };
+        GraphNode subnet = new()
+        {
+            NodeId = "subnet-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "subnet-a",
+        };
+
+        IReadOnlyList<GraphEdge> edges = _sut.InferEdges(snapshot, [network, subnet]);
+
+        edges.Should().Contain(e =>
+            e.InferenceSource == GraphEdgeInferenceSources.HeuristicNetworkSubnet
+            && e.FromNodeId == "net-1"
+            && e.ToNodeId == "subnet-1"
+            && e.EdgeType == GraphEdgeTypes.ContainsResource);
+    }
+
+    [Fact]
     public void InferEdges_security_protection_rule_matches_topology_resource_when_node_type_has_surrounding_whitespace()
     {
         ContextSnapshot snapshot = BuildSnapshot();
