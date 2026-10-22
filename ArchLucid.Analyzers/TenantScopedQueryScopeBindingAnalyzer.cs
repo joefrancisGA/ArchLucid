@@ -157,6 +157,21 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
         AnalyzeSqlExpression(context, registry, sqlExpression, objectCreation.GetLocation());
     }
 
+    private static ExpressionSyntax UnwrapCommandDefinitionSqlExpression(
+        ExpressionSyntax sqlExpression,
+        SemanticModel semanticModel)
+    {
+        if (sqlExpression is not BaseObjectCreationExpressionSyntax objectCreation)
+            return sqlExpression;
+
+        ITypeSymbol? type = semanticModel.GetTypeInfo(objectCreation).Type;
+
+        if (type is null || !string.Equals(type.Name, "CommandDefinition", StringComparison.Ordinal))
+            return sqlExpression;
+
+        return TryGetCommandDefinitionSqlExpression(objectCreation) ?? sqlExpression;
+    }
+
     private static ExpressionSyntax? TryGetCommandDefinitionSqlExpression(BaseObjectCreationExpressionSyntax objectCreation)
     {
         if (objectCreation.ArgumentList is null)
@@ -185,6 +200,8 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
 
         if (TenantScopeExemptSymbolHelper.TryGetExemption(containingSymbol, context.Compilation) is not null)
             return;
+
+        sqlExpression = UnwrapCommandDefinitionSqlExpression(sqlExpression, context.SemanticModel);
 
         TenantScopedSqlExpressionResolver.ResolutionResult resolution =
             TenantScopedSqlExpressionResolver.Resolve(sqlExpression, context.SemanticModel);

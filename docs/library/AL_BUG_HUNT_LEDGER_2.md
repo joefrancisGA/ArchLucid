@@ -1187,6 +1187,14 @@
 
 ## Zone: tenant-scoped-analyzer
 
+2026-10-22 seed hunt (seed→hit): promoted `ExecuteAsync(new CommandDefinition(sql))` — `AnalyzeInvocation` passed the object-creation expression to `TenantScopedSqlExpressionResolver` without unwrapping command text (unlike `AnalyzeObjectCreation`), so unscoped SQL could miss ARCH006 static analysis; `UnwrapCommandDefinitionSqlExpression` in `AnalyzeSqlExpression`; regression `ARCH006_reports_unscoped_sql_for_execute_async_command_definition`; cheap-disproof closed four sibling seeded candidates; scoped tests not run locally (analyzer test host NuGet failure).
+
+- [x] (proven) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — `ExecuteAsync(new CommandDefinition(sql, …))` missed ARCH006 — **hit 2026-10-22 seed hunt:** unwrap `CommandDefinition` SQL in `AnalyzeSqlExpression`; regression `ARCH006_reports_unscoped_sql_for_execute_async_command_definition`.
+- [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer.DapperQueryMethodNames` — `QueryUnbufferedAsync` omitted — **cheap-disproof 2026-10-22:** duplicate of 2026-10-02 `(valid-no-repro)`; production `DapperAuditRepository` SQL is scope-bound.
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer.OnCompilationStart` — `struct` exemption validation not registered — **cheap-disproof 2026-10-22:** no `[TenantScopeExempt]` persistence `struct` in repo; query exemption chain unchanged for classes/records.
+- [x] (valid-no-repro) `GuessTablesFromExpressionText` — `DELETE alias FROM` shape — **cheap-disproof 2026-10-22:** unanalyzable fallback edge; no reachable persistence SQL using that shape without static `FROM dbo.*` elsewhere in expression text.
+- [x] (valid-no-repro) `LoadRegistry` — first matching additional file wins — **cheap-disproof 2026-10-22:** build ships single `tenant_scoped_tables.v1.json`; no multi-file collision in CI or analyzer options.
+
 2026-10-22 seed hunt (seed-only): re-read `TenantScopedQueryScopeBindingAnalyzer`, `TenantScopedSqlExpressionResolver`, and production Dapper call shapes (`QueryUnbufferedAsync`, `ExecuteAsync(CommandDefinition)`, exemption registration); no row met hunt-ready bar for a failing repro in this run; seeded five `(candidate)` rows under `### Hypotheses`; scoped `TenantScopedQueryScopeBindingAnalyzerTests` blocked locally (analyzer test host NuGet reference assembly resolution failure).
 
 - **id:** tenant-scoped-analyzer
@@ -1195,11 +1203,11 @@
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 39
-- **bugs-found:** 24
+- **hunts:** 40
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-21 — expression-bodied property get accessors bypassed ARCH006 SQL folding
+- **last-bug:** 2026-10-22 — ExecuteAsync(CommandDefinition) bypassed ARCH006 SQL unwrap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1265,11 +1273,17 @@
 
 ### Hypotheses
 
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.DapperQueryMethodNames` — `QueryUnbuffered` / `QueryUnbufferedAsync` are absent from the Dapper method allowlist — locus: `ImmutableHashSet` ~17–35; input: `ArchLucid.Persistence/Audit/DapperAuditRepository.ExportAndStream.cs` `QueryUnbufferedAsync` call (reachable production SQL; verify scope binding still satisfies ARCH006).
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — `ExecuteAsync(new CommandDefinition(sql, …))` routes the nested object creation through `TenantScopedSqlExpressionResolver` instead of `AnalyzeObjectCreation` — locus: `TryGetSqlArgument` + `AnalyzeSqlExpression` ~277–307; input: persistence `connection.ExecuteAsync(new CommandDefinition("SELECT … dbo.Runs …"))` (wrong outcome: silent miss vs ARCH006/ARCH006a only).
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.OnCompilationStart` — exemption validation registers `ClassDeclaration` only, not `struct` declarations — locus: `RegisterSyntaxNodeAction` ~71–73; input: `[TenantScopeExempt]` on a `struct` in `ArchLucid.Persistence` with blank justification (ARCH006b empty justification).
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.GuessTablesFromExpressionText` — unanalyzable-SQL fallback regex requires `DELETE FROM` rather than `DELETE alias FROM` — locus: regex ~267; input: dynamic SQL `DELETE r FROM dbo.Runs r WHERE …` when static resolution is empty (missed `dbo.Runs` guess).
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.LoadRegistry` — first `tenant_scoped_tables.v1.json` additional file wins and later files are ignored — locus: `LoadRegistry` ~82–93; input: analyzer options with two additional files sharing the suffix (stale or partial registry).
+- [x] (proven) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — `ExecuteAsync(new CommandDefinition(sql))` — **hit 2026-10-22 seed hunt:** `UnwrapCommandDefinitionSqlExpression`; regression `ARCH006_reports_unscoped_sql_for_execute_async_command_definition`.
+- [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer.DapperQueryMethodNames` — `QueryUnbufferedAsync` — **cheap-disproof 2026-10-22:** duplicate closure.
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer.OnCompilationStart` — struct exemption registration — **cheap-disproof 2026-10-22.**
+- [x] (valid-no-repro) `GuessTablesFromExpressionText` — `DELETE alias FROM` — **cheap-disproof 2026-10-22.**
+- [x] (valid-no-repro) `LoadRegistry` — first additional file wins — **cheap-disproof 2026-10-22.**
+
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.DapperQueryMethodNames` — `QueryUnbuffered` / `QueryUnbufferedAsync` still absent — locus: method allowlist ~17–35; input: add allowlist entry only if a reachable unscoped production SQL path exists (today: scope-bound audit export).
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — `QueryAsync(new CommandDefinition(sql))` extension overload — locus: `TryGetSqlArgument` + unwrap path; input: verify parity with `ExecuteAsync` after 2026-10-22 fix (regression-only).
+- [ ] (candidate) `TenantScopedSqlExpressionResolver` — `CommandDefinition` stored in local then passed to `ExecuteAsync` — locus: resolver assignment folding; input: `var cmd = new CommandDefinition(sql); await conn.ExecuteAsync(cmd);` (verify unwrap not required when symbol resolves).
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer` — `record` declarations exempt from ARCH006b empty-justification syntax action — locus: `AnalyzeTypeDeclaration` class-only registration; input: blank `[TenantScopeExempt]` on persistence `record` (record exemption lookup already proven invalid 2026-10-03).
+- [ ] (candidate) `TenantScopedQuerySqlInspector` — triple-scope tables with surrogate-key read exemptions — locus: inspector ordering; input: triple-scoped `dbo.Runs` surrogate-key SELECT without workspace predicate (regression `ARCH006_reports_primary_key_delete_on_triple_scoped_table` covers delete path).
 
 - [x] (proven) `TenantScopedSqlExpressionResolver.TryGetPropertySqlExpression` — expression-bodied property getters — **hit 2026-10-21 seed hunt (lane C):** accessor-list `get =>` SQL not resolved; regression `ARCH006_reports_unscoped_sql_for_expression_bodied_property_get_accessor`.
 
