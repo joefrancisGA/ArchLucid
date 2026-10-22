@@ -8712,6 +8712,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted NEL (`\u0085`) line separator in source `Content` splitting `ContentHash` after U+2028/U+2029 fix; extended `NormalizeLineEndings`; regression `Build_matches_content_hash_when_source_content_uses_unicode_line_separators` (`\u0085` case); closed stale framing-key and duplicate-source candidates; 97 scoped orchestrator/cache/manifest tests passed.
+
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — Unicode NEL (`\u0085`) left content unnormalized vs LF — **hit 2026-10-22 seed hunt:** map NEL to LF alongside LS/PS; regression above. [class:state-machine-gap]
+
+- [x] (invalid) `ClosedLoopFramingAnswersNormalizer` — Turkish compatibility case folding on framing keys — **cheap-disproof 2026-10-22 seed hunt:** canonical key picks ordinal-first in ignore-case group (2026-10-21 row); not a reachable OpenAPI key shape.
+
+- [x] (invalid) `ReviewCacheManifestBuilder.HashContent` — duplicate `SourceTexts` differing only by list order — **cheap-disproof 2026-10-22 seed hunt:** `GroupBy` + `OrderBy` on normalized rows (2026-10-13 dedupe hit).
+
+- [x] (valid-no-repro) `ReviewResultCache.InvalidateForRun` — tombstone FIFO saturation under pin pressure — **cheap-disproof 2026-10-22 seed hunt:** deferred invalidation contract documented in cache tests; no new repro without product flag.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — vertical tab (`\u000b`) in uploaded source content may still split `ContentHash` from LF — locus: line-ending map; input: `note\u000bline` vs `note\nline`.
+
+- (candidate) `ClosedLoopFramingAnswersNormalizer` — framing keys differing only by Unicode NFC vs NFD (not values) — locus: `NormalizeUnicode` on keys; input: composed vs decomposed key for same answer (verify parity with value NFC hit).
+
 2026-10-21 seed hunt (seed→hit): promoted NFC vs NFD framing answer values splitting `ContentHash` while ledger technology names already used FormC; `ClosedLoopFramingAnswersNormalizer` now normalizes keys and values with `NormalizationForm.FormC`; regression `Build_matches_content_hash_when_framing_answer_differs_only_by_unicode_normalization_form`; 95 scoped tests passed.
 
 2026-10-06 seed hunt (seed→hit): MIME charset parameter on `SourceTexts.ContentType` split cache manifest hash; `NormalizeContentTypeForLookup` + lowercase in normalizer; regression `Build_matches_content_hash_when_source_content_type_differs_only_by_charset_parameter`; seeded five follow-on candidates; 83 scoped tests passed.
@@ -8739,11 +8753,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 43
-- **bugs-found:** 23
+- **hunts:** 44
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 — NEL line separator in review-cache source content hash
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

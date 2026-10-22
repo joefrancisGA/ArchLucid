@@ -454,6 +454,7 @@ public sealed class ReviewCacheManifestBuilderTests
     [Theory]
     [InlineData("\u2028")]
     [InlineData("\u2029")]
+    [InlineData("\u0085")]
     public void Build_matches_content_hash_when_source_content_uses_unicode_line_separators(
         string lineSeparator)
     {

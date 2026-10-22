@@ -93,7 +93,8 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
             .Replace("\r\n", "\n")
             .Replace('\r', '\n')
             .Replace('\u2028', '\n')
-            .Replace('\u2029', '\n');
+            .Replace('\u2029', '\n')
+            .Replace('\u0085', '\n');
     }
 
     private static string StripUtf8Bom(string content)
