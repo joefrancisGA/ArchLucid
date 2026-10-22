@@ -338,6 +338,13 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("unauthorized_client");
   });
 
+  it("uses readable default copy for redirect_uri_mismatch authorize-query errors", () => {
+    const message = humanizeAuthorizeCallbackError("redirect_uri_mismatch", "");
+
+    expect(message).toContain("redirect uri mismatch");
+    expect(message).toContain("Sign-in did not finish");
+  });
+
   it("humanizes invalid_scope authorize callback errors with readable copy", () => {
     const message = humanizeAuthorizeCallbackError("invalid_scope", "");
 
