@@ -6666,6 +6666,11 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-10-21 seed hunt (seed->hit): promoted AgentPromptCatalogOptions.Versions whitespace keys; CachedAgentSystemPromptCatalog resolves AgentTypeKeys without trimming dictionary keys; AgentPromptCatalogOptionsNormalizePostConfigure + host registration; regression PostConfigure_trims_agent_prompt_version_keys_from_configuration_binding; cheap-disproof closed JSON null array (Resolve_redacts_json_effective_values_when_json_array_contains_null_then_password_pair) and SaaS WhenProduction (catalog Production-only); 1 AgentPromptCatalog test passed (RunAnalyzers=false).
 
 ## Zone: core-configuration-summary
+2026-10-22 seed hunt #49 (seed->hit): promoted Unicode line-separator (`U+2028`) delimiter gap in `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter`; `Password=` pair after LS was not a pair boundary so config summary effective values leaked ADO.NET secrets; regression `Resolve_redacts_embedded_credential_material_when_password_pair_is_unicode_line_separator_delimited`; cheap-disproof closed five stale dictionary-trim candidates; 1138 scoped Configuration tests passed.
+
+- [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter` — `Password=` pair after Unicode line separator (`U+2028`) not treated as pair boundary — **hit 2026-10-22 seed hunt #49:** extend delimiter set with NEL/LS/PS (`U+0085`, `U+2028`, `U+2029`); regression above. [class:fail-open-validation]
+
+
 2026-10-21 seed hunt (seed->hit): promoted ConfigurationEmbeddedCredentialMaterialDetector form-feed delimiter parity; password= pair after \f bypassed IsPairDelimiter so config summary effective values leaked ADO.NET secrets; regression Resolve_redacts_embedded_credential_material_when_password_pair_is_form_feed_delimited; cheap-disproof closed ACS Email NBSP padding (Trim), QuickScan staging doc divergence, fragment-only trailing-slash claim, LlmCost whitespace-only deployment key; 22 matrix tests passed (RunAnalyzers=false).
 
 2026-10-21 seed hunt (seed->hit): promoted ConfigurationKeyRequirement WhenOtlpEnabled/WhenApiKeyEnabled boolean reads; GetValue<bool> threw on yes/on synonyms and skipped required-key enforcement; IsConfigurationBooleanEnabled uses JsonBooleanStringReader; regressions WhenOtlpEnabled_honors_yes_synonym_configuration_value, WhenOtlpEnabled_does_not_throw_on_unrecognized_boolean_configuration_value, WhenApiKeyEnabled_honors_on_synonym_configuration_value; 13 ConfigurationKeyRequirement tests passed (RunAnalyzers=false).
@@ -6790,11 +6795,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 48
-- **bugs-found:** 31
+- **hunts:** 49
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-16
-- **last-bug:** 2026-10-16 — cognitiveservices endpoint query slash + ArchLucid:Secrets metadata over-redaction
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 — Unicode line-separator delimiter parity for embedded credential redaction
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
