@@ -156,7 +156,7 @@ export function collapseOAuthErrorDescriptionLineBreaks(text: string): string {
 export function normalizeOAuthErrorCode(value: string): string {
   let decoded = value.trim();
 
-  decoded = decodeRepeatedPercentEncoding(decoded.replace(/\+/g, " "));
+  decoded = decodeRepeatedPercentEncoding(decoded).replace(/\+/g, " ");
 
   const tokenized = decoded
     .replace(OAUTH_INVISIBLE_FORMAT_CHARS, "_")

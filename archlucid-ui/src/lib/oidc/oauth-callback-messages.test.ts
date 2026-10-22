@@ -470,6 +470,20 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toMatch(/access%2520denied/i);
   });
 
+  it("maps percent-encoded plus signs in authorize error codes to snake_case handlers", () => {
+    const message = humanizeAuthorizeCallbackError("invalid%2Bgrant", "");
+
+    expect(message).toContain("invalid grant");
+    expect(message).not.toContain("invalid+grant");
+  });
+
+  it("maps percent-encoded underscores in authorize error codes to snake_case handlers", () => {
+    const message = humanizeAuthorizeCallbackError("unauthorized%5fclient", "");
+
+    expect(message).toContain("not enabled");
+    expect(message).not.toMatch(/unauthorized%5fclient/i);
+  });
+
   it("includes numeric invalid_request error_description in callback copy", () => {
     const message = humanizeAuthorizeCallbackError("invalid_request", "403");
 
