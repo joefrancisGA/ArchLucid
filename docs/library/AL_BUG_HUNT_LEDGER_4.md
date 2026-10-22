@@ -12470,7 +12470,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 224
+- **hunts:** 225
 - **bugs-found:** 177
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — fully empty overlay merge returned base graph without warning normalization
@@ -12665,7 +12665,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphOverlayMerger.MergeWarnings` — whitespace-only warnings survived merge — **cheap-disproof 2026-10-22 seed hunt:** skip after trim; regression above.
 
-- [ ] (candidate) `StructuredDiagramGraphMerger.AddCompileWarnings` — whitespace-only compile warnings from diagram compiles may append blank entries on multi-document merge — locus: `NormalizeWarning` skip after trim; input: compile results emit space-only warning strings; wrong outcome: merged structured diagram warnings retain blank tokens.
+2026-10-22 seed hunt (valid-no-repro): promoted `StructuredDiagramGraphMerger.AddCompileWarnings` whitespace-only compile warning candidate; proved `NormalizeWarning` plus `normalized.Length == 0` skip matches inventory overlay `MergeWarnings` (hunt 224); regression `Merge_skips_whitespace_only_compile_warnings_on_multi_document_merge`; seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.MergeWarnings` null warning entry skip parity follow-on; 517 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `StructuredDiagramGraphMerger.AddCompileWarnings` — whitespace-only compile warnings appended on merge — **cheap-disproof 2026-10-22 seed hunt:** skip after trim; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.MergeWarnings` — null warning entries in base or overlay lists may throw or append empty tokens — locus: `NormalizeWarning` on null; input: warning list contains null elements; wrong outcome: merge fails or retains blank warnings.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
