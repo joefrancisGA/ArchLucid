@@ -3,12 +3,14 @@
 
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import dataclass
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_LEDGER_PATH = REPO_ROOT / "docs/library/AL_BUG_HUNT_LEDGER.md"
+ZONE_SET_CATALOG_PATH = REPO_ROOT / "scripts/agent/al-bug-zone-sets.json"
 
 ZONE_HEADER = re.compile(r"^## Zone:\s+(.+)$", re.MULTILINE)
 FIELD_ID = re.compile(r"^\s*-\s+\*\*id:\*\*\s+(.+?)\s*$", re.MULTILINE)
@@ -39,6 +41,34 @@ class ProvenRow:
 class ZonePaths:
     zone_id: str
     paths: tuple[str, ...]
+
+
+def set_ledger_paths() -> list[Path]:
+    if not ZONE_SET_CATALOG_PATH.is_file():
+        return []
+    catalog = json.loads(ZONE_SET_CATALOG_PATH.read_text(encoding="utf-8"))
+    paths: list[Path] = []
+    for item in catalog.get("sets", []):
+        ledger = item.get("ledger")
+        if isinstance(ledger, str) and ledger.strip():
+            paths.append(REPO_ROOT / ledger)
+    return paths
+
+
+def load_ledger_text(path: Path | None = None) -> str:
+    """Read zone bodies. The index ledger delegates to the four set ledgers."""
+    target = DEFAULT_LEDGER_PATH if path is None else Path(path)
+    if not target.is_absolute():
+        target = REPO_ROOT / target
+    try:
+        reads_index = target.resolve() == DEFAULT_LEDGER_PATH.resolve()
+    except OSError:
+        reads_index = False
+    if reads_index:
+        parts = [set_path.read_text(encoding="utf-8") for set_path in set_ledger_paths() if set_path.is_file()]
+        if parts:
+            return "\n".join(parts)
+    return target.read_text(encoding="utf-8")
 
 
 def parse_zones(ledger_text: str) -> dict[str, str]:

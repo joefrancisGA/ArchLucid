@@ -2,6 +2,17 @@
  * Normalized severity label for findings tables (governance queue, sponsor shell).
  * Stays aligned with legacy GovernanceFindingsQueueClient behavior.
  */
+/** Sponsor top-risk line: quote the trace label; do not map it onto severity bands. */
+export function formatSponsorTraceConfidenceDisplay(label: string | null | undefined): string {
+  const t = (label ?? "").trim();
+
+  if (t.length === 0) {
+    return "Trace label was not stored.";
+  }
+
+  return `Trace label: ${t}.`;
+}
+
 export function severityFromTrace(label: string | null | undefined): string {
   const t = (label ?? "").trim();
 

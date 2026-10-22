@@ -112,6 +112,18 @@ describe("readOAuthJsonErrorDescription", () => {
   it("preserves percent-decoded plus in JSON when hair-space glue separates words", () => {
     expect(readOAuthJsonErrorDescription("Policy\u200adenied%252Bextra")).toBe("Policy denied+extra");
   });
+
+  it("preserves percent-decoded plus in JSON when ZWNJ glue separates words", () => {
+    expect(readOAuthJsonErrorDescription("Policy\u200cdenied%252Bextra")).toBe("Policy denied+extra");
+  });
+
+  it("preserves percent-decoded plus in JSON when ZWJ glue separates words", () => {
+    expect(readOAuthJsonErrorDescription("Policy\u200ddenied%252Bextra")).toBe("Policy denied+extra");
+  });
+
+  it("preserves percent-decoded plus in JSON when ideographic-space glue separates words", () => {
+    expect(readOAuthJsonErrorDescription("Policy\u3000denied%252Bextra")).toBe("Policy denied+extra");
+  });
 });
 
 describe("decodeOAuthErrorDescription", () => {
@@ -130,6 +142,18 @@ describe("decodeOAuthErrorDescription", () => {
   it("decodes percent-encoded plus in authorize error descriptions", () => {
     expect(decodeOAuthErrorDescription("Policy%2Bdenied")).toBe("Policy denied");
     expect(decodeOAuthErrorDescription("Policy%252Bdenied")).toBe("Policy denied");
+  });
+
+  it("preserves percent-decoded plus in authorize descriptions when hair-space glue separates words", () => {
+    expect(decodeOAuthErrorDescription("Policy\u200adenied%252Bextra")).toBe("Policy denied+extra");
+  });
+
+  it("preserves percent-decoded plus in authorize descriptions when figure-space glue separates words", () => {
+    expect(decodeOAuthErrorDescription("Policy\u2007denied%252Bextra")).toBe("Policy denied+extra");
+  });
+
+  it("preserves percent-decoded plus in authorize descriptions when ZWJ glue separates words", () => {
+    expect(decodeOAuthErrorDescription("Policy\u200ddenied%252Bextra")).toBe("Policy denied+extra");
   });
 
   it("preserves literal plus in authorize error descriptions when form plus was already decoded to space", () => {
@@ -705,6 +729,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toMatch(/invalid session id/i);
     expect(message).not.toContain("invalid_session_id");
+  });
+
+  it("humanizes invalid_saml_issuer authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_saml_issuer", "");
+
+    expect(message).toMatch(/invalid saml issuer/i);
+    expect(message).not.toContain("invalid_saml_issuer");
   });
 
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {

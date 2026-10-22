@@ -25,7 +25,29 @@ function formatDispositionHistoryActor(reviewerUserId: string | null | undefined
   const trimmed = reviewerUserId?.trim() ?? "";
 
   if (trimmed.length === 0) {
-    return "Unknown reviewer";
+    return "Reviewer was not stored.";
+  }
+
+  return trimmed;
+}
+
+function formatDispositionHistoryRationale(rationale: string | null | undefined): string {
+  if (rationale === null || rationale === undefined) {
+    return "Rationale was not stored.";
+  }
+
+  if (rationale.length === 0 || rationale.trim().length === 0) {
+    return "Rationale was stored empty.";
+  }
+
+  return rationale.trim();
+}
+
+function formatDispositionHistoryRecordedTime(occurredAtUtc: string | null | undefined): string {
+  const trimmed = occurredAtUtc?.trim() ?? "";
+
+  if (trimmed.length === 0) {
+    return "Recorded time was not stored.";
   }
 
   return trimmed;
@@ -122,10 +144,9 @@ export function FindingDispositionHistorySection(
             {" · "}
             {formatDispositionHistoryActor(event.reviewerUserId)}
             {" · "}
-            {event.occurredAtUtc}
-            {event.rationale !== null && event.rationale !== undefined && event.rationale.trim().length > 0
-              ? ` — ${event.rationale.trim()}`
-              : ""}
+            {formatDispositionHistoryRecordedTime(event.occurredAtUtc)}
+            {" — "}
+            {formatDispositionHistoryRationale(event.rationale)}
           </li>
         ))}
       </ul>
