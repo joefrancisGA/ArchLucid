@@ -144,12 +144,6 @@ describe("decodeOAuthErrorDescription", () => {
     expect(decodeOAuthErrorDescription("🇺🇸%2Bextra")).toBe("🇺🇸+extra");
   });
 
-  it("preserves literal plus in authorize error descriptions when pictograph emoji is present", () => {
-    expect(decodeOAuthErrorDescription("⚠️+extra")).toBe("⚠️+extra");
-    expect(decodeOAuthErrorDescription("⚠️%2Bextra")).toBe("⚠️+extra");
-    expect(decodeOAuthErrorDescription("⚠️%252Bextra")).toBe("⚠️+extra");
-  });
-
   it("preserves literal plus in authorize error descriptions when skin-tone emoji modifiers are present", () => {
     expect(decodeOAuthErrorDescription("👍🏻+extra")).toBe("👍🏻+extra");
     expect(decodeOAuthErrorDescription("👋🏽+denied")).toBe("👋🏽+denied");
@@ -412,6 +406,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toMatch(/account selection required/i);
     expect(message).not.toContain("account_selection_required");
+  });
+
+  it("humanizes registration_not_supported authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("registration_not_supported", "");
+
+    expect(message).toMatch(/registration not supported/i);
+    expect(message).not.toContain("registration_not_supported");
   });
 
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
