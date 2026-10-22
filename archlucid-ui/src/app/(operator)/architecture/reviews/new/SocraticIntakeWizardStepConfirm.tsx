@@ -62,17 +62,18 @@ export function SocraticIntakeWizardStepConfirm({
         >
           <li>
             <InlineMetadataLabel label="Intent" />{" "}
-            {freeTextIntent.trim().slice(0, 120)}
-            {freeTextIntent.trim().length > 120 ? "…" : ""}
+            {freeTextIntent.trim().length > 0
+              ? `${freeTextIntent.trim().slice(0, 120)}${freeTextIntent.trim().length > 120 ? "…" : ""}`
+              : "Intent was left blank."}
           </li>
           <li>
-            <InlineMetadataLabel label="Outcome" /> {businessOutcome.trim()}
+            <InlineMetadataLabel label="Outcome" />{" "}
+            {businessOutcome.trim().length > 0 ? businessOutcome.trim() : "Outcome was left blank."}
           </li>
-          {systemName.trim() ? (
-            <li>
-              <InlineMetadataLabel label="System" /> {systemName.trim()}
-            </li>
-          ) : null}
+          <li>
+            <InlineMetadataLabel label="System" />{" "}
+            {systemName.trim().length > 0 ? systemName.trim() : "System name was left blank."}
+          </li>
         </ul>
         <EvidenceGapForecastPanel presence={guidedIntakeEvidencePresence} presentation="summary" />
         {confirmedScopeLines.length > 0 ? (

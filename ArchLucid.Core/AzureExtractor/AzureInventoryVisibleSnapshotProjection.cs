@@ -139,6 +139,11 @@ public static class AzureInventoryVisibleSnapshotProjection
             RoleAssignments = snapshot.RoleAssignments,
             Diagnostics = snapshot.Diagnostics,
             DefenderSummaries = snapshot.DefenderSummaries,
+            DefenderPricings = snapshot.DefenderPricings,
+            DefenderScoreControls = snapshot.DefenderScoreControls,
+            DefenderAssessments = snapshot.DefenderAssessments,
+            DefenderAssessmentCounts = snapshot.DefenderAssessmentCounts,
+            DefenderSecurityContacts = snapshot.DefenderSecurityContacts,
         };
     }
 
