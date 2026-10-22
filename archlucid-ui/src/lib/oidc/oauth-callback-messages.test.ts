@@ -682,11 +682,18 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("invalid_state");
   });
 
-  it("humanizes code_verifier_expired authorize callback errors with readable copy", () => {
-    const message = humanizeAuthorizeCallbackError("code_verifier_expired", "");
+  it("humanizes invalid_nonce authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_nonce", "");
 
-    expect(message).toMatch(/code verifier expired/i);
-    expect(message).not.toContain("code_verifier_expired");
+    expect(message).toMatch(/invalid nonce/i);
+    expect(message).not.toContain("invalid_nonce");
+  });
+
+  it("humanizes nonce_replay authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("nonce_replay", "");
+
+    expect(message).toMatch(/nonce replay/i);
+    expect(message).not.toContain("nonce_replay");
   });
 
   it("humanizes invalid_nonce authorize callback errors with readable copy", () => {
