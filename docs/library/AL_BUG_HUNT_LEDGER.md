@@ -21,6 +21,19 @@
 - [ ] (candidate) refreshBffSessionCookie - refresh 491 shouldClearSession false - locus: transient refresh parity.
 - [ ] (candidate) exchangeAuthorizationCode - access_token JSON string soft-hyphen replacement-character and variation-selector-16-only skips authorize retry marker - locus: literal whitespace token shape.
 - [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with ZWJ glue - locus: saturated encoding class.
+2026-10-22 seed hunt (seed->hit): `application-tenancy-lifecycle` - promoted hunt-ready from seed re-read `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` - trial hard purge ran after automation gate without final erasure quarantine re-read, so offboard between gate and `PurgeTenantAsync` could purge quarantined tenants on already-deleted scheduler retries and export-only-to-deleted transitions; pre-purge `IsErasureSupersededAsync` on both purge branches; regressions `TryAdvanceTenantAsync_skips_deleted_hard_purge_when_offboard_completes_after_automation_gate_before_purge` and `TryAdvanceTenantAsync_skips_hard_purge_when_offboard_completes_after_deleted_transition_automation_gate_before_purge`; scoped tenancy filter 284/284.
+
+- [x] (proven) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` - offboard after automation gate before hard purge - **hit 2026-10-22 seed hunt:** pre-purge `IsErasureSupersededAsync`; regressions above.
+- [x] (valid-no-repro) `TrialLifecycleTransitionEngine` - offboard between audit and expiration metric on deleted transition - **cheap-disproof 2026-10-22:** post-audit metric already gated; purge race was the reachable defect (proven above).
+- [x] (valid-no-repro) `TenantErasureCommandService.TryApproveErasureAsync` - restore quarantine between approve atomic and audit - **cheap-disproof 2026-10-22:** pre-approve-audit guard shipped earlier on trunk.
+- [x] (valid-no-repro) `TenantTrialConversionStage.ConvertTrialAsync` - offboard between workspace resolution and audit - **cheap-disproof 2026-10-22:** tenantBeforeAuditAppend guard on trunk.
+- [x] (invalid) `TenantSuspendCommandService` - concurrent suspend/unsuspend audit races - **cheap-disproof 2026-10-22:** saturated pre-append guards.
+
+- [ ] (candidate) `TrialLifecycleTransitionEngine` - offboard between post-audit superseded read and second automation gate on deleted transition - locus: gate ordering (reachability: scheduler).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator` - stage advance without rollback when offboard mid-migration - locus: by design (reachability: quarantine outcome).
+- [ ] (candidate) `TenantProvisioningService.BuildAlreadyProvisionedResultAsync` - side effects on idempotent reprovision - locus: early return without audit (reachability: verify).
+- [ ] (candidate) `TenantDeletionService.DeleteTenantAsync` - offboard during hard purge after approval clear - locus: post-purge reads (reachability: deletion command).
+- [ ] (candidate) `TenantErasureCommandService.TryClearLegalHoldAsync` - hold cleared between tenantBefore reads - locus: saturated guard family (reachability: erasure command).
 
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed state_mismatch authorize-query UX (existing parity) and saturated decodeOAuthErrorDescription ZWJ glue; regression documents BFF refresh 489 parity and object-replacement plus replacement-character-only access_token rejection; scoped vitest 675/675.
 
@@ -1257,7 +1270,7 @@ eadPostSignInReturnUrl - purge zero-width-only return paths on read - locus: ses
 - [x] (invalid) `TenantMigrationProjectionRefreshService` - offboard mid cache invalidation - **cheap-disproof 2026-10-22:** orchestrator guards before/after refresh call.
 - [x] (valid-no-repro) `TenantProvisioningService.BuildAlreadyProvisionedResultAsync` - offboard on idempotent reprovision - **cheap-disproof 2026-10-22:** early return without side effects.
 
-- [ ] (candidate) `TrialLifecycleTransitionEngine` - offboard between audit and expiration metric on deleted transition - locus: purge path post-audit read (reachability: scheduler).
+- [x] (proven) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` - offboard after automation gate before hard purge - **hit 2026-10-22 seed hunt:** pre-purge `IsErasureSupersededAsync` on deleted-status and transition-to-deleted paths; regressions `TryAdvanceTenantAsync_skips_deleted_hard_purge_when_offboard_completes_after_automation_gate_before_purge` and `TryAdvanceTenantAsync_skips_hard_purge_when_offboard_completes_after_deleted_transition_automation_gate_before_purge`.
 - [ ] (candidate) `TenantErasureCommandService.TryApproveErasureAsync` - restore quarantine between approve atomic and audit - locus: beforeApproveAudit read (reachability: erasure command).
 - [ ] (candidate) `TenantTrialConversionStage.ConvertTrialAsync` - offboard between workspace resolution and audit - locus: TryEmit pattern parity (reachability: convert stage).
 - [ ] (candidate) `TenantSuspendCommandService` - concurrent suspend/unsuspend audit races - locus: existing offboard race tests (reachability: saturated).
@@ -70587,7 +70600,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **bugs-found:** 114
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trial welcome preseed IndustryVerticalOther
+- **last-bug:** 2026-10-22 - trial hard purge without pre-purge erasure re-read
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
@@ -70620,11 +70633,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 120
-- **bugs-found:** 105
+- **hunts:** 121
+- **bugs-found:** 106
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ Trial conversion mark on quarantined tenant after conversion metrics
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 - trial hard purge without pre-purge erasure re-read
 
 2026-10-13 seed hunt (seed?hit): reseeded trial conversion post-metrics mark window; proved `MarkTrialConvertedAsync` when offboard followed conversion metrics; pre-mark tenant re-read; regression `ConvertTrialAsync_returns_success_without_mark_when_offboard_completes_after_conversion_metrics_before_mark`; 227 scoped tenancy tests passed.
 
@@ -118439,7 +118452,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **bugs-found:** 114
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trial welcome preseed IndustryVerticalOther
+- **last-bug:** 2026-10-22 - trial hard purge without pre-purge erasure re-read
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
@@ -118472,11 +118485,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 120
-- **bugs-found:** 105
+- **hunts:** 121
+- **bugs-found:** 106
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ Trial conversion mark on quarantined tenant after conversion metrics
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 - trial hard purge without pre-purge erasure re-read
 
 2026-10-13 seed hunt (seed?hit): reseeded trial conversion post-metrics mark window; proved `MarkTrialConvertedAsync` when offboard followed conversion metrics; pre-mark tenant re-read; regression `ConvertTrialAsync_returns_success_without_mark_when_offboard_completes_after_conversion_metrics_before_mark`; 227 scoped tenancy tests passed.
 
@@ -166322,10 +166335,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 120
-- **bugs-found:** 105
+- **hunts:** 121
+- **bugs-found:** 106
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-13
+- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-13 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ Trial conversion mark on quarantined tenant after conversion metrics
 
 2026-10-13 seed hunt (seed?hit): reseeded trial conversion post-metrics mark window; proved `MarkTrialConvertedAsync` when offboard followed conversion metrics; pre-mark tenant re-read; regression `ConvertTrialAsync_returns_success_without_mark_when_offboard_completes_after_conversion_metrics_before_mark`; 227 scoped tenancy tests passed.
@@ -214225,10 +214238,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 120
-- **bugs-found:** 105
+- **hunts:** 121
+- **bugs-found:** 106
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-13
+- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-13 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ Trial conversion mark on quarantined tenant after conversion metrics
 
 2026-10-13 seed hunt (seed?hit): reseeded trial conversion post-metrics mark window; proved `MarkTrialConvertedAsync` when offboard followed conversion metrics; pre-mark tenant re-read; regression `ConvertTrialAsync_returns_success_without_mark_when_offboard_completes_after_conversion_metrics_before_mark`; 227 scoped tenancy tests passed.
