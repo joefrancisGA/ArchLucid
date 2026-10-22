@@ -13,28 +13,23 @@ public static class GraphSnapshotKnowledgeModelMerger
         ArgumentNullException.ThrowIfNull(modelGraph);
 
         List<GraphNode> mergedNodes = [];
-        HashSet<string> mergedNodeIds = new(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, GraphNode> mergedNodeByNormalizedId = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (GraphNode modelNode in modelGraph.Nodes ?? [])
         {
-            string normalizedModelNodeId = NormalizeNodeId(modelNode.NodeId);
-
-            if (mergedNodeIds.Contains(normalizedModelNodeId))
-                continue;
-
-            mergedNodeIds.Add(normalizedModelNodeId);
-            mergedNodes.Add(NormalizeNodeIdWhitespace(modelNode));
+            AddOrCoalesceNode(mergedNodes, mergedNodeByNormalizedId, modelNode);
         }
 
         foreach (GraphNode contextNode in contextGraph.Nodes ?? [])
         {
             string normalizedNodeId = NormalizeNodeId(contextNode.NodeId);
 
-            if (mergedNodeIds.Contains(normalizedNodeId))
+            if (mergedNodeByNormalizedId.ContainsKey(normalizedNodeId))
+            {
                 continue;
+            }
 
-            mergedNodeIds.Add(normalizedNodeId);
-            mergedNodes.Add(NormalizeNodeIdWhitespace(contextNode));
+            AddOrCoalesceNode(mergedNodes, mergedNodeByNormalizedId, contextNode);
         }
 
         Dictionary<string, string> canonicalNodeIdByNormalized = BuildCanonicalNodeIdLookup(mergedNodes);
@@ -81,6 +76,42 @@ public static class GraphSnapshotKnowledgeModelMerger
     }
 
     private static string NormalizeNodeId(string nodeId) => (nodeId ?? string.Empty).Trim();
+
+    private static void AddOrCoalesceNode(
+        List<GraphNode> mergedNodes,
+        Dictionary<string, GraphNode> mergedNodeByNormalizedId,
+        GraphNode candidate)
+    {
+        GraphNode node = NormalizeNodeIdWhitespace(candidate);
+        string normalizedNodeId = NormalizeNodeId(node.NodeId);
+
+        if (mergedNodeByNormalizedId.TryGetValue(normalizedNodeId, out GraphNode? existing))
+        {
+            CoalesceGraphNode(existing, node);
+            return;
+        }
+
+        mergedNodeByNormalizedId[normalizedNodeId] = node;
+        mergedNodes.Add(node);
+    }
+
+    private static void CoalesceGraphNode(GraphNode existing, GraphNode incoming)
+    {
+        if (!string.IsNullOrWhiteSpace(incoming.Label))
+        {
+            existing.Label = incoming.Label;
+        }
+
+        if (!string.IsNullOrWhiteSpace(incoming.NodeType))
+        {
+            existing.NodeType = incoming.NodeType;
+        }
+
+        if (!string.IsNullOrWhiteSpace(incoming.Category))
+        {
+            existing.Category = incoming.Category;
+        }
+    }
 
     private static GraphNode NormalizeNodeIdWhitespace(GraphNode node)
     {

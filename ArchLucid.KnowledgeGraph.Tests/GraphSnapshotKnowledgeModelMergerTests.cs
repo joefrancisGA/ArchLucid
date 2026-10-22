@@ -194,6 +194,56 @@ public sealed class GraphSnapshotKnowledgeModelMergerTests
     }
 
     [Fact]
+    public void Merge_uses_last_non_empty_model_label_when_model_lists_duplicate_node_ids()
+    {
+        GraphSnapshot contextGraph = new()
+        {
+            Nodes = [],
+        };
+
+        GraphSnapshot modelGraph = new()
+        {
+            GraphSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            Nodes =
+            [
+                new GraphNode { NodeId = "shared", NodeType = "model", Label = string.Empty },
+                new GraphNode { NodeId = "shared", NodeType = "model", Label = "model-shared" },
+            ],
+        };
+
+        GraphSnapshot merged = GraphSnapshotKnowledgeModelMerger.Merge(contextGraph, modelGraph);
+
+        merged.Nodes.Should().ContainSingle(node =>
+            node.NodeId == "shared"
+            && node.Label == "model-shared");
+    }
+
+    [Fact]
+    public void Merge_preserves_context_label_when_later_duplicate_context_row_omits_label()
+    {
+        GraphSnapshot contextGraph = new()
+        {
+            Nodes =
+            [
+                new GraphNode { NodeId = "shared", NodeType = "context", Label = "context-shared" },
+                new GraphNode { NodeId = "shared", NodeType = "context", Label = string.Empty },
+            ],
+        };
+
+        GraphSnapshot modelGraph = new()
+        {
+            GraphSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            Nodes = [],
+        };
+
+        GraphSnapshot merged = GraphSnapshotKnowledgeModelMerger.Merge(contextGraph, modelGraph);
+
+        merged.Nodes.Should().ContainSingle(node =>
+            node.NodeId == "shared"
+            && node.Label == "context-shared");
+    }
+
+    [Fact]
     public void Merge_deduplicates_context_edges_when_endpoints_differ_only_by_outer_whitespace()
     {
         GraphSnapshot contextGraph = new()
