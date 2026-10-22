@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed verification_required authorize-query UX, BFF refresh 437 parity, and saturated decodeOAuthErrorDescription regional-indicator glue; regression documents authorize-retry is marked when authorization code exchange returns tab-only access_token; scoped vitest 545/545.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - verification_required authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 437 shouldClearSession false - **regression 2026-10-22:** transient refresh soft-fail without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string tab-only skips authorize retry marker - **regression 2026-10-22:** tab-only tokens reject exchange and set retry marker.
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with regional-indicator glue - **cheap-disproof 2026-10-22:** saturated encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - mfa_required authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 438 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string newline-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with regional-indicator glue - locus: saturated JSON encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed user_cancelled authorize-query UX, BFF refresh 436 parity, and saturated readOAuthJsonErrorDescription skin-tone modifier glue; regression documents authorize-retry is marked when authorization code exchange returns whitespace-only access_token (existing parity test); scoped vitest 542/542.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - user_cancelled authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
@@ -21,30 +33,6 @@
 - [ ] (candidate) refreshBffSessionCookie - refresh 436 shouldClearSession false - locus: transient refresh parity.
 - [ ] (candidate) exchangeAuthorizationCode - access_token JSON string whitespace-only skips authorize retry marker - locus: literal whitespace token shape.
 - [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with skin-tone modifier glue - locus: saturated JSON encoding class.
-2026-10-22 seed hunt (seed->hit): `application-tenancy-lifecycle` - promoted hunt-ready from seed re-read `TenantErasureCommandService.TryClearLegalHoldAsync` - legal hold cleared platform audit appended after two pre-audit tenant reads without a final re-read, so hold re-applied between `tenantBeforeClearAudit` and audit could emit `TenantErasureLegalHoldCleared` while a hold is active again; pre-append `GetByIdAsync` hold-reapplied and offboard guards; regression `TryClearLegalHoldAsync_returns_success_without_audit_when_legal_hold_reapplied_after_tenant_before_clear_audit_read_before_audit`; scoped tenancy filter 264/264.
-
-- [x] (proven) `TryClearLegalHoldAsync` - hold re-applied after tenantBeforeClearAudit read before clear audit - **hit 2026-10-22 seed hunt:** fifth pre-append re-read + hold guard; regression above.
-- [x] (valid-no-repro) `TryClearLegalHoldAsync` - hold re-applied after pre-clear audit read - **cheap-disproof 2026-10-22:** existing four-read regression on trunk.
-- [x] (valid-no-repro) `DeleteTenantAsync` - active legal hold after pre-deletion audit append read - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
-- [x] (valid-no-repro) `TryClearLegalHoldAsync` - offboard after pre-clear audit read - **cheap-disproof 2026-10-22:** existing regression on trunk.
-- [x] (invalid) `TryClearLegalHoldAsync` - hold already cleared on entry - **cheap-disproof 2026-10-22:** idempotent true without audit by design.
-
-- [ ] (candidate) `TrySetLegalHoldAsync` - hold cleared after tenantBeforeSetAudit read before set audit - locus: fifth pre-append read gap (reachability: erasure command).
-- [ ] (candidate) `TrySetLegalHoldAsync` - quarantine restored after tenantBeforeSetAudit read - locus: saturated set-hold path (reachability: erasure command).
-- [ ] (candidate) `DeleteTenantAsync` - erasure approval cleared after fourth pre-append read - locus: saturated deletion path (reachability: admin delete job).
-- [ ] (candidate) `TrialLifecycleTransitionEngine` - offboard between audit and expiration metric - locus: post-audit superseded read (reachability: saturated).
-- [ ] (candidate) `TenantCatalogMigrationOrchestrator.StartAsync` - offboard after insert before started audit - locus: existing regression (reachability: saturated).
-2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed use_second_factor authorize-query UX, BFF refresh 435 parity (client + route opaque 435), and saturated decodeOAuthErrorDescription skin-tone multiply-encoded glue; regression documents authorize-retry is not marked when authorization code exchange returns empty-object-string access_token; scoped vitest 587/587.
-
-- [x] (invalid) humanizeAuthorizeCallbackError - use_second_factor authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
-- [x] (valid-no-repro) refreshBffSessionCookie - refresh 435 shouldClearSession false - **regression 2026-10-22:** client soft-fail plus BFF route opaque 435 without cookie clear.
-- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string empty object literal skips authorize retry marker - **regression 2026-10-22:** literal brace-string tokens are valid (retry marker not set).
-- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with skin-tone modifier glue - **cheap-disproof 2026-10-22:** saturated encoding class.
-
-- [ ] (candidate) humanizeAuthorizeCallbackError - second_factor_required authorize-query copy - locus: default branch UX.
-- [ ] (candidate) refreshBffSessionCookie - refresh 436 shouldClearSession false - locus: transient refresh parity.
-- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string whitespace-only skips authorize retry marker - locus: literal space token shape.
-- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with pictograph glue - locus: saturated JSON encoding class.
 
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_dpop_proof authorize-query UX, BFF refresh 434 parity, and saturated readOAuthJsonErrorDescription ZWJ glue; regression documents authorize-retry is not marked when authorization code exchange returns empty-array-string access_token; scoped vitest 537/537.
 
@@ -26337,14 +26325,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: ui-oidc
 
 - **id:** ui-oidc
-- **hunts:** 99
-- **hunts:** 98
-- **hunts:** 97
-- **hunts:** 96
-- **hunts:** 95
-- **hunts:** 94
-- **hunts:** 93
-- **hunts:** 92
 - **status:** open
 - **impact:** high
 - **aliases:** oidc authority; sign-in routing; OIDC host
