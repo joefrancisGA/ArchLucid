@@ -7,11 +7,11 @@
 - [x] (valid-no-repro) `initiateOidcRedirect` / `initiateSupplementalOidcRedirect` — supplemental Google vs primary PKCE ordering — **cheap-disproof 2026-10-22 seed hunt:** intentional cross-flow `clearPkceState` on successful redirect; `initiate-redirect.test.ts`.
 - [x] (valid-no-repro) `buildAuthorizeUrl` — B2C `p=` policy query key collision with ArchLucid params — **cheap-disproof 2026-10-22 seed hunt:** `searchParams.set` overwrites stale keys; retains `p`; `build-authorize-url.test.ts`.
 
-- [ ] (candidate) `readOAuthErrorString` — token JSON `error` field with interior ZWNJ may not normalize before readability gate — locus: `token-client.ts`; input: token endpoint `{ "error": "invalid\u200cgrant" }` (reachability: IdP mis-encoded JSON).
-- [ ] (candidate) `discoveryUrlForAuthority` — configured authority with embedded userinfo builds discovery fetch URL with credentials — locus: `discovery.ts`; input: `NEXT_PUBLIC_OIDC_AUTHORITY=https://user:pass@idp.example` (reachability: misconfiguration).
-- [ ] (candidate) `normalizeOAuthErrorCode` — ZWJ-only glue between Regional Indicator flag sequences in error codes — locus: error code normalization; input: flag emoji error codes from IdP (may be intentional no-op).
-- [ ] (candidate) `ensureAccessTokenFresh` — identity hints present with `expires_at_ms` exactly `Date.now()` at skew boundary — locus: `EXPIRY_SKEW_MS` compare; input: refresh fires once per tick at boundary (timing flake class).
-- [ ] (candidate) `exchangeAuthorizationCode` — invisible characters inside `code` query value forwarded to token POST — locus: `trimTokenFormParams`; input: callback `code` with ZWSP interior (reachability: IdP never emits; strip at edges only today).
+- [x] (valid-no-repro) `readOAuthErrorString` — interior ZWNJ in token JSON `error` — **cheap-disproof 2026-10-22 seed hunt:** `readOAuthErrorString` calls `normalizeOAuthErrorCode` (same path as authorize query).
+- [x] (valid-no-repro) `discoveryUrlForAuthority` — authority userinfo — **cheap-disproof 2026-10-22 seed hunt:** discovery URL uses `parsed.origin`, which omits embedded credentials from the fetch target.
+- [x] (invalid) `normalizeOAuthErrorCode` — ZWJ between regional indicators — **cheap-disproof 2026-10-22 seed hunt:** emoji error codes are not standard OAuth `error` values; readable-detail guards apply.
+- [x] (invalid) `ensureAccessTokenFresh` — skew boundary timing — **cheap-disproof 2026-10-22 seed hunt:** not hunt-ready (timing flake / environmental).
+- [x] (valid-no-repro) `exchangeAuthorizationCode` — interior ZWSP in `code` — **cheap-disproof 2026-10-22 seed hunt:** `trimTokenFormParams` uses `stripOAuthInvisibleFormatChars` on the full code string.
 2026-10-21 thorough hunt (dry, lane C): `api-governance-tenancy-controllers` — lock `api-governance-tenancy-controllers` pushed and verified on `origin/bugsmash` before work (`dee13d7e5c` content after push; lane C `2026-10-21T17:03:47Z`); skipped `ui-*` zones (lane B URL helper sweep); selected least-recent unlocked non-UI zone with open candidate rows (`2026-10-21T02:33:42Z`); exercised zone-head sealed-manifest / tenancy candidates — risk revoke/renew and recurrence already delegate to `EnsureGovernanceDispositionRunSealedManifestAllowedAsync` (null manifest-compare detail skips guard); pre-commit checklist loads `IRunRepository` before sealed guard (404 before 409); approval lineage guard returns null when approval missing; project delete audit uses `User?.Identity?.Name ?? actorUserId`; scoped stickiness not-found/sealed regressions **9/9**; no new defect.
 
 - [x] (valid-no-repro) `GovernanceStickinessController` revoke/renew risk exception sealed guard — **cheap-disproof 2026-10-21 lane C:** same null-detail skip as create/recurrence (2026-10-20/21 hits).
@@ -25267,11 +25267,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `consumePkceState` — authorize callback `?error=` left PKCE until next initiate and dropped return on retry — **hit 2026-10-22 seed hunt:** `markAuthorizeCallbackFailed` + `consumeAuthorizeCallbackFailedRetry`; regressions above.
 
-- [ ] (candidate) `CallbackClient` — incomplete callback (`?code=` without `state`) leaves PKCE keys until the next initiate — locus: missing-parameter branch before `consumePkceState`; input: malformed callback URL; reachability: bookmarked or truncated redirect.
-- [ ] (candidate) `ensureAccessTokenFresh` — rejected refresh with `shouldClearSession: false` on malformed `expires_at_ms` leaves identity hints while access is expired — locus: `refreshBffSessionCookie` ok:false non-401 branch; input: refresh JSON with stale numeric hint; reachability: clock skew + proxy bug.
-- [ ] (candidate) `buildAuthorizeUrl` — `response_mode` query not pinned for providers that default to fragment — locus: authorize URL builder; input: IdP that returns tokens in fragment on misconfigured SPA; reachability: provider-specific discovery metadata.
-- [ ] (candidate) `pulseBffSessionActivity` — `ignored` on non-401 errors during presenter keepalive may let server idle out while client thinks session is warm — locus: activity pulse status mapping; input: BFF activity route 503 during export; reachability: LK-07 keepalive loop.
-- [ ] (candidate) `getOidcPostLogoutRedirectUri` — relative env override without scheme may diverge from discovery `end_session_endpoint` post_logout redirect registration — locus: config normalization; input: `NEXT_PUBLIC_OIDC_POST_LOGOUT_REDIRECT_URI=/` only; reachability: deployment env.
+
+- [x] (valid-no-repro) `ensureAccessTokenFresh` — rejected refresh with malformed `expires_at_ms` — **cheap-disproof 2026-10-22 seed hunt:** intentional soft-fail without session clear when refresh body is not 401/403.
+- [x] (invalid) `buildAuthorizeUrl` — `response_mode` not pinned — **cheap-disproof 2026-10-22 seed hunt:** authorization code + PKCE flow requires query `code`; fragment mode is out of scope for this SPA.
+- [x] (valid-no-repro) `pulseBffSessionActivity` — non-401 errors return `ignored` — **cheap-disproof 2026-10-22 seed hunt:** best-effort keepalive; client idle UX still runs.
+- [x] (valid-no-repro) `getOidcPostLogoutRedirectUri` — relative env override — **cheap-disproof 2026-10-22 seed hunt:** deployment must register absolute post-logout URIs; relative `/` is normalized same-origin when window exists.
+
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `CallbackClient` incomplete authorize callback — `?state=` without `code` failed before `consumePkceState`, so PKCE lingered and a `/auth/signin` retry without `returnUrl` cleared the post-sign-in return path; incomplete callbacks now consume matching PKCE (when `state` is present), call `markAuthorizeCallbackFailed`, and reuse the authorize-error retry preserve path; regressions `consumes PKCE and marks authorize failure when the callback is missing the authorization code` and `preserves post-sign-in return path when retrying after an incomplete authorize callback`; scoped `src/lib/oidc` + `CallbackClient` vitest 334/334.
+
+- [x] (proven) `CallbackClient` — incomplete callback left PKCE and dropped return on retry — **hit 2026-10-22 seed hunt:** parity with OAuth `?error=` cleanup; regressions above.
+
+- [ ] (candidate) `CallbackClient` — callback with `code` but missing `state` cannot consume PKCE yet still marks authorize failure — locus: incomplete branch; input: truncated redirect drops `state`; reachability: proxy strips query param.
+- [ ] (candidate) `readOAuthJsonErrorDescription` — token JSON `error_description` with soft hyphen word breaks may collapse differently than authorize query copy — locus: `oauth-callback-messages.ts`; input: `error_description` with `\u00AD` (reachability: token endpoint JSON).
+- [ ] (candidate) `getOidcRedirectUri` — window-less SSR path returns empty redirect URI while client path uses `window.location.origin` — locus: `config.ts`; input: initiate called during SSR guard (reachability: no production caller).
+- [ ] (candidate) `randomOpaqueState` — 16-byte state entropy vs dual-flow storage collision — locus: `pkce.ts`; input: misconfigured parallel flows (documented invalid).
+- [ ] (candidate) `clearOidcSession` — void `clearBffSessionCookie` vs in-flight `syncTokenToBff` — locus: sign-out ordering; input: sign-out during token persist (covered by generation guards).
 
 ## Zone: ui-oidc
 
@@ -25281,11 +25291,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 87
-- **bugs-found:** 80
+- **hunts:** 88
+- **bugs-found:** 81
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — authorize callback OAuth error dropped return on retry
+- **last-bug:** 2026-10-22 — incomplete authorize callback dropped return on retry
 - **hunts:** 78
 - **bugs-found:** 72
 - **consecutive-dry-hunts:** 0

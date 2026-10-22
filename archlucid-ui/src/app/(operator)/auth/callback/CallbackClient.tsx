@@ -120,6 +120,11 @@ export function CallbackClient() {
     }
 
     if (!code || !state) {
+      if (state) {
+        consumePkceState(state);
+      }
+
+      markAuthorizeCallbackFailed();
       fail("We did not receive a complete response from your identity provider. Start sign-in again.");
 
       return () => {

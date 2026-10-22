@@ -135,7 +135,20 @@ describe("CallbackClient", () => {
     expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
   });
 
-  it("shows the access panel when the callback is missing required parameters", async () => {
+  it("consumes PKCE and marks authorize failure when the callback is missing the authorization code", async () => {
+    searchParamsMock.value = new URLSearchParams({ state: "primary-state" });
+
+    render(<CallbackClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-callback-access-panel")).toBeInTheDocument();
+    });
+
+    expect(consumePkceState).toHaveBeenCalledWith("primary-state");
+    expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
+  });
+
+  it("marks authorize failure when the callback is missing required parameters", async () => {
     searchParamsMock.value = new URLSearchParams();
     vi.mocked(consumePkceState).mockReturnValueOnce(null);
 
@@ -145,6 +158,7 @@ describe("CallbackClient", () => {
       expect(screen.getByTestId("auth-callback-access-panel")).toBeInTheDocument();
     });
 
+    expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
     expect(screen.getByRole("heading", { level: 1, name: AUTH_CALLBACK_ACCESS_HEADING })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Try again" })).toHaveAttribute("href", "/auth/signin");
     expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
