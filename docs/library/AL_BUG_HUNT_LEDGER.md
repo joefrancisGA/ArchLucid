@@ -45,6 +45,17 @@
 - [ ] (candidate) refreshBffSessionCookie - refresh 461 shouldClearSession false - locus: transient refresh parity.
 - [ ] (candidate) exchangeAuthorizationCode - access_token JSON string soft-hyphen-only skips authorize retry marker - locus: literal whitespace token shape.
 - [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with thin-space glue - locus: saturated encoding class.
+2026-10-22 seed hunt (seed->hit): `application-tenancy-lifecycle` - promoted hunt-ready from seed re-read `TenantSuspendCommandService.TrySuspendAsync` and `TryUnsuspendAsync` - tenant suspended/unsuspended platform audits appended after `tenantBeforeSuspendAudit` / `tenantBeforeUnsuspendAudit` without a final re-read, so erasure offboard between that read and audit could emit `TenantSuspended` / `TenantUnsuspended` for quarantined tenants; pre-append `GetByIdAsync` offboard guards; regressions `TrySuspendAsync_returns_quarantine_without_audit_when_offboard_completes_after_tenant_before_suspend_audit_read_before_audit` and `TryUnsuspendAsync_returns_quarantine_without_audit_when_offboard_completes_after_tenant_before_unsuspend_audit_read_before_audit`; StartAsync migration race mocks +1 active read for suspend pre-append; scoped tenancy filter 274/274.
+
+- [x] (proven) `TrySuspendAsync` - offboard after tenantBeforeSuspendAudit read before suspended audit - **hit 2026-10-22 seed hunt:** `tenantBeforeSuspendAuditAppend` re-read + offboard guard; suspend regression above.
+- [x] (proven) `TryUnsuspendAsync` - offboard after tenantBeforeUnsuspendAudit read before unsuspended audit - **hit 2026-10-22 seed hunt:** `tenantBeforeUnsuspendAuditAppend` re-read + offboard guard; unsuspend regression above.
+- [x] (valid-no-repro) `TrySuspendAsync` - offboard after post-suspend read before audit - **cheap-disproof 2026-10-22:** existing three-read regression on trunk.
+- [x] (valid-no-repro) `TryUnsuspendAsync` - offboard after post-unsuspend read before audit - **cheap-disproof 2026-10-22:** existing three-read regression on trunk.
+
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.AcknowledgeCatalogAttachDetachAsync` - offboard after pre-audit read before attach audit - locus: saturated acknowledge path (reachability: saturated).
+- [ ] (candidate) `TrialLifecycleTransitionEngine` - offboard between audit and expiration metric - locus: post-audit superseded read (reachability: saturated).
+- [ ] (candidate) `TenantErasureCommandService` - consolidate pre-append audit re-read helpers - locus: refactor batch (not hunt-ready defect).
+- [ ] (candidate) `DeleteTenantAsync` - further pre-append read stacking - locus: defer to helper refactor (reachability: low).
 
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed pkce_verification_failed authorize-query UX, BFF refresh 459 parity, and saturated decodeOAuthErrorDescription hair-space glue; regression documents authorize-retry is marked when authorization code exchange returns zero-width-non-joiner-only access_token; scoped vitest 610/610.
 
