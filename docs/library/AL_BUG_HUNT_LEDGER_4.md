@@ -12470,8 +12470,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 206
-- **bugs-found:** 170
+- **hunts:** 207
+- **bugs-found:** 171
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-overlay rebind deduped parallel edges separately when EdgeType differed only by whitespace
 - **related-pd-tb:** none
@@ -12593,7 +12593,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — warnings-only overlay payloads dropped overlay warnings — **hit 2026-10-22 seed hunt (seed→hit):** merge warnings without nodes/edges; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder` — diagram node id remap lookup may miss padded bound diagram node ids — locus: rebind remap dictionary keyed without trim-aware lookup parity; input: inventory overlay nodes cite padded `BoundDiagramNodeId` values; wrong outcome: diagram rebind fails to remap connectivity to canonical diagram ids.
+2026-10-22 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder` padded diagram node id remap lookup candidate; proved leftover diagram detection used raw `NodeId.StartsWith("diagram-node:")` and remap keys used unpadded dictionary entries inconsistently with trim-aware `RemapEndpoint`, so padded `diagram-node:*` ids skipped rebind and left stale connectivity; trim diagram node ids for leftover detection, remap keys, and binding stamps; regression `Rebind_remaps_leftover_diagram_node_when_diagram_node_id_has_surrounding_whitespace`; seeded `StructuredDiagramCompiledGraphBinder.RemapEndpoint` padded diagram endpoint trim parity follow-on; 499 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder` — padded diagram node ids missed rebind remap lookup — **hit 2026-10-22 seed hunt (seed→hit):** trim diagram node ids on rebind; regression above.
+
+- [ ] (candidate) `StructuredDiagramCompiledGraphBinder.RemapEndpoint` — canonical bind edge remap may miss padded `diagram-node:*` endpoints — locus: compile-time edge remap dictionary lookup without trim-aware endpoint parity; input: compiled diagram edges reference padded diagram node ids; wrong outcome: bind step leaves diagram endpoints on edges after canonical binding.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 

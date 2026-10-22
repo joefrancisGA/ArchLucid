@@ -106,6 +106,49 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
     }
 
     [Fact]
+    public void Rebind_remaps_leftover_diagram_node_when_diagram_node_id_has_surrounding_whitespace()
+    {
+        GraphSnapshot overlay = BuildOverlayNode(label: "pay-sql-prod", armResourceId: ArmResourceId);
+        string cloudNodeId = CloudResourceId.ToString("D");
+        const string PaddedDiagramNodeId = "  diagram-node:sql  ";
+
+        GraphSnapshot merged = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                BuildDiagramNode(PaddedDiagramNodeId, "pay-sql-prod"),
+                overlay.Nodes[0],
+                new GraphNode
+                {
+                    NodeId = "context-node",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "Context",
+                },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "e1",
+                    FromNodeId = PaddedDiagramNodeId,
+                    ToNodeId = "context-node",
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                },
+            ],
+        };
+
+        GraphSnapshot rebound = ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
+            .RebindLeftoverDiagramNodes(merged, overlay);
+
+        rebound.Nodes.Should().NotContain(node => node.NodeId.Trim().StartsWith("diagram-node:", StringComparison.Ordinal));
+        rebound.Edges.Should().ContainSingle(edge =>
+            edge.FromNodeId == cloudNodeId && edge.ToNodeId == "context-node");
+    }
+
+    [Fact]
     public void Rebind_remaps_diagram_edge_when_from_endpoint_has_surrounding_whitespace()
     {
         GraphSnapshot overlay = BuildOverlayNode(label: "pay-sql-prod", armResourceId: ArmResourceId);

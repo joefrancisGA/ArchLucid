@@ -55,10 +55,11 @@ public static class ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
                 continue;
             }
 
-            diagramNodeIdRemap[node.NodeId] = boundTarget.NodeId;
+            string diagramGraphNodeId = node.NodeId.Trim();
+            diagramNodeIdRemap[diagramGraphNodeId] = boundTarget.NodeId;
             bindings.Add(new StructuredDiagramCanonicalBinding
             {
-                DiagramGraphNodeId = node.NodeId,
+                DiagramGraphNodeId = diagramGraphNodeId,
                 DiagramSourceId = diagramSourceId,
                 CanonicalGraphNodeId = boundTarget.NodeId,
                 SourceEvidenceItemId = TryReadSourceEvidenceItemId(node),
@@ -130,7 +131,7 @@ public static class ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
 
     private static bool IsLeftoverDiagramTopologyNode(GraphNode node)
     {
-        return node.NodeId.StartsWith("diagram-node:", StringComparison.Ordinal);
+        return node.NodeId.Trim().StartsWith("diagram-node:", StringComparison.Ordinal);
     }
 
     private static string? TryReadSourceEvidenceItemId(GraphNode diagramNode)
