@@ -336,6 +336,7 @@ public static class GraphSnapshotCanonicalFingerprint
             .Replace('\u2216', '/')
             .Replace('\u2571', '/')
             .Replace('\u2572', '/')
+            .Replace('\u29F8', '/')
             .Replace('\uFE68', '/')
             .Replace('\uFF0F', '/')
             .Replace('\uFF3C', '/');
@@ -347,6 +348,7 @@ public static class GraphSnapshotCanonicalFingerprint
             return value;
 
         return value
+            .Replace('\u3002', '.')
             .Replace('\uFF0E', '.')
             .Replace('\uFE52', '.');
     }

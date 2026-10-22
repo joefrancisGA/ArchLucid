@@ -7157,6 +7157,66 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_file_name_differs_only_by_ideographic_full_stop_parent_segment()
+    {
+        ClosedLoopReasoningRequest ascii = CreateRequest("Same body.");
+        ascii.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/acme/../reviews/overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest homoglyph = CreateRequest("Same body.");
+        homoglyph.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/acme/\u3002\u3002/reviews/overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(ascii).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(homoglyph).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_file_name_differs_only_by_big_solidus_slash()
+    {
+        ClosedLoopReasoningRequest ascii = CreateRequest("Same body.");
+        ascii.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/architecture/overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest bigSolidus = CreateRequest("Same body.");
+        bigSolidus.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs\u29F8architecture\u29F8overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(ascii).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(bigSolidus).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_file_name_differs_only_by_box_drawings_slash()
     {
         ClosedLoopReasoningRequest ascii = CreateRequest("Same body.");
@@ -7951,6 +8011,84 @@ public sealed class ReviewCacheManifestBuilderTests
         ReviewCacheManifestBuilder.Build(slashKey).ContentHash
             .Should()
             .Be(ReviewCacheManifestBuilder.Build(encodedKey).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_element_provenance_passage_artifact_id_differs_only_by_big_solidus_slash()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-passage-artifact-big-solidus";
+
+        ArchitectureKnowledgeModel ascii = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator
+                        {
+                            ArtifactId = "docs/architecture/overview.md",
+                        },
+                    },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel bigSolidus = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator
+                        {
+                            ArtifactId = "docs\u29F8architecture\u29F8overview.md",
+                        },
+                    },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, ascii).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, bigSolidus).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_element_id_differs_only_by_ideographic_full_stop_parent_segment()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-element-id-ideographic-dot";
+
+        ArchitectureKnowledgeModel ascii = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements = [new ArchitectureModelElement { ElementId = "docs/acme/../reviews/gateway", Name = "API" }],
+        };
+
+        ArchitectureKnowledgeModel homoglyph = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements = [new ArchitectureModelElement { ElementId = "docs/acme/\u3002\u3002/reviews/gateway", Name = "API" }],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, ascii).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, homoglyph).ContentHash);
     }
 
     [Fact]
