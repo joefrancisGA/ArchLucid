@@ -74,6 +74,33 @@ function shouldConsumeAuthorizeRetryForReturnUrl(returnUrl: string): boolean {
   return priorComparable !== newComparable;
 }
 
+function handleInitiateDiscoveryFailure(options: {
+  storedReturnUrlThisAttempt: boolean;
+  preservingAuthorizeCallbackRetry: boolean;
+  returnUrl?: string;
+}): void {
+  const { storedReturnUrlThisAttempt, preservingAuthorizeCallbackRetry, returnUrl } = options;
+
+  if (storedReturnUrlThisAttempt) {
+    const keepAuthorizeRetryReturnPath =
+      preservingAuthorizeCallbackRetry &&
+      returnUrl !== undefined &&
+      !shouldConsumeAuthorizeRetryForReturnUrl(returnUrl);
+
+    if (keepAuthorizeRetryReturnPath) {
+      markAuthorizeCallbackFailed();
+    } else {
+      clearPostSignInReturnUrl();
+    }
+
+    return;
+  }
+
+  if (preservingAuthorizeCallbackRetry) {
+    markAuthorizeCallbackFailed();
+  }
+}
+
 /**
  * Builds the IdP authorization URL and navigates the browser to it.
  * Stores PKCE state and an optional post-sign-in return URL before redirecting.
@@ -94,17 +121,14 @@ export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
   storePkceState(state, verifier, nonce, "primary");
 
   let storedReturnUrlThisAttempt = false;
-  let consumedAuthorizeCallbackRetry = false;
   const preservingAuthorizeCallbackRetry = hasAuthorizeCallbackFailedRetry();
 
   if (returnUrl !== undefined && isSafeReturnPath(returnUrl)) {
-    const consumeAuthorizeRetryMarker = shouldConsumeAuthorizeRetryForReturnUrl(returnUrl);
-
     storePostSignInReturnUrl(returnUrl);
     storedReturnUrlThisAttempt = true;
 
-    if (consumeAuthorizeRetryMarker) {
-      consumedAuthorizeCallbackRetry = consumeAuthorizeCallbackFailedRetry();
+    if (shouldConsumeAuthorizeRetryForReturnUrl(returnUrl)) {
+      consumeAuthorizeCallbackFailedRetry();
     }
   } else if (readPkceState("google") === null) {
     if (!preservingAuthorizeCallbackRetry) {
@@ -119,13 +143,17 @@ export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
   } catch (error) {
     clearPkceState("primary");
 
-    if (storedReturnUrlThisAttempt && preservingAuthorizeCallbackRetry && !consumedAuthorizeCallbackRetry) {
-      markAuthorizeCallbackFailed();
-    } else if (storedReturnUrlThisAttempt) {
-      clearPostSignInReturnUrl();
-    } else if (preservingAuthorizeCallbackRetry) {
-      markAuthorizeCallbackFailed();
-    } else if (readPkceState("google") === null) {
+    handleInitiateDiscoveryFailure({
+      storedReturnUrlThisAttempt,
+      preservingAuthorizeCallbackRetry,
+      returnUrl,
+    });
+
+    if (
+      !storedReturnUrlThisAttempt &&
+      !preservingAuthorizeCallbackRetry &&
+      readPkceState("google") === null
+    ) {
       clearAbandonedPostSignInReturnUrl();
     }
 
@@ -174,17 +202,14 @@ export async function initiateSupplementalOidcRedirect(
   storePkceState(state, verifier, nonce, "google");
 
   let storedReturnUrlThisAttempt = false;
-  let consumedAuthorizeCallbackRetry = false;
   const preservingAuthorizeCallbackRetry = hasAuthorizeCallbackFailedRetry();
 
   if (returnUrl !== undefined && isSafeReturnPath(returnUrl)) {
-    const consumeAuthorizeRetryMarker = shouldConsumeAuthorizeRetryForReturnUrl(returnUrl);
-
     storePostSignInReturnUrl(returnUrl);
     storedReturnUrlThisAttempt = true;
 
-    if (consumeAuthorizeRetryMarker) {
-      consumedAuthorizeCallbackRetry = consumeAuthorizeCallbackFailedRetry();
+    if (shouldConsumeAuthorizeRetryForReturnUrl(returnUrl)) {
+      consumeAuthorizeCallbackFailedRetry();
     }
   } else if (readPkceState("primary") === null) {
     if (!preservingAuthorizeCallbackRetry) {
@@ -199,13 +224,17 @@ export async function initiateSupplementalOidcRedirect(
   } catch (error) {
     clearPkceState("google");
 
-    if (storedReturnUrlThisAttempt && preservingAuthorizeCallbackRetry && !consumedAuthorizeCallbackRetry) {
-      markAuthorizeCallbackFailed();
-    } else if (storedReturnUrlThisAttempt) {
-      clearPostSignInReturnUrl();
-    } else if (preservingAuthorizeCallbackRetry) {
-      markAuthorizeCallbackFailed();
-    } else if (readPkceState("primary") === null) {
+    handleInitiateDiscoveryFailure({
+      storedReturnUrlThisAttempt,
+      preservingAuthorizeCallbackRetry,
+      returnUrl,
+    });
+
+    if (
+      !storedReturnUrlThisAttempt &&
+      !preservingAuthorizeCallbackRetry &&
+      readPkceState("primary") === null
+    ) {
       clearAbandonedPostSignInReturnUrl();
     }
 
