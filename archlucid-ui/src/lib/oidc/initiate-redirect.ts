@@ -117,6 +117,11 @@ export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
   let storedReturnUrlThisAttempt = false;
   const preservingAuthorizeCallbackRetry = hasAuthorizeCallbackFailedRetry();
 
+  if (preservingAuthorizeCallbackRetry) {
+    // Drop tampered legacy absolute return URLs without clearing authorize-retry state.
+    readPostSignInReturnUrl();
+  }
+
   if (returnUrl !== undefined && isSafeReturnPath(returnUrl)) {
     const consumeAuthorizeRetryMarker = shouldConsumeAuthorizeRetryForReturnUrl(returnUrl);
 
@@ -198,6 +203,10 @@ export async function initiateSupplementalOidcRedirect(
 
   let storedReturnUrlThisAttempt = false;
   const preservingAuthorizeCallbackRetry = hasAuthorizeCallbackFailedRetry();
+
+  if (preservingAuthorizeCallbackRetry) {
+    readPostSignInReturnUrl();
+  }
 
   if (returnUrl !== undefined && isSafeReturnPath(returnUrl)) {
     const consumeAuthorizeRetryMarker = shouldConsumeAuthorizeRetryForReturnUrl(returnUrl);

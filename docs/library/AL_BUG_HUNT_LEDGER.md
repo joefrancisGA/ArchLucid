@@ -1,3 +1,4 @@
+2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `initiateOidcRedirect` / `initiateSupplementalOidcRedirect` - authorize-retry sign-in skipped `clearAbandonedPostSignInReturnUrl` so tampered absolute sessionStorage return URLs lingered; purge unsafe stored paths via `readPostSignInReturnUrl` when retry is pending without clearing the retry marker; regression `purges a tampered unsafe post-sign-in return URL when authorize retry is pending`; parity `authorization_pending` code-exchange authorize-retry marker; scoped `src/lib/oidc` + BFF refresh route vitest 448/448.
 2026-10-22 seed hunt (seed-only): ui-oidc - no new hunt-ready product defect; cheap-disproof closed zone-head (candidate) rows (
 eadPostSignInReturnUrl already purges unsafe/ZWSP-only keys on read, clearAbandonedPostSignInReturnUrl intentional raw getItem for idle desk, UX-only humanize copy); parity regressions zero-width-only return URL read/consume authorize-retry policy and slow_down code-exchange authorize-retry marking; scoped vitest 432/432.
 
@@ -25796,8 +25797,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 83
-- **bugs-found:** 76
+- **hunts:** 87
+- **bugs-found:** 78
 - **consecutive-dry-hunts:** 0
 2026-10-22 seed hunt (seed-only): `ui-oidc` - no new hunt-ready defect after cheap-disproof of BFF `OAuthTokenEndpointError` / refresh classifier candidates; added parity regressions for supplemental Google discovery re-mark follow-up, non-JWT empty callback retry marker, and `shouldMarkAuthorizeCallbackFailedOnExchangeError` with `OAuthTokenEndpointError`; repaired canonical `at` timestamps in `AL_BUG_HUNT_RUN_LOG.jsonl`; restored `token-client.test.ts` suite after accidental truncation in prior push; scoped `src/lib/oidc` vitest 408/408.
 2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `isOAuthRefreshTokenRejectedError` / BFF refresh session policy - humanized `login_required` and `invalid_request` refresh JSON omitted snake_case from `Error.message` so `shouldClearSessionOnRefreshFailure` returned 503 transient instead of clearing HttpOnly cookies; extend `OAUTH_REFRESH_REJECTION_ERROR_CODES` (and legacy message fallback) for interactive OAuth codes; regressions `classifies humanized login_required refresh failures for BFF session clearing`, `classifies humanized invalid_request refresh failures for BFF session clearing`, and BFF refresh route tests; scoped token-client + BFF refresh vitest 71/71.
