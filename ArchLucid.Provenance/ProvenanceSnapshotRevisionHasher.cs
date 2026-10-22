@@ -113,11 +113,20 @@ public static class ProvenanceSnapshotRevisionHasher
                 string title = (representative.Title ?? string.Empty).Trim();
                 string findingType = (representative.FindingType ?? string.Empty).Trim();
                 string category = (representative.Category ?? string.Empty).Trim();
+                string agentExecutionTraceId = ResolveAgentExecutionTraceId(representative);
 
-                return $"{group.Key}|{relatedNodeIds}|{title}|{findingType}|{category}";
+                return $"{group.Key}|{relatedNodeIds}|{title}|{findingType}|{category}|{agentExecutionTraceId}";
             });
 
         return string.Join(";", parts);
+    }
+
+    private static string ResolveAgentExecutionTraceId(Finding finding)
+    {
+        if (!string.IsNullOrWhiteSpace(finding.AgentExecutionTraceId))
+            return finding.AgentExecutionTraceId.Trim();
+
+        return finding.Trace?.SourceAgentExecutionTraceId?.Trim() ?? string.Empty;
     }
 
     private static string ComputeArtifactsFingerprint(IReadOnlyList<SynthesizedArtifact> artifacts)
