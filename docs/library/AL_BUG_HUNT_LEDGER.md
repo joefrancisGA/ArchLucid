@@ -21,6 +21,18 @@
 - [ ] (candidate) refreshBffSessionCookie - refresh 504 shouldClearSession false - locus: transient refresh parity.
 - [ ] (candidate) initiateOidcRedirect - poisoned unsafe URL with in-flight Google PKCE state - locus: clearAbandoned skipped when google pkce present.
 - [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with pictograph glue - locus: saturated JSON encoding class.
+2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; cheap-disproof closed saturated pictograph encoding, temporarily_unavailable fixed authorize copy, and BFF refresh 502 parity; parity regressions BFF refresh HTTP 413 and opaque token endpoint 413 without cookie clear, backslash-prefixed post-sign-in purge during retry, and supplemental Google poisoned unsafe return purge at sign-in start; scoped `src/lib/oidc` + BFF refresh route vitest 493/493.
+
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with pictograph glue - **cheap-disproof 2026-10-22:** saturated encoding class on trunk.
+- [x] (invalid) humanizeAuthorizeCallbackError - temporarily_unavailable authorize-query copy - **cheap-disproof 2026-10-22:** fixed-branch temporary-error UX.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 502 shouldClearSession false - **cheap-disproof 2026-10-22:** client + route opaque 502 regressions on trunk.
+- [x] (valid-no-repro) initiateSupplementalOidcRedirect - poisoned unsafe return URL during authorize retry - **regression 2026-10-22:** supplemental parity with primary poisoned-url purge at sign-in start.
+- [x] (valid-no-repro) readPostSignInReturnUrl - backslash-prefixed path purge during retry - **regression 2026-10-22:** tamper purge without clearing retry marker.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_scope authorize-query copy - locus: fixed-branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 414 shouldClearSession false - locus: proxy transient policy.
+- [ ] (candidate) exchangeAuthorizationCode - temporarily_unavailable marks authorize retry - locus: transient exchange policy.
+- [ ] (candidate) preparePostSignInReturnUrlForSignInStart - ZWSP-only post-sign-in purge during retry - locus: tamper defense parity.
 
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed saturated encoding (%252B+ZWJ glue), transient token exchange retry policy (server_error, authorization_pending), BFF refresh 408 client parity, slow_down authorize-query UX, and clearAbandoned vs prepare helper during authorize retry; regression preserves authorize-retry snapshot on re-mark without post-sign-in URL; scoped vitest 460/460.
 
@@ -26005,6 +26017,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
+- **hunts:** 85
+- **hunts:** 84
+- **hunts:** 83
+- **hunts:** 82
 - **hunts:** 81
 - **hunts:** 87
 - **hunts:** 91
