@@ -387,6 +387,13 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("invalid_token");
   });
 
+  it("humanizes expired_token authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("expired_token", "");
+
+    expect(message).toMatch(/expired token/i);
+    expect(message).not.toContain("expired_token");
+  });
+
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
     expect(humanizeAuthorizeCallbackError("   ", "")).toContain("complete response");
     expect(humanizeAuthorizeCallbackError("   ", "")).not.toMatch(/\(\s*\)/u);
