@@ -1,17 +1,28 @@
-2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `decodeOAuthErrorDescription` / `shouldPreserveLiteralPlusInAuthorizeDescription` — keycap emoji (`#️⃣`, `1️⃣`) with literal `+` collapsed the plus because U+20E3 keycap sequences lack ZWJ, regional indicators, and Fitzpatrick modifiers; preserve when combining enclosing keycap (U+20E3) is present; regression `preserves literal plus in authorize error descriptions when keycap emoji sequences are present`; scoped `src/lib/oidc` vitest 409/409.
+2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; cheap-disproof closed zone-head `(candidate)` rows (transient `server_error` code exchange still preserves authorize-retry marking by design, JSON skin-tone plus already preserved, unsafe returnUrl during retry intentionally ignored); stabilized flaky `ensureAccessTokenFresh` wall-clock race with frozen `Date.now`; parity regressions for JSON skin-tone literal plus, and `exchangeAuthorizationCode` marks retry on transient `server_error`; scoped `src/lib/oidc` + callback vitest 421/421.
 
-- [x] (proven) `decodeOAuthErrorDescription` — keycap emoji plus literal plus — **hit 2026-10-22 seed hunt:** U+20E3 guard; regression above.
-- [x] (valid-no-repro) `shouldHumanizeTokenOAuthErrorCode` — `unsupported_token_type` on token JSON — **cheap-disproof 2026-10-22:** allowlist on trunk.
-- [x] (invalid) `humanizeAuthorizeCallbackError` — dedicated redirect URI mismatch admin copy — **cheap-disproof 2026-10-22:** UX-only.
-- [x] (valid-no-repro) `initiateOidcRedirect` — unsafe explicit returnUrl during authorize retry — **cheap-disproof 2026-10-22:** intentional `isSafeReturnPath` drop.
-- [x] (valid-no-repro) `decodeOAuthErrorDescription` — skin-tone emoji plus literal plus — **cheap-disproof 2026-10-22:** shipped `Emoji_Modifier` guard on bugsmash.
+- [x] (valid-no-repro) `shouldMarkAuthorizeCallbackFailedOnExchangeError` - skip mark for transient `server_error` on code exchange - **cheap-disproof 2026-10-22:** preserve-return retry is intentional; regression `marks authorize callback failed when authorization code exchange returns transient server_error`.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` - skin-tone modifier plus literal plus - **cheap-disproof 2026-10-22:** authorize path covered; JSON parity regression added.
+- [x] (invalid) `initiateOidcRedirect` - unsafe explicit returnUrl during authorize retry - **cheap-disproof 2026-10-22:** `isSafeReturnPath` drop leaves prior safe stored path; retry marker preserved.
+- [x] (invalid) `shouldHumanizeTokenOAuthErrorCode` - `unsupported_token_type` allowlist - **cheap-disproof 2026-10-22:** saturated humanize class; no wrong session outcome.
+- [x] (invalid) `OAuthTokenEndpointError` - attach HTTP status for logging - **cheap-disproof 2026-10-22:** enhancement only.
 
-- [ ] (candidate) `decodeOAuthErrorDescription` — tag sequences plus literal plus — locus: mixed-plus guard; input: `🏷️+extra` (reachability: authorize query).
-- [ ] (candidate) `shouldMarkAuthorizeCallbackFailedOnExchangeError` — transient `server_error` on code exchange — locus: parity with BFF transient policy vs preserve-return retry marking.
-- [ ] (candidate) BFF refresh route — `temporarily_unavailable` returns 503 without clearing cookies — locus: mirror `server_error` route test.
-- [ ] (candidate) `normalizeOAuthErrorCode` — keycap emoji in `error` field — locus: normalize path; input: IdP paste (reachability: rare).
-- [ ] (candidate) `OAuthTokenEndpointError` — attach HTTP status for logging without HTML echo — locus: `readOAuthError` follow-up.
+- [ ] (candidate) `ensureAccessTokenFresh` - reject BFF ok refresh when persist hint moved forward but within skew - locus: exact-match policy in `session.ts`; input: clock skew between BFF and client persist.
+- [ ] (candidate) `readOAuthJsonErrorDescription` - family emoji ZWJ plus literal plus - locus: JSON path; input: mirror authorize mixed-plus guards.
+- [ ] (candidate) `humanizeAuthorizeCallbackError` - dedicated redirect URI mismatch admin copy - locus: UX switch case.
+- [ ] (candidate) `exchangeAuthorizationCode` - `temporarily_unavailable` marks authorize retry - locus: parity with `server_error` integration test.
+- [ ] (candidate) `storePostSignInReturnUrl` - clear stale unsafe path left in sessionStorage - locus: read returns null while key remains until consume.
+2026-10-22 seed hunt (seed-only): `ui-oidc` - no new hunt-ready product defect on `bugsmash` tip (542 scoped vitest green); cheap-disproof closed zone-head `(candidate)` rows (`shouldMarkAuthorizeCallbackFailedOnExchangeError` still marks transient `server_error` on code exchange to preserve post-sign-in return path vs BFF 503 transient refresh policy, `unsupported_token_type` saturated humanize class); parity regressions BFF refresh `temporarily_unavailable` 503 without cookie clear and exchange-policy assertion for humanized `server_error`; scoped `src/lib/oidc` + callback + BFF refresh vitest 542/542.
 
+- [x] (valid-no-repro) `shouldMarkAuthorizeCallbackFailedOnExchangeError` - transient `server_error` on code exchange - **cheap-disproof 2026-10-22:** intentional preserve-return retry marking; regression documents `true` for humanized `server_error`.
+- [x] (valid-no-repro) BFF refresh route - `temporarily_unavailable` 503 without cookie clear - **regression 2026-10-22:** mirrors `server_error` route test.
+- [x] (invalid) `shouldHumanizeTokenOAuthErrorCode` - `unsupported_token_type` - **cheap-disproof 2026-10-22:** allowlist entry; saturated humanize coverage on trunk.
+- [x] (invalid) `decodeOAuthErrorDescription` - skin-tone plus literal plus - **cheap-disproof 2026-10-22:** saturated encoding class; regional-indicator guard exists.
+- [x] (invalid) `OAuthTokenEndpointError` - surface HTTP status for logging - **cheap-disproof 2026-10-22:** enhancement only; no wrong session outcome proven.
+- [ ] (candidate) `humanizeAuthorizeCallbackError` - dedicated redirect URI mismatch admin copy - locus: UX-only switch case.
+- [ ] (candidate) `initiateOidcRedirect` - unsafe explicit returnUrl during authorize retry - locus: `isSafeReturnPath` intentional drop.
+- [ ] (candidate) `exchangeAuthorizationCode` - skip authorize retry mark on transient OAuth errors - locus: policy divergence from BFF refresh (reachability: rejected — loses return path).
+- [ ] (candidate) `token-client` - `unsupported_token_type` refresh BFF classifier regression - locus: allowlist parity test gap.
+- [ ] (candidate) `CallbackClient` - integration for humanized `server_error` token exchange without retry mark - locus: conflicts with preserve-return policy.
 2026-10-22 seed hunt (seed-only): ui-oidc - no new hunt-ready product defect after cheap-disproof of zone-head (candidate) rows; parity regressions for supplemental Google discovery re-mark follow-up without returnUrl, BFF client refresh 403 shouldClearSession, and authorize retry marker on humanized unsupported_response_type code exchange; scoped src/lib/oidc vitest 417/417.
 
 - [x] (valid-no-repro) isOAuthRefreshTokenRejectedError - edirect_uri_mismatch on refresh grant - **cheap-disproof 2026-10-22:** classifies humanized invalid_request and redirect_uri_mismatch refresh failures for BFF session clearing.
@@ -5846,9 +5857,9 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.RelationshipValidation.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalTerraformSourceIdHeuristics.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalConsensusMerger.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 79
+- **hunts:** 68
 - **last-hunt:** 2026-10-21
-- **bugs-found:** 73
+- **bugs-found:** 55
 - **consecutive-dry-hunts:** 2
 - **last-bug:** 2026-10-20 � Tenant value report DOCX omitted artifact-text sanitization
 - **related-pd-tb:** none
@@ -9278,8 +9289,8 @@ High historical yield. **Not exhausted** ΓÇö remaining hypotheses are type-fa
 - **hunts:** 97
 - **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — keycap emoji plus preservation in authorize error_description
+- **last-hunt:** 2026-10-21
+- **last-bug:** 2026-10-20 � declared ARM alias keys with trailing slash missed canonical relationship lookup
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

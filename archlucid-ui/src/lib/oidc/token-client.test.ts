@@ -139,6 +139,14 @@ describe("refreshAccessToken", () => {
     expect(shouldMarkAuthorizeCallbackFailedOnExchangeError(new Error("Invalid token endpoint URL"))).toBe(
       false,
     );
+    expect(
+      shouldMarkAuthorizeCallbackFailedOnExchangeError(
+        new OAuthTokenEndpointError(
+          "Your identity provider reported a temporary error. Wait a minute and try signing in again.",
+          "server_error",
+        ),
+      ),
+    ).toBe(true);
   });
 
   it("marks authorize callback failed when authorization code exchange fails", async () => {
@@ -161,6 +169,31 @@ describe("refreshAccessToken", () => {
         codeVerifier: "verifier",
       }),
     ).rejects.toThrow(/Sign-in did not finish \(invalid grant\)/i);
+
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
+  });
+
+  it("marks authorize callback failed when authorization code exchange returns transient server_error", async () => {
+    sessionStorage.clear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: false,
+        status: 503,
+        text: async () => JSON.stringify({ error: "server_error" }),
+      })),
+    );
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/temporary error/i);
 
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });

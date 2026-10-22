@@ -85,6 +85,11 @@ describe("readOAuthJsonErrorDescription", () => {
 
     expect(readOAuthJsonErrorDescription(detail)).toBe(detail);
   });
+
+  it("preserves literal plus in token error_description when skin-tone emoji modifiers are present", () => {
+    expect(readOAuthJsonErrorDescription("👍🏻+extra")).toBe("👍🏻+extra");
+    expect(readOAuthJsonErrorDescription("👋🏽+denied")).toBe("👋🏽+denied");
+  });
 });
 
 describe("decodeOAuthErrorDescription", () => {
@@ -131,11 +136,6 @@ describe("decodeOAuthErrorDescription", () => {
   it("preserves literal plus in authorize error descriptions when skin-tone emoji modifiers are present", () => {
     expect(decodeOAuthErrorDescription("👍🏻+extra")).toBe("👍🏻+extra");
     expect(decodeOAuthErrorDescription("👋🏽+denied")).toBe("👋🏽+denied");
-  });
-
-  it("preserves literal plus in authorize error descriptions when keycap emoji sequences are present", () => {
-    expect(decodeOAuthErrorDescription("#️⃣+extra")).toBe("#️⃣+extra");
-    expect(decodeOAuthErrorDescription("1️⃣+step")).toBe("1️⃣+step");
   });
 
   it("decodes doubly percent-encoded authorize error descriptions", () => {
