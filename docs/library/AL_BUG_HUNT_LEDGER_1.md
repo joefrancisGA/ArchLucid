@@ -8712,6 +8712,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted request framing-answer **values** letter-casing splitting review-cache `ContentHash`; `ClosedLoopFramingAnswersNormalizer` lower-cases values after unicode normalize while preserving key casing; regression `Build_matches_content_hash_when_request_framing_answer_value_differs_only_by_casing`; cheap-disproof workspace/project slug casing via prior `ClosedLoopScopeIdHashNormalizer` fix; 229 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ClosedLoopFramingAnswersNormalizer` — request framing value casing split `ContentHash` — **hit 2026-10-22 seed hunt:** `NormalizeFramingValue`; regression above.
+- [x] (valid-no-repro) `ClosedLoopScopeIdHashNormalizer` — workspace/project slug casing — **cheap-disproof 2026-10-22 seed hunt:** non-GUID lower-case from prior hit; regressions `Build_matches_tenant_configuration_hash_when_workspace_slug_differs_only_by_casing` and `Build_matches_tenant_configuration_hash_when_project_slug_differs_only_by_casing`.
+
 2026-10-22 seed hunt (seed→hit): promoted request declared-priority casing, non-GUID tenant slug casing, and source `FileName` path casing splitting review-cache hash; `ClosedLoopDeclaredPrioritiesNormalizer`, `ClosedLoopScopeIdHashNormalizer`, and `NormalizeFileNameForHash` lower-case after normalize; regressions `Build_matches_declared_priorities_hash_when_priorities_differ_only_by_casing`, `Build_matches_tenant_configuration_hash_when_tenant_slug_differs_only_by_casing`, `Build_matches_content_hash_when_source_file_name_differs_only_by_casing`, and `Build_matches_content_hash_when_baseline_element_provenance_passage_quote_differs_only_by_casing`; 226 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `ClosedLoopDeclaredPrioritiesNormalizer` / `ClosedLoopScopeIdHashNormalizer` / `ClosedLoopReasoningSourceTextNormalizer.NormalizeFileNameForHash` — request priority, tenant slug, and attachment path casing split cache hash — **hit 2026-10-22 seed hunt:** invariant lower-case; regressions above.
@@ -9233,11 +9238,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 92
-- **bugs-found:** 80
+- **hunts:** 93
+- **bugs-found:** 81
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — request priorities, tenant slug, and source path casing in review-cache hash
+- **last-bug:** 2026-10-22 — request framing answer value casing in review-cache ContentHash
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
