@@ -8712,6 +8712,16 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted declared priorities NFC vs NFD splitting `DeclaredPrioritiesHash`; `ClosedLoopDeclaredPrioritiesNormalizer` now applies `NormalizationForm.FormC`; regression `Build_matches_declared_priorities_hash_when_priority_differs_only_by_unicode_normalization_form`; closed `+` vs `%20` and NBSP priority candidates; 100 scoped orchestrator/cache/manifest tests passed.
+
+- [x] (proven) `ClosedLoopDeclaredPrioritiesNormalizer` — priority strings NFC vs NFD split cache priority hash — **hit 2026-10-22 seed hunt:** `NormalizeUnicode` after trim; regression above. [class:state-machine-gap]
+
+- [x] (invalid) `ClosedLoopReasoningSourceTextNormalizer.NormalizeFileNameForHash` — `+` vs `%20` in `FileName` — **cheap-disproof 2026-10-22 seed hunt:** `%20` decoded via `Uri.UnescapeDataString`; `+` is a literal plus in paths (not query `+`→space); regression `Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_space` covers `%20` only.
+
+- [x] (invalid) `ReviewCacheManifestBuilder.HashPriorities` — NBSP-padded priority tokens — **cheap-disproof 2026-10-22 seed hunt:** `priority.Trim()` removes Unicode whitespace including NBSP before hash.
+
+- (candidate) `ClosedLoopDeclaredPrioritiesNormalizer` — duplicate priorities differing only by compatibility case folding (Turkish `I`/`ı`) — locus: `OrdinalIgnoreCase` group; input: locale-specific casing pair (verify OpenAPI/UI never emits).
+
 2026-10-22 seed hunt (seed→hit): consolidated Unicode line-break scalars in `NormalizeLineEndings` (added vertical tab `\u000b`); regression `Build_matches_content_hash_when_source_content_uses_unicode_line_separators`; cheap-disproof framing-key NFC parity; 99 scoped orchestrator/cache/manifest tests passed.
 
 - [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — vertical tab (`\u000b`) split `ContentHash` from LF — **hit 2026-10-22 seed hunt:** shared `UnicodeLineBreakScalars` loop maps VT with NEL/LS/PS; regression above (`\u000b` case). [class:state-machine-gap]
@@ -8763,11 +8773,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 45
-- **bugs-found:** 25
+- **hunts:** 46
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — vertical tab line break in review-cache source content hash
+- **last-bug:** 2026-10-22 — declared priorities Unicode normalization in cache hash
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
