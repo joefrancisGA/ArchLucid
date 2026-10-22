@@ -120,6 +120,33 @@ public sealed class TenantDeletionService(
             };
         }
 
+        TenantRecord? tenantBeforeDeletionAuditAppend =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+        if (tenantBeforeDeletionAuditAppend?.TenantErasureApprovedUtc is null)
+        {
+            return new TenantDeletionResult
+            {
+                TenantId = tenantId,
+                SqlRowsDeleted = purge.RowsDeleted,
+                SqlRowCountsByTable = purge.RowCountsByTable,
+                BlobsDeletedByContainer = blobs.BlobsDeletedByContainer
+            };
+        }
+
+        utcNow = _timeProvider.GetUtcNow();
+
+        if (tenantBeforeDeletionAuditAppend.LegalHoldUntilUtc is { } holdUntilAppend && holdUntilAppend > utcNow)
+        {
+            return new TenantDeletionResult
+            {
+                TenantId = tenantId,
+                SqlRowsDeleted = purge.RowsDeleted,
+                SqlRowCountsByTable = purge.RowCountsByTable,
+                BlobsDeletedByContainer = blobs.BlobsDeletedByContainer
+            };
+        }
+
         await _platformAuditRepository
             .AppendAsync(
                 new PlatformAuditEvent

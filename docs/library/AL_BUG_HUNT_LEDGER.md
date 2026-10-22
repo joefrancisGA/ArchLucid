@@ -33,6 +33,19 @@
 - [ ] (candidate) refreshBffSessionCookie - refresh 419 shouldClearSession false - locus: transient refresh parity.
 - [ ] (candidate) exchangeAuthorizationCode - boolean access_token skips authorize retry marker - locus: malformed token JSON shape.
 - [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with emoji modifier glue - locus: saturated JSON encoding class.
+2026-10-22 seed hunt (seed->hit): `application-tenancy-lifecycle` - promoted hunt-ready from seed re-read `TenantDeletionService.DeleteTenantAsync` - `TenantDataDeleted` platform audit appended after two post-purge tenant reads before append, so erasure approval cleared (quarantine restore) between the pre-deletion-audit read and audit could still emit deletion audit after destructive purge; third pre-append `GetByIdAsync` with erasure-approval skip and active legal-hold re-check; regression `DeleteTenantAsync_returns_without_platform_audit_when_erasure_approval_cleared_after_pre_deletion_audit_read_before_audit`; scoped tenancy filter 259/259.
+
+- [x] (proven) `DeleteTenantAsync` - erasure approval cleared after pre-deletion-audit read before append - **hit 2026-10-22 seed hunt:** third pre-append re-read + approval guard; regression above.
+- [x] (valid-no-repro) `DeleteTenantAsync` - active legal hold after purge before deletion audit - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
+- [x] (valid-no-repro) `DeleteTenantAsync` - erasure approval cleared after sql purge before first post-purge read - **cheap-disproof 2026-10-22:** existing regression on trunk.
+- [x] (invalid) `DeleteTenantAsync` - legal hold before blob purge throws - **cheap-disproof 2026-10-22:** revalidate throws; destructive work not started.
+- [x] (valid-no-repro) `TryClearLegalHoldAsync` - hold re-applied after pre-clear audit read - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
+
+- [ ] (candidate) `DeleteTenantAsync` - active legal hold activated between pre-deletion-audit read and pre-append read - locus: third-read hold guard parity (reachability: saturated).
+- [ ] (candidate) `TryOffboardTenantAsync` - quarantine restored after immediatelyBeforeOffboardAudit read - locus: sixth offboard audit read gap (reachability: erasure command).
+- [ ] (candidate) `TrialLifecycleTransitionEngine` - offboard between audit and expiration metric - locus: post-audit superseded read (reachability: saturated).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.StartAsync` - offboard after insert before started audit - locus: existing regression (reachability: saturated).
+- [ ] (candidate) `DeleteTenantAsync` - legal hold activated between revalidate and blob purge - locus: mid-destructive revalidate (reachability: admin delete job).
 
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed redirect_uri_mismatch authorize-query UX, BFF refresh 417 parity, and saturated readOAuthJsonErrorDescription emoji-modifier glue; regression documents authorize-retry marking when authorization code exchange returns whitespace-only access_token; scoped vitest 490/490.
 
