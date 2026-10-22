@@ -28,6 +28,17 @@
 - [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with hair-space glue - locus: saturated encoding class.
 - [ ] (candidate) exchangeAuthorizationCode - access_token JSON string ogham-space-only skips authorize retry marker - locus: literal whitespace token shape.
 - [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with figure-space glue - locus: saturated encoding class.
+2026-10-22 seed hunt (seed->hit): `application-tenancy-lifecycle` - promoted hunt-ready from seed re-read `TenantTrialIdentityHandoffStage.LinkEntraAsync` - Entra directory bound and trial local identity linked audits appended after `tenantBeforeDirectoryAudit` / `tenantBeforeIdentityAudit` without a final re-read, so erasure offboard between those reads and audit could emit lifecycle audits for quarantined tenants; pre-append `GetByIdAsync` offboard guards (`tenantBeforeDirectoryAuditAppend`, `tenantBeforeIdentityAuditAppend`); regressions `LinkEntraAsync_returns_success_without_directory_audit_when_offboard_completes_after_tenant_before_directory_audit_read_before_audit` and `LinkEntraAsync_returns_success_without_identity_audit_when_offboard_completes_after_tenant_before_identity_audit_read_before_audit`; tightened two existing offboard race mock sequences for extra directory pre-append read; scoped tenancy filter 277/277.
+
+- [x] (proven) `LinkEntraAsync` - offboard after tenantBeforeDirectoryAudit read before directory bound audit - **hit 2026-10-22 seed hunt:** `tenantBeforeDirectoryAuditAppend` re-read + offboard guard; directory regression above.
+- [x] (proven) `LinkEntraAsync` - offboard after tenantBeforeIdentityAudit read before identity linked audit - **hit 2026-10-22 seed hunt:** `tenantBeforeIdentityAuditAppend` re-read + offboard guard; identity regression above.
+- [x] (valid-no-repro) `LinkEntraAsync` - offboard after bind before directory audit - **cheap-disproof 2026-10-22:** existing two-read regression on trunk.
+- [x] (valid-no-repro) `AcknowledgeCatalogAttachDetachAsync` - offboard after tenantBeforeAttachAudit read - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
+
+- [ ] (candidate) `TenantProvisioningService` - offboard after tenantBeforeProvisionedAudit read before provisioned audit - locus: provision audit race (reachability: provision path).
+- [ ] (candidate) `TrialLifecycleTransitionEngine` - offboard between audit and expiration metric - locus: post-audit superseded read (reachability: saturated).
+- [ ] (candidate) `TenantErasureCommandService` - consolidate pre-append audit re-read helpers - locus: refactor batch (not hunt-ready defect).
+- [ ] (candidate) `DeleteTenantAsync` - further pre-append read stacking - locus: defer to helper refactor (reachability: low).
 
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed nonce_replay authorize-query UX, BFF refresh 465 parity, and saturated decodeOAuthErrorDescription hair-space glue; regression documents authorize-retry is marked when authorization code exchange returns replacement-character-only access_token; scoped vitest 628/628.
 
