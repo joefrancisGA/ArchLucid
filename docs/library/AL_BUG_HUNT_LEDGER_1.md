@@ -6691,6 +6691,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-22 seed hunt (seed→hit): `ComparisonsController.GetComparisonSummary` invoked `TryReplaySummaryMarkdownAsync` (comparison replay) without mapping `CareerArtifactExportBlockedException` while dedicated replay routes did; return `CareerArtifactBlockedProblem` on summary replay failure; regression `CompareQuality_GetComparisonSummary_returns_career_blocked_problem_when_replay_blocks_metadata_read`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 49/49.
+
+- [x] (proven) `ComparisonsController.GetComparisonSummary` - comparison summary replay omitted career posture problem mapping present on replay routes - **hit 2026-10-22 seed hunt:** career catch on `GET` comparison summary; regression above.
+
 2026-10-22 seed hunt (seed→hit): `ComparisonsController` drift routes did not map `CareerArtifactExportBlockedException` while comparison replay routes did, so drift analyze/report returned unhandled errors when `ComparisonReplayService.AnalyzeDriftAsync` blocked simulator-rehearsal metadata reads; map career posture blocks on `POST`/`GET` comparison drift endpoints; regression `CompareQuality_AnalyzeComparisonDrift_returns_career_blocked_problem_when_posture_blocks_metadata_read`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 49/49.
 
 - [x] (proven) `ComparisonsController.AnalyzeComparisonDrift` / `GetComparisonDriftReport` - drift endpoints omitted `CareerArtifactExportBlockedException` mapping present on comparison replay routes - **hit 2026-10-22 seed hunt:** `CareerArtifactBlockedProblem` on drift paths; regression above.
@@ -6787,10 +6791,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
 - **hunts:** 65
-- **bugs-found:** 62
+- **bugs-found:** 63
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — comparison drift routes omitted career posture problem mapping
+- **last-bug:** 2026-10-22 — comparison summary route omitted career posture problem mapping
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
