@@ -13,6 +13,19 @@
 - [ ] (candidate) `RunExportLineageVerifier` - incomplete lifecycle vs sealed-hash-only block - locus: guard divergence (reachability: export history GET).
 ﻿2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_state authorize-query UX (existing parity) and saturated readOAuthJsonErrorDescription ZWJ multiply-encoded glue (existing parity); regression documents BFF refresh 502 parity (client opaque-sequence plus route opaque 502) and soft-hyphen object-replacement-only access_token rejection (existing parity); scoped vitest 788/788.
 ﻿2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed state_mismatch authorize-query UX (existing parity) and saturated decodeOAuthErrorDescription ZWJ multiply-encoded glue (existing parity); regression documents BFF refresh 503 parity (client opaque-sequence plus route opaque 503) and soft-hyphen replacement-character-only access_token rejection (existing parity); scoped vitest 789/789.
+﻿2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_state authorize-query UX (existing parity) and saturated readOAuthJsonErrorDescription ZWJ multiply-encoded glue (existing parity); regression documents BFF refresh 504 parity (client opaque-sequence plus route opaque 504) and soft-hyphen object-replacement-only access_token rejection (existing parity); scoped vitest 790/790.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - invalid_state authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 504 shouldClearSession false - **regression 2026-10-22:** opaque-sequence client soft-fail plus existing BFF route opaque 504 without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string soft-hyphen and object-replacement-only skips authorize retry marker - **cheap-disproof 2026-10-22:** existing normalizeTokenString strip parity test.
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** existing saturated JSON encoding class test.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - state_mismatch authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 505 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string soft-hyphen and replacement-character-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with ZWJ glue - locus: saturated encoding class.
+
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed state_mismatch authorize-query UX (existing parity) and saturated decodeOAuthErrorDescription ZWJ multiply-encoded glue (existing parity); regression documents BFF refresh 503 parity (client opaque-sequence plus route opaque 503) and soft-hyphen replacement-character-only access_token rejection (existing parity); scoped vitest 789/789.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - state_mismatch authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
 - [x] (valid-no-repro) refreshBffSessionCookie - refresh 503 shouldClearSession false - **regression 2026-10-22:** opaque-sequence client soft-fail plus existing BFF route opaque 503 without cookie clear.
