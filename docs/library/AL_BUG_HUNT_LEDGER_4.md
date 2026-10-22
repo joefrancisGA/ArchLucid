@@ -12470,21 +12470,27 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 71
-- **bugs-found:** 62
+- **hunts:** 72
+- **bugs-found:** 63
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — child snapshot RunId omitted from provenance revision fingerprint
+- **last-bug:** 2026-10-22 — rule audit trace RunId omitted from provenance revision fingerprint
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): reseeded authority-trace linkage; proved `ProvenanceSnapshotRevisionHasher.Compute` omitted `RuleAuditTracePayload.RunId`, so a trace re-linked to another run under the same `DecisionTraceId` and applied rules left `ProvenanceGraphAccessService` serving a cache hit; include trace run id in canonical string; regression `Compute_changes_when_rule_audit_trace_run_id_differs_but_decision_trace_id_and_applied_rules_are_unchanged`; cheap-disproved finding `EngineType` drift with `Compute_unchanged_when_only_finding_engine_type_changes`; closed partial child run-id collision candidate because each facet run id already participates in the canonical tuple with `Compute_changes_when_graph_snapshot_run_id_differs_but_graph_snapshot_id_and_nodes_are_unchanged`; seeded manifest hash trim and trace tenant scope follow-ons; 379 KnowledgeGraph + 84 Provenance scoped tests passed.
+
+- [x] (proven) `ProvenanceSnapshotRevisionHasher.Compute` — `RuleAuditTracePayload.RunId` drift did not change revision fingerprint when `DecisionTraceId` and applied rules were unchanged — **hit 2026-10-22 seed hunt (seed→hit):** include trace run id in canonical string; regression above.
+- [x] (invalid) `ProvenanceSnapshotRevisionHasher.ComputeFindingsFingerprint` — `EngineType` changes under stable finding display fields — **cheap-disproof 2026-10-22 seed hunt:** engine type not materialized on provenance finding nodes; regression above.
+- [x] (invalid) `ProvenanceSnapshotRevisionHasher.Compute` — partial child run-id repair leaves stale cache — **cheap-disproof 2026-10-22 seed hunt:** graph/findings/manifest run ids already bust cache independently; regression above.
+
+- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.Compute` — `Manifest.ManifestHash` surrounding whitespace may spuriously bust or preserve cache vs `ManifestHashService` canonical hashes — locus: canonical manifest hash segment; input: hash value differs only by trim; wrong outcome: unnecessary rebuild or missed refresh when hash rows are normalized on read.
+- [ ] (candidate) `RuleAuditTracePayload` tenant/workspace/project ids may drift without changing decision trace id — locus: canonical revision string; input: scope repair on stored trace under stable trace id; wrong outcome: stale provenance when scope metadata is buyer-visible.
 
 2026-10-22 seed hunt (seed→hit): reseeded revision canonical string; proved `ProvenanceSnapshotRevisionHasher.Compute` keyed `RunId` only at the build-input root, so a findings snapshot re-linked to another run under the same `FindingsSnapshotId` and payload left `ProvenanceGraphAccessService` serving a cache hit; include findings/graph/manifest `RunId` fields in the canonical string; regression `Compute_changes_when_findings_snapshot_run_id_differs_but_findings_snapshot_id_and_payload_are_unchanged`; cheap-disproved finding severity drift (`ProvenanceBuilder` omits severity) with `Compute_unchanged_when_only_finding_severity_changes`; closed access-service edge-topology candidate because graph edge payload is already in `ComputeGraphFingerprint` with `Compute_changes_when_graph_edge_is_added_but_node_fingerprint_is_unchanged`; seeded manifest/graph run-id mismatch and finding engine-type follow-ons; 379 KnowledgeGraph + 81 Provenance scoped tests passed.
 
 - [x] (proven) `ProvenanceSnapshotRevisionHasher.Compute` — child snapshot `RunId` drift did not change revision fingerprint when snapshot ids and payloads were unchanged — **hit 2026-10-22 seed hunt (seed→hit):** include findings, graph, and manifest run ids in canonical string; regression above.
 - [x] (invalid) `ProvenanceSnapshotRevisionHasher.ComputeFindingsFingerprint` — `FindingSeverity` changes under stable finding display fields — **cheap-disproof 2026-10-22 seed hunt:** severity not materialized on provenance finding nodes; regression above.
 - [x] (invalid) `ProvenanceGraphAccessService` — edge-only graph mutation under stable snapshot ids — **cheap-disproof 2026-10-22 seed hunt:** `ComputeGraphFingerprint` already includes edge topology; regression above.
-
-- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.Compute` — mismatched `Graph.RunId` or `Manifest.RunId` vs build-input `RunId` may still collide when only one child run id is corrected — locus: canonical run-id tuple; input: partial run-id repair on one snapshot facet; wrong outcome: stale cache until all three child ids align.
-- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeFindingsFingerprint` — `EngineType` changes may not change revision fingerprint when other finding display fields are unchanged — locus: findings fingerprint; input: engine-type-only amendment; wrong outcome: stale provenance if engine type becomes buyer-visible on finding nodes.
 
 2026-10-22 seed hunt (seed→hit): promoted graph node metadata fingerprint candidate; proved `ComputeGraphFingerprint` included node id and label only, so `NodeType` / `Category` changes under stable `GraphSnapshotId` left `ProvenanceGraphAccessService` serving stale provenance graph node metadata; extend node fingerprint with normalized node type and category parity with `ProvenanceBuilder`; regression `Compute_changes_when_graph_node_type_changes_but_node_id_and_label_are_unchanged`; seeded finding severity and manifest rationale fingerprint follow-ons; 379 KnowledgeGraph + 78 Provenance scoped tests passed.
 

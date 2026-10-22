@@ -14,6 +14,46 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     private static readonly Guid BundleId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
 
     [Fact]
+    public void Compute_changes_when_rule_audit_trace_run_id_differs_but_decision_trace_id_and_applied_rules_are_unchanged()
+    {
+        ProvenanceBuildInput baseline = CreateInput([], ["rule-a"]);
+        ProvenanceBuildInput updated = CreateInput([], ["rule-a"]);
+
+        RuleAuditTraceDto baselineTrace = (RuleAuditTraceDto)baseline.DecisionTrace;
+        RuleAuditTraceDto updatedTrace = (RuleAuditTraceDto)updated.DecisionTrace;
+        baselineTrace.RuleAudit.RunId = RunId;
+        updatedTrace.RuleAudit.RunId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
+    public void Compute_changes_when_graph_snapshot_run_id_differs_but_graph_snapshot_id_and_nodes_are_unchanged()
+    {
+        GraphNode node = new() { NodeId = "node-a", NodeType = "Resource", Label = "A" };
+
+        ProvenanceBuildInput baseline = CreateInput([], graphNodes: [node]);
+        ProvenanceBuildInput updated = CreateInput([], graphNodes: [node]);
+        updated.Graph.RunId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
+    public void Compute_unchanged_when_only_finding_engine_type_changes()
+    {
+        Finding baselineFinding = CreateSampleFinding();
+        Finding updatedFinding = CreateSampleFinding();
+        baselineFinding.EngineType = "compliance";
+        updatedFinding.EngineType = "cost";
+
+        ProvenanceSnapshotRevisionHasher.Compute(CreateInput([], findings: [baselineFinding]), BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(CreateInput([], findings: [updatedFinding]), BundleId));
+    }
+
+    [Fact]
     public void Compute_changes_when_findings_snapshot_run_id_differs_but_findings_snapshot_id_and_payload_are_unchanged()
     {
         ProvenanceBuildInput baseline = CreateInput([], findings: [CreateSampleFinding()]);
