@@ -33,6 +33,11 @@ public static class AzureExtractorPackageInventoryReader
             (bool graphAppRoleAssignmentsFilePresent, AzureInventoryGraphAppRoleAssignmentsDocument graphAppRoleAssignmentsDocument) =
                 ReadGraphAppRoleAssignments(archive);
             List<JsonElement> defenderSummary = ReadOptionalArray(archive, AzureExtractorPackageZipEntryNames.DefenderSummary);
+            List<JsonElement> defenderPricings = ReadOptionalArray(archive, AzureExtractorPackageZipEntryNames.DefenderPricings);
+            List<JsonElement> defenderScoreControls = ReadOptionalArray(archive, AzureExtractorPackageZipEntryNames.DefenderScoreControls);
+            List<JsonElement> defenderAssessments = ReadOptionalArray(archive, AzureExtractorPackageZipEntryNames.DefenderAssessments);
+            List<JsonElement> defenderAssessmentCounts = ReadOptionalArray(archive, AzureExtractorPackageZipEntryNames.DefenderAssessmentCounts);
+            List<JsonElement> defenderSecurityContacts = ReadOptionalArray(archive, AzureExtractorPackageZipEntryNames.DefenderSecurityContacts);
             (bool effectiveNetworkControlsFilePresent, List<AzureInventoryEffectiveNetworkControlRow> effectiveNetworkControls) =
                 ReadEffectiveNetworkControls(archive);
             (bool adfLinkedServicesFilePresent, List<AzureInventoryAdfLinkedServiceRow> adfLinkedServices) =
@@ -85,6 +90,11 @@ public static class AzureExtractorPackageInventoryReader
                 GraphAppRoleAssignments = graphAppRoleAssignmentsDocument.AppRoleAssignments,
                 GraphAppRoleAssignmentsFilePresent = graphAppRoleAssignmentsFilePresent,
                 DefenderSummary = defenderSummary,
+                DefenderPricings = defenderPricings,
+                DefenderScoreControls = defenderScoreControls,
+                DefenderAssessments = defenderAssessments,
+                DefenderAssessmentCounts = defenderAssessmentCounts,
+                DefenderSecurityContacts = defenderSecurityContacts,
                 EffectiveNetworkControls = effectiveNetworkControls,
                 EffectiveNetworkControlsFilePresent = effectiveNetworkControlsFilePresent,
                 AdfLinkedServices = adfLinkedServices,

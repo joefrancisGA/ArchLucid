@@ -57,7 +57,12 @@ public static class HostedAzureExtractorZipBuilder
         HostedAzureActualCostSummary? actualCostSummary = null,
         HostedAzurePolicyComplianceDocument? policyComplianceDocument = null,
         IReadOnlyList<JsonElement>? policyDefinitionDocuments = null,
-        IReadOnlyList<JsonElement>? policyAssignmentDocuments = null)
+        IReadOnlyList<JsonElement>? policyAssignmentDocuments = null,
+        IReadOnlyList<HostedAzureArmDefenderPricingRecord>? defenderPricings = null,
+        IReadOnlyList<HostedAzureArmDefenderScoreControlRecord>? defenderScoreControls = null,
+        IReadOnlyList<HostedAzureArmDefenderAssessmentRecord>? defenderAssessments = null,
+        IReadOnlyList<HostedAzureArmDefenderAssessmentCountRecord>? defenderAssessmentCounts = null,
+        IReadOnlyList<HostedAzureArmDefenderSecurityContactRecord>? defenderSecurityContacts = null)
     {
         bool hasSubscriptionId = !string.IsNullOrWhiteSpace(subscriptionId);
         bool hasManagementGroupId = !string.IsNullOrWhiteSpace(managementGroupId);
@@ -270,6 +275,72 @@ public static class HostedAzureExtractorZipBuilder
             {
                 resourceId = row.ResourceId,
                 secureScore = row.SecureScore,
+            })
+            .ToArray<object>();
+
+        object[] defenderPricingRows = (defenderPricings ?? [])
+            .Select(static row => new
+            {
+                subscriptionId = row.SubscriptionId,
+                pricingName = row.PricingName,
+                tier = row.Tier,
+                extensions = row.Extensions,
+            })
+            .ToArray<object>();
+
+        object[] defenderScoreControlRows = (defenderScoreControls ?? [])
+            .Select(static row => new
+            {
+                subscriptionId = row.SubscriptionId,
+                scoreName = row.ScoreName,
+                controlName = row.ControlName,
+                displayName = row.DisplayName,
+                current = row.CurrentScore,
+                max = row.MaxScore,
+                percentage = row.Percentage,
+                weight = row.Weight,
+                unhealthyResourceCount = row.UnhealthyResourceCount,
+                healthyResourceCount = row.HealthyResourceCount,
+            })
+            .ToArray<object>();
+
+        object[] defenderAssessmentRows = (defenderAssessments ?? [])
+            .Select(static row => new
+            {
+                subscriptionId = row.SubscriptionId,
+                assessmentKey = row.AssessmentKey,
+                displayName = row.DisplayName,
+                severity = row.Severity,
+                status = row.Status,
+                statusCause = row.StatusCause,
+                category = row.Category,
+                resourceId = row.ResourceId,
+            })
+            .ToArray<object>();
+
+        object[] defenderAssessmentCountRows = (defenderAssessmentCounts ?? [])
+            .Select(static row => new
+            {
+                subscriptionId = row.SubscriptionId,
+                assessmentKey = row.AssessmentKey,
+                displayName = row.DisplayName,
+                severity = row.Severity,
+                healthyCount = row.HealthyCount,
+                unhealthyCount = row.UnhealthyCount,
+                notApplicableCount = row.NotApplicableCount,
+            })
+            .ToArray<object>();
+
+        object[] defenderSecurityContactRows = (defenderSecurityContacts ?? [])
+            .Select(static row => new
+            {
+                subscriptionId = row.SubscriptionId,
+                collectionStatus = row.CollectionStatus,
+                emailCount = row.EmailCount,
+                emails = row.Emails,
+                alertsToAdmins = row.AlertsToAdmins,
+                minimalSeverity = row.MinimalSeverity,
+                notificationRoles = row.NotificationRoles,
             })
             .ToArray<object>();
 
@@ -499,6 +570,26 @@ public static class HostedAzureExtractorZipBuilder
                 archive,
                 AzureExtractorPackageZipEntryNames.DefenderSummary,
                 JsonSerializer.Serialize(defenderSummaryRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.DefenderPricings,
+                JsonSerializer.Serialize(defenderPricingRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.DefenderScoreControls,
+                JsonSerializer.Serialize(defenderScoreControlRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.DefenderAssessments,
+                JsonSerializer.Serialize(defenderAssessmentRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.DefenderAssessmentCounts,
+                JsonSerializer.Serialize(defenderAssessmentCountRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.DefenderSecurityContacts,
+                JsonSerializer.Serialize(defenderSecurityContactRows, SerializerOptions));
             AddUtf8Entry(
                 archive,
                 AzureExtractorPackageZipEntryNames.EntraGroupMemberships,
