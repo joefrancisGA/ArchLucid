@@ -6671,6 +6671,13 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector.IsPairDelimiter` — `Password=` pair after Unicode line separator (`U+2028`) not treated as pair boundary — **hit 2026-10-22 seed hunt #49:** extend delimiter set with NEL/LS/PS (`U+0085`, `U+2028`, `U+2029`); regression above. [class:fail-open-validation]
 
 
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — NBSP (`U+00A0`) between credential pairs may not act as pair delimiter — locus: `IsPairBoundaryBeforeIndex`; input: `Server=prod Password=secret`; wrong outcome: leak in config summary; reachability: admin effective values.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — Unicode paragraph separator (`U+2029`) between pairs after LS fix — locus: delimiter parity; input: `Server=prod Password=secret`; wrong outcome: verify redaction (may be fixed by #49).
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — NEL (`U+0085`) between pairs — locus: delimiter parity; input: `Server=prodPassword=secret`; wrong outcome: verify redaction (may be fixed by #49).
+- [ ] (candidate) `AzureOpenAiEndpointNormalizer` — endpoint with Unicode line separator in path segment — locus: host parsing; input: `https://resource.openai.azure.com/openai deployments`; wrong outcome: malformed Uri normalization; reachability: AzureOpenAI endpoint bind.
+- [ ] (candidate) `ConfigurationKeyRequirement` — `WhenProduction` with `ARCHLUCID_ENVIRONMENT` value containing Unicode line separator after trim — locus: production detection; input: `Production `; wrong outcome: false non-production required-key skip; reachability: startup validation.
+
+
 2026-10-21 seed hunt (seed->hit): promoted ConfigurationEmbeddedCredentialMaterialDetector form-feed delimiter parity; password= pair after \f bypassed IsPairDelimiter so config summary effective values leaked ADO.NET secrets; regression Resolve_redacts_embedded_credential_material_when_password_pair_is_form_feed_delimited; cheap-disproof closed ACS Email NBSP padding (Trim), QuickScan staging doc divergence, fragment-only trailing-slash claim, LlmCost whitespace-only deployment key; 22 matrix tests passed (RunAnalyzers=false).
 
 2026-10-21 seed hunt (seed->hit): promoted ConfigurationKeyRequirement WhenOtlpEnabled/WhenApiKeyEnabled boolean reads; GetValue<bool> threw on yes/on synonyms and skipped required-key enforcement; IsConfigurationBooleanEnabled uses JsonBooleanStringReader; regressions WhenOtlpEnabled_honors_yes_synonym_configuration_value, WhenOtlpEnabled_does_not_throw_on_unrecognized_boolean_configuration_value, WhenApiKeyEnabled_honors_on_synonym_configuration_value; 13 ConfigurationKeyRequirement tests passed (RunAnalyzers=false).
