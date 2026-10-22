@@ -1,3 +1,17 @@
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `shouldClearSessionOnRefreshFailure` / BFF refresh route — malformed token JSON that yields bare `Token endpoint error 400` (no parseable OAuth fields) cleared HttpOnly cookies via legacy `message.includes("token endpoint error 400")` substring; classify only via `isOAuthRefreshTokenRejectedError`; regression `returns 503 without clearing BFF session cookies when refreshAccessToken throws opaque token endpoint error 400`; scoped oidc + BFF refresh route vitest 437/437.
+
+- [x] (proven) `shouldClearSessionOnRefreshFailure` — opaque 400 without OAuth JSON — **hit 2026-10-22 seed hunt:** classifier-only clear policy; regression above.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — mixed literal `%2B` with skin-tone glue — **cheap-disproof 2026-10-22:** covered on trunk.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — authorize mixed `%2B` before flag — **cheap-disproof 2026-10-22:** covered on trunk.
+- [x] (valid-no-repro) `initiateSupplementalOidcRedirect` — discovery failure without returnUrl — **cheap-disproof 2026-10-22:** initiate-redirect tests.
+- [x] (invalid) `OAuthTokenEndpointError` — unreadable JSON `error` only — **cheap-disproof 2026-10-22:** description-only path on trunk.
+
+- [ ] (candidate) `shouldClearSessionOnRefreshFailure` — opaque `Token endpoint error 401`/`403` without OAuth body — locus: classifier-only policy (reachability: proxy HTML).
+- [ ] (candidate) `readOAuthError` — attach HTTP status on `OAuthTokenEndpointError` for logging — locus: enhancement (reachability: ops).
+- [ ] (candidate) `refreshBffSessionCookie` — client fetch rejection vs route 503 — locus: parity (reachability: bff-session-sync).
+- [ ] (candidate) `errorFromOAuthJson` — boolean `error_description` with string `error` — locus: type coercion (reachability: vendor JSON).
+- [ ] (candidate) `initiateOidcRedirect` — first-attempt discovery failure clears explicit returnUrl — locus: intentional policy (reachability: initiate-redirect.test).
+
 ﻿2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; parity regressions for `exchangeAuthorizationCode` transient `temporarily_unavailable` authorize-retry marker, humanized `unsupported_token_type` code exchange, and BFF refresh classifier for `unsupported_token_type`; scoped `src/lib/oidc` + callback + BFF refresh vitest 549/549.
 
 - [x] (valid-no-repro) `exchangeAuthorizationCode` - humanized `temporarily_unavailable` marks authorize retry - **regression 2026-10-22:** parity with transient `server_error` exchange test.
@@ -25722,9 +25736,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** oidc-authority|oidc
 - **hunts:** 82
 - **bugs-found:** 76
+- **hunts:** 84
+- **bugs-found:** 77
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — JSON mixed literal and percent-plus pictograph parity
+- **last-bug:** 2026-10-22 — opaque token endpoint 400 must not clear BFF session
 
 - **id:** ui-oidc
 - **status:** open

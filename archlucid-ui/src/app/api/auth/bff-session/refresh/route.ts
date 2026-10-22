@@ -38,12 +38,9 @@ function shouldClearSessionOnRefreshFailure(error: unknown): boolean {
     return false;
   }
 
-  return (
-    isOAuthRefreshTokenRejectedError(error) ||
-    message.includes("token endpoint error 400") ||
-    message.includes("token endpoint error 401") ||
-    message.includes("token endpoint error 403")
-  );
+  // Bare `Token endpoint error 4xx` without parseable OAuth JSON is opaque (proxy/HTML/malformed body).
+  // Legacy plain `Error` copies that embed snake_case codes are classified via `isOAuthRefreshTokenRejectedError`.
+  return isOAuthRefreshTokenRejectedError(error);
 }
 
 /** Refreshes the HttpOnly BFF session using the server-held refresh token (LK-06 P2). */
