@@ -12470,7 +12470,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 223
+- **hunts:** 224
 - **bugs-found:** 177
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — fully empty overlay merge returned base graph without warning normalization
@@ -12661,7 +12661,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — fully empty overlay returned base graph without normalizing warnings — **hit 2026-10-22 seed hunt (seed→hit):** remove empty-overlay early return; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.MergeWarnings` — whitespace-only warning strings in base or overlay lists may survive merge when trim collapses to empty — locus: `NormalizeWarning` skip after trim; input: warnings that are only spaces; wrong outcome: merged graph warnings retain blank entries.
+2026-10-22 seed hunt (valid-no-repro): promoted `ArchitectureInventoryObservedFactGraphOverlayMerger.MergeWarnings` whitespace-only warning candidate; proved `NormalizeWarning` trims and `normalized.Length == 0` skips blank base and overlay entries before append; regression `Merge_skips_whitespace_only_warnings_in_base_and_overlay_lists`; seeded `StructuredDiagramGraphMerger.AddCompileWarnings` whitespace-only compile warning skip parity follow-on; 516 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphOverlayMerger.MergeWarnings` — whitespace-only warnings survived merge — **cheap-disproof 2026-10-22 seed hunt:** skip after trim; regression above.
+
+- [ ] (candidate) `StructuredDiagramGraphMerger.AddCompileWarnings` — whitespace-only compile warnings from diagram compiles may append blank entries on multi-document merge — locus: `NormalizeWarning` skip after trim; input: compile results emit space-only warning strings; wrong outcome: merged structured diagram warnings retain blank tokens.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
