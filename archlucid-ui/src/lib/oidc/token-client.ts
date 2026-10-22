@@ -59,7 +59,11 @@ function shouldClearBffSessionForOAuthTokenErrorCode(normalizedErrorCode: string
     return false;
   }
 
-  return shouldHumanizeTokenOAuthErrorCode(normalizedErrorCode);
+  if (shouldHumanizeTokenOAuthErrorCode(normalizedErrorCode)) {
+    return true;
+  }
+
+  return isReadableOAuthErrorCode(normalizedErrorCode);
 }
 
 /**
@@ -76,21 +80,17 @@ export function isOAuthRefreshTokenRejectedError(error: unknown): boolean {
   }
 
   const message = error.message.toLowerCase();
+  const snakeCaseOAuthTokens = message.match(/\b[a-z][a-z0-9]*(?:_[a-z0-9]+)+\b/g);
 
-  return (
-    message.includes("access_denied") ||
-    message.includes("consent_required") ||
-    message.includes("expired_token") ||
-    message.includes("interaction_required") ||
-    message.includes("invalid_client") ||
-    message.includes("invalid_grant") ||
-    message.includes("invalid_request") ||
-    message.includes("invalid_scope") ||
-    message.includes("invalid_token") ||
-    message.includes("login_required") ||
-    message.includes("redirect_uri_mismatch") ||
-    message.includes("unauthorized_client")
-  );
+  if (snakeCaseOAuthTokens) {
+    for (const token of snakeCaseOAuthTokens) {
+      if (shouldClearBffSessionForOAuthTokenErrorCode(token)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 function readOAuthErrorString(value: unknown): string {
@@ -125,7 +125,10 @@ function errorFromOAuthJson(json: unknown): Error | null {
   }
 
   if (errorCode.length === 0) {
-    return new Error(sanitizeOAuthUserFacingMessage(errorDescription));
+    return new OAuthTokenEndpointError(
+      sanitizeOAuthUserFacingMessage(errorDescription),
+      "invalid_request",
+    );
   }
 
   if (shouldHumanizeTokenOAuthErrorCode(errorCode)) {

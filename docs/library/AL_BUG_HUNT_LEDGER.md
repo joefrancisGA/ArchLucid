@@ -1,3 +1,17 @@
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `errorFromOAuthJson` / `isOAuthRefreshTokenRejectedError` — token JSON with only `error_description` (or unreadable `error` padding) returned a plain `Error`, so BFF refresh returned 503 instead of clearing cookies; wrap description-only bodies in `OAuthTokenEndpointError` with `invalid_request`, extend `shouldClearBffSessionForOAuthTokenErrorCode` with `isReadableOAuthErrorCode`, and classify legacy snake_case tokens via regex; regressions `classifies description-only OAuth JSON refresh failures for BFF session clearing`, underscore-only error test + `unsupported_grant_type` refresh classifier, route legacy/structured tests; scoped `src/lib/oidc` + BFF refresh route vitest 415/415.
+
+- [x] (proven) `errorFromOAuthJson` — description-only / unreadable `error` skipped BFF session clear — **hit 2026-10-22 seed hunt:** structured `invalid_request`; regressions above.
+- [x] (valid-no-repro) `login_required` / `invalid_request` humanized refresh — **cheap-disproof 2026-10-22:** landed on trunk commit `7985fe91d6`.
+- [x] (valid-no-repro) `redirect_uri_mismatch` refresh classifier — **cheap-disproof 2026-10-22:** humanize-derived policy on trunk.
+- [x] (invalid) `humanizeAuthorizeCallbackError` — dedicated redirect URI copy — **cheap-disproof 2026-10-22:** UX-only.
+- [x] (invalid) `initiateSupplementalOidcRedirect` — vitest mirror only — **cheap-disproof 2026-10-22:** seed-only run added parity test on trunk.
+
+- [ ] (candidate) `OAuthTokenEndpointError` — attach HTTP status from `readOAuthError` — locus: non-JSON 502 vs OAuth 400 (reachability: proxy).
+- [ ] (candidate) `decodeOAuthErrorDescription` — skin-tone modifier plus literal plus — locus: mixed-plus guard (reachability: authorize query).
+- [ ] (candidate) `initiateOidcRedirect` — unsafe explicit returnUrl during authorize retry — locus: `isSafeReturnPath` (reachability: sign-in).
+- [ ] (candidate) `exchangeAuthorizationCode` — CallbackClient shows humanized `login_required` from exchange — locus: integration test gap.
+- [ ] (candidate) `server_error` refresh — confirm route 503 transient — locus: BFF policy (reachability: existing test).
+
 ﻿2026-10-22 seed hunt (seed-only): `ui-oidc` - no new hunt-ready defect after cheap-disproof of BFF `OAuthTokenEndpointError` / refresh classifier candidates; added parity regressions for supplemental Google discovery re-mark follow-up, non-JWT empty callback retry marker, and `shouldMarkAuthorizeCallbackFailedOnExchangeError` with `OAuthTokenEndpointError`; repaired canonical `at` timestamps in `AL_BUG_HUNT_RUN_LOG.jsonl`; restored `token-client.test.ts` suite after accidental truncation in prior push; scoped `src/lib/oidc` vitest 408/408.
 2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `isOAuthRefreshTokenRejectedError` / BFF refresh session policy - humanized `login_required` and `invalid_request` refresh JSON omitted snake_case from `Error.message` so `shouldClearSessionOnRefreshFailure` returned 503 transient instead of clearing HttpOnly cookies; extend `OAUTH_REFRESH_REJECTION_ERROR_CODES` (and legacy message fallback) for interactive OAuth codes; regressions `classifies humanized login_required refresh failures for BFF session clearing`, `classifies humanized invalid_request refresh failures for BFF session clearing`, and BFF refresh route tests; scoped token-client + BFF refresh vitest 71/71.
 

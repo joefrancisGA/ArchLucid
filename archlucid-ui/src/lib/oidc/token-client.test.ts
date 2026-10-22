@@ -482,6 +482,32 @@ describe("refreshAccessToken", () => {
     }
   });
 
+  it("classifies non-humanized readable OAuth extension codes on refresh for BFF session clearing", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "unsupported_grant_type" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("unsupported_grant_type");
+    expect(isOAuthRefreshTokenRejectedError(caught)).toBe(true);
+  });
+
   it("classifies humanized access_denied refresh failures for BFF session clearing", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,
@@ -1092,13 +1118,49 @@ describe("refreshAccessToken", () => {
 
     vi.stubGlobal("fetch", fetchMock);
 
-    await expect(
-      refreshAccessToken({
+    let caught: unknown;
+
+    try {
+      await refreshAccessToken({
         tokenEndpoint: "https://login.example.com/token",
         clientId: "client",
         refreshToken: "rt",
-      }),
-    ).rejects.toThrow(/^Session expired$/);
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toBe("Session expired");
+    expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("invalid_request");
+    expect(isOAuthRefreshTokenRejectedError(caught)).toBe(true);
+  });
+
+  it("classifies description-only OAuth JSON refresh failures for BFF session clearing", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error_description: "Refresh token was revoked" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("invalid_request");
+    expect(isOAuthRefreshTokenRejectedError(caught)).toBe(true);
+    expect((caught as OAuthTokenEndpointError).message).toContain("Refresh token was revoked");
   });
 
   it("surfaces numeric-string OAuth error codes on token endpoint errors", async () => {
