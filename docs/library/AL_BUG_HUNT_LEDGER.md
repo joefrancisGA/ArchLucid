@@ -33,6 +33,17 @@
 - [ ] (candidate) refreshBffSessionCookie - refresh 474 shouldClearSession false - locus: transient refresh parity.
 - [ ] (candidate) exchangeAuthorizationCode - access_token JSON string variation-selector-9-only skips authorize retry marker - locus: literal whitespace token shape.
 - [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - locus: saturated JSON encoding class.
+2026-10-22 seed hunt (seed->hit): `application-tenancy-lifecycle` - promoted hunt-ready from seed re-read `TrialLifecycleTransitionEngine.TryEmitAuditAsync` - trial lifecycle transition audit appended after `tenantBeforeAudit` without a final re-read, so erasure offboard between that read and audit could emit `TrialLifecycleTransition` for quarantined tenants; pre-append `GetByIdAsync` offboard guard (`tenantBeforeAuditAppend`); regression `TryAdvanceTenantAsync_skips_transition_audit_when_offboard_completes_after_tenant_before_audit_read_before_audit`; adjusted expiration-metric and deleted-transition legal-hold race mock sequences for extra pre-append read; scoped tenancy filter 279/279.
+
+- [x] (proven) `TryEmitAuditAsync` - offboard after tenantBeforeAudit read before transition audit - **hit 2026-10-22 seed hunt:** `tenantBeforeAuditAppend` re-read + offboard guard; regression above.
+- [x] (valid-no-repro) `TryAdvanceTenantAsync` - offboard after workspace lookup before audit - **cheap-disproof 2026-10-22:** existing five-read regression on trunk.
+- [x] (valid-no-repro) `TryAdvanceTenantAsync` - offboard after audit before expiration metric - **cheap-disproof 2026-10-22:** existing post-audit superseded read on trunk (sequence tightened).
+- [x] (valid-no-repro) `ProvisionAsync` - offboard after tenantBeforeProvisionedAudit read - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
+
+- [ ] (candidate) `TenantProvisioningService` - offboard after tenantBeforeProvisionAudit read before policy seed - locus: earlier provision checkpoint (reachability: provision path).
+- [ ] (candidate) `TrialLifecycleTransitionEngine` - offboard on deleted-transition purge gate after audit - locus: deleted-path automation gate (reachability: trial scheduler).
+- [ ] (candidate) `TenantErasureCommandService` - consolidate pre-append audit re-read helpers - locus: refactor batch (not hunt-ready defect).
+- [ ] (candidate) `DeleteTenantAsync` - further pre-append read stacking - locus: defer to helper refactor (reachability: low).
 
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_password authorize-query UX (existing parity) and saturated readOAuthJsonErrorDescription ZWNJ glue; regression documents BFF refresh 472 parity and variation-selector-11-only access_token rejection; scoped vitest 642/642.
 

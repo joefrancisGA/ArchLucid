@@ -238,6 +238,12 @@ public sealed class TrialLifecycleTransitionEngine(
         if (tenantBeforeAudit is null || tenantBeforeAudit.OffboardedUtc is not null)
             return false;
 
+        TenantRecord? tenantBeforeAuditAppend =
+            await _tenantRepository.GetByIdAsync(tenant.Id, cancellationToken).ConfigureAwait(false);
+
+        if (tenantBeforeAuditAppend is null || tenantBeforeAuditAppend.OffboardedUtc is not null)
+            return false;
+
         Guid workspaceId = workspace.WorkspaceId;
         Guid projectId = workspace.DefaultProjectId;
         await _auditService.LogAsync(
