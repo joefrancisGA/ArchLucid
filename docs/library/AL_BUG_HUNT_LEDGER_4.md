@@ -12470,18 +12470,23 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 111
-- **bugs-found:** 106
+- **hunts:** 112
+- **bugs-found:** 107
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — manifest hash metadata not trimmed in provenance graph
+- **last-bug:** 2026-10-22 — padded graph node labels reached provenance display names
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): cheap-disproved context edge weight κ-merge candidate (`CoalesceGraphEdgeFromContext` already applies `Math.Max` on weight when model edge has a label; regression `Merge_enriches_model_edge_weight_from_context_when_model_edge_already_has_label`); promoted graph node display label trim candidate; proved `ProvenanceBuilder` copied surrounding whitespace from `GraphNode.Label` into buyer-visible graph node names while metadata fields were normalized; `ResolveGraphNodeDisplayName`; regression `Build_trims_surrounding_whitespace_on_graph_node_display_name`; seeded finding/decision title trim parity audit follow-on; 404 KnowledgeGraph + 130 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `GraphSnapshotKnowledgeModelMerger.Merge` — context edge weight ignored when model edge has label — **cheap-disproof 2026-10-22 seed hunt:** `Math.Max` in `CoalesceGraphEdgeFromContext`; regression above.
+- [x] (proven) `ProvenanceBuilder` — padded `GraphNode.Label` in graph node display names — **hit 2026-10-22 seed hunt (seed→hit):** trim on display name; regression above.
+
+- [ ] (candidate) `ProvenanceBuilder` — finding/decision display titles may still retain surrounding whitespace when titles are non-empty — locus: `ResolveFindingDisplayTitle` / `ResolveDecisionDisplayTitle`; input: padded title string; wrong outcome: buyer-visible padded titles in provenance graph.
 
 2026-10-22 seed hunt (seed→hit): promoted manifest hash metadata whitespace candidate; proved manifest provenance nodes copied padded or whitespace-only `ManifestHash` into metadata while `ProvenanceSnapshotRevisionHasher` already trimmed hashes for revision fingerprints; `NormalizeProvenanceMetadataValue` on manifest hash metadata; regressions `Build_normalizes_manifest_hash_metadata` and `Build_normalizes_whitespace_only_manifest_hash_metadata_to_empty`; seeded graph κ-merge context edge weight enrichment follow-on; 403 KnowledgeGraph + 129 Provenance scoped tests passed.
 
 - [x] (proven) `ProvenanceBuilder` — padded or whitespace-only `ManifestHash` in manifest provenance metadata — **hit 2026-10-22 seed hunt (seed→hit):** manifest hash metadata normalization; regressions above.
-
-- [ ] (candidate) `GraphSnapshotKnowledgeModelMerger.Merge` — colliding model/context edges may ignore higher context `Weight` when model edge already has a label — locus: `CoalesceGraphEdgeFromContext`; input: labeled model edge with low weight and context edge with higher weight; wrong outcome: stale edge weight after κ merge.
 
 2026-10-22 seed hunt (seed→hit): promoted artifact metadata whitespace candidate; proved artifact provenance nodes copied whitespace-only `ArtifactType` and `Format` into metadata while graph/finding/decision fields were already normalized; extended `NormalizeProvenanceMetadataValue` to artifact metadata emission; regression `Build_normalizes_whitespace_only_artifact_type_and_format_in_metadata`; seeded manifest hash metadata whitespace follow-on; 403 KnowledgeGraph + 127 Provenance scoped tests passed.
 

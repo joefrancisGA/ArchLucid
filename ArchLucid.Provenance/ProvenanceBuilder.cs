@@ -46,7 +46,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                 {
                     Type = ProvenanceNodeType.GraphNode,
                     ReferenceId = NormalizeId(n.NodeId),
-                    Name = string.IsNullOrWhiteSpace(n.Label) ? n.NodeId : n.Label,
+                    Name = ResolveGraphNodeDisplayName(n),
                     Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                     {
                         ["nodeType"] = NormalizeProvenanceMetadataValue(n.NodeType),
@@ -264,6 +264,13 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                 return finding.AgentExecutionTraceId.Trim();
 
             return finding.Trace?.SourceAgentExecutionTraceId?.Trim();
+        }
+
+        static string ResolveGraphNodeDisplayName(GraphNode node)
+        {
+            string nodeId = NormalizeId(node.NodeId);
+
+            return string.IsNullOrWhiteSpace(node.Label) ? nodeId : node.Label.Trim();
         }
 
         static string ResolveFindingDisplayTitle(Finding finding)

@@ -500,6 +500,60 @@ public sealed class GraphSnapshotKnowledgeModelMergerTests
     }
 
     [Fact]
+    public void Merge_enriches_model_edge_weight_from_context_when_model_edge_already_has_label()
+    {
+        GraphSnapshot contextGraph = new()
+        {
+            Nodes =
+            [
+                new GraphNode { NodeId = "foo", NodeType = "context", Label = "foo" },
+                new GraphNode { NodeId = "bar", NodeType = "context", Label = "bar" },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "e-ctx",
+                    FromNodeId = "foo",
+                    ToNodeId = "bar",
+                    EdgeType = "depends-on",
+                    Label = "context link",
+                    Weight = 1.0,
+                },
+            ],
+        };
+
+        GraphSnapshot modelGraph = new()
+        {
+            GraphSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            Nodes =
+            [
+                new GraphNode { NodeId = "foo", NodeType = "model", Label = "foo" },
+                new GraphNode { NodeId = "bar", NodeType = "model", Label = "bar" },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "e-model",
+                    FromNodeId = "foo",
+                    ToNodeId = "bar",
+                    EdgeType = "depends-on",
+                    Label = "model link",
+                    Weight = 0.25,
+                },
+            ],
+        };
+
+        GraphSnapshot merged = GraphSnapshotKnowledgeModelMerger.Merge(contextGraph, modelGraph);
+
+        merged.Edges.Should().ContainSingle(edge =>
+            edge.EdgeType == "depends-on"
+            && edge.Label == "model link"
+            && edge.Weight == 1.0);
+    }
+
+    [Fact]
     public void HasAny_is_true_only_for_projectable_element_kinds()
     {
         ArchitectureKnowledgeModel empty = new() { ModelId = "m", Elements = [] };
