@@ -199,7 +199,7 @@ public static class GraphSnapshotCanonicalFingerprint
         string related = string.Join(
             ",",
             (element.RelatedElementIds ?? [])
-                .Select(static id => NormalizeFingerprintText(id))
+                .Select(static id => NormalizeElementIdForFingerprint(id))
                 .Where(static id => id.Length > 0)
                 .Distinct(StringComparer.Ordinal)
                 .OrderBy(static id => id, StringComparer.Ordinal));
@@ -218,7 +218,7 @@ public static class GraphSnapshotCanonicalFingerprint
         string passages = string.Join(
             ",",
             (element.SourcePassageIds ?? [])
-                .Select(static id => NormalizeFingerprintText(id))
+                .Select(static id => NormalizeElementIdForFingerprint(id))
                 .Where(static id => id.Length > 0)
                 .Distinct(StringComparer.Ordinal)
                 .OrderBy(static id => id, StringComparer.Ordinal));
