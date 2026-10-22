@@ -35,6 +35,26 @@ public sealed class StructuredDiagramGraphMergerTests
     }
 
     [Fact]
+    public void Merge_returns_empty_result_when_context_snapshot_canonical_objects_is_null()
+    {
+        ContextSnapshot snapshot = new()
+        {
+            SnapshotId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeedc"),
+            RunId = Guid.Parse("11111111-2222-3333-4444-555555555562"),
+            ProjectId = "project-null-canonical-objects",
+            CanonicalObjects = null!,
+        };
+
+        StructuredDiagramGraphMerger merger = GraphMaterializationTestHelpers.CreateStructuredDiagramGraphMerger();
+        StructuredDiagramGraphMergeResult result = merger.Merge(snapshot, []);
+
+        result.Nodes.Should().BeEmpty();
+        result.Edges.Should().BeEmpty();
+        result.Warnings.Should().BeEmpty();
+        result.CanonicalBindings.Should().BeEmpty();
+    }
+
+    [Fact]
     public void Merge_uses_latest_diagram_label_when_multiple_documents_compile_the_same_node_id()
     {
         ArchitectureDiagramModelRecord firstDocument = new()
