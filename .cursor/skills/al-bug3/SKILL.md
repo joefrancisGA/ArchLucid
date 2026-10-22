@@ -25,6 +25,9 @@ Follow `.cursor/skills/al-bug/workflow.md` with these bindings. They replace `bu
 .\scripts\agent\al-bug-push-master.ps1 -TargetBranch bugsmash-3 -Paths @('<paths>') -CommitMessage @'
 One-sentence why focused on the defect.
 
+Private beta: One or two sentences on what changes for invited operators when this
+fix is on the RC35 / private-beta line.
+
 '@
 ```
 
@@ -38,6 +41,7 @@ Add `-Hint '<zone>'` to the picker when the user named a zone in this set. Pass 
 - Push `bugsmash-3`. The first sync creates that branch from `origin/bugsmash` when the remote set branch does not exist yet.
 - `/al-bug1`, `/al-bug2`, `/al-bug3`, and `/al-bug4` can run at the same time. Each set has its own ledger, run log, and branch.
 - Do not run unscoped `/al-bug` beside a set command. Unscoped `/al-bug` still pushes `bugsmash`.
+- On every **hit**, include the **Private beta:** paragraph in the commit body, Phase 4 result table, and this set's ledger hunt note (`workflow.md` § Private beta impact).
 
 ## Zones
 

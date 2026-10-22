@@ -96,6 +96,7 @@ Stop with **Ctrl+C**.
    - Agent URL (clickable)
    - Agent ID and run ID
    - Confirmation: `composer-2.5`, `fast=false`, `workOnCurrentBranch=true`, target branch
+   - Reminder: the cloud run must follow `workflow.md` **Private beta impact** on every hit (commit body + result table + ledger note).
 7. Delete any temp screenshot under `.cursor/tmp/` after the script succeeds.
 
 ---
