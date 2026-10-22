@@ -847,6 +847,58 @@ describe("refreshAccessToken", () => {
     expect(isOAuthRefreshTokenRejectedError(caught)).toBe(false);
   });
 
+  it("does not classify slow_down refresh failures as permanent rejection", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "slow_down" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("slow_down");
+    expect(isOAuthRefreshTokenRejectedError(caught)).toBe(false);
+  });
+
+  it("does not classify authorization_pending refresh failures as permanent rejection", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "authorization_pending" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("authorization_pending");
+    expect(isOAuthRefreshTokenRejectedError(caught)).toBe(false);
+  });
+
   it("does not classify humanized temporarily_unavailable refresh failures as permanent rejection", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,

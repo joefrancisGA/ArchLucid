@@ -56,7 +56,13 @@ function shouldHumanizeTokenOAuthErrorCode(normalizedErrorCode: string): boolean
   }
 }
 
-const OAUTH_TRANSIENT_TOKEN_ERROR_CODES = new Set(["server_error", "temporarily_unavailable"]);
+const OAUTH_TRANSIENT_TOKEN_ERROR_CODES = new Set([
+  "server_error",
+  "temporarily_unavailable",
+  // RFC 8628 device authorization grant — polling/backoff, not refresh-token revocation.
+  "authorization_pending",
+  "slow_down",
+]);
 
 function shouldClearBffSessionForOAuthTokenErrorCode(normalizedErrorCode: string): boolean {
   if (OAUTH_TRANSIENT_TOKEN_ERROR_CODES.has(normalizedErrorCode)) {
