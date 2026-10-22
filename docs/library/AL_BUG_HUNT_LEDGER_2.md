@@ -4277,6 +4277,14 @@
 
 ## Zone: api-key-auth
 
+2026-10-22 thorough hunt #5 (dry): cheap-disproof closed five picker `(candidate)` rows (shared material with both slots expired returns admin-expired message before reader-expired ~117–119 — intentional precedence; comma-only slot uses `HasConfiguredKeyMaterial` replace path — proven BOM/ZWSP rows; null `AdminKeyExpiresAt` skips expiry — by design; legacy rotate audit uses canonical `response.Slot` — `RotateKeyIdAsync_persisted_audit_uses_canonical_slot_for_padded_route_value`; duplicate `X-Api-Key` uses first non-empty value — duplicate-header regressions); no failing repro; five replacement `(candidate)` rows; scoped ApiKey tests not run.
+
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — both slots expired — **cheap-disproof 2026-10-22 #5:** admin-expired failure precedes generic invalid when admin match + expired.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — empty comma segments — **cheap-disproof 2026-10-22 #5:** unconfigured slot → `Replace` deployment action (BOM/ZWSP proven class).
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — null admin expiry — **cheap-disproof 2026-10-22 #5:** `IsKeyExpired` false when `expiresAt` null (no TTL).
+- [x] (invalid) `AdminApiKeySettingsController.RotateKeyIdAsync` — audit slot casing — **cheap-disproof 2026-10-22 #5:** proven 2026-10-11 canonical slot audit regression.
+- [x] (invalid) `ApiKeyAuthenticationHandler` — duplicate headers — **cheap-disproof 2026-10-22 #5:** `When_enabled_true_and_duplicate_api_key_headers_use_first_value`.
+
 2026-10-22 thorough hunt #4 (dry): cheap-disproof closed five picker `(candidate)` rows (exact `ExpiresAt` fails closed via inclusive `>=` — proven `When_admin_key_expiry_is_exactly_now_returns_failure`; whitespace-only `X-Api-Key` → empty extract ~77–80; unknown rotate slot → `ParseSlot` `ArgumentException`; expired admin with distinct reader key still authenticates reader — intentional + shared-key regression; `IOptionsMonitor.CurrentValue` per request — `When_api_key_options_monitor_advances_old_material_fails_and_new_succeeds`); no failing repro; five replacement `(candidate)` rows; scoped ApiKey tests not run.
 
 - [x] (invalid) `ApiKeyAuthenticationHandler.IsKeyExpired` — expiry equals now still authenticates — **cheap-disproof 2026-10-22 #4:** duplicate proven 2026-08-24; `>=` marks expired at boundary.
@@ -4331,9 +4339,9 @@
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 84
+- **hunts:** 85
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 4
+- **consecutive-dry-hunts:** 5
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-20 — hex API key material rejected when config/header casing differed
 - **related-pd-tb:** none
@@ -4397,11 +4405,17 @@
 - [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — expired admin reader differs — **cheap-disproof 2026-10-22 #4:** reader path.
 - [x] (invalid) `ApiKeyAuthenticationOptions` reload — **cheap-disproof 2026-10-22 #4:** monitor reload regression.
 
-- [ ] (candidate) `ApiKeyAuthenticationHandler` — both admin and reader slots expired but key matches material — locus: expiry checks ~117–123; input: admin-expired message precedes generic invalid.
-- [ ] (candidate) `AdminApiKeySettingsService.Rotate` — append on slot with only empty comma segments — locus: `HasConfiguredKeyMaterial`; input: replace-not-append when unconfigured (proven BOM/ZWSP rows).
-- [ ] (candidate) `ApiKeyAuthenticationHandler` — `matchesAdmin` true while `AdminKeyExpiresAt` null never expires — locus: `IsKeyExpired` null guard; input: intentional no TTL.
-- [ ] (candidate) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy route audit slot casing — locus: open row ~4490; input: canonical `response.Slot` (prior proven hit class).
-- [ ] (candidate) `ApiKeyAuthenticationHandler` — duplicate `X-Api-Key` headers join vs first-value — locus: `ExtractProvidedApiKey`; input: proven duplicate-header regression.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — both slots expired — **cheap-disproof 2026-10-22 #5:** admin-expired message precedence.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — empty comma segments — **cheap-disproof 2026-10-22 #5:** replace-not-append.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — null admin expiry — **cheap-disproof 2026-10-22 #5:** no TTL by design.
+- [x] (invalid) `AdminApiKeySettingsController.RotateKeyIdAsync` — audit slot casing — **cheap-disproof 2026-10-22 #5:** proven canonical audit.
+- [x] (invalid) `ApiKeyAuthenticationHandler` — duplicate headers — **cheap-disproof 2026-10-22 #5:** first-value regression.
+
+- [ ] (candidate) `ApiKeyAuthenticationHandler` — reader-only key with expired reader slot — locus: ~121–123; input: dedicated reader-expired message (not admin).
+- [ ] (candidate) `ApiKeyAuthenticationHandler` — `Enabled=false` without `DevelopmentBypassAll` — locus: ~56–62; input: fail-closed message (proven post-#1 fix class).
+- [ ] (candidate) `AdminApiKeySettingsService.GetSnapshot` — `ExpiresAtUtc` surfaced when slot unconfigured — locus: `BuildSlot`; input: null expiry with `IsConfigured=false`.
+- [ ] (candidate) `ApiKeyMaterialGenerator.GenerateHexKey` — rotation issues lowercase hex — locus: generator; input: hex casing fold proven 2026-10-20.
+- [ ] (candidate) `ApiKeyAuthenticationHandler` — reader permissions omit commit/run — locus: `BuildApiKeyClaims` reader ~108–111; input: intentional least-privilege reader role.
 
 - [x] (proven) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy route audit JSON used the raw `keyId` while `AdminApiKeySettingsService.ParseSlot` canonicalized whitespace and casing for the response — **hit 2026-10-11 thorough hunt:** audit `keyId` now uses `response.Slot`; regression `RotateKeyIdAsync_persisted_audit_uses_canonical_slot_for_padded_route_value`.
 
