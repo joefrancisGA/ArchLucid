@@ -39,6 +39,18 @@
 2026-10-22 seed hunt (seed->hit): `api-policy-packs` - promoted hunt-ready from seed re-read `PublishPolicyPackVersionRequestValidator` / `AssignPolicyPackRequestValidator` - FluentValidation `MaximumLength(50)` counted untrimmed `Version` padding so reachable publish/assign bodies with valid semver after trim (e.g. 46 spaces + `1.0.0`, raw length 51) returned HTTP 400 while promote/get-version already accepted the same normalized label; drop raw max-length rule and rely on `PolicyPackSemVerVersion.TryParse` trim semantics; regressions `Publish_accepts_padded_version_when_trimmed_label_is_within_limit` and `Validate_passes_when_version_padding_makes_raw_length_exceed_50_but_trimmed_semver_is_valid`; scoped `PolicyPacksController` filter 100/100.
 
 - [x] (proven) `PublishPolicyPackVersionRequestValidator` / `AssignPolicyPackRequestValidator` - raw `MaximumLength(50)` vs trimmed semver - **hit 2026-10-22 seed hunt:** align publish/assign with promote/get-version trimmed max length; regressions above.
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed state_mismatch authorize-query UX (existing parity) and saturated decodeOAuthErrorDescription ZWJ multiply-encoded glue (existing parity); regression documents BFF refresh 499 parity (client + route opaque 499) and object-replacement replacement-character variation-selector-16-only access_token rejection (existing parity); scoped vitest 783/783.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - state_mismatch authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 499 shouldClearSession false - **regression 2026-10-22:** client soft-fail plus BFF route opaque 499 without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string object-replacement replacement-character and variation-selector-16-only skips authorize retry marker - **cheap-disproof 2026-10-22:** existing normalizeTokenString strip parity test.
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** existing saturated encoding class test.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_state authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 500 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string soft-hyphen object-replacement and replacement-character-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - locus: saturated JSON encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_state authorize-query UX (existing parity) and saturated readOAuthJsonErrorDescription ZWJ multiply-encoded glue (existing parity); regression documents BFF refresh 498 parity (client + route opaque 498) and replacement-character variation-selector-16-only access_token rejection (existing parity); scoped vitest 781/781.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - invalid_state authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
