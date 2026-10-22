@@ -42,4 +42,14 @@ public sealed class TenantOrganizationDuplicateDetectorTests
             .Should()
             .BeTrue();
     }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_detects_duplicate_text_on_inner_exception_only()
+    {
+        Exception wrapped = new InvalidOperationException(
+            "Registration failed.",
+            new InvalidOperationException("duplicate key value violates unique constraint"));
+
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(wrapped).Should().BeTrue();
+    }
 }
