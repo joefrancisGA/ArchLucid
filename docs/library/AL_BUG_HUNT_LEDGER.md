@@ -25240,6 +25240,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `clearAbandonedPostSignInReturnUrl` — idle-desk return query order mismatch — **hit 2026-10-22 seed hunt:** canonical comparable paths; regressions above.
 
+2026-10-22 seed hunt (seed-only): `ui-oidc` — re-read `clearAbandonedPostSignInReturnUrl`, BFF refresh races, discovery cache, and token-client error paths after the 2026-10-22 return-hint hit cluster; promoted no hunt-ready row; cheap-disproof closed five open `(candidate)` rows (401-after-persist guard, identity-before-expiry persist, optional discovery logout URL, HTML token JSON boundary, empty RP logout JSON); seeded five new `(candidate)` rows; scoped `src/lib/oidc` vitest 326/326.
+
+- [x] (valid-no-repro) `ensureAccessTokenFresh` — rejected BFF refresh after persist moved expiry hint — **cheap-disproof 2026-10-22 seed hunt:** `does not clear a fresh sign-in when a pre-sign-in BFF refresh is rejected`.
+- [x] (valid-no-repro) `persistNonSensitiveSessionHints` — expiry hint before identity validation — **cheap-disproof 2026-10-22 seed hunt:** drops `OIDC_EXPIRES_AT_MS_KEY` when `hasOidcSessionIdentityHints()` is false after hint writes.
+- [x] (invalid) `loadDiscoveryDocument` — cached doc when optional logout URL invalid — **cheap-disproof 2026-10-22 seed hunt:** `end_session_endpoint` is optional; authorize/token endpoints still validated.
+- [x] (valid-no-repro) `postTokenForm` — HTML 200 token body — **cheap-disproof 2026-10-22 seed hunt:** throws `Token response was not valid JSON` without echoing proxy HTML (`token-client.test.ts`).
+- [x] (valid-no-repro) `resolveRpLogoutUrlFromBffSession` — empty JSON url — **cheap-disproof 2026-10-22 seed hunt:** returns null when `url` missing/blank; sign-out falls back to authority logout.
+
+- [ ] (candidate) `consumePkceState` — authorize callback `?error=` path leaves PKCE keys until the next initiate overwrites them — locus: `CallbackClient` early fail before `consumePkceState`; input: `access_denied` return with matching `state`; reachability: operator cancels IdP consent and retries sign-in.
+- [ ] (candidate) `refreshBffSessionCookie` — non-401/403 error responses set `shouldClearSession` false — locus: status branch in `bff-session-sync.ts`; input: BFF refresh `500` after session skew; reachability: proxy outage during `ensureAccessTokenFresh`.
+- [ ] (candidate) `exchangeAuthorizationCode` — `redirect_uri` must match initiate-time `getOidcRedirectUri()` after env trim — locus: token POST body; input: `NEXT_PUBLIC_OIDC_REDIRECT_URI` gains interior ZWSP between sign-in start and callback; reachability: misconfigured SPA redirect env.
+- [ ] (candidate) `loadDiscoveryDocument` — authority keys differing only by default-scheme injection share cache — locus: `discoveryUrlForAuthority`; input: `login.example.com/tenant` vs `https://login.example.com/tenant`; reachability: mixed env authority strings across routes.
+- [ ] (candidate) `signOutAndRedirectHome` — `clearOidcSession` drops `OIDC_POST_SIGN_IN_RETURN_URL_KEY` before RP logout navigation — locus: `session.ts` sign-out ordering; input: sign-out during session-expired flow with pending return hint; reachability: intentional discard vs callback restore.
+
 ## Zone: ui-oidc
 
 - **id:** ui-oidc
@@ -25248,9 +25262,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 85
+- **hunts:** 86
 - **bugs-found:** 79
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — idle-desk return query order compare drift
 - **hunts:** 78
@@ -25299,10 +25313,10 @@ eadSignedInDisplayName ZWSP-only storage — **cheap-disproof 2026-10-21 seed hu
 ormalizeOidcDisplayString yields empty; function returns null.
 - [x] (valid-no-repro) parseBffExpiresAtMs dual parser parity — **cheap-disproof 2026-10-21 seed hunt:** shared coerce truncates fractional JSON numbers on both string and number paths.
 
-- [ ] (candidate) ensureAccessTokenFresh — rejected BFF refresh after persist moved hint forward still clears session when shouldClearSession — locus: 401 branch expiresAtHintAtStart === getExpiresAtMs(); input: in-flight persist extends hint then stale 401; reachability: expired refresh racing callback persist.
-- [ ] (candidate) persistNonSensitiveSessionHints — expiry hint written before identity validation completes — locus: sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY) ordering; input: opaque access_token without JWT claims after prior user; reachability: client-only opaque token sign-in.
-- [ ] (candidate) loadDiscoveryDocument — cached discovery promise retained when optional logout URL fails validation — locus: parseDiscoveryDocument optional branch; input: discovery JSON with invalid end_session_endpoint; reachability: IdP discovery metadata.
-- [ ] (candidate) postTokenForm — HTML 200 token response throws without buyer-safe boundary — locus: 
+- [x] (valid-no-repro) ensureAccessTokenFresh — rejected BFF refresh after persist moved hint forward still clears session when shouldClearSession — **cheap-disproof 2026-10-22 seed-only:** regression `does not clear a fresh sign-in when a pre-sign-in BFF refresh is rejected`. — locus: 401 branch expiresAtHintAtStart === getExpiresAtMs(); input: in-flight persist extends hint then stale 401; reachability: expired refresh racing callback persist.
+- [x] (valid-no-repro) persistNonSensitiveSessionHints — expiry hint written before identity validation completes — **cheap-disproof 2026-10-22 seed-only:** identity-less persist removes expiry hint. — locus: sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY) ordering; input: opaque access_token without JWT claims after prior user; reachability: client-only opaque token sign-in.
+- [x] (invalid) loadDiscoveryDocument — cached discovery promise retained when optional logout URL fails validation — **cheap-disproof 2026-10-22 seed-only:** optional `end_session_endpoint` omitted when invalid. — locus: parseDiscoveryDocument optional branch; input: discovery JSON with invalid end_session_endpoint; reachability: IdP discovery metadata.
+- [x] (valid-no-repro) postTokenForm — HTML 200 token response throws without buyer-safe boundary — **cheap-disproof 2026-10-22 seed-only:** generic `Token response was not valid JSON`. — locus: 
 esponse.json() failure path; input: reverse-proxy HTML error on token POST; reachability: misconfigured token endpoint URL in deployment.
 - [ ] (candidate) 
 esolveRpLogoutUrlFromBffSession — empty JSON 200 treated as missing logout URL without telemetry — locus: GET rp-logout-url parse; input: {} body with active BFF session; reachability: sign-out chrome calling RP logout resolver.
