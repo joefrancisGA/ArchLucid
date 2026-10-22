@@ -7078,11 +7078,19 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 35
-- **bugs-found:** 35
+- **hunts:** 36
+- **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 - spaced ASCII backslash between phrase words broke managed identity detection
+
+2026-10-22 thorough hunt (hit): proved spaced ASCII `\` between phrase words (`managed \ identity`) missed `HasManagedIdentityConstraint` while compact `managed\identity` slugs stayed suppressed; `NormalizeSpacedAsciiBackslash` mirrors spaced solidus; regressions in `RequestConstraintPhraseSpacedBackslashTests`; cheap-disproof closed duplicate-space private-networking, spaced-hyphen, capability-token, and suffix-negation spacing candidates (ASCII spaces route through `SpaceSeparator` slow path and `CollapseConsecutiveAsciiSpaces`); 914 scoped RequestConstraint tests passed.
+
+- [x] (proven) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — spaced ASCII backslash between phrase words broke `ContainsAffirmativePhrase` — **hit 2026-10-22 thorough hunt:** map `\` to ASCII space when adjacent to ASCII spaces; regressions in `RequestConstraintPhraseSpacedBackslashTests`.
+- [x] (valid-no-repro) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — duplicate ASCII spaces inside `private networking` phrase — **cheap-disproof 2026-10-22 thorough hunt:** `private  networking` still affirms via `ContainsAffirmativePrivateWord` and phrase collapse on `SpaceSeparator` slow path.
+- [x] (valid-no-repro) `RequestConstraintTokenMatcher.ContainsAffirmativePhrase` — spaced hyphen clusters (`managed  -  identity`) — **cheap-disproof 2026-10-22 thorough hunt:** Word-style dash normalization maps en/em dashes to spaces; ASCII hyphen compounds remain delimiter-guarded.
+- [x] (valid-no-repro) `RequestConstraintTokenMatcher.ContainsStandaloneWordToken` — duplicate ASCII spaces around capability tokens — **cheap-disproof 2026-10-22 thorough hunt:** same `CollapseConsecutiveAsciiSpaces` slow-path contract as duplicate-space phrase hunts.
+- [x] (valid-no-repro) `RequestConstraintTokenMatcher.IsNegatedPhraseSuffix` — duplicate ASCII spaces before suffix negation — **cheap-disproof 2026-10-22 thorough hunt:** suffix scan runs on collapsed normalization text; existing negation regressions unchanged.
 
 2026-10-21 seed hunt (seed→hit, lane C): promoted spaced comma/semicolon phrase normalization; 912 scoped RequestConstraint tests passed.
 
@@ -7173,12 +7181,6 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history lives under retired `archlucid-core`; this zone owns ongoing `ArchLucid.Core/Requests/` hunts.
 
 ### Hypotheses
-
-- [ ] (candidate) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — spaced ASCII backslash between phrase words (e.g. `managed \ identity`) may miss affirmative phrase detection while compact `managed\identity` slugs must stay suppressed — locus: `RequestConstraintTokenMatcher.cs`; input: architecture constraint strings pasted from path-style bullet lists.
-- [ ] (candidate) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — duplicate ASCII spaces inside `private networking` phrase may still miss `HasPrivateNetworkingConstraint` when no other normalization characters appear — locus: `CollapseConsecutiveAsciiSpaces`; input: `Use private  networking for spoke access`.
-- [ ] (candidate) `RequestConstraintTokenMatcher.ContainsAffirmativePhrase` — spaced hyphen clusters (`managed  -  identity`) may miss phrase detection while ASCII hyphen compounds remain suppressed — locus: post-normalization phrase scan; input: Word-style spaced dash separators between constraint words.
-- [ ] (candidate) `RequestConstraintTokenMatcher.ContainsStandaloneWordToken` — duplicate ASCII spaces around capability tokens (`Require my  sql  warehouse`) may miss `RequiresSqlCapability` — locus: `ContainsStandaloneWordToken`; input: required-capability strings with irregular spacing.
-- [ ] (candidate) `RequestConstraintTokenMatcher.IsNegatedPhraseSuffix` — duplicate ASCII spaces before suffix negation (`encryption  is not required`) may bypass negation detection — locus: `IsNegatedPhraseSuffix` immediate suffix scan; input: negated constraint clauses with irregular spacing.
 
 - [x] (proven) `RequestConstraintTokenMatcher.IsNegatedPhraseSuffix` — keyword-leading modal negation gap — **hit 2026-09-07 hunt #1185 (seed→hit):** prefix negation via `IsAdviceStyleNegation` only inspects text before the matched phrase; constraints like `encryption should not require customer-managed keys` and `encryption must not be required for legacy blobs` false-positive because trailing `should not` / `must not be required` sat outside the hard-coded suffix list; fixed by delegating trailing text to `EnglishNegationTokenizer.ContainsNegation`; removed dead `ContainsMidSentenceNegation`; regressions in `HasEncryptionConstraint_does_not_false_positive_on_encryption_leading_should_not_require_phrasing`, `HasEncryptionConstraint_does_not_false_positive_on_encryption_leading_must_not_be_required_phrasing`
 - [x] (proven) `RequestConstraintTokenMatcher.IsNegatedPhraseSuffix` — trailing-clause negation on unrelated requirement heads over-suppressed leading affirmative constraint mentions — **hit 2026-09-07 hunt #1277:** suffix negation scanned full trailing text so `encryption for tenants that do not require isolation` and `encryption that does not require customer-managed keys` missed `HasEncryptionConstraint`; fixed by scoping suffix negation to immediate text before subordinate introducers and treating object-style `that does not require` relative clauses separately from antecedent negation; regressions in `HasEncryptionConstraint_returns_true_when_trailing_clause_negates_unrelated_requirement`, `HasEncryptionConstraint_returns_true_when_encryption_leads_subordinate_clause_without_customer_keys`, `HasEncryptionConstraint_does_not_false_positive_on_encryption_that_is_not_required_phrasing`
