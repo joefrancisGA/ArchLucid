@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_password authorize-query UX, BFF refresh 444 parity, and saturated readOAuthJsonErrorDescription ZWNJ glue; regression documents authorize-retry is marked when authorization code exchange returns thin-space-only access_token; scoped vitest 566/566.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - invalid_password authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 444 shouldClearSession false - **regression 2026-10-22:** transient refresh soft-fail without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string thin-space-only skips authorize retry marker - **regression 2026-10-22:** thin-space-only tokens reject exchange and set retry marker.
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWNJ glue - **cheap-disproof 2026-10-22:** saturated JSON encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_client_id authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 445 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string hair-space-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with hair-space glue - locus: saturated encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_username authorize-query UX, BFF refresh 443 parity, and saturated decodeOAuthErrorDescription ZWNJ glue; regression documents authorize-retry is marked when authorization code exchange returns no-break-space-only access_token; scoped vitest 563/563.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - invalid_username authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
