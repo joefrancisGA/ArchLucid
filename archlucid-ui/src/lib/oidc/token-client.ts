@@ -59,7 +59,12 @@ function shouldClearBffSessionForOAuthTokenErrorCode(normalizedErrorCode: string
     return false;
   }
 
-  return shouldHumanizeTokenOAuthErrorCode(normalizedErrorCode);
+  if (shouldHumanizeTokenOAuthErrorCode(normalizedErrorCode)) {
+    return true;
+  }
+
+  // Rare IdP codes (e.g. unsupported_grant_type) still surface as OAuthTokenEndpointError without humanize copy.
+  return isReadableOAuthErrorCode(normalizedErrorCode);
 }
 
 /**
