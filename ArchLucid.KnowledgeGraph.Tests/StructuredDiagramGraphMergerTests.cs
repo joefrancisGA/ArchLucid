@@ -1349,6 +1349,76 @@ public sealed class StructuredDiagramGraphMergerTests
     }
 
     [Fact]
+    public void Merge_coalesces_edge_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace()
+    {
+        ArchitectureDiagramModelRecord firstDocument = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "db",
+                    Label = "DB",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        ArchitectureDiagramModelRecord secondDocument = firstDocument;
+
+        List<CanonicalObject> canonicalObjects = [];
+        canonicalObjects.AddRange(
+            ArchitectureDiagramCanonicalObjectMapper.Map(firstDocument, "doc-edge-prop-a", labelOnlyInferenceConfidence: 0.5));
+        canonicalObjects.AddRange(
+            ArchitectureDiagramCanonicalObjectMapper.Map(secondDocument, "doc-edge-prop-b", labelOnlyInferenceConfidence: 0.5));
+
+        ContextSnapshot snapshot = new()
+        {
+            SnapshotId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeed3"),
+            RunId = Guid.Parse("11111111-2222-3333-4444-555555555559"),
+            ProjectId = "project-edge-property-key-trim",
+            CanonicalObjects = canonicalObjects,
+        };
+
+        StructuredDiagramGraphMerger merger =
+            new StructuredDiagramGraphMerger(new PaddedDiagramEdgePropertyKeyTestCompiler());
+        StructuredDiagramGraphMergeResult result = merger.Merge(snapshot, []);
+
+        GraphEdge merged = result.Edges
+            .Should()
+            .ContainSingle(edge =>
+                edge.FromNodeId == "diagram-node:api"
+                && edge.ToNodeId == "diagram-node:db")
+            .Subject;
+
+        merged.Properties[StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId].Should().Be("doc-edge-prop-b");
+        merged.Properties.Keys
+            .Count(key => string.Equals(
+                key.Trim(),
+                StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId,
+                StringComparison.OrdinalIgnoreCase))
+            .Should()
+            .Be(1);
+
+        GraphNodePropertyReader.TryGetPropertyValue(
+                merged.Properties,
+                StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId,
+                out string? evidence)
+            .Should()
+            .BeTrue();
+        evidence.Should().Be("doc-edge-prop-b");
+    }
+
+    [Fact]
     public void Merge_coalesces_edges_when_directed_pair_key_differs_only_by_endpoint_or_type_padding()
     {
         ArchitectureDiagramModelRecord firstDocument = new()
@@ -1567,6 +1637,83 @@ public sealed class StructuredDiagramGraphMergerTests
                         CanonicalGraphNodeId = canonicalGraphNodeId,
                     },
                 ],
+            };
+        }
+    }
+
+    private sealed class PaddedDiagramEdgePropertyKeyTestCompiler : IArchitectureDiagramToGraphCompiler
+    {
+        private int compileCount;
+
+        public StructuredDiagramGraphCompileResult Compile(
+            ArchitectureDiagramModelRecord model,
+            StructuredDiagramGraphCompileOptions options)
+        {
+            compileCount++;
+
+            GraphNode api = new()
+            {
+                NodeId = "diagram-node:api",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "API",
+            };
+
+            GraphNode db = new()
+            {
+                NodeId = "diagram-node:db",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "DB",
+            };
+
+            if (compileCount == 1)
+            {
+                return new StructuredDiagramGraphCompileResult
+                {
+                    Snapshot = new GraphSnapshot
+                    {
+                        Nodes = [api, db],
+                        Edges =
+                        [
+                            new GraphEdge
+                            {
+                                EdgeId = "diagram-edge:first",
+                                FromNodeId = "diagram-node:api",
+                                ToNodeId = "diagram-node:db",
+                                EdgeType = GraphEdgeTypes.ConnectsTo,
+                                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                                {
+                                    [StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId] = "doc-edge-prop-a",
+                                    [StructuredDiagramGraphPropertyKeys.InferenceConfidence] = "0.5",
+                                },
+                            },
+                        ],
+                    },
+                };
+            }
+
+            string paddedEvidenceKey = $"  {StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId}  ";
+
+            return new StructuredDiagramGraphCompileResult
+            {
+                Snapshot = new GraphSnapshot
+                {
+                    Nodes = [api, db],
+                    Edges =
+                    [
+                        new GraphEdge
+                        {
+                            EdgeId = "diagram-edge:second",
+                            FromNodeId = "diagram-node:api",
+                            ToNodeId = "diagram-node:db",
+                            EdgeType = GraphEdgeTypes.ConnectsTo,
+                            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                            {
+                                [paddedEvidenceKey] = "doc-edge-prop-b",
+                                [StructuredDiagramGraphPropertyKeys.InferenceConfidence] = "1",
+                            },
+                        },
+                    ],
+                },
             };
         }
     }
