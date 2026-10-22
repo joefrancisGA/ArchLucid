@@ -213248,10 +213248,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 42
+- **hunts:** 43
 - **bugs-found:** 40
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
+- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-20 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ External subprocessor ack trim on read
 2026-10-20 seed hunt (seed?hit): reseeded application-agents with no open hypotheses; promoted `ExternalSubprocessorEngineAcknowledgmentService.HasWorkspaceAcknowledgmentAsync` whitespace-padded tenant setting false negative; fixed trim on read; regression `HasWorkspaceAcknowledgmentAsync_returns_true_when_stored_value_has_surrounding_whitespace`; 2/2 `ExternalSubprocessorEngineAcknowledgmentServiceTests` passed.
 
@@ -213421,6 +213421,21 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-09-12 seed hunt #1869 (seed-only): reseeded api-tenancy-workspaces; scoped tests passed; no hunt-ready defect proven this pass.
 
 ---
+
+2026-10-22 seed hunt #43 (seed-only): re-read `ArchLucid.Application/Agents/` after Oct-21 envelope `AgentType` class closure; cheap-disproof on forensics projection, provenance provider derivation, model profile override parsing, and region constraint parsing; no hunt-ready promotion; seeded five follow-on `(candidate)` rows; 121 scoped `Application.Tests.Agents` tests passed.
+
+- [x] (valid-no-repro) `AgentToolInvocationRecordProjector` raw `trace.AgentType` vs envelope resolver — **cheap-disproof 2026-10-22 seed hunt #43:** ledger rows are trace-native; envelope resolver applies on `AgentResult` surfaces, not per-trace projection.
+- [x] (valid-no-repro) `ModelExecutionProfileResolver` unpadded override before `TryParse` — **cheap-disproof 2026-10-22 seed hunt #43:** `AgentModelExecutionProfileParser.TryParse` trims internally; whitespace-only overrides still fail closed via `IsNullOrWhiteSpace`.
+- [x] (valid-no-repro) `AgentResultRegionMismatchEnricher` `region:` constraint values without trim — **cheap-disproof 2026-10-22 seed hunt #43:** `Split(..., StringSplitOptions.TrimEntries)` normalizes constraint values; existing regressions cover multi-region paths.
+- [x] (valid-no-repro) `ReviewRunEngineProvenanceAggregator.DeriveProviderKind` Ordinal simulator deployment match — **cheap-disproof 2026-10-22 seed hunt #43:** `StructuralExecutionMode.Simulator` short-circuits to deterministic before deployment-name scan; mixed-deployment test already locked.
+- [x] (invalid) `AgentResultEnvelopeAgentTypeResolver` ignores `Claims` strings — **cheap-disproof 2026-10-22 seed hunt #43:** `Claims` are free-text strings, not `ArchitectureFinding` rows with `SourceAgent`.
+
+- [ ] (candidate) `RunToolInvocationForensicsBuilder.Build` — structured ledger path returns early when `structuredRecords` is non-empty, hiding supplemental trace-only invocations — locus: `BuildFromStructured` vs `BuildFromTraces`; input: partial structured log plus extra traces; wrong outcome: incomplete operator forensics; reachability: run tool forensics API.
+- [ ] (candidate) `AgentExecutionTraceRunLlmCostAggregator.BuildModelLabelFromDeployments` — measurable set uses trimmed names but sorts with `Ordinal` while dedupe is `OrdinalIgnoreCase` — locus: label ordering; input: deployment names differing only by case; wrong outcome: duplicate labels in UI copy; reachability: run cost summary surfaces.
+- [ ] (candidate) `ReviewModelAliasResolver.ResolveForRunCreateAsync` — trims override but does not normalize alias id casing before `GetRequired` — locus: alias registry lookup; input: allowed alias with different casing; wrong outcome: false `OverrideRejected`; reachability: run create model alias override API.
+- [ ] (candidate) `TopologyProposalDualModelConsensusEnricher` — `FirstOrDefault` topology selection when multiple topology-typed results exist — locus: enricher row pick; input: two topology agent results in one batch; wrong outcome: consensus runs on wrong row; reachability: post-execute enricher pipeline.
+- [ ] (candidate) `AgentModelCatalogFaithfulnessHarnessImporter` — positive readiness ratio compared to floor without validating ratio is finite — locus: `evaluationState` branch; input: corrupted summary JSON with NaN ratio; wrong outcome: Evaluated state; reachability: operator faithfulness import API.
+
 
 ## Zone: application-governance-policy
 
