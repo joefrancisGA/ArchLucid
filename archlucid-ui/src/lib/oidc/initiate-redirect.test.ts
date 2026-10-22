@@ -615,6 +615,101 @@ describe("initiate redirect PKCE isolation", () => {
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
   });
 
+  it("purges a tampered unsafe return URL and keeps authorize retry when supplemental Google discovery fails", async () => {
+    vi.stubEnv("NEXT_PUBLIC_GOOGLE_OIDC_AUTHORITY", "https://accounts.google.com");
+    vi.stubEnv("NEXT_PUBLIC_GOOGLE_OIDC_CLIENT_ID", "google-client");
+    sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, "https://evil.example/phish");
+    sessionStorage.setItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY, "1");
+
+    mockOidcConfigWithRedirectUri();
+    vi.doMock("@/lib/oidc/pkce", () => ({
+      createPkcePair: vi.fn(async () => ({ verifier: "google-verifier", challenge: "challenge" })),
+      randomOpaqueState: vi.fn(() => "google-state"),
+    }));
+    vi.doMock("@/lib/oidc/discovery", () => ({
+      loadDiscoveryDocument: vi.fn(async () => {
+        throw new Error("google discovery unavailable");
+      }),
+    }));
+
+    const { initiateSupplementalOidcRedirect } = await import("@/lib/oidc/initiate-redirect");
+
+    await expect(initiateSupplementalOidcRedirect("google")).rejects.toThrow("google discovery unavailable");
+    expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBeNull();
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
+  });
+
+  it("keeps a safe stored post-sign-in return path after sign-in start purges invalid sessionStorage values", async () => {
+    sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, "/architecture/reviews/safe-return");
+    sessionStorage.setItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY, "1");
+
+    const assignMock = vi.fn();
+    vi.stubGlobal("location", { assign: assignMock });
+
+    vi.doMock("@/lib/oidc/config", () => ({
+      getOidcAuthority: () => "https://issuer.example",
+      getOidcClientId: () => "client-id",
+      getOidcRedirectUri: () => "https://app.example/auth/callback",
+      getOidcScopes: () => "openid",
+    }));
+    vi.doMock("@/lib/oidc/pkce", () => ({
+      createPkcePair: vi.fn(async () => ({ verifier: "primary-verifier", challenge: "challenge" })),
+      randomOpaqueState: vi.fn(() => "primary-state"),
+    }));
+    vi.doMock("@/lib/oidc/discovery", () => ({
+      loadDiscoveryDocument: vi.fn(async () => ({
+        issuer: "https://issuer.example",
+        authorization_endpoint: "https://issuer.example/authorize",
+        token_endpoint: "https://issuer.example/token",
+      })),
+    }));
+    vi.doMock("@/lib/oidc/build-authorize-url", () => ({
+      buildAuthorizeUrl: vi.fn(() => "https://issuer.example/authorize?state=primary-state"),
+    }));
+
+    const { initiateOidcRedirect } = await import("@/lib/oidc/initiate-redirect");
+
+    await initiateOidcRedirect();
+
+    expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBe("/architecture/reviews/safe-return");
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
+    expect(assignMock).toHaveBeenCalled();
+  });
+
+  it("purges a poisoned post-sign-in return URL when supplemental Google sign-in starts during authorize retry", async () => {
+    vi.stubEnv("NEXT_PUBLIC_GOOGLE_OIDC_AUTHORITY", "https://accounts.google.com");
+    vi.stubEnv("NEXT_PUBLIC_GOOGLE_OIDC_CLIENT_ID", "google-client");
+    sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, "https://evil.example/phish");
+    sessionStorage.setItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY, "1");
+
+    const assignMock = vi.fn();
+    vi.stubGlobal("location", { assign: assignMock });
+
+    mockOidcConfigWithRedirectUri();
+    vi.doMock("@/lib/oidc/pkce", () => ({
+      createPkcePair: vi.fn(async () => ({ verifier: "google-verifier", challenge: "challenge" })),
+      randomOpaqueState: vi.fn(() => "google-state"),
+    }));
+    vi.doMock("@/lib/oidc/discovery", () => ({
+      loadDiscoveryDocument: vi.fn(async () => ({
+        issuer: "https://accounts.google.com",
+        authorization_endpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+        token_endpoint: "https://oauth2.googleapis.com/token",
+      })),
+    }));
+    vi.doMock("@/lib/oidc/build-authorize-url", () => ({
+      buildAuthorizeUrl: vi.fn(() => "https://accounts.google.com/o/oauth2/v2/auth?state=google-state"),
+    }));
+
+    const { initiateSupplementalOidcRedirect } = await import("@/lib/oidc/initiate-redirect");
+
+    await initiateSupplementalOidcRedirect("google");
+
+    expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBeNull();
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
+    expect(assignMock).toHaveBeenCalled();
+  });
+
   it("clears authorize retry marker when retry uses a different explicit return URL", async () => {
     sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, "/architecture/reviews/run-old");
     sessionStorage.setItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY, "1");
