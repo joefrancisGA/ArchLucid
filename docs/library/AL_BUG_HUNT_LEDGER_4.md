@@ -12470,7 +12470,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 185
+- **hunts:** 186
 - **bugs-found:** 156
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — canonical bind stamp left padded source-evidence alias keys on inventory nodes
@@ -12509,7 +12509,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphBuilder` — padded alias keys beside observed-fact structured-diagram stamps — **cheap-disproof 2026-10-22 seed hunt:** builder path only writes new nodes; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder.IsInventoryObservedFact` — padded `ProvenanceKind` or `inventory.snapshotId` property keys may misclassify inventory overlay nodes — locus: observed-fact inventory node gate; input: overlay node carries padded classification keys; wrong outcome: leftover diagram nodes skip post-overlay rebind.
+2026-10-22 seed hunt (valid-no-repro): promoted `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder.IsInventoryObservedFact` padded classification-key candidate; proved inventory overlay classification already resolves `ProvenanceKind` and `inventory.snapshotId` through `GraphNodePropertyReader` trim-normalized key lookup (parity with hunt 156 key trim); regression `Rebind_classifies_inventory_overlay_when_classification_property_keys_have_surrounding_whitespace`; seeded `IsInventoryObservedFact` padded `SourceType` fast-path gate follow-on; 477 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder.IsInventoryObservedFact` — padded `ProvenanceKind` / `inventory.snapshotId` keys misclassified overlay nodes — **cheap-disproof 2026-10-22 seed hunt:** `GraphNodePropertyReader` key trim; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder.IsInventoryObservedFact` — padded `SourceType` may miss Azure inventory snapshot fast path — locus: `SourceType` equality without trim; input: overlay node `SourceType` has surrounding whitespace; wrong outcome: false negative when property fallback markers are absent.
+
+2026-10-22 seed hunt (valid-no-repro): promoted `ArchitectureInventoryObservedFactGraphBuilder` padded structured-diagram property-key stamp candidate; proved `BuildOverlay` mints fresh `GraphNode` / `GraphEdge` property bags per inventory row and assigns canonical `ProvenanceKind` on empty dictionaries, so padded alias keys are unreachable on the builder path (padded-key hazards on inventory nodes are handled by `StructuredDiagramCompiledGraphBinder.ApplyBindingsToGraphNodes` hunts 181–184); regression `BuildOverlay_emits_single_canonical_provenance_kind_key_on_resource_nodes_and_edges`; seeded `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder` padded inventory `ProvenanceKind` classification lookup follow-on; 476 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphBuilder` — padded alias keys beside observed-fact structured-diagram stamps — **cheap-disproof 2026-10-22 seed hunt:** builder path only writes new nodes; regression above.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
