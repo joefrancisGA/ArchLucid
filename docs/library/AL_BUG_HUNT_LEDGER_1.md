@@ -6691,6 +6691,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-22 seed hunt (seed→hit): `RunExportQueryFacade.GetRunExportHistoryAsync` returned export record lists while `GetExportRecordAsync` blocked simulator-rehearsal metadata reads; gate run export history with `IRunExportCareerPostureGate`; map `CareerArtifactExportBlockedException` on `GET` run export history; regression `CompareQuality_GetRunExportHistoryAsync_throws_when_career_posture_blocks_metadata_read`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 46/46.
+
+- [x] (proven) `RunExportQueryFacade.GetRunExportHistoryAsync` - reachable `GET /v1/architecture/review/{runId}/exports` bypassed `IRunExportCareerPostureGate` while single-export read blocked metadata - **hit 2026-10-22 seed hunt:** career gate before history load; controller maps blocked posture; regression above.
+
+- [x] (valid-no-repro) `EndToEndReplayComparisonService.BuildAsync` - builds end-to-end comparison report without career metadata gate - **cheap-disproof 2026-10-22:** end-to-end replay path gated at `ComparisonReplayService` entry; not export-record metadata listing.
+- [x] (invalid) `ComparisonsApplicationService` drift report formatters - emit drift DOCX/markdown without career gate - **cheap-disproof 2026-10-22:** drift analysis invoked only after gated `AnalyzeDriftAsync` on comparison replay service.
+- [x] (valid-no-repro) `ComparisonReplayManifestHashGuard` - sealed-manifest verification before career gate on replay - **cheap-disproof 2026-10-22:** intentional ordering; manifest integrity guard is independent of career metadata gate.
+
+- [ ] (candidate) `RunExportQueryFacade.GetRunExportHistoryAsync` - dashed run id on route still parses for career gate after canonical lookup (reachable input: history `GET` with dashed GUID run id).
+- [ ] (candidate) `ExportsController.GetRunExportHistory` - sealed-manifest guard ordering vs career gate for incomplete lifecycle runs (reachable input: rehearsal run before lifecycle complete).
+- [ ] (candidate) `ComparisonReplayService.ReplayEndToEndAsync` - end-to-end artifact replay without export posture gate on manifest sections (reachable input: replay mode artifact on blocked posture run).
+- [ ] (candidate) `RunExportQueryFacade.LoadScopedExportRecordAsync` - export record scope load without career gate until single-record getters (reachable input: internal pair load for compare).
+
 2026-10-22 seed hunt (seed-only): `application-analysis` - no hunt-ready product defect; cheap-disproof closed four zone-head `(candidate)` rows on export-record list/compare replay parity; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 45/45.
 
 - [x] (valid-no-repro) `ComparisonsApplicationService.TryListByExportRecordIdAsync` - lists comparisons after export scope load only - **cheap-disproof 2026-10-22:** same tenant-scoped history surface as `TryListByRunIdAsync`; career gate remains on export/replay mutations.
@@ -6752,11 +6765,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 63
-- **bugs-found:** 57
+- **hunts:** 64
+- **bugs-found:** 58
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-21 — export-record-diff comparison replay skipped career metadata gate
+- **last-bug:** 2026-10-22 — run export history skipped career metadata gate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
