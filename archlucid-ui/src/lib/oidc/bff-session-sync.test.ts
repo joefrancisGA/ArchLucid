@@ -1396,7 +1396,6 @@ describe("refreshBffSessionCookie (LK-06 P2)", () => {
     expect(result).toEqual({ ok: false, shouldClearSession: false });
   });
 
-<<<<<<< HEAD
   it("soft-fails refresh without clearing session when the refresh route returns 485", async () => {
     vi.stubGlobal(
       "fetch",
@@ -1425,8 +1424,48 @@ describe("refreshBffSessionCookie (LK-06 P2)", () => {
     expect(result).toEqual({ ok: false, shouldClearSession: false });
   });
 
-=======
->>>>>>> cursor/ui-oidc-seed-484-consent-required-ebff
+  it("soft-fails refresh without clearing session when the refresh route returns 487", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: false,
+        status: 487,
+      })),
+    );
+
+    const result = await refreshBffSessionCookie();
+
+    expect(result).toEqual({ ok: false, shouldClearSession: false });
+  });
+
+  it("soft-fails refresh without clearing session when the refresh route returns 488", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: false,
+        status: 488,
+      })),
+    );
+
+    const result = await refreshBffSessionCookie();
+
+    expect(result).toEqual({ ok: false, shouldClearSession: false });
+  });
+
+  it("soft-fails refresh without clearing session when the refresh route returns 489", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: false,
+        status: 489,
+      })),
+    );
+
+    const result = await refreshBffSessionCookie();
+
+    expect(result).toEqual({ ok: false, shouldClearSession: false });
+  });
+
   it("sets shouldClearSession when the refresh route returns 401", async () => {
     vi.stubGlobal(
       "fetch",
