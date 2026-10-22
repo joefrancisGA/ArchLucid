@@ -12470,18 +12470,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 139
-- **bugs-found:** 133
+- **hunts:** 140
+- **bugs-found:** 134
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — provenance graph view metadata kept padded string values
+- **last-bug:** 2026-10-22 — merge coalesce kept padded provenance metadata values
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted `ProvenanceNodeCoalesce` padded metadata merge candidate; proved duplicate-key `ApplyMergedFields` copied raw incoming metadata tokens, persisting padded finding-type/category values that diverged from `ProvenanceBuilder.NormalizeProvenanceMetadataValue` on first insert; trim metadata values (and trace id metadata) on merge; regression `ApplyMergedFields_trims_metadata_values_when_incoming_has_surrounding_whitespace`; seeded `ProvenanceNodeCoalesce` padded `Name` overwrite on merge when not a placeholder downgrade follow-on; 439 KnowledgeGraph + 144 Provenance scoped tests passed.
+
+- [x] (proven) `ProvenanceNodeCoalesce.ApplyMergedFields` — padded metadata values persisted on duplicate-key merge — **hit 2026-10-22 seed hunt (seed→hit):** trim metadata on merge; regression above.
+
+- [ ] (candidate) `ProvenanceNodeCoalesce.ApplyMergedFields` — padded incoming `Name` may overwrite display title on merge when skip-downgrade does not apply — locus: name assign branch; input: incoming human-readable name with surrounding whitespace; wrong outcome: stored provenance node name diverges from builder title trim.
 
 2026-10-22 seed hunt (seed→hit): promoted `ProvenanceGraphViewMapper` padded metadata value candidate; proved `ToViewModel` shallow-copied metadata bags without trimming values, surfacing padded finding-type and trace metadata in buyer graph views; trim values in `CopyViewMetadata`; regression `ToViewModel_MapsNodes_Trims_surrounding_whitespace_on_metadata_values`; seeded `ProvenanceNodeCoalesce` padded metadata merge overwrite follow-on; 439 KnowledgeGraph + 143 Provenance scoped tests passed.
 
 - [x] (proven) `ProvenanceGraphViewMapper.ToViewModel` — padded metadata values surfaced in view models — **hit 2026-10-22 seed hunt (seed→hit):** trim metadata copy; regression above.
-
-- [ ] (candidate) `ProvenanceNodeCoalesce.ApplyMergedFields` — padded metadata values may persist on duplicate-key merge — locus: metadata foreach assign; input: incoming node metadata with padded values; wrong outcome: stored provenance metadata diverges from builder normalization.
 
 2026-10-22 seed hunt (seed→hit): promoted `ProvenanceGraphViewMapper` padded `AgentExecutionTraceId` candidate; proved view mapping copied raw trace correlation tokens into `GraphNodeVm`, breaking parity with `ProvenanceBuilder` trim on ingest; trim non-empty trace ids in `ToViewModel`; regression `ToViewModel_MapsNodes_Trims_surrounding_whitespace_on_agent_execution_trace_id`; seeded `ProvenanceGraphViewMapper` metadata value trim on view copy follow-on; 439 KnowledgeGraph + 142 Provenance scoped tests passed.
 

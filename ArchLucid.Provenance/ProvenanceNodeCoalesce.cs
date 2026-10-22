@@ -18,15 +18,15 @@ internal static class ProvenanceNodeCoalesce
 
         if (!string.IsNullOrWhiteSpace(incomingNode.AgentExecutionTraceId))
         {
-            existingNode.AgentExecutionTraceId = incomingNode.AgentExecutionTraceId;
-            existingNode.Metadata[ProvenanceMetadataKeys.AgentExecutionTraceId] =
-                incomingNode.AgentExecutionTraceId;
+            string traceId = incomingNode.AgentExecutionTraceId.Trim();
+            existingNode.AgentExecutionTraceId = traceId;
+            existingNode.Metadata[ProvenanceMetadataKeys.AgentExecutionTraceId] = traceId;
         }
 
         foreach (KeyValuePair<string, string> entry in incomingNode.Metadata)
         {
             if (!string.IsNullOrWhiteSpace(entry.Value))
-                existingNode.Metadata[entry.Key] = entry.Value;
+                existingNode.Metadata[entry.Key] = NormalizeMetadataValue(entry.Value);
         }
     }
 
@@ -67,4 +67,6 @@ internal static class ProvenanceNodeCoalesce
     }
 
     private static string NormalizeId(string id) => id.Trim();
+
+    private static string NormalizeMetadataValue(string value) => value.Trim();
 }
