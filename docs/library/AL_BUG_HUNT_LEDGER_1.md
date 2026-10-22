@@ -6691,6 +6691,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-22 seed hunt (seed→hit): `RunExportQueryFacade.GetRunExportHistoryAsync` verified export lineage only and skipped `RunExportSealedManifestHashGuard` while `GetExportRecordAsync` blocked sealed-manifest mismatches; route history through `TryEnsureExportRunLineageAndSealedHashAsync`; regression `CompareQuality_GetRunExportHistoryAsync_returns_lineage_unverified_when_sealed_manifest_hash_mismatches`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 49/49.
+
+- [x] (proven) `RunExportQueryFacade.GetRunExportHistoryAsync` - export history listing bypassed sealed-manifest hash verification while single-export read returned `LineageUnverified` - **hit 2026-10-22 seed hunt:** shared lineage+sealed guard on history; regression above.
+
+- [x] (valid-no-repro) `ComparisonReplayService.ReplayExportDiffAsync` - career gate uses comparison `LeftRunId`/`RightRunId` only when export record ids are present - **cheap-disproof 2026-10-22:** `RecordExportDiffAsync` persists canonical run ids from export records; null-anchor rows are not written.
+- [x] (valid-no-repro) `ComparisonReplayService.RegenerateExportDiffAsync` - regenerate export-diff replay does not re-invoke career gate after loading pairs - **cheap-disproof 2026-10-22:** `ReplayExportDiffAsync` gates lifecycle and career before regenerate/verify modes.
+- [x] (invalid) `RunExportQueryFacade.ReplayExportAsync` - dashed `record.RunId` bypasses career gate when `Guid.TryParse` fails - **cheap-disproof 2026-10-22:** dashed GUIDs parse; regression `ArchitectureAnalysis_export_replay_applies_career_gate_when_record_run_id_uses_dashed_guid_format`.
+- [x] (invalid) `ComparisonsApplicationService.TryHydrateRunMetadataAsync` - hydrates run detail without career posture gate - **cheap-disproof 2026-10-22:** no such method on `ComparisonsApplicationService`.
+
 2026-10-22 seed hunt (seed→hit): `ComparisonReplayService` end-to-end and export-diff replay/drift paths evaluated `IRunExportCareerPostureGate` before `EnsureRunPairLifecycleCompleteOrThrowAsync`, so artifact replay could surface career blocks (or formatted output) while export metadata reads short-circuit incomplete lifecycle first; run lifecycle completeness before career on all comparison replay/drift entry points; regression `CompareQuality_ReplayAsync_end_to_end_artifact_throws_conflict_when_lifecycle_incomplete_before_career_gate`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 48/48.
 
 - [x] (proven) `ComparisonReplayService.ReplayEndToEndAsync` / `ReplayExportDiffAsync` - comparison artifact replay skipped lifecycle completeness while evaluating career posture first - **hit 2026-10-22 seed hunt:** lifecycle-then-career on replay and drift paths; regression above.
@@ -6772,10 +6781,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
 - **hunts:** 64
-- **bugs-found:** 60
+- **bugs-found:** 61
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — comparison replay evaluated career gate before lifecycle completeness
+- **last-bug:** 2026-10-22 — export history skipped sealed-manifest hash guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

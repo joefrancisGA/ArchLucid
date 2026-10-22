@@ -84,6 +84,45 @@ public sealed class RunExportQueryFacadeTests
     }
 
     [Fact]
+    public async Task CompareQuality_GetRunExportHistoryAsync_returns_lineage_unverified_when_sealed_manifest_hash_mismatches()
+    {
+        Guid runGuid = Guid.Parse(RunId);
+        ArchitectureRunDetail scopedDetail = CreateScopedRunDetail();
+        RunDetailDto authorityDetail = CreateAuthorityDetailWithCompleteLifecycle(runGuid);
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(r => r.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(scopedDetail);
+
+        Mock<IRunExportRecordRepository> exportRecords = new();
+        exportRecords
+            .Setup(r => r.GetByRunIdAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([CreateExportRecord()]);
+
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        ManifestDocument goldenManifest =
+            SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runGuid, manifestHashService);
+        goldenManifest.ManifestHash = "DEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEF";
+        authority
+            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(authorityDetail);
+
+        RunExportQueryFacade sut = CreateFacade(runDetails, exportRecords, authority, manifestHashService);
+
+        RunExportHistoryQueryResult result =
+            await sut.GetRunExportHistoryAsync(RunId, CancellationToken.None);
+
+        result.Outcome.Should().Be(ExportRecordLoadOutcome.LineageUnverified);
+        result.MissingRunId.Should().Be(RunId);
+        result.Exports.Should().BeNull();
+        exportRecords.Verify(
+            r => r.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task CompareQuality_GetRunExportHistoryAsync_throws_when_career_posture_blocks_metadata_read()
     {
         Guid runGuid = Guid.Parse(RunId);

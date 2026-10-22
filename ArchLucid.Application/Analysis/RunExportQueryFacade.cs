@@ -56,20 +56,16 @@ public sealed class RunExportQueryFacade(
         if (await _runDetailQueryService.GetRunDetailAsync(runId, cancellationToken) is null)
             return new RunExportHistoryQueryResult { Outcome = ExportRecordLoadOutcome.RunNotFound, MissingRunId = runId };
 
-        if (Guid.TryParse(runId, out Guid runGuid))
-        {
-            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-            RunExportLineageVerificationResult? lineage =
-                await _runExportLineageVerifier.VerifyAsync(scope, runGuid, cancellationToken);
+        ExportRecordLoadOutcome? lineageOutcome =
+            await TryEnsureExportRunLineageAndSealedHashAsync(runId, cancellationToken);
 
-            if (lineage is not null && lineage.Status != RunExportLineageVerificationStatus.Match)
+        if (lineageOutcome is not null)
+        {
+            return new RunExportHistoryQueryResult
             {
-                return new RunExportHistoryQueryResult
-                {
-                    Outcome = ExportRecordLoadOutcome.LineageUnverified,
-                    MissingRunId = runId,
-                };
-            }
+                Outcome = lineageOutcome.Value,
+                MissingRunId = runId,
+            };
         }
 
         ExportRecordLoadOutcome? lifecycleOutcome =
