@@ -29,14 +29,16 @@ public class GraphNodeFactory : IGraphNodeFactory
 
         properties.TryGetValue("category", out string? category);
 
+        string objectId = item.ObjectId.Trim();
+
         return new GraphNode
         {
-            NodeId = $"obj-{item.ObjectId}",
+            NodeId = $"obj-{objectId}",
             NodeType = item.ObjectType,
             Label = item.Name,
             Category = category,
             SourceType = item.SourceType,
-            SourceId = item.SourceId,
+            SourceId = string.IsNullOrWhiteSpace(item.SourceId) ? item.SourceId : item.SourceId.Trim(),
             Properties = properties
         };
     }

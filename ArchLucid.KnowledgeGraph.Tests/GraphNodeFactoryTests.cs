@@ -33,6 +33,26 @@ public sealed class GraphNodeFactoryTests
     }
 
     [Fact]
+    public void CreateNode_trims_surrounding_whitespace_on_object_id_when_building_node_id()
+    {
+        CanonicalObject item = BuildItem(objectId: "  sql-inv-1  ");
+
+        GraphNode node = _sut.CreateNode(item);
+
+        node.NodeId.Should().Be("obj-sql-inv-1");
+    }
+
+    [Fact]
+    public void CreateNode_trims_surrounding_whitespace_on_source_id()
+    {
+        CanonicalObject item = BuildItem(sourceId: "  src-42  ");
+
+        GraphNode node = _sut.CreateNode(item);
+
+        node.SourceId.Should().Be("src-42");
+    }
+
+    [Fact]
     public void CreateNode_SetsNodeTypeFromObjectType()
     {
         CanonicalObject item = BuildItem();
@@ -149,6 +169,7 @@ public sealed class GraphNodeFactoryTests
     }
 
     private static CanonicalObject BuildItem(
+        string objectId = "cmp-1",
         string objectType = GraphNodeTypes.TopologyResource,
         string name = "test-item",
         string sourceType = "Test",
@@ -157,6 +178,7 @@ public sealed class GraphNodeFactoryTests
     {
         return new CanonicalObject
         {
+            ObjectId = objectId,
             ObjectType = objectType,
             Name = name,
             SourceType = sourceType,
