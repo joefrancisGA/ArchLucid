@@ -274,6 +274,49 @@ public sealed class ArchitectureDiagramToGraphCompilerTests
     }
 
     [Fact]
+    public void Compile_retains_edge_when_source_and_target_ids_have_surrounding_whitespace()
+    {
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                },
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "sql",
+                    Label = "SQL",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                },
+            ],
+            Edges =
+            [
+                new ArchitectureDiagramEdgeRecord
+                {
+                    Id = "e1",
+                    SourceId = "  api  ",
+                    TargetId = "  sql  ",
+                    Label = "reads",
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        StructuredDiagramGraphCompileResult result = new ArchitectureDiagramToGraphCompiler().Compile(
+            model,
+            CreateDefaultCompileOptions());
+
+        result.Snapshot.Edges.Should().ContainSingle(edge =>
+            edge.EdgeType == GraphEdgeTypes.ConnectsTo
+            && edge.FromNodeId == "diagram-node:api"
+            && edge.ToNodeId == "diagram-node:sql");
+    }
+
+    [Fact]
     public void Compile_emits_contains_edge_and_subgraph_metadata_when_subgraph_id_differs_only_by_case()
     {
         ArchitectureDiagramModelRecord model = new()
