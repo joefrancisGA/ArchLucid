@@ -12470,22 +12470,31 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 132
-- **bugs-found:** 127
+- **hunts:** 133
+- **bugs-found:** 128
 - **last-hunt:** 2026-10-22
+<<<<<<< HEAD
 <<<<<<< HEAD
 - **last-bug:** 2026-10-22 — diagram edge id persists through canonical round-trip and merge coalesce
 =======
 - **last-bug:** 2026-10-22 — topology sensitivity missed padded publicNetworkAccess truthy values
 >>>>>>> origin/bugsmash-4
+=======
+- **last-bug:** 2026-10-22 — provenance decision lookup ignored padded ReferenceId values
+>>>>>>> 5e9758748d (Trim decision ReferenceId values during provenance graph lookup.)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): cheap-disproved `TopologySensitivityClassifier` padded `resourceType` candidate (`Contains` substring checks already match ARM types with surrounding whitespace; regression `Classify_when_resource_type_has_surrounding_whitespace_returns_public_edge`); promoted `ProvenanceGraphAlgorithms.TryResolveDecisionNodeId` padded `ReferenceId` candidate; proved decision resolution compared raw stored `ReferenceId` strings while query keys were trimmed, failing lookups when graph nodes carried padded reference ids; trim stored reference ids before equality; regression `TryResolveDecisionNodeId_Resolves_When_stored_reference_id_has_surrounding_whitespace`; seeded `TryResolveDecisionNodeId` padded decision key matching padded stored GUID reference follow-on; 439 KnowledgeGraph + 137 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `TopologySensitivityClassifier.IsPublicEdgeResource` — padded `resourceType` ARM substring — **cheap-disproof 2026-10-22 seed hunt:** substring `Contains` still matches; regression above.
+- [x] (proven) `ProvenanceGraphAlgorithms.TryResolveDecisionNodeId` — padded stored decision `ReferenceId` broke lookup — **hit 2026-10-22 seed hunt (seed→hit):** trim reference id compare; regression above.
+
+- [ ] (candidate) `ProvenanceGraphAlgorithms.TryResolveDecisionNodeId` — padded GUID `ReferenceId` on decision node may break N/D format resolution — locus: guid-to-reference branch; input: decision `ReferenceId` `" aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee "`; wrong outcome: lookup by canonical guid string returns false.
 
 2026-10-22 seed hunt (seed→hit): promoted `TopologySensitivityClassifier.IsPublicEdgeResource` padded `publicNetworkAccess` candidate; proved `IsTruthy` compared raw property tokens, classifying nodes with `publicNetworkAccess` `" true "` as `Internal` instead of `PublicEdge`; trim before truthy checks; regression `Classify_when_public_network_access_value_has_surrounding_whitespace_returns_public_edge`; seeded padded `resourceType` substring public-edge detection follow-on; 438 KnowledgeGraph + 136 Provenance scoped tests passed.
 
 - [x] (proven) `TopologySensitivityClassifier.IsPublicEdgeResource` — padded `publicNetworkAccess` truthy tokens missed public-edge classification — **hit 2026-10-22 seed hunt (seed→hit):** trim in `IsTruthy`; regression above.
-
-- [ ] (candidate) `TopologySensitivityClassifier.IsPublicEdgeResource` — padded `resourceType` may miss public-edge ARM substring matches — locus: `resourceType` normalization; input: properties with `resourceType` `" Microsoft.Web/sites "`; wrong outcome: `Internal` sensitivity despite public web app type.
 
 2026-10-22 seed hunt (seed→hit): cheap-disproved `ResolveTrustOrigin` padded `anonymous` candidate (anonymous gate already trim-normalized in prior hit; regression `MaterializeFromNodes_maps_anonymous_property_with_surrounding_whitespace_to_public_anonymous_trust`); promoted public/anonymous property-bag heuristic candidate; proved `ResolveTrustOrigin` scanned `public`/`anonymous` keys with literal truthy value equality, missing padded `true`/`enabled`/`allow` tokens and materializing `Internal` actors; trim flag values in heuristic loop; regression `MaterializeFromNodes_maps_public_flag_property_with_surrounding_whitespace_to_external_trust`; seeded `TopologySensitivityClassifier.IsTruthy` padded `publicNetworkAccess` follow-on; 437 KnowledgeGraph + 136 Provenance scoped tests passed.
 
