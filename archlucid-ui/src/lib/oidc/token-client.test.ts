@@ -385,6 +385,33 @@ describe("refreshAccessToken", () => {
     expect((caught as OAuthTokenEndpointError).message).not.toContain("unauthorized_client");
   });
 
+  it("classifies humanized invalid_scope refresh failures for BFF session clearing", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "invalid_scope" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect(isOAuthRefreshTokenRejectedError(caught)).toBe(true);
+    expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("invalid_scope");
+    expect((caught as OAuthTokenEndpointError).message).not.toContain("invalid_scope");
+  });
+
   it("classifies humanized expired_token refresh failures for BFF session clearing", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,

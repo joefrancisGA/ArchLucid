@@ -11,6 +11,20 @@
 - [ ] (candidate) `OAuthTokenEndpointError` — carry `httpStatus` from token POST — locus: `readOAuthError`; input: distinguish 502 HTML from OAuth JSON (reachability: proxy).
 - [ ] (candidate) `readOAuthJsonErrorDescription` — regional-indicator flag plus in JSON with percent-encoded plus — locus: mixed path; input: saturated encoding class avoid.
 - [ ] (candidate) `refreshBffSessionCookie` — surface 401 body title to client telemetry — locus: fetch handler; input: observability only (reachability: low).
+2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `isOAuthRefreshTokenRejectedError` - refresh grant JSON `invalid_scope` humanized without snake_case in `Error.message` so BFF refresh returned 503 instead of clearing HttpOnly cookies (same classifier gap as `unauthorized_client`); add `invalid_scope` to `OAUTH_REFRESH_REJECTION_ERROR_CODES`; regressions `classifies humanized invalid_scope refresh failures for BFF session clearing` and BFF route humanized invalid_scope cookie clear; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped token-client + BFF refresh route vitest 63/63.
+
+- [x] (proven) `isOAuthRefreshTokenRejectedError` - humanized refresh `invalid_scope` skipped BFF session clear - **hit 2026-10-22 seed hunt:** classifier set extended; regressions above.
+- [x] (valid-no-repro) `shouldHumanizeTokenOAuthErrorCode` - `invalid_scope` humanize - **cheap-disproof 2026-10-22:** fixed copy already on trunk; gap was classifier only.
+- [x] (invalid) `OAuthTokenEndpointError` - HTTP status for proxy non-JSON 401 vs 400 - **cheap-disproof 2026-10-22:** enhancement; substring fallback unchanged.
+- [x] (invalid) `humanizeAuthorizeCallbackError` - dedicated `expired_token` copy - **cheap-disproof 2026-10-22:** UX-only; default humanize sufficient.
+- [x] (invalid) `exchangeAuthorizationCode` - expired_token integration test only - **cheap-disproof 2026-10-22:** allowlist already covers token JSON path.
+
+- [ ] (candidate) `isOAuthRefreshTokenRejectedError` - `access_denied` on refresh grant - locus: classifier set; input: rare IdP refresh denial (reachability: humanized copy).
+- [ ] (candidate) `OAuthTokenEndpointError` - attach HTTP status for proxy 502 HTML body - locus: `readOAuthError`; input: distinguish transient proxy (reachability: session clear).
+- [ ] (candidate) `bff-session-sync` - ensureAccessTokenFresh on refresh 401 after invalid_scope - locus: client; input: add client test (reachability: server now clears).
+- [ ] (candidate) `shouldMarkAuthorizeCallbackFailedOnExchangeError` - skip mark for refresh-only OAuthTokenEndpointError - locus: exchange vs refresh; input: already covered for refresh path.
+- [ ] (candidate) `token-client.test` - consent_required refresh classifier parity - locus: allowlist vs classifier; input: session policy (reachability: login_required family).
+
 2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `shouldHumanizeTokenOAuthErrorCode` / `isOAuthRefreshTokenRejectedError` - refresh grant JSON `expired_token` surfaced raw `expired_token` in CallbackClient and skipped BFF session clear (classifier gap); add `expired_token` to humanize allowlist and `OAUTH_REFRESH_REJECTION_ERROR_CODES`; regressions `humanizes expired_token refresh grant errors instead of raw snake_case`, `classifies humanized expired_token refresh failures for BFF session clearing`, and BFF route humanized expired_token cookie clear; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped token-client + BFF refresh route vitest 61/61.
 
 - [x] (proven) `errorFromOAuthJson` / `shouldHumanizeTokenOAuthErrorCode` - raw `expired_token` on refresh - **hit 2026-10-22 seed hunt:** allowlist + classifier; regressions above.

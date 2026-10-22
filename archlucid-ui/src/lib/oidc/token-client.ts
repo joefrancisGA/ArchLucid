@@ -33,6 +33,7 @@ const OAUTH_REFRESH_REJECTION_ERROR_CODES = new Set([
   "expired_token",
   "invalid_client",
   "invalid_grant",
+  "invalid_scope",
   "invalid_token",
   "unauthorized_client",
 ]);
@@ -56,6 +57,7 @@ export function isOAuthRefreshTokenRejectedError(error: unknown): boolean {
     message.includes("expired_token") ||
     message.includes("invalid_client") ||
     message.includes("invalid_grant") ||
+    message.includes("invalid_scope") ||
     message.includes("invalid_token") ||
     message.includes("unauthorized_client")
   );
