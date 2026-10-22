@@ -100,6 +100,8 @@ public static class ProvenanceSnapshotRevisionHasher
             .OrderBy(group => group.Key, StringComparer.OrdinalIgnoreCase)
             .Select(group =>
             {
+                Finding representative = group.First();
+
                 string relatedNodeIds = string.Join(
                     ",",
                     group.SelectMany(finding => finding.RelatedNodeIds)
@@ -108,7 +110,11 @@ public static class ProvenanceSnapshotRevisionHasher
                         .Distinct(StringComparer.OrdinalIgnoreCase)
                         .OrderBy(static nodeId => nodeId, StringComparer.OrdinalIgnoreCase));
 
-                return $"{group.Key}|{relatedNodeIds}";
+                string title = (representative.Title ?? string.Empty).Trim();
+                string findingType = (representative.FindingType ?? string.Empty).Trim();
+                string category = (representative.Category ?? string.Empty).Trim();
+
+                return $"{group.Key}|{relatedNodeIds}|{title}|{findingType}|{category}";
             });
 
         return string.Join(";", parts);

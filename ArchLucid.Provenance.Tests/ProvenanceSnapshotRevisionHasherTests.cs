@@ -93,6 +93,69 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     }
 
     [Fact]
+    public void Compute_changes_when_finding_title_changes_but_finding_id_and_related_nodes_are_unchanged()
+    {
+        Finding baselineFinding = new()
+        {
+            FindingId = "find-1",
+            FindingType = "Compliance",
+            Category = "sec",
+            EngineType = "compliance",
+            Severity = FindingSeverity.Warning,
+            Title = "Original title",
+            Rationale = "r",
+            RelatedNodeIds = ["node-a"],
+        };
+
+        Finding updatedFinding = new()
+        {
+            FindingId = "find-1",
+            FindingType = "Compliance",
+            Category = "sec",
+            EngineType = "compliance",
+            Severity = FindingSeverity.Warning,
+            Title = "Renamed title",
+            Rationale = "r",
+            RelatedNodeIds = ["node-a"],
+        };
+
+        ProvenanceBuildInput baseline = CreateInput([], findings: [baselineFinding]);
+        ProvenanceBuildInput updated = CreateInput([], findings: [updatedFinding]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
+    public void Compute_unchanged_when_only_findings_generation_status_changes()
+    {
+        ProvenanceBuildInput baseline = CreateInput([], findings: [CreateSampleFinding()]);
+        ProvenanceBuildInput updated = CreateInput([], findings: [CreateSampleFinding()]);
+        baseline.Findings.GenerationStatus = FindingsSnapshotGenerationStatus.PartiallyComplete;
+        updated.Findings.GenerationStatus = FindingsSnapshotGenerationStatus.Complete;
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
+    public void Compute_unchanged_when_only_rule_set_id_and_version_change()
+    {
+        ProvenanceBuildInput baseline = CreateInput([], ["rule-a"]);
+        ProvenanceBuildInput updated = CreateInput([], ["rule-a"]);
+
+        RuleAuditTraceDto baselineTrace = (RuleAuditTraceDto)baseline.DecisionTrace;
+        RuleAuditTraceDto updatedTrace = (RuleAuditTraceDto)updated.DecisionTrace;
+        baselineTrace.RuleAudit.RuleSetId = "ruleset-v1";
+        baselineTrace.RuleAudit.RuleSetVersion = "1.0.0";
+        updatedTrace.RuleAudit.RuleSetId = "ruleset-v2";
+        updatedTrace.RuleAudit.RuleSetVersion = "2.0.0";
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
     public void Compute_changes_when_finding_related_node_ids_change_but_findings_snapshot_id_is_unchanged()
     {
         Finding baselineFinding = new()
@@ -286,6 +349,19 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
         ProvenanceSnapshotRevisionHasher.Compute(single, BundleId)
             .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(duplicated, BundleId));
     }
+
+    private static Finding CreateSampleFinding() =>
+        new()
+        {
+            FindingId = "find-1",
+            FindingType = "Compliance",
+            Category = "sec",
+            EngineType = "compliance",
+            Severity = FindingSeverity.Warning,
+            Title = "Finding",
+            Rationale = "r",
+            RelatedNodeIds = ["node-a"],
+        };
 
     private static ProvenanceBuildInput CreateInput(
         IReadOnlyList<SynthesizedArtifact> artifacts,

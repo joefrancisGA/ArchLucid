@@ -12470,12 +12470,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 64
-- **bugs-found:** 54
+- **hunts:** 65
+- **bugs-found:** 55
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — multi-document structured diagram merge duplicated ConnectsTo edges
+- **last-bug:** 2026-10-22 — provenance revision hash ignored finding title under stable snapshot id
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): reseeded findings fingerprint surface; proved `ComputeFindingsFingerprint` keyed only finding id and `RelatedNodeIds`, so buyer-visible finding title changes under a stable `FindingsSnapshotId` left `ProvenanceGraphAccessService` serving stale finding node names; extended fingerprint with normalized title, finding type, and category; regression `Compute_changes_when_finding_title_changes_but_finding_id_and_related_nodes_are_unchanged`; cheap-disproved `GenerationStatus`-only and `RuleSetId`/`RuleSetVersion`-only drift with regressions `Compute_unchanged_when_only_findings_generation_status_changes` and `Compute_unchanged_when_only_rule_set_id_and_version_change`; seeded agent-trace and merger binding dedup candidates; 378 KnowledgeGraph + 70 Provenance scoped tests passed.
+
+- [x] (proven) `ProvenanceSnapshotRevisionHasher.ComputeFindingsFingerprint` — finding title (and display metadata) changes did not change revision fingerprint when `FindingId` and `RelatedNodeIds` were unchanged — **hit 2026-10-22 seed hunt (seed→hit):** include normalized title, finding type, and category in findings fingerprint; regression above.
+- [x] (valid-no-repro) `ProvenanceSnapshotRevisionHasher.Compute` — `FindingsSnapshot.GenerationStatus` changes with stable decision-grade findings list — **cheap-disproof 2026-10-22 seed hunt:** `ProvenanceBuilder` materializes only `Findings` rows, not seal metadata; regression `Compute_unchanged_when_only_findings_generation_status_changes`.
+- [x] (valid-no-repro) `ProvenanceSnapshotRevisionHasher.Compute` — `RuleSetId` / `RuleSetVersion` changes with stable applied rules — **cheap-disproof 2026-10-22 seed hunt:** parity with `RuleSetHash`; regression `Compute_unchanged_when_only_rule_set_id_and_version_change`.
+
+- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeFindingsFingerprint` — `AgentExecutionTraceId` / trace linkage changes may not change revision fingerprint when finding id and related nodes are unchanged — locus: `ComputeFindingsFingerprint`; input: finding re-linked to a different agent execution trace under stable snapshot id; wrong outcome: stale provenance lineage labels.
+- [ ] (candidate) `StructuredDiagramGraphMerger.Merge` — duplicate `CanonicalBindings` may accumulate when multiple documents bind the same diagram node to the same inventory object — locus: bindings `AddRange` loop; input: two documents with identical ARM bind targets; wrong outcome: redundant binding rows downstream.
 
 2026-10-22 seed hunt (seed→hit): promoted merger dedup candidate; proved `StructuredDiagramGraphMerger.Merge` appended parallel `ConnectsTo` edges when two reconstructed documents shared the same logical `api`→`db` connectivity; fixed with cross-document node id dedup and directed-pair edge dedup parity with `ArchitectureDiagramToGraphCompiler`; regression `Merge_deduplicates_connects_to_edges_when_multiple_documents_share_equivalent_endpoints`; 378 KnowledgeGraph + 67 Provenance scoped tests passed.
 
@@ -12502,9 +12511,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-22 seed hunt (seed-only): re-read revision-hasher and `ProvenanceBuilder` trace consumption after graph/findings/manifest fingerprint hits; cheap-disproved `RuleSetHash`-only drift (no provenance graph shape or revision contract for rule-set metadata); regressions `Compute_unchanged_when_only_rule_set_hash_changes` and `Build_produces_same_graph_shape_when_only_rule_set_hash_changes`; seeded merger dedup, partial findings seal, and rule-set id/version revision candidates; 377 KnowledgeGraph + 67 Provenance scoped tests passed; no production change.
 
 - [x] (valid-no-repro) `ProvenanceSnapshotRevisionHasher.Compute` — `RuleAuditTracePayload.RuleSetHash` changes with stable `DecisionTraceId` and `AppliedRuleIds` — **cheap-disproof 2026-10-22 seed hunt:** `ProvenanceBuilder` does not materialize rule-set hash into nodes or edges; regressions above document current contract.
-
-- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.Compute` — `FindingsSnapshot.GenerationStatus` or withheld/demoted finding rows may change without changing decision-grade `Findings` list fingerprint — locus: revision canonical string vs `FindingsSnapshot` seal fields; input: snapshot re-opened from partial to complete under stable `FindingsSnapshotId`; wrong outcome: stale provenance while operators treat snapshot as sealed.
-- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.Compute` — `RuleAuditTracePayload.RuleSetId` / `RuleSetVersion` changes may not change revision fingerprint when trace id and applied rules are unchanged — locus: canonical revision string; input: rule-set version bump without applied-rule delta; wrong outcome: stale provenance when rule metadata is buyer-visible on manifest only.
 
 2026-10-22 seed hunt (seed→hit): promoted revision-hasher candidates; proved `ProvenanceSnapshotRevisionHasher.Compute` omitted `Manifest.ManifestHash` and normalized `AppliedRuleIds` from the canonical fingerprint so `ProvenanceGraphAccessService` could reuse a stored snapshot after manifest refresh or rule-list amendment under the same ids; regressions `Compute_changes_when_manifest_hash_changes_but_manifest_id_is_unchanged` and `Compute_changes_when_applied_rule_ids_change_but_decision_trace_id_is_unchanged`; 377 KnowledgeGraph + 61 Provenance scoped tests passed.
 
