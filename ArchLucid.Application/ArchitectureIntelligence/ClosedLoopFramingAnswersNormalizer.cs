@@ -1,6 +1,7 @@
 using System.Text;
 
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Core.Persistence.Graph;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
@@ -51,7 +52,10 @@ internal static class ClosedLoopFramingAnswersNormalizer
 
         string normalized = NormalizeUnicode(value.Trim());
 
-        return normalized.Length == 0 ? normalized : normalized.ToLowerInvariant();
+        if (normalized.Length == 0)
+            return normalized;
+
+        return GraphSnapshotCanonicalFingerprint.NormalizeReviewCachePathLikeToken(normalized.ToLowerInvariant());
     }
 
     private static string NormalizeUnicode(string value)

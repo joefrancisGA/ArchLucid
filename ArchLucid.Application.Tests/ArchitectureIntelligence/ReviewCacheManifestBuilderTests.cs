@@ -5741,6 +5741,223 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_baseline_element_property_key_differs_only_by_backslash_vs_forward_slash_in_path()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-property-key-path-backslash";
+
+        ArchitectureKnowledgeModel forwardSlash = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Properties = new Dictionary<string, string> { ["metadata/docs/readme"] = "value" },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel backslash = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Properties = new Dictionary<string, string> { ["metadata\\docs\\readme"] = "value" },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, forwardSlash).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, backslash).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_element_property_value_differs_only_by_dot_dot_slash_segment()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-property-value-dotdot";
+
+        ArchitectureKnowledgeModel collapsed = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Properties = new Dictionary<string, string> { ["repo"] = "github.com/org/api" },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel withDotDot = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Properties = new Dictionary<string, string> { ["repo"] = "github.com/org/service/../api" },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, collapsed).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, withDotDot).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_model_framing_answer_value_differs_only_by_backslash_vs_forward_slash_in_path()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-framing-value-path-backslash";
+
+        ArchitectureKnowledgeModel forwardSlash = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            FramingAnswers = new Dictionary<string, string> { ["evidence"] = "docs/architecture/overview.md" },
+        };
+
+        ArchitectureKnowledgeModel backslash = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            FramingAnswers = new Dictionary<string, string> { ["evidence"] = "docs\\architecture\\overview.md" },
+        };
+
+        ReviewCacheManifestBuilder.Build(request, forwardSlash).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, backslash).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_request_framing_answer_value_differs_only_by_backslash_vs_forward_slash_in_path()
+    {
+        ClosedLoopReasoningRequest forwardSlash = CreateRequest("Architecture note.");
+        forwardSlash.FramingAnswers = new Dictionary<string, string> { ["evidence"] = "docs/architecture/overview.md" };
+
+        ClosedLoopReasoningRequest backslash = CreateRequest("Architecture note.");
+        backslash.FramingAnswers = new Dictionary<string, string> { ["evidence"] = "docs\\architecture\\overview.md" };
+
+        ReviewCacheManifestBuilder.Build(forwardSlash).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(backslash).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_element_provenance_notes_differs_only_by_backslash_vs_forward_slash_in_path()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-provenance-notes-path-backslash";
+
+        ArchitectureKnowledgeModel forwardSlash = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance { Notes = "see docs/architecture/overview.md" },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel backslash = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance { Notes = "see docs\\architecture\\overview.md" },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, forwardSlash).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, backslash).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_element_provenance_passage_quote_differs_only_by_backslash_vs_forward_slash_in_path()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-passage-quote-path-backslash";
+
+        ArchitectureKnowledgeModel forwardSlash = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator
+                        {
+                            ArtifactId = "artifact-1",
+                            Quote = "docs/architecture/overview.md",
+                        },
+                    },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel backslash = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator
+                        {
+                            ArtifactId = "artifact-1",
+                            Quote = "docs\\architecture\\overview.md",
+                        },
+                    },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, forwardSlash).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, backslash).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_baseline_related_element_ids_differ_only_by_leading_slash()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
