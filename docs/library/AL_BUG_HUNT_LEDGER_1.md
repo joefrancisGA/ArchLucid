@@ -7803,6 +7803,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-22 seed hunt (seed-only): re-read Agents/ after IaC JSON unwrap hit; closed stale candidates; no hunt-ready row promoted (saturated `other`); 138 scoped Application.Tests.Agents tests passed.
+
+- [x] (invalid) `FindingIacStubGenerator.TryGenerateStubAsync` — JSON-string-wrapped Bicep — **cheap-disproof 2026-10-22 seed hunt:** proven-class hit `TryUnwrapJsonStringLiteral` in prior run; regression `GenerateAndPersistStubsForRunAsync_unwraps_json_string_literal_completion_before_disclaimer_check`.
+
+- [x] (invalid) `AgentExecutionTraceRunLlmCostAggregator.Compute` — whitespace-only deployment in `measurableDeployments` — **cheap-disproof 2026-10-22 seed hunt:** `IsNullOrWhiteSpace(modelDeploymentName)` guard before `measurableDeployments.Add`.
+
+- [x] (valid-no-repro) `AgentConfidenceCalibrator.CalibrateAsync` — non-finite raw confidence becomes `0.0` — **cheap-disproof 2026-10-22 seed hunt:** `ClampUnit` intentionally maps non-finite values to `0.0`; samples with non-finite semantic scores already covered by `CalibrateAsync_returns_finite_value_when_calibration_samples_include_non_finite_scores`.
+
+- [x] (invalid) `TopologyProposalDualModelConsensusEnricher.EnrichAsync` — secondary tier disallowed by workspace engine set — **cheap-disproof 2026-10-22 seed hunt:** secondary invoker returns null and enricher logs warning (no silent merge); no repro without wiring disallowed tier in test host.
+
+- (candidate) `FindingIacStubGenerator.NormalizeLlmStubBody` — UTF-8 BOM before disclaimer line may still duplicate disclaimer — locus: post-unwrap trim; input: LLM returns `\uFEFF` + disclaimer (verify host encoding).
+- (candidate) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — `evaluationState` uses `>=` on readiness vs floor so equal ratios mark Evaluated — locus: threshold compare; input: readiness exactly equals floor (document intended inclusive bound).
+- (candidate) `ReviewRunEngineProvenanceAggregator.DerivePolicyPackVersion` — null policy titles skipped but whitespace-only titles kept — locus: title trim loop; input: policy title `"   "` in evidence package.
+- (candidate) `RunToolInvocationForensicsBuilder.Build` — structured records preferred even when trace list empty — locus: `BuildFromStructured`; input: empty traces with non-empty structured ledger rows.
+
 2026-10-22 seed hunt (seed→hit): promoted JSON-string-wrapped IaC stub completions; regression `GenerateAndPersistStubsForRunAsync_unwraps_json_string_literal_completion_before_disclaimer_check`; 138 scoped Application.Tests.Agents tests passed.
 
 - [x] (proven) `FindingIacStubGenerator.NormalizeLlmStubBody` — `CompleteJsonAsync` JSON string literals left leading `"` so disclaimer detection prepended a duplicate line — **hit 2026-10-22 seed hunt:** `TryUnwrapJsonStringLiteral` before fence/disclaimer normalization. [class:state-machine-gap]
@@ -7972,7 +7987,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 61
+- **hunts:** 62
 - **bugs-found:** 56
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
