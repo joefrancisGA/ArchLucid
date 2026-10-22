@@ -12470,7 +12470,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 240
+- **hunts:** 241
 - **bugs-found:** 177
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — fully empty overlay merge returned base graph without warning normalization
@@ -12729,7 +12729,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — duplicate relationship rows minted parallel edges — **cheap-disproof 2026-10-22 seed hunt:** `edgeKeys` dedupe after normalize; regressions above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — inventory resource rows with empty normalized ARM id may mint placeholder overlay nodes — locus: `normalizedArmId.Length == 0` skip; input: resource row with whitespace-only `AzureResourceId`; wrong outcome: overlay contains node with empty citations.
+2026-10-22 seed hunt (valid-no-repro): promoted `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` empty normalized ARM id resource row candidate; proved `ArmResourceIdNormalizer.Normalize` plus `normalizedArmId.Length == 0` continue skips whitespace-only `AzureResourceId` rows before node mint; regression `BuildOverlay_skips_resource_rows_when_azure_resource_id_normalizes_to_empty`; seeded `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` cloud-resource-id-only rows without ARM id resolve node id fallback follow-on; 533 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — empty normalized ARM id minted placeholder nodes — **cheap-disproof 2026-10-22 seed hunt:** skip before mint; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — resource rows with only `CloudResourceId` and missing ARM id may throw or mint unstable node ids — locus: `ResolveNodeId` ARM fallback; input: resource without `AzureResourceId` but with cloud resource guid; wrong outcome: overlay mint fails or uses raw whitespace ARM token.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 

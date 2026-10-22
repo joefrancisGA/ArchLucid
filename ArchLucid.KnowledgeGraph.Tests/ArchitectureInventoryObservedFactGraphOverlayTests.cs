@@ -146,6 +146,56 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void BuildOverlay_skips_resource_rows_when_azure_resource_id_normalizes_to_empty()
+    {
+        const string validArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/pay-sql-prod";
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                CreatedUtc = new DateTime(2026, 7, 18, 12, 0, 0, DateTimeKind.Utc),
+            },
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("44444444-4444-4444-4444-444444444444"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    CloudResourceId = CloudResourceId,
+                    AzureResourceId = validArmId,
+                    ResourceType = "Microsoft.Sql/servers",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                },
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("55555555-5555-5555-5555-555555555555"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = "   ",
+                    ResourceType = "Microsoft.Sql/servers",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                },
+            ],
+            Relationships = [],
+        };
+
+        GraphSnapshot overlay = ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay(
+            snapshot,
+            RunId,
+            ContextSnapshotId);
+
+        overlay.Nodes.Should().ContainSingle();
+        overlay.Nodes[0].NodeId.Should().Be(CloudResourceId.ToString("D"));
+    }
+
+    [Fact]
     public void BuildOverlay_boundFixture_emitsObservedFactNodesWithCloudResourceId()
     {
         AzureInventorySnapshotDetailReadModel snapshot = CreateSnapshotFixture();
