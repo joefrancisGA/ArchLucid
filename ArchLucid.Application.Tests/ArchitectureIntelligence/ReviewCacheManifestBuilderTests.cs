@@ -547,6 +547,108 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_source_content_type_is_whitespace_only_vs_empty_string()
+    {
+        ClosedLoopReasoningRequest whitespaceType = CreateRequest("Same body.");
+        whitespaceType.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "arch.md",
+                ContentType = "   \t  ",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest emptyType = CreateRequest("Same body.");
+        emptyType.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "arch.md",
+                ContentType = string.Empty,
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(whitespaceType).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(emptyType).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_source_content_type_is_null_vs_empty_string()
+    {
+        ClosedLoopReasoningRequest nullType = CreateRequest("Same body.");
+        nullType.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "arch.md",
+                ContentType = null!,
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest emptyType = CreateRequest("Same body.");
+        emptyType.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "arch.md",
+                ContentType = string.Empty,
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(nullType).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(emptyType).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_tenant_configuration_hash_when_non_guid_workspace_differs_only_by_surrounding_whitespace()
+    {
+        ClosedLoopReasoningRequest padded = CreateRequest("Architecture note.");
+        padded.WorkspaceId = "  my-workspace  ";
+
+        ClosedLoopReasoningRequest trimmed = CreateRequest("Architecture note.");
+        trimmed.WorkspaceId = "my-workspace";
+
+        ReviewCacheManifestBuilder.Build(padded).TenantConfigurationHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(trimmed).TenantConfigurationHash);
+    }
+
+    [Fact]
+    public void Build_matches_declared_priorities_hash_when_list_contains_only_whitespace_entry_vs_empty_list()
+    {
+        ClosedLoopReasoningRequest whitespaceOnly = CreateRequest("Architecture note.");
+        whitespaceOnly.DeclaredPriorities = ["   "];
+
+        ClosedLoopReasoningRequest emptyList = CreateRequest("Architecture note.");
+        emptyList.DeclaredPriorities = [];
+
+        ReviewCacheManifestBuilder.Build(whitespaceOnly).DeclaredPrioritiesHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(emptyList).DeclaredPrioritiesHash);
+    }
+
+    [Fact]
+    public void Build_matches_tenant_configuration_hash_when_workspace_is_null_vs_empty_string()
+    {
+        ClosedLoopReasoningRequest nullWorkspace = CreateRequest("Architecture note.");
+        nullWorkspace.WorkspaceId = null;
+
+        ClosedLoopReasoningRequest emptyWorkspace = CreateRequest("Architecture note.");
+        emptyWorkspace.WorkspaceId = string.Empty;
+
+        ReviewCacheManifestBuilder.Build(nullWorkspace).TenantConfigurationHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(emptyWorkspace).TenantConfigurationHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_source_content_type_differs_only_by_casing()
     {
         ClosedLoopReasoningRequest lower = CreateRequest("Same body.");

@@ -8712,6 +8712,28 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed-only): re-read manifest hashing, cache coalesce, and normalizers; cheap-disproof closed open candidates (`ContentType` null/whitespace, `WorkspaceId` null/empty/padding, whitespace-only declared priority row, coalesce publish-strip, conflicting framing casing); deferred remaining C0 line-break batch (picker saturated `other`); added valid-no-repro guard tests; 113 scoped orchestrator/cache/manifest/framing tests passed.
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — `ContentType` null vs empty vs whitespace-only — **cheap-disproof 2026-10-22 seed hunt:** regressions `Build_matches_content_hash_when_source_content_type_is_null_vs_empty_string` and `Build_matches_content_hash_when_source_content_type_is_whitespace_only_vs_empty_string`.
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashTenantConfiguration` — `WorkspaceId` null vs empty vs padded non-GUID — **cheap-disproof 2026-10-22 seed hunt:** regressions `Build_matches_tenant_configuration_hash_when_workspace_is_null_vs_empty_string` and `Build_matches_tenant_configuration_hash_when_non_guid_workspace_differs_only_by_surrounding_whitespace`.
+
+- [x] (valid-no-repro) `ClosedLoopDeclaredPrioritiesNormalizer` — list containing only whitespace priority vs empty list — **cheap-disproof 2026-10-22 seed hunt:** regression `Build_matches_declared_priorities_hash_when_list_contains_only_whitespace_entry_vs_empty_list`.
+
+- [x] (valid-no-repro) `ReviewResultCache.CoalesceAsync` — follower publish leak when analysis coalesce — **cheap-disproof 2026-10-22 seed hunt:** regressions `CoalesceAsync_analysis_follower_strips_publish_block_from_blocked_leader` and `CoalesceAsync_analysis_follower_of_published_leader_keeps_analysis_truth`.
+
+- [x] (valid-no-repro) `ClosedLoopFramingAnswersNormalizer` — conflicting substantive values under casing variants — **cheap-disproof 2026-10-22 seed hunt:** intentional ordinal-first tie-break among non-empty duplicates; not equivalent inputs.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — consolidated C0/C1 line-break audit (picker saturated `other`; batch only).
+
+- (candidate) `ReviewCacheManifestBuilder.HashContent` — `ProjectId` null vs empty in `TenantConfigurationHash` — locus: `HashTenantConfiguration`; input: JSON body omitting project scope.
+
+- (candidate) `ReviewCacheManifestBuilder.HashContent` — `DeclaredPriorities` null list reference on request built without setter — locus: `HashPriorities` + contract defaults; input: reflection or deserializer edge.
+
+- (candidate) `ReviewResultCache.TryGet` — refresh TTL on pinned hit does not re-check tombstone after deferred invalidation cleared — locus: `TryGet` expiry refresh branch; input: pin + invalidate + unpin + retry before flush completes.
+
+- (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — `ContinueFromExistingRun` with blank `RunId` on request but resolved run from path — locus: continue entry vs `BuildWithResolvedRunId`; input: continue API contract with run id only in route.
+
 2026-10-22 seed hunt (seed→hit): promoted next-line (`\u0084`) in source `Content` splitting `ContentHash` from LF; extended `UnicodeLineBreakScalars`; regression `Build_matches_content_hash_when_source_content_uses_unicode_line_separators` (`\u0084`); cheap-disproof declared-priority whitespace duplicate, null vs empty `FileName`, and whitespace-only `Content`; added guard regressions for null or whitespace-only attachment fields; 108 scoped tests passed. [class:other]
 
 - [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — next-line (`\u0084`) split `ContentHash` from LF — **hit 2026-10-22 seed hunt:** added `\u0084` to consolidated scalar loop; regression above.
@@ -8728,13 +8750,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 - (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — remaining C0 controls (e.g. `\u0000`) — locus: batch audit vs `UnicodeLineBreakScalars` (picker saturated `other`).
 
-- (candidate) `ReviewCacheManifestBuilder.HashContent` — `ContentType` null vs empty after lookup normalize — locus: MIME branch before lowercase.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — `ContentType` null vs empty — **cheap-disproof 2026-10-22 seed hunt:** see seed-only row above.
 
-- (candidate) `ClosedLoopFramingAnswersNormalizer` — two non-empty casing variants with different substantive values — locus: ordinal-first among non-empty; input: conflicting answers under `Scope`/`scope`.
+- [x] (valid-no-repro) `ClosedLoopFramingAnswersNormalizer` — conflicting casing variant values — **cheap-disproof 2026-10-22 seed hunt:** see seed-only row above.
 
-- (candidate) `ReviewResultCache.CoalesceAsync` — follower strip publish leaks when `publishToProduct` false — locus: `ReviewSingleFlightCoordinator`; input: verify leader published flag does not leak to analysis followers.
+- [x] (valid-no-repro) `ReviewResultCache.CoalesceAsync` — follower publish strip — **cheap-disproof 2026-10-22 seed hunt:** see seed-only row above.
 
-- (candidate) `ReviewCacheManifestBuilder.HashTenantConfiguration` — `WorkspaceId` null vs empty vs omitted on deserialized request — locus: `NormalizeForHash` empty segment; input: scope fields absent on JSON body.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashTenantConfiguration` — `WorkspaceId` null vs empty — **cheap-disproof 2026-10-22 seed hunt:** see seed-only row above.
 
 2026-10-22 seed hunt (seed→hit): promoted duplicate framing keys differing only by casing where ordinal-first `Scope` whitespace entry dropped substantive `scope` answer from cache hash; `ClosedLoopFramingAnswersNormalizer` now prefers non-empty values within ignore-case groups; regressions `Normalize_prefers_substantive_value_when_duplicate_keys_differ_only_by_casing` and `Build_matches_content_hash_when_duplicate_framing_keys_include_whitespace_only_casing_variant`; cheap-disproof padded `ProjectId`, silent `Set` at pin cap, and `continue=1` partition rows; 105 scoped tests passed.
 
@@ -8881,7 +8903,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 51
+- **hunts:** 52
 - **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
