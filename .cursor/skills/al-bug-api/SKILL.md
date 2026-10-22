@@ -10,7 +10,7 @@ description: Launch a Cloud Agent to run the /al-bug hunt-fix-ship workflow on m
 
 # /al-bug-api — Cloud Agent bug hunt (`/al-bug` via API)
 
-Starts a **Cursor Cloud Agent** (Composer 2.5 standard, not Fast) that follows the full **`/al-bug`** workflow in `.cursor/commands/al-bug.md`. The local chat agent does **not** hunt bugs — it only launches the cloud run and returns the agent URL.
+Starts a **Cursor Cloud Agent** (Composer 2.5 standard, not Fast) that follows the full bug-hunt workflow in `.cursor/skills/al-bug/workflow.md`. The local chat agent does **not** hunt bugs — it only launches the cloud run and returns the agent URL.
 
 Each cloud hunt is a **seed hunt** or a **thorough defect hunt** (announced after the picker). Queued launches still complete that kind; they must not skim and exit.
 
@@ -125,8 +125,8 @@ Then return the agent URL from the script output.
 
 ## Canonical files
 
-- `.cursor/commands/al-bug-api.md` — this workflow
-- `.cursor/commands/al-bug.md` — workflow the cloud agent must follow
+- `.cursor/skills/al-bug-api/SKILL.md` — this workflow
+- `.cursor/skills/al-bug/workflow.md` — workflow the cloud agent must follow
 - `scripts/Invoke-AlBugApi.ps1` — prompt builder + launcher (`-Wait`, `-Loop`)
 - `scripts/Wait-AlApiRun.ps1` — poll run until terminal status
 - `scripts/Invoke-AlApi.ps1` — shared Cloud Agents API client
