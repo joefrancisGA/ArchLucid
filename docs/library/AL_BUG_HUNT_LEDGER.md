@@ -1,3 +1,16 @@
+﻿2026-10-22 seed hunt (seed-only): `application-tenancy-lifecycle` - no hunt-ready product defect; cheap-disproof closed zone-head `(candidate)` erasure-race rows (regressions already on trunk); scoped tenancy filter 248/248.
+
+- [x] (valid-no-repro) `TrialLifecycleTransitionEngine` - offboard between audit and expiration metric - **cheap-disproof 2026-10-22:** metric skip regression on trunk.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryApproveErasureAsync` - quarantine restore between approve atomic and audit - **cheap-disproof 2026-10-22:** post-approve read before audit on trunk.
+- [x] (valid-no-repro) `TenantTrialConversionStage.ConvertTrialAsync` - offboard between mark and audit - **cheap-disproof 2026-10-22:** pre-audit guards on trunk.
+- [x] (invalid) `TenantSuspendCommandService` - concurrent suspend/unsuspend audit races - **cheap-disproof 2026-10-22:** saturated offboard race tests.
+- [x] (invalid) `TenantCatalogMigrationOrchestrator` - stage advance without rollback when offboard mid-migration - **cheap-disproof 2026-10-22:** quarantine by design.
+
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.CompleteAsync` - offboard TOCTOU between pre-audit read and completed audit append - locus: post-unsuspend path.
+- [ ] (candidate) `TenantWorkspaceScopeGuard` - no erasure quarantine short-circuit on scope check - locus: HTTP facades.
+- [ ] (candidate) `TenantMigrationProjectionRefreshService.RefreshAsync` - cache invalidation without offboard gate - locus: orchestrator wraps calls.
+- [ ] (candidate) `TrialTenantBootstrapService` - duplicate quarantine read before failure metric - locus: redundant guard only.
+- [ ] (candidate) `TenantTrialIdentityHandoffStage.LinkEntraAsync` - audit uses parameter tenant id - locus: same id as re-read row.
 2026-10-22 seed hunt (seed->hit): ui-oidc - tampered unsafe post-sign-in return URLs during authorize retry were purged at sign-in start without restoring the operator return path when idle-desk backup existed; rehydrate safe return from idle desk when retry is pending and storage is empty after purge; scoped vitest 440/440.
 
 - [x] (proven) initiateOidcRedirect - tampered unsafe return during authorize retry loses return path - **hit 2026-10-22:** preparePostSignInReturnUrlForSignInStart rehydrates idle-desk return path after purge when authorize retry is pending.
