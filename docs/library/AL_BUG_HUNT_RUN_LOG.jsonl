@@ -6036,3 +6036,4 @@
 {"outcome":"hit","zoneId":"ui-oidc","productLine":"archlucid-shared","at":"2026-10-22T00:38:23.2938669Z"}
 {"at":"2026-10-22T00:42:10.4646140Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-22T00:42:10.7857807Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-22T00:44:01.0368567Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/oidc/"]}
