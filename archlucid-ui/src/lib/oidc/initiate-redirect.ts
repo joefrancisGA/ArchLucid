@@ -116,7 +116,7 @@ export async function initiateSupplementalOidcRedirect(
   } catch (error) {
     clearPkceState("google");
 
-    if (storedReturnUrlThisAttempt) {
+    if (storedReturnUrlThisAttempt || readPkceState("primary") === null) {
       clearPostSignInReturnUrl();
     }
 
