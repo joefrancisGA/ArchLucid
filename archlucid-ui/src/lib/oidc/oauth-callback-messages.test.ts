@@ -104,6 +104,10 @@ describe("readOAuthJsonErrorDescription", () => {
     expect(readOAuthJsonErrorDescription("\u2013\u2013")).toBe("");
   });
 
+  it("returns empty for bullet-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("\u2022\u2022")).toBe("");
+  });
+
   it("preserves ZWNJ in Persian token error_description copy", () => {
     const detail = "دسترسی\u200cرد";
 
@@ -313,6 +317,10 @@ describe("decodeOAuthErrorDescription", () => {
     expect(decodeOAuthErrorDescription("%E2%80%93")).toBe("");
   });
 
+  it("returns empty for bullet-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%E2%80%A2")).toBe("");
+  });
+
   it("returns empty for percent-encoded punctuation-only error descriptions", () => {
     expect(decodeOAuthErrorDescription("%2E%2E%2E")).toBe("");
   });
@@ -519,6 +527,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toMatch(/admin consent required/i);
     expect(message).not.toContain("admin_consent_required");
+  });
+
+  it("humanizes acr_values_not_supported authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("acr_values_not_supported", "");
+
+    expect(message).toMatch(/acr values not supported/i);
+    expect(message).not.toContain("acr_values_not_supported");
   });
 
   it("humanizes invalid_target authorize callback errors with readable copy", () => {
