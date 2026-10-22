@@ -12470,18 +12470,20 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 155
-- **bugs-found:** 147
+- **hunts:** 156
+- **bugs-found:** 148
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — graph node factory kept padded property-bag keys
+- **last-bug:** 2026-10-22 — graph node property reader missed padded property keys
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted `GraphNodePropertyReader` padded property-bag key candidate; proved `TryGetPropertyValue` compared raw dictionary keys to canonical lookup tokens, so legacy/deserialized nodes with padded keys like `"  category  "` missed topology sensitivity and declaration matcher reads; trim keys on both sides of case-insensitive equality; regressions `TryGetPropertyValue_resolves_value_when_property_key_has_surrounding_whitespace`, `TryGetPropertyValue_resolves_value_when_lookup_key_has_surrounding_whitespace`, and `Classify_when_category_property_key_has_surrounding_whitespace_returns_identity`; seeded `StructuredDiagramGraphMerger` duplicate-edge `InferenceSource` coalesce follow-on; 459 KnowledgeGraph + 148 Provenance scoped tests passed.
+
+- [x] (proven) `GraphNodePropertyReader.TryGetPropertyValue` — padded property-bag keys missed trim-normalized lookups — **hit 2026-10-22 seed hunt (seed→hit):** trim keys on compare; regressions above.
 
 2026-10-22 seed hunt (valid-no-repro): promoted `StructuredDiagramGraphMerger` duplicate-edge top-level `ProvenanceKind` / `DeclaredConnectionId` coalesce candidate; proved `ArchitectureDiagramToGraphCompiler` never assigns schema-v1 top-level edge fields (provenance lives in `structuredDiagram.provenanceKind` properties coalesced by `CoalesceDiagramEdgeMetadata`); regression `Merge_does_not_populate_schema_v1_top_level_provenance_kind_or_declared_connection_id_on_structured_diagram_edges`; seeded `GraphNodePropertyReader` padded property-bag key lookup follow-on; 456 KnowledgeGraph + 148 Provenance scoped tests passed.
 
 - [x] (valid-no-repro) `StructuredDiagramGraphMerger.Merge` — duplicate directed-edge coalesce may not refresh top-level `GraphEdge.ProvenanceKind` or `DeclaredConnectionId` — **cheap-disproof 2026-10-22 seed hunt:** structured diagram compile omits top-level fields; regression above.
-
-- [ ] (candidate) `GraphNodePropertyReader.TryGetPropertyValue` — padded property-bag keys may miss trim-normalized lookup keys — locus: key equality loop; input: properties bag key with surrounding whitespace and canonical lookup key; wrong outcome: topology sensitivity and declaration matchers miss values on deserialized or legacy graph nodes.
 
 2026-10-22 seed hunt (seed→hit): promoted `GraphNodeFactory` padded property-bag key candidate; proved `NormalizePropertyBag` trimmed values but copied raw property keys, so padded keys like `"  principalId  "` missed `GraphNodePropertyReader` / `DeclarationExistingNodeResolver` lookups and failed to populate `Category` from padded `"  category  "` keys; trim keys on normalize and reject trim-colliding values; regression `CreateNode_trims_surrounding_whitespace_on_property_bag_keys`; seeded `StructuredDiagramGraphMerger` stale edge `ProvenanceKind` / `DeclaredConnectionId` on directed-pair coalesce follow-on; 455 KnowledgeGraph + 148 Provenance scoped tests passed.
 
