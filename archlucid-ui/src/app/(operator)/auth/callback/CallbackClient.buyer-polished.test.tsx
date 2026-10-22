@@ -12,8 +12,7 @@ import {
   AUTH_CALLBACK_SKIP_LINK_LABEL,
   AUTH_CALLBACK_SKIP_TARGET_ID,
 } from "@/lib/auth/auth-callback-page-copy";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 const searchParamsMock = vi.hoisted(() => ({ value: new URLSearchParams() }));
 
@@ -52,6 +51,7 @@ vi.mock("@/lib/oidc/session", () => ({
   consumePkceState: vi.fn(),
   persistTokenResponse: vi.fn(),
   consumePostSignInReturnUrl: vi.fn(() => "/"),
+  markAuthorizeCallbackFailed: vi.fn(),
 }));
 
 vi.mock("@/lib/auth/email-otp-session", () => ({
@@ -119,10 +119,7 @@ describe("CallbackClient buyer-polished shell", () => {
     );
     expect(screen.getByRole("heading", { level: 2, name: AUTH_CALLBACK_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(AUTH_CALLBACK_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), AUTH_CALLBACK_SOURCES, "/auth/callback");
   });
 
   it("renders orientation below the access panel on callback failure", async () => {
