@@ -7803,6 +7803,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-22 seed hunt (seed-only): re-read Agents/ after IaC fence hit; cheap-disproof on provenance token loop, design-gap enrichers, and saturated trim siblings; 137 scoped Application.Tests.Agents tests passed.
+
+- [x] (valid-no-repro) `ReviewRunEngineProvenanceAggregator.Aggregate` — separate reasoning loop double-counts output tokens — **cheap-disproof 2026-10-22 seed hunt:** `combinedOutputTokens = costSummary.CompletionTokens + reasoningTokens` matches `costSummary.CombinedOutputTokens`; regressions `Aggregate_reasoning_only_traces_include_reasoning_tokens_in_output_total` and `Aggregate_azure_traces_produce_azure_openai_provider_kind_and_token_totals`.
+
+- [x] (invalid) `AgentCuratedEvidenceProposer` — enricher ordering vs structural post-process — **cheap-disproof 2026-10-22 seed hunt:** engineering hardening only; no failing repro without product direction on enricher registration order.
+
+- [x] (invalid) `AgentResultRegionMismatchEnricher` — warnings without name/platform cues — **cheap-disproof 2026-10-22 seed hunt:** explicit design gap; do not extend instance-list name heuristics (saturated `other`).
+
+- [x] (invalid) `EvidenceProposalPromoter.BuildCatalogEntryId` — homoglyph slug collisions — **cheap-disproof 2026-10-22 seed hunt:** no OpenAPI/ARM/config reachability citation for attacker-controlled homoglyph titles.
+
+- (candidate) `FindingIacStubGenerator.TryGenerateStubAsync` — `CompleteJsonAsync` may return JSON-string-wrapped Bicep (leading/trailing quotes) so disclaimer detection fails — locus: post-completion normalize; input: verify `IAgentCompletionClient` contract on production hosts.
+- (candidate) `AgentExecutionTraceRunLlmCostAggregator.Compute` — whitespace-only `ModelDeploymentName` rows still add empty label entries to `measurableDeployments` — locus: `BuildModelLabelFromDeployments`; input: trace row with `"   "` deployment name.
+- (candidate) `TopologyProposalDualModelConsensusEnricher.EnrichAsync` — secondary pass when `SecondaryModelTier` resolves to disallowed tier — locus: options + invoker; input: workspace engine set excludes secondary tier.
+- (candidate) `AgentConfidenceCalibrator.CalibrateAsync` — non-finite raw confidence becomes `0.0` without audit — locus: `ClampUnit`; input: `double.NaN` sample row (verify intended fail-closed).
+
 2026-10-22 seed hunt (seed→hit): promoted IaC stub markdown-fence normalization; regression `GenerateAndPersistStubsForRunAsync_does_not_duplicate_disclaimer_when_llm_wraps_bicep_in_markdown_fence`; 137 scoped Application.Tests.Agents tests passed.
 
 - [x] (proven) `FindingIacStubGenerator.EnsureDisclaimerLine` — LLM completions wrapped in markdown fences did not start with the disclaimer line so a second disclaimer was prepended — **hit 2026-10-22 seed hunt:** `NormalizeLlmStubBody` strips optional fences before disclaimer detection. [class:state-machine-gap]
@@ -7949,7 +7964,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 59
+- **hunts:** 60
 - **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
