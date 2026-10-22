@@ -377,7 +377,7 @@ describe("refreshAccessToken", () => {
       "fetch",
       vi.fn(async () => ({
         ok: true,
-        text: async () => JSON.stringify({ access_token: "\ufeff" }),
+        text: async () => JSON.stringify({ access_token: "\uFEFF" }),
       })),
     );
 

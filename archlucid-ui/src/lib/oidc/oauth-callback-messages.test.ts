@@ -100,6 +100,10 @@ describe("readOAuthJsonErrorDescription", () => {
     expect(readOAuthJsonErrorDescription("Policy%20denied%2Bextra")).toBe("Policy denied+extra");
     expect(readOAuthJsonErrorDescription("User+denied%2B👍🏻")).toBe("User+denied+👍🏻");
   });
+
+  it("preserves percent-decoded plus in JSON when thin-space glue separates words", () => {
+    expect(readOAuthJsonErrorDescription("Policy\u2009denied%252Bextra")).toBe("Policy denied+extra");
+  });
 });
 
 describe("decodeOAuthErrorDescription", () => {
@@ -672,6 +676,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toMatch(/invalid state/i);
     expect(message).not.toContain("invalid_state");
+  });
+
+  it("humanizes code_verifier_expired authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("code_verifier_expired", "");
+
+    expect(message).toMatch(/code verifier expired/i);
+    expect(message).not.toContain("code_verifier_expired");
   });
 
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
