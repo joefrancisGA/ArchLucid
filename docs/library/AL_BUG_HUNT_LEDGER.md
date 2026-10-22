@@ -23,6 +23,19 @@
 - [ ] (candidate) refreshBffSessionCookie - refresh 408 shouldClearSession false - locus: route maps opaque 408 to 503.
 - [ ] (candidate) exchangeAuthorizationCode - server_error marks authorize retry - locus: transient exchange policy.
 - [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - locus: saturated encoding class.
+2026-10-22 seed hunt (seed->hit): `application-tenancy-lifecycle` - promoted hunt-ready from seed re-read `TenantDeletionService.DeleteTenantAsync` - `TenantDataDeleted` platform audit appended after sql/blob purge using only a single post-purge tenant read, so an active erasure legal hold activated between that read and audit could still emit deletion audit for blocked tenants; pre-deletion-audit `GetByIdAsync` with active legal-hold skip; regression `DeleteTenantAsync_returns_without_platform_audit_when_active_legal_hold_set_after_purge_before_audit`; scoped tenancy filter 253/253.
+
+- [x] (proven) `DeleteTenantAsync` - active legal hold after purge before deletion audit - **hit 2026-10-22 seed hunt:** pre-audit re-read + hold guard; regression above.
+- [x] (valid-no-repro) `TryClearLegalHoldAsync` - offboard after pre-audit read before clear audit - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
+- [x] (valid-no-repro) `DeleteTenantAsync` - erasure approval cleared after sql purge - **cheap-disproof 2026-10-22:** existing regression on trunk.
+- [x] (invalid) `DeleteTenantAsync` - legal hold before blob purge throws - **cheap-disproof 2026-10-22:** revalidate throws; destructive work not started.
+- [x] (valid-no-repro) `TryApproveErasureAsync` - quarantine restored after post-approve read - **cheap-disproof 2026-10-22:** existing regression on trunk.
+
+- [ ] (candidate) `DeleteTenantAsync` - legal hold activated between revalidate and blob purge - locus: mid-destructive revalidate (reachability: admin delete job).
+- [ ] (candidate) `TryApproveErasureAsync` - offboard after pre-approve read when still offboarded - locus: saturated approve audit path.
+- [ ] (candidate) `TrySetLegalHoldAsync` - offboard after beforeSetAudit before set audit - locus: beforeSetAudit read (reachability: erasure command).
+- [ ] (candidate) `TrialLifecycleTransitionEngine` - offboard between audit and expiration metric - locus: post-audit superseded read (reachability: saturated).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.StartAsync` - offboard after insert before started audit - locus: existing regression (reachability: saturated).
 
 2026-10-22 seed hunt (seed->hit): ui-oidc - clearOidcSession with signed-in identity left authorize-retry return snapshot in sessionStorage after clearing retry marker, so a later retry could rehydrate a stale path; clear snapshot with signed-in session clear; parity regressions for tampered snapshot read, consumeAuthorizeCallbackFailedRetry snapshot clear, and BFF refresh 429 shouldClearSession false; scoped vitest 449/449.
 
