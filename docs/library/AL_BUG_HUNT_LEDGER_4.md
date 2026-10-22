@@ -12470,18 +12470,26 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 167
+- **hunts:** 169
 - **bugs-found:** 149
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — graph node property reader returned padded property values
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-10-22 seed hunt (valid-no-repro): promoted `ProvenanceSnapshotRevisionHasher.ComputeArtifactsFingerprint` padded `ContributingDecisionIds` candidate; proved artifact fingerprint union already trims decision ids, drops blanks, and case-insensitively dedupes before canonical composition; regressions `Compute_unchanged_when_contributing_decision_ids_differ_only_by_surrounding_whitespace` and `Compute_unchanged_when_contributing_decision_ids_list_includes_case_variant_padding_duplicate`; seeded `ComputeArtifactsFingerprint` padded artifact `Name` / `ArtifactType` / `Format` scalar parity follow-on; 465 KnowledgeGraph + 161 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ProvenanceSnapshotRevisionHasher.ComputeArtifactsFingerprint` — padded `ContributingDecisionIds` split fingerprint entries — **cheap-disproof 2026-10-22 seed hunt:** trim + distinct on contributing decision ids; regressions above.
+
+- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeArtifactsFingerprint` — padded artifact `Name`, `ArtifactType`, or `Format` may fingerprint as distinct scalar tokens — locus: `SelectLastNonEmptyArtifactField` trim in artifact fingerprint segment; input: artifact display fields with surrounding whitespace; wrong outcome: stale revision hash when only padding differs.
+
+2026-10-22 seed hunt (valid-no-repro): promoted `ProvenanceSnapshotRevisionHasher.ComputeAppliedRuleIdsFingerprint` padded applied-rule-id candidate; proved trace rule fingerprint already trims rule ids, drops blanks, and case-insensitively dedupes before canonical composition; regressions `Compute_unchanged_when_applied_rule_ids_differ_only_by_surrounding_whitespace` and `Compute_unchanged_when_applied_rule_ids_list_includes_case_variant_padding_duplicate`; seeded `ComputeArtifactsFingerprint` padded `ContributingDecisionIds` token parity follow-on; 465 KnowledgeGraph + 159 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ProvenanceSnapshotRevisionHasher.ComputeAppliedRuleIdsFingerprint` — padded applied rule ids split fingerprint entries — **cheap-disproof 2026-10-22 seed hunt:** trim + distinct on rule ids; regressions above.
+
 2026-10-22 seed hunt (valid-no-repro): promoted `ProvenanceSnapshotRevisionHasher.Compute` padded `ManifestHash` / `RuleSetId` candidate; proved revision `Compute` already trims both manifest scalars before canonical string composition; existing regressions `Compute_unchanged_when_manifest_rule_set_id_differs_only_by_surrounding_whitespace` and `Compute_unchanged_when_manifest_hash_differs_only_by_surrounding_whitespace`; seeded `ComputeAppliedRuleIdsFingerprint` padded applied-rule-id token parity follow-on; 465 KnowledgeGraph + 157 Provenance scoped tests passed.
 
 - [x] (valid-no-repro) `ProvenanceSnapshotRevisionHasher.Compute` — padded `ManifestHash` or `RuleSetId` bypassed revision trim — **cheap-disproof 2026-10-22 seed hunt:** trim before canonical string; regressions above.
-
-- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeAppliedRuleIdsFingerprint` — padded applied rule id tokens may fingerprint as distinct entries — locus: rule id trim in trace fingerprint; input: `AppliedRuleIds` entries with surrounding whitespace; wrong outcome: stale revision hash when only padding differs.
 
 2026-10-22 seed hunt (valid-no-repro): promoted `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` padded edge endpoint candidate; proved graph fingerprint edge segments already trim `FromNodeId`, `ToNodeId`, and `EdgeType` before `Distinct`; regressions `Compute_unchanged_when_graph_edge_endpoints_differ_only_by_surrounding_whitespace` and `Compute_unchanged_when_graph_lists_parallel_edges_whose_endpoints_differ_only_by_surrounding_whitespace`; seeded revision canonical `manifestHash` / `manifestRuleSetId` surrounding-whitespace parity follow-on; 465 KnowledgeGraph + 157 Provenance scoped tests passed.
 

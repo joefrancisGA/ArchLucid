@@ -355,6 +355,26 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     }
 
     [Fact]
+    public void Compute_unchanged_when_applied_rule_ids_differ_only_by_surrounding_whitespace()
+    {
+        ProvenanceBuildInput baseline = CreateInput([], ["rule-a"]);
+        ProvenanceBuildInput updated = CreateInput([], ["  rule-a  "]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
+    public void Compute_unchanged_when_applied_rule_ids_list_includes_case_variant_padding_duplicate()
+    {
+        ProvenanceBuildInput baseline = CreateInput([], ["rule-a"]);
+        ProvenanceBuildInput updated = CreateInput([], ["rule-a", "  RULE-A  "]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
     public void Compute_unchanged_when_only_rule_set_hash_changes()
     {
         ProvenanceBuildInput baseline = CreateInput([], ["rule-a"]);
@@ -1149,6 +1169,68 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
 
         ProvenanceSnapshotRevisionHasher.Compute(CreateInput([baseline]), BundleId)
             .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(CreateInput([updated]), BundleId));
+    }
+
+    [Fact]
+    public void Compute_unchanged_when_contributing_decision_ids_differ_only_by_surrounding_whitespace()
+    {
+        Guid artifactId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+        SynthesizedArtifact baseline = new()
+        {
+            ArtifactId = artifactId,
+            ArtifactType = "doc",
+            Name = "overview.md",
+            Format = "md",
+            Content = "v1",
+            ContentHash = "hash-v1",
+            ContributingDecisionIds = ["dec-a"],
+        };
+
+        SynthesizedArtifact updated = new()
+        {
+            ArtifactId = artifactId,
+            ArtifactType = "doc",
+            Name = "overview.md",
+            Format = "md",
+            Content = "v1",
+            ContentHash = "hash-v1",
+            ContributingDecisionIds = ["  dec-a  "],
+        };
+
+        ProvenanceSnapshotRevisionHasher.Compute(CreateInput([baseline]), BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(CreateInput([updated]), BundleId));
+    }
+
+    [Fact]
+    public void Compute_unchanged_when_contributing_decision_ids_list_includes_case_variant_padding_duplicate()
+    {
+        Guid artifactId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+        SynthesizedArtifact baseline = new()
+        {
+            ArtifactId = artifactId,
+            ArtifactType = "doc",
+            Name = "overview.md",
+            Format = "md",
+            Content = "v1",
+            ContentHash = "hash-v1",
+            ContributingDecisionIds = ["dec-a"],
+        };
+
+        SynthesizedArtifact updated = new()
+        {
+            ArtifactId = artifactId,
+            ArtifactType = "doc",
+            Name = "overview.md",
+            Format = "md",
+            Content = "v1",
+            ContentHash = "hash-v1",
+            ContributingDecisionIds = ["dec-a", "  DEC-A  "],
+        };
+
+        ProvenanceSnapshotRevisionHasher.Compute(CreateInput([baseline]), BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(CreateInput([updated]), BundleId));
     }
 
     [Fact]
