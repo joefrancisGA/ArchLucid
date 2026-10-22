@@ -7803,6 +7803,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-22 seed hunt (seed-only): re-read Agents/ after IaC BOM hit; cheap-disproof on stale BOM/provenance/forensics candidates; deferred padded `region:` constraint trim (saturated `other`); seeded three follow-on rows; 139 scoped Application.Tests.Agents tests passed.
+
+- [x] (invalid) `FindingIacStubGenerator.NormalizeLlmStubBody` — UTF-8 BOM before disclaimer may still duplicate — **cheap-disproof 2026-10-22 seed hunt:** proven-class hit `TrimStart('\uFEFF')` in prior run; regression `GenerateAndPersistStubsForRunAsync_strips_utf8_bom_before_disclaimer_check`.
+
+- [x] (invalid) `ReviewRunEngineProvenanceAggregator.DerivePolicyPackVersion` — whitespace-only policy titles kept — **cheap-disproof 2026-10-22 seed hunt:** `Where(!string.IsNullOrWhiteSpace(title))` before `Trim()` drops blank titles; `materialized.Count == 0` returns null.
+
+- [x] (valid-no-repro) `RunToolInvocationForensicsBuilder.Build` — structured ledger preferred when traces empty — **cheap-disproof 2026-10-22 seed hunt:** by design for TB-110 structured path; regression `Build_prefers_structured_ledger_when_rows_exist`.
+
+- [x] (valid-no-repro) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — inclusive `>=` floor marks Evaluated at equality — **cheap-disproof 2026-10-22 seed hunt:** intentional operator threshold; import tests use ratios above floor with Evaluated expectation.
+
+- (candidate) `AgentResultRegionMismatchEnricher.ResolveRequestRegions` — leading whitespace on `region:` constraint skipped by `StartsWith` — locus: constraint loop; input: ` region:qatarcentral` when added service omits `AzureArmRegion` (consolidate trim helper before promoting; saturated `other`).
+- (candidate) `TopologyProposalDualModelConsensusEnricher.EnrichAsync` — secondary tier disallowed by workspace engine set — verify invoker gate before promoting.
+- (candidate) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — readiness strictly below floor should record Failed — locus: `evaluationState` ternary; input: `PositiveReadinessSupportRatio` just under `FloorMinSupportRatio` (no boundary test cited).
+
 2026-10-22 seed hunt (seed→hit): promoted IaC stub UTF-8 BOM strip; regression `GenerateAndPersistStubsForRunAsync_strips_utf8_bom_before_disclaimer_check`; 139 scoped Application.Tests.Agents tests passed.
 
 - [x] (proven) `FindingIacStubGenerator.NormalizeLlmStubBody` — UTF-8 BOM prefix prevented `StartsWith` disclaimer match and duplicated disclaimer line — **hit 2026-10-22 seed hunt:** `TrimStart('\uFEFF')` after JSON unwrap in shared normalizer. [class:state-machine-gap]
@@ -8009,11 +8023,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 42
+- **hunts:** 43
 - **bugs-found:** 40
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — External subprocessor ack trim on read
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 — IaC stub UTF-8 BOM strip
 2026-10-20 seed hunt (seed→hit): reseeded application-agents with no open hypotheses; promoted `ExternalSubprocessorEngineAcknowledgmentService.HasWorkspaceAcknowledgmentAsync` whitespace-padded tenant setting false negative; fixed trim on read; regression `HasWorkspaceAcknowledgmentAsync_returns_true_when_stored_value_has_surrounding_whitespace`; 2/2 `ExternalSubprocessorEngineAcknowledgmentServiceTests` passed.
 
 
