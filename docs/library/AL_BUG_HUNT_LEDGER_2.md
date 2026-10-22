@@ -1808,6 +1808,18 @@
 
 ## Zone: finding-inspect-sql
 
+2026-10-22 seed hunt #93 (seed-only): cheap-disproof closed four open `(candidate)` rows; scoped `FindingInspectReadModelMapperTests.ParseDisposition_parses_after_leading_invisible_format_characters` passed; no hunt-ready promotion; seeded four follow-on `(candidate)` rows.
+
+- [x] (valid-no-repro) `DispositionRow` whitespace-only `Disposition` with pointer timestamps — **cheap-disproof 2026-10-22 seed #93:** `MapDispositionPointerProjection` + `ParseDisposition`; saturated `state-machine-gap` class.
+- [x] (invalid) `MainInspectWithTypedPayload` decision trace join scope — **cheap-disproof 2026-10-22 seed #93:** run-level `DecisioningTraces` join matches explainability contract (#667); hypothetical finding-level override not in schema.
+- [x] (valid-no-repro) `FilterNonBlankTrimmedStrings` embedded format chars — **cheap-disproof 2026-10-22 seed #93:** intentional inspect display contract (ledger 2026-10-05); enum tokens use separate `NormalizeInspectEnumToken`.
+- [x] (valid-no-repro) `GetInspectAsync` cancel between grid readers — **cheap-disproof 2026-10-22 seed #93:** single `QueryMultipleAsync` round-trip; token applies to the batch command, not per result set.
+
+- [ ] (candidate) `MapDispositionPointerProjection` — `hasDispositionRow` true when SQL returns a row but `ParseDisposition` yields null (whitespace/invisible disposition token) while `OccurredAtUtc` / `RevisitDueUtc` still surface (UI partial disposition state).
+- [ ] (candidate) `FindingInspectReadSql.FollowUpBatch` — `RiskExceptions` count uses `SYSUTCDATETIME()` while disposition timestamps are row-stored UTC (clock skew edge for waiver-active flag at boundary).
+- [ ] (candidate) `ResolveRuleFields` — `JsonException` on corrupt `AppliedRuleIdsJson` falls through to trace text without audit signal (silent fallback vs corrupt payload metadata fallback on #1238).
+- [ ] (candidate) `DapperFindingInspectReadRepository.MapInspectResponse` — `ConfidenceScore` / `EvaluationConfidenceScore` numeric columns pass through without range validation while enum/score buckets are parsed separately.
+
 2026-10-22 seed hunt #92 (seed-only): re-read audit/disposition SQL tests and typed-payload parity paths; cheap-disproof closed four open `(candidate)` rows; no hunt-ready promotion; seeded four follow-on `(candidate)` rows; scoped inspect filter not run on this host.
 
 - [x] (invalid) `FollowUpBatch` audit subquery omits `FindingId` — **cheap-disproof 2026-10-22 seed #92:** inspect surfaces latest run-level `AuthorityCommittedChainPersisted` anchor by design; regression `FollowUpBatch_audit_event_scoped_by_run_without_finding_records_join` plus tenant/workspace/project + `RunId` scope.
