@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed login_required authorize-query UX (existing parity), BFF refresh 452 parity, and saturated readOAuthJsonErrorDescription figure-space glue; regression documents authorize-retry is marked when authorization code exchange returns em-quad-only access_token; scoped vitest 589/589.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - login_required authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 452 shouldClearSession false - **regression 2026-10-22:** transient refresh soft-fail without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string em-quad-only skips authorize retry marker - **regression 2026-10-22:** em-quad-only tokens reject exchange and set retry marker.
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with figure-space glue - **cheap-disproof 2026-10-22:** saturated JSON encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - authentication_required authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 453 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string en-space-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with ideographic-space glue - locus: saturated encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_authentication authorize-query UX, BFF refresh 451 parity, and saturated decodeOAuthErrorDescription figure-space glue; regression documents authorize-retry is marked when authorization code exchange returns en-quad-only access_token; scoped vitest 587/587.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - invalid_authentication authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
