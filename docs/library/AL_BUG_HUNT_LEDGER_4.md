@@ -12470,18 +12470,23 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 99
-- **bugs-found:** 94
+- **hunts:** 100
+- **bugs-found:** 95
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — duplicate diagram canonical rows in one document no longer emit sparse duplicate nodes
+- **last-bug:** 2026-10-22 — diagram subgraph labels upgrade when a later canonical row supplies diagramSubgraphLabel
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted diagram subgraph sparse label candidate; proved subgraph dictionary first-wins insert kept the id fallback label when a later canonical row in the same document supplied `diagramSubgraphLabel`; upgrade existing subgraph labels when a later row carries non-empty label text; regressions `ReconstructDocuments_upgrades_subgraph_label_when_later_row_supplies_diagram_subgraph_label` and `ReconstructDocuments_preserves_subgraph_label_when_later_row_omits_diagram_subgraph_label`; seeded duplicate canonical edge row sparse label follow-on; 395 KnowledgeGraph + 116 Provenance scoped tests passed.
+
+- [x] (proven) `StructuredDiagramCanonicalModelReconstructor` — first-wins subgraph insert blocked later `diagramSubgraphLabel` upgrades — **hit 2026-10-22 seed hunt (seed→hit):** merge non-empty subgraph labels on duplicate subgraph id; regressions above.
+- [x] (valid-no-repro) `StructuredDiagramCanonicalModelReconstructor` — later sparse row clears subgraph label — **cheap-disproof 2026-10-22 seed hunt:** first-wins labeled subgraph retained; regression above.
+
+- [ ] (candidate) `StructuredDiagramCanonicalModelReconstructor.ReconstructEdges` — duplicate connectivity rows within one document may drop later edge `Label` or provenance token when a sparse repeat omits caption segments — locus: edge list append; input: two canonical objects encode the same directed edge with second row sparse; wrong outcome: buyer-visible edge label cleared on reconstruct.
 
 2026-10-22 seed hunt (seed→hit): promoted duplicate canonical node row candidate; proved `ReconstructSingleDocument` appended a second `ArchitectureDiagramNodeRecord` for the same `diagramNodeId` when bundle ingestion repeated a node object with sparse `text`/`Name`, leaving an empty-label duplicate that survived into compile/merge; coalesce duplicate diagram node ids per document with last non-empty label/kind/provenance/subgraph fields; regression `ReconstructDocuments_preserves_label_when_later_sparse_row_repeats_diagram_node_id`; seeded diagram subgraph sparse label follow-on; 393 KnowledgeGraph + 116 Provenance scoped tests passed.
 
 - [x] (proven) `StructuredDiagramCanonicalModelReconstructor` — sparse duplicate canonical node rows emitted empty-label duplicates within one document — **hit 2026-10-22 seed hunt (seed→hit):** per-document node id coalesce; regression above.
-
-- [ ] (candidate) `StructuredDiagramCanonicalModelReconstructor` — sparse duplicate rows may clear `diagramSubgraphLabel` when a later canonical object omits subgraph label text — locus: subgraph dictionary first-wins insert; input: labeled subgraph then sparse repeat; wrong outcome: subgraph label falls back to id only.
 
 2026-10-22 seed hunt (seed→hit): promoted edge property-confidence candidate; proved edge property confidence already maxed with node coalesce helper but weaker later compiles still retargeted `structuredDiagram.sourceEvidenceItemId` (and diagram citation refs) while confidence stayed asserted-high; skip evidence-pointer properties when incoming compile confidence is lower; regressions `Merge_preserves_asserted_edge_inference_confidence_when_later_inferred_document_recompiles_same_endpoints` and `Merge_preserves_asserted_source_evidence_when_later_inferred_document_recompiles_same_node_id`; seeded structured diagram subgraph sparse label follow-on; 392 KnowledgeGraph + 116 Provenance scoped tests passed.
 
