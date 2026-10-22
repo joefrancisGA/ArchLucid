@@ -15,6 +15,30 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     private static readonly Guid ContextSnapshotId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
 
     [Fact]
+    public void Compute_changes_when_manifest_rule_set_id_differs_but_manifest_id_hash_and_decisions_are_unchanged()
+    {
+        ProvenanceBuildInput baseline = CreateInput([]);
+        ProvenanceBuildInput updated = CreateInput([]);
+        baseline.Manifest.RuleSetId = "rules-v1";
+        updated.Manifest.RuleSetId = "rules-v2";
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
+    public void Compute_unchanged_when_manifest_rule_set_id_differs_only_by_surrounding_whitespace()
+    {
+        ProvenanceBuildInput baseline = CreateInput([]);
+        ProvenanceBuildInput updated = CreateInput([]);
+        baseline.Manifest.RuleSetId = "rules-v1";
+        updated.Manifest.RuleSetId = "  rules-v1  ";
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
     public void Compute_changes_when_manifest_architecture_version_id_differs_but_manifest_id_hash_and_decisions_are_unchanged()
     {
         Guid architectureVersionId = Guid.Parse("99999999-9999-9999-9999-999999999999");
@@ -906,6 +930,7 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
                 GraphSnapshotId = graphSnapshotId,
                 FindingsSnapshotId = findingsSnapshotId,
                 DecisionTraceId = decisionTraceId,
+                RuleSetId = "rules-v1",
                 ManifestHash = manifestHash ?? "mh",
                 Decisions = decisions is null ? [] : [.. decisions],
             },

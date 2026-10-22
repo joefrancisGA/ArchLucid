@@ -31,6 +31,7 @@ public static class ProvenanceSnapshotRevisionHasher
         Guid manifestFindingsSnapshotId = input.Manifest.FindingsSnapshotId;
         Guid manifestDecisionTraceId = input.Manifest.DecisionTraceId;
         Guid manifestArchitectureVersionId = input.Manifest.ArchitectureVersionId ?? Guid.Empty;
+        string manifestRuleSetId = (input.Manifest.RuleSetId ?? string.Empty).Trim();
         string manifestHash = (input.Manifest.ManifestHash ?? string.Empty).Trim();
         string manifestDecisionsFingerprint = ComputeManifestDecisionsFingerprint(input.Manifest);
         Guid decisionTraceId = ResolveDecisionTraceId(input.DecisionTrace);
@@ -41,7 +42,7 @@ public static class ProvenanceSnapshotRevisionHasher
 
         string canonical =
             FormattableString.Invariant(
-                $"{input.RunId:D}|{input.Findings.RunId:D}|{input.Graph.RunId:D}|{input.Manifest.RunId:D}|{traceRunId:D}|{findingsSnapshotId:D}|{findingsContextSnapshotId:D}|{findingsGraphSnapshotId:D}|{findingsFingerprint}|{graphSnapshotId:D}|{graphContextSnapshotId:D}|{graphFingerprint}|{manifestId:D}|{manifestContextSnapshotId:D}|{manifestGraphSnapshotId:D}|{manifestFindingsSnapshotId:D}|{manifestDecisionTraceId:D}|{manifestArchitectureVersionId:D}|{manifestHash}|{manifestDecisionsFingerprint}|{decisionTraceId:D}|{appliedRuleIdsFingerprint}|{bundleId:D}|{artifactsFingerprint}");
+                $"{input.RunId:D}|{input.Findings.RunId:D}|{input.Graph.RunId:D}|{input.Manifest.RunId:D}|{traceRunId:D}|{findingsSnapshotId:D}|{findingsContextSnapshotId:D}|{findingsGraphSnapshotId:D}|{findingsFingerprint}|{graphSnapshotId:D}|{graphContextSnapshotId:D}|{graphFingerprint}|{manifestId:D}|{manifestContextSnapshotId:D}|{manifestGraphSnapshotId:D}|{manifestFindingsSnapshotId:D}|{manifestDecisionTraceId:D}|{manifestArchitectureVersionId:D}|{manifestRuleSetId}|{manifestHash}|{manifestDecisionsFingerprint}|{decisionTraceId:D}|{appliedRuleIdsFingerprint}|{bundleId:D}|{artifactsFingerprint}");
 
         byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(canonical));
 
