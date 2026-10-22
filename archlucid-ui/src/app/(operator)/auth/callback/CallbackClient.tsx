@@ -49,6 +49,29 @@ function authCallbackChrome(content: ReactNode): React.JSX.Element {
   return <AuthCallbackBuyerChrome>{content}</AuthCallbackBuyerChrome>;
 }
 
+/** Keep stored post-sign-in return paths when the browser already landed on an IdP callback query. */
+function shouldPreservePostSignInReturnForCallbackQuery(params: {
+  oauthError: string | null;
+  code: string | null;
+  state: string | null;
+}): boolean {
+  const { oauthError, code, state } = params;
+
+  if (oauthError !== null && oauthError.length > 0) {
+    return true;
+  }
+
+  if (code && state) {
+    return true;
+  }
+
+  if (!code || !state) {
+    return Boolean(code || state);
+  }
+
+  return false;
+}
+
 /**
  * OAuth2 authorization-code callback: exchanges ?code= for tokens (PKCE, public client).
  */
@@ -91,8 +114,14 @@ export function CallbackClient() {
       clearSlowHintTimer();
     };
 
+    const preserveReturnForQuery = shouldPreservePostSignInReturnForCallbackQuery({
+      oauthError,
+      code,
+      state,
+    });
+
     if (!isJwtAuthMode()) {
-      fail(BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE);
+      fail(BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE, preserveReturnForQuery);
 
       return () => {
         canceled = true;
@@ -103,7 +132,7 @@ export function CallbackClient() {
     const cfg = assertOidcSignInConfig();
 
     if (!cfg.ok) {
-      fail(cfg.message);
+      fail(cfg.message, preserveReturnForQuery);
 
       return () => {
         canceled = true;
