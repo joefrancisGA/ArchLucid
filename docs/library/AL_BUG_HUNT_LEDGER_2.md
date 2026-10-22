@@ -2842,6 +2842,14 @@
 
 ## Zone: scim-users
 
+2026-10-22 thorough hunt #36 (dry): cheap-disproof closed five `(candidate)` rows (`count` capped at 200 in service + repository `Math.Clamp`; unsupported PATCH `op` → `invalidSyntax`; `active eq "FALSE"` via `bool.TryParse` in `ScimActiveFilterLiteralParser`; PATCH `active` string `"True"` same `ReadActive` path as hunt #35; tombstoned rows excluded before filter per regression `ListAsync_external_id_filter_excludes_directory_removed_users`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count` > 200 — **cheap-disproof 2026-10-22 #36:** `Math.Clamp(count, 0, 200)` at service and repo layers.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `op: "move"` — **cheap-disproof 2026-10-22 #36:** `ApplyOne` `Unsupported op` → `invalidSyntax`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq "FALSE"` — **cheap-disproof 2026-10-22 #36:** `bool.TryParse` is case-insensitive (hunt #29 `"True"` class).
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `active` string `"True"` — **cheap-disproof 2026-10-22 #36:** PATCH `ReadActive` string arm (hunt #35 `"false"`).
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — tombstone before filter — **cheap-disproof 2026-10-22 #36:** regression `ListAsync_external_id_filter_excludes_directory_removed_users` (#1755).
+
 2026-10-22 thorough hunt #35 (dry): cheap-disproof closed five `(candidate)` rows (`startIndex=1` → offset 0 in repository list; PATCH `active` string `"false"` via `ReadActive` `bool.TryParse`; parenthesized `and` filter via `Parse_deep_parentheses`/grouping; PATCH path trim in `ApplyOne`/`ScimPatchValuePathParser`; POST `userName` trimmed in `ReadRequiredString`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
 
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — `startIndex=1` — **cheap-disproof 2026-10-22 #35:** 1-based index; `offset = startIndex - 1`; regressions `ListAsync_normalizes_start_index_below_one`.
@@ -3151,9 +3159,9 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 69
+- **hunts:** 70
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 14
+- **consecutive-dry-hunts:** 15
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — SCIM PATCH remove on active returned silent no-op instead of mutability
 - **related-pd-tb:** none
@@ -3460,11 +3468,17 @@
 - [x] (valid-no-repro) `ScimUsersController.PatchAsync` — whitespace path — **cheap-disproof 2026-10-22 #35:** trim before key.
 - [x] (valid-no-repro) `ScimUsersController.CreateAsync` — trim `userName` — **cheap-disproof 2026-10-22 #35:** `ReadRequiredString` trim.
 
-- [ ] (candidate) `ScimUsersController.ListAsync` — `count` above 200 — locus: `Math.Clamp(count, 0, 200)` in `ListAsync`; input: client requests oversized page.
-- [ ] (candidate) `ScimUsersController.PatchAsync` — unsupported `op` value — locus: `ApplyOne` throws `invalidSyntax`; input: `op: "move"` flat user PATCH.
-- [ ] (candidate) `ScimUsersController.ListAsync` — `active eq "FALSE"` string literal — locus: `ScimActiveFilterLiteralParser` case-insensitive bool parse; input: uppercase false filter.
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `replace` `active` with string `"True"` — locus: PATCH `ReadActive` `bool.TryParse`; input: Pascal-case Entra disable/enable strings.
-- [ ] (candidate) `ScimUsersController.ListAsync` — tombstoned user excluded before filter — locus: `ListAsync` excludes `DirectoryRemovedUtc`; input: filter would match deleted row if included.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count` > 200 — **cheap-disproof 2026-10-22 #36:** clamp at 200.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — unsupported `op` — **cheap-disproof 2026-10-22 #36:** `invalidSyntax`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `active eq "FALSE"` — **cheap-disproof 2026-10-22 #36:** case-insensitive `bool.TryParse`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `active` `"True"` — **cheap-disproof 2026-10-22 #36:** `ReadActive` string parse.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — tombstone exclusion — **cheap-disproof 2026-10-22 #36:** #1755 regression.
+
+- [ ] (candidate) `ScimUsersController.ListAsync` — `count=0` returns empty items — locus: `Take(0)` after clamp; input: zero page size (hunt #8 negative count class).
+- [ ] (candidate) `ScimUsersController.PatchAsync` — missing `value` on `replace` — locus: `ApplyOne` `invalidValue`; input: `replace` without `value` property.
+- [ ] (candidate) `ScimUsersController.ListAsync` — `userName eq` with leading/trailing spaces in literal — locus: quoted string lexer; input: filter literal preserves interior trim semantics on compare.
+- [ ] (candidate) `ScimUsersController.ReplaceAsync` — PUT `active` string `"true"` — locus: `ScimUserResourceParser.ReadActive`; input: string boolean on full replace.
+- [ ] (candidate) `ScimUsersController.PatchAsync` — `remove` on unknown flat attribute — locus: `ApplyFlat` removes key ignored on persist; input: extra attribute drop no-op on write.
 
 - [x] (proven) `ScimUserService.CreateAsync` / `PatchAsync` / `ScimUsersController` — a second live user with the same `userName` and a different `externalId` was stored, including case-only names — **hit 2026-10-09 seed hunt:** live `userName` lookup returns `uniqueness`. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
 - [x] (proven) `ScimFilterParser.ParseFilter` / `ScimUsersController.ListAsync` — ungrouped `or` before `and` was parsed left-to-right, so an active user matching only the left comparison was omitted — **hit 2026-10-09 seed hunt:** `not` over `and` over `or` per RFC 7644 §3.4.2.2. Regressions `ListAsync_filter_gives_and_precedence_over_or`, `Parse_or_binds_looser_than_and`, and `Parse_not_binds_tighter_than_and`.
