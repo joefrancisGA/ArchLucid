@@ -8712,6 +8712,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted NBSP in ledger `TechnologyName` and consecutive ASCII spaces in source `Content` splitting review-cache hash; `ReviewCacheLedgerFingerprint` unicode-space normalizes technology/evidence tokens; `CollapseInteriorAsciiSpaces` in source normalizer; regressions `Build_matches_content_hash_when_ledger_technology_name_differs_only_by_nbsp_vs_space` and `Build_matches_content_hash_when_source_content_differs_only_by_consecutive_spaces`; added coverage for narrow-NBSP filenames, property-value NBSP, duplicate element canonical pick, and permuted `SourceTexts` list order; 178 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ReviewCacheLedgerFingerprint.NormalizeTechnologyName` — NBSP in ledger labels split `ledgerfp` — **hit 2026-10-22 seed hunt:** unicode space normalize; regression above.
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` — consecutive ASCII spaces in `Content` split `ContentHash` — **hit 2026-10-22 seed hunt:** `CollapseInteriorAsciiSpaces`; regression above.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — `SourceTexts` list order — **cheap-disproof 2026-10-22 seed hunt:** normalize + sort by file/type before hash; regression `Build_matches_content_hash_when_source_texts_differ_only_by_list_order`.
+- [x] (invalid) `ClosedLoopReasoningSourceTextNormalizer` — inline tab vs space in `Content` — **cheap-disproof 2026-10-22 seed hunt:** `U+0009` maps to LF via C0 control pass (line-break policy).
+
 2026-10-22 seed hunt (seed→hit): promoted narrow no-break space (`U+202F`) in source `Content` and NBSP in baseline framing-answer keys splitting review-cache hash; `NormalizeUnicodeSpaces` now maps `U+202F`; `NormalizeFingerprintText` normalizes unicode spaces before FormC; regressions `Build_matches_content_hash_when_source_content_differs_only_by_narrow_nbsp_vs_space`, `Build_matches_content_hash_when_baseline_model_framing_answer_key_differs_only_by_nbsp_vs_space`, and `Build_matches_content_hash_when_baseline_element_properties_include_duplicate_keys_after_casing`; 172 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeUnicodeSpaces` — `U+202F` in `Content` split `ContentHash` — **hit 2026-10-22 seed hunt:** narrow NBSP→space; regression above.
@@ -9159,11 +9166,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 76
-- **bugs-found:** 57
+- **hunts:** 77
+- **bugs-found:** 59
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — duplicate property keys and NBSP file names in review-cache hash
+- **last-bug:** 2026-10-22 — narrow NBSP and framing-key NBSP in review-cache hash
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

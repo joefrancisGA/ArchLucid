@@ -25,7 +25,8 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
             Content = string.IsNullOrWhiteSpace(source.Content)
                 ? string.Empty
                 : StripInvisibleFormatCharacters(
-                    NormalizeUnicodeSpaces(StripUtf8Bom(NormalizeLineEndings(source.Content.Trim())))),
+                    CollapseInteriorAsciiSpaces(
+                        NormalizeUnicodeSpaces(StripUtf8Bom(NormalizeLineEndings(source.Content.Trim()))))),
         };
     }
 
@@ -135,6 +136,17 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
 
         if (content[0] == '\uFEFF')
             return content[1..];
+
+        return content;
+    }
+
+    private static string CollapseInteriorAsciiSpaces(string content)
+    {
+        if (content.Length == 0)
+            return content;
+
+        while (content.Contains("  ", StringComparison.Ordinal))
+            content = content.Replace("  ", " ", StringComparison.Ordinal);
 
         return content;
     }

@@ -45,7 +45,7 @@ public static class ReviewCacheLedgerFingerprint
         if (string.IsNullOrWhiteSpace(technologyName))
             return string.Empty;
 
-        return technologyName.Trim().Normalize(NormalizationForm.FormC);
+        return NormalizeUnicodeSpaces(technologyName.Trim()).Normalize(NormalizationForm.FormC);
     }
 
     private static string NormalizeEvidenceRef(string? evidenceRef)
@@ -53,8 +53,13 @@ public static class ReviewCacheLedgerFingerprint
         if (string.IsNullOrWhiteSpace(evidenceRef))
             return string.Empty;
 
-        return evidenceRef.Trim().Normalize(NormalizationForm.FormC);
+        return NormalizeUnicodeSpaces(evidenceRef.Trim()).Normalize(NormalizationForm.FormC);
     }
+
+    private static string NormalizeUnicodeSpaces(string value) =>
+        value
+            .Replace('\u00a0', ' ')
+            .Replace('\u202f', ' ');
 
     private static string Sha256Hex(string value)
     {

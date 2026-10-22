@@ -443,6 +443,106 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_file_name_differs_only_by_narrow_nbsp_vs_space()
+    {
+        ClosedLoopReasoningRequest spaced = CreateRequest("Same body.");
+        spaced.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/arch note.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest narrow = CreateRequest("ignored");
+        narrow.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/arch\u202Fnote.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(spaced).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(narrow).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_element_property_value_differs_only_by_nbsp_vs_space()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-property-value-nbsp";
+
+        ArchitectureKnowledgeModel spaced = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Properties = new Dictionary<string, string> { ["env"] = "prod tier" },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel nbsp = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Properties = new Dictionary<string, string> { ["env"] = "prod\u00A0tier" },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, spaced).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, nbsp).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_duplicate_element_ids_pick_canonical_row_by_name_order()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-duplicate-element-canonical";
+
+        ArchitectureKnowledgeModel reversedOrder = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement { ElementId = "el-1", Name = "Worker" },
+                new ArchitectureModelElement { ElementId = "el-1", Name = "API" },
+            ],
+        };
+
+        ArchitectureKnowledgeModel canonical = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, reversedOrder).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, canonical).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_file_name_differs_only_by_nbsp_vs_space()
     {
         ClosedLoopReasoningRequest spaced = CreateRequest("Same body.");
@@ -1626,6 +1726,76 @@ public sealed class ReviewCacheManifestBuilderTests
         ReviewCacheManifestBuilder.Build(request, spacedKey).ContentHash
             .Should()
             .Be(ReviewCacheManifestBuilder.Build(request, nbspKey).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_ledger_technology_name_differs_only_by_nbsp_vs_space()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-ledger-tech-nbsp";
+
+        TechnologyLedgerEntry spaced = CreateLedgerEntry(request.RunId, evidenceRef: null);
+        spaced.TechnologyName = "Azure SQL";
+
+        TechnologyLedgerEntry nbsp = CreateLedgerEntry(request.RunId, evidenceRef: null);
+        nbsp.TechnologyName = "Azure\u00A0SQL";
+
+        ReviewCacheManifestBuilder.Build(request, null, [spaced]).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, null, [nbsp]).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_source_content_differs_only_by_consecutive_spaces()
+    {
+        ClosedLoopReasoningRequest single = CreateRequest("Claims intake for architects.");
+        ClosedLoopReasoningRequest doubleSpaced = CreateRequest("Claims  intake for architects.");
+
+        ReviewCacheManifestBuilder.Build(single).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(doubleSpaced).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_source_texts_differ_only_by_list_order()
+    {
+        ClosedLoopReasoningRequest firstOrder = CreateRequest("Primary note.");
+        firstOrder.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/a.md",
+                ContentType = "text/markdown",
+                Content = "Primary note.",
+            },
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/b.md",
+                ContentType = "text/markdown",
+                Content = "Secondary context.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest secondOrder = CreateRequest("ignored");
+        secondOrder.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/b.md",
+                ContentType = "text/markdown",
+                Content = "Secondary context.",
+            },
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/a.md",
+                ContentType = "text/markdown",
+                Content = "Primary note.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(firstOrder).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(secondOrder).ContentHash);
     }
 
     [Fact]
