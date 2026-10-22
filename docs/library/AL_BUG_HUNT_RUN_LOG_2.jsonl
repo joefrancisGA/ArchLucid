@@ -1433,5 +1433,4 @@
 {"at":"2026-10-22T20:10:00.0000000Z","zoneId":"scim-users","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Scim/ScimUsersController.cs"]}
 {"at":"2026-10-22T20:12:00.0000000Z","zoneId":"scim-users","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Scim/ScimUsersController.cs"]}
 {"at":"2026-10-22T20:15:00.0000000Z","zoneId":"scim-users","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Scim/ScimUsersController.cs"]}
-{"at":"2026-10-22T20:18:00.0000000Z","zoneId":"scim-users","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Scim/ScimUsersController.cs","ArchLucid.Application/Scim/ScimUserService.Crud.cs","ArchLucid.Application/Scim/ScimUserService.PatchAndSeats.cs"]}
 {"at":"2026-10-22T20:09:38.1836866Z","zoneId":"scim-users","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Scim/ScimUsersController.cs"]}

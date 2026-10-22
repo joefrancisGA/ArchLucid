@@ -50,7 +50,6 @@ public sealed partial class ScimUserService
         await EnsureUserNameNotUsedByAnotherLiveUserAsync(tenantId, id, userName, cancellationToken);
 
         bool wasActive = existing.Active;
-        bool userRowUpdated = false;
 
         try
         {
@@ -62,13 +61,11 @@ public sealed partial class ScimUserService
                 await EmitRoleOverriddenAuditAsync(tenantId, existing, choices.FinalRole, cancellationToken);
 
             await _users.PatchAsync(tenantId, id, externalId, userName, displayName, nextActive, choices.FinalRole, choices.FinalOrigin, cancellationToken);
-            userRowUpdated = true;
             await LogAsync(tenantId, AuditEventTypes.ScimUserUpdated, $"{{\"userId\":\"{id:D}\"}}", cancellationToken);
         }
         catch
         {
-            if (!userRowUpdated)
-                await CompensateSeatTransitionAsync(tenantId, wasActive, nextActive, cancellationToken);
+            await CompensateSeatTransitionAsync(tenantId, wasActive, nextActive, cancellationToken);
 
             throw;
         }
