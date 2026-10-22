@@ -1,3 +1,17 @@
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `decodeOAuthErrorDescription` / `shouldPreserveLiteralPlusInAuthorizeDescription` — keycap emoji (`#️⃣`, `1️⃣`) with literal `+` collapsed the plus because U+20E3 keycap sequences lack ZWJ, regional indicators, and Fitzpatrick modifiers; preserve when combining enclosing keycap (U+20E3) is present; regression `preserves literal plus in authorize error descriptions when keycap emoji sequences are present`; scoped `src/lib/oidc` vitest 409/409.
+
+- [x] (proven) `decodeOAuthErrorDescription` — keycap emoji plus literal plus — **hit 2026-10-22 seed hunt:** U+20E3 guard; regression above.
+- [x] (valid-no-repro) `shouldHumanizeTokenOAuthErrorCode` — `unsupported_token_type` on token JSON — **cheap-disproof 2026-10-22:** allowlist on trunk.
+- [x] (invalid) `humanizeAuthorizeCallbackError` — dedicated redirect URI mismatch admin copy — **cheap-disproof 2026-10-22:** UX-only.
+- [x] (valid-no-repro) `initiateOidcRedirect` — unsafe explicit returnUrl during authorize retry — **cheap-disproof 2026-10-22:** intentional `isSafeReturnPath` drop.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — skin-tone emoji plus literal plus — **cheap-disproof 2026-10-22:** shipped `Emoji_Modifier` guard on bugsmash.
+
+- [ ] (candidate) `decodeOAuthErrorDescription` — tag sequences plus literal plus — locus: mixed-plus guard; input: `🏷️+extra` (reachability: authorize query).
+- [ ] (candidate) `shouldMarkAuthorizeCallbackFailedOnExchangeError` — transient `server_error` on code exchange — locus: parity with BFF transient policy vs preserve-return retry marking.
+- [ ] (candidate) BFF refresh route — `temporarily_unavailable` returns 503 without clearing cookies — locus: mirror `server_error` route test.
+- [ ] (candidate) `normalizeOAuthErrorCode` — keycap emoji in `error` field — locus: normalize path; input: IdP paste (reachability: rare).
+- [ ] (candidate) `OAuthTokenEndpointError` — attach HTTP status for logging without HTML echo — locus: `readOAuthError` follow-up.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no new hunt-ready product defect after cheap-disproof of zone-head (candidate) rows; parity regressions for supplemental Google discovery re-mark follow-up without returnUrl, BFF client refresh 403 shouldClearSession, and authorize retry marker on humanized unsupported_response_type code exchange; scoped src/lib/oidc vitest 417/417.
 
 - [x] (valid-no-repro) isOAuthRefreshTokenRejectedError - edirect_uri_mismatch on refresh grant - **cheap-disproof 2026-10-22:** classifies humanized invalid_request and redirect_uri_mismatch refresh failures for BFF session clearing.
@@ -5832,9 +5846,9 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.RelationshipValidation.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalTerraformSourceIdHeuristics.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalConsensusMerger.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 68
+- **hunts:** 79
 - **last-hunt:** 2026-10-21
-- **bugs-found:** 55
+- **bugs-found:** 73
 - **consecutive-dry-hunts:** 2
 - **last-bug:** 2026-10-20 � Tenant value report DOCX omitted artifact-text sanitization
 - **related-pd-tb:** none
@@ -9264,8 +9278,8 @@ High historical yield. **Not exhausted** ΓÇö remaining hypotheses are type-fa
 - **hunts:** 97
 - **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-20 � declared ARM alias keys with trailing slash missed canonical relationship lookup
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 — keycap emoji plus preservation in authorize error_description
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

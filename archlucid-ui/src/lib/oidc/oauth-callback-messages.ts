@@ -155,6 +155,11 @@ function shouldPreserveLiteralPlusInAuthorizeDescription(decoded: string): boole
     return true;
   }
 
+  // Keycap emoji (#️⃣, 1️⃣) uses U+FE0F + U+20E3 without ZWJ or Fitzpatrick modifiers.
+  if (/\u20e3/u.test(decoded)) {
+    return true;
+  }
+
   return /(?<=[A-Za-z0-9])[\u200c\u200d](?=[A-Za-z0-9+])/u.test(decoded);
 }
 
