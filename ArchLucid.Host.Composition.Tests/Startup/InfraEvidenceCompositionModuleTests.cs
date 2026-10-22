@@ -648,7 +648,7 @@ public sealed class InfraEvidenceCompositionModuleTests
     }
 
     [Fact]
-    public void InfraEvidenceCompositionModule_registers_nine_audit_evidence_selector_implementations()
+    public void InfraEvidenceCompositionModule_registers_ten_audit_evidence_selector_implementations()
     {
         ServiceCollection services = [];
         InfraEvidenceCompositionModule.Register(services, new ConfigurationBuilder().Build());
@@ -664,6 +664,7 @@ public sealed class InfraEvidenceCompositionModuleTests
             typeof(GovernanceAuditEvidenceSelector),
             typeof(PostureAuditEvidenceSelector),
             typeof(ResilienceAuditEvidenceSelector),
+            typeof(DefenderAuditEvidenceSelector),
         ];
 
         foreach (Type selectorType in selectorTypes)
