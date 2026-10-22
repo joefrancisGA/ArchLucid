@@ -1,3 +1,18 @@
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `normalizeOAuthErrorCode` — authorize `?error=` values over-encoded by proxies (`access%2520denied`, `access%252520denied`) used a single `decodeURIComponent` while `error_description` already used `decodeRepeatedPercentEncoding`, so standard handlers were missed and generic copy showed literal `%20`; route error-code normalization through the same bounded repeated decode; regressions doubly/triply percent-encoded authorize error code handlers; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 349/349.
+
+- [x] (proven) `normalizeOAuthErrorCode` — over-encoded authorize `error` query codes — **hit 2026-10-22 seed hunt:** `decodeRepeatedPercentEncoding` on error codes; regressions above.
+- [x] (invalid) `decodeRepeatedPercentEncoding` — four-pass `%25252520` description chains — **cheap-disproof 2026-10-22:** intentional three-pass cap; further hops are outlier proxy noise.
+- [x] (valid-no-repro) `storePostSignInReturnUrl` — `%3F` vs `?` idle-desk pairing — **cheap-disproof 2026-10-22:** `isSafeReturnPath` rejects encoded query separators in stored paths.
+- [x] (valid-no-repro) `errorFromOAuthJson` — numeric `error` with description — **cheap-disproof 2026-10-22:** `readOAuthErrorString` ignores non-string `error`; description-only path covered in token-client tests.
+- [x] (valid-no-repro) `getAccessTokenExpiresAtMs` — whitespace-only expiry hint — **cheap-disproof 2026-10-22:** `parseOidcEpochMsHint` yields NaN → `getExpiresAtMs` 0; refresh treats as unknown expiry.
+- [x] (invalid) `loadDiscoveryDocument` — authority FQDN trailing dot — **cheap-disproof 2026-10-22:** `URL` normalizes host; duplicate discovery URL is cache-only, not wrong auth.
+
+- [ ] (candidate) `normalizeOAuthErrorCode` — percent-encoded `+` in authorize `error` (`invalid%2Bclient`) — locus: plus-to-space before decode; input: `invalid%2Bclient` vs `invalid+client`; reachability: IdP encodes plus in error code.
+- [ ] (candidate) `humanizeAuthorizeCallbackError` — `access%5fdenied` already maps — locus: regression lock only; input: underscore percent escape (reachability: add test if missing).
+- [ ] (candidate) `clearOidcSession` — display-name-only hint treated as signed-in for return-url clear — locus: `hasOidcSessionIdentityHints`; input: legacy display without sub; reachability: intentional product choice vs bug.
+- [ ] (candidate) `pulseOidcSessionKeepalive` — unauthorized pulse during failed callback — locus: `clearOidcSession` without identity; input: BFF 401 with stored return (reachability: keepalive hook).
+- [ ] (candidate) `initiateOidcRedirect` — retry marker preserved but user starts sign-in without `returnUrl` — locus: skip `clearAbandonedPostSignInReturnUrl`; input: manual navigation after OAuth error (may be intentional).
+
 2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `decodeRepeatedPercentEncoding` — triply percent-encoded spaces in OAuth `error_description` (`User%252520denied`) still showed `User%20denied` after two decode passes; raise cap to three passes (unchanged stable-break behavior); regressions `decodes triply percent-encoded spaces in JSON error_description` + authorize decode path; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 346/346.
 
 - [x] (proven) `decodeRepeatedPercentEncoding` — triply percent-encoded `error_description` — **hit 2026-10-22 seed hunt:** `MAX_OAUTH_PERCENT_DECODE_PASSES` 3; regressions above.
@@ -37,8 +52,8 @@
 - [x] (valid-no-repro) `initiateSupplementalOidcRedirect` - authorize retry flag on Google discovery failure - **cheap-disproof 2026-10-22:** `preservingAuthorizeCallbackRetry` mirrors primary flow (add regression if missing).
 - [x] (invalid) `decodeOAuthErrorDescription` - `%252F` double-encoded path fragments - **cheap-disproof 2026-10-22:** single decode by design; literal `%2F` preserved for operator copy.
 - [x] (invalid) `loadDiscoveryDocument` - default-port authority normalization duplicate cache - **cheap-disproof 2026-10-22:** duplicate fetch only; no wrong auth outcome.
-- [ ] (candidate) `humanizeAuthorizeCallbackError` — `access%5fdenied` percent-encoded underscore in authorize `error` — locus: `normalizeOAuthErrorCode` decode; input: single-encoded underscore (reachability: IdP emits `%5f` not space).
-- [ ] (candidate) `readOAuthJsonErrorDescription` — `%2520` double-encoded spaces in token JSON — locus: single decodeURIComponent; input: `User%2520denied` (reachability: mis-encoded JSON body).
+- [x] (valid-no-repro) `humanizeAuthorizeCallbackError` — `access%5fdenied` percent-encoded underscore — **cheap-disproof 2026-10-22 (zone block):** `normalizeOAuthErrorCode` maps to `access_denied`; covered by repeated-decode hit.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — `%2520` in token JSON — **cheap-disproof 2026-10-22 (zone block):** `decodeRepeatedPercentEncoding` on JSON descriptions; prior hits.
 - [ ] (candidate) `initiateSupplementalOidcRedirect` — preserves return URL on Google discovery failure during authorize-callback retry — locus: `preservingAuthorizeCallbackRetry`; input: mirror primary regression (reachability: add test).
 - [ ] (candidate) `normalizeOAuthErrorCode` — token JSON `error` with literal `+` glue — locus: plus-to-space before decode; input: `{ "error": "invalid+grant" }` (reachability: token-client path).
 - [ ] (candidate) `decodeOAuthErrorDescription` — NBSP `%C2%A0` between Latin words in authorize descriptions — locus: collapse `\s`; input: `Policy%C2%A0denied` (may already collapse via `\s+`).
@@ -25312,13 +25327,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 80
-- **bugs-found:** 74
+- **hunts:** 81
+- **bugs-found:** 75
 - **hunts:** 78
 - **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-22 — triply percent-encoded OAuth error_description
+- **last-bug:** 2026-10-22 — over-encoded authorize OAuth error query codes
 
 - **id:** ui-oidc
 - **status:** open

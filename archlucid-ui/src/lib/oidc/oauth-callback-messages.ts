@@ -156,11 +156,7 @@ export function collapseOAuthErrorDescriptionLineBreaks(text: string): string {
 export function normalizeOAuthErrorCode(value: string): string {
   let decoded = value.trim();
 
-  try {
-    decoded = decodeURIComponent(decoded.replace(/\+/g, " "));
-  } catch {
-    /* keep trimmed raw value when IdPs send literal percent signs */
-  }
+  decoded = decodeRepeatedPercentEncoding(decoded.replace(/\+/g, " "));
 
   const tokenized = decoded
     .replace(OAUTH_INVISIBLE_FORMAT_CHARS, "_")
