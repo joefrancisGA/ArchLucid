@@ -131,6 +131,25 @@ public sealed class ApiRequestNullCollectionElementsGuardTests
         ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(request).Should().BeTrue();
     }
 
+    [Fact]
+    public void ContainsNullCollectionElement_returns_true_for_null_string_in_dictionary_list_value()
+    {
+        DictionaryListValueRequest request = new()
+        {
+            GroupedTags = new Dictionary<string, List<string>>
+            {
+                ["team"] = ["ok", null!],
+            },
+        };
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(request).Should().BeTrue();
+    }
+
+    private sealed class DictionaryListValueRequest
+    {
+        public Dictionary<string, List<string>> GroupedTags { get; set; } = new();
+    }
+
     private sealed class NestedStringListRequest
     {
         public List<List<string>> Buckets { get; set; } = [];

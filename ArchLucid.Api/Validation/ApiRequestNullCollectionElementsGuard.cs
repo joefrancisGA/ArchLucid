@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Reflection;
 
 namespace ArchLucid.Api.Validation;
@@ -112,7 +112,7 @@ public static class ApiRequestNullCollectionElementsGuard
 
             if (IsEnumerableCollection(elementRuntimeType))
             {
-                NullabilityInfo? nestedCollectionNullability = collectionNullability.ElementType;
+                NullabilityInfo? nestedCollectionNullability = ResolveCollectionElementNullability(collectionNullability);
 
                 if (nestedCollectionNullability is not null
                     && VisitCollection((IEnumerable)element, nestedCollectionNullability, visited))
@@ -158,9 +158,46 @@ public static class ApiRequestNullCollectionElementsGuard
             return true;
         }
 
-        entryInvalid = VisitObject(entryValue, visited);
+        entryInvalid = VisitDictionaryEntryValue(entryValue, collectionNullability, visited);
 
         return true;
+    }
+
+    private static bool VisitDictionaryEntryValue(
+        object entryValue,
+        NullabilityInfo dictionaryCollectionNullability,
+        HashSet<object> visited)
+    {
+        Type entryValueType = entryValue.GetType();
+
+        if (IsEnumerableCollection(entryValueType))
+        {
+            NullabilityInfo? valueNullability = TryGetDictionaryValueNullability(dictionaryCollectionNullability);
+
+            if (valueNullability is not null)
+                return VisitCollection((IEnumerable)entryValue, valueNullability, visited);
+        }
+
+        return VisitObject(entryValue, visited);
+    }
+
+    private static NullabilityInfo? TryGetDictionaryValueNullability(NullabilityInfo dictionaryCollectionNullability)
+    {
+        if (dictionaryCollectionNullability.GenericTypeArguments.Length >= 2)
+            return dictionaryCollectionNullability.GenericTypeArguments[1];
+
+        return null;
+    }
+
+    private static NullabilityInfo? ResolveCollectionElementNullability(NullabilityInfo collectionNullability)
+    {
+        if (collectionNullability.ElementType is not null)
+            return collectionNullability.ElementType;
+
+        if (collectionNullability.GenericTypeArguments.Length > 0)
+            return collectionNullability.GenericTypeArguments[0];
+
+        return null;
     }
 
     private static bool DictionaryValueAllowsNull(NullabilityInfo dictionaryNullability)

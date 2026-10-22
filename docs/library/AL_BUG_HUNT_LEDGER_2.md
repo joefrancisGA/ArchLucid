@@ -12947,17 +12947,28 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: api-request-null-collection-elements
 
+2026-10-22 thorough hunt (hit): `api-request-null-collection-elements` — dictionary entry values typed as nested collections (`Dictionary<string, List<string>>`) only called `VisitObject`, which does not enumerate list elements; traverse dictionary values with `VisitDictionaryEntryValue` + value-side `VisitCollection`; hardened nested collection element nullability via `ResolveCollectionElementNullability`; regressions `ContainsNullCollectionElement_returns_true_for_null_string_in_dictionary_list_value` and nested list; 19 scoped guard/architecture/filter tests passed.
+
+- [x] (proven) `ApiRequestNullCollectionElementsGuard.TryVisitDictionaryEntryValue` — null elements inside dictionary values typed as `IEnumerable` collections not detected — **hit 2026-10-22 thorough hunt:** `VisitDictionaryEntryValue` + value nullability from `GenericTypeArguments[1]`; regression `ContainsNullCollectionElement_returns_true_for_null_string_in_dictionary_list_value`.
+- [x] (proven) `ApiRequestNullCollectionElementsGuard.VisitCollection` — nested collection element nullability sometimes missed when `ElementType` was unset — **hit 2026-10-22 thorough hunt (follow-up):** `ResolveCollectionElementNullability` falls back to `GenericTypeArguments[0]`; regression `ContainsNullCollectionElement_returns_true_for_null_string_in_nested_list_collection`.
+
 2026-10-22 seed hunt (seed→hit): promoted nested collection traversal — `List<List<string>>` with null inner strings skipped validation because collection elements typed as `IEnumerable` only recursed through `VisitObject`, which does not enumerate list items; recurse nested collections with element `NullabilityInfo`; regression `ContainsNullCollectionElement_returns_true_for_null_string_in_nested_list_collection`; 11 guard tests (local compile blocked by unrelated Application WIP on main checkout).
 
 - [x] (proven) `ApiRequestNullCollectionElementsGuard.VisitCollection` — null elements inside nested collection properties not detected — **hit 2026-10-22 seed hunt:** nested `VisitCollection` via `ElementType` nullability; regression `ContainsNullCollectionElement_returns_true_for_null_string_in_nested_list_collection`.
 
 ### Hypotheses
 
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitObject` — public fields on `[FromBody]` DTOs bypass property-only reflection — locus: `GetProperties` ~44; input: field-backed collection with null element; reachability: none in current `ArchLucid.Api/Models` catalog today.
-- [ ] (candidate) `ApiRequestNullCollectionElementsFilter.OnActionExecutionAsync` — skips validation when body argument is null after failed bind — locus: `body is null` continue ~33; input: malformed JSON leaving null body; reachability: model-binding + `[ApiController]` automatic 400 before filter.
-- [ ] (candidate) `ApiRequestBodyTypeCatalog.DiscoverFromBodyRequestTypes` — minimal API / endpoint metadata bodies omitted — locus: controller-type scan only; input: non-controller route with body DTO; reachability: MVC controller surface in `ArchLucid.Api`.
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.TryVisitDictionaryEntryValue` — dictionary keys with nested invalid graphs not visited — locus: value-only walk ~134–143; input: complex key type with null inner collection; reachability: no non-string dictionary keys in FromBody catalog.
-- [ ] (candidate) `SkipNullCollectionElementValidationAttribute` — opt-out property can reintroduce null-element 500 if used on production DTO — locus: guard skip ~50; input: attributed collection with null element; reachability: attribute documented; no production usages.
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard.VisitObject` — public fields on `[FromBody]` DTOs bypass property-only reflection — **cheap-disproof 2026-10-22 thorough hunt:** `ArchLucid.Api/Models` request DTOs use properties only; no public instance field-backed collections in the FromBody catalog.
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsFilter.OnActionExecutionAsync` — skips validation when body argument is null after failed bind — **cheap-disproof 2026-10-22 thorough hunt:** intentional skip; `[ApiController]` model binding returns 400 before the filter runs on failed body bind.
+- [x] (invalid) `ApiRequestBodyTypeCatalog.DiscoverFromBodyRequestTypes` — minimal API / endpoint metadata bodies omitted — **cheap-disproof 2026-10-22 thorough hunt:** `ArchLucid.Api` body surface is MVC controllers; minimal routes are health/docs only (`PipelineExtensions.HealthDocs`).
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsGuard.TryVisitDictionaryEntryValue` — dictionary keys with nested invalid graphs not visited — **cheap-disproof 2026-10-22 thorough hunt:** production FromBody dictionaries are `Dictionary<string, string>`; complex keys are not reachable.
+- [x] (valid-no-repro) `SkipNullCollectionElementValidationAttribute` — opt-out property can reintroduce null-element 500 if used on production DTO — **cheap-disproof 2026-10-22 thorough hunt:** attribute is documented opt-out only; no production DTO usages.
+
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `IEnumerable` elements materialized as lazy enumerables may skip validation when enumeration throws — locus: `foreach` over deserialized collections; input: custom enumerable with deferred null; reachability: System.Text.Json materializes arrays/lists.
+- [ ] (candidate) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — skips collection properties on nested types reached only via dictionary values — locus: catalog walk; input: future `Dictionary<string, NestedDto>`; reachability: architecture probe factory gap.
+- [ ] (candidate) `ApiRequestNullCollectionElementsFilter` — non-`ControllerActionDescriptor` actions bypass filter — locus: descriptor guard ~20; input: Razor Page handler; reachability: API uses controllers only.
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard` — `HashSet<string>` with null element — locus: collection foreach; input: null in set; reachability: JSON deserializer typically rejects null in non-nullable set elements.
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitObject` — cyclic object graphs short-circuit validation via `visited` — locus: reference equality set; input: shared collection instance referenced twice; reachability: JSON deserializer does not produce cycles in request DTOs.
 
 - **id:** api-request-null-collection-elements
 - **status:** open
@@ -12965,11 +12976,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** null collection elements; request body validation
 - **paths:** ArchLucid.Api/Filters/ApiRequestNullCollectionElementsFilter.cs; ArchLucid.Api/Validation/ApiRequestNullCollectionElementsGuard.cs; ArchLucid.Api/Http/ApiRequestBodyTypeCatalog.cs; ArchLucid.Api/Startup/MvcExtensions.cs
 - **test-filter:** FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests
-- **hunts:** 3
-- **bugs-found:** 2
+- **hunts:** 4
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — nested list null-element guard traversal
+- **last-bug:** 2026-10-22 — dictionary nested collection values skipped null-element guard
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
