@@ -6204,3 +6204,6 @@
 {"at":"2026-10-22T06:17:12.7839871Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-22T06:17:32.7034804Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-22T06:20:17.6231969Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-22T06:23:49.9123426Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-22T06:27:34.7687320Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-22T06:31:10.1787619Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
