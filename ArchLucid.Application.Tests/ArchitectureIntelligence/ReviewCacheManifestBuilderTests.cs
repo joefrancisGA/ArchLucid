@@ -133,6 +133,88 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_baseline_related_element_ids_differ_only_by_surrounding_whitespace()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-related-id-trim";
+
+        ArchitectureKnowledgeModel paddedRelated = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    RelatedElementIds = ["  el-2  "],
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel trimmedRelated = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    RelatedElementIds = ["el-2"],
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, paddedRelated).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, trimmedRelated).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_source_passage_ids_differ_only_by_surrounding_whitespace()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-passage-id-trim";
+
+        ArchitectureKnowledgeModel paddedPassages = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    SourcePassageIds = ["  passage-1  "],
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel trimmedPassages = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    SourcePassageIds = ["passage-1"],
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, paddedPassages).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, trimmedPassages).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_baseline_element_property_value_differs_only_by_surrounding_whitespace()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");

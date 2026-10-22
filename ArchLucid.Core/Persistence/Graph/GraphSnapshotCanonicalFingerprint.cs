@@ -166,7 +166,10 @@ public static class GraphSnapshotCanonicalFingerprint
     {
         string related = string.Join(
             ",",
-            (element.RelatedElementIds ?? []).OrderBy(static id => id, StringComparer.OrdinalIgnoreCase));
+            (element.RelatedElementIds ?? [])
+                .Select(static id => NormalizeFingerprintText(id))
+                .Where(static id => id.Length > 0)
+                .OrderBy(static id => id, StringComparer.Ordinal));
 
         IEnumerable<string> propertyParts = (element.Properties ?? [])
             .OrderBy(static pair => pair.Key, StringComparer.OrdinalIgnoreCase)
@@ -175,7 +178,10 @@ public static class GraphSnapshotCanonicalFingerprint
         string properties = string.Join(",", propertyParts);
         string passages = string.Join(
             ",",
-            (element.SourcePassageIds ?? []).OrderBy(static id => id, StringComparer.OrdinalIgnoreCase));
+            (element.SourcePassageIds ?? [])
+                .Select(static id => NormalizeFingerprintText(id))
+                .Where(static id => id.Length > 0)
+                .OrderBy(static id => id, StringComparer.Ordinal));
 
         string name = string.IsNullOrWhiteSpace(element.Name) ? string.Empty : element.Name.Trim();
         string description = string.IsNullOrWhiteSpace(element.Description) ? string.Empty : element.Description.Trim();
