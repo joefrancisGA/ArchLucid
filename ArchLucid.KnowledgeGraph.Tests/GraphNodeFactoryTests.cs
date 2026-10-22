@@ -222,6 +222,16 @@ public sealed class GraphNodeFactoryTests
         node.SourceId.Should().Be("src-42");
     }
 
+    [Fact]
+    public void CreateNode_trims_surrounding_whitespace_on_source_type()
+    {
+        CanonicalObject item = BuildItem(sourceType: "  InlineConnector  ");
+
+        GraphNode node = _sut.CreateNode(item);
+
+        node.SourceType.Should().Be("InlineConnector");
+    }
+
     private static CanonicalObject BuildItem(
         string objectId = "cmp-1",
         string objectType = GraphNodeTypes.TopologyResource,

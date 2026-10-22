@@ -12470,18 +12470,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 152
-- **bugs-found:** 145
+- **hunts:** 153
+- **bugs-found:** 146
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — graph node factory kept padded property-bag values
+- **last-bug:** 2026-10-22 — graph node factory kept padded SourceType on materialize
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted `GraphNodeFactory` padded `SourceType` candidate; proved `CreateNode` copied raw `CanonicalObject.SourceType` onto `GraphNode.SourceType`, breaking parity with trim-normalized source attribution and provenance metadata joins when ingestion tokens carried surrounding whitespace; trim non-empty source type on assign; regression `CreateNode_trims_surrounding_whitespace_on_source_type`; seeded `GraphNodeFactory` padded property-bag **keys** on `GraphNode.Properties` follow-on; 454 KnowledgeGraph + 148 Provenance scoped tests passed.
+
+- [x] (proven) `GraphNodeFactory.CreateNode` — padded canonical `SourceType` on graph node — **hit 2026-10-22 seed hunt (seed→hit):** trim source type; regression above.
+
+- [ ] (candidate) `GraphNodeFactory.CreateNode` — padded property-bag keys may surface on `GraphNode.Properties` without trim — locus: `NormalizePropertyBag` key copy; input: canonical property key with surrounding whitespace; wrong outcome: case-insensitive property reads and identity matchers miss padded keys vs trim-normalized ingest.
 
 2026-10-22 seed hunt (seed→hit): promoted `GraphNodeFactory` padded property-bag candidate; proved `CreateNode` shallow-copied canonical properties without trimming string values, leaving padded identity tokens in `GraphNode.Properties` that broke parity with direct property reads and `DeclarationExistingNodeResolver` identity matching; trim values in `NormalizePropertyBag`; regression `CreateNode_trims_surrounding_whitespace_on_property_bag_string_values`; seeded `GraphNodeFactory` padded `SourceType` materialization follow-on; 453 KnowledgeGraph + 148 Provenance scoped tests passed.
 
 - [x] (proven) `GraphNodeFactory.CreateNode` — padded property-bag values on `GraphNode.Properties` — **hit 2026-10-22 seed hunt (seed→hit):** trim property bag; regression above.
-
-- [ ] (candidate) `GraphNodeFactory.CreateNode` — padded canonical `SourceType` may surface on graph node without trim — locus: `SourceType` assign; input: `CanonicalObject.SourceType` with surrounding whitespace; wrong outcome: provenance metadata and source attribution diverge from trim-normalized ingest.
 
 2026-10-22 seed hunt (seed→hit): promoted `GraphNodeFactory` padded `ObjectType` candidate; proved `CreateNode` copied raw `CanonicalObject.ObjectType` onto `GraphNode.NodeType`, breaking parity with trim-normalized `DefaultGraphEdgeInferer` node-type bucket gates; trim object type on assign; regression `CreateNode_trims_surrounding_whitespace_on_object_type_when_building_node_type`; seeded `GraphNodeFactory` padded property-bag string values on `GraphNode.Properties` follow-on; 452 KnowledgeGraph + 148 Provenance scoped tests passed.
 

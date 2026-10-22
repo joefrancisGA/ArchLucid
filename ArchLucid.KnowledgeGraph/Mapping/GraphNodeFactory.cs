@@ -39,7 +39,7 @@ public class GraphNodeFactory : IGraphNodeFactory
             NodeType = nodeType,
             Label = item.Name.Trim(),
             Category = string.IsNullOrWhiteSpace(category) ? category : category.Trim(),
-            SourceType = item.SourceType,
+            SourceType = string.IsNullOrWhiteSpace(item.SourceType) ? item.SourceType : item.SourceType.Trim(),
             SourceId = string.IsNullOrWhiteSpace(item.SourceId) ? item.SourceId : item.SourceId.Trim(),
             Properties = properties
         };
