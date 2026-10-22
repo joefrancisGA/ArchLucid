@@ -38,7 +38,7 @@ public sealed class AgentResultRegionMismatchEnricher : IAgentResultPostExecutio
                     proposal,
                     service.AzureArmRegion,
                     requestRegions,
-                    ResolveRegionValidationPlatformHint(service.RuntimePlatform));
+                    ResolveRegionValidationPlatformHint(service.RuntimePlatform, service.ServiceName));
             }
 
             foreach (ManifestDatastore datastore in proposal.AddedDatastores ?? [])
@@ -47,7 +47,7 @@ public sealed class AgentResultRegionMismatchEnricher : IAgentResultPostExecutio
                     proposal,
                     datastore.AzureArmRegion,
                     requestRegions,
-                    ResolveRegionValidationPlatformHint(datastore.RuntimePlatform));
+                    ResolveRegionValidationPlatformHint(datastore.RuntimePlatform, datastore.DatastoreName));
             }
         }
 
@@ -107,10 +107,17 @@ public sealed class AgentResultRegionMismatchEnricher : IAgentResultPostExecutio
         proposal.Warnings.Add(warning);
     }
 
-    private static string ResolveRegionValidationPlatformHint(RuntimePlatform platform)
+    private static string ResolveRegionValidationPlatformHint(RuntimePlatform platform, string? resourceName)
     {
         if (platform == RuntimePlatform.AzureOpenAi)
             return "Microsoft.CognitiveServices/accounts";
+
+        if (platform == RuntimePlatform.Unknown
+            && !string.IsNullOrWhiteSpace(resourceName)
+            && resourceName.Contains("openai", StringComparison.OrdinalIgnoreCase))
+        {
+            return "Microsoft.CognitiveServices/accounts";
+        }
 
         return platform.ToString();
     }

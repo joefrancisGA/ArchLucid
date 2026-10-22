@@ -7803,14 +7803,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-22 seed hunt (seed→hit): promoted region mismatch when OpenAI-named services omit `RuntimePlatform`; regression `EnrichAsync_appends_warning_when_openai_named_service_omits_runtime_platform_in_restricted_region`; 123 scoped Application.Tests.Agents tests passed.
+
+- [x] (proven) `AgentResultRegionMismatchEnricher.ResolveRegionValidationPlatformHint` — `RuntimePlatform.Unknown` with OpenAI-like `ServiceName` in `qatarcentral` skipped `Microsoft.CognitiveServices/accounts` restricted-region warnings — **hit 2026-10-22 seed hunt:** infer Cognitive Services ARM hint from resource name when platform omitted; regression above. [class:state-machine-gap]
+
+- (candidate) `RepoFaithfulnessHarnessSummaryReader.TryReadLatestAsync` — omitted ratio keys deserialize as `0.0` and import may record Failed evaluations for otherwise valid harness output — locus: DTO defaults; input: summary JSON missing `positiveReadinessSupportRatio` with positive `casesEvaluated`.
+- (candidate) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — partial evaluation upsert when `RecordTaskEvaluationAsync` fails mid approved-task-type loop — locus: foreach without transaction; input: two approved task types with recorder fault on second (verify whether operator retry is acceptable).
+- (candidate) `AgentResultRegionMismatchEnricher` — Machine Learning workloads in restricted regions still miss warnings when platform and name omit ML cues — locus: platform hint table vs `RegionRestrictedServices` ML entry; input: `qatarcentral` with unnamed ML service.
+- (candidate) `FindingIacStubGenerator.ApplyRelationalMuteFlagsAsync` — relational mute flags skipped when `runId` is not GUID-shaped — locus: `Guid.TryParse` guard; input: production run ids (verify always `Guid` strings from `dbo.Runs`).
+
 2026-10-22 seed hunt (seed→hit): promoted faithfulness harness import with non-finite support ratios; regression `Import_rejects_summary_when_support_ratios_are_not_finite`; 122 scoped Application.Tests.Agents tests passed.
 
 - [x] (proven) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — `faithfulness-summary.json` with `NaN` readiness or floor ratios persisted Failed/Evaluated catalog rows instead of rejecting corrupt harness output — **hit 2026-10-22 seed hunt:** `double.IsFinite` guard before evaluation upsert; regression above. [class:fail-open-validation]
 
-- (candidate) `RepoFaithfulnessHarnessSummaryReader.TryReadLatestAsync` — malformed JSON numeric fields deserialize to `0`/`NaN` without schema validation before import — locus: DTO bind; input: hand-edited `docs/quality/faithfulness-summary.json` with missing ratio keys.
-- (candidate) `AgentResultRegionMismatchEnricher.ResolveRegionValidationPlatformHint` — `RuntimePlatform.Unknown` skips restricted-region warnings for Cognitive Services in `qatarcentral` when LLM omits platform — locus: platform hint table; input: `region:qatarcentral` constraint with service missing `RuntimePlatform.AzureOpenAi`.
-- (candidate) `FindingIacStubGenerator.ApplyRelationalMuteFlagsAsync` — non-GUID `runId` skips relational mute lookup while snapshot mute flags exist — locus: `Guid.TryParse` early return; input: alphanumeric demo run id (verify production run ids are always GUID-shaped).
-- (candidate) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — partial evaluation upsert when `RecordTaskEvaluationAsync` fails mid approved-task-type loop — locus: foreach without transaction; input: two approved task types with recorder fault on second.
+- [x] (invalid) `FindingIacStubGenerator.ApplyRelationalMuteFlagsAsync` — non-GUID `runId` skips relational mute lookup — **cheap-disproof 2026-10-22 seed hunt:** `RunRecord.RunId` is `Guid`; IaC stub generation is post-commit on persisted runs; relational mute lookup requires `GetByRunIdAdminAsync(Guid)`; test-only ids like `run-1` are not production reachability.
 
 2026-10-21 follow-up (class closure): persisted `AgentResult.AgentType` direct reads in application agent orchestration — resolver routing + architecture ratchet `Application_and_agents_code_routes_envelope_agent_type_through_resolver`.
 
@@ -7834,11 +7840,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 46
-- **bugs-found:** 43
+- **hunts:** 47
+- **bugs-found:** 44
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — faithfulness harness import rejects non-finite support ratios
+- **last-bug:** 2026-10-22 — region mismatch for OpenAI-named services with unknown runtime platform
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
 
