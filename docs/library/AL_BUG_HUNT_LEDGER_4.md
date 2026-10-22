@@ -12470,7 +12470,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 268
+- **hunts:** 269
 - **bugs-found:** 180
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — fully empty overlay merge returned base graph without warning normalization
@@ -12841,7 +12841,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — null `RelationshipType` minted empty-type edges — **cheap-disproof 2026-10-22 seed hunt:** shared empty-type skip; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — relationship rows with empty-string `RelationshipType` may mint empty-type edges — locus: relationship type trim fallback; input: inventory relationship with `RelationshipType = string.Empty` and valid endpoints; wrong outcome: overlay mints edge with empty `EdgeType`.
+2026-10-22 seed hunt (valid-no-repro): promoted `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` empty-string `RelationshipType` candidate; proved hunt 267 empty-type skip covers `string.Empty` after trim; regression `BuildOverlay_skips_relationships_when_relationship_type_is_empty_string`; seeded `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` ARM resource id ending with slash may mint empty `Label` follow-on; 562 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — empty-string `RelationshipType` minted empty-type edges — **cheap-disproof 2026-10-22 seed hunt:** shared empty-type skip; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — ARM resource id ending with slash may mint empty `Label` — locus: `ResolveLabel` ARM name segment trim; input: resource whose `AzureResourceId` ends with `/` after normalization; wrong outcome: overlay node `Label` is empty instead of falling back to trimmed `ResourceType`.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
