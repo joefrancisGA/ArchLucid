@@ -245,6 +245,79 @@ public sealed class TenantCatalogMigrationOrchestratorTests
     }
 
     [Fact]
+    public async Task AcknowledgeCatalogAttachDetachAsync_returns_in_erasure_quarantine_without_attach_audit_when_offboard_completes_after_tenant_before_attach_audit_read_before_audit()
+    {
+        InMemoryTenantCatalogMigrationRepository migrations = new();
+        FakeTimeProvider clock = new(new DateTimeOffset(2026, 10, 22, 6, 0, 0, TimeSpan.Zero));
+        Guid migrationId = Guid.NewGuid();
+        await migrations.InsertAsync(
+            new TenantCatalogMigrationRecord
+            {
+                MigrationId = migrationId,
+                TenantId = TenantId,
+                CorrelationId = "corr-offboard-attach-pre-append",
+                Stage = TenantCatalogMigrationStage.ScopeFreeze,
+                StartedUtc = clock.GetUtcNow().AddHours(-1),
+            },
+            CancellationToken.None);
+
+        TenantRecord activeTenant = new()
+        {
+            Id = TenantId,
+            Name = "Acme",
+            Slug = "acme",
+            Tier = TenantTier.Standard,
+            DataRegion = TenantDataRegions.Default,
+            CreatedUtc = clock.GetUtcNow().AddDays(-1),
+        };
+
+        TenantRecord offboarded = new()
+        {
+            Id = TenantId,
+            Name = "Acme",
+            Slug = "acme",
+            Tier = TenantTier.Standard,
+            DataRegion = TenantDataRegions.Default,
+            CreatedUtc = clock.GetUtcNow().AddDays(-1),
+            OffboardedUtc = clock.GetUtcNow(),
+            ErasureEligibleUtc = clock.GetUtcNow().AddDays(30),
+        };
+
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        tenants
+            .SetupSequence(t => t.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(activeTenant)
+            .ReturnsAsync(activeTenant)
+            .ReturnsAsync(activeTenant)
+            .ReturnsAsync(offboarded);
+
+        Mock<IPlatformAuditRepository> audit = new(MockBehavior.Strict);
+        TenantSuspendCommandService suspend = new(tenants.Object, audit.Object, clock);
+        TenantCatalogMigrationOrchestrator sut = new(
+            migrations,
+            tenants.Object,
+            suspend,
+            CreateDefaultProjectionRefresh(),
+            CreateDefaultVerificationProbe(),
+            audit.Object,
+            clock);
+
+        TenantCatalogMigrationCommandOutcome outcome =
+            await sut.AcknowledgeCatalogAttachDetachAsync(TenantId, "admin", "Admin", CancellationToken.None);
+
+        Assert.Equal(TenantCatalogMigrationCommandOutcome.InErasureQuarantine, outcome);
+
+        TenantCatalogMigrationRecord? record =
+            await migrations.GetActiveByTenantIdAsync(TenantId, CancellationToken.None);
+        Assert.Equal(TenantCatalogMigrationStage.CatalogAttachDetach, record?.Stage);
+        audit.Verify(
+            a => a.AppendAsync(
+                It.Is<PlatformAuditEvent>(e => e.EventType == AuditEventTypes.TenantCatalogMigrationCatalogAttachAcknowledged),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task Fan_out_stage_sequence_advances_scope_freeze_to_verification()
     {
         InMemoryTenantCatalogMigrationRepository migrations = new();
@@ -1105,6 +1178,7 @@ public sealed class TenantCatalogMigrationOrchestratorTests
             .ReturnsAsync(active)
             .ReturnsAsync(active)
             .ReturnsAsync(active)
+            .ReturnsAsync(active)
             .ReturnsAsync(offboarded);
         tenants
             .Setup(t => t.TrySuspendTenantAsync(TenantId, It.IsAny<CancellationToken>()))
@@ -1171,6 +1245,7 @@ public sealed class TenantCatalogMigrationOrchestratorTests
         Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
         tenants
             .SetupSequence(t => t.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(active)
             .ReturnsAsync(active)
             .ReturnsAsync(active)
             .ReturnsAsync(active)

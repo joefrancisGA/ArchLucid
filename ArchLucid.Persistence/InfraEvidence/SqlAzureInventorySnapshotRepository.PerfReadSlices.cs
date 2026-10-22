@@ -28,22 +28,48 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                                    SELECT ResourceId, SecureScore, SourceEvidenceReference
                                    FROM dbo.AzureInventoryDefenderSummaries
                                    WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId;
+
+                                   SELECT SubscriptionId, AssessmentKey, DisplayName, Severity, Status, StatusCause,
+                                          Category, ResourceId, SourceEvidenceReference
+                                   FROM dbo.AzureInventoryDefenderAssessments
+                                   WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId;
+
+                                   SELECT SubscriptionId, ScoreName, ControlName, DisplayName, CurrentScore, MaxScore,
+                                          Percentage, Weight, UnhealthyResourceCount, HealthyResourceCount, SourceEvidenceReference
+                                   FROM dbo.AzureInventoryDefenderScoreControls
+                                   WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId;
+
+                                   SELECT CloudResourceId, AzureResourceId
+                                   FROM dbo.AzureInventoryResources
+                                   WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId
+                                     AND CloudResourceId IS NOT NULL;
                                    """;
 
         using System.Data.IDbConnection conn =
             await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        IEnumerable<AzureInventoryDefenderSummaryReadModel> defenderRows =
-            await conn.QueryAsync<AzureInventoryDefenderSummaryReadModel>(
-                new CommandDefinition(
-                    defenderSql,
-                    new { scope.TenantId, SnapshotId = snapshotId },
-                    cancellationToken: cancellationToken));
+        using SqlMapper.GridReader reader = await conn.QueryMultipleAsync(
+            new CommandDefinition(
+                defenderSql,
+                new { scope.TenantId, SnapshotId = snapshotId },
+                cancellationToken: cancellationToken));
+
+        List<AzureInventoryDefenderSummaryReadModel> defenderRows =
+            (await reader.ReadAsync<AzureInventoryDefenderSummaryReadModel>()).ToList();
+        List<AzureInventoryDefenderAssessmentReadModel> assessments =
+            (await reader.ReadAsync<AzureInventoryDefenderAssessmentReadModel>()).ToList();
+        List<AzureInventoryDefenderScoreControlReadModel> scoreControls =
+            (await reader.ReadAsync<AzureInventoryDefenderScoreControlReadModel>()).ToList();
+        List<AzureInventoryDefenderResourceRefReadModel> resources =
+            (await reader.ReadAsync<AzureInventoryDefenderResourceRefReadModel>()).ToList();
 
         return new AzureInventoryDefenderBandContextReadModel
         {
             SubscriptionId = header.SubscriptionId,
-            DefenderSummaries = defenderRows.ToList(),
+            DefenderSummaries = defenderRows,
+            DefenderAssessments = assessments,
+            DefenderScoreControls = scoreControls,
+            Resources = resources,
         };
     }
 

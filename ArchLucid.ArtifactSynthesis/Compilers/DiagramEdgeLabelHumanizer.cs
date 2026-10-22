@@ -389,7 +389,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, AzureInventoryRelationshipAssociationTypes.AdfLinkedService, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.SynapseLinkedService, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "uses";
+            humanized = "Linked service";
 
             return true;
         }
@@ -397,7 +397,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryAdfLinkedService, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.AdfLinkedService, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "uses";
+            humanized = "Linked service";
 
             return true;
         }
