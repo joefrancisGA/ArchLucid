@@ -45,6 +45,7 @@ function shouldHumanizeTokenOAuthErrorCode(normalizedErrorCode: string): boolean
     case "unauthorized_client":
     case "unsupported_grant_type":
     case "unsupported_response_type":
+    case "unsupported_token_type":
     case "invalid_scope":
     case "server_error":
     case "temporarily_unavailable":
@@ -61,7 +62,11 @@ function shouldClearBffSessionForOAuthTokenErrorCode(normalizedErrorCode: string
     return false;
   }
 
-  return shouldHumanizeTokenOAuthErrorCode(normalizedErrorCode);
+  if (shouldHumanizeTokenOAuthErrorCode(normalizedErrorCode)) {
+    return true;
+  }
+
+  return isReadableOAuthErrorCode(normalizedErrorCode);
 }
 
 /**

@@ -141,6 +141,30 @@ describe("refreshAccessToken", () => {
     );
   });
 
+  it("marks authorize callback failed when authorization code exchange fails with OAuthTokenEndpointError", async () => {
+    sessionStorage.clear();
+
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "unsupported_response_type" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/Sign-in did not finish \(unsupported response type\)/i);
+
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
+  });
+
   it("marks authorize callback failed when authorization code exchange fails", async () => {
     sessionStorage.clear();
 
@@ -183,6 +207,26 @@ describe("refreshAccessToken", () => {
         codeVerifier: "verifier",
       }),
     ).rejects.toThrow(/Sign-in did not finish \(unsupported response type\)/i);
+  });
+
+  it("humanizes unsupported_token_type authorization code exchange errors instead of raw snake_case", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "unsupported_token_type" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/Sign-in did not finish \(unsupported token type\)/i);
   });
 
   it("humanizes unsupported_grant_type authorization code exchange errors instead of raw snake_case", async () => {
@@ -704,6 +748,59 @@ describe("refreshAccessToken", () => {
     expect(isOAuthRefreshTokenRejectedError(caught)).toBe(true);
     expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("unsupported_response_type");
     expect((caught as OAuthTokenEndpointError).message).not.toContain("unsupported_response_type");
+  });
+
+  it("classifies readable non-humanized OAuth error codes on refresh for BFF session clearing", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "insufficient_scope" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("insufficient_scope");
+    expect(isOAuthRefreshTokenRejectedError(caught)).toBe(true);
+  });
+
+  it("classifies humanized unsupported_token_type refresh failures for BFF session clearing", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "unsupported_token_type" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect(isOAuthRefreshTokenRejectedError(caught)).toBe(true);
+    expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("unsupported_token_type");
+    expect((caught as OAuthTokenEndpointError).message).not.toContain("unsupported_token_type");
   });
 
   it("classifies humanized unsupported_grant_type refresh failures for BFF session clearing", async () => {
