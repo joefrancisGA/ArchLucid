@@ -12473,16 +12473,24 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **hunts:** 132
 - **bugs-found:** 127
 - **last-hunt:** 2026-10-22
+<<<<<<< HEAD
 - **last-bug:** 2026-10-22 — diagram edge id persists through canonical round-trip and merge coalesce
+=======
+- **last-bug:** 2026-10-22 — topology sensitivity missed padded publicNetworkAccess truthy values
+>>>>>>> origin/bugsmash-4
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted `TopologySensitivityClassifier.IsPublicEdgeResource` padded `publicNetworkAccess` candidate; proved `IsTruthy` compared raw property tokens, classifying nodes with `publicNetworkAccess` `" true "` as `Internal` instead of `PublicEdge`; trim before truthy checks; regression `Classify_when_public_network_access_value_has_surrounding_whitespace_returns_public_edge`; seeded padded `resourceType` substring public-edge detection follow-on; 438 KnowledgeGraph + 136 Provenance scoped tests passed.
+
+- [x] (proven) `TopologySensitivityClassifier.IsPublicEdgeResource` — padded `publicNetworkAccess` truthy tokens missed public-edge classification — **hit 2026-10-22 seed hunt (seed→hit):** trim in `IsTruthy`; regression above.
+
+- [ ] (candidate) `TopologySensitivityClassifier.IsPublicEdgeResource` — padded `resourceType` may miss public-edge ARM substring matches — locus: `resourceType` normalization; input: properties with `resourceType` `" Microsoft.Web/sites "`; wrong outcome: `Internal` sensitivity despite public web app type.
 
 2026-10-22 seed hunt (seed→hit): cheap-disproved `ResolveTrustOrigin` padded `anonymous` candidate (anonymous gate already trim-normalized in prior hit; regression `MaterializeFromNodes_maps_anonymous_property_with_surrounding_whitespace_to_public_anonymous_trust`); promoted public/anonymous property-bag heuristic candidate; proved `ResolveTrustOrigin` scanned `public`/`anonymous` keys with literal truthy value equality, missing padded `true`/`enabled`/`allow` tokens and materializing `Internal` actors; trim flag values in heuristic loop; regression `MaterializeFromNodes_maps_public_flag_property_with_surrounding_whitespace_to_external_trust`; seeded `TopologySensitivityClassifier.IsTruthy` padded `publicNetworkAccess` follow-on; 437 KnowledgeGraph + 136 Provenance scoped tests passed.
 
 - [x] (valid-no-repro) `DeclarationIdentityActorMaterializer.ResolveTrustOrigin` — padded `anonymous` property — **cheap-disproof 2026-10-22 seed hunt:** trim on anonymous gate from prior fix; regression above.
 - [x] (proven) `DeclarationIdentityActorMaterializer.ResolveTrustOrigin` — padded public/anonymous flag values missed external trust — **hit 2026-10-22 seed hunt (seed→hit):** trim heuristic flag values; regression above.
-
-- [ ] (candidate) `TopologySensitivityClassifier.IsPublicEdgeResource` — padded `publicNetworkAccess` truthy tokens may miss public-edge classification — locus: `IsTruthy`; input: topology properties with `publicNetworkAccess` `" true "`; wrong outcome: `Internal` sensitivity instead of `PublicEdge`.
 
 2026-10-22 seed hunt (seed→hit): cheap-disproved `GraphTopologyInfrastructureCostNodes` padded `runtimePlatform` candidate (`ReadProperty` already trims property bag values before `Enum.TryParse`; regression `EnrichFromTopologyAsync_matches_vm_projection_when_runtime_platform_property_has_surrounding_whitespace`); promoted `DeclarationIdentityActorMaterializer.ResolveTrustOrigin` padded `trustOrigin` candidate; proved terraform/arm identity seeds called `Enum.TryParse` on raw `trustOrigin` property tokens, defaulting padded `External` declarations to `Internal`; trim `trustOrigin` and `anonymous` before parse; regression `MaterializeFromNodes_honors_trustOrigin_when_property_has_surrounding_whitespace`; seeded `ResolveTrustOrigin` padded `anonymous=true` follow-on; 435 KnowledgeGraph + 136 Provenance scoped tests passed.
 

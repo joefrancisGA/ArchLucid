@@ -82,6 +82,19 @@ public sealed class TopologySensitivityClassifierTests
     }
 
     [Fact]
+    public void Classify_when_public_network_access_value_has_surrounding_whitespace_returns_public_edge()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["publicNetworkAccess"] = "  true  ",
+        };
+
+        TopologySensitivityClassifier.Classify("internal-service", properties)
+            .Should()
+            .Be(TopologySensitivityLevels.PublicEdge);
+    }
+
+    [Fact]
     public void Classify_when_public_network_access_key_uses_PascalCase_on_case_sensitive_dictionary_returns_public_edge()
     {
         Dictionary<string, string> properties = new(StringComparer.Ordinal)
