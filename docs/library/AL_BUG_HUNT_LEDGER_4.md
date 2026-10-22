@@ -12470,10 +12470,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 187
-- **bugs-found:** 157
+- **hunts:** 188
+- **bugs-found:** 158
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — post-overlay rebind skipped inventory nodes when SourceType had surrounding whitespace
+- **last-bug:** 2026-10-22 — post-overlay rebind left padded edge endpoints and missed diagram-endpoint remap lookups
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12517,7 +12517,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder.IsInventoryObservedFact` — padded `SourceType` missed Azure inventory snapshot fast path — **hit 2026-10-22 seed hunt (seed→hit):** trim `SourceType` before compare; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder.RemapEndpoint` — non-remapped edge endpoints may retain surrounding whitespace — locus: endpoint return when absent from remap dictionary; input: edge endpoint not remapped carries padded node id; wrong outcome: dangling or mismatched edge endpoints after rebind.
+2026-10-22 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder.RemapEndpoint` padded endpoint carry candidate; proved non-remapped endpoints returned raw node ids without trim and padded diagram endpoints missed remap dictionary lookup, leaving dangling or mismatched edge endpoints after post-overlay rebind; trim endpoints and resolve remap keys on trimmed diagram ids (parity with `StructuredDiagramCompiledGraphBinder`); regressions `Rebind_trims_padded_non_remapped_edge_endpoints_after_diagram_node_rebind` and `Rebind_remaps_diagram_edge_when_from_endpoint_has_surrounding_whitespace`; seeded `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder.RemapEdges` padded `EdgeType` dedupe-key follow-on; 480 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder.RemapEndpoint` — padded non-remapped endpoints and remap lookup misses — **hit 2026-10-22 seed hunt (seed→hit):** trim endpoints and trim-aware remap lookup; regressions above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder.RemapEdges` — padded `EdgeType` on edge dedupe key may emit duplicate parallel edges after rebind — locus: `edgeKey` composition without type trim; input: remapped edges differ only by surrounding whitespace on `EdgeType`; wrong outcome: duplicate connectivity rows after overlay rebind.
+
+2026-10-22 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder.IsInventoryObservedFact` padded `SourceType` fast-path candidate; proved Azure inventory snapshot classification compared raw `SourceType` strings, so surrounding whitespace bypassed the fast path and returned false when property fallback markers were absent, skipping post-overlay diagram rebind; trim before equality; regression `Rebind_classifies_inventory_overlay_when_source_type_has_surrounding_whitespace_and_no_property_markers`; seeded `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder.RemapEndpoint` unpadded endpoint carry follow-on; 478 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder.IsInventoryObservedFact` — padded `SourceType` missed Azure inventory snapshot fast path — **hit 2026-10-22 seed hunt (seed→hit):** trim `SourceType` before compare; regression above.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 

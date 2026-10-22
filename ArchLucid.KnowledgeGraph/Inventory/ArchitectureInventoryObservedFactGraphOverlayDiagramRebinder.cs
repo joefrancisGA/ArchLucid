@@ -197,11 +197,12 @@ public static class ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
 
     private static string RemapEndpoint(string nodeId, IReadOnlyDictionary<string, string> diagramNodeIdRemap)
     {
-        if (diagramNodeIdRemap.TryGetValue(nodeId, out string? remapped))
+        if (diagramNodeIdRemap.TryGetValue(nodeId, out string? remapped)
+            || diagramNodeIdRemap.TryGetValue(nodeId.Trim(), out remapped))
         {
-            return remapped;
+            return remapped.Trim();
         }
 
-        return nodeId;
+        return nodeId.Trim();
     }
 }
