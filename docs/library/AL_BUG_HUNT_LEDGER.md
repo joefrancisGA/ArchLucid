@@ -1,3 +1,17 @@
+﻿2026-10-22 seed hunt (seed→hit): `ui-oidc` — picker `ui-oidc` after 51 commits since 2026-10-16; promoted hunt-ready `normalizeOAuthErrorCode` — authorize `?error=access` + ZWNJ + `denied` skipped `access_denied` handler and surfaced generic `(accessdenied)` copy; map invisible format characters to `_` before snake_case collapse; regression `maps authorize error codes with ZWNJ glue to the standard snake_case handlers`; cheap-disproof closed five run #88 `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped vitest under `src/lib/oidc` 323/323.
+
+- [x] (proven) `normalizeOAuthErrorCode` / `humanizeAuthorizeCallbackError` — ZWNJ-split OAuth error codes missed `access_denied` handler — **hit 2026-10-22 seed hunt:** invisible chars → `_` before collapse; regression above.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — plus-prefixed `expires_at_ms` string on ok refresh — **cheap-disproof 2026-10-22 seed hunt:** `parseOidcEpochMsHint` accepts decimal `+` prefix via `Number()`; no soft-fail on valid future epoch.
+- [x] (valid-no-repro) `pulseBffSessionActivity` — unauthorized pulse without clearing client hints — **cheap-disproof 2026-10-22 seed hunt:** `pulseOidcSessionKeepalive` calls `clearOidcSession` on `unauthorized` (`use-oidc-session-keepalive.test.ts`).
+- [x] (valid-no-repro) `consumePkceState` — ZWSP in OAuth state query param — **cheap-disproof 2026-10-22 seed hunt:** `normalizePkceCallbackQueryValue` strips invisible glue; `session.test.ts` ZWSP-wrapped state.
+- [x] (valid-no-repro) `initiateOidcRedirect` / `initiateSupplementalOidcRedirect` — supplemental Google vs primary PKCE ordering — **cheap-disproof 2026-10-22 seed hunt:** intentional cross-flow `clearPkceState` on successful redirect; `initiate-redirect.test.ts`.
+- [x] (valid-no-repro) `buildAuthorizeUrl` — B2C `p=` policy query key collision with ArchLucid params — **cheap-disproof 2026-10-22 seed hunt:** `searchParams.set` overwrites stale keys; retains `p`; `build-authorize-url.test.ts`.
+
+- [ ] (candidate) `readOAuthErrorString` — token JSON `error` field with interior ZWNJ may not normalize before readability gate — locus: `token-client.ts`; input: token endpoint `{ "error": "invalid\u200cgrant" }` (reachability: IdP mis-encoded JSON).
+- [ ] (candidate) `discoveryUrlForAuthority` — configured authority with embedded userinfo builds discovery fetch URL with credentials — locus: `discovery.ts`; input: `NEXT_PUBLIC_OIDC_AUTHORITY=https://user:pass@idp.example` (reachability: misconfiguration).
+- [ ] (candidate) `normalizeOAuthErrorCode` — ZWJ-only glue between Regional Indicator flag sequences in error codes — locus: error code normalization; input: flag emoji error codes from IdP (may be intentional no-op).
+- [ ] (candidate) `ensureAccessTokenFresh` — identity hints present with `expires_at_ms` exactly `Date.now()` at skew boundary — locus: `EXPIRY_SKEW_MS` compare; input: refresh fires once per tick at boundary (timing flake class).
+- [ ] (candidate) `exchangeAuthorizationCode` — invisible characters inside `code` query value forwarded to token POST — locus: `trimTokenFormParams`; input: callback `code` with ZWSP interior (reachability: IdP never emits; strip at edges only today).
 2026-10-21 thorough hunt (dry, lane C): `api-governance-tenancy-controllers` — lock `api-governance-tenancy-controllers` pushed and verified on `origin/bugsmash` before work (`dee13d7e5c` content after push; lane C `2026-10-21T17:03:47Z`); skipped `ui-*` zones (lane B URL helper sweep); selected least-recent unlocked non-UI zone with open candidate rows (`2026-10-21T02:33:42Z`); exercised zone-head sealed-manifest / tenancy candidates — risk revoke/renew and recurrence already delegate to `EnsureGovernanceDispositionRunSealedManifestAllowedAsync` (null manifest-compare detail skips guard); pre-commit checklist loads `IRunRepository` before sealed guard (404 before 409); approval lineage guard returns null when approval missing; project delete audit uses `User?.Identity?.Name ?? actorUserId`; scoped stickiness not-found/sealed regressions **9/9**; no new defect.
 
 - [x] (valid-no-repro) `GovernanceStickinessController` revoke/renew risk exception sealed guard — **cheap-disproof 2026-10-21 lane C:** same null-detail skip as create/recurrence (2026-10-20/21 hits).
@@ -890,11 +904,6 @@
 - [x] (valid-no-repro) readSignedInUserSubject interior CR/LF in JWT sub cheap-disproof 2026-10-21.
 - [x] (valid-no-repro) parseOidcEpochMsHint plus-prefixed decimal epoch cheap-disproof 2026-10-21.
 
-- (candidate) refreshBffSessionCookie plus-prefixed expires_at_ms string on ok refresh.
-- (candidate) pulseBffSessionActivity unauthorized pulse without clearing client hints.
-- (candidate) consumePkceState ZWSP in OAuth state query param.
-- (candidate) initiateOidcRedirect supplemental Google clears primary PKCE ordering.
-- (candidate) buildAuthorizeUrl B2C policy query key collision with OIDC params.
 
 2026-10-21 seed hunt (seed-only): `security-analyzers` — re-read analyzers after run #47 AcceptVerbs AL0003 and NonAction/non-public route AL0001 guards (#48–#49); promoted five run #46 `(candidate)` rows and cheap-disproof closed each (mixed `HttpMethod`/`AcceptVerbs` arrays; dual-interface explicit mapping; function-pointer `ClaimsPrincipal` via generic-name walk; primary-constructor field initializer AL0003; `[Authorize]` subclass inheritance); no hunt-ready row met the bar for same-run repro; seeded five follow-on `(candidate)` rows; 131 scoped analyzer tests passed (`RunAnalyzers=false`).
 
@@ -25311,6 +25320,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+
+2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `normalizeOAuthErrorCode` - authorize callback `error` values with ZWNJ (U+200C) between snake_case tokens (e.g. `access<ZWNJ>denied`) stripped the joiner without inserting a separator, so `humanizeAuthorizeCallbackError` missed the `access_denied` branch and showed generic copy; map invisible format characters to `_` before snake_case normalization; regression `maps authorize error codes with ZWNJ glue to the standard snake_case handlers`; scoped `src/lib/oidc` vitest 323/323.
+
+- [x] (proven) `normalizeOAuthErrorCode` - ZWNJ-glued authorize error codes missed standard handlers - **hit 2026-10-22 seed hunt:** invisible chars become `_` separators; regression above.
+
 2026-10-21 seed hunt (seed->hit): coerceAcceptedOidcEpochMsHint returned fractional epoch-ms from JSON refresh bodies; regression truncates fractional epoch-ms JSON numbers to whole milliseconds; 138 scoped oauth-callback-messages + bff-session-sync + session-ensure-fresh vitest tests passed.
 
 - [x] (proven) coerceAcceptedOidcEpochMsHint fractional BFF expires_at_ms client hints (hit 2026-10-21 seed hunt).
@@ -25323,10 +25337,10 @@ eadSignedInDisplayName ZWSP-only storage — **cheap-disproof 2026-10-21 seed hu
 ormalizeOidcDisplayString yields empty; function returns null.
 - [x] (valid-no-repro) parseBffExpiresAtMs dual parser parity — **cheap-disproof 2026-10-21 seed hunt:** shared coerce truncates fractional JSON numbers on both string and number paths.
 
-- [x] (valid-no-repro) ensureAccessTokenFresh — rejected BFF refresh after persist moved hint forward still clears session when shouldClearSession — **cheap-disproof 2026-10-22 seed-only:** regression `does not clear a fresh sign-in when a pre-sign-in BFF refresh is rejected`. — locus: 401 branch expiresAtHintAtStart === getExpiresAtMs(); input: in-flight persist extends hint then stale 401; reachability: expired refresh racing callback persist.
-- [x] (valid-no-repro) persistNonSensitiveSessionHints — expiry hint written before identity validation completes — **cheap-disproof 2026-10-22 seed-only:** identity-less persist removes expiry hint. — locus: sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY) ordering; input: opaque access_token without JWT claims after prior user; reachability: client-only opaque token sign-in.
-- [x] (invalid) loadDiscoveryDocument — cached discovery promise retained when optional logout URL fails validation — **cheap-disproof 2026-10-22 seed-only:** optional `end_session_endpoint` omitted when invalid. — locus: parseDiscoveryDocument optional branch; input: discovery JSON with invalid end_session_endpoint; reachability: IdP discovery metadata.
-- [x] (valid-no-repro) postTokenForm — HTML 200 token response throws without buyer-safe boundary — **cheap-disproof 2026-10-22 seed-only:** generic `Token response was not valid JSON`. — locus: 
+- [ ] (candidate) ensureAccessTokenFresh — rejected BFF refresh after persist moved hint forward still clears session when shouldClearSession — locus: 401 branch expiresAtHintAtStart === getExpiresAtMs(); input: in-flight persist extends hint then stale 401; reachability: expired refresh racing callback persist.
+- [ ] (candidate) persistNonSensitiveSessionHints — expiry hint written before identity validation completes — locus: sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY) ordering; input: opaque access_token without JWT claims after prior user; reachability: client-only opaque token sign-in.
+- [ ] (candidate) loadDiscoveryDocument — cached discovery promise retained when optional logout URL fails validation — locus: parseDiscoveryDocument optional branch; input: discovery JSON with invalid end_session_endpoint; reachability: IdP discovery metadata.
+- [ ] (candidate) postTokenForm — HTML 200 token response throws without buyer-safe boundary — locus: 
 esponse.json() failure path; input: reverse-proxy HTML error on token POST; reachability: misconfigured token endpoint URL in deployment.
 - [ ] (candidate) 
 esolveRpLogoutUrlFromBffSession — empty JSON 200 treated as missing logout URL without telemetry — locus: GET rp-logout-url parse; input: {} body with active BFF session; reachability: sign-out chrome calling RP logout resolver.
