@@ -69,6 +69,35 @@ public sealed class DeclarationIdentityActorMaterializerTests
     }
 
     [Fact]
+    public void MaterializeFromNodes_emits_actor_and_trust_boundary_for_k8s_ingress_when_kind_property_key_has_surrounding_whitespace()
+    {
+        Guid snapshotId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+
+        GraphNode ingress = new()
+        {
+            NodeId = "obj-ingress-1",
+            NodeType = GraphNodeTypes.SecurityBaseline,
+            Label = "payments/public",
+            SourceType = "InfrastructureDeclaration",
+            SourceId = "decl-ingress",
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["  k8s.kind  "] = "ingress",
+                ["k8s.name"] = "public",
+                ["k8s.namespace"] = "payments",
+            },
+        };
+
+        IReadOnlyList<GraphNode> materialized =
+            DeclarationIdentityActorMaterializer.MaterializeFromNodes([ingress], snapshotId);
+
+        materialized.Should().HaveCount(2);
+        materialized.Should().ContainSingle(n => n.NodeType == GraphNodeTypes.Actor)
+            .Subject.Properties["trustOrigin"].Should().Be(nameof(TrustOrigin.External));
+        materialized.Should().ContainSingle(n => n.NodeType == GraphNodeTypes.TrustBoundary);
+    }
+
+    [Fact]
     public void MaterializeFromNodes_emits_external_actor_for_loadbalancer_service()
     {
         Guid snapshotId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");

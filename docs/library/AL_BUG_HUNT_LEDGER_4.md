@@ -12470,18 +12470,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 160
+- **hunts:** 161
 - **bugs-found:** 149
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — graph node property reader returned padded property values
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-10-22 seed hunt (valid-no-repro): promoted `DeclarationIdentityActorMaterializer` padded `k8s.kind` property-key ingress candidate; proved hunt 156 `GraphNodePropertyReader` key trim already resolves `"  k8s.kind  "` lookups for `TryMatchK8sIngress`; regression `MaterializeFromNodes_emits_actor_and_trust_boundary_for_k8s_ingress_when_kind_property_key_has_surrounding_whitespace`; seeded `ProvenanceSnapshotRevisionHasher.ComputeManifestDecisionsFingerprint` case-variant duplicate row follow-on; 465 KnowledgeGraph + 148 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `DeclarationIdentityActorMaterializer.TryMatchK8sIngress` — padded `k8s.kind` property key missed ingress actors — **cheap-disproof 2026-10-22 seed hunt:** closed by `GraphNodePropertyReader` key trim (#156); regression above.
+
+- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeManifestDecisionsFingerprint` — first case-insensitive duplicate manifest decision row may hide later title/category amendments — locus: manifest decisions group representative; input: two decisions differing only by `DecisionId` casing; wrong outcome: stale revision fingerprint vs buyer-visible decision rename on later row (re-verify `SelectLastNonEmptyManifestDecisionField` / `group.Last()` parity).
+
 2026-10-22 seed hunt (valid-no-repro): promoted `DeclarationIdentityActorMaterializer` padded `k8s.kind` ingress candidate; proved hunt 158 `GraphNodePropertyReader` value trim already normalizes `k8s.kind` before `TryMatchK8sIngress` equality; regression `MaterializeFromNodes_emits_actor_and_trust_boundary_for_k8s_ingress_when_kind_has_surrounding_whitespace`; seeded declaration identity padded `k8s.kind` property **key** ingress lookup follow-on; 464 KnowledgeGraph + 148 Provenance scoped tests passed.
 
-- [x] (valid-no-repro) `DeclarationIdentityActorMaterializer.TryMatchK8sIngress` — padded `k8s.kind` missed ingress actors — **cheap-disproof 2026-10-22 seed hunt:** closed by `GraphNodePropertyReader` value trim (#158); regression above.
-
-- [ ] (candidate) `DeclarationIdentityActorMaterializer.TryMatchK8sIngress` — padded `k8s.kind` property **key** may miss ingress actor materialization — locus: `GraphNodePropertyReader` bag key trim; input: property key `"  k8s.kind  "` with value `ingress`; wrong outcome: ingress actors omitted on legacy deserialized nodes (parity audit after #156 key trim).
+- [x] (valid-no-repro) `DeclarationIdentityActorMaterializer.TryMatchK8sIngress` — padded `k8s.kind` value missed ingress actors — **cheap-disproof 2026-10-22 seed hunt:** closed by `GraphNodePropertyReader` value trim (#158); regression above.
 
 2026-10-22 seed hunt (valid-no-repro): promoted `DeclarationIdentityActorMaterializer` padded `k8s.servicetype` load-balancer candidate; proved hunt 158 `GraphNodePropertyReader` value trim already normalizes `k8s.servicetype` before `TryMatchK8sLoadBalancerService` equality; regression `MaterializeFromNodes_emits_external_actor_for_loadbalancer_service_when_servicetype_has_surrounding_whitespace`; seeded `DeclarationIdentityActorMaterializer` padded `k8s.kind` ingress gate parity follow-on; 463 KnowledgeGraph + 148 Provenance scoped tests passed.
 
