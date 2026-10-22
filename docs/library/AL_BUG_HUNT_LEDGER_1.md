@@ -7807,7 +7807,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 - [x] (proven) `AgentModelCatalogEvaluationRecorder.RecordTaskEvaluationAsync` — direct `POST …/evaluations/{taskType}/record` with padded route `aliasId` missed catalog row — **hit 2026-10-22 seed hunt:** normalize alias id at recorder entry (shared with harness import caller); regression above. [class:fail-open-validation]
 
-- [candidate) `AdminAgentModelCatalogController` — route `taskType` segment not trimmed before recorder — locus: controller vs recorder; input: padded task type path segment.
+- (candidate) `AdminAgentModelCatalogController` — route `taskType` segment not trimmed before recorder — locus: controller vs recorder; input: padded task type path segment.
 - (candidate) `AgentCuratedEvidenceProposer` — enricher ordering vs structural post-process — engineering hardening.
 - (candidate) `RunToolInvocationForensicsBuilder.BuildFromTraces` — first-row null duration — by design for single-trace runs.
 - (candidate) `ReviewRunEngineSelectionProvenanceBuilder.Build` — `TaskEvaluations` null on registry entry — defaults to empty list on `AgentModelAliasRegistryEntry`.
@@ -7818,7 +7818,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 - [x] (invalid) `RepoFaithfulnessHarnessSummaryReader.TryReadLatestAsync` — omitted ratio keys default to `0.0` — **cheap-disproof 2026-10-22 seed hunt:** import `EnsureHarnessSummaryRatiosAreValid` rejects non-finite/out-of-range values; zero readiness with positive `casesEvaluated` records Failed evaluation (expected harness semantics).
 
-- (candidate) `AgentModelCatalogEvaluationRecorder.RecordTaskEvaluationAsync` — `aliasId` not trimmed at recorder entry when called from other admin paths — locus: recorder vs importer; input: compare other catalog controllers.
+- [x] (proven) `AgentModelCatalogEvaluationRecorder.RecordTaskEvaluationAsync` — padded `aliasId` on admin record path — **hit 2026-10-22 seed hunt (recorder):** see hunt note above.
 - (candidate) `AgentCuratedEvidenceProposer` — enricher ordering vs structural post-process — engineering hardening.
 - (candidate) `RunToolInvocationForensicsBuilder.BuildFromTraces` — first trace row always null duration — locus: inter-trace delta; input: single-trace runs (by design).
 
@@ -7883,11 +7883,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 51
-- **bugs-found:** 48
+- **hunts:** 52
+- **bugs-found:** 49
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — faithfulness import trims padded model alias ids
+- **last-bug:** 2026-10-22 — catalog evaluation recorder trims padded alias ids
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
 
