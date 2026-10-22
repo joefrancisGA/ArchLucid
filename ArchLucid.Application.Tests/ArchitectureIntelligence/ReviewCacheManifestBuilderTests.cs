@@ -7102,6 +7102,36 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_file_name_differs_only_by_fullwidth_reverse_solidus()
+    {
+        ClosedLoopReasoningRequest ascii = CreateRequest("Same body.");
+        ascii.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/architecture/overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest fullwidthBackslash = CreateRequest("Same body.");
+        fullwidthBackslash.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs\uFF3Carchitecture\uFF3Coverview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(ascii).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(fullwidthBackslash).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_space()
     {
         ClosedLoopReasoningRequest literalSpace = CreateRequest("Same body.");
@@ -7836,6 +7866,59 @@ public sealed class ReviewCacheManifestBuilderTests
         ReviewCacheManifestBuilder.Build(slashKey).ContentHash
             .Should()
             .Be(ReviewCacheManifestBuilder.Build(encodedKey).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_element_provenance_passage_artifact_id_differs_only_by_fullwidth_reverse_solidus()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-passage-artifact-fullwidth-backslash";
+
+        ArchitectureKnowledgeModel ascii = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator
+                        {
+                            ArtifactId = "docs/architecture/overview.md",
+                        },
+                    },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel fullwidthBackslash = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator
+                        {
+                            ArtifactId = "docs\uFF3Carchitecture\uFF3Coverview.md",
+                        },
+                    },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, ascii).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, fullwidthBackslash).ContentHash);
     }
 
     [Fact]

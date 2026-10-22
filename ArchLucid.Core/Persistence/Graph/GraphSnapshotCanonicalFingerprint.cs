@@ -325,7 +325,10 @@ public static class GraphSnapshotCanonicalFingerprint
         return value
             .Replace('\u2044', '/')
             .Replace('\u2215', '/')
-            .Replace('\uFF0F', '/');
+            .Replace('\u2216', '/')
+            .Replace('\uFE68', '/')
+            .Replace('\uFF0F', '/')
+            .Replace('\uFF3C', '/');
     }
 
     private static string CollapseParentPathSegments(string path)
