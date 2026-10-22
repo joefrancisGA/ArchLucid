@@ -35,6 +35,46 @@ public sealed class StructuredDiagramGraphMergerTests
     }
 
     [Fact]
+    public void Merge_returns_empty_result_when_canonical_objects_contain_only_non_diagram_rows()
+    {
+        ContextSnapshot snapshot = new()
+        {
+            SnapshotId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeedd"),
+            RunId = Guid.Parse("11111111-2222-3333-4444-555555555563"),
+            ProjectId = "project-non-diagram-canonical-objects",
+            CanonicalObjects =
+            [
+                new CanonicalObject
+                {
+                    ObjectId = "actor-1",
+                    ObjectType = GraphNodeTypes.Actor,
+                    Name = "Operator",
+                    SourceType = "test",
+                    SourceId = "actor-1",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase),
+                },
+                new CanonicalObject
+                {
+                    ObjectId = "assumption-1",
+                    ObjectType = GraphNodeTypes.Assumption,
+                    Name = "Single region MVP",
+                    SourceType = "test",
+                    SourceId = "assumption-1",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase),
+                },
+            ],
+        };
+
+        StructuredDiagramGraphMerger merger = GraphMaterializationTestHelpers.CreateStructuredDiagramGraphMerger();
+        StructuredDiagramGraphMergeResult result = merger.Merge(snapshot, []);
+
+        result.Nodes.Should().BeEmpty();
+        result.Edges.Should().BeEmpty();
+        result.Warnings.Should().BeEmpty();
+        result.CanonicalBindings.Should().BeEmpty();
+    }
+
+    [Fact]
     public void Merge_returns_empty_result_when_context_snapshot_canonical_objects_is_null()
     {
         ContextSnapshot snapshot = new()

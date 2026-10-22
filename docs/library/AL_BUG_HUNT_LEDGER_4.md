@@ -12470,7 +12470,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 229
+- **hunts:** 230
 - **bugs-found:** 177
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — fully empty overlay merge returned base graph without warning normalization
@@ -12685,7 +12685,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (invalid) `StructuredDiagramGraphMerger.Merge` — null `CanonicalObjects` should throw instead of empty merge — **cheap-disproof 2026-10-22 seed hunt:** snapshot coalesces null to empty list; regression above.
 
-- [ ] (candidate) `StructuredDiagramGraphMerger.Merge` — context snapshot with only non-structured-diagram canonical objects may throw or return spurious diagram output — locus: `ReconstructDocuments` filters non-diagram rows; input: canonical objects contain declarations/inventory only; wrong outcome: merge throws or emits diagram nodes.
+2026-10-22 seed hunt (valid-no-repro): promoted `StructuredDiagramGraphMerger.Merge` non-diagram canonical objects only candidate; proved `ReconstructDocuments` filters to structured diagram rows only, yielding zero documents and the same empty merge result as hunts 228–229 without invoking the compiler; regression `Merge_returns_empty_result_when_canonical_objects_contain_only_non_diagram_rows`; seeded `StructuredDiagramGraphMerger.Merge` null `bindTargets` throws before document reconstruction follow-on; 522 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `StructuredDiagramGraphMerger.Merge` — non-diagram canonical objects threw or emitted diagram output — **cheap-disproof 2026-10-22 seed hunt:** reconstruct filter + empty-document return; regression above.
+
+- [ ] (candidate) `StructuredDiagramGraphMerger.Merge` — null `bindTargets` may throw instead of returning empty merge when no diagram documents exist — locus: `ArgumentNullException.ThrowIfNull(bindTargets)`; input: null bind target list with empty reconstructed documents; wrong outcome: merge throws rather than returning empty structured diagram merge output.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
