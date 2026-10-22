@@ -2388,6 +2388,34 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+- **id:** ui-oidc
+- **status:** open
+- **impact:** high
+- **aliases:** oidc authority; sign-in routing; OIDC host
+- **paths:** archlucid-ui/src/lib/oidc/
+- **test-filter:** oidc-authority|oidc
+- **hunts:** 81
+- **bugs-found:** 72
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed-only, pass 2): cheap-disproved five open `(candidate)` rows from pass 1; regression lock `collapses literal CRLF in JSON error_description for single-line token errors`; re-read authorize humanization gaps and BFF logout URL parsing; no hunt-ready row promoted; seeded five follow-on `(candidate)` rows; focused OIDC suite passed 691/691; no production code changed.
+
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `session_expired` authorize-query copy — **cheap-disproof 2026-10-22 seed hunt pass 2:** default-branch readable copy; regression `humanizes session_expired authorize callback errors with readable copy`.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh `497` opaque `shouldClearSession` false — **cheap-disproof 2026-10-22 seed hunt pass 2:** non-401/403 statuses soft-fail; parity with 494–496 regression locks.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — literal CRLF inside token-endpoint JSON `error_description` — **cheap-disproof 2026-10-22 seed hunt pass 2:** `collapseOAuthErrorDescriptionLineBreaks`; regression `collapses literal CRLF in JSON error_description for single-line token errors`.
+- [x] (invalid) `ensureAccessTokenFresh` — auth-failure refresh after same-identity persist moved expiry hint — **cheap-disproof 2026-10-22 seed hunt pass 2:** intentional keep fresh sign-in; regression `does not clear a fresh sign-in when a pre-sign-in BFF refresh is rejected`.
+- [x] (valid-no-repro) `resolveRpLogoutUrlFromBffSession` — BFF JSON `url: null` vs missing `url` — **cheap-disproof 2026-10-22 seed hunt pass 2:** non-string `url` treated as absent; regression `returns null when the BFF logout-url payload is not a string`.
+
+- [ ] (candidate) `humanizeAuthorizeCallbackError` — `login_timeout` authorize-query operator copy — locus: `humanizeAuthorizeCallbackError` default branch; input: Entra/B2C `error=login_timeout` without `error_description` on `/auth/callback` query.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh `498` opaque status `shouldClearSession` false — locus: `refreshBffSessionCookie` status branch; input: parity with 494–497 opaque refresh regression locks.
+- [ ] (candidate) `readOAuthJsonErrorDescription` — JSON `error_description` with only NBSP separators — locus: `isReadableOAuthErrorDetail` after collapse; input: IdP returns `"\\u00a0\\u00a0"` in token-endpoint OAuth JSON.
+- [ ] (candidate) `getOidcPostLogoutRedirectUri` — protocol-relative `//host/path` env override — locus: `getOidcPostLogoutRedirectUri` env read; input: `NEXT_PUBLIC_OIDC_POST_LOGOUT_REDIRECT_URI=//evil.example/logout` passed to RP logout builder.
+- [ ] (candidate) `exchangeAuthorizationCode` — token endpoint URL with hash fragment before POST — locus: `isSafeOidcEndpointUrl` + `postTokenForm` fetch URL; input: discovery `token_endpoint` `https://idp.example/token#fragment` (RFC 3986 fragment not sent on HTTP).
+
 2026-10-22 seed hunt (seed-only): re-read BFF refresh soft-fail parity, authorize-query humanization, and token-endpoint JSON error-description paths after bugsmash #5024–#5026 churn; cheap-disproved four open `(candidate)` rows; regression lock `soft-fails refresh without clearing session when the refresh route returns 496` (opaque token-endpoint parity with 494–495); focused OIDC suite passed 690/690; no production code changed.
 
 - [x] (invalid) `humanizeAuthorizeCallbackError` — `nonce_replay` authorize-query copy — **cheap-disproof 2026-10-22 seed hunt:** readable default-branch UX; regression `humanizes nonce_replay authorize callback errors with readable copy`.
@@ -2395,11 +2423,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `exchangeAuthorizationCode` — access_token JSON string soft-hyphen / object-replacement / variation-selector-16-only skips authorize retry marker — **cheap-disproof 2026-10-22 seed hunt:** duplicate of existing invisible-token authorize retry regressions in `token-client.test.ts`.
 - [x] (invalid) `decodeOAuthErrorDescription` — multiply-encoded `%252B` with ZWJ glue — **cheap-disproof 2026-10-22 seed hunt:** existing saturated percent-decode class coverage in `oauth-callback-messages.test.ts`.
 
-- [ ] (candidate) `humanizeAuthorizeCallbackError` — `session_expired` authorize-query operator copy — locus: `humanizeAuthorizeCallbackError` default/switch branches; input: IdP returns `error=session_expired` without `error_description` on callback query.
-- [ ] (candidate) `refreshBffSessionCookie` — refresh `497` opaque status `shouldClearSession` false — locus: `refreshBffSessionCookie` non-401/403 branch; input: parity with 494–496 regression locks and BFF refresh route opaque 503 mapping.
-- [ ] (candidate) `readOAuthJsonErrorDescription` — literal CRLF inside token-endpoint JSON `error_description` — locus: `readOAuthJsonErrorDescription` vs authorize `decodeOAuthErrorDescription`; input: HTTP 200 OAuth error JSON with embedded `\r\n` in description string.
-- [ ] (candidate) `ensureAccessTokenFresh` — auth-failure refresh rejected after same-identity persist moved expiry hint — locus: `expiresAtHintAtStart === getExpiresAtMs()` guard ~645; input: stale pre-persist refresh `invalid_grant` while callback persist refreshed BFF cookie (intentional keep-session vs false signed-in).
-- [ ] (candidate) `resolveRpLogoutUrlFromBffSession` — BFF JSON `url: null` vs missing `url` key — locus: `resolveRpLogoutUrlFromBffSession` body parse; input: `GET /api/auth/bff-session/rp-logout-url` returns `{ "url": null }` vs `{}`.
+- [x] (invalid) `humanizeAuthorizeCallbackError` — `session_expired` authorize-query operator copy — **closed 2026-10-22 seed hunt pass 2** (see pass-2 row above).
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh `497` opaque status — **closed 2026-10-22 seed hunt pass 2** (see pass-2 row above).
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — literal CRLF in JSON `error_description` — **closed 2026-10-22 seed hunt pass 2** (see pass-2 row above).
+- [x] (invalid) `ensureAccessTokenFresh` — auth-failure refresh after persist moved hint — **closed 2026-10-22 seed hunt pass 2** (see pass-2 row above).
+- [x] (valid-no-repro) `resolveRpLogoutUrlFromBffSession` — BFF JSON `url: null` vs missing key — **closed 2026-10-22 seed hunt pass 2** (see pass-2 row above).
 
 2026-10-15 thorough hunt (hit): proved discovery HTTP(S) endpoint validation accepted userinfo-bearing authorization URLs; proved BFF session sync omitted trim on refresh/id tokens; cheap-disproved unbounded `syncTokenToBff` replay during burst sign-ins; 79 scoped oidc vitest tests passed.
 

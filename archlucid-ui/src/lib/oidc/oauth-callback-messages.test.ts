@@ -68,6 +68,10 @@ describe("readOAuthJsonErrorDescription", () => {
     expect(readOAuthJsonErrorDescription("line1%0Aline2")).toBe("line1 line2");
   });
 
+  it("collapses literal CRLF in JSON error_description for single-line token errors", () => {
+    expect(readOAuthJsonErrorDescription("line1\r\nline2")).toBe("line1 line2");
+  });
+
   it("preserves ZWNJ in Persian token error_description copy", () => {
     const detail = "دسترسی\u200cرد";
 
