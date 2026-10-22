@@ -169,6 +169,12 @@ public sealed partial class TenantCatalogMigrationOrchestrator
         if (tenantBeforeCompletedAudit?.OffboardedUtc is not null)
             return TenantCatalogMigrationCommandOutcome.InErasureQuarantine;
 
+        TenantRecord? tenantBeforeCompletedAuditAppend =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenantBeforeCompletedAuditAppend?.OffboardedUtc is not null)
+            return TenantCatalogMigrationCommandOutcome.InErasureQuarantine;
+
         await AppendPlatformAuditAsync(
             AuditEventTypes.TenantCatalogMigrationCompleted,
             tenantId,

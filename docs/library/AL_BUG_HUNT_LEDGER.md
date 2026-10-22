@@ -1,4 +1,19 @@
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed login_required authorize-query UX (existing parity), BFF refresh 452 parity, and saturated readOAuthJsonErrorDescription figure-space glue; regression documents authorize-retry is marked when authorization code exchange returns em-quad-only access_token; scoped vitest 589/589.
+2026-10-22 seed hunt (seed->hit): `application-tenancy-lifecycle` - promoted hunt-ready from seed re-read `TenantCatalogMigrationOrchestrator.CompleteAsync` - catalog migration completed platform audit appended after `tenantBeforeCompletedAudit` without a final re-read, so erasure offboard between that read and audit could emit `TenantCatalogMigrationCompleted` for quarantined tenants; pre-append `GetByIdAsync` offboard guard; regression `CompleteAsync_returns_in_erasure_quarantine_without_completed_audit_when_offboard_completes_after_tenant_before_completed_audit_read_before_audit`; scoped tenancy filter 270/270.
+
+- [x] (proven) `CompleteAsync` - offboard after tenantBeforeCompletedAudit read before completed audit - **hit 2026-10-22 seed hunt:** pre-append re-read + offboard guard; regression above.
+- [x] (valid-no-repro) `CompleteAsync` - offboard after pre-audit read before completed audit - **cheap-disproof 2026-10-22:** existing five-read regression on trunk.
+- [x] (valid-no-repro) `RunVerificationAsync` - offboard after tenantBeforeVerificationAudit read - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
+- [x] (valid-no-repro) `CompleteAsync` - offboard after post-complete read before unsuspend - **cheap-disproof 2026-10-22:** existing regression on trunk.
+- [x] (invalid) `CompleteAsync` - wrong stage or verification required - **cheap-disproof 2026-10-22:** stage guards before destructive complete.
+
+- [ ] (candidate) `RunVerificationAsync` - offboard after verification audit append read - locus: saturated with prior hit (reachability: low).
+- [ ] (candidate) `CompleteAsync` - offboard after completed audit append read - locus: saturated with this hit (reachability: low).
+- [ ] (candidate) `TrialLifecycleTransitionEngine` - offboard between audit and expiration metric - locus: post-audit superseded read (reachability: saturated).
+- [ ] (candidate) `TenantErasureCommandService` - consolidate pre-append audit re-read helpers - locus: refactor batch (not hunt-ready defect).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.StartAsync` - offboard after insert before started audit - locus: existing regression (reachability: saturated).
+
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_saml_relay_state authorize-query UX, BFF refresh 452 parity (client + route opaque 452), and saturated readOAuthJsonErrorDescription figure-space multiply-encoded glue; regression documents authorize-retry marking when authorization code exchange returns six-per-em-space-only access_token; scoped vitest 647/647.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - login_required authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
 - [x] (valid-no-repro) refreshBffSessionCookie - refresh 452 shouldClearSession false - **regression 2026-10-22:** transient refresh soft-fail without cookie clear.
