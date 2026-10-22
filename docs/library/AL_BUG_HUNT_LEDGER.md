@@ -1,4 +1,129 @@
-> **Scope:** Contributor-reference — append-only `/al-bug` hunt ledger; keep this blockquote as the first line and insert new dated notes immediately below it. Not customer-facing.
+> **Scope:** Contributor-reference — set catalog and historical diary for `/al-bug`. Zone bodies and new hunt notes live in `AL_BUG_HUNT_LEDGER_1.md` through `AL_BUG_HUNT_LEDGER_4.md`. Not customer-facing.
+
+## Parallel hunt sets
+
+Zone bodies live in the set ledgers below. `/al-bug1` through `/al-bug4` each hunt one set, record one run log, and push one branch. The diary under this catalog is history from the shared ledger.
+
+| Set | Command | Branch | Ledger | Run log |
+| --- | --- | --- | --- | --- |
+| 1 | `/al-bug1` | `bugsmash-1` | `docs/library/AL_BUG_HUNT_LEDGER_1.md` | `docs/library/AL_BUG_HUNT_RUN_LOG_1.jsonl` |
+| 2 | `/al-bug2` | `bugsmash-2` | `docs/library/AL_BUG_HUNT_LEDGER_2.md` | `docs/library/AL_BUG_HUNT_RUN_LOG_2.jsonl` |
+| 3 | `/al-bug3` | `bugsmash-3` | `docs/library/AL_BUG_HUNT_LEDGER_3.md` | `docs/library/AL_BUG_HUNT_RUN_LOG_3.jsonl` |
+| 4 | `/al-bug4` | `bugsmash-4` | `docs/library/AL_BUG_HUNT_LEDGER_4.md` | `docs/library/AL_BUG_HUNT_RUN_LOG_4.jsonl` |
+
+### Set 1 — Orchestration and topology
+
+- `topology-proposal-merge`
+- `arm-terraform-source-ids`
+- `commit-output-integrity`
+- `content-safety-admission`
+- `storage-vs-data-category`
+- `authority-pipeline-payload`
+- `technology-ledger-merge`
+- `orchestrator-transient-retry`
+- `alert-simulation`
+- `architecture-recommendation`
+- `extraction-router`
+- `agent-runtime-safety`
+- `application-analysis`
+- `application-pilots`
+- `agent-runtime-evaluation`
+- `decisioning`
+- `application-agents`
+- `capabilities-cost-mcp`
+- `quick-scan-distributed-concurrency`
+- `run-execute-ownership`
+- `architecture-intelligence-orchestrator`
+
+### Set 2 — API, identity, tenancy, and governance
+
+- `tenant-settings-sql`
+- `email-otp-auth`
+- `auth-return-path`
+- `tenant-erasure`
+- `tenant-scoped-analyzer`
+- `sql-run-repository`
+- `finding-inspect-sql`
+- `llm-wallet`
+- `finding-disposition`
+- `review-recurrence`
+- `scim-users`
+- `identity-provider-config`
+- `persistence-billing-stripe`
+- `billing-webhooks`
+- `api-key-auth`
+- `scope-binding-middleware`
+- `saml-jwt-bearer`
+- `tenant-data-export`
+- `itsm-inbound-webhooks`
+- `application-billing-logic`
+- `persistence-identity`
+- `api-authority-admin-controllers`
+- `api-governance-tenancy-controllers`
+- `api-policy-packs`
+- `api-governance-stickiness`
+- `api-tenancy-workspaces`
+- `application-governance-policy`
+- `application-tenancy-lifecycle`
+- `api-request-null-collection-elements`
+
+### Set 3 — UI and CLI
+
+- `ui-form-validation`
+- `cli-tenant-isolation`
+- `cli-draft-new`
+- `cli-terraform-evidence`
+- `ui-runs-list`
+- `ui-auth-callback`
+- `ui-help-docs`
+- `ui-webhooks-settings`
+- `ui-host-gate`
+- `ui-architecture-intelligence`
+- `ui-auth-proxy`
+- `ui-oidc`
+- `archlucid-contracts`
+- `ui-operator-routes`
+- `ui-marketing-surfaces`
+- `ui-operator-lib`
+- `ui-review-detail-workspace`
+- `ui-review-intake-wizards`
+- `ui-governance-findings-queue`
+- `ui-infra-resource-hub`
+- `ui-claim-discipline-policy`
+- `securenow-question-queue`
+- `infra-evidence-diagrams`
+- `ui-architecture-diagram`
+
+### Set 4 — Core, host, persistence, and extraction
+
+- `weekly-digest-email`
+- `outbound-webhook-dry-run`
+- `worker-host`
+- `host-core-jobs`
+- `security-analyzers`
+- `retrieval`
+- `archlucid-core`
+- `core-azure-extractor`
+- `core-configuration-summary`
+- `core-findings-advice`
+- `core-requests-constraints`
+- `core-authority-runs`
+- `core-tenancy-commercial`
+- `core-safety-network`
+- `core-costing`
+- `core-explanation-json`
+- `context-ingestion`
+- `knowledge-graph-provenance`
+- `notifications-pipeline`
+- `artifact-synthesis`
+- `host-composition`
+- `cloud-extractors`
+- `host-core-coordination`
+- `chatops-delivery`
+- `host-infra-evidence-composition`
+
+## Hunt diary
+
 2026-10-21 seed hunt (seed-only, lane C): `saml-jwt-bearer` — lock `saml-jwt-bearer` pushed and verified on `origin/bugsmash` (sole lock); skipped `ui-*` and zones hunted in the last hour; selected oldest eligible non-UI zone (`saml-jwt-bearer`); cheap-disproof closed open `(candidate)` rows — comma-folded `Basic`+`Bearer` mix fails closed (`HandleAuthenticateAsync_fails_when_comma_folded_header_mixes_basic_and_bearer_schemes`); revoked-then-valid comma-folded Bearer already proven 2026-10-21; `ArchLucidSamlInboundClaimsNormalizer` whitespace-only source values filtered before promote (parity absent vs empty); `SamlMetadataValidUntilParser` ignores `KeyDescriptor` by design for earliest `EntityDescriptor` expiry; no hunt-ready repro promoted; refreshed five `(candidate)` rows; Release build ArchLucid.Api/Core + tests; focused handler/normalizer/JWT/SAML-metadata unit tests 45/45 (broader `Saml` name filter includes SQL integration factories unavailable on VM); lock released after push.
 
 2026-10-21 seed hunt (seed-only, lane C): `api-tenancy-workspaces` — lock `api-tenancy-workspaces` pushed and verified on `origin/bugsmash` (sole lock); skipped `ui-*` and zones hunted in the last hour; selected oldest eligible non-UI zone (`api-tenancy-workspaces`); cheap-disproof closed stale `(candidate)` caller-default empty-catalog row (proven 2026-10-21 lane B); promoted `DeleteProjectAsync` foreign-pin guard requiring `projectIsActiveInCallerWorkspace` before `ForeignWorkspaceMetadataProtectsFromRetentionPurge` — empty/null active catalog skips block while populated catalog blocks (`DeleteProjectAsync_returns_bad_request_when_another_workspace_pins_project_as_default_metadata` vs `DeleteProjectAsync_returns_no_content_when_active_list_is_null_and_foreign_workspace_pins_project_metadata` documents intentional idempotent path); no failing repro without breaking foreign-pin idempotent delete; seeded five `(candidate)` rows; Release build ArchLucid.Api; scoped `TenantWorkspaces` filter 62/62; lock released after push.
