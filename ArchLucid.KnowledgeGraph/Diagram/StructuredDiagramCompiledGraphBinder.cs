@@ -47,10 +47,11 @@ public static class StructuredDiagramCompiledGraphBinder
             }
 
             string canonicalNodeId = boundTarget.NodeId.Trim();
-            diagramNodeIdRemap[diagramNode.NodeId] = canonicalNodeId;
+            string diagramGraphNodeId = diagramNode.NodeId.Trim();
+            diagramNodeIdRemap[diagramGraphNodeId] = canonicalNodeId;
             bindings.Add(new StructuredDiagramCanonicalBinding
             {
-                DiagramGraphNodeId = diagramNode.NodeId,
+                DiagramGraphNodeId = diagramGraphNodeId,
                 DiagramSourceId = diagramSourceId,
                 CanonicalGraphNodeId = canonicalNodeId,
                 SourceEvidenceItemId = TryReadSourceEvidenceItemId(diagramNode),
@@ -151,7 +152,7 @@ public static class StructuredDiagramCompiledGraphBinder
 
     private static bool IsDiagramTopologyNode(GraphNode node)
     {
-        return node.NodeId.StartsWith("diagram-node:", StringComparison.Ordinal);
+        return node.NodeId.Trim().StartsWith("diagram-node:", StringComparison.Ordinal);
     }
 
     private static List<GraphEdge> RemapEdges(
@@ -200,7 +201,8 @@ public static class StructuredDiagramCompiledGraphBinder
 
     private static string RemapEndpoint(string nodeId, IReadOnlyDictionary<string, string> diagramNodeIdRemap)
     {
-        if (diagramNodeIdRemap.TryGetValue(nodeId, out string? remapped))
+        if (diagramNodeIdRemap.TryGetValue(nodeId, out string? remapped)
+            || diagramNodeIdRemap.TryGetValue(nodeId.Trim(), out remapped))
         {
             return remapped.Trim();
         }

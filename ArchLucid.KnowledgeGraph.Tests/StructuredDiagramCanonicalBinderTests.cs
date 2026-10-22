@@ -607,6 +607,55 @@ public sealed class StructuredDiagramCanonicalBinderTests
     }
 
     [Fact]
+    public void BindToCanonicalNodes_remaps_edges_when_diagram_node_id_and_endpoints_have_surrounding_whitespace()
+    {
+        GraphNode inventoryNode = CreateTopologyNode("obj-api-1", "API Gateway", []);
+        const string PaddedDiagramNodeId = "  diagram-node:api  ";
+        StructuredDiagramGraphCompileOptions options = CreateCompileOptions();
+
+        StructuredDiagramGraphCompileResult compileResult = new()
+        {
+            Snapshot = new GraphSnapshot
+            {
+                GraphSnapshotId = options.GraphSnapshotId,
+                ContextSnapshotId = options.ContextSnapshotId,
+                RunId = options.RunId,
+                CreatedUtc = options.CreatedUtc,
+                Nodes =
+                [
+                    new GraphNode
+                    {
+                        NodeId = PaddedDiagramNodeId,
+                        NodeType = GraphNodeTypes.TopologyResource,
+                        Label = "API Gateway",
+                        SourceType = StructuredDiagramGraphSourceTypes.StructuredDiagram,
+                        SourceId = "api",
+                    },
+                ],
+                Edges =
+                [
+                    new GraphEdge
+                    {
+                        EdgeId = "edge-1",
+                        FromNodeId = PaddedDiagramNodeId,
+                        ToNodeId = "diagram-node:context",
+                        EdgeType = GraphEdgeTypes.ConnectsTo,
+                    },
+                ],
+            },
+            Warnings = [],
+        };
+
+        StructuredDiagramGraphCompileResult bound = StructuredDiagramCompiledGraphBinder.BindToCanonicalNodes(
+            compileResult,
+            [inventoryNode]);
+
+        bound.Snapshot.Nodes.Should().BeEmpty();
+        bound.Snapshot.Edges.Should().ContainSingle(edge =>
+            edge.FromNodeId == "obj-api-1" && edge.ToNodeId == "diagram-node:context");
+    }
+
+    [Fact]
     public void ApplyBindingsToGraphNodes_collapses_padded_bound_diagram_id_aliases_when_stamping_bind_metadata()
     {
         string paddedBoundSourceKey = $"  {StructuredDiagramGraphPropertyKeys.BoundDiagramNodeId}  ";

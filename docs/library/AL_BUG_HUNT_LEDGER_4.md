@@ -12470,8 +12470,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 207
-- **bugs-found:** 171
+- **hunts:** 208
+- **bugs-found:** 172
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-overlay rebind deduped parallel edges separately when EdgeType differed only by whitespace
 - **related-pd-tb:** none
@@ -12597,7 +12597,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder` — padded diagram node ids missed rebind remap lookup — **hit 2026-10-22 seed hunt (seed→hit):** trim diagram node ids on rebind; regression above.
 
-- [ ] (candidate) `StructuredDiagramCompiledGraphBinder.RemapEndpoint` — canonical bind edge remap may miss padded `diagram-node:*` endpoints — locus: compile-time edge remap dictionary lookup without trim-aware endpoint parity; input: compiled diagram edges reference padded diagram node ids; wrong outcome: bind step leaves diagram endpoints on edges after canonical binding.
+2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramCompiledGraphBinder.RemapEndpoint` padded diagram endpoint remap candidate; proved canonical bind edge remap only indexed raw diagram node ids while `RemapEndpoint` lacked trim-aware dictionary lookup and padded `diagram-node:*` ids could skip bind detection; align with overlay rebind parity (trim leftover detection, remap keys, and endpoint lookup); regression `BindToCanonicalNodes_remaps_edges_when_diagram_node_id_and_endpoints_have_surrounding_whitespace`; seeded `ArchitectureDiagramToGraphCompiler` padded compiled diagram node id output follow-on; 500 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `StructuredDiagramCompiledGraphBinder.RemapEndpoint` — padded diagram endpoints missed canonical bind edge remap — **hit 2026-10-22 seed hunt (seed→hit):** trim-aware bind remap parity; regression above.
+
+- [ ] (candidate) `ArchitectureDiagramToGraphCompiler` — compiled diagram graph nodes may mint padded `diagram-node:*` node ids — locus: compile output uses raw diagram record ids without trim when forming graph node ids; input: structured diagram node ids carry surrounding whitespace; wrong outcome: downstream bind/rebind paths must compensate for padded diagram topology ids.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
