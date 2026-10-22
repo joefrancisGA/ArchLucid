@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_grant authorize-query UX, BFF refresh 418 parity, and saturated decodeOAuthErrorDescription emoji-modifier glue; regression documents authorize-retry marking when authorization code exchange returns numeric access_token; scoped vitest 493/493.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - invalid_grant authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 418 shouldClearSession false - **regression 2026-10-22:** transient refresh soft-fail without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - numeric access_token skips authorize retry marker - **regression 2026-10-22:** intentional retry marker on non-string token JSON (not skip).
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with emoji modifier glue - **cheap-disproof 2026-10-22:** saturated encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - unsupported_grant_type authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 419 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - boolean access_token skips authorize retry marker - locus: malformed token JSON shape.
+- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with emoji modifier glue - locus: saturated JSON encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed redirect_uri_mismatch authorize-query UX, BFF refresh 417 parity, and saturated readOAuthJsonErrorDescription emoji-modifier glue; regression documents authorize-retry marking when authorization code exchange returns whitespace-only access_token; scoped vitest 490/490.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - redirect_uri_mismatch authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.

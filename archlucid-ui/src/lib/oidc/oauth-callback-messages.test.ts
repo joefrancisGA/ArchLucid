@@ -366,6 +366,13 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("redirect_uri_mismatch");
   });
 
+  it("humanizes invalid_grant authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_grant", "");
+
+    expect(message).toMatch(/invalid grant/i);
+    expect(message).not.toContain("invalid_grant");
+  });
+
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
     expect(humanizeAuthorizeCallbackError("   ", "")).toContain("complete response");
     expect(humanizeAuthorizeCallbackError("   ", "")).not.toMatch(/\(\s*\)/u);
