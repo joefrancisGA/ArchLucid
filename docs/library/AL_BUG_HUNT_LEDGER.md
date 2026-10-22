@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_credentials authorize-query UX, BFF refresh 442 parity, and saturated readOAuthJsonErrorDescription emoji ZWJ sequence glue; regression documents authorize-retry is marked when authorization code exchange returns vertical-tab-only access_token; scoped vitest 560/560.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - invalid_credentials authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 442 shouldClearSession false - **regression 2026-10-22:** transient refresh soft-fail without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string vertical-tab-only skips authorize retry marker - **regression 2026-10-22:** vertical-tab-only tokens reject exchange and set retry marker.
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with emoji ZWJ sequence glue - **cheap-disproof 2026-10-22:** saturated JSON encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_username authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 443 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string no-break-space-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with ZWNJ glue - locus: saturated encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_code authorize-query UX, BFF refresh 441 parity, and saturated decodeOAuthErrorDescription emoji ZWJ sequence glue; regression documents authorize-retry is marked when authorization code exchange returns form-feed-only access_token; scoped vitest 557/557.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - invalid_code authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
