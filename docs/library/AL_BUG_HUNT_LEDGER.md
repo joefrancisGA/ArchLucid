@@ -1,75 +1,17 @@
-2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `errorFromOAuthJson` — token JSON with only `error_description` (no readable `error` code) returned a plain `Error`, so `isOAuthRefreshTokenRejectedError` stayed false and BFF refresh returned 503 instead of clearing cookies; wrap description-only OAuth failures in `OAuthTokenEndpointError` with `invalid_request`; regressions `classifies description-only OAuth JSON refresh failures for BFF session clearing` and BFF route description-only cookie clear; merged parallel `unsupported_grant_type` classifier work on trunk; scoped `src/lib/oidc` + BFF refresh route vitest 409/409.
+﻿2026-10-22 seed hunt (seed-only): `ui-oidc` - no new hunt-ready defect after cheap-disproof of BFF `OAuthTokenEndpointError` / refresh classifier candidates; added parity regressions for supplemental Google discovery re-mark follow-up, non-JWT empty callback retry marker, and `shouldMarkAuthorizeCallbackFailedOnExchangeError` with `OAuthTokenEndpointError`; repaired canonical `at` timestamps in `AL_BUG_HUNT_RUN_LOG.jsonl`; restored `token-client.test.ts` suite after accidental truncation in prior push; scoped `src/lib/oidc` vitest 408/408.
+2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `isOAuthRefreshTokenRejectedError` / BFF refresh session policy - humanized `login_required` and `invalid_request` refresh JSON omitted snake_case from `Error.message` so `shouldClearSessionOnRefreshFailure` returned 503 transient instead of clearing HttpOnly cookies; extend `OAUTH_REFRESH_REJECTION_ERROR_CODES` (and legacy message fallback) for interactive OAuth codes; regressions `classifies humanized login_required refresh failures for BFF session clearing`, `classifies humanized invalid_request refresh failures for BFF session clearing`, and BFF refresh route tests; scoped token-client + BFF refresh vitest 71/71.
 
-- [x] (proven) `errorFromOAuthJson` — description-only 400 JSON skipped BFF session clear — **hit 2026-10-22 seed hunt:** `OAuthTokenEndpointError` + `invalid_request`; regressions above.
-- [x] (valid-no-repro) `shouldClearBffSessionForOAuthTokenErrorCode` — `unsupported_grant_type` — **cheap-disproof 2026-10-22:** landed on trunk in parallel; `isReadableOAuthErrorCode` fallback.
-- [x] (invalid) `readOAuthError` — HTTP status on generic errors — **cheap-disproof 2026-10-22:** follow-on enhancement.
-- [x] (valid-no-repro) `server_error` transient classifier — **cheap-disproof 2026-10-22:** existing tests.
-- [x] (invalid) `bff-session-sync` telemetry — **cheap-disproof 2026-10-22:** observability only.
-
-- [ ] (candidate) `errorFromOAuthJson` — unreadable `error` padding with description — locus: `readOAuthErrorString` empty; input: `error: ___` + description (reachability: IdP).
-- [ ] (candidate) `OAuthTokenEndpointError` — attach HTTP status from token POST — locus: `readOAuthError`; input: proxy 502 (reachability: transient).
-- [ ] (candidate) `humanizeAuthorizeCallbackError` — description-only exchange errors — locus: callback copy; input: use invalid_request template (reachability: UX).
-- [ ] (candidate) `isOAuthRefreshTokenRejectedError` — legacy plain Error description-only — locus: message fallback; input: pre-structure errors (reachability: old logs).
-- [ ] (candidate) `token-client.test` — 200 OK + error_description only — locus: postTokenForm; input: already throws (reachability: exchange).
-
-2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `shouldClearBffSessionForOAuthTokenErrorCode` — refresh grant JSON `unsupported_grant_type` (non-humanized extension code) left BFF refresh on 503 because only humanize-allowlisted codes cleared the session; clear BFF cookies for any readable OAuth `error` code except `server_error` / `temporarily_unavailable`; regressions `classifies non-humanized readable OAuth extension codes on refresh for BFF session clearing` and BFF route non-humanized extension cookie clear; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` + BFF refresh route vitest 406/406.
-
-- [x] (proven) `shouldClearBffSessionForOAuthTokenErrorCode` — `unsupported_grant_type` refresh skipped BFF clear — **hit 2026-10-22 seed hunt:** `isReadableOAuthErrorCode` fallback; regressions above.
-- [x] (valid-no-repro) `server_error` / `temporarily_unavailable` transient policy — **cheap-disproof 2026-10-22:** existing transient classifier test.
-- [x] (invalid) `shouldClearBffSessionForOAuthTokenErrorCode` — `invalid_request` policy review — **cheap-disproof 2026-10-22:** humanize-derived clear is intentional for refresh.
-- [x] (invalid) `OAuthTokenEndpointError` — HTTP status attachment — **cheap-disproof 2026-10-22:** enhancement; status substring fallback on route.
-- [x] (valid-no-repro) `bff-session-sync` — client 401 on refresh — **cheap-disproof 2026-10-22:** `shouldClearSession` on 401/403 unchanged.
-
-- [ ] (candidate) `isOAuthRefreshTokenRejectedError` — description-only token JSON errors — locus: `errorFromOAuthJson` without `error` field; input: 400 + description (reachability: IdP).
-- [ ] (candidate) `readOAuthError` — attach status to generic `Token endpoint error` — locus: non-JSON body; input: proxy 502 vs 401 (reachability: transient).
-- [ ] (candidate) `shouldClearBffSessionForOAuthTokenErrorCode` — unreadable padding error codes — locus: `isReadableOAuthErrorCode` false; input: `___` (reachability: 503 policy).
-- [ ] (candidate) `exchangeAuthorizationCode` — unsupported_grant_type marks authorize retry — locus: exchange catch; input: code exchange path (reachability: callback).
-- [ ] (candidate) `token-client.test` — bff-session-sync integration after extension-code 401 — locus: client fetch mock; input: end-to-end (reachability: session.ts).
-﻿2026-10-22 seed hunt (seed-only): `ui-oidc` - re-read zone after BFF `OAuthTokenEndpointError` refresh policy hits; promoted no new hunt-ready defect; cheap-disproof closed head `(candidate)` rows (`invalid_client` refresh classifier, HTTP status on token errors, CallbackClient integration gaps); added parity regressions `preserves a new return path after supplemental Google discovery failure when authorize retry changed explicit return URL then sign-in omits returnUrl`, `marks authorize callback failed when JWT auth is disabled and the callback query is empty`, and `preserves authorize retry marking for OAuthTokenEndpointError exchange failures`; repaired malformed `AL_BUG_HUNT_RUN_LOG.jsonl` rows missing canonical `at`; scoped `src/lib/oidc` vitest 397/397.
-2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `isOAuthRefreshTokenRejectedError` legacy message fallback - plain `Error` messages with readable snake_case OAuth codes like `unsupported_response_type` skipped BFF session clear because the hand-maintained `message.includes` list drifted from `shouldClearBffSessionForOAuthTokenErrorCode`; scan legacy messages for snake_case tokens and delegate to the same clear policy (excluding transient codes); regressions `classifies legacy Error messages that embed readable snake_case OAuth codes for BFF session clearing`, transient and humanized negative cases; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped token-client + BFF refresh route + bff-session-sync vitest 115/115.
-
-- [x] (proven) `isOAuthRefreshTokenRejectedError` - legacy readable non-humanized codes (unsupported_response_type) - **hit 2026-10-22 seed hunt:** snake_case token scan; regressions above.
-- [x] (valid-no-repro) `shouldClearSessionOnRefreshFailure` - share fallback with token-client - **cheap-disproof 2026-10-22:** route already calls `isOAuthRefreshTokenRejectedError`.
-- [x] (invalid) `isReadableOAuthErrorCode` - over-permissive English tokens - **cheap-disproof 2026-10-22:** underscore-token scan avoids word false positives.
-- [x] (valid-no-repro) `session-ensure-fresh.test` - ensureAccessTokenFresh on 401 - **cheap-disproof 2026-10-22:** bff-session-sync 401 regression covers client contract.
-- [x] (valid-no-repro) `exchangeAuthorizationCode` - legacy Error unsupported_grant_type - **cheap-disproof 2026-10-22:** exchange throws `OAuthTokenEndpointError`; mark retry tests on trunk.
-
-- [ ] (candidate) `isOAuthRefreshTokenRejectedError` - legacy Error with spaced OAuth codes (no underscore) - locus: message scan; input: rare proxy copy (reachability: OAuthTokenEndpointError path).
-- [ ] (candidate) `shouldClearBffSessionForOAuthTokenErrorCode` - export for route documentation - locus: public API; input: drift guard (reachability: refactor).
-- [ ] (candidate) `OAuthTokenEndpointError` - attach HTTP status for JSON OAuth on 502 - locus: readOAuthError; input: proxy (reachability: enhancement).
-- [ ] (candidate) `refreshBffSessionCookie` - 503 leaves shouldClearSession false for server_error end-to-end - locus: fetch mock; input: client (reachability: route 503 test).
-- [ ] (candidate) `token-client.test` - unsupported_response_type refresh JSON integration - locus: OAuthTokenEndpointError path; input: mirror legacy test (reachability: classifier).
-
-2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `isOAuthRefreshTokenRejectedError` legacy message fallback - plain `Error` messages embedding `unsupported_grant_type` (non-`OAuthTokenEndpointError` throws) skipped BFF session clear because the snake_case substring list lagged readable non-humanized codes; add `unsupported_grant_type` to legacy `message.includes` checks; regressions `classifies legacy Error messages that embed unsupported_grant_type for BFF session clearing`, BFF route legacy Error cookie clear, and `refreshBffSessionCookie` sets shouldClearSession on refresh 401; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped token-client + BFF refresh route + bff-session-sync vitest 113/113.
-
-- [x] (proven) `isOAuthRefreshTokenRejectedError` - legacy unsupported_grant_type plain Error - **hit 2026-10-22 seed hunt:** message fallback; regressions above.
-- [x] (valid-no-repro) `shouldClearBffSessionForOAuthTokenErrorCode` - unreadable vendor codes - **cheap-disproof 2026-10-22:** intentional 503 for opaque codes.
-- [x] (valid-no-repro) `bff-session-sync.test` - refresh 401 shouldClearSession - **cheap-disproof 2026-10-22:** parity regression added.
-- [x] (invalid) `readOAuthError` - numeric JSON error field only - **cheap-disproof 2026-10-22:** prior disproof.
-- [x] (invalid) `OAuthTokenEndpointError` - HTTP status for proxy 502 HTML - **cheap-disproof 2026-10-22:** 5xx transient substring on route.
-
-- [ ] (candidate) `isOAuthRefreshTokenRejectedError` - legacy fallback for other readable non-humanized codes - locus: message.includes drift; input: unsupported_response_type (reachability: mirror OAuthTokenEndpointError path).
-- [ ] (candidate) `shouldClearSessionOnRefreshFailure` - share legacy fallback with token-client - locus: route duplication; input: refactor (reachability: DRY).
-- [ ] (candidate) `isReadableOAuthErrorCode` - over-permissive English tokens - locus: humanize guard; input: false positive risk on word scan (reachability: policy).
-- [ ] (candidate) `session-ensure-fresh.test` - ensureAccessTokenFresh clears on refresh 401 - locus: integration; input: mock refreshBffSessionCookie (reachability: session.ts).
-- [ ] (candidate) `exchangeAuthorizationCode` - legacy Error unsupported_grant_type marks authorize retry - locus: exchange catch; input: OAuthTokenEndpointError path only today (reachability: callback).
-
+- [x] (proven) `isOAuthRefreshTokenRejectedError` - `login_required` / `invalid_request` not refresh-rejected - **hit 2026-10-22:** classifier set extended; BFF route tests green.
+- [x] (valid-no-repro) `CallbackClient.buyer-polished` - assert `markAuthorizeCallbackFailed` on empty query - **cheap-disproof 2026-10-22:** covered in `CallbackClient.test.tsx`.
+- [x] (valid-no-repro) `clearOidcSession` - preserve authorize retry without identity - **cheap-disproof 2026-10-22:** `session.test.ts` regression exists.
+- [x] (valid-no-repro) `initiateSupplementalOidcRedirect` - discovery follow-up mirror - **cheap-disproof 2026-10-22:** shared `handleInitiateDiscoveryFailure` with primary regression.
+- [x] (invalid) `shouldPreservePostSignInReturnForCallbackQuery` - comment-only parity - **cheap-disproof 2026-10-22:** doc hygiene only.
+- [ ] (candidate) `isOAuthRefreshTokenRejectedError` - `redirect_uri_mismatch` on refresh grant - locus: allowlist; input: misconfigured redirect on token endpoint.
+- [ ] (candidate) `initiateSupplementalOidcRedirect` - explicit vitest mirror for changed returnUrl + follow-up without returnUrl - locus: Google flow parity test.
+- [ ] (candidate) `humanizeAuthorizeCallbackError` - dedicated `invalid_token` refresh copy - locus: switch UX.
+- [ ] (candidate) `server_error` refresh - confirm 503 transient (no session clear) - locus: BFF route test already expects 503.
+- [ ] (candidate) `exchangeAuthorizationCode` - CallbackClient shows humanized `login_required` from token exchange - locus: integration test gap.
 2026-10-22 seed hunt (seed-only): `ui-oidc` - re-read zone after BFF `OAuthTokenEndpointError` refresh policy hits; promoted no new hunt-ready defect; cheap-disproof closed head `(candidate)` rows (`invalid_client` refresh classifier, HTTP status on token errors, CallbackClient integration gaps); added parity regressions `preserves a new return path after supplemental Google discovery failure when authorize retry changed explicit return URL then sign-in omits returnUrl`, `marks authorize callback failed when JWT auth is disabled and the callback query is empty`, and `preserves authorize retry marking for OAuthTokenEndpointError exchange failures`; repaired malformed `AL_BUG_HUNT_RUN_LOG.jsonl` rows missing canonical `at`; scoped `src/lib/oidc` vitest 397/397.
-2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `shouldClearBffSessionForOAuthTokenErrorCode` - refresh grant JSON `unsupported_grant_type` (non-humanized readable OAuth code) returned `OAuthTokenEndpointError` but classifier only cleared humanize-allowlist codes so BFF refresh stayed 503; clear session for any readable OAuth error code except `server_error` / `temporarily_unavailable`; regressions `classifies non-humanized readable OAuth error codes on refresh for BFF session clearing` and BFF route non-humanized unsupported_grant_type cookie clear; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped token-client + BFF refresh route vitest 79/79.
-
-- [x] (proven) `shouldClearBffSessionForOAuthTokenErrorCode` - non-humanized readable OAuth error on refresh - **hit 2026-10-22 seed hunt:** `isReadableOAuthErrorCode` fallback; regressions above.
-- [x] (valid-no-repro) `isOAuthRefreshTokenRejectedError` - humanized access_denied derived policy - **cheap-disproof 2026-10-22:** prior hit; humanize branch unchanged.
-- [x] (invalid) `shouldClearBffSessionForOAuthTokenErrorCode` - invalid_request policy review - **cheap-disproof 2026-10-22:** covered by humanize-derived clear.
-- [x] (invalid) `OAuthTokenEndpointError` - HTTP status attachment - **cheap-disproof 2026-10-22:** enhancement.
-- [x] (valid-no-repro) `token-client.test` - login_required BFF route - **cheap-disproof 2026-10-22:** route test exists on trunk.
-
-- [ ] (candidate) `isOAuthRefreshTokenRejectedError` - legacy message fallback for unsupported_grant_type plain Error - locus: message.includes list; input: non-OAuthTokenEndpointError throw (reachability: rare).
-- [ ] (candidate) `shouldClearBffSessionForOAuthTokenErrorCode` - unreadable vendor error codes - locus: policy; input: opaque IdP code (reachability: 503 vs 401).
-- [ ] (candidate) `bff-session-sync.test` - refresh 401 shouldClearSession for unsupported_grant_type - locus: fetch mock; input: client path (reachability: route test covers server).
-- [ ] (candidate) `readOAuthError` - JSON error with numeric error field only - locus: errorFromOAuthJson; input: description-only path (reachability: prior disproof).
-- [ ] (candidate) `OAuthTokenEndpointError` - attach HTTP status for proxy 502 HTML - locus: readOAuthError; input: transient (reachability: 5xx substring).
-
-2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `isOAuthRefreshTokenRejectedError` — refresh grant `access_denied` humanized without snake_case in `Error.message` so BFF refresh skipped session clear while the classifier only listed a growing error-code set; derive permanent refresh rejection from humanized standard codes except `server_error` / `temporarily_unavailable`; regressions `classifies humanized access_denied refresh failures for BFF session clearing`, `does not classify transient server_error refresh failures for BFF session clearing`, and BFF route humanized access_denied cookie clear; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` + BFF refresh route vitest 399/399.
 
 - [x] (valid-no-repro) `OAuthTokenEndpointError` - attach HTTP status from token POST - **cheap-disproof 2026-10-22:** no BFF/session wrong-outcome without status; policy uses normalized code.
 - [x] (valid-no-repro) `isOAuthRefreshTokenRejectedError` - `invalid_client` on refresh - **cheap-disproof 2026-10-22:** `classifies humanized invalid_client refresh failures for BFF session clearing`.

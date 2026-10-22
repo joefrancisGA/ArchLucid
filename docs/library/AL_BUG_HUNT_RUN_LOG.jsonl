@@ -6052,3 +6052,5 @@
 {"at":"2026-10-22T01:48:44.8698880Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-22T01:49:29.9790723Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-22T01:50:20.3096840Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-22T01:48:19.9809703Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
+{"outcome":"seed-only","zoneId":"ui-oidc","productLine":"archlucid-shared","at":"2026-10-22T01:49:27.558Z"}
