@@ -154,6 +154,14 @@ public sealed class TenantProvisioningService(
             return BuildErasureQuarantineProvisionResult(tenantId, workspaceId, projectId);
         }
 
+        TenantRecord? tenantBeforePolicyPackSeed =
+            await _tenantRepository.GetByIdAsync(tenantId, ct).ConfigureAwait(false);
+
+        if (IsErasureQuarantine(tenantBeforePolicyPackSeed))
+        {
+            return BuildErasureQuarantineProvisionResult(tenantId, workspaceId, projectId);
+        }
+
         await _defaultPolicyPackSeeder.EnsureDefaultPolicyPacksAsync(tenantId, workspaceId, projectId, ct)
             .ConfigureAwait(false);
 
