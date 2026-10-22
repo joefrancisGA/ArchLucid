@@ -32,6 +32,17 @@
 - [ ] (candidate) refreshBffSessionCookie - refresh 465 shouldClearSession false - locus: transient refresh parity.
 - [ ] (candidate) exchangeAuthorizationCode - access_token JSON string ogham-space-only skips authorize retry marker - locus: literal whitespace token shape.
 - [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with figure-space glue - locus: saturated encoding class.
+2026-10-22 seed hunt (seed->hit): `application-tenancy-lifecycle` - promoted hunt-ready from seed re-read `TenantCatalogMigrationOrchestrator.AcknowledgeCatalogAttachDetachAsync` - catalog attach acknowledged platform audit appended after `tenantBeforeAttachAudit` without a final re-read, so erasure offboard between that read and audit could emit `TenantCatalogMigrationCatalogAttachAcknowledged` for quarantined tenants; pre-append `GetByIdAsync` offboard guard (`tenantBeforeAttachAuditAppend`); regression `AcknowledgeCatalogAttachDetachAsync_returns_in_erasure_quarantine_without_attach_audit_when_offboard_completes_after_tenant_before_attach_audit_read_before_audit`; scoped tenancy filter 275/275.
+
+- [x] (proven) `AcknowledgeCatalogAttachDetachAsync` - offboard after tenantBeforeAttachAudit read before attach audit - **hit 2026-10-22 seed hunt:** `tenantBeforeAttachAuditAppend` re-read + offboard guard; regression above.
+- [x] (valid-no-repro) `AcknowledgeCatalogAttachDetachAsync` - offboard after stage update before attach audit - **cheap-disproof 2026-10-22:** existing three-read regression on trunk.
+- [x] (valid-no-repro) `AcknowledgeCatalogAttachDetachAsync` - offboard before stage update - **cheap-disproof 2026-10-22:** existing pre-acknowledge regression on trunk.
+- [x] (valid-no-repro) `TenantSuspendCommandService.TrySuspendAsync` - offboard after tenantBeforeSuspendAudit read - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
+
+- [ ] (candidate) `TenantTrialIdentityHandoffStage.LinkEntraAsync` - offboard after tenantBeforeDirectoryAudit / tenantBeforeIdentityAudit read before trial audit - locus: trial identity audit race (reachability: trial link API).
+- [ ] (candidate) `TenantProvisioningService` - offboard after tenantBeforeProvisionedAudit read before provisioned audit - locus: provision audit race (reachability: provision path).
+- [ ] (candidate) `TrialLifecycleTransitionEngine` - offboard between audit and expiration metric - locus: post-audit superseded read (reachability: saturated).
+- [ ] (candidate) `TenantErasureCommandService` - consolidate pre-append audit re-read helpers - locus: refactor batch (not hunt-ready defect).
 
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_state authorize-query UX, BFF refresh 463 parity, and saturated decodeOAuthErrorDescription narrow-no-break-space glue; regression documents authorize-retry is marked when authorization code exchange returns word-joiner-only access_token; scoped vitest 622/622.
 
