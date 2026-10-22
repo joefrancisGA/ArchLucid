@@ -183,8 +183,8 @@ public static class GraphSnapshotCanonicalFingerprint
                 .Where(static id => id.Length > 0)
                 .OrderBy(static id => id, StringComparer.Ordinal));
 
-        string name = string.IsNullOrWhiteSpace(element.Name) ? string.Empty : element.Name.Trim();
-        string description = string.IsNullOrWhiteSpace(element.Description) ? string.Empty : element.Description.Trim();
+        string name = NormalizeFingerprintText(element.Name);
+        string description = NormalizeFingerprintText(element.Description);
 
         return string.Join(
             "|",

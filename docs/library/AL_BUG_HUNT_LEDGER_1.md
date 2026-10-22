@@ -8712,6 +8712,18 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted baseline element `Name`/`Description` NFC vs NFD splitting review-cache `modelfp`; `FormatKnowledgeModelElementFingerprint` now uses `NormalizeFingerprintText` for substantive name/description tokens; regressions `Build_matches_content_hash_when_baseline_element_name_differs_only_by_unicode_normalization_form` and `Build_matches_content_hash_when_baseline_element_description_differs_only_by_unicode_normalization_form`; 139 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — NFC vs NFD element `Name`/`Description` split `modelfp` — **hit 2026-10-22 seed hunt:** FormC on name/description; regressions above.
+
+- (candidate) `GraphSnapshotCanonicalFingerprint.FormatElementProvenance` — padded `SourceArtifactId`, `Notes`, or passage locator fields split `modelfp` — locus: provenance segment; input: loaded model elements with citation metadata.
+
+- (candidate) `GraphSnapshotCanonicalFingerprint.FormatDeclaredPriorities` — NFC vs NFD declared priority labels — locus: priority list fingerprint; input: model with decomposed Unicode priority strings.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — consolidated C0/C1 line-break audit (picker saturated `other`; batch only).
+
+- (candidate) `ReviewResultCache.CoalesceAsync` — follower publish leak when publish intent false — locus: existing analysis-follower regressions; input: verify no new partition gap.
+
 2026-10-22 seed hunt (seed→hit): promoted padded baseline `RelatedElementIds` splitting review-cache `modelfp`; `FormatKnowledgeModelElementFingerprint` now normalizes related and source-passage id lists (trim + FormC, drop whitespace-only, ordinal sort); regression `Build_matches_content_hash_when_baseline_related_element_ids_differ_only_by_surrounding_whitespace`; 136 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — padded `RelatedElementIds` split `modelfp` — **hit 2026-10-22 seed hunt:** normalize related/passage id tokens; regression above.

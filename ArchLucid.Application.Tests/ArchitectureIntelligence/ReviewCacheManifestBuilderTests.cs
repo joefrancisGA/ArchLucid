@@ -281,6 +281,62 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_baseline_element_name_differs_only_by_unicode_normalization_form()
+    {
+        const string nfcName = "Claims Caf\u00E9 API";
+        const string nfdName = "Claims Cafe\u0301 API";
+
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-element-name-unicode";
+
+        ArchitectureKnowledgeModel nfcModel = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = nfcName }],
+        };
+
+        ArchitectureKnowledgeModel nfdModel = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = nfdName }],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, nfcModel).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, nfdModel).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_element_description_differs_only_by_unicode_normalization_form()
+    {
+        const string nfcDescription = "Handles Caf\u00E9 traffic.";
+        const string nfdDescription = "Handles Cafe\u0301 traffic.";
+
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-element-description-unicode";
+
+        ArchitectureKnowledgeModel nfcModel = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API", Description = nfcDescription }],
+        };
+
+        ArchitectureKnowledgeModel nfdModel = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API", Description = nfdDescription }],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, nfcModel).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, nfdModel).ContentHash);
+    }
+
+    [Fact]
     public void Build_changes_content_hash_when_baseline_model_fingerprint_changes_for_supplied_run_id()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
