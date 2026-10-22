@@ -87,7 +87,7 @@ public static class GraphSnapshotCanonicalFingerprint
             return string.Empty;
 
         IEnumerable<string> elementParts = (knowledgeModel.Elements ?? [])
-            .OrderBy(element => element.ElementId, StringComparer.OrdinalIgnoreCase)
+            .OrderBy(element => NormalizeFingerprintText(element.ElementId), StringComparer.Ordinal)
             .Select(FormatKnowledgeModelElementFingerprint);
 
         return string.Join(
@@ -114,7 +114,7 @@ public static class GraphSnapshotCanonicalFingerprint
             return string.Empty;
 
         IEnumerable<string> elementParts = (knowledgeModel.Elements ?? [])
-            .OrderBy(element => element.ElementId, StringComparer.OrdinalIgnoreCase)
+            .OrderBy(element => NormalizeFingerprintText(element.ElementId), StringComparer.Ordinal)
             .Select(FormatKnowledgeModelElementFingerprint);
 
         return string.Join(
@@ -182,7 +182,7 @@ public static class GraphSnapshotCanonicalFingerprint
 
         return string.Join(
             "|",
-            element.ElementId,
+            NormalizeFingerprintText(element.ElementId),
             element.Kind.ToString(),
             name,
             description,

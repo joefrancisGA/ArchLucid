@@ -8712,6 +8712,16 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted padded baseline model element `ElementId` splitting review-cache `modelfp`; `GraphSnapshotCanonicalFingerprint` now normalizes element ids (trim + FormC) for sort keys and fingerprint tokens; regression `Build_matches_content_hash_when_baseline_element_id_differs_only_by_surrounding_whitespace`; 135 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — padded `ElementId` split `modelfp` — **hit 2026-10-22 seed hunt:** `NormalizeFingerprintText` on element id and sort key; regression above.
+
+- (candidate) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — padded `RelatedElementIds` or `SourcePassageIds` reorder sort keys — locus: related/passage id lists; input: loaded model with whitespace-padded cross-refs.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — consolidated C0/C1 line-break audit (picker saturated `other`; batch only).
+
+- (candidate) `ReviewResultCache.CoalesceAsync` — follower publish leak when publish intent false — locus: existing analysis-follower regressions; input: verify no new partition gap.
+
 2026-10-22 seed hunt (seed→hit): promoted padded baseline model element property values splitting review-cache `modelfp`; `FormatKnowledgeModelElementFingerprint` now normalizes property keys/values via `NormalizeFingerprintText`; regression `Build_matches_content_hash_when_baseline_element_property_value_differs_only_by_surrounding_whitespace`; 139 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — padded element property values split `modelfp` — **hit 2026-10-22 seed hunt:** normalize property bag tokens; regression above.
@@ -9063,11 +9073,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 65
-- **bugs-found:** 41
+- **hunts:** 66
+- **bugs-found:** 42
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — padded baseline model element property values in review-cache modelfp
+- **last-bug:** 2026-10-22 — padded baseline model element id in review-cache modelfp
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
