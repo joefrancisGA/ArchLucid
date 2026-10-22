@@ -185,7 +185,7 @@ export function decodeOAuthErrorDescription(encoded: string | null | undefined):
 
   try {
     decoded = collapseOAuthErrorDescriptionLineBreaks(
-      decodeRepeatedPercentEncoding(trimmed.replace(/\+/g, " ")),
+      decodeRepeatedPercentEncoding(trimmed.replace(/\+/g, " ")).replace(/\+/g, " "),
     );
   } catch {
     decoded = collapseOAuthErrorDescriptionLineBreaks(trimmed.replace(/\+/g, " "));
