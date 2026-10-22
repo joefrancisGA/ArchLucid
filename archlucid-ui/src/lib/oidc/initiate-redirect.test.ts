@@ -836,6 +836,30 @@ describe("initiate redirect PKCE isolation", () => {
     expect(assignMock).toHaveBeenCalledTimes(1);
   });
 
+  it("preserves post-sign-in return path when supplemental Google discovery fails during authorize-callback retry", async () => {
+    sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, "/architecture/reviews/run-3");
+    sessionStorage.setItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY, "1");
+
+    vi.stubEnv("NEXT_PUBLIC_GOOGLE_OIDC_AUTHORITY", "https://accounts.google.com");
+    vi.stubEnv("NEXT_PUBLIC_GOOGLE_OIDC_CLIENT_ID", "google-client");
+    mockOidcConfigWithRedirectUri();
+    vi.doMock("@/lib/oidc/pkce", () => ({
+      createPkcePair: vi.fn(async () => ({ verifier: "google-verifier", challenge: "challenge" })),
+      randomOpaqueState: vi.fn(() => "google-state"),
+    }));
+    vi.doMock("@/lib/oidc/discovery", () => ({
+      loadDiscoveryDocument: vi.fn(async () => {
+        throw new Error("google discovery unavailable");
+      }),
+    }));
+
+    const { initiateSupplementalOidcRedirect } = await import("@/lib/oidc/initiate-redirect");
+
+    await expect(initiateSupplementalOidcRedirect("google")).rejects.toThrow("google discovery unavailable");
+    expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBe("/architecture/reviews/run-3");
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
+  });
+
   it("preserves post-sign-in return path when discovery fails during authorize-callback retry", async () => {
     sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, "/architecture/reviews/run-3");
     sessionStorage.setItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY, "1");

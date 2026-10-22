@@ -468,15 +468,22 @@ export function consumePostSignInReturnUrl(): string | null {
   const url = readSessionKey(OIDC_POST_SIGN_IN_RETURN_URL_KEY);
 
   sessionStorage.removeItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY);
-  sessionStorage.removeItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY);
 
   if (url === null) {
+    sessionStorage.removeItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY);
+
     return null;
   }
 
   const normalized = normalizeOidcConfigurationString(url);
 
-  return isSafeReturnPath(normalized) ? normalized : null;
+  if (!isSafeReturnPath(normalized)) {
+    return null;
+  }
+
+  sessionStorage.removeItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY);
+
+  return normalized;
 }
 
 function getExpiresAtMs(): number {

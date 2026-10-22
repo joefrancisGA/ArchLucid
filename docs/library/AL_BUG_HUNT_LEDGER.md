@@ -1,3 +1,19 @@
+2026-10-22 seed hunt (seed->hit): ui-oidc - promoted hunt-ready consumePostSignInReturnUrl - tampered unsafe return URLs returned null but still cleared OIDC_AUTHORIZE_CALLBACK_FAILED_KEY, dropping authorize-retry state needed for a follow-up sign-in; only clear retry marker when a safe return path is consumed; parity regressions supplemental Google discovery failure during authorize-callback retry without returnUrl and authorize error_description percent-plus with regional-indicator flag emoji; scoped vitest 429/429.
+
+- [x] (proven) consumePostSignInReturnUrl - cleared authorize retry marker on unsafe return URL - **hit 2026-10-22:** keep marker when consume rejects unsafe path; regression keeps authorize retry marker when consume rejects a tampered unsafe return URL.
+- [x] (valid-no-repro) 
+eadOAuthJsonErrorDescription - skin-tone %2B mixed glue - **cheap-disproof 2026-10-22:** regression on trunk head.
+- [x] (valid-no-repro) initiateSupplementalOidcRedirect - discovery failure preserves retry without returnUrl - **regression 2026-10-22:** supplemental Google mirror test.
+- [x] (valid-no-repro) decodeOAuthErrorDescription - regional-indicator %2B mixed plus - **regression 2026-10-22:** 🇺🇸%2Bextra preserves flag plus.
+- [x] (invalid) OAuthTokenEndpointError - normalizedErrorCode for unreadable JSON error - **cheap-disproof 2026-10-22:** description-only path uses invalid_request on trunk.
+
+- [ ] (candidate) 
+eadPostSignInReturnUrl - purge zero-width-only return paths on read - locus: sessionStorage hygiene; input: ZWSP-only key.
+- [ ] (candidate) clearAbandonedPostSignInReturnUrl - use readPostSignInReturnUrl instead of raw getItem - locus: initiate-redirect idle desk branch.
+- [ ] (candidate) consumeAuthorizeCallbackFailedRetry - document interaction with unsafe consume - locus: session policy.
+- [ ] (candidate) humanizeAuthorizeCallbackError - dedicated redirect URI mismatch admin copy - locus: UX-only.
+- [ ] (candidate) exchangeAuthorizationCode - mark retry on slow_down token JSON - locus: parity with transient errors.
+
 2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `shouldClearSessionOnRefreshFailure` / BFF refresh route — malformed token JSON that yields bare `Token endpoint error 400` (no parseable OAuth fields) cleared HttpOnly cookies via legacy `message.includes("token endpoint error 400")` substring; classify only via `isOAuthRefreshTokenRejectedError`; regression `returns 503 without clearing BFF session cookies when refreshAccessToken throws opaque token endpoint error 400`; scoped oidc + BFF refresh route vitest 437/437.
 
 - [x] (proven) `shouldClearSessionOnRefreshFailure` — opaque 400 without OAuth JSON — **hit 2026-10-22 seed hunt:** classifier-only clear policy; regression above.

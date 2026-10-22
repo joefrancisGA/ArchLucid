@@ -141,6 +141,7 @@ describe("decodeOAuthErrorDescription", () => {
 
   it("preserves literal plus in authorize error descriptions when regional-indicator flag emoji is present", () => {
     expect(decodeOAuthErrorDescription("🇺🇸+extra")).toBe("🇺🇸+extra");
+    expect(decodeOAuthErrorDescription("🇺🇸%2Bextra")).toBe("🇺🇸+extra");
   });
 
   it("preserves literal plus in authorize error descriptions when skin-tone emoji modifiers are present", () => {
