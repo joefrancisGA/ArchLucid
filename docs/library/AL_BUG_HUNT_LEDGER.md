@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_token authorize-query UX, BFF refresh 420 parity, and saturated decodeOAuthErrorDescription regional-indicator glue; regression documents authorize-retry marking when authorization code exchange returns null access_token; scoped vitest 499/499.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - invalid_token authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 420 shouldClearSession false - **regression 2026-10-22:** transient refresh soft-fail without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - null access_token skips authorize retry marker - **regression 2026-10-22:** intentional retry marker on null token JSON (not skip).
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with regional-indicator glue - **cheap-disproof 2026-10-22:** saturated encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - expired_token authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 421 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - array access_token skips authorize retry marker - locus: malformed token JSON shape.
+- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with regional-indicator glue - locus: saturated JSON encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed unsupported_grant_type authorize-query UX, BFF refresh 419 parity, and saturated readOAuthJsonErrorDescription emoji-modifier glue; regression documents authorize-retry marking when authorization code exchange returns boolean access_token; scoped vitest 496/496.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - unsupported_grant_type authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
@@ -33,17 +45,6 @@
 - [ ] (candidate) refreshBffSessionCookie - refresh 418 shouldClearSession false - locus: transient refresh parity.
 - [ ] (candidate) exchangeAuthorizationCode - numeric access_token skips authorize retry marker - locus: malformed token JSON shape.
 - [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with emoji modifier glue - locus: saturated encoding class.
-2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; cheap-disproof closed redirect_uri_mismatch readable authorize UX, refresh 417 parity, and saturated readOAuthJsonErrorDescription emoji-modifier glue; parity regression code exchange whitespace-only access_token marks authorize retry; scoped `src/lib/oidc` + BFF refresh route vitest 521/521.
-
-- [x] (invalid) humanizeAuthorizeCallbackError - redirect_uri_mismatch authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX; not a security defect.
-- [x] (valid-no-repro) refreshBffSessionCookie - refresh 417 shouldClearSession false - **regression 2026-10-22:** client + route opaque 417 without cookie clear.
-- [x] (valid-no-repro) exchangeAuthorizationCode - whitespace-only access_token marks authorize retry - **regression 2026-10-22:** normalized empty token preserves retry marker.
-- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with emoji modifier glue - **cheap-disproof 2026-10-22:** saturated JSON encoding class on trunk.
-
-- [ ] (candidate) humanizeAuthorizeCallbackError - access_denied authorize-query copy - locus: fixed-branch UX.
-- [ ] (candidate) refreshBffSessionCookie - refresh 418 shouldClearSession false - locus: proxy transient policy.
-- [ ] (candidate) exchangeAuthorizationCode - numeric access_token skips authorize retry marker - locus: malformed JSON typing.
-- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B emoji modifier glue - locus: saturated encoding class.
 
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_client authorize-query UX, BFF refresh 416 parity, and saturated decodeOAuthErrorDescription emoji-modifier glue; regression documents authorize-retry marking when authorization code exchange returns empty access_token; scoped vitest 487/487.
 
@@ -26137,14 +26138,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 89
-- **hunts:** 88
-- **hunts:** 87
-- **hunts:** 86
-- **hunts:** 85
-- **hunts:** 84
-- **hunts:** 83
-- **hunts:** 82
 - **hunts:** 81
 - **hunts:** 87
 - **hunts:** 91

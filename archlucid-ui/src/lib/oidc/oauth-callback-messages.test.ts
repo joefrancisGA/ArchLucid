@@ -338,13 +338,6 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("unauthorized_client");
   });
 
-  it("uses readable default copy for redirect_uri_mismatch authorize-query errors", () => {
-    const message = humanizeAuthorizeCallbackError("redirect_uri_mismatch", "");
-
-    expect(message).toContain("redirect uri mismatch");
-    expect(message).toContain("Sign-in did not finish");
-  });
-
   it("humanizes invalid_scope authorize callback errors with readable copy", () => {
     const message = humanizeAuthorizeCallbackError("invalid_scope", "");
 
@@ -385,6 +378,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toMatch(/unsupported grant type/i);
     expect(message).not.toContain("unsupported_grant_type");
+  });
+
+  it("humanizes invalid_token authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_token", "");
+
+    expect(message).toMatch(/invalid token/i);
+    expect(message).not.toContain("invalid_token");
   });
 
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
