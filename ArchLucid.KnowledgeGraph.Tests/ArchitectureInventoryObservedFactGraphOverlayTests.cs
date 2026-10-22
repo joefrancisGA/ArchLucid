@@ -911,6 +911,60 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void Merge_deduplicates_overlay_property_keys_differing_only_by_case_when_appending_inventory_node()
+    {
+        string canonicalNodeId = CloudResourceId.ToString("D");
+        const string CanonicalPropertyKey = "cloudResourceId";
+        const string CaseVariantPropertyKey = "CloudResourceId";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "context-node",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "Context",
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = canonicalNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                    Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+                    {
+                        [CanonicalPropertyKey] = canonicalNodeId,
+                        [CaseVariantPropertyKey] = canonicalNodeId,
+                    },
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        GraphNode inventoryNode = merged.Nodes.Should().Contain(node => node.NodeId == canonicalNodeId).Subject;
+        inventoryNode.Properties.Should().HaveCount(1);
+        inventoryNode.Properties[CanonicalPropertyKey].Should().Be(canonicalNodeId);
+        inventoryNode.Properties[CaseVariantPropertyKey].Should().Be(canonicalNodeId);
+    }
+
+    [Fact]
     public void Merge_normalizes_padded_node_id_when_appending_new_inventory_overlay_node()
     {
         string canonicalNodeId = CloudResourceId.ToString("D");
