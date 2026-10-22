@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed user_cancelled authorize-query UX, BFF refresh 436 parity, and saturated readOAuthJsonErrorDescription skin-tone modifier glue; regression documents authorize-retry is marked when authorization code exchange returns whitespace-only access_token (existing parity test); scoped vitest 542/542.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - user_cancelled authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 436 shouldClearSession false - **regression 2026-10-22:** transient refresh soft-fail without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string whitespace-only skips authorize retry marker - **regression 2026-10-22:** whitespace-only tokens reject exchange and set retry marker (pre-existing test).
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with skin-tone modifier glue - **cheap-disproof 2026-10-22:** saturated JSON encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - verification_required authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 437 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string tab-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with regional-indicator glue - locus: saturated encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed use_second_factor authorize-query UX, BFF refresh 435 parity, and saturated decodeOAuthErrorDescription skin-tone modifier glue; regression documents authorize-retry is not marked when authorization code exchange returns empty-object-string access_token; scoped vitest 540/540.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - use_second_factor authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.

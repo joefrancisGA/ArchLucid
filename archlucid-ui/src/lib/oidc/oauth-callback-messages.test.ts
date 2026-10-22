@@ -485,6 +485,13 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("use_second_factor");
   });
 
+  it("humanizes user_cancelled authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("user_cancelled", "");
+
+    expect(message).toMatch(/user cancelled/i);
+    expect(message).not.toContain("user_cancelled");
+  });
+
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
     expect(humanizeAuthorizeCallbackError("   ", "")).toContain("complete response");
     expect(humanizeAuthorizeCallbackError("   ", "")).not.toMatch(/\(\s*\)/u);
