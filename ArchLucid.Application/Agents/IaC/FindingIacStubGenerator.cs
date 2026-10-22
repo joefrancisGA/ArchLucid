@@ -115,6 +115,7 @@ public sealed class FindingIacStubGenerator(
     private static string NormalizeLlmStubBody(string stub)
     {
         string trimmed = TryUnwrapJsonStringLiteral(stub.Trim());
+        trimmed = trimmed.TrimStart('\uFEFF');
 
         if (!trimmed.StartsWith("```", StringComparison.Ordinal))
             return trimmed;
