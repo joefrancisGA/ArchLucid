@@ -2842,6 +2842,14 @@
 
 ## Zone: scim-users
 
+2026-10-22 thorough hunt #6 (dry): cheap-disproof closed five picker `(candidate)` rows (`startIndex=0` and negative indices normalize to RFC 1-based paging in controller and `ScimUserService.ListAsync`; JSON number/boolean POST roots fail `ParseUser` non-object `invalidSyntax`; empty `Operations` array is intentional no-op PATCH; PUT patch envelope fails `ParseUser` required User shape; `count=0` empty page covered by `ListAsync_count_zero_returns_empty_page_with_total_results`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `startIndex=0` vs default — **cheap-disproof 2026-10-22 #6:** lines 39–40 clamp `< 1` to `1`; service `Math.Max(1, startIndex)`; list response uses normalized index per RFC 7644 §3.4.2.2.
+- [x] (invalid) `ScimUsersController.CreateAsync` — JSON number/boolean root — **cheap-disproof 2026-10-22 #6:** `ScimUserResourceParser.ParseUser` requires `JsonValueKind.Object` → `invalidSyntax` (same class as array root #5).
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `Operations: []` — **cheap-disproof 2026-10-22 #6:** `ScimPatchOpEvaluator.ApplyFlat` iterates zero ops; returns unchanged flat map (no-op patch).
+- [x] (invalid) `ScimUsersController.ReplaceAsync` — PUT SCIM patch envelope — **cheap-disproof 2026-10-22 #6:** `ReplaceAsync` → `ParseUser`; missing `userName` / wrong shape → `invalidSyntax`/`invalidValue`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count=0` paging — **cheap-disproof 2026-10-22 #6:** `Math.Clamp(count, 0, 200)`; regression `ListAsync_count_zero_returns_empty_page_with_total_results`; controller forwards `count` unchanged.
+
 2026-10-22 thorough hunt #5 (dry): cheap-disproof closed five picker `(candidate)` rows (JSON array POST root rejected by `ParseUser` `invalidSyntax`; Replace/Patch deserialize OCE rethrow matches Create; `filter=` and omitted filter both normalize to null via `ScimFilterParser.Parse`; whitespace-only body fails JSON deserialize to `invalidSyntax`; empty PATCH `{}` maps to `invalidSyntax` for missing `Operations`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Defender WIP compile).
 
 - [x] (invalid) `ScimUsersController.CreateAsync` — JSON array root POST body — **cheap-disproof 2026-10-22 #5:** `ParseUser` requires `JsonValueKind.Object` → `invalidSyntax`.
@@ -2911,9 +2919,9 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 39
+- **hunts:** 40
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 5
+- **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — SCIM POST/PUT/PATCH mapped canceled JSON reads to invalidSyntax 400
 - **related-pd-tb:** none
@@ -3040,11 +3048,17 @@
 - [x] (valid-no-repro) `ScimUsersController.CreateAsync` — whitespace-only body — **cheap-disproof 2026-10-22 #5:** `JsonException` → `invalidSyntax`.
 - [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `{}` without `Operations` — **cheap-disproof 2026-10-22 #5:** `ScimPatchOpEvaluator` `invalidSyntax`.
 
-- [ ] (candidate) `ScimUsersController.ListAsync` — `startIndex=0` query vs omitted/`startIndex=1` default — locus: controller normalizes `< 1` to `1` ~39–40; input: `?startIndex=0` (verify RFC list paging).
-- [ ] (candidate) `ScimUsersController.CreateAsync` — POST with JSON number/boolean root instead of object — locus: `ParseUser` ~9–10; input: `123` or `true` body (expect `invalidSyntax`).
-- [ ] (candidate) `ScimUsersController.PatchAsync` — PATCH with `Operations: []` empty array — locus: `ScimPatchOpEvaluator.ApplyFlat` ~19–21; input: no-op patch vs `invalidSyntax`/`invalidValue`.
-- [ ] (candidate) `ScimUsersController.ReplaceAsync` — PUT with SCIM patch envelope (`Operations` array) instead of User resource — locus: `ReplaceAsync` → `ParseUser`; input: wrong content shape from misconfigured client.
-- [ ] (candidate) `ScimUsersController.ListAsync` — `count=0` returns empty page with preserved `totalResults` — locus: `ScimUserService.ListAsync` clamp; input: regression `ListAsync_count_zero_returns_empty_page_with_total_results` (verify controller forwards zero).
+- [x] (invalid) `ScimUsersController.ListAsync` — `startIndex=0` — **cheap-disproof 2026-10-22 #6:** normalized to `1` (controller + service).
+- [x] (invalid) `ScimUsersController.CreateAsync` — number/boolean root — **cheap-disproof 2026-10-22 #6:** `ParseUser` non-object `invalidSyntax`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — empty `Operations` — **cheap-disproof 2026-10-22 #6:** no-op patch by design.
+- [x] (invalid) `ScimUsersController.ReplaceAsync` — patch envelope on PUT — **cheap-disproof 2026-10-22 #6:** `ParseUser` rejects non-User resource.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count=0` — **cheap-disproof 2026-10-22 #6:** service clamp + existing unit regression.
+
+- [ ] (candidate) `ScimUsersController.CreateAsync` — POST JSON literal `null` root — locus: `JsonSerializer.DeserializeAsync<JsonElement>` then `ParseUser` ~9–10; input: body `null` (expect `invalidSyntax` via non-object guard).
+- [ ] (candidate) `ScimUsersController.ListAsync` — negative `startIndex` (e.g. `?startIndex=-5`) — locus: controller `< 1` clamp ~39–40 and `ScimUserService.ListAsync` `Math.Max(1, startIndex)`; input: same first page as `startIndex=1`.
+- [ ] (candidate) `ScimUsersController.ReplaceAsync` — PUT User object missing `userName` — locus: `ScimUserResourceParser.ReadRequiredString`; input: `{"active":true}` only (expect `invalidValue`).
+- [ ] (candidate) `ScimUsersController.PatchAsync` — PATCH JSON string root — locus: `ScimPatchOpEvaluator.ApplyFlat` ~14–15; input: `"not-an-object"` body (expect `invalidSyntax`).
+- [ ] (candidate) `ScimUsersController.CreateAsync` — POST User with `active` as JSON number `0`/`1` — locus: `ReadActive` ~42–47; input: numeric active accepted vs strict boolean-only clients.
 
 - [x] (proven) `ScimUserService.CreateAsync` / `PatchAsync` / `ScimUsersController` — a second live user with the same `userName` and a different `externalId` was stored, including case-only names — **hit 2026-10-09 seed hunt:** live `userName` lookup returns `uniqueness`. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
 - [x] (proven) `ScimFilterParser.ParseFilter` / `ScimUsersController.ListAsync` — ungrouped `or` before `and` was parsed left-to-right, so an active user matching only the left comparison was omitted — **hit 2026-10-09 seed hunt:** `not` over `and` over `or` per RFC 7644 §3.4.2.2. Regressions `ListAsync_filter_gives_and_precedence_over_or`, `Parse_or_binds_looser_than_and`, and `Parse_not_binds_tighter_than_and`.
