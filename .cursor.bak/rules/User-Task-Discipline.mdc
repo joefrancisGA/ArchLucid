@@ -1,0 +1,15 @@
+---
+alwaysApply: true
+---
+
+# User task discipline (project preferences)
+
+Mirror of permanent user preferences for how agents should execute work. **`docs/library/CSHARP_HOUSE_STYLE.md`** (§ The non-negotiables) is the human-readable index; keep them aligned when editing either place.
+
+1. **No silent uncertainty.** If something is unclear during a task — scope, tradeoff, or fact — state it explicitly. Do not make a silent choice and move on. (Ambiguity before coding is also covered by architectural-intent rules; this extends that to mid-task.)
+
+2. **Minimum code, nothing speculative.** Write only what the task requires. Do not add methods, classes, parameters, or abstractions that were not asked for.
+
+3. **Surgical edits.** Touch only files and lines the task requires. Do not refactor, reformat, or rename outside the scope of the change.
+
+4. **Success criteria and verification.** Before starting substantive work, state brief acceptance criteria. Do not declare the task done until those criteria are met or the user explicitly defers them.

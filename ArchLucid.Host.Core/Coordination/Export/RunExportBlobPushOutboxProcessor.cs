@@ -1,0 +1,387 @@
+using System.Diagnostics;
+
+using ArchLucid.Application.Analysis;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Security;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Coordination;
+using ArchLucid.Persistence.Coordination.Export;
+using ArchLucid.Persistence.Queries;
+
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+
+using Serilog.Context;
+
+namespace ArchLucid.Host.Core.Coordination.Export;
+
+/// <inheritdoc cref="IRunExportBlobPushOutboxProcessor" />
+public sealed class RunExportBlobPushOutboxProcessor(
+    IServiceScopeFactory scopeFactory,
+    IOptions<RunExportBlobPushOutboxProcessorOptions> processorOptions,
+    TimeProvider timeProvider,
+    ILogger<RunExportBlobPushOutboxProcessor> logger)
+    : RecoverableOutboxProcessorBase<
+            RunExportBlobPushOutboxEntry,
+            IRunExportBlobPushOutboxRepository,
+            RunExportBlobPushOutboxProcessorOptions>(
+        scopeFactory,
+        processorOptions,
+        timeProvider,
+        logger),
+        IRunExportBlobPushOutboxProcessor
+{
+    protected override int GetMaxConcurrentBatchEntries(RunExportBlobPushOutboxProcessorOptions opts) =>
+        opts.MaxConcurrentBatchEntries;
+
+    protected override void LogProcessingFailure(Exception fault, RunExportBlobPushOutboxEntry entry)
+    {
+        if (Logger.IsEnabled(LogLevel.Warning))
+        {
+            Logger.LogWarning(
+                fault,
+                "Run export blob push outbox processing failed for outbox {OutboxId}, run {RunId}.",
+                entry.OutboxId,
+                entry.RunId);
+        }
+    }
+
+    protected override async Task OnDeadLetterAsync(
+        IServiceScope scope,
+        RunExportBlobPushOutboxEntry entry,
+        string summary,
+        RunExportBlobPushOutboxProcessorOptions opts,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scopeContext = new()
+        {
+            TenantId = entry.TenantId,
+            WorkspaceId = entry.WorkspaceId,
+            ProjectId = entry.ProjectId
+        };
+
+        using IDisposable ambientScope = AmbientScopeContext.Push(scopeContext);
+
+        IAuditService auditService = scope.ServiceProvider.GetRequiredService<IAuditService>();
+        ArchLucidInstrumentation.RecordRunExportBlobPushOutboxDeadLettered();
+        await LogDeadLetterAuditAsync(auditService, entry.RunId, cancellationToken).ConfigureAwait(false);
+
+        if (Logger.IsEnabled(LogLevel.Error))
+        {
+            Logger.LogError(
+                "Run export blob push outbox dead-lettered outbox {OutboxId}, run {RunId}, after exhausting retries ({Max}). Summary={Summary}",
+                entry.OutboxId,
+                entry.RunId,
+                opts.MaxAttemptsBeforeDeadLetter,
+                summary);
+        }
+    }
+
+    protected override Task OnRetryScheduledAsync(
+        RunExportBlobPushOutboxEntry entry,
+        RunExportBlobPushOutboxProcessorOptions opts,
+        CancellationToken cancellationToken)
+    {
+        ArchLucidInstrumentation.RecordRunExportBlobPushOutboxRetryScheduled();
+
+        return Task.CompletedTask;
+    }
+
+    protected override async Task ProcessEntryAsync(
+        IServiceScope scope,
+        IRunExportBlobPushOutboxRepository outbox,
+        RunExportBlobPushOutboxEntry entry,
+        RunExportBlobPushOutboxProcessorOptions opts,
+        CancellationToken cancellationToken)
+    {
+        IRunExportPackageBuilder packageBuilder =
+            scope.ServiceProvider.GetRequiredService<IRunExportPackageBuilder>();
+        IRunExportBlobPushService pushService =
+            scope.ServiceProvider.GetRequiredService<IRunExportBlobPushService>();
+        IAuditService auditService = scope.ServiceProvider.GetRequiredService<IAuditService>();
+
+        using Activity? activity = ArchLucidInstrumentation.AuthorityRun.StartActivity(
+            "RunExportBlobPushOutbox.ProcessEntry");
+        string correlationId = FormattableString.Invariant($"run-export-blob-outbox:{entry.OutboxId:D}");
+        activity?.SetTag(ActivityCorrelation.LogicalCorrelationIdTag, correlationId);
+        activity?.SetTag("archlucid.run_id", entry.RunId.ToString("D"));
+        activity?.SetTag("archlucid.outbox_id", entry.OutboxId.ToString("D"));
+
+        ScopeContext scopeContext = new()
+        {
+            TenantId = entry.TenantId,
+            WorkspaceId = entry.WorkspaceId,
+            ProjectId = entry.ProjectId
+        };
+
+        ActivityScopeTags.ApplyTenantWorkspace(activity, scopeContext);
+
+        using IDisposable _ = LogContext.PushProperty("CorrelationId", correlationId);
+        using IDisposable ambientScope = AmbientScopeContext.Push(scopeContext);
+
+        IAuthorityQueryService authorityQueryService =
+            scope.ServiceProvider.GetRequiredService<IAuthorityQueryService>();
+        IManifestHashService manifestHashService =
+            scope.ServiceProvider.GetRequiredService<IManifestHashService>();
+
+        RunDetailDto? manifestCompareDetail = await authorityQueryService
+            .GetRunDetailForManifestCompareAsync(scopeContext, entry.RunId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (manifestCompareDetail?.GoldenManifest is null)
+        {
+            await MarkExportPushProcessedAsync(
+                outbox,
+                entry.OutboxId,
+                cancellationToken,
+                postMarkObservability: () =>
+                {
+                    if (Logger.IsEnabled(LogLevel.Warning))
+                    {
+                        Logger.LogWarning(
+                            "Skipping run export blob push for run {RunId}: run detail no longer found.",
+                            entry.RunId);
+                    }
+                }).ConfigureAwait(false);
+
+            return;
+        }
+
+        RunExportBlobPushSealedManifestHashGuard.EnsureGoldenManifestSealedHashOrThrow(
+            manifestCompareDetail.GoldenManifest,
+            entry.RunId,
+            manifestHashService);
+
+        string? sasRejection =
+            await AllowedRunExportBlobDestinationUrlPolicy
+                .TryGetRejectionReasonAfterDnsResolveAsync(entry.DestinationSasUrl, cancellationToken)
+                .ConfigureAwait(false);
+
+        if (sasRejection is not null)
+        {
+            await RecordDirectDeadLetterAsync(
+                outbox,
+                auditService,
+                entry,
+                sasRejection,
+                () =>
+                {
+                    if (Logger.IsEnabled(LogLevel.Warning))
+                    {
+                        Logger.LogWarning(
+                            "Run export blob push outbox dead-lettered outbox {OutboxId}, run {RunId}: destination rejected at processing time.",
+                            entry.OutboxId,
+                            entry.RunId);
+                    }
+                },
+                cancellationToken);
+
+            return;
+        }
+
+        RunExportPackageResult packageResult = await packageBuilder.BuildAsync(
+            scopeContext,
+            entry.RunId,
+            renderedDiagramPng: null,
+            cancellationToken);
+
+        if (!packageResult.Found)
+        {
+            if (packageResult.IsConflict)
+            {
+                await RecordDirectDeadLetterAsync(
+                    outbox,
+                    auditService,
+                    entry,
+                    packageResult.NotFoundReason ?? "Run export blocked by sealed receipt verification.",
+                    () =>
+                    {
+                        if (Logger.IsEnabled(LogLevel.Warning))
+                        {
+                            Logger.LogWarning(
+                                "Run export blob push outbox dead-lettered outbox {OutboxId}, run {RunId}: sealed receipt verification blocked export.",
+                                entry.OutboxId,
+                                entry.RunId);
+                        }
+                    },
+                    cancellationToken);
+
+                return;
+            }
+
+            await MarkExportPushProcessedAsync(
+                outbox,
+                entry.OutboxId,
+                cancellationToken,
+                postMarkObservability: () =>
+                {
+                    if (Logger.IsEnabled(LogLevel.Warning))
+                    {
+                        Logger.LogWarning(
+                            "Skipping run export blob push for run {RunId}: {Reason}",
+                            entry.RunId,
+                            packageResult.NotFoundReason);
+                    }
+                }).ConfigureAwait(false);
+
+            return;
+        }
+
+        if (packageResult.ZipContent is null || packageResult.ZipContent.Length == 0)
+        {
+            string deadLetterReason = FormattableString.Invariant(
+                $"Run export ZIP for run '{entry.RunId:D}' was empty.");
+            await RecordDirectDeadLetterAsync(
+                outbox,
+                auditService,
+                entry,
+                deadLetterReason,
+                () =>
+                {
+                    if (Logger.IsEnabled(LogLevel.Error))
+                    {
+                        Logger.LogError(
+                            "Run export blob push outbox dead-lettered outbox {OutboxId}, run {RunId}: empty export ZIP.",
+                            entry.OutboxId,
+                            entry.RunId);
+                    }
+                },
+                cancellationToken);
+
+            return;
+        }
+
+        try
+        {
+            await pushService.PushAsync(
+                entry.RunId,
+                packageResult.ZipContent,
+                entry.DestinationSasUrl,
+                cancellationToken);
+        }
+        catch (InvalidOperationException ex)
+        {
+            await RecordDirectDeadLetterAsync(
+                outbox,
+                auditService,
+                entry,
+                Persistence.Orchestration.AuthorityPipelineWorkErrorSummary.From(ex),
+                () =>
+                {
+                    if (Logger.IsEnabled(LogLevel.Error))
+                    {
+                        Logger.LogError(
+                            ex,
+                            "Run export blob push outbox dead-lettered outbox {OutboxId}, run {RunId}: non-retryable push failure.",
+                            entry.OutboxId,
+                            entry.RunId);
+                    }
+                },
+                cancellationToken);
+
+            return;
+        }
+
+        await MarkExportPushProcessedAsync(outbox, entry.OutboxId, cancellationToken).ConfigureAwait(false);
+    }
+
+    private static async Task MarkExportPushProcessedAsync(
+        IRunExportBlobPushOutboxRepository outbox,
+        Guid outboxId,
+        CancellationToken cancellationToken,
+        Action? postMarkObservability = null)
+    {
+        await outbox.MarkProcessedAsync(outboxId, cancellationToken).ConfigureAwait(false);
+
+        try
+        {
+            ArchLucidInstrumentation.RecordRunExportBlobPushOutboxProcessedSuccess();
+            postMarkObservability?.Invoke();
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            // The outbox row is already marked processed; observability must not schedule a retry.
+        }
+    }
+
+    protected override RunExportBlobPushOutboxProcessorOptions VerifyOptions(
+        RunExportBlobPushOutboxProcessorOptions configured)
+    {
+        ArgumentNullException.ThrowIfNull(configured);
+
+        (int lease, int maxAttempts, int baseSecs, int maxSecs, int maxConcurrent) =
+            OutboxProcessorOptionsVerifier.NormalizeParallelLeaseRetry(
+                configured.LeaseDurationSeconds,
+                configured.MaxAttemptsBeforeDeadLetter,
+                configured.RetryBackoffBaseSeconds,
+                configured.RetryBackoffMaxSeconds,
+                configured.MaxConcurrentBatchEntries,
+                MaxBatchSize);
+
+        return new RunExportBlobPushOutboxProcessorOptions
+        {
+            LeaseDurationSeconds = lease,
+            MaxAttemptsBeforeDeadLetter = maxAttempts,
+            RetryBackoffBaseSeconds = baseSecs,
+            RetryBackoffMaxSeconds = maxSecs,
+            MaxConcurrentBatchEntries = maxConcurrent,
+        };
+    }
+
+    private async Task RecordDirectDeadLetterAsync(
+        IRunExportBlobPushOutboxRepository outbox,
+        IAuditService auditService,
+        RunExportBlobPushOutboxEntry entry,
+        string reason,
+        Action logTerminalState,
+        CancellationToken cancellationToken)
+    {
+        await outbox.RecordDeadLetterAsync(entry.OutboxId, reason, cancellationToken).ConfigureAwait(false);
+
+        try
+        {
+            ArchLucidInstrumentation.RecordRunExportBlobPushOutboxDeadLettered();
+            await LogDeadLetterAuditAsync(auditService, entry.RunId, cancellationToken).ConfigureAwait(false);
+            logTerminalState();
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            // The terminal outbox state is already persisted; observability must not schedule a retry.
+        }
+    }
+
+    [InformationalAudit]
+    private static async Task LogDeadLetterAuditAsync(IAuditService auditService, Guid runId, CancellationToken ct)
+    {
+        try
+        {
+            await auditService.LogAsync(
+                    new AuditEvent
+                    {
+                        EventType = AuditEventTypes.RunExportBlobPushDeadLettered,
+                        RunId = runId
+                    },
+                    ct)
+                .ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            // The terminal outbox state is already persisted; audit failure must not schedule a retry.
+        }
+    }
+}

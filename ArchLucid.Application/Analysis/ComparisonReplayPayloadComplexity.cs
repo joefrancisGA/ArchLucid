@@ -1,0 +1,263 @@
+using System.Text.Json;
+
+namespace ArchLucid.Application.Analysis;
+
+/// <summary>
+///     Lightweight payload inspection for <see cref="ComparisonReplayCostEstimator"/> — no replay execution.
+/// </summary>
+internal static partial class ComparisonReplayPayloadComplexity
+{
+    /// <summary>Caps heuristic bump from JSON inspection (format/replay-mode scoring is separate).</summary>
+    private const int MaxPayloadBump = 18;
+
+    /// <summary>Returns a non-negative score bump (typically 0–18) from structured comparison JSON.</summary>
+    public static int ScorePayloadComplexity(string payloadJson, ICollection<string> factors)
+    {
+        ArgumentNullException.ThrowIfNull(factors);
+
+        if (string.IsNullOrWhiteSpace(payloadJson))
+            return 0;
+
+        try
+        {
+            using JsonDocument doc = JsonDocument.Parse(payloadJson);
+            JsonElement root = doc.RootElement;
+
+            int bump = 0;
+
+            if (root.ValueKind == JsonValueKind.Object && LooksLikeEndToEndReport(root))
+                bump += ScoreEndToEndReportShape(root, factors);
+            else if (root.ValueKind == JsonValueKind.Object && LooksLikeExportRecordDiff(root))
+                bump += ScoreExportRecordDiffShape(root, factors);
+
+            if (ShouldScoreLegacyManifestDelta(root))
+            {
+                if (TryCountCollection(root, "manifestDelta", out int manifestDeltaCount))
+                {
+                    if (manifestDeltaCount > 80)
+                    {
+                        bump += 4;
+                        factors.Add($"Large manifest delta surface (~{manifestDeltaCount} entries) increases replay work.");
+                    }
+                    else if (manifestDeltaCount > 25)
+                    {
+                        bump += 2;
+                        factors.Add("Moderate manifest delta increases formatting and validation cost.");
+                    }
+                }
+            }
+
+            if (TryCountCollection(root, "decisionsDelta", out int decisionsDeltaCount) && decisionsDeltaCount > 15)
+            {
+                bump += 1;
+                factors.Add("Many decision deltas contribute additional narrative diff cost.");
+            }
+
+            if (TryCountCollection(root, "tasks", out int tasksCount) && tasksCount > 12)
+            {
+                bump += 2;
+                factors.Add("Stored comparison references many agent/task rows — expect heavier regeneration.");
+            }
+
+            if (TrySumNumericArray(root, "artifactSizesBytes", out long artifactBytes) && artifactBytes > 2_000_000)
+            {
+                bump += 2;
+                factors.Add("Large referenced artifact payload sizes increase IO during regenerate/verify.");
+            }
+            else if (TrySumNumericArray(root, "artifactSizesBytes", out artifactBytes) && artifactBytes > 500_000)
+            {
+                bump += 1;
+                factors.Add("Moderate referenced artifact sizes increase IO during regenerate/verify.");
+            }
+
+            return Math.Clamp(bump, 0, MaxPayloadBump);
+        }
+        catch (JsonException)
+        {
+            factors.Add("Payload JSON is not structured — replay cost may vary at execution time.");
+            return 1;
+        }
+    }
+
+    private static bool LooksLikeEndToEndReport(JsonElement root) =>
+        TryGetPropertyIgnoreCase(root, "runDiff", out _) || TryGetPropertyIgnoreCase(root, "manifestDiff", out _) ||
+        TryGetPropertyIgnoreCase(root, "agentResultDiff", out _) || TryGetPropertyIgnoreCase(root, "exportDiffs", out _) ||
+        TryGetPropertyIgnoreCase(root, "interpretationNotes", out _);
+
+    private static bool LooksLikeExportRecordDiff(JsonElement root) =>
+        TryGetPropertyIgnoreCase(root, "changedTopLevelFields", out _) && TryGetPropertyIgnoreCase(root, "requestDiff", out _);
+
+    private static bool ShouldScoreLegacyManifestDelta(JsonElement root) =>
+        !TryGetPropertyIgnoreCase(root, "manifestDiff", out _);
+
+    private static int ScoreEndToEndReportShape(JsonElement root, ICollection<string> factors)
+    {
+        int bump = 0;
+
+        if (TryGetPropertyIgnoreCase(root, "manifestDiff", out JsonElement manifestDiff) &&
+            manifestDiff.ValueKind == JsonValueKind.Object)
+            bump += ScoreManifestDiff(manifestDiff, factors);
+
+        if (TryGetPropertyIgnoreCase(root, "agentResultDiff", out JsonElement agentResultDiff) &&
+            agentResultDiff.ValueKind == JsonValueKind.Object &&
+            TryGetPropertyIgnoreCase(agentResultDiff, "agentDeltas", out JsonElement deltas) &&
+            deltas.ValueKind == JsonValueKind.Array)
+            bump += ScoreAgentResultDiff(deltas, factors);
+
+        if (TryGetPropertyIgnoreCase(root, "exportDiffs", out JsonElement exportDiffs) && exportDiffs.ValueKind == JsonValueKind.Array)
+        {
+            int n = exportDiffs.GetArrayLength();
+
+            if (n > 8)
+            {
+                bump += 3;
+                factors.Add($"Many paired export record diffs ({n}) — replay touches multiple export comparisons.");
+            }
+            else if (n > 3)
+            {
+                bump += 2;
+                factors.Add($"Several export record diffs ({n}) add export pipeline work to replay.");
+            }
+            else if (n > 0)
+            {
+                bump += 1;
+                factors.Add("Export record diffs included — extra export sections in formatted output.");
+            }
+        }
+
+        if (TryGetPropertyIgnoreCase(root, "runDiff", out JsonElement runDiff) && runDiff.ValueKind == JsonValueKind.Object &&
+            TryGetPropertyIgnoreCase(runDiff, "changedFields", out JsonElement changedFields) &&
+            changedFields.ValueKind == JsonValueKind.Array)
+        {
+            int n = changedFields.GetArrayLength();
+
+            if (n > 12)
+            {
+                bump += 2;
+                factors.Add("Run metadata differs across many fields — broader regeneration and narrative scope.");
+            }
+            else if (n > 5)
+            {
+                bump += 1;
+                factors.Add("Run metadata includes several changed fields versus a tight metadata diff.");
+            }
+        }
+
+        return bump;
+    }
+
+    private static int ScoreExportRecordDiffShape(JsonElement root, ICollection<string> factors)
+    {
+        int bump = 0;
+
+        if (TryGetPropertyIgnoreCase(root, "changedTopLevelFields", out JsonElement fields) && fields.ValueKind == JsonValueKind.Array)
+        {
+            int n = fields.GetArrayLength();
+
+            if (n > 12)
+            {
+                bump += 3;
+                factors.Add("Export records differ across many top-level fields — larger diff and formatting scope.");
+            }
+            else if (n > 6)
+            {
+                bump += 2;
+                factors.Add("Export records differ across multiple top-level fields.");
+            }
+            else if (n > 0)
+            {
+                bump += 1;
+                factors.Add("Export record top-level fields changed — additional diff narrative.");
+            }
+        }
+
+        if (TryGetPropertyIgnoreCase(root, "requestDiff", out JsonElement requestDiff) && requestDiff.ValueKind == JsonValueKind.Object)
+        {
+            int flags = TryGetPropertyIgnoreCase(requestDiff, "changedFlags", out JsonElement cf) && cf.ValueKind == JsonValueKind.Array
+                ? cf.GetArrayLength()
+                : 0;
+            int values = TryGetPropertyIgnoreCase(requestDiff, "changedValues", out JsonElement cv) && cv.ValueKind == JsonValueKind.Array
+                ? cv.GetArrayLength()
+                : 0;
+            int requestSurface = flags + values;
+
+            if (requestSurface > 20)
+            {
+                bump += 2;
+                factors.Add("Export request diff has many flag/value changes — deeper payload comparison during replay.");
+            }
+            else if (requestSurface > 8)
+            {
+                bump += 1;
+                factors.Add("Export request diff includes several flag or value changes.");
+            }
+        }
+
+        return bump;
+    }
+
+    private static int SumListLengths(JsonElement obj, string[] listPropertyNames)
+    {
+        int sum = 0;
+
+        foreach (string name in listPropertyNames)
+        {
+            if (!TryGetPropertyIgnoreCase(obj, name, out JsonElement arr) || arr.ValueKind != JsonValueKind.Array)
+                continue;
+
+            sum += arr.GetArrayLength();
+        }
+
+        return sum;
+    }
+
+    private static bool TryCountCollection(JsonElement root, string propertyName, out int count)
+    {
+        count = 0;
+
+        if (!TryGetPropertyIgnoreCase(root, propertyName, out JsonElement prop))
+            return false;
+
+        if (prop.ValueKind == JsonValueKind.Array)
+        {
+            count = prop.GetArrayLength();
+            return true;
+        }
+
+        if (prop.ValueKind == JsonValueKind.Object)
+        {
+            int n = 0;
+
+            foreach (JsonProperty _ in prop.EnumerateObject())
+
+                n++;
+
+            count = n;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TrySumNumericArray(JsonElement root, string propertyName, out long sum)
+    {
+        sum = 0;
+
+        if (!TryGetPropertyIgnoreCase(root, propertyName, out JsonElement arr) || arr.ValueKind != JsonValueKind.Array ||
+            arr.GetArrayLength() == 0)
+            return false;
+
+        foreach (JsonElement item in arr.EnumerateArray())
+        {
+            if (item.TryGetInt64(out long v))
+
+                sum += v;
+
+            else if (item.TryGetDouble(out double d))
+
+                sum += (long)d;
+        }
+
+        return true;
+    }
+}

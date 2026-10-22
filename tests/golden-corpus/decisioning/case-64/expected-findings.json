@@ -1,0 +1,114 @@
+[
+  {
+    "findingId": "479bbe91-6d5a-2d9b-7344-f049afd04381",
+    "findingType": "RequirementExpectationFinding",
+    "category": "Requirement",
+    "severity": "Warning",
+    "title": "Workload-conditioned requirement themes are incomplete",
+    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "relatedNodeIds": [
+      "ctx-golden-64",
+      "sql-prod-64"
+    ],
+    "payloadType": "RequirementExpectationFindingPayload",
+    "rulesApplied": [
+      "requirement-expectation-workload-scope"
+    ],
+    "decisionsTaken": [
+      "Compared workload-conditioned requirement themes to themes inferred from requirement nodes."
+    ]
+  },
+  {
+    "findingId": "8b078507-5aaf-e821-dd76-198763a83c21",
+    "findingType": "SecurityBaselineCompletenessFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Workload security baseline control-family coverage is incomplete",
+    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "relatedNodeIds": [
+      "ctx-golden-64",
+      "sql-prod-64"
+    ],
+    "payloadType": "SecurityBaselineCompletenessFindingPayload",
+    "rulesApplied": [
+      "security-baseline-completeness-matrix"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected control families to families inferred from active security baseline nodes."
+    ]
+  },
+  {
+    "findingId": "393a7e88-4988-8796-b28e-12ad68b528ea",
+    "findingType": "SecurityBaselineExpectationFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Category-scoped security baseline coverage is incomplete",
+    "rationale": "Workload-expected topology categories lack any protected resources linked by security baseline PROTECTS edges.",
+    "relatedNodeIds": [
+      "ctx-golden-64",
+      "sql-prod-64"
+    ],
+    "payloadType": "SecurityBaselineExpectationFindingPayload",
+    "rulesApplied": [
+      "security-baseline-category-expectation"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected topology categories to categories with protected resources."
+    ]
+  },
+  {
+    "findingId": "b11b9f61-5eef-7a0c-1675-83a27aba5e35",
+    "findingType": "SecurityCoverageFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Some topology resources are not protected by any security baseline nodes",
+    "rationale": "Security protection coverage is incomplete for the current topology graph.",
+    "relatedNodeIds": [
+      "prod-sql"
+    ],
+    "payloadType": "SecurityCoverageFindingPayload",
+    "rulesApplied": [
+      "security-coverage-protection"
+    ],
+    "decisionsTaken": [
+      "Compared topology resources against PROTECTS edges."
+    ]
+  },
+  {
+    "findingId": "42bfd2ca-ff87-f1c5-c717-44c033d5613a",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "Topology coverage is incomplete",
+    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "relatedNodeIds": [
+      "sql-prod-64"
+    ],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-categories"
+    ],
+    "decisionsTaken": [
+      "Compared present topology categories to expected coverage categories."
+    ]
+  },
+  {
+    "findingId": "ad8e05a8-ebf0-2c6d-f35a-d4193304736e",
+    "findingType": "TopologySecurityDriftFinding",
+    "category": "Security",
+    "severity": "Error",
+    "title": "Replica or failover evidence removed from \u0027prod-sql\u0027 since the prior sealed graph.",
+    "rationale": "Replica or failover evidence present on the prior graph is absent on the current graph.",
+    "relatedNodeIds": [
+      "sql-prod-64"
+    ],
+    "payloadType": "TopologySecurityDriftFindingPayload",
+    "rulesApplied": [
+      "ReplicaOrFailoverRemoved",
+      "topology-security-drift"
+    ],
+    "decisionsTaken": [
+      "Compared current graph node \u0027prod-sql\u0027 to prior graph snapshot 00000065-0000-4000-8000-000000000064."
+    ]
+  }
+]

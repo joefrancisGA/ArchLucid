@@ -1,0 +1,53 @@
+{
+  "_comment": "Stryker label → production path prefixes. Narrower entries are listed first; picker picks the narrowest match.",
+  "labels": [
+    {
+      "label": "ApplicationGraphMergeProperties",
+      "pathPrefixes": [
+        "ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs",
+        "ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs",
+        "ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs"
+      ]
+    },
+    {
+      "label": "ApplicationCommitCriticalPaths",
+      "pathPrefixes": [
+        "ArchLucid.Application/Governance/",
+        "ArchLucid.Application/Runs/Orchestration/AuthorityDrivenArchitectureRunCommitOrchestrator.cs",
+        "ArchLucid.Application/Runs/Finalization/ManifestFinalizationService.cs"
+      ]
+    },
+    {
+      "label": "ApplicationGovernance",
+      "pathPrefixes": ["ArchLucid.Application/Governance/"]
+    },
+    {
+      "label": "PersistenceCoordination",
+      "pathPrefixes": ["ArchLucid.Persistence/Coordination/"]
+    },
+    {
+      "label": "DecisioningMerge",
+      "pathPrefixes": ["ArchLucid.Decisioning/Merge/"]
+    },
+    {
+      "label": "Persistence",
+      "pathPrefixes": ["ArchLucid.Persistence/"]
+    },
+    {
+      "label": "Application",
+      "pathPrefixes": ["ArchLucid.Application/"]
+    },
+    {
+      "label": "Decisioning",
+      "pathPrefixes": ["ArchLucid.Decisioning/"]
+    },
+    {
+      "label": "AgentRuntime",
+      "pathPrefixes": ["ArchLucid.AgentRuntime/"]
+    },
+    {
+      "label": "Api",
+      "pathPrefixes": ["ArchLucid.Api/"]
+    }
+  ]
+}

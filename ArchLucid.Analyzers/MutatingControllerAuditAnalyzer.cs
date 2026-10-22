@@ -1,0 +1,701 @@
+using System.Collections.Immutable;
+
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Diagnostics;
+
+namespace ArchLucid.Analyzers;
+
+[DiagnosticAnalyzer(LanguageNames.CSharp)]
+public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
+{
+    internal const string HttpPostAttributeShortName = "HttpPostAttribute";
+    internal const string HttpPutAttributeShortName = "HttpPutAttribute";
+    internal const string HttpDeleteAttributeShortName = "HttpDeleteAttribute";
+    internal const string HttpPatchAttributeShortName = "HttpPatchAttribute";
+    internal const string HttpMethodAttributeShortName = "HttpMethodAttribute";
+    internal const string AcceptVerbsAttributeShortName = "AcceptVerbsAttribute";
+
+    private static readonly SymbolDisplayFormat AllowlistFqTypeFormat =
+        new(globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Omitted,
+            typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces);
+
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
+    {
+        get;
+    } =
+        [Al0003MutatingControllerAuditDescriptor.Rule];
+
+    public override void Initialize(AnalysisContext analysisContext)
+    {
+        analysisContext.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
+        analysisContext.EnableConcurrentExecution();
+        analysisContext.RegisterCompilationStartAction(OnCompilationStart);
+    }
+
+    private static void OnCompilationStart(CompilationStartAnalysisContext compilationStartAnalysisContext)
+    {
+        Compilation compilation = compilationStartAnalysisContext.Compilation;
+
+        if (!string.Equals(compilation.AssemblyName, "ArchLucid.Api", StringComparison.Ordinal))
+            return;
+
+        INamedTypeSymbol? controllerBaseType =
+            compilation.GetTypeByMetadataName("Microsoft.AspNetCore.Mvc.ControllerBase");
+
+        INamedTypeSymbol? auditInterfaceType =
+            compilation.GetTypeByMetadataName("ArchLucid.Core.Audit.IAuditService");
+
+        INamedTypeSymbol? nonActionAttributeType =
+            compilation.GetTypeByMetadataName("Microsoft.AspNetCore.Mvc.NonActionAttribute");
+
+        INamedTypeSymbol? exclusionAttribute =
+            compilation.GetTypeByMetadataName(
+                "ArchLucid.Core.Audit.MutatingAuditExcludedAttribute");
+
+        if (controllerBaseType is null || auditInterfaceType is null)
+            return;
+
+        ImmutableHashSet<string> allowFqEntries =
+            MutatingControllerAuditAllowlist.ReadFqAllowlistEntries(
+                compilationStartAnalysisContext.Options,
+                compilationStartAnalysisContext.CancellationToken);
+
+        compilationStartAnalysisContext.RegisterSemanticModelAction(AnalyzeSemanticModel);
+        compilationStartAnalysisContext.RegisterSymbolAction(
+            symbolContext => AnalyzeReferencedBaseActions(
+                symbolContext,
+                controllerBaseType,
+                nonActionAttributeType,
+                exclusionAttribute,
+                allowFqEntries),
+            SymbolKind.NamedType);
+        return;
+
+        void AnalyzeSemanticModel(SemanticModelAnalysisContext semanticModelAnalysisContext)
+        {
+            SemanticModel semanticModelScoped = semanticModelAnalysisContext.SemanticModel;
+
+            Compilation compilationScoped = semanticModelScoped.Compilation;
+
+            if (!string.Equals(compilationScoped.AssemblyName,
+                    "ArchLucid.Api",
+                    StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            CancellationToken cancellationTokenScoped = semanticModelAnalysisContext.CancellationToken;
+            SyntaxTree syntaxTreeScoped = semanticModelScoped.SyntaxTree;
+            SyntaxNode syntaxTreeRootScoped = syntaxTreeScoped.GetRoot(cancellationTokenScoped);
+
+            foreach (MethodDeclarationSyntax methodDeclarationScoped in syntaxTreeRootScoped.DescendantNodes()
+                         .OfType<MethodDeclarationSyntax>())
+            {
+                if (methodDeclarationScoped.Body is null && methodDeclarationScoped.ExpressionBody is null) continue;
+
+                IMethodSymbol? methodDeclaredSymbol =
+                    semanticModelScoped.GetDeclaredSymbol(methodDeclarationScoped, cancellationTokenScoped);
+
+                if (methodDeclaredSymbol is null ||
+                    !MethodIsCandidateApiAction(methodDeclaredSymbol,
+                        controllerBaseType,
+                        nonActionAttributeType))
+                {
+                    continue;
+                }
+
+                if (!MethodSpecifiesTrackedVerb(methodDeclaredSymbol)) continue;
+
+                if (IsShadowedVirtualMutatingAction(methodDeclaredSymbol, compilationScoped))
+                    continue;
+
+                string fqAllowlistKeyScoped = FormatAllowlistKey(methodDeclaredSymbol);
+
+                if (allowFqEntries.Contains(fqAllowlistKeyScoped))
+                    continue;
+
+                if (MutatingAuditExcludeApplies(exclusionAttribute, methodDeclaredSymbol))
+                    continue;
+
+                if (SemanticBodiesInvokeAuditLogAsync(
+                        semanticModelScoped,
+                        auditInterfaceType,
+                        methodDeclaredSymbol,
+                        cancellationTokenScoped))
+                    continue;
+                Location identifierLocationScoped = methodDeclarationScoped.Identifier.GetLocation();
+
+                semanticModelAnalysisContext.ReportDiagnostic(
+                    Al0003MutatingControllerAuditDescriptor.Create(identifierLocationScoped,
+                        fqAllowlistKeyScoped));
+            }
+        }
+    }
+
+    private static void AnalyzeReferencedBaseActions(
+        SymbolAnalysisContext context,
+        INamedTypeSymbol controllerBaseType,
+        INamedTypeSymbol? nonActionAttributeType,
+        INamedTypeSymbol? exclusionAttribute,
+        ImmutableHashSet<string> allowFqEntries)
+    {
+        if (context.Symbol is not INamedTypeSymbol controllerType ||
+            controllerType.TypeKind != TypeKind.Class ||
+            controllerType.IsAbstract ||
+            !InheritsControllerBase(controllerType, controllerBaseType))
+        {
+            return;
+        }
+
+        for (INamedTypeSymbol? baseType = controllerType.BaseType;
+             baseType is not null &&
+             !SymbolEqualityComparer.Default.Equals(baseType, controllerBaseType);
+             baseType = baseType.BaseType)
+        {
+            foreach (IMethodSymbol method in baseType.GetMembers().OfType<IMethodSymbol>())
+            {
+                if (method.DeclaringSyntaxReferences.Length > 0 ||
+                    method.IsAbstract ||
+                    !MethodIsCandidateApiAction(method, controllerBaseType, nonActionAttributeType) ||
+                    !MethodSpecifiesTrackedVerb(method) ||
+                    IsShadowedVirtualMutatingAction(method, context.Compilation) ||
+                    MutatingAuditExcludeApplies(exclusionAttribute, method) ||
+                    allowFqEntries.Contains(FormatAllowlistKey(method)))
+                {
+                    continue;
+                }
+
+                Location? location = controllerType.Locations.FirstOrDefault();
+
+                if (location is null)
+                {
+                    continue;
+                }
+
+                context.ReportDiagnostic(
+                    Al0003MutatingControllerAuditDescriptor.Create(
+                        location,
+                        FormatAllowlistKey(method)));
+            }
+        }
+    }
+
+    internal static bool MethodIsCandidateApiAction(
+        IMethodSymbol methodDeclaredSymbol,
+        INamedTypeSymbol controllerBaseTypeSymbolScoped,
+        INamedTypeSymbol? nonActionAttributeTypeSymbolScoped)
+    {
+        if (methodDeclaredSymbol.IsStatic)
+        {
+            return false;
+        }
+
+        if (methodDeclaredSymbol.AssociatedSymbol is not null &&
+            methodDeclaredSymbol.ExplicitInterfaceImplementations.IsDefaultOrEmpty)
+        {
+            return false;
+        }
+
+        if (methodDeclaredSymbol.MethodKind == MethodKind.ExplicitInterfaceImplementation)
+        {
+            // Explicit interface actions are private in metadata but still participate in audit enforcement.
+        }
+        else if (methodDeclaredSymbol.MethodKind != MethodKind.Ordinary ||
+                 methodDeclaredSymbol.DeclaredAccessibility != Accessibility.Public)
+        {
+            return false;
+        }
+
+        if (!InheritsControllerBase(methodDeclaredSymbol.ContainingType, controllerBaseTypeSymbolScoped))
+            return false;
+
+        if (nonActionAttributeTypeSymbolScoped is null)
+            return true;
+
+        if (MethodHasAttribute(methodDeclaredSymbol, nonActionAttributeTypeSymbolScoped))
+            return false;
+
+        if (!MethodHasTrackedVerbAttribute(methodDeclaredSymbol))
+        {
+            for (IMethodSymbol? overriddenMethod = methodDeclaredSymbol.OverriddenMethod;
+                 overriddenMethod is not null;
+                 overriddenMethod = overriddenMethod.OverriddenMethod)
+            {
+                if (MethodHasAttribute(overriddenMethod, nonActionAttributeTypeSymbolScoped))
+                    return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool MethodHasAttribute(IMethodSymbol method, INamedTypeSymbol attributeType) =>
+        method.GetAttributes().Any(attribute =>
+            SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, attributeType));
+
+    private static bool IsShadowedVirtualMutatingAction(IMethodSymbol method, Compilation compilation)
+    {
+        if (!method.IsVirtual || method.IsAbstract || method.IsOverride)
+            return false;
+
+        if (!MethodHasTrackedVerbAttribute(method))
+            return false;
+
+        INamedTypeSymbol containingType = method.ContainingType;
+
+        foreach (INamedTypeSymbol candidateType in GetNamedTypesInAssembly(compilation.Assembly))
+        {
+            if (SymbolEqualityComparer.Default.Equals(candidateType, containingType) ||
+                !TypeExtends(candidateType, containingType))
+            {
+                continue;
+            }
+
+            foreach (ISymbol member in candidateType.GetMembers(method.Name))
+            {
+                if (member is not IMethodSymbol derivedMethod || !derivedMethod.IsOverride)
+                    continue;
+
+                if (OverridesMethod(derivedMethod, method))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool OverridesMethod(IMethodSymbol derivedMethod, IMethodSymbol targetMethod)
+    {
+        for (IMethodSymbol? overriddenMethod = derivedMethod.OverriddenMethod;
+             overriddenMethod is not null;
+             overriddenMethod = overriddenMethod.OverriddenMethod)
+        {
+            if (SymbolEqualityComparer.Default.Equals(overriddenMethod, targetMethod))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool TypeExtends(INamedTypeSymbol derivedType, INamedTypeSymbol baseType)
+    {
+        for (INamedTypeSymbol? walker = derivedType.BaseType;
+             walker is not null;
+             walker = walker.BaseType)
+        {
+            if (SymbolEqualityComparer.Default.Equals(walker, baseType))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static IEnumerable<INamedTypeSymbol> GetNamedTypesInAssembly(IAssemblySymbol assembly)
+    {
+        foreach (INamespaceSymbol namespaceSymbol in GetNamespaces(assembly.GlobalNamespace))
+        {
+            foreach (INamedTypeSymbol type in namespaceSymbol.GetTypeMembers())
+            {
+                foreach (INamedTypeSymbol nestedType in GetNamedTypes(type))
+                    yield return nestedType;
+            }
+        }
+    }
+
+    private static IEnumerable<INamedTypeSymbol> GetNamedTypes(INamedTypeSymbol type)
+    {
+        yield return type;
+
+        foreach (INamedTypeSymbol nestedType in type.GetTypeMembers())
+        {
+            foreach (INamedTypeSymbol descendantType in GetNamedTypes(nestedType))
+                yield return descendantType;
+        }
+    }
+
+    private static IEnumerable<INamespaceSymbol> GetNamespaces(INamespaceSymbol root)
+    {
+        yield return root;
+
+        foreach (INamespaceSymbol child in root.GetNamespaceMembers())
+        {
+            foreach (INamespaceSymbol nested in GetNamespaces(child))
+                yield return nested;
+        }
+    }
+
+    private static bool InheritsControllerBase(
+        INamedTypeSymbol declaringTypeSymbolScoped,
+        INamedTypeSymbol controllerBaseTypeSymbolScoped)
+    {
+        for (INamedTypeSymbol? walkerScoped = declaringTypeSymbolScoped;
+             walkerScoped is not null;
+             walkerScoped = walkerScoped.BaseType)
+        {
+            if (SymbolEqualityComparer.Default.Equals(walkerScoped, controllerBaseTypeSymbolScoped))
+                return true;
+        }
+
+        return false;
+    }
+
+    internal static string FormatAllowlistKey(IMethodSymbol methodDeclaredSymbolScoped) =>
+        $"{FormatAllowlistFqType(methodDeclaredSymbolScoped.ContainingType)}.{methodDeclaredSymbolScoped.Name}";
+
+    internal static string FormatAllowlistFqType(INamedTypeSymbol namedTypeSymbolScoped)
+    {
+        string raw = namedTypeSymbolScoped.ToDisplayString(AllowlistFqTypeFormat).Trim();
+
+        if (raw.StartsWith("global::", StringComparison.Ordinal))
+            raw = raw.Substring("global::".Length).Trim();
+
+        return raw;
+    }
+
+    internal static IEnumerable<SyntaxNode> EnumerateMethodBodies(
+        MethodDeclarationSyntax methodDeclarationSyntaxScoped)
+    {
+        BlockSyntax? blockSyntaxScoped = methodDeclarationSyntaxScoped.Body;
+
+        if (blockSyntaxScoped is not null)
+            yield return blockSyntaxScoped;
+
+        ArrowExpressionClauseSyntax? arrowClauseScoped = methodDeclarationSyntaxScoped.ExpressionBody;
+
+        if (arrowClauseScoped is null)
+            yield break;
+
+        yield return arrowClauseScoped.Expression;
+    }
+
+    internal static bool TrackedVerbAttribute(string attributeSimpleNameScoped)
+    {
+        return attributeSimpleNameScoped is HttpPostAttributeShortName
+            or HttpPutAttributeShortName
+            or HttpDeleteAttributeShortName
+            or HttpPatchAttributeShortName;
+    }
+
+    private static bool MethodSpecifiesTrackedVerb(IMethodSymbol methodDeclaredSymbolScoped)
+    {
+        if (MethodHasTrackedVerbAttribute(methodDeclaredSymbolScoped))
+            return true;
+
+        for (IMethodSymbol? overriddenMethod = methodDeclaredSymbolScoped.OverriddenMethod;
+             overriddenMethod is not null;
+             overriddenMethod = overriddenMethod.OverriddenMethod)
+        {
+            if (MethodHasTrackedVerbAttribute(overriddenMethod))
+                return true;
+        }
+
+        if (MethodInheritsTrackedVerbFromInterfaces(methodDeclaredSymbolScoped))
+            return true;
+
+        return false;
+    }
+
+    private static bool MethodInheritsTrackedVerbFromInterfaces(IMethodSymbol methodDeclaredSymbolScoped)
+    {
+        foreach (IMethodSymbol explicitImplementation in methodDeclaredSymbolScoped.ExplicitInterfaceImplementations)
+        {
+            if (MethodHasTrackedVerbAttribute(explicitImplementation))
+                return true;
+        }
+
+        INamedTypeSymbol containingType = methodDeclaredSymbolScoped.ContainingType;
+
+        foreach (INamedTypeSymbol iface in containingType.AllInterfaces)
+        {
+            foreach (ISymbol member in iface.GetMembers())
+            {
+                if (member is not IMethodSymbol interfaceMethod)
+                    continue;
+
+                if (interfaceMethod.MethodKind != MethodKind.Ordinary)
+                    continue;
+
+                IMethodSymbol? implementation =
+                    containingType.FindImplementationForInterfaceMember(interfaceMethod) as IMethodSymbol;
+
+                if (implementation is null || !SymbolEqualityComparer.Default.Equals(implementation, methodDeclaredSymbolScoped))
+                    continue;
+
+                if (MethodHasTrackedVerbAttribute(interfaceMethod))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool MethodHasTrackedVerbAttribute(IMethodSymbol methodDeclaredSymbolScoped)
+    {
+        // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
+        foreach (AttributeData attributeDataScoped in methodDeclaredSymbolScoped.GetAttributes())
+        {
+            INamedTypeSymbol? attributeWalkerNameScoped = attributeDataScoped.AttributeClass;
+
+            for (; attributeWalkerNameScoped is not null;
+                   attributeWalkerNameScoped = attributeWalkerNameScoped.BaseType)
+            {
+                if (TrackedVerbAttribute(attributeWalkerNameScoped.Name))
+                    return true;
+
+                if (string.Equals(attributeWalkerNameScoped.Name, HttpMethodAttributeShortName, StringComparison.Ordinal) &&
+                    HttpMethodAttributeDeclaresMutatingVerb(attributeDataScoped))
+                {
+                    return true;
+                }
+
+                if (string.Equals(attributeWalkerNameScoped.Name, AcceptVerbsAttributeShortName, StringComparison.Ordinal) &&
+                    HttpMethodAttributeDeclaresMutatingVerb(attributeDataScoped))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private static bool HttpMethodAttributeDeclaresMutatingVerb(AttributeData attributeDataScoped)
+    {
+        foreach (TypedConstant constructorArgument in attributeDataScoped.ConstructorArguments)
+        {
+            if (TypedConstantContainsMutatingHttpMethod(constructorArgument))
+                return true;
+        }
+
+        foreach (KeyValuePair<string, TypedConstant> namedArgument in attributeDataScoped.NamedArguments)
+        {
+            if (!string.Equals(namedArgument.Key, "Method", StringComparison.Ordinal) &&
+                !string.Equals(namedArgument.Key, "Methods", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            if (TypedConstantContainsMutatingHttpMethod(namedArgument.Value))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool TypedConstantContainsMutatingHttpMethod(TypedConstant typedConstant)
+    {
+        if (typedConstant.Kind == TypedConstantKind.Array)
+        {
+            foreach (TypedConstant element in typedConstant.Values)
+            {
+                if (element.Value is string method && IsMutatingHttpMethodName(method))
+                    return true;
+            }
+
+            return false;
+        }
+
+        if (typedConstant.Value is string singleMethod && IsMutatingHttpMethodName(singleMethod))
+            return true;
+
+        return false;
+    }
+
+    private static bool IsMutatingHttpMethodName(string method) =>
+        method.Equals("POST", StringComparison.OrdinalIgnoreCase) ||
+        method.Equals("PUT", StringComparison.OrdinalIgnoreCase) ||
+        method.Equals("DELETE", StringComparison.OrdinalIgnoreCase) ||
+        method.Equals("PATCH", StringComparison.OrdinalIgnoreCase);
+
+    internal static bool MutatingAuditExcludeApplies(
+        INamedTypeSymbol? exclusionAttributeSymbolScoped,
+        IMethodSymbol methodDeclaredSymbolScoped)
+    {
+        if (exclusionAttributeSymbolScoped is null)
+            return false;
+
+        foreach (AttributeData attributeDataExcluded in methodDeclaredSymbolScoped.GetAttributes())
+        {
+            if (SymbolEqualityComparer.Default.Equals(attributeDataExcluded.AttributeClass,
+                    exclusionAttributeSymbolScoped))
+                return true;
+        }
+
+        for (IMethodSymbol? overriddenMethod = methodDeclaredSymbolScoped.OverriddenMethod;
+             overriddenMethod is not null;
+             overriddenMethod = overriddenMethod.OverriddenMethod)
+        {
+            if (MethodHasTrackedVerbAttribute(methodDeclaredSymbolScoped))
+                break;
+
+            foreach (AttributeData baseMethodExcluded in overriddenMethod.GetAttributes())
+            {
+                if (SymbolEqualityComparer.Default.Equals(baseMethodExcluded.AttributeClass,
+                        exclusionAttributeSymbolScoped))
+                    return true;
+            }
+        }
+
+        INamedTypeSymbol? nestedTypeWalker = methodDeclaredSymbolScoped.ContainingType;
+
+        while (nestedTypeWalker is not null)
+        {
+            for (INamedTypeSymbol? inheritWalker = nestedTypeWalker;
+                 inheritWalker is not null;
+                 inheritWalker = inheritWalker.BaseType)
+            {
+                foreach (AttributeData owningTypeExcluded in inheritWalker.GetAttributes())
+                {
+                    if (SymbolEqualityComparer.Default.Equals(owningTypeExcluded.AttributeClass,
+                            exclusionAttributeSymbolScoped))
+                        return true;
+                }
+            }
+
+            nestedTypeWalker = nestedTypeWalker.ContainingType;
+        }
+
+        if (MethodInheritsMutatingAuditExcludeFromInterfaces(exclusionAttributeSymbolScoped, methodDeclaredSymbolScoped))
+            return true;
+
+        return false;
+    }
+
+    private static bool MethodInheritsMutatingAuditExcludeFromInterfaces(
+        INamedTypeSymbol exclusionAttributeSymbolScoped,
+        IMethodSymbol methodDeclaredSymbolScoped)
+    {
+        foreach (IMethodSymbol explicitImplementation in methodDeclaredSymbolScoped.ExplicitInterfaceImplementations)
+        {
+            if (MethodHasMutatingAuditExcludeAttribute(explicitImplementation, exclusionAttributeSymbolScoped))
+                return true;
+        }
+
+        INamedTypeSymbol containingType = methodDeclaredSymbolScoped.ContainingType;
+
+        foreach (INamedTypeSymbol iface in containingType.AllInterfaces)
+        {
+            foreach (ISymbol member in iface.GetMembers())
+            {
+                if (member is not IMethodSymbol interfaceMethod)
+                    continue;
+
+                if (interfaceMethod.MethodKind != MethodKind.Ordinary)
+                    continue;
+
+                IMethodSymbol? implementation =
+                    containingType.FindImplementationForInterfaceMember(interfaceMethod) as IMethodSymbol;
+
+                if (implementation is null || !SymbolEqualityComparer.Default.Equals(implementation, methodDeclaredSymbolScoped))
+                    continue;
+
+                if (MethodHasMutatingAuditExcludeAttribute(interfaceMethod, exclusionAttributeSymbolScoped))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool MethodHasMutatingAuditExcludeAttribute(
+        IMethodSymbol methodDeclaredSymbolScoped,
+        INamedTypeSymbol exclusionAttributeSymbolScoped)
+    {
+        foreach (AttributeData attributeDataExcluded in methodDeclaredSymbolScoped.GetAttributes())
+        {
+            if (SymbolEqualityComparer.Default.Equals(attributeDataExcluded.AttributeClass,
+                    exclusionAttributeSymbolScoped))
+                return true;
+        }
+
+        return false;
+    }
+
+    internal static bool SemanticBodiesInvokeAuditLogAsync(
+        SemanticModel semanticModelScoped,
+        INamedTypeSymbol auditInterfaceDeclaredTypeSymbolScoped,
+        IMethodSymbol controllerActionDeclaredSymbolScoped,
+        CancellationToken cancellationTokenScoped)
+    {
+        SyntaxTree semanticModelTreeScoped = semanticModelScoped.SyntaxTree;
+
+        foreach (SyntaxNode? syntaxFromReferenceScoped in from declaringReferenceScoped in controllerActionDeclaredSymbolScoped
+                     .DeclaringSyntaxReferences
+                                                          where ReferenceEquals(declaringReferenceScoped.SyntaxTree, semanticModelTreeScoped)
+                                                          select declaringReferenceScoped.GetSyntax(cancellationTokenScoped))
+        {
+            if (syntaxFromReferenceScoped.FirstAncestorOrSelf<MethodDeclarationSyntax>() is not { } methodAnchorSyntax)
+            {
+                continue;
+            }
+
+            if (EnumerateMethodBodies(methodAnchorSyntax).SelectMany(bodySubtreeScoped => bodySubtreeScoped
+                    .DescendantNodesAndSelf()
+                    .OfType<InvocationExpressionSyntax>()).Any(invocationSyntaxScoped => InvocationMatchesAuditInterfaceSemantic(
+                    semanticModelScoped,
+                    auditInterfaceDeclaredTypeSymbolScoped,
+                    invocationSyntaxScoped,
+                    cancellationTokenScoped)))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    internal static bool InvocationMatchesAuditInterfaceSemantic(
+        SemanticModel semanticModelSemanticInvocation,
+        INamedTypeSymbol auditInterfaceDeclaredTypeSymbolScopedSemantic,
+        InvocationExpressionSyntax invocationExpressionSyntaxSemantic,
+        CancellationToken cancellationTokenSemantic)
+    {
+        if (semanticModelSemanticInvocation.GetSymbolInfo(invocationExpressionSyntaxSemantic,
+                   cancellationTokenSemantic)
+               .Symbol
+           is not IMethodSymbol calleeSemantic)
+            return false;
+
+        if (!string.Equals(calleeSemantic.Name, "LogAsync", StringComparison.Ordinal))
+            return false;
+
+        if (SymbolEqualityComparer.Default.Equals(
+                calleeSemantic.ContainingType?.OriginalDefinition,
+                auditInterfaceDeclaredTypeSymbolScopedSemantic.OriginalDefinition))
+            return true;
+
+        INamedTypeSymbol? containingType = calleeSemantic.ContainingType;
+
+        if (containingType is null)
+            return false;
+
+        foreach (INamedTypeSymbol iface in containingType.AllInterfaces)
+        {
+            if (!SymbolEqualityComparer.Default.Equals(
+                    iface.OriginalDefinition,
+                    auditInterfaceDeclaredTypeSymbolScopedSemantic.OriginalDefinition))
+            {
+                continue;
+            }
+
+            foreach (ISymbol member in iface.GetMembers(calleeSemantic.Name))
+            {
+                if (member is not IMethodSymbol interfaceMethod)
+                    continue;
+
+                IMethodSymbol? implementation =
+                    containingType.FindImplementationForInterfaceMember(interfaceMethod) as IMethodSymbol;
+
+                if (implementation is not null &&
+                    SymbolEqualityComparer.Default.Equals(implementation, calleeSemantic))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+}

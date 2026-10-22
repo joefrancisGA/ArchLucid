@@ -1,0 +1,270 @@
+using System.Reflection;
+
+using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Repositories;
+
+using FluentAssertions;
+
+namespace ArchLucid.Persistence.Tests.Repositories;
+
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
+public sealed class RunListQueryParametersTests
+{
+    private static readonly Guid TenantId = Guid.Parse("aaaaaaaa-0000-0000-0000-000000000001");
+    private static readonly Guid WorkspaceId = Guid.Parse("aaaaaaaa-0000-0000-0000-000000000002");
+    private static readonly Guid ProjectId = Guid.Parse("aaaaaaaa-0000-0000-0000-000000000003");
+
+    [Fact]
+    public void ForProjectList_carries_the_project_slug_and_scope_triple()
+    {
+        object parameters = RunListQueryParameters.ForProjectList(Scope(), "billing-platform", 10);
+
+        Read<string>(parameters, "ProjectSlug").Should().Be("billing-platform");
+        Read<string>(parameters, "NormalizedProjectSlug").Should().Be("BILLING-PLATFORM");
+        Read<Guid>(parameters, "TenantId").Should().Be(TenantId);
+        Read<Guid>(parameters, "WorkspaceId").Should().Be(WorkspaceId);
+        Read<Guid>(parameters, "ScopeProjectId").Should().Be(ProjectId);
+        Read<int>(parameters, "Take").Should().Be(10);
+    }
+
+    [Theory]
+    [InlineData(0, 20)]
+    [InlineData(-5, 20)]
+    [InlineData(1, 1)]
+    [InlineData(200, 200)]
+    [InlineData(5_000, 200)]
+    public void ForProjectList_defaults_and_clamps_the_take(int take, int expected) =>
+        Read<int>(RunListQueryParameters.ForProjectList(Scope(), "slug", take), "Take").Should().Be(expected);
+
+    [Theory]
+    [InlineData(0, 200)]
+    [InlineData(-1, 200)]
+    [InlineData(50, 50)]
+    [InlineData(1_000, 200)]
+    public void ForRecentInScope_defaults_an_unset_take_to_the_full_ceiling(int take, int expected) =>
+        Read<int>(RunListQueryParameters.ForRecentInScope(Scope(), take), "Take").Should().Be(expected);
+
+    /// <summary>The extra row is how the caller detects a further page without a second COUNT query.</summary>
+    [Fact]
+    public void ForRecentInScopeKeysetPage_requests_one_row_beyond_the_page()
+    {
+        object parameters = RunListQueryParameters.ForRecentInScopeKeysetPage(Scope(), null, null, 25);
+
+        Read<int>(parameters, "Fetch").Should().Be(RunPagination.ClampTake(25) + 1);
+    }
+
+    [Fact]
+    public void ForRecentInScopeKeysetPage_passes_the_cursor_through()
+    {
+        DateTime cursorCreatedUtc = new(2026, 8, 11, 12, 0, 0, DateTimeKind.Utc);
+        Guid cursorRunId = Guid.Parse("cccccccc-0000-0000-0000-000000000001");
+
+        object parameters = RunListQueryParameters.ForRecentInScopeKeysetPage(
+            Scope(),
+            cursorCreatedUtc,
+            cursorRunId,
+            25);
+
+        Read<DateTime>(parameters, "CursorCreatedUtc").Should().Be(cursorCreatedUtc);
+        Read<Guid>(parameters, "CursorRunId").Should().Be(cursorRunId);
+    }
+
+    [Fact]
+    public void ForProjectKeysetPage_requests_one_row_beyond_the_page() =>
+        Read<int>(
+                RunListQueryParameters.ForProjectKeysetPage(Scope(), "slug", null, null, 25),
+                "Fetch")
+            .Should()
+            .Be(RunPagination.ClampTake(25) + 1);
+
+    [Fact]
+    public void ForProjectKeysetPage_clamps_oversized_take_before_probe_fetch_so_has_more_boundary_stays_aligned() =>
+        Read<int>(
+                RunListQueryParameters.ForProjectKeysetPage(Scope(), "slug", null, null, 5_000),
+                "Fetch")
+            .Should()
+            .Be(RunPagination.MaxTake + 1);
+
+    [Fact]
+    public void ForProjectList_and_keyset_page_use_different_take_ceilings_by_design()
+    {
+        Read<int>(RunListQueryParameters.ForProjectList(Scope(), "slug", 500), "Take").Should().Be(200);
+        Read<int>(
+                RunListQueryParameters.ForProjectKeysetPage(Scope(), "slug", null, null, 500),
+                "Fetch")
+            .Should()
+            .Be(RunPagination.MaxTake + 1);
+    }
+
+    [Fact]
+    public void ForRecentInScope_and_keyset_page_use_different_take_ceilings_by_design()
+    {
+        Read<int>(RunListQueryParameters.ForRecentInScope(Scope(), 500), "Take").Should().Be(200);
+        Read<int>(
+                RunListQueryParameters.ForRecentInScopeKeysetPage(Scope(), null, null, 500),
+                "Fetch")
+            .Should()
+            .Be(RunPagination.MaxTake + 1);
+    }
+
+    [Fact]
+    public void ForProjectList_and_ForRecentInScope_use_different_unset_take_defaults_by_design()
+    {
+        Read<int>(RunListQueryParameters.ForProjectList(Scope(), "slug", 0), "Take").Should().Be(20);
+        Read<int>(RunListQueryParameters.ForRecentInScope(Scope(), 0), "Take").Should().Be(200);
+    }
+
+    [Fact]
+    public void ForRecentInScope_and_offset_page_use_different_take_ceilings_by_design()
+    {
+        Read<int>(RunListQueryParameters.ForRecentInScope(Scope(), 500), "Take").Should().Be(200);
+        Read<int>(RunListQueryParameters.ForRecentInScopeOffsetPage(Scope(), 0, 500), "Fetch")
+            .Should()
+            .Be(RunPagination.ClampLimit(500) + 1);
+    }
+
+    [Theory]
+    [InlineData(-10, 0)]
+    [InlineData(0, 0)]
+    [InlineData(75, 75)]
+    public void ForRecentInScopeOffsetPage_normalizes_a_negative_offset(int offset, int expected) =>
+        Read<int>(RunListQueryParameters.ForRecentInScopeOffsetPage(Scope(), offset, 50), "Offset")
+            .Should()
+            .Be(expected);
+
+    [Fact]
+    public void ForProjectList_preserves_raw_project_slug_for_try_convert_while_normalizing_slug_branch()
+    {
+        Guid scopeProjectId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string raw = $"  {scopeProjectId:D}  ";
+        object parameters = RunListQueryParameters.ForProjectList(Scope(), raw, 10);
+
+        Read<string>(parameters, "ProjectSlug").Should().Be(raw);
+        Read<string>(parameters, "NormalizedProjectSlug").Should().Be(scopeProjectId.ToString("D").ToUpperInvariant());
+    }
+
+    [Fact]
+    public void ForRecentInScopeOffsetPage_negative_offset_normalization_does_not_change_probe_trim_semantics()
+    {
+        int limit = 2;
+        int fetch = Read<int>(RunListQueryParameters.ForRecentInScopeOffsetPage(Scope(), -3, limit), "Fetch");
+
+        fetch.Should().Be(limit + 1);
+    }
+
+    [Fact]
+    public void ForRecentInScopeOffsetPage_requests_one_row_beyond_the_limit() =>
+        Read<int>(RunListQueryParameters.ForRecentInScopeOffsetPage(Scope(), 0, 50), "Fetch")
+            .Should()
+            .Be(RunPagination.ClampLimit(50) + 1);
+
+    /// <summary>
+    ///     The stored <c>AsOfUtc</c> column is UTC, so an unspecified-kind timestamp is stamped rather than converted.
+    /// </summary>
+    [Fact]
+    public void ForLatestGraphAtOrBefore_marks_the_as_of_timestamp_as_utc()
+    {
+        DateTime unspecified = new(2026, 8, 11, 12, 0, 0, DateTimeKind.Unspecified);
+
+        DateTime asOfUtc = Read<DateTime>(
+            RunListQueryParameters.ForLatestGraphAtOrBefore(Scope(), "slug", unspecified),
+            "AsOfUtc");
+
+        asOfUtc.Kind.Should().Be(DateTimeKind.Utc);
+        asOfUtc.Should().Be(DateTime.SpecifyKind(unspecified, DateTimeKind.Utc));
+    }
+
+    [Fact]
+    public void ForLatestCommittedByManifestCreatedUtc_filters_on_the_committed_status() =>
+        Read<string>(
+                RunListQueryParameters.ForLatestCommittedByManifestCreatedUtc(Scope(), "slug"),
+                "CommittedStatus")
+            .Should()
+            .Be(nameof(ArchitectureRunStatus.Committed));
+
+    [Fact]
+    public void ForActiveRunCountByArchitectureRequest_normalizes_tab_prefixed_seek_like_in_memory_require()
+    {
+        object parameters = RunListQueryParameters.ForActiveRunCountByArchitectureRequest(Scope(), "\treq-1");
+
+        Read<string>(parameters, "NormalizedArchitectureRequestId").Should().Be("REQ-1");
+    }
+
+    /// <summary>
+    ///     Project list filters use <see cref="RunRepositoryCore.AuthorityProjectSlugMatches" /> in-memory without
+    ///     <c>Require*</c> Unicode trim, so SQL bind values must not strip tabs on seeks either.
+    /// </summary>
+    [Fact]
+    public void ForProjectList_preserves_tab_prefix_in_normalized_slug_like_in_memory_list_filter()
+    {
+        object parameters = RunListQueryParameters.ForProjectList(Scope(), "\tbilling", 10);
+
+        Read<string>(parameters, "NormalizedProjectSlug").Should().Be("\tBILLING");
+    }
+
+    [Fact]
+    public void ForLatestCommittedByManifestCreatedUtc_preserves_tab_prefix_in_normalized_slug_like_in_memory_committed_seek()
+    {
+        object parameters = RunListQueryParameters.ForLatestCommittedByManifestCreatedUtc(Scope(), "\tbilling");
+
+        Read<string>(parameters, "NormalizedAuthorityProjectSlug").Should().Be("\tBILLING");
+    }
+
+    [Fact]
+    public void ForLatestGraphAtOrBefore_preserves_tab_prefix_in_normalized_slug_like_committed_and_list_seeks()
+    {
+        DateTime asOfUtc = new(2026, 10, 6, 0, 0, 0, DateTimeKind.Utc);
+        object parameters = RunListQueryParameters.ForLatestGraphAtOrBefore(Scope(), "\tbilling", asOfUtc);
+
+        Read<string>(parameters, "NormalizedAuthorityProjectSlug").Should().Be("\tBILLING");
+    }
+
+    [Fact]
+    public void ForActiveRunWithSystemNameInWorkspace_normalizes_tab_prefixed_seek_like_in_memory_require()
+    {
+        object parameters = RunListQueryParameters.ForActiveRunWithSystemNameInWorkspace(Scope(), "\tbilling");
+
+        Read<string>(parameters, "NormalizedSystemName").Should().Be("BILLING");
+    }
+
+    [Fact]
+    public void ForActiveRunCountByArchitectureRequest_excludes_the_three_terminal_statuses()
+    {
+        object parameters = RunListQueryParameters.ForActiveRunCountByArchitectureRequest(Scope(), "  req-1  ");
+
+        Read<string>(parameters, "NormalizedArchitectureRequestId").Should().Be("REQ-1");
+        Read<string>(parameters, "CommittedStatus").Should().Be(nameof(ArchitectureRunStatus.Committed));
+        Read<string>(parameters, "FailedStatus").Should().Be(nameof(ArchitectureRunStatus.Failed));
+        Read<string>(parameters, "QualityRejectedStatus")
+            .Should()
+            .Be(nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected));
+    }
+
+    private static ScopeContext Scope() =>
+        new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+        };
+
+    /// <summary>
+    ///     Parameter objects are anonymous types shaped for Dapper, so tests read them by name via reflection rather than
+    ///     forcing a named DTO the production path does not need.
+    /// </summary>
+    private static T Read<T>(object parameters, string propertyName)
+    {
+        PropertyInfo? property = parameters.GetType().GetProperty(propertyName);
+
+        property.Should().NotBeNull($"parameter '{propertyName}' must be supplied to Dapper");
+
+        object? value = property!.GetValue(parameters);
+
+        value.Should().NotBeNull($"parameter '{propertyName}' must have a value");
+
+        return (T)value!;
+    }
+}

@@ -1,0 +1,38 @@
+---
+description: >-
+  Playwright / Vitest in archlucid-ui — stable selectors, snapshot hygiene, and
+  tests that survive glossary and buyer-facing copy changes (Task #27 and follow-ons).
+globs:
+  - "archlucid-ui/**/*.ts"
+  - "archlucid-ui/**/*.tsx"
+alwaysApply: false
+---
+
+# UI — stable selectors and snapshot discipline
+
+## Prefer stable test targets over literal UI copy
+
+Buyer-visible strings change often (glossary sweep, marketing alignment). Tests that **`getByText('…')`** on those strings **will break** when copy changes.
+
+1. **Add `data-testid="…"`** (or an existing stable hook from your component API) on elements that E2E or unit tests must target.
+2. **`getByRole`** with **accessible name** is acceptable when the name is **stable** (e.g. from `aria-label` you control) — not when the name is the same volatile marketing string as the visible label.
+3. Reserve **`getByText`** for **document content** or **unlikely-to-rename** chrome (with a comment tying it to a stable glossary ID or `data-testid` follow-up if it flakes).
+
+## Vitest / React Testing Library
+
+- Same idea: **`getByTestId`** or **`getByRole`** + stable **`aria-label`** / **`aria-labelledby`** — avoid asserting raw headline copy when Task #27-style relabeling is in flight.
+- After label or structure changes, **update explicit assertions** in the same PR as the UI change.
+
+## Snapshot files (`.snap`, `__snapshots__/`)
+
+- **Regenerate** snapshots (`vitest -u` / delete snapshot and re-run) when copy or structure changes intentionally. **Do not hand-edit** snapshot bodies to “fix” glossary updates unless the team explicitly treats that file as a golden document (default: regenerate).
+- If a snapshot repeatedly churns on volatile copy, **replace with targeted assertions** (role, test id, or structured expectations).
+
+## Playwright
+
+- Prefer **locators** that do not embed buyer-facing prose: `page.getByTestId(...)` or `getByRole('button', { name: /.../ })` only when the accessible name is sourced from a **constant** or **i18n key**, not a one-off string literal copied from the landing page.
+
+## Companion rules
+
+- **`UI-React-Next-Conventions.mdc`** — RSC/client split and OpenAPI-aligned types.
+- **`UI-Accessibility-Baseline.mdc`** — roles and names tests rely on must stay meaningful.

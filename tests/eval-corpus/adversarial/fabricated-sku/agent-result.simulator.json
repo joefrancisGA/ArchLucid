@@ -1,0 +1,19 @@
+{
+  "resultId": "corp-adv-fab-sku-sim-01",
+  "taskId": "corp-adv-fab-sku-task-01",
+  "runId": "corp-adv-fab-sku-run-01",
+  "agentType": 2,
+  "claims": [
+    {
+      "detail": "Simulator adversarial stub: Nebula Infinite Storage XL is cited without inventory or pricing evidenceRefs."
+    }
+  ],
+  "evidenceRefs": [],
+  "confidence": 0.38,
+  "findings": [],
+  "proposedChanges": null,
+  "createdUtc": "2026-05-09T12:00:00Z",
+  "semanticScore": {
+    "llmFaithfulnessScore": 0.28
+  }
+}

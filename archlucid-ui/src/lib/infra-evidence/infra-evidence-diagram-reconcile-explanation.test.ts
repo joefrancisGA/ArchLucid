@@ -1,0 +1,106 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  buildDiagramReconcileOperationalFindingFingerprint,
+  formatDiagramReconcileExplanation,
+  formatDiagramReconcileResourceLabelForDisplay,
+} from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-explanation";
+import type { DiagramInfrastructureCorrespondenceRow } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-types";
+
+describe("infra-evidence-diagram-reconcile-explanation", () => {
+  it("includes AI rationale only for Possible or Unknown rows", () => {
+    const possibleRow: DiagramInfrastructureCorrespondenceRow = {
+      correspondenceId: "diagram-node-1",
+      diagramNodeId: "node-1",
+      diagramNodeLabel: "gateway",
+      cloudResourceId: null,
+      azureResourceId: null,
+      resourceType: null,
+      resourceGroup: null,
+      terraformAddress: null,
+      matchKind: "Possible",
+      confidenceBand: "Possible",
+      explainText: "Name similarity only.",
+      aiRationale: "Labels are close but resource type differs.",
+      securityDiscrepancy: false,
+    };
+
+    expect(formatDiagramReconcileExplanation(possibleRow)).toContain("AI rationale:");
+    expect(formatDiagramReconcileExplanation(possibleRow)).toContain("do not raise the confidence band");
+    expect(formatDiagramReconcileExplanation({
+      ...possibleRow,
+      matchKind: "Conflict",
+      aiRationale: "Should not appear",
+    })).not.toContain("AI rationale:");
+  });
+
+  it("distinguishes an unrecorded explanation from a stored empty explanation", () => {
+    const row: DiagramInfrastructureCorrespondenceRow = {
+      correspondenceId: "diagram-node-1",
+      diagramNodeId: "node-1",
+      diagramNodeLabel: "gateway",
+      cloudResourceId: null,
+      azureResourceId: null,
+      resourceType: null,
+      resourceGroup: null,
+      terraformAddress: null,
+      matchKind: "Exact",
+      confidenceBand: "Confirmed",
+      explainText: null,
+      aiRationale: null,
+      securityDiscrepancy: false,
+    };
+
+    expect(formatDiagramReconcileExplanation(row)).toBe(
+      "Match kind: Exact match. Correspondence explanation was not stored.",
+    );
+    expect(formatDiagramReconcileExplanation({ ...row, explainText: "" })).toBe("Match kind: Exact match.");
+  });
+
+  it("labels unknown match kind severity as not stored", () => {
+    const row: DiagramInfrastructureCorrespondenceRow = {
+      correspondenceId: "diagram-node-2",
+      diagramNodeId: "node-2",
+      diagramNodeLabel: "gateway",
+      cloudResourceId: null,
+      azureResourceId: null,
+      resourceType: null,
+      resourceGroup: null,
+      terraformAddress: null,
+      matchKind: "Unknown",
+      confidenceBand: "Possible",
+      explainText: "Uncertain linkage.",
+      aiRationale: null,
+      securityDiscrepancy: false,
+    };
+
+    expect(formatDiagramReconcileExplanation(row)).toContain("Match kind recorded as unknown.");
+    expect(formatDiagramReconcileExplanation(row)).toContain("Match severity was not stored.");
+  });
+
+  it("lowercases diagram node labels for display", () => {
+    expect(
+      formatDiagramReconcileResourceLabelForDisplay({
+        correspondenceId: "diagram-node-1",
+        diagramNodeId: "node-1",
+        diagramNodeLabel: "Gateway-PIP",
+        cloudResourceId: null,
+        azureResourceId: null,
+        resourceType: null,
+        resourceGroup: null,
+        terraformAddress: null,
+        matchKind: "Conflict",
+        confidenceBand: "High",
+        explainText: "Name mismatch.",
+        aiRationale: null,
+        securityDiscrepancy: false,
+      }),
+    ).toBe("gateway-pip");
+  });
+
+  it("builds stable operational finding fingerprints", () => {
+    expect(
+      buildDiagramReconcileOperationalFindingFingerprint("run", "snap", "corr-1"),
+    ).toBe("diagram-reconcile:run:snap:corr-1");
+  });
+});

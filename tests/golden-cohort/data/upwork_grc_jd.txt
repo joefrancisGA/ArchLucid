@@ -1,0 +1,19 @@
+Upwork's Governance, Risk & Compliance (GRC) team is seeking an experienced freelancer with a strong background in AI tool automation to help streamline and enhance our compliance workflows. You will work closely with our GRC team to identify automation opportunities, design and implement AI-driven solutions, and integrate tools that improve efficiency across risk assessments, policy management, audit preparation, and compliance monitoring.
+Key Responsibilities:
+Assess existing GRC workflows and identify high-impact automation opportunities
+Design and implement AI-driven automations using Claude AI to support intelligent document analysis, risk summarization, policy drafting, and compliance Q&A workflows
+Integrate AI tools with Vanta to enhance compliance monitoring, evidence collection, and control mapping
+Build automated workflows for risk tracking, audit preparation, and policy lifecycle management
+Document solutions and provide handoff training to internal GRC team members
+Required Qualifications:
+Deep knowledge of GRC principles, practices, and frameworks — including SOC 2, ISO 27001, ISO 27018, ISO 42001, PCI-DSS, and Microsoft SSPA — with the ability to translate compliance requirements into functional automation logic
+Demonstrated experience building AI and automation workflows, including LLM integration, prompt engineering, and API-based tool development
+Strong understanding of risk management methodologies, control frameworks, and audit readiness processes
+Experience operationalizing compliance programs, not just familiarity — you should be comfortable owning GRC workflows end-to-end
+Proficiency with no-code/low-code automation platforms and/or Python scripting
+Excellent written and verbal communication skills, with the ability to document technical solutions clearly for compliance audiences
+Preferred Qualifications:
+Prior hands-on experience working within a GRC or Information Security team
+Relevant certifications such as CISA, CRISC, CISSP, or ISO Lead Implementer/Auditor
+Experience with AI governance frameworks and emerging standards around responsible AI (aligned with ISO 42001)
+Familiarity with Upwork's platform or similar marketplace environments

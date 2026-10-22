@@ -1,0 +1,32 @@
+{
+  "findings": [
+    {
+      "findingId": "corp-cite-1",
+      "category": "Critic",
+      "severity": "Medium",
+      "title": "Citation integrity breach",
+      "detail": "Several paragraphs cite ADR-9999 and forged URLs that do not resolve in the architecture repository; strip them until editors attach checksum-verified citation bundles."
+    },
+    {
+      "findingId": "corp-cite-2",
+      "category": "Compliance",
+      "severity": "Medium",
+      "title": "ADR linkage governance",
+      "detail": "Policy mandates verifying repository commits map to published ADR numbers through automated hash checks before architectural reviews close."
+    },
+    {
+      "findingId": "corp-cite-3",
+      "category": "Topology",
+      "severity": "Low",
+      "title": "Documentation traceability",
+      "detail": "Diagram nodes must retain traceability tags pointing engineers back to source markdown sections that originated each connector label."
+    },
+    {
+      "findingId": "corp-cite-4",
+      "category": "Cost",
+      "severity": "Informational",
+      "title": "Review cadence",
+      "detail": "Quarterly FinOps snapshots catch orphaned sandbox subscriptions that bypass central tagging policies."
+    }
+  ]
+}

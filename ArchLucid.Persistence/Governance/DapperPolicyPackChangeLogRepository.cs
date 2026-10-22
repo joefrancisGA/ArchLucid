@@ -1,0 +1,279 @@
+using System.Data;
+using System.Diagnostics.CodeAnalysis;
+
+using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
+
+using Dapper;
+
+using Microsoft.Data.SqlClient;
+
+namespace ArchLucid.Persistence.Governance;
+
+/// <summary>
+///     Dapper access to <c>dbo.PolicyPackChangeLog</c> (INSERT and scoped reads only).
+/// </summary>
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
+public sealed class DapperPolicyPackChangeLogRepository(
+    ISqlConnectionFactory connectionFactory,
+    IGovernanceResolutionReadConnectionFactory governanceResolutionReadConnectionFactory,
+    IScopeContextProvider scopeContextProvider)
+    : IPolicyPackChangeLogRepository
+{
+    /// <inheritdoc />
+    public async Task AppendAsync(
+        PolicyPackChangeLogEntry entry,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
+    {
+        ArgumentNullException.ThrowIfNull(entry);
+        ArgumentException.ThrowIfNullOrWhiteSpace(entry.ChangeType);
+        ArgumentException.ThrowIfNullOrWhiteSpace(entry.ChangedBy);
+
+        DateTime changedUtc = entry.ChangedUtc == default ? TimeProvider.System.UtcNowDateTime() : entry.ChangedUtc;
+
+        const string sql = """
+                           INSERT INTO dbo.PolicyPackChangeLog
+                           (
+                               PolicyPackId, TenantId, WorkspaceId, ProjectId,
+                               ChangeType, ChangedBy, ChangedUtc,
+                               PreviousValue, NewValue, SummaryText
+                           )
+                           VALUES
+                           (
+                               @PolicyPackId, @TenantId, @WorkspaceId, @ProjectId,
+                               @ChangeType, @ChangedBy, @ChangedUtc,
+                               @PreviousValue, @NewValue, @SummaryText
+                           );
+                           """;
+
+        object param = new
+        {
+            entry.PolicyPackId,
+            entry.TenantId,
+            entry.WorkspaceId,
+            entry.ProjectId,
+            entry.ChangeType,
+            entry.ChangedBy,
+            ChangedUtc = changedUtc,
+            entry.PreviousValue,
+            entry.NewValue,
+            entry.SummaryText
+        };
+
+        (SqlConnection conn, bool ownsConnection) =
+            await SqlExternalConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
+
+        try
+        {
+            await conn.ExecuteAsync(
+                new CommandDefinition(sql, param, transaction, cancellationToken: cancellationToken));
+        }
+        finally
+        {
+            SqlExternalConnection.DisposeIfOwned(conn, ownsConnection);
+        }
+    }
+
+    /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Policy pack change log listed by PolicyPackId within the active tenant catalog.")]
+    public async Task<IReadOnlyList<PolicyPackChangeLogEntry>> GetByPolicyPackIdAsync(
+        Guid policyPackId,
+        int maxRows = 50,
+        CancellationToken cancellationToken = default)
+    {
+        if (maxRows <= 0)
+            throw new ArgumentOutOfRangeException(nameof(maxRows));
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string sql = $"""
+                           SELECT TOP (@MaxRows)
+                               ChangeLogId, PolicyPackId, TenantId, WorkspaceId, ProjectId,
+                               ChangeType, ChangedBy, ChangedUtc,
+                               PreviousValue, NewValue, SummaryText
+                           FROM dbo.PolicyPackChangeLog
+                           WHERE PolicyPackId = @PolicyPackId
+                           {PersistenceTenantScope.AndTripleWhere(scope)}
+                           ORDER BY ChangedUtc DESC;
+                           """;
+
+        await using SqlConnection connection =
+            await governanceResolutionReadConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<PolicyPackChangeLogEntry> rows = await connection.QueryAsync<PolicyPackChangeLogEntry>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    PolicyPackId = policyPackId,
+                    MaxRows = maxRows,
+                    ScopeTenantId = scope.TenantId,
+                    ScopeWorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId
+                },
+                cancellationToken: cancellationToken)).ConfigureAwait(false);
+
+        return rows.ToList();
+    }
+
+    /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Policy pack change log listed by tenant within the active tenant catalog.")]
+    public async Task<IReadOnlyList<PolicyPackChangeLogEntry>> GetByTenantAsync(
+        Guid tenantId,
+        int maxRows = 100,
+        CancellationToken cancellationToken = default)
+    {
+        if (maxRows <= 0)
+            throw new ArgumentOutOfRangeException(nameof(maxRows));
+
+        const string sql = """
+                           SELECT TOP (@MaxRows)
+                               ChangeLogId, PolicyPackId, TenantId, WorkspaceId, ProjectId,
+                               ChangeType, ChangedBy, ChangedUtc,
+                               PreviousValue, NewValue, SummaryText
+                           FROM dbo.PolicyPackChangeLog
+                           WHERE TenantId = @TenantId
+                             AND ChangedUtc IS NOT NULL
+                           ORDER BY ChangedUtc DESC;
+                           """;
+
+        await using SqlConnection connection =
+            await governanceResolutionReadConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<PolicyPackChangeLogEntry> rows = await connection.QueryAsync<PolicyPackChangeLogEntry>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, MaxRows = maxRows },
+                cancellationToken: cancellationToken)).ConfigureAwait(false);
+
+        return rows.ToList();
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<PolicyPackChangeLogEntry>> GetByScopeAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        int maxRows = 100,
+        CancellationToken cancellationToken = default)
+    {
+        if (maxRows <= 0)
+            throw new ArgumentOutOfRangeException(nameof(maxRows));
+
+        const string sql = """
+                           SELECT TOP (@MaxRows)
+                               ChangeLogId, PolicyPackId, TenantId, WorkspaceId, ProjectId,
+                               ChangeType, ChangedBy, ChangedUtc,
+                               PreviousValue, NewValue, SummaryText
+                           FROM dbo.PolicyPackChangeLog
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                           ORDER BY ChangedUtc DESC;
+                           """;
+
+        await using SqlConnection connection =
+            await governanceResolutionReadConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<PolicyPackChangeLogEntry> rows = await connection.QueryAsync<PolicyPackChangeLogEntry>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    MaxRows = maxRows,
+                },
+                cancellationToken: cancellationToken)).ConfigureAwait(false);
+
+        return rows.ToList();
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<PolicyPackChangeLogEntry>> GetByTenantInRangeAsync(
+        Guid tenantId,
+        DateTime fromUtc,
+        DateTime toUtc,
+        CancellationToken cancellationToken = default)
+    {
+        if (fromUtc >= toUtc)
+            throw new ArgumentOutOfRangeException(nameof(toUtc), "toUtc must be greater than fromUtc.");
+
+        const string sql = """
+                           SELECT
+                               ChangeLogId, PolicyPackId, TenantId, WorkspaceId, ProjectId,
+                               ChangeType, ChangedBy, ChangedUtc,
+                               PreviousValue, NewValue, SummaryText
+                           FROM dbo.PolicyPackChangeLog
+                           WHERE TenantId = @TenantId
+                             AND ChangedUtc >= @FromUtc
+                             AND ChangedUtc < @ToUtc
+                           ORDER BY ChangedUtc ASC;
+                           """;
+
+        await using SqlConnection connection =
+            await governanceResolutionReadConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<PolicyPackChangeLogEntry> rows = await connection.QueryAsync<PolicyPackChangeLogEntry>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, FromUtc = fromUtc, ToUtc = toUtc },
+                cancellationToken: cancellationToken));
+
+        return rows.ToList();
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<PolicyPackChangeLogEntry>> GetByScopeInRangeAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        DateTime fromUtc,
+        DateTime toUtc,
+        CancellationToken cancellationToken = default)
+    {
+        if (fromUtc >= toUtc)
+            throw new ArgumentOutOfRangeException(nameof(toUtc), "toUtc must be greater than fromUtc.");
+
+        const string sql = """
+                           SELECT
+                               ChangeLogId, PolicyPackId, TenantId, WorkspaceId, ProjectId,
+                               ChangeType, ChangedBy, ChangedUtc,
+                               PreviousValue, NewValue, SummaryText
+                           FROM dbo.PolicyPackChangeLog
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND ChangedUtc >= @FromUtc
+                             AND ChangedUtc < @ToUtc
+                           ORDER BY ChangedUtc ASC;
+                           """;
+
+        await using SqlConnection connection =
+            await governanceResolutionReadConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<PolicyPackChangeLogEntry> rows = await connection.QueryAsync<PolicyPackChangeLogEntry>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    FromUtc = fromUtc,
+                    ToUtc = toUtc,
+                },
+                cancellationToken: cancellationToken));
+
+        return rows.ToList();
+    }
+}

@@ -1,0 +1,18 @@
+{
+  "resultId": "harness-topology-01",
+  "taskId": "harness-task-01",
+  "runId": "harness-run-01",
+  "agentType": 1,
+  "claims": [ "Golden harness topology claim." ],
+  "evidenceRefs": [ "golden-evidence-ref-1" ],
+  "confidence": 0.88,
+  "findings": [
+    {
+      "severity": "Info",
+      "category": "harness-category",
+      "message": "Golden harness finding message for structural JSON keys."
+    }
+  ],
+  "proposedChanges": null,
+  "createdUtc": "2026-04-14T12:00:00Z"
+}

@@ -1,0 +1,34 @@
+[
+  {
+    "findingId": "95b18a3d-1270-a078-1ce9-14cbaa6eefb4",
+    "findingType": "GcpCostRecommendation",
+    "category": "CostOptimization",
+    "severity": "Warning",
+    "title": "Cost recommendation: MACHINE_TYPE_RECOMMENDATION",
+    "rationale": "GCP Recommender cost recommendation grounded in extractor inventory evidence.",
+    "relatedNodeIds": [],
+    "payloadType": "AdvisorCostRecommendationFindingPayload",
+    "rulesApplied": [
+      "extractor-gcp-cost-json"
+    ],
+    "decisionsTaken": [
+      "Emitted a typed finding for each GCP cost recommendation row in the inventory ZIP."
+    ]
+  },
+  {
+    "findingId": "b7cd0803-a0f2-e73f-b426-60a9f1fa57c3",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "No topology resources were found",
+    "rationale": "The graph does not contain any TopologyResource nodes.",
+    "relatedNodeIds": [],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-presence"
+    ],
+    "decisionsTaken": [
+      "No TopologyResource nodes found in graph \u2014 emitted coverage warning."
+    ]
+  }
+]

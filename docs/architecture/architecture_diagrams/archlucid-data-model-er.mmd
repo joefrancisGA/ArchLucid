@@ -1,0 +1,65 @@
+erDiagram
+  RUNS ||--o{ GOLDEN_MANIFESTS : "RunId"
+  RUNS ||--o{ DECISIONING_TRACES : "RunId"
+  RUNS ||--o{ CONTEXT_SNAPSHOTS : "RunId"
+  RUNS ||--o{ GRAPH_SNAPSHOTS : "RunId"
+  RUNS ||--o{ AUTHORITY_PIPELINE_OUTBOX : "RunId"
+  RUNS ||--o{ RETRIEVAL_INDEXING_OUTBOX : "RunId"
+  RUNS ||--o{ INTEGRATION_EVENT_OUTBOX : "optional"
+  RUNS ||--o{ RUN_EXPORT_RECORDS : "RunId"
+  GOLDEN_MANIFESTS ||--o{ ARTIFACT_BUNDLE_ARTIFACTS : "ManifestId"
+  POLICY_PACKS ||--o{ POLICY_PACK_ASSIGNMENTS : "PackId"
+  POLICY_PACK_ASSIGNMENTS }o--|| TENANT_SCOPE : "Tenant/Workspace/Project"
+
+  RUNS {
+    uniqueidentifier RunId PK
+    nvarchar Status
+    uniqueidentifier ContextSnapshotId
+  }
+  GOLDEN_MANIFESTS {
+    uniqueidentifier ManifestId PK
+    uniqueidentifier RunId FK
+  }
+  DECISIONING_TRACES {
+    uniqueidentifier TraceId PK
+    uniqueidentifier RunId FK
+  }
+  CONTEXT_SNAPSHOTS {
+    uniqueidentifier SnapshotId PK
+    uniqueidentifier RunId FK
+  }
+  GRAPH_SNAPSHOTS {
+    uniqueidentifier SnapshotId PK
+    uniqueidentifier RunId FK
+  }
+  AUTHORITY_PIPELINE_OUTBOX {
+    bigint Id PK
+    uniqueidentifier RunId FK
+    nvarchar Status
+  }
+  RETRIEVAL_INDEXING_OUTBOX {
+    bigint Id PK
+    uniqueidentifier RunId FK
+  }
+  INTEGRATION_EVENT_OUTBOX {
+    bigint Id PK
+    nvarchar EventType
+    nvarchar Status
+  }
+  RUN_EXPORT_RECORDS {
+    uniqueidentifier ExportRecordId PK
+    uniqueidentifier RunId FK
+  }
+  POLICY_PACKS {
+    uniqueidentifier PackId PK
+    nvarchar Name
+  }
+  POLICY_PACK_ASSIGNMENTS {
+    uniqueidentifier AssignmentId PK
+    uniqueidentifier PackId FK
+  }
+  TENANT_SCOPE {
+    uniqueidentifier TenantId
+    uniqueidentifier WorkspaceId
+    uniqueidentifier ProjectId
+  }

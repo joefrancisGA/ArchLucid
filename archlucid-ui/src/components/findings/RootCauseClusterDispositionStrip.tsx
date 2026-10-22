@@ -1,0 +1,352 @@
+"use client";
+
+import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+
+import { Button } from "@/components/ui/button";
+import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
+import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
+import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
+import {
+  GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE,
+  governanceBulkDispositionSuccessMessage,
+} from "@/lib/governance/governance-mutation-outcome-copy";
+import { recordBulkFindingDisposition, type FindingDispositionKind } from "@/lib/api/governance-stickiness-api";
+import { collectExpectedCurrentDispositionRowVersionByFindingId } from "@/lib/findings/finding-collect-expected-disposition-row-versions";
+import { FindingDispositionConflictPanel } from "@/components/governance/findings/FindingDispositionConflictPanel";
+import {
+  formatFindingDispositionBulkConflictMessage,
+  readFindingDispositionConflictFromError,
+  type FindingDispositionConflictDetail,
+} from "@/lib/findings/finding-disposition-conflict";
+import { awaitMinimumVisibleDuration } from "@/lib/await-minimum-visible-duration";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
+import { listOpenRootCauseClusters } from "@/lib/review-quality/compare-quality-delta";
+import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import {
+  DISPOSITION_RATIONALE_MIN_CHARS,
+} from "@/lib/review-quality/finding-governance-gates";
+import {
+  parseRootCauseClusterDispFromSearch,
+  parseRootCauseClusterKeyFromSearch,
+  rootCauseClusterDispositionFromUrlValue,
+  rootCauseClusterDispositionHrefFromSearch,
+} from "@/lib/findings/root-cause-cluster-disposition-url";
+
+type ClusterDisposition = Extract<FindingDispositionKind, "Accepted" | "RejectedAsNotApplicable">;
+
+const CLUSTER_DISPOSITION_LABELS: Record<ClusterDisposition, string> = {
+  Accepted: "Accept cluster",
+  RejectedAsNotApplicable: "Waive cluster",
+};
+
+export type RootCauseClusterDispositionStripProps = {
+  readonly findings: readonly QuickDecisionFinding[];
+  readonly runId?: string;
+};
+
+/** TB-2326: one disposition action per root-cause cluster before triage. */
+export function RootCauseClusterDispositionStrip(
+  props: RootCauseClusterDispositionStripProps,
+): React.JSX.Element | null {
+  const clusters = listOpenRootCauseClusters(props.findings);
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const readClusterUrlState = (): { clusterKey: string; disposition: ReturnType<typeof parseRootCauseClusterDispFromSearch> } => {
+    const params = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
+
+    return {
+      clusterKey: parseRootCauseClusterKeyFromSearch(params.get("clusterKey")),
+      disposition: parseRootCauseClusterDispFromSearch(params.get("clusterDisp")),
+    };
+  };
+  const [reason, setReason] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [inlineErrorMessage, setInlineErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [dispositionConflict, setDispositionConflict] = useState<FindingDispositionConflictDetail | null>(
+    null,
+  );
+  const [pendingClusterKey, setPendingClusterKeyState] = useState<string | null>(null);
+  const [pendingDisposition, setPendingDispositionState] = useState<ClusterDisposition | null>(null);
+  const pendingClusterKeyRef = useRef<string | null>(null);
+  pendingClusterKeyRef.current = pendingClusterKey;
+  const pendingDispositionRef = useRef<ClusterDisposition | null>(null);
+  pendingDispositionRef.current = pendingDisposition;
+
+  const syncClusterDispositionToUrl = useCallback(
+    (clusterKey: string | null, disposition: ClusterDisposition | null) => {
+      commitHrefIfChanged(
+        rootCauseClusterDispositionHrefFromSearch(
+          readWindowLocationSearch(),
+          { clusterKey, disposition },
+          pathname,
+        ),
+        { notify: false },
+      );
+    },
+    [pathname],
+  );
+
+  const setPendingClusterDisposition = useCallback(
+    (clusterKey: string | null, disposition: ClusterDisposition | null) => {
+      if (pendingClusterKeyRef.current === clusterKey && pendingDispositionRef.current === disposition) {
+        return;
+      }
+
+      pendingClusterKeyRef.current = clusterKey;
+      pendingDispositionRef.current = disposition;
+      setPendingClusterKeyState(clusterKey);
+      setPendingDispositionState(disposition);
+      syncClusterDispositionToUrl(clusterKey, disposition);
+    },
+    [syncClusterDispositionToUrl],
+  );
+
+  useEffect(() => {
+    const syncPendingClusterFromUrl = (): void => {
+      const { clusterKey: urlClusterKey, disposition: urlClusterDisp } = readClusterUrlState();
+
+      if (urlClusterKey.length === 0 || urlClusterDisp === null) {
+        if (pendingClusterKeyRef.current !== null || pendingDispositionRef.current !== null) {
+          pendingClusterKeyRef.current = null;
+          pendingDispositionRef.current = null;
+          setPendingClusterKeyState(null);
+          setPendingDispositionState(null);
+        }
+
+        return;
+      }
+
+      if (clusters.length === 0) {
+        return;
+      }
+
+      const cluster = clusters.find((row) => row.key === urlClusterKey);
+
+      if (cluster === undefined) {
+        return;
+      }
+
+      const disposition = rootCauseClusterDispositionFromUrlValue(urlClusterDisp);
+
+      if (pendingClusterKeyRef.current === urlClusterKey && pendingDispositionRef.current === disposition) {
+        return;
+      }
+
+      pendingClusterKeyRef.current = urlClusterKey;
+      pendingDispositionRef.current = disposition;
+      setPendingClusterKeyState(urlClusterKey);
+      setPendingDispositionState(disposition);
+    };
+
+    syncPendingClusterFromUrl();
+    window.addEventListener("popstate", syncPendingClusterFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncPendingClusterFromUrl);
+    };
+  }, [clusters]);
+
+  if (clusters.length === 0) {
+    return null;
+  }
+
+  const trimmedReason = reason.trim();
+  const reasonReady = trimmedReason.length >= DISPOSITION_RATIONALE_MIN_CHARS;
+  const pendingCluster = clusters.find((cluster) => cluster.key === pendingClusterKey) ?? null;
+
+  function requestClusterDisposition(clusterKey: string, disposition: ClusterDisposition): void {
+    if (!reasonReady) {
+      return;
+    }
+
+    setInlineErrorMessage(null);
+    setSuccessMessage(null);
+    setDispositionConflict(null);
+    setPendingClusterDisposition(clusterKey, disposition);
+  }
+
+  async function applyClusterDisposition(): Promise<void> {
+    if (pendingCluster === null || pendingDisposition === null || !reasonReady) {
+      return;
+    }
+
+    setBusy(true);
+    setInlineErrorMessage(null);
+    setSuccessMessage(null);
+    setDispositionConflict(null);
+
+    const startedAtMs = Date.now();
+    const idempotencyKey = createGovernanceMutationIdempotencyKey();
+
+    try {
+      const expectedCurrentDispositionRowVersionBase64ByFindingId =
+        await collectExpectedCurrentDispositionRowVersionByFindingId(pendingCluster.findingIds);
+
+      const result = await recordBulkFindingDisposition(
+        {
+          findingIds: [...pendingCluster.findingIds],
+          disposition: pendingDisposition,
+          rationale: trimmedReason,
+          ...(Object.keys(expectedCurrentDispositionRowVersionBase64ByFindingId).length === 0
+            ? {}
+            : { expectedCurrentDispositionRowVersionBase64ByFindingId }),
+        },
+        { idempotencyKey, refreshRunId: props.runId?.trim() || undefined },
+      );
+
+      if (result.processedCount <= 0) {
+        setInlineErrorMessage(GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE);
+        return;
+      }
+
+      await awaitMinimumVisibleDuration(startedAtMs);
+      setPendingClusterDisposition(null, null);
+      setSuccessMessage(
+        governanceBulkDispositionSuccessMessage(result.processedCount, pendingDisposition),
+      );
+      router.refresh();
+    } catch (error: unknown) {
+      const conflict = readFindingDispositionConflictFromError(error);
+
+      if (conflict !== null) {
+        setDispositionConflict(conflict);
+        setInlineErrorMessage(null);
+        return;
+      }
+
+      setInlineErrorMessage(GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section
+      className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40"
+      data-testid="root-cause-cluster-disposition-strip"
+    >
+      <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
+        Root-cause clusters — apply one disposition per related group
+      </p>
+      {successMessage !== null ? (
+        <OperatorSuccessCallout
+          message={successMessage}
+          testId="root-cause-cluster-disposition-success"
+          className="mt-2"
+          onDismiss={() => {
+            setSuccessMessage(null);
+          }}
+        />
+      ) : null}
+      <div className="mt-2 space-y-2">
+        <Label htmlFor="root-cause-cluster-rationale" className={OPERATOR_TYPOGRAPHY.helper}>
+          Shared rationale (required for accept or waive)
+        </Label>
+        <Input
+          id="root-cause-cluster-rationale"
+          value={reason}
+          onChange={(event) => {
+            setReason(event.target.value);
+          }}
+          placeholder="Why this pattern is accepted or not applicable"
+          className="h-9"
+          data-testid="root-cause-cluster-rationale"
+        />
+      </div>
+      <ul className="m-0 mt-3 list-none space-y-2 p-0">
+        {clusters.slice(0, 4).map((cluster) => (
+          <li
+            key={cluster.key}
+            className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-800"
+          >
+            <span className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+              {cluster.label}{" "}
+              <span className="text-al-text-secondary">({cluster.openCount} open)</span>
+            </span>
+            <span className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                disabled={busy || !reasonReady}
+                onClick={() => {
+                  requestClusterDisposition(cluster.key, "Accepted");
+                }}
+                data-testid={`root-cause-cluster-accept-${cluster.key}`}
+              >
+                {CLUSTER_DISPOSITION_LABELS.Accepted}
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                disabled={busy || !reasonReady}
+                onClick={() => {
+                  requestClusterDisposition(cluster.key, "RejectedAsNotApplicable");
+                }}
+                data-testid={`root-cause-cluster-waive-${cluster.key}`}
+              >
+                {CLUSTER_DISPOSITION_LABELS.RejectedAsNotApplicable}
+              </Button>
+            </span>
+          </li>
+        ))}
+      </ul>
+      {inlineErrorMessage !== null ? (
+        <OperatorMutationInlineError className="mt-2" message={inlineErrorMessage} />
+      ) : null}
+      {dispositionConflict !== null ? (
+        <div className="mt-2">
+          <FindingDispositionConflictPanel
+            conflict={dispositionConflict}
+            message={formatFindingDispositionBulkConflictMessage(dispositionConflict)}
+            onReload={() => {
+              setDispositionConflict(null);
+              setPendingClusterDisposition(null, null);
+              router.refresh();
+            }}
+            onDismiss={() => {
+              setDispositionConflict(null);
+            }}
+            testId="root-cause-cluster-disposition-conflict"
+          />
+        </div>
+      ) : null}
+      <ConfirmationDialog
+        open={pendingCluster !== null && pendingDisposition !== null}
+        title={
+          pendingDisposition !== null && pendingCluster !== null
+            ? `${CLUSTER_DISPOSITION_LABELS[pendingDisposition]} (${pendingCluster.openCount} findings)`
+            : "Apply cluster disposition"
+        }
+        description={
+          pendingCluster !== null
+            ? `This records the same disposition for ${pendingCluster.openCount} related findings in "${pendingCluster.label}".`
+            : ""
+        }
+        confirmLabel={
+          pendingDisposition !== null ? CLUSTER_DISPOSITION_LABELS[pendingDisposition] : "Confirm"
+        }
+        confirmDisabled={busy || !reasonReady}
+        onConfirm={() => {
+          void applyClusterDisposition();
+        }}
+        onOpenChange={(open) => {
+          // Dismissal clears the pending selection; an in-flight apply keeps it so the strip still
+          // knows which cluster the mutation belongs to when it reports back.
+          if (!open && !busy) {
+            setPendingClusterDisposition(null, null);
+          }
+        }}
+      />
+    </section>
+  );
+}

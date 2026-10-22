@@ -1,0 +1,192 @@
+import type {
+  ActorSet,
+  DraftRequestDocument,
+  DraftRequestResponse,
+  DraftRequestSummaryPage,
+} from "@/types/draft-intake";
+
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { architectureDraftListBlockedReason } from "@/lib/architecture/architecture-draft-list-blocked-reason";
+import {
+  architectureDraftBlockedReason,
+  architectureDraftIntakeMutationBlockedReason,
+} from "@/lib/architecture/architecture-draft-blocked-reason";
+import { isApiRequestError } from "@/lib/api-request-error";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+
+import { apiGet, apiPatchJson, apiPostJson } from "./http";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+
+const DRAFT_BASE = "/v1/architecture/draft";
+
+export type PriorPackageSemanticCountsResponse = {
+  readonly actorCount: number;
+  readonly assumptionCount: number;
+  readonly decisionCount: number;
+  readonly requirementCount: number;
+};
+
+export async function getPriorPackageSemanticCounts(
+  priorRunId: string,
+): Promise<PriorPackageSemanticCountsResponse | null> {
+  const trimmed = priorRunId.trim();
+
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  try {
+    return await apiGetSealedManifestAware<PriorPackageSemanticCountsResponse>(
+      `${DRAFT_BASE}/prior-package-semantics?priorRunId=${encodeURIComponent(trimmed)}`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+
+    if (failure.httpStatus === 404) {
+      return null;
+    }
+
+    throw new Error(formatExportSealedManifestAwareApiError(failure));
+  }
+}
+
+/** Default asserted actor so structural admission can pass without a separate actor UI step. */
+export function buildDefaultActorSet(): ActorSet {
+  return {
+    actors: [
+      {
+        label: "Primary operator",
+        kind: "Human",
+        trustOrigin: "Internal",
+        contract: "Sync",
+        origin: "Asserted",
+        confidence: 100,
+      },
+    ],
+  };
+}
+
+export async function createDraftRequest(
+  freeTextIntent: string,
+  workflowIntent?: "create-architecture" | "start-review",
+  priorRunId?: string | null,
+  systemName?: string,
+): Promise<DraftRequestResponse> {
+  const trimmedPriorRunId = priorRunId?.trim() ?? "";
+  const trimmedSystemName = systemName?.trim() ?? "";
+
+  try {
+    return await apiPostJson<DraftRequestResponse>(DRAFT_BASE, {
+      freeTextIntent: freeTextIntent.trim(),
+      ...(workflowIntent !== undefined ? { workflowIntent } : {}),
+      ...(trimmedPriorRunId.length > 0 ? { priorRunId: trimmedPriorRunId } : {}),
+      ...(trimmedSystemName.length > 0 ? { systemName: trimmedSystemName } : {}),
+    });
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureDraftIntakeMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
+}
+
+export async function listDraftRequests(params?: {
+  readonly mine?: boolean;
+  readonly status?: string;
+  readonly page?: number;
+  readonly pageSize?: number;
+}): Promise<DraftRequestSummaryPage> {
+  const search = new URLSearchParams();
+
+  if (params?.mine !== undefined) {
+    search.set("mine", String(params.mine));
+  }
+
+  if (params?.status !== undefined && params.status.trim().length > 0) {
+    search.set("status", params.status.trim());
+  }
+
+  if (params?.page !== undefined) {
+    search.set("page", String(params.page));
+  }
+
+  if (params?.pageSize !== undefined) {
+    search.set("pageSize", String(params.pageSize));
+  }
+
+  const query = search.toString();
+  const path = query.length > 0 ? `${DRAFT_BASE}?${query}` : DRAFT_BASE;
+
+  try {
+    return await apiGet<DraftRequestSummaryPage>(path);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureDraftListBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
+}
+
+export async function getDraftRequest(
+  draftId: string,
+  options?: { readonly scopeHeaders?: Record<string, string> },
+): Promise<DraftRequestResponse> {
+  try {
+    return await apiGetSealedManifestAware<DraftRequestResponse>(
+      `${DRAFT_BASE}/${encodeURIComponent(draftId)}`,
+      options,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureDraftBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
+}
+
+export async function patchDraftRequest(
+  draftId: string,
+  body: {
+    freeTextIntent?: string;
+    systemName?: string;
+    businessOutcome?: string;
+    actorSet?: ActorSet;
+    focusedPilotModeEnabled?: boolean;
+    workflowIntent?: "create-architecture" | "start-review";
+    structuredBrief?: DraftRequestDocument["structuredBrief"];
+    openQuestions?: string;
+    expectedUpdatedUtc?: string;
+    forceOverwrite?: boolean;
+  },
+): Promise<DraftRequestResponse> {
+  try {
+    return await apiPatchJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}`, body);
+  } catch (error: unknown) {
+    if (isApiRequestError(error) && error.httpStatus === 409) {
+      throw error;
+    }
+
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureDraftIntakeMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
+}
+
+export type ArchitectureDraftPatchBody = Parameters<typeof patchDraftRequest>[1];
+
+/** PATCH an architecture draft with ADR 0088 CAS. Resolves the token from GET when the caller has none. */
+export async function patchDraftRequestRequiringCas(
+  draftId: string,
+  body: Omit<ArchitectureDraftPatchBody, "expectedUpdatedUtc" | "forceOverwrite">,
+  expectedUpdatedUtc?: string | null,
+): Promise<DraftRequestResponse> {
+  let token = expectedUpdatedUtc?.trim() ?? "";
+
+  if (token.length === 0) {
+    const current = await getDraftRequest(draftId);
+    token = current.updatedUtc;
+  }
+
+  return patchDraftRequest(draftId, { ...body, expectedUpdatedUtc: token });
+}

@@ -1,0 +1,43 @@
+flowchart LR
+  subgraph create["1. Create"]
+    REQ["POST /v1/architecture/request<br/>ArchitectureRequest + evidence"]
+    RUN["Persist dbo.Runs<br/>runId"]
+  end
+
+  subgraph queue["2. Schedule optional"]
+    FLAG{"AsyncAuthorityPipeline<br/>+ evidence bundle<br/>SQL storage?"}
+    ENQ["Enqueue pipeline work<br/>same TX as run create"]
+    INLINE["Run stages inline<br/>in API host"]
+  end
+
+  subgraph stages["3. AuthorityPipelineStagesExecutor"]
+    CTX["Context ingestion<br/>authority.context_ingestion"]
+    GRAPH["Knowledge graph<br/>authority.graph"]
+    FIND["Findings<br/>authority.findings"]
+    DEC["Decisioning<br/>authority.decisioning"]
+    ART["Artifact synthesis<br/>authority.artifacts"]
+  end
+
+  subgraph finalize["4. Finalize"]
+    COMMIT["AuthorityRunOrchestrator<br/>FinalizeCommittedPipelineAsync"]
+    GM["Golden manifest<br/>+ decision trace"]
+    OUT["Retrieval indexing outbox<br/>+ integration-event outbox"]
+  end
+
+  subgraph consume["5. Consume"]
+    DETAIL["Review detail<br/>timeline · package"]
+    EXPORT["Artifacts · exports<br/>DOCX / ZIP / explain"]
+  end
+
+  REQ --> RUN
+  RUN --> FLAG
+  FLAG -->|Yes| ENQ
+  FLAG -->|No / InMemory| INLINE
+  ENQ --> CTX
+  INLINE --> CTX
+  CTX --> GRAPH --> FIND --> DEC --> ART
+  ART --> COMMIT
+  COMMIT --> GM
+  COMMIT --> OUT
+  GM --> DETAIL
+  DETAIL --> EXPORT

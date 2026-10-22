@@ -1,0 +1,26 @@
+flowchart LR
+  subgraph extractors["Cloud extractors"]
+    AZ["Azure extractor ZIP"]
+    AWS["AWS inventory path"]
+    GCP["GCP inventory path"]
+  end
+
+  subgraph connect["Cloud connections settings"]
+    CRED["Per-tenant credentials"]
+    GUIDE["Extractor layout rules"]
+  end
+
+  subgraph ingest["ContextIngestion"]
+    NORM["Canonical objects"]
+    DELTA["Delta summaries"]
+    SNAP["ContextSnapshot"]
+  end
+
+  CRED --> AZ
+  CRED --> AWS
+  CRED --> GCP
+  GUIDE --> AZ
+  AZ --> NORM
+  AWS --> NORM
+  GCP --> NORM
+  NORM --> DELTA --> SNAP

@@ -1,0 +1,81 @@
+# Copy to dev.tfvars (gitignored). Used by CD when workflow target is `dev` and this file exists in TF_WORKING_DIRECTORY.
+# ArchLucid DEV subscription: see docs/library/AZURE_SUBSCRIPTIONS.md.
+# Primary runtime: centralus (co-locate with SQL / staging+production default). Prefer a dedicated
+# centralus RG when the legacy rg-ArchLucid-dev metadata location is still eastus2.
+# ACR / artifact storage may remain in rg-ArchLucid-dev. Paste into GitHub Environment secret DEV_TFVARS
+# and set EXPECTED_AZURE_LOCATION=centralus before the next CD run.
+
+enable_container_apps = true
+create_resource_group   = true
+resource_group_name     = "rg-ArchLucid-dev-cus"
+location                = "centralus"
+
+# After first CD image push: use your ACR login server and the tag CD produced (or :latest-dev).
+api_container_image = "acrarchluciddev.azurecr.io/archlucid-api:latest-dev"
+ui_container_image  = "acrarchluciddev.azurecr.io/archlucid-ui:latest-dev"
+
+# Required for private ACR (same subscription; registry may stay in legacy eastus2 RG). Omit only if images are public.
+acr_resource_id = "/subscriptions/<sub-id>/resourceGroups/rg-ArchLucid-dev/providers/Microsoft.ContainerRegistry/registries/acrarchluciddev"
+
+# Pilot-friendly replica floor for cost (duplicate advisory acceptable in personal dev).
+api_min_replicas = 0
+api_max_replicas = 3
+ui_min_replicas  = 1
+ui_max_replicas  = 2
+worker_min_replicas = 1
+worker_max_replicas = 3
+
+api_scale_concurrent_requests = 10
+ui_scale_concurrent_requests  = 20
+
+# Required when enable_container_apps = true — apply infra/terraform-storage in this subscription first, then substitute outputs.
+artifact_blob_service_uri     = "https://<storage-account>.blob.core.windows.net/"
+artifact_storage_account_id   = "/subscriptions/<sub-id>/resourceGroups/<rg>/providers/Microsoft.Storage/storageAccounts/<name>"
+
+tags = {
+  workload = "archlucid"
+  tier     = "dev"
+}
+
+# Custom domain bound directly to the UI/API Container App (no Front Door) — cost-aware for dev.
+# Leave unset for the default *.azurecontainerapps.io FQDN. To adopt a custom hostname: apply once
+# without these set, read ui_custom_domain_verification_id / api_custom_domain_verification_id from
+# state, create the asuid.<hostname> TXT + CNAME records at your DNS host, then set and re-apply.
+# See infra/terraform-container-apps/README.md "Custom domain without Front Door".
+# ui_custom_domain_name  = "dev.archlucid.net"
+# api_custom_domain_name = "api-dev.archlucid.net"
+
+# Least-privilege SQL runtime identity, separate from the API's system-assigned identity used for
+# schema bootstrap (see docs/security/MANAGED_IDENTITY_SQL_BLOB.md). After apply, create a matching
+# SQL user (CREATE USER [<api_sql_runtime_identity_name output>] FROM EXTERNAL PROVIDER) in the tenant
+# catalog database(s), add it to the [ArchLucidApp] role, and build ConnectionStrings:ArchLucidRuntime
+# using api_sql_runtime_identity_client_id.
+# enable_api_sql_runtime_identity = true
+
+# Azure AI Content Safety in the centralus runtime RG (do not borrow longevity-* accounts).
+# Prefer a new account in rg-ArchLucid-dev-cus; import path below is the legacy eastus2 account if reused.
+#   terraform import 'azurerm_cognitive_account.content_safety[0]' \
+#     /subscriptions/8aa56f3b-18bc-43ca-ad45-bad9e811d33b/resourceGroups/rg-ArchLucid-dev/providers/Microsoft.CognitiveServices/accounts/archlucid-dev-contentsafety
+# API Endpoint/ApiKey stay on the Container App via CD secrets ARCHLUCID_CONTENT_SAFETY_ENDPOINT / ARCHLUCID_CONTENT_SAFETY_API_KEY.
+enable_content_safety_account         = true
+content_safety_account_name           = "archlucid-dev-contentsafety"
+content_safety_custom_subdomain_name  = "archlucid-dev-contentsafety"
+content_safety_location               = "centralus"
+content_safety_sku_name               = "S0"
+content_safety_public_network_access_enabled = true
+
+# TB-304: bind ApiKey scope claims to ScopeIds defaults (required on Production-like / Staging API hosts).
+# CD also heals these on target=dev when ArchLucidAuth:Mode=ApiKey. Leave all three set together (or all empty).
+api_key_tenant_id    = "11111111-1111-1111-1111-111111111111"
+api_key_workspace_id = "22222222-2222-2222-2222-222222222222"
+api_key_project_id   = "33333333-3333-3333-3333-333333333333"
+
+# Transactional email (OTP, invites) via Azure Communication Services Email on archlucid.net.
+# After apply: terraform output communication_email_domain_verification_records — publish DNS at your host,
+# set communication_email_initiate_domain_verification = true, re-apply, then set GitHub var DEV_ACS_EMAIL_ENDPOINT
+# from output communication_email_endpoint and DEV_EMAIL_FROM_ADDRESS = noreply@archlucid.net.
+# enable_communication_email_account              = true
+# communication_email_email_service_name          = "archlucid-dev-email"
+# communication_email_communication_service_name  = "archlucid-dev-comm"
+# communication_email_custom_domain_name          = "archlucid.net"
+# communication_email_sender_username             = "noreply"

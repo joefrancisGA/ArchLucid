@@ -1,0 +1,89 @@
+import { act, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { REFRESH_MINIMUM_BUSY_MS } from "@/lib/operator/refresh-minimum-busy";
+import { REFRESH_BUTTON_LABEL, RefreshButton } from "@/components/ui/refresh-button";
+
+describe("RefreshButton", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("renders the icon alongside the word so the accessible name stays 'Refresh'", () => {
+    render(<RefreshButton onClick={vi.fn()} />);
+
+    const button = screen.getByRole("button", { name: REFRESH_BUTTON_LABEL });
+
+    expect(button).toBeInTheDocument();
+    expect(button.querySelector("svg")).not.toBeNull();
+    expect(button.className).toContain("text-[11px]");
+    expect(button.className).toContain("font-bold");
+  });
+
+  it("keeps the label static while busy and spins the icon instead", () => {
+    render(<RefreshButton busy onClick={vi.fn()} />);
+
+    const button = screen.getByRole("button", { name: REFRESH_BUTTON_LABEL });
+
+    expect(button).toHaveAttribute("aria-busy", "true");
+    expect(button).toBeDisabled();
+    expect(button.querySelector("svg")?.getAttribute("class")).toContain("animate-spin");
+  });
+
+  // The visible word must carry the accessible name (WCAG 2.5.3 Label in Name), and TB-2378 bars
+  // `title` tooltips here because the button is disabled — and so unfocusable — while busy.
+  it("names itself from the visible label with no aria-label or title override", () => {
+    render(<RefreshButton onClick={vi.fn()} />);
+
+    const button = screen.getByRole("button", { name: REFRESH_BUTTON_LABEL });
+
+    expect(button).not.toHaveAttribute("aria-label");
+    expect(button).not.toHaveAttribute("title");
+  });
+
+  it("supports a scoped label for surfaces that refresh a named subset", () => {
+    render(<RefreshButton label="Refresh preview" onClick={vi.fn()} />);
+
+    expect(screen.getByRole("button", { name: "Refresh preview" })).toBeInTheDocument();
+  });
+
+  it("fires onClick when idle and stays inert while busy", () => {
+    const onClick = vi.fn();
+    const { rerender } = render(<RefreshButton onClick={onClick} />);
+
+    fireEvent.click(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL }));
+    expect(onClick).toHaveBeenCalledTimes(1);
+
+    rerender(<RefreshButton busy onClick={onClick} />);
+    fireEvent.click(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL }));
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
+  it("stays disabled when the caller disables it independently of busy", () => {
+    render(<RefreshButton disabled onClick={vi.fn()} />);
+
+    expect(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL })).toBeDisabled();
+  });
+
+  it("keeps the busy affordance visible for the minimum feedback window after parent busy clears", () => {
+    const { rerender } = render(<RefreshButton busy onClick={vi.fn()} />);
+
+    const button = screen.getByRole("button", { name: REFRESH_BUTTON_LABEL });
+    expect(button).toHaveAttribute("aria-busy", "true");
+
+    act(() => {
+      rerender(<RefreshButton busy={false} onClick={vi.fn()} />);
+    });
+    expect(button).toHaveAttribute("aria-busy", "true");
+
+    act(() => {
+      vi.advanceTimersByTime(REFRESH_MINIMUM_BUSY_MS);
+    });
+
+    expect(button).toHaveAttribute("aria-busy", "false");
+  });
+});

@@ -1,0 +1,47 @@
+{
+  "requestId": "starter-acme-finops-gov-001",
+  "systemName": "AcmeRetail.FinOps.Organization",
+  "description": "Acme Retail (fictional) runs multi-account AWS Organizations with shared hub networking, workload OUs, and a FinOps review ask: tag governance, budget alerts, Savings Plans posture, and Service Control Policies for encryption and public network restrictions.",
+  "environment": "prod",
+  "cloudProvider": "Aws",
+  "constraints": [
+    "Deny public IPs on sensitive services via SCP at organization scope (design intent)",
+    "Mandatory resource tags: cost-center, environment, workload-owner before production promotion",
+    "Hub egress through transit gateway; spoke-to-spoke via hub (illustrative)"
+  ],
+  "requiredCapabilities": [
+    "hub-vpc-transit-gateway",
+    "workload-ou-app-landing",
+    "workload-ou-data-landing",
+    "cost-and-usage-report-export"
+  ],
+  "assumptions": [
+    "Single AWS Organization; OU hierarchy already exists for pilot story",
+    "No third-party FinOps tool in scope — AWS-native CUR and Cost Explorer exports only in this starter"
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [
+    "Review should highlight observability for cost anomalies and governance drift (tags, region) without asserting measured savings",
+    "Call out FinOps maturity as design hooks: budgets, anomaly detection, Savings Plans / Reserved Instance posture — not dollar outcomes"
+  ],
+  "documents": [
+    {
+      "name": "starter-disclaimer.txt",
+      "contentType": "text/plain",
+      "content": "Synthetic organization / FinOps starter. No real costs or accounts. No ROI claims."
+    }
+  ],
+  "policyReferences": [
+    "starter:aws-cost-governance",
+    "assign-vertical-pack:financial-services"
+  ],
+  "topologyHints": [
+    "Organization units map to platform vs workload; SCPs inherited with override exceptions documented",
+    "Cost and Usage Reports exported to S3 with bucket policies restricting access"
+  ],
+  "securityBaselineHints": [
+    "AWS Well-Architected Framework alignment as **review vocabulary**",
+    "Encryption defaults and key custody called out for data landing OU"
+  ],
+  "infrastructureDeclarations": []
+}

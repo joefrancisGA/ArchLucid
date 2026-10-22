@@ -1,0 +1,82 @@
+import { render, screen, within } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
+  HelpTopicHashScroll: () => null,
+}));
+
+import { HelpImpactPreviewGuideView } from "@/app/(operator)/help/_sections/HelpImpactPreviewGuideView";
+import {
+  IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE,
+  IMPACT_PREVIEW_HELP_SOURCES,
+} from "@/lib/impact-preview-help-evidence-copy";
+import {
+  IMPACT_PREVIEW_HELP_BASELINE_PRECONDITION,
+  IMPACT_PREVIEW_HELP_BASELINE_PRECONDITION_TAG,
+  IMPACT_PREVIEW_HELP_GUIDE_HEADINGS,
+  IMPACT_PREVIEW_HELP_INPUT_TILE_ITEMS,
+  IMPACT_PREVIEW_HELP_OUTPUT_TILE_ITEMS,
+  IMPACT_PREVIEW_HELP_PRIMARY_ACTION,
+  IMPACT_PREVIEW_HELP_START_HERE_CARD_TITLE,
+} from "@/lib/impact-preview-help-guide-content";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
+
+describe("HelpImpactPreviewGuideView", () => {
+  const entry = getProductDocumentationEntry("impact-preview");
+
+  it("renders provenance, baseline precondition, readingBody, and header claim discipline", () => {
+    if (entry === undefined) {
+      throw new Error("Expected impact-preview documentation entry.");
+    }
+
+    render(<HelpImpactPreviewGuideView entry={entry} />);
+
+    expect(screen.getByTestId("help-impact-preview-guide")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-13");
+    expect(screen.getByTestId("help-impact-preview-baseline-precondition")).toHaveTextContent(
+      IMPACT_PREVIEW_HELP_BASELINE_PRECONDITION,
+    );
+    expect(screen.getByTestId("help-impact-preview-baseline-precondition-tag")).toHaveTextContent(
+      IMPACT_PREVIEW_HELP_BASELINE_PRECONDITION_TAG,
+    );
+    expect(screen.getByTestId("help-impact-preview-header-claim-discipline")).toHaveTextContent(
+      IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE,
+    );
+    expect(screen.queryByTestId("help-impact-preview-claim-discipline-strip")).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-impact-preview-overview").className).toContain(HELP_PAGE_LAYOUT.readingBody);
+    expect(screen.getByTestId("help-impact-preview-overview").textContent?.toLowerCase()).not.toContain(
+      "sources package",
+    );
+    expect(screen.getAllByRole("link", { name: IMPACT_PREVIEW_HELP_PRIMARY_ACTION.label })).toHaveLength(2);
+    expect(
+      screen.getByRole("heading", { level: 2, name: IMPACT_PREVIEW_HELP_START_HERE_CARD_TITLE }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "What you provide" }).className).toContain(
+      OPERATOR_TYPOGRAPHY.sectionTitle.split(" ")[0],
+    );
+    expect(screen.getByRole("heading", { name: "What impact preview returns" })).toBeInTheDocument();
+
+    for (const item of IMPACT_PREVIEW_HELP_INPUT_TILE_ITEMS) {
+      expect(screen.getByRole("link", { name: item.label })).toHaveAttribute("href", item.href);
+    }
+
+    for (const item of IMPACT_PREVIEW_HELP_OUTPUT_TILE_ITEMS) {
+      expect(screen.getByRole("link", { name: item.label })).toHaveAttribute("href", item.href);
+    }
+
+    const sourcesSection = screen.getByTestId("help-impact-preview-sources");
+
+    for (const source of IMPACT_PREVIEW_HELP_SOURCES) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+    }
+
+    for (const heading of IMPACT_PREVIEW_HELP_GUIDE_HEADINGS) {
+      expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();
+    }
+  });
+});

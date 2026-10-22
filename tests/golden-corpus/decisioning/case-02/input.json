@@ -1,0 +1,116 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000002",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000002",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000002-0000-4000-8000-000000000000",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000002",
+    "runId": "20000000-0000-4000-8000-000000000002",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [
+      {
+        "nodeId": "req-1",
+        "nodeType": "Requirement",
+        "label": "Auth-0",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "text": "Authenticate users"
+        },
+        "reasoningTrace": null
+      }
+    ],
+    "edges": [],
+    "warnings": []
+  },
+  "merge": {
+    "mergeRunId": "golden-merge-run-1",
+    "manifestVersion": "v1-golden",
+    "request": {
+      "requestId": "REQ-GOLDEN-001",
+      "description": "Golden corpus merge slice \u2014 deterministic description text.",
+      "systemName": "GoldenMergeSystem",
+      "environment": "prod",
+      "cloudProvider": "Azure",
+      "constraints": [
+        "HTTPS only"
+      ],
+      "requiredCapabilities": [],
+      "assumptions": [],
+      "draftActors": [],
+      "qualityAttributeSnapshot": null,
+      "failureModeNoteSnapshot": null,
+      "priorManifestVersion": null,
+      "inlineRequirements": [],
+      "documents": [],
+      "policyReferences": [],
+      "topologyHints": [],
+      "securityBaselineHints": [],
+      "infrastructureDeclarations": [],
+      "isArchived": false,
+      "maxTokensOverride": null,
+      "requestSource": null,
+      "wizardPresetUsed": null,
+      "intakeTransparencyTrail": null,
+      "intakeQuestionAnswers": {},
+      "workflowIntent": null,
+      "modelExecutionProfileOverride": null,
+      "modelAliasOverride": null,
+      "effectiveModelAliasId": null,
+      "priorRunId": null
+    },
+    "agentResults": [
+      {
+        "resultId": "RES-GOLD-1",
+        "taskId": "TASK-GOLD-1",
+        "runId": "golden-merge-run-1",
+        "agentType": 1,
+        "claims": [
+          "Add API service"
+        ],
+        "evidenceRefs": [
+          "request"
+        ],
+        "confidence": 0.9,
+        "calibratedConfidence": null,
+        "findings": [],
+        "checklistCoverage": [],
+        "insightDensityCuration": null,
+        "proposedChanges": {
+          "proposalId": "PROP-GOLD-1",
+          "sourceAgent": 1,
+          "addedServices": [
+            {
+              "serviceId": "svc-golden-1",
+              "serviceName": "api",
+              "serviceType": 1,
+              "runtimePlatform": 1,
+              "purpose": null,
+              "azureArmRegion": null,
+              "azurePricingSku": null,
+              "instanceCount": 1,
+              "tags": [],
+              "requiredControls": []
+            }
+          ],
+          "addedDatastores": [],
+          "addedRelationships": [],
+          "requiredControls": [],
+          "warnings": []
+        },
+        "reasoningTrace": null,
+        "citations": null,
+        "createdUtc": "2026-08-27T02:32:31.2247326Z",
+        "retrievalGroundingTrace": null,
+        "degradationReasonCode": null,
+        "taskStructuralExecutionMode": null,
+        "cacheServed": false,
+        "upstreamResultFingerprints": null
+      }
+    ],
+    "evaluations": [],
+    "decisionNodes": [],
+    "parentManifestVersion": null
+  }
+}

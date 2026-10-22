@@ -1,0 +1,88 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
+import { describe, expect, it } from "vitest";
+
+const UI_ROOT = join(process.cwd());
+
+const TB_2006_BAND_TEST_FILE = "src/components/architecture/ArchitectureDraftWorkspace.test.tsx";
+const TB_2008_BAND_TEST_FILE =
+  "src/app/(operator)/administration/workspace-settings/_sections/TenantCostSettingsCard.test.tsx";
+
+const TB_2011_WIZARD_SOURCE_ROOTS = [
+  "src/app/(operator)/architecture/reviews/new/use-guided-intake-draft-workflow.ts",
+  "src/app/(operator)/architecture/reviews/new/use-first-pilot-intake-submit.ts",
+  "src/app/(operator)/architecture/reviews/new/QuickStartWizard.tsx",
+  "src/app/(operator)/architecture/reviews/new/use-new-run-wizard-submit.ts",
+] as const;
+
+function readSrc(relativePath: string): string {
+  return readFileSync(join(UI_ROOT, relativePath), "utf8");
+}
+
+describe("form validation affordances regression band (TB-2011)", () => {
+  it("documents TB-2006 architecture draft Start review disable-until-ready contract", () => {
+    const architectureDraft = readSrc(TB_2006_BAND_TEST_FILE);
+
+    expect(architectureDraft).toContain("TB-2006");
+    expect(architectureDraft).toContain("disables Start review");
+    expect(architectureDraft).toContain("no validation toast");
+  });
+
+  it("documents TB-2008 tenant cost settings disable-until-ready contract", () => {
+    const tenantCost = readSrc(TB_2008_BAND_TEST_FILE);
+
+    expect(tenantCost).toContain("TB-2008");
+    expect(tenantCost).toContain("disables Save");
+    expect(tenantCost).toContain("without validation toast");
+  });
+
+  it("does not toast client-known guided-intake clarification validation behind disabled CTAs", () => {
+    const guidedIntake = readSrc(TB_2011_WIZARD_SOURCE_ROOTS[0]);
+
+    expect(guidedIntake).not.toContain("Enter an answer or skip this clarification.");
+    expect(guidedIntake).not.toContain("Answer or skip each required clarification before reviewing.");
+  });
+
+  it("keeps review-start wizards on inline validation instead of validation toasts", () => {
+    const firstPilot = readSrc(TB_2011_WIZARD_SOURCE_ROOTS[1]);
+    const quickStart = readSrc(TB_2011_WIZARD_SOURCE_ROOTS[2]);
+    const newRunSubmit = readSrc(TB_2011_WIZARD_SOURCE_ROOTS[3]);
+
+    expect(firstPilot).not.toContain("showError");
+    expect(firstPilot).toContain("setClientValidationMessage");
+    expect(quickStart).not.toContain("showError");
+    expect(quickStart).toContain("stepValidationMessage");
+    expect(newRunSubmit).not.toContain("showToast");
+    expect(newRunSubmit).toContain("setStepValidationMessage");
+    expect(readSrc("src/app/(operator)/architecture/reviews/new/NewRunWizardTemplateRestore.ts")).not.toContain(
+      "showError",
+    );
+    expect(readSrc("src/app/(operator)/architecture/reviews/new/use-guided-intake-draft-admit.ts")).not.toContain(
+      "showError",
+    );
+    expect(readSrc("src/app/(operator)/architecture/reviews/new/use-guided-intake-draft-create.ts")).not.toContain(
+      "showError",
+    );
+    expect(readSrc("src/app/(operator)/architecture/reviews/new/use-guided-intake-draft-create.ts")).not.toContain(
+      "showSuccess",
+    );
+    expect(readSrc("src/app/(operator)/architecture/reviews/new/use-guided-intake-draft-submit.ts")).not.toContain(
+      "showSuccess",
+    );
+    expect(readSrc("src/components/architecture/ArchitectureDraftWorkspace.tsx")).not.toContain("showError");
+    expect(readSrc("src/components/architecture/ArchitectureDraftWorkspaceSaveActions.tsx")).not.toContain(
+      "showSuccess",
+    );
+    expect(readSrc("src/app/(operator)/architecture/reviews/new/use-new-run-wizard-submit.ts")).not.toContain(
+      "showSuccessToast",
+    );
+    expect(readSrc("src/components/architecture/ClarificationAnswerCapturePanel.tsx")).not.toContain("showError");
+    expect(readSrc("src/app/(operator)/administration/workspace-settings/_sections/TenantCostSettingsCard.tsx")).not.toContain(
+      "showError",
+    );
+    expect(readSrc("src/app/(operator)/administration/extract-upload/_sections/ExtractUploadSettingsPageClient.tsx")).not.toContain(
+      "showError",
+    );
+  });
+});

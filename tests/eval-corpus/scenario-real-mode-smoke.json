@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-real-mode-smoke",
+  "metadata": {
+    "title": "Real-mode quality hook (committed findings probe + optional AOAI-export AgentResult)",
+    "complexity": "low",
+    "primaryAgents": ["Topology", "Compliance"]
+  },
+  "inputSummary": "Synthetic public web tier on Azure with TLS at the edge, centralized secrets in Key Vault, and request traces in Application Insights. Used only to regress keyword probes—not a customer workload.",
+  "recording": "recordings/corpus-real-mode-smoke.findings.json",
+  "qualityEvidence": {
+    "mode": "real",
+    "agentType": "Topology",
+    "agentResultPathEnv": "ARCHLUCID_EVAL_CORPUS_REAL_MODE_SMOKE_AGENT_RESULT",
+    "notes": "Export Web-serialized AgentResult JSON to a non-repo path; set the env var to score real model output alongside the deterministic simulator corpus."
+  },
+  "expectedFindings": [
+    {
+      "id": "e edge tls",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["front door", "https"]
+    },
+    {
+      "id": "e secrets hygiene",
+      "category": "Compliance",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["key vault", "secret"]
+    },
+    {
+      "id": "e telemetry",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["application insights", "dependency"]
+    }
+  ],
+  "unexpectedFindings": [
+    {
+      "category": "Cost",
+      "ifContainsAny": ["no budget ceiling", "finops blackout"]
+    },
+    {
+      "category": "Critic",
+      "ifContainsAny": ["shutdown production", "delete all backups"]
+    }
+  ]
+}

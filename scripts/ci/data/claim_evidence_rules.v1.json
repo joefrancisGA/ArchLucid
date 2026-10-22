@@ -1,0 +1,90 @@
+{
+  "schema": "archlucid.claim-evidence-rules.v1",
+  "scanRoots": [
+    "docs/go-to-market",
+    "docs/library",
+    "docs/security"
+  ],
+  "requiredEvidenceMarkers": [
+    {
+      "id": "public-claim-boundary",
+      "path": "docs/library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md"
+    },
+    {
+      "id": "claim-readiness-status",
+      "path": "docs/go-to-market/CLAIM_READINESS_STATUS.md"
+    },
+    {
+      "id": "release-claim-gate",
+      "path": "docs/quality/RELEASE_CLAIM_GATE.md"
+    },
+    {
+      "id": "what-not-to-promise",
+      "path": "docs/library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md"
+    }
+  ],
+  "gateConditionalClaims": [
+    {
+      "gateId": "G5",
+      "holdStatusBlocks": [
+        {
+          "pattern": "\\bfull (quad[- ]agent )?real[- ]mode (ai )?confidence\\b",
+          "label": "full real-mode AI confidence"
+        },
+        {
+          "pattern": "\\bproduction[- ]grade ai guarantee\\b",
+          "label": "production-grade AI guarantee"
+        }
+      ]
+    },
+    {
+      "gateId": "G6",
+      "holdStatusBlocks": [
+        {
+          "pattern": "\\bthird[- ]party (pen[- ]test|penetration test) (passed|complete|certified)\\b",
+          "label": "third-party pen test completed"
+        },
+        {
+          "pattern": "\\bSOC 2 Type II (certified|attested|issued)\\b",
+          "label": "SOC 2 Type II issued"
+        }
+      ]
+    }
+  ],
+  "strongClaims": [
+    {
+      "pattern": "\\bSOC 2 Type II (certified|attested|issued)\\b",
+      "label": "SOC 2 Type II certified"
+    },
+    {
+      "pattern": "\\battestation (issued|complete)\\b",
+      "label": "attestation issued"
+    },
+    {
+      "pattern": "\\bpenetration test (passed|complete|certified)\\b",
+      "label": "penetration test passed"
+    },
+    {
+      "pattern": "\\bmarketplace (checkout|purchase) (is )?(live|available today)\\b",
+      "label": "live marketplace checkout"
+    }
+  ],
+  "caveatMarkers": [
+    "not ",
+    "no ",
+    "deferred",
+    "v1.1",
+    "v2",
+    "do not",
+    "does not",
+    "self-assessment",
+    "self-assessed",
+    "roadmap",
+    "owner",
+    "template",
+    "unless",
+    "informational",
+    "hold",
+    "without "
+  ]
+}

@@ -1,0 +1,412 @@
+using ArchLucid.Contracts.Common;
+
+namespace ArchLucid.Persistence.Models;
+
+public sealed class RunRecord
+{
+    public Guid TenantId
+    {
+        get;
+        set;
+    }
+
+    public Guid WorkspaceId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Scoped solution/project boundary (GUID). Distinct from <see cref="ProjectId" /> slug.</summary>
+    public Guid ScopeProjectId
+    {
+        get;
+        set;
+    }
+
+    public Guid RunId
+    {
+        get;
+        set;
+    }
+
+    public string ProjectId
+    {
+        get;
+        set;
+    } = "";
+
+    public string? Description
+    {
+        get;
+        set;
+    }
+
+    public DateTime CreatedUtc
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Canonical actor key or mailbox captured when the review run was created.</summary>
+    public string? CreatedByUserId
+    {
+        get;
+        set;
+    }
+
+    public Guid? ContextSnapshotId
+    {
+        get;
+        set;
+    }
+
+    public Guid? GraphSnapshotId
+    {
+        get;
+        set;
+    }
+
+    public Guid? FindingsSnapshotId
+    {
+        get;
+        set;
+    }
+
+    public Guid? GoldenManifestId
+    {
+        get;
+        set;
+    }
+
+    public Guid? DecisionTraceId
+    {
+        get;
+        set;
+    }
+
+    public Guid? ArtifactBundleId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Stable cross-run architecture identity (tenant-scoped); not a sealed record.</summary>
+    public Guid? ArchitectureId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Immutable content-addressed architecture revision evaluated by this run.</summary>
+    public Guid? ArchitectureVersionId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>SHA-256 κ artifact hash pinned at create (wave-9 suggestion 87).</summary>
+    public byte[]? PinnedArchitectureVersionContentHashSha256
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Pinned κ <see cref="ArchitectureKnowledgeModel.ModelId" /> for as-of-this-run reads.</summary>
+    public string? KnowledgeModelId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>SHA-256 κ content hash pinned at create (wave-10 suggestion 95).</summary>
+    public byte[]? PinnedKnowledgeModelContentHashSha256
+    {
+        get;
+        set;
+    }
+
+    /// <summary>FK logical key to <c>ArchitectureRequests.RequestId</c>.</summary>
+    public string? ArchitectureRequestId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>String form of lifecycle enum (<c>ArchitectureRunStatus</c>) for API/read parity with legacy rows.</summary>
+    public string? LegacyRunStatus
+    {
+        get;
+        set;
+    }
+
+    /// <summary>UTC when the run reached a terminal lifecycle state.</summary>
+    public DateTime? CompletedUtc
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Latest committed manifest version key.</summary>
+    public string? CurrentManifestVersion
+    {
+        get;
+        set;
+    }
+
+    /// <summary>W3C trace ID from <c>Activity.Current?.TraceId</c> at run creation; used for post-hoc trace lookup.</summary>
+    public string? OtelTraceId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>When <see langword="true" />, this run was created by <c>SeedTrialWelcomeRunAsync</c> for trial onboarding.</summary>
+    public bool IsDemoWelcomeRun
+    {
+        get;
+        set;
+    }
+
+    /// <summary>When <see langword="true" />, anonymous marketing may read a bounded showcase payload for this run.</summary>
+    public bool IsPublicShowcase
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     When <see langword="true" />, this run was seeded as live sample data and is eligible for auto-purge on first
+    ///     real commit or TTL expiry (OS-1b).
+    /// </summary>
+    public bool IsSample
+    {
+        get;
+        set;
+    }
+
+    /// <summary>When <see langword="true" />, the operator pinned this run as a workspace reference architecture.</summary>
+    public bool IsPinned
+    {
+        get;
+        set;
+    }
+
+    /// <summary>When set, the run is excluded from list/detail authority APIs (soft archival).</summary>
+    public DateTime? ArchivedUtc
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     When <see langword="true" />, <c>archlucid try --real</c> substituted simulator output after real Azure OpenAI
+    ///     execution did not complete (first-value report shows a warning callout).
+    /// </summary>
+    public bool RealModeFellBackToSimulator
+    {
+        get;
+        set;
+    }
+
+    /// <summary>INV-002: honest structural execution labeling for buyer-visible surfaces.</summary>
+    public StructuralExecutionMode StructuralExecutionMode
+    {
+        get;
+        set;
+    } = StructuralExecutionMode.Simulator;
+
+    /// <summary>
+    ///     Working Career vs Rehearsal door captured at first execute start (CG-019). Null on legacy rows
+    ///     that never executed after the stamp shipped. Career honesty reads this stamp, not the live chooser.
+    /// </summary>
+    public string? WorkingCareerRehearsalDoor
+    {
+        get;
+        set;
+    }
+
+    /// <summary>UTC when <see cref="WorkingCareerRehearsalDoor" /> was first captured; null until execute stamps it.</summary>
+    public DateTime? ExecutePostureCapturedUtc
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Optional snapshot of <c>AzureOpenAI:DeploymentName</c> at fallback time (for provenance footer).</summary>
+    public string? PilotAoaiDeploymentSnapshot
+    {
+        get;
+        set;
+    }
+
+    /// <summary>JSON-serialized <see cref="ArchLucid.Contracts.Runs.ReviewRunEngineProvenance" />; null until execute completes.</summary>
+    public string? EngineProvenanceJson
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     JSON-serialized <see cref="ArchLucid.Contracts.Governance.Resolution.ExecutedEffectiveGovernanceSnapshotDescriptor" />;
+    ///     null until first execute captures review scope.
+    /// </summary>
+    public string? GovernanceScopeJson
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     JSON-serialized <see cref="ArchLucid.Contracts.Governance.Coverage.RunAcknowledgedCoverageDocument" />;
+    ///     operator preview pin before execute.
+    /// </summary>
+    public string? AcknowledgedCoverageJson
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     JSON-serialized <see cref="ArchLucid.Contracts.Runs.RunAssumptionAcknowledgementDocument" />;
+    ///     operator confirmation of open assumptions before finalize (TB-2345 item 49).
+    /// </summary>
+    public string? AcknowledgedAssumptionsJson
+    {
+        get;
+        set;
+    }
+
+    /// <summary>JSON-serialized last recommendation improve-loop evidence for operator replay.</summary>
+    public string? ImproveLoopEvidenceJson
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Count of user/API-initiated retries after <see cref="LegacyRunStatus" /> <c>Failed</c>.</summary>
+    public int RetryCount
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Optional durable reason for the last transition to <c>Failed</c>.</summary>
+    public string? LastFailureReason
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     SQL Server <c>ROWVERSION</c> for optimistic concurrency on updates; <see langword="null" /> before first
+    ///     read/insert round-trip.
+    /// </summary>
+    public byte[]? RowVersion
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Populated on read queries when findings snapshots report warnings for this run.</summary>
+    public bool HasWarnings
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Populated on read queries when open governance alerts exist for this run.</summary>
+    public bool HasGovernanceWarnings
+    {
+        get;
+        set;
+    }
+
+    /// <summary>TB-112: latest run-level operator governance decision name when recorded.</summary>
+    public string? OperatorGovernanceDecision
+    {
+        get;
+        set;
+    }
+
+    /// <summary>TB-112: rationale captured with <see cref="OperatorGovernanceDecision" />.</summary>
+    public string? OperatorGovernanceDecisionRationale
+    {
+        get;
+        set;
+    }
+
+    /// <summary>TB-112: UTC timestamp when the operator disposition was recorded.</summary>
+    public DateTime? OperatorGovernanceDecisionUtc
+    {
+        get;
+        set;
+    }
+
+    /// <summary>TB-112: operator principal that recorded the disposition.</summary>
+    public string? OperatorGovernanceDecisionByUserId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     When <see langword="true" />, deferred authority pipeline work dead-lettered after retry exhaustion.
+    ///     Populated at API read time from <see cref="LastFailureReason"/>; not stored in SQL.
+    /// </summary>
+    public bool IsDeadLettered
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     Package origin label (<see cref="Contracts.Common.ArchitecturePackageOrigin" />) persisted at run create.
+    /// </summary>
+    public string? PackageOrigin
+    {
+        get;
+        set;
+    }
+
+    /// <summary>JSON array of enabled policy pack ids pinned at run create (wave-4 suggestion 34).</summary>
+    public string? PinnedPolicyPackIdsJson
+    {
+        get;
+        set;
+    }
+
+    /// <summary>SHA-256 of canonical <see cref="PinnedPolicyPackIdsJson" /> at create.</summary>
+    public byte[]? PinnedPolicyPackIdsHashSha256
+    {
+        get;
+        set;
+    }
+
+    /// <summary>JSON array of pinned extractor packages at run create (wave-6 suggestions 51/55).</summary>
+    public string? PinnedEvidencePackagePinsJson
+    {
+        get;
+        set;
+    }
+
+    /// <summary>SHA-256 of canonical <see cref="PinnedEvidencePackagePinsJson" /> at create.</summary>
+    public byte[]? PinnedEvidencePackagePinsHashSha256
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Focused pilot mode token was active on the create request (wave-6 suggestion 53).</summary>
+    public bool? PinnedFocusedPilotModeEnabled
+    {
+        get;
+        set;
+    }
+
+    /// <summary><see cref="Contracts.Common.CloudProvider" /> stored as int when focused pilot was pinned.</summary>
+    public int? PinnedFocusedPilotCloudProvider
+    {
+        get;
+        set;
+    }
+}

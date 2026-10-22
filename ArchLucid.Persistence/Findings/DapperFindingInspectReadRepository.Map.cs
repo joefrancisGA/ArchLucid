@@ -1,0 +1,292 @@
+using System.Text.Json;
+
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Findings;
+
+namespace ArchLucid.Persistence.Findings;
+
+public sealed partial class DapperFindingInspectReadRepository
+{
+    private static FindingInspectResponse MapInspectResponse(
+        MainRow row,
+        DispositionJoinResult joinResult,
+        bool includeTypedPayload)
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(row.AppliedRuleIdsJson, joinResult.FirstRuleText);
+
+        FindingHumanReviewStatus humanReview = FindingInspectReadModelMapper.ParseHumanReview(row.HumanReviewStatus);
+
+        FindingConfidenceLevel? evaluationLevel =
+            FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel(row.EvaluationConfidenceLevel);
+
+        List<FindingInspectEvidenceItem> evidence = FindingInspectReadRepositoryCore
+            .BuildEvidenceFromRelatedNodes(joinResult.RelatedNodes)
+            .ToList();
+
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspectRead(
+            includeTypedPayload,
+            row.PayloadJson,
+            row.Title,
+            row.Rationale);
+        FindingSeverity recordSeverity = FindingInspectReadModelMapper.ParseFindingSeverity(row.Severity);
+        FindingClassification? classification = FindingInspectReadRepositoryCore.ResolveInspectClassification(
+            row.Classification,
+            typed);
+        FindingTreatment? treatment = FindingInspectReadRepositoryCore.ResolveInspectTreatment(row.Treatment, typed);
+        FindingSemanticSupportBand? semanticSupportBand =
+            FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand(row.SemanticSupportBandOverlay, typed);
+
+        DispositionPointerProjection dispositionPointer = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            joinResult.DispositionRow?.Disposition,
+            joinResult.DispositionRow is not null,
+            joinResult.DispositionRow?.OccurredAtUtc,
+            joinResult.DispositionRow?.RevisitDueUtc,
+            joinResult.DispositionRow?.EventId,
+            joinResult.DispositionRow?.ReviewerUserId,
+            joinResult.DispositionRow?.RowVersionStamp);
+
+        return new FindingInspectResponse
+        {
+            FindingId = FindingInspectReadRepositoryCore.NormalizeFindingId(row.FindingId),
+            Severity = recordSeverity,
+            TypedPayload = typed,
+            Classification = classification,
+            Treatment = treatment,
+            SemanticSupportBand = semanticSupportBand,
+            DecisionRuleId = ruleId,
+            DecisionRuleName = FindingInspectReadRepositoryCore.ResolveDecisionRuleName(ruleName, ruleId),
+            Evidence = evidence,
+            RecommendedActions = joinResult.RecommendedActions,
+            AuditRowId = joinResult.AuditRowId,
+            RunId = row.RunId,
+            ManifestVersion = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(row.CurrentManifestVersion),
+            ModelDeploymentName = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(row.ModelDeploymentName),
+            ModelAlias = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(row.ModelAlias),
+            PromptTemplateVersion = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(row.PromptTemplateVersion),
+            ConfidenceScore = row.ConfidenceScore,
+            EvaluationConfidenceScore = row.EvaluationConfidenceScore,
+            ConfidenceLevel = evaluationLevel,
+            HumanReviewStatus = humanReview,
+            IsMuted = row.IsMuted,
+            MuteReason = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(row.MuteReason),
+            ReasoningTrace = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(row.ReasoningTrace),
+            ReasoningTraceDigestSha256 =
+                FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(row.ReasoningTraceDigestSha256),
+            LatestDisposition = dispositionPointer.LatestDisposition,
+            LatestDispositionOccurredAtUtc = dispositionPointer.LatestDispositionOccurredAtUtc,
+            LatestDispositionEventId = dispositionPointer.LatestDispositionEventId,
+            LatestDispositionRowVersionBase64 = dispositionPointer.LatestDispositionRowVersionBase64,
+            LatestDispositionReviewerUserId = dispositionPointer.LatestDispositionReviewerUserId,
+            RevisitDueUtc = dispositionPointer.RevisitDueUtc,
+            HasActiveWaiver = FindingInspectReadRepositoryCore.HasActiveWaiver(joinResult.ActiveWaiverCount),
+            AssignedToUserId = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(row.AssignedToUserId),
+            RemediationDueUtc = FindingInspectReadRepositoryCore.ToUtcDateTimeOffset(row.RemediationDueUtc),
+            RunStructuralExecutionMode = row.StructuralExecutionMode,
+            RunRealModeFellBackToSimulator = row.RealModeFellBackToSimulator,
+        };
+    }
+
+    private sealed class MainRow
+    {
+        public string FindingId
+        {
+            get;
+            init;
+        } = string.Empty;
+
+        public string Severity
+        {
+            get;
+            init;
+        } = string.Empty;
+
+        public string? PayloadJson
+        {
+            get;
+            init;
+        }
+
+        public string? Title
+        {
+            get;
+            init;
+        }
+
+        public string? Rationale
+        {
+            get;
+            init;
+        }
+
+        public Guid RunId
+        {
+            get;
+            init;
+        }
+
+        public string? CurrentManifestVersion
+        {
+            get;
+            init;
+        }
+
+        public Guid? GoldenManifestId
+        {
+            get;
+            init;
+        }
+
+        public StructuralExecutionMode StructuralExecutionMode
+        {
+            get;
+            init;
+        }
+
+        public bool RealModeFellBackToSimulator
+        {
+            get;
+            init;
+        }
+
+        public string? AppliedRuleIdsJson
+        {
+            get;
+            init;
+        }
+
+        public string? ModelDeploymentName
+        {
+            get;
+            init;
+        }
+
+        public string? ModelAlias
+        {
+            get;
+            init;
+        }
+
+        public string? PromptTemplateVersion
+        {
+            get;
+            init;
+        }
+
+        public double? ConfidenceScore
+        {
+            get;
+            init;
+        }
+
+        public int? EvaluationConfidenceScore
+        {
+            get;
+            init;
+        }
+
+        public string? EvaluationConfidenceLevel
+        {
+            get;
+            init;
+        }
+
+        public string? HumanReviewStatus
+        {
+            get;
+            init;
+        }
+
+        public bool IsMuted
+        {
+            get;
+            init;
+        }
+
+        public string? MuteReason
+        {
+            get;
+            init;
+        }
+
+        public string? AssignedToUserId
+        {
+            get;
+            init;
+        }
+
+        public DateTime? RemediationDueUtc
+        {
+            get;
+            init;
+        }
+
+        public string? ReasoningTrace
+        {
+            get;
+            init;
+        }
+
+        public string? ReasoningTraceDigestSha256
+        {
+            get;
+            init;
+        }
+
+        public byte? Treatment
+        {
+            get;
+            init;
+        }
+
+        public byte? Classification
+        {
+            get;
+            init;
+        }
+
+        public string? SemanticSupportBandOverlay
+        {
+            get;
+            init;
+        }
+    }
+
+    private sealed class DispositionRow
+    {
+        public string? Disposition
+        {
+            get;
+            init;
+        }
+
+        public DateTimeOffset? OccurredAtUtc
+        {
+            get;
+            init;
+        }
+
+        public DateTime? RevisitDueUtc
+        {
+            get;
+            init;
+        }
+
+        public Guid EventId
+        {
+            get;
+            init;
+        }
+
+        public string? ReviewerUserId
+        {
+            get;
+            init;
+        }
+
+        public byte[] RowVersionStamp
+        {
+            get;
+            init;
+        } = [];
+    }
+}

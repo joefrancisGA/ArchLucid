@@ -1,0 +1,169 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { describe, expect, it } from "vitest";
+
+import { readDeferredChunkImportLoaderSource } from "@/lib/operator/deferred-chunk-import-loader-source.test-helper";
+
+const shellDir = dirname(fileURLToPath(import.meta.url));
+const componentsDir = join(shellDir, "..");
+
+const appShellSource = readFileSync(join(componentsDir, "AppShellClient.tsx"), "utf8");
+const deferredSource = readFileSync(join(shellDir, "app-shell-deferred-chunks.tsx"), "utf8");
+const topBarSource = readFileSync(join(shellDir, "OperatorShellTopBar.tsx"), "utf8");
+const manifestLoaderSource = readDeferredChunkImportLoaderSource();
+
+const bannedStaticImports = [
+  '@/components/shell/OperatorShellTopBar"',
+  '@/components/shell/AppShellWorkspaceFooter"',
+  '@/components/shell/AppShellIdleOverlays"',
+  '@/components/dev-testing/DevTestingShellShortcuts"',
+  '@/components/KeyboardShortcutProvider"',
+  '@/components/AppInsightsTelemetryInit"',
+  '@/components/ClientRuntimeDiagnostics"',
+  '@/components/operator/OperatorRouteEnteredTelemetry"',
+  '@/components/AuthPanel"',
+  '@/components/SyncActiveRunFromPathname"',
+  '@/components/DemoStrictNavigationGate"',
+  '@/components/SponsorShellRedirect"',
+  '@/components/operator/OperatorRoleGate"',
+  '@/components/shell/AppShellKeyboardShortcutBoundary"',
+  '@/components/shell/OperatorShellAccessRedirectsHost"',
+  '@/components/AppToaster"',
+  '@/components/RouteAnnouncer"',
+  '@/components/ColorModeToggle"',
+  '@/components/AuthorityThemeToggle"',
+  '@/components/ShellThemePreferencesAppearanceVocabularyRail"',
+  '@/components/FrictionlessTrialBanner"',
+  '@/components/shell/AppShellMainAffordances"',
+  '@/components/OnboardingTour"',
+  '@/components/usability/RegistrationOnboardingTourAutoStart"',
+  '@/components/HelpSearchPanel"',
+  '@/components/SidebarNav"',
+  '@/components/shell/AppShellStatusBanners"',
+  '@/components/trial/TrialLimitModal"',
+  '@/components/cto-demo/CtoDemoJourneyCaptionBar"',
+] as const;
+
+const bannedTopBarStaticImports = [
+  '@/components/GlobalSearchBar"',
+  '@/components/MobileNavDrawer"',
+  '@/components/ScopeSwitcher"',
+  '@/components/shell/ShellInFlightOperationsAffordance"',
+  '@/components/shell/AccountSettingsMenu"',
+  '@/components/shell/OperatorShellTopBarMoreMenu"',
+  '@/components/llm/LlmBudgetStatusPill"',
+] as const;
+
+describe("operator shell deferred imports (TB-2118)", () => {
+  it("keeps heavy shell chrome off AppShellClient static import graph", () => {
+    for (const bannedImport of bannedStaticImports) {
+      expect(appShellSource).not.toContain(bannedImport);
+    }
+
+    expect(appShellSource).toContain("app-shell-deferred-chunks");
+    expect(appShellSource).toContain("OperatorShellTopBarDeferred");
+    expect(appShellSource).toContain("AppShellWorkspaceFooterDeferred");
+    expect(appShellSource).toContain("AppShellIdleOverlaysDeferred");
+    expect(appShellSource).toContain("DevTestingShellShortcutsDeferred");
+    expect(appShellSource).toContain("AppShellTelemetryBundleDeferred");
+    expect(appShellSource).toContain("AppShellSyncSessionIdleGuard");
+    expect(appShellSource).toContain("AppShellLivelihoodMutationResumeHost");
+    expect(appShellSource).toContain("AppShellSyncKeyboardShortcutListener");
+    expect(appShellSource).toContain("AppShellSyncCommandPaletteHost");
+    expect(appShellSource).toContain("CommandPaletteWorkActionBridge");
+    expect(appShellSource).not.toContain("SessionIdleTimeoutGuardDeferred");
+    expect(appShellSource).toContain("AuthPanelDeferred");
+    expect(appShellSource).toContain("SyncActiveRunFromPathnameDeferred");
+    expect(appShellSource).toContain("AppShellMainContentGateDeferred");
+    expect(appShellSource).toContain("AppShellKeyboardShortcutBoundaryDeferred");
+    expect(appShellSource).toContain("OperatorShellAccessRedirectsHostDeferred");
+    expect(appShellSource).toContain("AppToasterDeferred");
+    expect(appShellSource).toContain("RouteAnnouncerDeferred");
+    expect(appShellSource).toContain("ColorModeToggleDeferred");
+    expect(appShellSource).toContain("AuthorityThemeToggleDeferred");
+    expect(appShellSource).toContain("ShellThemePreferencesAppearanceVocabularyRailDeferred");
+    expect(appShellSource).toContain("FrictionlessTrialBannerDeferred");
+    expect(appShellSource).toContain("AppShellMainAffordancesDeferred");
+    expect(appShellSource).toContain("OnboardingTourDeferred");
+    expect(appShellSource).toContain("RegistrationOnboardingTourAutoStartDeferred");
+    expect(appShellSource).toContain("HelpSearchPanelDeferred");
+    expect(appShellSource).toContain("HelpPanelDeferred");
+    expect(appShellSource).toContain("SidebarNavDeferred");
+    expect(appShellSource).toContain("AppShellStatusBannersDeferred");
+    expect(appShellSource).toContain("TrialLimitModalHostDeferred");
+    expect(appShellSource).toContain("CtoDemoJourneyCaptionBarDeferred");
+    expect(appShellSource).not.toContain("next/dynamic");
+  });
+
+  it("dynamic-imports every app shell module via manifest loaders", () => {
+    expect(deferredSource).toContain("createDeferredComponentFromManifest");
+    expect(deferredSource).not.toContain("next/dynamic");
+    expect(deferredSource).not.toContain("deferredChunkLoader");
+    expect(manifestLoaderSource).toContain('import("@/components/shell/OperatorShellTopBar")');
+    expect(manifestLoaderSource).toContain('import("@/components/shell/AppShellWorkspaceFooter")');
+    expect(manifestLoaderSource).toContain('import("@/components/shell/AppShellIdleOverlays")');
+    expect(manifestLoaderSource).toContain('import("@/components/dev-testing/DevTestingShellShortcuts")');
+    expect(manifestLoaderSource).toContain('import("@/components/shell/AppShellTelemetryBundle")');
+    expect(manifestLoaderSource).toContain('import("@/components/SessionIdleTimeoutGuard")');
+    expect(manifestLoaderSource).toContain('import("@/components/AuthPanel")');
+    expect(manifestLoaderSource).toContain('import("@/components/SyncActiveRunFromPathname")');
+    expect(manifestLoaderSource).toContain('import("@/components/shell/AppShellMainContentGate")');
+    expect(manifestLoaderSource).toContain('import("@/components/shell/OperatorShellAccessRedirectsHost")');
+    expect(manifestLoaderSource).toContain('import("@/components/AppToaster")');
+    expect(manifestLoaderSource).toContain('import("@/components/RouteAnnouncer")');
+    expect(manifestLoaderSource).toContain('import("@/components/shell/AppShellKeyboardShortcutBoundary")');
+    expect(manifestLoaderSource).toContain('import("@/components/ColorModeToggle")');
+    expect(manifestLoaderSource).toContain('import("@/components/AuthorityThemeToggle")');
+    expect(manifestLoaderSource).toContain('import("@/components/ShellThemePreferencesAppearanceVocabularyRail")');
+    expect(manifestLoaderSource).toContain('import("@/components/FrictionlessTrialBanner")');
+    expect(manifestLoaderSource).toContain('import("@/components/shell/AppShellMainAffordances")');
+    expect(manifestLoaderSource).toContain('import("@/components/OnboardingTour")');
+    expect(manifestLoaderSource).toContain(
+      'import("@/components/usability/RegistrationOnboardingTourAutoStart")',
+    );
+    expect(manifestLoaderSource).toContain('import("@/components/HelpSearchPanel")');
+    expect(manifestLoaderSource).toContain('import("@/components/HelpPanel")');
+    expect(manifestLoaderSource).toContain('import("@/components/SidebarNav")');
+    expect(manifestLoaderSource).toContain('import("@/components/shell/AppShellStatusBanners")');
+    expect(manifestLoaderSource).toContain('import("@/components/trial/TrialLimitModal")');
+    expect(manifestLoaderSource).toContain('import("@/components/cto-demo/CtoDemoJourneyCaptionBar")');
+    expect(manifestLoaderSource).toContain('import("@/components/CommandPalette")');
+    expect(manifestLoaderSource).toContain('import("@/components/CorePilotWizard")');
+    expect(manifestLoaderSource).toContain('import("@/components/usability/TrustCenterShellLink")');
+    expect(deferredSource).toContain("operator-shell-top-bar");
+    expect(deferredSource).toContain("app-shell-keyboard-shortcut-boundary");
+    expect(deferredSource).toContain("app-shell-color-mode-toggle");
+    expect(deferredSource).toContain("app-shell-authority-theme-toggle");
+    expect(deferredSource).toContain("app-shell-theme-preferences-vocabulary-rail");
+    expect(deferredSource).toContain("app-shell-frictionless-trial-banner");
+    expect(deferredSource).toContain("app-shell-sidebar-nav");
+  });
+
+  it("keeps heavy top-bar modules off the sync import graph", () => {
+    for (const bannedImport of bannedTopBarStaticImports) {
+      expect(topBarSource).not.toContain(bannedImport);
+    }
+
+    expect(topBarSource).toContain("operator-shell-top-bar-deferred-chunks");
+    expect(topBarSource).toContain("CommandPaletteTopBarTrigger");
+    expect(topBarSource).not.toMatch(/<CommandPalette[\s/>]/);
+  });
+
+  it("keeps idle overlay and footer internals off static import graphs (wave 8)", () => {
+    const idleOverlaysSource = readFileSync(join(shellDir, "AppShellIdleOverlays.tsx"), "utf8");
+    const footerSource = readFileSync(join(shellDir, "AppShellWorkspaceFooter.tsx"), "utf8");
+    const commandPaletteLazySource = readFileSync(join(componentsDir, "CommandPaletteLazy.tsx"), "utf8");
+
+    expect(idleOverlaysSource).not.toContain("next/dynamic");
+    expect(idleOverlaysSource).toContain("app-shell-idle-overlays-deferred-chunks");
+    expect(footerSource).not.toContain("next/dynamic");
+    expect(footerSource).toContain("app-shell-workspace-footer-deferred-chunks");
+    expect(commandPaletteLazySource).not.toContain("next/dynamic");
+    expect(commandPaletteLazySource).toContain("app-shell-command-palette");
+    expect(manifestLoaderSource).toContain('import("@/components/operator-home/SystemHealthStatusStrip")');
+    expect(manifestLoaderSource).toContain('import("@/components/shell/DeploymentBuildFingerprintStrip")');
+    expect(manifestLoaderSource).toContain('import("@/components/BuyerCtoDemoTourOverlay")');
+  });
+});

@@ -1,0 +1,10 @@
+{
+  "name": "braces",
+  "version": "3.0.4",
+  "description": "ArchLucid depth-limited build of braces 3.0.3. Upstream has no patched release for GHSA-vfj7-8cjw-p6xm. This is not an npm registry version.",
+  "license": "MIT",
+  "main": "index.js",
+  "dependencies": {
+    "fill-range": "^7.1.1"
+  }
+}

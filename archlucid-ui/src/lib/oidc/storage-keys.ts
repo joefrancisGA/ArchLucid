@@ -1,0 +1,24 @@
+/** sessionStorage keys for OIDC token material (ArchLucid product rename). */
+export const OIDC_ACCESS_TOKEN_KEY = "archlucid_oidc_access_token";
+export const OIDC_REFRESH_TOKEN_KEY = "archlucid_oidc_refresh_token";
+export const OIDC_EXPIRES_AT_MS_KEY = "archlucid_oidc_expires_at_ms";
+export const OIDC_ID_TOKEN_KEY = "archlucid_oidc_id_token";
+/** Non-sensitive display label mirrored at sign-in (LK-06 P2 — no token material in sessionStorage). */
+export const OIDC_DISPLAY_NAME_KEY = "archlucid_oidc_display_name";
+/** Non-sensitive subject (`sub`) for client-side cache partitioning (LK-06 P2). */
+export const OIDC_USER_SUBJECT_KEY = "archlucid_oidc_user_subject";
+export const OIDC_OAUTH_STATE_KEY = "archlucid_oidc_oauth_state";
+export const OIDC_CODE_VERIFIER_KEY = "archlucid_oidc_code_verifier";
+export const OIDC_NONCE_KEY = "archlucid_oidc_nonce";
+export const OIDC_GOOGLE_OAUTH_STATE_KEY = "archlucid_oidc_google_oauth_state";
+export const OIDC_GOOGLE_CODE_VERIFIER_KEY = "archlucid_oidc_google_code_verifier";
+export const OIDC_GOOGLE_NONCE_KEY = "archlucid_oidc_google_nonce";
+/**
+ * Temporary return-URL written before OIDC redirect and consumed by the callback.
+ * Allows the app to restore the user's position after a session expiry sign-in.
+ */
+export const OIDC_POST_SIGN_IN_RETURN_URL_KEY = "archlucid_oidc_post_sign_in_return_url";
+/** Set when the IdP returns an OAuth authorize error so a sign-in retry keeps the stored return URL. */
+export const OIDC_AUTHORIZE_CALLBACK_FAILED_KEY = "archlucid_oidc_authorize_callback_failed";
+/** Safe post-sign-in return path captured when authorize callback retry is marked. */
+export const OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY = "archlucid_oidc_authorize_retry_return_path";

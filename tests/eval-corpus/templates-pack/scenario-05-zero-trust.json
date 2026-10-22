@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "id": "scenario-05-zero-trust",
+  "metadata": {
+    "title": "Contoso zero-trust mesh — PIM, NIST 800-207, kill-chain mapping",
+    "complexity": "high",
+    "primaryAgents": ["Compliance", "Topology", "Critic"],
+    "rubricNotes": "4 MUSTs: hits 3/4 (75%) to clear the 70% recall floor."
+  },
+  "inputSource": "templates/architecture-requests/zero-trust-network-review.json",
+  "recording": "tests/eval-corpus/templates-pack/recordings/scenario-05-zero-trust.findings.json",
+  "expectedFindings": [
+    {
+      "id": "must-nist-800-207-alignment",
+      "category": "Compliance",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["zero trust"]
+    },
+    {
+      "id": "must-pim-jit-admin-access",
+      "category": "Compliance",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["privileged identity"]
+    },
+    {
+      "id": "must-firewall-or-nsg-governance",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["azure firewall"]
+    },
+    {
+      "id": "must-kill-chain-mapping",
+      "category": "Critic",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["kill chain"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Topology", "ifContainsAny": ["flat network", "open all nsgs", "any-any allow"] },
+    { "category": "Compliance", "ifContainsAny": ["shared admin account", "permanent global administrator"] }
+  ]
+}

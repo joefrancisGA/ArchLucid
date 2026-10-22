@@ -1,0 +1,176 @@
+"use client";
+
+import Link from "next/link";
+
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { PageHeading } from "@/components/PageHeading";
+import { GlossaryProceduralHelpVocabularyRail } from "@/components/GlossaryProceduralHelpVocabularyRail";
+import { ReportProblemDialogHelpHubVocabularyRail } from "@/components/ReportProblemDialogHelpHubVocabularyRail";
+import { HelpHubBuyerChrome } from "@/components/help/HelpHubBuyerChrome";
+import { HelpHubClaimOrientationStrip } from "@/components/help/HelpHubClaimOrientationStrip";
+import { resolveHelpHubClaimDiscipline } from "@/lib/help/help-hub-evidence-copy";
+import {
+  helpHubBuyerStartHereHelper,
+  helpHubPageSubtitleBuyer,
+  HELP_HUB_FIRST_VIEWPORT_TEST_ID,
+  HELP_HUB_ORIENTATION_BOTTOM_TEST_ID,
+} from "@/lib/help/help-hub-page-copy";
+import { FINDINGS_HELP_PATH } from "@/lib/findings/findings-help-route";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_SHORTCUT_GROUPS } from "@/lib/page-shortcut-groups";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
+import { howProductWorksTitle } from "@/lib/product-line/product-line-display-name";
+import { cn } from "@/lib/utils";
+import { resolveSecureNowAttribution } from "@/lib/editions/securenow-attribution";
+import { resolveSecureNowEditionIdFromEnv } from "@/lib/product-line/resolve-securenow-edition-id";
+
+import { HelpTourTrigger } from "./HelpTourTrigger";
+import { HelpProductGuide } from "./HelpProductGuide";
+
+/** Help Center hub body for `/help` (HEL). */
+export function HelpPageView(): React.JSX.Element {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const { productLine } = useLocalizedProductCopy();
+  const howProductWorksLabel = howProductWorksTitle(productLine);
+  const secureNowAttribution =
+    productLine === "security"
+      ? resolveSecureNowAttribution(resolveSecureNowEditionIdFromEnv())
+      : null;
+
+  const richDescription =
+    productLine === "security" ? (
+      <>
+        Start with the guides below for cloud evidence, findings, and connectors. See{" "}
+        <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href="/help/getting-started">
+          Getting started
+        </Link>{" "}
+        for SecureNow orientation,{" "}
+        <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={FINDINGS_HELP_PATH}>
+          Findings
+        </Link>{" "}
+        for triage guidance, and{" "}
+        <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href="/help/data-handling">
+          data handling
+        </Link>{" "}
+        for tenant isolation and AI processing honesty.
+      </>
+    ) : (
+      <>
+        Start with the guides below for review workflows and cloud connections. See{" "}
+        <Link
+          className={OPERATOR_BODY_INLINE_LINK_CLASS}
+          href="/help/getting-started#how-archlucid-works"
+        >
+          {howProductWorksLabel}
+        </Link>{" "}
+        for the workflow, the{" "}
+        <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href="/faq">
+          Product FAQ
+        </Link>{" "}
+        for evaluation and pricing answers, and{" "}
+        <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href="/help/data-handling">
+          data handling
+        </Link>{" "}
+        for security posture.
+      </>
+    );
+
+  const heading = (
+    <PageHeading
+      navHref="/help"
+      title="Help"
+      description={buyerPolishedShell ? helpHubPageSubtitleBuyer(productLine) : richDescription}
+      claimDiscipline={resolveHelpHubClaimDiscipline(productLine)}
+      claimDisciplineTestId="help-hub-claim-discipline"
+      actions={
+        buyerPolishedShell ? undefined : (
+          <>
+            <PageContextualHelpButton />
+            <HelpTourTrigger />
+          </>
+        )
+      }
+      bordered
+    />
+  );
+
+  const buyerFirstViewport = (
+    <div
+      className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
+      data-testid={HELP_HUB_FIRST_VIEWPORT_TEST_ID}
+    >
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="help-hub-intro">
+        {richDescription}
+      </p>
+      <p
+        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="help-hub-buyer-start-here-helper"
+      >
+        {helpHubBuyerStartHereHelper(productLine)}
+      </p>
+    </div>
+  );
+
+  const guideBody = (
+    <>
+      {buyerPolishedShell ? buyerFirstViewport : null}
+      {buyerPolishedShell ? null : (
+        <GlossaryProceduralHelpVocabularyRail currentSurfaceId="help-hub" />
+      )}
+      {buyerPolishedShell ? null : (
+        <ReportProblemDialogHelpHubVocabularyRail currentSurfaceId="help-hub" />
+      )}
+      <section aria-labelledby="help-page-shortcuts" className="space-y-3">
+        <h2 id="help-page-shortcuts" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
+          Page shortcuts
+        </h2>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          Keyboard shortcuts are documented here instead of repeated as tips on individual pages.
+        </p>
+        <div className="space-y-2">
+          {HELP_PAGE_SHORTCUT_GROUPS.map((group) => (
+            <details key={group.label} className="rounded-md border border-al-border px-3 py-2">
+              <summary className="cursor-pointer font-medium text-al-text-primary">{group.label}</summary>
+              <ul className="m-0 mt-2 list-none space-y-2 p-0">
+                {group.entries.map((entry) => (
+                  <li key={`${entry.key ?? entry.id}-${entry.label}`} className={OPERATOR_TYPOGRAPHY.body}>
+                    <span className="font-medium text-al-text-primary">{entry.key ?? entry.label}</span>
+                    <span className="text-al-text-secondary"> — {entry.description}</span>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          ))}
+        </div>
+      </section>
+      <HelpProductGuide />
+      {secureNowAttribution ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {secureNowAttribution}
+        </p>
+      ) : null}
+      {buyerPolishedShell ? (
+        <div className="mb-4 text-left" data-testid={HELP_HUB_ORIENTATION_BOTTOM_TEST_ID}>
+          <HelpHubClaimOrientationStrip />
+        </div>
+      ) : null}
+    </>
+  );
+
+  if (buyerPolishedShell) {
+    return (
+      <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.majorSectionGap} data-testid="help-page">
+        <HelpHubBuyerChrome hero={heading}>{guideBody}</HelpHubBuyerChrome>
+      </OperatorPageContainer>
+    );
+  }
+
+  return (
+    <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.majorSectionGap} data-testid="help-page">
+      {heading}
+      {guideBody}
+    </OperatorPageContainer>
+  );
+}

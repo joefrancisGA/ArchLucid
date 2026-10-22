@@ -1,0 +1,103 @@
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type SetStateAction } from "react";
+
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { isSecureNowTrainingChromeExcluded } from "@/lib/product-line/securenow-cloud-platform-policy";
+import { WorkspaceModeGraduationOffer } from "@/components/workspace-mode/WorkspaceModeGraduationOffer";
+import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+import {
+  fetchUserPreferencesFromApi,
+  USER_PREFERENCES_STALE_MS,
+} from "@/lib/api/user-preferences";
+import { replaceIfHrefChanged } from "@/lib/navigation/replace-if-href-changed";
+import {
+  workspaceModeGraduationOfferPanelsHrefFromSearch,
+  workspaceModeGraduationOfferUrlAlreadyMatches,
+} from "@/lib/operator/workspace-mode-graduation-offer-panels-url";
+import { isGuidedWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
+import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
+
+/** Opt-in Working invitation for Guided seats after first commit (FD-10). Never auto-switches. */
+export function WorkspaceModeGuidedWorkingOfferHost(): React.JSX.Element | null {
+  const router = useRouter();
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const { productLine } = useProductLine();
+  const { mode, setAndPersist } = useWorkspaceMode();
+  const evalChrome = useProductionEvalChrome();
+  const commitQuery = useCorePilotCommitContextQuery();
+  const preferencesQuery = useQuery({
+    queryKey: operatorQueryKeys.userPreferences,
+    queryFn: fetchUserPreferencesFromApi,
+    staleTime: USER_PREFERENCES_STALE_MS,
+  });
+  const [dismissedLocally, setDismissedLocally] = useState(false);
+
+  const syncGraduationOfferOpenToUrl = useCallback(
+    (offerOpen: boolean) => {
+      const currentSearch = searchParams.toString();
+
+      if (workspaceModeGraduationOfferUrlAlreadyMatches(currentSearch, offerOpen)) {
+        return;
+      }
+
+      replaceIfHrefChanged(
+        router,
+        workspaceModeGraduationOfferPanelsHrefFromSearch(currentSearch, offerOpen, pathname),
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setDismissedLocallyWithUrl = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setDismissedLocally((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+
+        if (next) {
+          syncGraduationOfferOpenToUrl(false);
+        }
+
+        return next;
+      });
+    },
+    [syncGraduationOfferOpenToUrl],
+  );
+
+  const hasCommittedPackage = commitQuery.data?.hasCommittedManifest === true;
+  const graduationOffer = preferencesQuery.data?.workspaceModeGraduationOffer ?? "pending";
+  const offerEligible =
+    !dismissedLocally
+    && evalChrome
+    && isGuidedWorkspaceMode(mode)
+    && hasCommittedPackage
+    && graduationOffer !== "dismissed"
+    && graduationOffer !== "remind-next";
+
+  useEffect(() => {
+    syncGraduationOfferOpenToUrl(offerEligible);
+  }, [offerEligible, syncGraduationOfferOpenToUrl]);
+
+  if (isSecureNowTrainingChromeExcluded(productLine) || !offerEligible) {
+    return null;
+  }
+
+  return (
+    <div className="mb-4" data-testid="workspace-mode-guided-working-offer-host">
+      <WorkspaceModeGraduationOffer
+        onSwitchToWorking={() => {
+          setAndPersist("working");
+          setDismissedLocallyWithUrl(true);
+        }}
+        onDismiss={() => {
+          setDismissedLocallyWithUrl(true);
+        }}
+      />
+    </div>
+  );
+}

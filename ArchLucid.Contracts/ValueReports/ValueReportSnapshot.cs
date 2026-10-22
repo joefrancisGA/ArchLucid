@@ -1,0 +1,44 @@
+using ArchLucid.Contracts.Roi;
+
+namespace ArchLucid.Contracts.ValueReports;
+
+/// <summary>
+///     Tenant-scoped value metrics and ROI projection for sponsor-facing DOCX (see <c>ValueReportBuilder</c>).
+/// </summary>
+public sealed record ValueReportSnapshot(
+    Guid TenantId,
+    Guid WorkspaceId,
+    Guid ProjectId,
+    DateTimeOffset PeriodFromUtc,
+    DateTimeOffset PeriodToUtc,
+    IReadOnlyList<ValueReportRunStatusRow> RunStatusRows,
+    int RunsCompletedCount,
+    int ManifestsCommittedCount,
+    int GovernanceEventsHandledCount,
+    int DriftAlertEventsCaughtCount,
+    decimal EstimatedArchitectHoursSavedFromManifests,
+    decimal EstimatedArchitectHoursSavedFromGovernanceEvents,
+    decimal EstimatedArchitectHoursSavedFromDriftEvents,
+    decimal EstimatedTotalArchitectHoursSaved,
+    decimal EstimatedLlmCostForWindowUsd,
+    string EstimatedLlmCostMethodologyNote,
+    decimal AnnualizedHoursValueUsd,
+    decimal AnnualizedLlmCostUsd,
+    decimal BaselineAnnualSubscriptionAndOpsCostUsdFromRoiModel,
+    decimal NetAnnualizedValueVersusRoiBaselineUsd,
+    decimal RoiAnnualizedPercentVersusRoiBaseline,
+    decimal? TenantBaselineReviewCycleHours,
+    string? TenantBaselineReviewCycleSource,
+    DateTimeOffset? TenantBaselineReviewCycleCapturedUtc,
+    decimal? MeasuredAverageReviewCycleHoursForWindow,
+    int MeasuredReviewCycleSampleSize,
+    ReviewCycleBaselineProvenance ReviewCycleBaselineProvenance,
+    decimal? ReviewCycleHoursDelta,
+    decimal? ReviewCycleHoursDeltaPercent,
+    int FindingFeedbackNetScore,
+    int FindingFeedbackVoteCount,
+    decimal? TenantBaselineManualPrepHoursPerReview,
+    int? TenantBaselinePeoplePerReview,
+    string ValueWindowScopeCode = RoiSponsorFacingScopeCodes.ValueReportActivityWindow,
+    string ValueWindowScopeDescription = RoiSponsorFacingScopeDescriptions.ValueReportActivityWindowGeneric,
+    string RoiMetricScopeDescription = RoiSponsorFacingScopeDescriptions.ValueReportActivityWindowGeneric);

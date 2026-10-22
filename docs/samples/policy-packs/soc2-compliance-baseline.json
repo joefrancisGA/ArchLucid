@@ -1,0 +1,22 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "saas-ctrl-001",
+    "saas-ctrl-002",
+    "saas-ctrl-003"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning"
+  },
+  "metadata": {
+    "sample.pack.id": "soc2-compliance-baseline",
+    "sample.pack.summary": "Logging + encryption + access themes via SaaS vertical catalog keys; organizational wording below is for reviewer checklists.",
+    "sample.policy.dataClassification.minFindingSeverity": "Warning",
+    "sample.policy.encryption.rationaleMustReferenceOneOf": "AES-256|TLS 1.2|TLS 1.3|FIPS 140-2|NIST SP 800-175B",
+    "sample.policy.access.mustMentionLeastPrivilege": "true",
+    "governance.blockCommitMinimumSeverity": "1",
+    "sample.note": "Maps Medium-or-above to FindingSeverity.Warning (1). Dry-run honors governance.blockCommitMinimumSeverity; live commit gate uses PolicyPackAssignment columns per PRE_COMMIT_GOVERNANCE_GATE.md."
+  }
+}

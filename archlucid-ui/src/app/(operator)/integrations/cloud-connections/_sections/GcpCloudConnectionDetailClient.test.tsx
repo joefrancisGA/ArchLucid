@@ -1,0 +1,148 @@
+import { render, screen, waitFor, within } from "@testing-library/react";
+import type { ReactNode } from "react";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
+
+vi.mock("./GcpConnectionSection", () => ({
+  GcpConnectionSection: () => <div data-testid="gcp-connection-section-stub" />,
+}));
+
+vi.mock("./GcpConnectionValidatePanel", () => ({
+  GcpConnectionValidatePanel: () => <div data-testid="gcp-connection-validate-panel" />,
+}));
+
+vi.mock("./GcpConnectionRecentActivityPanel", () => ({
+  GcpConnectionRecentActivityPanel: () => <div data-testid="gcp-connection-recent-activity-panel" />,
+}));
+
+vi.mock("./CloudSecurityPreflightPanel", () => ({
+  CloudSecurityPreflightPanel: () => <div data-testid="gcp-preflight-stub" />,
+  CloudSecurityPreflightTechnicalDetails: ({ children }: { children: ReactNode }) => (
+    <div data-testid="gcp-technical-details-stub">{children}</div>
+  ),
+}));
+
+vi.mock("@/hooks/use-operate-capability", () => ({
+  useOperateCapability: () => true,
+}));
+
+vi.mock("@/lib/api/gcp-cloud-connections-api", () => ({
+  listGcpTier2Connections: vi.fn(async () => []),
+  configureGcpTier2Connection: vi.fn(),
+  disconnectGcpTier2Connection: vi.fn(),
+  triggerGcpTier2HostedRun: vi.fn(),
+}));
+
+import { GcpCloudConnectionDetailClient } from "./GcpCloudConnectionDetailClient";
+import { GCP_CLOUD_CONNECTION_BANNED_COPY } from "@/lib/gcp-cloud-connection-copy";
+import { CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE } from "@/lib/cloud-provider-connection-evidence-copy";
+import { shouldOmitClaimDisciplineBand } from "@/lib/claim-discipline-policy";
+
+describe("GcpCloudConnectionDetailClient", () => {
+  it("does not claim Preview for Tier 2 Done GCP (TB-1140)", () => {
+    render(<GcpCloudConnectionDetailClient />);
+
+    const detail = screen.getByTestId("cloud-connection-detail-gcp");
+
+    expect(detail).toBeInTheDocument();
+    expect(detail).not.toHaveTextContent(/Preview/i);
+    expect(detail).toHaveTextContent(/Workload Identity Federation/i);
+  });
+
+  it("does not surface Tier/hosted-poll jargon on the GCP product surface (TB-1774)", () => {
+    render(<GcpCloudConnectionDetailClient />);
+
+    const detail = screen.getByTestId("cloud-connection-detail-gcp");
+    const text = detail.textContent ?? "";
+
+    for (const banned of GCP_CLOUD_CONNECTION_BANNED_COPY) {
+      expect(text.toLowerCase()).not.toContain(banned.toLowerCase());
+    }
+  });
+
+  it("exposes federation identifiers and a copyable WIF pool-provider starter (TB-1775)", () => {
+    render(<GcpCloudConnectionDetailClient />);
+
+    expect(screen.getByTestId("gcp-wif-starter-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("gcp-wif-starter-federation-identifiers")).toBeInTheDocument();
+    expect(screen.getByText("api://AzureADTokenExchange")).toBeInTheDocument();
+
+    const scriptTemplate = screen.getByTestId("gcp-wif-starter-script-template");
+    expect(scriptTemplate).toHaveTextContent("workload-identity-pools providers create-oidc");
+    expect(scriptTemplate).toHaveTextContent("YOUR_ARCHLUCID_MANAGED_IDENTITY_OBJECT_ID");
+    expect(screen.getByTestId("gcp-wif-starter-script-copy")).toBeInTheDocument();
+  });
+
+  it("mounts live Validate and Recent activity panels instead of static stubs (TB-1773)", () => {
+    render(<GcpCloudConnectionDetailClient />);
+
+    expect(screen.getByTestId("gcp-connection-validate-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("gcp-connection-recent-activity-panel")).toBeInTheDocument();
+  });
+
+  it("shows connection status without a header scroll CTA when not connected (P0-2)", async () => {
+    render(<GcpCloudConnectionDetailClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("gcp-connection-header-status")).toHaveTextContent("Not connected");
+    });
+
+    expect(screen.queryByTestId("gcp-connection-header-connect")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Recent connection activity" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "View setup guide" })).toHaveAttribute(
+      "href",
+      "/help/cloud-connections/gcp",
+    );
+  });
+
+  it("mounts claim-discipline sources matching the AWS cloud detail page (P0-3, P0-8)", async () => {
+    render(<GcpCloudConnectionDetailClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("gcp-connection-header-status")).toHaveTextContent("Not connected");
+    });
+
+    if (!shouldOmitClaimDisciplineBand("cloud-connections-gcp")) {
+      expect(screen.getByTestId("cloud-connections-gcp-claim-discipline")).toHaveTextContent(
+        CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE,
+      );
+    }
+    const sources = screen.getByTestId("cloud-connections-gcp-sources");
+    expect(within(sources).getByRole("link", { name: "Open Cloud connections" })).toHaveAttribute(
+      "href",
+      "/integrations/cloud-connections",
+    );
+    expect(within(sources).getByRole("link", { name: "Read Connect GCP securely" })).toHaveAttribute(
+      "href",
+      "/help/cloud-connections/gcp",
+    );
+    expect(
+      within(sources).queryByRole("link", { name: "Open Connection status" }),
+    ).not.toBeInTheDocument();
+    expect(
+      within(sources).queryByRole("link", { name: /integrations\/cloud-connections\/gcp/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("does not claim Not connected when the connection list fails to load", async () => {
+    const { listGcpTier2Connections } = await import("@/lib/api/gcp-cloud-connections-api");
+    vi.mocked(listGcpTier2Connections).mockRejectedValueOnce(new Error("network"));
+
+    render(<GcpCloudConnectionDetailClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("gcp-connection-header-status")).toHaveTextContent("Status unavailable");
+    });
+
+    expect(screen.getByTestId("gcp-connection-header-status")).not.toHaveTextContent("Not connected");
+    expect(screen.queryByTestId("gcp-connection-header-connect")).not.toBeInTheDocument();
+  });
+});

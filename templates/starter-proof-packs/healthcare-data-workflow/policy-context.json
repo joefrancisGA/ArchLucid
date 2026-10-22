@@ -1,0 +1,5 @@
+{
+  "policyPackVerticalSlug": "healthcare",
+  "policyPackRelativePath": "templates/policy-packs/healthcare",
+  "intent": "Healthcare vertical rule pack for architecture findings vocabulary; not a HIPAA assessment."
+}

@@ -1,0 +1,39 @@
+using System.Text.Json;
+
+using ArchLucid.Decisioning.Advisory.Models;
+
+using FluentAssertions;
+
+namespace ArchLucid.Decisioning.Tests;
+
+/// <summary>
+/// Tests for Improvement Plan Serialization.
+/// </summary>
+[Trait("Category", "Unit")]
+public sealed class ImprovementPlanSerializationTests
+{
+    private static readonly JsonSerializerOptions Options = new(JsonSerializerDefaults.Web);
+
+    [Fact]
+    public void PolicyPackAdvisoryDefaults_RoundTrips_Json()
+    {
+        ImprovementPlan plan = new()
+        {
+            RunId = Guid.NewGuid(),
+            GeneratedUtc = TimeProvider.System.UtcNowDateTime(),
+            PolicyPackAdvisoryDefaults = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["scanDepth"] = "deep",
+                ["channel"] = "email",
+            },
+        };
+
+        string json = JsonSerializer.Serialize(plan, Options);
+        ImprovementPlan? back = JsonSerializer.Deserialize<ImprovementPlan>(json, Options);
+
+        back.Should().NotBeNull();
+        back.PolicyPackAdvisoryDefaults.Should().ContainKey("scanDepth");
+        back.PolicyPackAdvisoryDefaults["scanDepth"].Should().Be("deep");
+        back.PolicyPackAdvisoryDefaults["channel"].Should().Be("email");
+    }
+}

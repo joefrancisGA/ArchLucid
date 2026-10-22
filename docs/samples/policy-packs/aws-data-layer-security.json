@@ -1,0 +1,50 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "aws-data-001",
+    "aws-data-002",
+    "aws-data-003",
+    "aws-data-004",
+    "aws-data-005",
+    "aws-data-006",
+    "aws-data-007",
+    "aws-data-008",
+    "aws-data-009",
+    "aws-data-010",
+    "aws-data-011",
+    "aws-data-012",
+    "aws-data-013",
+    "aws-data-014",
+    "aws-data-015",
+    "aws-data-016",
+    "aws-data-017",
+    "aws-data-018",
+    "aws-data-019",
+    "aws-data-020",
+    "aws-data-021",
+    "aws-data-022",
+    "aws-data-023",
+    "aws-data-024",
+    "aws-data-025",
+    "aws-data-026",
+    "aws-data-027",
+    "aws-data-028"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "priorityFloor": "P0",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "aws-data-layer-security-v1",
+    "pack.displayName": "AWS Data-Layer Security",
+    "pack.category": "Data Platform",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "RDS, DynamoDB, S3, and KMS encryption and private access themes for AWS data platforms.",
+    "frameworkMappingDisclaimer": "Data-layer mapping is thematic only.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/aws-data-layer-security-rules-v1.json"
+  }
+}

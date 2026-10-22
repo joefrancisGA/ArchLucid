@@ -1,0 +1,15 @@
+{
+  "timeToCommittedManifestTotalSeconds": 132.5,
+  "manifestCommittedUtc": "2026-04-10T15:02:10Z",
+  "runCreatedUtc": "2026-04-10T14:59:58Z",
+  "findingsBySeverity": [
+    { "severity": "Medium", "count": 2 },
+    { "severity": "Low", "count": 5 }
+  ],
+  "auditRowCount": 42,
+  "auditRowCountTruncated": false,
+  "llmCallCount": 3,
+  "topFindingSeverity": "Medium",
+  "topFindingId": "demo-finding-001",
+  "isDemoTenant": true
+}

@@ -1,0 +1,81 @@
+"use client";
+
+import { cn } from "@/lib/utils";
+
+import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
+import { SponsorReportMetricCard } from "@/components/sponsor-report/SponsorReportMetricCard";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE } from "@/lib/export-markdown-sendable-cover";
+import {
+  computeRoiSummaryPeriodMetrics,
+  formatRoiSummaryHoursDisplay,
+  formatRoiSummaryUsdWithRateBasis,
+  type RoiSummaryPeriodInput,
+} from "@/lib/roi-summary-sponsor-presentation";
+import { resolveRoiTileSectionHeading } from "@/lib/roi/roi-tile-career-honesty";
+
+type Props = {
+  readonly period: RoiSummaryPeriodInput;
+  readonly hourlyUsd: number;
+  readonly windowLabel: string;
+  readonly isDefaultRate?: boolean;
+  readonly demoDerived?: boolean;
+  readonly roiSectionQualifier?: string | null;
+};
+
+export function RoiSummaryHeroStrip(props: Props) {
+  const heroHeading = resolveRoiTileSectionHeading(
+    "Value at a glance",
+    props.roiSectionQualifier ?? null,
+  );
+  const metrics = computeRoiSummaryPeriodMetrics(props.period, props.hourlyUsd);
+  const usd = formatRoiSummaryUsdWithRateBasis(
+    metrics.hours,
+    metrics.usdEstimate,
+    metrics.showUsdEstimate,
+    { isDefaultRate: props.isDefaultRate ?? true, demoDerived: props.demoDerived },
+  );
+
+  return (
+    <section
+      aria-labelledby="roi-summary-hero-heading"
+      className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
+      data-testid="roi-summary-hero-strip"
+    >
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 id="roi-summary-hero-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+            {heroHeading}
+          </h2>
+          <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{props.windowLabel}</p>
+        </div>
+        <p className={cn("m-0 rounded-full bg-neutral-100 px-3 py-1 text-al-text-secondary dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.badge)}>
+          {metrics.confidence.label}
+        </p>
+      </div>
+
+      <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="roi-summary-hero-non-summing">
+        {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}
+      </p>
+      <PolicyPackInfluenceHonestyChip className="mt-2" />
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <SponsorReportMetricCard
+          title="Estimated hours saved"
+          value={formatRoiSummaryHoursDisplay(metrics.hours)}
+        />
+        <SponsorReportMetricCard
+          title="Estimated dollar value"
+          value={usd.display}
+          hint={usd.rateBasisLabel}
+        />
+        <SponsorReportMetricCard title="Findings counted" value={String(metrics.findingsCounted)} />
+        <SponsorReportMetricCard title="Approval-check blocks counted" value={String(metrics.blocksCounted)} />
+        <SponsorReportMetricCard
+          title="Data completeness"
+          value={metrics.confidence.completenessLabel}
+        />
+      </div>
+    </section>
+  );
+}

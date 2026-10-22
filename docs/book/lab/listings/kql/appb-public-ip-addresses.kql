@@ -1,0 +1,6 @@
+resources
+| where type =~ 'microsoft.network/publicipaddresses'
+| project
+    id, name,
+    ipAddress = tostring(properties.ipAddress),
+    attachedTo = tostring(properties.ipConfiguration.id)

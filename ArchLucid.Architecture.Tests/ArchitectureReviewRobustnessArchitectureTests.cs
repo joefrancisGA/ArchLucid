@@ -1,0 +1,345 @@
+using FluentAssertions;
+
+namespace ArchLucid.Architecture.Tests;
+
+/// <summary>
+///     Guard wiring for the ten architecture create/review robustness suggestions on branch <c>robust</c>.
+/// </summary>
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
+public sealed class ArchitectureReviewRobustnessArchitectureTests
+{
+    private static string RepoRoot =>
+        Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", ".."));
+
+    [Fact]
+    public void Suggestion1_synthesis_kernel_isolated_from_review_execute()
+    {
+        string path = Path.Combine(RepoRoot, "ArchLucid.Application", "Architecture", "ArchitectureSynthesisKernel.cs");
+        string source = File.ReadAllText(path);
+
+        source.Should().NotContain("IArchitectureRunExecuteOrchestrator");
+        source.Should().NotContain("IAuthorityRunOrchestrator");
+        source.Should().NotContain("EnsureCommitReadyAgentResults");
+    }
+
+    [Fact]
+    public void Suggestion2_architecture_version_lattice_is_wired()
+    {
+        File.Exists(Path.Combine(RepoRoot, "ArchLucid.Application", "Architecture", "ArchitectureVersionService.cs"))
+            .Should()
+            .BeTrue();
+
+        File.Exists(Path.Combine(RepoRoot, "ArchLucid.Persistence", "Migrations", "339_ArchitectureVersions.sql"))
+            .Should()
+            .BeTrue();
+
+        string runRecord = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Core/Persistence/ApplicationPorts/Models/RunRecord.cs");
+
+        runRecord.Should().Contain("ArchitectureVersionId");
+    }
+
+    [Fact]
+    public void Suggestion3_commit_integrity_enforces_decision_grade_provenance()
+    {
+        string path = Path.Combine(
+            RepoRoot,
+            "ArchLucid.Application",
+            "Runs",
+            "Orchestration",
+            "CommitOutputIntegrityService.cs");
+
+        string source = File.ReadAllText(path);
+
+        source.Should().Contain("DecisionGradeFindingProvenanceValidator");
+        source.Should().Contain("Commit blocked: one or more findings lack decision-grade provenance");
+    }
+
+    [Fact]
+    public void Suggestion4_findings_orchestrator_uses_confluent_merge()
+    {
+        string source = ArchitectureSourceProbe.ReadFindingsPipeline();
+
+        source.Should().Contain("FindingSnapshotConfluentMerger.Merge");
+        source.Should().NotContain("GroupBy(static f => f.FindingType");
+    }
+
+    [Fact]
+    public void Suggestion5_partial_engine_failure_surfaces_generation_status_and_commit_classifier()
+    {
+        string emitStage = ArchitectureSourceProbe.ReadFindingsPipeline();
+
+        emitStage.Should().Contain("FindingsSnapshotGenerationStatus.PartiallyComplete");
+
+        string decisioningStage = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/Pipeline/Stages/AuthorityPipelineDecisioningStage.cs");
+
+        decisioningStage.Should().Contain("FindingEngineFailureCommitClassifier");
+
+        File.Exists(Path.Combine(RepoRoot, "ArchLucid.Contracts", "Findings", "FindingEngineFailureCommitClassifier.cs"))
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
+    public void Suggestion6_authority_complete_runs_reject_execute()
+    {
+        string source = ArchitectureSourceProbe.ReadExecuteOrchestratorPipeline();
+
+        source.Should().Contain("ThrowIfAuthorityPipelineCompleteAsync");
+
+        string scopeResolve = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/Execute/ArchitectureRunExecuteScopeResolveStage.cs");
+
+        scopeResolve.Should().Contain("RunKernelCompleteness.IsAuthorityPipelineComplete");
+    }
+
+    [Fact]
+    public void Suggestion7_intake_gates_block_sentinels_and_cloud_pack_mismatch()
+    {
+        string draftValidator = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Drafts/ArchitectureDraftReviewReadinessValidator.cs");
+
+        draftValidator.Should().Contain("HasUnconfirmedStructuredBriefPlaceholders");
+
+        string submit = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Drafts/DraftAdmissionService.SubmitAndHeal.cs");
+
+        submit.Should().Contain("ArchitectureDraftReviewReadinessValidator.EnsureReviewReady");
+
+        string projector = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Drafts/DraftRequestProjector.cs");
+
+        projector.Should().Contain("IsConfirmedBriefEntry");
+
+        string apiValidator = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Validators/ArchitectureRequestValidator.cs");
+
+        apiValidator.Should().Contain("PolicyPackCloudTargetMismatchEvaluator");
+    }
+
+    [Fact]
+    public void TB2344_request_actors_materialize_and_security_engines_read_graph_nodes()
+    {
+        string materializer = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.KnowledgeGraph/Materialization/RequestActorMaterializer.cs");
+
+        materializer.Should().Contain("GraphNodeTypes.TrustBoundary");
+        materializer.Should().Contain("TrustOrigin.External");
+
+        string stages = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.KnowledgeGraph/Materialization/GraphMaterializationStages.cs");
+
+        stages.Should().Contain("request-actors");
+        stages.Should().Contain("RequestActorMaterializer.MaterializeFromActorsJson");
+
+        string externalExposure = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning/Services/ExternalExposureFindingEngine.cs");
+
+        externalExposure.Should().Contain("GraphNodeTypes.TrustBoundary");
+        externalExposure.Should().Contain("actorNodeId");
+
+        string request = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Contracts/Requests/ArchitectureRequest.cs");
+
+        request.Should().Contain("DraftActors");
+    }
+
+    [Fact]
+    public void TB2345_quality_attribute_nodes_feed_dr_rpo_topology_analyzer()
+    {
+        string materializer = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.KnowledgeGraph/Materialization/RequestQualityAttributeMaterializer.cs");
+
+        materializer.Should().Contain("rtoHours");
+        materializer.Should().Contain("theme");
+
+        string stages = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.KnowledgeGraph/Materialization/GraphMaterializationStages.cs");
+
+        stages.Should().Contain("request-quality-attributes");
+        stages.Should().Contain("RequestQualityAttributeMaterializer.MaterializeFromQualityAttribute");
+
+        string analyzer = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning/Analysis/DrRpoTopologyAnalyzer.cs");
+
+        analyzer.Should().Contain("GraphNodeTypes.QualityAttribute");
+        analyzer.Should().Contain("DrRpoQualityAttributeParser");
+
+        File.Exists(Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Analysis", "DrRpoQualityAttributeParser.cs"))
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
+    public void TB2347_assumption_nodes_materialize_with_connector_edges()
+    {
+        string materializer = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.KnowledgeGraph/Materialization/RequestAssumptionMaterializer.cs");
+
+        materializer.Should().Contain("structured-brief");
+
+        string edgeMaterializer = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.KnowledgeGraph/Materialization/RequestAssumptionEdgeMaterializer.cs");
+
+        edgeMaterializer.Should().Contain("GraphEdgeTypes.RelatesTo");
+        edgeMaterializer.Should().Contain("StructuredBriefAssumptionLink");
+
+        string stages = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.KnowledgeGraph/Materialization/GraphMaterializationStages.cs");
+
+        stages.Should().Contain("request-assumption-edges");
+        stages.Should().Contain("RequestAssumptionEdgeMaterializer.Materialize");
+    }
+
+    [Fact]
+    public void TB2346_required_capability_coverage_blocks_finalize_scorecard()
+    {
+        string signals = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Finalization/FinalizeQualityFindingSignals.cs");
+
+        signals.Should().Contain("IsOpenRequiredCapabilityCoverageJobView");
+        signals.Should().Contain("required-capability-coverage");
+
+        string evaluator = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Finalization/FinalizeQualityScorecardEvaluator.cs");
+
+        evaluator.Should().Contain("MissingRequiredCapabilityCount");
+        evaluator.Should().Contain("MissingRequiredCapabilities");
+
+        string dto = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Contracts/Governance/FinalizeQualityScorecardCountsDto.cs");
+
+        dto.Should().Contain("MissingRequiredCapabilityCount");
+    }
+
+    [Fact]
+    public void TB2351_manifest_diagram_service_emits_semantic_overlay_subgraphs()
+    {
+        string service = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Diagrams/ManifestDiagramService.cs");
+
+        service.Should().Contain("AppendSemanticOverlay");
+        service.Should().Contain("\"actors\", \"Actors\"");
+        service.Should().Contain("DiagramSemantics");
+
+        string projection = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning/Manifest/AuthorityCommitProjectionBuilder.cs");
+
+        projection.Should().Contain("MapDiagramSemantics");
+        projection.Should().Contain("DiagramSemantics");
+    }
+
+    [Fact]
+    public void TB2350_prior_package_semantics_merge_service_and_create_stage()
+    {
+        string mergeService = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Drafts/PriorPackageSemanticMergeService.cs");
+
+        mergeService.Should().Contain("MergePriorPackageSemanticsOntoRequestAsync");
+        mergeService.Should().Contain("ConfirmedInlineRequirements");
+        mergeService.Should().Contain("IsConfirmedBriefEntry");
+
+        string createStage = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Drafts/Stages/DraftRequestCreateStage.cs");
+
+        createStage.Should().Contain("MergePriorPackageSemanticsAsync");
+
+        string orchestrator = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/ArchitectureRunCreateOrchestrator.cs");
+
+        orchestrator.Should().Contain("MergePriorPackageSemanticsOntoRequestAsync");
+    }
+
+    [Fact]
+    public void TB2349_brief_grounding_runs_in_structural_post_processor_enricher()
+    {
+        string enricher = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Agents/Evidence/AgentProposalStructuralPostProcessorEnricher.cs");
+
+        enricher.Should().Contain("ApplyBriefGrounding");
+        enricher.Should().Contain("StructuralGroundingDropLog");
+
+        string postProcessor = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs");
+
+        postProcessor.Should().Contain("ApplyBriefGroundingToProposal");
+        postProcessor.Should().Contain("PruneRelationshipsAfterGroundingDrops");
+        postProcessor.Should().Contain("IsConfirmedBriefEntry");
+    }
+
+    [Fact]
+    public void TB2352_closed_loop_strengthening_runs_before_manifest_persist()
+    {
+        string decisioningStage = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/Pipeline/Stages/AuthorityPipelineDecisioningStage.cs");
+
+        int strengthenIndex = decisioningStage.IndexOf("TryStrengthenManifestAsync", StringComparison.Ordinal);
+        int saveManifestIndex = decisioningStage.IndexOf("SaveManifestAsync", StringComparison.Ordinal);
+        int computeHashIndex = decisioningStage.IndexOf("ComputeHash", StringComparison.Ordinal);
+
+        strengthenIndex.Should().BeGreaterThan(0);
+        saveManifestIndex.Should().BeGreaterThan(strengthenIndex);
+        computeHashIndex.Should().BeGreaterThan(strengthenIndex);
+        computeHashIndex.Should().BeLessThan(saveManifestIndex);
+
+        string strengtheningPass = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/ArchitectureIntelligence/AuthorityClosedLoopStrengtheningPass.cs");
+
+        strengtheningPass.Should().Contain("IClosedLoopManifestMerger");
+        strengtheningPass.Should().Contain("PublishToProduct = true");
+
+        string manifestMerger = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/ArchitectureIntelligence/ClosedLoopManifestMerger.cs");
+
+        manifestMerger.Should().Contain("ClosedLoopRecommendationBriefGroundingFilter");
+        manifestMerger.Should().Contain("ClosedLoopManifestTopologyMerger");
+
+        string scoreSync = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/ArchitectureIntelligence/ClosedLoopStrengtheningScoreSyncService.cs");
+
+        scoreSync.Should().Contain("ClosedLoopManifestFindingsProjector");
+        scoreSync.Should().Contain("ClosedLoopRequiredCapabilityFindingsRefresher");
+    }
+
+    [Fact]
+    public void TB2370_graph_materialization_pipeline_is_canonical_and_default_builder_uses_it()
+    {
+        string stages = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.KnowledgeGraph/Materialization/GraphMaterializationStages.cs");
+
+        stages.Should().Contain("CreateDefaultPipeline");
+        stages.Should().Contain("DefaultStageOrder");
+        stages.Should().Contain("request-actors");
+        stages.Should().Contain("request-quality-attributes");
+        stages.Should().Contain("request-assumption-edges");
+
+        string builder = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.KnowledgeGraph/Builders/DefaultGraphBuilder.cs");
+
+        builder.Should().Contain("GraphMaterializationStages.CreateDefaultPipeline");
+    }
+
+    [Fact]
+    public void TB2352_lift_mutation_microcases_manifest_matches_benchmark_ids()
+    {
+        string mutationManifest = File.ReadAllText(
+            Path.Combine(RepoRoot, "tests", "eval-corpus", "mutation-microcases.json"));
+
+        mutationManifest.Should().Contain("mutate-rto-30m");
+        mutationManifest.Should().Contain("mutate-add-private-endpoint");
+        mutationManifest.Should().Contain("\"minimumCaseCount\": 8");
+
+        string pairs = File.ReadAllText(
+            Path.Combine(RepoRoot, "tests", "eval-corpus", "agent-structural-eval-pairs.json"));
+
+        pairs.Should().Contain("closedLoopStrengtheningScenarios");
+        pairs.Should().Contain("mutationMicrocasesManifest");
+    }
+
+    [Fact]
+    public void Suggestion8_topology_proposals_validate_before_overlay()
+    {
+        string path = Path.Combine(
+            RepoRoot,
+            "ArchLucid.Application",
+            "Runs",
+            "Orchestration",
+            "AgentTopologyProposalMergeGate.cs");
+
+        File.Exists(path).Should().BeTrue();
+
+        string merge = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs");
+
+        merge.Should().Contain("AgentTopologyProposalMergeGate.FilterValidatedProposals");
+    }
+
+    [Fact]
+    public void Suggestion9_create_idempotency_hashes_request_body()
+    {
+        string path = Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "ArchitectureRunIdempotencyHashing.cs");
+        string source = File.ReadAllText(path);
+
+        source.Should().Contain("FingerprintRequest");
+    }
+
+    [Fact]
+    public void Suggestion10_effectful_engines_and_generated_plugin_skip_set()
+    {
+        string composition = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.Decisioning.cs");
+
+        composition.Should().Contain("IEffectfulFindingEngine");
+
+        File.Exists(Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Plugins", "BuiltInFindingEngineTypeCatalog.cs"))
+            .Should()
+            .BeTrue();
+    }
+}

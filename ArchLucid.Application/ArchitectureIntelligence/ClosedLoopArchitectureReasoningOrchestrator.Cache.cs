@@ -1,0 +1,188 @@
+using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
+
+namespace ArchLucid.Application.ArchitectureIntelligence;
+
+public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
+{
+    private async Task<ClosedLoopReasoningResult> RunContinueFromExistingReviewAsync(
+        ClosedLoopReasoningRequest effectiveRequest,
+        string tenantId,
+        string runId,
+        ArchitectureIntelligenceBudgetDecision budget,
+        CancellationToken cancellationToken)
+    {
+        ArchitectureKnowledgeModel? existing = await _persistenceHelper.TryLoadExistingModelAsync(tenantId, runId, cancellationToken);
+        IReadOnlyList<TechnologyLedgerEntry>? ledgerEntries = await _persistenceHelper.TryLoadLedgerEntriesAsync(runId, cancellationToken);
+        ReviewCacheDependencyManifest continueManifest =
+            ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                effectiveRequest,
+                tenantId,
+                runId,
+                existing,
+                ledgerEntries);
+
+        ReviewCacheDependencyManifest contentManifest =
+            ReviewCacheManifestBuilder.BuildWithResolvedRunId(effectiveRequest, runId, existing, ledgerEntries);
+
+        using IReviewResultCachePinScope pinScope = _reviewResultCache.PinScope(continueManifest, contentManifest);
+
+        if (!effectiveRequest.PublishToProduct
+            && _reviewResultCache.TryGet(continueManifest, out ClosedLoopReasoningResult? cachedContinue)
+            && cachedContinue is not null)
+        {
+            return FinalizeCoalescedReviewResult(
+                CreateCoalescedCacheHitResult(
+                    cachedContinue,
+                    continueManifest),
+                effectiveRequest,
+                runId,
+                budget);
+        }
+
+        ClosedLoopReasoningResult sharedContinue = await _continueRunSingleFlight.CoalesceAsync(
+            tenantId,
+            runId,
+            continueManifest,
+            effectiveRequest.PublishToProduct,
+            ct => CoalesceContinueReviewCacheMissAsync(
+                effectiveRequest,
+                tenantId,
+                runId,
+                budget,
+                continueManifest,
+                ct),
+            cancellationToken);
+
+        return FinalizeCoalescedReviewResult(
+            sharedContinue,
+            effectiveRequest,
+            runId,
+            budget);
+    }
+
+    private async Task<ClosedLoopReasoningResult> CoalesceReviewCacheMissAsync(
+        ClosedLoopReasoningRequest effectiveRequest,
+        string tenantId,
+        string runId,
+        ArchitectureIntelligenceBudgetDecision budget,
+        ReviewCacheDependencyManifest cacheManifest,
+        CancellationToken cancellationToken)
+    {
+        if (!effectiveRequest.PublishToProduct
+            && _reviewResultCache.TryGet(cacheManifest, out ClosedLoopReasoningResult? cached)
+            && cached is not null)
+        {
+            return CreateCoalescedCacheHitResult(
+                cached,
+                cacheManifest);
+        }
+
+        return await ExecuteLiveReviewAsync(
+            effectiveRequest,
+            tenantId,
+            runId,
+            budget,
+            cacheManifest,
+            ReviewCacheStorageKind.FullRun,
+            cancellationToken);
+    }
+
+    private async Task<ClosedLoopReasoningResult> CoalesceContinueReviewCacheMissAsync(
+        ClosedLoopReasoningRequest effectiveRequest,
+        string tenantId,
+        string runId,
+        ArchitectureIntelligenceBudgetDecision budget,
+        ReviewCacheDependencyManifest continueManifest,
+        CancellationToken cancellationToken)
+    {
+        if (!effectiveRequest.PublishToProduct
+            && _reviewResultCache.TryGet(continueManifest, out ClosedLoopReasoningResult? cached)
+            && cached is not null)
+        {
+            return CreateCoalescedCacheHitResult(
+                cached,
+                continueManifest);
+        }
+
+        return await ExecuteLiveReviewAsync(
+            effectiveRequest,
+            tenantId,
+            runId,
+            budget,
+            continueManifest,
+            ReviewCacheStorageKind.ContinueFromExistingRun,
+            cancellationToken);
+    }
+
+    private static ClosedLoopReasoningResult FinalizeCoalescedReviewResult(
+        ClosedLoopReasoningResult shared,
+        ClosedLoopReasoningRequest effectiveRequest,
+        string runId,
+        ArchitectureIntelligenceBudgetDecision budget)
+    {
+        ArgumentNullException.ThrowIfNull(shared);
+        ArgumentNullException.ThrowIfNull(effectiveRequest);
+        ArgumentNullException.ThrowIfNull(runId);
+        ArgumentNullException.ThrowIfNull(budget);
+
+        ClosedLoopReasoningResult isolated = ClosedLoopReasoningResultCloner.Clone(shared);
+        ArchitectureIntelligenceBudgetResultApplier.Apply(isolated, budget);
+
+        string? normalizedRunId = ClosedLoopRunIdNormalizer.NormalizeOptional(runId);
+
+        if (!string.IsNullOrWhiteSpace(normalizedRunId))
+        {
+            isolated.RunId = normalizedRunId;
+            isolated.Model.RunId = normalizedRunId;
+        }
+
+        bool isReviewCacheHit = shared.CacheHit;
+
+        if (isReviewCacheHit)
+        {
+            isolated.CacheHit = true;
+            isolated.CacheReuseReason = shared.CacheReuseReason
+                ?? "dependency-manifest-match";
+        }
+
+        if (!effectiveRequest.PublishToProduct
+            && shared.PublishedToProduct)
+            ClosedLoopCacheHitPublishGuard.ApplyAnalysisOnlyCoalescedIsolation(effectiveRequest, isolated);
+
+        // Live coalesced leaders keep PublishBlocked; analysis followers are stripped in
+        // ReviewSingleFlightCoordinator before Finalize runs.
+
+        string policyRunId = string.IsNullOrWhiteSpace(effectiveRequest.RunId)
+            ? isolated.RunId ?? runId
+            : runId;
+
+        if (ClosedLoopCacheHitPublishGuard.ShouldApplyCacheHitPolicyOnCoalescedResult(
+                effectiveRequest,
+                policyRunId,
+                isolated))
+        {
+            ClosedLoopCacheHitPublishGuard.ApplyCacheHitPolicy(
+                effectiveRequest,
+                policyRunId,
+                isolated,
+                clearReviewCompleteState: isReviewCacheHit);
+        }
+
+        return isolated;
+    }
+
+    private static ClosedLoopReasoningResult CreateCoalescedCacheHitResult(
+        ClosedLoopReasoningResult cached,
+        ReviewCacheDependencyManifest manifest)
+    {
+        ArgumentNullException.ThrowIfNull(cached);
+        ArgumentNullException.ThrowIfNull(manifest);
+
+        ClosedLoopReasoningResult hit = cached;
+        hit.CacheHit = true;
+        hit.CacheReuseReason = manifest.ReuseReason ?? "dependency-manifest-match";
+
+        return hit;
+    }
+}

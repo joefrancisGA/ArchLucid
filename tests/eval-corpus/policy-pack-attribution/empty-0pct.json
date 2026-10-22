@@ -1,0 +1,14 @@
+{
+  "schema": "archlucid.policy-pack-attribution-scenario.v1",
+  "id": "empty-0pct",
+  "description": "Empty findings snapshot yields explicit 0% attribution.",
+  "packContent": {
+    "complianceRuleKeys": [
+      "phi.minimization.intake"
+    ],
+    "complianceRuleIds": [],
+    "metadata": {}
+  },
+  "findings": [],
+  "expectedAttributionPercentage": 0.0
+}

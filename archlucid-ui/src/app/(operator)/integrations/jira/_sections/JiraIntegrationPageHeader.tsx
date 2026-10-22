@@ -1,0 +1,120 @@
+"use client";
+
+import Link from "next/link";
+
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
+import { StatusTag } from "@/components/ui/status-tag";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { INTEGRATIONS_JIRA_PATH, INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
+import { itsmConnectionStatusTagKind } from "@/lib/itsm/itsm-connection-status-tag-kind";
+import { JIRA_INTEGRATION_CLAIM_DISCIPLINE } from "@/lib/jira-integration-evidence-copy";
+import {
+  JIRA_ACTION_REFRESHING,
+  JIRA_CONNECT_WITH_ATLASSIAN_LABEL,
+  JIRA_CONNECT_WITH_ATLASSIAN_PENDING,
+  JIRA_INTEGRATION_PAGE_TITLE,
+  JIRA_LAST_CHECKED_PREFIX,
+  JIRA_PAGE_SUBTITLE,
+  JIRA_READINESS_LINK_LABEL,
+} from "@/lib/jira-integration-page-copy";
+import {
+  JIRA_INTEGRATION_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  jiraIntegrationPageSubtitle,
+} from "@/lib/jira-integration-shell-page-copy";
+import type {
+  JiraAtlassianOAuthConnectGate,
+  JiraConnectionStatusPresentation,
+} from "@/lib/jira-integration-present";
+import { operatorLastRefreshedExactLabel } from "@/lib/operator/operator-last-refreshed-label";
+import { cn } from "@/lib/utils";
+
+export type JiraIntegrationPageHeaderProps = {
+  readonly connectionStatus: JiraConnectionStatusPresentation;
+  readonly refreshing: boolean;
+  readonly lastCheckedAt: Date | null;
+  readonly onRefresh: () => void;
+  readonly onConnectWithAtlassian: () => void;
+  readonly connectGate: JiraAtlassianOAuthConnectGate;
+  readonly isConnecting: boolean;
+};
+
+export function JiraIntegrationPageHeader(props: JiraIntegrationPageHeaderProps): React.JSX.Element {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
+  return (
+    <OperatorPageHeader
+      title={JIRA_INTEGRATION_PAGE_TITLE}
+      titleTestId="jira-page-title"
+      navHref={INTEGRATIONS_JIRA_PATH}
+      headingLevel="h1"
+      subtitle={jiraIntegrationPageSubtitle(buyerPolishedShell, JIRA_PAGE_SUBTITLE)}
+      subtitleClassName={
+        buyerPolishedShell ? cn("max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody) : undefined
+      }
+      claimDiscipline={buyerPolishedShell ? JIRA_INTEGRATION_CLAIM_DISCIPLINE : undefined}
+      claimDisciplineTestId={buyerPolishedShell ? JIRA_INTEGRATION_HEADER_CLAIM_DISCIPLINE_TEST_ID : undefined}
+      statusBadge={
+        <StatusTag
+          kind={itsmConnectionStatusTagKind(props.connectionStatus.status)}
+          label={props.connectionStatus.label}
+          data-testid="jira-header-status-badge"
+        />
+      }
+      actions={
+        <div className="flex flex-col items-end gap-2" data-testid="jira-header-actions">
+          <div className="flex flex-wrap items-center gap-2">
+            {buyerPolishedShell ? null : <PageContextualHelpButton />}
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              data-testid="jira-connect-with-atlassian-button"
+              disabled={!props.connectGate.allowed}
+              onClick={() => void props.onConnectWithAtlassian()}
+            >
+              {props.isConnecting ? JIRA_CONNECT_WITH_ATLASSIAN_PENDING : JIRA_CONNECT_WITH_ATLASSIAN_LABEL}
+            </Button>
+            <RefreshButton
+              data-testid="jira-refresh-button"
+              busy={props.refreshing}
+              onClick={() => void props.onRefresh()}
+            />
+            {buyerPolishedShell ? null : (
+              <Link
+                href={INTEGRATIONS_READINESS_PATH}
+                className={OPERATOR_LINK.optional}
+                data-testid="jira-readiness-link"
+              >
+                {JIRA_READINESS_LINK_LABEL}
+              </Link>
+            )}
+          </div>
+          <WhyDisabledCtaHint
+            reason={props.connectGate.reason}
+            testId="jira-connect-with-atlassian-disabled-helper"
+            className="max-w-md text-right"
+          />
+        </div>
+      }
+      metadata={
+        props.lastCheckedAt !== null ? (
+          <span
+            className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="jira-last-checked"
+          >
+            {JIRA_LAST_CHECKED_PREFIX}:{" "}
+            <time dateTime={props.lastCheckedAt.toISOString()} aria-label={operatorLastRefreshedExactLabel(props.lastCheckedAt)}>
+              {props.refreshing ? JIRA_ACTION_REFRESHING : props.lastCheckedAt.toLocaleString()}
+            </time>
+          </span>
+        ) : null
+      }
+    />
+  );
+}

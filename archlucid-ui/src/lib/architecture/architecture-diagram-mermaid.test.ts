@@ -1,0 +1,162 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  architectureDiagramModelToMermaid,
+  architectureDiagramModelToTextAlternative,
+  isValidMermaidArchitectureDiagram,
+} from "@/lib/architecture/architecture-diagram-mermaid";
+import type { ArchitectureDiagramModel } from "@/lib/architecture/architecture-diagram-types";
+
+const modelWithBoundary: ArchitectureDiagramModel = {
+  nodes: [
+    {
+      id: "user_analyst",
+      label: "Claims analyst",
+      kind: "user",
+      provenance: "asserted",
+      removed: false,
+      accepted: true,
+    },
+    {
+      id: "system_api",
+      label: "Claims API",
+      kind: "system",
+      provenance: "asserted",
+      removed: false,
+      accepted: true,
+    },
+    {
+      id: "external_gateway",
+      label: "Payment gateway",
+      kind: "external",
+      provenance: "asserted",
+      removed: false,
+      accepted: true,
+    },
+  ],
+  edges: [
+    {
+      id: "edge_1",
+      sourceId: "user_analyst",
+      targetId: "system_api",
+      label: "submit claim",
+      provenance: "inferred",
+      removed: false,
+    },
+  ],
+  trustBoundaryLabels: ["Corporate network"],
+};
+
+describe("architectureDiagramModelToMermaid", () => {
+  it("accepts flowchart sources and rejects invalid text", () => {
+    expect(isValidMermaidArchitectureDiagram('flowchart TB\n  a["A"]')).toBe(true);
+    expect(isValidMermaidArchitectureDiagram("not a diagram")).toBe(false);
+  });
+
+  it("keeps external and user nodes outside the trust boundary subgraph", () => {
+    const mermaid = architectureDiagramModelToMermaid(modelWithBoundary);
+
+    expect(mermaid).toContain('subgraph trustBoundary["Corporate network"]');
+    expect(mermaid).not.toContain('subgraph trustBoundary["Trust boundary"]');
+    expect(mermaid).toContain('    system_api["Claims API"]');
+    expect(mermaid).toContain('  user_analyst["Claims analyst"]');
+    expect(mermaid).toContain('  external_gateway["Payment gateway"]');
+    const subgraphBody = mermaid.split("  end")[0] ?? "";
+    expect(subgraphBody).not.toContain("external_gateway");
+    expect(subgraphBody).not.toContain("user_analyst");
+  });
+
+  it("marks inferred edges in labels and text alternative with human names", () => {
+    const mermaid = architectureDiagramModelToMermaid(modelWithBoundary);
+    const alt = architectureDiagramModelToTextAlternative(modelWithBoundary);
+
+    expect(mermaid).toContain("submit claim (inferred)");
+    expect(alt).toContain("Claims analyst to Claims API (submit claim) (inferred)");
+    expect(alt).not.toContain("user_analyst to system_api");
+  });
+
+  it("omits trust boundary subgraph when no system nodes map inside", () => {
+    const externalOnly: ArchitectureDiagramModel = {
+      nodes: [
+        {
+          id: "external_gateway",
+          label: "Payment gateway",
+          kind: "external",
+          provenance: "asserted",
+          removed: false,
+          accepted: true,
+        },
+      ],
+      edges: [],
+      trustBoundaryLabels: ["Corporate network"],
+    };
+
+    const mermaid = architectureDiagramModelToMermaid(externalOnly);
+
+    expect(mermaid).not.toContain("subgraph trustBoundary");
+  });
+
+  it("omits edges connected to removed nodes from the text alternative", () => {
+    const removedNodeModel: ArchitectureDiagramModel = {
+      nodes: [
+        {
+          id: "removed_system",
+          label: "Removed system",
+          kind: "system",
+          provenance: "inferred",
+          removed: true,
+          accepted: false,
+        },
+        {
+          id: "active_system",
+          label: "Active system",
+          kind: "system",
+          provenance: "asserted",
+          removed: false,
+          accepted: true,
+        },
+      ],
+      edges: [
+        {
+          id: "edge_removed",
+          sourceId: "removed_system",
+          targetId: "active_system",
+          label: "old flow",
+          provenance: "inferred",
+          removed: false,
+        },
+      ],
+      trustBoundaryLabels: [],
+    };
+
+    const alternative = architectureDiagramModelToTextAlternative(removedNodeModel);
+
+    expect(alternative).not.toContain("removed_system");
+    expect(alternative).not.toContain("old flow");
+  });
+
+  it("inserts mermaid line breaks so long human names wrap inside wrappingWidth boxes", () => {
+    const longLabel =
+      "Azure Kubernetes Service (AKS) Cluster with extended operations and governance description";
+    const longName: ArchitectureDiagramModel = {
+      nodes: [
+        {
+          id: "aks_cluster",
+          label: longLabel,
+          kind: "system",
+          provenance: "asserted",
+          removed: false,
+          accepted: true,
+        },
+      ],
+      edges: [],
+      trustBoundaryLabels: [],
+    };
+
+    const mermaid = architectureDiagramModelToMermaid(longName);
+
+    expect(mermaid).toContain("\\n");
+    expect(mermaid).toContain("Azure Kubernetes");
+    expect(mermaid).toContain("aks_cluster[\"");
+  });
+});

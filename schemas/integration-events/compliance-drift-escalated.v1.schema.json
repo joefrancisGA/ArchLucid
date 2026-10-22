@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archlucid.dev/schemas/integration-events/compliance-drift-escalated.v1.schema.json",
+  "title": "com.archlucid.compliance.drift.escalated",
+  "description": "Emitted when a compliance drift signal crosses its configured escalation threshold (Teams opt-in trigger).",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "tenantId",
+    "workspaceId",
+    "projectId",
+    "driftSignalId",
+    "escalatedUtc",
+    "metricKey"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "tenantId": { "type": "string", "format": "uuid" },
+    "workspaceId": { "type": "string", "format": "uuid" },
+    "projectId": { "type": "string", "format": "uuid" },
+    "driftSignalId": { "type": "string", "format": "uuid" },
+    "escalatedUtc": { "type": "string", "format": "date-time" },
+    "metricKey": { "type": "string" },
+    "thresholdValue": { "type": "number" },
+    "observedValue": { "type": "number" }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,225 @@
+[
+  {
+    "findingId": "78bb9c79-7055-3b71-ac4e-4ab2330f4edb",
+    "findingType": "DeclarationSecurityBaselineFinding",
+    "category": "Security",
+    "severity": "Error",
+    "title": "Storage or data service \u0027docs-1\u0027 allows public network access.",
+    "rationale": "Infrastructure declaration properties on the knowledge graph indicate a security posture risk.",
+    "relatedNodeIds": [
+      "obj-storage-1"
+    ],
+    "rulesApplied": [
+      "data-protection",
+      "declaration-security-baseline"
+    ],
+    "decisionsTaken": [
+      "Unsafe or weak declaration attribute present on ingested infrastructure object."
+    ]
+  },
+  {
+    "findingId": "c0ba8132-e4ae-cb3f-68b2-ab41ef0a4765",
+    "findingType": "DeclarationSecurityBaselineFinding",
+    "category": "Security",
+    "severity": "Error",
+    "title": "Storage or data service \u0027docs-2\u0027 allows public network access.",
+    "rationale": "Infrastructure declaration properties on the knowledge graph indicate a security posture risk.",
+    "relatedNodeIds": [
+      "obj-storage-2"
+    ],
+    "rulesApplied": [
+      "data-protection",
+      "declaration-security-baseline"
+    ],
+    "decisionsTaken": [
+      "Unsafe or weak declaration attribute present on ingested infrastructure object."
+    ]
+  },
+  {
+    "findingId": "782311fb-3e01-1a14-aef1-8380ce7163fb",
+    "findingType": "DeclarationSecurityBaselineFinding",
+    "category": "Security",
+    "severity": "Error",
+    "title": "Storage or data service \u0027docs-3\u0027 allows public network access.",
+    "rationale": "Infrastructure declaration properties on the knowledge graph indicate a security posture risk.",
+    "relatedNodeIds": [
+      "obj-storage-3"
+    ],
+    "rulesApplied": [
+      "data-protection",
+      "declaration-security-baseline"
+    ],
+    "decisionsTaken": [
+      "Unsafe or weak declaration attribute present on ingested infrastructure object."
+    ]
+  },
+  {
+    "findingId": "c261f77e-3957-d130-8c0f-9672d0e3017f",
+    "findingType": "DeclarationSecurityBaselineFinding",
+    "category": "Security",
+    "severity": "Error",
+    "title": "Storage or data service \u0027docs-4\u0027 allows public network access.",
+    "rationale": "Infrastructure declaration properties on the knowledge graph indicate a security posture risk.",
+    "relatedNodeIds": [
+      "obj-storage-4"
+    ],
+    "rulesApplied": [
+      "data-protection",
+      "declaration-security-baseline"
+    ],
+    "decisionsTaken": [
+      "Unsafe or weak declaration attribute present on ingested infrastructure object."
+    ]
+  },
+  {
+    "findingId": "5c45e18a-1bd1-29ce-5030-534262884881",
+    "findingType": "DeclarationSecurityBaselineFinding",
+    "category": "Security",
+    "severity": "Error",
+    "title": "Storage or data service \u0027docs-5\u0027 allows public network access.",
+    "rationale": "Infrastructure declaration properties on the knowledge graph indicate a security posture risk.",
+    "relatedNodeIds": [
+      "obj-storage-5"
+    ],
+    "rulesApplied": [
+      "data-protection",
+      "declaration-security-baseline"
+    ],
+    "decisionsTaken": [
+      "Unsafe or weak declaration attribute present on ingested infrastructure object."
+    ]
+  },
+  {
+    "findingId": "e02aba87-8f44-df9b-7348-9e48b3eb8efc",
+    "findingType": "DeclarationSecurityBaselineFinding",
+    "category": "Security",
+    "severity": "Error",
+    "title": "Storage or data service \u0027docs-6\u0027 allows public network access.",
+    "rationale": "Infrastructure declaration properties on the knowledge graph indicate a security posture risk.",
+    "relatedNodeIds": [
+      "obj-storage-6"
+    ],
+    "rulesApplied": [
+      "data-protection",
+      "declaration-security-baseline"
+    ],
+    "decisionsTaken": [
+      "Unsafe or weak declaration attribute present on ingested infrastructure object."
+    ]
+  },
+  {
+    "findingId": "4caa3334-8b89-931a-6a9f-7cbeda2b2043",
+    "findingType": "RequirementExpectationFinding",
+    "category": "Requirement",
+    "severity": "Warning",
+    "title": "Workload-conditioned requirement themes are incomplete",
+    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "relatedNodeIds": [
+      "obj-storage-1",
+      "obj-storage-2",
+      "obj-storage-3",
+      "obj-storage-4",
+      "obj-storage-5",
+      "obj-storage-6"
+    ],
+    "payloadType": "RequirementExpectationFindingPayload",
+    "rulesApplied": [
+      "requirement-expectation-workload-scope"
+    ],
+    "decisionsTaken": [
+      "Compared workload-conditioned requirement themes to themes inferred from requirement nodes."
+    ]
+  },
+  {
+    "findingId": "25a4551b-ef6f-170f-7b9b-56af78f5a201",
+    "findingType": "SecurityBaselineCompletenessFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Workload security baseline control-family coverage is incomplete",
+    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "relatedNodeIds": [
+      "obj-storage-1",
+      "obj-storage-2",
+      "obj-storage-3",
+      "obj-storage-4",
+      "obj-storage-5",
+      "obj-storage-6"
+    ],
+    "payloadType": "SecurityBaselineCompletenessFindingPayload",
+    "rulesApplied": [
+      "security-baseline-completeness-matrix"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected control families to families inferred from active security baseline nodes."
+    ]
+  },
+  {
+    "findingId": "d0e6e4eb-cd6e-7dea-701f-312c45273213",
+    "findingType": "SecurityBaselineExpectationFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Category-scoped security baseline coverage is incomplete",
+    "rationale": "Workload-expected topology categories lack any protected resources linked by security baseline PROTECTS edges.",
+    "relatedNodeIds": [
+      "obj-storage-1",
+      "obj-storage-2",
+      "obj-storage-3",
+      "obj-storage-4",
+      "obj-storage-5",
+      "obj-storage-6"
+    ],
+    "payloadType": "SecurityBaselineExpectationFindingPayload",
+    "rulesApplied": [
+      "security-baseline-category-expectation"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected topology categories to categories with protected resources."
+    ]
+  },
+  {
+    "findingId": "fb57223f-6153-2cc2-e178-174c2249be5e",
+    "findingType": "SecurityCoverageFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Some topology resources are not protected by any security baseline nodes",
+    "rationale": "Security protection coverage is incomplete for the current topology graph.",
+    "relatedNodeIds": [
+      "docs-1",
+      "docs-2",
+      "docs-3",
+      "docs-4",
+      "docs-5",
+      "docs-6"
+    ],
+    "payloadType": "SecurityCoverageFindingPayload",
+    "rulesApplied": [
+      "security-coverage-protection"
+    ],
+    "decisionsTaken": [
+      "Compared topology resources against PROTECTS edges."
+    ]
+  },
+  {
+    "findingId": "eb5a2c00-debf-ce1f-979c-b1a17f882ae0",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "Topology coverage is incomplete",
+    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "relatedNodeIds": [
+      "obj-storage-1",
+      "obj-storage-2",
+      "obj-storage-3",
+      "obj-storage-4",
+      "obj-storage-5",
+      "obj-storage-6"
+    ],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-categories"
+    ],
+    "decisionsTaken": [
+      "Compared present topology categories to expected coverage categories."
+    ]
+  }
+]

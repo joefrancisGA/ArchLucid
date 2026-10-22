@@ -1,0 +1,417 @@
+import { NextRequest } from "next/server";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { GET, PATCH, POST } from "./[...path]/route";
+import {
+  BFF_SESSION_COOKIE_NAME,
+  createBffSessionCookieValue,
+} from "@/lib/proxy/bff-session-cookie";
+import { resetProxyRateLimitStateForTests } from "@/lib/proxy-rate-limit";
+
+describe("proxy route anonymous marketing paths", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    resetProxyRateLimitStateForTests();
+    vi.stubEnv("ARCHLUCID_PROXY_BEARER_TOKEN", "configured-proxy-bearer");
+    fetchMock.mockResolvedValue(
+      new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it("does not attach server bearer for marketing quick-scan status", async () => {
+    const req = new NextRequest("http://localhost/api/proxy/v1/marketing/quick-scan/status");
+
+    await GET(req, { params: Promise.resolve({ path: ["v1", "marketing", "quick-scan", "status"] }) });
+
+    const init = fetchMock.mock.calls[0]![1] as RequestInit;
+    const headers = init.headers as Headers;
+    expect(headers.get("authorization")).toBeNull();
+  });
+
+  it("still attaches server bearer for protected architecture quick-scan", async () => {
+    const req = new NextRequest("http://localhost/api/proxy/v1/architecture/quick-scan/status");
+
+    await GET(req, { params: Promise.resolve({ path: ["v1", "architecture", "quick-scan", "status"] }) });
+
+    const init = fetchMock.mock.calls[0]![1] as RequestInit;
+    const headers = init.headers as Headers;
+    expect(headers.get("authorization")).toBe("Bearer configured-proxy-bearer");
+  });
+
+  it("does not attach server bearer for marketing early-access POST", async () => {
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
+
+    const req = new NextRequest("http://localhost/api/proxy/v1/marketing/early-access", {
+      method: "POST",
+      headers: { "content-type": "application/json", "content-length": "12" },
+      body: '{"ok":true}',
+    });
+
+    const res = await POST(req, {
+      params: Promise.resolve({ path: ["v1", "marketing", "early-access"] }),
+    });
+
+    expect(res.status).toBe(204);
+
+    const init = fetchMock.mock.calls[0]![1] as RequestInit;
+    const headers = init.headers as Headers;
+    expect(headers.get("authorization")).toBeNull();
+  });
+
+  it("forwards anonymous marketing early-access POST when BFF session cookie is expired", async () => {
+    vi.stubEnv("ARCHLUCID_BFF_SESSION_SIGNING_SECRET", "anonymous-marketing-bff-secret");
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-09-06T12:00:00.000Z"));
+
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() + 3_600_000,
+      workingMode: true,
+    });
+
+    vi.setSystemTime(new Date("2026-09-07T12:00:00.000Z"));
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
+
+    const req = new NextRequest("http://localhost/api/proxy/v1/marketing/early-access", {
+      method: "POST",
+      headers: {
+        origin: "http://localhost",
+        "content-type": "application/json",
+        "content-length": "12",
+        cookie: `${BFF_SESSION_COOKIE_NAME}=${issueResult?.sessionCookieValue ?? ""}`,
+      },
+      body: '{"ok":true}',
+    });
+
+    const res = await POST(req, {
+      params: Promise.resolve({ path: ["v1", "marketing", "early-access"] }),
+    });
+
+    expect(res.status).toBe(204);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    vi.useRealTimers();
+  });
+
+  it("forwards anonymous marketing early-access POST and clears an unparseable BFF session cookie", async () => {
+    vi.stubEnv("ARCHLUCID_BFF_SESSION_SIGNING_SECRET", "anonymous-marketing-bff-secret");
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
+
+    const req = new NextRequest("http://localhost/api/proxy/v1/marketing/early-access", {
+      method: "POST",
+      headers: {
+        origin: "http://localhost",
+        "content-type": "application/json",
+        "content-length": "12",
+        cookie: `${BFF_SESSION_COOKIE_NAME}=not-a-valid-signed-cookie`,
+      },
+      body: '{"ok":true}',
+    });
+
+    const res = await POST(req, {
+      params: Promise.resolve({ path: ["v1", "marketing", "early-access"] }),
+    });
+
+    expect(res.status).toBe(204);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(res.headers.get("set-cookie")).toContain("archlucid-bff-session=");
+    expect(res.headers.get("set-cookie")).toContain("Max-Age=0");
+  });
+
+  it("forwards anonymous marketing early-access POST when BFF session cookie is valid but CSRF is omitted", async () => {
+    vi.stubEnv("ARCHLUCID_BFF_SESSION_SIGNING_SECRET", "anonymous-marketing-bff-secret");
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-09-06T12:00:00.000Z"));
+
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() + 3_600_000,
+      workingMode: true,
+    });
+
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
+
+    const req = new NextRequest("http://localhost/api/proxy/v1/marketing/early-access", {
+      method: "POST",
+      headers: {
+        origin: "http://localhost",
+        "content-type": "application/json",
+        "content-length": "12",
+        cookie: `${BFF_SESSION_COOKIE_NAME}=${issueResult?.sessionCookieValue ?? ""}`,
+      },
+      body: '{"ok":true}',
+    });
+
+    const res = await POST(req, {
+      params: Promise.resolve({ path: ["v1", "marketing", "early-access"] }),
+    });
+
+    expect(res.status).toBe(204);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    vi.useRealTimers();
+  });
+
+  it("forwards anonymous marketing early-access POST when BFF session is enabled", async () => {
+    vi.stubEnv("ARCHLUCID_BFF_SESSION_SIGNING_SECRET", "anonymous-marketing-bff-secret");
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
+
+    const req = new NextRequest("http://localhost/api/proxy/v1/marketing/early-access", {
+      method: "POST",
+      headers: {
+        origin: "http://localhost",
+        "content-type": "application/json",
+        "content-length": "12",
+      },
+      body: '{"ok":true}',
+    });
+
+    const res = await POST(req, {
+      params: Promise.resolve({ path: ["v1", "marketing", "early-access"] }),
+    });
+
+    expect(res.status).toBe(204);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    const init = fetchMock.mock.calls[0]![1] as RequestInit;
+    const headers = init.headers as Headers;
+    expect(headers.get("authorization")).toBeNull();
+  });
+
+  it("forwards browser bearer on anonymous marketing paths when the visitor is signed in", async () => {
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
+
+    const req = new NextRequest("http://localhost/api/proxy/v1/marketing/early-access", {
+      method: "POST",
+      headers: {
+        authorization: "Bearer visitor-jwt",
+        "content-type": "application/json",
+        "content-length": "12",
+      },
+      body: '{"ok":true}',
+    });
+
+    const res = await POST(req, {
+      params: Promise.resolve({ path: ["v1", "marketing", "early-access"] }),
+    });
+
+    expect(res.status).toBe(204);
+
+    const init = fetchMock.mock.calls[0]![1] as RequestInit;
+    const headers = init.headers as Headers;
+    expect(headers.get("authorization")).toBe("Bearer visitor-jwt");
+  });
+
+  it("does not attach server bearer for marketing showcase GET", async () => {
+    fetchMock.mockResolvedValue(
+      new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    const req = new NextRequest(
+      "http://localhost/api/proxy/v1/marketing/showcase/contoso-baseline",
+    );
+
+    await GET(req, {
+      params: Promise.resolve({
+        path: ["v1", "marketing", "showcase", "contoso-baseline"],
+      }),
+    });
+
+    const init = fetchMock.mock.calls[0]![1] as RequestInit;
+    const headers = init.headers as Headers;
+    expect(headers.get("authorization")).toBeNull();
+  });
+
+  it("does not attach server bearer for marketing why-archlucid pack PDF download", async () => {
+    fetchMock.mockResolvedValue(
+      new Response("pdf-bytes", {
+        status: 200,
+        headers: { "Content-Type": "application/pdf" },
+      }),
+    );
+
+    const req = new NextRequest(
+      "http://localhost/api/proxy/v1/marketing/why-archlucid-pack.pdf",
+    );
+
+    await GET(req, {
+      params: Promise.resolve({
+        path: ["v1", "marketing", "why-archlucid-pack.pdf"],
+      }),
+    });
+
+    const init = fetchMock.mock.calls[0]![1] as RequestInit;
+    const headers = init.headers as Headers;
+    expect(headers.get("authorization")).toBeNull();
+  });
+
+  it("does not attach server bearer for trust-center evidence pack download", async () => {
+    fetchMock.mockResolvedValue(
+      new Response("zip-bytes", {
+        status: 200,
+        headers: { "Content-Type": "application/zip" },
+      }),
+    );
+
+    const req = new NextRequest(
+      "http://localhost/api/proxy/v1/marketing/trust-center/evidence-pack.zip",
+    );
+
+    await GET(req, {
+      params: Promise.resolve({
+        path: ["v1", "marketing", "trust-center", "evidence-pack.zip"],
+      }),
+    });
+
+    const init = fetchMock.mock.calls[0]![1] as RequestInit;
+    const headers = init.headers as Headers;
+    expect(headers.get("authorization")).toBeNull();
+  });
+
+  it("forwards pricing quote-request 204 with a null body (no NextResponse throw)", async () => {
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
+
+    const req = new NextRequest("http://localhost/api/proxy/v1/marketing/pricing/quote-request", {
+      method: "POST",
+      headers: { "content-type": "application/json", "content-length": "12" },
+      body: '{"ok":true}',
+    });
+
+    const res = await POST(req, {
+      params: Promise.resolve({ path: ["v1", "marketing", "pricing", "quote-request"] }),
+    });
+
+    expect(res.status).toBe(204);
+    expect(await res.text()).toBe("");
+
+    const init = fetchMock.mock.calls[0]![1] as RequestInit;
+    const headers = init.headers as Headers;
+    expect(headers.get("authorization")).toBeNull();
+  });
+
+  it("rejects PATCH with percent-encoded dot traversal to operator draft", async () => {
+    const req = new NextRequest(
+      "http://localhost/api/proxy/v1/marketing/quick-scan/%2e%2e/%2e%2e/%2e%2e/architecture/draft/draft-1",
+      {
+        method: "PATCH",
+        headers: { "content-type": "application/json", "content-length": "2" },
+        body: "{}",
+      },
+    );
+
+    const res = await PATCH(req, {
+      params: Promise.resolve({
+        path: ["v1", "marketing", "quick-scan", "%2e%2e", "%2e%2e", "%2e%2e", "architecture", "draft", "draft-1"],
+      }),
+    });
+
+    expect(res.status).toBe(400);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects PATCH with deeply encoded dot traversal to operator draft", async () => {
+    let encoded = "%2e%2e";
+
+    for (let pass = 0; pass < 5; pass++) {
+      encoded = encoded.replace(/%/g, "%25");
+    }
+
+    const req = new NextRequest(
+      `http://localhost/api/proxy/v1/marketing/quick-scan/status/${encoded}/${encoded}/${encoded}/architecture/draft/draft-1`,
+      {
+        method: "PATCH",
+        headers: { "content-type": "application/json", "content-length": "2" },
+        body: "{}",
+      },
+    );
+
+    const res = await PATCH(req, {
+      params: Promise.resolve({
+        path: ["v1", "marketing", "quick-scan", "status", encoded, encoded, encoded, "architecture", "draft", "draft-1"],
+      }),
+    });
+
+    expect(res.status).toBe(400);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects PATCH with double-encoded dot traversal to operator draft", async () => {
+    const req = new NextRequest(
+      "http://localhost/api/proxy/v1/marketing/quick-scan/%252e%252e/%252e%252e/architecture/draft/draft-1",
+      {
+        method: "PATCH",
+        headers: { "content-type": "application/json", "content-length": "2" },
+        body: "{}",
+      },
+    );
+
+    const res = await PATCH(req, {
+      params: Promise.resolve({
+        path: ["v1", "marketing", "quick-scan", "%252e%252e", "%252e%252e", "architecture", "draft", "draft-1"],
+      }),
+    });
+
+    expect(res.status).toBe(400);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects PATCH with nine-level encoded dot traversal to operator draft", async () => {
+    let encoded = "%2e%2e";
+
+    for (let pass = 0; pass < 9; pass++) {
+      encoded = encoded.replace(/%/g, "%25");
+    }
+
+    const req = new NextRequest(
+      `http://localhost/api/proxy/v1/marketing/quick-scan/status/${encoded}/${encoded}/${encoded}/architecture/draft/draft-1`,
+      {
+        method: "PATCH",
+        headers: { "content-type": "application/json", "content-length": "2" },
+        body: "{}",
+      },
+    );
+
+    const res = await PATCH(req, {
+      params: Promise.resolve({
+        path: ["v1", "marketing", "quick-scan", "status", encoded, encoded, encoded, "architecture", "draft", "draft-1"],
+      }),
+    });
+
+    expect(res.status).toBe(400);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects PATCH that traverses from marketing quick-scan to operator draft", async () => {
+    const req = new NextRequest(
+      "http://localhost/api/proxy/v1/marketing/quick-scan/status/../../../architecture/draft/draft-1",
+      {
+        method: "PATCH",
+        headers: { "content-type": "application/json", "content-length": "2" },
+        body: "{}",
+      },
+    );
+
+    const res = await PATCH(req, {
+      params: Promise.resolve({
+        path: ["v1", "marketing", "quick-scan", "status", "..", "..", "..", "architecture", "draft", "draft-1"],
+      }),
+    });
+
+    expect(res.status).toBe(400);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+});

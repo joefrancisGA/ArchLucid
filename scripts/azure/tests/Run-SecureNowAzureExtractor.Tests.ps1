@@ -1,0 +1,285 @@
+#Requires -Version 7.0
+# Run: Invoke-Pester -EnableExit -Path 'scripts/azure/tests/Run-SecureNowAzureExtractor.Tests.ps1'
+Set-StrictMode -Version Latest
+
+Describe "Run-SecureNowAzureExtractor.ps1" {
+
+    BeforeAll {
+        function Get-AzContext {
+            param(
+                [switch] $ListAvailable
+            )
+
+            if ($ListAvailable)
+            {
+                return @()
+            }
+
+            return $null
+        }
+        function Connect-AzAccount { }
+        function Disconnect-AzAccount { }
+        function Get-Module { }
+        function Get-AzSubscription { }
+        function Set-AzContext { }
+        function Get-AzResource { }
+        function Get-AzPolicyDefinition { }
+        function Get-AzPolicyAssignment { }
+
+        [string]$script:scriptRoot = Split-Path -Parent $PSScriptRoot
+        [string]$script:quickStartScript = Join-Path $script:scriptRoot "Run-SecureNowAzureExtractor.ps1"
+        [string]$script:helpersScript = Join-Path $script:scriptRoot "ArchLucid.ExtractorQuickStart.helpers.ps1"
+        [string]$script:previousModuleAutoLoadingPreference = $PSModuleAutoLoadingPreference
+        $PSModuleAutoLoadingPreference = "None"
+
+        . $script:helpersScript
+    }
+
+    AfterAll {
+        $PSModuleAutoLoadingPreference = $script:previousModuleAutoLoadingPreference
+    }
+
+    It "keeps cost and retail prices opt-in while enabling app settings hosts" {
+        [string]$content = Get-Content -LiteralPath $script:quickStartScript -Raw
+
+        $content | Should -Match '\[switch\]\s*\$IncludeCost'
+        $content | Should -Match '\[switch\]\s*\$IncludeRetailPrices'
+        $content | Should -Match 'IncludeCost\s*=\s*\(\[bool\]\$IncludeCost\s*-and\s*-not\s*\[bool\]\$SkipCost\)'
+        $content | Should -Match 'IncludeRetailPrices\s*=\s*\[bool\]\$IncludeRetailPrices'
+        $content | Should -Match 'IncludeAppSettingsHosts\s*=\s*\$true'
+        $content | Should -Match 'CostTimeoutSeconds\s*=\s*\$CostTimeoutSeconds'
+    }
+
+    It "keeps an explicit switch to force cost collection off" {
+        [string]$content = Get-Content -LiteralPath $script:quickStartScript -Raw
+
+        $content | Should -Match '\[switch\]\s*\$SkipCost'
+        $content | Should -Match 'Cost summary:'
+    }
+
+    It "defaults output path to securenow-azure-package.zip in the current directory" {
+        [string]$resolved = Resolve-SecureNowAzureExtractorOutputPath -OutputPath ""
+
+        $resolved | Should -Be (Join-Path (Get-Location).Path "securenow-azure-package.zip")
+    }
+
+    It "uses an explicit subscription id without calling Connect-AzAccount when SkipConnect is set" {
+        [string]$subscriptionId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+
+        Mock Connect-AzAccount { throw "Connect-AzAccount should not run when -SkipConnect is set." }
+
+        [string]$resolved = Resolve-ArchLucidAzureExtractorSubscriptionId `
+            -SubscriptionId $subscriptionId `
+            -SkipConnect
+
+        $resolved | Should -Be $subscriptionId
+        Should -Not -Invoke Connect-AzAccount
+    }
+
+    It "sets subscription context with tenant when TenantId is supplied" {
+        [string]$tenantId = "9fe44930-326a-4542-907d-5000c79fc027"
+        [string]$subscriptionId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+        [hashtable]$contextParams = @{}
+
+        Mock Get-AzSubscription {
+            return [PSCustomObject]@{
+                Id = "/subscriptions/$subscriptionId"
+                TenantId = $tenantId
+            }
+        }
+        Mock Get-AzContext {
+            param([switch] $ListAvailable)
+
+            if ($ListAvailable)
+            {
+                return @(
+                    [PSCustomObject]@{
+                        Account = [PSCustomObject]@{ Id = "user@contoso.com" }
+                        Tenant = [PSCustomObject]@{ Id = $tenantId }
+                        Subscription = [PSCustomObject]@{ Id = "bbbbbbbb-cccc-dddd-eeee-ffffffffffff" }
+                    }
+                )
+            }
+
+            return [PSCustomObject]@{
+                Account = [PSCustomObject]@{ Id = "user@contoso.com" }
+                Tenant = [PSCustomObject]@{ Id = $tenantId }
+                Subscription = [PSCustomObject]@{ Id = "bbbbbbbb-cccc-dddd-eeee-ffffffffffff" }
+            }
+        }
+        Mock Disconnect-AzAccount { }
+        Mock Set-AzContext {
+            param($SubscriptionId, $Tenant)
+
+            $contextParams.SubscriptionId = $SubscriptionId
+            $contextParams.Tenant = $Tenant
+        }
+        Mock Connect-AzAccount { throw "Connect-AzAccount should not run when subscription is already accessible." }
+
+        $null = Set-ArchLucidAzureExtractorSubscriptionContext `
+            -SubscriptionId $subscriptionId `
+            -TenantId $tenantId
+
+        $contextParams.SubscriptionId | Should -Be $subscriptionId
+        $contextParams.Tenant | Should -Be $tenantId
+    }
+
+    It "does not throw when the delegated extractor completes without setting LASTEXITCODE" {
+        [string]$fakeExtractor = Join-Path $TestDrive "Get-SecureNowAzurePackage.ps1"
+
+        Set-Content -LiteralPath $fakeExtractor -Encoding utf8 -Value @'
+Write-Output "fake extractor success"
+'@
+
+        { & $fakeExtractor } | Should -Not -Throw
+
+        if (Test-Path -Path 'Variable:LASTEXITCODE') {
+            exit $LASTEXITCODE
+        }
+
+        $true | Should -Be $true
+    }
+
+    It "connects with subscription scope when TenantId is omitted" {
+        [string]$subscriptionId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+        [hashtable]$connectParams = @{}
+
+        Mock Get-AzContext {
+            param([switch] $ListAvailable)
+
+            if ($ListAvailable)
+            {
+                return @()
+            }
+
+            return $null
+        }
+        Mock Get-AzSubscription { return $null }
+        Mock Connect-AzAccount {
+            param($Subscription, [switch] $UseDeviceAuthentication)
+
+            $connectParams.Subscription = $Subscription
+            $connectParams.UseDeviceAuthentication = [bool]$UseDeviceAuthentication
+        }
+        Mock Disconnect-AzAccount { }
+
+        $null = Ensure-ArchLucidAzureLogin -SubscriptionId $subscriptionId
+
+        $connectParams.Subscription | Should -Be $subscriptionId
+        $connectParams.UseDeviceAuthentication | Should -Be $true
+    }
+
+    It "connects when Get-AzSubscription throws because no Azure session exists" {
+        [string]$subscriptionId = "0966098b-4d6c-4f09-af1b-965bc2a2ad1d"
+        [hashtable]$connectParams = @{}
+
+        Mock Get-AzSubscription {
+            throw "Run Connect-AzAccount to login."
+        }
+        Mock Get-AzContext {
+            param([switch] $ListAvailable)
+
+            if ($ListAvailable)
+            {
+                return @()
+            }
+
+            return $null
+        }
+        Mock Disconnect-AzAccount { }
+        Mock Connect-AzAccount {
+            param($Subscription, [switch] $UseDeviceAuthentication)
+
+            $connectParams.Subscription = $Subscription
+            $connectParams.UseDeviceAuthentication = [bool]$UseDeviceAuthentication
+        }
+
+        { $null = Ensure-ArchLucidAzureLogin -SubscriptionId $subscriptionId } | Should -Not -Throw
+
+        $connectParams.Subscription | Should -Be $subscriptionId
+        $connectParams.UseDeviceAuthentication | Should -Be $true
+        Should -Invoke Connect-AzAccount -Times 1 -Exactly
+    }
+
+    It "connects when a cached subscription exists but Set-AzContext requires login" {
+        [string]$tenantId = "13af8028-bc99-4f21-a8df-6072feb323be"
+        [string]$subscriptionId = "0966098b-4d6c-4f09-af1b-965bc2a2ad1d"
+        [hashtable]$connectParams = @{}
+
+        Mock Get-AzSubscription {
+            return [PSCustomObject]@{
+                Id = "/subscriptions/$subscriptionId"
+                TenantId = $tenantId
+            }
+        }
+        Mock Get-AzContext {
+            param([switch] $ListAvailable)
+
+            if ($ListAvailable)
+            {
+                return @()
+            }
+
+            return [PSCustomObject]@{
+                Subscription = [PSCustomObject]@{ Id = "bbbbbbbb-cccc-dddd-eeee-ffffffffffff" }
+                Tenant = [PSCustomObject]@{ Id = "88888888-7777-6666-5555-444444444444" }
+            }
+        }
+        Mock Set-AzContext {
+            throw "Run Connect-AzAccount to login."
+        }
+        Mock Disconnect-AzAccount { }
+        Mock Sync-ArchLucidAzureCliSubscriptionContext { }
+        Mock Connect-AzAccount {
+            param($Tenant, $Subscription, [switch] $UseDeviceAuthentication)
+
+            $connectParams.Tenant = $Tenant
+            $connectParams.Subscription = $Subscription
+            $connectParams.UseDeviceAuthentication = [bool]$UseDeviceAuthentication
+        }
+
+        { $null = Ensure-ArchLucidAzureLogin `
+            -SubscriptionId $subscriptionId `
+            -TenantId $tenantId `
+            -AuthenticationMethod Browser } | Should -Not -Throw
+
+        $connectParams.Tenant | Should -Be $tenantId
+        $connectParams.Subscription | Should -Be $subscriptionId
+        $connectParams.UseDeviceAuthentication | Should -Be $false
+        Should -Invoke Connect-AzAccount -Times 1 -Exactly
+    }
+
+    It "uses the discovered subscription tenant when selecting context" {
+        [string]$subscriptionId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+        [hashtable]$contextParams = @{}
+
+        Mock Get-AzSubscription {
+            return [PSCustomObject]@{
+                Id = "/subscriptions/$subscriptionId"
+                TenantId = "99999999-8888-7777-6666-555555555555"
+            }
+        }
+        Mock Get-AzContext {
+            param([switch] $ListAvailable)
+
+            if ($ListAvailable) { return @() }
+
+            return [PSCustomObject]@{
+                Subscription = [PSCustomObject]@{ Id = "bbbbbbbb-cccc-dddd-eeee-ffffffffffff" }
+                Tenant = [PSCustomObject]@{ Id = "88888888-7777-6666-5555-444444444444" }
+            }
+        }
+        Mock Set-AzContext {
+            param($SubscriptionId, $Tenant)
+
+            $contextParams.SubscriptionId = $SubscriptionId
+            $contextParams.Tenant = $Tenant
+        }
+        Mock Sync-ArchLucidAzureCliSubscriptionContext { }
+
+        $null = Ensure-ArchLucidAzureSubscriptionSession -SubscriptionId $subscriptionId
+
+        $contextParams.Tenant | Should -Be "99999999-8888-7777-6666-555555555555"
+        $contextParams.SubscriptionId | Should -Be $subscriptionId
+    }
+}

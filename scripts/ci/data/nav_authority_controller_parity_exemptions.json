@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "exemptions": [
+    {
+      "code": "connection_status_admin_nav_hub",
+      "nav_href": "/administration/connection-status",
+      "reason": "Administration hub for connector health is AdminAuthority in nav while ITSM connection list GETs remain ReadAuthority — operators without Admin still must not discover tenant credential references via sidebar (owner 2026-07)."
+    },
+    {
+      "code": "internal_validate_route_execute_nav",
+      "nav_href": "/internal/validate-route",
+      "reason": "Internal Operations replay/validation tooling is ExecuteAuthority-gated in nav while ComparisonsController list GETs stay ReadAuthority — deep-link discovery is intentionally tighter than read-only comparison APIs."
+    }
+  ]
+}

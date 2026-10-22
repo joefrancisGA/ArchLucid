@@ -1,0 +1,26 @@
+﻿resource_group_name = "rg-archlucid-prod-example"
+location            = "eastus"
+
+openai_compose_mode                     = "existing"
+openai_existing_resource_id             = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-platform-openai/providers/Microsoft.CognitiveServices/accounts/oai-archlucid-pilot"
+openai_existing_endpoint                = "https://oai-archlucid-pilot.openai.azure.com/"
+openai_existing_chat_deployment_name    = "gpt-4o"
+openai_existing_embedding_deployment_name = "text-embedding-3-small"
+openai_expected_location                = "eastus"
+
+search_compose_mode              = "existing"
+search_existing_resource_id      = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-platform-search/providers/Microsoft.Search/searchServices/srch-archlucid-pilot"
+search_existing_endpoint         = "https://srch-archlucid-pilot.search.windows.net"
+search_index_name                = "archlucid-vectors"
+search_semantic_configuration_name = "default"
+search_expected_location         = "eastus"
+
+content_safety_compose_mode           = "existing"
+content_safety_existing_resource_id   = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-platform-ai/providers/Microsoft.CognitiveServices/accounts/cs-archlucid-pilot"
+content_safety_existing_endpoint      = "https://cs-archlucid-pilot.cognitiveservices.azure.com/"
+content_safety_expected_location      = "eastus"
+
+tags = {
+  environment = "production"
+  product     = "archlucid"
+}

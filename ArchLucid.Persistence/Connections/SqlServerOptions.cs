@@ -1,0 +1,67 @@
+using System.Diagnostics.CodeAnalysis;
+
+namespace ArchLucid.Persistence.Connections;
+
+/// <summary>
+///     SQL Server connectivity options under configuration section <c>SqlServer</c>.
+/// </summary>
+[ExcludeFromCodeCoverage(Justification = "Configuration binding DTO with no logic.")]
+public sealed class SqlServerOptions
+{
+    public const string SectionName = "SqlServer";
+
+    /// <summary>Optional read replica for specific hot read paths.</summary>
+    public SqlReadReplicaSettings ReadReplica
+    {
+        get;
+        set;
+    } = new();
+
+    /// <summary>
+    ///     Command timeout in seconds for connections created by <see cref="ArchLucid.Host.Core.DataAccess.SqlScopedResolutionDbConnectionFactory" />.
+    ///     When zero or negative, ADO.NET default applies.
+    /// </summary>
+    public int CommandTimeoutSeconds
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     Optional. When set and the host is Production, startup validation asserts that
+    ///     <c>ConnectionStrings:ArchLucid</c> contains this FQDN segment (failover group read/write listener).
+    ///     Example: <c>archlucid-prod-sqlfg.database.windows.net</c>.
+    /// </summary>
+    public string? FailoverGroupListenerFqdn
+    {
+        get;
+        set;
+    }
+}
+
+/// <summary>Binding for <c>SqlServer:ReadReplica</c>.</summary>
+[ExcludeFromCodeCoverage(Justification = "Configuration binding DTO with no logic.")]
+public sealed class SqlReadReplicaSettings
+{
+    /// <summary>
+    ///     Azure SQL failover group <strong>read-only listener</strong> (secondary replica). Used for governance-resolution
+    ///     and
+    ///     golden-manifest lookup reads when set; also used for authority run lists when
+    ///     <see cref="AuthorityRunListReadsConnectionString" /> is unset.
+    /// </summary>
+    public string? FailoverGroupReadOnlyListenerConnectionString
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     When set, authority run list reads prefer this connection over
+    ///     <see cref="FailoverGroupReadOnlyListenerConnectionString" />.
+    /// </summary>
+    public string? AuthorityRunListReadsConnectionString
+    {
+        get;
+        set;
+    }
+}

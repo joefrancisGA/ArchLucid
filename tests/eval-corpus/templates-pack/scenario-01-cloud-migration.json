@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "id": "scenario-01-cloud-migration",
+  "metadata": {
+    "title": "Contoso claims migration to Azure (hub-spoke, private SQL, blue/green)",
+    "complexity": "medium",
+    "primaryAgents": ["Topology", "Compliance"],
+    "rubricNotes": "5 MUSTs: hits 4/5 (80%) to clear the 70% recall floor."
+  },
+  "inputSource": "templates/architecture-requests/cloud-migration-review.json",
+  "recording": "tests/eval-corpus/templates-pack/recordings/scenario-01-cloud-migration.findings.json",
+  "expectedFindings": [
+    {
+      "id": "must-private-link-sql",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["private", "sql"]
+    },
+    {
+      "id": "must-hub-spoke-topology",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["hub", "spoke"]
+    },
+    {
+      "id": "must-rpo-backup-posture",
+      "category": "Compliance",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["rpo", "minute"]
+    },
+    {
+      "id": "must-key-vault-secrets",
+      "category": "Compliance",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["key vault"]
+    },
+    {
+      "id": "must-entra-conditional-access",
+      "category": "Compliance",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["entra", "conditional access"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Topology", "ifContainsAny": ["public endpoint for sql", "publicly accessible sql", "expose sql to the internet"] },
+    { "category": "Critic", "ifContainsAny": ["halt the migration", "abandon azure"] }
+  ]
+}

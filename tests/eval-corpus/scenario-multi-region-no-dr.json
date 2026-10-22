@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "multi-region-no-dr",
+  "metadata": {
+    "title": "Multi-region presence without failover",
+    "complexity": "high",
+    "primaryAgents": ["Topology", "Compliance"]
+  },
+  "inputSummary": "Active-active marketing sites in two regions but data plane authoritative in primary only with manual cutover playbook.",
+  "recording": "recordings/multi-region-no-dr.findings.json",
+  "expectedFindings": [
+    {
+      "id": "e failover readiness",
+      "category": "Topology",
+      "minimumSeverity": "High",
+      "evidenceMustContain": ["failover", "RTO"]
+    },
+    {
+      "id": "e data sovereignty",
+      "category": "Compliance",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["residency", "replication lag"]
+    },
+    {
+      "id": "e availability testing",
+      "category": "Critic",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["chaos", "regional evacuation"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Topology", "ifContainsAny": ["active-active data plane validated monthly"] },
+    { "category": "Cost", "ifContainsAny": ["no material availability risk"] }
+  ]
+}

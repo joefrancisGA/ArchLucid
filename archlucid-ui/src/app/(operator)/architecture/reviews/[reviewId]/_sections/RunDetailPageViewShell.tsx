@@ -1,0 +1,504 @@
+import { Suspense } from "react";
+
+import { cn } from "@/lib/utils";
+import { OPERATOR_LAYOUT, OPERATOR_PAGE_CONTAINER } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  REVIEW_DETAIL_FIRST_VIEWPORT_ID,
+  REVIEW_DETAIL_PRIMARY_CONTENT_ID,
+  REVIEW_DETAIL_SKIP_LINK_LABEL,
+  REVIEW_DETAIL_SKIP_TARGET_ID,
+} from "@/lib/review-detail-page-copy";
+
+import { ArchitectureIntelligenceReviewToolStrip } from "@/components/ArchitectureIntelligenceReviewToolStrip";
+import { GovernanceModePresentationGate } from "@/components/governance/GovernanceModePresentationGate";
+import { OperatorRelatedSurfacesDisclosure } from "@/components/operator/OperatorRelatedSurfacesDisclosure";
+import { resolveRunDetailDeferredSurfaceFindingCount } from "@/lib/runs/run-detail-findings-tab-badge-count";
+import { resolveRunDetailOutcomeCardsFindingCountDisplay } from "./run-detail-outcome-cards-finding-count";
+import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
+import { SignedRecordsReviewDetailVocabularyRail } from "@/components/SignedRecordsReviewDetailVocabularyRail";
+import { detectStalledReview } from "@/lib/usability/stalled-review-detection";
+
+import { RunDetailDeferredScopeNoticeClient } from "@/components/reviews/RunDetailDeferredScopeNoticeClient";
+import { WorkingArchitectureNestedKeyboardHint } from "@/components/architecture/WorkingArchitectureNestedKeyboardHint";
+import { WorkingArchitectureNestedToolContextStrip } from "@/components/architecture/WorkingArchitectureNestedToolContextStrip";
+import { WorkingArchitectureNestedWayfinding } from "@/components/architecture/WorkingArchitectureNestedWayfinding";
+import { WorkingNestedArchitectureIdentityChromeMount } from "@/components/architecture/WorkingNestedArchitectureIdentityChromeMount";
+import { PageHeaderClaimDiscipline } from "@/components/operator/page-header-claim-discipline";
+import { WorkingUnlinkedReviewHonestyBanner } from "@/components/reviews/WorkingUnlinkedReviewHonestyBanner";
+import {
+  workingArchitectureNestedClaimDiscipline,
+  workingArchitectureNestedClaimDisciplineTestId,
+} from "@/lib/architecture/working-architecture-nested-tool-copy";
+import {
+  RunDetailBuyerModeFallbackBannerDeferred,
+  RunDetailBuyerPilotConversionSectionDeferred,
+  RunDetailCommitBlockingFindingsBannerDeferred,
+  RunDetailCtoDemoReviewRouteGuardDeferred,
+  RunDetailDemoMarketingChromeDeferred,
+  RunDetailGovernanceAlertsDeferred,
+  RunDetailGovernanceCtaDeferred,
+  RunDetailOutcomeCardsDeferred,
+  RunDetailSampleReviewPackageSummaryDeferred,
+  RunDetailSectionNavDeferred,
+  RunDetailStalledReviewGuidanceCalloutDeferred,
+  RunDetailWorkspaceHeaderDeferred,
+  RunDetailWorkspaceStickyActionsResolvedDeferred,
+  HelpPageSituationRegistrarDeferred,
+  ReviewGenerationCreatedNoticeDeferred,
+} from "./run-detail-page-view-deferred-chunks";
+import { RunDetailFirstWeekRouteGuidanceMount } from "./RunDetailFirstWeekRouteGuidanceMount";
+import { RunDetailBuyerChrome } from "./RunDetailBuyerChrome";
+import { RunDetailNextReviewFooterClient } from "./RunDetailNextReviewFooterClient";
+import { RunDetailPageViewCommitted } from "./RunDetailPageViewCommitted";
+import { RunDetailPageViewCreateHome } from "./RunDetailPageViewCreateHome";
+import { RunDetailTabbedWorkspace } from "./RunDetailTabbedWorkspace";
+import {
+  RunDetailWorkspaceDisclosureProvider,
+  RunDetailWorkspaceLayout,
+} from "./RunDetailWorkspaceShell";
+import type { RunDetailPresentation } from "./run-detail-page-presentation";
+import type { RunDetailPageModel } from "./run-detail-page-model";
+
+export type RunDetailPageViewChrome = {
+  readonly sampleReviewPackageSummaryEl: React.JSX.Element | null;
+  readonly governanceAlertsEl: React.JSX.Element;
+  readonly createHomeActivityOutcomeCardsEl: React.JSX.Element;
+  readonly sectionNavEl: React.JSX.Element;
+  readonly governanceCtaEl: React.JSX.Element | null;
+  readonly tabbedWorkspaceEl: React.JSX.Element;
+  readonly reviewPackageDoThisNextEvidenceProps: {
+    readonly evidenceCoverageLinkedCount: number;
+    readonly evidenceCoverageTotalCount: number;
+    readonly governanceDecisionRecorded: boolean;
+    readonly pipelineDiagnosticContext: RunDetailPageModel["pipelineDiagnosticContext"];
+    readonly lastFailureSummary: ReturnType<typeof resolveRunDetailLastFailureSummary>;
+    readonly pipelineSummary: RunDetailPageModel["progressForPipelineUi"];
+    readonly runCompletedUtc: string | null;
+    readonly intakeDescription: string | null;
+    readonly intakeSystemName: string | null;
+    readonly realModeFellBackToSimulator: boolean;
+  };
+  readonly stalledReviewGuidanceEl: React.JSX.Element | null;
+  readonly commitBlockingBannerEl: React.JSX.Element | null;
+};
+
+/** Builds deferred chunk elements and tab-workspace chrome for the run detail page shell. */
+export function resolveRunDetailPageViewChrome(
+  m: RunDetailPageModel,
+  presentation: RunDetailPresentation,
+): RunDetailPageViewChrome {
+  const {
+    evidenceCoverageSummary,
+    findingCoverageSummary,
+    quickDecisionFindings,
+    showArchitectureCreatedHome,
+    showGovernanceCta,
+    showcasePolicyPackStrip,
+    commitBlockedReason,
+  } = presentation;
+
+  const deferredSurfaceFindingCount = resolveRunDetailDeferredSurfaceFindingCount(
+    m.findingCountDisplay,
+    quickDecisionFindings,
+  );
+
+  const sampleReviewPackageSummaryEl =
+    m.usedStaticDemoRun ? (
+      <RunDetailSampleReviewPackageSummaryDeferred
+        runId={m.resolvedDetail.run.runId}
+        manifestId={m.manifestId}
+        artifactCount={m.artifacts.length}
+        findingCount={deferredSurfaceFindingCount}
+      />
+    ) : null;
+
+  const governanceAlertsEl = (
+    <GovernanceModePresentationGate>
+      <>
+        <RunDetailGovernanceAlertsDeferred
+          run={m.resolvedDetail.run}
+          hasCommitBlockingFailures={findingCoverageSummary?.hasCommitBlockingFailures === true}
+        />
+        <RunDetailDeferredScopeNoticeClient />
+      </>
+    </GovernanceModePresentationGate>
+  );
+
+  const outcomeCardsFindingCountDisplay = resolveRunDetailOutcomeCardsFindingCountDisplay(
+    m.findingCountDisplay,
+    quickDecisionFindings,
+  );
+
+  const createHomeActivityOutcomeCardsEl = (
+    <RunDetailOutcomeCardsDeferred
+      runId={m.resolvedDetail.run.runId}
+      manifestId={m.manifestId}
+      artifactCount={m.artifacts.length}
+      findingCountDisplay={outcomeCardsFindingCountDisplay}
+      warningCountDisplay={m.warningCountDisplay}
+      hasGoldenManifest={Boolean(m.manifestId)}
+      unresolvedIssueCountDisplay={m.manifestSummary?.unresolvedIssueCount ?? null}
+      aggregateRiskPosture={m.explanationSummary?.riskPosture ?? null}
+      governanceGateLabel={m.governanceGateLabel}
+      governanceGateOperatorLabel={m.governanceGateOperatorLabel}
+      authorityLifecyclePhase={m.resolvedDetail.authorityLifecyclePhase ?? null}
+      showcasePolicyPackStrip={showcasePolicyPackStrip}
+      degradedFindingCoverage={m.resolvedDetail.degradedFindingCoverage === true}
+      failedEngineLabels={findingCoverageSummary?.failedEngineLabels ?? []}
+      findingCoverageSummary={findingCoverageSummary}
+      hidePromotedStatus
+      pagePrimaryOwnedElsewhere
+    />
+  );
+
+  const sectionNavEl = (
+    <RunDetailSectionNavDeferred
+      runId={m.resolvedDetail.run.runId}
+      parentArchitectureId={m.resolvedDetail.run.architectureId ?? null}
+      sections={m.runDetailNavSections}
+    />
+  );
+
+  const governanceCtaEl = showGovernanceCta ? (
+    <RunDetailGovernanceCtaDeferred runId={m.resolvedDetail.run.runId} demoted />
+  ) : null;
+
+  const tabbedWorkspaceEl = <RunDetailTabbedWorkspace model={m} presentation={presentation} />;
+
+  const governanceDecisionRecorded =
+    (m.resolvedDetail.run.operatorGovernanceDecision ?? "").trim().length > 0;
+  const reviewPackageDoThisNextEvidenceProps = {
+    evidenceCoverageLinkedCount: evidenceCoverageSummary.linkedCount,
+    evidenceCoverageTotalCount: evidenceCoverageSummary.totalCount,
+    governanceDecisionRecorded,
+    pipelineDiagnosticContext: m.pipelineDiagnosticContext,
+    lastFailureSummary: resolveRunDetailLastFailureSummary(m.resolvedDetail),
+    pipelineSummary: m.progressForPipelineUi,
+    runCompletedUtc: m.resolvedDetail.run.completedUtc ?? null,
+    intakeDescription: m.resolvedDetail.run.description ?? m.progressForPipelineUi.description ?? null,
+    intakeSystemName: m.progressForPipelineUi.displayName ?? null,
+    realModeFellBackToSimulator: m.resolvedDetail.run.realModeFellBackToSimulator === true,
+  };
+
+  const stalledReviewGuidanceEl =
+    !m.manifestId
+      ? (() => {
+          const legacyStatus = m.resolvedDetail.run.legacyRunStatus;
+          const isDeadLettered = m.resolvedDetail.run.isDeadLettered === true;
+          const stalled = detectStalledReview(
+            m.resolvedDetail.run.createdUtc,
+            m.runCompleted ||
+              legacyStatus === "Failed",
+            Date.now(),
+            isDeadLettered,
+          );
+
+          return stalled.isStalled ? (
+            <RunDetailStalledReviewGuidanceCalloutDeferred
+              elapsedMinutes={stalled.elapsedMinutes}
+              runId={m.resolvedDetail.run.runId}
+              summary={m.progressForPipelineUi}
+              diagnosticContext={m.pipelineDiagnosticContext}
+            />
+          ) : null;
+        })()
+      : null;
+
+  const commitBlockingBannerEl =
+    findingCoverageSummary?.hasCommitBlockingFailures === true && !showArchitectureCreatedHome ? (
+      <RunDetailCommitBlockingFindingsBannerDeferred
+        runId={m.resolvedDetail.run.runId}
+        reason={commitBlockedReason}
+      />
+    ) : null;
+
+  return {
+    sampleReviewPackageSummaryEl,
+    governanceAlertsEl,
+    createHomeActivityOutcomeCardsEl,
+    sectionNavEl,
+    governanceCtaEl,
+    tabbedWorkspaceEl,
+    reviewPackageDoThisNextEvidenceProps,
+    stalledReviewGuidanceEl,
+    commitBlockingBannerEl,
+  };
+}
+
+export type RunDetailPageViewShellProps = {
+  readonly model: RunDetailPageModel;
+  readonly presentation: RunDetailPresentation;
+  readonly chrome: RunDetailPageViewChrome;
+};
+
+export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): React.JSX.Element {
+  const m = props.model;
+  const presentation = props.presentation;
+  const chrome = props.chrome;
+  const {
+    blockingApprovalCount,
+    buyerGoldenPageReady,
+    commitBlockedReason,
+    finalizeReadinessEnabled,
+    finalizeReadinessBlocks,
+    quickDecisionFindings,
+    requestAssumptionTexts,
+    reviewHeaderPresentation,
+    reviewStatusSummary,
+    showArchitectureCreatedHome,
+    showDemoMarketingChrome,
+    signedReviewRecordId,
+    signedReviewRecordIdLabel,
+    workspaceStatus,
+    reviewOwnerLabel,
+    templateLabel,
+    finalizedAtLabel,
+    packageVersionLabel,
+    findingCoverageSummary,
+  } = presentation;
+  const reviewPipelineIncomplete = presentation.reviewPipelineIncomplete;
+  const buyerPolishedShell = m.buyerPolishedArtifactTable;
+
+  const runDetailWorkspaceHeader = (
+    <RunDetailWorkspaceHeaderDeferred
+      runId={m.resolvedDetail.run.runId}
+      parentArchitectureId={m.resolvedDetail.run.architectureId ?? null}
+      h1Title={reviewHeaderPresentation.h1Title}
+      eyebrowLabel={reviewHeaderPresentation.eyebrowLabel}
+      reviewIdentifierLabel={reviewHeaderPresentation.reviewIdentifierLabel}
+      signedReviewRecordId={signedReviewRecordId}
+      signedReviewRecordIdLabel={signedReviewRecordIdLabel}
+      workspaceStatus={workspaceStatus}
+      reviewOwner={reviewOwnerLabel}
+      templateLabel={templateLabel}
+      finalizedAtLabel={finalizedAtLabel}
+      packageVersionLabel={packageVersionLabel}
+    />
+  );
+
+  const parentArchitectureId = m.resolvedDetail.run.architectureId?.trim() ?? "";
+
+  const runDetailIdentityChrome = (
+    <>
+      <WorkingNestedArchitectureIdentityChromeMount
+        parentArchitectureId={m.resolvedDetail.run.architectureId ?? null}
+      />
+      {parentArchitectureId.length > 0 ? (
+        <>
+          <WorkingArchitectureNestedWayfinding architectureId={parentArchitectureId} toolLabel="Review" />
+          <WorkingArchitectureNestedToolContextStrip toolLabel="Review" />
+          <PageHeaderClaimDiscipline
+            text={workingArchitectureNestedClaimDiscipline("Review")}
+            testId={workingArchitectureNestedClaimDisciplineTestId("Review")}
+          />
+          <WorkingArchitectureNestedKeyboardHint toolLabel="Review" />
+        </>
+      ) : null}
+
+      <WorkingUnlinkedReviewHonestyBanner architectureId={m.resolvedDetail.run.architectureId ?? null} />
+    </>
+  );
+
+  const stickyActionsEl =
+    !showArchitectureCreatedHome && !reviewPipelineIncomplete ? (
+      <RunDetailWorkspaceStickyActionsResolvedDeferred
+        runId={m.resolvedDetail.run.runId}
+        manifestId={m.manifestId}
+        hasCommitBlockingFailures={findingCoverageSummary?.hasCommitBlockingFailures === true}
+        blockingFindingCount={blockingApprovalCount}
+        buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
+        operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision}
+        manifestStatus={m.manifestSummary?.status ?? null}
+        runCompleted={m.runCompleted}
+        showProgressTracker={m.showProgressTracker}
+        commitBlockedReason={commitBlockedReason}
+        serverFinalizeReadinessBlocks={finalizeReadinessBlocks}
+        finalizeReadinessEnabled={finalizeReadinessEnabled}
+        quickDecisionFindings={quickDecisionFindings}
+        requestAssumptionTexts={requestAssumptionTexts}
+        nextAction={reviewStatusSummary.nextAction}
+        feasibilityVerdictKind={
+          m.manifestSummaryForUi?.feasibilityVerdict?.kind ??
+          m.manifestSummary?.feasibilityVerdict?.kind ??
+          null
+        }
+        degradedFindingCoverage={m.resolvedDetail.degradedFindingCoverage === true}
+        degradedFindingCoverageFailedEngineLabels={findingCoverageSummary?.failedEngineLabels ?? []}
+        structuralExecutionMode={m.resolvedDetail.run.structuralExecutionMode}
+        workingCareerRehearsalDoor={m.progressForPipelineUi.workingCareerRehearsalDoor}
+        transparencyTrail={
+          m.manifestSummaryForUi?.feasibilityVerdict?.transparencyTrail ??
+          m.manifestSummary?.feasibilityVerdict?.transparencyTrail ??
+          null
+        }
+        pagePrimaryOwnedElsewhere
+        parentArchitectureId={m.resolvedDetail.run.architectureId ?? null}
+      />
+    ) : null;
+
+  const runDetailStandardWorkspaceBody = buyerPolishedShell ? (
+    <>
+      <a href={`#${REVIEW_DETAIL_SKIP_TARGET_ID}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+        {REVIEW_DETAIL_SKIP_LINK_LABEL}
+      </a>
+
+      <div
+        id={REVIEW_DETAIL_PRIMARY_CONTENT_ID}
+        data-testid={REVIEW_DETAIL_PRIMARY_CONTENT_ID}
+        className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+      >
+        {runDetailWorkspaceHeader}
+        {runDetailIdentityChrome}
+
+        <div
+          id={REVIEW_DETAIL_FIRST_VIEWPORT_ID}
+          data-testid={REVIEW_DETAIL_FIRST_VIEWPORT_ID}
+          className={cn(
+            "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+            OPERATOR_LAYOUT.sectionStack,
+          )}
+        >
+          <RunDetailBuyerChrome
+            runId={m.resolvedDetail.run.runId}
+            architectureId={m.resolvedDetail.run.architectureId ?? null}
+          />
+          {chrome.tabbedWorkspaceEl}
+        </div>
+      </div>
+    </>
+  ) : (
+    <>
+      {parentArchitectureId.length > 0 ? (
+        <a href={`#${REVIEW_DETAIL_SKIP_TARGET_ID}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+          {REVIEW_DETAIL_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+      <div
+        id={parentArchitectureId.length > 0 ? REVIEW_DETAIL_PRIMARY_CONTENT_ID : undefined}
+        data-testid={parentArchitectureId.length > 0 ? REVIEW_DETAIL_PRIMARY_CONTENT_ID : undefined}
+        className={cn(
+          parentArchitectureId.length > 0 && "scroll-mt-24",
+          parentArchitectureId.length > 0 && OPERATOR_LAYOUT.sectionStack,
+        )}
+      >
+        {runDetailWorkspaceHeader}
+        {runDetailIdentityChrome}
+        <div
+          id={parentArchitectureId.length > 0 ? REVIEW_DETAIL_SKIP_TARGET_ID : undefined}
+          data-testid={parentArchitectureId.length > 0 ? REVIEW_DETAIL_FIRST_VIEWPORT_ID : undefined}
+          className={cn(parentArchitectureId.length > 0 && "scroll-mt-24")}
+        >
+          {chrome.tabbedWorkspaceEl}
+        </div>
+      </div>
+    </>
+  );
+
+  return (
+    <div
+      data-testid="review-detail-root"
+      data-buyer-golden-ready={buyerGoldenPageReady ? "true" : "false"}
+    >
+      <div
+        className={cn(
+          OPERATOR_PAGE_CONTAINER.base,
+          OPERATOR_PAGE_CONTAINER.variant.dashboard,
+          OPERATOR_LAYOUT.sectionStack,
+          "px-1 py-2 sm:px-0",
+        )}
+      >
+        <RunDetailCtoDemoReviewRouteGuardDeferred runId={m.resolvedDetail.run.runId} />
+
+        <HelpPageSituationRegistrarDeferred
+          situation={blockingApprovalCount > 0 ? "review-approval-blocked" : null}
+        />
+
+        {!showArchitectureCreatedHome ? (
+          <Suspense fallback={null}>
+            <ReviewGenerationCreatedNoticeDeferred
+              analysisInProgress={m.showProgressTracker}
+              approvalBlocked={blockingApprovalCount > 0 || commitBlockedReason !== null}
+              packageFinalized={Boolean(m.manifestId)}
+            />
+          </Suspense>
+        ) : null}
+
+        <RunDetailDemoMarketingChromeDeferred
+          showMarketingBanner={showDemoMarketingChrome}
+          showSampleBadge={m.usedStaticDemoRun && !showDemoMarketingChrome}
+          emphasizeSampleData={m.usedStaticDemoRun}
+          usedStaticDemoRun={m.usedStaticDemoRun}
+          isSimulator={m.resolvedDetail.run.realModeFellBackToSimulator === true}
+        />
+
+        <RunDetailWorkspaceDisclosureProvider>
+          <RunDetailWorkspaceLayout
+            stickyActions={stickyActionsEl}
+            main={
+              <>
+                {showArchitectureCreatedHome ? (
+                  <RunDetailPageViewCreateHome
+                    model={m}
+                    presentation={presentation}
+                    createHomeActivityOutcomeCardsEl={chrome.createHomeActivityOutcomeCardsEl}
+                    reviewPackageDoThisNextEvidenceProps={chrome.reviewPackageDoThisNextEvidenceProps}
+                  />
+                ) : (
+                  <>
+                    {runDetailStandardWorkspaceBody}
+                  </>
+                )}
+
+                {chrome.stalledReviewGuidanceEl}
+                {chrome.commitBlockingBannerEl}
+              </>
+            }
+            rail={null}
+          />
+        </RunDetailWorkspaceDisclosureProvider>
+
+        {!reviewPipelineIncomplete && !buyerPolishedShell ? (
+          <OperatorRelatedSurfacesDisclosure testId="review-detail-related-surfaces-disclosure">
+            <ArchitectureIntelligenceReviewToolStrip
+              runId={m.resolvedDetail.run.runId}
+              currentSurfaceId="review-workspace"
+            />
+            <SignedRecordsReviewDetailVocabularyRail currentSurfaceId="review-detail" />
+          </OperatorRelatedSurfacesDisclosure>
+        ) : null}
+
+        {showArchitectureCreatedHome ? (
+          <RunDetailPageViewCommitted
+            model={m}
+            presentation={presentation}
+            governanceCtaEl={chrome.governanceCtaEl}
+            sectionNavEl={chrome.sectionNavEl}
+            sampleReviewPackageSummaryEl={chrome.sampleReviewPackageSummaryEl}
+          />
+        ) : null}
+
+        {blockingApprovalCount === 0 && !reviewPipelineIncomplete && !buyerPolishedShell ? (
+          <RunDetailFirstWeekRouteGuidanceMount
+            variant={Boolean(m.manifestId) ? "review-detail-committed" : "review-detail-in-progress"}
+            pagePrimaryOwnedElsewhere
+          />
+        ) : null}
+
+        {chrome.governanceAlertsEl}
+
+        {m.buyerPolishedArtifactTable ? (
+          <RunDetailBuyerModeFallbackBannerDeferred
+            realModeFellBackToSimulator={m.resolvedDetail.run.realModeFellBackToSimulator === true}
+          />
+        ) : null}
+
+        <RunDetailBuyerPilotConversionSectionDeferred buyerPolishedArtifactTable={m.buyerPolishedArtifactTable} />
+
+        {!reviewPipelineIncomplete ? (
+          <RunDetailNextReviewFooterClient runId={m.routeRunId} />
+        ) : null}
+      </div>
+    </div>
+  );
+}

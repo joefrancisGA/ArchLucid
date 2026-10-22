@@ -1,0 +1,73 @@
+using ArchLucid.Core.Tenancy;
+
+using Microsoft.Extensions.Options;
+
+namespace ArchLucid.Application.Billing;
+
+/// <inheritdoc cref = "ITenantCostEstimateService"/>
+public sealed class TenantCostEstimateService(ITenantRepository tenantRepository, IOptionsMonitor<BillingUnitRatesOptions> ratesMonitor)
+    : ITenantCostEstimateService
+{
+    private readonly IOptionsMonitor<BillingUnitRatesOptions> _ratesMonitor = ratesMonitor ?? throw new ArgumentNullException(nameof(ratesMonitor));
+    private readonly ITenantRepository _tenantRepository = tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
+    /// <inheritdoc/>
+    public async Task<TenantCostEstimate?> TryGetEstimateAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+        if (tenant is null)
+            return null;
+
+        if (!Enum.IsDefined(tenant.Tier))
+            return null;
+
+        BillingUnitRatesOptions rates = _ratesMonitor.CurrentValue;
+
+        if (string.IsNullOrWhiteSpace(rates.Currency))
+            return null;
+
+        List<string> factors = [$"Tenant tier: {tenant.Tier}."];
+        (decimal low, decimal high) = tenant.Tier switch
+        {
+            TenantTier.Standard => OrderMonthlyBand(rates.StandardMonthlyUsdLow, rates.StandardMonthlyUsdHigh),
+            TenantTier.Enterprise => OrderMonthlyBand(rates.EnterpriseMonthlyUsdLow, rates.EnterpriseMonthlyUsdHigh),
+            TenantTier.Free => (0, 0),
+            _ => throw new InvalidOperationException("Tenant tier is not defined."),
+        };
+
+        if (low < 0m || high < 0m)
+            return null;
+
+        if (tenant.Tier is TenantTier.Free)
+        {
+            factors.Add("Free tier: guidance defaults to zero — activate a commercial plan for a non-zero band.");
+        }
+        else
+        {
+            factors.Add("Band widened to cover optional Azure OpenAI attach for authority runs.");
+        }
+
+        if (tenant.Tier is TenantTier.Standard or TenantTier.Enterprise && low == 0m && high == 0m)
+        {
+            factors.Add(
+                "Commercial monthly rates are not configured; displayed band is zero until Billing:UnitRates is set.");
+        }
+
+        return new TenantCostEstimate(rates.Currency, tenant.Tier, low, high, factors, rates.MethodologyNote);
+    }
+
+    /// <summary>
+    /// Why ArchLucid prints the pair as a monthly band (low — high). The two
+    /// <c>Billing:UnitRates</c> fields bind independently, so an inverted pair would display backwards.
+    /// </summary>
+    private static (decimal Low, decimal High) OrderMonthlyBand(decimal configuredLow, decimal configuredHigh)
+    {
+        if (configuredLow <= configuredHigh)
+        {
+            return (configuredLow, configuredHigh);
+        }
+
+        return (configuredHigh, configuredLow);
+    }
+}

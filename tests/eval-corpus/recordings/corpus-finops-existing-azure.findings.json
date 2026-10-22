@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "findingId": "f-fin-1",
+      "category": "Cost",
+      "severity": "Medium",
+      "title": "Idle App Service plans",
+      "detail": "Three production app service plans remain at P2v3 while CPU averages under fifteen percent; consolidation or down-tier preserves headroom."
+    },
+    {
+      "findingId": "f-fin-2",
+      "category": "Cost",
+      "severity": "Low",
+      "title": "Blob lifecycle",
+      "detail": "Telemetry archives stay in hot tier after ninety days; policy recommends automated cool tier transition with compliance sign-off."
+    },
+    {
+      "findingId": "f-fin-3",
+      "category": "Topology",
+      "severity": "Low",
+      "title": "Hub egress charges",
+      "detail": "Spoke VNets route inspection traffic through hub NVA before Internet breakout; FinOps tags attribute shared egress proportionally."
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "scenario-09-event-driven",
+  "source": "bootstrap_eval_template_recordings.py",
+  "note": "Synthetic baseline until live API capture; replace via eval_template_harness --mode capture.",
+  "findings": [
+    {
+      "findingId": "must-idempotent-consumers",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "idempotent",
+      "detail": "idempotent",
+      "message": "idempotent"
+    },
+    {
+      "findingId": "must-dead-letter-queue",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "dead-letter",
+      "detail": "dead-letter",
+      "message": "dead-letter"
+    },
+    {
+      "findingId": "must-private-link-data-plane",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "private link",
+      "detail": "private link",
+      "message": "private link"
+    },
+    {
+      "findingId": "must-replay-within-retention",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "replay",
+      "detail": "replay",
+      "message": "replay"
+    }
+  ]
+}

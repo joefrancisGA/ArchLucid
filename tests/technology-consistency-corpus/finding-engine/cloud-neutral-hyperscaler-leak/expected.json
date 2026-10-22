@@ -1,0 +1,6 @@
+{
+  "mode": "WarnOnly",
+  "findingTitles": ["CloudNeutralProviderLeak"],
+  "minimumCount": 1,
+  "maximumCount": 1
+}

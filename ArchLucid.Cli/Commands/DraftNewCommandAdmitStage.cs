@@ -1,0 +1,188 @@
+using ArchLucid.Contracts.Drafts;
+
+namespace ArchLucid.Cli.Commands;
+
+/// <summary>Create, patch, and admit draft stage for <see cref="DraftNewCommandIntakeLoop" />.</summary>
+internal static class DraftNewCommandAdmitStage
+{
+    internal sealed record Success(Guid DraftId);
+
+    internal static async Task<(Success? Result, int ExitCode)> RunAsync(
+        DraftNewCommandConnectStage.Success connect,
+        DraftNewCommandOptions options,
+        DraftNewCommandHooks hooks,
+        TextWriter output,
+        TextWriter error,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(connect);
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(hooks);
+        ArgumentNullException.ThrowIfNull(output);
+        ArgumentNullException.ThrowIfNull(error);
+
+        ArchLucidApiClient client = connect.Client;
+        ArchLucidProjectScaffolder.ArchLucidCliConfig? config = connect.Config;
+        string intent = connect.Intent;
+
+        ArchLucidApiClient.DraftApiResult<DraftRequestResponse> created =
+            await client.CreateDraftAsync(intent, cancellationToken);
+
+        if (!created.Success || created.Value is null)
+        {
+            await error.WriteLineAsync($"Error creating draft: {created.Error}");
+            CliOperatorHints.WriteAfterApiFailure(created.HttpStatusCode, created.Error, error);
+
+            return (null, CliExitCode.OperationFailed);
+        }
+
+        if (!CliScopeResponseValidator.TryValidateDraftScope(created.Value, config, out string? createScopeError))
+        {
+            await error.WriteLineAsync($"Error creating draft: {createScopeError}");
+            CliOperatorHints.WriteAfterScopeMismatch(error);
+
+            return (null, CliExitCode.OperationFailed);
+        }
+
+        Guid draftId = created.Value.DraftId;
+
+        if (draftId == Guid.Empty)
+        {
+            await error.WriteLineAsync(
+                "Error creating draft: API returned success but no draftId. The intake was not started.");
+
+            CliOperatorHints.WriteAfterApiFailure(created.HttpStatusCode, created.Error, error);
+
+            return (null, CliExitCode.OperationFailed);
+        }
+
+        if (!CliExecutionContext.JsonOutput)
+            await output.WriteLineAsync($"DraftId: {draftId}");
+
+        string systemName = options.SystemName?.Trim() ?? string.Empty;
+
+        if (systemName.Length == 0)
+        {
+            string? promptedName = await hooks.PromptRequiredAsync(
+                "System name (short label for this architecture):",
+                output,
+                cancellationToken);
+
+            if (promptedName is null)
+                return (null, CliExitCode.OperationFailed);
+
+            systemName = promptedName.Trim();
+        }
+
+        string businessOutcome = options.BusinessOutcome?.Trim() ?? string.Empty;
+
+        if (businessOutcome.Length == 0)
+        {
+            string? promptedOutcome = await hooks.PromptRequiredAsync(
+                "Business outcome this architecture must achieve:",
+                output,
+                cancellationToken);
+
+            if (promptedOutcome is null)
+                return (null, CliExitCode.OperationFailed);
+
+            businessOutcome = promptedOutcome.Trim();
+        }
+
+        if (systemName.Length == 0)
+        {
+            await error.WriteLineAsync("System name is required and cannot be blank after trim.");
+
+            return (null, CliExitCode.UsageError);
+        }
+
+        if (businessOutcome.Length == 0)
+        {
+            await error.WriteLineAsync("Business outcome is required and cannot be blank after trim.");
+
+            return (null, CliExitCode.UsageError);
+        }
+
+        PatchDraftRequest patch = new()
+        {
+            FreeTextIntent = intent,
+            SystemName = systemName,
+            BusinessOutcome = businessOutcome,
+            ActorSet = DraftIntakeDefaultActorFactory.CreatePrimaryOperatorActorSet(),
+            ExpectedUpdatedUtc = created.Value.UpdatedUtc,
+        };
+
+        ArchLucidApiClient.DraftApiResult<DraftRequestResponse> patched =
+            await client.PatchDraftAsync(draftId, patch, cancellationToken);
+
+        if (!patched.Success || patched.Value is null)
+        {
+            await error.WriteLineAsync($"Error patching draft: {patched.Error}");
+            CliOperatorHints.WriteAfterApiFailure(patched.HttpStatusCode, patched.Error, error);
+
+            return (null, CliExitCode.OperationFailed);
+        }
+
+        if (!CliScopeResponseValidator.TryValidateDraftScope(patched.Value, config, out string? patchScopeError))
+        {
+            await error.WriteLineAsync($"Error patching draft: {patchScopeError}");
+            CliOperatorHints.WriteAfterScopeMismatch(error);
+
+            return (null, CliExitCode.OperationFailed);
+        }
+
+        ArchLucidApiClient.DraftApiResult<DraftAdmissionResponse> admission =
+            await client.AdmitDraftAsync(draftId, cancellationToken);
+
+        if (!admission.Success || admission.Value is null)
+        {
+            await error.WriteLineAsync($"Error admitting draft: {admission.Error}");
+            CliOperatorHints.WriteAfterApiFailure(admission.HttpStatusCode, admission.Error, error);
+
+            return (null, CliExitCode.OperationFailed);
+        }
+
+        if (!admission.Value.Admitted)
+        {
+            await error.WriteLineAsync(
+                $"Draft was not admitted: {admission.Value.RedirectReason ?? "semantic admission gate redirected the request."}");
+            CliOperatorHints.WriteAfterApiFailure(admission.HttpStatusCode, admission.Value.RedirectReason, error);
+
+            return (null, CliExitCode.OperationFailed);
+        }
+
+        // DraftAdmissionResponse.Draft coalesces null to an empty object; empty DraftId is the missing body.
+
+        if (IsMissingDraftBody(admission.Value.Draft))
+        {
+            await error.WriteLineAsync(
+                "Error admitting draft: API returned success but no draft body. The intake was not started.");
+
+            CliOperatorHints.WriteAfterApiFailure(admission.HttpStatusCode, admission.Error, error);
+
+            return (null, CliExitCode.OperationFailed);
+        }
+
+        if (!CliScopeResponseValidator.TryValidateDraftScope(admission.Value.Draft, config, out string? admitScopeError))
+        {
+            await error.WriteLineAsync($"Error admitting draft: {admitScopeError}");
+            CliOperatorHints.WriteAfterScopeMismatch(error);
+
+            return (null, CliExitCode.OperationFailed);
+        }
+
+        if (!CliExecutionContext.JsonOutput)
+            await output.WriteLineAsync("Draft admitted. Resolving MUST questions...");
+
+        return (new Success(draftId), CliExitCode.Success);
+    }
+
+    /// <summary>
+    ///     <see cref="DraftAdmissionResponse.Draft" /> coalesces JSON null to an empty object, so a missing body
+    ///     arrives as <see cref="Guid.Empty" /> rather than a null reference.
+    /// </summary>
+    internal static bool IsMissingDraftBody(DraftRequestResponse? draft)
+    {
+        return draft is null || draft.DraftId == Guid.Empty;
+    }
+}

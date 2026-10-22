@@ -1,0 +1,451 @@
+{
+  "schemaVersion": 1,
+  "kind": "archlucid.policyPack.curatedRules.v1",
+  "pack": {
+    "name": "AWS Resiliency & Disaster Recovery",
+    "description": "Multi-AZ, Route 53, AWS Backup, and cross-region replication themes for AWS workloads.",
+    "version": "1.1.0",
+    "category": "Reliability",
+    "isDefault": true,
+    "suggestedPackType": "PlatformDefault",
+    "policyPackContentDocumentPath": "docs/samples/policy-packs/aws-resiliency-dr.json"
+  },
+  "rules": [
+    {
+      "id": "aws-dr-003",
+      "title": "Multi-region deployment for critical workloads",
+      "description": "Tier-1 services should document active-active or active-passive multi-region strategy with failover triggers.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Describe region pairs in metadata.ChangeDescription; align region tags on services[].Tags with awsExtractor locations.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS Well-Architected",
+          "theme": "WAF Reliability \u2014 Multi-region architecture"
+        }
+      ]
+    },
+    {
+      "id": "aws-dr-004",
+      "title": "Availability Zones used for fault isolation",
+      "description": "Stateful and stateless tiers should document AZ spread within region for zone-level failure tolerance.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Tag zonal deployment on services[].Tags; verify zone redundancy in awsExtractor compute and data inventory.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS Well-Architected",
+          "theme": "WAF Reliability \u2014 Availability Zones"
+        }
+      ]
+    },
+    {
+      "id": "aws-dr-005",
+      "title": "Regional paired disaster recovery documented",
+      "description": "DR strategy must reference AWS region pairs or explicit cross-region replication topology.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Document DR region mapping in governance.PolicyConstraints and metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS Well-Architected",
+          "theme": "WAF Reliability \u2014 Region pairing"
+        }
+      ]
+    },
+    {
+      "id": "aws-dr-008",
+      "title": "Geo-redundant storage for critical data",
+      "description": "Blob, table, and queue tiers holding tier-1 data should document GRS or GZRS replication.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Tag replication SKU on datastores[].Tags; cite storage redundancy from awsExtractor.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS Well-Architected",
+          "theme": "WAF Reliability \u2014 Geo-redundant storage"
+        }
+      ]
+    },
+    {
+      "id": "aws-dr-009",
+      "title": "RDS cross-region replication or Aurora global database",
+      "description": "Tier-1 RDS or Aurora databases must document cross-region read replicas, global databases, or failover clusters with RPO alignment.",
+      "severity": "Critical",
+      "priority": "P1",
+      "remediationGuidance": "Document RDS/Aurora DR topology in governance.RequiredControls and datastores[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS Well-Architected",
+          "theme": "WAF Reliability \u2014 RDS cross-region replication"
+        }
+      ]
+    },
+    {
+      "id": "aws-dr-010",
+      "title": "DynamoDB global tables or multi-region failover",
+      "description": "DynamoDB tables must document global table replication or multi-region failover configuration with consistency expectations.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Capture DynamoDB DR settings in governance.PolicyConstraints and awsExtractor DynamoDB inventory.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS Well-Architected",
+          "theme": "WAF Reliability \u2014 DynamoDB multi-region"
+        }
+      ]
+    },
+    {
+      "id": "aws-dr-011",
+      "title": "Route 53 health checks and ALB failover routing",
+      "description": "Global entry points must document Route 53 health-checked failover between regional load balancer endpoints.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Tag Route 53 routing policies and regional ALB endpoints in services[].Tags and metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS Well-Architected",
+          "theme": "WAF Reliability \u2014 Global traffic failover"
+        }
+      ]
+    },
+    {
+      "id": "aws-dr-019",
+      "title": "Immutable infrastructure for stateless tiers",
+      "description": "Stateless app tiers should document image-based redeploy rather than in-place patching for consistency.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Tag immutable deploy pattern on services[].Tags; reference AMI, container image, or launch template revisions in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS Well-Architected",
+          "theme": "WAF Reliability \u2014 Immutable infrastructure"
+        }
+      ]
+    },
+    {
+      "id": "aws-dr-020",
+      "title": "Data consistency model documented",
+      "description": "Distributed data paths must document consistency trade-offs (strong vs eventual) and conflict resolution.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Capture consistency choices in governance.PolicyConstraints and datastores[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS Well-Architected",
+          "theme": "WAF Reliability \u2014 Data consistency"
+        }
+      ]
+    },
+    {
+      "id": "aws-dr-021",
+      "title": "Maintenance window and update orchestration",
+      "description": "Platform maintenance (EKS upgrades, SQL patching) must document schedule, notification, and blast-radius control.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document maintenance orchestration in metadata.ChangeDescription and governance.ComplianceTags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS Well-Architected",
+          "theme": "WAF Reliability \u2014 Managed maintenance"
+        }
+      ]
+    },
+    {
+      "id": "aws-dr-024",
+      "title": "Secrets and config available during DR",
+      "description": "Failover regions must document AWS KMS replication, config sync, and identity availability during regional loss.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Describe secret DR in governance.PolicyConstraints and governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS Well-Architected",
+          "theme": "WAF Reliability \u2014 Config DR"
+        }
+      ]
+    },
+    {
+      "id": "aws-dr-025",
+      "title": "Network DR connectivity documented",
+      "description": "Cross-region VNet peering, VPN, or ExpressRoute failover must be documented for DR traffic paths.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Map DR network paths in metadata.ChangeDescription; align with awsExtractor network inventory.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS Well-Architected",
+          "theme": "WAF Reliability \u2014 Network DR"
+        }
+      ]
+    },
+    {
+      "id": "aws-dr-026",
+      "title": "Ransomware-resistant backup (immutable)",
+      "description": "Critical backups should document immutability, air-gap, or M365/AWS Backup vault soft-delete protections.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Tag immutable backup on datastores[].Tags and governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS Well-Architected",
+          "theme": "WAF Reliability \u2014 Ransomware resilience"
+        }
+      ]
+    },
+    {
+      "id": "aws-dr-027",
+      "title": "Observability during incident and DR",
+      "description": "Monitoring and alerting must remain available during regional degradation \u2014 document observability DR.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "List observability failover in governance.RequiredControls and security/ops services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "awsExtractor.manifest.RawJson",
+        "awsExtractor.manifest.ScopeId",
+        "awsExtractor.manifest.Scope",
+        "awsExtractor.manifest.CollectionTimestamp",
+        "awsExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AWS Well-Architected",
+          "theme": "WAF Reliability \u2014 Observability DR"
+        }
+      ]
+    }
+  ]
+}

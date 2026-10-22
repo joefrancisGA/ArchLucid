@@ -1,0 +1,321 @@
+using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.AzureExtractor;
+using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Models;
+
+using FluentAssertions;
+
+namespace ArchLucid.Persistence.Tests.InfraEvidence;
+
+[Collection(nameof(SqlServerPersistenceCollection))]
+[Trait("Category", "SqlServerContainer")]
+public sealed class SqlSecurityEvidencePathRepositorySqlIntegrationTests(SqlServerPersistenceFixture fixture)
+{
+    private static readonly Guid TenantA = Guid.Parse("b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1");
+    private static readonly Guid TenantB = Guid.Parse("b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2");
+    private static readonly Guid WorkspaceId = Guid.Parse("b3b3b3b3-b3b3-b3b3-b3b3-b3b3b3b3b3b3");
+    private static readonly Guid ProjectId = Guid.Parse("b4b4b4b4-b4b4-b4b4-b4b4-b4b4b4b4b4b4");
+
+    [SkippableFact]
+    public async Task Snapshot_read_rejects_other_tenant_project_and_snapshot()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlSecurityEvidencePathRepository repository = new(factory);
+        Guid snapshotId = await InsertSnapshotAsync(factory, TenantA);
+        Guid pathId = Guid.NewGuid();
+
+        await repository.InsertIfNotExistsAsync(
+            CreatePathHeader(pathId, TenantA, snapshotId, DateTime.UtcNow),
+            CreateHops(pathId, TenantA, PathConfidenceBand.Confirmed),
+            CancellationToken.None);
+
+        ProjectScopeKey project = ProjectScopeKey.Create(TenantA, WorkspaceId, ProjectId);
+        ProjectSnapshotScopeKey correct = ProjectSnapshotScopeKey.Create(project, snapshotId);
+        ProjectSnapshotScopeKey wrongTenant = ProjectSnapshotScopeKey.Create(
+            ProjectScopeKey.Create(TenantB, WorkspaceId, ProjectId), snapshotId);
+        ProjectSnapshotScopeKey wrongProject = ProjectSnapshotScopeKey.Create(
+            ProjectScopeKey.Create(TenantA, WorkspaceId, Guid.NewGuid()), snapshotId);
+        ProjectSnapshotScopeKey wrongSnapshot = ProjectSnapshotScopeKey.Create(project, Guid.NewGuid());
+
+        (await repository.ListBySnapshotAsync(correct)).Select(path => path.PathId).Should().Contain(pathId);
+        (await repository.ListBySnapshotAsync(wrongTenant)).Should().BeEmpty();
+        (await repository.ListBySnapshotAsync(wrongProject)).Should().BeEmpty();
+        (await repository.ListBySnapshotAsync(wrongSnapshot)).Should().BeEmpty();
+    }
+
+    [SkippableFact]
+    public async Task Duplicate_canonical_hash_is_idempotent_and_tenant_isolated()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlSecurityEvidencePathRepository repository = new(factory);
+
+        Guid snapshotId = await InsertSnapshotAsync(factory, TenantA);
+        Guid pathId = Guid.NewGuid();
+        DateTime utcNow = DateTime.UtcNow;
+
+        SecurityEvidencePathRecord header = CreatePathHeader(pathId, TenantA, snapshotId, utcNow);
+        IReadOnlyList<SecurityEvidencePathHopRecord> hops = CreateHops(pathId, TenantA, PathConfidenceBand.HighlyLikely);
+
+        SecurityEvidencePathInsertResult first = await repository.InsertIfNotExistsAsync(header, hops, CancellationToken.None);
+        first.Created.Should().BeTrue();
+        first.PathId.Should().Be(pathId);
+
+        SecurityEvidencePathInsertResult second = await repository.InsertIfNotExistsAsync(
+            CreatePathHeader(Guid.NewGuid(), TenantA, snapshotId, utcNow),
+            hops,
+            CancellationToken.None);
+
+        second.Created.Should().BeFalse();
+        second.PathId.Should().Be(pathId);
+
+        SecurityEvidencePathRecord? foreignTenant = await repository.TryGetByIdAsync(TenantB, pathId, CancellationToken.None);
+        foreignTenant.Should().BeNull("paths are tenant-isolated.");
+    }
+
+    [SkippableFact]
+    public async Task Insert_persists_weakest_link_band_and_hops()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlSecurityEvidencePathRepository repository = new(factory);
+
+        Guid snapshotId = await InsertSnapshotAsync(factory, TenantA);
+        Guid pathId = Guid.NewGuid();
+        DateTime utcNow = DateTime.UtcNow;
+
+        IReadOnlyList<SecurityEvidencePathHopRecord> hops =
+        [
+            CreateHop(pathId, TenantA, 1, PathConfidenceBand.Confirmed, ProvenanceKind.ObservedFact),
+            CreateHop(pathId, TenantA, 2, PathConfidenceBand.Possible, ProvenanceKind.DerivedFact),
+        ];
+
+        await repository.InsertIfNotExistsAsync(
+            CreatePathHeader(pathId, TenantA, snapshotId, utcNow),
+            hops,
+            CancellationToken.None);
+
+        SecurityEvidencePathRecord? loaded = await repository.TryGetByIdAsync(TenantA, pathId, CancellationToken.None);
+        loaded.Should().NotBeNull();
+        loaded!.PathConfidenceBand.Should().Be(PathConfidenceBand.Possible);
+        loaded.WeakestHopOrdinal.Should().Be(2);
+
+        IReadOnlyList<SecurityEvidencePathHopRecord> loadedHops =
+            await repository.ListHopsByPathAsync(TenantA, pathId, CancellationToken.None);
+
+        loadedHops.Should().HaveCount(2);
+        loadedHops.Select(static hop => hop.HopOrdinal).Should().BeEquivalentTo([1, 2], options => options.WithStrictOrdering());
+    }
+
+    [SkippableFact]
+    public async Task Insert_rejects_ai_inference_confirmed_hop()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlSecurityEvidencePathRepository repository = new(factory);
+
+        Guid snapshotId = await InsertSnapshotAsync(factory, TenantA);
+        Guid pathId = Guid.NewGuid();
+        DateTime utcNow = DateTime.UtcNow;
+
+        IReadOnlyList<SecurityEvidencePathHopRecord> hops =
+        [
+            CreateHop(pathId, TenantA, 1, PathConfidenceBand.Confirmed, ProvenanceKind.AiInference),
+        ];
+
+        Func<Task> act = () => repository.InsertIfNotExistsAsync(
+            CreatePathHeader(pathId, TenantA, snapshotId, utcNow),
+            hops,
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*LLM-inferred*Confirmed*");
+    }
+
+    [SkippableFact]
+    public async Task Batch_insert_deduplicates_in_input_order_and_batch_read_enforces_scope()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlSecurityEvidencePathRepository repository = new(factory);
+        Guid snapshotId = await InsertSnapshotAsync(factory, TenantA);
+        Guid pathId = Guid.NewGuid();
+        DateTime now = DateTime.UtcNow;
+        SecurityEvidencePathWithHops first = new(CreatePathHeader(pathId, TenantA, snapshotId, now),
+            CreateHops(pathId, TenantA, PathConfidenceBand.Possible));
+        Guid duplicateId = Guid.NewGuid();
+        SecurityEvidencePathWithHops duplicate = new(CreatePathHeader(duplicateId, TenantA, snapshotId, now),
+            CreateHops(duplicateId, TenantA, PathConfidenceBand.Possible));
+
+        IReadOnlyList<SecurityEvidencePathInsertResult> inserted =
+            await repository.InsertBatchIfNotExistsAsync([first, duplicate]);
+        inserted.Select(result => result.PathId).Should().Equal(pathId, pathId);
+        inserted.Select(result => result.Created).Should().Equal(true, false);
+        (await repository.InsertBatchIfNotExistsAsync([first, duplicate])).Should().OnlyContain(result => !result.Created);
+
+        ProjectScopeKey project = ProjectScopeKey.Create(TenantA, WorkspaceId, ProjectId);
+        IReadOnlyList<SecurityEvidencePathWithHops> loaded = await repository.ListWithHopsBySnapshotAsync(
+            ProjectSnapshotScopeKey.Create(project, snapshotId));
+        loaded.Should().ContainSingle();
+        loaded[0].Hops.Select(hop => hop.HopOrdinal).Should().Equal(1, 2);
+        loaded[0].Path.PathConfidenceBand.Should().Be(PathConfidenceBand.Possible);
+        loaded[0].Path.CanonicalHopHashSha256.Should().Equal(SecurityEvidencePathCanonicalHash.ComputeSha256(first.Hops));
+        (await repository.ListWithHopsBySnapshotAsync(ProjectSnapshotScopeKey.Create(
+            ProjectScopeKey.Create(TenantB, WorkspaceId, ProjectId), snapshotId))).Should().BeEmpty();
+        (await repository.ListWithHopsBySnapshotAsync(ProjectSnapshotScopeKey.Create(
+            ProjectScopeKey.Create(TenantA, Guid.NewGuid(), ProjectId), snapshotId))).Should().BeEmpty();
+        (await repository.ListWithHopsBySnapshotAsync(ProjectSnapshotScopeKey.Create(
+            ProjectScopeKey.Create(TenantA, WorkspaceId, Guid.NewGuid()), snapshotId))).Should().BeEmpty();
+        (await repository.ListWithHopsBySnapshotAsync(ProjectSnapshotScopeKey.Create(project, Guid.NewGuid()))).Should().BeEmpty();
+    }
+
+    [SkippableFact]
+    public async Task Failed_batch_rolls_back_headers_when_hops_violate_unique_ordinals()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlSecurityEvidencePathRepository repository = new(factory);
+        Guid snapshotId = await InsertSnapshotAsync(factory, TenantA);
+        Guid pathId = Guid.NewGuid();
+        Func<Task> insert = () => repository.InsertBatchIfNotExistsAsync(
+        [
+            new(CreatePathHeader(pathId, TenantA, snapshotId, DateTime.UtcNow),
+            [
+                CreateHop(pathId, TenantA, 1, PathConfidenceBand.Confirmed, ProvenanceKind.ObservedFact),
+                CreateHop(pathId, TenantA, 1, PathConfidenceBand.Possible, ProvenanceKind.DerivedFact),
+            ]),
+        ]);
+        await insert.Should().ThrowAsync<Microsoft.Data.SqlClient.SqlException>();
+        (await repository.TryGetByIdAsync(TenantA, pathId)).Should().BeNull();
+    }
+
+    [SkippableFact]
+    public async Task Batch_insert_preserves_every_path_and_hop_across_buffer_boundaries()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlSecurityEvidencePathRepository repository = new(factory);
+        Guid snapshotId = await InsertSnapshotAsync(factory, TenantA);
+        DateTime now = DateTime.UtcNow;
+        List<SecurityEvidencePathWithHops> writes = Enumerable.Range(0, 1001).Select(index =>
+        {
+            Guid pathId = Guid.NewGuid();
+            return new SecurityEvidencePathWithHops(CreatePathHeader(pathId, TenantA, snapshotId, now),
+            [
+                new SecurityEvidencePathHopRecord
+                {
+                    HopRowId = Guid.NewGuid(), PathId = pathId, TenantId = TenantA, HopOrdinal = 1,
+                    FromNodeId = $"principal-{index}", ToNodeId = $"resource-{index}", EdgeType = "can-read",
+                    ProvenanceKind = ProvenanceKind.ObservedFact, HopConfidenceBand = PathConfidenceBand.Confirmed,
+                    EvidenceReference = $"snapshot:{snapshotId:D}", InferenceSource = null, CloudResourceId = null,
+                },
+            ]);
+        }).ToList();
+
+        IReadOnlyList<SecurityEvidencePathInsertResult> inserted = await repository.InsertBatchIfNotExistsAsync(writes);
+        inserted.Select(result => result.PathId).Should().Equal(writes.Select(item => item.Path.PathId));
+        inserted.Should().OnlyContain(result => result.Created);
+        IReadOnlyList<SecurityEvidencePathWithHops> loaded = await repository.ListWithHopsBySnapshotAsync(
+            ProjectSnapshotScopeKey.Create(ProjectScopeKey.Create(TenantA, WorkspaceId, ProjectId), snapshotId));
+        loaded.Should().HaveCount(writes.Count);
+        loaded.SelectMany(item => item.Hops).Should().HaveCount(writes.Count);
+        loaded.Should().OnlyContain(item => item.Hops.Count == 1 && item.Hops[0].PathId == item.Path.PathId
+            && item.Hops[0].InferenceSource == null && item.Hops[0].CloudResourceId == null);
+    }
+
+    private static async Task<Guid> InsertSnapshotAsync(SqlConnectionFactory factory, Guid tenantId)
+    {
+        SqlAzureExtractorPackageRepository packageRepository = new(factory);
+        SqlAzureInventorySnapshotRepository snapshotRepository = new(factory);
+
+        Guid packageId = Guid.NewGuid();
+        DateTime utcNow = DateTime.UtcNow;
+
+        await packageRepository.InsertAsync(
+            new AzureExtractorPackageRecord
+            {
+                PackageId = packageId,
+                TenantId = tenantId,
+                WorkspaceId = WorkspaceId,
+                ProjectId = ProjectId,
+                CreatedUtc = utcNow,
+                SchemaVersion = 1,
+                OriginalFileName = "inventory.zip",
+                ManifestJson = "{}",
+                PackageBytes = [0x50, 0x4B],
+            },
+            CancellationToken.None);
+
+        Guid snapshotId = Guid.NewGuid();
+        await snapshotRepository.InsertHeaderAsync(
+            new AzureInventorySnapshotRecord
+            {
+                SnapshotId = snapshotId,
+                TenantId = tenantId,
+                WorkspaceId = WorkspaceId,
+                ProjectId = ProjectId,
+                PackageId = packageId,
+                CaptureStatus = AzureInventoryCaptureStatus.Pending,
+                CreatedUtc = utcNow,
+                UpdatedUtc = utcNow,
+            },
+            CancellationToken.None);
+
+        return snapshotId;
+    }
+
+    private static SecurityEvidencePathRecord CreatePathHeader(
+        Guid pathId,
+        Guid tenantId,
+        Guid snapshotId,
+        DateTime utcNow) =>
+        new()
+        {
+            PathId = pathId,
+            TenantId = tenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            SnapshotId = snapshotId,
+            PathKind = PathKind.Privilege,
+            PathConfidenceBand = PathConfidenceBand.Confirmed,
+            CreatedUtc = utcNow,
+            UpdatedUtc = utcNow,
+        };
+
+    private static IReadOnlyList<SecurityEvidencePathHopRecord> CreateHops(
+        Guid pathId,
+        Guid tenantId,
+        PathConfidenceBand band) =>
+    [
+        CreateHop(pathId, tenantId, 1, band, ProvenanceKind.ObservedFact),
+        CreateHop(pathId, tenantId, 2, band, ProvenanceKind.DerivedFact),
+    ];
+
+    private static SecurityEvidencePathHopRecord CreateHop(
+        Guid pathId,
+        Guid tenantId,
+        int hopOrdinal,
+        PathConfidenceBand band,
+        ProvenanceKind provenance) =>
+        new()
+        {
+            HopRowId = Guid.NewGuid(),
+            PathId = pathId,
+            TenantId = tenantId,
+            HopOrdinal = hopOrdinal,
+            FromNodeId = $"actor-{hopOrdinal}",
+            ToNodeId = $"resource-{hopOrdinal}",
+            EdgeType = "privilege-assignment",
+            ProvenanceKind = provenance,
+            HopConfidenceBand = band,
+            EvidenceReference = $"/subscriptions/sub/roleAssignments/{hopOrdinal}",
+        };
+}

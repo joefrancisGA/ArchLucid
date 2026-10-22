@@ -1,0 +1,320 @@
+using System.Net;
+using System.Text.Json;
+
+namespace ArchLucid.Cli.Commands;
+
+internal sealed class TenantIsolationNegativeTestOfflineRunner
+{
+    internal TenantIsolationNegativeTestOfflineRunResult Run(string repositoryRoot, TenantIsolationNegativeTestOptions options)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(repositoryRoot);
+        ArgumentNullException.ThrowIfNull(options);
+
+        string manifestPath = ResolveManifestPath(repositoryRoot, options);
+        TenantIsolationNegativeTestManifestDocument manifest = TenantIsolationNegativeTestManifestLoader.Load(manifestPath);
+        List<TenantIsolationNegativeTestProbeResult> probes = manifest.Scenarios
+            .SelectMany(scenario => scenario.Probes.Select(probe => EvaluateReplayProbe(scenario.Name, probe)))
+            .ToList();
+
+        return new TenantIsolationNegativeTestOfflineRunResult(
+            manifest.PrimaryRunId,
+            manifest.AlternateTenantId,
+            manifest.AlternateWorkspaceId,
+            manifest.AlternateProjectId,
+            probes);
+    }
+
+    private static TenantIsolationNegativeTestProbeResult EvaluateReplayProbe(
+        string scenarioName,
+        TenantIsolationNegativeTestManifestProbe probe)
+    {
+        TenantIsolationNegativeTestVerdict verdict;
+
+        if (string.Equals(probe.ExpectedOutcome, "exclude-run-id", StringComparison.OrdinalIgnoreCase))
+        {
+            if (probe.ForeignRunIdVisible
+                || ObservedOutcomeIndicatesForeignRunIdPresent(probe.ObservedOutcome))
+            {
+                verdict = TenantIsolationNegativeTestVerdict.Fail;
+            }
+            else if (probe.RunListPayloadScannable == false
+                     || ObservedOutcomeIndicatesUnverifiedRunListScan(probe.ObservedOutcome))
+            {
+                verdict = TenantIsolationNegativeTestVerdict.Skip;
+            }
+            else
+            {
+                verdict = ResolveExcludeReplayVerdict(probe);
+            }
+        }
+        else
+        {
+            verdict = ResolveDenyReplayVerdict(probe);
+        }
+
+        return new TenantIsolationNegativeTestProbeResult
+        {
+            Name = $"{scenarioName}:{probe.Name}",
+            Path = probe.Path,
+            ExpectedOutcome = probe.ExpectedOutcome,
+            ObservedOutcome = probe.ObservedOutcome,
+            ObservedStatusCode = probe.ObservedStatusCode,
+            CorrelationId = probe.CorrelationId,
+            Verdict = verdict,
+            Evidence = probe.Evidence,
+        };
+    }
+
+    private static bool ObservedOutcomeIndicatesUnverifiedRunListScan(string observedOutcome)
+    {
+        if (string.IsNullOrWhiteSpace(observedOutcome))
+            return false;
+
+        return observedOutcome.Contains("scan incomplete", StringComparison.OrdinalIgnoreCase)
+            || observedOutcome.Contains("run list unavailable", StringComparison.OrdinalIgnoreCase)
+            || observedOutcome.Contains("skipped server error", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool ObservedOutcomeIndicatesForeignRunIdPresent(string observedOutcome)
+    {
+        if (string.IsNullOrWhiteSpace(observedOutcome))
+            return false;
+
+        return observedOutcome.Contains("foreign runId present", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static TenantIsolationNegativeTestVerdict ResolveExcludeReplayVerdict(TenantIsolationNegativeTestManifestProbe probe)
+    {
+        if (!TryParseHttpStatusFromObservedOutcome(probe.ObservedOutcome, out int outcomeStatusCode))
+            return EvaluateExcludeRunIdProbeVerdict(ResolveObservedStatusCode(probe), probe.ForeignRunIdVisible);
+
+        TenantIsolationNegativeTestVerdict fromField = EvaluateExcludeRunIdProbeVerdict(
+            ResolveObservedStatusCode(probe),
+            probe.ForeignRunIdVisible);
+
+        TenantIsolationNegativeTestVerdict fromOutcome = EvaluateExcludeRunIdProbeVerdict(
+            outcomeStatusCode,
+            probe.ForeignRunIdVisible);
+
+        if (ObservedOutcomeIndicatesVerifiedForeignRunIdAbsent(probe.ObservedOutcome)
+            && outcomeStatusCode is >= 200 and < 300
+            && ShouldTrustVerifiedAbsentOutcomeOverFieldStatus(probe))
+            return fromOutcome;
+
+        return WorstIsolationVerdict(fromField, fromOutcome);
+    }
+
+    private static bool ShouldTrustVerifiedAbsentOutcomeOverFieldStatus(TenantIsolationNegativeTestManifestProbe probe)
+    {
+        if (probe.ObservedStatusCode is not int fieldStatusCode)
+            return true;
+
+        if (fieldStatusCode is >= 200 and < 300)
+            return true;
+
+        // Manifests may persist deny-style 404 on list probes while outcome copy captured HTTP 200 absent.
+        return fieldStatusCode == (int)HttpStatusCode.NotFound;
+    }
+
+    private static bool ObservedOutcomeIndicatesVerifiedForeignRunIdAbsent(string observedOutcome)
+    {
+        if (string.IsNullOrWhiteSpace(observedOutcome))
+            return false;
+
+        return observedOutcome.Contains("foreign runId absent", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static TenantIsolationNegativeTestVerdict ResolveDenyReplayVerdict(TenantIsolationNegativeTestManifestProbe probe)
+    {
+        TenantIsolationNegativeTestVerdict fromStatusCode = TenantIsolationNegativeTestAggregator.EvaluateDenyStatus(
+            ResolveObservedStatusCode(probe));
+
+        if (!TryParseHttpStatusFromObservedOutcome(probe.ObservedOutcome, out int outcomeStatusCode))
+            return fromStatusCode;
+
+        TenantIsolationNegativeTestVerdict fromOutcome =
+            TenantIsolationNegativeTestAggregator.EvaluateDenyStatus(outcomeStatusCode);
+
+        return WorstIsolationVerdict(fromStatusCode, fromOutcome);
+    }
+
+    private static TenantIsolationNegativeTestVerdict WorstIsolationVerdict(
+        TenantIsolationNegativeTestVerdict left,
+        TenantIsolationNegativeTestVerdict right)
+    {
+        if (left == TenantIsolationNegativeTestVerdict.Fail || right == TenantIsolationNegativeTestVerdict.Fail)
+            return TenantIsolationNegativeTestVerdict.Fail;
+
+        if (left == TenantIsolationNegativeTestVerdict.Skip || right == TenantIsolationNegativeTestVerdict.Skip)
+            return TenantIsolationNegativeTestVerdict.Skip;
+
+        return TenantIsolationNegativeTestVerdict.Pass;
+    }
+
+    private static int ResolveObservedStatusCode(TenantIsolationNegativeTestManifestProbe probe)
+    {
+        if (probe.ObservedStatusCode is int statusCode)
+            return statusCode;
+
+        return TryParseHttpStatusFromObservedOutcome(probe.ObservedOutcome, out int parsed)
+            ? parsed
+            : 0;
+    }
+
+    private static bool TryParseHttpStatusFromObservedOutcome(string? observedOutcome, out int statusCode)
+    {
+        statusCode = 0;
+
+        if (string.IsNullOrWhiteSpace(observedOutcome))
+            return false;
+
+        int httpIndex = observedOutcome.IndexOf("HTTP", StringComparison.OrdinalIgnoreCase);
+
+        if (httpIndex < 0)
+            return false;
+
+        ReadOnlySpan<char> tail = observedOutcome.AsSpan(httpIndex + 4).TrimStart();
+        int digitLength = 0;
+
+        while (digitLength < tail.Length && char.IsAsciiDigit(tail[digitLength]))
+            digitLength++;
+
+        if (digitLength == 0)
+            return false;
+
+        return int.TryParse(tail[..digitLength], out statusCode);
+    }
+
+    private static TenantIsolationNegativeTestVerdict EvaluateExcludeRunIdProbeVerdict(int statusCode, bool foreignRunIdVisible)
+    {
+        if (statusCode == (int)HttpStatusCode.NoContent
+            || statusCode >= 500
+            || statusCode is < 200 or >= 300)
+            return TenantIsolationNegativeTestVerdict.Skip;
+
+        return foreignRunIdVisible
+            ? TenantIsolationNegativeTestVerdict.Fail
+            : TenantIsolationNegativeTestVerdict.Pass;
+    }
+
+    private static string ResolveManifestPath(string repositoryRoot, TenantIsolationNegativeTestOptions options)
+    {
+        if (!string.IsNullOrWhiteSpace(options.ManifestPath))
+            return Path.GetFullPath(options.ManifestPath);
+
+        return Path.Combine(repositoryRoot, "fixtures", "tenant-isolation", "negative-test-manifest.v1.json");
+    }
+}
+
+internal sealed class TenantIsolationNegativeTestOfflineRunResult
+{
+    internal TenantIsolationNegativeTestOfflineRunResult(
+        string? primaryRunId,
+        string? alternateTenantId,
+        string? alternateWorkspaceId,
+        string? alternateProjectId,
+        IReadOnlyList<TenantIsolationNegativeTestProbeResult> probes)
+    {
+        PrimaryRunId = primaryRunId;
+        AlternateTenantId = alternateTenantId;
+        AlternateWorkspaceId = alternateWorkspaceId;
+        AlternateProjectId = alternateProjectId;
+        Probes = probes;
+    }
+
+    internal string? PrimaryRunId
+    {
+        get;
+    }
+
+    internal string? AlternateTenantId
+    {
+        get;
+    }
+
+    internal string? AlternateWorkspaceId
+    {
+        get;
+    }
+
+    internal string? AlternateProjectId
+    {
+        get;
+    }
+
+    internal IReadOnlyList<TenantIsolationNegativeTestProbeResult> Probes
+    {
+        get;
+    }
+}
+
+internal static class TenantIsolationNegativeTestManifestLoader
+{
+    private static readonly JsonSerializerOptions JsonRead = new()
+    {
+        PropertyNameCaseInsensitive = true,
+    };
+
+    internal static TenantIsolationNegativeTestManifestDocument Load(string manifestPath)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(manifestPath);
+
+        string json = File.ReadAllText(manifestPath);
+        TenantIsolationNegativeTestManifestDocument? document =
+            JsonSerializer.Deserialize<TenantIsolationNegativeTestManifestDocument>(json, JsonRead)
+            ?? throw new InvalidOperationException($"Tenant isolation manifest is empty: {manifestPath}");
+
+        if (document.Scenarios.Count == 0)
+            throw new InvalidOperationException($"Tenant isolation manifest has no scenarios: {manifestPath}");
+
+        return document;
+    }
+}
+
+internal sealed class TenantIsolationNegativeTestManifestDocument
+{
+    public int SchemaVersion { get; init; }
+
+    public string? PrimaryRunId { get; init; }
+
+    public string? AlternateTenantId { get; init; }
+
+    public string? AlternateWorkspaceId { get; init; }
+
+    public string? AlternateProjectId { get; init; }
+
+    public List<TenantIsolationNegativeTestManifestScenario> Scenarios { get; init; } = [];
+}
+
+internal sealed class TenantIsolationNegativeTestManifestScenario
+{
+    public string Name { get; init; } = string.Empty;
+
+    public List<TenantIsolationNegativeTestManifestProbe> Probes { get; init; } = [];
+}
+
+internal sealed class TenantIsolationNegativeTestManifestProbe
+{
+    public string Name { get; init; } = string.Empty;
+
+    public string Path { get; init; } = string.Empty;
+
+    public string ExpectedOutcome { get; init; } = string.Empty;
+
+    public string ObservedOutcome { get; init; } = string.Empty;
+
+    public int? ObservedStatusCode { get; init; }
+
+    public string? CorrelationId { get; init; }
+
+    public string Evidence { get; init; } = string.Empty;
+
+    public bool ForeignRunIdVisible { get; init; }
+
+    /// <summary>
+    /// When false, offline replay treats the captured list response as unverifiable (parity with live <c>RunListPayloadIsScannable</c>).
+    /// </summary>
+    public bool? RunListPayloadScannable { get; init; }
+
+    public string? Verdict { get; init; }
+}

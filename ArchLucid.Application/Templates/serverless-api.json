@@ -1,0 +1,35 @@
+{
+  "requestId": "TEMPLATE-SERVERLESS-COSMOS",
+  "systemName": "ServerlessApiCosmos",
+  "description": "Define an Azure Functions–based HTTP and event-triggered API surface backed by Azure Cosmos DB for scalable document reads and writes. Emphasize serverless scaling, partitioned data access patterns, resilient poison-message paths for queue triggers, and secure access via managed identities and least-privilege RBAC.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "Cosmos DB access must honor least-privilege RBAC scopes; partition keys documented per container.",
+    "Function host configuration must forbid anonymous access unless explicitly gated at the edge.",
+    "No plaintext storage of connection strings — use managed identity or Key Vault references."
+  ],
+  "requiredCapabilities": [
+    "Azure Functions runtime for HTTP APIs and asynchronous queue/event processing",
+    "Azure Cosmos DB (SQL API baseline) as primary scalable document store",
+    "Azure Storage queues or Azure Service Bus for asynchronous command and integration patterns",
+    "Application Insights–style observability for cold start latency, failures, and dependency calls"
+  ],
+  "assumptions": [
+    "Traffic can burst; cost controls (consumption caps, alerting) must be articulated alongside scale-out behavior.",
+    "Clients tolerate at-least-once delivery semantics for async paths with idempotent handlers."
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [],
+  "documents": [],
+  "policyReferences": [],
+  "topologyHints": [
+    "Cosmos-heavy read/write paths partitioned by tenant or aggregate root to contain hot partitions.",
+    "Separate HTTP façade functions from durable background processors driven from queues."
+  ],
+  "securityBaselineHints": [
+    "Private endpoints or VNet integration for Cosmos DB where policy requires confined data-plane paths.",
+    "Key rotation and Defender recommendations tracked as operational backlog items."
+  ],
+  "infrastructureDeclarations": []
+}

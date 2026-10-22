@@ -1,0 +1,64 @@
+﻿# enable_monitoring_stack now defaults to true (2026-07-20) — it only creates one free action group
+# on its own, but plan fails fast (checks.tf) until you set resource_group_name + alert_email_address below.
+# Copy to terraform.tfvars (gitignored); secrets via Key Vault in production.
+#
+# Log Analytics workspace daily_quota_gb is not defined here â€” it lives in terraform-container-apps
+# (variable log_analytics_daily_quota_gb). See production.tfvars.example in that stack.
+
+# enable_monitoring_stack = false  # uncomment to opt back out (e.g. a throwaway sandbox)
+resource_group_name    = "rg-archlucid-prod"
+name_prefix             = "archlucid"
+alert_email_address     = "ops@example.com"
+# alert_webhook_uri     = "https://..." # optional Teams / PagerDuty
+
+# Full resource IDs from Azure Portal or terraform-container-apps outputs (Container Apps).
+# api_container_app_resource_id    = "/subscriptions/.../providers/Microsoft.App/containerApps/archlucid-api"
+# worker_container_app_resource_id = "/subscriptions/.../providers/Microsoft.App/containerApps/archlucid-worker"
+# ui_container_app_resource_id   = "/subscriptions/.../providers/Microsoft.App/containerApps/archlucid-ui"  # TB-731
+
+# TB-731 — marketing/product re-split trigger thresholds (defaults shown; set 0 to disable a signal).
+# ui_container_cpu_percent_threshold = 70
+# ui_replica_saturation_threshold    = 5
+# ui_max_replicas_expected           = 6
+# marketing_product_resplit_signup_daily_threshold  = 25
+# marketing_product_resplit_signup_hourly_threshold = 10
+# enable_first_tenant_funnel_workbook = false
+
+# ~0.5 vCPU sustained â†’ 500000000 nano cores (tune per allocation).
+# container_cpu_nanos_threshold = 500000000
+
+# Optional: Azure Monitor managed Prometheus rule group (PromQL mirrors ../prometheus/archlucid-slo-rules.yml).
+# enable_prometheus_slo_rule_group = true
+# azure_monitor_workspace_id       = "/subscriptions/.../resourceGroups/.../providers/Microsoft.Monitor/accounts/..."
+
+# Optional: Azure Managed Grafana (extra cost; assign Monitor Reader to the Grafana identity in Azure).
+# enable_managed_grafana = true
+# grafana_name           = "archlucid-grafana"
+# grafana_location       = "eastus2"
+
+# Optional: push ../grafana/*.json via Grafana Terraform provider (requires second apply + real token).
+# grafana_terraform_dashboards_enabled = true
+# grafana_url  = "https://your-workspace.grafana.azure.net"
+# grafana_auth = "glsa_..."  # prefer TF_VAR_grafana_auth
+
+
+# P0-critical wake-up routing (Improvement #46): SMS + voice + PagerDuty on a separate action group.
+# enable_critical_action_group = true
+# read_alert_secrets_from_key_vault = true
+# alert_sms_country_code   = "1"
+# alert_voice_country_code = "1"
+# alert_secrets_key_vault_name                = "kv-archlucid-prod"
+# alert_secrets_key_vault_resource_group_name = "rg-archlucid-prod"
+# See production.tfvars.example — never commit phone numbers or PagerDuty URLs.
+tags = {
+  workload = "archlucid"
+  tier     = "monitoring"
+}
+
+# TB-909 — subscription cost anomaly alert + rollup budget (optional; defaults on with monitoring stack).
+# enable_subscription_cost_management = false  # uncomment to opt out
+# subscription_cost_rollup_budget_components = { container_apps = 3500, sql = 2500, openai = 5000 }
+# subscription_rollup_budget_headroom_multiplier = 1.2
+# subscription_cost_rollup_budget_time_period_start = "2026-04-01T00:00:00Z"
+# subscription_cost_rollup_budget_contact_emails    = ["finops@example.com"]
+

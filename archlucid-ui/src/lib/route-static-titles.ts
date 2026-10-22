@@ -1,0 +1,188 @@
+import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
+import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
+import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
+import {
+  SPONSOR_REPORT_PAGE_TITLE,
+  SPONSOR_REPORT_ROI_SUMMARY_PATH,
+} from "@/lib/sponsor-report-navigation";
+import { AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH, SECURENOW_AUDIT_EVIDENCE_PATH } from "@/lib/audit-evidence-lineage-route";
+import {
+  GOVERNANCE_APPROVAL_QUEUE_PATH,
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+  GOVERNANCE_EXCEPTIONS_PATH,
+  GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH,
+  GOVERNANCE_STANDARDS_AND_RULES_PATH,
+  SECURENOW_FINDINGS_PATH,
+  SECURENOW_POLICY_PACKS_PATH,
+  SECURENOW_STANDARDS_AND_RULES_PATH,
+} from "@/lib/governance/governance-route-paths";
+import {
+  GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
+  SECURENOW_INFRASTRUCTURE_ASK_PATH,
+  SECURENOW_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
+  SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
+  SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
+  SECURENOW_INFRASTRUCTURE_DRIFT_PATH,
+  SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
+  SECURENOW_INFRASTRUCTURE_PATH,
+  SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
+  SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
+  GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
+  GOVERNANCE_INFRASTRUCTURE_PATH,
+  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
+  GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
+  SECURENOW_REMEDIATION_INSTANCES_PATH,
+} from "@/lib/governance/governance-infrastructure-route-paths";
+import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { SECURENOW_COLLECTION_AGENT_PATH } from "@/lib/product-line/securenow-collection-agent-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
+import {
+  INTERNAL_DEMO_READINESS_PAGE_TITLE,
+} from "@/lib/demo-readiness-evidence-copy";
+import { BUYER_SPONSOR_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
+import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
+import { PLANNING_PATH } from "@/lib/planning-route";
+import { AUDIT_TRAIL_PAGE_TITLE } from "@/lib/audit-trail-page-copy";
+import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance/governance-overview-copy";
+import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
+import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
+import { EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH } from "@/lib/extract-upload-settings-evidence-copy";
+import { OPERATOR_NAV_LINK_LABELS, RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
+import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
+import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
+import { CLOUD_CONNECTIONS_PATH, INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
+import { ITSM_CONNECTORS_ADMIN_LABEL, ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm/itsm-connectors-admin-scope";
+import { PATTERN_LIBRARY_PAGE_TITLE } from "@/lib/pattern-library-copy";
+import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
+import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
+import { API_KEYS_PAGE_TITLE } from "@/lib/api-keys-settings-copy";
+import { ALERTS_CONFIGURATION_PAGE_TITLE } from "@/lib/alerts-page-copy";
+import { PRODUCT_LINE_PLAYGROUND_TITLE } from "@/lib/product-line/product-line-copy";
+import { SECURENOW_INFRASTRUCTURE_DRIFT_LABEL } from "@/lib/product-line/securenow-infrastructure-home-copy";
+import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
+
+/**
+ * Static pathname → announcement title mappings for canonical architect workspace routes only.
+ * Legacy bookmark paths resolve via next.config redirects — do not register them here.
+ */
+export const ROUTE_TITLES: Record<string, string> = {
+  "/": OPERATOR_NAV_LINK_LABELS.home,
+  [ARCHITECTURES_LIST_PATH]: OPERATOR_NAV_LINK_LABELS.architectures,
+  [ARCHITECTURES_NEW_PATH]: CREATE_ARCHITECTURE_LABEL,
+  "/architecture/reviews": RUNS_LIST_PAGE_TITLES.buyerPolished,
+  "/architecture/reviews/new": START_REVIEW_LABEL,
+  [COMPARE_TWO_REVIEWS_PATH]: OPERATOR_NAV_LINK_LABELS.compareTwoReviews,
+  [EVIDENCE_GRAPH_PATH]: OPERATOR_NAV_LINK_LABELS.evidenceGraph,
+  [ASK_REVIEW_QUESTIONS_PATH]: OPERATOR_NAV_LINK_LABELS.askReview,
+  [SEARCH_REVIEW_EVIDENCE_PATH]: OPERATOR_NAV_LINK_LABELS.searchEvidence,
+  [IMPACT_PREVIEW_PATH]: OPERATOR_NAV_LINK_LABELS.evolutionCandidates,
+  "/insights/patterns": PATTERN_LIBRARY_PAGE_TITLE,
+  "/architecture/architecture-intelligence": "Architecture intelligence",
+  [GOVERNANCE_APPROVAL_QUEUE_PATH]: GOVERNANCE_OVERVIEW_PAGE_TITLE,
+  [GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH]: OPERATOR_NAV_LINK_LABELS.needsAttentionInbox,
+  [WORKSPACE_HEALTH_PATH]: OPERATOR_NAV_LINK_LABELS.workspaceHealth,
+  "/governance/findings": OPERATOR_NAV_LINK_LABELS.findings,
+  [SECURENOW_FINDINGS_PATH]: OPERATOR_NAV_LINK_LABELS.findings,
+  [GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH]: OPERATOR_NAV_LINK_LABELS.assignedToMeFindings,
+  "/security/assigned-to-me": OPERATOR_NAV_LINK_LABELS.assignedToMeFindings,
+  "/security/remediation-factory": OPERATOR_NAV_LINK_LABELS.remediationFactory,
+  "/security/remediation-instances": OPERATOR_NAV_LINK_LABELS.infrastructureRemediation,
+  "/security/remediation-patterns": OPERATOR_NAV_LINK_LABELS.remediationPatterns,
+  [GOVERNANCE_EXCEPTIONS_PATH]: OPERATOR_NAV_LINK_LABELS.riskExceptions,
+  "/governance/decision-register": OPERATOR_NAV_LINK_LABELS.decisionRegister,
+  [SIGNED_RECORDS_LIST_PATH]: OPERATOR_NAV_LINK_LABELS.sealedReviewRecords,
+  "/governance/policy-packs": OPERATOR_NAV_LINK_LABELS.policyPacks,
+  [SECURENOW_POLICY_PACKS_PATH]: OPERATOR_NAV_LINK_LABELS.policyPacks,
+  [GOVERNANCE_STANDARDS_AND_RULES_PATH]: OPERATOR_NAV_LINK_LABELS.governanceResolution,
+  [SECURENOW_STANDARDS_AND_RULES_PATH]: OPERATOR_NAV_LINK_LABELS.governanceResolution,
+  [AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH]: OPERATOR_NAV_LINK_LABELS.auditEvidenceLineage,
+  [SECURENOW_AUDIT_EVIDENCE_PATH]: OPERATOR_NAV_LINK_LABELS.auditEvidenceLineage,
+  "/governance/audit": AUDIT_TRAIL_PAGE_TITLE,
+  "/governance/alerts": OPERATOR_NAV_LINK_LABELS.alerts,
+  "/governance/alert-rules": ALERTS_CONFIGURATION_PAGE_TITLE,
+  "/governance/advisory-scans": OPERATOR_NAV_LINK_LABELS.architectureAdvisory,
+  "/governance/recurrence-schedules": OPERATOR_NAV_LINK_LABELS.recurrenceSchedules,
+  "/governance/environments": OPERATOR_NAV_LINK_LABELS.governanceEnvironments,
+  "/governance/setup": OPERATOR_NAV_LINK_LABELS.governanceSetupGuide,
+  [GOVERNANCE_INFRASTRUCTURE_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureOverview,
+  [SECURENOW_INFRASTRUCTURE_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureOverview,
+  [GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureDrift,
+  [SECURENOW_INFRASTRUCTURE_DRIFT_PATH]: SECURENOW_INFRASTRUCTURE_DRIFT_LABEL,
+  [GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureDiagrams,
+  [SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureDiagrams,
+  [GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureDiagramReconcile,
+  [SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureDiagramReconcile,
+  [GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureResources,
+  [SECURENOW_INFRASTRUCTURE_RESOURCES_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureResources,
+  [SECURENOW_COLLECTION_AGENT_PATH]: resolveSecureNowPageHeading(
+    "security",
+    "Collection Agent",
+    SECURENOW_COLLECTION_AGENT_PATH,
+  ),
+  [GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureDeclaredConnections,
+  [SECURENOW_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureDeclaredConnections,
+  [GOVERNANCE_INFRASTRUCTURE_ASK_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureAsk,
+  [SECURENOW_INFRASTRUCTURE_ASK_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureAsk,
+  [GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureRemediation,
+  [GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureTerraform,
+  [SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureTerraform,
+  [GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH]: OPERATOR_NAV_LINK_LABELS.extractUpload,
+  [SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH]: OPERATOR_NAV_LINK_LABELS.extractUpload,
+  "/internal/validate-route": OPERATOR_NAV_LINK_LABELS.replayReview,
+  "/administration/system-health": OPERATOR_NAV_LINK_LABELS.systemHealth,
+  [PLANNING_PATH]: OPERATOR_NAV_LINK_LABELS.planning,
+  "/architecture/first-review-guide": OPERATOR_NAV_LINK_LABELS.onboarding,
+  "/administration/billing": "Billing & plans",
+  "/administration/workspace-settings": OPERATOR_NAV_LINK_LABELS.workspaceSettings,
+  "/administration/workspace-settings/recycle-bin": "Projects recycle bin",
+  [CLOUD_CONNECTIONS_PATH]: OPERATOR_NAV_LINK_LABELS.cloudConnections,
+  [AI_USAGE_SETTINGS_PATH]: OPERATOR_NAV_LINK_LABELS.aiUsage,
+  "/administration/api-keys": API_KEYS_PAGE_TITLE,
+  "/account/preferences": "Preferences",
+  "/administration/notifications": OPERATOR_NAV_LINK_LABELS.notifications,
+  [EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH]: OPERATOR_NAV_LINK_LABELS.extractUpload,
+  "/integrations/jira": OPERATOR_NAV_LINK_LABELS.jira,
+  "/integrations/servicenow": OPERATOR_NAV_LINK_LABELS.servicenow,
+  [INTEGRATIONS_READINESS_PATH]: OPERATOR_NAV_LINK_LABELS.connectionStatus,
+  [SPONSOR_DASHBOARD_HREF]: BUYER_SPONSOR_SUMMARY_VOCABULARY.pageTitle,
+  [DIGESTS_HUB_PATH]: OPERATOR_NAV_LINK_LABELS.digests,
+  "/insights/sponsor-report": SPONSOR_REPORT_PAGE_TITLE,
+  [SPONSOR_REPORT_ROI_SUMMARY_PATH]: OPERATOR_NAV_LINK_LABELS.roiReport,
+  [ARCHITECTURE_SCORECARD_PATH]: OPERATOR_NAV_LINK_LABELS.scorecard,
+  "/internal/demo-readiness": INTERNAL_DEMO_READINESS_PAGE_TITLE,
+  [ITSM_CONNECTORS_ADMIN_PATH]: ITSM_CONNECTORS_ADMIN_LABEL,
+  "/administration": OPERATOR_NAV_LINK_LABELS.settings,
+  "/administration/baseline": OPERATOR_NAV_LINK_LABELS.baselineSettings,
+  "/administration/users": OPERATOR_NAV_LINK_LABELS.usersAndRoles,
+  "/administration/identity-providers": "Identity providers",
+  "/administration/identity/sso-wizard": "SSO wizard",
+  "/administration/scim-provisioning": "SCIM provisioning",
+  "/administration/security-trust": OPERATOR_NAV_LINK_LABELS.securityTrust,
+  "/administration/support": "Support",
+  "/integrations/azure-boards": OPERATOR_NAV_LINK_LABELS.azureBoards,
+  "/integrations/teams": OPERATOR_NAV_LINK_LABELS.microsoftTeams,
+  "/integrations/slack": OPERATOR_NAV_LINK_LABELS.slack,
+  "/integrations/webhooks": OPERATOR_NAV_LINK_LABELS.webhooks,
+  "/internal/pricing-quote-aging": "Pricing quote follow-up",
+  "/internal/trial-funnel": "Trial funnel",
+  "/internal/fleet-llm-cogs": "Fleet LLM COGS",
+  "/internal/agent-model-catalog": "Agent model catalog",
+  "/internal/tenant-health": "Tenant health",
+  "/internal/tenants": "Tenants",
+  "/internal/health": "Diagnostics dashboard",
+  "/internal/deployment-status": "Deployment status",
+  "/internal/rag-health": OPERATOR_NAV_LINK_LABELS.knowledgeIndexHealth,
+  "/internal/configuration": "Configuration",
+  "/internal/failed-integration-messages": OPERATOR_NAV_LINK_LABELS.failedIntegrationMessages,
+  "/internal/evidence-proposals": "Evidence proposals",
+  "/internal/platform-bundled-policy-packs": "Platform policy packs",
+  "/internal/recommendation-learning": OPERATOR_NAV_LINK_LABELS.recommendationTuning,
+  "/internal/product-learning": OPERATOR_NAV_LINK_LABELS.pilotFeedback,
+  "/internal/product-line": PRODUCT_LINE_PLAYGROUND_TITLE,
+};

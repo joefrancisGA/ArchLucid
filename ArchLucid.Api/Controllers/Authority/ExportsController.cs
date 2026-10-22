@@ -1,0 +1,340 @@
+using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Http;
+using ArchLucid.Api.Models;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Services;
+using ArchLucid.Application;
+using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Exports;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Queries;
+
+using Asp.Versioning;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+
+using ApiReplayExportRequest = ArchLucid.Api.Models.ReplayExportRequest;
+using AppReplayExportRequest = ArchLucid.Application.Analysis.ReplayExportRequest;
+
+namespace ArchLucid.Api.Controllers.Authority;
+
+[ApiController]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+[ApiVersion("1.0")]
+[Route("v{version:apiVersion}/architecture")]
+[EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
+public sealed partial class ExportsController(
+    IRunExportQueryFacade runExportQueryFacade,
+    IAuthorityQueryService authorityQueryService,
+    IScopeContextProvider scopeContextProvider,
+    IManifestHashService manifestHashService) : ControllerBase
+{
+    private readonly IRunExportQueryFacade _runExportQueryFacade =
+        runExportQueryFacade ?? throw new ArgumentNullException(nameof(runExportQueryFacade));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
+    [HttpGet("review/{runId}/exports")]
+    [ProducesResponseType(typeof(RunExportHistoryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> GetRunExportHistory([FromRoute] string runId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            RunExportHistoryQueryResult result = await _runExportQueryFacade.GetRunExportHistoryAsync(runId, cancellationToken);
+            return result.Outcome switch
+            {
+                ExportRecordLoadOutcome.Success => Ok(new RunExportHistoryResponse { Exports = result.Exports!.ToList() }),
+                ExportRecordLoadOutcome.RunNotFound => this.NotFoundProblem($"Run '{result.MissingRunId}' was not found.", ProblemTypes.RunNotFound),
+                ExportRecordLoadOutcome.LineageUnverified => MapExportReplaySealedManifestConflict(
+                    new ConflictException(
+                        $"Run export history for '{result.MissingRunId}' is blocked until export lineage verification succeeds.")),
+                _ => throw new InvalidOperationException($"Unexpected export history outcome: {result.Outcome}."),
+            };
+        }
+        catch (ConflictException ex)
+        {
+            return MapExportReplaySealedManifestConflict(ex);
+        }
+    }
+
+    [HttpGet("review/exports/{exportRecordId}")]
+    [ProducesResponseType(typeof(RunExportRecordResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> GetExportRecord(
+        [FromRoute] string exportRecordId,
+        [FromServices] IRunExportRecordRepository exportRecordRepository,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+                exportRecordId,
+                exportRecordRepository,
+                cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            ScopedExportRecordLoadResult result = await _runExportQueryFacade.GetExportRecordAsync(exportRecordId, cancellationToken);
+            return result.Outcome switch
+            {
+                ExportRecordLoadOutcome.Success => Ok(new RunExportRecordResponse { Record = result.Record! }),
+                ExportRecordLoadOutcome.ExportRecordNotFound => this.NotFoundProblem($"Export record '{result.MissingId}' was not found.", ProblemTypes.ResourceNotFound),
+                ExportRecordLoadOutcome.LineageUnverified => MapExportReplaySealedManifestConflict(
+                    new ConflictException(
+                        $"Export record '{result.MissingId}' is blocked until export lineage and sealed-manifest verification succeeds.")),
+                _ => throw new InvalidOperationException($"Unexpected export record outcome: {result.Outcome}."),
+            };
+        }
+        catch (ConflictException ex)
+        {
+            return MapExportReplaySealedManifestConflict(ex);
+        }
+        catch (CareerArtifactExportBlockedException ex)
+        {
+            return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
+        }
+    }
+
+    [HttpGet("review/exports/compare")]
+    [ProducesResponseType(typeof(ExportRecordDiffResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> CompareExportRecords(
+        [FromQuery] string leftExportRecordId,
+        [FromQuery] string rightExportRecordId,
+        [FromServices] IRunExportRecordRepository exportRecordRepository,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            IActionResult? leftGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+                leftExportRecordId,
+                exportRecordRepository,
+                cancellationToken);
+
+            if (leftGuardResult is not null)
+                return leftGuardResult;
+
+            IActionResult? rightGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+                rightExportRecordId,
+                exportRecordRepository,
+                cancellationToken);
+
+            if (rightGuardResult is not null)
+                return rightGuardResult;
+
+            return MapExportRecordDiffResult(
+                await _runExportQueryFacade.CompareExportRecordsAsync(leftExportRecordId, rightExportRecordId, cancellationToken));
+        }
+        catch (ConflictException ex)
+        {
+            return MapExportReplaySealedManifestConflict(ex);
+        }
+        catch (CareerArtifactExportBlockedException ex)
+        {
+            return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
+        }
+    }
+
+    // idempotency-posture: operator-documented-safe-retry
+    [HttpPost("review/exports/compare/summary")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [MutatingAuditExcluded("Audit: IRunExportQueryFacade.CompareExportRecordsSummaryAsync logs ComparisonSummaryPersisted.")]
+    [ProducesResponseType(typeof(ExportRecordDiffSummaryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> CompareExportRecordsSummary(
+        [FromQuery] string leftExportRecordId,
+        [FromQuery] string rightExportRecordId,
+        [FromBody] PersistComparisonRequest? request,
+        [FromServices] IRunExportRecordRepository exportRecordRepository,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            IActionResult? leftGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+                leftExportRecordId,
+                exportRecordRepository,
+                cancellationToken);
+
+            if (leftGuardResult is not null)
+                return leftGuardResult;
+
+            IActionResult? rightGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+                rightExportRecordId,
+                exportRecordRepository,
+                cancellationToken);
+
+            if (rightGuardResult is not null)
+                return rightGuardResult;
+
+            request ??= new PersistComparisonRequest();
+            ExportRecordDiffSummaryQueryResult result = await _runExportQueryFacade.CompareExportRecordsSummaryAsync(
+                leftExportRecordId, rightExportRecordId, request.Persist, cancellationToken);
+
+            if (result.Outcome is not ExportRecordLoadOutcome.Success)
+
+                return MapExportRecordLoadOutcome(result.Outcome, result.MissingId);
+
+            if (!string.IsNullOrWhiteSpace(result.ComparisonRecordId))
+                Response.Headers[ArchLucidHttpHeaders.ComparisonRecordId] = result.ComparisonRecordId;
+            return Ok(new ExportRecordDiffSummaryResponse { Format = "markdown", Summary = result.SummaryMarkdown! });
+        }
+        catch (ConflictException ex)
+        {
+            return MapExportReplaySealedManifestConflict(ex);
+        }
+        catch (CareerArtifactExportBlockedException ex)
+        {
+            return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
+        }
+    }
+
+    // idempotency-posture: operator-documented-safe-retry
+    [HttpPost("review/exports/{exportRecordId}/replay")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> ReplayExportRecord(
+        [FromRoute] string exportRecordId,
+        [FromBody] ApiReplayExportRequest? request,
+        [FromServices] IRunExportRecordRepository exportRecordRepository,
+        CancellationToken cancellationToken)
+    {
+        request ??= new ApiReplayExportRequest();
+
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+            exportRecordId,
+            exportRecordRepository,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        ExportReplayQueryResult result;
+
+        try
+        {
+            result = await _runExportQueryFacade.ReplayExportAsync(
+                exportRecordId,
+                new AppReplayExportRequest { ExportRecordId = exportRecordId, RecordReplayExport = request.RecordReplayExport },
+                cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return MapExportReplaySealedManifestConflict(ex);
+        }
+        catch (CareerArtifactExportBlockedException ex)
+        {
+            return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
+        }
+
+        if (result.Outcome is ExportRecordLoadOutcome.LineageUnverified)
+        {
+            return MapExportReplaySealedManifestConflict(
+                new ConflictException(
+                    $"Export replay for '{result.MissingId}' is blocked until export lineage and sealed-manifest verification succeeds."));
+        }
+
+        if (result.Outcome is not ExportRecordLoadOutcome.Success)
+            return this.NotFoundProblem($"Export record '{result.MissingId}' was not found.", ProblemTypes.ResourceNotFound);
+        return ReplayArtifactResponseFactory.FromExportReplay(Request, result.Replay!);
+    }
+
+    // idempotency-posture: operator-documented-safe-retry
+    [HttpPost("review/exports/{exportRecordId}/replay/metadata")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(typeof(ReplayExportMetadataResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> ReplayExportRecordMetadata(
+        [FromRoute] string exportRecordId,
+        [FromBody] ApiReplayExportRequest? request,
+        [FromServices] IRunExportRecordRepository exportRecordRepository,
+        CancellationToken cancellationToken)
+    {
+        request ??= new ApiReplayExportRequest();
+
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+            exportRecordId,
+            exportRecordRepository,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        ExportReplayQueryResult result;
+
+        try
+        {
+            result = await _runExportQueryFacade.ReplayExportAsync(
+                exportRecordId,
+                new AppReplayExportRequest { ExportRecordId = exportRecordId, RecordReplayExport = request.RecordReplayExport },
+                cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return MapExportReplaySealedManifestConflict(ex);
+        }
+        catch (CareerArtifactExportBlockedException ex)
+        {
+            return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
+        }
+
+        if (result.Outcome is ExportRecordLoadOutcome.LineageUnverified)
+        {
+            return MapExportReplaySealedManifestConflict(
+                new ConflictException(
+                    $"Export replay for '{result.MissingId}' is blocked until export lineage verification succeeds."));
+        }
+
+        if (result.Outcome is not ExportRecordLoadOutcome.Success)
+            return this.NotFoundProblem($"Export record '{result.MissingId}' was not found.", ProblemTypes.ResourceNotFound);
+        ReplayExportResult replay = result.Replay!;
+        return Ok(new ReplayExportMetadataResponse { ExportRecordId = replay.ExportRecordId, Format = replay.Format, FileName = replay.FileName });
+    }
+
+    private IActionResult MapExportRecordDiffResult(ExportRecordDiffQueryResult result) =>
+        result.Outcome is ExportRecordLoadOutcome.Success
+            ? Ok(new ExportRecordDiffResponse { Diff = result.Diff! })
+            : MapExportRecordLoadOutcome(result.Outcome, result.MissingId);
+
+    private IActionResult MapExportRecordLoadOutcome(ExportRecordLoadOutcome outcome, string? missingId) => outcome switch
+    {
+        ExportRecordLoadOutcome.LeftIdRequired => this.BadRequestProblem("leftExportRecordId is required.", ProblemTypes.ValidationFailed),
+        ExportRecordLoadOutcome.RightIdRequired => this.BadRequestProblem("rightExportRecordId is required.", ProblemTypes.ValidationFailed),
+        ExportRecordLoadOutcome.LeftNotFound or ExportRecordLoadOutcome.ExportRecordNotFound => this.NotFoundProblem($"Export record '{missingId}' was not found.", ProblemTypes.ResourceNotFound),
+        ExportRecordLoadOutcome.RightNotFound => this.NotFoundProblem($"Export record '{missingId}' was not found.", ProblemTypes.ResourceNotFound),
+        ExportRecordLoadOutcome.LineageUnverified => MapExportReplaySealedManifestConflict(
+            new ConflictException(
+                $"Export record '{missingId}' is blocked until export lineage and sealed-manifest verification succeeds.")),
+        _ => throw new InvalidOperationException($"Unexpected export record load outcome: {outcome}."),
+    };
+}

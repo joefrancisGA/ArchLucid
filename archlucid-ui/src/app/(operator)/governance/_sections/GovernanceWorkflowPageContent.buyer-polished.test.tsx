@@ -1,0 +1,300 @@
+import { screen, waitFor, within } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { GOVERNANCE_OVERVIEW_PAGE_LEAD, BUYER_GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance/governance-overview-copy";
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
+import {
+  APPROVAL_QUEUE_CLAIM_DISCIPLINE,
+  APPROVAL_QUEUE_FOLLOW_UPS_TITLE,
+  APPROVAL_QUEUE_SOURCES,
+  GOVERNANCE_APPROVAL_QUEUE_BUYER_OVERVIEW,
+  GOVERNANCE_APPROVAL_QUEUE_BUYER_START_HERE_HELPER,
+  GOVERNANCE_APPROVAL_QUEUE_FIRST_VIEWPORT_TEST_ID,
+  GOVERNANCE_APPROVAL_QUEUE_ORIENTATION_BOTTOM_TEST_ID,
+  GOVERNANCE_APPROVAL_QUEUE_PAGE_LEAD,
+  GOVERNANCE_APPROVAL_QUEUE_PRIMARY_CONTENT_ID,
+  GOVERNANCE_APPROVAL_QUEUE_SKIP_LINK_LABEL,
+  GOVERNANCE_APPROVAL_QUEUE_START_HERE_CARD_TITLE,
+  GOVERNANCE_APPROVAL_QUEUE_WORKSPACE_TEST_ID,
+} from "@/lib/approval-queue-evidence-copy";
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
+import { useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
+
+const apiHoisted = vi.hoisted(() => ({
+  listApprovalRequests: vi.fn(),
+  listPromotions: vi.fn(),
+  listActivations: vi.fn(),
+  getGovernanceDashboard: vi.fn(),
+  getGovernanceDecisionsNeededSummary: vi.fn(),
+  listRunsByProjectPaged: vi.fn(),
+}));
+
+vi.mock("@/hooks/use-operate-capability", () => ({
+  useOperateCapability: (): boolean => false,
+}));
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...mod,
+    isBuyerPolishedOperatorShellEnv: (): boolean => true,
+  };
+});
+
+vi.mock("@/lib/operator/operator-static-demo", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("@/lib/operator/operator-static-demo")>();
+
+  return {
+    ...mod,
+    isStaticDemoPayloadFallbackEnabled: (): boolean => false,
+    shouldSeedStaticDemoGovernanceRecordsForRun: (): boolean => false,
+  };
+});
+
+vi.mock("next/navigation", () => ({
+  usePathname: (): string => "/governance/approval-queue",
+  useRouter: (): { push: () => void; replace: () => void } => ({ push: vi.fn(), replace: vi.fn() }),
+  useSearchParams: (): URLSearchParams => new URLSearchParams(),
+}));
+
+vi.mock("@/lib/api", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("@/lib/api")>();
+
+  return {
+    ...mod,
+    listApprovalRequests: apiHoisted.listApprovalRequests,
+    listPromotions: apiHoisted.listPromotions,
+    listActivations: apiHoisted.listActivations,
+    getGovernanceDashboard: apiHoisted.getGovernanceDashboard,
+    getGovernanceDecisionsNeededSummary: apiHoisted.getGovernanceDecisionsNeededSummary,
+    listRunsByProjectPaged: apiHoisted.listRunsByProjectPaged,
+  };
+});
+
+vi.mock("@/lib/api/policy-governance-api", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("@/lib/api/policy-governance-api")>();
+
+  return {
+    ...mod,
+    listApprovalRequests: apiHoisted.listApprovalRequests,
+    listPromotions: apiHoisted.listPromotions,
+    listActivations: apiHoisted.listActivations,
+    getGovernanceDashboard: apiHoisted.getGovernanceDashboard,
+    fetchGovernanceEnvironmentCatalog: vi.fn().mockResolvedValue({
+      isAdministratorConfigured: false,
+      environments: [],
+    }),
+  };
+});
+
+vi.mock("@/lib/api/governance-stickiness-api", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("@/lib/api/governance-stickiness-api")>();
+
+  return {
+    ...mod,
+    getGovernanceDecisionsNeededSummary: apiHoisted.getGovernanceDecisionsNeededSummary,
+  };
+});
+
+vi.mock("@/lib/query/operator-query-persist-client", () => ({
+  setupOperatorQueryClientPersistence: () => {},
+}));
+
+vi.mock("next/link", () => ({
+  default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a>,
+}));
+
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
+
+vi.mock("./governance-workflow-deferred-chunks", async () => {
+  const contextBar = await import("./GovernanceReviewContextBar");
+  const overview = await import("./GovernanceOverviewPanel");
+  const submit = await import("./GovernanceWorkflowSubmitSection");
+  const approvals = await import("./GovernanceWorkflowApprovalsList");
+  const promotions = await import("./GovernanceWorkflowPromotionsActivationsSection");
+  const dialogs = await import("./GovernanceWorkflowDialogs");
+  const buyerStrip = await import("@/components/cto-demo/CtoDemoBuyerValueStrip");
+  const segregation = await import("@/components/cto-demo/CtoDemoSegregationCallout");
+  const previewHint = await import("@/components/OperateCapabilityHints");
+  const storyCard = await import("@/components/governance/GovernanceApprovalStoryCard");
+  const advancedOptions = await import("@/components/AdvancedOptionsAccordion");
+
+  return {
+    GovernanceOverviewPanelDeferred: overview.GovernanceOverviewPanel,
+    GovernanceReviewContextBarDeferred: contextBar.GovernanceReviewContextBar,
+    GovernanceWorkflowSubmitSectionDeferred: submit.GovernanceWorkflowSubmitSection,
+    GovernanceWorkflowApprovalsListDeferred: approvals.GovernanceWorkflowApprovalsList,
+    GovernanceWorkflowPromotionsActivationsSectionDeferred:
+      promotions.GovernanceWorkflowPromotionsActivationsSection,
+    GovernanceWorkflowDialogsDeferred: dialogs.GovernanceWorkflowDialogs,
+    CtoDemoBuyerValueStripDeferred: buyerStrip.CtoDemoBuyerValueStrip,
+    CtoDemoSegregationCalloutDeferred: segregation.CtoDemoSegregationCallout,
+    CtoDemoGovernancePreviewHintDeferred: previewHint.CtoDemoGovernancePreviewHint,
+    GovernanceApprovalStoryCardDeferred: storyCard.GovernanceApprovalStoryCard,
+    AdvancedOptionsAccordionDeferred: advancedOptions.AdvancedOptionsAccordion,
+  };
+});
+
+vi.mock("@/lib/use-nav-surface", () => ({
+  useNavSurface: () => ({
+    links: [],
+    mutationCapability: false,
+    layerGuidance: {
+      layerBadge: "Approval",
+      headline: "Submit finalized architecture outputs for approval review and promotion.",
+      useWhen: "Pick one review and move from submission through approval.",
+      firstPilotNote: null,
+      enterpriseFootnote: "Approvals follow the configured approval path.",
+    },
+    contextHints: {
+      enterpriseNavGroupHint: "",
+      enterpriseExecutePageHint: null,
+      layerHeaderEnterpriseRankCue: null,
+      governanceResolutionRank: "",
+      alertsInboxRank: "",
+      auditLogRank: "",
+      alertOperatorToolingRank: "",
+      governanceDashboardReaderAction: null,
+    },
+    callerAuthorityRank: 0,
+    showExtended: true,
+    showAdvanced: true,
+    mounted: true,
+  }),
+}));
+
+import { buyerPolishedRouteOrientation } from "@/lib/buyer/buyer-polished-route-orientation";
+
+import { GovernanceWorkflowPageContent } from "./GovernanceWorkflowPageContent";
+
+describe("GovernanceWorkflowPageContent buyer-polished chrome (TB-1434)", () => {
+  useOperatorQueryTestLifecycle();
+
+  beforeEach(() => {
+    apiHoisted.listApprovalRequests.mockResolvedValue([]);
+    apiHoisted.listPromotions.mockResolvedValue([]);
+    apiHoisted.listActivations.mockResolvedValue([]);
+    apiHoisted.getGovernanceDashboard.mockResolvedValue({
+      pendingApprovals: [
+        {
+          approvalRequestId: "pending-1",
+          runId: "run-pending",
+          manifestVersion: "1.0.0",
+          status: "Submitted",
+          sourceEnvironment: "dev",
+          targetEnvironment: "prod",
+          requestedBy: "owner",
+          requestedUtc: "2026-01-01T00:00:00Z",
+        },
+      ],
+      recentDecisions: [],
+      recentChanges: [],
+      pendingCount: 1,
+    });
+    apiHoisted.getGovernanceDecisionsNeededSummary.mockResolvedValue({
+      pendingApprovals: 1,
+      staleRisks: 0,
+      unownedHighSeverityRisks: 0,
+      findingsAwaitingEvidence: 0,
+      waiversExpiringWithin14Days: 0,
+      deferredFindingsDue: 0,
+      totalDecisionItems: 0,
+    });
+    apiHoisted.listRunsByProjectPaged.mockResolvedValue({
+      items: [],
+      totalCount: 0,
+      page: 1,
+      pageSize: 50,
+      hasMore: false,
+    });
+  });
+
+  it("keeps one overview lead on OperatorPageHeader — strip orientation is null (TB-1434)", async () => {
+    expect(buyerPolishedRouteOrientation("/governance/approval-queue")).toBeNull();
+
+    renderWithOperatorQuery(<GovernanceWorkflowPageContent />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { level: 2, name: "Approval queue" })).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("governance-overview-page-title")).toBeInTheDocument();
+
+    expect(screen.getAllByText(BUYER_GOVERNANCE_OVERVIEW_PAGE_LEAD)).toHaveLength(1);
+    expect(screen.queryByText(GOVERNANCE_OVERVIEW_PAGE_LEAD)).not.toBeInTheDocument();
+    expect(screen.queryByTestId("layer-context-strip")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: GOVERNANCE_APPROVAL_QUEUE_SKIP_LINK_LABEL })).toHaveAttribute(
+      "href",
+      `#${GOVERNANCE_APPROVAL_QUEUE_PRIMARY_CONTENT_ID}`,
+    );
+    expect(screen.getByTestId("approval-queue-header-claim-discipline")).toHaveTextContent(
+      APPROVAL_QUEUE_CLAIM_DISCIPLINE,
+    );
+    expect(screen.getByTestId("governance-approval-queue-intro")).toHaveTextContent(
+      GOVERNANCE_APPROVAL_QUEUE_PAGE_LEAD,
+    );
+    expect(screen.getByTestId("governance-approval-queue-overview")).toHaveTextContent(
+      GOVERNANCE_APPROVAL_QUEUE_BUYER_OVERVIEW,
+    );
+    expect(screen.getByTestId(GOVERNANCE_APPROVAL_QUEUE_FIRST_VIEWPORT_TEST_ID)).toContainElement(
+      screen.getByTestId("governance-approval-queue-intro"),
+    );
+    expect(
+      screen.getByTestId(GOVERNANCE_APPROVAL_QUEUE_FIRST_VIEWPORT_TEST_ID),
+    ).not.toContainElement(screen.getByTestId("governance-approval-queue-overview"));
+    expect(
+      screen.getByTestId(GOVERNANCE_APPROVAL_QUEUE_FIRST_VIEWPORT_TEST_ID).compareDocumentPosition(
+        screen.getByTestId("governance-approval-queue-overview"),
+      ) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(screen.getByTestId("governance-approval-queue-buyer-start-here-helper")).toHaveTextContent(
+      GOVERNANCE_APPROVAL_QUEUE_BUYER_START_HERE_HELPER,
+    );
+    expect(
+      screen.getByRole("heading", { level: 2, name: GOVERNANCE_APPROVAL_QUEUE_START_HERE_CARD_TITLE }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: APPROVAL_QUEUE_FOLLOW_UPS_TITLE })).toBeInTheDocument();
+    expect(screen.queryByTestId("approval-queue-claim-discipline")).not.toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Workspace health" })).toHaveAttribute(
+      "href",
+      GOVERNANCE_WORKSPACE_HEALTH_HREF,
+    );
+    expect(screen.queryByTestId("layer-header-collapsible-guidance")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("governance-approval-queue-pick-review-before-submitting-strip")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("governance-interactive-quickstart")).not.toBeInTheDocument();
+    expect(screen.queryByText("How approval works")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("governance-sample-overview-banner")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("inline-guidance-governance-overview-next")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("governance-overview-submit-action")).not.toBeInTheDocument();
+
+    const primaryContent = screen.getByTestId("governance-approval-queue-primary-content");
+    const firstViewport = screen.getByTestId(GOVERNANCE_APPROVAL_QUEUE_FIRST_VIEWPORT_TEST_ID);
+    const overview = screen.getByTestId("governance-approval-queue-overview");
+    const workspace = screen.getByTestId(GOVERNANCE_APPROVAL_QUEUE_WORKSPACE_TEST_ID);
+    const overviewPanel = screen.getByTestId("governance-overview-panel");
+    const orientationBottom = screen.getByTestId(GOVERNANCE_APPROVAL_QUEUE_ORIENTATION_BOTTOM_TEST_ID);
+    const sourcesSection = screen.getByTestId("approval-queue-sources");
+
+    expect(primaryContent).toContainElement(firstViewport);
+    expect(primaryContent).toContainElement(overview);
+    expect(primaryContent).toContainElement(workspace);
+    expect(primaryContent).toContainElement(orientationBottom);
+    expect(workspace).toContainElement(overviewPanel);
+    expect(orientationBottom).toContainElement(sourcesSection);
+
+    for (const source of filterWhereToGoNextFollowUpLinks(APPROVAL_QUEUE_SOURCES)) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+    }
+
+    expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(workspace.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+});

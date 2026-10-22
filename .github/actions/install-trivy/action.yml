@@ -1,0 +1,47 @@
+name: "Install Trivy"
+description: "Install a pinned Trivy CLI from GitHub releases (avoids setup-trivy sparse-checkout promisor failures)."
+inputs:
+  version:
+    description: "Trivy release tag (with or without leading v), e.g. v0.69.3"
+    required: false
+    default: "v0.71.2"
+runs:
+  using: "composite"
+  steps:
+    - name: Install Trivy CLI
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        version_input="${{ inputs.version }}"
+        version="${version_input#v}"
+        archive="trivy_${version}_Linux-64bit.tar.gz"
+        url="https://github.com/aquasecurity/trivy/releases/download/v${version}/${archive}"
+        install_dir="${RUNNER_TOOL_CACHE}/trivy/${version}"
+
+        mkdir -p "${install_dir}"
+
+        # GitHub release assets occasionally return 502/504 or drop mid-transfer; retry before failing Terraform/Trivy jobs.
+        max_attempts=8
+        attempt=1
+        while true; do
+          if curl -fsSL --connect-timeout 30 --max-time 600 --retry 5 --retry-all-errors --retry-delay 10 "${url}" -o "/tmp/${archive}"; then
+            break
+          fi
+
+          if [ "${attempt}" -ge "${max_attempts}" ]; then
+            echo "Failed to download Trivy after ${max_attempts} attempts: ${url}" >&2
+            exit 22
+          fi
+
+          sleep_seconds=$((attempt * 15))
+          echo "Trivy download failed (attempt ${attempt}/${max_attempts}); retrying in ${sleep_seconds}s..." >&2
+          sleep "${sleep_seconds}"
+          attempt=$((attempt + 1))
+        done
+
+        tar -xzf "/tmp/${archive}" -C "${install_dir}" trivy
+        chmod +x "${install_dir}/trivy"
+
+        echo "${install_dir}" >> "${GITHUB_PATH}"
+        TRIVY_SKIP_VERSION_CHECK=true "${install_dir}/trivy" --version

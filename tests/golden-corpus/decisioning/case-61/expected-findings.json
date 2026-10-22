@@ -1,0 +1,169 @@
+[
+  {
+    "findingId": "dc33d5f0-0256-ba7b-7539-552901772816",
+    "findingType": "ComplianceFinding",
+    "category": "Compliance",
+    "severity": "Warning",
+    "title": "Compliance gap: Compute resources must be protected by security baseline controls",
+    "rationale": "Every compute resource should be protected by at least one security baseline control.",
+    "relatedNodeIds": [
+      "cmp-golden-61"
+    ],
+    "payloadType": "ComplianceFindingPayload",
+    "rulesApplied": [
+      "compute-must-have-security-baseline"
+    ],
+    "decisionsTaken": [
+      "Detected uncovered resources against compliance rule requirements."
+    ]
+  },
+  {
+    "findingId": "6d8e7349-0c84-697a-73d3-08ea396b5379",
+    "findingType": "ComplianceFinding",
+    "category": "Compliance",
+    "severity": "Warning",
+    "title": "Compliance gap: Data resources must be covered by policy controls",
+    "rationale": "Every data resource should be covered by at least one policy control.",
+    "relatedNodeIds": [
+      "ds-golden-61"
+    ],
+    "payloadType": "ComplianceFindingPayload",
+    "rulesApplied": [
+      "data-must-have-policy-applicability"
+    ],
+    "decisionsTaken": [
+      "Detected uncovered resources against compliance rule requirements."
+    ]
+  },
+  {
+    "findingId": "2d45c2e7-ab63-f178-0e98-984bcec281ea",
+    "findingType": "RequirementExpectationFinding",
+    "category": "Requirement",
+    "severity": "Warning",
+    "title": "Workload-conditioned requirement themes are incomplete",
+    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "relatedNodeIds": [
+      "cmp-golden-61",
+      "ds-golden-61"
+    ],
+    "payloadType": "RequirementExpectationFindingPayload",
+    "rulesApplied": [
+      "requirement-expectation-workload-scope"
+    ],
+    "decisionsTaken": [
+      "Compared workload-conditioned requirement themes to themes inferred from requirement nodes."
+    ]
+  },
+  {
+    "findingId": "06f9edf8-a051-a693-252b-8b1d3419ff58",
+    "findingType": "SecurityBaselineCompletenessFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Workload security baseline control-family coverage is incomplete",
+    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "relatedNodeIds": [
+      "cmp-golden-61",
+      "ds-golden-61"
+    ],
+    "payloadType": "SecurityBaselineCompletenessFindingPayload",
+    "rulesApplied": [
+      "security-baseline-completeness-matrix"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected control families to families inferred from active security baseline nodes."
+    ]
+  },
+  {
+    "findingId": "2172f4b5-72c3-bfae-dd23-f67a098a3a3c",
+    "findingType": "SecurityBaselineExpectationFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Category-scoped security baseline coverage is incomplete",
+    "rationale": "Workload-expected topology categories lack any protected resources linked by security baseline PROTECTS edges.",
+    "relatedNodeIds": [
+      "cmp-golden-61",
+      "ds-golden-61"
+    ],
+    "payloadType": "SecurityBaselineExpectationFindingPayload",
+    "rulesApplied": [
+      "security-baseline-category-expectation"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected topology categories to categories with protected resources."
+    ]
+  },
+  {
+    "findingId": "3ecacd26-df01-163a-84f1-fb01a1be0e05",
+    "findingType": "SecurityCoverageFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Some topology resources are not protected by any security baseline nodes",
+    "rationale": "Security protection coverage is incomplete for the current topology graph.",
+    "relatedNodeIds": [
+      "orders-api",
+      "orders-sql"
+    ],
+    "payloadType": "SecurityCoverageFindingPayload",
+    "rulesApplied": [
+      "security-coverage-protection"
+    ],
+    "decisionsTaken": [
+      "Compared topology resources against PROTECTS edges."
+    ]
+  },
+  {
+    "findingId": "3ba56a5a-ca94-9e92-fc12-a38054a9d8ca",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "Topology coverage is incomplete",
+    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "relatedNodeIds": [
+      "cmp-golden-61",
+      "ds-golden-61"
+    ],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-categories"
+    ],
+    "decisionsTaken": [
+      "Compared present topology categories to expected coverage categories."
+    ]
+  },
+  {
+    "findingId": "076dd367-be71-4c2c-7ff5-3ac21421d028",
+    "findingType": "TopologyGap",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "Compute resources lack a network anchor",
+    "rationale": "Compute topology resources exist but no network category resources are present.",
+    "relatedNodeIds": [
+      "cmp-golden-61"
+    ],
+    "payloadType": "TopologyGapFindingPayload",
+    "rulesApplied": [
+      "topology-gap-compute-without-network-anchor"
+    ],
+    "decisionsTaken": [
+      "Detected topology gap: At least one compute resource is declared without any network anchor in the graph."
+    ]
+  },
+  {
+    "findingId": "20d77c48-b7a3-994b-b50e-8825e0ab5c1d",
+    "findingType": "TopologyGap",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "Datastore \u0027orders-sql\u0027 has no compute dependency edge",
+    "rationale": "No CONNECTS_TO or DEPENDS_ON edge links a compute resource to this datastore.",
+    "relatedNodeIds": [
+      "ds-golden-61"
+    ],
+    "payloadType": "TopologyGapFindingPayload",
+    "rulesApplied": [
+      "topology-gap-datastore-without-compute-dependency"
+    ],
+    "decisionsTaken": [
+      "Detected topology gap: Datastore \u0027orders-sql\u0027 is isolated from compute in the topology graph."
+    ]
+  }
+]

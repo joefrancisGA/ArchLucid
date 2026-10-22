@@ -1,0 +1,177 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
+import { apiGet } from "@/lib/api";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import {
+  parseSearchReviewEvidenceConfidenceFromSearch,
+} from "@/lib/insights/search-review-evidence-confidence-url";
+import {
+  parseSearchReviewEvidenceQueryFromSearch,
+  searchReviewEvidenceQueryHrefFromSearch,
+} from "@/lib/insights/search-review-evidence-query-url";
+import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
+
+import { recordSearchRecentQuery, readSearchRecentQueries, clearSearchRecentQueries } from "@/lib/search-recent-queries";
+import type { RetrievalHit } from "./retrieval-hit";
+import {
+  retrievalHitRelevanceTier,
+} from "./retrieval-hit-display";
+import { SearchPageView } from "./SearchPageView";
+import type { SearchPageViewModel } from "./search-page-view-model";
+
+type SearchPageClientProps = {
+  readonly buyerShell: boolean;
+  readonly isDemo: boolean;
+  readonly basePathname?: string;
+  readonly pinnedArchitectureId?: string;
+};
+
+export function SearchPageClient(props: SearchPageClientProps) {
+  const buyerShell = props.buyerShell;
+  const isDemo = props.isDemo;
+  const basePathname = props.basePathname?.trim() ?? SEARCH_REVIEW_EVIDENCE_PATH;
+  const pinnedArchitectureId = props.pinnedArchitectureId?.trim() ?? "";
+  const router = useRouter();
+  const pathname = usePathname() ?? basePathname;
+  const searchParams = useSearchParams();
+  const scopedRunId = (searchParams.get("runId") ?? "").trim();
+  const urlQuery = parseSearchReviewEvidenceQueryFromSearch(searchParams.get("q"));
+  const urlConfidence = parseSearchReviewEvidenceConfidenceFromSearch(searchParams.get("confidence"));
+
+  const [query, setQueryState] = useState(urlQuery);
+  const [results, setResults] = useState<RetrievalHit[]>([]);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
+  const [recentQueries, setRecentQueries] = useState<readonly string[]>(() => readSearchRecentQueries());
+  const lastAutoSearchedScope = useRef<{ runId: string; query: string } | null>(null);
+
+  useEffect(() => {
+    setQueryState(urlQuery);
+  }, [urlQuery]);
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      const nextHref = searchReviewEvidenceQueryHrefFromSearch(searchParams.toString(), query, pathname);
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [pathname, query, router, searchParams]);
+
+  const setRunId = useCallback(
+    (next: string) => {
+      const trimmed = next.trim();
+
+      if (trimmed.length === 0) {
+        return;
+      }
+
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("runId", trimmed);
+      router.replace(`${basePathname}?${params.toString()}`, { scroll: false });
+    },
+    [basePathname, router, searchParams],
+  );
+
+  const onSearch = useCallback(async (overrideQuery?: string) => {
+    const q = overrideQuery?.trim() ?? query.trim();
+
+    if (!q) {
+      return;
+    }
+
+    if (overrideQuery !== undefined) {
+      setQueryState(overrideQuery.trim());
+    }
+
+    setLoading(true);
+    setFailure(null);
+
+    try {
+      const params = new URLSearchParams();
+      params.set("q", q);
+
+      if (scopedRunId.length > 0) {
+        params.set("runId", scopedRunId);
+      }
+
+
+      const data = await apiGet<RetrievalHit[]>(`/v1/retrieval/search?${params.toString()}`);
+      setResults(data);
+      setHasSearched(true);
+      setRecentQueries(recordSearchRecentQuery(q));
+      lastAutoSearchedScope.current = { runId: scopedRunId, query: q };
+    } catch (e: unknown) {
+      setFailure(toApiLoadFailure(e));
+      setResults([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [query, scopedRunId]);
+
+  useEffect(() => {
+    if (scopedRunId.length === 0 || urlQuery.trim().length === 0) {
+      return;
+    }
+
+    const trimmedQuery = urlQuery.trim();
+    const lastScope = lastAutoSearchedScope.current;
+
+    if (
+      lastScope !== null &&
+      lastScope.runId === scopedRunId &&
+      lastScope.query === trimmedQuery
+    ) {
+      return;
+    }
+
+    void onSearch(urlQuery);
+  }, [onSearch, scopedRunId, urlQuery]);
+
+  const setQuery = useCallback((next: string): void => {
+    setQueryState(next);
+  }, []);
+
+  const filteredResults = useMemo(() => {
+    if (urlConfidence === null) {
+      return results;
+    }
+
+    return results.filter((hit) => retrievalHitRelevanceTier(hit.score) === urlConfidence);
+  }, [results, urlConfidence]);
+
+  const model: SearchPageViewModel = {
+    buyerShell,
+    confidence: urlConfidence,
+    failure,
+    hasSearched,
+    isDemo,
+    loading,
+    onSearch,
+    query,
+    recentQueries,
+    onClearRecentQueries: () => {
+      clearSearchRecentQueries();
+      setRecentQueries([]);
+    },
+    results: filteredResults,
+    runId: scopedRunId,
+    setQuery,
+    setRunId,
+    totalResultCount: results.length,
+    basePathname,
+    pinnedArchitectureId: pinnedArchitectureId.length > 0 ? pinnedArchitectureId : null,
+  };
+
+  return <SearchPageView model={model} />;
+}

@@ -1,0 +1,11 @@
+sequenceDiagram
+  participant Orch as AuthorityDrivenArchitectureRunCommitOrchestrator
+  participant Gate as PreCommitGovernanceGate
+  participant Gov as GovernanceWorkflowService
+  participant SoD as GovernanceSegregationRules
+  participant Audit as AuditEventTypes
+  Orch->>Gate: IPreCommitGovernanceGate
+  Gate->>Gov: approval workflow
+  Gov->>SoD: compare RequestedBy vs ReviewedBy actor keys
+  SoD-->>Gov: block self-approval
+  Gov->>Audit: GovernanceSelfApprovalBlocked

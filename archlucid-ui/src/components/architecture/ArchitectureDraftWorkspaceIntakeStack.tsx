@@ -1,0 +1,163 @@
+"use client";
+
+import { ArchitectureCreationLocalDraftsPanel } from "@/components/architecture/ArchitectureCreationLocalDraftsPanel";
+import { ArchitectureDraftHandoffBanner } from "@/components/architecture/ArchitectureDraftHandoffBanner";
+import { ArchitectureDraftIntakeModeBanner } from "@/components/architecture/ArchitectureDraftIntakeModeBanner";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
+import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
+import { Button } from "@/components/ui/button";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { GuidedIntakeAlreadySubmittedCallout } from "@/app/(operator)/architecture/reviews/new/GuidedIntakeAlreadySubmittedCallout";
+import {
+  ARCHITECTURE_DRAFT_START_REVIEW_CHECKLIST_TITLE,
+} from "@/lib/architecture-draft-start-review-checklist";
+import { startReviewFromDraftContextHref } from "@/lib/architecture/architecture-routes";
+import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
+import type { ArchitectureDraftWorkspaceBodyProps } from "./ArchitectureDraftWorkspaceBody";
+
+type ArchitectureDraftWorkspaceIntakeStackProps = Pick<
+  ArchitectureDraftWorkspaceBodyProps,
+  | "buyerPolishedShell"
+  | "isNewDraft"
+  | "isDetailDraft"
+  | "linkedReviewId"
+  | "linkedReviewTitle"
+  | "intakeModeActive"
+  | "draft"
+  | "effectiveDraftId"
+  | "parentArchitectureId"
+  | "canUnlockBrief"
+  | "unlockBusy"
+  | "onUnlockBrief"
+  | "conflictMessage"
+  | "onReloadDraft"
+  | "onKeepLocalDraft"
+  | "draftStartReviewSteps"
+  | "draftStartReviewEmphasizedStepId"
+  | "workLeaseBanner"
+>;
+
+export function ArchitectureDraftWorkspaceIntakeStack(
+  props: ArchitectureDraftWorkspaceIntakeStackProps,
+): React.JSX.Element {
+  const {
+    buyerPolishedShell,
+    isNewDraft,
+    isDetailDraft,
+    linkedReviewId,
+    linkedReviewTitle,
+    intakeModeActive,
+    draft,
+    effectiveDraftId,
+    parentArchitectureId,
+    canUnlockBrief,
+    unlockBusy,
+    onUnlockBrief,
+    conflictMessage,
+    onReloadDraft,
+    onKeepLocalDraft,
+    draftStartReviewSteps,
+    draftStartReviewEmphasizedStepId,
+    workLeaseBanner,
+  } = props;
+  const { isWorkingMode } = useWorkspaceMode();
+  const startReviewHref = startReviewFromDraftContextHref({
+    parentArchitectureId,
+    draftArchitectureId: draft?.architectureId,
+    legacyDraftId: effectiveDraftId,
+  });
+
+  return (
+    <>
+      {isNewDraft ? <ArchitectureCreationLocalDraftsPanel /> : null}
+
+      {linkedReviewId !== null ? (
+        <ArchitectureDraftHandoffBanner
+          draftId={effectiveDraftId}
+          linkedReviewId={linkedReviewId}
+          linkedReviewTitle={linkedReviewTitle}
+          parentArchitectureId={parentArchitectureId}
+        />
+      ) : null}
+
+      {workLeaseBanner ?? null}
+
+      {intakeModeActive && linkedReviewId === null ? (
+        <ArchitectureDraftIntakeModeBanner
+          status={draft?.status}
+          continueHref={startReviewHref}
+          canUnlock={canUnlockBrief}
+          unlockBusy={unlockBusy}
+          onUnlock={onUnlockBrief}
+        />
+      ) : null}
+
+      {draft?.status === "Submitted" && linkedReviewId === null ? (
+        <GuidedIntakeAlreadySubmittedCallout
+          linkedSpawnedRunId={null}
+          architectureId={parentArchitectureId}
+          workingMode={isWorkingMode}
+        />
+      ) : null}
+
+      {conflictMessage !== null ? (
+        <div className="space-y-2" data-testid="architecture-draft-conflict">
+          <OperatorMutationInlineError
+            message={conflictMessage}
+            testId="architecture-draft-conflict-message"
+            recoveryPresentation={errorRecoveryContractForScenario("architecture-draft-offline-replay-conflict", {
+              workingMode: isWorkingMode,
+            })}
+          />
+          <div className="flex flex-wrap gap-2">
+            {isWorkingMode ? (
+              <>
+                <Button
+                  type="button"
+                  variant="default"
+                  size="sm"
+                  onClick={() => {
+                    void onKeepLocalDraft();
+                  }}
+                  data-testid="architecture-draft-conflict-keep-mine"
+                >
+                  Keep mine
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    onReloadDraft();
+                  }}
+                  data-testid="architecture-draft-conflict-keep-server"
+                >
+                  Keep server copy
+                </Button>
+              </>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  onReloadDraft();
+                }}
+                data-testid="architecture-draft-conflict-refresh"
+              >
+                Refresh draft
+              </Button>
+            )}
+          </div>
+        </div>
+      ) : null}
+
+      <IntegrationConnectChecklist
+        title={ARCHITECTURE_DRAFT_START_REVIEW_CHECKLIST_TITLE}
+        steps={draftStartReviewSteps}
+        emphasizedStepId={draftStartReviewEmphasizedStepId}
+        testIdPrefix="architecture-draft-start-review"
+      />
+    </>
+  );
+}

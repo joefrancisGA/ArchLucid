@@ -1,0 +1,121 @@
+using ArchLucid.Contracts.ArchitectureIntelligence;
+
+namespace ArchLucid.Application.ArchitectureIntelligence;
+
+/// <summary>
+///     Cache hits must not publish product findings unless the original run already published after a live adversarial pass.
+/// </summary>
+public static class ClosedLoopCacheHitPublishGuard
+{
+    public const string SkipReason =
+        "Cache hit does not publish product findings without a fresh adversarial pass.";
+
+    public static void ApplyCacheHitPolicy(
+        ClosedLoopReasoningRequest request,
+        string runId,
+        ClosedLoopReasoningResult cached,
+        bool clearReviewCompleteState = true)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(runId);
+        ArgumentNullException.ThrowIfNull(cached);
+
+        string normalizedRunId = ClosedLoopRunIdNormalizer.NormalizeRequired(runId);
+
+        cached.RunId = normalizedRunId;
+        cached.Model.RunId = normalizedRunId;
+        cached.ModelId = cached.Model.ModelId;
+        cached.Interview.ModelId = cached.Model.ModelId;
+
+        StripProductPayloads(cached);
+
+        cached.PublishedToProduct = false;
+        cached.PublishedFindingsSnapshotId = null;
+        cached.PublishedRecommendationCount = 0;
+
+        if (clearReviewCompleteState)
+            ClearCoalescedFollowerReviewCompleteState(cached);
+
+        if (request.PublishToProduct)
+            cached.PublishSkipReason = SkipReason;
+    }
+
+    public static bool ShouldApplyCacheHitPolicyOnCoalescedResult(
+        ClosedLoopReasoningRequest request,
+        string runId,
+        ClosedLoopReasoningResult result)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(runId);
+        ArgumentNullException.ThrowIfNull(result);
+
+        return !request.PublishToProduct
+            || !result.PublishedToProduct
+            || string.IsNullOrWhiteSpace(result.RunId)
+            || !ClosedLoopRunIdComparer.Equals(result.RunId, runId);
+    }
+
+    public static void ApplyAnalysisOnlyCoalescedIsolation(
+        ClosedLoopReasoningRequest request,
+        ClosedLoopReasoningResult isolated)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(isolated);
+
+        if (request.PublishToProduct)
+            return;
+
+        ClearAnalysisOnlyPublishIsolation(isolated);
+    }
+
+    public static void ClearAnalysisOnlyPublishIsolation(ClosedLoopReasoningResult isolated)
+    {
+        ArgumentNullException.ThrowIfNull(isolated);
+
+        isolated.PublishBlocked = false;
+        isolated.PublishBlockReasons = [];
+        isolated.PublishSkipReason = null;
+    }
+
+    public static void ClearCoalescedFollowerPublishLeaks(ClosedLoopReasoningResult isolated)
+    {
+        ArgumentNullException.ThrowIfNull(isolated);
+
+        ClearAnalysisOnlyPublishIsolation(isolated);
+        ClearCoalescedFollowerReviewCompleteState(isolated);
+    }
+
+    public static void ClearCoalescedFollowerReviewCompleteState(ClosedLoopReasoningResult isolated)
+    {
+        ArgumentNullException.ThrowIfNull(isolated);
+
+        isolated.ReviewCompleteBlocked = false;
+        isolated.IntegrityPassedFindingIds = [];
+        isolated.MustNotFailViolations = [];
+    }
+
+    public static void SanitizeForStorage(ClosedLoopReasoningResult result)
+    {
+        ArgumentNullException.ThrowIfNull(result);
+
+        result.PublishedToProduct = false;
+        result.PublishedFindingsSnapshotId = null;
+        result.PublishedRecommendationCount = 0;
+        result.PublishSkipReason = null;
+        result.CacheHit = false;
+        result.CacheReuseReason = null;
+        result.RunId = ClosedLoopRunIdNormalizer.NormalizeOptional(result.RunId);
+        if (result.Model is not null)
+            result.Model.RunId = ClosedLoopRunIdNormalizer.NormalizeOptional(result.Model.RunId);
+        result.ReviewCompleteBlocked = false;
+        result.IntegrityPassedFindingIds = [];
+        result.MustNotFailViolations = [];
+        StripProductPayloads(result);
+    }
+
+    private static void StripProductPayloads(ClosedLoopReasoningResult cached)
+    {
+        cached.ProductFindings = [];
+        cached.ProductRecommendations = [];
+    }
+}

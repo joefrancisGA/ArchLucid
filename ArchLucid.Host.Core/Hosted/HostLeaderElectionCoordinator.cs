@@ -1,0 +1,192 @@
+using ArchLucid.Core.Diagnostics;
+using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Persistence.Data.Repositories;
+
+using Microsoft.Extensions.Options;
+
+namespace ArchLucid.Host.Core.Hosted;
+
+/// <summary>
+/// Runs a leader-only body with SQL lease acquisition, background renewal, and loss detection.
+/// </summary>
+public sealed class HostLeaderElectionCoordinator(
+    IOptionsMonitor<HostLeaderElectionOptions> optionsMonitor,
+    IHostLeaderLeaseRepository leaseRepository,
+    HostInstanceIdentifier instanceId,
+    ILogger<HostLeaderElectionCoordinator> logger)
+{
+    private readonly IOptionsMonitor<HostLeaderElectionOptions> _optionsMonitor =
+        optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
+
+    private readonly IHostLeaderLeaseRepository _leaseRepository =
+        leaseRepository ?? throw new ArgumentNullException(nameof(leaseRepository));
+
+    private readonly HostInstanceIdentifier _instanceId =
+        instanceId ?? throw new ArgumentNullException(nameof(instanceId));
+
+    private readonly ILogger<HostLeaderElectionCoordinator> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
+
+    /// <summary>
+    /// When election is disabled, runs <paramref name="leaderWork"/> with <paramref name="applicationStoppingToken"/> only.
+    /// When enabled, repeats: acquire lease, run work with a token canceled on lease loss or shutdown, renew in the background, release on exit.
+    /// Re-competition happens only after lease loss; work that returns while the lease is still held ends the loop.
+    /// </summary>
+    public async Task RunLeaderWorkAsync(
+        string leaseName,
+        Func<CancellationToken, Task> leaderWork,
+        CancellationToken applicationStoppingToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(leaseName);
+        ArgumentNullException.ThrowIfNull(leaderWork);
+
+        HostLeaderElectionOptions opts = _optionsMonitor.CurrentValue;
+
+        if (!opts.Enabled)
+        {
+            try
+            {
+                await leaderWork(applicationStoppingToken);
+            }
+            catch (OperationCanceledException) when (applicationStoppingToken.IsCancellationRequested)
+            {
+            }
+
+            return;
+        }
+
+        string id = _instanceId.Value;
+        int leaseSec = Math.Clamp(opts.LeaseDurationSeconds, 15, 3600);
+        int renewSec = Math.Clamp(opts.RenewIntervalSeconds, 5, leaseSec - 1);
+        int followerMs = Math.Clamp(opts.FollowerPollMilliseconds, 100, 120_000);
+
+        while (!applicationStoppingToken.IsCancellationRequested)
+        {
+            bool acquired = await _leaseRepository.TryAcquireOrRenewAsync(
+                leaseName,
+                id,
+                leaseSec,
+                applicationStoppingToken);
+
+            if (!acquired)
+            {
+                if (_logger.IsEnabled(LogLevel.Debug))
+                {
+                    // codeql[cs/exposure-of-sensitive-information]: coordinator passes operational lease strings (e.g. HostElectionLeaseNames); sanitized inside Core helper (docs/library/CODEQL_TRIAGE.md).
+                    SanitizedLoggerHostLeaderElectionExtensions.LogDebugHostLeaderLeaseNotHeldFollowerWait(_logger, leaseName, followerMs);
+                }
+
+                try
+                {
+                    await Task.Delay(followerMs, applicationStoppingToken);
+                }
+                catch (OperationCanceledException) when (applicationStoppingToken.IsCancellationRequested)
+                {
+                    return;
+                }
+
+                continue;
+            }
+
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                // codeql[cs/exposure-of-sensitive-information]: operational lease and instance identifiers; sanitized inside Core helper (docs/library/CODEQL_TRIAGE.md).
+                SanitizedLoggerHostLeaderElectionExtensions.LogInformationHostLeaderLeaseAcquired(_logger, leaseName, id);
+            }
+
+            using CancellationTokenSource leaderCts = CancellationTokenSource.CreateLinkedTokenSource(applicationStoppingToken);
+            CancellationToken leaderToken = leaderCts.Token;
+
+            Task renewTask = RenewLoopAsync(leaseName, id, leaseSec, renewSec, leaderCts, applicationStoppingToken);
+
+            // Captured before the finally cancels leaderCts, so it still distinguishes "work returned on its own"
+            // from "lease lost or host shutting down".
+            bool workCompletedWhileStillLeader = false;
+
+            try
+            {
+                await leaderWork(leaderToken);
+
+                workCompletedWhileStillLeader = !leaderToken.IsCancellationRequested;
+            }
+            catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
+            {
+                // Linked to application shutdown as well as explicit leaderCts cancel after renewal failure.
+
+                if (!applicationStoppingToken.IsCancellationRequested && _logger.IsEnabled(LogLevel.Information))
+                {
+                    // codeql[cs/exposure-of-sensitive-information]: operational lease key; sanitized inside Core helper (docs/library/CODEQL_TRIAGE.md).
+                    SanitizedLoggerHostLeaderElectionExtensions.LogInformationHostLeaderWorkStoppedLeaseLossOrHandoff(_logger, leaseName);
+                }
+            }
+            finally
+            {
+                await leaderCts.CancelAsync();
+
+                try
+                {
+                    await renewTask;
+                }
+                catch (OperationCanceledException)
+                {
+                }
+
+                await _leaseRepository.TryReleaseAsync(leaseName, id, applicationStoppingToken);
+            }
+
+            if (applicationStoppingToken.IsCancellationRequested)
+                return;
+
+            // The body finished while the lease was still held, so it has no more work to do (for example a worker
+            // that is disabled by configuration). Re-competing would acquire and release the lease forever.
+            if (workCompletedWhileStillLeader)
+                return;
+
+            // Lost lease while app still running: re-enter outer loop to compete again.
+        }
+    }
+
+    private async Task RenewLoopAsync(
+        string leaseName,
+        string id,
+        int leaseDurationSeconds,
+        int renewIntervalSeconds,
+        CancellationTokenSource leaderCts,
+        CancellationToken applicationStoppingToken)
+    {
+        try
+        {
+            while (!leaderCts.IsCancellationRequested)
+            {
+                // leaderCts is linked to applicationStoppingToken, so this delay also observes host shutdown. Waiting on
+                // the application token alone would keep the caller blocked here for a full renew interval after handoff.
+                await Task.Delay(TimeSpan.FromSeconds(renewIntervalSeconds), leaderCts.Token);
+
+                if (leaderCts.IsCancellationRequested)
+                    return;
+
+                bool renewed = await _leaseRepository.TryAcquireOrRenewAsync(
+                    leaseName,
+                    id,
+                    leaseDurationSeconds,
+                    applicationStoppingToken);
+
+                if (renewed)
+                    continue;
+
+                if (_logger.IsEnabled(LogLevel.Warning))
+                {
+                    // codeql[cs/exposure-of-sensitive-information]: operational lease and instance identifiers; sanitized inside Core helper (docs/library/CODEQL_TRIAGE.md).
+                    SanitizedLoggerHostLeaderElectionExtensions.LogWarningHostLeaderLeaseRenewalFailedStopping(_logger, leaseName, id);
+                }
+
+                await leaderCts.CancelAsync();
+
+                return;
+            }
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+}

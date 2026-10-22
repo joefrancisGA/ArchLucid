@@ -1,0 +1,262 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import {
+  clearIdleDeskRestorePayload,
+  consumeIdleDeskRestoreFormSnapshot,
+  IDLE_DESK_RESTORE_STORAGE_KEY,
+  mergeLivelihoodIdleFormSnapshotIntoDeskRestore,
+  normalizeComparableReturnPath,
+  persistIdleDeskRestoreBeforeSessionClear,
+  readIdleDeskRestorePayload,
+  restoreIdleDeskScopeAfterSignIn,
+} from "@/lib/auth/idle-desk-restore";
+import {
+  storeEmailOtpChallengeSession,
+  readEmailOtpChallengeSession,
+} from "@/lib/auth/email-otp-session";
+import {
+  buildLivelihoodIdleFormSnapshotKey,
+  clearLivelihoodIdleFormSnapshotRegistryForTests,
+  registerLivelihoodIdleFormSnapshot,
+} from "@/lib/auth/livelihood-idle-form-snapshot";
+import { OIDC_POST_SIGN_IN_RETURN_URL_KEY } from "@/lib/oidc/storage-keys";
+import {
+  clearOperatorScopeStorage,
+  readOperatorScopeFromStorage,
+  writeOperatorScopeToStorage,
+} from "@/lib/operator/operator-scope-storage";
+
+const SAMPLE_SCOPE = {
+  tenantId: "tenant-a",
+  workspaceId: "workspace-b",
+  projectId: "project-c",
+  workspaceLabel: "Payments",
+  projectLabel: "Primary",
+};
+
+describe("normalizeComparableReturnPath", () => {
+  it("treats query parameter order and trailing slashes as equivalent", () => {
+    expect(normalizeComparableReturnPath("/architecture/reviews/?b=2&a=1")).toBe(
+      "/architecture/reviews?a=1&b=2",
+    );
+    expect(normalizeComparableReturnPath("/architecture/reviews?a=1&b=2")).toBe(
+      "/architecture/reviews?a=1&b=2",
+    );
+  });
+});
+
+describe("idle-desk-restore (DR-12)", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+    writeOperatorScopeToStorage(SAMPLE_SCOPE);
+  });
+
+  afterEach(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+    clearOperatorScopeStorage();
+    clearIdleDeskRestorePayload();
+    clearLivelihoodIdleFormSnapshotRegistryForTests();
+  });
+
+  it("persists return path without localStorage scope when operator scope is missing", () => {
+    clearOperatorScopeStorage();
+
+    persistIdleDeskRestoreBeforeSessionClear("/architecture/reviews/run-1");
+
+    expect(readIdleDeskRestorePayload()).toEqual({
+      returnPath: "/architecture/reviews/run-1",
+      scope: null,
+      savedAtUtc: expect.any(String),
+    });
+    expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBe("/architecture/reviews/run-1");
+  });
+
+  it("restores after sign-in without writing scope when payload is return-only", () => {
+    clearOperatorScopeStorage();
+    persistIdleDeskRestoreBeforeSessionClear("/architecture/reviews/run-1");
+
+    expect(restoreIdleDeskScopeAfterSignIn()).toBe(true);
+    expect(readOperatorScopeFromStorage()).toBeNull();
+    expect(localStorage.getItem(IDLE_DESK_RESTORE_STORAGE_KEY)).toBeNull();
+  });
+
+  it("persists scope and return path before session clear", () => {
+    persistIdleDeskRestoreBeforeSessionClear("/architecture/reviews/run-1?reviewTab=findings");
+
+    expect(readIdleDeskRestorePayload()?.scope.projectId).toBe("project-c");
+    expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBe(
+      "/architecture/reviews/run-1?reviewTab=findings",
+    );
+  });
+
+  it("leaves email OTP challenge sessionStorage intact when persisting before session clear", () => {
+    storeEmailOtpChallengeSession("ch-idle-1", "o***@example.com", "operator@example.com");
+
+    persistIdleDeskRestoreBeforeSessionClear("/auth/signin?step=code");
+
+    expect(readEmailOtpChallengeSession()?.challengeId).toBe("ch-idle-1");
+    expect(readIdleDeskRestorePayload()?.returnPath).toBe("/auth/signin?step=code");
+  });
+
+  it("does not store access tokens in sessionStorage", () => {
+    persistIdleDeskRestoreBeforeSessionClear("/architecture/reviews/run-1");
+
+    expect(sessionStorage.getItem("archlucid_oidc_access_token")).toBeNull();
+    expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBe("/architecture/reviews/run-1");
+  });
+
+  it("restores operator scope after sign-in and clears the restore payload", () => {
+    persistIdleDeskRestoreBeforeSessionClear("/architecture/reviews/run-1");
+    clearOperatorScopeStorage();
+
+    expect(readOperatorScopeFromStorage()).toBeNull();
+
+    expect(restoreIdleDeskScopeAfterSignIn()).toBe(true);
+    expect(readOperatorScopeFromStorage()?.projectId).toBe("project-c");
+    expect(localStorage.getItem(IDLE_DESK_RESTORE_STORAGE_KEY)).toBeNull();
+  });
+
+  it("drops unsafe return paths", () => {
+    persistIdleDeskRestoreBeforeSessionClear("https://evil.example/phish");
+
+    expect(readIdleDeskRestorePayload()).toBeNull();
+    expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBeNull();
+  });
+
+  it("merges one livelihood snapshot without requiring the in-memory registry (LW-095)", () => {
+    const returnPath = "/governance/workflow";
+    const snapshotKey = buildLivelihoodIdleFormSnapshotKey("governance-approval-rationale", "approval-3");
+
+    mergeLivelihoodIdleFormSnapshotIntoDeskRestore(snapshotKey, {
+      surfaceId: "governance-approval-rationale",
+      returnPath,
+      entityKey: "approval-3",
+      fields: { reviewComment: "Held for security review." },
+      savedAtUtc: "2026-09-11T00:00:00.000Z",
+    });
+
+    expect(
+      readIdleDeskRestorePayload()?.formSnapshots?.[snapshotKey]?.fields.reviewComment,
+    ).toBe("Held for security review.");
+  });
+
+  it("drops prototype-polluting snapshot keys from idle restore JSON", () => {
+    const formSnapshots = Object.create(null) as Record<string, unknown>;
+    formSnapshots["__proto__"] = {
+      surfaceId: "evil",
+      returnPath: "/architecture/reviews/run-1",
+      entityKey: "evil",
+      fields: { x: "nope" },
+      savedAtUtc: "2026-09-08T12:00:00.000Z",
+    };
+    formSnapshots["finding-inspect-disposition:run-1:finding-1"] = {
+      surfaceId: "finding-inspect-disposition",
+      returnPath: "/architecture/reviews/run-1",
+      entityKey: "run-1:finding-1",
+      fields: { rationale: "ok" },
+      savedAtUtc: "2026-09-08T12:00:00.000Z",
+    };
+
+    localStorage.setItem(
+      IDLE_DESK_RESTORE_STORAGE_KEY,
+      JSON.stringify({
+        returnPath: "/architecture/reviews/run-1",
+        scope: SAMPLE_SCOPE,
+        savedAtUtc: "2026-09-08T12:00:00.000Z",
+        formSnapshots,
+      }),
+    );
+
+    const payload = readIdleDeskRestorePayload();
+
+    expect(Object.prototype.hasOwnProperty.call(payload?.formSnapshots ?? {}, "__proto__")).toBe(
+      false,
+    );
+    expect(payload?.formSnapshots?.["finding-inspect-disposition:run-1:finding-1"]?.fields.rationale).toBe(
+      "ok",
+    );
+  });
+
+  it("drops prototype-polluting keys when merging a livelihood snapshot", () => {
+    const returnPath = "/architecture/reviews/run-1";
+    const snapshotKey = buildLivelihoodIdleFormSnapshotKey(
+      "finding-inspect-disposition",
+      "run-1:finding-1",
+    );
+
+    mergeLivelihoodIdleFormSnapshotIntoDeskRestore(snapshotKey, {
+      surfaceId: "finding-inspect-disposition",
+      returnPath,
+      entityKey: "run-1:finding-1",
+      fields: { rationale: "ok" },
+      savedAtUtc: "2026-09-08T12:00:00.000Z",
+    });
+
+    mergeLivelihoodIdleFormSnapshotIntoDeskRestore("__proto__", {
+      surfaceId: "evil",
+      returnPath,
+      entityKey: "evil",
+      fields: { x: "nope" },
+      savedAtUtc: "2026-09-08T12:00:00.000Z",
+    });
+
+    const payload = readIdleDeskRestorePayload();
+
+    expect(payload?.formSnapshots?.[snapshotKey]?.fields.rationale).toBe("ok");
+    expect(Object.prototype.hasOwnProperty.call(payload?.formSnapshots ?? {}, "__proto__")).toBe(
+      false,
+    );
+  });
+
+  it("persists dirty livelihood form snapshots before session clear (WS-18)", () => {
+    const returnPath = "/architecture/reviews/run-1/findings/finding-1";
+    const snapshotKey = buildLivelihoodIdleFormSnapshotKey("finding-inspect-disposition", "run-1:finding-1");
+
+    registerLivelihoodIdleFormSnapshot(snapshotKey, {
+      surfaceId: "finding-inspect-disposition",
+      returnPath,
+      entityKey: "run-1:finding-1",
+      fields: { rationale: "Defer until Q4 capacity is available." },
+      savedAtUtc: "2026-09-08T12:00:00.000Z",
+    });
+
+    persistIdleDeskRestoreBeforeSessionClear(returnPath);
+
+    expect(readIdleDeskRestorePayload()?.formSnapshots?.[snapshotKey]?.fields.rationale).toBe(
+      "Defer until Q4 capacity is available.",
+    );
+    expect(JSON.stringify(readIdleDeskRestorePayload())).not.toContain("access_token");
+  });
+
+  it("round-trips disposition rationale after scope restore when return path matches (WS-18)", () => {
+    const returnPath = "/architecture/reviews/run-1/findings/finding-1";
+    const snapshotKey = buildLivelihoodIdleFormSnapshotKey("finding-inspect-disposition", "run-1:finding-1");
+
+    localStorage.setItem(
+      IDLE_DESK_RESTORE_STORAGE_KEY,
+      JSON.stringify({
+        returnPath,
+        scope: SAMPLE_SCOPE,
+        savedAtUtc: "2026-09-08T12:00:00.000Z",
+        formSnapshots: {
+          [snapshotKey]: {
+            surfaceId: "finding-inspect-disposition",
+            returnPath,
+            entityKey: "run-1:finding-1",
+            fields: { rationale: "Accepted with compensating controls documented." },
+            savedAtUtc: "2026-09-08T12:00:00.000Z",
+          },
+        },
+      }),
+    );
+
+    expect(restoreIdleDeskScopeAfterSignIn()).toBe(true);
+
+    const restored = consumeIdleDeskRestoreFormSnapshot(snapshotKey, returnPath);
+
+    expect(restored?.fields.rationale).toBe("Accepted with compensating controls documented.");
+    expect(readIdleDeskRestorePayload()).toBeNull();
+  });
+});

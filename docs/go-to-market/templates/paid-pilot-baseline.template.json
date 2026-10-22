@@ -1,0 +1,24 @@
+{
+  "schema": "archlucid.paid-pilot-baseline.v1",
+  "pilotLabel": "",
+  "tenantId": "",
+  "runId": "",
+  "paidPilot": true,
+  "baselineReviewCycleHours": null,
+  "baselineReviewCycleSource": "",
+  "baselineReviewCycleSourceNote": "",
+  "architectPrepHoursPerReview": null,
+  "peoplePerReview": null,
+  "evidenceAssemblyEffortHours": null,
+  "architectHourlyCost": null,
+  "baselineCapturedUtc": "",
+  "waiver": {
+    "waived": false,
+    "rationale": "",
+    "approvedBy": ""
+  },
+  "notes": [
+    "Capture buyer baselines before paid pilot kickoff when projected ROI will appear in sponsor materials.",
+    "Set waiver.waived=true with rationale only when the buyer explicitly defers baseline capture."
+  ]
+}

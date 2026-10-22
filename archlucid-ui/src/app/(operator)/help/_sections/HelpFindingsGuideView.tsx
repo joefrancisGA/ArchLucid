@@ -1,0 +1,477 @@
+"use client";
+
+import Link from "next/link";
+
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+
+import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
+import { FindingsHelpClaimDisciplineStrip } from "@/components/help/FindingsHelpClaimDisciplineStrip";
+import { FindingsHelpEvidenceOrientationStrip } from "@/components/help/FindingsHelpEvidenceOrientationStrip";
+import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { HelpFindingsHeaderActions } from "@/app/(operator)/help/_sections/HelpFindingsHeaderActions";
+import { HelpFindingsSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpFindingsSourcesOrientationStrip";
+import { HelpFindingsWorkspaceReadinessStrip } from "@/app/(operator)/help/_sections/HelpFindingsWorkspaceReadinessStrip";
+import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
+import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+import { SeverityTag } from "@/components/ui/severity-tag";
+import { Button } from "@/components/ui/button";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import {
+  FINDINGS_HELP_ACTIONS,
+  FINDINGS_HELP_ACTIONS_INTRO,
+  FINDINGS_HELP_CLAIM_HEADING_ID,
+  FINDINGS_HELP_EVIDENCE_INTRO,
+  FINDINGS_HELP_EVIDENCE_ITEMS,
+  FINDINGS_HELP_GUIDE_HEADINGS,
+  FINDINGS_HELP_LIFECYCLE_STAGES,
+  FINDINGS_HELP_PAGE_TITLE,
+  FINDINGS_HELP_PROVENANCE_AXES,
+  FINDINGS_HELP_PROVENANCE_ORIGINS,
+  FINDINGS_HELP_PROVENANCE_TITLE,
+  FINDINGS_HELP_RESPOND_INTRO,
+  findingsHelpProvenanceIntro,
+  findingsHelpProvenanceNonClaim,
+  findingsHelpRoleGuidance,
+  findingsHelpSemanticSupportCopy,
+  FINDINGS_HELP_SEVERITY_INTRO,
+  FINDINGS_HELP_SEVERITY_ROWS,
+  findingsHelpAnatomyFields,
+  findingsHelpEvidenceActions,
+  findingsHelpGovernanceIntro,
+  findingsHelpGovernanceItems,
+  findingsHelpOverview,
+  findingsHelpPageSubtitle,
+  findingsHelpPrimaryActions,
+  findingsHelpRelatedLinks,
+  findingsHelpWhatIsBody,
+} from "@/lib/findings/findings-help-guide-content";
+import {
+  FINDINGS_HELP_ASSIGNED_TO_ME_SECTION_ID,
+  FINDINGS_HELP_ASSIGNED_TO_ME_SECTION_TITLE,
+  findingsHelpAssignedToMeEmptyBody,
+  findingsHelpAssignedToMeIntro,
+} from "@/lib/findings/findings-help-assigned-to-me-section";
+import { assignedToMeFindingsPathForProductLine } from "@/lib/product-line/securenow-assigned-to-me-route";
+import { FINDINGS_HELP_CANONICAL_PATH, resolveFindingsHelpClaimDiscipline } from "@/lib/findings/findings-help-evidence-copy";
+import {
+  FINDINGS_HELP_FIRST_VIEWPORT_TEST_ID,
+  FINDINGS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  FINDINGS_HELP_PRIMARY_CONTENT_ID,
+  FINDINGS_HELP_SKIP_LINK_LABEL,
+  FINDINGS_HELP_SKIP_TARGET_ID,
+} from "@/lib/findings/findings-help-page-copy";
+import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
+import {
+  OPERATOR_BODY_INLINE_LINK_CLASS,
+  OPERATOR_LAYOUT,
+  OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
+
+type HelpFindingsGuideViewProps = {
+  readonly entry: ProductDocumentationEntry;
+};
+
+function HelpSectionHeading(props: { readonly id: string; readonly children: string }): React.ReactElement {
+  return (
+    <h2
+      id={props.id}
+      className={cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY.sectionTitle, "m-0 scroll-mt-24")}
+    >
+      {props.children}
+    </h2>
+  );
+}
+
+function FindingsAnatomyPanel(props: { readonly productLineId: ProductLineId }): React.ReactElement {
+  const anatomyFields = findingsHelpAnatomyFields(props.productLineId);
+  return (
+    <div
+      className="rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
+      data-testid="help-findings-anatomy-panel"
+    >
+      <p className={cn("m-0 mb-3 text-sm font-semibold uppercase tracking-wide text-al-text-secondary", OPERATOR_TYPOGRAPHY.label)}>
+        Example finding
+      </p>
+      <dl className="m-0 grid gap-3 sm:grid-cols-2">
+        {anatomyFields.map((field) => (
+          <div key={field.label} className="min-w-0">
+            <dt className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{field.label}</dt>
+            <dd className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body)}>{field.description}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  );
+}
+
+function SeverityTable(): React.ReactElement {
+  return (
+    <div className={HELP_PAGE_LAYOUT.tableWrap} data-testid="help-findings-severity-table">
+      <table className={HELP_PAGE_LAYOUT.table}>
+        <caption className="sr-only">Finding severity levels</caption>
+        <thead>
+          <tr>
+            <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
+              Severity
+            </th>
+            <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
+              Meaning
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {FINDINGS_HELP_SEVERITY_ROWS.map((row, index) => (
+            <tr
+              key={row.level}
+              className={index % 2 === 0 ? HELP_PAGE_LAYOUT.tableRowOdd : HELP_PAGE_LAYOUT.tableRowEven}
+            >
+              <th scope="row" className={HELP_PAGE_LAYOUT.tableBodyCell}>
+                <SeverityTag severity={row.level} />
+              </th>
+              <td className={HELP_PAGE_LAYOUT.tableBodyCell}>{row.description}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function LifecycleList(): React.ReactElement {
+  return (
+    <ol className="m-0 list-none space-y-2 p-0" data-testid="help-findings-lifecycle">
+      {FINDINGS_HELP_LIFECYCLE_STAGES.map((stage) => (
+        <li
+          key={stage.status}
+          className="rounded-md border border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950"
+        >
+          <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{stage.status}</p>
+          <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body)}>{stage.meaning}</p>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function FindingsActionPanel(props: { readonly productLineId: ProductLineId }): React.ReactElement {
+  const primaryActions = findingsHelpPrimaryActions(props.productLineId);
+  const secureNowShell = isSecureNowProductLine(props.productLineId);
+
+  return (
+    <section
+      className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+      data-testid="help-findings-action-panel"
+      aria-labelledby="help-findings-action-panel-heading"
+    >
+      <h2
+        id="help-findings-action-panel-heading"
+        className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+      >
+        Go to findings
+      </h2>
+      <div className="flex flex-wrap items-center gap-2">
+        <Button asChild size="sm" variant="primary">
+          <Link href={primaryActions.openFindings.href}>{primaryActions.openFindings.label}</Link>
+        </Button>
+        {secureNowShell && "openAssignedToMe" in primaryActions ? (
+          <Button asChild size="sm" variant="outline">
+            <Link href={primaryActions.openAssignedToMe.href}>{primaryActions.openAssignedToMe.label}</Link>
+          </Button>
+        ) : null}
+        {!secureNowShell && "searchEvidence" in primaryActions ? (
+          <Button asChild size="sm" variant="outline">
+            <Link href={primaryActions.searchEvidence.href}>{primaryActions.searchEvidence.label}</Link>
+          </Button>
+        ) : null}
+        {secureNowShell && "openPolicyPacks" in primaryActions ? (
+          <Link
+            href={primaryActions.openPolicyPacks.href}
+            className={cn("inline-flex min-h-6 items-center py-1", OPERATOR_BODY_INLINE_LINK_CLASS)}
+          >
+            {primaryActions.openPolicyPacks.label}
+          </Link>
+        ) : null}
+        {!secureNowShell && "governanceDecisions" in primaryActions ? (
+          <Link
+            href={primaryActions.governanceDecisions.href}
+            className={cn("inline-flex min-h-6 items-center py-1", OPERATOR_BODY_INLINE_LINK_CLASS)}
+          >
+            {primaryActions.governanceDecisions.label}
+          </Link>
+        ) : null}
+      </div>
+    </section>
+  );
+}
+
+/** Buyer-safe findings orientation for `/help/findings`. */
+export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.ReactElement {
+  void props.entry;
+  const { productLine: productLineId } = useProductLine();
+  const pageSubtitle = findingsHelpPageSubtitle(productLineId);
+  const overview = findingsHelpOverview(productLineId);
+  const whatIsBody = findingsHelpWhatIsBody(productLineId);
+  const evidenceActions = findingsHelpEvidenceActions(productLineId);
+  const governanceIntro = findingsHelpGovernanceIntro(productLineId);
+  const governanceItems = findingsHelpGovernanceItems(productLineId);
+  const relatedLinks = findingsHelpRelatedLinks(productLineId);
+  const claimDiscipline = resolveFindingsHelpClaimDiscipline(productLineId);
+  const provenanceIntro = findingsHelpProvenanceIntro(productLineId);
+  const semanticSupportCopy = findingsHelpSemanticSupportCopy(productLineId);
+  const provenanceNonClaim = findingsHelpProvenanceNonClaim(productLineId);
+  const roleGuidance = findingsHelpRoleGuidance(productLineId);
+  const assignedToMeIntro = findingsHelpAssignedToMeIntro(productLineId);
+  const assignedToMeEmptyBody = findingsHelpAssignedToMeEmptyBody(productLineId);
+  const assignedToMeHref = assignedToMeFindingsPathForProductLine(productLineId);
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const guideHeadings = resolveGuideHeadingsForStrip(
+    "findings-help",
+    FINDINGS_HELP_GUIDE_HEADINGS,
+    FINDINGS_HELP_CLAIM_HEADING_ID,
+  );
+  const tocHeadings = buyerPolishedShell
+    ? guideHeadings.filter((heading) => heading.id !== "where-to-go-next")
+    : guideHeadings;
+
+  return (
+    <article className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)} data-testid="help-findings-guide">
+      <a href={`#${FINDINGS_HELP_SKIP_TARGET_ID}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+        {FINDINGS_HELP_SKIP_LINK_LABEL}
+      </a>
+      <HelpTopicHashScroll />
+
+      <div
+        id={FINDINGS_HELP_PRIMARY_CONTENT_ID}
+        data-testid={FINDINGS_HELP_PRIMARY_CONTENT_ID}
+        className={cn("scroll-mt-24 space-y-6", OPERATOR_LAYOUT.sectionStack)}
+      >
+        {buyerPolishedShell ? (
+          <HelpTopicGuidePageHeader
+            title={FINDINGS_HELP_PAGE_TITLE}
+            titleTestId="help-findings-page-title"
+            subtitle={pageSubtitle}
+            navHref={FINDINGS_HELP_CANONICAL_PATH}
+            headingLevel="h1"
+            claimDiscipline={claimDiscipline}
+            claimDisciplineTestId={FINDINGS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID}
+            actions={<HelpFindingsHeaderActions />}
+          />
+        ) : (
+          <header className={HELP_PAGE_LAYOUT.articleHeader}>
+            <HelpTopicTitleRow title={FINDINGS_HELP_PAGE_TITLE} actions={<HelpFindingsHeaderActions />} />
+            <p className={cn("m-0 max-w-[42rem]", OPERATOR_TYPOGRAPHY.helper)}>{pageSubtitle}</p>
+          </header>
+        )}
+
+        {!buyerPolishedShell ? <FindingsHelpClaimDisciplineStrip /> : null}
+
+        <div
+          id={FINDINGS_HELP_SKIP_TARGET_ID}
+          data-testid={FINDINGS_HELP_FIRST_VIEWPORT_TEST_ID}
+          className={cn(
+            buyerPolishedShell ? "scroll-mt-24 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800" : undefined,
+            buyerPolishedShell ? OPERATOR_LAYOUT.sectionStack : undefined,
+          )}
+        >
+          {buyerPolishedShell ? (
+            <>
+              <FindingsActionPanel productLineId={productLineId} />
+              <HelpFindingsWorkspaceReadinessStrip />
+            </>
+          ) : null}
+        </div>
+
+        <div className={HELP_PAGE_LAYOUT.contentGrid}>
+          <div className={cn("min-w-0 space-y-8", "max-w-[42rem] lg:max-w-none")}>
+            {!buyerPolishedShell ? <FindingsHelpEvidenceOrientationStrip /> : null}
+
+            <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)} data-testid="help-findings-overview">
+              {overview}
+            </p>
+
+            {!buyerPolishedShell ? (
+              <>
+                <FindingsActionPanel productLineId={productLineId} />
+                <HelpFindingsWorkspaceReadinessStrip />
+              </>
+            ) : null}
+
+            <section
+              aria-labelledby="what-a-finding-is"
+              className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="what-a-finding-is">What a finding is</HelpSectionHeading>
+              <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{whatIsBody}</p>
+            </section>
+
+            <section
+              aria-labelledby="anatomy-of-a-finding"
+              className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="anatomy-of-a-finding">Anatomy of a finding</HelpSectionHeading>
+              <FindingsAnatomyPanel productLineId={productLineId} />
+            </section>
+
+            <section
+              aria-labelledby="where-findings-come-from"
+              className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+              data-testid="help-findings-provenance"
+            >
+              <HelpSectionHeading id="where-findings-come-from">{FINDINGS_HELP_PROVENANCE_TITLE}</HelpSectionHeading>
+              <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{provenanceIntro}</p>
+              <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{semanticSupportCopy}</p>
+              <ul className={HELP_PAGE_LAYOUT.bulletList}>
+                {FINDINGS_HELP_PROVENANCE_AXES.map((row) => (
+                  <li key={row.axis}>
+                    <span className="font-semibold">{row.axis}</span>
+                    {" — "}
+                    {row.answers} ({row.values})
+                  </li>
+                ))}
+              </ul>
+              <ul className={HELP_PAGE_LAYOUT.bulletList}>
+                {FINDINGS_HELP_PROVENANCE_ORIGINS.map((row) => (
+                  <li key={row.origin}>
+                    <span className="font-semibold">{row.origin}</span>
+                    {" — "}
+                    {row.description}
+                  </li>
+                ))}
+              </ul>
+              <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{provenanceNonClaim}</p>
+            </section>
+
+            <section
+              aria-labelledby="severity-and-impact"
+              className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="severity-and-impact">Severity and impact</HelpSectionHeading>
+              <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{FINDINGS_HELP_SEVERITY_INTRO}</p>
+              <SeverityTable />
+            </section>
+
+            <section
+              aria-labelledby="inspect-the-evidence"
+              className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="inspect-the-evidence">Inspect the evidence</HelpSectionHeading>
+              <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{FINDINGS_HELP_EVIDENCE_INTRO}</p>
+              <ul className={HELP_PAGE_LAYOUT.bulletList}>
+                {FINDINGS_HELP_EVIDENCE_ITEMS.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+              <div className="grid gap-3 sm:grid-cols-2" data-testid="help-findings-evidence-actions">
+                {evidenceActions.map((action) => (
+                  <div
+                    key={action.label}
+                    className="rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
+                  >
+                    <Link
+                      href={action.href}
+                      className={cn("inline-flex min-h-6 items-center py-1 font-semibold", OPERATOR_BODY_INLINE_LINK_CLASS)}
+                    >
+                      {action.label}
+                    </Link>
+                    <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body)}>{action.description}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section
+              aria-labelledby="respond-to-a-finding"
+              className="space-y-4 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="respond-to-a-finding">Respond to a finding</HelpSectionHeading>
+              <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{FINDINGS_HELP_RESPOND_INTRO}</p>
+              <LifecycleList />
+              <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{FINDINGS_HELP_ACTIONS_INTRO}</p>
+              <ul className={HELP_PAGE_LAYOUT.bulletList} data-testid="help-findings-actions-list">
+                {FINDINGS_HELP_ACTIONS.map((item) => (
+                  <li key={item.action}>
+                    <span className="font-semibold">{item.action}</span>
+                    {" — "}
+                    {item.detail}
+                  </li>
+                ))}
+              </ul>
+            </section>
+
+            <section
+              aria-labelledby={FINDINGS_HELP_ASSIGNED_TO_ME_SECTION_ID}
+              className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+              data-testid="help-findings-assigned-to-me"
+            >
+              <HelpSectionHeading id={FINDINGS_HELP_ASSIGNED_TO_ME_SECTION_ID}>
+                {FINDINGS_HELP_ASSIGNED_TO_ME_SECTION_TITLE}
+              </HelpSectionHeading>
+              <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{assignedToMeIntro}</p>
+              <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{assignedToMeEmptyBody}</p>
+              <Link
+                href={assignedToMeHref}
+                className={cn("inline-flex min-h-6 items-center py-1 font-semibold", OPERATOR_BODY_INLINE_LINK_CLASS)}
+              >
+                Open assigned to me
+              </Link>
+            </section>
+
+            <section
+              aria-labelledby="findings-and-governance"
+              className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="findings-and-governance">Findings and approval</HelpSectionHeading>
+              <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{governanceIntro}</p>
+              <ul className={HELP_PAGE_LAYOUT.bulletList}>
+                {governanceItems.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </section>
+
+            <section
+              aria-labelledby="role-guidance"
+              className="space-y-3 border-t border-neutral-200 pb-2 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="role-guidance">What each role usually does</HelpSectionHeading>
+              <div className="grid gap-3 sm:grid-cols-2" data-testid="help-findings-role-guidance">
+                {roleGuidance.map((entry) => (
+                  <div
+                    key={entry.role}
+                    className="rounded-md border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
+                  >
+                    <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{entry.role}</h3>
+                    <p className={cn("m-0 mt-1 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{entry.guidance}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <p className={cn("m-0 pt-2", OPERATOR_TYPOGRAPHY.label)}>
+              <Link
+                href={relatedLinks.auditTrail.href}
+                className={OPERATOR_BODY_INLINE_LINK_CLASS}
+              >
+                {relatedLinks.auditTrail.label}
+              </Link>
+            </p>
+          </div>
+
+          <HelpTopicTableOfContents headings={tocHeadings} enableScrollSpy />
+        </div>
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-findings" showSsoOptional={false} />
+
+        {buyerPolishedShell ? <HelpFindingsSourcesOrientationStrip /> : null}
+      </div>
+    </article>
+  );
+}

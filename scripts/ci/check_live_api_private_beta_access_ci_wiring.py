@@ -1,0 +1,663 @@
+#!/usr/bin/env python3
+"""Private-beta access path: ci.yml job plus a trunk-push workflow that fires before invites."""
+
+from __future__ import annotations
+
+import argparse
+import re
+import sys
+from pathlib import Path
+
+_CI_REL = ".github/workflows/ci.yml"
+_PUSH_REL = ".github/workflows/private-beta-access-on-push.yml"
+_SMOKE_REL = ".github/workflows/private-beta-access-smoke-branch.yml"
+_FROZEN_BRANCH = "cursor/al-beta-private-beta-frozen-7730"
+_FROZEN_SHA_REL = "scripts/ci/private_beta_frozen_branch.sha"
+_SPEC = "live-api-private-beta-access.spec.ts"
+_WAVE3_SPEC = "live-api-private-beta-wave-3.spec.ts"
+_INVITE_FLOW_SPEC = "live-api-invite-flow.spec.ts"
+_CLIENT_REL = "archlucid-ui/e2e/helpers/live-api-client.ts"
+_PRIVATE_BETA_TIMEOUT_FN = "liveE2ePrivateBetaAccessPlaywrightTimeoutMs"
+_LEGACY_RUN_CYCLE_TIMEOUT_FN = "liveE2eArchitectureRunCyclePlaywrightTimeoutMs"
+_MIN_CI_PRIVATE_BETA_PLAYWRIGHT_TIMEOUT_MS = 2_700_000
+_MIN_PRIVATE_BETA_CREATE_RUN_HTTP_TIMEOUT_MS = 420_000
+_ASYNC_AUTHORITY_PIPELINE_ENV = 'FeatureManagement__FeatureFlags__AsyncAuthorityPipeline: "false"'
+_CREATE_RUN_WARM_FN = "warmPrivateBetaCreateRunPipeline"
+_CREATE_RUN_HTTP_TIMEOUT_CONST = "LIVE_E2E_PRIVATE_BETA_CREATE_RUN_HTTP_TIMEOUT_MS"
+_JOB_MARKER = "ui-e2e-live-beta-access"
+_JOB_NAME = "Operator UI: private-beta access-path (JwtBearer)"
+_FULL_REGRESSION_NEED = "dotnet-full-regression-core-complete"
+_MIN_TIMEOUT_MINUTES = 45
+_LOCKFILE_GUARD = "check_npm_overrides_lockfile_sync.py"
+_TYPECHECK_COMMAND = "npm run typecheck"
+_WAIT_FOR_API_READY = "wait-for-api-ready.sh"
+_RESTART_API_MARKER = "Restart API after Enterprise grant"
+_JWT_REFRESH_SCRIPT = "refresh_private_beta_ci_jwt.sh"
+_TRIAGE_SCRIPT = "report_private_beta_playwright_failure_triage.py"
+_PUSH_TRIAGE_ARTIFACT = "ui-e2e-live-beta-access-on-push-failure-triage"
+_CI_TRIAGE_ARTIFACT = "ui-e2e-live-beta-access-failure-triage"
+_RETRIGGER_SCRIPT = "scripts/ci/retrigger_private_beta_access_on_push.sh"
+_DISPATCH_FULL_CI_SCRIPT = "scripts/ci/dispatch_full_ci_matrix.sh"
+_LOADER_SMOKE_REL = "archlucid-ui/e2e/live-api-private-beta-access.loader-smoke.test.ts"
+_PRIVATE_BETA_HELPER_REL = "archlucid-ui/e2e/helpers/live-private-beta-access.ts"
+_SANDBOX_MOCKS_REL = "archlucid-ui/src/lib/sandbox-api-mocks.ts"
+_SANDBOX_JSON_IMPORT_ATTR = 'with { type: "json" }'
+_FETCH_AUTH_ME_WITH_BEARER = "fetchAuthMeWithBearer"
+_WRITE_JWT_BROWSER_SESSION = "writeJwtBrowserSession"
+_RECOVERY_SPEC_MARKERS: tuple[tuple[str, str], ...] = (
+    (
+        "expired invitation token surfaces recovery copy",
+        "expired invite recovery",
+    ),
+    (
+        "revoked invitation token surfaces recovery copy",
+        "revoked invite recovery",
+    ),
+    (
+        "signed-in dead review deep-link surfaces branded 404 recovery",
+        "dead deep-link 404 recovery",
+    ),
+    (
+        "session-expired-heading",
+        "expired session recovery",
+    ),
+    (
+        "signed-in /403 access-denied surfaces recovery CTAs (missing role / wrong tenant)",
+        "missing-role / wrong-tenant recovery",
+    ),
+)
+
+
+def repo_root() -> Path:
+    return Path(__file__).resolve().parents[2]
+
+
+def _require_jwt_bearer_and_spec(rel_path: str, text: str, errors: list[str]) -> None:
+    if _JOB_MARKER not in text:
+        errors.append(f"{rel_path}: missing job marker {_JOB_MARKER}")
+
+    if _SPEC not in text:
+        errors.append(f"{rel_path}: missing {_SPEC} playwright invocation")
+
+    if (
+        "NEXT_PUBLIC_ARCHLUCID_AUTH_MODE: jwt-bearer" not in text
+        and "NEXT_PUBLIC_ARCHLUCID_AUTH_MODE=jwt-bearer" not in text
+    ):
+        errors.append(
+            f"{rel_path}: {_JOB_MARKER} must build with NEXT_PUBLIC_ARCHLUCID_AUTH_MODE=jwt-bearer",
+        )
+
+
+def _extract_yaml_job_block(text: str, job_marker: str) -> str | None:
+    """Return the indented block for one ci.yml job key (e.g. ui-e2e-live-beta-access)."""
+    match = re.search(rf"^  {re.escape(job_marker)}:\s*$", text, re.MULTILINE)
+
+    if match is None:
+        return None
+
+    start = match.start()
+    next_job = re.search(r"^  [a-zA-Z0-9_-]+:\s*$", text[match.end() :], re.MULTILINE)
+
+    if next_job is None:
+        return text[start:]
+
+    return text[start : match.end() + next_job.start()]
+
+
+def _require_private_beta_install_and_typecheck(rel_path: str, text: str, errors: list[str]) -> None:
+    job_text = text if rel_path == _PUSH_REL else _extract_yaml_job_block(text, _JOB_MARKER)
+
+    if job_text is None:
+        errors.append(f"{rel_path}: missing job marker {_JOB_MARKER}")
+
+        return
+
+    if _LOCKFILE_GUARD not in job_text:
+        errors.append(
+            f"{rel_path}: {_JOB_NAME} must run {_LOCKFILE_GUARD} before npm ci "
+            "(catch package.json override drift before build:live-e2e)",
+        )
+
+    if _TYPECHECK_COMMAND not in job_text:
+        errors.append(
+            f"{rel_path}: {_JOB_NAME} must run {_TYPECHECK_COMMAND} before build:live-e2e "
+            "(fail fast on TS drift before heavy Next standalone build)",
+        )
+
+    if "assert_single_npm_dependency_version.py @tanstack/query-core" not in job_text:
+        errors.append(
+            f"{rel_path}: {_JOB_NAME} must assert a single @tanstack/query-core version after npm ci",
+        )
+
+
+def _require_live_e2e_build(rel_path: str, text: str, errors: list[str]) -> None:
+    job_text = text if rel_path == _PUSH_REL else _extract_yaml_job_block(text, _JOB_MARKER)
+
+    if job_text is None:
+        errors.append(f"{rel_path}: missing job marker {_JOB_MARKER}")
+
+        return
+
+    if "npm run build:live-e2e" not in job_text:
+        errors.append(
+            f"{rel_path}: {_JOB_NAME} must use npm run build:live-e2e "
+            "(skip build:docs-pdf; private-beta smoke does not need static help PDFs)",
+        )
+
+
+def _require_private_beta_playwright_timeout_wiring(spec_text: str, client_text: str, errors: list[str]) -> None:
+    if _PRIVATE_BETA_TIMEOUT_FN not in spec_text:
+        errors.append(
+            f"archlucid-ui/e2e/{_SPEC}: must import and use {_PRIVATE_BETA_TIMEOUT_FN} "
+            "for per-test Playwright timeout (120m job / 45m per-test CI budget)",
+        )
+
+    if f"test.setTimeout({_PRIVATE_BETA_TIMEOUT_FN}())" not in spec_text:
+        errors.append(
+            f"archlucid-ui/e2e/{_SPEC}: each invite-wave test must call "
+            f"test.setTimeout({_PRIVATE_BETA_TIMEOUT_FN}())",
+        )
+
+    if f"test.describe.configure({{ timeout: {_PRIVATE_BETA_TIMEOUT_FN}() }})" not in spec_text:
+        errors.append(
+            f"archlucid-ui/e2e/{_SPEC}: describe must configure timeout with {_PRIVATE_BETA_TIMEOUT_FN} "
+            "(Playwright default hook/test timeout is 30s)",
+        )
+
+    before_all_idx = spec_text.find("test.beforeAll")
+
+    if before_all_idx < 0:
+        errors.append(f"archlucid-ui/e2e/{_SPEC}: missing test.beforeAll hook")
+    else:
+        # First `});` after beforeAll is waitForLiveApiReady's options in the real spec;
+        # setTimeout must appear before that so a later test.setTimeout cannot satisfy this guard.
+        hook_end = spec_text.find("});", before_all_idx)
+        before_all_slice = spec_text[
+            before_all_idx : hook_end if hook_end >= 0 else before_all_idx + 800
+        ]
+
+        if f"test.setTimeout({_PRIVATE_BETA_TIMEOUT_FN}())" not in before_all_slice:
+            errors.append(
+                f"archlucid-ui/e2e/{_SPEC}: test.beforeAll must call "
+                f"test.setTimeout({_PRIVATE_BETA_TIMEOUT_FN}()) so waitForLiveApiReady "
+                "and create-run warm are not killed at Playwright's 30s hook default",
+            )
+
+    if _LEGACY_RUN_CYCLE_TIMEOUT_FN in spec_text:
+        errors.append(
+            f"archlucid-ui/e2e/{_SPEC}: must not use {_LEGACY_RUN_CYCLE_TIMEOUT_FN} "
+            f"(10m CI budget is insufficient for private-beta create-run); use {_PRIVATE_BETA_TIMEOUT_FN}",
+        )
+
+    if _PRIVATE_BETA_TIMEOUT_FN not in client_text:
+        errors.append(f"{_CLIENT_REL}: missing {_PRIVATE_BETA_TIMEOUT_FN} export")
+
+        return
+
+    match = re.search(
+        rf"export function {_PRIVATE_BETA_TIMEOUT_FN}\(\).*?if \(process\.env\.CI\) \{{\s*return ([\d_]+);",
+        client_text,
+        re.DOTALL,
+    )
+
+    if match is None:
+        errors.append(
+            f"{_CLIENT_REL}: {_PRIVATE_BETA_TIMEOUT_FN} must return a numeric CI timeout "
+            f">= {_MIN_CI_PRIVATE_BETA_PLAYWRIGHT_TIMEOUT_MS}",
+        )
+
+        return
+
+    ci_timeout_ms = int(match.group(1).replace("_", ""))
+
+    if ci_timeout_ms < _MIN_CI_PRIVATE_BETA_PLAYWRIGHT_TIMEOUT_MS:
+        errors.append(
+            f"{_CLIENT_REL}: {_PRIVATE_BETA_TIMEOUT_FN} CI timeout {ci_timeout_ms}ms is below "
+            f"{_MIN_CI_PRIVATE_BETA_PLAYWRIGHT_TIMEOUT_MS}ms (private-beta job timeout-minutes=120)",
+        )
+
+
+def _require_private_beta_create_run_wiring(spec_text: str, client_text: str, errors: list[str]) -> None:
+    if _CREATE_RUN_WARM_FN not in spec_text:
+        errors.append(
+            f"archlucid-ui/e2e/{_SPEC}: must call {_CREATE_RUN_WARM_FN} before browser journeys "
+            "(JIT inline pipeline warm on cold SQL when shell create-run warm is skipped)",
+        )
+
+    if _CREATE_RUN_HTTP_TIMEOUT_CONST not in client_text:
+        errors.append(f"{_CLIENT_REL}: missing {_CREATE_RUN_HTTP_TIMEOUT_CONST} export")
+
+        return
+
+    match = re.search(
+        rf"export const {_CREATE_RUN_HTTP_TIMEOUT_CONST} = ([\d_]+);",
+        client_text,
+    )
+
+    if match is None:
+        errors.append(
+            f"{_CLIENT_REL}: {_CREATE_RUN_HTTP_TIMEOUT_CONST} must be a numeric constant "
+            f">= {_MIN_PRIVATE_BETA_CREATE_RUN_HTTP_TIMEOUT_MS}",
+        )
+
+        return
+
+    create_run_timeout_ms = int(match.group(1).replace("_", ""))
+
+    if create_run_timeout_ms < _MIN_PRIVATE_BETA_CREATE_RUN_HTTP_TIMEOUT_MS:
+        errors.append(
+            f"{_CLIENT_REL}: {_CREATE_RUN_HTTP_TIMEOUT_CONST} {create_run_timeout_ms}ms is below "
+            f"{_MIN_PRIVATE_BETA_CREATE_RUN_HTTP_TIMEOUT_MS}ms (must exceed AuthorityPipeline__PipelineTimeout)",
+        )
+
+
+def _require_private_beta_inline_pipeline_env(rel_path: str, text: str, errors: list[str]) -> None:
+    job_text = text if rel_path == _PUSH_REL else _extract_yaml_job_block(text, _JOB_MARKER)
+
+    if job_text is None:
+        errors.append(f"{rel_path}: missing job marker {_JOB_MARKER}")
+
+        return
+
+    if _ASYNC_AUTHORITY_PIPELINE_ENV not in job_text:
+        errors.append(
+            f"{rel_path}: {_JOB_NAME} must set {_ASYNC_AUTHORITY_PIPELINE_ENV} "
+            "(API-only CI host has no Worker; create-run must run inline authority pipeline)",
+        )
+
+
+def _require_post_warm_api_ready(rel_path: str, text: str, errors: list[str]) -> None:
+    job_text = text if rel_path == _PUSH_REL else _extract_yaml_job_block(text, _JOB_MARKER)
+
+    if job_text is None:
+        errors.append(f"{rel_path}: missing job marker {_JOB_MARKER}")
+
+        return
+
+    if _WAIT_FOR_API_READY not in job_text:
+        errors.append(
+            f"{rel_path}: {_JOB_NAME} must poll {_WAIT_FOR_API_READY} after shell warm "
+            "(single-shot curl -fsS /health/ready flakes with 503 after long warm)",
+        )
+
+    if "curl -fsS http://127.0.0.1:5128/health/ready" in job_text:
+        errors.append(
+            f"{rel_path}: {_JOB_NAME} must not use single-shot curl for /health/ready after warm; "
+            f"use {_WAIT_FOR_API_READY}",
+        )
+
+
+def _require_jwt_refresh_before_playwright(rel_path: str, text: str, errors: list[str]) -> None:
+    job_text = text if rel_path == _PUSH_REL else _extract_yaml_job_block(text, _JOB_MARKER)
+
+    if job_text is None:
+        errors.append(f"{rel_path}: missing job marker {_JOB_MARKER}")
+
+        return
+
+    if _JWT_REFRESH_SCRIPT not in job_text:
+        errors.append(
+            f"{rel_path}: {_JOB_NAME} must run {_JWT_REFRESH_SCRIPT} after shell warm "
+            "(re-mint JWT before Playwright so 1h exp does not 401 mid-suite)",
+        )
+
+
+def _require_enterprise_grant_api_restart(rel_path: str, text: str, errors: list[str]) -> None:
+    job_text = text if rel_path == _PUSH_REL else _extract_yaml_job_block(text, _JOB_MARKER)
+
+    if job_text is None:
+        errors.append(f"{rel_path}: missing job marker {_JOB_MARKER}")
+        return
+
+    grant = job_text.find("grant_ci_live_e2e_enterprise_tenant.sh")
+    if grant < 0:
+        grant = job_text.find("Grant Enterprise tier to private-beta test tenant")
+    restart = job_text.find(_RESTART_API_MARKER)
+    ready = job_text.find(_WAIT_FOR_API_READY, restart if restart >= 0 else 0)
+
+    if grant < 0 or restart < grant or ready < restart:
+        errors.append(
+            f"{rel_path}: Enterprise grant must be followed by API restart and wait-for-api-ready.sh",
+        )
+        return
+
+    restart_text = job_text[restart:ready]
+    for marker in ("cat \"${RUNNER_TEMP}/", "pkill -TERM -P", "kill \"${API_PID}\"", "nohup dotnet run --no-build"):
+        if marker not in restart_text:
+            errors.append(f"{rel_path}: Enterprise-grant restart is missing {marker}")
+
+
+def _require_private_beta_failure_triage_wiring(
+    rel_path: str,
+    text: str,
+    artifact_name: str,
+    errors: list[str],
+) -> None:
+    job_text = text if rel_path == _PUSH_REL else _extract_yaml_job_block(text, _JOB_MARKER)
+
+    if job_text is None:
+        errors.append(f"{rel_path}: missing job marker {_JOB_MARKER}")
+
+        return
+
+    if _TRIAGE_SCRIPT not in job_text:
+        errors.append(
+            f"{rel_path}: {_JOB_NAME} must run {_TRIAGE_SCRIPT} on failure "
+            "(machine-readable triage rollup for invite-wave operators)",
+        )
+
+    if artifact_name not in job_text:
+        errors.append(
+            f"{rel_path}: {_JOB_NAME} must upload {artifact_name} artifact on failure",
+        )
+
+    if "if: failure()" not in job_text or "Private-beta Playwright failure triage rollup" not in job_text:
+        errors.append(
+            f"{rel_path}: {_JOB_NAME} must include a failure-only Private-beta Playwright failure triage rollup step",
+        )
+
+
+def _require_private_beta_job_timeout(rel_path: str, text: str, errors: list[str]) -> None:
+    job_text = text if rel_path == _PUSH_REL else _extract_yaml_job_block(text, _JOB_MARKER)
+
+    if job_text is None:
+        errors.append(f"{rel_path}: missing job marker {_JOB_MARKER}")
+
+        return
+
+    match = re.search(r"timeout-minutes:\s*(\d+)", job_text)
+
+    if match is None:
+        errors.append(f"{rel_path}: missing timeout-minutes for {_JOB_NAME}")
+
+        return
+
+    timeout_minutes = int(match.group(1))
+
+    if timeout_minutes < _MIN_TIMEOUT_MINUTES:
+        errors.append(
+            f"{rel_path}: {_JOB_NAME} timeout-minutes={timeout_minutes} is below {_MIN_TIMEOUT_MINUTES}; "
+            "Playwright create→execute→commit smoke exceeds 30m on trunk push",
+        )
+
+
+def _require_private_beta_recovery_cases(spec_text: str, errors: list[str]) -> None:
+    for marker, label in _RECOVERY_SPEC_MARKERS:
+
+        if marker not in spec_text:
+            errors.append(
+                f"archlucid-ui/e2e/{_SPEC}: missing {label} case ({marker!r})",
+            )
+
+
+def _require_tb927_invitee_role_wiring(spec_text: str, helper_text: str, errors: list[str]) -> None:
+    if _FETCH_AUTH_ME_WITH_BEARER not in helper_text:
+        errors.append(
+            f"{_PRIVATE_BETA_HELPER_REL}: must export {_FETCH_AUTH_ME_WITH_BEARER} "
+            "(TB-927 invitee role claims via direct API /me)",
+        )
+
+    if _FETCH_AUTH_ME_WITH_BEARER not in spec_text:
+        errors.append(
+            f"archlucid-ui/e2e/{_SPEC}: must call {_FETCH_AUTH_ME_WITH_BEARER} "
+            "before proxy /me for invitee Operator role assertion (TB-927)",
+        )
+
+    if _WRITE_JWT_BROWSER_SESSION not in helper_text:
+        errors.append(
+            f"{_PRIVATE_BETA_HELPER_REL}: must export {_WRITE_JWT_BROWSER_SESSION} "
+            "for explicit invitee JWT session seeding",
+        )
+
+    if "await writeJwtBrowserSession(page, trimmedToken)" not in helper_text:
+        errors.append(
+            f"{_PRIVATE_BETA_HELPER_REL}: fetchAuthMeViaProxy must seed explicit accessToken "
+            f"via {_WRITE_JWT_BROWSER_SESSION} (stale BFF cookie from CI admin principal)",
+        )
+
+    if "page.request.post" in helper_text and "/api/auth/bff-session" in helper_text:
+        errors.append(
+            f"{_PRIVATE_BETA_HELPER_REL}: {_WRITE_JWT_BROWSER_SESSION} must not use page.request "
+            "for BFF session POST (APIRequestContext omits Origin; isSameOriginBffRequest 403s)",
+        )
+
+    if 'credentials: "same-origin"' not in helper_text:
+        errors.append(
+            f"{_PRIVATE_BETA_HELPER_REL}: {_WRITE_JWT_BROWSER_SESSION} must same-origin fetch "
+            "/api/auth/bff-session so the browser sends Origin",
+        )
+
+
+def _require_invite_flow_jwt_priming_wiring(invite_flow_text: str, errors: list[str]) -> None:
+    if "primePrivateBetaBrowserSessionIfJwtMode" not in invite_flow_text:
+        errors.append(
+            f"archlucid-ui/e2e/{_INVITE_FLOW_SPEC}: must call primePrivateBetaBrowserSessionIfJwtMode "
+            "before /administration/users (JwtBearer CI requires session priming)",
+        )
+
+
+def _require_smoke_branch_wiring(root: Path, errors: list[str]) -> None:
+    smoke_path = root / _SMOKE_REL
+    pin_path = root / _FROZEN_SHA_REL
+
+    if not smoke_path.is_file():
+        errors.append(
+            f"missing {_SMOKE_REL} (frozen invite-wave lane when trunk cancel-in-progress buries JwtBearer)",
+        )
+        return
+
+    text = smoke_path.read_text(encoding="utf-8", errors="replace")
+
+    if _FROZEN_BRANCH not in text:
+        errors.append(f"{_SMOKE_REL}: must pin push branch {_FROZEN_BRANCH}")
+
+    if "cancel-in-progress: false" not in text:
+        errors.append(
+            f"{_SMOKE_REL}: must set cancel-in-progress: false so frozen-lane Playwright is not cancelled",
+        )
+
+    if _JOB_NAME not in text:
+        errors.append(f"{_SMOKE_REL}: missing job name {_JOB_NAME}")
+
+    _require_jwt_bearer_and_spec(_SMOKE_REL, text, errors)
+    _require_private_beta_job_timeout(_SMOKE_REL, text, errors)
+    _require_live_e2e_build(_SMOKE_REL, text, errors)
+    _require_private_beta_install_and_typecheck(_SMOKE_REL, text, errors)
+    _require_private_beta_inline_pipeline_env(_SMOKE_REL, text, errors)
+    _require_post_warm_api_ready(_SMOKE_REL, text, errors)
+    _require_jwt_refresh_before_playwright(_SMOKE_REL, text, errors)
+    _require_enterprise_grant_api_restart(_SMOKE_REL, text, errors)
+
+    if _SPEC not in text or _INVITE_FLOW_SPEC not in text or _WAVE3_SPEC not in text:
+        errors.append(
+            f"{_SMOKE_REL}: must run {_INVITE_FLOW_SPEC}, {_WAVE3_SPEC}, and {_SPEC} "
+            "(parity with private-beta-access-on-push.yml)",
+        )
+
+    if not pin_path.is_file():
+        errors.append(f"missing {_FROZEN_SHA_REL}")
+    elif _FROZEN_BRANCH not in pin_path.read_text(encoding="utf-8", errors="replace"):
+        errors.append(f"{_FROZEN_SHA_REL}: must name {_FROZEN_BRANCH}")
+
+
+def _require_wait_for_api_ready_http_000_fail_fast(errors: list[str]) -> None:
+    path = repo_root() / "scripts" / "ci" / _WAIT_FOR_API_READY
+
+    if not path.is_file():
+        errors.append(f"missing scripts/ci/{_WAIT_FOR_API_READY}")
+
+        return
+
+    text = path.read_text(encoding="utf-8", errors="replace")
+
+    if "ARCHLUCID_API_READY_UNREACHABLE_FAIL_AFTER" not in text:
+        errors.append(
+            f"scripts/ci/{_WAIT_FOR_API_READY}: must fail fast after consecutive HTTP 000 "
+            "(/health/ready unreachable must not burn 180 attempts)",
+        )
+
+    if "Failing fast instead of waiting for remaining attempts" not in text:
+        errors.append(
+            f"scripts/ci/{_WAIT_FOR_API_READY}: must emit a fail-fast error when /health/ready is HTTP 000",
+        )
+
+
+def _require_sandbox_mock_json_import_attribute(errors: list[str]) -> None:
+    path = repo_root() / _SANDBOX_MOCKS_REL
+
+    if not path.is_file():
+        errors.append(f"missing {_SANDBOX_MOCKS_REL}")
+
+        return
+
+    text = path.read_text(encoding="utf-8", errors="replace")
+
+    if _SANDBOX_JSON_IMPORT_ATTR not in text:
+        errors.append(
+            f"{_SANDBOX_MOCKS_REL}: must import sandbox-mock-data.json with {_SANDBOX_JSON_IMPORT_ATTR} "
+            "(Node ESM / Playwright loader rejects bare JSON imports)",
+        )
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.parse_args(argv)
+
+    root = repo_root()
+    ci_path = root / _CI_REL
+    push_path = root / _PUSH_REL
+    spec_path = root / "archlucid-ui" / "e2e" / _SPEC
+    client_path = root / _CLIENT_REL
+
+    errors: list[str] = []
+
+    helper_path = root / _PRIVATE_BETA_HELPER_REL
+    invite_flow_path = root / "archlucid-ui" / "e2e" / _INVITE_FLOW_SPEC
+
+    if not spec_path.is_file():
+        errors.append(f"missing private-beta access spec: archlucid-ui/e2e/{_SPEC}")
+    elif not client_path.is_file():
+        errors.append(f"missing live API client helper: {_CLIENT_REL}")
+    elif not helper_path.is_file():
+        errors.append(f"missing private-beta access helper: {_PRIVATE_BETA_HELPER_REL}")
+    else:
+        spec_text = spec_path.read_text(encoding="utf-8", errors="replace")
+        client_text = client_path.read_text(encoding="utf-8", errors="replace")
+        helper_text = helper_path.read_text(encoding="utf-8", errors="replace")
+        _require_private_beta_playwright_timeout_wiring(spec_text, client_text, errors)
+        _require_private_beta_create_run_wiring(spec_text, client_text, errors)
+        _require_tb927_invitee_role_wiring(spec_text, helper_text, errors)
+        _require_private_beta_recovery_cases(spec_text, errors)
+
+    if invite_flow_path.is_file():
+        invite_flow_text = invite_flow_path.read_text(encoding="utf-8", errors="replace")
+        _require_invite_flow_jwt_priming_wiring(invite_flow_text, errors)
+    else:
+        errors.append(f"missing private-beta invite-flow spec: archlucid-ui/e2e/{_INVITE_FLOW_SPEC}")
+
+    if not ci_path.is_file():
+        errors.append(f"missing {_CI_REL}")
+    else:
+        ci_text = ci_path.read_text(encoding="utf-8", errors="replace")
+        _require_jwt_bearer_and_spec(_CI_REL, ci_text, errors)
+        _require_private_beta_job_timeout(_CI_REL, ci_text, errors)
+        _require_live_e2e_build(_CI_REL, ci_text, errors)
+        _require_private_beta_inline_pipeline_env(_CI_REL, ci_text, errors)
+        _require_post_warm_api_ready(_CI_REL, ci_text, errors)
+        _require_jwt_refresh_before_playwright(_CI_REL, ci_text, errors)
+        _require_enterprise_grant_api_restart(_CI_REL, ci_text, errors)
+        _require_private_beta_failure_triage_wiring(_CI_REL, ci_text, _CI_TRIAGE_ARTIFACT, errors)
+
+    if not push_path.is_file():
+        errors.append(f"missing {_PUSH_REL} (trunk push must run private-beta Playwright before invites)")
+    else:
+        text = push_path.read_text(encoding="utf-8", errors="replace")
+
+        if "push:" not in text:
+            errors.append(f"{_PUSH_REL}: missing on.push trigger")
+
+        if "branches: [main, master, RC35]" not in text:
+            errors.append(f"{_PUSH_REL}: missing push branches main/master/RC35")
+
+        if _JOB_NAME not in text:
+            errors.append(f"{_PUSH_REL}: missing job name {_JOB_NAME}")
+
+        _require_jwt_bearer_and_spec(_PUSH_REL, text, errors)
+        _require_private_beta_job_timeout(_PUSH_REL, text, errors)
+        _require_live_e2e_build(_PUSH_REL, text, errors)
+        _require_private_beta_install_and_typecheck(_PUSH_REL, text, errors)
+        _require_private_beta_inline_pipeline_env(_PUSH_REL, text, errors)
+        _require_post_warm_api_ready(_PUSH_REL, text, errors)
+        _require_jwt_refresh_before_playwright(_PUSH_REL, text, errors)
+        _require_enterprise_grant_api_restart(_PUSH_REL, text, errors)
+        _require_private_beta_failure_triage_wiring(_PUSH_REL, text, _PUSH_TRIAGE_ARTIFACT, errors)
+
+        if "private-beta-access-on-push-${{ github.ref }}" not in text:
+            errors.append(
+                f"{_PUSH_REL}: concurrency group must be private-beta-access-on-push-${{ github.ref }} "
+                "(one smoke per ref; later trunk pushes queue behind the current invite-wave witness)",
+            )
+
+        if "cancel-in-progress: false" not in text:
+            errors.append(
+                f"{_PUSH_REL}: must set cancel-in-progress: false so the current invite-wave witness "
+                "runs to completion instead of being cancelled by a later trunk push; "
+                "the active JwtBearer witness must not be cancelled",
+            )
+
+        if _FULL_REGRESSION_NEED in text:
+            errors.append(
+                f"{_PUSH_REL}: must not wait on {_FULL_REGRESSION_NEED} "
+                "(invite-wave path must start without full ci.yml regression)",
+            )
+
+        if _INVITE_FLOW_SPEC not in text:
+            errors.append(
+                f"{_PUSH_REL}: must run {_INVITE_FLOW_SPEC} on trunk push "
+                "(admin invite round-trip guards private-beta invite surfaces)",
+            )
+
+        if _WAVE3_SPEC not in text:
+            errors.append(
+                f"{_PUSH_REL}: must run {_WAVE3_SPEC} on trunk push "
+                "(diagnostics, sign-in recovery, deep-link returnUrl, duplicate-invite idempotency)",
+            )
+
+    retrigger_path = root / _RETRIGGER_SCRIPT
+
+    if not retrigger_path.is_file():
+        errors.append(f"missing private-beta retrigger helper: {_RETRIGGER_SCRIPT}")
+    elif not retrigger_path.stat().st_mode & 0o111:
+        errors.append(f"{_RETRIGGER_SCRIPT}: must be executable")
+
+    dispatch_path = root / _DISPATCH_FULL_CI_SCRIPT
+
+    if not dispatch_path.is_file():
+        errors.append(f"missing full CI dispatch helper: {_DISPATCH_FULL_CI_SCRIPT}")
+    elif not dispatch_path.stat().st_mode & 0o111:
+        errors.append(f"{_DISPATCH_FULL_CI_SCRIPT}: must be executable")
+
+    loader_smoke_path = root / _LOADER_SMOKE_REL
+
+    if not loader_smoke_path.is_file():
+        errors.append(
+            f"missing private-beta Playwright loader smoke test: {_LOADER_SMOKE_REL} "
+            "(Vitest must catch ESM/JSON import failures before Playwright reports 'No tests found')",
+        )
+
+    _require_wait_for_api_ready_http_000_fail_fast(errors)
+    _require_sandbox_mock_json_import_attribute(errors)
+    _require_smoke_branch_wiring(root, errors)
+
+    if errors:
+        for error in errors:
+            print(error, file=sys.stderr)
+
+        return 1
+
+    print("check_live_api_private_beta_access_ci_wiring: OK")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

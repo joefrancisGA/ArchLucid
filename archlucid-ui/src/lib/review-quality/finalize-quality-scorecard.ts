@@ -1,0 +1,147 @@
+import { formatAuthorityCommitSkippedMustBlockedReason } from "./authority-commit-skipped-must-blocked-reason";
+import { formatDegradedFindingCoverageBlockedReason } from "./degraded-finding-coverage-blocked-reason";
+import { TRANSPARENCY_TRAIL_INCOMPLETE_FINALIZE_REASON } from "@/lib/feasibility/transparency-trail-completeness";
+
+export type FinalizeQualityScorecardInput = {
+  readonly blockingFindingCount: number;
+  readonly unverifiedAssumptionCount: number;
+  readonly unacknowledgedExistentialAssumptionCount: number;
+  readonly uncoveredMandatoryRequirementCount: number;
+  readonly missingRequiredCapabilityCount: number;
+  readonly openDeferredCount: number;
+  readonly openContradictionCount: number;
+  readonly openCannotDetermineCount: number;
+  readonly openVerifyHypothesisCount: number;
+  readonly lowExtractionConfidenceCount: number;
+  readonly unresolvedHighSeverityDispositionCount: number;
+  readonly skippedMustCount: number;
+  /** When true, ADR 0073 blocks finalize until intake trail exists. */
+  readonly transparencyTrailIncomplete?: boolean;
+  /** WS-14: Working seats block finalize when finding-engine coverage is degraded. */
+  readonly degradedFindingCoverage?: boolean;
+  readonly degradedFindingCoverageFailedEngineLabels?: readonly string[];
+  readonly blockDegradedFindingCoverageOnWorking?: boolean;
+};
+
+export type FinalizeQualityScorecardResult = {
+  readonly ready: boolean;
+  readonly blockingReasons: readonly string[];
+};
+
+/** TB-2321: finalize checks a scorecard, not only blocking findings. */
+export function evaluateFinalizeQualityScorecard(input: FinalizeQualityScorecardInput): FinalizeQualityScorecardResult {
+  const blockingReasons: string[] = [];
+
+  if (input.blockingFindingCount > 0) {
+    const noun = input.blockingFindingCount === 1 ? "finding" : "findings";
+
+    blockingReasons.push(
+      `${input.blockingFindingCount} unresolved blocking ${noun} still need disposition.`,
+    );
+  }
+
+  if (input.uncoveredMandatoryRequirementCount > 0) {
+    blockingReasons.push(
+      `${input.uncoveredMandatoryRequirementCount} mandatory requirement${input.uncoveredMandatoryRequirementCount === 1 ? "" : "s"} lack a design decision.`,
+    );
+  }
+
+  if (input.missingRequiredCapabilityCount > 0) {
+    blockingReasons.push(
+      `${input.missingRequiredCapabilityCount} required capabilit${input.missingRequiredCapabilityCount === 1 ? "y lacks" : "ies lack"} topology evidence on the context graph.`,
+    );
+  }
+
+  if (input.openDeferredCount > 0) {
+    blockingReasons.push(
+      `${input.openDeferredCount} deferred finding${input.openDeferredCount === 1 ? "" : "s"} still need revisit before finalize.`,
+    );
+  }
+
+  if (input.openContradictionCount > 0) {
+    blockingReasons.push(
+      `${input.openContradictionCount} contradiction finding${input.openContradictionCount === 1 ? "" : "s"} still need reconciliation before finalize.`,
+    );
+  }
+
+  if (input.openCannotDetermineCount > 0) {
+    blockingReasons.push(
+      `${input.openCannotDetermineCount} open question${input.openCannotDetermineCount === 1 ? "" : "s"} still need answers before the package is defensible.`,
+    );
+  }
+
+  if (input.openVerifyHypothesisCount > 0) {
+    blockingReasons.push(
+      `${input.openVerifyHypothesisCount} hypothesis finding${input.openVerifyHypothesisCount === 1 ? "" : "s"} still need evidence before treating ${input.openVerifyHypothesisCount === 1 ? "it" : "them"} as publishable fact.`,
+    );
+  }
+
+  if (input.unverifiedAssumptionCount >= 3) {
+    blockingReasons.push(
+      `${input.unverifiedAssumptionCount} unverified assumptions remain — confirm or caveat existential ones before finalize.`,
+    );
+  }
+
+  if (input.unacknowledgedExistentialAssumptionCount > 0) {
+    const noun =
+      input.unacknowledgedExistentialAssumptionCount === 1 ? "assumption" : "assumptions";
+
+    blockingReasons.push(
+      `${input.unacknowledgedExistentialAssumptionCount} existential ${noun} still need confirmation before finalize.`,
+    );
+  }
+
+  if (input.lowExtractionConfidenceCount > 0) {
+    blockingReasons.push(
+      `${input.lowExtractionConfidenceCount} critical model field${input.lowExtractionConfidenceCount === 1 ? "" : "s"} were extracted with low confidence — caveat or re-ingest before sponsor export.`,
+    );
+  }
+
+  if (input.unresolvedHighSeverityDispositionCount > 0) {
+    const noun =
+      input.unresolvedHighSeverityDispositionCount === 1 ? "finding" : "findings";
+
+    blockingReasons.push(
+      `${input.unresolvedHighSeverityDispositionCount} high-severity ${noun} still need an accepted-risk disposition or decision-register row before finalize.`,
+    );
+  }
+
+  if (input.skippedMustCount > 0) {
+    blockingReasons.push(formatAuthorityCommitSkippedMustBlockedReason(input.skippedMustCount));
+  }
+
+  if (input.transparencyTrailIncomplete === true) {
+    blockingReasons.push(TRANSPARENCY_TRAIL_INCOMPLETE_FINALIZE_REASON);
+  }
+
+  if (
+    input.blockDegradedFindingCoverageOnWorking === true
+    && input.degradedFindingCoverage === true
+  ) {
+    blockingReasons.push(
+      formatDegradedFindingCoverageBlockedReason(input.degradedFindingCoverageFailedEngineLabels ?? []),
+    );
+  }
+
+  return {
+    ready: blockingReasons.length === 0,
+    blockingReasons,
+  };
+}
+
+export type ExtractionFidelityGateInput = {
+  readonly lowConfidenceCriticalFieldCount: number;
+  readonly extractionCaveatAcknowledged: boolean;
+};
+
+/** TB-2318: block sponsor export when critical extractions are low-confidence without caveat. */
+export function isExtractionFidelityGateSatisfied(input: ExtractionFidelityGateInput): boolean {
+  if (input.lowConfidenceCriticalFieldCount <= 0) {
+    return true;
+  }
+
+  return input.extractionCaveatAcknowledged;
+}
+
+export const EXTRACTION_FIDELITY_GATE_MESSAGE =
+  "Critical architecture fields were extracted with low confidence. Acknowledge the caveat or add evidence before sponsor export.";

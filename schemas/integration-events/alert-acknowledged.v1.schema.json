@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archlucid.dev/schemas/integration-events/alert-acknowledged.v1.schema.json",
+  "title": "com.archlucid.alert.acknowledged",
+  "description": "Alert acknowledged via API (canonical com.archlucid.alert.acknowledged; legacy V1 type alias supported).",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "tenantId",
+    "workspaceId",
+    "projectId",
+    "alertId",
+    "acknowledgedByUserId"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "tenantId": { "type": "string", "format": "uuid" },
+    "workspaceId": { "type": "string", "format": "uuid" },
+    "projectId": { "type": "string", "format": "uuid" },
+    "alertId": { "type": "string", "format": "uuid" },
+    "runId": { "type": "string", "format": "uuid" },
+    "deduplicationKey": {
+      "type": "string",
+      "description": "Same key as alert.fired / ADR 0008; copied for ChatOps card correlation on acknowledge."
+    },
+    "acknowledgedByUserId": { "type": "string" },
+    "comment": { "type": "string" }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,275 @@
+using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Application.Findings;
+using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Models;
+
+using Microsoft.Extensions.Options;
+
+using Disposition = ArchLucid.Contracts.Findings.FindingDisposition;
+
+namespace ArchLucid.Application.Governance;
+
+public sealed partial class PreFinalizeChecklistService
+{
+    private static PreFinalizeChecklistItem BuildAssumedTechnologyItem(int assumedCount) =>
+        new()
+        {
+            ItemId = "technology-baseline-assumed",
+            Title = "Technology baseline confirmed",
+            Detail = assumedCount == 0
+                ? "No Assumed technology rows remain."
+                : $"{assumedCount} technology row{(assumedCount == 1 ? "" : "s")} still marked Assumed — confirm or lock Chosen values before finalize.",
+            Status = assumedCount == 0
+                ? PreFinalizeChecklistItemStatus.Clear
+                : PreFinalizeChecklistItemStatus.Blocking,
+            Count = assumedCount,
+        };
+
+    private static PreFinalizeChecklistItem BuildSeverityItem(
+        string itemId,
+        string clearTitle,
+        string blockedDetailPrefix,
+        int count,
+        FindingSeverity severity,
+        bool blocking = true)
+    {
+        if (count == 0)
+        {
+            return new PreFinalizeChecklistItem
+            {
+                ItemId = itemId,
+                Title = clearTitle,
+                Detail = $"No active {severity.ToString().ToLowerInvariant()}-severity findings.",
+                Status = PreFinalizeChecklistItemStatus.Clear,
+                Count = 0,
+            };
+        }
+
+        PreFinalizeChecklistItemStatus status = blocking
+            ? PreFinalizeChecklistItemStatus.Blocking
+            : PreFinalizeChecklistItemStatus.Advisory;
+
+        return new PreFinalizeChecklistItem
+        {
+            ItemId = itemId,
+            Title = clearTitle,
+            Detail = $"{blockedDetailPrefix}: {count}.",
+            Status = status,
+            Count = count,
+        };
+    }
+
+    private PreFinalizeChecklistItem BuildEvidenceLinkageItem(
+        string runId,
+        IReadOnlyList<Finding> findings,
+        IReadOnlyDictionary<string, Disposition> latestDispositionsByFindingId)
+    {
+        ArgumentNullException.ThrowIfNull(latestDispositionsByFindingId);
+
+        FindingEvidenceLinkageFindingEngineOptions options = _findingEvidenceLinkageFindingEngineOptions.Value;
+
+        if (!options.Enabled)
+        {
+            return new PreFinalizeChecklistItem
+            {
+                ItemId = "evidence-linkage-gaps",
+                Title = "Finding evidence linkage",
+                Detail = "Evidence linkage validation is disabled for this environment.",
+                Status = PreFinalizeChecklistItemStatus.Clear,
+                Count = 0,
+            };
+        }
+
+        IReadOnlyList<Finding> activeHighSeverityFindings = findings
+            .Where(finding => !IsSupplementalEvidenceLinkageFinding(finding))
+            .Where(finding =>
+                (finding.Severity == FindingSeverity.Critical
+                    && PreFinalizeActiveFindingCounter.IsActiveForChecklist(
+                        finding,
+                        FindingSeverity.Critical,
+                        latestDispositionsByFindingId))
+                || (finding.Severity == FindingSeverity.Error
+                    && PreFinalizeActiveFindingCounter.IsActiveForChecklist(
+                        finding,
+                        FindingSeverity.Error,
+                        latestDispositionsByFindingId)))
+            .ToList();
+
+        int linkageGapCount = _findingEvidenceLinkageFindingEngine.Evaluate(runId, activeHighSeverityFindings)?.Count ?? 0;
+
+        return new PreFinalizeChecklistItem
+        {
+            ItemId = "evidence-linkage-gaps",
+            Title = "Finding evidence linkage",
+            Detail = linkageGapCount == 0
+                ? "All high-severity findings have graph, trace, or policy anchors."
+                : $"{linkageGapCount} high-severity finding{(linkageGapCount == 1 ? "" : "s")} lack evidence linkage anchors.",
+            Status = linkageGapCount == 0
+                ? PreFinalizeChecklistItemStatus.Clear
+                : options.WarnOnly
+                    ? PreFinalizeChecklistItemStatus.Advisory
+                    : PreFinalizeChecklistItemStatus.Blocking,
+            Count = linkageGapCount,
+        };
+    }
+
+    private async Task<PreFinalizeChecklistItem> BuildProvisionalSynthesisItemAsync(
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        if (_knowledgeModelAccess is null || !Guid.TryParse(runId, out Guid parsedRunId))
+        {
+            return new PreFinalizeChecklistItem
+            {
+                ItemId = "provisional-synthesis",
+                Title = "Framing completeness",
+                Detail = "Knowledge model not available for this run.",
+                Status = PreFinalizeChecklistItemStatus.Clear,
+                Count = 0,
+            };
+        }
+
+        ArchitectureKnowledgeModel? model = await _knowledgeModelAccess
+            .GetForRunAsync(scope, parsedRunId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (model is null || !model.IsProvisionalSynthesis)
+        {
+            return new PreFinalizeChecklistItem
+            {
+                ItemId = "provisional-synthesis",
+                Title = "Framing completeness",
+                Detail = "Required framing questions are complete for synthesis.",
+                Status = PreFinalizeChecklistItemStatus.Clear,
+                Count = 0,
+            };
+        }
+
+        int unresolvedQuestionCount = model.Elements.Count(element =>
+            element.Kind == ArchitectureElementKind.UnresolvedQuestion);
+
+        return new PreFinalizeChecklistItem
+        {
+            ItemId = "provisional-synthesis",
+            Title = "Framing completeness",
+            Detail =
+                $"{unresolvedQuestionCount} required framing question{(unresolvedQuestionCount == 1 ? "" : "s")} remain unanswered — synthesis is provisional.",
+            Status = PreFinalizeChecklistItemStatus.Advisory,
+            Count = unresolvedQuestionCount,
+        };
+    }
+
+    private PreFinalizeChecklistItem BuildUnsupportedSemanticSupportHoldItem(
+        RunRecord run,
+        IReadOnlyList<Finding> findings)
+    {
+        AgentOutputQualityGateOptions options = _qualityGateOptionsResolver?.Resolve(CancellationToken.None)
+            ?? new AgentOutputQualityGateOptions();
+
+        if (!UnsupportedSemanticSupportFinalizeHoldEvaluator.Applies(run.StructuralExecutionMode, options))
+        {
+            return new PreFinalizeChecklistItem
+            {
+                ItemId = "unsupported-semantic-support-hold",
+                Title = "Unsupported semantic support hold",
+                Detail = options.PilotStrictHoldOnUnsupportedSemanticSupport
+                    ? "PilotStrict Unsupported hold is enabled but this run is not Working Real PilotStrict."
+                    : "Unsupported semantic support does not block finalize by default (TB-1228).",
+                Status = PreFinalizeChecklistItemStatus.Clear,
+                Count = 0,
+            };
+        }
+
+        int unsupportedCount = UnsupportedSemanticSupportFinalizeHoldEvaluator.CountUnsupportedDecisionGradeFindings(findings);
+
+        if (unsupportedCount == 0)
+        {
+            return new PreFinalizeChecklistItem
+            {
+                ItemId = "unsupported-semantic-support-hold",
+                Title = "Unsupported semantic support hold",
+                Detail = "No Unsupported decision-grade semantic support bands on this package.",
+                Status = PreFinalizeChecklistItemStatus.Clear,
+                Count = 0,
+            };
+        }
+
+        return new PreFinalizeChecklistItem
+        {
+            ItemId = "unsupported-semantic-support-hold",
+            Title = "Unsupported semantic support hold",
+            Detail =
+                $"{unsupportedCount} decision-grade finding{(unsupportedCount == 1 ? "" : "s")} have Unsupported semantic support — finalize is held under PilotStrict opt-in (TB-1228).",
+            Status = PreFinalizeChecklistItemStatus.Blocking,
+            Count = unsupportedCount,
+        };
+    }
+
+    private static PreFinalizeChecklistItem BuildPreCommitGateItem(
+        PreCommitGateResult gateResult,
+        bool preCommitGateEnabled)
+    {
+        if (!preCommitGateEnabled)
+        {
+            return new PreFinalizeChecklistItem
+            {
+                ItemId = "pre-commit-gate",
+                Title = PreCommitGovernanceGateCareerHonestyPresenter.WorkingBannerTitle,
+                Detail = PreCommitGovernanceGateCareerHonestyPresenter.WorkingBannerMessage,
+                Status = PreFinalizeChecklistItemStatus.Blocking,
+                Count = 1,
+            };
+        }
+
+        if (gateResult.Blocked)
+        {
+            return new PreFinalizeChecklistItem
+            {
+                ItemId = "pre-commit-gate",
+                Title = "Pre-finalize governance gate",
+                Detail = gateResult.Reason ?? "Policy pack thresholds would block finalize.",
+                Status = PreFinalizeChecklistItemStatus.Blocking,
+                Count = gateResult.BlockingFindingIds.Count,
+            };
+        }
+
+        if (gateResult.WarnOnly)
+        {
+            return new PreFinalizeChecklistItem
+            {
+                ItemId = "pre-commit-gate",
+                Title = "Pre-finalize governance gate",
+                Detail = gateResult.Warnings.Count > 0
+                    ? string.Join(" ", gateResult.Warnings)
+                    : "Findings meet the threshold but severities are warn-only.",
+                Status = PreFinalizeChecklistItemStatus.Advisory,
+                Count = gateResult.Warnings.Count,
+            };
+        }
+
+        return new PreFinalizeChecklistItem
+        {
+            ItemId = "pre-commit-gate",
+            Title = "Pre-finalize governance gate",
+            Detail = "No enforcing policy-pack block applies to this run.",
+            Status = PreFinalizeChecklistItemStatus.Clear,
+            Count = 0,
+        };
+    }
+
+    private static bool IsSupplementalEvidenceLinkageFinding(Finding finding)
+    {
+        ArgumentNullException.ThrowIfNull(finding);
+
+        if (string.Equals(finding.FindingType, "EvidenceLinkage", StringComparison.Ordinal))
+            return true;
+
+        return finding.FindingId.StartsWith("evidence-linkage-", StringComparison.Ordinal);
+    }
+}

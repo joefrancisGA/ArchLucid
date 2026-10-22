@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "representativeRunId": "customer-intake-modernization",
+  "routes": [
+    "/welcome",
+    "/architecture/reviews",
+    "/architecture/reviews/customer-intake-modernization",
+    "/governance/findings"
+  ],
+  "notes": "TB-693 lab synthetic checks against mock-backed production standalone (same spine as Playwright mock E2E). Budgets are warn-only until TB-692 field baselines inform tightening."
+}

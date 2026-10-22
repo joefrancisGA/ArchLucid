@@ -1,0 +1,31 @@
+{
+  "schema": "archlucid.policy-pack-attribution-scenario.v1",
+  "id": "engine-only-0pct",
+  "description": "Findings only cite built-in engine rule ids, not assigned pack keys.",
+  "packContent": {
+    "complianceRuleKeys": [
+      "phi.minimization.intake"
+    ],
+    "complianceRuleIds": [],
+    "metadata": {}
+  },
+  "findings": [
+    {
+      "findingId": "f-topology",
+      "engineType": "topology",
+      "policyRuleId": null,
+      "rulesApplied": [
+        "topology-coverage-presence"
+      ]
+    },
+    {
+      "findingId": "f-security",
+      "engineType": "security",
+      "policyRuleId": null,
+      "rulesApplied": [
+        "security-coverage-protection"
+      ]
+    }
+  ],
+  "expectedAttributionPercentage": 0.0
+}

@@ -1,0 +1,5 @@
+# Merged Cobertura root line % baseline (ratchet anchor). CI: assert_coverage_floor_ratchet.py (slack 2%).
+# Hard gate is 77% merged line (assert_merged_line_coverage_min.py in dotnet-coverage-merge).
+# Anchor 79 -> effective 77 with default 2% slack. Next ratchet: 77 -> 80 -> 95% (V1.1).
+# Pass when merged line >= (baseline - slack%), default slack 2.
+79.00

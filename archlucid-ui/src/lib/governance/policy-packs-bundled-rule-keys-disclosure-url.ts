@@ -1,0 +1,20 @@
+import { operatorBooleanDisclosureHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
+export const POLICY_PACKS_BUNDLED_RULE_KEYS_OPEN_PARAM = "policyPacksBundledRuleKeysOpen";
+
+export function parsePolicyPacksBundledRuleKeysOpenFromSearch(raw: string | null | undefined): boolean {
+  if (raw === null || raw === undefined) {
+    return false;
+  }
+
+  const trimmed = raw.trim().toLowerCase();
+
+  return trimmed === "1" || trimmed === "true";
+}
+
+export function policyPacksBundledRuleKeysDisclosureHrefFromSearch(
+  currentSearch: string,
+  open: boolean,
+  pathname: string,
+): string {
+  return operatorBooleanDisclosureHrefFromSearch(currentSearch, open, pathname, POLICY_PACKS_BUNDLED_RULE_KEYS_OPEN_PARAM);
+}

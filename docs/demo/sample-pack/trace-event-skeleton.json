@@ -1,0 +1,6 @@
+{
+  "eventType": "Architecture.Run.Created",
+  "occurredUtc": "2026-05-10T10:00:00Z",
+  "actorUserName": "system",
+  "note": "Minimal pipeline timeline row shape — real exports include correlationId and eventId."
+}

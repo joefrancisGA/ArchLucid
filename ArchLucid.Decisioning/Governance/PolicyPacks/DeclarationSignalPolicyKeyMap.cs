@@ -1,0 +1,219 @@
+using ArchLucid.Decisioning.Compliance.Models;
+
+namespace ArchLucid.Decisioning.Governance.PolicyPacks;
+
+/// <summary>
+///     Maps declaration classifier themes to bundled curated-rule ids across CIS Azure/AWS/GCP,
+///     SOC 2, GDPR, HIPAA, ISO 27001, PCI-DSS, Zero Trust, security baseline, and AKS/EKS/GKE packs.
+///     Used when the tenant's filtered compliance pack opts into this vocabulary.
+/// </summary>
+/// <remarks>
+///     <para>
+///         A mapped id only enables a theme when it survives the tenant's <c>priorityFloor</c>. Bundled packs ship
+///         <c>priorityFloor: P0</c> and floor <c>P0</c> evaluates <em>only</em> P0 rules
+///         (<c>POLICY_PACK_RULE_PRIORITY_MODEL.md</c> §Inclusion rule), so a theme mapped exclusively to P1/P2 ids
+///         stays silent on a pilot posture even though the framework is assigned. Include a framework's P0-tier
+///         control whenever one genuinely governs the theme.
+///     </para>
+///     <para>
+///         Never map a control that does not govern what
+///         <see cref="ArchLucid.Decisioning.Analysis.DeclarationSecurityBaselineClassifier" /> actually detects.
+///         Findings cite the mapped id as <c>PolicyRuleId</c>, so a loose mapping is a false attribution on buyer
+///         exports — worse than emitting nothing. Identity, workload-identity, and data-labeling controls are
+///         deliberately excluded for that reason.
+///     </para>
+///     <para>
+///         Some ids here are not yet present in the merged file catalog
+///         (<c>default-compliance.rules.json</c> + <c>ga-starter-compliance.rules.json</c>), so they cannot enable a
+///         theme at runtime until that catalog carries the rule. See
+///         <c>BundledPolicyPackDeclarationThemeTests</c> for the enumerated set and
+///         <c>docs/quality/policy-filter-golden-delta.md</c> for the measured per-pack outcome.
+///     </para>
+/// </remarks>
+public static class DeclarationSignalPolicyKeyMap
+{
+    private static readonly IReadOnlyDictionary<string, HashSet<string>> ThemeToRuleIds =
+        new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["data-protection"] = CreateThemeSet(
+                // CIS Azure — storage public access / network / SQL public
+                "cis-az-006", // Storage account public access disabled
+                "cis-az-009", // Storage network rules restrict public endpoints
+                "cis-az-012", // SQL public network access restricted
+                "sec-base-006", // Data stores avoid public internet exposure (P0 — survives the pilot floor)
+                "sec-base-028", // Private endpoints mandatory for regulated-class datastores
+                "hipaa-011", // ePHI storage public network access disabled
+                "hipaa-013", // ePHI public load balancer exposure restricted
+                // CIS AWS peers
+                "cis-aws-006", // Storage account public access disabled
+                "cis-aws-009", // Storage network rules restrict public endpoints
+                "cis-aws-012", // SQL public network access restricted
+                // CIS GCP peers
+                "cis-gcp-006",
+                "cis-gcp-009",
+                "cis-gcp-012",
+                // SOC 2 / PCI / ISO network segmentation
+                "soc2-018", // Network segmentation for sensitive workloads
+                "pci-002", // Network segmentation between CDE and out-of-scope
+                "pci-003", // Inbound and outbound CDE traffic restricted
+                "iso27001-011", // Public network access disabled for sensitive data stores
+                "iso27001-013", // Public load balancer exposure restricted
+                "iso27001-025", // Network security perimeter documented
+                // Kubernetes internal LB (public LB default)
+                "aks-015", // Internal load balancers for east-west only
+                "eks-015",
+                "gke-015"),
+            ["encryption"] = CreateThemeSet(
+                "cis-az-012",
+                "cis-az-025", // overlaps transport-security (App Service HTTPS/TLS)
+                "cis-aws-007", // Storage encryption at rest enabled
+                "cis-aws-011", // SQL TDE enabled for databases
+                "cis-aws-020", // Managed disks encrypted
+                "cis-gcp-007",
+                "cis-gcp-011",
+                "cis-gcp-020",
+                "soc2-003", // Encryption protects data at rest
+                "gdpr-001", // Personal data encrypted at rest
+                "hipaa-012", // ePHI datastore weak TLS / encryption posture
+                "hipaa-017", // Encryption and decryption of ePHI
+                "hipaa-025", // TLS minimum for ePHI endpoints
+                "iso27001-010", // Cryptographic controls for data protection (P1)
+                "iso27001-012", // Datastore encryption and TLS posture
+                "iso27001-017", // Cryptographic protection of information at rest
+                "pci-007", // PAN encryption at rest in CDE
+                "zta-008"), // Encrypted communications everywhere
+            ["transport-security"] = CreateThemeSet(
+                "cis-az-025", // App Service HTTPS only and TLS minimum
+                "cis-aws-025", // Elastic Beanstalk or Lambda HTTPS only and TLS minimum
+                "cis-gcp-025", // Cloud Run HTTPS only and TLS minimum
+                "soc2-004", // Encryption protects data in transit
+                "gdpr-002", // Personal data encrypted in transit
+                "hipaa-021", // App Service HTTPS only for ePHI
+                "hipaa-022", // Transmission security for ePHI
+                "hipaa-023", // TLS minimum for ePHI app endpoints
+                "hipaa-024", // Encryption in transit for ePHI
+                "iso27001-021", // HTTPS only for application endpoints
+                "iso27001-022", // Transmission security
+                "iso27001-023", // TLS minimum for application endpoints
+                "iso27001-024", // Encryption in transit
+                "pci-009", // TLS for PAN transmission over open networks
+                "zta-008"),
+            ["network-isolation"] = CreateThemeSet(
+                "cis-az-018", // NSG rules follow least privilege
+                "cis-az-019", // Just-in-time VM access for management ports
+                "cis-aws-018",
+                "cis-aws-019",
+                "cis-gcp-018",
+                "cis-gcp-019",
+                "soc2-018",
+                "hipaa-014", // NSG least privilege for ePHI workloads
+                "hipaa-015", // Administrative ingress restricted for ePHI systems
+                "hipaa-018", // Micro-segmentation for ePHI workloads
+                "iso27001-014", // Network security group least privilege
+                "iso27001-015", // Administrative ingress restricted
+                "iso27001-018", // Micro-segmentation for sensitive workloads
+                "zta-007", // Micro-segmentation for workloads
+                "pci-002",
+                "pci-003",
+                "iso27001-025",
+                // Pod network policy for east-west segmentation; hostNetwork=true bypasses it.
+                "aks-003",
+                "eks-003",
+                "gke-003"),
+            ["workload-isolation"] = CreateThemeSet(
+                "cis-az-027", // Kubernetes API server access restricted
+                "sec-base-028",
+                "cis-aws-027", // Kubernetes API server access restricted (EKS)
+                "cis-gcp-027", // Kubernetes API server access restricted (GKE)
+                "hipaa-016", // Privileged containers for ePHI workloads restricted
+                "hipaa-019", // hostNetwork workloads handling ePHI restricted
+                "hipaa-020", // Container privilege escalation for ePHI restricted
+                "iso27001-016", // Privileged containers restricted
+                "iso27001-019", // hostNetwork workloads restricted
+                "iso27001-020", // Container privilege escalation restricted
+                "aks-001", // Private AKS API server endpoint
+                "aks-002", // Authorized API-server IP ranges when not fully private (P0)
+                "aks-009", // Pod security standards enforced
+                "aks-021", // Disallow hostPath and privileged mounts
+                "eks-001",
+                "eks-002",
+                "eks-009",
+                "eks-021",
+                "gke-001",
+                "gke-002",
+                "gke-009",
+                "gke-021"),
+        };
+
+    private static readonly HashSet<string> AllMappedRuleIds = ThemeToRuleIds.Values
+        .SelectMany(static set => set)
+        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>All rule ids referenced by any theme map entry.</summary>
+    public static IReadOnlySet<string> MappedRuleIds => AllMappedRuleIds;
+
+    /// <summary>
+    ///     Returns true when the tenant's filtered pack contains a mapped rule id or a
+    ///     <see cref="DeclarationSignalPolicyPrefixFamily" /> prefix (e.g. <c>soc2-001</c> only).
+    ///     Prefixes outside that family (cost-opt, ai-gov, dora, otel, sust-base, …) keep fail-open.
+    /// </summary>
+    public static bool TenantUsesDeclarationVocabulary(IReadOnlySet<string> activeRuleIds)
+    {
+        ArgumentNullException.ThrowIfNull(activeRuleIds);
+
+        foreach (string ruleId in activeRuleIds)
+        {
+            if (AllMappedRuleIds.Contains(ruleId))
+                return true;
+        }
+
+        return DeclarationSignalPolicyPrefixFamily.ActiveSetUsesDeclarationPrefixFamily(activeRuleIds);
+    }
+
+    public static bool IsThemeEnabled(string theme, IReadOnlySet<string> activeRuleIds)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(theme);
+        ArgumentNullException.ThrowIfNull(activeRuleIds);
+
+        if (!ThemeToRuleIds.TryGetValue(theme, out HashSet<string>? mappedKeys))
+            return false;
+
+        foreach (string ruleId in activeRuleIds)
+        {
+            if (mappedKeys.Contains(ruleId))
+                return true;
+        }
+
+        return false;
+    }
+
+    public static string? TryGetFirstMappedRuleId(string theme, IReadOnlySet<string> activeRuleIds)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(theme);
+        ArgumentNullException.ThrowIfNull(activeRuleIds);
+
+        if (!ThemeToRuleIds.TryGetValue(theme, out HashSet<string>? mappedKeys))
+            return null;
+
+        foreach (string ruleId in activeRuleIds)
+        {
+            if (mappedKeys.Contains(ruleId))
+                return ruleId;
+        }
+
+        return null;
+    }
+
+    public static HashSet<string> CollectActiveRuleIds(ComplianceRulePack rulePack)
+    {
+        ArgumentNullException.ThrowIfNull(rulePack);
+
+        return rulePack.Rules
+            .Where(static rule => !string.IsNullOrWhiteSpace(rule.RuleId))
+            .Select(static rule => rule.RuleId)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+    }
+
+    private static HashSet<string> CreateThemeSet(params string[] ruleIds) =>
+        ruleIds.ToHashSet(StringComparer.OrdinalIgnoreCase);
+}

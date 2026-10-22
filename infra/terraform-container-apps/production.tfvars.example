@@ -1,0 +1,71 @@
+# Production-oriented example: merge into terraform.tfvars or use:
+#   terraform apply -var-file=production.tfvars.example
+# Replace ACR image tags, storage IDs, subscription paths, and FinOps contacts before apply.
+
+posture_tier          = "production"
+enable_container_apps = true
+create_resource_group   = true
+resource_group_name     = "rg-archlucid-ca-prod"
+location                = "eastus2"
+
+api_container_image = "<your-acr>.azurecr.io/archlucid:<prod-tag>"
+ui_container_image  = "<your-acr>.azurecr.io/archlucid-ui:<prod-tag>"
+
+# Log Analytics ingestion cap (adjust upward if legitimate telemetry exceeds the cap).
+log_analytics_daily_quota_gb = 5
+
+api_min_replicas = 2
+api_max_replicas = 10
+ui_min_replicas  = 2
+ui_max_replicas  = 6
+
+# TB-2016 — same-image marketing UI (apex) + operator UI (app subdomain); no Front Door.
+enable_marketing_ui_container_app = true
+marketing_ui_container_app_name   = "archlucid-ui-marketing"
+marketing_ui_min_replicas         = 2
+marketing_ui_max_replicas         = 6
+# After DNS TXT/CNAME: bind via az containerapp hostname bind (README).
+# ui_custom_domain_name            = "app.archlucid.net"
+# marketing_ui_custom_domain_name  = "www.archlucid.net"
+
+worker_min_replicas = 2
+worker_max_replicas = 30
+
+api_scale_concurrent_requests = 20
+ui_scale_concurrent_requests  = 10
+marketing_ui_scale_concurrent_requests = 10
+
+# TB-755: required before CD canary traffic split (cd.yml CD_CANARY_ENABLED). Does not raise min_replicas.
+api_revision_mode = "Multiple"
+
+artifact_blob_service_uri   = "https://<storage-account>.blob.core.windows.net/"
+artifact_storage_account_id = "/subscriptions/<sub-id>/resourceGroups/<rg>/providers/Microsoft.Storage/storageAccounts/<name>"
+
+tags = {
+  workload    = "archlucid"
+  tier        = "production"
+  environment = "production"
+}
+
+finops_environment = "production"
+finops_cost_center = "platform"
+
+# Monthly budget: Container Apps + managed environments in this stack's resource group (defaults on 2026-07-20).
+enable_container_apps_consumption_budget         = true
+container_apps_consumption_budget_amount         = 3500
+container_apps_consumption_budget_contact_emails = ["finops@example.com"]
+container_apps_consumption_budget_time_period_start = "2026-04-01T00:00:00Z"
+
+# Paired-region passive standby for Front Door origin failover (TB-903).
+secondary_region_stack_enabled   = true
+secondary_resource_group_name    = "rg-archlucid-ca-prod-secondary"
+secondary_location               = "centralus"
+secondary_container_apps_internal_load_balancer = true
+# secondary_container_apps_subnet_id = "/subscriptions/<sub-id>/resourceGroups/<rg>/providers/Microsoft.Network/virtualNetworks/<vnet>/subnets/<subnet>"
+
+# TB-2141 / TB-094 — HotPathCache Redis L2 (required when api_min_replicas >= 2 and HotPathCache Provider=Auto).
+# 1) Apply infra/terraform-redis (production.tfvars.example) with private endpoint in production-like stacks
+# 2) Wire the sensitive primary connection string via Key Vault reference or tf var:
+# hot_path_cache_redis_connection_string = "<terraform output -raw redis_primary_connection_string>"
+# When non-empty, Terraform sets HotPathCache__RedisConnectionString + HotPathCache__ExpectedApiReplicaCount=api_max_replicas on API/Worker.
+# See docs/library/SCALE_TIER_CACHE_GUIDE.md § TB-2120 / TB-2141.

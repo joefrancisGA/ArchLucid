@@ -1,0 +1,30 @@
+{
+  "resultId": "corp-b2b-sim-01",
+  "taskId": "corp-b2b-task-01",
+  "runId": "corp-b2b-run-01",
+  "agentType": 1,
+  "claims": [
+    {
+      "evidenceRefs": ["apim-secure-integration-pattern"],
+      "detail": "Simulator topology claim: API Management centralizes authentication, quotas, and route policies for B2B traffic."
+    }
+  ],
+  "evidenceRefs": ["apim-secure-integration-pattern"],
+  "confidence": 0.81,
+  "findings": [
+    {
+      "severity": "Medium",
+      "category": "Topology",
+      "description": "Azure API Management products segment partners while backend microservices stay on private VNets.",
+      "recommendation": "Add synthetic monitors per API version before promoting breaking contract changes."
+    },
+    {
+      "severity": "Medium",
+      "category": "Compliance",
+      "description": "Client certificates from the enterprise CA gate strategic partner subnets alongside JWT scopes.",
+      "recommendation": "Automate certificate rotation alerts and revoke flows tied to offboarded partners."
+    }
+  ],
+  "proposedChanges": null,
+  "createdUtc": "2026-05-01T12:00:00Z"
+}

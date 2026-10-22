@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-real-mode-finops-existing-azure",
+  "metadata": {
+    "title": "Real-mode FinOps review of existing Azure landing zone (offline AgentResult scorer)",
+    "complexity": "medium",
+    "primaryAgents": ["Cost", "Topology"]
+  },
+  "architectureBrief": {
+    "systemName": "Contoso Enterprise Landing Zone (year-3 steady state)",
+    "description": "Mature hub-spoke deployment supporting ~400 workloads; leadership requests a zero-architecture-change cost optimization pass.",
+    "technologyStack": [
+      "Hub VNet with Azure Firewall Premium",
+      "Multiple App Service plans (Windows/Linux)",
+      "Azure Storage accounts (hot default)",
+      "Azure SQL elastic pools",
+      "Azure Policy + Cost Management tags"
+    ],
+    "reviewObjectives": [
+      "Find idle or oversized compute without reliability regressions",
+      "Rationalize storage tiers and orphaned disks",
+      "Attribute shared egress and firewall costs to spokes"
+    ],
+    "constraints": [
+      "No production topology changes during fiscal quarter close",
+      "Reserved instance commits require CFO approval >$50k/year",
+      "Tags mandatory on all non-decommissioned resources"
+    ]
+  },
+  "inputSummary": "Existing hub-spoke Azure estate with App Service plans, storage, and shared egress FinOps tagging. Synthetic cost-optimization drill distinct from modernization lift-shift case.",
+  "recording": "recordings/corpus-finops-existing-azure.findings.json",
+  "qualityEvidence": {
+    "mode": "real",
+    "agentType": "Cost",
+    "agentResultPathEnv": "ARCHLUCID_EVAL_CORPUS_REAL_MODE_FINOPS_EXISTING_AZURE_AGENT_RESULT",
+    "notes": "Committed Cost-shaped exemplar for RC quality gate parity."
+  },
+  "expectedFindings": [
+    {
+      "id": "e app service waste",
+      "category": "Cost",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["app service", "CPU"]
+    },
+    {
+      "id": "e storage tier",
+      "category": "Cost",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["cool", "tier"]
+    },
+    {
+      "id": "e egress attribution",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["egress", "hub"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Cost", "ifContainsAny": ["delete production", "ignore budgets forever"] },
+    { "category": "Topology", "ifContainsAny": ["remove firewall entirely"] }
+  ]
+}

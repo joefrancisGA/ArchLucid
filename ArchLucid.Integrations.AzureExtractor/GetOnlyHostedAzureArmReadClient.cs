@@ -1,0 +1,1940 @@
+using System.Net.Http.Headers;
+using System.Text.Json;
+
+using ArchLucid.Core.AzureExtractor;
+using ArchLucid.Core.InfraEvidence;
+
+using Microsoft.Extensions.Logging;
+
+namespace ArchLucid.Integrations.AzureExtractor;
+
+/// <summary>
+///     GET-only ARM reader for subscription resource inventory.
+/// </summary>
+public sealed partial class GetOnlyHostedAzureArmReadClient(
+    HttpClient httpClient,
+    ILogger<GetOnlyHostedAzureArmReadClient> logger) : IHostedAzureArmReadClient
+{
+    private const string ResourcesApiVersion = "2021-04-01";
+    private const string RoleAssignmentsApiVersion = "2022-04-01";
+    private const string RoleEligibilitySchedulesApiVersion = "2020-10-01";
+    private const string FederatedCredentialsApiVersion = "2023-01-31";
+    private const string PolicyAssignmentsApiVersion = "2022-06-01";
+    private const string DiagnosticSettingsApiVersion = "2021-05-01-preview";
+    private const string SecureScoresApiVersion = "2020-01-01";
+    private const string BackupProtectedItemsApiVersion = "2023-04-01";
+    private const string ReplicationProtectedItemsApiVersion = "2021-11-01";
+    private const int MaxPaginationRequests = 64;
+
+    private static bool ShouldBreakForPageCap(int requestCount) => requestCount > MaxPaginationRequests;
+
+    private static bool ShouldBreakForPaginationHttpFailure(HttpResponseMessage response, int collectedCount)
+    {
+        if (response.IsSuccessStatusCode)
+        {
+            return false;
+        }
+
+        if (collectedCount > 0)
+        {
+            return true;
+        }
+
+        response.EnsureSuccessStatusCode();
+
+        return false;
+    }
+
+    private static bool ShouldBreakForFactoryPaginationTerminalHttpFailure(
+        HttpResponseMessage response,
+        int collectedCount)
+    {
+        if (collectedCount == 0)
+        {
+            return false;
+        }
+
+        if (response.StatusCode == System.Net.HttpStatusCode.Forbidden
+            || response.StatusCode == System.Net.HttpStatusCode.NotFound
+            || (int)response.StatusCode == 429)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static async Task<JsonDocument?> TryParseArmPaginationPageAsync(
+        Stream stream,
+        int collectedCount,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken).ConfigureAwait(false);
+        }
+        catch (JsonException)
+        {
+            if (collectedCount > 0)
+            {
+                return null;
+            }
+
+            throw;
+        }
+    }
+
+    private readonly HttpClient _httpClient =
+        httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+
+    private readonly ILogger<GetOnlyHostedAzureArmReadClient> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
+
+    public async Task<IReadOnlyList<HostedAzureArmResourceRecord>> ListSubscriptionResourcesAsync(
+        string accessToken,
+        string subscriptionId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
+        HostedAzureExtractorGuidValidator.RequireAzureGuid(nameof(subscriptionId), subscriptionId);
+
+        List<HostedAzureArmResourceRecord> resources = [];
+        string trimmedSubscriptionId = subscriptionId.Trim();
+        string listingRelativePath = $"subscriptions/{trimmedSubscriptionId}/resources";
+        string? nextLink =
+            $"https://management.azure.com/{listingRelativePath}?api-version={ResourcesApiVersion}";
+        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
+        int requestCount = 0;
+
+        while (!string.IsNullOrWhiteSpace(nextLink))
+        {
+            if (!visitedLinks.Add(nextLink))
+            {
+                break;
+            }
+
+            requestCount++;
+
+            if (ShouldBreakForPageCap(requestCount))
+            {
+                break;
+            }
+
+            using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            using HttpResponseMessage response =
+                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+            if (ShouldBreakForPaginationHttpFailure(response, resources.Count))
+            {
+                break;
+            }
+
+            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+
+            using JsonDocument? document =
+                await TryParseArmPaginationPageAsync(stream, resources.Count, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                break;
+            }
+
+            if (document.RootElement.TryGetProperty("value", out JsonElement valueElement) &&
+                valueElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement item in valueElement.EnumerateArray())
+                {
+                    HostedAzureArmResourceRecord? mapped = MapResource(item);
+
+                    if (mapped is not null)
+                    {
+                        resources.Add(mapped);
+                        continue;
+                    }
+
+                    LogSkippedArmRow(item);
+                }
+            }
+
+            nextLink = null;
+
+            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement) &&
+                nextLinkElement.ValueKind == JsonValueKind.String)
+            {
+                string? candidateNextLink = nextLinkElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(candidateNextLink))
+                {
+                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
+                        candidateNextLink,
+                        listingRelativePath);
+                    nextLink = candidateNextLink;
+                }
+            }
+        }
+
+        if (_logger.IsEnabled(LogLevel.Debug))
+        {
+            _logger.LogDebug(
+                "Hosted Azure extractor listed {Count} resources for subscription {SubscriptionId}.",
+                resources.Count,
+                trimmedSubscriptionId);
+        }
+
+        return resources;
+    }
+
+    public async Task<IReadOnlyList<HostedAzureArmRoleAssignmentRecord>> ListSubscriptionRoleAssignmentsAsync(
+        string accessToken,
+        string subscriptionId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
+        HostedAzureExtractorGuidValidator.RequireAzureGuid(nameof(subscriptionId), subscriptionId);
+
+        string trimmedSubscriptionId = subscriptionId.Trim();
+        string roleAssignmentsListingPath =
+            $"subscriptions/{trimmedSubscriptionId}/providers/Microsoft.Authorization/roleAssignments";
+
+        return await ListSubscriptionRoleAssignmentsAtListingPathAsync(
+            accessToken,
+            trimmedSubscriptionId,
+            roleAssignmentsListingPath,
+            $"https://management.azure.com/{roleAssignmentsListingPath}?api-version={RoleAssignmentsApiVersion}",
+            "role assignment",
+            MapRoleAssignment,
+            cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task<IReadOnlyList<HostedAzureArmRoleAssignmentRecord>> ListSubscriptionRoleAssignmentsAtListingPathAsync(
+        string accessToken,
+        string subscriptionId,
+        string listingRelativePath,
+        string initialUrl,
+        string listingKind,
+        Func<JsonElement, HostedAzureArmRoleAssignmentRecord?> mapItem,
+        CancellationToken cancellationToken)
+    {
+        List<HostedAzureArmRoleAssignmentRecord> assignments = [];
+        string? nextLink = initialUrl;
+        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
+        int requestCount = 0;
+
+        while (!string.IsNullOrWhiteSpace(nextLink))
+        {
+            if (!visitedLinks.Add(nextLink))
+            {
+                break;
+            }
+
+            requestCount++;
+
+            if (ShouldBreakForPageCap(requestCount))
+            {
+                break;
+            }
+
+            using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            using HttpResponseMessage response =
+                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+            if (ShouldBreakForPaginationHttpFailure(response, assignments.Count))
+            {
+                break;
+            }
+
+            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+
+            using JsonDocument? document =
+                await TryParseArmPaginationPageAsync(stream, assignments.Count, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                break;
+            }
+
+            if (document.RootElement.TryGetProperty("value", out JsonElement valueElement) &&
+                valueElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement item in valueElement.EnumerateArray())
+                {
+                    HostedAzureArmRoleAssignmentRecord? mapped = mapItem(item);
+
+                    if (mapped is not null)
+                    {
+                        assignments.Add(mapped);
+                    }
+                }
+            }
+
+            nextLink = null;
+
+            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement) &&
+                nextLinkElement.ValueKind == JsonValueKind.String)
+            {
+                string? candidateNextLink = nextLinkElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(candidateNextLink))
+                {
+                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
+                        candidateNextLink,
+                        listingRelativePath);
+                    nextLink = candidateNextLink;
+                }
+            }
+        }
+
+        if (_logger.IsEnabled(LogLevel.Debug))
+        {
+            _logger.LogDebug(
+                "Hosted Azure extractor listed {Count} role assignments for subscription {SubscriptionId}.",
+                assignments.Count,
+                subscriptionId);
+        }
+
+        return assignments;
+    }
+
+    public async Task<IReadOnlyList<HostedAzureArmRoleAssignmentRecord>> ListSubscriptionRoleEligibilitySchedulesAsync(
+        string accessToken,
+        string subscriptionId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
+        HostedAzureExtractorGuidValidator.RequireAzureGuid(nameof(subscriptionId), subscriptionId);
+
+        string trimmedSubscriptionId = subscriptionId.Trim();
+        string roleEligibilityListingPath =
+            $"subscriptions/{trimmedSubscriptionId}/providers/Microsoft.Authorization/roleEligibilitySchedules";
+
+        List<HostedAzureArmRoleAssignmentRecord> schedules = [];
+        string? nextLink =
+            $"https://management.azure.com/{roleEligibilityListingPath}?api-version={RoleEligibilitySchedulesApiVersion}&$filter=asTarget()";
+        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
+        int requestCount = 0;
+
+        while (!string.IsNullOrWhiteSpace(nextLink))
+        {
+            if (!visitedLinks.Add(nextLink))
+            {
+                break;
+            }
+
+            requestCount++;
+
+            if (ShouldBreakForPageCap(requestCount))
+            {
+                break;
+            }
+
+            using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            using HttpResponseMessage response =
+                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                if (_logger.IsEnabled(LogLevel.Debug))
+                {
+                    _logger.LogDebug(
+                        "Hosted Azure extractor skipped role eligibility schedules for subscription {SubscriptionId}; HTTP {StatusCode}.",
+                        subscriptionId,
+                        (int)response.StatusCode);
+                }
+
+                break;
+            }
+
+            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+
+            using JsonDocument? document =
+                await TryParseArmPaginationPageAsync(stream, schedules.Count, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                break;
+            }
+
+            if (document.RootElement.TryGetProperty("value", out JsonElement valueElement) &&
+                valueElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement item in valueElement.EnumerateArray())
+                {
+                    HostedAzureArmRoleAssignmentRecord? mapped = MapRoleEligibilitySchedule(item);
+
+                    if (mapped is not null)
+                    {
+                        schedules.Add(mapped);
+                    }
+                }
+            }
+
+            nextLink = null;
+
+            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement) &&
+                nextLinkElement.ValueKind == JsonValueKind.String)
+            {
+                string? candidateNextLink = nextLinkElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(candidateNextLink))
+                {
+                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
+                        candidateNextLink,
+                        roleEligibilityListingPath);
+                    nextLink = candidateNextLink;
+                }
+            }
+        }
+
+        if (_logger.IsEnabled(LogLevel.Debug))
+        {
+            _logger.LogDebug(
+                "Hosted Azure extractor listed {Count} role eligibility schedules for subscription {SubscriptionId}.",
+                schedules.Count,
+                subscriptionId);
+        }
+
+        return schedules;
+    }
+
+    public async Task<string?> TryGetSubscriptionDisplayNameAsync(
+        string accessToken,
+        string subscriptionId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
+        HostedAzureExtractorGuidValidator.RequireAzureGuid(nameof(subscriptionId), subscriptionId);
+
+        string url =
+            $"https://management.azure.com/subscriptions/{subscriptionId.Trim()}?api-version={ResourcesApiVersion}";
+
+        try
+        {
+            using HttpRequestMessage request = new(HttpMethod.Get, url);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            using HttpResponseMessage response =
+                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                LogSubscriptionDisplayNameFailure(subscriptionId, (int)response.StatusCode, exception: null);
+                return null;
+            }
+
+            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+
+            using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+
+            return ReadSubscriptionDisplayName(document.RootElement);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            LogSubscriptionDisplayNameFailure(subscriptionId, statusCode: null, ex);
+            return null;
+        }
+    }
+
+    private void LogSubscriptionDisplayNameFailure(string subscriptionId, int? statusCode, Exception? exception)
+    {
+        if (!_logger.IsEnabled(LogLevel.Warning))
+            return;
+
+        _logger.LogWarning(
+            exception,
+            "Hosted Azure extractor could not read subscription display name for {SubscriptionId}. StatusCode={StatusCode}.",
+            subscriptionId,
+            statusCode);
+    }
+
+    private static string? ReadSubscriptionDisplayName(JsonElement root)
+    {
+        if (!root.TryGetProperty("displayName", out JsonElement displayName) ||
+            displayName.ValueKind != JsonValueKind.String)
+        {
+            return null;
+        }
+
+        return AzureExtractorSubscriptionDisplayName.Normalize(displayName.GetString());
+    }
+
+    public async Task<IReadOnlyList<string>> ListManagementGroupSubscriptionIdsAsync(
+        string accessToken,
+        string managementGroupId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
+        HostedAzureExtractorGuidValidator.RequireManagementGroupId(nameof(managementGroupId), managementGroupId);
+
+        List<string> subscriptionIds = [];
+        HashSet<string> seen = new(StringComparer.OrdinalIgnoreCase);
+        string trimmedManagementGroupId = managementGroupId.Trim();
+        string subscriptionsListingPath =
+            $"providers/Microsoft.Management/managementGroups/{trimmedManagementGroupId}/subscriptions";
+        string? nextLink =
+            $"https://management.azure.com/{subscriptionsListingPath}?api-version=2020-05-01";
+        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
+        int requestCount = 0;
+
+        while (!string.IsNullOrWhiteSpace(nextLink))
+        {
+            if (!visitedLinks.Add(nextLink))
+            {
+                break;
+            }
+
+            requestCount++;
+
+            if (ShouldBreakForPageCap(requestCount))
+            {
+                break;
+            }
+
+            using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            using HttpResponseMessage response =
+                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                if (_logger.IsEnabled(LogLevel.Debug))
+                {
+                    _logger.LogDebug(
+                        "Hosted Azure extractor skipped management group subscription listing for {ManagementGroupId}; HTTP {StatusCode}.",
+                        managementGroupId,
+                        (int)response.StatusCode);
+                }
+
+                break;
+            }
+
+            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+
+            using JsonDocument? document =
+                await TryParseArmPaginationPageAsync(stream, subscriptionIds.Count, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                break;
+            }
+
+            if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
+                && valueElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement item in valueElement.EnumerateArray())
+                {
+                    string? subscriptionId = TryGetManagementGroupSubscriptionId(item);
+
+                    if (string.IsNullOrWhiteSpace(subscriptionId))
+                    {
+                        continue;
+                    }
+
+                    if (seen.Add(subscriptionId))
+                    {
+                        subscriptionIds.Add(subscriptionId);
+                    }
+                }
+            }
+
+            nextLink = null;
+
+            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
+                && nextLinkElement.ValueKind == JsonValueKind.String)
+            {
+                string? candidateNextLink = nextLinkElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(candidateNextLink))
+                {
+                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
+                        candidateNextLink,
+                        subscriptionsListingPath);
+                    nextLink = candidateNextLink;
+                }
+            }
+        }
+
+        if (_logger.IsEnabled(LogLevel.Debug))
+        {
+            _logger.LogDebug(
+                "Hosted Azure extractor listed {Count} subscriptions for management group {ManagementGroupId}.",
+                subscriptionIds.Count,
+                managementGroupId);
+        }
+
+        return subscriptionIds;
+    }
+
+    public async Task<IReadOnlyList<HostedAzureArmRoleAssignmentRecord>> ListManagementGroupRoleAssignmentsAsync(
+        string accessToken,
+        string managementGroupId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
+        HostedAzureExtractorGuidValidator.RequireManagementGroupId(nameof(managementGroupId), managementGroupId);
+
+        string trimmedManagementGroupId = managementGroupId.Trim();
+        string roleAssignmentsListingPath =
+            $"providers/Microsoft.Management/managementGroups/{trimmedManagementGroupId}/providers/Microsoft.Authorization/roleAssignments";
+
+        return await ListRoleAssignmentsAtRestPathAsync(
+            accessToken,
+            roleAssignmentsListingPath,
+            $"https://management.azure.com/{roleAssignmentsListingPath}?api-version={RoleAssignmentsApiVersion}",
+            managementGroupId,
+            "management group role assignment",
+            cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<IReadOnlyList<HostedAzureArmRoleAssignmentRecord>> ListManagementGroupRoleEligibilitySchedulesAsync(
+        string accessToken,
+        string managementGroupId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
+        HostedAzureExtractorGuidValidator.RequireManagementGroupId(nameof(managementGroupId), managementGroupId);
+
+        string trimmedManagementGroupId = managementGroupId.Trim();
+        string roleEligibilityListingPath =
+            $"providers/Microsoft.Management/managementGroups/{trimmedManagementGroupId}/providers/Microsoft.Authorization/roleEligibilitySchedules";
+
+        return await ListRoleEligibilitySchedulesAtRestPathAsync(
+            accessToken,
+            roleEligibilityListingPath,
+            $"https://management.azure.com/{roleEligibilityListingPath}?api-version={RoleEligibilitySchedulesApiVersion}&$filter=asTarget()",
+            managementGroupId,
+            cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task<IReadOnlyList<HostedAzureArmRoleAssignmentRecord>> ListRoleAssignmentsAtRestPathAsync(
+        string accessToken,
+        string listingRelativePath,
+        string initialUrl,
+        string managementGroupId,
+        string listingKind,
+        CancellationToken cancellationToken)
+    {
+        List<HostedAzureArmRoleAssignmentRecord> assignments = [];
+        string? nextLink = initialUrl;
+        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
+        int requestCount = 0;
+
+        while (!string.IsNullOrWhiteSpace(nextLink))
+        {
+            if (!visitedLinks.Add(nextLink))
+            {
+                break;
+            }
+
+            requestCount++;
+
+            if (ShouldBreakForPageCap(requestCount))
+            {
+                break;
+            }
+
+            using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            using HttpResponseMessage response =
+                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                if (_logger.IsEnabled(LogLevel.Debug))
+                {
+                    _logger.LogDebug(
+                        "Hosted Azure extractor skipped {ListingKind} listing for management group {ManagementGroupId}; HTTP {StatusCode}.",
+                        listingKind,
+                        managementGroupId,
+                        (int)response.StatusCode);
+                }
+
+                break;
+            }
+
+            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+
+            using JsonDocument? document =
+                await TryParseArmPaginationPageAsync(stream, assignments.Count, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                break;
+            }
+
+            if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
+                && valueElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement item in valueElement.EnumerateArray())
+                {
+                    HostedAzureArmRoleAssignmentRecord? mapped = MapRoleAssignment(item);
+
+                    if (mapped is not null)
+                    {
+                        assignments.Add(mapped);
+                    }
+                }
+            }
+
+            nextLink = null;
+
+            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
+                && nextLinkElement.ValueKind == JsonValueKind.String)
+            {
+                string? candidateNextLink = nextLinkElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(candidateNextLink))
+                {
+                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
+                        candidateNextLink,
+                        listingRelativePath);
+                    nextLink = candidateNextLink;
+                }
+            }
+        }
+
+        return assignments;
+    }
+
+    private async Task<IReadOnlyList<HostedAzureArmRoleAssignmentRecord>> ListRoleEligibilitySchedulesAtRestPathAsync(
+        string accessToken,
+        string listingRelativePath,
+        string initialUrl,
+        string managementGroupId,
+        CancellationToken cancellationToken)
+    {
+        List<HostedAzureArmRoleAssignmentRecord> schedules = [];
+        string? nextLink = initialUrl;
+        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
+        int requestCount = 0;
+
+        while (!string.IsNullOrWhiteSpace(nextLink))
+        {
+            if (!visitedLinks.Add(nextLink))
+            {
+                break;
+            }
+
+            requestCount++;
+
+            if (ShouldBreakForPageCap(requestCount))
+            {
+                break;
+            }
+
+            using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            using HttpResponseMessage response =
+                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                if (_logger.IsEnabled(LogLevel.Debug))
+                {
+                    _logger.LogDebug(
+                        "Hosted Azure extractor skipped management group role eligibility schedules for {ManagementGroupId}; HTTP {StatusCode}.",
+                        managementGroupId,
+                        (int)response.StatusCode);
+                }
+
+                break;
+            }
+
+            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+
+            using JsonDocument? document =
+                await TryParseArmPaginationPageAsync(stream, schedules.Count, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                break;
+            }
+
+            if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
+                && valueElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement item in valueElement.EnumerateArray())
+                {
+                    HostedAzureArmRoleAssignmentRecord? mapped = MapRoleEligibilitySchedule(item);
+
+                    if (mapped is not null)
+                    {
+                        schedules.Add(mapped);
+                    }
+                }
+            }
+
+            nextLink = null;
+
+            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
+                && nextLinkElement.ValueKind == JsonValueKind.String)
+            {
+                string? candidateNextLink = nextLinkElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(candidateNextLink))
+                {
+                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
+                        candidateNextLink,
+                        listingRelativePath);
+                    nextLink = candidateNextLink;
+                }
+            }
+        }
+
+        return schedules;
+    }
+
+    private static string? TryGetManagementGroupSubscriptionId(JsonElement item)
+    {
+        if (TryGetString(item, "name", out string? name) && Guid.TryParse(name, out Guid parsedName) && parsedName != Guid.Empty)
+        {
+            return parsedName.ToString("D");
+        }
+
+        if (TryGetString(item, "id", out string? resourceId) && !string.IsNullOrWhiteSpace(resourceId))
+        {
+            const string prefix = "/subscriptions/";
+
+            if (resourceId.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            {
+                ReadOnlySpan<char> remainder = resourceId.AsSpan(prefix.Length);
+                int slashIndex = remainder.IndexOf('/');
+
+                ReadOnlySpan<char> subscriptionId = slashIndex < 0
+                    ? remainder
+                    : remainder[..slashIndex];
+
+                if (!subscriptionId.IsEmpty
+                    && Guid.TryParse(subscriptionId, out Guid parsedSubscriptionId)
+                    && parsedSubscriptionId != Guid.Empty)
+                {
+                    return parsedSubscriptionId.ToString("D");
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public async Task<IReadOnlyList<HostedAzureArmPolicyAssignmentRecord>> ListSubscriptionPolicyAssignmentsAsync(
+        string accessToken,
+        string subscriptionId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
+        HostedAzureExtractorGuidValidator.RequireAzureGuid(nameof(subscriptionId), subscriptionId);
+
+        return await ListPolicyAssignmentsAtRestPathAsync(
+            accessToken,
+            $"https://management.azure.com/subscriptions/{subscriptionId.Trim()}/providers/Microsoft.Authorization/policyAssignments?api-version={PolicyAssignmentsApiVersion}",
+            subscriptionId,
+            $"subscriptions/{subscriptionId.Trim()}/providers/Microsoft.Authorization/policyAssignments",
+            validateSubscriptionNextLink: true,
+            cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<IReadOnlyList<HostedAzureArmPolicyAssignmentRecord>> ListManagementGroupPolicyAssignmentsAsync(
+        string accessToken,
+        string managementGroupId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
+        HostedAzureExtractorGuidValidator.RequireManagementGroupId(nameof(managementGroupId), managementGroupId);
+
+        return await ListPolicyAssignmentsAtRestPathAsync(
+            accessToken,
+            $"https://management.azure.com/providers/Microsoft.Management/managementGroups/{managementGroupId.Trim()}/providers/Microsoft.Authorization/policyAssignments?api-version={PolicyAssignmentsApiVersion}",
+            managementGroupId,
+            $"providers/Microsoft.Management/managementGroups/{managementGroupId.Trim()}/providers/Microsoft.Authorization/policyAssignments",
+            validateSubscriptionNextLink: false,
+            cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<HostedAzureDiagnosticSettingsCollectResult> ListDiagnosticSettingsAsync(
+        string accessToken,
+        IReadOnlyList<HostedAzureArmResourceRecord> resources,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
+        ArgumentNullException.ThrowIfNull(resources);
+
+        List<HostedAzureArmDiagnosticSettingRecord> settings = [];
+        HashSet<string> seenKeys = new(StringComparer.OrdinalIgnoreCase);
+        bool partialCollection = false;
+
+        foreach (HostedAzureArmResourceRecord resource in resources)
+        {
+            if (!HostedAzureInventoryPathRelevantDiagnosticResourceFilter.IsPathRelevant(resource.ResourceType))
+            {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(resource.ResourceId))
+            {
+                continue;
+            }
+
+            (IReadOnlyList<HostedAzureArmDiagnosticSettingRecord> resourceSettings, bool resourcePartial) =
+                await ListDiagnosticSettingsForResourceAsync(
+                    accessToken,
+                    resource.ResourceId.Trim(),
+                    cancellationToken).ConfigureAwait(false);
+
+            if (resourcePartial)
+            {
+                partialCollection = true;
+            }
+
+            foreach (HostedAzureArmDiagnosticSettingRecord setting in resourceSettings)
+            {
+                string key =
+                    $"{setting.TargetResourceId}|{setting.Name}|{setting.WorkspaceId}|{setting.StorageAccountId}|{setting.EventHubAuthorizationRuleId}";
+
+                if (seenKeys.Add(key))
+                {
+                    settings.Add(setting);
+                }
+            }
+        }
+
+        if (_logger.IsEnabled(LogLevel.Debug))
+        {
+            _logger.LogDebug(
+                "Hosted Azure extractor listed {Count} diagnostic settings across path-relevant resources.",
+                settings.Count);
+        }
+
+        return new HostedAzureDiagnosticSettingsCollectResult
+        {
+            Settings = settings,
+            PartialCollection = partialCollection,
+        };
+    }
+
+    public async Task<IReadOnlyList<HostedAzureArmDefenderSummaryRecord>> ListSubscriptionDefenderSummariesAsync(
+        string accessToken,
+        string subscriptionId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
+        HostedAzureExtractorGuidValidator.RequireAzureGuid(nameof(subscriptionId), subscriptionId);
+
+        string trimmedSubscriptionId = subscriptionId.Trim();
+        string? nextLink =
+            $"https://management.azure.com/subscriptions/{trimmedSubscriptionId}/providers/Microsoft.Security/secureScores?api-version={SecureScoresApiVersion}";
+        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
+        int requestCount = 0;
+        int? bestSecureScore = null;
+
+        while (!string.IsNullOrWhiteSpace(nextLink))
+        {
+            if (!visitedLinks.Add(nextLink))
+            {
+                break;
+            }
+
+            requestCount++;
+
+            if (ShouldBreakForPageCap(requestCount))
+            {
+                break;
+            }
+
+            using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            using HttpResponseMessage response =
+                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                if (_logger.IsEnabled(LogLevel.Debug))
+                {
+                    _logger.LogDebug(
+                        "Hosted Azure extractor skipped Defender secure score for subscription {SubscriptionId}; HTTP {StatusCode}.",
+                        trimmedSubscriptionId,
+                        (int)response.StatusCode);
+                }
+
+                break;
+            }
+
+            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+
+            int partialRetentionCount = bestSecureScore is not null ? 1 : 0;
+
+            using JsonDocument? document =
+                await TryParseArmPaginationPageAsync(stream, partialRetentionCount, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                break;
+            }
+
+            int? pageScore = TryReadSubscriptionSecureScorePercent(document.RootElement);
+
+            if (pageScore is not null
+                && (bestSecureScore is null || pageScore.Value > bestSecureScore.Value))
+            {
+                bestSecureScore = pageScore;
+            }
+
+            nextLink = null;
+
+            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
+                && nextLinkElement.ValueKind == JsonValueKind.String)
+            {
+                string? candidateNextLink = nextLinkElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(candidateNextLink))
+                {
+                    // Subscription check keeps the cross-tenant message. Path check stops
+                    // a same-subscription cursor that leaves Microsoft.Security/secureScores.
+                    HostedAzureArmNextLinkValidator.EnsureTargetsSubscription(
+                        candidateNextLink,
+                        trimmedSubscriptionId);
+                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
+                        candidateNextLink,
+                        $"subscriptions/{trimmedSubscriptionId}/providers/Microsoft.Security/secureScores");
+                    nextLink = candidateNextLink;
+                }
+            }
+        }
+
+        if (bestSecureScore is null)
+        {
+            return [];
+        }
+
+        return
+        [
+            new HostedAzureArmDefenderSummaryRecord
+            {
+                ResourceId = $"/subscriptions/{trimmedSubscriptionId}",
+                SecureScore = bestSecureScore.Value,
+            },
+        ];
+    }
+
+    private static int? TryReadSubscriptionSecureScorePercent(JsonElement root)
+    {
+        if (!root.TryGetProperty("value", out JsonElement valueElement)
+            || valueElement.ValueKind != JsonValueKind.Array)
+        {
+            return null;
+        }
+
+        int? bestScore = null;
+
+        foreach (JsonElement item in valueElement.EnumerateArray())
+        {
+            int? candidate = TryReadSecureScoreFromSecureScoreItem(item);
+
+            if (candidate is null)
+            {
+                continue;
+            }
+
+            if (bestScore is null || candidate.Value > bestScore.Value)
+            {
+                bestScore = candidate.Value;
+            }
+        }
+
+        return bestScore;
+    }
+
+    private static int? TryReadSecureScoreFromSecureScoreItem(JsonElement item)
+    {
+        if (!item.TryGetProperty("properties", out JsonElement propertiesElement)
+            || propertiesElement.ValueKind != JsonValueKind.Object
+            || !propertiesElement.TryGetProperty("score", out JsonElement scoreElement)
+            || scoreElement.ValueKind != JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        if (scoreElement.TryGetProperty("percentage", out JsonElement percentageElement)
+            && percentageElement.TryGetDouble(out double percentage))
+        {
+            return ClampSecureScorePercent(percentage * 100d);
+        }
+
+        if (scoreElement.TryGetProperty("current", out JsonElement currentElement)
+            && currentElement.TryGetDouble(out double current)
+            && scoreElement.TryGetProperty("max", out JsonElement maxElement)
+            && maxElement.TryGetDouble(out double max)
+            && max > 0d)
+        {
+            return ClampSecureScorePercent(current / max * 100d);
+        }
+
+        return null;
+    }
+
+    private static int ClampSecureScorePercent(double percent)
+    {
+        if (double.IsNaN(percent) || double.IsInfinity(percent))
+        {
+            return 0;
+        }
+
+        if (percent < 0d)
+        {
+            return 0;
+        }
+
+        if (percent > 100d)
+        {
+            return 100;
+        }
+
+        return (int)Math.Round(percent, MidpointRounding.AwayFromZero);
+    }
+
+    private async Task<IReadOnlyList<HostedAzureArmPolicyAssignmentRecord>> ListPolicyAssignmentsAtRestPathAsync(
+        string accessToken,
+        string initialUrl,
+        string scopeKey,
+        string listingRelativePath,
+        bool validateSubscriptionNextLink,
+        CancellationToken cancellationToken)
+    {
+        List<HostedAzureArmPolicyAssignmentRecord> assignments = [];
+        string? nextLink = initialUrl;
+        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
+        int requestCount = 0;
+
+        while (!string.IsNullOrWhiteSpace(nextLink))
+        {
+            if (!visitedLinks.Add(nextLink))
+            {
+                break;
+            }
+
+            requestCount++;
+
+            if (ShouldBreakForPageCap(requestCount))
+            {
+                break;
+            }
+
+            using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            using HttpResponseMessage response =
+                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                if (_logger.IsEnabled(LogLevel.Debug))
+                {
+                    _logger.LogDebug(
+                        "Hosted Azure extractor skipped policy assignment listing for scope {ScopeKey}; HTTP {StatusCode}.",
+                        scopeKey,
+                        (int)response.StatusCode);
+                }
+
+                break;
+            }
+
+            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+
+            using JsonDocument? document =
+                await TryParseArmPaginationPageAsync(stream, assignments.Count, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                break;
+            }
+
+            if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
+                && valueElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement item in valueElement.EnumerateArray())
+                {
+                    HostedAzureArmPolicyAssignmentRecord? mapped = MapPolicyAssignment(item);
+
+                    if (mapped is not null)
+                    {
+                        assignments.Add(mapped);
+                    }
+                }
+            }
+
+            nextLink = null;
+
+            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
+                && nextLinkElement.ValueKind == JsonValueKind.String)
+            {
+                string? candidateNextLink = nextLinkElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(candidateNextLink))
+                {
+                    if (validateSubscriptionNextLink)
+                    {
+                        HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
+                            candidateNextLink,
+                            listingRelativePath);
+                    }
+                    else
+                    {
+                        HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
+                            candidateNextLink,
+                            listingRelativePath);
+                    }
+
+                    nextLink = candidateNextLink;
+                }
+            }
+        }
+
+        return assignments;
+    }
+
+    private async Task<(IReadOnlyList<HostedAzureArmDiagnosticSettingRecord> Settings, bool PartialCollection)>
+        ListDiagnosticSettingsForResourceAsync(
+        string accessToken,
+        string resourceId,
+        CancellationToken cancellationToken)
+    {
+        List<HostedAzureArmDiagnosticSettingRecord> settings = [];
+        bool partialCollection = false;
+        string? nextLink =
+            $"https://management.azure.com/{resourceId.Trim()}/providers/Microsoft.Insights/diagnosticSettings?api-version={DiagnosticSettingsApiVersion}";
+        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
+        int requestCount = 0;
+
+        while (!string.IsNullOrWhiteSpace(nextLink))
+        {
+            if (!visitedLinks.Add(nextLink))
+            {
+                break;
+            }
+
+            requestCount++;
+
+            if (requestCount > MaxPaginationRequests)
+            {
+                if (settings.Count > 0)
+                {
+                    partialCollection = true;
+                }
+
+                if (_logger.IsEnabled(LogLevel.Debug))
+                {
+                    _logger.LogDebug(
+                        "Hosted Azure extractor stopped diagnostic setting listing for resource {ResourceId} after {MaxPages} pages.",
+                        resourceId,
+                        MaxPaginationRequests);
+                }
+
+                break;
+            }
+
+            using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            using HttpResponseMessage response =
+                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                if (settings.Count > 0)
+                {
+                    partialCollection = true;
+                }
+
+                if (_logger.IsEnabled(LogLevel.Debug))
+                {
+                    _logger.LogDebug(
+                        "Hosted Azure extractor skipped diagnostic settings for resource {ResourceId}; HTTP {StatusCode}.",
+                        resourceId,
+                        (int)response.StatusCode);
+                }
+
+                break;
+            }
+
+            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+
+            JsonDocument? document;
+
+            try
+            {
+                document = await TryParseArmPaginationPageAsync(stream, settings.Count, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            catch (JsonException)
+            {
+                break;
+            }
+
+            if (document is null)
+            {
+                if (settings.Count > 0)
+                {
+                    partialCollection = true;
+                }
+
+                break;
+            }
+
+            if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
+                && valueElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement item in valueElement.EnumerateArray())
+                {
+                    HostedAzureArmDiagnosticSettingRecord? mapped = MapDiagnosticSetting(item, resourceId);
+
+                    if (mapped is not null)
+                    {
+                        settings.Add(mapped);
+                    }
+                }
+            }
+
+            nextLink = null;
+
+            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
+                && nextLinkElement.ValueKind == JsonValueKind.String)
+            {
+                string? candidateNextLink = nextLinkElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(candidateNextLink))
+                {
+                    try
+                    {
+                        HostedAzureArmNextLinkValidator.EnsureTargetsDiagnosticSettingsResource(
+                            candidateNextLink,
+                            resourceId);
+                        nextLink = candidateNextLink;
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        if (settings.Count > 0)
+                        {
+                            partialCollection = true;
+                            break;
+                        }
+
+                        throw;
+                    }
+                }
+            }
+        }
+
+        return (settings, partialCollection);
+    }
+
+    private static HostedAzureArmPolicyAssignmentRecord? MapPolicyAssignment(JsonElement item)
+    {
+        if (!item.TryGetProperty("properties", out JsonElement propertiesElement)
+            || propertiesElement.ValueKind is not JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        string? scope = TryGetStringValue(propertiesElement, "scope");
+        string? policyDefinitionId = TryGetStringValue(propertiesElement, "policyDefinitionId")
+                                     ?? TryGetStringValue(propertiesElement, "policySetDefinitionId");
+
+        if (string.IsNullOrWhiteSpace(scope) || string.IsNullOrWhiteSpace(policyDefinitionId))
+        {
+            return null;
+        }
+
+        return new HostedAzureArmPolicyAssignmentRecord(
+            scope.Trim(),
+            policyDefinitionId.Trim(),
+            TryGetStringValue(item, "name"),
+            TryGetStringValue(item, "id"));
+    }
+
+    private static HostedAzureArmDiagnosticSettingRecord? MapDiagnosticSetting(JsonElement item, string targetResourceId)
+    {
+        string? name = TryGetStringValue(item, "name");
+
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return null;
+        }
+
+        if (!item.TryGetProperty("properties", out JsonElement propertiesElement)
+            || propertiesElement.ValueKind is not JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        string? workspaceId = TryGetStringValue(propertiesElement, "workspaceId");
+
+        if (string.IsNullOrWhiteSpace(workspaceId)
+            && propertiesElement.TryGetProperty("workspaces", out JsonElement workspacesElement)
+            && workspacesElement.ValueKind == JsonValueKind.Array)
+        {
+            foreach (JsonElement workspace in workspacesElement.EnumerateArray())
+            {
+                workspaceId = TryGetStringValue(workspace, "workspaceResourceId");
+
+                if (!string.IsNullOrWhiteSpace(workspaceId))
+                {
+                    break;
+                }
+            }
+        }
+
+        string? storageAccountId = TryGetStringValue(propertiesElement, "storageAccountId");
+        string? eventHubAuthorizationRuleId = TryGetStringValue(propertiesElement, "eventHubAuthorizationRuleId");
+
+        if (string.IsNullOrWhiteSpace(workspaceId)
+            && string.IsNullOrWhiteSpace(storageAccountId)
+            && string.IsNullOrWhiteSpace(eventHubAuthorizationRuleId))
+        {
+            return null;
+        }
+
+        return new HostedAzureArmDiagnosticSettingRecord(
+            targetResourceId.Trim(),
+            name.Trim(),
+            string.IsNullOrWhiteSpace(workspaceId) ? null : workspaceId.Trim(),
+            string.IsNullOrWhiteSpace(storageAccountId) ? null : storageAccountId.Trim(),
+            string.IsNullOrWhiteSpace(eventHubAuthorizationRuleId) ? null : eventHubAuthorizationRuleId.Trim());
+    }
+
+    public async Task<IReadOnlyList<HostedAzureArmFederatedCredentialRecord>> ListFederatedCredentialsAsync(
+        string accessToken,
+        IReadOnlyList<HostedAzureArmResourceRecord> resources,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
+        ArgumentNullException.ThrowIfNull(resources);
+
+        List<HostedAzureArmFederatedCredentialRecord> credentials = [];
+        HashSet<string> keys = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (HostedAzureArmResourceRecord resource in resources)
+        {
+            if (!resource.ResourceType.Contains("userAssignedIdentities", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            string? principalId = TryReadProperty(resource.Properties, "principalId");
+
+            if (string.IsNullOrWhiteSpace(principalId))
+            {
+                continue;
+            }
+
+            string? clientId = TryReadProperty(resource.Properties, "clientId");
+            IReadOnlyList<HostedAzureArmFederatedCredentialRecord> identityCredentials =
+                await ListFederatedCredentialsForIdentityAsync(
+                    accessToken,
+                    resource.ResourceId,
+                    principalId.Trim(),
+                    clientId,
+                    cancellationToken).ConfigureAwait(false);
+
+            foreach (HostedAzureArmFederatedCredentialRecord credential in identityCredentials)
+            {
+                string key = $"{credential.Issuer}|{credential.Subject}|{credential.PrincipalId}";
+
+                if (keys.Add(key))
+                {
+                    credentials.Add(credential);
+                }
+            }
+        }
+
+        if (_logger.IsEnabled(LogLevel.Debug))
+        {
+            _logger.LogDebug(
+                "Hosted Azure extractor listed {Count} federated credentials across user-assigned identities.",
+                credentials.Count);
+        }
+
+        return credentials;
+    }
+
+    private async Task<IReadOnlyList<HostedAzureArmFederatedCredentialRecord>> ListFederatedCredentialsForIdentityAsync(
+        string accessToken,
+        string identityResourceId,
+        string principalId,
+        string? clientId,
+        CancellationToken cancellationToken)
+    {
+        List<HostedAzureArmFederatedCredentialRecord> credentials = [];
+        string? nextLink =
+            $"https://management.azure.com/{identityResourceId.Trim()}/federatedIdentityCredentials?api-version={FederatedCredentialsApiVersion}";
+        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
+        int requestCount = 0;
+
+        while (!string.IsNullOrWhiteSpace(nextLink))
+        {
+            if (!visitedLinks.Add(nextLink))
+            {
+                break;
+            }
+
+            requestCount++;
+
+            if (requestCount > MaxPaginationRequests)
+            {
+                _logger.LogWarning(
+                    "Hosted Azure extractor stopped federated credential listing for identity {IdentityResourceId} after {MaxPages} pages.",
+                    identityResourceId,
+                    MaxPaginationRequests);
+                break;
+            }
+
+            using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            using HttpResponseMessage response =
+                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                if (_logger.IsEnabled(LogLevel.Debug))
+                {
+                    _logger.LogDebug(
+                        "Hosted Azure extractor skipped federated credentials for identity {IdentityResourceId}; HTTP {StatusCode}.",
+                        identityResourceId,
+                        (int)response.StatusCode);
+                }
+
+                break;
+            }
+
+            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+
+            using JsonDocument? document =
+                await TryParseArmPaginationPageAsync(stream, credentials.Count, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                break;
+            }
+
+            if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
+                && valueElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement item in valueElement.EnumerateArray())
+                {
+                    HostedAzureArmFederatedCredentialRecord? mapped =
+                        MapFederatedCredential(item, identityResourceId, principalId, clientId);
+
+                    if (mapped is not null)
+                    {
+                        credentials.Add(mapped);
+                    }
+                }
+            }
+
+            nextLink = null;
+
+            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
+                && nextLinkElement.ValueKind == JsonValueKind.String)
+            {
+                string? candidateNextLink = nextLinkElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(candidateNextLink))
+                {
+                    HostedAzureArmNextLinkValidator.EnsureTargetsFederatedCredentialsIdentity(
+                        candidateNextLink,
+                        identityResourceId);
+                    nextLink = candidateNextLink;
+                }
+            }
+        }
+
+        return credentials;
+    }
+
+    private static HostedAzureArmFederatedCredentialRecord? MapFederatedCredential(
+        JsonElement item,
+        string parentResourceId,
+        string principalId,
+        string? clientId)
+    {
+        if (!item.TryGetProperty("properties", out JsonElement propertiesElement)
+            || propertiesElement.ValueKind is not JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        string? issuer = TryGetStringValue(propertiesElement, "issuer");
+        string? subject = TryGetStringValue(propertiesElement, "subject");
+
+        if (string.IsNullOrWhiteSpace(issuer) || string.IsNullOrWhiteSpace(subject))
+        {
+            return null;
+        }
+
+        string? credentialName = TryGetStringValue(item, "name");
+
+        return new HostedAzureArmFederatedCredentialRecord(
+            issuer.Trim(),
+            subject.Trim(),
+            principalId,
+            clientId,
+            parentResourceId.Trim(),
+            credentialName);
+    }
+
+    private static string? TryReadProperty(IReadOnlyDictionary<string, object?>? properties, string propertyName)
+    {
+        if (properties is null
+            || !properties.TryGetValue(propertyName, out object? value)
+            || value is null)
+        {
+            return null;
+        }
+
+        string? text = value.ToString();
+
+        return string.IsNullOrWhiteSpace(text) ? null : text;
+    }
+
+    private static HostedAzureArmRoleAssignmentRecord? MapRoleAssignment(JsonElement item)
+    {
+        if (!item.TryGetProperty("properties", out JsonElement propertiesElement)
+            || propertiesElement.ValueKind is not JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        string? scope = TryGetStringValue(propertiesElement, "scope");
+        string? principalId = TryGetStringValue(propertiesElement, "principalId");
+        string? roleDefinitionId = TryGetStringValue(propertiesElement, "roleDefinitionId");
+
+        if (string.IsNullOrWhiteSpace(scope)
+            || string.IsNullOrWhiteSpace(principalId)
+            || string.IsNullOrWhiteSpace(roleDefinitionId))
+        {
+            return null;
+        }
+
+        return new HostedAzureArmRoleAssignmentRecord(
+            scope.Trim(),
+            principalId.Trim(),
+            TryGetStringValue(propertiesElement, "principalType"),
+            roleDefinitionId.Trim(),
+            RoleName: AzureInventoryBuiltInRoleDefinitionNames.TryResolveFromRoleDefinitionId(roleDefinitionId));
+    }
+
+    private static HostedAzureArmRoleAssignmentRecord? MapRoleEligibilitySchedule(JsonElement item)
+    {
+        if (!item.TryGetProperty("properties", out JsonElement propertiesElement)
+            || propertiesElement.ValueKind is not JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        string? scope = TryGetStringValue(propertiesElement, "scope");
+        string? principalId = TryGetStringValue(propertiesElement, "principalId");
+        string? roleDefinitionId = TryGetStringValue(propertiesElement, "roleDefinitionId");
+
+        if (string.IsNullOrWhiteSpace(scope)
+            || string.IsNullOrWhiteSpace(principalId)
+            || string.IsNullOrWhiteSpace(roleDefinitionId))
+        {
+            return null;
+        }
+
+        return new HostedAzureArmRoleAssignmentRecord(
+            scope.Trim(),
+            principalId.Trim(),
+            TryGetStringValue(propertiesElement, "principalType"),
+            roleDefinitionId.Trim(),
+            PimEligibilityKind: "eligible",
+            RoleName: AzureInventoryBuiltInRoleDefinitionNames.TryResolveFromRoleDefinitionId(roleDefinitionId));
+    }
+
+    private void LogSkippedArmRow(JsonElement item)
+    {
+        if (!_logger.IsEnabled(LogLevel.Warning))
+            return;
+
+        string? resourceId = TryGetStringValue(item, "id");
+        string? resourceType = TryGetStringValue(item, "type");
+
+        _logger.LogWarning(
+            "Hosted Azure extractor skipped ARM resource row missing id or type. Id={ResourceId}, Type={ResourceType}",
+            resourceId,
+            resourceType);
+    }
+
+    private static HostedAzureArmResourceRecord? MapResource(JsonElement item)
+    {
+        if (!TryGetString(item, "id", out string? resourceId) ||
+            !TryGetString(item, "type", out string? resourceType))
+        {
+            return null;
+        }
+
+        string name = TryGetString(item, "name", out string? parsedName)
+            ? parsedName!
+            : resourceId!;
+
+        string? location = TryGetString(item, "location", out string? parsedLocation)
+            ? parsedLocation
+            : null;
+
+        object? sku = item.TryGetProperty("sku", out JsonElement skuElement)
+            ? JsonSerializer.Deserialize<object>(skuElement.GetRawText())
+            : null;
+
+        Dictionary<string, string>? tags = null;
+
+        if (item.TryGetProperty("tags", out JsonElement tagsElement) &&
+            tagsElement.ValueKind == JsonValueKind.Object)
+        {
+            tags = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (JsonProperty tag in tagsElement.EnumerateObject())
+            {
+                if (tag.Value.ValueKind == JsonValueKind.Null)
+                {
+                    tags[tag.Name] = string.Empty;
+                    continue;
+                }
+
+                if (tag.Value.ValueKind == JsonValueKind.String)
+                    tags[tag.Name] = tag.Value.GetString() ?? string.Empty;
+            }
+        }
+
+        Dictionary<string, object?> properties = BuildProperties(item, resourceType!);
+
+        if (TryGetString(item, "kind", out string? kind) && !string.IsNullOrWhiteSpace(kind))
+        {
+            properties["kind"] = kind;
+        }
+
+        HostedAzureArmSystemDataPropertyCapture.Capture(item, properties);
+
+        if (resourceType!.Contains("accessConnectors", StringComparison.OrdinalIgnoreCase))
+        {
+            HostedAzureInventoryResourcePropertyExpander.CaptureRootIdentity(item, properties);
+        }
+
+        if (item.TryGetProperty("properties", out JsonElement propertiesElement)
+            && propertiesElement.ValueKind == JsonValueKind.Object)
+        {
+            HostedAzureInventoryResourcePropertyExpander.Expand(resourceType!, propertiesElement, properties);
+            HostedAzureArmSystemDataPropertyCapture.CaptureVirtualMachineComputerName(
+                resourceType!,
+                propertiesElement,
+                properties);
+        }
+
+        return new HostedAzureArmResourceRecord(
+            resourceType!,
+            resourceId!,
+            name,
+            location,
+            sku,
+            tags,
+            properties);
+    }
+
+    private static Dictionary<string, object?> BuildProperties(JsonElement item, string resourceType)
+    {
+        Dictionary<string, object?> properties = new(StringComparer.OrdinalIgnoreCase);
+
+        if (!item.TryGetProperty("properties", out JsonElement propertiesElement) ||
+            propertiesElement.ValueKind != JsonValueKind.Object)
+        {
+            return properties;
+        }
+
+        if (propertiesElement.TryGetProperty("provisioningState", out JsonElement provisioningState) &&
+            provisioningState.ValueKind == JsonValueKind.String)
+        {
+            properties["provisioningState"] = provisioningState.GetString();
+        }
+
+        if (string.Equals(resourceType, "Microsoft.Compute/virtualMachines", StringComparison.OrdinalIgnoreCase) &&
+            propertiesElement.TryGetProperty("hardwareProfile", out JsonElement hardwareProfile) &&
+            hardwareProfile.ValueKind == JsonValueKind.Object &&
+            hardwareProfile.TryGetProperty("vmSize", out JsonElement vmSize) &&
+            vmSize.ValueKind == JsonValueKind.String)
+        {
+            properties["vmSize"] = vmSize.GetString();
+        }
+
+        return properties;
+    }
+
+    private static bool TryGetString(JsonElement item, string propertyName, out string? value)
+    {
+        value = TryGetStringValue(item, propertyName);
+
+        return value is not null;
+    }
+
+    private static string? TryGetStringValue(JsonElement item, string propertyName)
+    {
+        if (!item.TryGetProperty(propertyName, out JsonElement element) ||
+            element.ValueKind != JsonValueKind.String)
+        {
+            return null;
+        }
+
+        string? parsed = element.GetString();
+
+        return string.IsNullOrWhiteSpace(parsed) ? null : parsed;
+    }
+
+    public Task<HostedAzureVaultProtectedItemListResult> ListVaultBackupProtectedItemsAsync(
+        string accessToken,
+        string vaultResourceId,
+        CancellationToken cancellationToken)
+    {
+        return ListVaultProtectedItemsAsync(
+            accessToken,
+            vaultResourceId,
+            "backupProtectedItems",
+            BackupProtectedItemsApiVersion,
+            cancellationToken);
+    }
+
+    public Task<HostedAzureVaultProtectedItemListResult> ListVaultReplicationProtectedItemsAsync(
+        string accessToken,
+        string vaultResourceId,
+        CancellationToken cancellationToken)
+    {
+        return ListVaultProtectedItemsAsync(
+            accessToken,
+            vaultResourceId,
+            "replicationProtectedItems",
+            ReplicationProtectedItemsApiVersion,
+            cancellationToken);
+    }
+
+    private async Task<HostedAzureVaultProtectedItemListResult> ListVaultProtectedItemsAsync(
+        string accessToken,
+        string vaultResourceId,
+        string childCollectionName,
+        string apiVersion,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
+        ArgumentException.ThrowIfNullOrWhiteSpace(vaultResourceId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(childCollectionName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(apiVersion);
+
+        List<JsonElement> items = [];
+        string trimmedVaultId = vaultResourceId.Trim().TrimStart('/');
+        string listingRelativePath = $"{trimmedVaultId}/{childCollectionName}";
+        string? nextLink =
+            $"https://management.azure.com/{listingRelativePath}?api-version={apiVersion}";
+        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
+        int requestCount = 0;
+
+        while (!string.IsNullOrWhiteSpace(nextLink))
+        {
+            if (!visitedLinks.Add(nextLink))
+            {
+                break;
+            }
+
+            requestCount++;
+
+            if (ShouldBreakForPageCap(requestCount))
+            {
+                if (_logger.IsEnabled(LogLevel.Debug))
+                {
+                    _logger.LogDebug(
+                        "Hosted Azure extractor stopped {ChildCollection} listing for vault {VaultId} after {MaxPages} pages.",
+                        childCollectionName,
+                        trimmedVaultId,
+                        MaxPaginationRequests);
+                }
+
+                break;
+            }
+
+            using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            using HttpResponseMessage response =
+                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                if (_logger.IsEnabled(LogLevel.Debug))
+                {
+                    _logger.LogDebug(
+                        "Hosted Azure extractor skipped {ChildCollection} for vault {VaultId}; HTTP {StatusCode}.",
+                        childCollectionName,
+                        trimmedVaultId,
+                        (int)response.StatusCode);
+                }
+
+                if (items.Count > 0)
+                {
+                    break;
+                }
+
+                return new HostedAzureVaultProtectedItemListResult
+                {
+                    Items = items,
+                    Succeeded = false,
+                    HttpStatusCode = (int)response.StatusCode,
+                };
+            }
+
+            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+
+            using JsonDocument? document =
+                await TryParseArmPaginationPageAsync(stream, items.Count, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                break;
+            }
+
+            if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
+                && valueElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement item in valueElement.EnumerateArray())
+                {
+                    items.Add(item.Clone());
+                }
+            }
+
+            nextLink = null;
+
+            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
+                && nextLinkElement.ValueKind == JsonValueKind.String)
+            {
+                string? candidateNextLink = nextLinkElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(candidateNextLink))
+                {
+                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
+                        candidateNextLink,
+                        listingRelativePath);
+                    nextLink = candidateNextLink;
+                }
+            }
+        }
+
+        return new HostedAzureVaultProtectedItemListResult
+        {
+            Items = items,
+            Succeeded = true,
+        };
+    }
+}

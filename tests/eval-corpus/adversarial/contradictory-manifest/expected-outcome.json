@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "corpus-adv-contradictory-requirements",
+  "adversarialTheme": "contradictory-manifest",
+  "offlineQualityGateExpectation": "warned",
+  "rationale": "Committed AgentResult strips per-claim evidenceRefs and findings so eval_agent_corpus semantic ratio collapses—adversarial contradictory-hosting scenarios must not score accepted offline.",
+  "recordingExpectations": [
+    "Deadlock language references serverless and dedicated VMs together; compliance cites ambiguity until waivers exist."
+  ]
+}

@@ -1,0 +1,19 @@
+.terraform/
+# Local plan snapshots — do not commit (Trivy terraformplan-snapshot + stale AZU-0012).
+tfplan
+*.tfplan
+backend.tf
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+*.tfvars
+!terraform.tfvars.example
+!production.tfvars.example
+!dev.tfvars.example

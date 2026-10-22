@@ -1,0 +1,121 @@
+import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import type { ReactNode } from "react";
+
+import { EmptyState } from "@/components/EmptyState";
+
+const calloutBase =
+  (cn("mb-4 max-w-3xl rounded-lg px-4 py-3 leading-snug", OPERATOR_TYPOGRAPHY.helper));
+
+/**
+ * API / configuration failures on review pages (server-rendered).
+ */
+export function OperatorErrorCallout({ children }: { children: ReactNode }) {
+  return (
+    <div
+      role="alert"
+      className={cn(
+        calloutBase,
+        "border border-rose-600/40 bg-al-surface-raised text-al-text-primary dark:border-rose-800/50",
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+/**
+ * Empty collections or blocked review steps (e.g. run not finalized).
+ * Use `children` for rich markup, or `description` for plain text (`children` wins when both are set).
+ */
+export function OperatorEmptyState({
+  title,
+  children,
+  description,
+}: {
+  title: string;
+  children?: ReactNode;
+  description?: string;
+}) {
+  if (children === undefined && description !== undefined && description.length > 0) {
+    return <EmptyState title={title} description={description} />;
+  }
+
+  const detail: ReactNode = children ?? description;
+
+  return (
+    <div
+      role="status"
+      className={cn(
+        calloutBase,
+        "border border-neutral-300 bg-neutral-50 text-neutral-800 dark:border-neutral-600 dark:bg-neutral-900/60 dark:text-neutral-200",
+      )}
+    >
+      <strong>{title}</strong>
+      <div className="mt-2">{detail}</div>
+    </div>
+  );
+}
+
+/**
+ * In-progress work (explicit copy, no animation).
+ */
+export function OperatorLoadingNotice({ children }: { children: ReactNode }) {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className={cn(
+        calloutBase,
+        "border border-neutral-300 bg-slate-50 text-slate-800 dark:border-neutral-600 dark:bg-neutral-900/40 dark:text-neutral-200",
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+/**
+ * Consistent “what to do next” line after HTTP or contract failures (place below OperatorApiProblem or callouts).
+ */
+export function OperatorTryNext({ children }: { children: ReactNode }) {
+  return (
+    <div className={cn("mt-3 max-w-3xl leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+      <strong className="text-neutral-800 dark:text-neutral-200">Try next:</strong> {children}
+    </div>
+  );
+}
+
+/**
+ * Unexpected JSON shape or contract drift (distinct from HTTP error).
+ */
+export function OperatorMalformedCallout({ children }: { children: ReactNode }) {
+  return (
+    <div
+      role="alert"
+      className={cn(
+        calloutBase,
+        "border border-neutral-400 bg-al-surface-raised text-al-text-primary dark:border-neutral-600",
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+/**
+ * Non-fatal secondary fetch issues (manifest summary, artifact list).
+ */
+export function OperatorWarningCallout({ children }: { children: ReactNode }) {
+  return (
+    <div
+      role="status"
+      className={cn(
+        calloutBase,
+        "border border-amber-600/40 bg-al-surface-raised text-al-text-primary dark:border-amber-700/50",
+      )}
+    >
+      {children}
+    </div>
+  );
+}

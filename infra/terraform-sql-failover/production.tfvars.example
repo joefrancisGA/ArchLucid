@@ -1,0 +1,34 @@
+# Production-oriented example: merge into terraform.tfvars or pass explicitly, e.g.:
+#   terraform apply -var-file=production.tfvars.example
+# Replace subscription IDs, resource groups, and contact emails before apply.
+
+posture_tier              = "production"
+enable_sql_failover_group = true
+
+# Server-level automatic tuning on primary + partner (forceLastGoodPlan / createIndex / dropIndex all On by default).
+enable_sql_automatic_tuning = true
+
+failover_group_name            = "archlucid-prod-sqlfg"
+primary_sql_server_resource_id = "/subscriptions/<sub-id>/resourceGroups/rg-sql-primary/providers/Microsoft.Sql/servers/sql-primary"
+partner_sql_server_resource_id = "/subscriptions/<sub-id>/resourceGroups/rg-sql-secondary/providers/Microsoft.Sql/servers/sql-secondary"
+
+database_resource_ids = [
+  "/subscriptions/<sub-id>/resourceGroups/rg-sql-primary/providers/Microsoft.Sql/servers/sql-primary/databases/ArchLucid",
+]
+
+read_write_failover_mode             = "Automatic"
+read_write_grace_minutes             = 60
+readonly_endpoint_failover_enabled = true
+
+tags = {
+  Environment = "production"
+  Workload    = "archlucid"
+}
+
+# Cost guardrail: monthly budget scoped to Microsoft.Sql/servers + databases in the SQL RG.
+# Omit sql_consumption_budget_resource_group_id to derive the RG from primary_sql_server_resource_id.
+enable_sql_consumption_budget = true
+sql_consumption_budget_amount = 2500
+# sql_consumption_budget_resource_group_id = "/subscriptions/<sub-id>/resourceGroups/rg-sql-primary"
+sql_consumption_budget_contact_emails = ["finops@example.com"]
+sql_consumption_budget_time_period_start = "2026-04-01T00:00:00Z"

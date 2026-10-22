@@ -1,0 +1,35 @@
+{
+  "schema": "archlucid.policy-pack-compounding-evidence-ledger.v1",
+  "generatedUtc": "2026-09-07T20:33:58Z",
+  "policyPackId": "22222222-2222-2222-2222-222222222222",
+  "runId": "dddddddddddddddddddddddddddddddd",
+  "olderVersionLabel": "1.0.0",
+  "newerVersionLabel": "2.0.0",
+  "olderGateBlocked": false,
+  "newerGateBlocked": true,
+  "incrementalCatch": {
+    "addedComplianceRuleKeys": [
+      "demo-ctrl-network-isolation"
+    ],
+    "removedComplianceRuleKeys": [],
+    "findingsNewlyBlockingCommit": [
+      "demo-finding-critical"
+    ],
+    "findingsNoLongerBlockingCommit": [],
+    "sponsorReportLinesAdded": [],
+    "sponsorReportLinesRemoved": [],
+    "gateBlockedFlipped": true
+  },
+  "changeLogCitations": [
+    {
+      "changeLogId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      "changeType": "VersionPublished",
+      "summaryText": "Version '2.0.0' published for pack '22222222-2222-2222-2222-222222222222'.",
+      "changedUtc": "2026-09-07T20:00:00Z"
+    }
+  ],
+  "claimBoundaryText": "Internal differentiability instrument \u2014 not a buyer compounding rate.",
+  "fixtureLabel": "policy-ab-demo (synthetic - internal demo validation only)",
+  "fixturePath": "tests/fixtures/policy-compounding-ledger/compounding-ledger-fixture.json",
+  "csharpRegressionFilter": "FullyQualifiedName~PolicyPackCompoundingEvidenceLedgerTests"
+}

@@ -1,0 +1,832 @@
+using System.Collections.Immutable;
+using System.Text.Json;
+
+using ArchLucid.Application.Common;
+using ArchLucid.Application.Governance;
+using ArchLucid.Application.Governance.PolicyPackDryRun.Stages;
+using ArchLucid.Application.Pilots;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Governance.PolicyPacks;
+using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Llm.Redaction;
+using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Transactions;
+
+using FluentAssertions;
+
+using Microsoft.Extensions.Logging.Abstractions;
+
+using Moq;
+
+namespace ArchLucid.Application.Tests.Governance;
+
+[Trait("Category", "Unit")]
+public sealed class PolicyPackDryRunServiceTests
+{
+    private static readonly Guid PolicyPackId = Guid.Parse("11112222-3333-4444-5555-666677778888");
+
+    private static readonly ScopeContext Scope = new()
+    {
+        TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+        WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+        ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+    };
+
+    [SkippableFact]
+    public async Task EvaluateAsync_projects_findings_by_severity_for_each_run()
+    {
+        FakeRunDetailQueryService runs = new();
+        runs.AddRun("run-mixed", critical: 1, high: 2, medium: 3);
+
+        PolicyPackDryRunService sut = CreateSut(
+            runs,
+            new FakeDeltaComputer(),
+            new StubRedactor(),
+            Mock.Of<IAuditService>());
+
+        PolicyPackDryRunResponse response = await sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string>(),
+            ["run-mixed"],
+            pageSize: 20,
+            page: 1,
+            CancellationToken.None);
+
+        IReadOnlyList<PolicyPackDryRunSeverityCount> counts = response.Items.Should().ContainSingle().Subject.FindingsBySeverity;
+        counts.Should().Contain(c => c.Severity == "Critical" && c.Count == 1);
+        counts.Should().Contain(c => c.Severity == "Error" && c.Count == 2);
+        counts.Should().Contain(c => c.Severity == "Warning" && c.Count == 3);
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_would_block_when_any_threshold_outcome_breaches()
+    {
+        FakeRunDetailQueryService runs = new();
+        runs.AddRun("run-noisy", critical: 2, high: 0, medium: 0);
+
+        PolicyPackDryRunService sut = CreateSut(
+            runs,
+            new FakeDeltaComputer(),
+            new StubRedactor(),
+            Mock.Of<IAuditService>());
+
+        PolicyPackDryRunResponse response = await sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string> { { PolicyPackDryRunSupportedThresholdKeys.MaxCriticalFindings, "1" } },
+            ["run-noisy"],
+            pageSize: 20,
+            page: 1,
+            CancellationToken.None);
+
+        response.Items.Should().ContainSingle()
+            .Which.WouldBlock.Should().BeTrue();
+        response.Items.Should().ContainSingle()
+            .Which.ThresholdOutcomes.Should().ContainSingle()
+            .Which.WouldBreach.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_honors_cancellation_token()
+    {
+        PolicyPackDryRunService sut = BuildSutWithRunCount(3);
+        using CancellationTokenSource cancellation = new();
+        cancellation.Cancel();
+
+        Func<Task> act = () => sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string>(),
+            BuildRunIds(3),
+            pageSize: 20,
+            page: 1,
+            cancellation.Token);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_clamps_page_above_available_results()
+    {
+        PolicyPackDryRunService sut = BuildSutWithRunCount(3);
+
+        PolicyPackDryRunResponse response = await sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string>(),
+            BuildRunIds(3),
+            pageSize: 2,
+            page: 99,
+            CancellationToken.None);
+
+        response.Page.Should().Be(2);
+        response.Items.Should().HaveCount(1);
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_marks_run_missing_when_detail_query_throws()
+    {
+        Mock<IRunDetailQueryService> runs = new();
+        runs
+            .Setup(r => r.GetRunDetailAsync("broken-run", It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("boom"));
+
+        PolicyPackDryRunService sut = CreateSut(
+            runs.Object,
+            new FakeDeltaComputer(),
+            new StubRedactor(),
+            Mock.Of<IAuditService>());
+
+        PolicyPackDryRunResponse response = await sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string>(),
+            ["broken-run"],
+            pageSize: 20,
+            page: 1,
+            CancellationToken.None);
+
+        response.DeltaCounts.RunMissing.Should().Be(1);
+        response.Items.Should().ContainSingle()
+            .Which.RunMissing.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_throws_when_policy_pack_is_deleted()
+    {
+        PolicyPack deletedPack = new()
+        {
+            PolicyPackId = PolicyPackId,
+            TenantId = Scope.TenantId,
+            WorkspaceId = Scope.WorkspaceId,
+            ProjectId = Scope.ProjectId,
+            IsDeleted = true,
+        };
+
+        PolicyPackDryRunService sut = CreateSut(
+            new FakeRunDetailQueryService(),
+            new FakeDeltaComputer(),
+            new StubRedactor(),
+            Mock.Of<IAuditService>(),
+            deletedPack);
+
+        Func<Task> act = () => sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string>(),
+            ["run-1"],
+            pageSize: 20,
+            page: 1,
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<PolicyPackNotFoundException>();
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_returns_first_page_when_total_items_is_zero()
+    {
+        PolicyPackDryRunService sut = BuildSutWithRunCount(0);
+
+        PolicyPackDryRunResponse response = await sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string>(),
+            [],
+            pageSize: 20,
+            page: 5,
+            CancellationToken.None);
+
+        response.Page.Should().Be(1);
+        response.Items.Should().BeEmpty();
+        response.TotalRequestedRuns.Should().Be(0);
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_counts_would_allow_when_thresholds_do_not_breach()
+    {
+        FakeRunDetailQueryService runs = new();
+        runs.AddRun("run-clean", critical: 0, high: 0, medium: 0);
+
+        PolicyPackDryRunService sut = CreateSut(
+            runs,
+            new FakeDeltaComputer(),
+            new StubRedactor(),
+            Mock.Of<IAuditService>());
+
+        PolicyPackDryRunResponse response = await sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string> { { PolicyPackDryRunSupportedThresholdKeys.MaxCriticalFindings, "1" } },
+            ["run-clean"],
+            pageSize: 20,
+            page: 1,
+            CancellationToken.None);
+
+        response.DeltaCounts.WouldAllow.Should().Be(1);
+        response.DeltaCounts.WouldBlock.Should().Be(0);
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_throws_when_proposed_thresholds_is_null()
+    {
+        PolicyPackDryRunService sut = BuildSutWithRunCount(1);
+
+        Func<Task> act = () => sut.EvaluateAsync(
+            PolicyPackId,
+            null!,
+            ["run-1"],
+            pageSize: 20,
+            page: 1,
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentNullException>().WithParameterName("proposedThresholds");
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_throws_when_evaluate_against_run_ids_is_null()
+    {
+        PolicyPackDryRunService sut = BuildSutWithRunCount(1);
+
+        Func<Task> act = () => sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string>(),
+            null!,
+            pageSize: 20,
+            page: 1,
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentNullException>().WithParameterName("evaluateAgainstRunIds");
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_DefaultsPageSizeTo20WhenNotProvided()
+    {
+        PolicyPackDryRunService sut = BuildSutWithRunCount(50);
+
+        PolicyPackDryRunResponse response = await sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string>(),
+            BuildRunIds(50),
+            pageSize: null,
+            page: null,
+            CancellationToken.None);
+
+        response.PageSize.Should().Be(IPolicyPackDryRunService.DefaultPageSize);
+        response.PageSize.Should().Be(20);
+        response.Items.Should().HaveCount(20);
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_ClampsPageSizeToServerMaximum()
+    {
+        PolicyPackDryRunService sut = BuildSutWithRunCount(120);
+
+        PolicyPackDryRunResponse response = await sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string>(),
+            BuildRunIds(120),
+            pageSize: 999,
+            page: 1,
+            CancellationToken.None);
+
+        response.PageSize.Should().Be(IPolicyPackDryRunService.MaxPageSize);
+        response.PageSize.Should().Be(100);
+        response.Items.Should().HaveCount(100);
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_ClampsPageBelowOneToFirstPage()
+    {
+        PolicyPackDryRunService sut = BuildSutWithRunCount(5);
+
+        PolicyPackDryRunResponse response = await sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string>(),
+            BuildRunIds(5),
+            pageSize: 2,
+            page: -7,
+            CancellationToken.None);
+
+        response.Page.Should().Be(1);
+        response.Items.Should().HaveCount(2);
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_ProposedThresholdsRunThroughRedactor()
+    {
+        StubRedactor redactor = new();
+        PolicyPackDryRunService sut = BuildSut(
+            runCount: 1,
+            redactor: redactor);
+
+        Dictionary<string, string> proposed = new() { { "maxCriticalFindings", "0" }, { "comment", "ping me at alice@example.com about ssn 111-22-3333" }, };
+
+        PolicyPackDryRunResponse response = await sut.EvaluateAsync(
+            PolicyPackId,
+            proposed,
+            ["run-1"],
+            pageSize: 20,
+            page: 1,
+            CancellationToken.None);
+
+        redactor.Calls.Should().Be(1);
+        response.ProposedThresholdsRedactedJson.Should().Contain("[REDACTED]");
+        response.ProposedThresholdsRedactedJson.Should().NotContain("alice@example.com");
+        response.ProposedThresholdsRedactedJson.Should().NotContain("111-22-3333");
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_TalliesWouldBlockUsingProposedThresholds()
+    {
+        FakeRunDetailQueryService runs = new();
+        runs.AddRun("run-clean", critical: 0, high: 0, medium: 0);
+        runs.AddRun("run-noisy", critical: 3, high: 0, medium: 0);
+
+        FakeDeltaComputer computer = new();
+
+        PolicyPackDryRunService sut = CreateSut(
+            runs,
+            computer,
+            new StubRedactor(),
+            Mock.Of<IAuditService>());
+
+        Dictionary<string, string> proposed = new() { { PolicyPackDryRunSupportedThresholdKeys.MaxCriticalFindings, "0" }, };
+
+        PolicyPackDryRunResponse response = await sut.EvaluateAsync(
+            PolicyPackId,
+            proposed,
+            ["run-clean", "run-noisy"],
+            pageSize: 20,
+            page: 1,
+            CancellationToken.None);
+
+        response.DeltaCounts.Evaluated.Should().Be(2);
+        response.DeltaCounts.WouldBlock.Should().Be(1);
+        response.DeltaCounts.WouldAllow.Should().Be(1);
+        response.DeltaCounts.RunMissing.Should().Be(0);
+
+        PolicyPackDryRunRunItem noisy = response.Items.Single(i => i.RunId == "run-noisy");
+        noisy.WouldBlock.Should().BeTrue();
+        noisy.ThresholdOutcomes.Should().ContainSingle()
+            .Which.WouldBreach.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_trims_padded_threshold_keys()
+    {
+        FakeRunDetailQueryService runs = new();
+        runs.AddRun("run-clean", critical: 2, high: 0, medium: 0);
+
+        FakeDeltaComputer computer = new();
+
+        PolicyPackDryRunService sut = CreateSut(
+            runs,
+            computer,
+            new StubRedactor(),
+            Mock.Of<IAuditService>());
+
+        Dictionary<string, string> proposed = new()
+        {
+            { $" {PolicyPackDryRunSupportedThresholdKeys.MaxCriticalFindings} ", "1" },
+        };
+
+        PolicyPackDryRunResponse response = await sut.EvaluateAsync(
+            PolicyPackId,
+            proposed,
+            ["run-clean"],
+            pageSize: 20,
+            page: 1,
+            CancellationToken.None);
+
+        response.DeltaCounts.WouldBlock.Should().Be(1);
+        response.Items.Should().ContainSingle()
+            .Which.ThresholdOutcomes.Should().ContainSingle()
+            .Which.WouldBreach.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_deduplicates_evaluate_against_run_ids_after_trim()
+    {
+        FakeRunDetailQueryService runs = new();
+        runs.AddRun("run-clean", critical: 0, high: 0, medium: 0);
+
+        FakeDeltaComputer computer = new();
+
+        PolicyPackDryRunService sut = CreateSut(
+            runs,
+            computer,
+            new StubRedactor(),
+            Mock.Of<IAuditService>());
+
+        PolicyPackDryRunResponse response = await sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string>(),
+            [" run-clean ", "run-clean"],
+            pageSize: 20,
+            page: 1,
+            CancellationToken.None);
+
+        response.TotalRequestedRuns.Should().Be(1);
+        response.DeltaCounts.Evaluated.Should().Be(1);
+        response.Items.Should().HaveCount(1);
+        response.Items.Single().RunId.Should().Be("run-clean");
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_skips_whitespace_only_run_ids_before_deduplication()
+    {
+        FakeRunDetailQueryService runs = new();
+        runs.AddRun("run-clean", critical: 0, high: 0, medium: 0);
+
+        FakeDeltaComputer computer = new();
+
+        PolicyPackDryRunService sut = CreateSut(
+            runs,
+            computer,
+            new StubRedactor(),
+            Mock.Of<IAuditService>());
+
+        PolicyPackDryRunResponse response = await sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string>(),
+            ["   ", "run-clean", "\t"],
+            pageSize: 20,
+            page: 1,
+            CancellationToken.None);
+
+        response.TotalRequestedRuns.Should().Be(1);
+        response.DeltaCounts.Evaluated.Should().Be(1);
+        response.Items.Should().ContainSingle()
+            .Which.RunId.Should().Be("run-clean");
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_deduplicates_case_insensitive_evaluate_against_run_ids()
+    {
+        FakeRunDetailQueryService runs = new();
+        runs.AddRun("run-clean", critical: 0, high: 0, medium: 0);
+
+        FakeDeltaComputer computer = new();
+
+        PolicyPackDryRunService sut = CreateSut(
+            runs,
+            computer,
+            new StubRedactor(),
+            Mock.Of<IAuditService>());
+
+        PolicyPackDryRunResponse response = await sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string>(),
+            ["RUN-CLEAN", "run-clean"],
+            pageSize: 20,
+            page: 1,
+            CancellationToken.None);
+
+        response.TotalRequestedRuns.Should().Be(1);
+        response.DeltaCounts.Evaluated.Should().Be(1);
+        response.Items.Should().HaveCount(1);
+        response.Items.Single().RunId.Should().Be("RUN-CLEAN");
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_MarksUnknownRunIdsAsMissingAndExcludesFromTallies()
+    {
+        FakeRunDetailQueryService runs = new();
+        runs.AddRun("run-clean", critical: 0, high: 0, medium: 0);
+
+        FakeDeltaComputer computer = new();
+
+        PolicyPackDryRunService sut = CreateSut(
+            runs,
+            computer,
+            new StubRedactor(),
+            Mock.Of<IAuditService>());
+
+        PolicyPackDryRunResponse response = await sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string>(),
+            ["run-clean", "ghost-run"],
+            pageSize: 20,
+            page: 1,
+            CancellationToken.None);
+
+        response.DeltaCounts.Evaluated.Should().Be(2);
+        response.DeltaCounts.RunMissing.Should().Be(1);
+        response.Items.Should().Contain(i => i.RunId == "ghost-run" && i.RunMissing);
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_PersistsAuditRowWithRedactedPayload()
+    {
+        StubAuditService audit = new();
+        FakeRunDetailQueryService runs = new();
+        runs.AddRun("run-clean", critical: 0, high: 0, medium: 0);
+
+        FakeDeltaComputer computer = new();
+
+        PolicyPackDryRunService sut = CreateSut(
+            runs,
+            computer,
+            new StubRedactor(),
+            audit);
+
+        Dictionary<string, string> proposed = new()
+        {
+            { PolicyPackDryRunSupportedThresholdKeys.MaxCriticalFindings, "1" }, { "comment", "alice@example.com" },
+        };
+
+        await sut.EvaluateAsync(
+            PolicyPackId,
+            proposed,
+            ["run-clean"],
+            pageSize: 20,
+            page: 1,
+            CancellationToken.None);
+
+        audit.LastEvent.Should().NotBeNull();
+        audit.LastEvent!.EventType.Should().Be(AuditEventTypes.GovernanceDryRunRequested);
+        audit.LastEvent.DataJson.Should().Contain("[REDACTED]");
+        audit.LastEvent.DataJson.Should().NotContain("alice@example.com");
+
+        using JsonDocument doc = JsonDocument.Parse(audit.LastEvent.DataJson);
+        doc.RootElement.GetProperty("policyPackId").GetGuid().Should().Be(PolicyPackId);
+        doc.RootElement.GetProperty("evaluatedRunIds").EnumerateArray()
+            .Select(e => e.GetString()).Should().BeEquivalentTo("run-clean");
+        doc.RootElement.GetProperty("deltaCounts").GetProperty("evaluated").GetInt32().Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_sets_explicit_actor_for_stable_actor_user_id_when_display_differs()
+    {
+        const string actorKey = "jwt:tenant:operator-oid";
+        StubAuditService audit = new();
+        FakeRunDetailQueryService runs = new();
+        runs.AddRun("run-clean", critical: 0, high: 0, medium: 0);
+
+        Mock<IActorContext> actorContext = new();
+        actorContext.Setup(a => a.GetActorId()).Returns(actorKey);
+        actorContext.Setup(a => a.GetActor()).Returns("Operator Display");
+
+        PolicyPackDryRunService sut = CreateSut(
+            runs,
+            new FakeDeltaComputer(),
+            new StubRedactor(),
+            audit,
+            actorContext: actorContext.Object);
+
+        await sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string>(),
+            ["run-clean"],
+            pageSize: 20,
+            page: 1,
+            CancellationToken.None);
+
+        audit.LastEvent.Should().NotBeNull();
+        audit.LastEvent!.ExplicitActor.Should().BeTrue();
+        audit.LastEvent.ActorUserId.Should().Be(actorKey);
+        audit.LastEvent.ActorUserName.Should().Be("Operator Display");
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_deduplicates_duplicate_evaluate_against_run_ids_case_insensitively()
+    {
+        CountingRunDetailQueryService runs = new();
+        runs.AddRun("run-1", critical: 0, high: 0, medium: 0);
+
+        PolicyPackDryRunService sut = CreateSut(
+            runs,
+            new FakeDeltaComputer(),
+            new StubRedactor(),
+            Mock.Of<IAuditService>());
+
+        PolicyPackDryRunResponse response = await sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string>(),
+            ["run-1", "run-1", "RUN-1"],
+            pageSize: 20,
+            page: 1,
+            CancellationToken.None);
+
+        runs.LookupCount.Should().Be(1);
+        response.TotalRequestedRuns.Should().Be(1);
+        response.DeltaCounts.Evaluated.Should().Be(1);
+        response.Items.Should().ContainSingle(item => item.RunId == "run-1");
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_throws_when_policy_pack_is_out_of_scope()
+    {
+        PolicyPack foreignPack = new()
+        {
+            PolicyPackId = PolicyPackId,
+            TenantId = Scope.TenantId,
+            WorkspaceId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            ProjectId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+        };
+
+        PolicyPackDryRunService sut = CreateSut(
+            new FakeRunDetailQueryService(),
+            new FakeDeltaComputer(),
+            new StubRedactor(),
+            Mock.Of<IAuditService>(),
+            foreignPack);
+
+        Func<Task> act = () => sut.EvaluateAsync(
+            PolicyPackId,
+            new Dictionary<string, string>(),
+            ["run-1"],
+            pageSize: 20,
+            page: 1,
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<PolicyPackNotFoundException>();
+    }
+
+    private static List<string> BuildRunIds(int count) =>
+        Enumerable.Range(1, count).Select(i => $"run-{i:0000}").ToList();
+
+    private static PolicyPackDryRunService BuildSutWithRunCount(int runCount) =>
+        BuildSut(runCount, new StubRedactor());
+
+    private static PolicyPackDryRunService BuildSut(int runCount, IPromptRedactor redactor)
+    {
+        FakeRunDetailQueryService runs = new();
+
+        for (int i = 1; i <= runCount; i++)
+            runs.AddRun($"run-{i:0000}", critical: 0, high: 0, medium: 0);
+
+        FakeDeltaComputer computer = new();
+
+        return CreateSut(runs, computer, redactor, Mock.Of<IAuditService>());
+    }
+
+    private static PolicyPackDryRunService CreateSut(
+        IRunDetailQueryService runDetailQueryService,
+        IPilotRunDeltaComputer pilotRunDeltaComputer,
+        IPromptRedactor redactor,
+        IAuditService auditService,
+        PolicyPack? pack = null,
+        IActorContext? actorContext = null)
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        IActorContext resolvedActorContext = actorContext ?? CreateDefaultActorContext();
+
+        PolicyPack visiblePack = pack ?? new PolicyPack
+        {
+            PolicyPackId = PolicyPackId,
+            TenantId = Scope.TenantId,
+            WorkspaceId = Scope.WorkspaceId,
+            ProjectId = Scope.ProjectId,
+        };
+
+        Mock<IPolicyPackRepository> packs = new();
+        packs
+            .Setup(r => r.GetByIdAsync(PolicyPackId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(visiblePack);
+
+        return new PolicyPackDryRunService(
+            new PolicyPackDryRunLoadStage(runDetailQueryService, pilotRunDeltaComputer, NullLogger<PolicyPackDryRunLoadStage>.Instance),
+            new PolicyPackDryRunRedactAuditStage(
+                redactor,
+                auditService,
+                resolvedActorContext,
+                NullLogger<PolicyPackDryRunRedactAuditStage>.Instance),
+            scopeProvider.Object,
+            packs.Object);
+    }
+
+    private static IActorContext CreateDefaultActorContext()
+    {
+        Mock<IActorContext> actorContext = new();
+        actorContext.Setup(a => a.GetActorId()).Returns("jwt:default:actor");
+        actorContext.Setup(a => a.GetActor()).Returns("Default Actor");
+
+        return actorContext.Object;
+    }
+
+    private sealed class StubRedactor : IPromptRedactor
+    {
+        public int Calls
+        {
+            get;
+            private set;
+        }
+
+        public PromptRedactionOutcome Redact(string? input)
+        {
+            Calls++;
+            string text = input ?? string.Empty;
+            text = text.Replace("alice@example.com", "[REDACTED]")
+                .Replace("111-22-3333", "[REDACTED]");
+
+            return new PromptRedactionOutcome(text, ImmutableDictionary<string, int>.Empty);
+        }
+
+        public PromptRedactionOutcome RedactAlways(string? input) => Redact(input);
+    }
+
+    private sealed class StubAuditService : IAuditService
+    {
+        public AuditEvent? LastEvent
+        {
+            get;
+            private set;
+        }
+
+        public Task LogAsync(AuditEvent auditEvent, CancellationToken ct)
+        {
+            LastEvent = auditEvent;
+            return Task.CompletedTask;
+        }
+
+        public Task LogAsync(AuditEvent auditEvent, IArchLucidUnitOfWork unitOfWork, CancellationToken ct) =>
+            LogAsync(auditEvent, ct);
+    }
+
+    private sealed class CountingRunDetailQueryService : FakeRunDetailQueryService
+    {
+        public int LookupCount
+        {
+            get;
+            private set;
+        }
+
+        public override Task<ArchitectureRunDetail?> GetRunDetailAsync(string runId, CancellationToken cancellationToken = default)
+        {
+            LookupCount++;
+            return base.GetRunDetailAsync(runId, cancellationToken);
+        }
+    }
+
+    private class FakeRunDetailQueryService : IRunDetailQueryService
+    {
+        private readonly Dictionary<string, ArchitectureRunDetail> _byId = new(StringComparer.OrdinalIgnoreCase);
+
+        public void AddRun(string runId, int critical, int high, int medium)
+        {
+            List<ArchitectureFinding> findings = [];
+
+            for (int i = 0; i < critical; i++)
+                findings.Add(new ArchitectureFinding { FindingId = $"f-c-{i}", Severity = FindingSeverity.Critical });
+            for (int i = 0; i < high; i++)
+                findings.Add(new ArchitectureFinding { FindingId = $"f-h-{i}", Severity = FindingSeverity.Error });
+            for (int i = 0; i < medium; i++)
+                findings.Add(new ArchitectureFinding { FindingId = $"f-m-{i}", Severity = FindingSeverity.Warning });
+
+            _byId[runId] = new ArchitectureRunDetail
+            {
+                Run = new ArchitectureRun { RunId = runId, RequestId = $"req-{runId}", CreatedUtc = TimeProvider.System.UtcNowDateTime() },
+                Results = [new AgentResult { Findings = findings }],
+            };
+        }
+
+        public virtual Task<ArchitectureRunDetail?> GetRunDetailAsync(string runId, CancellationToken cancellationToken = default) =>
+            Task.FromResult(_byId.TryGetValue(runId, out ArchitectureRunDetail? detail) ? detail : null);
+
+        public Task<ArchitectureRunDetail?> GetRunDetailForOperatorEnrichAsync(string runId, CancellationToken cancellationToken = default) =>
+            GetRunDetailAsync(runId, cancellationToken);
+
+        public Task<ArchitectureRunDetail?> GetRunDetailForRollupAsync(string runId, CancellationToken cancellationToken = default) =>
+            GetRunDetailAsync(runId, cancellationToken);
+
+        public Task<ArchitectureRunDetail?> GetRunDetailForRoiAsync(string runId, CancellationToken cancellationToken = default) =>
+            GetRunDetailAsync(runId, cancellationToken);
+
+        public Task<IReadOnlyList<RunSummary>> ListRunSummariesAsync(CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<RunSummary>>([]);
+
+        public Task<(IReadOnlyList<RunSummary> Items, bool HasMore, string? NextCursor)> ListRunSummariesKeysetAsync(
+            string? cursor,
+            int take,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<(IReadOnlyList<RunSummary>, bool, string?)>(([], false, null));
+
+        public Task<(IReadOnlyList<RunSummary> Items, bool HasMore)> ListRunSummariesOffsetAsync(
+            int offset,
+            int limit,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<(IReadOnlyList<RunSummary>, bool)>(([], false));
+    }
+
+    /// <summary>
+    ///     Standalone delta computer that mirrors <see cref="FakeRunDetailQueryService" /> findings into the
+    ///     <see cref="PilotRunDeltas.FindingsBySeverity" /> shape the production service consumes.
+    /// </summary>
+    private sealed class FakeDeltaComputer : IPilotRunDeltaComputer
+    {
+        public Task<PilotRunDeltas> ComputeAsync(ArchitectureRunDetail detail, CancellationToken cancellationToken = default)
+        {
+            if (detail is null)
+                throw new ArgumentNullException(nameof(detail));
+
+            List<KeyValuePair<string, int>> bySeverity = detail.Results
+                .SelectMany(r => r.Findings)
+                .GroupBy(static f => f.Severity.ToString(), StringComparer.OrdinalIgnoreCase)
+                .Select(g => new KeyValuePair<string, int>(g.Key, g.Count()))
+                .ToList();
+
+            return Task.FromResult(new PilotRunDeltas { RunCreatedUtc = detail.Run.CreatedUtc, FindingsBySeverity = bySeverity, });
+        }
+    }
+}

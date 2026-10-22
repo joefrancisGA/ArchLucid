@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-adv-fabricated-sku",
+  "metadata": {
+    "title": "Adversarial: invented Azure SKU in cost narrative",
+    "complexity": "medium",
+    "primaryAgents": ["Cost", "Critic"]
+  },
+  "inputSummary": "The brief mandates Azure Nebula Infinite Storage XL nodes in every region, but inventory and pricing exports list no such SKU.",
+  "recording": "adversarial/fabricated-sku/recordings/corpus-adv-fabricated-sku.findings.json",
+  "qualityEvidence": {
+    "mode": "simulator",
+    "agentType": "Cost",
+    "agentResultPath": "adversarial/fabricated-sku/agent-result.simulator.json",
+    "notes": "Simulator omits evidenceRefs so offline gate must not accept fabricated SKU anchors."
+  },
+  "expectedFindings": [
+    {
+      "id": "e fabricated sku cost",
+      "category": "Cost",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["sku", "fabricat"]
+    }
+  ],
+  "unexpectedFindings": []
+}

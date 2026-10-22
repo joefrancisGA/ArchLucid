@@ -1,0 +1,355 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+
+import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
+import { useAssumptionAwareCommitBlockedReason } from "@/hooks/use-assumption-aware-commit-blocked-reason";
+import { useCareerFinalizeBlockedReason } from "@/hooks/use-career-finalize-blocked-reason";
+import { useUnsupportedSemanticSupportFinalizeBlockedReason } from "@/hooks/use-unsupported-semantic-support-finalize-blocked-reason";
+import { mergeFinalizeCommitBlockedReasons } from "@/lib/findings/semantic-support-band-finalize-honesty";
+import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
+import { usePriorSameRequestCompareHref } from "@/hooks/use-prior-same-request-compare-href";
+import { useSessionAiReadiness } from "@/hooks/use-session-ai-readiness";
+import { deriveReviewFailureRequiresWorkspaceAiProbe } from "@/lib/derive-review-failure-requires-workspace-ai-probe";
+import { fetchLlmMonthlyDollarBudgetStatusCached } from "@/lib/llm-monthly-budget-status";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
+
+import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+
+import { ReviewPackageDoThisNextStrip } from "./ReviewPackageDoThisNextStrip";
+import { RunDetailReviewPackageStampViewport } from "./RunDetailReviewPackageStampViewport";
+import { FinalizeReadinessChecklistParityBanner } from "@/components/reviews/FinalizeReadinessChecklistParityBanner";
+import { FinalizeReadinessStrip } from "@/components/reviews/FinalizeReadinessStrip";
+import { RunDetailPackageSpineExportCoLocationStrip } from "@/components/reviews/RunDetailPackageSpineExportCoLocationStrip";
+import { resolveReviewFailureRecordedAtUtc } from "@/components/resolve-run-detail-last-failure-summary";
+import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
+import type {
+  ResolveReviewPackageDoThisNextInput,
+  ReviewPackageDoThisNext,
+} from "./resolve-review-package-do-this-next";
+import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { summarizePolicyPackFindingImpact } from "@/lib/group-findings-by-policy-pack";
+import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-state";
+import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
+import type { RunSummary } from "@/types/authority";
+import type { TransparencyTrail, ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
+import type { HeldCheckLedgerRollupEntry, HeldCheckSecondPassSummary } from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
+import type { ProseAssumptionHeldCheckAsk } from "@/lib/findings/read-prose-assumption-held-check-asks-from-findings-snapshot";
+import type { ProseAssumptionRegisterEntry } from "@/lib/findings/read-prose-assumption-register-from-findings-snapshot";
+import type { PixelDiagramNotVerifiableSource } from "@/lib/architecture-spine/read-pixel-diagram-not-verifiable-sources";
+import type { FinalizeReadinessBlock } from "@/types/finalize-readiness";
+
+export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackageDoThisNextInput & {
+  readonly parentArchitectureId?: string | null;
+  readonly hasGoldenManifest: boolean;
+  readonly commitBlockedReason: string | null | undefined;
+  readonly serverFinalizeReadinessBlocks?: readonly FinalizeReadinessBlock[];
+  readonly finalizeReadinessEnabled: boolean;
+  readonly quickDecisionFindings: readonly QuickDecisionFinding[];
+  readonly requestAssumptionTexts: readonly string[];
+  readonly transparencyTrail?: TransparencyTrail | null;
+  readonly feasibilityVerdict?: ManifestFeasibilityVerdict | null;
+  readonly pipelineDiagnosticContext?: ReviewPipelineDiagnosticContext | null;
+  readonly lastFailureSummary?: RunDetailLastFailureSummary | null;
+  readonly pipelineSummary?: RunSummary | null;
+  readonly runCompletedUtc?: string | null;
+  readonly intakeDescription?: string | null;
+  readonly intakeSystemName?: string | null;
+  readonly realModeFellBackToSimulator?: boolean | null;
+  readonly graphSnapshot?: unknown;
+  readonly analysisStagesComplete?: boolean;
+  readonly enginesSucceeded?: number | null;
+  readonly withheldFindingCount?: number;
+  readonly catalogAdvisoryEngineFailureCount?: number;
+  readonly judgeSkippedByCap?: number | null;
+  readonly judgeConfiguredCap?: number | null;
+  readonly judgeEffectiveCap?: number | null;
+  readonly heldCheckLedgerEntries?: readonly HeldCheckLedgerRollupEntry[];
+  readonly heldCheckSecondPass?: HeldCheckSecondPassSummary | null;
+  readonly proseAssumptionRegisterEntries?: readonly ProseAssumptionRegisterEntry[];
+  readonly proseAssumptionHeldCheckAsks?: readonly ProseAssumptionHeldCheckAsk[];
+  readonly pixelDiagramNotVerifiableSources?: readonly PixelDiagramNotVerifiableSource[];
+  readonly architectureRequestId?: string | null;
+  readonly azureInventoryEvidencePresent?: boolean;
+  readonly structuralExecutionMode?: StructuralExecutionModeInput;
+  readonly degradedFindingCoverage?: boolean;
+  readonly degradedFindingCoverageFailedEngineLabels?: readonly string[];
+};
+
+function doThisNextLoadingSkeleton(): React.JSX.Element {
+  return (
+    <div
+      className={cn(
+        "h-20 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800",
+        OPERATOR_TYPOGRAPHY.body,
+      )}
+      role="status"
+      aria-label="Loading next step"
+      data-testid="run-detail-do-this-next-resolved-loading"
+    />
+  );
+}
+
+/** Resolves review-package next-step copy off the page-view sync import graph (wave 14). */
+export function RunDetailReviewPackageDoThisNextResolved(
+  props: RunDetailReviewPackageDoThisNextResolvedProps,
+): React.JSX.Element {
+  const [next, setNext] = useState<ReviewPackageDoThisNext | null>(null);
+  const [usesCustomerAiConnection, setUsesCustomerAiConnection] = useState(false);
+  const priorCompare = usePriorSameRequestCompareHref(props.runId, 25);
+  const requireLiveProbe = useMemo(
+    () =>
+      deriveReviewFailureRequiresWorkspaceAiProbe({
+        legacyRunStatus: props.legacyRunStatus,
+        lastFailureSummary: props.lastFailureSummary,
+        pipelineSummary: props.pipelineSummary,
+        realModeFellBackToSimulator: props.realModeFellBackToSimulator,
+        usesCustomerAiConnection,
+      }),
+    [
+      props.lastFailureSummary,
+      props.legacyRunStatus,
+      props.pipelineSummary,
+      props.realModeFellBackToSimulator,
+      usesCustomerAiConnection,
+    ],
+  );
+  const sessionAiReadiness = useSessionAiReadiness({ requireLiveProbe });
+  const callerAuthorityRank = useNavCallerAuthorityRank();
+  const canConfigureWorkspaceAi = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
+  const commitBlockedState = useAssumptionAwareCommitBlockedReason({
+    runId: props.runId,
+    serverCommitBlockedReason: props.commitBlockedReason,
+    serverFinalizeReadinessBlocks: props.serverFinalizeReadinessBlocks,
+    finalizeReadinessEnabled: props.finalizeReadinessEnabled,
+    findings: props.quickDecisionFindings,
+    blockingFindingCount: props.blockingFindingCount,
+    requestAssumptionTexts: props.requestAssumptionTexts,
+    transparencyTrail: props.transparencyTrail,
+    degradedFindingCoverage: props.degradedFindingCoverage,
+    degradedFindingCoverageFailedEngineLabels: props.degradedFindingCoverageFailedEngineLabels,
+    blockDegradedFindingCoverageOnWorking: props.buyerPolishedArtifactTable !== true,
+  });
+  const unsupportedSemanticSupportCommitBlockedReason =
+    useUnsupportedSemanticSupportFinalizeBlockedReason({
+      findings: props.quickDecisionFindings,
+      manifestFinalized: props.hasGoldenManifest,
+      structuralExecutionMode: props.structuralExecutionMode,
+    });
+  const careerFinalizeBlockedReason = useCareerFinalizeBlockedReason({
+    manifestFinalized: props.hasGoldenManifest,
+    structuralExecutionMode: props.structuralExecutionMode ?? props.pipelineSummary?.structuralExecutionMode,
+    workingCareerRehearsalDoor: props.pipelineSummary?.workingCareerRehearsalDoor,
+    transparencyTrail: props.transparencyTrail,
+  });
+  const effectiveCommitBlockedReason = mergeFinalizeCommitBlockedReasons(
+    commitBlockedState.blockedReason,
+    commitBlockedState.readinessUnavailable || commitBlockedState.blocks.length > 0
+      ? null
+      : unsupportedSemanticSupportCommitBlockedReason,
+    careerFinalizeBlockedReason,
+  );
+  const effectiveCommitBlockedBlocks = commitBlockedState.blocks;
+
+  useEffect(() => {
+    let canceled = false;
+
+    void fetchLlmMonthlyDollarBudgetStatusCached()
+      .then((status) => {
+        if (!canceled) {
+          setUsesCustomerAiConnection(status.customerAiProviderConfigured === true);
+        }
+      })
+      .catch(() => {
+        if (!canceled) {
+          setUsesCustomerAiConnection(false);
+        }
+      });
+
+    return () => {
+      canceled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let canceled = false;
+
+    void import("./resolve-review-package-do-this-next").then(({ resolveReviewPackageDoThisNext }) => {
+      if (canceled) {
+        return;
+      }
+
+      setNext(
+        resolveReviewPackageDoThisNext({
+          runId: props.runId,
+          manifestId: props.manifestId,
+          hasCommitBlockingFailures: props.hasCommitBlockingFailures,
+          blockingFindingCount: props.blockingFindingCount,
+          buyerPolishedArtifactTable: props.buyerPolishedArtifactTable,
+          operatorGovernanceDecision: props.operatorGovernanceDecision,
+          manifestStatus: props.manifestStatus,
+          runCompleted: props.runCompleted,
+          nextAction: props.nextAction,
+          showProgressTracker: props.showProgressTracker,
+          openClarificationGapCount: props.openClarificationGapCount,
+          findingsCount: props.quickDecisionFindings.length,
+          correctionHref: props.correctionHref,
+          useCreateHomeWorkspaceTabs: props.useCreateHomeWorkspaceTabs,
+          evidenceCoverageLinkedCount: props.evidenceCoverageLinkedCount,
+          evidenceCoverageTotalCount: props.evidenceCoverageTotalCount,
+          governanceDecisionRecorded: props.governanceDecisionRecorded,
+          compareWithPriorHref: priorCompare.compareWithPriorHref,
+          legacyRunStatus: props.legacyRunStatus,
+          isDeadLettered: props.isDeadLettered,
+          pipelineDiagnosticContext: props.pipelineDiagnosticContext,
+          lastFailureSummary: props.lastFailureSummary,
+          pipelineSummary: props.pipelineSummary,
+          intakeDescription: props.intakeDescription,
+          intakeSystemName: props.intakeSystemName,
+          canConfigureWorkspaceAi,
+          realModeFellBackToSimulator: props.realModeFellBackToSimulator === true,
+          usesCustomerAiConnection,
+          effectiveSessionMode: sessionAiReadiness.sessionMode,
+          feasibilityVerdictKind: props.feasibilityVerdict?.kind ?? null,
+        }),
+      );
+    });
+
+    return () => {
+      canceled = true;
+    };
+  }, [
+    priorCompare.compareWithPriorHref,
+    usesCustomerAiConnection,
+    props.runId,
+    props.manifestId,
+    props.hasCommitBlockingFailures,
+    props.blockingFindingCount,
+    props.buyerPolishedArtifactTable,
+    props.operatorGovernanceDecision,
+    props.manifestStatus,
+    props.runCompleted,
+    props.nextAction,
+    props.showProgressTracker,
+    props.openClarificationGapCount,
+    props.quickDecisionFindings.length,
+    props.correctionHref,
+    props.useCreateHomeWorkspaceTabs,
+    props.evidenceCoverageLinkedCount,
+    props.evidenceCoverageTotalCount,
+    props.governanceDecisionRecorded,
+    props.legacyRunStatus,
+    props.isDeadLettered,
+    props.pipelineDiagnosticContext,
+    props.lastFailureSummary,
+    props.pipelineSummary,
+    props.intakeDescription,
+    props.intakeSystemName,
+    canConfigureWorkspaceAi,
+    props.realModeFellBackToSimulator,
+  ]);
+
+  const suppressMeasurementDenominator = isReviewPipelineTerminalFailure(
+    props.pipelineDiagnosticContext ?? {
+      legacyRunStatus: props.legacyRunStatus,
+      isDeadLettered: props.isDeadLettered,
+    },
+  );
+  const policyPackImpact = useMemo(
+    () => summarizePolicyPackFindingImpact(props.quickDecisionFindings),
+    [props.quickDecisionFindings],
+  );
+
+  if (next === null) {
+    return doThisNextLoadingSkeleton();
+  }
+
+  return (
+    <>
+      <RunDetailReviewPackageStampViewport
+        hasGoldenManifest={props.hasGoldenManifest}
+        runId={props.runId}
+        architectureRequestId={props.architectureRequestId}
+        manifestVersion={props.manifestId}
+        suppressMeasurementDenominator={suppressMeasurementDenominator}
+        pipelineTerminalFailure={suppressMeasurementDenominator}
+
+        enginesSucceeded={props.enginesSucceeded}
+        feasibilityVerdict={props.feasibilityVerdict ?? null}
+        runCompleted={props.runCompleted ?? false}
+        analysisStagesComplete={props.analysisStagesComplete}
+        graphSnapshot={props.graphSnapshot}
+        transparencyTrail={props.transparencyTrail ?? null}
+        quickDecisionFindings={props.quickDecisionFindings}
+        withheldFindingCount={props.withheldFindingCount}
+        catalogAdvisoryEngineFailureCount={props.catalogAdvisoryEngineFailureCount}
+        judgeSkippedByCap={props.judgeSkippedByCap}
+        judgeConfiguredCap={props.judgeConfiguredCap}
+        judgeEffectiveCap={props.judgeEffectiveCap}
+        heldCheckLedgerEntries={props.heldCheckLedgerEntries}
+        heldCheckSecondPass={props.heldCheckSecondPass}
+        proseAssumptionRegisterEntries={props.proseAssumptionRegisterEntries}
+        proseAssumptionHeldCheckAsks={props.proseAssumptionHeldCheckAsks}
+        pixelDiagramNotVerifiableSources={props.pixelDiagramNotVerifiableSources}
+        azureInventoryEvidencePresent={props.azureInventoryEvidencePresent === true}
+        structuralExecutionMode={props.structuralExecutionMode}
+        workingCareerRehearsalDoor={props.pipelineSummary?.workingCareerRehearsalDoor}
+        unmappedFindingCount={policyPackImpact.unmappedFindingCount}
+      />
+      {commitBlockedState.readinessChecklistMismatch
+      && commitBlockedState.checklistReadyToFinalize !== null
+      && commitBlockedState.readinessReadyToFinalize !== null ? (
+        <FinalizeReadinessChecklistParityBanner
+          checklistReadyToFinalize={commitBlockedState.checklistReadyToFinalize}
+          readinessReadyToFinalize={commitBlockedState.readinessReadyToFinalize}
+        />
+      ) : null}
+      <FinalizeReadinessStrip
+        runId={props.runId}
+        commitBlockedReason={
+          next.failureRecovery !== null && next.failureRecovery !== undefined
+            ? null
+            : effectiveCommitBlockedReason
+        }
+        commitBlockedBlocks={
+          next.failureRecovery !== null && next.failureRecovery !== undefined
+            ? []
+            : effectiveCommitBlockedBlocks
+        }
+        readinessLoading={commitBlockedState.readinessLoading}
+      />
+      {props.hasGoldenManifest && (props.manifestId ?? "").trim().length > 0 ? (
+        <RunDetailPackageSpineExportCoLocationStrip
+          runId={props.runId}
+          manifestId={props.manifestId ?? ""}
+          progressSummary={props.pipelineSummary ?? null}
+          structuralExecutionMode={props.structuralExecutionMode}
+          workingCareerRehearsalDoor={props.pipelineSummary?.workingCareerRehearsalDoor}
+          enginesSucceeded={props.enginesSucceeded ?? null}
+        />
+      ) : null}
+      <ReviewPackageDoThisNextStrip
+        next={next}
+        runId={props.runId}
+        parentArchitectureId={props.parentArchitectureId ?? null}
+        retryCount={props.pipelineDiagnosticContext?.retryCount ?? props.pipelineSummary?.retryCount ?? null}
+        hasGoldenManifest={props.hasGoldenManifest}
+        commitBlockedReason={effectiveCommitBlockedReason}
+        commitBlockedBlocks={effectiveCommitBlockedBlocks}
+        sessionAiReadiness={sessionAiReadiness}
+        canConfigureWorkspaceAi={canConfigureWorkspaceAi}
+        usesCustomerAiConnection={usesCustomerAiConnection}
+        transparencyTrail={props.transparencyTrail ?? null}
+        lastFailureSummary={props.lastFailureSummary ?? null}
+        failureRecordedAtUtc={resolveReviewFailureRecordedAtUtc({
+          pipelineSummary: props.pipelineSummary ?? null,
+          runCompletedUtc: props.runCompletedUtc ?? props.pipelineSummary?.completedUtc ?? null,
+        })}
+        pipelineDiagnosticContext={props.pipelineDiagnosticContext ?? null}
+        pipelineSummary={props.pipelineSummary ?? null}
+        reviewTitle={props.intakeSystemName ?? props.intakeDescription ?? null}
+      />
+    </>
+  );
+}

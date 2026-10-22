@@ -1,0 +1,367 @@
+using System.Text.Json;
+
+using ArchLucid.ContextIngestion.Models;
+
+using Microsoft.Extensions.Logging;
+
+namespace ArchLucid.ContextIngestion.Infrastructure;
+
+/// <summary>
+///     Parses ARM template JSON (<c>resources</c> array) into canonical objects.
+/// </summary>
+public sealed class ArmJsonInfrastructureDeclarationParser(
+    ILogger<ArmJsonInfrastructureDeclarationParser> logger) : IInfrastructureDeclarationParser
+{
+    internal const int MaxLinkedTemplateRecursionDepth = 3;
+
+    public bool CanParse(string format)
+    {
+        return string.Equals(format?.Trim(), "arm-json", StringComparison.OrdinalIgnoreCase);
+    }
+
+    public Task<IReadOnlyList<CanonicalObject>> ParseAsync(
+        InfrastructureDeclarationReference declaration,
+        CancellationToken ct)
+    {
+        return ParseAsync(declaration, batchByPath: null, ct);
+    }
+
+    internal Task<IReadOnlyList<CanonicalObject>> ParseAsync(
+        InfrastructureDeclarationReference declaration,
+        IReadOnlyDictionary<string, InfrastructureDeclarationReference>? batchByPath,
+        CancellationToken ct)
+    {
+        _ = ct;
+
+        if (string.IsNullOrWhiteSpace(declaration.Content))
+            return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
+
+        try
+        {
+            List<CanonicalObject> results = [];
+            HashSet<string> visitedLinkedTemplateKeys = new(StringComparer.OrdinalIgnoreCase);
+            ArmJsonParseState state = new(
+                declaration,
+                batchByPath,
+                LinkedTemplateDepth: 0,
+                visitedLinkedTemplateKeys);
+
+            ParseResourcesFromContent(declaration.Content, state, results);
+
+            return Task.FromResult<IReadOnlyList<CanonicalObject>>(results);
+        }
+        catch (JsonException ex)
+        {
+            logger.LogWarning(
+                ex,
+                "Failed to parse infrastructure declaration '{Name}' (DeclarationId={DeclarationId}) as arm-json; skipping.",
+                declaration.Name,
+                declaration.DeclarationId);
+
+            return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
+        }
+    }
+
+    private static void ParseResourcesFromContent(
+        string content,
+        ArmJsonParseState state,
+        List<CanonicalObject> results)
+    {
+        using JsonDocument document = JsonDocument.Parse(content);
+        JsonElement root = document.RootElement;
+
+        if (!TryGetPropertyIgnoreCase(root, "resources", out JsonElement resources)
+            || resources.ValueKind is not JsonValueKind.Array)
+            return;
+
+        foreach (JsonElement resource in resources.EnumerateArray())
+            TryAddResource(resource, state, results);
+    }
+
+    private static void TryAddResource(
+        JsonElement resource,
+        ArmJsonParseState state,
+        List<CanonicalObject> results)
+    {
+        if (!TryGetPropertyIgnoreCase(resource, "type", out JsonElement typeElement) || typeElement.ValueKind is not JsonValueKind.String)
+            return;
+
+        string resourceType = (typeElement.GetString() ?? string.Empty).Trim();
+
+        if (string.IsNullOrWhiteSpace(resourceType))
+            return;
+
+        if (resourceType.Equals("Microsoft.Resources/deployments", StringComparison.OrdinalIgnoreCase))
+        {
+            if (TryGetPropertyIgnoreCase(resource, "resources", out JsonElement deploymentChildren)
+                && deploymentChildren.ValueKind is JsonValueKind.Array)
+            {
+                foreach (JsonElement childResource in deploymentChildren.EnumerateArray())
+                    TryAddResource(childResource, state, results);
+            }
+
+            if (TryGetPropertyIgnoreCase(resource, "properties", out JsonElement deploymentProperties)
+                && deploymentProperties.ValueKind is JsonValueKind.Object
+                && TryGetPropertyIgnoreCase(deploymentProperties, "template", out JsonElement template)
+                && template.ValueKind is JsonValueKind.Object
+                && TryGetPropertyIgnoreCase(template, "resources", out JsonElement templateResources)
+                && templateResources.ValueKind is JsonValueKind.Array)
+            {
+                foreach (JsonElement templateResource in templateResources.EnumerateArray())
+                    TryAddResource(templateResource, state, results);
+            }
+            else
+            {
+                TryExpandLinkedTemplate(deploymentProperties, state, results);
+            }
+
+            return;
+        }
+
+        if (!TryGetPropertyIgnoreCase(resource, "name", out JsonElement nameElement))
+            return;
+
+        string name = ReadName(nameElement);
+
+        if (string.IsNullOrWhiteSpace(name))
+            return;
+
+        string objectType = ResolveObjectType(resourceType);
+
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["resourceType"] = resourceType.ToLowerInvariant(),
+        };
+
+        if (TryGetPropertyIgnoreCase(resource, "properties", out JsonElement resourceProperties)
+            && resourceProperties.ValueKind is JsonValueKind.Object)
+            CopyBoundedProperties(resourceProperties, properties);
+
+        InfrastructureDeclarationSpecialPropertyMapper.Apply(properties, resourceType, name);
+
+        string canonicalName = name.ToLowerInvariant();
+        string canonicalResourceType = resourceType.ToLowerInvariant();
+        string resourceIdentity = InfrastructureDeclarationResourceIdentity.AppendSubtypeRegionDisambiguators(
+            $"{canonicalResourceType}|{canonicalName}",
+            properties);
+
+        results.Add(new CanonicalObject
+        {
+            ObjectId = InfrastructureDeclarationStableObjectIds.ForDeclaredResource(
+                state.Declaration.DeclarationId,
+                objectType,
+                resourceIdentity),
+            ObjectType = objectType,
+            Name = canonicalName,
+            SourceType = "InfrastructureDeclaration",
+            SourceId = state.Declaration.DeclarationId,
+            Properties = properties
+        });
+
+        if (TryGetPropertyIgnoreCase(resource, "resources", out JsonElement nestedChildren)
+            && nestedChildren.ValueKind is JsonValueKind.Array)
+        {
+            foreach (JsonElement childResource in nestedChildren.EnumerateArray())
+                TryAddResource(childResource, state, results);
+        }
+    }
+
+    private static void TryExpandLinkedTemplate(
+        JsonElement deploymentProperties,
+        ArmJsonParseState state,
+        List<CanonicalObject> results)
+    {
+        if (state.BatchByPath is null
+            || state.LinkedTemplateDepth >= MaxLinkedTemplateRecursionDepth
+            || !TryGetPropertyIgnoreCase(deploymentProperties, "templateLink", out JsonElement templateLink)
+            || templateLink.ValueKind is not JsonValueKind.Object)
+            return;
+
+        string? templateLinkPath = ReadTemplateLinkPath(templateLink);
+
+        if (string.IsNullOrWhiteSpace(templateLinkPath)
+            || ArmJsonLinkedTemplateBatchIndex.IsRemoteUri(templateLinkPath))
+            return;
+
+        if (!InfrastructureDeclarationBatchPathIndex.TryResolve(
+                templateLinkPath,
+                state.Declaration.Name,
+                state.BatchByPath,
+                out InfrastructureDeclarationReference linkedDeclaration))
+            return;
+
+        string linkedKey = InfrastructureDeclarationBatchPathIndex.NormalizeLookupKey(linkedDeclaration.Name);
+
+        if (!state.VisitedLinkedTemplateKeys.Add(linkedKey))
+            return;
+
+        if (string.IsNullOrWhiteSpace(linkedDeclaration.Content))
+            return;
+
+        ArmJsonParseState linkedState = state.WithLinkedTemplate(
+            linkedDeclaration,
+            state.LinkedTemplateDepth + 1);
+
+        ParseResourcesFromContent(linkedDeclaration.Content, linkedState, results);
+    }
+
+    private static string? ReadTemplateLinkPath(JsonElement templateLink)
+    {
+        if (TryGetPropertyIgnoreCase(templateLink, "relativePath", out JsonElement relativePathElement)
+            && relativePathElement.ValueKind is JsonValueKind.String)
+        {
+            string relativePath = (relativePathElement.GetString() ?? string.Empty).Trim();
+
+            if (!string.IsNullOrWhiteSpace(relativePath))
+                return relativePath;
+        }
+
+        if (TryGetPropertyIgnoreCase(templateLink, "uri", out JsonElement uriElement)
+            && uriElement.ValueKind is JsonValueKind.String)
+        {
+            return (uriElement.GetString() ?? string.Empty).Trim();
+        }
+
+        return null;
+    }
+
+    private static string ReadName(JsonElement nameElement)
+    {
+        if (nameElement.ValueKind is JsonValueKind.String)
+            return (nameElement.GetString() ?? string.Empty).Trim();
+
+        if (nameElement.ValueKind is JsonValueKind.Array)
+        {
+            List<string> segments = [];
+
+            foreach (JsonElement segment in nameElement.EnumerateArray())
+            {
+                if (segment.ValueKind is not JsonValueKind.String)
+                    continue;
+
+                string trimmed = (segment.GetString() ?? string.Empty).Trim();
+
+                if (!string.IsNullOrWhiteSpace(trimmed))
+                    segments.Add(trimmed);
+            }
+
+            if (segments.Count > 0)
+                return string.Join('/', segments);
+        }
+
+        return nameElement.GetRawText().Trim();
+    }
+
+    private static void CopyBoundedProperties(JsonElement propertiesObject, Dictionary<string, string> properties)
+    {
+        List<JsonProperty> allProperties = propertiesObject.EnumerateObject().ToList();
+
+        foreach (JsonProperty property in OrderPropertiesForCopy(allProperties))
+            TryCopyBoundedProperty(property, properties);
+    }
+
+    private static IEnumerable<JsonProperty> OrderPropertiesForCopy(IReadOnlyList<JsonProperty> properties)
+    {
+        foreach (JsonProperty property in properties)
+        {
+            if (CanonicalInfrastructurePropertyBag.IsSecurityPriorityProperty(property.Name))
+                yield return property;
+        }
+
+        foreach (JsonProperty property in properties)
+        {
+            if (!CanonicalInfrastructurePropertyBag.IsSecurityPriorityProperty(property.Name))
+                yield return property;
+        }
+    }
+
+    private static void TryCopyBoundedProperty(JsonProperty property, Dictionary<string, string> properties)
+    {
+        if (CanonicalInfrastructurePropertyBag.CountTfProperties(properties) >= CanonicalInfrastructurePropertyBag.MaxTfPropertyCount)
+            return;
+
+        if (property.Value.ValueKind is JsonValueKind.Array or JsonValueKind.Object)
+        {
+            CanonicalInfrastructurePropertyBag.TryAddTfJsonProperty(properties, property.Name, property.Value);
+            return;
+        }
+
+        if (property.Value.ValueKind is not (JsonValueKind.String or JsonValueKind.True or JsonValueKind.False or JsonValueKind.Number))
+            return;
+
+        string valueText = property.Value.ValueKind switch
+        {
+            JsonValueKind.String => property.Value.GetString() ?? string.Empty,
+            JsonValueKind.True => "true",
+            JsonValueKind.False => "false",
+            JsonValueKind.Number => CanonicalInfrastructurePropertyBag.CanonicalizeNumberText(property.Value),
+            _ => string.Empty,
+        };
+
+        InfrastructureDeclarationSecurityPropertyWriter.TryAddTfPropertyWithArmAlias(
+            properties,
+            property.Name,
+            valueText);
+    }
+
+    private static string ResolveObjectType(string resourceType)
+    {
+        string normalized = resourceType.ToLowerInvariant();
+
+        if (normalized.Contains("keyvault", StringComparison.Ordinal)
+            || normalized.Contains("firewall", StringComparison.Ordinal)
+            || normalized.Contains("networksecuritygroups", StringComparison.Ordinal))
+            return "SecurityBaseline";
+
+        if (normalized.Contains("policydefinitions", StringComparison.Ordinal)
+            || normalized.Contains("policyassignments", StringComparison.Ordinal))
+            return "PolicyControl";
+
+        return "TopologyResource";
+    }
+
+    private static bool TryGetPropertyIgnoreCase(JsonElement element, string propertyName, out JsonElement value)
+    {
+        if (element.ValueKind is not JsonValueKind.Object)
+        {
+            value = default;
+
+            return false;
+        }
+
+        if (element.TryGetProperty(propertyName, out value))
+            return true;
+
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+            if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            value = property.Value;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
+    }
+
+    private sealed record ArmJsonParseState(
+        InfrastructureDeclarationReference Declaration,
+        IReadOnlyDictionary<string, InfrastructureDeclarationReference>? BatchByPath,
+        int LinkedTemplateDepth,
+        HashSet<string> VisitedLinkedTemplateKeys)
+    {
+        internal ArmJsonParseState WithLinkedTemplate(
+            InfrastructureDeclarationReference linkedDeclaration,
+            int linkedTemplateDepth)
+        {
+            return new ArmJsonParseState(
+                linkedDeclaration,
+                BatchByPath,
+                linkedTemplateDepth,
+                VisitedLinkedTemplateKeys);
+        }
+    }
+}

@@ -1,0 +1,50 @@
+[
+  {
+    "entryId": "azure-cloud",
+    "runId": "cccccccccccccccccccccccccccccccc",
+    "role": "CloudPlatform",
+    "technologyName": "Microsoft Azure",
+    "providerFamily": "Azure",
+    "status": "Chosen",
+    "source": "User",
+    "isLocked": false,
+    "createdUtc": "2026-01-01T00:00:00.000Z",
+    "updatedUtc": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "entryId": "azure-identity",
+    "runId": "cccccccccccccccccccccccccccccccc",
+    "role": "IdentityProvider",
+    "technologyName": "Microsoft Entra ID",
+    "providerFamily": "Azure",
+    "status": "Chosen",
+    "source": "Evidence",
+    "isLocked": false,
+    "createdUtc": "2026-01-01T00:00:00.000Z",
+    "updatedUtc": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "entryId": "azure-datastore",
+    "runId": "cccccccccccccccccccccccccccccccc",
+    "role": "PrimaryDatastore",
+    "technologyName": "Azure SQL Database",
+    "providerFamily": "Azure",
+    "status": "Chosen",
+    "source": "AgentProposed",
+    "isLocked": false,
+    "createdUtc": "2026-01-01T00:00:00.000Z",
+    "updatedUtc": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "entryId": "azure-compute",
+    "runId": "cccccccccccccccccccccccccccccccc",
+    "role": "ComputeRuntime",
+    "technologyName": "Azure App Service",
+    "providerFamily": "Azure",
+    "status": "Chosen",
+    "source": "AgentProposed",
+    "isLocked": false,
+    "createdUtc": "2026-01-01T00:00:00.000Z",
+    "updatedUtc": "2026-01-01T00:00:00.000Z"
+  }
+]

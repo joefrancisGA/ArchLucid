@@ -1,0 +1,320 @@
+using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Scoping;
+
+namespace ArchLucid.Persistence.Repositories;
+
+/// <summary>
+///     Dapper parameter objects for the scoped <c>dbo.Runs</c> read paths: project lists, recent-in-scope lists, their
+///     keyset and offset continuations, and the status-filtered counts.
+/// </summary>
+/// <remarks>
+///     Keyset pages request one extra row so the caller can detect a further page without a second COUNT query; that is
+///     why <see cref="Fetch" /> is the clamped page size plus one.
+/// </remarks>
+internal static class RunListQueryParameters
+{
+    /// <summary>Ceiling shared by the unpaged list paths, which read directly rather than through a cursor.</summary>
+    private const int MaxUnpagedTake = 200;
+
+    /// <summary>Applied when a project list caller passes no usable take; picker lists default to the full ceiling.</summary>
+    private const int DefaultProjectListTake = 20;
+
+    public static object ForProjectList(ScopeContext scope, string projectSlug, int take)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return new
+        {
+            ProjectSlug = projectSlug,
+            NormalizedProjectSlug = NormalizeProjectSlug(projectSlug),
+            scope.TenantId,
+            scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            Take = ClampTake(take, DefaultProjectListTake)
+        };
+    }
+
+    public static object ForProjectKeysetPage(
+        ScopeContext scope,
+        string projectSlug,
+        DateTime? cursorCreatedUtc,
+        Guid? cursorRunId,
+        int take)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return new
+        {
+            ProjectSlug = projectSlug,
+            NormalizedProjectSlug = NormalizeProjectSlug(projectSlug),
+            scope.TenantId,
+            scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            Fetch = Fetch(take),
+            CursorCreatedUtc = cursorCreatedUtc,
+            CursorRunId = cursorRunId
+        };
+    }
+
+    public static object ForRecentInScope(ScopeContext scope, int take)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return new
+        {
+            scope.TenantId,
+            scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            Take = ClampTake(take, MaxUnpagedTake)
+        };
+    }
+
+    public static object ForRecentInScopeKeysetPage(
+        ScopeContext scope,
+        DateTime? cursorCreatedUtc,
+        Guid? cursorRunId,
+        int take)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return new
+        {
+            scope.TenantId,
+            scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            Fetch = Fetch(take),
+            CursorCreatedUtc = cursorCreatedUtc,
+            CursorRunId = cursorRunId
+        };
+    }
+
+    public static object ForRecentInScopeOffsetPage(ScopeContext scope, int offset, int limit)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return new
+        {
+            scope.TenantId,
+            scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            Offset = RunPagination.NormalizeOffset(offset),
+            Fetch = RunPagination.ClampLimit(limit) + 1
+        };
+    }
+
+    public static object ForLatestGraphAtOrBefore(ScopeContext scope, string authorityProjectSlug, DateTime asOfUtc)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentException.ThrowIfNullOrWhiteSpace(authorityProjectSlug);
+
+        return new
+        {
+            scope.TenantId,
+            scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            NormalizedAuthorityProjectSlug = NormalizeAuthorityProjectSlug(authorityProjectSlug),
+            AsOfUtc = DateTime.SpecifyKind(asOfUtc, DateTimeKind.Utc)
+        };
+    }
+
+    public static object ForLatestCommittedByManifestCreatedUtc(ScopeContext scope, string authorityProjectSlug)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentException.ThrowIfNullOrWhiteSpace(authorityProjectSlug);
+
+        return new
+        {
+            scope.TenantId,
+            scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            NormalizedAuthorityProjectSlug = NormalizeAuthorityProjectSlug(authorityProjectSlug),
+            CommittedStatus = nameof(ArchitectureRunStatus.Committed),
+            FailedStatus = nameof(ArchitectureRunStatus.Failed),
+            QualityRejectedStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
+        };
+    }
+
+    public static object ForPriorCommittedRunBeforeCurrent(
+        ScopeContext scope,
+        string authorityProjectSlug,
+        Guid currentRunId,
+        DateTime currentCreatedUtc)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentException.ThrowIfNullOrWhiteSpace(authorityProjectSlug);
+
+        return new
+        {
+            scope.TenantId,
+            scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            NormalizedAuthorityProjectSlug = NormalizeAuthorityProjectSlug(authorityProjectSlug),
+            CurrentRunId = currentRunId,
+            CurrentCreatedUtc = DateTime.SpecifyKind(currentCreatedUtc, DateTimeKind.Utc),
+            CommittedStatus = nameof(ArchitectureRunStatus.Committed),
+            FailedStatus = nameof(ArchitectureRunStatus.Failed),
+            QualityRejectedStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
+        };
+    }
+
+    public static object ForPriorCommittedRunForArchitectureBeforeCurrent(
+        ScopeContext scope,
+        Guid architectureId,
+        Guid currentRunId,
+        DateTime currentCreatedUtc)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return new
+        {
+            scope.TenantId,
+            scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ArchitectureId = architectureId,
+            CurrentRunId = currentRunId,
+            CurrentCreatedUtc = DateTime.SpecifyKind(currentCreatedUtc, DateTimeKind.Utc),
+            CommittedStatus = nameof(ArchitectureRunStatus.Committed),
+            FailedStatus = nameof(ArchitectureRunStatus.Failed),
+            QualityRejectedStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
+        };
+    }
+
+    public static object ForCommittedRunByGoldenManifestId(
+        ScopeContext scope,
+        Guid architectureId,
+        Guid goldenManifestId,
+        Guid excludeRunId)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return new
+        {
+            scope.TenantId,
+            scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ArchitectureId = architectureId,
+            GoldenManifestId = goldenManifestId,
+            ExcludeRunId = excludeRunId,
+            CommittedStatus = nameof(ArchitectureRunStatus.Committed),
+            FailedStatus = nameof(ArchitectureRunStatus.Failed),
+            QualityRejectedStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
+        };
+    }
+
+    public static object ForClearGraphSnapshotForArchitecture(ScopeContext scope, Guid architectureId)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return new
+        {
+            scope.TenantId,
+            scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ArchitectureId = architectureId,
+        };
+    }
+
+    public static object ForLatestRunIdForArchitecture(ScopeContext scope, Guid architectureId)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return new
+        {
+            scope.TenantId,
+            scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ArchitectureId = architectureId,
+        };
+    }
+
+    public static object ForLatestCommittedRunIdByArchitectureVersionId(
+        ScopeContext scope,
+        Guid architectureVersionId)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return new
+        {
+            scope.TenantId,
+            scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ArchitectureVersionId = architectureVersionId,
+            CommittedStatus = nameof(ArchitectureRunStatus.Committed),
+            FailedStatus = nameof(ArchitectureRunStatus.Failed),
+            QualityRejectedStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
+        };
+    }
+
+    /// <summary>
+    ///     "Active" is defined by exclusion: any run not committed, failed, or quality-rejected still occupies the request's
+    ///     concurrency allowance.
+    /// </summary>
+    public static object ForActiveRunCountByArchitectureRequest(ScopeContext scope, string architectureRequestId)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return new
+        {
+            scope.TenantId,
+            scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            NormalizedArchitectureRequestId = NormalizeArchitectureRequestId(
+                RunRepositoryCore.RequireArchitectureRequestId(architectureRequestId)),
+            CommittedStatus = nameof(ArchitectureRunStatus.Committed),
+            FailedStatus = nameof(ArchitectureRunStatus.Failed),
+            QualityRejectedStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
+        };
+    }
+
+    public static object ForArchitectureRequestScopeExists(ScopeContext scope, string architectureRequestId)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return new
+        {
+            scope.TenantId,
+            scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            NormalizedArchitectureRequestId = NormalizeArchitectureRequestId(
+                RunRepositoryCore.RequireArchitectureRequestId(architectureRequestId)),
+            FailedStatus = nameof(ArchitectureRunStatus.Failed),
+            QualityRejectedStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
+        };
+    }
+
+    public static object ForActiveRunWithSystemNameInWorkspace(
+        ScopeContext scope,
+        string systemName,
+        Guid? excludeRunId = null)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentException.ThrowIfNullOrWhiteSpace(systemName);
+
+        return new
+        {
+            scope.TenantId,
+            scope.WorkspaceId,
+            NormalizedSystemName = RunRepositoryCore.NormalizeWorkspaceSystemName(
+                RunRepositoryCore.RequireSystemName(systemName)),
+            ExcludeRunId = excludeRunId,
+            FailedStatus = nameof(ArchitectureRunStatus.Failed),
+            QualityRejectedStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
+        };
+    }
+
+    /// <summary>Page size plus the probe row used to answer "is there more?".</summary>
+    public static int Fetch(int take) => RunPagination.ClampTake(take) + 1;
+
+    private static int ClampTake(int take, int fallbackWhenUnset) =>
+        Math.Clamp(take <= 0 ? fallbackWhenUnset : take, 1, MaxUnpagedTake);
+
+    private static string NormalizeAuthorityProjectSlug(string authorityProjectSlug) =>
+        RunRepositoryCore.NormalizeAuthorityProjectSlug(authorityProjectSlug);
+
+    private static string NormalizeProjectSlug(string projectSlug) =>
+        RunRepositoryCore.NormalizeAuthorityProjectSlug(projectSlug);
+
+    private static string NormalizeArchitectureRequestId(string architectureRequestId) =>
+        RunRepositoryCore.NormalizeArchitectureRequestId(architectureRequestId);
+}

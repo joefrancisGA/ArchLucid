@@ -1,0 +1,320 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
+import { render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import type { ArchitectureIdentityDetail } from "@/types/architecture-identity";
+
+const useArchitectureIdentityQueryMock = vi.fn();
+
+vi.mock("@/hooks/use-architecture-identity-query", () => ({
+  useArchitectureIdentityQuery: (...args: unknown[]) => useArchitectureIdentityQueryMock(...args),
+}));
+
+vi.mock("@/hooks/use-rehydrate-in-flight-from-architecture", () => ({
+  useRehydrateInFlightOperationsFromArchitecture: vi.fn(),
+}));
+
+const useArchitectureDraftQueryMock = vi.fn(() => ({
+  isLoading: false,
+  isError: false,
+  data: {
+    document: {
+      openQuestions: "Who owns quarterly access reviews?",
+    },
+  },
+}));
+
+vi.mock("@/hooks/use-architecture-draft-query", () => ({
+  useArchitectureDraftQuery: (...args: unknown[]) => useArchitectureDraftQueryMock(...args),
+}));
+
+const useShellInFlightOperationsMock = vi.fn(() => []);
+
+vi.mock("@/hooks/use-shell-in-flight-operations", () => ({
+  useShellInFlightOperations: () => useShellInFlightOperationsMock(),
+}));
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => ({
+      mode: "guided" as const,
+      mounted: true,
+      accountSyncState: "synced" as const,
+      isWorkingMode: false,
+      setAndPersist: vi.fn(),
+    }),
+  };
+});
+
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    useSearchParams: () => new URLSearchParams(),
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  };
+});
+
+import { ArchitectureIdentityDesk } from "@/components/architecture/ArchitectureIdentityDesk";
+
+const architectureId = "architecture-identity-001";
+
+const identityFixture: ArchitectureIdentityDetail = {
+  architectureId,
+  displayName: "Payments platform",
+  description: null,
+  currentModelId: null,
+  latestSealedManifestId: "manifest-1",
+  currentDraftId: "draft-open-1",
+  latestReviewId: "review-2",
+  draftCount: 1,
+  reviewCount: 2,
+  createdUtc: "2026-01-01T00:00:00Z",
+  updatedUtc: "2026-01-02T00:00:00Z",
+  drafts: [
+    {
+      draftId: "draft-open-1",
+      status: "Drafting",
+      systemName: "Payments",
+      updatedUtc: "2026-01-02T00:00:00Z",
+    },
+  ],
+  reviews: [
+    {
+      runId: "review-2",
+      description: "Second in-flight review",
+      createdUtc: "2026-01-02T11:00:00Z",
+    },
+    {
+      runId: "review-1",
+      description: "First sealed review",
+      createdUtc: "2026-01-01T10:00:00Z",
+    },
+  ],
+  versions: [],
+};
+
+describe("ArchitectureIdentityDesk (DA-04 / AO-20 Working fixture)", () => {
+  beforeEach(() => {
+    useShellInFlightOperationsMock.mockReturnValue([]);
+  });
+
+  it("shows one architecture with child reviews for this ArchitectureId only", () => {
+    useArchitectureIdentityQueryMock.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: identityFixture,
+      refetch: vi.fn(),
+    });
+
+    render(<ArchitectureIdentityDesk architectureId={architectureId} />);
+
+    expect(screen.getByTestId("architecture-identity-desk-title")).toHaveTextContent("Payments platform");
+    expect(screen.getByTestId("architecture-identity-desk-honesty")).toHaveTextContent(
+      "durable architecture identity",
+    );
+    expect(screen.getByTestId("architecture-identity-compare-entry")).toHaveAttribute(
+      "href",
+      "/insights/compare-two-reviews?priorRunId=review-1&laterRunId=review-2&architectureId=architecture-identity-001",
+    );
+    expect(screen.getAllByTestId(/^architecture-identity-review-row-/)).toHaveLength(2);
+    expect(screen.getByTestId("architecture-identity-latest-seal-link")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-identity-desk-sealed-receipt-strip")).toBeInTheDocument();
+    expect(screen.getByTestId("decision-receipt-export")).toBeInTheDocument();
+  });
+
+  it("shows Start review when there are no child reviews yet", () => {
+    useArchitectureIdentityQueryMock.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: {
+        ...identityFixture,
+        reviews: [],
+        reviewCount: 0,
+        latestReviewId: null,
+        latestSealedManifestId: null,
+      },
+      refetch: vi.fn(),
+    });
+
+    render(<ArchitectureIdentityDesk architectureId={architectureId} />);
+
+    expect(screen.getByTestId("architecture-identity-reviews-empty")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-identity-start-review")).toHaveAttribute(
+      "href",
+      "/architecture/architectures/architecture-identity-001/reviews/new",
+    );
+  });
+
+  it("WS-19: shows open questions from the current drafting draft on the desk", () => {
+    useArchitectureIdentityQueryMock.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: identityFixture,
+      refetch: vi.fn(),
+    });
+
+    render(<ArchitectureIdentityDesk architectureId={architectureId} />);
+
+    expect(screen.getByTestId("architecture-identity-open-questions")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-identity-open-questions-body")).toHaveTextContent(
+      "Who owns quarterly access reviews?",
+    );
+  });
+
+  it("WS-12: with open draft and reviews, continue architecture is primary and Start review is absent", () => {
+    useArchitectureIdentityQueryMock.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: identityFixture,
+      refetch: vi.fn(),
+    });
+
+    render(<ArchitectureIdentityDesk architectureId={architectureId} />);
+
+    expect(screen.getByTestId("architecture-identity-continue-architecture")).toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-identity-start-review")).not.toBeInTheDocument();
+  });
+
+  it("shows spawn-locked handoff controls instead of continue draft", () => {
+    useArchitectureIdentityQueryMock.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: {
+        ...identityFixture,
+        currentDraftId: "draft-spawned",
+        drafts: [
+          {
+            draftId: "draft-spawned",
+            status: "RunSpawned",
+            systemName: "Payments",
+            updatedUtc: "2026-01-02T00:00:00Z",
+          },
+        ],
+      },
+      refetch: vi.fn(),
+    });
+
+    render(<ArchitectureIdentityDesk architectureId={architectureId} />);
+
+    expect(screen.queryByTestId("architecture-identity-open-current-draft")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-identity-open-review")).toHaveAttribute(
+      "href",
+      "/architecture/architectures/architecture-identity-001/reviews/review-2",
+    );
+    expect(screen.getByTestId("architecture-spawn-lock-clone-snapshot")).toBeInTheDocument();
+  });
+
+  it("shows disabled compare reason when only one review exists", () => {
+    useArchitectureIdentityQueryMock.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: {
+        ...identityFixture,
+        reviews: [identityFixture.reviews[0]!],
+        reviewCount: 1,
+      },
+      refetch: vi.fn(),
+    });
+
+    render(<ArchitectureIdentityDesk architectureId={architectureId} />);
+
+    expect(screen.getByTestId("architecture-identity-compare-disabled-reason")).toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-identity-compare-entry")).not.toBeInTheDocument();
+  });
+
+  it("AO-20: keeps child reviews table visible when an in-flight chip is present", () => {
+    useArchitectureIdentityQueryMock.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: identityFixture,
+      refetch: vi.fn(),
+    });
+    useShellInFlightOperationsMock.mockReturnValue([
+      {
+        operationId: "run:review-2",
+        title: "Architecture review analysis",
+        href: "/architecture/architectures/architecture-identity-001/reviews/review-2?reviewTab=activity",
+        startedAtMs: 1_700_000_000_000,
+        stepLabel: "Agents running",
+        state: "Running",
+        runId: "review-2",
+        architectureId: "architecture-identity-001",
+        retainUntilConsumed: false,
+        terminalToastShown: false,
+      },
+    ]);
+
+    render(<ArchitectureIdentityDesk architectureId={architectureId} />);
+
+    expect(screen.getByTestId("architecture-identity-in-flight")).toBeInTheDocument();
+    expect(screen.getAllByTestId(/^architecture-identity-review-row-/)).toHaveLength(2);
+    expect(screen.getByTestId("architecture-identity-reviews-table")).toBeInTheDocument();
+  });
+
+  it("AO-25: shows sealed review record child row with nested desk link", () => {
+    useArchitectureIdentityQueryMock.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: identityFixture,
+      refetch: vi.fn(),
+    });
+
+    render(<ArchitectureIdentityDesk architectureId={architectureId} />);
+
+    expect(screen.getByTestId("architecture-identity-latest-seal-link")).toHaveAttribute(
+      "href",
+      "/architecture/architectures/architecture-identity-001/reviews/review-2",
+    );
+    expect(screen.getByTestId("architecture-identity-latest-seal-link")).not.toHaveAttribute(
+      "href",
+      "/architecture/reviews/review-2",
+    );
+  });
+
+  it("AO-21: shows in-flight chip when operations exist for this architecture", () => {
+    useArchitectureIdentityQueryMock.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: identityFixture,
+      refetch: vi.fn(),
+    });
+    useShellInFlightOperationsMock.mockReturnValue([
+      {
+        operationId: "run:review-2",
+        title: "Architecture review analysis",
+        href: "/architecture/architectures/architecture-identity-001/reviews/review-2?reviewTab=activity",
+        startedAtMs: 1_700_000_000_000,
+        stepLabel: "Agents running",
+        state: "Running",
+        runId: "review-2",
+        architectureId: "architecture-identity-001",
+        retainUntilConsumed: false,
+        terminalToastShown: false,
+      },
+    ]);
+
+    render(<ArchitectureIdentityDesk architectureId={architectureId} />);
+
+    expect(screen.getByTestId("architecture-identity-in-flight")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-identity-in-flight-open-run:review-2")).toHaveAttribute(
+      "href",
+      "/architecture/architectures/architecture-identity-001/reviews/review-2?reviewTab=activity",
+    );
+  });
+
+  it("AO-43: wires architecture desk keyboard shortcuts on the identity desk", () => {
+    const source = readFileSync(
+      path.join(process.cwd(), "src/components/architecture/ArchitectureIdentityDesk.tsx"),
+      "utf8",
+    );
+
+    expect(source).toContain("useArchitectureDeskShortcuts");
+  });
+});

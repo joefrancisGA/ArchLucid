@@ -1,0 +1,22 @@
+{
+  "stryker-config": {
+    "project": "ArchLucid.Cli.csproj",
+    "test-projects": [
+      "ArchLucid.Cli.Tests.csproj"
+    ],
+    "test-case-filter": "FullyQualifiedName~DraftNewCommandCoreTests",
+    "mutate": [
+      "**/DraftNewCommand.cs"
+    ],
+    "reporters": [
+      "progress",
+      "html",
+      "json"
+    ],
+    "thresholds": {
+      "high": 70,
+      "low": 55,
+      "break": 0
+    }
+  }
+}

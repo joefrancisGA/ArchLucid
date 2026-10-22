@@ -1,0 +1,256 @@
+"use client";
+import { BUYER_COMPARE_OPEN_SIGNED_REVIEW_RECORD_CTA } from "@/lib/buyer/buyer-polish-copy";
+import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+
+import { ExplainabilityTraceTree } from "@/components/explainability/ExplainabilityTraceTree";
+import { FindingOptionalArtifactUnavailable } from "@/components/findings/FindingOptionalArtifactUnavailable";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
+import { Progress } from "@/components/ui/progress";
+import { getFindingExplainability } from "@/lib/api";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { findingExplainBlockedReason } from "@/lib/explain/finding-explain-blocked-reason";
+import { findingEvidenceCountPlainLine } from "@/lib/findings/finding-explainability-summary";
+import {
+  FINDING_TRACE_FIELD_FILL_LABEL,
+  resolveFindingTraceCompletenessDisplay,
+} from "@/lib/findings/finding-trace-completeness-display";
+import { resolveFindingOptionalArtifactUnavailableCopy } from "@/lib/findings/finding-optional-artifact-copy";
+import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
+import {
+  findingExplainabilityTraceDisclosureHrefFromSearch,
+  parseFindingExplainabilityOpenFromSearch,
+} from "@/lib/findings/finding-explainability-trace-disclosure-url";
+import type { FindingExplainability } from "@/types/explanation";
+
+export type FindingExplainabilityTracePanelProps = {
+  readonly runId: string;
+  readonly findingId: string;
+  readonly buyerPolishedShell?: boolean;
+  readonly defaultCollapsed?: boolean;
+  readonly graphEvidenceHref?: string | null;
+  readonly linkedManifestHref?: string | null;
+};
+
+/**
+ * Above-the-fold deterministic explainability trace for finding inspect/detail.
+ * Complements the LLM audit panel — surfaces persisted pipeline evidence first.
+ */
+export function FindingExplainabilityTracePanel(props: FindingExplainabilityTracePanelProps): React.JSX.Element {
+  const buyerPolishedShell = props.buyerPolishedShell === true;
+  const defaultCollapsed = props.defaultCollapsed !== false;
+  const sampleReview = isShowcaseStaticDemoRunId(props.runId.trim());
+  const pathname = usePathname() ?? "/";
+  const [open, setOpenState] = useState(() =>
+    parseFindingExplainabilityOpenFromSearch(null),
+  );
+  const openRef = useRef(open);
+  openRef.current = open;
+  const [data, setData] = useState<FindingExplainability | null>(null);
+  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const syncOpenToUrl = useCallback(
+    (detailsOpen: boolean) => {
+      commitHrefIfChanged(
+        findingExplainabilityTraceDisclosureHrefFromSearch(readWindowLocationSearch(), detailsOpen, pathname),
+        { notify: false },
+      );
+    },
+    [pathname],
+  );
+
+  const setOpen = useCallback(
+    (detailsOpen: boolean) => {
+      if (openRef.current === detailsOpen) {
+        return;
+      }
+
+      openRef.current = detailsOpen;
+      setOpenState(detailsOpen);
+      syncOpenToUrl(detailsOpen);
+    },
+    [syncOpenToUrl],
+  );
+
+  useEffect(() => {
+    const syncOpenFromUrl = (): void => {
+      const next = parseFindingExplainabilityOpenFromSearch(
+        new URLSearchParams(window.location.search).get("findingExplainabilityOpen"),
+      );
+
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
+    };
+
+    syncOpenFromUrl();
+    window.addEventListener("popstate", syncOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncOpenFromUrl);
+    };
+  }, []);
+
+  const load = useCallback(async () => {
+    const findingId = props.findingId.trim();
+    const runId = props.runId.trim();
+
+    if (findingId.length === 0 || runId.length === 0) {
+      return;
+    }
+
+    setLoading(true);
+    setFailure(null);
+    setData(null);
+
+    try {
+      const body = await getFindingExplainability(runId, findingId);
+      setData(body);
+    } catch (err) {
+      setFailure(toApiLoadFailure(err));
+    } finally {
+      setLoading(false);
+    }
+  }, [props.findingId, props.runId]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const traceCompleteness =
+    data !== null ? resolveFindingTraceCompletenessDisplay(data.traceCompletenessRatio) : null;
+
+  const evidenceRefs =
+    data?.evidence === null || data?.evidence === undefined ? null : data.evidence.evidenceRefs;
+  const unavailableCopy =
+    failure !== null
+      ? resolveFindingOptionalArtifactUnavailableCopy("explainability-trace", failure, {
+          buyerPolishedShell,
+          sampleReview,
+        })
+      : null;
+  const recoveryLinks = [
+    ...(props.graphEvidenceHref !== null && props.graphEvidenceHref !== undefined
+      ? [{ href: props.graphEvidenceHref, label: "Open evidence graph" }]
+      : []),
+    ...(props.linkedManifestHref !== null && props.linkedManifestHref !== undefined
+      ? [{ href: props.linkedManifestHref, label: BUYER_COMPARE_OPEN_SIGNED_REVIEW_RECORD_CTA }]
+      : []),
+  ];
+
+  const panelBody = (
+    <>
+      {loading ? (
+        <div className="mt-3">
+          <OperatorLoadingNotice>
+            <strong>Loading explainability trace…</strong>
+          </OperatorLoadingNotice>
+        </div>
+      ) : null}
+
+      {failure !== null && findingExplainBlockedReason(failure) !== null ? (
+        <p
+          role="alert"
+          className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="finding-explainability-trace-sealed-manifest-blocked-reason"
+        >
+          {findingExplainBlockedReason(failure)}
+        </p>
+      ) : null}
+
+      {failure !== null && unavailableCopy !== null ? (
+        <div className="mt-3">
+          <FindingOptionalArtifactUnavailable
+            heading={unavailableCopy.heading}
+            body={unavailableCopy.body}
+            tryNext={unavailableCopy.tryNext}
+            showRetry={unavailableCopy.showRetry}
+            onRetry={() => {
+              void load();
+            }}
+            loading={loading}
+            recoveryLinks={recoveryLinks}
+            failure={failure}
+            buyerPolishedShell={buyerPolishedShell}
+          />
+        </div>
+      ) : null}
+
+      {!loading && failure === null && data !== null ? (
+        <div className="mt-4 space-y-3">
+          <div className="space-y-2">
+            {traceCompleteness?.recorded === true && traceCompleteness.ratioPct !== null ? (
+              <>
+                <div className={cn("flex items-center justify-between gap-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  <span>{traceCompleteness.summaryLine}</span>
+                  <span>{traceCompleteness.ratioPct}%</span>
+                </div>
+                <Progress value={traceCompleteness.ratioPct} aria-label={FINDING_TRACE_FIELD_FILL_LABEL} />
+              </>
+            ) : (
+              <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                {traceCompleteness?.summaryLine ?? "Trace completeness was not stored."}
+              </p>
+            )}
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              {findingEvidenceCountPlainLine(evidenceRefs)}
+            </p>
+          </div>
+          <ExplainabilityTraceTree data={data} />
+        </div>
+      ) : null}
+    </>
+  );
+
+  if (defaultCollapsed) {
+    return (
+      <CollapsibleSection
+        title="Explainability"
+        open={open}
+        onToggle={setOpen}
+        sectionTestId="finding-explainability-trace-collapsible"
+        summaryLine={
+          failure !== null
+            ? unavailableCopy?.body ?? "Explainability trace unavailable."
+            : data !== null
+              ? traceCompleteness?.summaryLine ?? "Trace completeness was not stored."
+              : "Explainability trace was not loaded."
+        }
+      >
+        <div data-testid="finding-explainability-trace-panel">{panelBody}</div>
+      </CollapsibleSection>
+    );
+  }
+
+  return (
+    <section
+      className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-950/40"
+      aria-labelledby="finding-explainability-trace-heading"
+      data-testid="finding-explainability-trace-panel"
+    >
+      <div className="space-y-1">
+        <h2
+          id="finding-explainability-trace-heading"
+          className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}
+        >
+          Explainability trace
+        </h2>
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          Deterministic pipeline evidence — rules applied, citations, and trace completeness before external model audit.
+        </p>
+      </div>
+      {panelBody}
+    </section>
+  );
+}

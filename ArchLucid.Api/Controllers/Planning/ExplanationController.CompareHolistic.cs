@@ -1,0 +1,129 @@
+using ArchLucid.Api.Attributes;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
+using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Explanation.Models;
+using ArchLucid.Application.Runs.Finalization;
+using ArchLucid.Contracts.Explanation;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Explanation;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Queries;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace ArchLucid.Api.Controllers.Planning;
+
+public sealed partial class ExplanationController
+{
+    /// <summary>AI narrative for manifest delta between two runs (base → target).</summary>
+    /// <param name="baseRunId">Baseline run.</param>
+    /// <param name="targetRunId">Target run.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns><see cref="ComparisonExplanationResult" /> JSON, or 404 when either run lacks a golden manifest in scope.</returns>
+    [HttpGet("compare/explain")]
+    [ProducesResponseType(typeof(ComparisonExplanationResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> ExplainComparison(
+        [FromQuery] Guid baseRunId,
+        [FromQuery] Guid targetRunId,
+        CancellationToken ct = default)
+    {
+        try
+        {
+            IActionResult? sealedGuardResult =
+                await EnsureCompareRunsSealedManifestReadAllowedAsync(baseRunId, targetRunId, ct);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            ManifestCompareLoadResult loadResult =
+                await compareRunsFacade.CompareManifestsAsync(baseRunId, targetRunId, ct);
+
+            return loadResult.Outcome switch
+            {
+                ManifestCompareLoadOutcome.Success => Ok(
+                    await explanation.ExplainComparisonAsync(loadResult.Comparison!, ct)),
+                ManifestCompareLoadOutcome.BaseRunNotFound => this.NotFoundProblem(
+                    $"Run '{loadResult.RunId}' was not found.",
+                    ProblemTypes.RunNotFound),
+                ManifestCompareLoadOutcome.TargetRunNotFound => this.NotFoundProblem(
+                    $"Run '{loadResult.RunId}' was not found.",
+                    ProblemTypes.RunNotFound),
+                ManifestCompareLoadOutcome.BaseManifestNotFound => this.NotFoundProblem(
+                    $"Run '{loadResult.RunId}' does not have a committed golden manifest.",
+                    ProblemTypes.ManifestNotFound),
+                ManifestCompareLoadOutcome.TargetManifestNotFound => this.NotFoundProblem(
+                    $"Run '{loadResult.RunId}' does not have a committed golden manifest.",
+                    ProblemTypes.ManifestNotFound),
+                ManifestCompareLoadOutcome.BaseLifecycleIncomplete => MapExplanationSealedManifestConflict(
+                    new ConflictException(
+                        $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.")),
+                ManifestCompareLoadOutcome.TargetLifecycleIncomplete => MapExplanationSealedManifestConflict(
+                    new ConflictException(
+                        $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.")),
+                ManifestCompareLoadOutcome.PinFingerprintMismatch => MapExplanationSealedManifestConflict(
+                    new ConflictException(
+                        "Compare blocked: create-time pin fingerprints differ between the selected runs.")),
+                ManifestCompareLoadOutcome.CommittedArtifactInventoryMismatch => MapExplanationSealedManifestConflict(
+                    new ConflictException(
+                        "Compare blocked: committed artifact inventory fingerprints differ between the selected runs.")),
+                ManifestCompareLoadOutcome.SealedManifestHashMismatch => MapExplanationSealedManifestConflict(
+                    new ConflictException(
+                        "Compare blocked: sealed manifest hash verification failed for one or both selected runs.")),
+                _ => throw new InvalidOperationException($"Unexpected manifest compare outcome: {loadResult.Outcome}."),
+            };
+        }
+        catch (ConflictException ex)
+        {
+            return MapExplanationSealedManifestConflict(ex);
+        }
+    }
+
+    /// <summary>Unstructured holistic architecture critique (advisory; not persisted as findings).</summary>
+    // idempotency-posture: dry-run-no-persist
+    [HttpPost("runs/{runId:guid}/holistic-critic")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [MutatingAuditExcluded("Holistic critic is advisory-only and does not persist domain mutations.")]
+    [ProducesResponseType(typeof(HolisticCriticResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> HolisticCritic(
+        Guid runId,
+        [FromBody] HolisticCriticRequest? request,
+        CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? detail = await query.GetRunDetailAsync(scope, runId, ct);
+
+        if (detail?.GoldenManifest is null)
+        {
+            return this.NotFoundProblem(
+                $"Run '{runId}' was not found or has no committed manifest in the current scope.",
+                ProblemTypes.RunNotFound);
+        }
+
+        IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        try
+        {
+            HolisticCriticResponse response = await holisticCriticService.GenerateAsync(scope, runId, request, ct);
+            return Ok(response);
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
+        catch (ConflictException ex)
+        {
+            return MapExplanationSealedManifestConflict(ex);
+        }
+    }
+}

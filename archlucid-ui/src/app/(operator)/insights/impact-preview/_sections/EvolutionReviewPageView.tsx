@@ -1,0 +1,382 @@
+"use client";
+
+import Link from "next/link";
+import { useLayoutEffect } from "react";
+
+import { ImpactPreviewPolicyEnvelopeEntryStrip } from "@/components/architecture/ImpactPreviewPolicyEnvelopeEntryStrip";
+import { cn } from "@/lib/utils";
+import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { ImpactPreviewCompareVocabularyRail } from "@/components/ImpactPreviewCompareVocabularyRail";
+import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
+import { OperatorEvidenceLimitsFooter } from "@/components/operator/OperatorEvidenceLimitsFooter";
+import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { impactPreviewHref } from "@/lib/impact-preview-route";
+import {
+  IMPACT_PREVIEW_DETAIL_LOAD_RETRY_LABEL,
+  IMPACT_PREVIEW_LIST_LOAD_RETRY_LABEL,
+  IMPACT_PREVIEW_ORIENTATION,
+  IMPACT_PREVIEW_PAGE_TITLE,
+  IMPACT_PREVIEW_PLANNING_HREF,
+  IMPACT_PREVIEW_SIMULATE_RETRY_LABEL,
+  impactPreviewPageSubtitle,
+} from "@/lib/impact-preview-page-copy";
+import { architectureIdentityPath } from "@/lib/architecture/architecture-routes";
+import { SYSTEM_NOT_JOB_NESTED_IMPACT_PREVIEW_PAGE_SUBTITLE } from "@/lib/system-not-job-impact-preview-envelope-entry";
+import { resolveSystemNotJobWorkingReviewOpenHref } from "@/lib/system-not-job-nested-review-job-mint";
+import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
+import { setImpactPreviewShellPageState } from "@/lib/impact-preview-route-shell-state";
+import type { ImpactPreviewPageState } from "@/lib/impact-preview-page-types";
+import { resolveImpactPreviewPageState } from "@/lib/resolve-impact-preview-page-state";
+import { resolveImpactPreviewRecommendation } from "@/lib/resolve-impact-preview-recommendation";
+import { resolveImpactPreviewSummaryMetrics } from "@/lib/resolve-impact-preview-summary-metrics";
+import type { EvolutionReviewPageViewModel } from "./evolution-review-view-model";
+import { ImpactPreviewPickReviewBeforeSimulatingStrip } from "./ImpactPreviewPickReviewBeforeSimulatingStrip";
+import { ImpactPreviewBaselinePickerStrip } from "./ImpactPreviewBaselinePickerStrip";
+import { ImpactPreviewBuyerChrome } from "./ImpactPreviewBuyerChrome";
+import { ImpactPreviewContinueLastBaselinePairRow } from "./ImpactPreviewContinueLastBaselinePairRow";
+import { ImpactPreviewEmptyState } from "./ImpactPreviewEmptyState";
+import { ImpactPreviewEvidenceBasisSection } from "./ImpactPreviewEvidenceBasisSection";
+import { ImpactPreviewHowItWorksSection } from "./ImpactPreviewHowItWorksSection";
+import { ImpactPreviewNextReviewFooterClient } from "./ImpactPreviewNextReviewFooterClient";
+import { ImpactPreviewLoadFailurePanel } from "./ImpactPreviewLoadFailurePanel";
+import { ImpactPreviewOutputPreviewPanel } from "./ImpactPreviewOutputPreviewPanel";
+import { ImpactPreviewPageHeader } from "./ImpactPreviewPageHeader";
+import { ImpactPreviewRecommendationSection } from "./ImpactPreviewRecommendationSection";
+import { ImpactPreviewResultActions } from "./ImpactPreviewResultActions";
+import { ImpactPreviewResultsSkeleton } from "./ImpactPreviewResultsSkeleton";
+import { ImpactPreviewSetupCard } from "./ImpactPreviewSetupCard";
+import { ImpactPreviewSetupSkeleton } from "./ImpactPreviewSetupSkeleton";
+import { ImpactPreviewSimulationResultsSection } from "./ImpactPreviewSimulationResultsSection";
+import { ImpactPreviewSummaryRow } from "./ImpactPreviewSummaryRow";
+import { useImpactPreviewBaselineAvailability } from "./use-impact-preview-baseline-availability";
+import { useIsOperatorNavHrefReachable } from "./use-is-operator-nav-href-reachable";
+
+type Props = {
+  readonly model: EvolutionReviewPageViewModel;
+  readonly scopedRunId: string;
+  readonly scopedRunFilterActive: boolean;
+  readonly onPickReviewForSimulating: (reviewId: string) => void;
+  readonly basePathname?: string;
+  readonly pinnedArchitectureId?: string | null;
+  readonly nestedPolicyEnvelopeEntry?: boolean;
+};
+
+function impactPreviewHeaderStatus(pageState: ImpactPreviewPageState): EnterpriseStatusKind | null {
+  switch (pageState) {
+    case "no_baseline":
+    case "no_candidates":
+      return "needs-attention";
+
+    case "permission_denied":
+      return "blocked";
+
+    case "ready":
+      return null;
+
+    default: {
+      const exhaustive: never = pageState;
+      return exhaustive;
+    }
+  }
+}
+
+function shouldShowBlockedOutputPreview(pageState: ImpactPreviewPageState): boolean {
+  return pageState === "no_baseline" || pageState === "no_candidates";
+}
+
+/**
+ * Impact preview: compare proposed architecture changes against a baseline review.
+ */
+export function EvolutionReviewPageView(props: Props): React.JSX.Element {
+  const m = props.model;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const canSimulate = useOperateCapability();
+  const planningReachable = useIsOperatorNavHrefReachable(IMPACT_PREVIEW_PLANNING_HREF);
+  const baselineAvailability = useImpactPreviewBaselineAvailability();
+
+  const pageState = resolveImpactPreviewPageState({
+    candidateCount: m.candidates.length,
+    listLoading: m.listLoading,
+    listFailure: m.listFailure,
+    baselineLoading: baselineAvailability.loading,
+    finalizedBaselineCount: baselineAvailability.finalizedCount,
+  });
+  const pageReady = pageState === "ready";
+
+  useLayoutEffect(() => {
+    setImpactPreviewShellPageState(pageState);
+
+    return () => {
+      setImpactPreviewShellPageState("unknown");
+    };
+  }, [pageState]);
+
+  if (m.isDemo) {
+    return (
+      <DemoWorkspaceCapabilityUnavailablePanel
+        capability={IMPACT_PREVIEW_PAGE_TITLE}
+        description="In a connected tenant, architects preview the estimated impact of a proposed architecture change with a before-and-after comparison."
+      />
+    );
+  }
+
+  const selectedRun =
+    m.detail !== null
+      ? (m.detail.simulationRuns ?? []).find((run) => run.baselineArchitectureRunId === m.selectedBaselineId) ??
+        (m.detail.simulationRuns ?? [])[0] ??
+        null
+      : null;
+
+  const hasSimulationResults = selectedRun !== null;
+  const summaryMetrics = resolveImpactPreviewSummaryMetrics(selectedRun, m.planSnapshot);
+  const recommendation = resolveImpactPreviewRecommendation(selectedRun?.evaluationScore);
+  const showSetupSkeleton = pageReady && m.listLoading && m.candidates.length > 0;
+  const showResultsSkeleton =
+    pageReady &&
+    m.detailLoading &&
+    (hasSimulationResults || (m.detail?.simulationRuns?.length ?? 0) > 0);
+  const showBaselinePickerStrip =
+    props.scopedRunFilterActive &&
+    (pageState === "no_candidates" || pageReady) &&
+    m.baselineOptions.length > 0 &&
+    (m.selectedBaselineId === null || pageState === "no_candidates");
+  const showImpactPreviewWorkspace =
+    props.scopedRunFilterActive && pageReady && m.selectedBaselineId !== null;
+  const showContinueLastPair =
+    m.continueLastPair !== null &&
+    (m.selectedBaselineId !== m.continueLastPair.baselineRunId ||
+      m.selectedId !== m.continueLastPair.candidateRunId);
+  const nestedPolicyEnvelopeEntry = props.nestedPolicyEnvelopeEntry === true;
+  const pinnedArchitectureId = props.pinnedArchitectureId?.trim() ?? "";
+  const pageSubtitle = nestedPolicyEnvelopeEntry
+    ? SYSTEM_NOT_JOB_NESTED_IMPACT_PREVIEW_PAGE_SUBTITLE
+    : impactPreviewPageSubtitle(buyerPolishedShell);
+  const nestedBreadcrumb =
+    nestedPolicyEnvelopeEntry && pinnedArchitectureId.length > 0
+      ? (
+        <OperatorPageBreadcrumb
+          data-testid="impact-preview-nested-breadcrumb"
+          items={[
+            { label: "Architecture desk", href: architectureIdentityPath(pinnedArchitectureId) },
+            { label: IMPACT_PREVIEW_PAGE_TITLE },
+          ]}
+        />
+      )
+      : undefined;
+
+  return (
+    <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.sectionStack} data-testid="impact-preview-page">
+      <ImpactPreviewPageHeader
+        subtitle={pageSubtitle}
+        listLoading={m.listLoading}
+        lastRefreshedAt={m.lastRefreshedAt}
+        statusKind={impactPreviewHeaderStatus(pageState)}
+        navHref={props.basePathname}
+        breadcrumb={nestedBreadcrumb}
+        onRefresh={() => {
+          void m.loadList();
+        }}
+      />
+
+      {nestedPolicyEnvelopeEntry && pinnedArchitectureId.length > 0 ? (
+        <ImpactPreviewPolicyEnvelopeEntryStrip architectureId={pinnedArchitectureId} />
+      ) : null}
+
+      <ImpactPreviewBuyerChrome />
+
+      {showContinueLastPair && m.continueLastPair !== null ? (
+        <ImpactPreviewContinueLastBaselinePairRow
+          pair={m.continueLastPair}
+          onResume={m.resumeContinueLastPair}
+        />
+      ) : null}
+
+      {pageReady ? (
+        <>
+          {!buyerPolishedShell ? <ImpactPreviewCompareVocabularyRail currentSurfaceId="impact-preview" /> : null}
+          <PageCapabilityBoundaryStrip surfaceId="impactPreview" />
+
+          <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {IMPACT_PREVIEW_ORIENTATION}
+          </p>
+          {!buyerPolishedShell ? <ImpactPreviewHowItWorksSection /> : null}
+        </>
+      ) : null}
+
+      {m.listLoading && m.candidates.length === 0 && pageReady ? (
+        <OperatorLoadingNotice>
+          <strong>Loading proposed changes.</strong>
+          <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>Fetching proposed architecture changes…</p>
+        </OperatorLoadingNotice>
+      ) : null}
+
+      {m.listFailure !== null ? (
+        <ImpactPreviewLoadFailurePanel
+          failure={m.listFailure}
+          retryLabel={IMPACT_PREVIEW_LIST_LOAD_RETRY_LABEL}
+          testId="impact-preview-list-load-failure"
+          retryTestId="impact-preview-list-load-retry"
+          retryDisabled={m.listLoading}
+          onRetry={() => {
+            void m.loadList();
+          }}
+        />
+      ) : null}
+
+      {m.simulateFailure !== null ? (
+        <ImpactPreviewLoadFailurePanel
+          failure={m.simulateFailure}
+          retryLabel={IMPACT_PREVIEW_SIMULATE_RETRY_LABEL}
+          testId="impact-preview-simulate-failure"
+          retryTestId="impact-preview-simulate-retry"
+          retryDisabled={m.simulateBusy}
+          onRetry={() => {
+            void m.onSimulate();
+          }}
+        />
+      ) : null}
+
+      <ImpactPreviewEmptyState pageState={pageState} planningReachable={planningReachable} />
+
+      {pageReady && !props.scopedRunFilterActive ? (
+        <ImpactPreviewPickReviewBeforeSimulatingStrip
+          selectedReviewId=""
+          onSelectReview={props.onPickReviewForSimulating}
+        />
+      ) : null}
+
+      {pageReady && props.scopedRunFilterActive ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="impact-preview-run-scope-banner"
+        >
+          {"Simulating impact for review "}
+          <span className="font-mono text-al-text-primary">{props.scopedRunId}</span>
+          {" · "}
+          <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={impactPreviewHref()}>
+            Clear review scope
+          </Link>
+          {" · "}
+          <Link
+            className={OPERATOR_BODY_INLINE_LINK_CLASS}
+            href={resolveSystemNotJobWorkingReviewOpenHref(props.scopedRunId, pinnedArchitectureId)}
+          >
+            Open review
+          </Link>
+        </p>
+      ) : null}
+
+      {showBaselinePickerStrip ? (
+        <ImpactPreviewBaselinePickerStrip
+          baselineOptions={m.baselineOptions}
+          selectedBaselineId={m.selectedBaselineId}
+          onSelectBaseline={(baselineId) => {
+            m.setSelectedBaselineId(baselineId);
+            m.rememberBaselinePair(baselineId, m.selectedId);
+          }}
+        />
+      ) : null}
+
+      {shouldShowBlockedOutputPreview(pageState) && m.selectedBaselineId !== null ? (
+        <ImpactPreviewOutputPreviewPanel />
+      ) : null}
+
+      {!pageReady && !buyerPolishedShell ? (
+        <ImpactPreviewCompareVocabularyRail currentSurfaceId="impact-preview" />
+      ) : null}
+
+      {showImpactPreviewWorkspace ? (
+        <>
+          {showSetupSkeleton ? (
+            <ImpactPreviewSetupSkeleton />
+          ) : (
+            <ImpactPreviewSetupCard
+              candidates={m.candidates}
+              selectedCandidateId={m.selectedId}
+              onSelectCandidate={(candidateId) => {
+                m.selectCandidate(candidateId);
+                m.rememberBaselinePair(m.selectedBaselineId, candidateId);
+              }}
+              baselineOptions={m.baselineOptions}
+              selectedBaselineId={m.selectedBaselineId}
+              onSelectBaseline={(baselineId) => {
+                m.selectBaseline(baselineId);
+                m.rememberBaselinePair(baselineId, m.selectedId);
+              }}
+              comparisonScope={m.comparisonScope}
+              onToggleScope={m.toggleComparisonScope}
+              canSimulate={canSimulate}
+              simulateBusy={m.simulateBusy}
+              listLoading={m.listLoading}
+              simulateComplete={hasSimulationResults}
+              onSimulate={() => {
+                void m.onSimulate();
+              }}
+            />
+          )}
+
+          {!hasSimulationResults ? <ImpactPreviewOutputPreviewPanel /> : null}
+
+          {m.detailFailure !== null ? (
+            <ImpactPreviewLoadFailurePanel
+              failure={m.detailFailure}
+              retryLabel={IMPACT_PREVIEW_DETAIL_LOAD_RETRY_LABEL}
+              testId="impact-preview-detail-load-failure"
+              retryTestId="impact-preview-detail-load-retry"
+              retryDisabled={m.detailLoading}
+              onRetry={() => {
+                void m.loadDetail();
+              }}
+            />
+          ) : null}
+
+          {m.detail !== null && m.detailLoading && (m.detail.simulationRuns?.length ?? 0) === 0 ? (
+            <OperatorLoadingNotice>
+              <strong>Loading simulation results.</strong>
+            </OperatorLoadingNotice>
+          ) : null}
+
+          {showResultsSkeleton ? <ImpactPreviewResultsSkeleton /> : null}
+
+          {hasSimulationResults && !showResultsSkeleton ? (
+            <>
+              <ImpactPreviewSummaryRow metrics={summaryMetrics} />
+              <ImpactPreviewSimulationResultsSection
+                detail={m.detail!}
+                detailLoading={m.detailLoading}
+                planSnapshot={m.planSnapshot}
+                selectedBaselineId={m.selectedBaselineId}
+                comparisonScope={m.comparisonScope}
+              />
+              <ImpactPreviewRecommendationSection
+                recommendation={recommendation}
+                explanation={selectedRun?.evaluationExplanationSummary ?? null}
+              />
+              <ImpactPreviewEvidenceBasisSection
+                baselineRunId={m.selectedBaselineId}
+                linkedRunIds={m.planSnapshot?.linkedArchitectureRunIds ?? []}
+                policyRulesLabel="Open approval"
+                architectureId={pinnedArchitectureId.length > 0 ? pinnedArchitectureId : null}
+              />
+              {m.selectedId !== null ? <ImpactPreviewResultActions selectedCandidateId={m.selectedId} /> : null}
+              {m.selectedBaselineId !== null ? (
+                <OperatorEvidenceLimitsFooter
+                  runId={m.selectedBaselineId}
+                  showArchitectureReviewSummaryLink={false}
+                />
+              ) : null}
+              {m.selectedBaselineId !== null ? (
+                <ImpactPreviewNextReviewFooterClient runId={m.selectedBaselineId} />
+              ) : null}
+            </>
+          ) : null}
+        </>
+      ) : null}
+    </OperatorPageContainer>
+  );
+}

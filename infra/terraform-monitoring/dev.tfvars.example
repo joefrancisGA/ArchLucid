@@ -1,0 +1,53 @@
+# Example tfvars for infra/terraform-monitoring (dev / shared subscription).
+# Copy to terraform.tfvars locally or inject via GitHub Environment secret DEV_MONITORING_TFVARS.
+# Do not commit phone numbers or webhook URLs.
+
+enable_monitoring_stack = true
+resource_group_name     = "rg-ArchLucid-dev"
+name_prefix             = "archlucid-dev"
+alert_email_address     = "security@archlucid.net"
+
+# Prerequisite (once per subscription): register Azure resource providers before first apply:
+#   az provider register --namespace Microsoft.Monitor --wait
+#   az provider register --namespace Microsoft.AlertsManagement --wait
+#
+# P0 path: SMS + voice (Azure-native, instant) + PagerDuty receivers.
+enable_critical_action_group = true
+alert_sms_country_code       = "1"
+alert_voice_country_code     = "1"
+# alert_sms_phone_number   = "<digits-only, set via TF_VAR or Key Vault>"
+# alert_voice_phone_number = "<digits-only, set via TF_VAR or Key Vault>"
+
+# Optional: read phones from Key Vault instead of tfvars (production pattern).
+read_alert_secrets_from_key_vault            = true
+alert_secrets_key_vault_name                 = "kvrgarchluciddev8aa56f"
+alert_secrets_key_vault_resource_group_name  = "rg-ArchLucid-dev"
+
+# Application Insights + CAE OpenTelemetry agent → AMW (P0 PromQL needs archlucid_* in workspace).
+# enable_application_insights = true
+# application_insights_name   = "archlucid-dev-appinsights"
+# application_insights_workspace_resource_id = "/subscriptions/.../Microsoft.OperationalInsights/workspaces/law-archlucid-ca"
+# enable_container_app_environment_otel = true
+# container_app_environment_resource_id = "/subscriptions/.../Microsoft.App/managedEnvironments/cae-archlucid"
+# wire_container_app_observability_env = true
+# api_container_app_name    = "archlucid-api"
+# worker_container_app_name = "archlucid-worker"
+
+# Wire after container apps exist:
+# api_container_app_resource_id   = "/subscriptions/.../Microsoft.App/containerApps/archlucid-api"
+# worker_container_app_resource_id = "/subscriptions/.../Microsoft.App/containerApps/archlucid-worker"
+# ui_container_app_resource_id    = "/subscriptions/.../Microsoft.App/containerApps/archlucid-ui"  # TB-731 traffic-pressure alerts
+container_cpu_percent_threshold = 80
+
+# TB-731 — marketing/product re-split triggers (see MARKETING_PRODUCT_SEPARATION_ASSESSMENT.md §6)
+# ui_container_cpu_percent_threshold = 70
+# ui_replica_saturation_threshold    = 5
+# ui_max_replicas_expected           = 6
+# marketing_product_resplit_signup_daily_threshold  = 25
+# marketing_product_resplit_signup_hourly_threshold = 10
+# enable_first_tenant_funnel_workbook = true  # optional signup funnel workbook
+
+tags = {
+  workload = "archlucid"
+  tier     = "dev"
+}

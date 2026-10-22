@@ -1,0 +1,48 @@
+{
+  "requestId": "starter-northwind-ai-llm-001",
+  "systemName": "Northwind.Copilot.RagPlatform",
+  "description": "Northwind Traders (fictional) ships an internal copilot over corporate docs: Azure API Management in front of Azure OpenAI chat completion, RAG from Azure AI Search with private endpoints, optional tool-calling to a line-of-business API, and redacted audit logging — buyers ask about data residency, content safety hooks, and who can change system prompts.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "All inference and search data planes use private connectivity from the application VNet; no public Azure OpenAI keys in clients",
+    "System prompts and tool manifests change only through approved pipeline; emergency rollback path documented",
+    "PII and secrets must not appear in vector index — ingestion pipeline enforces redaction patterns (design intent)"
+  ],
+  "requiredCapabilities": [
+    "api-management-gateway",
+    "chat-orchestration-worker",
+    "rag-retrieval-service",
+    "embedding-pipeline",
+    "content-safety-wrapper"
+  ],
+  "assumptions": [
+    "Synthetic documents only in pilot starter; production would add data classification and DLP",
+    "Single Entra ID tenant for workforce users; customer-facing B2C is out of scope for this file"
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [
+    "Review should surface human-in-the-loop points for high-impact actions and where grounding is asserted vs. where the model may speculate — no accuracy guarantees",
+    "Call out subprocessors: Azure OpenAI, AI Search, and any third-party eval tools as architecture dependencies only"
+  ],
+  "documents": [
+    {
+      "name": "starter-disclaimer.txt",
+      "contentType": "text/plain",
+      "content": "Synthetic AI/LLM workload starter for pilot evaluation. No real prompts or embeddings. No model safety certification."
+    }
+  ],
+  "policyReferences": [
+    "starter:ai-llm-workload",
+    "assign-vertical-pack:ai-llm"
+  ],
+  "topologyHints": [
+    "Hub-spoke or landing-zone spoke hosting APIM and orchestration; Azure OpenAI and AI Search in locked-down spoke",
+    "Optional Functions or Container Apps for embedding batch and index refresh"
+  ],
+  "securityBaselineHints": [
+    "Content filtering and abuse monitoring at gateway (design intent)",
+    "Key Vault for credentials; managed identity from compute to Azure AI resources"
+  ],
+  "infrastructureDeclarations": []
+}

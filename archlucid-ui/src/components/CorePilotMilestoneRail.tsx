@@ -1,0 +1,57 @@
+"use client";
+import { cn } from "@/lib/utils";
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
+
+const MILESTONE_SHORT: readonly string[] = ["Request", "Review process", "Finalize", "Package"];
+
+/** Compact Core Pilot milestones aligned with docs/CORE_PILOT §3 four steps — server + checklist signals only. */
+export function CorePilotMilestoneRail(props: {
+  milestoneComplete: readonly [boolean, boolean, boolean, boolean];
+  /** First incomplete index 0–3, or last index when all complete. */
+  activeIndex: number;
+}) {
+  const { milestoneComplete, activeIndex } = props;
+
+  return (
+    <nav
+      className="mb-3 rounded-md border border-neutral-200/90 bg-neutral-50/90 px-2 py-2 dark:border-neutral-700 dark:bg-neutral-900/50"
+      aria-label="Core Pilot milestone progress"
+      data-testid="core-pilot-milestone-rail"
+    >
+      <p className={cn("m-0 mb-1.5 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}>
+        Milestones (architecture review packaging)
+      </p>
+      <ol className="m-0 flex min-w-0 flex-nowrap gap-1 overflow-x-auto pb-0.5 [scrollbar-width:thin]">
+        {MILESTONE_SHORT.map((label, index) => {
+          const complete = milestoneComplete[index] === true;
+          const current = activeIndex === index;
+
+          return (
+            <li
+              key={label}
+              className={cn(
+                "flex min-w-[5.25rem] flex-1 list-none flex-col items-center rounded-sm border px-1 py-1 text-center max-sm:min-w-[4.5rem]",
+                complete
+                  ? cn(operatorSemanticSurface("ready"), "flex flex-col items-center text-center")
+                  : current
+                    ? cn(operatorSemanticSurface("current"), "flex flex-col items-center text-center")
+                    : cn(operatorSemanticSurface("neutral"), "flex flex-col items-center text-center"),
+              )}
+              data-testid={`core-pilot-milestone-${index}`}
+              aria-current={current ? "step" : undefined}
+            >
+              <span className={cn("font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}>
+                {index + 1}
+              </span>
+              <span className={cn("font-medium leading-snug text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}>{label}</span>
+              <span className="sr-only">{complete ? "complete" : "not complete"}</span>
+            </li>
+          );
+        })}
+      </ol>
+      <p className={cn("m-0 mt-1 leading-snug text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.badge)}>
+        Status comes from saved runs plus commit signals — checklist checkboxes capture what you verified.
+      </p>
+    </nav>
+  );
+}

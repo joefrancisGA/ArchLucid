@@ -1,0 +1,1728 @@
+'use client';
+
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type SetStateAction } from 'react';
+import { usePathname } from 'next/navigation';
+
+import { commitHrefIfChanged, readWindowLocationSearch } from '@/lib/navigation/replace-if-href-changed';
+
+import { ArchitectureDiagramMermaidViewportFrame } from '@/components/architecture/ArchitectureDiagramMermaidViewportFrame';
+import { ArchitectureDiagramViewportControls } from '@/components/architecture/ArchitectureDiagramViewportControls';
+import { DiagramNeighborhoodMapView } from '@/components/architecture/DiagramNeighborhoodMapView';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { SeverityTag } from '@/components/ui/severity-tag';
+import {
+  ARCHITECTURE_DIAGRAM_FIT_IN_VIEW_LABEL,
+  ARCHITECTURE_DIAGRAM_FULLSCREEN_ACTION,
+  ARCHITECTURE_DIAGRAM_MAP_LABEL,
+  ARCHITECTURE_DIAGRAM_PLATE_LABEL,
+  ARCHITECTURE_DIAGRAM_PAINT_FAILURE,
+  ARCHITECTURE_DIAGRAM_RENDER_FAILURE,
+  ARCHITECTURE_DIAGRAM_RESET_ZOOM_LABEL,
+  ARCHITECTURE_DIAGRAM_RETRY_ACTION,
+  ARCHITECTURE_DIAGRAM_VIEWPORT_HINT,
+  ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL,
+  ARCHITECTURE_DIAGRAM_ZOOM_OUT_LABEL,
+} from '@/lib/architecture/architecture-diagram-copy';
+import {
+  ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE,
+  createArchitectureDiagramMermaidConfig,
+} from '@/lib/architecture/architecture-diagram-mermaid-config';
+import {
+  architectureDiagramFullscreenHrefFromSearch,
+  architectureDiagramPercentToZoom,
+  architectureDiagramZoomHrefFromSearch,
+  architectureDiagramZoomToPercent,
+  clampArchitectureDiagramZoom,
+  MAX_ARCHITECTURE_DIAGRAM_ZOOM,
+  MAX_ARCHITECTURE_DIAGRAM_ZOOM_PERCENT,
+  MIN_ARCHITECTURE_DIAGRAM_ZOOM,
+  MIN_ARCHITECTURE_DIAGRAM_ZOOM_PERCENT,
+  parseArchitectureDiagramFullscreenOpenFromSearch,
+  parseArchitectureDiagramZoomFromSearch,
+} from '@/lib/architecture/architecture-diagram-fullscreen-url';
+import { sanitizeArchitectureDiagramSvg } from '@/lib/architecture/architecture-diagram-svg';
+import {
+  parseDiagramNeighborhoodMap,
+  shouldAutoOpenDiagramNeighborhoodMap,
+  type DiagramNeighborhoodMap,
+} from '@/lib/architecture/architecture-diagram-neighborhood-map';
+import {
+  normalizeDiagramFocusToken,
+  resolveDiagramClickFocus,
+  type DiagramClickFocusEdge,
+  type DiagramClickFocusFacts,
+  type DiagramClickFocusFrame,
+  type DiagramClickFocusNode,
+  type DiagramClickFocusRect,
+} from '@/lib/architecture/architecture-diagram-click-focus';
+import type { InfraEvidenceMermaidOutline } from '@/lib/infra-evidence/parse-infra-evidence-mermaid-outline';
+import {
+  INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_AUTHORIZATION_HINT,
+  INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_HOSTNAME_HINT,
+} from '@/lib/infra-evidence/infra-evidence-diagram-copy';
+import {
+  applyMermaidSvgViewportZoom,
+  fitMermaidSvgElementToHost,
+  fitMermaidSvgElementToViewport,
+  fitInventoryDiagramSvgElementToFocusNodeIds,
+  isMermaidViewportPaintTooSmall,
+  mermaidViewportFitNeedsRetry,
+  type MermaidViewportFitDimensions,
+  prepareMermaidSvgForResponsiveLayout,
+  readMermaidViewportFitBudget,
+  resetMermaidSvgViewportInkCache,
+  resolveMermaidViewportDefaultZoom,
+  sanitizeMermaidRenderId,
+} from '@/lib/help/help-mermaid';
+import { applySecureNowQuestionSubjectHighlight } from '@/lib/architecture/architecture-diagram-question-subject';
+import { renderMermaidSvgMarkup } from '@/lib/mermaid/mermaid-safe-render';
+import { OPERATOR_TYPOGRAPHY } from '@/lib/design-tokens';
+import { useDocumentDarkMode } from '@/lib/use-document-dark-mode';
+import { cn } from '@/lib/utils';
+
+const ZOOM_STEP = 0.1;
+const MAX_INITIAL_FIT_RETRIES = 8;
+const INITIAL_FIT_RETRY_DELAY_MS = 120;
+const EMPTY_FOCUS_NODE_IDS: readonly string[] = [];
+
+export type ArchitectureDiagramSourceKind = 'html' | 'image';
+
+export type ArchitectureDiagramConnectorSelection = {
+  readonly from: string;
+  readonly to: string;
+  readonly label: string | null;
+};
+
+export type ArchitectureDiagramMermaidViewerProps = {
+  readonly mermaidSource: string;
+  /** Server-side Graphviz layout SVG; when present, client Mermaid layout is skipped. */
+  readonly layoutSvg?: string | null;
+  readonly textAlternative: string;
+  readonly viewportAriaLabel?: string;
+  readonly fullscreenTitle?: string;
+  readonly scopeContextLine?: string | null;
+  readonly canvasStale?: boolean;
+  readonly onRenderFailure?: () => void;
+  readonly onRetry?: () => void;
+  /** Fires when sanitized SVG markup is ready for browser PNG export. */
+  readonly onExportableSvgMarkupChange?: (svgMarkup: string | null) => void;
+  /** Overlay keeps zoom chrome on the canvas; stacked places it above the viewport. */
+  readonly viewportControlsLayout?: 'stacked' | 'overlay';
+  /** When omitted, uses shared keyboard/zoom hint copy; pass empty string to hide the hint. */
+  readonly viewportHint?: string;
+  /** When non-empty, camera fits the mapped union of these node ids after paint. */
+  readonly focusNodeIds?: readonly string[];
+  /** Increment when focus selection changes so camera refits. */
+  readonly focusNonce?: number;
+  /** When set, highlights only this node (not neighbors) for an open SecureNow question. */
+  readonly questionSubjectNodeId?: string | null;
+  /** Logical inventory outline used for click-focus neighborhood membership. */
+  readonly outline?: InfraEvidenceMermaidOutline | null;
+  /** Reports a painted connector click without changing node focus. */
+  readonly onSelectConnector?: (selection: ArchitectureDiagramConnectorSelection | null) => void;
+  /** Connector selected by the owning workbench; other connectors are dimmed. */
+  readonly selectedConnector?: ArchitectureDiagramConnectorSelection | null;
+  /** Connector identities that remain visible when an evidence-family filter is active. */
+  readonly visibleConnectors?: readonly ArchitectureDiagramConnectorSelection[] | null;
+  /** Optional max-height override for the scrolling camera (inventory workbench uses a taller frame). */
+  readonly cameraMaxHeightClassName?: string;
+  /** Docked inside the diagram viewport frame (inline and fullscreen). */
+  readonly viewportHeader?: React.ReactNode;
+};
+
+export type ArchitectureDiagramStaticViewerProps = {
+  /** Raw SVG string or image URL from inventory metadata. */
+  readonly source: string;
+  readonly sourceKind: ArchitectureDiagramSourceKind;
+  readonly alt: string;
+  readonly className?: string;
+  /** When true, wheel zoom and keyboard shortcuts are enabled (detail / expanded views). */
+  readonly interactive?: boolean;
+};
+
+export type ArchitectureDiagramViewerProps =
+  | ArchitectureDiagramMermaidViewerProps
+  | ArchitectureDiagramStaticViewerProps;
+
+function isMermaidViewerProps(
+  props: ArchitectureDiagramViewerProps,
+): props is ArchitectureDiagramMermaidViewerProps {
+  return 'mermaidSource' in props;
+}
+
+function scrollViewportToOrigin(viewport: HTMLDivElement | null): void {
+  if (viewport === null) {
+    return;
+  }
+
+  viewport.scrollLeft = 0;
+  viewport.scrollTop = 0;
+}
+
+function applyMermaidViewportCamera(
+  host: HTMLDivElement,
+  viewport: HTMLDivElement,
+  zoom: number,
+  focusNodeIds: readonly string[] = [],
+): MermaidViewportFitDimensions | null {
+  const svg = host.querySelector('svg');
+
+  if (!(svg instanceof SVGSVGElement)) {
+    return null;
+  }
+
+  const { widthPx, heightPx } = readMermaidViewportFitBudget(viewport);
+  const baseFit =
+    focusNodeIds.length > 0
+      ? fitInventoryDiagramSvgElementToFocusNodeIds(svg, widthPx, heightPx, focusNodeIds)
+      : fitMermaidSvgElementToViewport(svg, widthPx, heightPx);
+
+  if (baseFit !== null && baseFit.inkMeasured) {
+    applyMermaidSvgViewportZoom(svg, baseFit, zoom);
+  }
+
+  return baseFit;
+}
+
+function readSvgRect(element: Element): DiagramClickFocusRect | null {
+  const rect = element.querySelector('rect');
+
+  if (rect === null) {
+    return null;
+  }
+
+  const x = Number.parseFloat(rect.getAttribute('x') ?? '0');
+  const y = Number.parseFloat(rect.getAttribute('y') ?? '0');
+  const width = Number.parseFloat(rect.getAttribute('width') ?? '');
+  const height = Number.parseFloat(rect.getAttribute('height') ?? '');
+
+  if (![x, y, width, height].every(Number.isFinite)) {
+    return null;
+  }
+
+  return { x, y, width, height };
+}
+
+function readForestNodeFact(element: Element): DiagramClickFocusNode | null {
+  const id = element.getAttribute('id')?.replace(/^node-/u, '') ?? '';
+  const card = element.querySelector('rect.node-card');
+  const transform = element.getAttribute('transform') ?? '';
+  const match = /^translate\(\s*([-+]?\d*\.?\d+)\s*,\s*([-+]?\d*\.?\d+)\s*\)$/u.exec(transform);
+
+  if (id.length === 0 || card === null || match === null) {
+    return null;
+  }
+
+  const x = Number.parseFloat(match[1]);
+  const y = Number.parseFloat(match[2]);
+  const width = Number.parseFloat(card.getAttribute('width') ?? '');
+  const height = Number.parseFloat(card.getAttribute('height') ?? '');
+
+  if (![x, y, width, height].every(Number.isFinite)) {
+    return null;
+  }
+
+  return {
+    id,
+    center: { x: x + (width / 2), y: y + (height / 2) },
+  };
+}
+
+function readClickFocusFacts(svg: SVGSVGElement): DiagramClickFocusFacts {
+  const nodes = [...svg.querySelectorAll('g.node')]
+    .map(readForestNodeFact)
+    .filter((node): node is DiagramClickFocusNode => node !== null);
+  const frames: DiagramClickFocusFrame[] = [];
+
+  for (const frame of svg.querySelectorAll('g.vnet-frame')) {
+    const id = frame.getAttribute('data-frame-id') ?? '';
+    const rect = readSvgRect(frame);
+
+    if (id.length > 0 && rect !== null) {
+      frames.push({ id, rect, kind: 'vnet' });
+    }
+  }
+
+  for (const frame of svg.querySelectorAll('g.rg-frame')) {
+    const id = frame.getAttribute('data-frame-cell-id') ?? '';
+    const rect = frame.querySelector('rect.rg-frame-plate');
+
+    if (id.length > 0 && rect !== null) {
+      const x = Number.parseFloat(rect.getAttribute('x') ?? '0');
+      const y = Number.parseFloat(rect.getAttribute('y') ?? '0');
+      const width = Number.parseFloat(rect.getAttribute('width') ?? '');
+      const height = Number.parseFloat(rect.getAttribute('height') ?? '');
+
+      if ([x, y, width, height].every(Number.isFinite)) {
+        frames.push({ id, rect: { x, y, width, height }, kind: 'resourceGroup' });
+      }
+    }
+  }
+
+  const edges: DiagramClickFocusEdge[] = [...svg.querySelectorAll('g.edge')].map((edge) => ({
+    from: (edge.getAttribute('data-bundle-from') ?? edge.getAttribute('data-from') ?? '')
+      .split(/\s+/u)
+      .filter(Boolean),
+    to: (edge.getAttribute('data-bundle-to') ?? edge.getAttribute('data-to') ?? '')
+      .split(/\s+/u)
+      .filter(Boolean),
+  }));
+
+  return { nodes, frames, edges };
+}
+
+function clearClickFocusClasses(svg: SVGSVGElement): void {
+  svg.querySelectorAll('.diagram-click-dim').forEach((element) => {
+    element.classList.remove('diagram-click-dim');
+  });
+}
+
+function resolveFocusedNodeConnectionHint(
+  nodeId: string,
+  outline: InfraEvidenceMermaidOutline | null,
+): string | null {
+  if (outline === null) {
+    return null;
+  }
+
+  const normalizedNodeId = normalizeDiagramFocusToken(nodeId);
+  const incidentEdges = outline.edges.filter((edge) => (
+    normalizeDiagramFocusToken(edge.from) === normalizedNodeId
+    || normalizeDiagramFocusToken(edge.to) === normalizedNodeId
+  ));
+  const hasAuthorizationEdge = incidentEdges.some((edge) => (
+    edge.inferenceSource === 'inventory-app-authorized-access'
+    || edge.label?.toLowerCase().includes('may access') === true
+  ));
+
+  if (hasAuthorizationEdge) {
+    return INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_AUTHORIZATION_HINT;
+  }
+
+  const hasHostnameEdge = incidentEdges.some((edge) => (
+    edge.inferenceSource === 'inventory-hostname-inferred-target'
+    || edge.label?.toLowerCase().includes('likely connected') === true
+  ));
+
+  return hasHostnameEdge ? INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_HOSTNAME_HINT : null;
+}
+
+function applyConnectorSelectionClasses(
+  svg: SVGSVGElement,
+  selection: ArchitectureDiagramConnectorSelection | null | undefined,
+): void {
+  if (selection == null) {
+    return;
+  }
+
+  const selectedFrom = normalizeDiagramFocusToken(selection.from);
+  const selectedTo = normalizeDiagramFocusToken(selection.to);
+  const selectedLabel = selection.label?.trim() ?? '';
+
+  [...svg.querySelectorAll<SVGGElement>('g.edge')].forEach((edge) => {
+    const fromTokens = (edge.getAttribute('data-bundle-from') ?? edge.getAttribute('data-from') ?? '')
+      .split(/\s+/u)
+      .filter(Boolean)
+      .map(normalizeDiagramFocusToken);
+    const toTokens = (edge.getAttribute('data-bundle-to') ?? edge.getAttribute('data-to') ?? '')
+      .split(/\s+/u)
+      .filter(Boolean)
+      .map(normalizeDiagramFocusToken);
+    const label = edge.querySelector('title')?.textContent?.trim() ?? '';
+    const sameEndpoints = fromTokens.includes(selectedFrom) && toTokens.includes(selectedTo);
+    const sameLabel = selectedLabel.length === 0 || label === selectedLabel;
+
+    edge.classList.toggle('diagram-click-dim', !(sameEndpoints && sameLabel));
+  });
+}
+
+function applyConnectorVisibility(
+  svg: SVGSVGElement,
+  visibleConnectors: readonly ArchitectureDiagramConnectorSelection[] | null | undefined,
+): void {
+  [...svg.querySelectorAll<SVGGElement>('g.edge')].forEach((edge) => {
+    edge.classList.remove('diagram-family-hidden');
+    edge.style.removeProperty('display');
+  });
+
+  if (visibleConnectors == null) {
+    return;
+  }
+
+  [...svg.querySelectorAll<SVGGElement>('g.edge')].forEach((edge) => {
+    const from = edge.getAttribute('data-from') ?? '';
+    const to = edge.getAttribute('data-to') ?? '';
+    const label = edge.querySelector('title')?.textContent?.trim() ?? null;
+    const isVisible = visibleConnectors.some(
+      (connector) =>
+        normalizeDiagramFocusToken(connector.from) === normalizeDiagramFocusToken(from)
+        && normalizeDiagramFocusToken(connector.to) === normalizeDiagramFocusToken(to)
+        && (connector.label?.trim() ?? null) === label,
+    );
+
+    if (!isVisible) {
+      edge.classList.add('diagram-family-hidden');
+      edge.style.display = 'none';
+    }
+  });
+}
+
+function reportMermaidViewportPaintFailure(
+  baseFit: MermaidViewportFitDimensions | null,
+  zoom: number,
+  setRenderError: React.Dispatch<React.SetStateAction<string | null>>,
+  onRenderFailure?: () => void,
+): void {
+  if (!isMermaidViewportPaintTooSmall(baseFit, zoom)) {
+    setRenderError((current) => (current === ARCHITECTURE_DIAGRAM_PAINT_FAILURE ? null : current));
+
+    return;
+  }
+
+  setRenderError(ARCHITECTURE_DIAGRAM_PAINT_FAILURE);
+  onRenderFailure?.();
+}
+
+function syncMermaidViewportCamera(
+  host: HTMLDivElement | null,
+  viewport: HTMLDivElement | null,
+  zoom: number,
+  focusNodeIds: readonly string[] = [],
+): MermaidViewportFitDimensions | null {
+  if (host === null || viewport === null) {
+    return null;
+  }
+
+  return applyMermaidViewportCamera(host, viewport, zoom, focusNodeIds);
+}
+
+function useDiagramZoomState(pathname: string) {
+  const readZoomFromUrl = (): number | null =>
+    parseArchitectureDiagramZoomFromSearch(
+      new URLSearchParams(typeof window === 'undefined' ? '' : window.location.search).get('diagZoom'),
+    );
+  const [zoom, setZoomState] = useState<number>(() => readZoomFromUrl() ?? 1);
+  const [zoomPercentDraft, setZoomPercentDraft] = useState<string | null>(null);
+  const zoomRef = useRef<number>(zoom);
+
+  zoomRef.current = zoom;
+
+  const setZoomClamped = useCallback((value: number) => {
+    setZoomState(clampArchitectureDiagramZoom(value));
+  }, []);
+
+  const setZoom = useCallback(
+    (value: SetStateAction<number>) => {
+      const current = zoomRef.current;
+      const nextRaw = typeof value === 'function' ? value(current) : value;
+      const next = clampArchitectureDiagramZoom(nextRaw);
+
+      if (zoomRef.current === next) {
+        return;
+      }
+
+      zoomRef.current = next;
+      setZoomState(next);
+      commitHrefIfChanged(
+        architectureDiagramZoomHrefFromSearch(readWindowLocationSearch(), next, pathname),
+        { notify: false },
+      );
+    },
+    [pathname],
+  );
+
+  useEffect(() => {
+    const syncZoomFromUrl = (): void => {
+      const urlZoom = readZoomFromUrl();
+
+      if (urlZoom === null || zoomRef.current === urlZoom) {
+        return;
+      }
+
+      zoomRef.current = urlZoom;
+      setZoomState(urlZoom);
+    };
+
+    syncZoomFromUrl();
+    window.addEventListener('popstate', syncZoomFromUrl);
+
+    return (): void => {
+      window.removeEventListener('popstate', syncZoomFromUrl);
+    };
+  }, []);
+
+  const zoomIn = useCallback(() => {
+    setZoom((current) => current + ZOOM_STEP);
+  }, [setZoom]);
+
+  const zoomOut = useCallback(() => {
+    setZoom((current) => current - ZOOM_STEP);
+  }, [setZoom]);
+
+  const resetZoom = useCallback(() => {
+    setZoom(1);
+  }, [setZoom]);
+
+  const commitZoomPercent = useCallback(
+    (raw: string) => {
+      setZoomPercentDraft(null);
+
+      const trimmed = raw.trim().replace(/%$/, '');
+
+      if (trimmed.length === 0) {
+        return;
+      }
+
+      const parsed = Number.parseFloat(trimmed);
+
+      if (!Number.isFinite(parsed)) {
+        return;
+      }
+
+      setZoom(architectureDiagramPercentToZoom(parsed));
+    },
+    [setZoom],
+  );
+
+  const zoomPercent = architectureDiagramZoomToPercent(zoom);
+  const zoomPercentInputValue = zoomPercentDraft ?? String(zoomPercent);
+  const atMinZoom = zoom <= MIN_ARCHITECTURE_DIAGRAM_ZOOM + 0.001;
+  const atMaxZoom = zoom >= MAX_ARCHITECTURE_DIAGRAM_ZOOM - 0.001;
+  const atDefaultZoom = Math.abs(zoom - 1) <= 0.001;
+
+  return {
+    zoom,
+    zoomRef,
+    zoomPercent,
+    zoomPercentInputValue,
+    atMinZoom,
+    atMaxZoom,
+    atDefaultZoom,
+    setZoomPercentDraft,
+    setZoomClamped,
+    setZoom,
+    zoomIn,
+    zoomOut,
+    resetZoom,
+    commitZoomPercent,
+  };
+}
+
+type DiagramViewportControlsOptions = {
+  readonly layout?: 'stacked' | 'overlay';
+  readonly fullscreenAction?: { readonly label: string; readonly onClick: () => void };
+  readonly defaultContainZoom?: number;
+  readonly onResetZoom?: () => void;
+  readonly surfaceToggle?: { readonly label: string; readonly onClick: () => void };
+  readonly viewportHint?: string;
+};
+
+function renderDiagramViewportControls(
+  zoom: ReturnType<typeof useDiagramZoomState>,
+  onFitInView: () => void,
+  options?: DiagramViewportControlsOptions,
+): React.JSX.Element {
+  const defaultContainZoom = options?.defaultContainZoom ?? 1;
+  const atDefaultContainZoom = Math.abs(zoom.zoom - defaultContainZoom) <= 0.001;
+
+  return (
+    <ArchitectureDiagramViewportControls
+      zoomPercentInputValue={zoom.zoomPercentInputValue}
+      minZoomPercent={MIN_ARCHITECTURE_DIAGRAM_ZOOM_PERCENT}
+      maxZoomPercent={MAX_ARCHITECTURE_DIAGRAM_ZOOM_PERCENT}
+      atMinZoom={zoom.atMinZoom}
+      atMaxZoom={zoom.atMaxZoom}
+      fitInViewDisabled={atDefaultContainZoom}
+      onZoomPercentDraftChange={zoom.setZoomPercentDraft}
+      onZoomPercentFocus={() => zoom.setZoomPercentDraft(String(zoom.zoomPercent))}
+      onCommitZoomPercent={zoom.commitZoomPercent}
+      onZoomIn={zoom.zoomIn}
+      onZoomOut={zoom.zoomOut}
+      onResetZoom={options?.onResetZoom ?? zoom.resetZoom}
+      onFitInView={onFitInView}
+      zoomInLabel={ARCHITECTURE_DIAGRAM_ZOOM_IN_LABEL}
+      zoomOutLabel={ARCHITECTURE_DIAGRAM_ZOOM_OUT_LABEL}
+      resetZoomLabel={ARCHITECTURE_DIAGRAM_RESET_ZOOM_LABEL}
+      fitInViewLabel={ARCHITECTURE_DIAGRAM_FIT_IN_VIEW_LABEL}
+      viewportHint={options?.viewportHint ?? ARCHITECTURE_DIAGRAM_VIEWPORT_HINT}
+      layout={options?.layout}
+      fullscreenAction={options?.fullscreenAction}
+      surfaceToggle={options?.surfaceToggle}
+    />
+  );
+}
+
+const MERMAID_SVG_HOST_CLASSNAME = cn(
+  'mx-auto block w-max max-w-none min-w-full text-neutral-900 dark:text-neutral-100',
+  '[&_svg]:block [&_svg]:overflow-visible',
+  // Only text without baked SVG fills inherit currentColor; forest captions/legend keep their fills.
+  '[&_svg_text:not([fill])]:fill-current [&_svg_.cluster-label]:fill-neutral-700 dark:[&_svg_.cluster-label]:fill-neutral-200',
+  '[&_svg_.clusterLabelText]:font-bold [&_svg_.clusterLabelText]:fill-neutral-800 dark:[&_svg_.clusterLabelText]:fill-neutral-100',
+  '[&_svg_.cluster-label_text]:font-bold [&_svg_.cluster-label_.nodeLabel]:font-bold',
+  '[&_svg_.rg-frame_text]:font-bold [&_svg_.rg-frame_text]:fill-neutral-800 dark:[&_svg_.rg-frame_text]:fill-neutral-100',
+  '[&_svg_.nodeLabel]:text-[13px] [&_svg_.nodeLabel]:leading-5 [&_svg_.nodeLabel]:text-neutral-900 dark:[&_svg_.nodeLabel]:text-neutral-100',
+  '[&_svg_.cluster_rect]:fill-white dark:[&_svg_.cluster_rect]:fill-neutral-950/80',
+  '[&_svg_.cluster_rect]:stroke-neutral-500 [&_svg_.cluster_rect]:stroke-[1.5px]',
+  // Fallback ink when Mermaid CSS is stripped. Scope to card bodies only — never pictogram or accent rects.
+  '[&_svg_g.node>rect.node-card]:fill-[var(--arch-diagram-node-fill)] dark:[&_svg_g.node>rect.node-card]:fill-slate-700',
+  '[&_svg_g.node>rect.node-card-questionable]:fill-[#FDE68A] dark:[&_svg_g.node>rect.node-card-questionable]:fill-[#A16207]',
+  '[&_svg_g.node>rect.node-card]:stroke-[var(--arch-diagram-node-border)] dark:[&_svg_g.node>rect.node-card]:stroke-slate-200',
+  '[&_svg_g.node>rect.node-card]:stroke-[1.5px]',
+  '[&_svg_g.node>rect:not(.node-accent):not(.node-card)]:fill-[var(--arch-diagram-node-fill)] dark:[&_svg_g.node>rect:not(.node-accent):not(.node-card)]:fill-slate-700',
+  '[&_svg_g.node>rect:not(.node-accent):not(.node-card)]:stroke-[var(--arch-diagram-node-border)] dark:[&_svg_g.node>rect:not(.node-accent):not(.node-card)]:stroke-slate-200',
+  '[&_svg_g.node>rect:not(.node-accent):not(.node-card)]:stroke-[1.5px]',
+  '[&_svg_.node_polygon]:fill-[var(--arch-diagram-node-fill)] dark:[&_svg_.node_polygon]:fill-slate-700',
+  '[&_svg_.node_polygon]:stroke-[var(--arch-diagram-node-border)] dark:[&_svg_.node_polygon]:stroke-slate-200',
+  '[&_svg_.node_polygon]:stroke-[1.5px]',
+  '[&_svg_.edgePath_path]:stroke-[#111827] dark:[&_svg_.edgePath_path]:stroke-[#e2e8f0]',
+  '[&_svg_.edgePath_path]:fill-none',
+  '[&_svg_.edgePaths_path]:stroke-[#111827] dark:[&_svg_.edgePaths_path]:stroke-[#e2e8f0]',
+  '[&_svg_.edgePaths_path]:fill-none',
+  '[&_svg_path.edge-path]:stroke-[#111827] dark:[&_svg_path.edge-path]:stroke-[#e2e8f0]',
+  '[&_svg_path.edge-path]:fill-none',
+  '[&_svg_marker#al-edge-arrow_path]:fill-[#111827] dark:[&_svg_marker#al-edge-arrow_path]:fill-[#e2e8f0]',
+  '[&_svg_g.edge-label_text]:fill-[#111827] dark:[&_svg_g.edge-label_text]:fill-[#e2e8f0]',
+  '[&_svg_.diagram-click-dim]:opacity-[0.15]',
+);
+
+const MERMAID_SVG_HOST_LIGHT_NODE_STYLE = {
+  '--arch-diagram-node-fill': ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.fill,
+  '--arch-diagram-node-border': ARCHITECTURE_DIAGRAM_MERMAID_LIGHT_NODE.border,
+} as React.CSSProperties;
+
+/** Interactive architecture diagram canvas with zoom, pan, fullscreen, and accessible fallback text. */
+function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewerProps): React.JSX.Element {
+  const {
+    mermaidSource,
+    layoutSvg = null,
+    onRenderFailure,
+    viewportAriaLabel = 'Architecture diagram',
+    fullscreenTitle = 'Architecture diagram',
+    scopeContextLine = null,
+    canvasStale = false,
+    viewportControlsLayout = 'overlay',
+    viewportHint,
+    focusNodeIds = EMPTY_FOCUS_NODE_IDS,
+    focusNonce = 0,
+    questionSubjectNodeId = null,
+    outline = null,
+    onSelectConnector,
+    selectedConnector = null,
+    visibleConnectors = null,
+    cameraMaxHeightClassName = 'max-h-[36rem]',
+    viewportHeader = null,
+  } = props;
+  const pathname = usePathname() ?? '';
+  const reactId = useId();
+  const renderId = useMemo(() => sanitizeMermaidRenderId(`arch-diagram-${reactId}`), [reactId]);
+  const dark = useDocumentDarkMode();
+  const readFullscreenOpenFromUrl = (): boolean =>
+    parseArchitectureDiagramFullscreenOpenFromSearch(
+      new URLSearchParams(typeof window === 'undefined' ? '' : window.location.search).get('diagFullscreen'),
+    );
+  const [svgMarkup, setSvgMarkup] = useState<string | null>(null);
+  const [renderError, setRenderError] = useState<string | null>(null);
+  const [clickFocus, setClickFocus] = useState<{
+    id: string;
+    name: string;
+    memberNames?: readonly string[];
+  } | null>(null);
+  const [diagramSurface, setDiagramSurface] = useState<'map' | 'plate' | 'neighborhood'>('plate');
+  const [openNeighborhoodId, setOpenNeighborhoodId] = useState<string | null>(null);
+  const [renderGeneration, setRenderGeneration] = useState(0);
+  const [fullscreenOpen, setFullscreenOpenState] = useState(readFullscreenOpenFromUrl);
+  const viewportFrameRef = useRef<HTMLDivElement | null>(null);
+  const viewportRef = useRef<HTMLDivElement | null>(null);
+  const svgHostRef = useRef<HTMLDivElement | null>(null);
+  const fullscreenViewportRef = useRef<HTMLDivElement | null>(null);
+  const fullscreenHostRef = useRef<HTMLDivElement | null>(null);
+  const baseFitRef = useRef<MermaidViewportFitDimensions | null>(null);
+  const fullscreenBaseFitRef = useRef<MermaidViewportFitDimensions | null>(null);
+  const fullscreenOpenRef = useRef<boolean>(fullscreenOpen);
+  const mermaidFitRetryCountRef = useRef(0);
+  const mermaidFitRetryTimeoutRef = useRef<number | null>(null);
+  const zoom = useDiagramZoomState(pathname);
+  const previousMermaidSourceRef = useRef<string | null>(null);
+  const previousLayoutSvgRef = useRef<string | null>(null);
+  const defaultContainZoomRef = useRef<number>(1);
+  const autoZoomGenerationRef = useRef<string>('');
+  const lastInitialFitSvgRef = useRef<string | null>(null);
+  const lastInitialFitFocusNonceRef = useRef<number>(focusNonce);
+  const syncInlineViewportCameraRef = useRef<() => boolean>(() => false);
+
+  fullscreenOpenRef.current = fullscreenOpen;
+
+  useEffect(() => {
+    const trimmed = mermaidSource.trim();
+    const previous = previousMermaidSourceRef.current;
+    previousMermaidSourceRef.current = trimmed;
+
+    if (previous === null || previous === trimmed) {
+      return;
+    }
+
+    // 100% is contain-fit, not native mermaid pixels. A stale diagZoom from a
+    // previous empty plate must not hide the next source at 30%.
+    zoom.setZoom(1);
+  }, [mermaidSource, zoom.setZoom]);
+
+  useEffect(() => {
+    const trimmed = layoutSvg?.trim() ?? '';
+    const previous = previousLayoutSvgRef.current;
+    previousLayoutSvgRef.current = trimmed;
+
+    if (previous === null || previous === trimmed) {
+      return;
+    }
+
+    zoom.setZoom(1);
+  }, [layoutSvg, zoom.setZoom]);
+
+  const setFullscreenOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      const current = fullscreenOpenRef.current;
+      const next = typeof value === 'function' ? value(current) : value;
+
+      if (fullscreenOpenRef.current === next) {
+        return;
+      }
+
+      fullscreenOpenRef.current = next;
+      setFullscreenOpenState(next);
+      commitHrefIfChanged(
+        architectureDiagramFullscreenHrefFromSearch(readWindowLocationSearch(), next, pathname),
+        { notify: false },
+      );
+    },
+    [pathname],
+  );
+
+  useEffect(() => {
+    const syncFullscreenOpenFromUrl = (): void => {
+      const next = readFullscreenOpenFromUrl();
+
+      if (fullscreenOpenRef.current === next) {
+        return;
+      }
+
+      fullscreenOpenRef.current = next;
+      setFullscreenOpenState(next);
+    };
+
+    syncFullscreenOpenFromUrl();
+    window.addEventListener('popstate', syncFullscreenOpenFromUrl);
+
+    return (): void => {
+      window.removeEventListener('popstate', syncFullscreenOpenFromUrl);
+    };
+  }, []);
+
+  const retryRender = useCallback(() => {
+    setRenderGeneration((current) => current + 1);
+    props.onRetry?.();
+  }, [props.onRetry]);
+
+  useEffect(() => {
+    let canceled = false;
+    const trimmedLayoutSvg = layoutSvg?.trim() ?? '';
+
+    async function renderDiagram(): Promise<void> {
+      setRenderError(null);
+      setSvgMarkup(null);
+
+      if (trimmedLayoutSvg.length > 0) {
+        if (!canceled) {
+          setSvgMarkup(prepareMermaidSvgForResponsiveLayout(trimmedLayoutSvg));
+        }
+
+        return;
+      }
+
+      try {
+        const svg = await renderMermaidSvgMarkup(mermaidSource, {
+          renderIdBase: renderId,
+          initialize: (mermaid) => {
+            mermaid.initialize(createArchitectureDiagramMermaidConfig(dark));
+          },
+        });
+
+        if (!canceled) {
+          setSvgMarkup(prepareMermaidSvgForResponsiveLayout(svg));
+        }
+      } catch (error) {
+        if (!canceled) {
+          const message = error instanceof Error ? error.message : ARCHITECTURE_DIAGRAM_RENDER_FAILURE;
+          setRenderError(message);
+          onRenderFailure?.();
+        }
+      }
+    }
+
+    void renderDiagram();
+
+    return (): void => {
+      canceled = true;
+    };
+  }, [dark, layoutSvg, mermaidSource, onRenderFailure, renderGeneration, renderId]);
+
+  const sanitizedSvg = useMemo(() => {
+    if (svgMarkup === null) {
+      return null;
+    }
+
+    return sanitizeArchitectureDiagramSvg(svgMarkup, { dark });
+  }, [dark, svgMarkup]);
+
+  const neighborhoodMap = useMemo<DiagramNeighborhoodMap | null>(
+    () => (svgMarkup === null ? null : parseDiagramNeighborhoodMap(svgMarkup)),
+    [svgMarkup],
+  );
+  const activeNeighborhood = openNeighborhoodId === null
+    ? null
+    : neighborhoodMap?.neighborhoods.find((neighborhood) => neighborhood.id === openNeighborhoodId) ?? null;
+  const effectiveSurface = focusNodeIds.length > 0 ? 'plate' : diagramSurface;
+  const activeFocusNodeIds = focusNodeIds.length > 0
+    ? focusNodeIds
+    : effectiveSurface === 'neighborhood' && activeNeighborhood !== null
+      ? activeNeighborhood.memberIds
+      : EMPTY_FOCUS_NODE_IDS;
+
+  useEffect(() => {
+    setOpenNeighborhoodId(null);
+    setDiagramSurface(
+      neighborhoodMap !== null && shouldAutoOpenDiagramNeighborhoodMap(neighborhoodMap)
+        ? 'map'
+        : 'plate',
+    );
+  }, [layoutSvg, mermaidSource, neighborhoodMap]);
+
+  useEffect(() => {
+    props.onExportableSvgMarkupChange?.(sanitizedSvg);
+  }, [props.onExportableSvgMarkupChange, sanitizedSvg]);
+
+  useEffect(() => {
+    const host = svgHostRef.current;
+
+    if (host === null || sanitizedSvg === null) {
+      return;
+    }
+
+    const svg = host.querySelector('svg');
+
+    if (!(svg instanceof SVGSVGElement)) {
+      return;
+    }
+
+    applySecureNowQuestionSubjectHighlight(svg, questionSubjectNodeId);
+  }, [questionSubjectNodeId, sanitizedSvg, focusNonce]);
+
+  const syncInlineViewportCamera = useCallback((): boolean => {
+    const host = svgHostRef.current;
+    const viewport = viewportRef.current;
+    const zoomLevel = zoom.zoomRef.current;
+
+    if (host === null || viewport === null) {
+      return false;
+    }
+
+    const baseFit = syncMermaidViewportCamera(host, viewport, zoomLevel, activeFocusNodeIds);
+
+    if (mermaidViewportFitNeedsRetry(baseFit)) {
+      if (baseFit !== null) {
+        baseFitRef.current = baseFit;
+      }
+
+      return false;
+    }
+
+    baseFitRef.current = baseFit;
+    reportMermaidViewportPaintFailure(baseFit, zoomLevel, setRenderError, onRenderFailure);
+
+    return true;
+  }, [activeFocusNodeIds, onRenderFailure, zoom.zoomRef]);
+
+  syncInlineViewportCameraRef.current = syncInlineViewportCamera;
+
+  const syncFullscreenViewportCamera = useCallback((): boolean => {
+    const host = fullscreenHostRef.current;
+    const viewport = fullscreenViewportRef.current;
+    const zoomLevel = zoom.zoomRef.current;
+
+    if (host === null || viewport === null) {
+      return false;
+    }
+
+    const baseFit = syncMermaidViewportCamera(host, viewport, zoomLevel);
+
+    if (mermaidViewportFitNeedsRetry(baseFit)) {
+      return false;
+    }
+
+    fullscreenBaseFitRef.current = baseFit;
+
+    return true;
+  }, [zoom.zoomRef]);
+
+  const fitToView = useCallback(() => {
+    const defaultZoom = defaultContainZoomRef.current;
+    zoom.setZoom(defaultZoom);
+    scrollViewportToOrigin(viewportRef.current);
+    scrollViewportToOrigin(fullscreenViewportRef.current);
+
+    const host = svgHostRef.current;
+    const viewport = viewportRef.current;
+
+    if (host !== null && viewport !== null) {
+      baseFitRef.current = applyMermaidViewportCamera(host, viewport, defaultZoom, activeFocusNodeIds);
+    }
+
+    if (fullscreenOpenRef.current) {
+      syncFullscreenViewportCamera();
+    }
+  }, [activeFocusNodeIds, syncFullscreenViewportCamera, zoom]);
+
+  useLayoutEffect(() => {
+    if (sanitizedSvg === null) {
+      return;
+    }
+
+    const generationKey = `${sanitizedSvg}::${activeFocusNodeIds.join('|')}`;
+    const diagramContentChanged =
+      lastInitialFitSvgRef.current !== generationKey || lastInitialFitFocusNonceRef.current !== focusNonce;
+
+    if (diagramContentChanged) {
+      lastInitialFitSvgRef.current = generationKey;
+      lastInitialFitFocusNonceRef.current = focusNonce;
+      mermaidFitRetryCountRef.current = 0;
+      baseFitRef.current = null;
+      autoZoomGenerationRef.current = '';
+    }
+
+    if (mermaidFitRetryTimeoutRef.current !== null) {
+      window.clearTimeout(mermaidFitRetryTimeoutRef.current);
+      mermaidFitRetryTimeoutRef.current = null;
+    }
+
+    const syncCamera = (): boolean => syncInlineViewportCameraRef.current();
+
+    const scheduleFitRetry = (): void => {
+      mermaidFitRetryCountRef.current += 1;
+
+      if (mermaidFitRetryCountRef.current > MAX_INITIAL_FIT_RETRIES) {
+        reportMermaidViewportPaintFailure(
+          baseFitRef.current,
+          zoom.zoomRef.current,
+          setRenderError,
+          onRenderFailure,
+        );
+        return;
+      }
+
+      mermaidFitRetryTimeoutRef.current = window.setTimeout(() => {
+        mermaidFitRetryTimeoutRef.current = null;
+
+        if (applyInitialViewportZoom()) {
+          scrollViewportToOrigin(viewportRef.current);
+          return;
+        }
+
+        scheduleFitRetry();
+      }, INITIAL_FIT_RETRY_DELAY_MS);
+    };
+
+    const applyInitialViewportZoom = (): boolean => {
+      if (!syncCamera()) {
+        return false;
+      }
+
+      const baseFit = baseFitRef.current;
+
+      if (baseFit === null || !baseFit.inkMeasured || autoZoomGenerationRef.current === generationKey) {
+        return true;
+      }
+
+      autoZoomGenerationRef.current = generationKey;
+      const defaultZoom = resolveMermaidViewportDefaultZoom(baseFit, MIN_ARCHITECTURE_DIAGRAM_ZOOM);
+      defaultContainZoomRef.current = defaultZoom;
+
+      if (baseFit.overflows && Math.abs(zoom.zoomRef.current - defaultZoom) > 0.001) {
+        zoom.setZoomClamped(defaultZoom);
+        syncCamera();
+      }
+
+      return true;
+    };
+
+    const clearInkCacheOnHost = (): void => {
+      const host = svgHostRef.current;
+      const svg = host?.querySelector('svg');
+
+      if (svg instanceof SVGSVGElement) {
+        resetMermaidSvgViewportInkCache(svg);
+      }
+    };
+
+    const runInitialFit = (): void => {
+      if (diagramContentChanged) {
+        clearInkCacheOnHost();
+      }
+
+      if (applyInitialViewportZoom()) {
+        scrollViewportToOrigin(viewportRef.current);
+        return;
+      }
+
+      window.requestAnimationFrame(() => {
+        if (applyInitialViewportZoom()) {
+          scrollViewportToOrigin(viewportRef.current);
+          return;
+        }
+
+        scheduleFitRetry();
+      });
+    };
+
+    runInitialFit();
+
+    const viewport = viewportRef.current;
+    const resizeObserver =
+      viewport === null || typeof ResizeObserver === 'undefined'
+        ? null
+        : new ResizeObserver(() => {
+            syncInlineViewportCameraRef.current();
+          });
+
+    if (resizeObserver !== null && viewport !== null) {
+      resizeObserver.observe(viewport);
+    }
+
+    return (): void => {
+      if (mermaidFitRetryTimeoutRef.current !== null) {
+        window.clearTimeout(mermaidFitRetryTimeoutRef.current);
+        mermaidFitRetryTimeoutRef.current = null;
+      }
+
+      resizeObserver?.disconnect();
+    };
+  }, [activeFocusNodeIds, focusNonce, onRenderFailure, sanitizedSvg, zoom.setZoomClamped, zoom.zoomRef]);
+
+  useLayoutEffect(() => {
+    if (sanitizedSvg === null) {
+      return;
+    }
+
+    syncInlineViewportCamera();
+  }, [activeFocusNodeIds, sanitizedSvg, syncInlineViewportCamera, zoom.zoom]);
+
+  useLayoutEffect(() => {
+    if (!fullscreenOpen || sanitizedSvg === null) {
+      return;
+    }
+
+    const runFullscreenFit = (): void => {
+      if (syncFullscreenViewportCamera()) {
+        scrollViewportToOrigin(fullscreenViewportRef.current);
+        return;
+      }
+
+      window.requestAnimationFrame(() => {
+        syncFullscreenViewportCamera();
+        scrollViewportToOrigin(fullscreenViewportRef.current);
+      });
+    };
+
+    runFullscreenFit();
+
+    const viewport = fullscreenViewportRef.current;
+    const resizeObserver =
+      viewport === null || typeof ResizeObserver === 'undefined'
+        ? null
+        : new ResizeObserver(() => {
+            syncFullscreenViewportCamera();
+          });
+
+    if (resizeObserver !== null && viewport !== null) {
+      resizeObserver.observe(viewport);
+    }
+
+    return (): void => {
+      resizeObserver?.disconnect();
+    };
+  }, [fullscreenOpen, sanitizedSvg, syncFullscreenViewportCamera]);
+
+  useEffect(() => {
+    const hosts = [svgHostRef.current, fullscreenHostRef.current].filter(
+      (host): host is HTMLDivElement => host !== null,
+    );
+    const clearFocus = (): void => {
+      setClickFocus(null);
+    };
+
+    if (sanitizedSvg === null || layoutSvg?.trim().length === 0) {
+      hosts.forEach((host) => {
+        const svg = host.querySelector('svg');
+
+        if (svg instanceof SVGSVGElement) {
+          clearClickFocusClasses(svg);
+          applyConnectorVisibility(svg, null);
+        }
+      });
+      return;
+    }
+
+    hosts.forEach((host) => {
+      const svg = host.querySelector('svg');
+
+      if (!(svg instanceof SVGSVGElement)) {
+        return;
+      }
+
+      clearClickFocusClasses(svg);
+      applyConnectorVisibility(svg, visibleConnectors);
+      applyConnectorSelectionClasses(svg, selectedConnector);
+
+      if (clickFocus === null) {
+        return;
+      }
+
+      const result = resolveDiagramClickFocus(clickFocus.id, outline, readClickFocusFacts(svg));
+
+      [...svg.querySelectorAll('g.node')].forEach((node) => {
+        const nodeId = normalizeDiagramFocusToken(node.getAttribute('id')?.replace(/^node-/u, '') ?? '');
+        node.classList.toggle('diagram-click-dim', !result.keptNodeIds.has(nodeId));
+      });
+      [...svg.querySelectorAll('g.vnet-frame, g.rg-frame')].forEach((frame) => {
+        frame.classList.toggle('diagram-click-dim', !result.keptFrameIds.has(
+          frame.getAttribute('data-frame-id') ?? frame.getAttribute('data-frame-cell-id') ?? '',
+        ));
+      });
+      [...svg.querySelectorAll('g.edge')].forEach((edge, index) => {
+        edge.classList.toggle('diagram-click-dim', !result.keptEdgeIndexes.has(index));
+      });
+      [...svg.querySelectorAll('g.edge-stub')].forEach((stub) => {
+        const from = normalizeDiagramFocusToken(stub.getAttribute('data-from') ?? '');
+        const to = normalizeDiagramFocusToken(stub.getAttribute('data-to') ?? '');
+        stub.classList.toggle(
+          'diagram-click-dim',
+          !result.keptNodeIds.has(from) && !result.keptNodeIds.has(to),
+        );
+      });
+    });
+
+    const handleClick = (event: MouseEvent): void => {
+      const target = event.target;
+
+      if (!(target instanceof Element)) {
+        clearFocus();
+        return;
+      }
+
+      const stub = target.closest('g.edge-stub');
+
+      if (stub !== null) {
+        const id = stub.getAttribute('data-focus-node') ?? '';
+
+        if (id.length === 0
+          || normalizeDiagramFocusToken(id) === normalizeDiagramFocusToken(clickFocus?.id ?? '')) {
+          clearFocus();
+          return;
+        }
+
+        const chip = stub.querySelector('text')?.textContent?.trim() ?? '';
+        const name = chip.replace(/^[→←]\s*/u, '') || id;
+        setClickFocus({ id, name });
+        return;
+      }
+
+      const edge = target.closest('g.edge');
+
+      if (edge !== null) {
+        const from = edge.getAttribute('data-from') ?? edge.getAttribute('data-bundle-from') ?? '';
+        const to = edge.getAttribute('data-to') ?? edge.getAttribute('data-bundle-to') ?? '';
+        const label = edge.querySelector('title')?.textContent?.trim() ?? null;
+
+        if (from.length > 0 && to.length > 0) {
+          onSelectConnector?.({ from, to, label });
+        }
+
+        return;
+      }
+
+      const node = target.closest('g.node');
+
+      if (node === null) {
+        clearFocus();
+        return;
+      }
+
+      const id = node.getAttribute('id')?.replace(/^node-/u, '') ?? '';
+
+      if (normalizeDiagramFocusToken(id) === normalizeDiagramFocusToken(clickFocus?.id ?? '')) {
+        clearFocus();
+        return;
+      }
+
+      const title = node.querySelector('title')?.textContent?.trim() ?? id;
+      const memberNames = (node.getAttribute('data-member-names') ?? '')
+        .split('|')
+        .map((member) => member.trim())
+        .filter(Boolean);
+      setClickFocus({
+        id,
+        name: title,
+        memberNames: memberNames.length > 0 ? memberNames : undefined,
+      });
+    };
+
+    hosts.forEach((host) => host.addEventListener('click', handleClick));
+
+    return (): void => {
+      hosts.forEach((host) => host.removeEventListener('click', handleClick));
+    };
+  }, [
+    clickFocus,
+    fullscreenOpen,
+    layoutSvg,
+    onSelectConnector,
+    outline,
+    sanitizedSvg,
+    selectedConnector,
+    visibleConnectors,
+  ]);
+
+  useEffect(() => {
+    setClickFocus(null);
+  }, [layoutSvg]);
+
+  useEffect(() => {
+    const frame = viewportFrameRef.current;
+
+    if (frame === null) {
+      return;
+    }
+
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (
+        event.target instanceof HTMLInputElement
+        || event.target instanceof HTMLTextAreaElement
+        || event.target instanceof HTMLSelectElement
+      ) {
+        return;
+      }
+
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setClickFocus(null);
+        onSelectConnector?.(null);
+        return;
+      }
+
+      if (event.key === '+' || event.key === '=') {
+        event.preventDefault();
+        zoom.zoomIn();
+      }
+
+      if (event.key === '-') {
+        event.preventDefault();
+        zoom.zoomOut();
+      }
+
+      if (event.key === '0') {
+        event.preventDefault();
+        zoom.setZoom(defaultContainZoomRef.current);
+        scrollViewportToOrigin(viewportRef.current);
+      }
+    };
+
+    frame.addEventListener('keydown', onKeyDown);
+
+    return (): void => {
+      frame.removeEventListener('keydown', onKeyDown);
+    };
+  }, [onSelectConnector, zoom]);
+
+  const onWheel = useCallback(
+    (event: React.WheelEvent<HTMLDivElement>) => {
+      if (event.ctrlKey || event.metaKey) {
+        event.preventDefault();
+
+        if (event.deltaY < 0) {
+          zoom.zoomIn();
+        } else if (event.deltaY > 0) {
+          zoom.zoomOut();
+        }
+      }
+    },
+    [zoom],
+  );
+
+  const resetToDefaultContainZoom = useCallback(() => {
+    zoom.setZoom(defaultContainZoomRef.current);
+    scrollViewportToOrigin(viewportRef.current);
+  }, [zoom]);
+
+  const openNeighborhood = useCallback((id: string) => {
+    setOpenNeighborhoodId(id);
+    setDiagramSurface('neighborhood');
+  }, []);
+
+  const showMap = useCallback(() => {
+    setOpenNeighborhoodId(null);
+    setDiagramSurface('map');
+  }, []);
+
+  const showPlate = useCallback(() => {
+    setOpenNeighborhoodId(null);
+    setDiagramSurface('plate');
+  }, []);
+
+  const viewportControlOptions = useMemo(
+    () => ({
+      layout: viewportControlsLayout,
+      viewportHint,
+      defaultContainZoom: defaultContainZoomRef.current,
+      onResetZoom: resetToDefaultContainZoom,
+      fullscreenAction: {
+        label: ARCHITECTURE_DIAGRAM_FULLSCREEN_ACTION,
+        onClick: () => setFullscreenOpen(true),
+      },
+      surfaceToggle: neighborhoodMap === null || effectiveSurface === 'map'
+        ? undefined
+        : { label: ARCHITECTURE_DIAGRAM_MAP_LABEL, onClick: showMap },
+    }),
+    [
+      effectiveSurface,
+      neighborhoodMap,
+      resetToDefaultContainZoom,
+      setFullscreenOpen,
+      showMap,
+      viewportControlsLayout,
+      viewportHint,
+      zoom.zoom,
+      sanitizedSvg,
+    ],
+  );
+
+  const viewportControls = renderDiagramViewportControls(zoom, fitToView, viewportControlOptions);
+  const controlsInsideViewport = viewportControlsLayout === 'overlay';
+  const questionableNode = clickFocus === null || outline === null
+    ? null
+    : outline.nodes.find((node) => (
+      node.id === clickFocus.id
+      || node.seedNodeId === clickFocus.id
+    )) ?? null;
+  const focusedNodeConnectionHint = clickFocus === null || clickFocus.memberNames !== undefined
+    ? null
+    : resolveFocusedNodeConnectionHint(clickFocus.id, outline);
+
+  const renderMermaidInk = (
+    hostRef: React.RefObject<HTMLDivElement | null>,
+    testId?: string,
+  ): React.JSX.Element => {
+    if (renderError !== null) {
+      return (
+        <div className="min-h-[15rem] space-y-3" role="alert" data-testid="architecture-diagram-render-failure">
+          <SeverityTag severity="high" label="Diagram render error" />
+          <p className={cn('m-0 text-amber-800 dark:text-amber-200', OPERATOR_TYPOGRAPHY.body)}>{renderError}</p>
+          <Button type="button" variant="outline" size="sm" onClick={retryRender}>
+            {ARCHITECTURE_DIAGRAM_RETRY_ACTION}
+          </Button>
+        </div>
+      );
+    }
+
+    if (sanitizedSvg === null) {
+      return (
+        <p
+          className={cn('m-0 min-h-[15rem] text-neutral-500 dark:text-neutral-400', OPERATOR_TYPOGRAPHY.body)}
+          aria-live="polite"
+        >
+          Rendering architecture diagram…
+        </p>
+      );
+    }
+
+    return (
+      <div
+        ref={hostRef}
+        data-testid={testId}
+        className={cn(MERMAID_SVG_HOST_CLASSNAME, canvasStale ? 'opacity-60' : undefined)}
+        style={MERMAID_SVG_HOST_LIGHT_NODE_STYLE}
+        dangerouslySetInnerHTML={{ __html: sanitizedSvg }}
+      />
+    );
+  };
+
+  return (
+    <figure data-testid="architecture-diagram-viewer">
+      {scopeContextLine != null && scopeContextLine.trim().length > 0 ? (
+        <p
+          className={cn('mb-2 text-al-text-secondary', OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="architecture-diagram-scope-context"
+        >
+          {scopeContextLine}
+        </p>
+      ) : null}
+
+      {canvasStale ? (
+        <p className={cn('mb-2 text-amber-800 dark:text-amber-200', OPERATOR_TYPOGRAPHY.helper)}>
+          Canvas may be stale while a new render loads.
+        </p>
+      ) : null}
+
+      {clickFocus !== null ? (
+        <div
+          className={cn('mb-2 text-al-text-secondary', OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="diagram-click-focus-status"
+          aria-live="polite"
+        >
+          <p className="m-0">
+            {clickFocus.memberNames !== undefined
+              ? clickFocus.name.length > 0
+                ? clickFocus.name
+                : "Resource name was not stored."
+              : `Showing connections for ${clickFocus.name.trim().length > 0 ? clickFocus.name : "Resource name was not stored."}.`}
+          </p>
+          {focusedNodeConnectionHint !== null ? (
+            <p className="m-0 mt-1">{focusedNodeConnectionHint}</p>
+          ) : null}
+          {clickFocus.memberNames !== undefined ? (
+            <ul className="m-0 mt-1 list-disc pl-5">
+              {clickFocus.memberNames.map((memberName) => (
+                <li key={memberName}>{memberName}</li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
+      ) : null}
+
+      {questionableNode != null
+      && (questionableNode.questionableReason != null
+        || typeof questionableNode.questionableAction === "string") ? (
+        <aside
+          className="mb-3 space-y-2 rounded-md border border-amber-300 bg-amber-50 p-3 text-amber-950 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100"
+          data-testid="infra-diagrams-questionable-panel"
+        >
+          <div className="flex items-start justify-between gap-3">
+            <p className="m-0 font-semibold">Questionable resource</p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setClickFocus(null)}
+              aria-label="Close questionable resource explanation"
+            >
+              Close
+            </Button>
+          </div>
+          <p className="m-0">
+            {questionableNode.questionableReason === null || questionableNode.questionableReason === undefined
+              ? "Question reason was not stored."
+              : questionableNode.questionableReason.trim().length === 0
+                ? "Question reason was stored empty."
+                : questionableNode.questionableReason}
+          </p>
+          <p className="m-0">
+            <span className="font-semibold">Recommended action: </span>
+            {questionableNode.questionableAction === null || questionableNode.questionableAction === undefined
+              ? "Recommended action was not stored."
+              : questionableNode.questionableAction.trim().length === 0
+                ? "Recommended action was stored empty."
+                : questionableNode.questionableAction}
+          </p>
+        </aside>
+      ) : null}
+
+      {controlsInsideViewport ? null : viewportControls}
+
+      {neighborhoodMap !== null && effectiveSurface === 'map' ? (
+        <div className="mb-3 flex justify-center">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="text-base"
+            data-testid="architecture-diagram-surface-toggle"
+            onClick={showPlate}
+          >
+            {ARCHITECTURE_DIAGRAM_PLATE_LABEL}
+          </Button>
+        </div>
+      ) : null}
+
+      {neighborhoodMap !== null && effectiveSurface === 'neighborhood' && activeNeighborhood !== null ? (
+        <div className="mb-2 flex items-center gap-3">
+          <Button type="button" variant="outline" size="sm" data-testid="architecture-diagram-map-back" onClick={showMap}>
+            {ARCHITECTURE_DIAGRAM_MAP_LABEL}
+          </Button>
+          <span className={cn('text-al-text-secondary', OPERATOR_TYPOGRAPHY.helper)}>
+            {activeNeighborhood.title.trim().length > 0
+              ? activeNeighborhood.title
+              : "Neighborhood title was not stored."}
+          </span>
+        </div>
+      ) : null}
+
+      {neighborhoodMap !== null && effectiveSurface === 'map' ? (
+        <DiagramNeighborhoodMapView map={neighborhoodMap} onOpenNeighborhood={openNeighborhood} />
+      ) : null}
+
+      <ArchitectureDiagramMermaidViewportFrame
+        frameRef={viewportFrameRef}
+        cameraRef={viewportRef}
+        viewportTestId="architecture-diagram-viewport"
+        cameraTestId="architecture-diagram-camera"
+        ariaLabel={viewportAriaLabel}
+        describedBy={`${renderId}-alt`}
+        tabIndex={0}
+        onWheel={onWheel}
+        controls={controlsInsideViewport ? viewportControls : null}
+        viewportHeader={viewportHeader}
+        cameraMaxHeightClassName={cameraMaxHeightClassName}
+        className={effectiveSurface === 'map' ? 'hidden' : undefined}
+      >
+        {renderMermaidInk(svgHostRef, 'architecture-diagram-svg-host')}
+      </ArchitectureDiagramMermaidViewportFrame>
+
+      <p id={`${renderId}-alt`} className="sr-only">
+        {props.textAlternative}
+      </p>
+
+      <Dialog open={fullscreenOpen} onOpenChange={setFullscreenOpen}>
+        <DialogContent className="max-h-[95vh] max-w-[95vw] overflow-hidden">
+          <DialogHeader>
+            <DialogTitle>{fullscreenTitle}</DialogTitle>
+          </DialogHeader>
+          {controlsInsideViewport ? null : viewportControls}
+          <ArchitectureDiagramMermaidViewportFrame
+            cameraRef={fullscreenViewportRef}
+            viewportTestId="architecture-diagram-fullscreen-viewport"
+            cameraTestId="architecture-diagram-fullscreen-camera"
+            tabIndex={0}
+            onWheel={onWheel}
+            controls={controlsInsideViewport ? viewportControls : null}
+            viewportHeader={viewportHeader}
+            cameraMaxHeightClassName="max-h-[80vh]"
+          >
+            {renderMermaidInk(fullscreenHostRef, 'architecture-diagram-fullscreen-svg-host')}
+          </ArchitectureDiagramMermaidViewportFrame>
+        </DialogContent>
+      </Dialog>
+    </figure>
+  );
+}
+
+function ArchitectureDiagramStaticCanvas(props: ArchitectureDiagramStaticViewerProps): React.JSX.Element {
+  const { source, sourceKind, alt, className, interactive = false } = props;
+  const pathname = usePathname() ?? '';
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const diagramHostRef = useRef<HTMLDivElement>(null);
+  const fitRetryCountRef = useRef(0);
+  const fitRetryTimeoutRef = useRef<number | null>(null);
+  const zoom = useDiagramZoomState(pathname);
+  const isInteractiveView = interactive || sourceKind === 'html';
+
+  const applySvgFitToHost = useCallback((): boolean => {
+    if (sourceKind !== 'html') {
+      return false;
+    }
+
+    const host = diagramHostRef.current;
+
+    if (host === null) {
+      return false;
+    }
+
+    const svg = host.querySelector('svg');
+
+    if (!(svg instanceof SVGSVGElement)) {
+      return false;
+    }
+
+    const width = host.clientWidth;
+
+    if (width <= 0) {
+      return false;
+    }
+
+    fitMermaidSvgElementToHost(svg, width);
+
+    return true;
+  }, [sourceKind]);
+
+  const fitToView = useCallback(() => {
+    if (sourceKind !== 'html') {
+      return;
+    }
+
+    applySvgFitToHost();
+    zoom.setZoom(1);
+    scrollViewportToOrigin(viewportRef.current);
+  }, [applySvgFitToHost, sourceKind, zoom]);
+
+  useLayoutEffect(() => {
+    if (sourceKind !== 'html') {
+      return;
+    }
+
+    fitRetryCountRef.current = 0;
+
+    if (fitRetryTimeoutRef.current !== null) {
+      window.clearTimeout(fitRetryTimeoutRef.current);
+      fitRetryTimeoutRef.current = null;
+    }
+
+    const scheduleFitRetry = (): void => {
+      fitRetryCountRef.current += 1;
+
+      if (fitRetryCountRef.current > MAX_INITIAL_FIT_RETRIES) {
+        return;
+      }
+
+      fitRetryTimeoutRef.current = window.setTimeout(() => {
+        fitRetryTimeoutRef.current = null;
+
+        if (applySvgFitToHost()) {
+          scrollViewportToOrigin(viewportRef.current);
+          return;
+        }
+
+        scheduleFitRetry();
+      }, INITIAL_FIT_RETRY_DELAY_MS);
+    };
+
+    const runInitialFit = (): void => {
+      if (applySvgFitToHost()) {
+        scrollViewportToOrigin(viewportRef.current);
+        return;
+      }
+
+      window.requestAnimationFrame(() => {
+        if (applySvgFitToHost()) {
+          scrollViewportToOrigin(viewportRef.current);
+          return;
+        }
+
+        scheduleFitRetry();
+      });
+    };
+
+    runInitialFit();
+
+    return () => {
+      if (fitRetryTimeoutRef.current !== null) {
+        window.clearTimeout(fitRetryTimeoutRef.current);
+        fitRetryTimeoutRef.current = null;
+      }
+    };
+  }, [applySvgFitToHost, source, sourceKind]);
+
+  useEffect(() => {
+    if (!isInteractiveView) {
+      return;
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      if (event.key === '+' || event.key === '=') {
+        event.preventDefault();
+        zoom.zoomIn();
+      } else if (event.key === '-') {
+        event.preventDefault();
+        zoom.zoomOut();
+      } else if (event.key === '0') {
+        event.preventDefault();
+        zoom.resetZoom();
+        scrollViewportToOrigin(viewportRef.current);
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isInteractiveView, zoom]);
+
+  const onWheel = useCallback(
+    (event: React.WheelEvent<HTMLDivElement>) => {
+      if (!isInteractiveView) {
+        return;
+      }
+
+      if (event.ctrlKey || event.metaKey) {
+        event.preventDefault();
+
+        if (event.deltaY < 0) {
+          zoom.zoomIn();
+        } else if (event.deltaY > 0) {
+          zoom.zoomOut();
+        }
+      }
+    },
+    [isInteractiveView, zoom],
+  );
+
+  const viewportControls = renderDiagramViewportControls(zoom, fitToView);
+
+  if (sourceKind === 'image') {
+    return (
+      <div className={cn('relative flex flex-col gap-2', className)}>
+        {isInteractiveView ? viewportControls : null}
+        <div
+          ref={viewportRef}
+          className="overflow-auto rounded-md border border-border bg-muted/20"
+          onWheel={onWheel}
+          role="region"
+          aria-label={`${alt} diagram viewport`}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element -- diagram export fallback needs a direct img element. */}
+          <img
+            src={source}
+            alt={alt}
+            className="max-w-full transition-transform duration-150 ease-out"
+            style={{ transform: `scale(${zoom.zoom})`, transformOrigin: 'top left' }}
+            draggable={false}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  const sanitizedHtml = sanitizeArchitectureDiagramSvg(source);
+
+  return (
+    <div className={cn('relative flex flex-col gap-2', className)}>
+      {isInteractiveView ? viewportControls : null}
+      <div
+        ref={viewportRef}
+        className="overflow-auto rounded-md border border-border bg-muted/20 p-2"
+        onWheel={onWheel}
+        role="region"
+        aria-label={`${alt} diagram viewport`}
+      >
+        <div
+          ref={diagramHostRef}
+          className="inline-block min-w-full origin-top-left transition-transform duration-150 ease-out [&_svg]:max-w-none"
+          style={{ transform: `scale(${zoom.zoom})`, transformOrigin: 'top left' }}
+          dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+        />
+      </div>
+    </div>
+  );
+}
+
+export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps): React.JSX.Element {
+  if (isMermaidViewerProps(props)) {
+    return <ArchitectureDiagramMermaidCanvas {...props} />;
+  }
+
+  return <ArchitectureDiagramStaticCanvas {...props} />;
+}

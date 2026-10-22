@@ -1,0 +1,30 @@
+> **Scope:** Contributor-reference — Operations — Admin diagnostics API - full detail, tables, and links in the sections below.
+
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
+
+
+# Operations — Admin diagnostics API
+
+**Last reviewed:** 2026-05-26
+
+Privileged routes under **`GET /v1/admin/...`** require **`AdminAuthority`** policy.
+
+| Route | Purpose |
+|-------|---------|
+| `GET /v1/admin/diagnostics/quality-gates` | Effective agent output quality gate floors (global + per-agent), PilotStrict faithfulness minimums, enforcement flags. |
+| `GET /v1/admin/diagnostics/outboxes` | Pending authority pipeline and retrieval indexing work (depth snapshot). |
+| `GET /v1/admin/analytics/cross-tenant-summary` | Aggregate-only SQL counters across tenants (`dbo.Runs` — distinct tenants, committed vs total); **PlatformCrossTenantReadAuthority** (TB-282); tenant admins and tenant operators receive **403**. |
+| `GET /v1/admin/diagnostics/leases` | SQL host leader lease rows (empty when not applicable). |
+| `GET /v1/admin/features/async-authority-pipeline` | Effective feature flag state. |
+
+## Runbooks
+
+- Stuck outbox / backlog: `docs/runbooks/TROUBLESHOOTING.md`, SQL tables referenced in `ArchLucid.Persistence.Data.*` repositories for pipeline work and retrieval outbox.
+- Migrations / readiness failures: `GET /health/ready` and host startup logs (correlation id).
+- LLM / quota: `docs/OPERATIONS_LLM_QUOTA.md`
+
+## On-call quick path
+
+1. Note **`X-Correlation-ID`** from the failing client response.
+2. Check **`GET /v1/admin/diagnostics/outboxes`** for growing pending counts.
+3. Verify worker role is running if using split **`Hosting:Role`** (`docs/DEPLOYMENT_TERRAFORM.md`).

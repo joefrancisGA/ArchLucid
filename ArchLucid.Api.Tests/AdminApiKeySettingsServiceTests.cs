@@ -1,0 +1,478 @@
+using ArchLucid.Api.Authentication;
+using ArchLucid.Api.Services.Admin;
+using ArchLucid.Core.Configuration.Summary;
+
+using FluentAssertions;
+
+using Moq;
+
+using Microsoft.Extensions.Options;
+
+namespace ArchLucid.Api.Tests;
+
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
+public sealed class AdminApiKeySettingsServiceTests
+{
+    private const string AdminKey = "api-key-bdr-admin-aB3xK9mN2pQ7wR5vZ1yC8dE6fG0hH4jJ";
+    private const string ReaderKey = "api-key-bdr-reader-bC4xL0nO3pR8sT6uV2wW5xX7yY9zZ1aA";
+
+    [Fact]
+    public void GetSnapshot_returns_enabled_and_masked_admin_segments()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                DevelopmentBypassAll = false,
+                AdminKey = AdminKey,
+                ReadOnlyKey = ReaderKey
+            });
+
+        AdminApiKeySettingsResponse snapshot = sut.GetSnapshot();
+
+        snapshot.Enabled.Should().BeTrue();
+        snapshot.DevelopmentBypassAll.Should().BeFalse();
+        snapshot.Admin.IsConfigured.Should().BeTrue();
+        snapshot.Admin.MaskedSegments.Should().NotBeEmpty();
+        snapshot.Admin.MaskedSegments![0].Should().StartWith("****");
+        snapshot.ReadOnly.IsConfigured.Should().BeTrue();
+        snapshot.ReadOnly.MaskedSegments.Should().NotBeEmpty();
+    }
+
+    [Fact]
+    public void Rotate_with_invalidate_previous_returns_replace_for_readonly_slot()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = AdminKey,
+                ReadOnlyKey = ReaderKey
+            });
+
+        AdminApiKeyRotateResponse response = sut.Rotate(
+            new AdminApiKeyRotateRequest { Slot = "ReadOnly", InvalidatePrevious = true });
+
+        response.Slot.Should().Be("ReadOnly");
+        response.DeploymentAction.Should().Be("Replace");
+        response.ReplaceConfigValue.Should().Be(response.PlaintextKey);
+        response.AppendConfigSuffix.Should().BeNull();
+        response.ConfigPath.Should().Be($"{ApiKeyAuthenticationOptions.SectionPath}:ReadOnlyKey");
+    }
+
+    [Fact]
+    public void Rotate_with_invalidate_previous_returns_replace_deployment_action()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = AdminKey,
+                ReadOnlyKey = ReaderKey
+            });
+
+        AdminApiKeyRotateResponse response = sut.Rotate(
+            new AdminApiKeyRotateRequest { Slot = "Admin", InvalidatePrevious = true });
+
+        response.Slot.Should().Be("Admin");
+        response.DeploymentAction.Should().Be("Replace");
+        response.PlaintextKey.Should().NotBeNullOrWhiteSpace();
+        response.PlaintextKey.Length.Should().BeGreaterThanOrEqualTo(32);
+        response.ReplaceConfigValue.Should().Be(response.PlaintextKey);
+        response.ConfigPath.Should().Be($"{ApiKeyAuthenticationOptions.SectionPath}:AdminKey");
+    }
+
+    [Fact]
+    public void Rotate_without_invalidate_previous_appends_when_slot_is_configured()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = AdminKey
+            });
+
+        AdminApiKeyRotateResponse response = sut.Rotate(
+            new AdminApiKeyRotateRequest { Slot = "Admin", InvalidatePrevious = false });
+
+        response.DeploymentAction.Should().Be("Append");
+        response.AppendConfigSuffix.Should().StartWith(",");
+        response.AppendConfigSuffix.Should().Contain(response.PlaintextKey);
+    }
+
+    [Fact]
+    public void GetSnapshot_returns_configured_expiry_timestamps()
+    {
+        DateTimeOffset adminExpires = new(2026, 12, 1, 0, 0, 0, TimeSpan.Zero);
+        DateTimeOffset readerExpires = new(2026, 6, 1, 0, 0, 0, TimeSpan.Zero);
+
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = AdminKey,
+                ReadOnlyKey = ReaderKey,
+                AdminKeyExpiresAt = adminExpires,
+                ReadOnlyKeyExpiresAt = readerExpires
+            });
+
+        AdminApiKeySettingsResponse snapshot = sut.GetSnapshot();
+
+        snapshot.Admin.ExpiresAtUtc.Should().Be(adminExpires);
+        snapshot.ReadOnly.ExpiresAtUtc.Should().Be(readerExpires);
+    }
+
+    [Fact]
+    public void Rotate_without_invalidate_previous_returns_replace_when_readonly_slot_unconfigured()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = AdminKey
+            });
+
+        AdminApiKeyRotateResponse response = sut.Rotate(
+            new AdminApiKeyRotateRequest { Slot = "ReadOnly", InvalidatePrevious = false });
+
+        response.Slot.Should().Be("ReadOnly");
+        response.DeploymentAction.Should().Be("Replace");
+        response.ReplaceConfigValue.Should().Be(response.PlaintextKey);
+        response.AppendConfigSuffix.Should().BeNull();
+    }
+
+    [Fact]
+    public void Rotate_without_invalidate_previous_appends_when_readonly_slot_is_configured()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                ReadOnlyKey = ReaderKey
+            });
+
+        AdminApiKeyRotateResponse response = sut.Rotate(
+            new AdminApiKeyRotateRequest { Slot = "ReadOnly", InvalidatePrevious = false });
+
+        response.DeploymentAction.Should().Be("Append");
+        response.AppendConfigSuffix.Should().StartWith(",");
+        response.AppendConfigSuffix.Should().Contain(response.PlaintextKey);
+    }
+
+    [Fact]
+    public void Rotate_with_padded_slot_string_succeeds()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = AdminKey
+            });
+
+        AdminApiKeyRotateResponse response = sut.Rotate(
+            new AdminApiKeyRotateRequest { Slot = " Admin ", InvalidatePrevious = true });
+
+        response.Slot.Should().Be("Admin");
+        response.DeploymentAction.Should().Be("Replace");
+    }
+
+    [Fact]
+    public void Rotate_with_lowercase_slot_string_succeeds()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = AdminKey,
+                ReadOnlyKey = ReaderKey
+            });
+
+        AdminApiKeyRotateResponse admin = sut.Rotate(
+            new AdminApiKeyRotateRequest { Slot = "admin", InvalidatePrevious = true });
+        AdminApiKeyRotateResponse reader = sut.Rotate(
+            new AdminApiKeyRotateRequest { Slot = "readonly", InvalidatePrevious = false });
+
+        admin.Slot.Should().Be("Admin");
+        admin.DeploymentAction.Should().Be("Replace");
+        reader.Slot.Should().Be("ReadOnly");
+        reader.DeploymentAction.Should().Be("Append");
+    }
+
+    [Fact]
+    public void GetSnapshot_returns_multiple_masked_segments_for_comma_separated_admin_key()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = $"{AdminKey},{ReaderKey}"
+            });
+
+        AdminApiKeySettingsResponse snapshot = sut.GetSnapshot();
+
+        snapshot.Admin.IsConfigured.Should().BeTrue();
+        snapshot.Admin.MaskedSegments.Should().HaveCount(2);
+        snapshot.Admin.MaskedSegments![0].Should().StartWith("****");
+        snapshot.Admin.MaskedSegments![1].Should().StartWith("****");
+    }
+
+    [Fact]
+    public void Rotate_without_invalidate_previous_returns_replace_when_admin_slot_has_only_comma_segments()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = " , , "
+            });
+
+        sut.GetSnapshot().Admin.IsConfigured.Should().BeFalse(
+            "comma-only config is not authenticatable key material");
+
+        AdminApiKeyRotateResponse response = sut.Rotate(
+            new AdminApiKeyRotateRequest { Slot = "Admin", InvalidatePrevious = false });
+
+        response.DeploymentAction.Should().Be("Replace");
+        response.ReplaceConfigValue.Should().Be(response.PlaintextKey);
+        response.AppendConfigSuffix.Should().BeNull();
+    }
+
+    [Fact]
+    public void Rotate_without_invalidate_previous_returns_replace_when_readonly_slot_has_only_comma_segments()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = "configured-admin-key",
+                ReadOnlyKey = " , , "
+            });
+
+        sut.GetSnapshot().ReadOnly.IsConfigured.Should().BeFalse(
+            "comma-only config is not authenticatable key material");
+
+        AdminApiKeyRotateResponse response = sut.Rotate(
+            new AdminApiKeyRotateRequest { Slot = "ReadOnly", InvalidatePrevious = false });
+
+        response.DeploymentAction.Should().Be("Replace");
+        response.ReplaceConfigValue.Should().Be(response.PlaintextKey);
+        response.AppendConfigSuffix.Should().BeNull();
+    }
+
+    [Fact]
+    public void Rotate_without_invalidate_previous_returns_replace_when_admin_slot_is_whitespace_only()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = "   "
+            });
+
+        sut.GetSnapshot().Admin.IsConfigured.Should().BeFalse(
+            "whitespace-only config is not authenticatable key material");
+
+        AdminApiKeyRotateResponse response = sut.Rotate(
+            new AdminApiKeyRotateRequest { Slot = "Admin", InvalidatePrevious = false });
+
+        response.DeploymentAction.Should().Be("Replace");
+        response.ReplaceConfigValue.Should().Be(response.PlaintextKey);
+        response.AppendConfigSuffix.Should().BeNull();
+    }
+
+    [Fact]
+    public void GetSnapshot_treats_utf8_bom_only_admin_slot_as_unconfigured()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = "\uFEFF"
+            });
+
+        AdminApiKeySettingsResponse snapshot = sut.GetSnapshot();
+
+        snapshot.Admin.IsConfigured.Should().BeFalse(
+            "BOM-only config is not authenticatable key material after normalization");
+        snapshot.Admin.MaskedSegments.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Rotate_without_invalidate_previous_returns_replace_when_admin_slot_is_utf8_bom_only()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = "\uFEFF"
+            });
+
+        AdminApiKeyRotateResponse response = sut.Rotate(
+            new AdminApiKeyRotateRequest { Slot = "Admin", InvalidatePrevious = false });
+
+        response.DeploymentAction.Should().Be("Replace");
+        response.ReplaceConfigValue.Should().Be(response.PlaintextKey);
+        response.AppendConfigSuffix.Should().BeNull();
+    }
+
+    [Fact]
+    public void GetSnapshot_treats_zero_width_space_only_readonly_slot_as_unconfigured()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                ReadOnlyKey = "\u200B"
+            });
+
+        sut.GetSnapshot().ReadOnly.IsConfigured.Should().BeFalse(
+            "zero-width-only config is not authenticatable key material after normalization");
+    }
+
+    [Fact]
+    public void Rotate_without_invalidate_previous_returns_replace_when_readonly_slot_is_zero_width_space_only()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                ReadOnlyKey = "\u200B"
+            });
+
+        AdminApiKeyRotateResponse response = sut.Rotate(
+            new AdminApiKeyRotateRequest { Slot = "ReadOnly", InvalidatePrevious = false });
+
+        response.DeploymentAction.Should().Be("Replace");
+        response.ReplaceConfigValue.Should().Be(response.PlaintextKey);
+        response.AppendConfigSuffix.Should().BeNull();
+    }
+
+    [Fact]
+    public void GetSnapshot_treats_zero_width_non_joiner_only_admin_slot_as_unconfigured()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = "\u200C"
+            });
+
+        sut.GetSnapshot().Admin.IsConfigured.Should().BeFalse(
+            "zero-width non-joiner-only config is not authenticatable key material after normalization");
+        sut.GetSnapshot().Admin.MaskedSegments.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void GetSnapshot_treats_left_to_right_mark_only_admin_slot_as_unconfigured()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = "\u200E"
+            });
+
+        sut.GetSnapshot().Admin.IsConfigured.Should().BeFalse(
+            "left-to-right mark-only config is not authenticatable key material after normalization");
+        sut.GetSnapshot().Admin.MaskedSegments.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void GetSnapshot_treats_left_to_right_embedding_only_readonly_slot_as_unconfigured()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                ReadOnlyKey = "\u202A"
+            });
+
+        sut.GetSnapshot().ReadOnly.IsConfigured.Should().BeFalse(
+            "left-to-right embedding-only config is not authenticatable key material after normalization");
+        sut.GetSnapshot().ReadOnly.MaskedSegments.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void GetSnapshot_treats_left_to_right_isolate_only_admin_slot_as_unconfigured()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = "\u2066"
+            });
+
+        sut.GetSnapshot().Admin.IsConfigured.Should().BeFalse(
+            "left-to-right isolate-only config is not authenticatable key material after normalization");
+        sut.GetSnapshot().Admin.MaskedSegments.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void GetSnapshot_treats_soft_hyphen_only_readonly_slot_as_unconfigured()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                ReadOnlyKey = "\u00AD"
+            });
+
+        sut.GetSnapshot().ReadOnly.IsConfigured.Should().BeFalse(
+            "soft-hyphen-only config is not authenticatable key material after normalization");
+        sut.GetSnapshot().ReadOnly.MaskedSegments.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void GetSnapshot_treats_no_break_space_only_admin_slot_as_unconfigured()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = "\u00A0"
+            });
+
+        sut.GetSnapshot().Admin.IsConfigured.Should().BeFalse(
+            "no-break-space-only config is not authenticatable key material after normalization");
+        sut.GetSnapshot().Admin.MaskedSegments.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void GetSnapshot_treats_tab_only_admin_slot_as_unconfigured()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = "\t"
+            });
+
+        sut.GetSnapshot().Admin.IsConfigured.Should().BeFalse(
+            "tab-only config is not authenticatable key material after normalization");
+        sut.GetSnapshot().Admin.MaskedSegments.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void GetSnapshot_treats_line_separator_only_readonly_slot_as_unconfigured()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                ReadOnlyKey = "\u2028"
+            });
+
+        sut.GetSnapshot().ReadOnly.IsConfigured.Should().BeFalse(
+            "line-separator-only config is not authenticatable key material after normalization");
+        sut.GetSnapshot().ReadOnly.MaskedSegments.Should().BeEmpty();
+    }
+
+    private static AdminApiKeySettingsService CreateService(ApiKeyAuthenticationOptions options)
+    {
+        Mock<IOptionsMonitor<ApiKeyAuthenticationOptions>> monitor = new();
+        monitor.Setup(static m => m.CurrentValue).Returns(options);
+
+        return new AdminApiKeySettingsService(monitor.Object);
+    }
+}

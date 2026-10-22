@@ -1,0 +1,22 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["flows"],
+  "properties": {
+    "flows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["workload", "store", "operation", "file", "line"],
+        "properties": {
+          "workload": { "type": "string" },
+          "store": { "type": "string" },
+          "operation": { "type": "string", "enum": ["read", "write"] },
+          "file": { "type": "string" },
+          "line": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

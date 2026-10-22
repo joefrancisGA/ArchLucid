@@ -1,0 +1,20 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000052",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000052",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000052-0000-4000-8000-000000000052",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000052",
+    "runId": "20000000-0000-4000-8000-000000000052",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [],
+    "edges": [],
+    "warnings": []
+  },
+  "merge": null,
+  "inventoryFixture": {
+    "cloudProvider": "Gcp",
+    "cloudPackageId": "30000000-0000-4000-8000-000000000052",
+    "cloudResourcesJson": "[\n  {\n    \"name\": \"projects/golden-demo/zones/us-central1-a/disks/orphan-disk-52\",\n    \"resourceType\": \"compute.googleapis.com/Disk\",\n    \"location\": \"us-central1-a\",\n    \"properties\": {\n      \"status\": \"READY\",\n      \"users\": []\n    }\n  }\n]"
+  }
+}

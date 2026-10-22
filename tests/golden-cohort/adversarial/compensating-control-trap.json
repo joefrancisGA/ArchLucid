@@ -1,0 +1,5 @@
+{
+  "trap": "compensating-control-trap",
+  "description": "Looks like a dangling edge anti-pattern; compensating control is narrative-only (deterministic merge still drops unknown endpoints).",
+  "expectGateRejectsAll": true
+}

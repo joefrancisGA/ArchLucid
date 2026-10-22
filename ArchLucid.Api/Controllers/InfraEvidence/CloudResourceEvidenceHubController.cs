@@ -1,0 +1,137 @@
+using ArchLucid.Api.Attributes;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
+using ArchLucid.Application.InfraEvidence;
+using ArchLucid.Contracts.InfraEvidence;
+using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Queries;
+
+using Asp.Versioning;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+
+namespace ArchLucid.Api.Controllers.InfraEvidence;
+
+[ApiController]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+[ApiVersion("1.0")]
+[Route("v{version:apiVersion}/infra-evidence/cloud-resources")]
+[EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
+public sealed partial class CloudResourceEvidenceHubController(
+    ICloudResourceEvidenceHubService hubService,
+    ICloudResourceExplorerQueryService explorerQueryService,
+    IScopeContextProvider scopeProvider,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : ControllerBase
+{
+    [HttpGet]
+    [ProducesResponseType(typeof(PagedResponse<CloudResourceSummary>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ListCloudResources(
+        [FromQuery] string? namePrefix,
+        [FromQuery] string? resourceType,
+        [FromQuery] string? resourceGroup,
+        [FromQuery] string? workQueue,
+        [FromQuery] int page = PaginationDefaults.DefaultPage,
+        [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
+        CancellationToken cancellationToken = default)
+    {
+        if (pageSize > PaginationDefaults.MaxPageSize)
+        {
+            return this.PayloadTooLargeProblem(
+                $"pageSize cannot exceed {PaginationDefaults.MaxPageSize}.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        PagedResponse<CloudResourceSummary> response = await explorerQueryService.ListCloudResourcesAsync(
+            scope,
+            namePrefix,
+            resourceType,
+            resourceGroup,
+            CloudResourceExplorerWorkQueueParser.Parse(workQueue),
+            page,
+            pageSize,
+            cancellationToken);
+
+        return Ok(response);
+    }
+
+    [HttpGet("{cloudResourceId:guid}/hub")]
+    [ProducesResponseType(typeof(CloudResourceEvidenceHubResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
+    public async Task<IActionResult> GetHub(
+        Guid cloudResourceId,
+        [FromQuery] Guid? runId,
+        [FromQuery] Guid? snapshotId,
+        [FromQuery] Guid? assessmentId,
+        [FromQuery] Guid? auditEvidenceSnapshotId,
+        [FromQuery] Guid? controlId,
+        [FromQuery] int page = PaginationDefaults.DefaultPage,
+        [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
+        CancellationToken cancellationToken = default)
+    {
+        if (cloudResourceId == Guid.Empty)
+        {
+            return this.BadRequestProblem("CloudResourceId is required.", ProblemTypes.ValidationFailed);
+        }
+
+        if (pageSize > PaginationDefaults.MaxPageSize)
+        {
+            return this.PayloadTooLargeProblem(
+                $"pageSize cannot exceed {PaginationDefaults.MaxPageSize}. Use page and pageSize to paginate finding and remediation streams.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        IActionResult? sealedGuardResult = await EnsureHubRunSealedManifestAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        try
+        {
+            CloudResourceEvidenceHubQuery query = new()
+            {
+                RunId = runId,
+                SnapshotId = snapshotId,
+                AssessmentId = assessmentId,
+                AuditEvidenceSnapshotId = auditEvidenceSnapshotId,
+                ControlId = controlId,
+                Page = page,
+                PageSize = pageSize,
+            };
+
+            CloudResourceEvidenceHubQueryResult result = await hubService.TryGetHubAsync(
+                scope,
+                cloudResourceId,
+                query,
+                cancellationToken);
+
+            if (!result.Succeeded || result.Hub is null)
+            {
+                return this.NotFoundProblem(
+                    result.ErrorMessage ?? "Cloud resource evidence hub was not found.",
+                    ProblemTypes.ResourceNotFound);
+            }
+
+            return Ok(result.Hub);
+        }
+        catch (ConflictException ex)
+        {
+            return MapEvidenceHubSealedManifestConflict(ex);
+        }
+    }
+}

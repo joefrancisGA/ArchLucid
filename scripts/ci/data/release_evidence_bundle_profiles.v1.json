@@ -1,0 +1,124 @@
+{
+  "schema": "archlucid.release-evidence-bundle-profiles.v1",
+  "manifestFileName": "release-evidence-bundle-manifest.json",
+  "profiles": {
+    "release-readiness": {
+      "description": "Unified repo-local release readiness bundle from Emit-ReleaseReadinessEvidence.ps1",
+      "docOwners": [
+        {
+          "path": "docs/library/V1_RELEASE_CHECKLIST.md",
+          "purpose": "Release owner signoff checklist"
+        },
+        {
+          "path": "docs/quality/RELEASE_EVIDENCE_BUNDLE_SCHEMA.md",
+          "purpose": "Bundle manifest schema and profiles"
+        },
+        {
+          "path": "docs/runbooks/ROLE_INDEX.md",
+          "purpose": "Persona entry map for release/proof flows"
+        }
+      ],
+      "requiredFiles": [
+        "release-readiness-index.json",
+        "release-readiness-summary.md",
+        "release-readiness-index.md",
+        "redaction-note.md",
+        "production-profile-preflight.md",
+        "terraform-drift-preflight.json",
+        "terraform-drift-preflight.md",
+        "validate-config.json",
+        "config-lint-production-like-hosted-pilot.json",
+        "config-lint-production-like-hosted-pilot.md",
+        "claim-evidence-consistency.json",
+        "rollback-readiness-note.md",
+        "db-migration-status-note.md",
+        "k6-smoke-status-note.md",
+        "real-llm-release-requirement.md"
+      ],
+      "requiredPatterns": [
+        {
+          "pattern": "observability-export-readiness-*.md",
+          "minMatches": 3,
+          "label": "observability export reports (environment + strict)"
+        }
+      ],
+      "optionalFiles": [
+        "claim-evidence-consistency.md",
+        "health-ready.json",
+        "version.json",
+        "deployment-evidence.md",
+        "hosted-availability-rollup.md",
+        "retrieval-ir-report.md",
+        "retrieval-ir-summary.json",
+        "faithfulness-report.md",
+        "retrieval-grounding.json",
+        "go-no-go-summary.json",
+        "ai-quality-release-summary.json",
+        "ai-quality-release-summary.md",
+        "release-confidence-rollup.json",
+        "release-confidence-rollup.md",
+        "rc-go-no-go-verdict.json",
+        "rc-go-no-go-verdict.md",
+        "deploy-handoff.json",
+        "deploy-handoff.md",
+        "rc-test-evidence-manifest.json",
+        "rc-test-evidence-manifest.md",
+        "azure-iac-parity-proof.json",
+        "azure-iac-parity-proof.md",
+        "managed-identity-verification.json",
+        "managed-identity-verification.md",
+        "azure-extractor-terraform-emit-status.json",
+        "real-mode-claim-gate.json",
+        "real-mode-claim-gate.md",
+        "support-bundle-status.json",
+        "azure-ai-search-readiness.json",
+        "deployed-evidence-freshness.json",
+        "real-llm-evidence-gate.json",
+        "real-llm-evidence-gate.md",
+        "simulator-only-override.md",
+        "pilot-critical-performance-evidence.json",
+        "pilot-critical-performance-evidence.md",
+        "rc-evidence-signoff-bundle.json",
+        "rc-evidence-signoff-bundle.md",
+        "saq-release-gate.json",
+        "saq-release-gate.md",
+        "pilot-readiness-live-release-gate.json",
+        "pilot-readiness-live-release-gate.md"
+      ]
+    },
+    "production-readiness-drill": {
+      "description": "Timestamped drill folder from production-readiness-drill.ps1",
+      "requiredFiles": [
+        "drill-summary.json",
+        "drill-summary.md"
+      ],
+      "requiredPatterns": [
+        {
+          "pattern": "config-lint/config-lint-production-like-hosted-pilot.json",
+          "minMatches": 1,
+          "label": "production-like config lint JSON"
+        }
+      ],
+      "optionalFiles": [
+        "config-lint/config-lint-production-like-hosted-pilot.md",
+        "v1-rc-drill/v1-rc-drill.log"
+      ]
+    },
+    "staging-readiness": {
+      "description": "Hosted staging capture from capture-staging-readiness-evidence.ps1",
+      "requiredFiles": [],
+      "requiredPatterns": [
+        {
+          "pattern": "staging-readiness-*.md",
+          "minMatches": 1,
+          "label": "staging readiness summary markdown"
+        }
+      ],
+      "optionalFiles": [
+        "health-ready.json",
+        "version.json",
+        "doctor.json"
+      ]
+    }
+  }
+}

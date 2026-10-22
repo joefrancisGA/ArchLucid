@@ -1,0 +1,218 @@
+using ArchLucid.Application.Analysis;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.KnowledgeGraph.Models;
+
+namespace ArchLucid.Application.Runs.Orchestration;
+
+/// <summary>
+///     Indexes topology proposal service/datastore names and ids for relationship endpoint validation.
+/// </summary>
+public static partial class TopologyProposalRelationshipEndpointIndex
+{
+    public static HashSet<string> CollectKnownEndpointKeys(
+        IReadOnlyList<ManifestService> services,
+        IReadOnlyList<ManifestDatastore> datastores)
+    {
+        HashSet<string> knownEndpointKeys = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (ManifestService service in services)
+        {
+            AddManifestServiceEndpointKeys(knownEndpointKeys, service);
+        }
+
+        foreach (ManifestDatastore datastore in datastores)
+        {
+            AddManifestDatastoreEndpointKeys(knownEndpointKeys, datastore);
+        }
+
+        return knownEndpointKeys;
+    }
+
+    public static void AddGraphNodeEndpointKeys(HashSet<string> endpointKeys, GraphNode node)
+    {
+        AddEndpointKey(endpointKeys, node.Label);
+        AddEndpointKey(endpointKeys, node.NodeId);
+
+        // "ProposedChanges" is a provenance sentinel shared by every topology-agent node, not an architecture endpoint.
+
+        if (!TopologyProposalGraphNodeMatchers.IsAgentProposedSourceSentinel(node.SourceId))
+        {
+            AddEndpointKey(endpointKeys, node.SourceId);
+            AddCanonicalTerraformInstanceKeyEndpointKey(endpointKeys, node.SourceId);
+            TopologyProposalTerraformSourceIdHeuristics.AddTerraformLeafResourceAddressKeys(endpointKeys, node.SourceId);
+        }
+
+        TopologyProposalEndpointArmKeys.AddArmResourceIdEndpointKeys(
+            endpointKeys,
+            GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId(node));
+        TopologyProposalTerraformSourceIdHeuristics.AddGraphNodeSyntheticLabelEndpointKeys(
+            endpointKeys,
+            node.Label,
+            node.Category,
+            node.SourceId);
+    }
+
+    public static void AddGraphNodeResolutionKeys(Dictionary<string, string> endpointKeyToNodeId, GraphNode node)
+    {
+        AddResolutionAlias(endpointKeyToNodeId, node.NodeId, node.NodeId);
+        AddResolutionAlias(endpointKeyToNodeId, node.Label, node.NodeId);
+
+        if (!TopologyProposalGraphNodeMatchers.IsAgentProposedSourceSentinel(node.SourceId))
+        {
+            AddResolutionAlias(endpointKeyToNodeId, node.SourceId, node.NodeId);
+            string sourceId = node.SourceId ?? string.Empty;
+            string canonicalSourceId = CanonicalizeTerraformEndpointReferenceForLookup(sourceId);
+
+            if (!string.Equals(canonicalSourceId, sourceId, StringComparison.OrdinalIgnoreCase))
+                AddResolutionAlias(endpointKeyToNodeId, canonicalSourceId, node.NodeId);
+
+            TopologyProposalTerraformSourceIdHeuristics.AddTerraformLeafResourceAddressResolutionAliases(
+                endpointKeyToNodeId,
+                node.SourceId,
+                node.NodeId);
+        }
+
+        TopologyProposalEndpointArmKeys.AddArmResourceIdResolutionAliases(
+            endpointKeyToNodeId,
+            GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId(node),
+            node.NodeId);
+        TopologyProposalTerraformSourceIdHeuristics.AddGraphNodeSyntheticLabelResolutionAliases(
+            endpointKeyToNodeId,
+            node.Label,
+            node.Category,
+            node.NodeId);
+    }
+
+    public static bool TryClaim(object endpoint, HashSet<string> claimedEndpointKeys, ITopologyEndpointSource source) =>
+        source.TryClaim(endpoint, claimedEndpointKeys);
+
+    internal static string? TrimManifestEndpointValue(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
+    /// <summary>
+    ///     Single entry point for Terraform address comparisons in topology merge (instance-key quote normalization).
+    /// </summary>
+    internal static string CanonicalizeTerraformEndpointReferenceForLookup(string value) =>
+        TerraformAzurermResourceTypeParser.CanonicalizeTerraformAddressForLookup(value.Trim());
+
+    internal static bool ManifestEndpointReferencesEqual(string? left, string? right)
+    {
+        if (left is null || right is null)
+            return false;
+
+        if (string.Equals(left, right, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return string.Equals(
+            CanonicalizeTerraformEndpointReferenceForLookup(left),
+            CanonicalizeTerraformEndpointReferenceForLookup(right),
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    internal static bool DeclaredEndpointKeySetContains(HashSet<string> declaredEndpointKeys, string? endpoint)
+    {
+        if (string.IsNullOrWhiteSpace(endpoint))
+            return false;
+
+        string trimmed = endpoint.Trim();
+
+        if (declaredEndpointKeys.Contains(trimmed))
+            return true;
+
+        string canonical = CanonicalizeTerraformEndpointReferenceForLookup(trimmed);
+
+        if (!string.Equals(canonical, trimmed, StringComparison.OrdinalIgnoreCase)
+            && declaredEndpointKeys.Contains(canonical))
+        {
+            return true;
+        }
+
+        string? normalizedIdentity =
+            TopologyProposalTerraformSourceIdHeuristics.TryNormalizeTerraformEndpointIdentity(trimmed);
+
+        return normalizedIdentity is not null && declaredEndpointKeys.Contains(normalizedIdentity);
+    }
+
+    internal static void AddEndpointKey(HashSet<string> knownEndpointKeys, string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return;
+
+        knownEndpointKeys.Add(value.Trim());
+    }
+
+    internal static void AddCanonicalTerraformInstanceKeyEndpointKey(HashSet<string> knownEndpointKeys, string? terraformSourceId)
+    {
+        if (string.IsNullOrWhiteSpace(terraformSourceId))
+            return;
+
+        string trimmed = terraformSourceId.Trim();
+        string canonical = CanonicalizeTerraformEndpointReferenceForLookup(trimmed);
+
+        if (!string.Equals(canonical, trimmed, StringComparison.OrdinalIgnoreCase))
+            knownEndpointKeys.Add(canonical);
+    }
+
+    internal static void AddCanonicalTerraformInstanceKeyResolutionAlias(
+        Dictionary<string, string> aliasToNodeId,
+        string? terraformSourceId,
+        string nodeId)
+    {
+        if (string.IsNullOrWhiteSpace(terraformSourceId))
+            return;
+
+        string trimmed = terraformSourceId.Trim();
+        string canonical = CanonicalizeTerraformEndpointReferenceForLookup(trimmed);
+
+        if (!string.Equals(canonical, trimmed, StringComparison.OrdinalIgnoreCase))
+            AddResolutionAlias(aliasToNodeId, canonical, nodeId);
+    }
+
+    internal static void AddResolutionAlias(Dictionary<string, string> aliasToNodeId, string? endpointKey, string nodeId)
+    {
+        if (string.IsNullOrWhiteSpace(endpointKey))
+            return;
+
+        aliasToNodeId.TryAdd(endpointKey.Trim(), nodeId);
+    }
+
+    internal static void AddSyntheticServiceEndpointKey(HashSet<string> endpointKeys, string? serviceName)
+    {
+        AddEndpointKey(endpointKeys, BuildSyntheticServiceNodeId(serviceName));
+    }
+
+    internal static void AddSyntheticDatastoreEndpointKey(HashSet<string> endpointKeys, string? datastoreName)
+    {
+        AddEndpointKey(endpointKeys, BuildSyntheticDatastoreNodeId(datastoreName));
+    }
+
+    internal static string? BuildSyntheticServiceNodeId(string? serviceName) =>
+        string.IsNullOrWhiteSpace(serviceName) ? null : $"svc-{serviceName.Trim()}";
+
+    internal static string? BuildSyntheticDatastoreNodeId(string? datastoreName) =>
+        string.IsNullOrWhiteSpace(datastoreName) ? null : $"ds-{datastoreName.Trim()}";
+
+    internal static string? NormalizeSyntheticEndpointReference(string? candidate)
+    {
+        if (string.IsNullOrWhiteSpace(candidate))
+            return null;
+
+        string trimmed = candidate.Trim();
+
+        if (trimmed.StartsWith("svc-", StringComparison.OrdinalIgnoreCase))
+        {
+            string name = trimmed[4..].Trim();
+
+            return BuildSyntheticServiceNodeId(name);
+        }
+
+        if (trimmed.StartsWith("ds-", StringComparison.OrdinalIgnoreCase))
+        {
+            string name = trimmed[3..].Trim();
+
+            return BuildSyntheticDatastoreNodeId(name);
+        }
+
+        return null;
+    }
+}

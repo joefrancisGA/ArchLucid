@@ -1,0 +1,322 @@
+"use client";
+
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { PatternLibraryPolicyPacksVocabularyRail } from "@/components/PatternLibraryPolicyPacksVocabularyRail";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  PATTERN_LIBRARY_EMPTY_BUILDING_BODY,
+  PATTERN_LIBRARY_EMPTY_BUILDING_TITLE,
+  PATTERN_LIBRARY_EMPTY_FILTERED_BODY,
+  PATTERN_LIBRARY_EMPTY_FILTERED_TITLE,
+  PATTERN_LIBRARY_LOAD_RETRY_LABEL,
+  patternLibraryPageSubtitle,
+} from "@/lib/pattern-library-copy";
+import {
+  DEFAULT_PATTERN_LIBRARY_FILTERS,
+  derivePatternLibrarySummary,
+  filterPatternLibraryRecords,
+  resolvePatternLibraryRecords,
+} from "@/lib/pattern-library-filters";
+import type { PatternLibraryFiltersState } from "@/lib/pattern-library-types";
+import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
+import { patternLibraryHref } from "@/lib/pattern-library-route";
+import {
+  parsePatternLibraryDomainFromSearch,
+  parsePatternLibraryPlatformFromSearch,
+  parsePatternLibrarySearchQuery,
+  parsePatternLibraryTypeFromSearch,
+  parsePatternLibraryRiskFromSearch,
+  parsePatternLibraryAdoptionFromSearch,
+  parsePatternLibraryTimeRangeFromSearch,
+  parsePatternLibraryGovernanceFromSearch,
+  parsePatternLibraryDataSourceFromSearch,
+  patternLibraryClearSearchHrefFromSearch,
+  patternLibrarySearchHrefFromSearch,
+} from "@/lib/insights/pattern-library-filters-url";
+import {
+  resolvePatternLibraryBrowseEmphasizedStepId,
+  resolvePatternLibraryBrowseSteps,
+} from "@/lib/pattern-library-browse-checklist";
+import { resolveContinueLastPatternLibraryRecord } from "@/lib/resolve-continue-last-pattern-library-record";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { usePatternLibraryProvenance } from "@/lib/use-pattern-library-provenance";
+import { cn } from "@/lib/utils";
+
+import { PatternLibraryBuyerChrome } from "./PatternLibraryBuyerChrome";
+import { PatternLibraryCatalogSkeleton } from "./PatternLibraryCatalogSkeleton";
+import { PatternLibraryContinueLastViewedRow } from "./PatternLibraryContinueLastViewedRow";
+import { PatternLibraryFiltersPanel } from "./PatternLibraryFiltersPanel";
+import { PatternLibraryLoadFailurePanel } from "./PatternLibraryLoadFailurePanel";
+import { PatternLibraryPageHeader } from "./PatternLibraryPageHeader";
+import { PatternLibraryPickReviewBeforeBrowsingStrip } from "./PatternLibraryPickReviewBeforeBrowsingStrip";
+import { PatternLibraryNextReviewFooterClient } from "./PatternLibraryNextReviewFooterClient";
+import { PatternLibraryPatternCard } from "./PatternLibraryPatternCard";
+import { PatternLibrarySummaryRow } from "./PatternLibrarySummaryRow";
+
+function toPatternLibraryLoadFailure(error: Error): ApiLoadFailureState {
+  return {
+    message: error.message,
+    problem: null,
+    correlationId: null,
+    httpStatus: null,
+    retryAfterSeconds: null,
+  };
+}
+
+export function PatternLibraryPageClient(): React.JSX.Element {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
+  const scopedRunId = (searchParams.get("runId") ?? "").trim();
+  const scopedRunFilterActive = scopedRunId.length > 0;
+  const urlQuery = parsePatternLibrarySearchQuery(searchParams.get("q"));
+  const urlDomain = parsePatternLibraryDomainFromSearch(searchParams.get("domain"));
+  const urlPlatform = parsePatternLibraryPlatformFromSearch(searchParams.get("platform"));
+  const urlPatternType = parsePatternLibraryTypeFromSearch(searchParams.get("type"));
+  const urlRisk = parsePatternLibraryRiskFromSearch(searchParams.get("risk"));
+  const urlAdoption = parsePatternLibraryAdoptionFromSearch(searchParams.get("adoption"));
+  const urlTimeRange = parsePatternLibraryTimeRangeFromSearch(searchParams.get("time"));
+  const urlGovernance = parsePatternLibraryGovernanceFromSearch(searchParams.get("governance"));
+  const urlDataSource = parsePatternLibraryDataSourceFromSearch(searchParams.get("source"));
+
+  const queryClient = useQueryClient();
+  const [filters, setFilters] = useState<PatternLibraryFiltersState>(() => ({
+    ...DEFAULT_PATTERN_LIBRARY_FILTERS,
+    query: urlQuery,
+    domain: urlDomain,
+    platform: urlPlatform,
+    patternType: urlPatternType,
+    risk: urlRisk,
+    adoption: urlAdoption,
+    timeRange: urlTimeRange,
+    governance: urlGovernance,
+    dataSource: urlDataSource,
+  }));
+  const [searchQuery, setSearchQuery] = useState(urlQuery);
+
+  useEffect(() => {
+    setFilters((current) => ({
+      ...current,
+      query: urlQuery,
+      domain: urlDomain,
+      platform: urlPlatform,
+      patternType: urlPatternType,
+      risk: urlRisk,
+      adoption: urlAdoption,
+      timeRange: urlTimeRange,
+      governance: urlGovernance,
+      dataSource: urlDataSource,
+    }));
+    setSearchQuery(urlQuery);
+  }, [urlAdoption, urlDataSource, urlDomain, urlGovernance, urlPatternType, urlPlatform, urlQuery, urlRisk, urlTimeRange]);
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      const nextHref = patternLibrarySearchHrefFromSearch(searchParams.toString(), searchQuery);
+
+      if (`${window.location.pathname}${window.location.search}` !== nextHref) {
+        router.replace(nextHref, { scroll: false });
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [router, searchParams, searchQuery]);
+
+  const onFiltersChange = useCallback((next: PatternLibraryFiltersState): void => {
+    setFilters(next);
+    setSearchQuery(next.query);
+  }, []);
+
+  const clearSearch = useCallback(() => {
+    setSearchQuery("");
+    router.replace(patternLibraryClearSearchHrefFromSearch(currentSearch), { scroll: false });
+  }, [currentSearch, router]);
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const {
+    provenance,
+    usingLiveAggregate,
+    useSampleCatalog,
+    eligiblePatternKeys,
+    isPending,
+    isError,
+    isFetching,
+    error,
+  } = usePatternLibraryProvenance();
+  const allRecords = useMemo(
+    () => resolvePatternLibraryRecords(
+      usingLiveAggregate ? eligiblePatternKeys : [],
+      useSampleCatalog,
+    ),
+    [eligiblePatternKeys, useSampleCatalog, usingLiveAggregate],
+  );
+  const filteredRecords = useMemo(() => filterPatternLibraryRecords(allRecords, filters), [allRecords, filters]);
+  const continueLastPattern = useMemo(
+    () => resolveContinueLastPatternLibraryRecord(allRecords),
+    [allRecords],
+  );
+  const summary = useMemo(() => derivePatternLibrarySummary(allRecords), [allRecords]);
+  const headerRefreshing = isPending || isFetching;
+  const loadFailure = isError && error !== null ? toPatternLibraryLoadFailure(error) : null;
+
+  const refreshCatalog = (): void => {
+    void queryClient.invalidateQueries({ queryKey: operatorQueryKeys.patternLibraryInsightCards });
+  };
+
+  const onPickReviewForBrowsing = useCallback(
+    (reviewId: string) => {
+      const trimmed = reviewId.trim();
+
+      if (trimmed.length === 0) {
+        return;
+      }
+
+      router.replace(patternLibraryHref({ runId: trimmed }), { scroll: false });
+    },
+    [router],
+  );
+
+  const patternLibraryBrowseChecklistSteps = resolvePatternLibraryBrowseSteps({
+    reviewPicked: scopedRunFilterActive,
+    catalogReviewed: allRecords.length > 0,
+    browseComplete: filteredRecords.length > 0,
+  });
+  const patternLibraryBrowseChecklistEmphasizedStepId = resolvePatternLibraryBrowseEmphasizedStepId({
+    reviewPicked: scopedRunFilterActive,
+    catalogReviewed: allRecords.length > 0,
+    browseComplete: filteredRecords.length > 0,
+  });
+
+  return (
+    <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.majorSectionGap} data-testid="pattern-library-page">
+      <PatternLibraryPageHeader
+        subtitle={patternLibraryPageSubtitle(buyerPolishedShell)}
+        provenance={provenance}
+        showProvenanceDetails={!buyerPolishedShell}
+        refreshing={headerRefreshing}
+        lastUpdatedUtc={summary.lastUpdatedUtc}
+        onRefresh={refreshCatalog}
+      />
+
+      <PatternLibraryBuyerChrome />
+
+      {!buyerPolishedShell ? (
+        <PatternLibraryPolicyPacksVocabularyRail currentSurfaceId="pattern-library" />
+      ) : null}
+
+      {isPending ? <PatternLibraryCatalogSkeleton /> : null}
+
+      {!isPending && loadFailure !== null ? (
+        <PatternLibraryLoadFailurePanel
+          failure={loadFailure}
+          retryLabel={PATTERN_LIBRARY_LOAD_RETRY_LABEL}
+          testId="pattern-library-load-failure"
+          retryTestId="pattern-library-load-retry"
+          retryDisabled={headerRefreshing}
+          onRetry={refreshCatalog}
+        />
+      ) : null}
+
+      {!isPending && loadFailure === null ? (
+        <>
+          {scopedRunFilterActive ? (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="pattern-library-run-scope-banner"
+            >
+              {"Browsing patterns for review "}
+              <span className="font-mono text-al-text-primary">{scopedRunId}</span>
+              {" · "}
+              <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={patternLibraryHref()}>
+                Clear review scope
+              </Link>
+              {" · "}
+              <Link
+                className={OPERATOR_BODY_INLINE_LINK_CLASS}
+                href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+              >
+                Open review
+              </Link>
+            </p>
+          ) : (
+            <PatternLibraryPickReviewBeforeBrowsingStrip
+              selectedReviewId=""
+              onSelectReview={onPickReviewForBrowsing}
+            />
+          )}
+
+          {scopedRunFilterActive ? (
+            <IntegrationConnectChecklist
+              title="Browse checklist"
+              steps={patternLibraryBrowseChecklistSteps}
+              emphasizedStepId={patternLibraryBrowseChecklistEmphasizedStepId}
+              testIdPrefix="pattern-library-browse"
+            />
+          ) : null}
+
+          {scopedRunFilterActive ? (
+            <>
+          <PatternLibrarySummaryRow summary={summary} />
+          {continueLastPattern !== null ? (
+            <PatternLibraryContinueLastViewedRow record={continueLastPattern} scopedRunId={scopedRunId} />
+          ) : null}
+          <PatternLibraryFiltersPanel
+            filters={filters}
+            currentSearch={currentSearch}
+            searchQuery={searchQuery}
+            onSearchQueryChange={setSearchQuery}
+            onClearSearch={clearSearch}
+            onChange={onFiltersChange}
+          />
+
+          {filteredRecords.length === 0 ? (
+            <EnterpriseCompactEmptyState
+              testId="pattern-library-empty-state"
+              title={allRecords.length === 0 ? PATTERN_LIBRARY_EMPTY_BUILDING_TITLE : PATTERN_LIBRARY_EMPTY_FILTERED_TITLE}
+              description={
+                allRecords.length === 0 ? PATTERN_LIBRARY_EMPTY_BUILDING_BODY : PATTERN_LIBRARY_EMPTY_FILTERED_BODY
+              }
+              actions={[
+                { label: "Start architecture review", href: "/architecture/reviews/new", variant: "primary" },
+                {
+                  label: "Open completed sample",
+                  href: `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
+                  variant: "outline",
+                },
+              ]}
+            />
+          ) : null}
+
+          {filteredRecords.length > 0 ? (
+            <div className="grid gap-4 lg:grid-cols-2" data-testid="pattern-library-card-grid">
+              {filteredRecords.map((record) => (
+                <PatternLibraryPatternCard key={record.patternKey} record={record} scopedRunId={scopedRunId} />
+              ))}
+            </div>
+          ) : null}
+
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            Need a guided first review?{" "}
+            <Link href="/help/getting-started" className={OPERATOR_BODY_INLINE_LINK_CLASS}>
+              Open Getting started
+            </Link>
+          </p>
+
+          <PatternLibraryNextReviewFooterClient runId={scopedRunId} />
+            </>
+          ) : null}
+        </>
+      ) : null}
+    </OperatorPageContainer>
+  );
+}

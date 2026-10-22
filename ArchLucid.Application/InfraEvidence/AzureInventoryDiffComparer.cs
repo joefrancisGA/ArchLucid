@@ -1,0 +1,403 @@
+using ArchLucid.Core.AzureExtractor;
+using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Persistence.InfraEvidence;
+
+namespace ArchLucid.Application.InfraEvidence;
+
+/// <summary>Deterministic semantic comparison between two normalized inventory snapshots.</summary>
+public static class AzureInventoryDiffComparer
+{
+    public static List<AzureInventoryChangeRecord> Compare(
+        AzureInventorySnapshotDetailReadModel snapshotA,
+        AzureInventorySnapshotDetailReadModel snapshotB,
+        Guid snapshotAId,
+        Guid snapshotBId)
+    {
+        ArgumentNullException.ThrowIfNull(snapshotA);
+        ArgumentNullException.ThrowIfNull(snapshotB);
+
+        List<AzureInventoryChangeRecord> changes = [];
+
+        Dictionary<string, AzureInventoryResourceRecord> resourcesA = VisibleResources(snapshotA.Resources);
+        Dictionary<string, AzureInventoryResourceRecord> resourcesB = VisibleResources(snapshotB.Resources);
+
+        foreach (KeyValuePair<string, AzureInventoryResourceRecord> added in resourcesB)
+        {
+            if (resourcesA.ContainsKey(added.Key))
+                continue;
+
+            changes.Add(CreateChange(
+                snapshotAId,
+                snapshotBId,
+                added.Value.CloudResourceId,
+                added.Key,
+                AzureInventoryChangeType.ResourceAdded,
+                property: null,
+                oldValue: null,
+                newValue: added.Value.ResourceType));
+        }
+
+        List<KeyValuePair<string, AzureInventoryResourceRecord>> removedResources = resourcesA
+            .Where(pair => !resourcesB.ContainsKey(pair.Key))
+            .ToList();
+
+        HashSet<string> nestedRemovedResourceIds = CollectNestedRemovedResourceIds(removedResources);
+
+        foreach (KeyValuePair<string, AzureInventoryResourceRecord> removed in removedResources)
+        {
+            if (nestedRemovedResourceIds.Contains(removed.Key))
+                continue;
+
+            changes.Add(CreateChange(
+                snapshotAId,
+                snapshotBId,
+                removed.Value.CloudResourceId,
+                removed.Key,
+                AzureInventoryChangeType.ResourceRemoved,
+                property: null,
+                oldValue: removed.Value.ResourceType,
+                newValue: null));
+        }
+
+        foreach (KeyValuePair<string, AzureInventoryResourceRecord> pair in resourcesA)
+        {
+            if (!resourcesB.TryGetValue(pair.Key, out AzureInventoryResourceRecord? resourceB))
+                continue;
+
+            AzureInventoryResourceRecord resourceA = pair.Value;
+
+            if (!string.Equals(resourceA.Region, resourceB.Region, StringComparison.OrdinalIgnoreCase))
+            {
+                changes.Add(CreateChange(
+                    snapshotAId,
+                    snapshotBId,
+                    resourceB.CloudResourceId,
+                    pair.Key,
+                    AzureInventoryChangeType.RegionChanged,
+                    "region",
+                    resourceA.Region,
+                    resourceB.Region));
+            }
+
+            CompareTags(changes, snapshotA, snapshotB, resourceA, resourceB, snapshotAId, snapshotBId, pair.Key);
+            CompareProperties(changes, snapshotA, snapshotB, resourceA, resourceB, snapshotAId, snapshotBId, pair.Key);
+        }
+
+        CompareRelationships(changes, snapshotA, snapshotB, snapshotAId, snapshotBId);
+        CompareRoleAssignments(changes, snapshotA, snapshotB, snapshotAId, snapshotBId);
+
+        return changes
+            .OrderBy(c => c.AzureResourceId, StringComparer.Ordinal)
+            .ThenBy(c => c.ChangeType)
+            .ThenBy(c => c.Property, StringComparer.Ordinal)
+            .ToList();
+    }
+
+    private static void CompareTags(
+        List<AzureInventoryChangeRecord> changes,
+        AzureInventorySnapshotDetailReadModel snapshotA,
+        AzureInventorySnapshotDetailReadModel snapshotB,
+        AzureInventoryResourceRecord resourceA,
+        AzureInventoryResourceRecord resourceB,
+        Guid snapshotAId,
+        Guid snapshotBId,
+        string azureResourceId)
+    {
+        Dictionary<string, string?> tagsA = snapshotA.Tags
+            .Where(t => t.ResourceRowId == resourceA.ResourceRowId)
+            .ToDictionary(t => t.TagKey, t => t.TagValue, StringComparer.OrdinalIgnoreCase);
+
+        Dictionary<string, string?> tagsB = snapshotB.Tags
+            .Where(t => t.ResourceRowId == resourceB.ResourceRowId)
+            .ToDictionary(t => t.TagKey, t => t.TagValue, StringComparer.OrdinalIgnoreCase);
+
+        HashSet<string> keys = new(tagsA.Keys, StringComparer.OrdinalIgnoreCase);
+        keys.UnionWith(tagsB.Keys);
+
+        foreach (string key in keys.OrderBy(k => k, StringComparer.Ordinal))
+        {
+            tagsA.TryGetValue(key, out string? oldValue);
+            tagsB.TryGetValue(key, out string? newValue);
+
+            if (string.Equals(oldValue, newValue, StringComparison.Ordinal))
+                continue;
+
+            changes.Add(CreateChange(
+                snapshotAId,
+                snapshotBId,
+                resourceB.CloudResourceId,
+                azureResourceId,
+                AzureInventoryChangeType.TagChanged,
+                $"tag:{key}",
+                oldValue,
+                newValue));
+        }
+    }
+
+    private static void CompareProperties(
+        List<AzureInventoryChangeRecord> changes,
+        AzureInventorySnapshotDetailReadModel snapshotA,
+        AzureInventorySnapshotDetailReadModel snapshotB,
+        AzureInventoryResourceRecord resourceA,
+        AzureInventoryResourceRecord resourceB,
+        Guid snapshotAId,
+        Guid snapshotBId,
+        string azureResourceId)
+    {
+        Dictionary<string, string?> propsA = snapshotA.Properties
+            .Where(p => p.ResourceRowId == resourceA.ResourceRowId)
+            .ToDictionary(p => p.PropertyKey, p => p.PropertyValue, StringComparer.OrdinalIgnoreCase);
+
+        Dictionary<string, string?> propsB = snapshotB.Properties
+            .Where(p => p.ResourceRowId == resourceB.ResourceRowId)
+            .ToDictionary(p => p.PropertyKey, p => p.PropertyValue, StringComparer.OrdinalIgnoreCase);
+
+        HashSet<string> keys = new(propsA.Keys, StringComparer.OrdinalIgnoreCase);
+        keys.UnionWith(propsB.Keys);
+
+        foreach (string key in keys.OrderBy(k => k, StringComparer.Ordinal))
+        {
+            propsA.TryGetValue(key, out string? oldValue);
+            propsB.TryGetValue(key, out string? newValue);
+
+            if (string.Equals(oldValue, newValue, StringComparison.Ordinal))
+                continue;
+
+            AzureInventoryChangeType changeType = AzureInventoryDiffHeuristics.ClassifyPropertyChange(
+                key,
+                oldValue,
+                newValue,
+                resourceB.ResourceType);
+
+            changes.Add(CreateChange(
+                snapshotAId,
+                snapshotBId,
+                resourceB.CloudResourceId,
+                azureResourceId,
+                changeType,
+                key,
+                oldValue,
+                newValue));
+        }
+    }
+
+    private static void CompareRelationships(
+        List<AzureInventoryChangeRecord> changes,
+        AzureInventorySnapshotDetailReadModel snapshotA,
+        AzureInventorySnapshotDetailReadModel snapshotB,
+        Guid snapshotAId,
+        Guid snapshotBId)
+    {
+        HashSet<string> relA = snapshotA.Relationships
+            .Select(FormatRelationship)
+            .ToHashSet(StringComparer.Ordinal);
+
+        HashSet<string> relB = snapshotB.Relationships
+            .Select(FormatRelationship)
+            .ToHashSet(StringComparer.Ordinal);
+
+        foreach (string added in relB.Except(relA, StringComparer.Ordinal).OrderBy(r => r, StringComparer.Ordinal))
+        {
+            AzureInventoryResourceRelationshipReadModel? relationship =
+                snapshotB.Relationships.FirstOrDefault(r => FormatRelationship(r) == added);
+
+            if (relationship is null)
+                continue;
+
+            if (ShouldOmitRelationship(relationship))
+            {
+                continue;
+            }
+
+            AzureInventoryChangeType changeType =
+                AzureInventoryDiffHeuristics.IsPrivateEndpointRelationship(
+                    relationship.FromAzureResourceId,
+                    relationship.ToAzureResourceId,
+                    relationship.RelationshipType)
+                    ? AzureInventoryChangeType.RelationshipAdded
+                    : AzureInventoryChangeType.RelationshipAdded;
+
+            string propertyName = AzureInventoryDiffHeuristics.IsPrivateEndpointRelationship(
+                relationship.FromAzureResourceId,
+                relationship.ToAzureResourceId,
+                relationship.RelationshipType)
+                ? "privateEndpoint"
+                : relationship.RelationshipType;
+            changes.Add(CreateChange(
+                snapshotAId,
+                snapshotBId,
+                cloudResourceId: null,
+                relationship.FromAzureResourceId,
+                changeType,
+                propertyName,
+                oldValue: null,
+                newValue: relationship.ToAzureResourceId));
+        }
+
+        foreach (string removed in relA.Except(relB, StringComparer.Ordinal).OrderBy(r => r, StringComparer.Ordinal))
+        {
+            AzureInventoryResourceRelationshipReadModel? relationship =
+                snapshotA.Relationships.FirstOrDefault(r => FormatRelationship(r) == removed);
+
+            if (relationship is null)
+                continue;
+
+            if (ShouldOmitRelationship(relationship))
+            {
+                continue;
+            }
+
+            changes.Add(CreateChange(
+                snapshotAId,
+                snapshotBId,
+                cloudResourceId: null,
+                relationship.FromAzureResourceId,
+                AzureInventoryChangeType.RelationshipRemoved,
+                relationship.RelationshipType,
+                relationship.ToAzureResourceId,
+                newValue: null));
+        }
+    }
+
+    private static void CompareRoleAssignments(
+        List<AzureInventoryChangeRecord> changes,
+        AzureInventorySnapshotDetailReadModel snapshotA,
+        AzureInventorySnapshotDetailReadModel snapshotB,
+        Guid snapshotAId,
+        Guid snapshotBId)
+    {
+        HashSet<string> assignmentsA = snapshotA.RoleAssignments.Select(FormatRoleAssignment).ToHashSet(StringComparer.Ordinal);
+        HashSet<string> assignmentsB = snapshotB.RoleAssignments.Select(FormatRoleAssignment).ToHashSet(StringComparer.Ordinal);
+
+        foreach (string added in assignmentsB.Except(assignmentsA, StringComparer.Ordinal).OrderBy(a => a, StringComparer.Ordinal))
+        {
+            AzureInventoryRoleAssignmentReadModel? assignment =
+                snapshotB.RoleAssignments.FirstOrDefault(a => FormatRoleAssignment(a) == added);
+
+            if (assignment is null)
+                continue;
+
+            if (AzureInventoryNeverShowArmTypes.ShouldOmitAzureResourceId(assignment.Scope))
+            {
+                continue;
+            }
+
+            AzureInventoryChangeType changeType = AzureInventoryDiffHeuristics.IsElevatedRoleAssignment(assignment.RoleDefinitionId)
+                ? AzureInventoryChangeType.PermissionChanged
+                : AzureInventoryChangeType.PermissionChanged;
+
+            changes.Add(CreateChange(
+                snapshotAId,
+                snapshotBId,
+                cloudResourceId: null,
+                assignment.Scope,
+                changeType,
+                "roleDefinitionId",
+                oldValue: null,
+                newValue: assignment.RoleDefinitionId));
+        }
+
+        foreach (string removed in assignmentsA.Except(assignmentsB, StringComparer.Ordinal).OrderBy(a => a, StringComparer.Ordinal))
+        {
+            AzureInventoryRoleAssignmentReadModel? assignment =
+                snapshotA.RoleAssignments.FirstOrDefault(a => FormatRoleAssignment(a) == removed);
+
+            if (assignment is null)
+                continue;
+
+            if (AzureInventoryNeverShowArmTypes.ShouldOmitAzureResourceId(assignment.Scope))
+            {
+                continue;
+            }
+
+            changes.Add(CreateChange(
+                snapshotAId,
+                snapshotBId,
+                cloudResourceId: null,
+                assignment.Scope,
+                AzureInventoryChangeType.PermissionChanged,
+                "roleDefinitionId",
+                assignment.RoleDefinitionId,
+                newValue: null));
+        }
+    }
+
+    private static HashSet<string> CollectNestedRemovedResourceIds(
+        IReadOnlyList<KeyValuePair<string, AzureInventoryResourceRecord>> removedResources)
+    {
+        HashSet<string> nestedRemovedResourceIds = new(StringComparer.OrdinalIgnoreCase);
+
+        for (int candidateIndex = 0; candidateIndex < removedResources.Count; candidateIndex++)
+        {
+            string candidateId = removedResources[candidateIndex].Key;
+
+            for (int ancestorIndex = 0; ancestorIndex < removedResources.Count; ancestorIndex++)
+            {
+                if (candidateIndex == ancestorIndex)
+                    continue;
+
+                string ancestorId = removedResources[ancestorIndex].Key;
+
+                if (!ArmResourceIdNormalizer.IsDescendantOf(candidateId, ancestorId))
+                    continue;
+
+                nestedRemovedResourceIds.Add(candidateId);
+                break;
+            }
+        }
+
+        return nestedRemovedResourceIds;
+    }
+
+    private static AzureInventoryChangeRecord CreateChange(
+        Guid snapshotAId,
+        Guid snapshotBId,
+        Guid? cloudResourceId,
+        string? azureResourceId,
+        AzureInventoryChangeType changeType,
+        string? property,
+        string? oldValue,
+        string? newValue)
+    {
+        return new AzureInventoryChangeRecord
+        {
+            ChangeId = Guid.NewGuid(),
+            DiffId = Guid.Empty,
+            SnapshotAId = snapshotAId,
+            SnapshotBId = snapshotBId,
+            CloudResourceId = cloudResourceId,
+            AzureResourceId = azureResourceId,
+            ChangeType = changeType,
+            Property = property,
+            OldValue = oldValue,
+            NewValue = newValue,
+            RiskClassification = AzureInventoryDiffHeuristics.BuildRiskClassification(changeType),
+            SecuritySignificance = AzureInventoryDiffHeuristics.BuildSecuritySignificance(changeType),
+            Confidence = 1.0m,
+            EvidenceReference = "azure-inventory-snapshot",
+            ProvenanceKind = ProvenanceKind.DerivedFact,
+        };
+    }
+
+    private static string FormatRelationship(AzureInventoryResourceRelationshipReadModel relationship) =>
+        $"{relationship.FromAzureResourceId}|{relationship.RelationshipType}|{relationship.ToAzureResourceId}";
+
+    private static string FormatRoleAssignment(AzureInventoryRoleAssignmentReadModel assignment) =>
+        $"{assignment.Scope}|{assignment.PrincipalId}|{assignment.RoleDefinitionId}";
+
+    private static Dictionary<string, AzureInventoryResourceRecord> VisibleResources(
+        IReadOnlyList<AzureInventoryResourceRecord> resources)
+    {
+        return resources
+            .Where(resource => !AzureInventoryNeverShowArmTypes.ShouldOmitResource(
+                resource.ResourceType,
+                resource.AzureResourceId))
+            .ToDictionary(resource => resource.AzureResourceId, StringComparer.OrdinalIgnoreCase);
+    }
+
+    private static bool ShouldOmitRelationship(AzureInventoryResourceRelationshipReadModel relationship)
+    {
+        return AzureInventoryNeverShowArmTypes.ShouldOmitAzureResourceId(relationship.FromAzureResourceId)
+               || AzureInventoryNeverShowArmTypes.ShouldOmitAzureResourceId(relationship.ToAzureResourceId);
+    }
+}

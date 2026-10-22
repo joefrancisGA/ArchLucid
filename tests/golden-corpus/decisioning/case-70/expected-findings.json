@@ -1,0 +1,135 @@
+[
+  {
+    "findingId": "1a17a755-0f30-3175-13a6-8bac3b4cbd8a",
+    "findingType": "DataFlowTrustBoundaryFinding",
+    "category": "Security",
+    "severity": "Error",
+    "title": "External actor \u0027Internet user\u0027 reaches sensitive datastore \u0027SQL Database\u0027 in 2 hop(s) without crossing a trust boundary",
+    "rationale": "An external-facing actor can reach datastore \u0027SQL Database\u0027 in 2 graph hop(s) without traversing a TrustBoundary node or private-endpoint hop.",
+    "relatedNodeIds": [
+      "diagram-node:api",
+      "diagram-node:db",
+      "diagram-node:user"
+    ],
+    "payloadType": "DataFlowTrustBoundaryFindingPayload",
+    "rulesApplied": [
+      "data-flow-trust-boundary"
+    ],
+    "decisionsTaken": [
+      "External actor path to sensitive datastore without trust-boundary or private-endpoint hop."
+    ]
+  },
+  {
+    "findingId": "89fc08dd-7bd0-8a8b-4ce8-d569d56070ec",
+    "findingType": "ExternalExposureFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "External actor \u0027Internet user\u0027 lacks an explicit trust boundary",
+    "rationale": "External or anonymous actors must be modeled with TrustBoundary nodes so security engines can verify cross-boundary controls.",
+    "relatedNodeIds": [
+      "diagram-node:user"
+    ],
+    "payloadType": "ExternalExposureFindingPayload",
+    "rulesApplied": [
+      "external-exposure-trust-boundary"
+    ],
+    "decisionsTaken": [
+      "External-facing actor present without matching TrustBoundary node."
+    ]
+  },
+  {
+    "findingId": "e34386c7-6476-49bf-c59d-254e07c05787",
+    "findingType": "RequirementExpectationFinding",
+    "category": "Requirement",
+    "severity": "Warning",
+    "title": "Workload-conditioned requirement themes are incomplete",
+    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "relatedNodeIds": [
+      "diagram-node:api",
+      "diagram-node:db"
+    ],
+    "payloadType": "RequirementExpectationFindingPayload",
+    "rulesApplied": [
+      "requirement-expectation-workload-scope"
+    ],
+    "decisionsTaken": [
+      "Compared workload-conditioned requirement themes to themes inferred from requirement nodes."
+    ]
+  },
+  {
+    "findingId": "a3b9aa88-2d65-0871-6036-3f245a75f13f",
+    "findingType": "SecurityBaselineCompletenessFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Workload security baseline control-family coverage is incomplete",
+    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "relatedNodeIds": [
+      "diagram-node:api",
+      "diagram-node:db"
+    ],
+    "payloadType": "SecurityBaselineCompletenessFindingPayload",
+    "rulesApplied": [
+      "security-baseline-completeness-matrix"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected control families to families inferred from active security baseline nodes."
+    ]
+  },
+  {
+    "findingId": "a6ae86d9-7842-7864-4330-74d9da6bf5e9",
+    "findingType": "SecurityBaselineExpectationFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Category-scoped security baseline coverage is incomplete",
+    "rationale": "Workload-expected topology categories lack any protected resources linked by security baseline PROTECTS edges.",
+    "relatedNodeIds": [
+      "diagram-node:api",
+      "diagram-node:db"
+    ],
+    "payloadType": "SecurityBaselineExpectationFindingPayload",
+    "rulesApplied": [
+      "security-baseline-category-expectation"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected topology categories to categories with protected resources."
+    ]
+  },
+  {
+    "findingId": "921f1a4c-a478-7af1-8fe3-787f77c05357",
+    "findingType": "SecurityCoverageFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Some topology resources are not protected by any security baseline nodes",
+    "rationale": "Security protection coverage is incomplete for the current topology graph.",
+    "relatedNodeIds": [
+      "Orders API",
+      "SQL Database"
+    ],
+    "payloadType": "SecurityCoverageFindingPayload",
+    "rulesApplied": [
+      "security-coverage-protection"
+    ],
+    "decisionsTaken": [
+      "Compared topology resources against PROTECTS edges."
+    ]
+  },
+  {
+    "findingId": "3ccfe46c-998b-58e7-5bac-66d52e92b3f4",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "Topology coverage is incomplete",
+    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "relatedNodeIds": [
+      "diagram-node:api",
+      "diagram-node:db"
+    ],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-categories"
+    ],
+    "decisionsTaken": [
+      "Compared present topology categories to expected coverage categories."
+    ]
+  }
+]

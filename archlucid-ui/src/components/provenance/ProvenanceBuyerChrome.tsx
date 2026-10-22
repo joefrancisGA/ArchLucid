@@ -1,0 +1,21 @@
+"use client";
+
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+
+import { ProvenanceSourcesOrientationStrip } from "./ProvenanceSourcesOrientationStrip";
+
+export type ProvenanceBuyerChromeProps = {
+  readonly runId: string;
+  readonly architectureId?: string | null;
+};
+
+/** Buyer default: mount Sources follow-ups after primary review provenance workspace (RRP). */
+export function ProvenanceBuyerChrome(props: ProvenanceBuyerChromeProps): React.JSX.Element | null {
+  if (!isBuyerPolishedOperatorShellEnv()) {
+    return null;
+  }
+
+  return (
+    <ProvenanceSourcesOrientationStrip runId={props.runId} architectureId={props.architectureId} />
+  );
+}

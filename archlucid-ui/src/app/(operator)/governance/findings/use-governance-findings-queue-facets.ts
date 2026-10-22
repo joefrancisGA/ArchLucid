@@ -1,0 +1,129 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
+import {
+  EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS,
+  type FindingsNaturalLanguageFacets,
+} from "@/lib/findings/findings-natural-language-filter";
+import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
+import { patchGovernanceFindingsQueueFacets, readGovernanceFindingsQueueFacets } from "@/lib/governance/governance-findings-queue-facets-storage";
+import { DEFAULT_FINDING_JOB_VIEW, type FindingJobView } from "@/lib/findings/finding-job-view";
+import {
+  GOVERNANCE_FINDINGS_NL_SEVERITY_PARAM,
+  GOVERNANCE_FINDINGS_NL_STATUS_PARAM,
+  GOVERNANCE_FINDINGS_NL_TITLE_PARAM,
+  governanceFindingsNlFacetsFromSearchParams,
+  governanceFindingsNlFacetsHrefFromSearch,
+} from "@/lib/governance/governance-findings-queue-nl-facets-url";
+import {
+  resolveFindingJobViewFromSearchParam,
+  REVIEW_FINDINGS_JOB_VIEW_PARAM,
+  reviewFindingsJobViewHrefFromSearch,
+} from "@/lib/findings/review-findings-job-view-url";
+import { assignedToMeFindingsPathForProductLine } from "@/lib/product-line/securenow-assigned-to-me-route";
+import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+
+function governanceFindingsQueuePathname(
+  mode: GovernanceFindingsQueueMode,
+  productLine: ReturnType<typeof useProductLine>["productLine"],
+): string {
+  return mode === "assigned-to-me"
+    ? assignedToMeFindingsPathForProductLine(productLine)
+    : findingsPathForProductLine(productLine);
+}
+
+export function useGovernanceFindingsQueueFacets(mode: GovernanceFindingsQueueMode) {
+  const router = useRouter();
+  const { productLine } = useProductLine();
+  const pathname = usePathname() ?? governanceFindingsQueuePathname(mode, productLine);
+  const searchParams = useSearchParams();
+  const urlJobView = resolveFindingJobViewFromSearchParam(searchParams.get(REVIEW_FINDINGS_JOB_VIEW_PARAM));
+  const urlNlFacets = governanceFindingsNlFacetsFromSearchParams(searchParams);
+  const [jobView, setJobViewState] = useState<FindingJobView>(() => {
+    const fromUrl = resolveFindingJobViewFromSearchParam(searchParams.get(REVIEW_FINDINGS_JOB_VIEW_PARAM));
+
+    if (fromUrl !== DEFAULT_FINDING_JOB_VIEW || searchParams.has(REVIEW_FINDINGS_JOB_VIEW_PARAM)) {
+      return fromUrl;
+    }
+
+    return readGovernanceFindingsQueueFacets(mode).jobView;
+  });
+  const [nlFacets, setNlFacetsState] = useState<FindingsNaturalLanguageFacets>(
+    () =>
+      urlNlFacets.severity !== null || urlNlFacets.status !== null || urlNlFacets.titleKeywords.length > 0
+        ? urlNlFacets
+        : readGovernanceFindingsQueueFacets(mode).nlFacets,
+  );
+  const hadJobViewInUrlRef = useRef(searchParams.has(REVIEW_FINDINGS_JOB_VIEW_PARAM));
+  const hadNlFacetsInUrlRef = useRef(
+    searchParams.has(GOVERNANCE_FINDINGS_NL_SEVERITY_PARAM)
+      || searchParams.has(GOVERNANCE_FINDINGS_NL_STATUS_PARAM)
+      || searchParams.has(GOVERNANCE_FINDINGS_NL_TITLE_PARAM),
+  );
+
+  useEffect(() => {
+    const hasActiveJobView = searchParams.has(REVIEW_FINDINGS_JOB_VIEW_PARAM);
+
+    if (hasActiveJobView) {
+      setJobViewState(urlJobView);
+      hadJobViewInUrlRef.current = true;
+    } else if (hadJobViewInUrlRef.current) {
+      setJobViewState(readGovernanceFindingsQueueFacets(mode).jobView);
+      hadJobViewInUrlRef.current = false;
+    }
+  }, [mode, searchParams, urlJobView]);
+
+  useEffect(() => {
+    const hasActiveNlFacets =
+      urlNlFacets.severity !== null || urlNlFacets.status !== null || urlNlFacets.titleKeywords.length > 0;
+
+    if (hasActiveNlFacets) {
+      setNlFacetsState(urlNlFacets);
+      hadNlFacetsInUrlRef.current = true;
+    } else if (hadNlFacetsInUrlRef.current) {
+      setNlFacetsState(EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS);
+      patchGovernanceFindingsQueueFacets({ nlFacets: EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS }, mode);
+      hadNlFacetsInUrlRef.current = false;
+    }
+  }, [mode, urlNlFacets]);
+
+  const setJobView = useCallback((next: FindingJobView): void => {
+    setJobViewState(next);
+    patchGovernanceFindingsQueueFacets({ jobView: next }, mode);
+    router.replace(reviewFindingsJobViewHrefFromSearch(searchParams.toString(), pathname, next), { scroll: false });
+  }, [mode, pathname, router, searchParams]);
+
+  const setNlFacets = useCallback((next: FindingsNaturalLanguageFacets): void => {
+    setNlFacetsState(next);
+    patchGovernanceFindingsQueueFacets({ nlFacets: next }, mode);
+    router.replace(governanceFindingsNlFacetsHrefFromSearch(searchParams.toString(), next, pathname), { scroll: false });
+  }, [mode, pathname, router, searchParams]);
+
+  const clearFacetFilters = useCallback((): void => {
+    setJobViewState(DEFAULT_FINDING_JOB_VIEW);
+    setNlFacetsState(EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS);
+    patchGovernanceFindingsQueueFacets(
+      {
+        registerFilter: "all",
+        jobView: DEFAULT_FINDING_JOB_VIEW,
+        nlFacets: EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS,
+      },
+      mode,
+    );
+    const clearedNlHref = governanceFindingsNlFacetsHrefFromSearch(
+      searchParams.toString(),
+      EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS,
+      pathname,
+    );
+    const clearedNlSearch = clearedNlHref.includes("?") ? clearedNlHref.split("?")[1] ?? "" : "";
+    router.replace(
+      reviewFindingsJobViewHrefFromSearch(clearedNlSearch, pathname, DEFAULT_FINDING_JOB_VIEW),
+      { scroll: false },
+    );
+  }, [mode, pathname, router, searchParams]);
+
+  return { jobView, setJobView, nlFacets, setNlFacets, clearFacetFilters };
+}

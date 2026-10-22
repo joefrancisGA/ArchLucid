@@ -1,0 +1,530 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
+import { useArchitectureDraftAutosave } from "@/hooks/use-architecture-draft-autosave";
+import { useOidcSessionKeepalive } from "@/hooks/use-oidc-session-keepalive";
+import type { ArchitectureDraftCreatedPayload } from "@/hooks/architecture-draft-autosave-shared";
+import { useArchitectureDraftDocumentUndo } from "@/hooks/use-architecture-draft-document-undo";
+import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
+import { useArchitectureDraftStartReview } from "@/hooks/use-architecture-draft-start-review";
+import { useArchitectureDraftWorkspace } from "@/hooks/use-architecture-draft-workspace";
+import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
+import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
+import { useInAppNavigationGuard } from "@/hooks/use-in-app-navigation-guard";
+import { InAppNavigationGuardDialog } from "@/components/navigation/InAppNavigationGuardDialog";
+import { architectureDraftDisplayName } from "@/lib/architecture/architecture-draft-status";
+import { type ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
+import { architectureDraftDetailPageSubtitle } from "@/lib/architecture/architecture-draft-detail-page-copy";
+import { resolveArchitectureDraftSpawnLockWorkspaceLead } from "@/lib/architecture/architecture-draft-spawn-lock-url-honesty";
+import { actorSetFromDraftDocument } from "@/lib/architecture/architecture-creation-init";
+import { ARCHITECTURE_NEW_DRAFT_SEGMENT } from "@/lib/architecture/architecture-routes";
+import {
+  writeArchitectureCreationDraftId,
+  replaceArchitectureCreationUrlWithoutNavigation,
+} from "@/lib/architecture/architecture-creation-session";
+import { retargetAdvisoryDraftInFlightArchitecture } from "@/lib/operations/advisory-draft-in-flight";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+import { parseScopeGateOpenFromSearch, scopeGateHrefFromSearch } from "@/lib/architecture/scope-gate-url";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { isApiRequestError } from "@/lib/api-request-error";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { architectureDraftIntakeMutationBlockedReason } from "@/lib/architecture/architecture-draft-blocked-reason";
+import { reopenDraftRequest } from "@/lib/api/draft-intake-api";
+import {
+  architectureDraftAllowsBriefUnlock,
+  isArchitectureDraftBriefFrozen,
+  isArchitectureDraftInReviewIntake,
+} from "@/lib/architecture/architecture-draft-intake-mode";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
+import {
+  extractScopeUnderstandingLinesFromBrief,
+  mergeScopeBulletsIntoBrief,
+  scopeUnderstandingFingerprint,
+  type ScopeUnderstandingBullet,
+} from "@/lib/architecture/architecture-scope-understanding-check";
+import { resolveNextArchitectureDraftInList } from "@/lib/resolve-next-architecture-draft-in-list";
+import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
+import type { ActorSet, DraftRequestResponse } from "@/types/draft-intake";
+
+import { ArchitectureDraftWorkLeaseBanner } from "@/components/architecture/ArchitectureDraftWorkLeaseBanner";
+import { ArchitectureDraftWorkspaceBody } from "@/components/architecture/ArchitectureDraftWorkspaceBody";
+import { useArchitectureDraftWorkLease } from "@/hooks/use-architecture-draft-work-lease";
+import { useArchitectureDraftWorkspaceEffects } from "@/components/architecture/ArchitectureDraftWorkspaceEffects";
+import { ReviewRoomElicitationShortcutHost } from "@/components/reviews/ReviewRoomElicitationShortcutHost";
+
+type ArchitectureDraftWorkspaceProps = {
+  readonly draftId: string;
+  readonly parentArchitectureId?: string | null;
+  readonly legacyDraftWithoutIdentity?: boolean;
+  readonly suppressWorkingNestedIdentityAnchors?: boolean;
+};
+
+/** Long-lived architecture draft editor — save and resume without starting a review. */
+export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProps): React.JSX.Element {
+  useOidcSessionKeepalive(true);
+  const router = useRouter();
+  const pathname = usePathname() ?? `/architecture/architectures/${encodeURIComponent(props.draftId)}`;
+  const searchParams = useSearchParams();
+  const readScopeGateOpenFromUrl = (): boolean =>
+    parseScopeGateOpenFromSearch(
+      new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get("scopeGate"),
+    );
+  const buyerPolishedShell = useProductionEvalChrome();
+  const draftRegistryEntries = useArchitectureDraftRegistryEntries();
+  const acceptServerBaselineRef = useRef<
+    (fields: ArchitectureDraftFieldState, serverUpdatedUtc: string, actorSet: ActorSet) => void
+  >(() => undefined);
+  const onDraftHydratedRef = useRef<(loaded: DraftRequestResponse, formState: ArchitectureDraftFieldState) => void>(
+    () => undefined,
+  );
+  const {
+    isNewDraft,
+    loading,
+    loadError,
+    draft,
+    setDraft,
+    fields,
+    setFields,
+    actorSet,
+    setActorSet,
+    resolvedDraftId,
+    setResolvedDraftId,
+    linkedReviewId,
+    handoffEditorLocked,
+    blocksLlmExecution,
+    loadDraft,
+    applyLoadedDraftToForm,
+  } = useArchitectureDraftWorkspace({
+    draftId: props.draftId,
+    onDraftHydratedRef,
+  });
+  const [exitPending, setExitPending] = useState(false);
+  const [unlockBusy, setUnlockBusy] = useState(false);
+  const [unlockError, setUnlockError] = useState<string | null>(null);
+  const [scopeGateOpen, setScopeGateOpenState] = useState(readScopeGateOpenFromUrl);
+  const scopeGateOpenRef = useRef(scopeGateOpen);
+  scopeGateOpenRef.current = scopeGateOpen;
+  const [scopeBullets, setScopeBullets] = useState<ScopeUnderstandingBullet[]>([]);
+
+  const setScopeGateOpen = useCallback(
+    (next: boolean | ((open: boolean) => boolean)) => {
+      setScopeGateOpenState((current) => {
+        const resolved = typeof next === "function" ? next(current) : next;
+
+        if (scopeGateOpenRef.current === resolved) {
+          return current;
+        }
+
+        scopeGateOpenRef.current = resolved;
+        commitHrefIfChanged(scopeGateHrefFromSearch(readWindowLocationSearch(), resolved, pathname), { notify: false });
+
+        return resolved;
+      });
+    },
+    [pathname],
+  );
+
+  useEffect(() => {
+    const syncScopeGateOpenFromUrl = (): void => {
+      const next = readScopeGateOpenFromUrl();
+
+      if (scopeGateOpenRef.current === next) {
+        return;
+      }
+
+      scopeGateOpenRef.current = next;
+      setScopeGateOpenState(next);
+    };
+
+    syncScopeGateOpenFromUrl();
+    window.addEventListener("popstate", syncScopeGateOpenFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncScopeGateOpenFromUrl);
+    };
+  }, []);
+
+  const isDetailDraft = !isNewDraft;
+  const linkedReviewSummaryQuery = useRunSummaryQuery(linkedReviewId ?? "", {
+    enabled: linkedReviewId !== null,
+  });
+  const linkedReviewTitle = useMemo(() => {
+    if (linkedReviewId === null) {
+      return "No linked review was stored.";
+    }
+
+    if (linkedReviewSummaryQuery.data !== undefined) {
+      return buyerFacingReviewTitleFromSummary(linkedReviewSummaryQuery.data);
+    }
+
+    if (linkedReviewSummaryQuery.isError) {
+      return linkedReviewId;
+    }
+
+    return "Linked review title has not loaded.";
+  }, [linkedReviewId, linkedReviewSummaryQuery.data, linkedReviewSummaryQuery.isError]);
+  const intakeModeActive = isArchitectureDraftInReviewIntake(draft?.status);
+  const briefFrozen = isArchitectureDraftBriefFrozen(draft?.status);
+  const canUnlockBrief = architectureDraftAllowsBriefUnlock(draft?.status);
+  const editorLocked = handoffEditorLocked || briefFrozen || exitPending;
+  const effectiveDraftId = resolvedDraftId ?? props.draftId;
+  const nextDraft = useMemo(() => {
+    if (isNewDraft) {
+      return null;
+    }
+
+    return resolveNextArchitectureDraftInList(draftRegistryEntries, effectiveDraftId);
+  }, [draftRegistryEntries, effectiveDraftId, isNewDraft]);
+  const refinementDraftId =
+    draft?.draftId?.trim() || resolvedDraftId || (isNewDraft ? null : props.draftId.trim() || null);
+
+  const workLeaseEnabled = refinementDraftId !== null && !handoffEditorLocked && !briefFrozen;
+  const {
+    lease: workLease,
+    leaseLost: workLeaseLost,
+    heldByOther: workLeaseHeldByOther,
+    stealBusy: workLeaseStealBusy,
+    stealError: workLeaseStealError,
+    stealLease,
+  } = useArchitectureDraftWorkLease(refinementDraftId, draft, workLeaseEnabled);
+
+  const workLeaseBanner =
+    workLeaseHeldByOther || workLeaseLost
+      ? (
+        <ArchitectureDraftWorkLeaseBanner
+          heldByOther={workLeaseHeldByOther}
+          leaseLost={workLeaseLost}
+          holderActorOid={workLease?.holderActorOid}
+          expiresUtc={workLease?.expiresUtc}
+          stealBusy={workLeaseStealBusy}
+          stealError={workLeaseStealError}
+          onStealLease={() => {
+            void stealLease();
+          }}
+        />
+      )
+      : null;
+
+  const handleDraftCreated = useCallback(
+    (created: ArchitectureDraftCreatedPayload) => {
+      writeArchitectureCreationDraftId(created.draftId);
+      setResolvedDraftId(created.draftId);
+      replaceArchitectureCreationUrlWithoutNavigation(created);
+      retargetAdvisoryDraftInFlightArchitecture(ARCHITECTURE_NEW_DRAFT_SEGMENT, created.draftId);
+    },
+    [setResolvedDraftId],
+  );
+
+  const handleDraftLoaded = useCallback(
+    (loaded: DraftRequestResponse) => {
+      const formState = applyLoadedDraftToForm(loaded);
+      acceptServerBaselineRef.current(
+        formState,
+        loaded.updatedUtc,
+        actorSetFromDraftDocument(loaded),
+      );
+      onDraftHydratedRef.current(loaded, formState);
+    },
+    [applyLoadedDraftToForm],
+  );
+
+  const handleImmutableDraftDetected = useCallback((loaded: DraftRequestResponse) => {
+    setDraft(loaded);
+  }, [setDraft]);
+
+  const handleNewDraftRecoveryHydrated = useCallback(
+    (snapshot: { readonly fields: ArchitectureDraftFieldState; readonly actorSet: ActorSet }) => {
+      setFields(snapshot.fields);
+      setActorSet(snapshot.actorSet);
+    },
+    [setActorSet, setFields],
+  );
+
+  const livelihoodReturnPath =
+    searchParams.toString().length > 0 ? `${pathname}?${searchParams.toString()}` : pathname;
+
+  const {
+    saveState,
+    lastSavedUtc,
+    conflictMessage,
+    saveDraft,
+    reloadDraft,
+    acceptServerBaseline,
+    syncServerUpdatedUtc,
+    hasPersistedDraft,
+    recoveredLocally,
+    markDirty,
+    keepLocalDraftOnConflict,
+    wasLastSaveConflict,
+  } = useArchitectureDraftAutosave({
+      draftId: props.draftId,
+      fields,
+      actorSet,
+      enabled: !handoffEditorLocked && !briefFrozen,
+      deferCreateUntilFirstSave: isNewDraft,
+      scopeGateOpen,
+      scopeBullets,
+      livelihoodReturnPath,
+      onDraftCreated: isNewDraft ? handleDraftCreated : undefined,
+      onDraftLoaded: handleDraftLoaded,
+      onImmutableDraftDetected: handleImmutableDraftDetected,
+      onNewDraftRecoveryHydrated: isNewDraft ? handleNewDraftRecoveryHydrated : undefined,
+    });
+
+  acceptServerBaselineRef.current = acceptServerBaseline;
+
+  const documentUndoEnabled = !handoffEditorLocked && !briefFrozen && !exitPending;
+
+  const { resetStacks: resetDocumentUndoStacks } = useArchitectureDraftDocumentUndo({
+    fields,
+    actorSet,
+    setFields,
+    setActorSet,
+    enabled: documentUndoEnabled,
+    markDirty,
+  });
+
+  const resetDocumentUndoFromLoaded = useCallback(
+    (loaded: DraftRequestResponse, formState: ArchitectureDraftFieldState) => {
+      resetDocumentUndoStacks({
+        fields: formState,
+        actorSet: actorSetFromDraftDocument(loaded),
+      });
+    },
+    [resetDocumentUndoStacks],
+  );
+
+  useEffect(() => {
+    onDraftHydratedRef.current = (loaded, formState) => {
+      acceptServerBaselineRef.current(formState, loaded.updatedUtc, actorSetFromDraftDocument(loaded));
+      resetDocumentUndoFromLoaded(loaded, formState);
+    };
+  }, [resetDocumentUndoFromLoaded]);
+
+  const persistedScopeFingerprint = useMemo(() => {
+    const persistedLines = extractScopeUnderstandingLinesFromBrief(draft?.document.freeTextIntent);
+
+    if (persistedLines.length === 0) {
+      return null;
+    }
+
+    return scopeUnderstandingFingerprint(persistedLines);
+  }, [draft?.document.freeTextIntent]);
+
+  const {
+    reviewReadiness,
+    draftStartReviewSteps,
+    draftStartReviewEmphasizedStepId,
+    needsPersistedDraftBeforeStart,
+    canStartReview,
+    setActorSuggestionsUnresolved,
+    actorSuggestionsUnresolved,
+    actorSuggestionGateRequestId,
+    startReviewError,
+    qualityAttributesEncouragementOpen,
+    setQualityAttributesEncouragementOpen,
+    reviewStartProgress,
+    handleStartReview,
+    handleEncourageAddQualityAttributes,
+    handleContinueWithoutQualityAttributes,
+    persistScopeConfirmation,
+  } = useArchitectureDraftStartReview({
+    isNewDraft,
+    hasPersistedDraft,
+    briefFrozen,
+    linkedReviewId,
+    effectiveDraftId,
+    parentArchitectureId: props.parentArchitectureId,
+    fields,
+    actorSet,
+    draft,
+    saveState,
+    conflictMessage,
+    saveDraft,
+    lastSavedUtc,
+    syncServerUpdatedUtc,
+    scopeGateOpen,
+    setScopeGateOpen,
+    scopeBullets,
+    setScopeBullets,
+    persistedScopeFingerprint,
+  });
+
+  const hasUnsavedChanges = saveState === "unsaved" || saveState === "saving" || saveState === "error";
+  useUnsavedChangesGuard({ when: hasUnsavedChanges && !editorLocked });
+  const inAppNavigationGuard = useInAppNavigationGuard({
+    when: hasUnsavedChanges && !editorLocked,
+    message: "You have unsaved architecture changes.",
+  });
+
+  const displayName = useMemo(
+    () => architectureDraftDisplayName(fields.systemName, fields.freeTextIntent),
+    [fields.freeTextIntent, fields.systemName],
+  );
+
+  const workspaceHeading = displayName;
+  const workspaceLead = resolveArchitectureDraftSpawnLockWorkspaceLead(
+    handoffEditorLocked,
+    architectureDraftDetailPageSubtitle(
+      buyerPolishedShell,
+      reviewReadiness.isValid,
+      hasPersistedDraft,
+      recoveredLocally,
+    ),
+  );
+
+  const scopeUnderstandingInput = useMemo(
+    () => ({
+      architectureName: fields.systemName,
+      businessOutcome: fields.businessOutcome,
+      architectureOverview: fields.freeTextIntent,
+      intentText: fields.freeTextIntent,
+      peopleAndSystems: actorSet.actors.map((actor) => ({
+        label: actor.label,
+        kind: actor.kind,
+        trustOrigin: actor.trustOrigin,
+        contract: actor.contract,
+      })),
+    }),
+    [actorSet.actors, fields.businessOutcome, fields.freeTextIntent, fields.systemName],
+  );
+
+  useArchitectureDraftWorkspaceEffects({
+    draftId: props.draftId,
+    isNewDraft,
+    loading,
+    draft,
+    linkedReviewId,
+    saveState,
+    effectiveDraftId,
+    applyLoadedDraftToForm,
+    acceptServerBaselineRef,
+  });
+
+  const handleScopeConfirmed = useCallback(
+    async (bullets: ScopeUnderstandingBullet[]) => {
+      const persisted = await persistScopeConfirmation(bullets);
+
+      if (persisted && draft !== null) {
+        setDraft({
+          ...draft,
+          document: {
+            ...draft.document,
+            freeTextIntent: mergeScopeBulletsIntoBrief(bullets, fields.freeTextIntent),
+          },
+        });
+      }
+
+      return persisted;
+    },
+    [draft, fields.freeTextIntent, persistScopeConfirmation, setDraft],
+  );
+
+  const handleUnlockBrief = useCallback(async () => {
+    if (!canUnlockBrief || draft === null) {
+      return;
+    }
+
+    setUnlockBusy(true);
+    setUnlockError(null);
+
+    try {
+      const reopened = await reopenDraftRequest(draft.draftId);
+      handleDraftLoaded(reopened);
+    } catch (error) {
+      const failure = toApiLoadFailure(error);
+      setUnlockError(
+        architectureDraftIntakeMutationBlockedReason(failure)
+          ?? (isApiRequestError(error)
+            ? error.message
+            : "Could not unlock this architecture. Try again."),
+      );
+    } finally {
+      setUnlockBusy(false);
+    }
+  }, [canUnlockBrief, draft, handleDraftLoaded]);
+
+  return (
+    <>
+      <InAppNavigationGuardDialog
+        open={inAppNavigationGuard.dialogOpen}
+        message={inAppNavigationGuard.dialogMessage}
+        onConfirmLeave={inAppNavigationGuard.confirmLeave}
+        onCancelLeave={inAppNavigationGuard.cancelLeave}
+      />
+      <ReviewRoomElicitationShortcutHost />
+      <ArchitectureDraftWorkspaceBody
+      draftId={props.draftId}
+      parentArchitectureId={props.parentArchitectureId}
+      legacyDraftWithoutIdentity={props.legacyDraftWithoutIdentity === true}
+      suppressWorkingNestedIdentityAnchors={props.suppressWorkingNestedIdentityAnchors === true}
+      loading={loading}
+      loadError={loadError}
+      isNewDraft={isNewDraft}
+      isDetailDraft={isDetailDraft}
+      buyerPolishedShell={buyerPolishedShell}
+      workspaceHeading={workspaceHeading}
+      workspaceLead={workspaceLead}
+      linkedReviewId={linkedReviewId}
+      linkedReviewTitle={linkedReviewTitle}
+      intakeModeActive={intakeModeActive}
+      briefFrozen={briefFrozen}
+      canUnlockBrief={canUnlockBrief}
+      unlockBusy={unlockBusy}
+      unlockError={unlockError}
+      onUnlockBrief={() => {
+        void handleUnlockBrief();
+      }}
+      draft={draft}
+      conflictMessage={conflictMessage}
+      onReloadDraft={() => {
+        void reloadDraft();
+      }}
+      onKeepLocalDraft={() => {
+        void keepLocalDraftOnConflict();
+      }}
+      onLoadDraft={loadDraft}
+      draftStartReviewSteps={draftStartReviewSteps}
+      draftStartReviewEmphasizedStepId={draftStartReviewEmphasizedStepId}
+      fields={fields}
+      actorSet={actorSet}
+      editorLocked={editorLocked}
+      handoffEditorLocked={handoffEditorLocked}
+      blocksLlmExecution={blocksLlmExecution}
+      effectiveDraftId={effectiveDraftId}
+      reviewReadiness={reviewReadiness}
+      needsPersistedDraftBeforeStart={needsPersistedDraftBeforeStart}
+      scopeGateOpen={scopeGateOpen}
+      actorSuggestionsUnresolved={actorSuggestionsUnresolved}
+      startReviewError={startReviewError}
+      saveState={saveState}
+      scopeUnderstandingInput={scopeUnderstandingInput}
+      persistedScopeFingerprint={persistedScopeFingerprint}
+      persistScopeConfirmation={handleScopeConfirmed}
+      setScopeBullets={setScopeBullets}
+      setScopeGateOpen={setScopeGateOpen}
+      setActorSuggestionsUnresolved={setActorSuggestionsUnresolved}
+      actorSuggestionGateRequestId={actorSuggestionGateRequestId}
+      setFields={setFields}
+      setActorSet={setActorSet}
+      refinementDraftId={refinementDraftId}
+      exitPending={exitPending}
+      reviewStartProgress={reviewStartProgress}
+      canStartReview={canStartReview}
+      handleStartReview={handleStartReview}
+      saveDraft={saveDraft}
+      wasLastSaveConflict={wasLastSaveConflict}
+      setExitPending={setExitPending}
+      hasPersistedDraft={hasPersistedDraft}
+      qualityAttributesEncouragementOpen={qualityAttributesEncouragementOpen}
+      setQualityAttributesEncouragementOpen={setQualityAttributesEncouragementOpen}
+      handleEncourageAddQualityAttributes={handleEncourageAddQualityAttributes}
+      handleContinueWithoutQualityAttributes={handleContinueWithoutQualityAttributes}
+      nextDraft={nextDraft}
+      workLeaseBanner={workLeaseBanner}
+    />
+    </>
+  );
+}

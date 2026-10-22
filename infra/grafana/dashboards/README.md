@@ -1,0 +1,15 @@
+# Grafana dashboards (as code)
+
+JSON models in this folder (and committed siblings under **`../`**) are **imported** into:
+
+- **Azure Managed Grafana** (`infra/terraform-monitoring` when `enable_managed_grafana = true` **and** **`grafana_terraform_dashboards_enabled`**), or  
+- **Grafana Cloud** / self-hosted Grafana — use a **Prometheus** data source for metric JSON; use **Azure Monitor** for the container-apps template below.
+
+After import, open each panel’s query editor and select your **subscription / resource group / Container App** for Azure Monitor-backed JSON; for **Prometheus** dashboards, bind template variable **`${datasource}`** to your Prometheus source.
+
+| File | Purpose |
+|------|---------|
+| `archlucid-container-apps-overview.json` | Orientation: links + placeholder row for CPU/replica panels (Azure Monitor). |
+| [`../library/OBSERVABILITY.md`](../library/OBSERVABILITY.md#authority-pipeline-remediation-runbook) | **Prometheus** — **`archlucid_authority_pipeline_stage_duration_ms`**, **`archlucid_authority_pipeline_work_pending`**, **`archlucid_authority_pipeline_work_oldest_pending_age_seconds`**, **`archlucid_data_consistency_*_total`** (see **`docs/library/OBSERVABILITY.md`**, remediation § Authority pipeline remediation runbook). Import JSON workflow documented in-dashboard; optional Terraform **`grafana_dashboard` → `infra/terraform-monitoring/grafana_dashboards.tf`**. |
+| [`../dashboard-archlucid-llm-usage.json`](../dashboard-archlucid-llm-usage.json) | **Prometheus** — GenAI **p95 chat latency (24h)** from **`archlucid_llm_gen_ai_operation_duration_ms`**; token rates by **`llm_deployment`**; tenant budget gauges. Terraform: **`grafana_dashboard.llm_usage`**. |
+| [`../dashboard-archlucid-llm.json`](../dashboard-archlucid-llm.json) | **Prometheus** — GenAI operation latency (p50/p95), mean latency, embedding/chat token counters. Terraform: **`grafana_dashboard.llm_genai`**. |

@@ -1,0 +1,37 @@
+import type { IntegrationConnectChecklistStep } from "@/components/integrations/IntegrationConnectChecklist";
+import { GOVERNANCE_APPROVAL_SUBMIT_CHECKLIST_LABEL } from "@/lib/vocabulary/governance-approval-vocabulary";
+
+export function resolveGovernanceWorkflowSubmitSteps(input: {
+  readonly reviewPicked: boolean;
+  readonly requiredFieldsComplete: boolean;
+  readonly submitComplete: boolean;
+}): readonly IntegrationConnectChecklistStep[] {
+  return [
+    {
+      id: "review",
+      label: "Pick an architecture package",
+      complete: input.reviewPicked,
+    },
+    {
+      id: "fields",
+      label: "Complete version and environment fields",
+      complete: input.requiredFieldsComplete,
+    },
+    {
+      id: "submit",
+      label: GOVERNANCE_APPROVAL_SUBMIT_CHECKLIST_LABEL,
+      complete: input.submitComplete,
+    },
+  ];
+}
+
+export function resolveGovernanceWorkflowSubmitEmphasizedStepId(input: {
+  readonly reviewPicked: boolean;
+  readonly requiredFieldsComplete: boolean;
+  readonly submitComplete: boolean;
+}): string {
+  const steps = resolveGovernanceWorkflowSubmitSteps(input);
+  const incomplete = steps.find((step) => !step.complete);
+
+  return incomplete?.id ?? "submit";
+}

@@ -1,0 +1,13 @@
+# Grandfathered [HttpGet] list-style actions without explicit take/skip/limit/cursor/page/topK/max* query parameters.
+# Shrink this list as endpoints gain pagination (see docs/LOAD_TEST_BASELINE.md / Improvement 9).
+# Format: ControllerName.MethodName
+RunsController.ListRuns
+PolicyPacksController.List
+PolicyPacksController.ListVersions
+AdvisorySchedulingController.ListSchedules
+CompositeAlertRulesController.List
+AlertRulesController.List
+AlertRoutingSubscriptionsController.List
+DigestSubscriptionsController.List
+AdvisoryController.ListRecommendations
+ArtifactExportController.ListArtifacts

@@ -1,0 +1,120 @@
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_HEADING = "Diagram legend";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED = "Solid — observed in Azure inventory";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED =
+  "Dashed — declared (human assertion; not an ARM fact)";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE =
+  "Dashed — probable authorization or declared wiring (RBAC / ADF; not runtime traffic)";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE_WITH_LOGIC_APP =
+  "Dashed — probable authorization, declared wiring, or a Logic App API connection (not runtime traffic)";
+
+export const INFRA_EVIDENCE_DIAGRAM_PNG_CONFIGURATION_RELATIONSHIP_NOTE =
+  "Linked backends, capacity assignments, and diagnostic settings on this diagram are configuration. They are not observed traffic.";
+
+export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_STATIC_SITE_BACKEND_HINT =
+  "Static Web App linked backend in configuration. This is not observed traffic.";
+
+export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_FABRIC_CAPACITY_HINT =
+  "Fabric capacity workspace assignment. This is not observed query traffic.";
+
+export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_DIAGNOSTIC_STORAGE_HINT =
+  "Diagnostic setting names this storage account. Log delivery was not observed.";
+
+export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_LOGIC_APP_CONNECTION_HINT =
+  "Logic App API connection reference. This is not a data pipeline and not observed traffic.";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED =
+  "Dotted — inferred hostname or AI inference (confirm in configuration)";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME =
+  "Dotted — inferred hostname (confirm in configuration)";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_APP_SETTINGS =
+  "Dashed — named in app settings. This is not observed traffic.";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_APP_SETTINGS_AND_AI =
+  "Dashed — named in app settings. This is not observed traffic. Dotted — AI inference (confirm in configuration)";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_SOURCE_UNKNOWN =
+  "Dotted — inferred (inference source was not stored).";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_AI =
+  "Dotted — AI inference (confirm in configuration)";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME_AND_AI =
+  "Dotted — inferred hostname or AI inference (confirm in configuration)";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_HOSTNAME_FOOTNOTE =
+  "Dotted hostname edges are inferred. They are not observed connections.";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME_FOOTNOTE =
+  INFRA_EVIDENCE_DIAGRAM_LEGEND_HOSTNAME_FOOTNOTE;
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_APP_SETTINGS_FOOTNOTE =
+  "Dashed app-settings edges name a configured host. They are not observed connections.";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_APP_SETTINGS_AND_AI_FOOTNOTE =
+  "Dashed app-settings and dotted AI inference edges are inferred. They are not observed connections.";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_AI_FOOTNOTE =
+  "Dotted AI inference edges are inferred. They are not observed connections.";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME_AND_AI_FOOTNOTE =
+  "Dotted hostname and AI inference edges are inferred. They are not observed connections.";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_SOURCE_UNKNOWN_FOOTNOTE =
+  "Dotted inferred edges are inferred. They are not observed connections.";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_UNCLASSIFIED_PROVENANCE =
+  "Provenance was not stored.";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_PRIVATE_ENDPOINT =
+  "Private endpoint access in inventory. This is not observed traffic.";
+
+export const INFRA_EVIDENCE_DIAGRAM_PNG_DATA_ARCHITECTURE_INVENTORY_NOTE =
+  "This diagram shows how data stores relate in inventory. It is not a data-movement map.";
+
+export const INFRA_EVIDENCE_DIAGRAM_PNG_NETWORK_PLACEMENT_NOTE =
+  "This diagram shows network placement in inventory. It does not prove reachability.";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_RESOURCE_CATEGORY = "Resource category";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_ACCENT_COMPUTE = "Compute";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_ACCENT_NETWORK = "Network";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_ACCENT_DATA = "Data";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_ACCENT_STORAGE = "Storage";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_ACCENT_IDENTITY = "Identity";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_ACCENT_OTHER = "Other — not a stored resource category.";
+
+export const INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_COLUMN = "Source";
+
+export const INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_DECLARED = "Declared";
+
+export const INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_OBSERVED = "Observed";
+
+export const INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_PROBABLE = "Probable";
+
+export const INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_INFERRED = "Inferred";
+
+export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_TITLE = "Connection evidence";
+
+export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_AUTHORIZATION_HINT =
+  "Authorization from managed identity and RBAC — does not prove runtime traffic.";
+
+export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_HOSTNAME_HINT =
+  "This host was read from app settings. It is not observed traffic.";
+
+export const INFRA_EVIDENCE_DECLARED_CONNECTION_PANEL_TITLE = "Declared connection";
+
+export const INFRA_EVIDENCE_DECLARED_CONNECTION_PANEL_OPEN_WORKBENCH = "Open declared connections";
+
+export const INFRA_EVIDENCE_DECLARED_CONNECTION_PANEL_NOT_FOUND =
+  "This declaration is no longer active or could not be loaded from the workbench list.";

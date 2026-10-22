@@ -1,0 +1,213 @@
+[
+  {
+    "findingId": "674a84ca-eb4e-fc51-cb87-a39e9737f6e5",
+    "findingType": "ComplianceFinding",
+    "category": "Compliance",
+    "severity": "Warning",
+    "title": "Compliance gap: Data resources must be covered by policy controls",
+    "rationale": "Every data resource should be covered by at least one policy control.",
+    "relatedNodeIds": [
+      "obj-fc7e759de5a33de7ab94b1fc5e7e254d"
+    ],
+    "payloadType": "ComplianceFindingPayload",
+    "rulesApplied": [
+      "data-must-have-policy-applicability"
+    ],
+    "decisionsTaken": [
+      "Detected uncovered resources against compliance rule requirements."
+    ]
+  },
+  {
+    "findingId": "6d9e0d0c-4344-896d-a89f-a2fe1b8dbd36",
+    "findingType": "RequirementExpectationFinding",
+    "category": "Requirement",
+    "severity": "Warning",
+    "title": "Workload-conditioned requirement themes are incomplete",
+    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "relatedNodeIds": [
+      "obj-350decae2f9c9041b824975c6dd1c88b",
+      "obj-6deef8614600f56c8b7c64be621bcc14",
+      "obj-d7bbd5ebf745629313801bad7815b25c",
+      "obj-fc7e759de5a33de7ab94b1fc5e7e254d"
+    ],
+    "payloadType": "RequirementExpectationFindingPayload",
+    "rulesApplied": [
+      "requirement-expectation-workload-scope"
+    ],
+    "decisionsTaken": [
+      "Compared workload-conditioned requirement themes to themes inferred from requirement nodes."
+    ]
+  },
+  {
+    "findingId": "cbe6210c-ccc0-d0ac-6431-9a3535d33620",
+    "findingType": "SecurityBaselineCompletenessFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Workload security baseline control-family coverage is incomplete",
+    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "relatedNodeIds": [
+      "obj-350decae2f9c9041b824975c6dd1c88b",
+      "obj-6deef8614600f56c8b7c64be621bcc14",
+      "obj-d7bbd5ebf745629313801bad7815b25c",
+      "obj-fc7e759de5a33de7ab94b1fc5e7e254d"
+    ],
+    "payloadType": "SecurityBaselineCompletenessFindingPayload",
+    "rulesApplied": [
+      "security-baseline-completeness-matrix"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected control families to families inferred from active security baseline nodes."
+    ]
+  },
+  {
+    "findingId": "ec8d12f0-0d8f-e288-ad1f-e2814b218ba5",
+    "findingType": "SecurityBaselineExpectationFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Category-scoped security baseline coverage is incomplete",
+    "rationale": "Workload-expected topology categories lack any protected resources linked by security baseline PROTECTS edges.",
+    "relatedNodeIds": [
+      "obj-350decae2f9c9041b824975c6dd1c88b",
+      "obj-6deef8614600f56c8b7c64be621bcc14",
+      "obj-d7bbd5ebf745629313801bad7815b25c",
+      "obj-fc7e759de5a33de7ab94b1fc5e7e254d"
+    ],
+    "payloadType": "SecurityBaselineExpectationFindingPayload",
+    "rulesApplied": [
+      "security-baseline-category-expectation"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected topology categories to categories with protected resources."
+    ]
+  },
+  {
+    "findingId": "10a9c2b0-e193-5d00-d723-4aa0122e12b0",
+    "findingType": "SecurityControlFinding",
+    "category": "Security",
+    "severity": "Info",
+    "title": "Security baseline control: edge",
+    "rationale": "A security baseline node was found in the graph and should influence resolved architecture decisions.",
+    "relatedNodeIds": [
+      "obj-6deef8614600f56c8b7c64be621bcc14"
+    ],
+    "payloadType": "SecurityControlFindingPayload",
+    "rulesApplied": [
+      "security-baseline-coverage"
+    ],
+    "decisionsTaken": [
+      "Converted security graph node into a security finding."
+    ]
+  },
+  {
+    "findingId": "3bb14144-712d-a21a-c11a-388fff87fbde",
+    "findingType": "SecurityControlFinding",
+    "category": "Security",
+    "severity": "Info",
+    "title": "Security baseline control: edge_app",
+    "rationale": "A security baseline node was found in the graph and should influence resolved architecture decisions.",
+    "relatedNodeIds": [
+      "obj-350decae2f9c9041b824975c6dd1c88b"
+    ],
+    "payloadType": "SecurityControlFindingPayload",
+    "rulesApplied": [
+      "security-baseline-coverage"
+    ],
+    "decisionsTaken": [
+      "Converted security graph node into a security finding."
+    ]
+  },
+  {
+    "findingId": "10cc1ac7-5b86-5b63-bece-70b59b494645",
+    "findingType": "SecurityCoverageFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Some topology resources are not protected by any security baseline nodes",
+    "rationale": "Security protection coverage is incomplete for the current topology graph.",
+    "relatedNodeIds": [
+      "app",
+      "pay_sql"
+    ],
+    "payloadType": "SecurityCoverageFindingPayload",
+    "rulesApplied": [
+      "security-coverage-protection"
+    ],
+    "decisionsTaken": [
+      "Compared topology resources against PROTECTS edges."
+    ]
+  },
+  {
+    "findingId": "b45447f3-5a19-eaf6-b18a-8ea06c3cadac",
+    "findingType": "SecurityGap",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Security baseline \u0027edge\u0027 protects no topology resources",
+    "rationale": "No PROTECTS edge links this security baseline to any graph node.",
+    "relatedNodeIds": [
+      "obj-6deef8614600f56c8b7c64be621bcc14"
+    ],
+    "payloadType": "TopologyGapFindingPayload",
+    "rulesApplied": [
+      "security-gap-security-baseline-without-protects"
+    ],
+    "decisionsTaken": [
+      "Detected security traceability gap: Security baseline \u0027edge\u0027 is isolated from topology resources."
+    ]
+  },
+  {
+    "findingId": "f8b5407f-57a1-987c-a29e-2f62bb3b61e6",
+    "findingType": "SecurityGap",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Security baseline \u0027edge_app\u0027 protects no topology resources",
+    "rationale": "No PROTECTS edge links this security baseline to any graph node.",
+    "relatedNodeIds": [
+      "obj-350decae2f9c9041b824975c6dd1c88b"
+    ],
+    "payloadType": "TopologyGapFindingPayload",
+    "rulesApplied": [
+      "security-gap-security-baseline-without-protects"
+    ],
+    "decisionsTaken": [
+      "Detected security traceability gap: Security baseline \u0027edge_app\u0027 is isolated from topology resources."
+    ]
+  },
+  {
+    "findingId": "3993e632-1d69-d68c-8f83-fc066940b3f7",
+    "findingType": "SegmentationSemanticsFinding",
+    "category": "Security",
+    "severity": "Error",
+    "title": "Segmentation control \u0027edge\u0027 allows inbound port 22 from the internet",
+    "rationale": "Declared rule material on \u0027edge\u0027 exposes administrative port 22 to the internet within 2 hop(s) of a sensitive target.",
+    "relatedNodeIds": [
+      "obj-6deef8614600f56c8b7c64be621bcc14",
+      "obj-fc7e759de5a33de7ab94b1fc5e7e254d"
+    ],
+    "payloadType": "SegmentationSemanticsFindingPayload",
+    "rulesApplied": [
+      "segmentation-semantics",
+      "tf.security_rule"
+    ],
+    "decisionsTaken": [
+      "Internet-exposed admin inbound port on segmentation control with sensitive target path."
+    ]
+  },
+  {
+    "findingId": "4ed9f1fe-9ed2-0553-b27d-0768501a45cd",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "Topology coverage is incomplete",
+    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "relatedNodeIds": [
+      "obj-d7bbd5ebf745629313801bad7815b25c",
+      "obj-fc7e759de5a33de7ab94b1fc5e7e254d"
+    ],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-categories"
+    ],
+    "decisionsTaken": [
+      "Compared present topology categories to expected coverage categories."
+    ]
+  }
+]

@@ -1,0 +1,19 @@
+{
+  "resultId": "corp-adv-inv-fw-sim-01",
+  "taskId": "corp-adv-inv-fw-task-01",
+  "runId": "corp-adv-inv-fw-run-01",
+  "agentType": 3,
+  "claims": [
+    {
+      "detail": "Simulator adversarial stub: ISO-40499-Ultra is mandatory without catalog evidenceRefs."
+    }
+  ],
+  "evidenceRefs": [],
+  "confidence": 0.36,
+  "findings": [],
+  "proposedChanges": null,
+  "createdUtc": "2026-05-09T12:00:00Z",
+  "semanticScore": {
+    "llmFaithfulnessScore": 0.31
+  }
+}

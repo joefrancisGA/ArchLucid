@@ -1,0 +1,309 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  formatInfraEvidenceOutlineProvenanceReviewerBand,
+  parseInfraEvidenceMermaidOutline,
+  resolveInfraEvidenceOutlineEdgeLabel,
+  resolveInfraEvidenceOutlineNodeLabel,
+  resolveInfraEvidenceOutlineSeedNodeId,
+  type InfraEvidenceMermaidOutlineNode,
+} from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
+
+function expectedOutlineNode(
+  node: Pick<InfraEvidenceMermaidOutlineNode, "id" | "label"> &
+    Partial<Omit<InfraEvidenceMermaidOutlineNode, "id" | "label">>,
+): InfraEvidenceMermaidOutlineNode {
+  return {
+    resourceType: null,
+    resourceGroup: null,
+    connectionState: null,
+    seedNodeId: null,
+    outlineOnlyOnCanvas: false,
+    ...node,
+  };
+}
+
+describe("parseInfraEvidenceMermaidOutline", () => {
+  it("skips subgraph and end structure lines", () => {
+    const source = [
+      "flowchart TD",
+      "    subgraph rg1[\"RG network\"]",
+      "        vnet1[\"vnet-eastus\"]",
+      "    end",
+      "    subgraph rg2[\"RG data\"]",
+      "        vnet2[\"vnet-westus\"]",
+      "    end",
+    ].join("\n");
+
+    const outline = parseInfraEvidenceMermaidOutline(source);
+
+    expect(outline.nodes.map((node) => node.id)).toEqual(["vnet1", "vnet2"]);
+    expect(outline.nodes.map((node) => node.label)).toEqual(["vnet-eastus", "vnet-westus"]);
+  });
+
+  it("resolves outline node ids to human-readable labels", () => {
+    const outline = parseInfraEvidenceMermaidOutline(
+      ['flowchart TD', '    vnet1["vnet-eastus"]', '    vnet1 --> vnet2'].join("\n"),
+    );
+
+    expect(resolveInfraEvidenceOutlineNodeLabel(outline.nodes, "vnet1")).toBe("vnet-eastus");
+    expect(resolveInfraEvidenceOutlineNodeLabel(outline.nodes, "missing")).toBe(
+      "Endpoint was not in this diagram outline",
+    );
+  });
+
+  it("treats an em dash node label as a missing name (P-05)", () => {
+    expect(
+      resolveInfraEvidenceOutlineNodeLabel(
+        [{ id: "n1", label: "—", resourceType: null, resourceGroup: null, seedNodeId: null }],
+        "n1",
+      ),
+    ).toBe("Node name was not stored");
+  });
+
+  it("prefers metadata seed ids over mermaid node hashes", () => {
+    expect(
+      resolveInfraEvidenceOutlineSeedNodeId({
+        id: "n_hash",
+        label: "core-vnet",
+        resourceType: null,
+        resourceGroup: null,
+        seedNodeId: "22222222-2222-2222-2222-222222222222",
+      }),
+    ).toBe("22222222-2222-2222-2222-222222222222");
+    expect(
+      resolveInfraEvidenceOutlineSeedNodeId({
+        id: "n_hash",
+        label: "core-vnet",
+        resourceType: null,
+        resourceGroup: null,
+      }),
+    ).toBe("n_hash");
+  });
+
+  it("parses inventory node metadata comments for resource type and group", () => {
+    const outline = parseInfraEvidenceMermaidOutline(
+      [
+        "flowchart TD",
+        "    %% al-type=Microsoft.Network/networkInterfaces al-rg=rg-network",
+        '    n_a1["nic-prod"]',
+      ].join("\n"),
+    );
+
+    expect(outline.nodes).toEqual([
+      expectedOutlineNode({
+        id: "n_a1",
+        label: "nic-prod",
+        resourceType: "Microsoft.Network/networkInterfaces",
+        resourceGroup: "rg-network",
+      }),
+    ]);
+  });
+
+  it("parses policy-pack questionable attention metadata", () => {
+    const outline = parseInfraEvidenceMermaidOutline(
+      [
+        "flowchart TD",
+        '    %% al-questionable-reason="Named like an AVD host and not registered" al-questionable-action="Register or retire"',
+        '    vm01["avd01-nprod-0"]',
+      ].join("\n"),
+    );
+
+    expect(outline.nodes).toEqual([
+      expectedOutlineNode({
+        id: "vm01",
+        label: "avd01-nprod-0",
+        questionableReason: "Named like an AVD host and not registered",
+        questionableAction: "Register or retire",
+      }),
+    ]);
+  });
+
+  it("still parses legacy inline inventory node metadata comments", () => {
+    const outline = parseInfraEvidenceMermaidOutline(
+      [
+        "flowchart TD",
+        '    n_a1["nic-prod"] %% al-type=Microsoft.Network/networkInterfaces al-rg=rg-network al-seed=22222222-2222-2222-2222-222222222222',
+      ].join("\n"),
+    );
+
+    expect(outline.nodes).toEqual([
+      expectedOutlineNode({
+        id: "n_a1",
+        label: "nic-prod",
+        resourceType: "Microsoft.Network/networkInterfaces",
+        resourceGroup: "rg-network",
+        seedNodeId: "22222222-2222-2222-2222-222222222222",
+      }),
+    ]);
+  });
+
+  it("parses own-line inventory seed metadata comments", () => {
+    const outline = parseInfraEvidenceMermaidOutline(
+      [
+        "flowchart TD",
+        "    %% al-type=Microsoft.Network/virtualNetworks al-rg=anly-aep-test-hi al-seed=22222222-2222-2222-2222-222222222222",
+        '    n_vnet["vnet-aep-hi-test-wus-001"]',
+      ].join("\n"),
+    );
+
+    expect(outline.nodes).toEqual([
+      expectedOutlineNode({
+        id: "n_vnet",
+        label: "vnet-aep-hi-test-wus-001",
+        resourceType: "Microsoft.Network/virtualNetworks",
+        resourceGroup: "anly-aep-test-hi",
+        seedNodeId: "22222222-2222-2222-2222-222222222222",
+      }),
+    ]);
+  });
+
+  it("ignores invisible layout links when building the edges outline", () => {
+    const outline = parseInfraEvidenceMermaidOutline(
+      [
+        "flowchart TD",
+        '    vnet1["vnet-eastus"]',
+        '    vnet2["vnet-westus"]',
+        '    vnet3["vnet-north"]',
+        "    vnet1 ~~~ vnet2",
+        "    vnet1 -->|peering| vnet3",
+      ].join("\n"),
+    );
+
+    expect(outline.edges).toEqual([
+      {
+        from: "vnet1",
+        to: "vnet3",
+        label: "peering",
+        source: "missing",
+        confidenceBand: "missing",
+        provenanceKind: null,
+        inferenceSource: null,
+        declaredConnectionId: null,
+      },
+    ]);
+  });
+
+  it("parses probable authorization edge metadata from inventory mermaid", () => {
+    const outline = parseInfraEvidenceMermaidOutline(
+      [
+        "flowchart TD",
+        '    web["orders-api"]',
+        '    sql["orders-db"]',
+        "    %% al-provenance=DerivedFact al-inference=inventory-app-authorized-access",
+        '    web -.->|"May access"| sql',
+      ].join("\n"),
+    );
+
+    expect(outline.edges).toEqual([
+      {
+        from: "web",
+        to: "sql",
+        label: "May access",
+        source: "probable",
+        confidenceBand: "probable",
+        provenanceKind: "DerivedFact",
+        inferenceSource: "inventory-app-authorized-access",
+        declaredConnectionId: null,
+      },
+    ]);
+  });
+
+  it("parses declared edge metadata and dashed arrows", () => {
+    const outline = parseInfraEvidenceMermaidOutline(
+      [
+        "flowchart TD",
+        '    app["web-app"]',
+        '    sql["sql-server"]',
+        "    %% al-provenance=HumanAssertion al-inference=human-declared-connection al-declared-id=cccccccc-cccc-cccc-cccc-cccccccccccc",
+        '    app -.->|"declared · connects"| sql',
+      ].join("\n"),
+    );
+
+    expect(outline.edges).toEqual([
+      {
+        from: "app",
+        to: "sql",
+        label: "declared · connects",
+        source: "declared",
+        confidenceBand: "declared",
+        provenanceKind: "HumanAssertion",
+        inferenceSource: "human-declared-connection",
+        declaredConnectionId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      },
+    ]);
+  });
+
+  it("leaves an unlabeled VNet-to-VNet arrow unrecorded", () => {
+    const outline = parseInfraEvidenceMermaidOutline(
+      [
+        "flowchart TD",
+        "    %% al-type=Microsoft.Network/virtualNetworks al-rg=rg-east",
+        '    vnet1["vnet-eastus"]',
+        "    %% al-type=Microsoft.Network/virtualNetworks al-rg=rg-west",
+        '    vnet2["vnet-westus"]',
+        "    vnet1 --> vnet2",
+      ].join("\n"),
+    );
+
+    expect(outline.edges).toEqual([
+      {
+        from: "vnet1",
+        to: "vnet2",
+        label: null,
+        source: "missing",
+        confidenceBand: "missing",
+        provenanceKind: null,
+        inferenceSource: null,
+        declaredConnectionId: null,
+      },
+    ]);
+    expect(resolveInfraEvidenceOutlineEdgeLabel(outline.edges[0]!, outline.nodes)).toBeNull();
+  });
+
+  it("falls back to RG subgraph labels when metadata comments are absent", () => {
+    const outline = parseInfraEvidenceMermaidOutline(
+      [
+        "flowchart TD",
+        '    subgraph rg1["RG rg-network"]',
+        '        vnet1["vnet-eastus"]',
+        "    end",
+      ].join("\n"),
+    );
+
+    expect(outline.nodes).toEqual([
+      expectedOutlineNode({
+        id: "vnet1",
+        label: "vnet-eastus",
+        resourceGroup: "rg-network",
+      }),
+    ]);
+  });
+
+  it("parses al-state, al-unresolved, and ledger drop comments", () => {
+    const outline = parseInfraEvidenceMermaidOutline(
+      [
+        "flowchart TD",
+        "    %% al-ledger-drop nsg-unattached n_nsg _",
+        '    %% al-type=Microsoft.Storage/storageAccounts al-rg=rg-app al-state=Unknown al-unresolved="missing subnet link"',
+        '    n_orphan["orphan-storage"]',
+      ].join("\n"),
+    );
+
+    expect(outline.ledgerDrops).toEqual([
+      { reason: "nsg-unattached", from: "n_nsg", to: null },
+    ]);
+    expect(outline.nodes[0]).toMatchObject({
+      id: "n_orphan",
+      connectionState: "Unknown",
+      unresolvedRelationshipDetails: ["missing subnet link"],
+    });
+  });
+
+  it("maps provenance tokens to reviewer bands (P-03)", () => {
+    expect(formatInfraEvidenceOutlineProvenanceReviewerBand("ObservedFact")).toBe("Observed");
+    expect(formatInfraEvidenceOutlineProvenanceReviewerBand("DerivedFact")).toBe(
+      'Provenance "DerivedFact" has no reviewer band.',
+    );
+  });
+});

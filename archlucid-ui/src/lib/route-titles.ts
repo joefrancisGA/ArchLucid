@@ -1,0 +1,95 @@
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
+import { INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
+import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
+import { ROUTE_TITLES } from "@/lib/route-static-titles";
+import { productLineMicrosoftTeamsLabel } from "@/lib/product-line/product-line-display-name";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
+import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
+import { SECURENOW_NAV_LABELS } from "@/lib/product-line/securenow-nav-labels";
+import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
+
+function resolveOperatorRouteTitle(title: string, productLineId: ProductLineId, secureNowNavHref: string): string {
+  return resolveSecureNowPageHeading(productLineId, title, secureNowNavHref);
+}
+
+/** Human-readable title for route announcements and accessibility copy. */
+export function getRouteTitle(pathname: string, productLineId: ProductLineId = resolveProductLineIdFromEnv()): string {
+  const withoutQuery = pathname.split("?")[0] ?? pathname;
+  const withoutHash = withoutQuery.split("#")[0] ?? withoutQuery;
+  const normalized =
+    withoutHash.length > 1 && withoutHash.endsWith("/") ? withoutHash.slice(0, -1) : withoutHash;
+  const canonical = canonicalizeLegacyOperatorRoutePath(normalized);
+  const lookupPath = canonical.split("#")[0] ?? canonical;
+
+  if (lookupPath === INTEGRATIONS_TEAMS_PATH) {
+    return productLineMicrosoftTeamsLabel(productLineId);
+  }
+
+  // SecureNow page titles follow the sidebar. Architecture keeps ROUTE_TITLES.
+  if (productLineId === "security") {
+    const secureNowTitle = SECURENOW_NAV_LABELS[lookupPath] ?? SECURENOW_NAV_LABELS[normalized];
+
+    if (secureNowTitle !== undefined) {
+      return secureNowTitle;
+    }
+  }
+
+  // Hash-preserving keys (e.g. #workspace-health) must win before stripping the fragment.
+  const hashedCanonical = canonicalizeLegacyOperatorRoutePath(withoutQuery);
+
+  if (ROUTE_TITLES[hashedCanonical] !== undefined) {
+    return resolveOperatorRouteTitle(ROUTE_TITLES[hashedCanonical], productLineId, lookupPath);
+  }
+
+  if (ROUTE_TITLES[withoutQuery] !== undefined) {
+    return resolveOperatorRouteTitle(ROUTE_TITLES[withoutQuery], productLineId, lookupPath);
+  }
+
+  if (ROUTE_TITLES[lookupPath] !== undefined) {
+    return resolveOperatorRouteTitle(ROUTE_TITLES[lookupPath], productLineId, lookupPath);
+  }
+
+  if (/^\/architecture\/reviews\/[^/]+$/.test(normalized)) {
+    return "Review detail";
+  }
+
+  if (/^\/architecture\/reviews\/[^/]+\/print$/.test(normalized)) {
+    return "Architecture review";
+  }
+
+  if (
+    /^\/architecture\/architectures\/[^/]+$/.test(lookupPath)
+    || /^\/architectures\/[^/]+$/.test(normalized)
+  ) {
+    return CREATE_ARCHITECTURE_LABEL;
+  }
+
+  if (/^\/(?:governance\/)?(?:signed|sealed)-records\/[^/]+$/.test(normalized)) {
+    return SIGNED_MANIFEST_LABEL;
+  }
+
+  if (/^\/governance\/policy-packs\/[^/]+$/.test(normalized)) {
+    const tail = normalized.split("/").filter((s) => s.length > 0).pop() ?? "";
+
+    if (isInvalidDynamicRouteToken(tail)) {
+      return "Not found";
+    }
+
+    return "Policy pack detail";
+  }
+
+  const segments: string[] = normalized.split("/").filter((s) => s.length > 0);
+  const last: string = segments.length > 0 ? segments[segments.length - 1] : "Page";
+
+  if (last.length === 0) {
+    return "Page";
+  }
+
+  if (last === "itsm") {
+    return normalized === "/internal/integrations/itsm" ? "ITSM connectors" : "ITSM";
+  }
+
+  return last.charAt(0).toUpperCase() + last.slice(1).replaceAll("-", " ");
+}

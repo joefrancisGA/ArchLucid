@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-azure-web-app",
+  "metadata": {
+    "title": "Azure web application (customer-like brief)",
+    "complexity": "medium",
+    "primaryAgents": ["Topology", "Compliance"]
+  },
+  "inputSummary": "Public marketing site and REST API on Azure App Service (Linux), Azure Front Door + WAF, Key Vault for secrets, Application Insights, SQL Database via private endpoint. CI/CD through GitHub Actions with slot swap.",
+  "recording": "recordings/corpus-azure-web-app.findings.json",
+  "qualityEvidence": {
+    "mode": "simulator",
+    "agentType": "Topology",
+    "agentResultPath": "agent-results/corpus-azure-web-app.simulator.json",
+    "notes": "Committed JSON mirrors structural + semantic checks in AgentOutputEvaluator / AgentOutputSemanticEvaluator (offline)."
+  },
+  "expectedFindings": [
+    {
+      "id": "e front door https",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["front door", "HTTPS"]
+    },
+    {
+      "id": "e key vault",
+      "category": "Compliance",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["key vault", "secrets"]
+    },
+    {
+      "id": "e app insights",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["application insights", "dependency"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Critic", "ifContainsAny": ["halt all production", "disable all encryption"] },
+    { "category": "Cost", "ifContainsAny": ["unlimited budget", "ignore finops"] }
+  ]
+}

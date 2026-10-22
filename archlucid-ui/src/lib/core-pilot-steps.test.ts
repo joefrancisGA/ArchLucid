@@ -1,0 +1,57 @@
+import { describe, expect, it } from "vitest";
+
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
+import { CORE_PILOT_STEP_COUNT, CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
+
+describe("core-pilot-steps", () => {
+  it("keeps CORE_PILOT_STEP_COUNT aligned with the checklist array", () => {
+    expect(CORE_PILOT_STEPS).toHaveLength(CORE_PILOT_STEP_COUNT);
+    expect(CORE_PILOT_STEP_COUNT).toBe(7);
+  });
+
+  it("starts on the architecture desk, not reviews hub Home (IR-002)", () => {
+    const firstStep = CORE_PILOT_STEPS[0];
+
+    expect(firstStep.title.toLowerCase()).toContain("architecture desk");
+    expect(firstStep.primaryHref).toBe("/architecture/architectures");
+    expect(CORE_PILOT_STEPS[1].primaryHref).toBe("/architecture/reviews/new");
+    expect(CORE_PILOT_STEPS[2].title.toLowerCase()).toContain("inhabited");
+    expect(CORE_PILOT_STEPS[2].shortBody.toLowerCase()).toContain("architecture-nested findings");
+    expect(CORE_PILOT_STEPS[2].shortBody.toLowerCase()).toContain("not review overview as home");
+  });
+
+  it("includes upload, dashboard ROI, and audit export steps", () => {
+    const hrefs = CORE_PILOT_STEPS.map((step) => step.primaryHref);
+
+    expect(hrefs).toContain("/administration/extract-upload");
+    expect(hrefs).toContain(SPONSOR_DASHBOARD_HREF);
+    expect(
+      CORE_PILOT_STEPS.some(
+        (step) =>
+          step.title.toLowerCase().includes("share")
+          || (step.detail ?? "").toLowerCase().includes("audit"),
+      ),
+    ).toBe(true);
+  });
+
+  it("uses Azure-first inventory language on the optional upload step (QR-10 / TB-645)", () => {
+    const uploadStep = CORE_PILOT_STEPS[4];
+
+    expect(uploadStep.title).toBe("Upload Azure inventory ZIP");
+    expect(uploadStep.shortBody).toContain("Azure packager ZIP");
+    expect(uploadStep.detail).toContain("Get-ArchLucidAzurePackage.ps1");
+    expect(uploadStep.detail).toContain("hosted extractor");
+    expect(uploadStep.primaryLabel).toBe("Upload Azure inventory ZIP");
+    expect(uploadStep.primaryHref).toBe("/administration/extract-upload");
+  });
+
+  it("keeps default-visible shortBody lines free of manifest jargon (detail may stay technical)", () => {
+    for (const step of CORE_PILOT_STEPS) {
+      expect(step.shortBody.toLowerCase()).not.toContain("manifest");
+    }
+
+    expect(
+      CORE_PILOT_STEPS.filter((s) => (s.detail ?? "").toLowerCase().includes("sealed")).length,
+    ).toBeGreaterThan(0);
+  });
+});

@@ -1,0 +1,41 @@
+{
+  "schema": "archlucid.decision-cycle-telemetry.v1",
+  "accountLabel": "prospect-or-tenant-alias",
+  "events": [
+    {
+      "eventId": "evt-001",
+      "eventType": "demo_complete",
+      "occurredUtc": "2026-06-01T15:00:00Z",
+      "accountLabel": "prospect-or-tenant-alias",
+      "notes": "CTO demo completed — no product claims implied"
+    },
+    {
+      "eventId": "evt-002",
+      "eventType": "pilot_start",
+      "occurredUtc": "2026-06-05T16:30:00Z",
+      "accountLabel": "prospect-or-tenant-alias"
+    },
+    {
+      "eventId": "evt-003",
+      "eventType": "first_committed_run",
+      "occurredUtc": "2026-06-08T18:45:00Z",
+      "accountLabel": "prospect-or-tenant-alias",
+      "runId": "00000000-0000-0000-0000-000000000099"
+    },
+    {
+      "eventId": "evt-004",
+      "eventType": "sponsor_packet_sent",
+      "occurredUtc": "2026-06-10T11:00:00Z",
+      "accountLabel": "prospect-or-tenant-alias",
+      "runId": "00000000-0000-0000-0000-000000000099"
+    },
+    {
+      "eventId": "evt-005",
+      "eventType": "next_step_decision",
+      "occurredUtc": "2026-06-12T20:00:00Z",
+      "accountLabel": "prospect-or-tenant-alias",
+      "outcome": "advance",
+      "notes": "Sponsor sponsor requested procurement pack"
+    }
+  ]
+}

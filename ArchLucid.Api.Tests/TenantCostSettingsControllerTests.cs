@@ -1,0 +1,433 @@
+using System.Text.Json;
+
+using ArchLucid.Api.Controllers.Tenancy;
+using ArchLucid.Api.Models.Tenancy;
+using ArchLucid.Api.Serialization;
+using ArchLucid.Application.Common;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Roi;
+
+using FluentAssertions;
+
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+
+using Moq;
+
+namespace ArchLucid.Api.Tests;
+
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
+public sealed class TenantCostSettingsControllerTests
+{
+    private static readonly ScopeContext Scope = new()
+    {
+        TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+        WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+        ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
+    };
+
+    private static readonly ValueReportComputationOptions Defaults = new()
+    {
+        FullyLoadedArchitectHourlyUsd = 150m,
+        DefaultAverageIncidentCostUsd = 25_000m
+    };
+
+    [Fact]
+    public async Task GetAsync_returns_platform_defaults_when_no_row()
+    {
+        Mock<ITenantCostSettingsRepository> repository = new();
+        repository
+            .Setup(r => r.TryGetAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantCostSettingsRecord?)null);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantCostSettingsController controller = CreateController(
+            repository.Object,
+            scopeProvider.Object,
+            Mock.Of<IAuditService>());
+
+        IActionResult action = await controller.GetAsync(CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        TenantCostSettingsGetResponse body = ok.Value.Should().BeOfType<TenantCostSettingsGetResponse>().Subject;
+
+        body.IsTenantConfigured.Should().BeFalse();
+        body.ArchitectHourlyRateUsd.Should().Be(150m);
+        body.AverageIncidentCostUsd.Should().Be(25_000m);
+        body.EaDiscountMultiplier.Should().Be(1.0m);
+    }
+
+    [Fact]
+    public async Task GetAsync_returns_not_found_when_tenant_missing()
+    {
+        Mock<ITenantCostSettingsRepository> repository = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<ITenantRepository> tenantRepository = new();
+        tenantRepository
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        TenantCostSettingsController controller = CreateController(
+            repository.Object,
+            scopeProvider.Object,
+            Mock.Of<IAuditService>(),
+            tenantRepository.Object);
+
+        IActionResult action = await controller.GetAsync(CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        repository.Verify(
+            r => r.TryGetAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Theory]
+    [InlineData("{\"averageIncidentCostUsd\":25000}", "missing architectHourlyRateUsd")]
+    [InlineData("{\"architectHourlyRateUsd\":200}", "missing averageIncidentCostUsd")]
+    public void PutRequest_deserialization_rejects_missing_rate_fields(string payload, string because)
+    {
+        Action act = () => JsonSerializer.Deserialize<TenantCostSettingsPutRequest>(
+            payload,
+            ArchLucidApiJsonSerializerOptions.Web);
+
+        act.Should().Throw<JsonException>(because);
+    }
+
+    [Fact]
+    public async Task PutAsync_returns_bad_request_when_architect_rate_invalid()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantCostSettingsController controller = CreateController(
+            Mock.Of<ITenantCostSettingsRepository>(),
+            scopeProvider.Object,
+            Mock.Of<IAuditService>());
+
+        TenantCostSettingsPutRequest body = new()
+        {
+            ArchitectHourlyRateUsd = 0m,
+            AverageIncidentCostUsd = 25_000m
+        };
+
+        IActionResult action = await controller.PutAsync(body, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task PutAsync_returns_bad_request_when_ea_discount_invalid_and_tenant_missing()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<ITenantRepository> tenantRepository = new(MockBehavior.Strict);
+
+        TenantCostSettingsController controller = CreateController(
+            Mock.Of<ITenantCostSettingsRepository>(),
+            scopeProvider.Object,
+            Mock.Of<IAuditService>(),
+            tenantRepository.Object);
+
+        TenantCostSettingsPutRequest body = new()
+        {
+            ArchitectHourlyRateUsd = 200m,
+            AverageIncidentCostUsd = 25_000m,
+            EaDiscountPercentage = 150m
+        };
+
+        IActionResult action = await controller.PutAsync(body, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        tenantRepository.Verify(
+            r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task PutAsync_returns_not_found_when_tenant_missing()
+    {
+        Mock<ITenantCostSettingsRepository> repository = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<ArchLucid.Core.Tenancy.ITenantRepository> tenantRepository = new();
+        tenantRepository
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchLucid.Core.Tenancy.TenantRecord?)null);
+
+        TenantCostSettingsController controller = CreateController(
+            repository.Object,
+            scopeProvider.Object,
+            Mock.Of<IAuditService>(),
+            tenantRepository.Object);
+
+        TenantCostSettingsPutRequest body = new()
+        {
+            ArchitectHourlyRateUsd = 200m,
+            AverageIncidentCostUsd = 30_000m
+        };
+
+        IActionResult action = await controller.PutAsync(body, CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        repository.Verify(
+            r => r.UpsertAsync(It.IsAny<TenantCostSettingsRecord>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task PutAsync_preserves_ea_discount_multiplier_when_ea_fields_omitted()
+    {
+        TenantCostSettingsRecord existing = new()
+        {
+            TenantId = Scope.TenantId,
+            ArchitectHourlyRateUsd = 180m,
+            AverageIncidentCostUsd = 20_000m,
+            EaDiscountMultiplier = 0.85m,
+            UpdatedUtc = DateTimeOffset.Parse("2026-06-01T08:00:00Z"),
+            UpdatedByActorId = "prior",
+        };
+
+        Mock<ITenantCostSettingsRepository> repository = new();
+        repository
+            .Setup(r => r.TryGetAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existing);
+        repository
+            .Setup(r => r.UpsertAsync(It.IsAny<TenantCostSettingsRecord>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantCostSettingsController controller = CreateController(
+            repository.Object,
+            scopeProvider.Object,
+            Mock.Of<IAuditService>());
+
+        TenantCostSettingsPutRequest body = new()
+        {
+            ArchitectHourlyRateUsd = 200m,
+            AverageIncidentCostUsd = 30_000m,
+        };
+
+        IActionResult action = await controller.PutAsync(body, CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        TenantCostSettingsGetResponse saved = ok.Value.Should().BeOfType<TenantCostSettingsGetResponse>().Subject;
+
+        saved.EaDiscountMultiplier.Should().Be(0.85m);
+        saved.EaDiscountPercentage.Should().Be(15m);
+
+        repository.Verify(
+            r => r.UpsertAsync(
+                It.Is<TenantCostSettingsRecord>(row => row.EaDiscountMultiplier == 0.85m),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task PutAsync_persists_row_and_returns_configured_response()
+    {
+        Mock<ITenantCostSettingsRepository> repository = new();
+        repository
+            .Setup(r => r.UpsertAsync(It.IsAny<TenantCostSettingsRecord>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IAuditService> audit = new();
+
+        TenantCostSettingsController controller = CreateController(
+            repository.Object,
+            scopeProvider.Object,
+            audit.Object);
+
+        TenantCostSettingsPutRequest body = new()
+        {
+            ArchitectHourlyRateUsd = 200m,
+            AverageIncidentCostUsd = 30_000m,
+            EaDiscountPercentage = 10m
+        };
+
+        IActionResult action = await controller.PutAsync(body, CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        TenantCostSettingsGetResponse saved = ok.Value.Should().BeOfType<TenantCostSettingsGetResponse>().Subject;
+
+        saved.IsTenantConfigured.Should().BeTrue();
+        saved.ArchitectHourlyRateUsd.Should().Be(200m);
+        saved.EaDiscountMultiplier.Should().Be(0.9m);
+        saved.EaDiscountPercentage.Should().Be(10m);
+
+        repository.Verify(
+            r => r.UpsertAsync(
+                It.Is<TenantCostSettingsRecord>(row =>
+                    row.TenantId == Scope.TenantId
+                    && row.ArchitectHourlyRateUsd == 200m),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.TenantCostSettingsUpdated),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task PutAsync_audit_uses_actor_context_id_when_display_name_differs()
+    {
+        Mock<ITenantCostSettingsRepository> repository = new();
+        repository
+            .Setup(r => r.TryGetAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantCostSettingsRecord?)null);
+        repository
+            .Setup(r => r.UpsertAsync(It.IsAny<TenantCostSettingsRecord>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IActorContext> actorContext = new();
+        actorContext.Setup(a => a.GetActorId()).Returns("actor-id@test");
+
+        AuditEvent? captured = null;
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((auditEvent, _) => captured = auditEvent)
+            .Returns(Task.CompletedTask);
+
+        TenantCostSettingsController controller = CreateController(
+            repository.Object,
+            scopeProvider.Object,
+            audit.Object,
+            actorContext: actorContext.Object);
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext
+            {
+                User = new System.Security.Claims.ClaimsPrincipal(
+                    new System.Security.Claims.ClaimsIdentity(
+                        [new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, "  Display Name  ")],
+                        "test")),
+            },
+        };
+
+        await controller.PutAsync(
+            new TenantCostSettingsPutRequest
+            {
+                ArchitectHourlyRateUsd = 200m,
+                AverageIncidentCostUsd = 30_000m,
+            },
+            CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.ExplicitActor.Should().BeTrue();
+        captured.ActorUserId.Should().Be("actor-id@test");
+        captured.ActorUserName.Should().Be("  Display Name  ");
+
+        repository.Verify(
+            r => r.UpsertAsync(
+                It.Is<TenantCostSettingsRecord>(row => row.UpdatedByActorId == "actor-id@test"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task PutAsync_skips_duplicate_audit_when_identical_operator_retry()
+    {
+        TenantCostSettingsRecord existing = new()
+        {
+            TenantId = Scope.TenantId,
+            ArchitectHourlyRateUsd = 200m,
+            AverageIncidentCostUsd = 30_000m,
+            EaDiscountMultiplier = 0.9m,
+            UpdatedUtc = DateTimeOffset.Parse("2026-06-01T08:00:00Z"),
+            UpdatedByActorId = "prior",
+        };
+
+        Mock<ITenantCostSettingsRepository> repository = new();
+        repository
+            .SetupSequence(r => r.TryGetAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantCostSettingsRecord?)null)
+            .ReturnsAsync(existing);
+        repository
+            .Setup(r => r.UpsertAsync(It.IsAny<TenantCostSettingsRecord>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        TenantCostSettingsController controller = CreateController(
+            repository.Object,
+            scopeProvider.Object,
+            audit.Object);
+
+        TenantCostSettingsPutRequest body = new()
+        {
+            ArchitectHourlyRateUsd = 200m,
+            AverageIncidentCostUsd = 30_000m,
+            EaDiscountPercentage = 10m,
+        };
+
+        await controller.PutAsync(body, CancellationToken.None);
+        await controller.PutAsync(body, CancellationToken.None);
+
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.TenantCostSettingsUpdated),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    private static TenantCostSettingsController CreateController(
+        ITenantCostSettingsRepository repository,
+        IScopeContextProvider scopeProvider,
+        IAuditService auditService,
+        ITenantRepository? tenantRepository = null,
+        IActorContext? actorContext = null)
+    {
+        Mock<IOptions<ValueReportComputationOptions>> options = new();
+        options.Setup(o => o.Value).Returns(Defaults);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+
+        Mock<IActorContext> actors = new();
+        actors.Setup(a => a.GetActorId()).Returns("operator");
+
+        return new TenantCostSettingsController(
+            repository,
+            scopeProvider,
+            auditService,
+            actorContext ?? actors.Object,
+            options.Object,
+            tenantRepository ?? tenants.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+    }
+}

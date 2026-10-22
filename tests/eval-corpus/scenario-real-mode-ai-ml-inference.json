@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-real-mode-ai-ml-inference",
+  "metadata": {
+    "title": "Real-mode AI/ML batch inference workload (offline AgentResult scorer)",
+    "complexity": "high",
+    "primaryAgents": ["Topology", "Cost", "Compliance"]
+  },
+  "architectureBrief": {
+    "systemName": "FalconEdge Fraud Scoring Service",
+    "description": "Batch and near-real-time inference pipelines scoring transactions using ensembles hosted on Azure ML with AKS-backed endpoints.",
+    "technologyStack": [
+      "Azure Machine Learning workspace",
+      "AKS inferencing clusters (GPU nodes)",
+      "Azure Container Registry for model images",
+      "Azure Storage for feature snapshots",
+      "Azure Monitor + Prometheus for GPU metrics",
+      "Entra ID for operator and pipeline principals"
+    ],
+    "reviewObjectives": [
+      "Balance GPU quota, cost, and queue latency",
+      "Validate secure promotion from training to batch endpoints",
+      "Review model registry immutability and separation of duties"
+    ],
+    "constraints": [
+      "Inferencing p95 < 400ms for synchronous regional API",
+      "Models must be signed before production traffic",
+      "Training data sources are geo-fenced (US only)"
+    ]
+  },
+  "inputSummary": "Azure ML with GPU-backed AKS inferencing, batch endpoints, and registry RBAC. Synthetic AI/ML workload archetype for golden cohort.",
+  "recording": "recordings/corpus-ai-ml-inference-baseline.findings.json",
+  "qualityEvidence": {
+    "mode": "real",
+    "agentType": "Topology",
+    "agentResultPathEnv": "ARCHLUCID_EVAL_CORPUS_REAL_MODE_AI_ML_INFERENCE_AGENT_RESULT",
+    "notes": "Reference AOAI deployment: gpt-4o per tests/golden-cohort/budget.config.json baselineModelSku."
+  },
+  "expectedFindings": [
+    {
+      "id": "e gpu economics",
+      "category": "Cost",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["GPU", "utilization"]
+    },
+    {
+      "id": "e batch inferencing",
+      "category": "Topology",
+      "minimumSeverity": "High",
+      "evidenceMustContain": ["batch", "inferencing"]
+    },
+    {
+      "id": "e registry rbac",
+      "category": "Compliance",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["registry", "RBAC"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Compliance", "ifContainsAny": ["unsigned models to prod", "disable rbac"] },
+    { "category": "Topology", "ifContainsAny": ["public scoring endpoint without auth"] }
+  ]
+}

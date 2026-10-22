@@ -1,0 +1,15 @@
+/** Personal preferences card — time zone selection. */
+export const PREFERENCES_TIME_ZONE_HEADING = "Time zone";
+
+import { productLineDisplayName } from "@/lib/product-line/product-line-display-name";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+
+export function preferencesTimeZoneLead(productLineId: ProductLineId): string {
+  return `Choose how dates and times appear across ${productLineDisplayName(productLineId)}.`;
+}
+
+export const PREFERENCES_TIME_ZONE_USAGE =
+  "Used to display review activity, audit events, reports, and scheduled notifications.";
+
+export const IANA_TIME_ZONE_PREFERENCE_ACCOUNT_SYNC_LOCAL_ONLY_MESSAGE =
+  "Saved on this device only. Account sync failed — check connectivity and try again.";

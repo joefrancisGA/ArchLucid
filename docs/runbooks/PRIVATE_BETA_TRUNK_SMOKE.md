@@ -1,0 +1,336 @@
+> **Scope:** Engineering triage for `private-beta-access-on-push.yml` — invite-wave JwtBearer Playwright on trunk. Human proof runs (Gate 1, G-REAL-06) are separate. Insight-density findings in beta reviews remain **advisory** under the ADR 0070 gate (`typed-engine-scored` telemetry) — do not treat them as procurement attestations.
+
+# Private-beta trunk smoke — triage runbook
+
+## Job
+
+| Field | Value |
+| --- | --- |
+| Workflow | `.github/workflows/private-beta-access-on-push.yml` |
+| Display name | `Operator UI: private-beta access-path (JwtBearer)` |
+| Specs (push workflow, `--workers=1`) | `live-api-scim-invite-substitute-smoke.spec.ts`, `live-api-invite-flow.spec.ts`, `live-api-private-beta-wave-3.spec.ts`, `live-api-private-beta-access.spec.ts` (lighter specs first for faster CI signal) |
+| Timeout | 120 minutes (job); 45 minutes per Playwright test in CI |
+
+## Happy path (CI step order)
+
+1. Build API (Release) + Next standalone (`NEXT_PUBLIC_ARCHLUCID_AUTH_MODE=jwt-bearer`)
+2. **Lockfile preflight** (`npm ci --dry-run --ignore-scripts --no-audit --no-fund`) → **lockfile guard** → `npm ci` → query-core assert → **`npm run typecheck`** (fail fast before `build:live-e2e`)
+3. Mint RS256 JWT (`scripts/ci/mint_ci_jwt.py`) with Admin role + default tenant scope
+4. Shell warm (`scripts/ci/warm_private_beta_live_api_paths.sh`) — scope + invitations only when `LIVE_E2E_PRIVATE_BETA_ACCESS=1` (draft/create-run skipped; Playwright stubs draft and JIT-warms create-run)
+5. Post-warm `wait-for-api-ready.sh` (90×2s) — recovers transient **503** after warm without a single-shot `curl`; while the API process is still running, transient **HTTP 000** probes remain within the normal readiness window so SQL/EF startup can finish
+6. Playwright `--workers=1` on all four private-beta specs (browser install completes **before** shell warm)
+
+## Trunk hygiene during corset outages
+
+When `ui-typecheck-on-push.yml` is red on `master`, **pause feature merges** until push corset is green again. Burst merges bury the failing job name in the Actions queue and delay the first post-fix `private-beta-access-on-push` run. After a typecheck hotfix lands, wait for **both**:
+
+1. `Operator UI: typecheck (blocking)` **success** on `master`
+2. `Operator UI: private-beta access-path (JwtBearer)` to finish (success or actionable Playwright failure)
+
+Only then dispatch the full matrix (`bash scripts/ci/dispatch_full_ci_matrix.sh master`) or widen required ruleset checks.
+
+## Trunk milestones (2026-09-06)
+
+| Milestone | Run / PR | Evidence |
+| --- | --- | --- |
+| Lockfile + typecheck unblocked | #1715 / `f5a907dfb0` | `Install UI deps, verify lockfile, and typecheck` **green** on run `34002442429` |
+| First Playwright execution post-lockfile | #1715 / `34002442429` | Job passed install, build, API warm; Playwright step reached (45m per-test CI budget) |
+| OpenAPI push corset unblocked | #1727 / `a63198e` | Snapshot regen after IE-UX + CA prompt API drift |
+| First green private-beta on `master` | `7cc2d679e5` / run `38436208199` (2026-10-13) | **Observed** — owner may apply golden-cohort addon per § Golden-cohort apply; Cursor does not change org rulesets |
+| Branch concurrency + health poll diagnostics | #1733 / `c2ee3fc91b` | Supersedes stale queued runs; logs HTTP status during `/health/ready` poll |
+| Create-run preflight + identity desk e2e | #1736 / `ecbe600a7b` | `waitForLiveApiReady` before create-run; architecture identity desk smoke after run create |
+| Loader smoke + signin/invite Report Problem | #1792 / `159c5fab6a` | Vitest `e2e/live-api-private-beta-access.loader-smoke.test.ts`; TB-782 surfaces on `/auth/signin` + `/auth/invite` |
+| Wave 3 bootstrap recovery + diagnostics/deep-link smoke | #2154 / wave 3 | `live-api-private-beta-wave-3.spec.ts`; mid-flow Report Problem on `/auth/bootstrap`; `GITHUB_STEP_SUMMARY` failure triage |
+
+## Common failure modes
+
+| Symptom | Likely cause | Fix |
+| --- | --- | --- |
+| `TypeError: sandbox-mock-data.json needs an import attribute` / Playwright **No tests found** | Bare JSON import in `sandbox-api-mocks.ts` under Node ESM loader | Use `import … with { type: "json" }`; `check_live_api_private_beta_access_ci_wiring.py` guards the pattern; Vitest `e2e/live-api-private-beta-access.loader-smoke.test.ts` imports the helper chain pre-CI |
+| `Operator UI: jwt-bearer production build` fails on `docs pdf render` / `PagedResponseOfArchitectureIdentityListItem` | `ArchLucid.Cli` client drift after `ArchitectureIdentityListPage` API change | Regenerate `ArchLucid.Api.Client` and align `ArchLucidCliApiClient.Architectures.cs`; `build-docs-pdf.ts` preflights `dotnet build` on Cli |
+| `Failed to warm draft inventory` before Playwright | Pre-#1669 required draft warm; cold SQL hang | **Shipped #1669** — draft warm is best-effort in CI |
+| `Failed to warm create architecture run` before Playwright | Cold SQL + inline Simulator pipeline on first POST | **Shipped** — create-run warm is best-effort (300s default); Playwright `createRun` JIT-warms with 300s per-attempt budget |
+| `"beforeAll" hook timeout of 30000ms exceeded` on `live-api-private-beta-access.spec.ts` | Playwright default hook timeout is 30s; invite-wave `waitForLiveApiReady` (180s) plus JIT create-run warm exceed that | **Shipped** — `test.setTimeout(liveE2ePrivateBetaAccessPlaywrightTimeoutMs())` in `beforeAll` plus describe-level timeout |
+| `npm ci` fails before Playwright (`package.json` / `package-lock.json` out of sync) | A dependency or transitive package changed without regenerating the lockfile; npm names missing packages in the preflight output | Run `npm install --package-lock-only --ignore-scripts` in `archlucid-ui/`, review the dependency diff, and commit the lockfile; the dry-run now fails before the expensive install |
+| `.NET: OpenAPI v1 contract snapshot (fail-fast)` red on push corset | API surface drift (e.g. IE-UX-01/02 infrastructure routes) without snapshot regen | `ARCHLUCID_REGENERATE_UI_API_TYPES=1 bash scripts/ci/update_openapi_contract_snapshot.sh` from repo root; commit `openapi-v1.contract.snapshot.json` + api-types |
+| `Install UI deps, verify lockfile, and typecheck` fails | TypeScript drift on trunk before heavy `build:live-e2e` | Fix `npm run typecheck` locally; private-beta now typechecks before Next standalone build |
+| `Install UI deps & build Next` fails (typecheck in `build:live-e2e`) | `architectureId` → `draftId` migration drift on trunk | **Shipped #1703** — align registry consumers and draft control props; re-run push |
+| `curl: (22) … error: 503` on `/health/ready` immediately before Playwright | 300s create-run shell warm blocked API; single-shot health `curl` | **Shipped** — skip draft/create-run shell warm in invite-wave CI; use `wait-for-api-ready.sh` with retries |
+| Repeated `HTTP 000` while waiting for `/health/ready` | SQL startup or EF migrations have not opened the API port yet | `wait-for-api-ready.sh` keeps polling while the `ArchLucid.Api` process is alive and has not logged `Now listening`; after startup, or after process exit, the configured unreachable streak still fails fast |
+| Playwright never starts | Shell warm `set -e` on required path | Check scope/invitations warm; API not ready |
+| `GET /api/proxy/v1/architecture/draft` 60s timeout | Draft list hit before route stub | Spec stubs `**/api/proxy/v1/architecture/draft**`; ensure stub runs before `page.goto` |
+| `POST /v1/architecture/request` 401 | JwtBearer / proxy token mismatch | `ARCHLUCID_PROXY_BEARER_TOKEN` must equal `LIVE_JWT_TOKEN` in workflow env |
+| Wave-3 / invite / create-run **401** after ~50m+ Playwright | CI JWT minted before shell warm; default 1h `exp` elapsed mid-suite | **Shipped** — `refresh_private_beta_ci_jwt.sh` re-mints (7200s exp) immediately before Playwright after warm |
+| create-run retry exhaustion | Cold SQL / Simulator queue | `LIVE_E2E_PRIVATE_BETA_ACCESS=1` caps attempts at **5** with 120s pre-create health poll (see `live-api-client.ts`) |
+| Reviews hub row not visible | Run list poll lag | `waitForArchitectureRunListIncludesRun` + `reviews-hub-row-{runId}` test id |
+| Authenticated dead-review navigation is flaky | Scope/session bootstrap or the first navigation settles after the route assertion starts | Retry the navigation and branded-not-found assertion together; do not turn a retry-only pass into a clean reliability claim |
+| Actions queue backlog | Many trunk merges enqueue parallel private-beta runs on different SHAs | Workflow uses **ref-level concurrency** (`private-beta-access-on-push-${{ github.ref }}`, `cancel-in-progress: true`) — only the latest `master` push runs; superseded SHAs cancel mid-flight. After heavy merge churn, **wait for the queue to drain** then `bash scripts/ci/retrigger_private_beta_access_on_push.sh master` so one run can finish Playwright. |
+| Superseded run `cancelled` mid-Playwright | New trunk push cancelled an older SHA smoke | Expected with branch concurrency; triage only the newest run for the SHA you care about |
+
+**Re-trigger after cancellation:** from a clone with `gh` authenticated:
+
+```bash
+bash scripts/ci/retrigger_private_beta_access_on_push.sh master
+```
+
+Or **Actions → Private-beta access on push → Run workflow** (`workflow_dispatch`).
+
+### Smoke branch (merge-heavy trunk)
+
+When `master` merge churn keeps cancelling `private-beta-access-on-push` mid-Playwright, use the **frozen** isolated lane (do not merge `master` into it until the run finishes):
+
+| Field | Value |
+| --- | --- |
+| Branch | `cursor/al-beta-private-beta-frozen-7730` |
+| Pin | `scripts/ci/private_beta_frozen_branch.sha` |
+| Workflow | `.github/workflows/private-beta-access-smoke-branch.yml` |
+| Concurrency | `cancel-in-progress: false` (runs finish even if the lane branch is pushed again) |
+| Runbook | [PRIVATE_BETA_FROZEN_BRANCH.md](./PRIVATE_BETA_FROZEN_BRANCH.md) |
+
+Legacy lane branches (`cursor/al-beta-private-beta-smoke-lane-7730`, `cursor/al-beta-private-beta-e2e-fixes-7730`) may still exist; use **`workflow_dispatch`** or the frozen branch for new point-in-time runs.
+
+```bash
+bash scripts/ci/retrigger_private_beta_smoke_branch.sh cursor/al-beta-private-beta-frozen-7730
+```
+
+Artifact names use the `-smoke-branch` suffix (e.g. `ui-e2e-live-beta-access-smoke-branch-playwright-report`).
+
+Before changing `scripts/ci/private_beta_frozen_branch.sha`, pass the latest completed
+JwtBearer conclusion through the witness guard:
+
+```bash
+python3 scripts/ci/check_private_beta_pin_witness.py --conclusion success
+```
+
+The guard rejects `failure`, `cancelled`, and other non-success conclusions. With no
+conclusion it prints a notice and authorizes no pin change; the caller must still leave
+the pin unchanged. Do not advance the pin while the current frozen smoke is running.
+
+## Artifacts
+
+On failure, download from the workflow run (newest non-cancelled run on the target SHA):
+
+1. `ui-e2e-live-beta-access-on-push-api-log` — API stderr from `dotnet run` (SQL timeouts, auth, Simulator faults)
+2. `ui-e2e-live-beta-access-on-push-playwright-report` — HTML trace summary
+3. `ui-e2e-live-beta-access-on-push-test-results` — per-test screenshots and traces
+4. `ui-e2e-live-beta-access-on-push-blob-report` — blob report for Playwright merge
+5. `ui-e2e-live-beta-access-on-push-failure-triage` — machine-readable triage rollup (push workflow)
+6. `ui-e2e-live-beta-access-failure-triage` — same rollup from full-matrix `ci.yml` job
+
+**Triage order:** confirm Playwright step started (not stuck in queue) → check post-warm `/health/ready` lines in job log → open API log for exceptions during `createRun` → inspect Playwright trace for proxy/JWT failures.
+
+For a machine-readable checklist, run `python3 scripts/ci/report_private_beta_playwright_failure_triage.py --markdown-out /tmp/private-beta-triage.md` from the repo root.
+
+**Download artifacts from a finished smoke run:**
+
+```bash
+bash scripts/ci/fetch_private_beta_smoke_artifacts.sh <run-id> ./triage-out --lane smoke-branch
+```
+
+Use `--lane trunk` for `private-beta-access-on-push` or `--lane full-matrix` for `ci.yml` `ui-e2e-live-beta-access`.
+
+**OpenAPI drift on push corset:** when `.NET: OpenAPI v1 contract snapshot (fail-fast)` fails after architecture or infrastructure API merges, regenerate from repo root:
+
+```bash
+ARCHLUCID_REGENERATE_UI_API_TYPES=1 bash scripts/ci/update_openapi_contract_snapshot.sh
+git add ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json archlucid-ui/src/lib/api-types archlucid-ui/packages/api-types
+```
+
+Then re-run `npm run typecheck` in `archlucid-ui` before pushing.
+
+## Local reproduction (heavy)
+
+Requires SQL Server, API with JwtBearer PEM, and `archlucid-ui` live-e2e build. See `docs/library/LIVE_E2E_JWT_SETUP.md`.
+
+## Full-matrix dispatch (optional)
+
+The same spec also runs in `.github/workflows/ci.yml` job `ui-e2e-live-beta-access` on **`workflow_dispatch`** full CI. Use **Actions → CI → Run workflow** on `master` when you need the private-beta smoke inside the full regression matrix (not only trunk push).
+
+Before promoting a fix between the default branch and the release cut, compare
+the canonical workflow and invitee proof directly from both refs:
+
+```bash
+python3 scripts/ci/check_private_beta_ref_parity.py \
+  --base-ref origin/master \
+  --release-ref origin/RC35
+```
+
+```bash
+bash scripts/ci/dispatch_full_ci_matrix.sh master
+# Optional extended live-a11y matrix:
+bash scripts/ci/dispatch_full_ci_matrix.sh master true
+```
+
+You can also re-run invite-wave smoke alone via **Actions → Private-beta access on push → Run workflow** (`workflow_dispatch` on `.github/workflows/private-beta-access-on-push.yml`).
+
+```bash
+bash scripts/ci/retrigger_private_beta_access_on_push.sh master
+```
+
+```bash
+export LIVE_JWT_TOKEN="<minted>"
+export ARCHLUCID_PROXY_BEARER_TOKEN="${LIVE_JWT_TOKEN}"
+export LIVE_E2E_PRIVATE_BETA_ACCESS=1
+cd archlucid-ui && npx playwright test live-api-private-beta-access.spec.ts --workers=1
+```
+
+```bash
+cd archlucid-ui && npx playwright test live-api-scim-invite-substitute-smoke.spec.ts live-api-invite-flow.spec.ts live-api-private-beta-wave-3.spec.ts live-api-private-beta-access.spec.ts --workers=1
+```
+
+## RC35 staging-dispatch record — `c8c9102b2e`
+
+| Field | Recorded value |
+| --- | --- |
+| RC35 SHA | `c8c9102b2e8f120e6a0251e40d648d925cf4d399` |
+| Staging workflow | `.github/workflows/cd-staging-on-merge.yml` |
+| Dispatch status | **Not dispatched** |
+| Staging deployment | **No run observed** |
+| Gate 1 | **UNKNOWN** |
+
+This is a release-cut record only. It does not dispatch staging, claim a staging deployment,
+or establish the observed first-review Gate 1 evidence. An owner must dispatch and witness the
+staging first review separately.
+
+## Wizard-fixed RC35 witness handoff — `04b3c68226`
+
+| Field | Recorded value |
+| --- | --- |
+| RC35 SHA | `04b3c68226b236bc5a92beec93cf6047c206fee9` |
+| Wizard fix | **Present** — Working-mode `?baseline=1` stays on the reviews wizard path |
+| JwtBearer witness | **In progress** — run `38173652466` |
+| Push corset | **Queued** — run `38173652475` |
+| Frozen pin | `c059d8a2e2` |
+
+Do not bump the frozen pin until a JwtBearer run on a SHA containing the wizard fix
+completes successfully.
+
+### OpenAPI refresh note — RC35 SHA `c8c9102b2e`
+
+No `openapi-snapshot-refresh.yml` run was observed for
+`c8c9102b2e8f120e6a0251e40d648d925cf4d399` because the push workflow is path-filtered to
+contract-layer paths (`ArchLucid.Api/**`, `ArchLucid.Api.Tests/**`, contracts, core,
+and related schema/build files). The repair set on that SHA changed UI, CI, runbook,
+and `ArchLucid.Application.Tests/**` paths; the latter is not an OpenAPI refresh trigger
+path. The OpenAPI fail-fast job in `ui-typecheck-on-push.yml` did run and passed in
+`38148276151`. This note records trigger behavior; it does not dispatch a refresh or
+claim that a snapshot was regenerated.
+
+## RC35 Cursor repair-set handoff
+
+Use this checklist when `RC35` trails `master` after a private-beta repair batch. It is a release handoff, not permission to push directly to `RC35`.
+
+| Order | Master repair | Release-cut evidence required |
+| ---: | --- | --- |
+| 1 | #4434 — `ArmResourceIdNormalizer` import and frozen-pin warning contract | `.NET: OpenAPI v1 contract snapshot (fail-fast)` and `CI: beta-readiness wiring guards` both rerun on the new RC35 SHA |
+| 2 | `0d1e7d903d` — preserve structured 404s for missing reviews | JwtBearer dead-review checks reach `branded-not-found` |
+| 3 | #4458/#4459 — dead-review diagnostics and independent invitee journeys | JwtBearer reports `[dead-link-404]` and `[reviews-hub-timeout]` separately; TB-927 cases are not hidden by a serial failure |
+| 4 | #4461/#4483 — OpenAPI build-failure annotations and compiler-code extraction | A build failure identifies `CS####`/`MSB####` before snapshot drift is investigated |
+| 5 | #4465/#4470 — parity markers and correct readiness-helper path | `check_private_beta_ref_parity.py --base-ref origin/master --release-ref origin/RC35` passes |
+| 6 | #4476 — warning-only live ruleset drift diagnostics | Ruleset drift is recorded without masking the JwtBearer access-path result |
+
+After the repair set is present on the release cut:
+
+1. Re-run `ui-typecheck-on-push.yml`, `private-beta-access-on-push.yml`, and `openapi-snapshot-refresh.yml` on the same RC35 SHA.
+2. Confirm the release gate and the private-beta access-path result separately; do not treat a green release gate as a green JwtBearer witness.
+3. Record the run IDs and SHA in the RC evidence bundle.
+4. Keep Gate 1, G-REAL-06, G-REAL-07, and ruleset application as separate owner actions.
+
+### Observed RC35 evidence row — 2026-10-10
+
+| Field | Observed value |
+| --- | --- |
+| RC35 head | `11c35de4762785ea1f99bd16475a09660f24374a` |
+| UI typecheck / beta-readiness guards | **FAIL** — run `38063851079` |
+| UI typecheck / OpenAPI fail-fast | **FAIL** — run `38063851079`; `CS0103` for `ArmResourceIdNormalizer` |
+| OpenAPI refresh | **FAIL** — run `38063851100` |
+| Private-beta JwtBearer access path | **FAIL** — run `38063851075` |
+| RC release gate | **PASS** — run `38063851076` |
+| Staging deployment | **No run observed** |
+| Gate 1 | **UNKNOWN** |
+| G-REAL-06 | **Not started** |
+
+This row records CI observations only. It is not a staging witness, Real-mode pilot proof, ruleset application, or customer evidence.
+
+### Observed RC35 evidence row — 2026-10-11
+
+| Field | Observed value |
+| --- | --- |
+| RC35 head | `c8c9102b2e8f120e6a0251e40d648d925cf4d399` |
+| UI typecheck / beta-readiness guards / push corset | **PASS** — run `38148276151` |
+| UI typecheck / OpenAPI fail-fast | **PASS** — run `38148276151` |
+| OpenAPI refresh | **No run observed** — no refresh run exists for this head |
+| Private-beta JwtBearer access path | **In progress** — run `38148276113` |
+| RC release gate | **In progress** — run `38148276259` |
+| Staging deployment | **No run observed** |
+| Gate 1 | **UNKNOWN** |
+| G-REAL-06 | **Not started** |
+
+The refresh workflow is path-filtered to contract-layer paths; the RC35 repair set changed tests, UI, CI guards, and runbook documentation. This row records CI observations only and is not a staging witness, Real-mode pilot proof, ruleset application, or customer evidence.
+
+### Observed RC35 evidence row — 2026-10-13 (pre–#4653)
+
+| Field | Observed value |
+| --- | --- |
+| RC35 head | `a6dfda5f0dcf17a1a74be23fc7b184e0738eaafe` (merge **#4647**) |
+| UI typecheck / OpenAPI refresh | **PASS** — runs `38390911873`, `38390911840` |
+| RC release gate | **PASS** — run `38390911842` |
+| Private-beta JwtBearer access path | **FAIL** — run `38390911841` (TB-927: `ConflictException` during authority pipeline finalize — integration event manifest hash resolver queried committed golden manifest before finalize commit) |
+| Staging deployment | **No run observed** |
+| Gate 1 | **UNKNOWN** |
+| G-REAL-06 | **Not started** |
+
+This row records CI observations only. It is not a staging witness, Real-mode pilot proof, ruleset application, or customer evidence.
+
+### Observed RC35 evidence row — 2026-10-13 (master merge)
+
+| Field | Observed value |
+| --- | --- |
+| RC35 head | `085ec05f139a74a2e70e9ae0cc41cc3f4be6007f` |
+| UI typecheck / OpenAPI refresh | **PASS** — runs `38392711590`, `38392711333` |
+| Private-beta JwtBearer access path | **FAIL** — run `38392711461` (session-expiry + TB-927; finalize hash fix **#4653** not yet on cut) |
+| RC release gate | **FAIL** — run `38392711498` (`demo-workspace-a` CG-046 stamp band) |
+| Gate 1 | **UNKNOWN** |
+| G-REAL-06 | **Not started** |
+
+**Cursor follow-up (**#4655** / **#4653** / **#4660**):** landed on `master` — finalize manifest hash (TB-927), session-expiry dedupe, Ask cited-band typecheck (**#4660**), CG-046 demo assert (spine **or** stamp). Remote **`RC35`** cut is retired; triage **`master`** only.
+
+### Observed `master` trunk evidence row — 2026-10-13
+
+| Field | Observed value |
+| --- | --- |
+| `master` head | `7cc2d679e5f27282ac8b15f3d96b7d430af21cb9` (merge **#4664**) |
+| UI typecheck on push | **PASS** — workflow run `38436208192` |
+| Push corset / OpenAPI fail-fast / beta-readiness guards | **PASS** — jobs on run `38436208192` |
+| JwtBearer production build | **PASS** — job on run `38436208192` |
+| Private-beta JwtBearer access path | **PASS** — workflow run `38436208199` |
+| `ui-e2e-live` (@release-gate) | **Not observed on this push** — runs on `ci.yml` `push` / `merge_group` / `workflow_dispatch`; dispatch full matrix if release-gate proof needed |
+| Staging deployment (`CD staging on merge`) | **Skipped** on observed merges (no staging witness) |
+| Gate 1 / G-REAL-06 | **Not started** (owner) |
+| Golden-cohort private-beta required check | **Not applied** — prerequisite green JwtBearer on `master` is met; **owner** runs `scripts/ci/apply-golden-cohort-gate-ruleset.ps1` |
+
+This row records CI observations only. It is not staging witness, Real-mode pilot proof, ruleset application, or customer evidence.
+
+## Cursor trunk triage snapshot (2026-10-13)
+
+| Lane | Status | Next action |
+| --- | --- | --- |
+| Trunk typecheck + JwtBearer | **Green** on `7cc2d679` | Monitor next `master` push; re-triage if either reds |
+| Golden-cohort ruleset | **Owner** | Apply addon after owner review of run `38436208199`; see `.github/BRANCH_PROTECTION.md` |
+| Open agent PR | **#4665** | Finish/review export copy polish; fix `CI: guards pre-corset` if still red on PR |
+| Assessment Tier 1 | **Owner** | Real-mode proof runs (G-REAL-06), commerce, M-110 — not Cursor batches |
+| Engineering backlog | No open **P0** summary rows detected | Use `/show-next-improvement` or ship **#4665**; avoid GTM cohort **M-90** / **M-44** / **M-91** / **M-92** |
+
+## Golden-cohort apply (owner, after first green)
+
+When `Operator UI: private-beta access-path (JwtBearer)` completes green at least once on `master`:
+
+1. Apply [`.github/rulesets/golden-cohort-gate-private-beta-addon.json`](../../.github/rulesets/golden-cohort-gate-private-beta-addon.json) via `scripts/ci/apply-golden-cohort-gate-ruleset.ps1` (or merge into `golden-cohort-gate-required-check.json`).
+2. Re-run the ruleset script (or add the check in GitHub Rulesets UI).
+3. Confirm trunk push still runs all four private-beta specs (`live-api-private-beta-access`, `live-api-private-beta-wave-3`, `live-api-invite-flow`, `live-api-scim-invite-substitute-smoke`) before sending beta invites.
+
+**Do not** add the private-beta check to golden-cohort required checks until step 1 completes after a verified green run.
+
+## Ruleset apply (owner)
+
+**Do not** add `Operator UI: private-beta access-path (JwtBearer)` to the golden-cohort ruleset until this job completes green at least once on `master`. See `.github/BRANCH_PROTECTION.md`.

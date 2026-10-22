@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "findingId": "f-lift-1",
+      "category": "Cost",
+      "severity": "High",
+      "title": "Unoptimized IaaS footprint",
+      "detail": "Lift-and-shift Windows VMs remain on general-purpose SKUs; right-size assessments recommend burstable tiers and reserved instances once thirty-day CPU baselines stabilize."
+    },
+    {
+      "findingId": "f-lift-2",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "ExpressRoute hub dependency",
+      "detail": "All regions hairpin through a single ExpressRoute circuit; regional outage couples to the hub and prolongs failover rehearsal."
+    },
+    {
+      "findingId": "f-lift-3",
+      "category": "Cost",
+      "severity": "Low",
+      "title": "Non-prod persistence",
+      "detail": "Developer sandboxes retain premium disks; automation tags candidates for cool-tier migration after idle detection."
+    }
+  ]
+}

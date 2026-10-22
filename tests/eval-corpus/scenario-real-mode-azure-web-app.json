@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-real-mode-azure-web-app",
+  "metadata": {
+    "title": "Real-mode Azure web app brief (offline AgentResult scorer)",
+    "complexity": "medium",
+    "primaryAgents": ["Topology", "Compliance"]
+  },
+  "inputSummary": "Customer-like Azure App Service + Front Door + Key Vault brief; real-mode row complements simulator corpus-azure-web-app scenario.",
+  "recording": "recordings/corpus-azure-web-app.findings.json",
+  "qualityEvidence": {
+    "mode": "real",
+    "agentType": "Topology",
+    "agentResultPathEnv": "ARCHLUCID_EVAL_CORPUS_REAL_MODE_AZURE_WEB_APP_AGENT_RESULT",
+    "notes": "Pairs with scenario-azure-web-app simulator row; RC sets env to this exemplar."
+  },
+  "expectedFindings": [
+    {
+      "id": "e front door https",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["front door", "HTTPS"]
+    },
+    {
+      "id": "e key vault",
+      "category": "Compliance",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["key vault", "secrets"]
+    },
+    {
+      "id": "e app insights",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["application insights", "dependency"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Critic", "ifContainsAny": ["halt all production", "disable all encryption"] },
+    { "category": "Cost", "ifContainsAny": ["unlimited budget", "ignore finops"] }
+  ]
+}

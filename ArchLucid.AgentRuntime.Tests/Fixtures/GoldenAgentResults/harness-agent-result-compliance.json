@@ -1,0 +1,18 @@
+{
+  "resultId": "harness-compliance-01",
+  "taskId": "harness-task-compliance-01",
+  "runId": "harness-run-compliance-01",
+  "agentType": 3,
+  "claims": [ "Golden harness compliance claim." ],
+  "evidenceRefs": [ "golden-compliance-evidence-1" ],
+  "confidence": 0.77,
+  "findings": [
+    {
+      "severity": "Warning",
+      "category": "compliance-harness",
+      "message": "Compliance golden harness finding for serializer round-trip."
+    }
+  ],
+  "proposedChanges": null,
+  "createdUtc": "2026-04-14T12:00:00Z"
+}

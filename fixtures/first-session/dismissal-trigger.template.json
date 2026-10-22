@@ -1,0 +1,19 @@
+{
+  "schema": "archlucid.first-session-dismissal-trigger.v1",
+  "cohortLabel": "",
+  "sessionNumber": 1,
+  "sessionUtc": "",
+  "participantLabel": "",
+  "primaryDismissalCode": "D1",
+  "primaryDismissalLabel": "equivalent-to-frontier-ai",
+  "nearDismissal": false,
+  "hesitationCodesObserved": ["H7"],
+  "evidenceSnippet": "",
+  "triggerTiming": "during-execute | after-commit | during-export | closing-interview",
+  "reviewTwoIntent": 1,
+  "finalOutcome": "continued-evaluation | near-dismissal | aborted",
+  "notes": [
+    "Map primaryDismissalCode to FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md taxonomy D1–D8.",
+    "Keep evidence snippets redacted — no customer-identifying content in committed artifacts."
+  ]
+}

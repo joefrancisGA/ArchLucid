@@ -1,0 +1,33 @@
+---
+description: >-
+  Owner accepted Microsoft's official Azure Architecture Center icon SVGs for
+  ArchLucid diagrams. Do not use unofficial icon mirrors. Do not crop or recolor
+  the marks.
+alwaysApply: true
+---
+
+# Azure architecture icons — owner acceptance
+
+**Owner decision (2026-09-22):** ArchLucid may use Microsoft's official Azure architecture icon SVGs on inventory diagrams and Data flow diagrams, including the live forest SVG and PNG export.
+
+## Pack
+
+- Source of truth: [Azure icons](https://learn.microsoft.com/en-us/azure/architecture/icons/) (Azure Architecture Center).
+- Pack vintage to treat as current: the set published on that page through the **July 2026** icon update.
+- Download the SVG zip from that page after accepting Microsoft's icon terms there. Do not vendor a GitHub extraction, a portal-icon dump, or any other unofficial mirror.
+
+## Microsoft terms that bind the art
+
+Microsoft permits these icons in architectural diagrams, training materials, and documentation. Copy, distribute, and display them only for that permitted use.
+
+- Use the icon to show how products work together.
+- Keep the product name near the icon.
+- Use the icon as it appears in Azure.
+- Do not crop, flip, rotate, distort, or change the shape.
+- Do not use a Microsoft product icon to represent ArchLucid.
+
+## What this decision does not do
+
+- It does not add the SVG files by itself. An implementation session vendors the official zip and maps ARM types onto those files.
+- It does not reopen IDA, IDF, or IDX as greenfield. Those waves still must not grow an icon importer as a side task.
+- A resource type with no official icon keeps the existing category pictogram.

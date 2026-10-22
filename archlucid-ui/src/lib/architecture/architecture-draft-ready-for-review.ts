@@ -1,0 +1,23 @@
+import type { ArchitectureDraftCustomerStatus } from "@/lib/architecture/architecture-draft-status";
+
+type DraftReadyProbe = {
+  readonly linkedReviewId: string | null;
+  readonly customerStatus: ArchitectureDraftCustomerStatus;
+};
+
+/** Drafts that can still start a review (not archived, no linked review yet). */
+export function isArchitectureDraftEligibleToStartReview(entry: DraftReadyProbe): boolean {
+  return entry.linkedReviewId === null && entry.customerStatus !== "archived";
+}
+
+/** Architectures eligible to start a review from the architecture drafts registry. */
+export function filterArchitectureDraftsEligibleToStartReview<T extends DraftReadyProbe>(
+  entries: readonly T[],
+): T[] {
+  return entries.filter(isArchitectureDraftEligibleToStartReview);
+}
+
+/** Count of architectures eligible to start a review from the architecture drafts registry. */
+export function countArchitectureDraftsReadyForReview(entries: readonly DraftReadyProbe[]): number {
+  return filterArchitectureDraftsEligibleToStartReview(entries).length;
+}

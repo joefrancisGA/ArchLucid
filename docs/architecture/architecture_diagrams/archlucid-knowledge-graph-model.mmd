@@ -1,0 +1,8 @@
+flowchart TB
+  SNAP["ContextSnapshot"] --> BUILD["KnowledgeGraph builder"]
+  BUILD --> GS["GraphSnapshot"]
+  GS --> N["Nodes: services resources boundaries"]
+  GS --> E["Edges: depends-on talks-to contains"]
+  GS --> VAL["Validate nodes and edges"]
+  VAL --> UI["Operator graph views + pagination"]
+  VAL --> RAG["Optional graph-RAG expand"]

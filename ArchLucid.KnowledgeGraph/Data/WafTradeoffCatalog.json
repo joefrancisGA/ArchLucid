@@ -1,0 +1,150 @@
+{
+  "version": "1.0.0",
+  "entries": [
+    {
+      "mechanismKey": "cost-reliability/single-region",
+      "mechanismLabel": "Single region to reduce cost",
+      "gainedPillar": "Cost",
+      "sacrificedPillar": "Reliability",
+      "detectionSignatures": [
+        "single-region",
+        "no secondary region",
+        "single app service region"
+      ],
+      "counterfactualKey": "reliability-cost/multi-region",
+      "defaultConsequence": "High",
+      "defaultReversibility": "Costly"
+    },
+    {
+      "mechanismKey": "reliability-cost/multi-region",
+      "mechanismLabel": "Multi-region deployment for reliability",
+      "gainedPillar": "Reliability",
+      "sacrificedPillar": "Cost",
+      "detectionSignatures": [
+        "active-active",
+        "geo-redundant",
+        "multi-region write",
+        "secondary region"
+      ],
+      "counterfactualKey": "cost-reliability/single-region",
+      "defaultConsequence": "Medium",
+      "defaultReversibility": "Costly"
+    },
+    {
+      "mechanismKey": "cost-performance/scale-to-zero",
+      "mechanismLabel": "Scale-to-zero consumption plan",
+      "gainedPillar": "Cost",
+      "sacrificedPillar": "Performance",
+      "detectionSignatures": [
+        "scale-to-zero",
+        "consumption plan",
+        "serverless consumption"
+      ],
+      "counterfactualKey": "performance-cost/dedicated-capacity",
+      "defaultConsequence": "Medium",
+      "defaultReversibility": "Reversible"
+    },
+    {
+      "mechanismKey": "performance-cost/dedicated-capacity",
+      "mechanismLabel": "Dedicated always-on capacity",
+      "gainedPillar": "Performance",
+      "sacrificedPillar": "Cost",
+      "detectionSignatures": [
+        "premium plan",
+        "dedicated instance",
+        "always-on",
+        "reserved capacity"
+      ],
+      "counterfactualKey": "cost-performance/scale-to-zero",
+      "defaultConsequence": "Medium",
+      "defaultReversibility": "Costly"
+    },
+    {
+      "mechanismKey": "security-performance/private-endpoints",
+      "mechanismLabel": "Private endpoints on all services",
+      "gainedPillar": "Security",
+      "sacrificedPillar": "Performance",
+      "detectionSignatures": [
+        "private endpoints",
+        "service endpoints everywhere",
+        "private link"
+      ],
+      "counterfactualKey": "performance-security/public-access",
+      "defaultConsequence": "Low",
+      "defaultReversibility": "Costly"
+    },
+    {
+      "mechanismKey": "performance-security/public-access",
+      "mechanismLabel": "Public network access for latency",
+      "gainedPillar": "Performance",
+      "sacrificedPillar": "Security",
+      "detectionSignatures": [
+        "public endpoint",
+        "allow public access",
+        "public network access enabled"
+      ],
+      "counterfactualKey": "security-performance/private-endpoints",
+      "defaultConsequence": "High",
+      "defaultReversibility": "OneWayDoor"
+    },
+    {
+      "mechanismKey": "security-operations/controls-friction",
+      "mechanismLabel": "Elevated security controls",
+      "gainedPillar": "Security",
+      "sacrificedPillar": "Operations",
+      "detectionSignatures": [
+        "mfa",
+        "conditional access",
+        "elevated control count",
+        "privileged access workstation"
+      ],
+      "counterfactualKey": "operations-security/streamlined-access",
+      "defaultConsequence": "Medium",
+      "defaultReversibility": "Reversible"
+    },
+    {
+      "mechanismKey": "operations-security/streamlined-access",
+      "mechanismLabel": "Streamlined operator access",
+      "gainedPillar": "Operations",
+      "sacrificedPillar": "Security",
+      "detectionSignatures": [
+        "shared credentials",
+        "bypass conditional access",
+        "minimal mfa"
+      ],
+      "counterfactualKey": "security-operations/controls-friction",
+      "defaultConsequence": "High",
+      "defaultReversibility": "Reversible"
+    },
+    {
+      "mechanismKey": "performance-reliability/caching",
+      "mechanismLabel": "Aggressive caching layer",
+      "gainedPillar": "Performance",
+      "sacrificedPillar": "Reliability",
+      "detectionSignatures": [
+        "redis cache",
+        "cdn",
+        "denormalization",
+        "cache-aside"
+      ],
+      "counterfactualKey": "reliability-performance/strong-consistency",
+      "defaultConsequence": "Medium",
+      "defaultReversibility": "Reversible"
+    },
+    {
+      "mechanismKey": "reliability-performance/strong-consistency",
+      "mechanismLabel": "Strong consistency without cache",
+      "gainedPillar": "Reliability",
+      "sacrificedPillar": "Performance",
+      "detectionSignatures": [
+        "strong consistency",
+        "no cache",
+        "synchronous replication",
+        "read-your-writes"
+      ],
+      "counterfactualKey": "performance-reliability/caching",
+      "defaultConsequence": "Low",
+      "defaultReversibility": "Costly"
+    }
+  ]
+}

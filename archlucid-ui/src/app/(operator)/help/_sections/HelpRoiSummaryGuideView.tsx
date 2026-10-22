@@ -1,0 +1,338 @@
+import Link from "next/link";
+
+import { HelpRoiSummaryHeaderActions } from "@/app/(operator)/help/_sections/HelpRoiSummaryHeaderActions";
+import { HelpRoiSummaryClaimOrientationStrip } from "@/app/(operator)/help/_sections/HelpRoiSummaryClaimOrientationStrip";
+import { HelpRoiSummarySourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpRoiSummarySourcesOrientationStrip";
+import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { BaselineRoiVocabularyRail } from "@/components/BaselineRoiVocabularyRail";
+import { RoiSummaryHelpClaimDisciplineStrip } from "@/components/help/RoiSummaryHelpClaimDisciplineStrip";
+import { RoiSummaryHelpEvidenceOrientationStrip } from "@/components/help/RoiSummaryHelpEvidenceOrientationStrip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
+import { ScorecardRoiVocabularyRail } from "@/components/ScorecardRoiVocabularyRail";
+import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
+import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
+import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+import { Button } from "@/components/ui/button";
+import { SeverityTag } from "@/components/ui/severity-tag";
+import {
+  CTA_WIDTH,
+  DESIGN_TOKENS,
+  OPERATOR_BODY_INLINE_LINK_CLASS,
+  OPERATOR_LAYOUT,
+  OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
+import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/sponsor/sponsor-report-pilot-roi-measurement-help";
+import {
+  ROI_SUMMARY_HELP_CANONICAL_PATH,
+  ROI_SUMMARY_HELP_CLAIM_DISCIPLINE,
+  ROI_SUMMARY_HELP_CLAIM_HEADING_ID,
+} from "@/lib/roi-summary-help-evidence-copy";
+import {
+  ROI_SUMMARY_HELP_DATA_NEEDS_ITEMS,
+  ROI_SUMMARY_HELP_DATA_NEEDS_SECTION_TITLE,
+  ROI_SUMMARY_HELP_DIRECTIONAL_DISCLAIMER,
+  ROI_SUMMARY_HELP_GUIDE_HEADINGS,
+  ROI_SUMMARY_HELP_HOW_TO_READ_STEPS,
+  ROI_SUMMARY_HELP_METHODOLOGY_BODY,
+  ROI_SUMMARY_HELP_METHODOLOGY_COEFFICIENT_ROWS,
+  ROI_SUMMARY_HELP_METHODOLOGY_FORMULA,
+  ROI_SUMMARY_HELP_METHODOLOGY_SECTION_TITLE,
+  ROI_SUMMARY_HELP_NEARBY_SURFACES_SECTION_TITLE,
+  ROI_SUMMARY_HELP_OVERVIEW,
+  ROI_SUMMARY_HELP_PAGE_SUBTITLE,
+  ROI_SUMMARY_HELP_PAGE_TITLE,
+  ROI_SUMMARY_HELP_PRIMARY_ACTION,
+  ROI_SUMMARY_HELP_REPORT_ITEMS,
+  ROI_SUMMARY_HELP_REPORT_SECTION_TITLE,
+  ROI_SUMMARY_HELP_SIBLING_REPORTS,
+  ROI_SUMMARY_HELP_START_HERE_CARD_TITLE,
+  ROI_SUMMARY_HELP_START_HERE_HELPER,
+} from "@/lib/roi-summary-help-guide-content";
+import {
+  ROI_SUMMARY_HELP_FIRST_VIEWPORT_TEST_ID,
+  ROI_SUMMARY_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  ROI_SUMMARY_HELP_PRIMARY_CONTENT_ID,
+  ROI_SUMMARY_HELP_SKIP_LINK_LABEL,
+  ROI_SUMMARY_HELP_SKIP_TARGET_ID,
+} from "@/lib/roi-summary-help-page-copy";
+import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
+
+type HelpRoiSummaryGuideViewProps = {
+  readonly entry: ProductDocumentationEntry;
+};
+
+function HelpSectionHeading(props: { readonly id: string; readonly children: string }): React.ReactElement {
+  return (
+    <h2
+      id={props.id}
+      className={cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY.sectionTitle, "m-0 scroll-mt-24")}
+    >
+      {props.children}
+    </h2>
+  );
+}
+
+function HowToReadRoiSummarySteps(): React.ReactElement {
+  return (
+    <ol
+      className={cn("m-0 grid list-none gap-3 p-0 sm:grid-cols-2 xl:grid-cols-3", HELP_PAGE_LAYOUT.readingBody)}
+      data-testid="help-roi-summary-how-stepper"
+    >
+      {ROI_SUMMARY_HELP_HOW_TO_READ_STEPS.map((step, index) => (
+        <li key={step} className="flex min-w-0 gap-3">
+          <span className="sr-only">{`Step ${index + 1}`}</span>
+          <span aria-hidden className={HELP_PAGE_LAYOUT.workflowStepNumber}>
+            {index + 1}
+          </span>
+          <p className="m-0 min-w-0 text-al-text-primary">{step}</p>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function RoiSummaryStartHereActionPanel(): React.ReactElement {
+  return (
+    <section
+      className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+      data-testid="help-roi-summary-action-panel"
+      aria-labelledby="help-roi-summary-action-panel-heading"
+    >
+      <h2
+        id="help-roi-summary-action-panel-heading"
+        className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+      >
+        {ROI_SUMMARY_HELP_START_HERE_CARD_TITLE}
+      </h2>
+      <p
+        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="help-roi-summary-start-here-helper"
+      >
+        {ROI_SUMMARY_HELP_START_HERE_HELPER}
+      </p>
+      <Button asChild size="sm" variant="primary" data-testid="help-roi-summary-start-here-primary-cta">
+        <Link href={ROI_SUMMARY_HELP_PRIMARY_ACTION.href}>{ROI_SUMMARY_HELP_PRIMARY_ACTION.label}</Link>
+      </Button>
+    </section>
+  );
+}
+
+/** Operator ROI summary orientation for `/help/roi-summary`. */
+export function HelpRoiSummaryGuideView(props: HelpRoiSummaryGuideViewProps): React.ReactElement {
+  const { entry } = props;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const guideHeadings = resolveGuideHeadingsForStrip(
+    "help-roi-summary",
+    ROI_SUMMARY_HELP_GUIDE_HEADINGS,
+    ROI_SUMMARY_HELP_CLAIM_HEADING_ID,
+  );
+  const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
+  const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
+
+  return (
+    <article
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
+      data-testid="help-roi-summary-guide"
+    >
+      {buyerPolishedShell ? (
+        <a href={`#${ROI_SUMMARY_HELP_SKIP_TARGET_ID}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+          {ROI_SUMMARY_HELP_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+
+      <HelpTopicHashScroll />
+
+      <div
+        id={buyerPolishedShell ? ROI_SUMMARY_HELP_PRIMARY_CONTENT_ID : undefined}
+        data-testid={buyerPolishedShell ? ROI_SUMMARY_HELP_PRIMARY_CONTENT_ID : undefined}
+        className={cn(buyerPolishedShell && "scroll-mt-24 space-y-6", buyerPolishedShell && OPERATOR_LAYOUT.sectionStack)}
+      >
+        <HelpTopicGuidePageHeader
+          title={ROI_SUMMARY_HELP_PAGE_TITLE}
+          titleTestId="help-roi-summary-page-title"
+          subtitle={ROI_SUMMARY_HELP_PAGE_SUBTITLE}
+          navHref={ROI_SUMMARY_HELP_CANONICAL_PATH}
+          headingLevel="h1"
+          claimDiscipline={buyerPolishedShell ? ROI_SUMMARY_HELP_CLAIM_DISCIPLINE : undefined}
+          claimDisciplineTestId={buyerPolishedShell ? ROI_SUMMARY_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID : undefined}
+          metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
+          actions={<HelpRoiSummaryHeaderActions />}
+        />
+
+        {buyerPolishedShell ? null : <RoiSummaryHelpClaimDisciplineStrip />}
+
+        {buyerPolishedShell ? (
+          <div
+            id={ROI_SUMMARY_HELP_SKIP_TARGET_ID}
+            data-testid={ROI_SUMMARY_HELP_FIRST_VIEWPORT_TEST_ID}
+            className={cn(
+              "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+              OPERATOR_LAYOUT.sectionStack,
+            )}
+          >
+            <RoiSummaryStartHereActionPanel />
+          </div>
+        ) : null}
+
+        <div className={contentGridClass}>
+          <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+            {buyerPolishedShell ? null : (
+              <RoiSummaryHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+            )}
+
+            <p className={readingBodyClass} data-testid="help-roi-summary-overview">
+              {ROI_SUMMARY_HELP_OVERVIEW}
+            </p>
+
+            {buyerPolishedShell ? null : <RoiSummaryStartHereActionPanel />}
+
+            <section
+              aria-labelledby="what-the-report-shows"
+              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="what-the-report-shows">{ROI_SUMMARY_HELP_REPORT_SECTION_TITLE}</HelpSectionHeading>
+              <dl
+                className={cn("m-0 grid gap-3 sm:grid-cols-2", HELP_PAGE_LAYOUT.readingBody)}
+                data-testid="help-roi-summary-report-items"
+              >
+                {ROI_SUMMARY_HELP_REPORT_ITEMS.map((item) => (
+                  <div key={item.label}>
+                    <dt className="font-medium text-al-text-primary">{item.label}</dt>
+                    <dd className="m-0 mt-1 text-al-text-secondary">{item.detail}</dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+
+            <section
+              aria-labelledby="how-to-read-roi-summary"
+              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="how-to-read-roi-summary">How to read ROI summary</HelpSectionHeading>
+              <HowToReadRoiSummarySteps />
+            </section>
+
+            <section
+              aria-labelledby="data-needs-and-confidence"
+              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="data-needs-and-confidence">
+                {ROI_SUMMARY_HELP_DATA_NEEDS_SECTION_TITLE}
+              </HelpSectionHeading>
+              <ul
+                className={cn("m-0 list-disc space-y-1 pl-5", HELP_PAGE_LAYOUT.readingBody)}
+                data-testid="help-roi-summary-data-needs"
+              >
+                {ROI_SUMMARY_HELP_DATA_NEEDS_ITEMS.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </section>
+
+            <section
+              aria-labelledby="basis-of-estimate"
+              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="basis-of-estimate">{ROI_SUMMARY_HELP_METHODOLOGY_SECTION_TITLE}</HelpSectionHeading>
+              <div
+                className={cn(DESIGN_TOKENS.surface.card, "space-y-3 p-4")}
+                data-testid="help-roi-summary-methodology"
+              >
+                <p className={readingBodyClass}>{ROI_SUMMARY_HELP_METHODOLOGY_BODY}</p>
+                <p
+                  className={cn("m-0 font-medium text-al-text-primary", HELP_PAGE_LAYOUT.readingBody)}
+                  data-testid="help-roi-summary-methodology-formula"
+                >
+                  {ROI_SUMMARY_HELP_METHODOLOGY_FORMULA}
+                </p>
+                <table
+                  className={HELP_PAGE_LAYOUT.table}
+                  data-testid="help-roi-summary-methodology-coefficients"
+                >
+                  <caption className="sr-only">Hours per finding severity and governance block</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col" className="text-left font-medium text-al-text-primary">
+                        Unit
+                      </th>
+                      <th scope="col" className="text-left font-medium text-al-text-primary">
+                        Hours
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {ROI_SUMMARY_HELP_METHODOLOGY_COEFFICIENT_ROWS.map((row) => (
+                      <tr key={row.id}>
+                        <td className="text-al-text-primary">
+                          {row.severity === undefined ? row.label : <SeverityTag severity={row.severity} />}
+                        </td>
+                        <td className="text-al-text-primary">{row.hours}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {ROI_SUMMARY_HELP_DIRECTIONAL_DISCLAIMER}
+                </p>
+                <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF}>
+                  Review pilot ROI measurement methodology
+                </Link>
+              </div>
+            </section>
+
+            {buyerPolishedShell ? null : (
+              <section
+                aria-labelledby="how-roi-summary-relates-to-nearby-surfaces"
+                className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+              >
+                <HelpSectionHeading id="how-roi-summary-relates-to-nearby-surfaces">
+                  {ROI_SUMMARY_HELP_NEARBY_SURFACES_SECTION_TITLE}
+                </HelpSectionHeading>
+                <ScorecardRoiVocabularyRail currentSurfaceId="roi-summary" variant="full" />
+                <BaselineRoiVocabularyRail currentSurfaceId="roi-summary" variant="full" />
+              </section>
+            )}
+
+            <section
+              aria-labelledby="sibling-sponsor-reports"
+              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+            >
+              <HelpSectionHeading id="sibling-sponsor-reports">Related sponsor reports</HelpSectionHeading>
+              <div className="grid gap-3 sm:grid-cols-2" data-testid="help-roi-summary-sibling-reports">
+                {ROI_SUMMARY_HELP_SIBLING_REPORTS.map((report) => (
+                  <div
+                    key={report.id}
+                    className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+                  >
+                    <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{report.title}</h3>
+                    <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{report.description}</p>
+                    <Button asChild className={CTA_WIDTH.content} size="sm" variant="outline">
+                      <Link href={report.href}>{report.actionLabel}</Link>
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </div>
+
+          {buyerPolishedShell ? null : (
+            <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
+          )}
+        </div>
+
+        {buyerPolishedShell ? <HelpRoiSummarySourcesOrientationStrip /> : null}
+
+        <div data-testid="help-roi-summary-orientation-bottom">
+          <SponsorSendPathHonestyPanel testIdPrefix="help-roi-summary" showSsoOptional={false} />
+          <HelpRoiSummaryClaimOrientationStrip />
+        </div>
+      </div>
+    </article>
+  );
+}

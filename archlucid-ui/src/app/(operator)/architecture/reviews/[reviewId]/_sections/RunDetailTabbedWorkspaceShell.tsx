@@ -1,0 +1,149 @@
+import { Suspense } from "react";
+
+import { RunDetailPresenterElicitationBridge } from "@/components/reviews/RunDetailPresenterElicitationBridge";
+import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
+import { analysisStagesCompleteOnSummary } from "./pipeline-complete-on-summary";
+import {
+  readHeldCheckLedgerFromFindingsSnapshot,
+  readHeldCheckSecondPassFromFindingsSnapshot,
+} from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
+import { readJudgeCapReductionFromFindingsSnapshot, readJudgeSkippedByCapFromFindingsSnapshot } from "@/lib/findings/read-judge-skipped-by-cap";
+import { readProseAssumptionRegisterFromFindingsSnapshot } from "@/lib/findings/read-prose-assumption-register-from-findings-snapshot";
+import { readProseAssumptionHeldCheckAsksFromFindingsSnapshot } from "@/lib/findings/read-prose-assumption-held-check-asks-from-findings-snapshot";
+import { readPixelDiagramNotVerifiableSourcesFromContextSnapshot } from "@/lib/architecture-spine/read-pixel-diagram-not-verifiable-sources";
+import { hasAzureInventoryZipEvidence } from "@/lib/first-review/azure-inventory-zip-first-review-prompt";
+import {
+  RunDetailExplanationSkeleton,
+  RunDetailTabbedSectionNavDeferred,
+} from "./RunDetailTabbedWorkspaceDeferredImports";
+import { RunDetailReviewPackageDoThisNextResolvedDeferred } from "./run-detail-page-view-deferred-chunks-review-package";
+import type { RunDetailTabbedWorkspaceResolved } from "./resolve-run-detail-tabbed-workspace";
+import type { RunDetailPresentation } from "./run-detail-page-presentation";
+import type { RunDetailPageModel } from "./run-detail-page-model";
+
+type RunDetailTabbedWorkspaceShellProps = {
+  readonly model: RunDetailPageModel;
+  readonly presentation: RunDetailPresentation;
+  readonly resolved: RunDetailTabbedWorkspaceResolved;
+};
+
+/** Tab chrome and deferred chunk wiring for the tabbed run-detail workspace. */
+export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShellProps): React.JSX.Element {
+  const { model, presentation, resolved } = props;
+  const judgeCapReduction = readJudgeCapReductionFromFindingsSnapshot(model.resolvedDetail.findingsSnapshot);
+  const {
+    blockingApprovalCount,
+    commitBlockedReason,
+    finalizeReadinessEnabled,
+    finalizeReadinessBlocks,
+    quickDecisionFindings,
+    requestAssumptionTexts,
+    reviewStatusSummary,
+    architectureEditHref,
+    findingCoverageSummary,
+    withheldFindings,
+    catalogAdvisoryEngineFailureCount,
+  } = presentation;
+
+  const activePanelLeadEl = (
+    <RunDetailReviewPackageDoThisNextResolvedDeferred
+      runId={model.resolvedDetail.run.runId}
+      manifestId={model.manifestId}
+      hasCommitBlockingFailures={findingCoverageSummary?.hasCommitBlockingFailures === true}
+      blockingFindingCount={blockingApprovalCount}
+      buyerPolishedArtifactTable={model.buyerPolishedArtifactTable}
+      operatorGovernanceDecision={model.resolvedDetail.run.operatorGovernanceDecision}
+      manifestStatus={model.manifestSummary?.status ?? null}
+      runCompleted={model.runCompleted}
+      nextAction={reviewStatusSummary.nextAction}
+      showProgressTracker={model.showProgressTracker}
+      legacyRunStatus={model.resolvedDetail.run.legacyRunStatus ?? null}
+      isDeadLettered={model.resolvedDetail.run.isDeadLettered === true}
+      openClarificationGapCount={0}
+      correctionHref={architectureEditHref}
+      useCreateHomeWorkspaceTabs={false}
+      hasGoldenManifest={Boolean(model.manifestId)}
+      commitBlockedReason={commitBlockedReason}
+      serverFinalizeReadinessBlocks={finalizeReadinessBlocks}
+      finalizeReadinessEnabled={finalizeReadinessEnabled}
+      quickDecisionFindings={quickDecisionFindings}
+      requestAssumptionTexts={requestAssumptionTexts}
+      transparencyTrail={
+        model.manifestSummaryForUi?.feasibilityVerdict?.transparencyTrail ??
+        model.manifestSummary?.feasibilityVerdict?.transparencyTrail ??
+        null
+      }
+      feasibilityVerdict={
+        model.manifestSummaryForUi?.feasibilityVerdict ??
+        model.manifestSummary?.feasibilityVerdict ??
+        null
+      }
+      graphSnapshot={model.resolvedDetail.graphSnapshot}
+      analysisStagesComplete={analysisStagesCompleteOnSummary(model.progressForPipelineUi)}
+      evidenceCoverageLinkedCount={presentation.evidenceCoverageSummary.linkedCount}
+      evidenceCoverageTotalCount={presentation.evidenceCoverageSummary.totalCount}
+      governanceDecisionRecorded={
+        (model.resolvedDetail.run.operatorGovernanceDecision ?? "").trim().length > 0
+      }
+      pipelineDiagnosticContext={model.pipelineDiagnosticContext}
+      lastFailureSummary={resolveRunDetailLastFailureSummary(model.resolvedDetail)}
+      pipelineSummary={model.progressForPipelineUi}
+      runCompletedUtc={model.resolvedDetail.run.completedUtc ?? null}
+      intakeDescription={model.resolvedDetail.run.description ?? model.progressForPipelineUi.description ?? null}
+      intakeSystemName={model.progressForPipelineUi.displayName ?? null}
+      realModeFellBackToSimulator={model.resolvedDetail.run.realModeFellBackToSimulator === true}
+      enginesSucceeded={findingCoverageSummary?.enginesSucceeded ?? null}
+      judgeSkippedByCap={readJudgeSkippedByCapFromFindingsSnapshot(model.resolvedDetail.findingsSnapshot)}
+      judgeConfiguredCap={judgeCapReduction?.configuredCap ?? null}
+      judgeEffectiveCap={judgeCapReduction?.effectiveCap ?? null}
+      heldCheckLedgerEntries={readHeldCheckLedgerFromFindingsSnapshot(model.resolvedDetail.findingsSnapshot)}
+      heldCheckSecondPass={readHeldCheckSecondPassFromFindingsSnapshot(model.resolvedDetail.findingsSnapshot)}
+      proseAssumptionRegisterEntries={readProseAssumptionRegisterFromFindingsSnapshot(model.resolvedDetail.findingsSnapshot)}
+      proseAssumptionHeldCheckAsks={readProseAssumptionHeldCheckAsksFromFindingsSnapshot(model.resolvedDetail.findingsSnapshot)}
+      pixelDiagramNotVerifiableSources={readPixelDiagramNotVerifiableSourcesFromContextSnapshot(model.resolvedDetail.contextSnapshot)}
+      withheldFindingCount={withheldFindings.length}
+      catalogAdvisoryEngineFailureCount={catalogAdvisoryEngineFailureCount}
+      architectureRequestId={model.resolvedDetail.run.architectureRequestId}
+      azureInventoryEvidencePresent={hasAzureInventoryZipEvidence(presentation.evidenceInventoryItems)}
+      structuralExecutionMode={model.resolvedDetail.run.structuralExecutionMode}
+      parentArchitectureId={model.resolvedDetail.run.architectureId ?? null}
+      degradedFindingCoverage={model.resolvedDetail.degradedFindingCoverage === true}
+      degradedFindingCoverageFailedEngineLabels={findingCoverageSummary?.failedEngineLabels ?? []}
+    />
+  );
+
+  return (
+    <Suspense fallback={<RunDetailExplanationSkeleton />}>
+      <RunDetailPresenterElicitationBridge
+        runId={model.resolvedDetail.run.runId}
+        architectureRequestId={model.resolvedDetail.run.architectureRequestId}
+        parentArchitectureId={model.resolvedDetail.run.architectureId ?? null}
+        defensibilityStrip={resolved.defensibilityStripEl}
+        tabSectionNav={
+          <RunDetailTabbedSectionNavDeferred
+            runId={model.resolvedDetail.run.runId}
+            parentArchitectureId={model.resolvedDetail.run.architectureId ?? null}
+            sections={model.runDetailNavSections}
+            tabLifecycle={{
+              manifestId: model.manifestId,
+              showProgressTracker: model.showProgressTracker,
+              runCompleted: model.runCompleted,
+            }}
+            lifecycle={resolved.lifecycle}
+          />
+        }
+        inPipelineBanner={resolved.inPipelineBannerEl}
+        activePanelLead={activePanelLeadEl}
+        lifecycle={resolved.lifecycle}
+        tabLifecycle={{
+          manifestId: model.manifestId,
+          showProgressTracker: model.showProgressTracker,
+          runCompleted: model.runCompleted,
+        }}
+        tabActivityAt={resolved.tabActivityAt}
+        tabCounts={resolved.tabCounts}
+        panels={resolved.panels}
+      />
+    </Suspense>
+  );
+}

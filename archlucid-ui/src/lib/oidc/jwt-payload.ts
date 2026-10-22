@@ -1,0 +1,82 @@
+import {
+  normalizeOidcDisplayString,
+  stripOAuthInvisibleFormatChars,
+} from "@/lib/oidc/oauth-callback-messages";
+
+/**
+ * Decode JWT payload for display only (no signature verification — server validates on API calls).
+ */
+export function decodeJwtPayload(jwt: string): Record<string, unknown> | null {
+  const parts = jwt.split(".");
+
+  if (parts.length < 2) {
+    return null;
+  }
+
+  const payloadSegment = parts[1];
+
+  if (!payloadSegment) {
+    return null;
+  }
+
+  try {
+    const padded = payloadSegment.replace(/-/gu, "+").replace(/_/gu, "/");
+    const padLen = (4 - (padded.length % 4)) % 4;
+    const base64 = padded + "=".repeat(padLen);
+    const binary = atob(base64);
+
+    // JWT payloads are UTF-8 bytes; atob() returns one Latin-1 character per byte.
+    const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+    const json = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+
+    return JSON.parse(json) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
+
+export function readNonceFromPayload(payload: Record<string, unknown> | null): string | null {
+  if (!payload) {
+    return null;
+  }
+
+  const nonce = payload.nonce;
+
+  if (typeof nonce !== "string") {
+    return null;
+  }
+
+  const normalized = stripOAuthInvisibleFormatChars(nonce.trim()).trim();
+
+  if (normalized.length === 0) {
+    return null;
+  }
+
+  return normalized;
+}
+
+export function pickDisplayNameFromPayload(payload: Record<string, unknown> | null): string | null {
+  if (!payload) {
+    return null;
+  }
+
+  const preferred = payload.preferred_username;
+  const name = payload.name;
+  const upn = payload.upn;
+  const email = payload.email;
+  const sub = payload.sub;
+
+  for (const candidate of [preferred, name, upn, email, sub]) {
+    if (typeof candidate !== "string") {
+      continue;
+    }
+
+    const normalized = normalizeOidcDisplayString(candidate);
+
+    if (normalized.length > 0) {
+      return normalized;
+    }
+  }
+
+  return null;
+}

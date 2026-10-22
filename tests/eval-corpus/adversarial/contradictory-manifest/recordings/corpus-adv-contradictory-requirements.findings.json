@@ -1,0 +1,32 @@
+{
+  "findings": [
+    {
+      "findingId": "adv-contra-req-1",
+      "category": "Critic",
+      "severity": "High",
+      "title": "Serverless versus dedicated deadlock",
+      "detail": "Mandatory serverless consumption tiers cannot coexist with mandatory customer-dedicated VMs for every workload—this deadlock requires sponsor arbitration before architecture boards proceed."
+    },
+    {
+      "findingId": "adv-contra-req-2",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "Hosting edges blocked",
+      "detail": "Dedicated VM footprints contradict elastic serverless routing assumptions; topology automation should halt merges until one hosting story is explicitly waived."
+    },
+    {
+      "findingId": "adv-contra-req-3",
+      "category": "Compliance",
+      "severity": "Medium",
+      "title": "Control inheritance ambiguous",
+      "detail": "Encryption and isolation controls diverge between dedicated VM baselines and consumption plans; inheritance matrices stay ambiguous until licensing waivers publish."
+    },
+    {
+      "findingId": "adv-contra-req-4",
+      "category": "Cost",
+      "severity": "Low",
+      "title": "Dual posture budgeting",
+      "detail": "Finance cannot finalize RI versus serverless forecasts while contradictory mandates remain unresolved."
+    }
+  ]
+}

@@ -1,0 +1,181 @@
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
+
+import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
+
+import { RunDetailFeasibilityVerdictSection } from "./RunDetailFeasibilityVerdictSection";
+
+describe("RunDetailFeasibilityVerdictSection", () => {
+  it("renders verdict kind, summary, and transparency trail counts", () => {
+    const verdict: ManifestFeasibilityVerdict = {
+      kind: "SoftInfeasible",
+      summary: "Policy controls are not satisfied for the proposed architecture.",
+      softEnvelope: {
+        confidenceLow: 50,
+        confidenceHigh: 80,
+        envelopeDescription: "Holds for this manifest snapshot.",
+        softAssumption: "Operator intent matches asserted inputs.",
+        costOfBeingWrong: "Shipping policy gaps to production.",
+      },
+      transparencyTrail: {
+        asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+        inferred: [
+          {
+            key: "finding.blocking.finding-99",
+            value: "Accepted finding finding-99 is Error or Critical.",
+            confidence: 90,
+          },
+          { key: "policy.violation.CIS-1.1", value: "Encrypt data at rest", confidence: 85 },
+        ],
+        skipped: [{ questionKey: "l0.pillar.security", tier: "Must" }],
+      },
+    };
+
+    render(<RunDetailFeasibilityVerdictSection verdict={verdict} runId="run-1" />);
+
+    expect(screen.getByTestId("run-detail-feasibility-verdict")).toBeInTheDocument();
+    expect(screen.getByTestId("feasibility-verdict-drivers")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /finding-99 is error or critical/i })).toHaveAttribute(
+      "href",
+      "/architecture/reviews/run-1/findings/finding-99",
+    );
+    expect(screen.getByText(/remediate/i)).toBeInTheDocument();
+    expect(screen.getByText(verdict.summary)).toBeInTheDocument();
+    expect(screen.getByText(/asserted \(1\)/i)).toBeInTheDocument();
+    expect(screen.getByTestId("transparency-trail-skipped-must")).toBeInTheDocument();
+    expect(screen.getByTestId("transparency-trail-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("decision-receipt-export")).toBeInTheDocument();
+  });
+
+  it("shows a defect instead of hard labeling when citation is missing", () => {
+    const verdict: ManifestFeasibilityVerdict = {
+      kind: "HardInfeasible",
+      summary: "Required controls cannot be satisfied.",
+    };
+
+    render(<RunDetailFeasibilityVerdictSection verdict={verdict} runId="run-1" />);
+
+    expect(screen.getByTestId("feasibility-verdict-missing-hard-citation-defect")).toBeInTheDocument();
+    expect(screen.getByText("Infeasibility verdict needs citation")).toBeInTheDocument();
+    expect(screen.queryByText("Hold")).not.toBeInTheDocument();
+  });
+
+  it("distinguishes omitted soft verdict fields from stored empty values", () => {
+    const { rerender } = render(
+      <RunDetailFeasibilityVerdictSection
+        verdict={{
+          kind: "SoftInfeasible",
+          summary: "Not feasible as specified.",
+          softEnvelope: {
+            confidenceLow: 0,
+            confidenceHigh: 0,
+            softAssumption: null,
+          },
+          unsatCoreInvariantKeys: null,
+        }}
+        runId="run-1"
+      />,
+    );
+
+    expect(screen.getByText("Soft assumption was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Unsat core was not stored.")).toBeInTheDocument();
+
+    rerender(
+      <RunDetailFeasibilityVerdictSection
+        verdict={{
+          kind: "SoftInfeasible",
+          summary: "Not feasible as specified.",
+          softEnvelope: {
+            confidenceLow: 0,
+            confidenceHigh: 0,
+            softAssumption: "",
+          },
+          unsatCoreInvariantKeys: [],
+        }}
+        runId="run-1"
+      />,
+    );
+
+    expect(screen.queryByText("Soft assumption was not stored.")).not.toBeInTheDocument();
+    expect(screen.queryByText("Unsat core was not stored.")).not.toBeInTheDocument();
+  });
+
+  it("renders omitted and stored feasibility detail without collapsing empty values", () => {
+    const { rerender } = render(
+      <RunDetailFeasibilityVerdictSection
+        verdict={{
+          kind: "SoftInfeasible",
+          summary: "Not feasible as specified.",
+          softEnvelope: {
+            confidenceLow: 0,
+            confidenceHigh: 0,
+            softAssumption: "",
+          },
+          proposedRelaxations: undefined,
+        }}
+        runId="run-1"
+      />,
+    );
+
+    expect(screen.getByText("Cost of being wrong was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Proposed relaxations were not stored.")).toBeInTheDocument();
+
+    rerender(
+      <RunDetailFeasibilityVerdictSection
+        verdict={{
+          kind: "SoftInfeasible",
+          summary: "Not feasible as specified.",
+          softEnvelope: {
+            confidenceLow: 0,
+            confidenceHigh: 0,
+            softAssumption: "",
+            costOfBeingWrong: "",
+          },
+          proposedRelaxations: [],
+        }}
+        runId="run-1"
+      />,
+    );
+
+    expect(screen.queryByText("Cost of being wrong was not stored.")).not.toBeInTheDocument();
+    expect(screen.queryByText("Proposed relaxations were not stored.")).not.toBeInTheDocument();
+  });
+
+  it("renders proposed relaxation omissions and stored values", () => {
+    render(
+      <RunDetailFeasibilityVerdictSection
+        verdict={{
+          kind: "HardInfeasible",
+          summary: "Required controls cannot be satisfied.",
+          proposedRelaxations: [{ invariantKey: undefined, tradeOffDescription: undefined }],
+        }}
+        runId="run-1"
+      />,
+    );
+
+    expect(screen.getByText("Relaxation invariant key was not stored.")).toBeInTheDocument();
+    expect(screen.getByTestId("run-detail-feasibility-verdict")).toHaveTextContent(
+      "Trade-off description was not stored.",
+    );
+  });
+
+  it("reports an omitted verdict kind and preserves unexpected stored kinds", () => {
+    const { rerender } = render(
+      <RunDetailFeasibilityVerdictSection
+        verdict={{ kind: undefined as never, summary: "No kind." }}
+        runId="run-1"
+      />,
+    );
+
+    expect(screen.getByText("Verdict kind was not stored.")).toBeInTheDocument();
+
+    rerender(
+      <RunDetailFeasibilityVerdictSection
+        verdict={{ kind: "FutureKind" as never, summary: "Unknown kind." }}
+        runId="run-1"
+      />,
+    );
+
+    expect(screen.getByText("FutureKind")).toBeInTheDocument();
+  });
+});

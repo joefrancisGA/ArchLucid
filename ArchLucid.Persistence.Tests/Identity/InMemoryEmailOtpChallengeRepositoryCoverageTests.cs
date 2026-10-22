@@ -1,0 +1,387 @@
+using ArchLucid.Core.Identity;
+using ArchLucid.Persistence.Identity;
+
+using FluentAssertions;
+
+namespace ArchLucid.Persistence.Tests.Identity;
+
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
+public sealed class InMemoryEmailOtpChallengeRepositoryCoverageTests
+{
+    [Fact]
+    public async Task Insert_counts_latest_and_invalidate_cover_request_paths()
+    {
+        InMemoryEmailOtpChallengeRepository sut = new();
+        DateTimeOffset expires = TimeProvider.System.GetUtcNow().AddMinutes(10);
+        Guid knownId = Guid.NewGuid();
+
+        EmailOtpChallengeRecord first = await sut.InsertAsync(
+            new EmailOtpChallengeInsert
+            {
+                Id = knownId,
+                NormalizedEmail = "user@example.com",
+                CodeHash = "hash-a",
+                ExpiresUtc = expires,
+                ClientIpHash = "ip-1",
+                UserAgentHash = "ua-1",
+            },
+            CancellationToken.None);
+
+        EmailOtpChallengeRecord second = await sut.InsertAsync(
+            new EmailOtpChallengeInsert
+            {
+                NormalizedEmail = "user@example.com",
+                CodeHash = "hash-b",
+                ExpiresUtc = expires,
+                ClientIpHash = "ip-1",
+            },
+            CancellationToken.None);
+
+        first.Id.Should().Be(knownId);
+        second.Id.Should().NotBe(Guid.Empty);
+        (await sut.GetByIdAsync(knownId, CancellationToken.None))!.CodeHash.Should().Be("hash-a");
+
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+        DateTimeOffset since = now.AddMinutes(-1);
+        (await sut.CountRecentRequestsByEmailAsync("user@example.com", since, now, CancellationToken.None))
+            .Should()
+            .Be(2);
+        (await sut.CountRecentRequestsByClientIpHashAsync("ip-1", since, now, CancellationToken.None))
+            .Should()
+            .Be(2);
+
+        (await sut.GetLatestRequestUtcByEmailAsync("user@example.com", now, CancellationToken.None))
+            .Should()
+            .NotBeNull();
+
+        await sut.InvalidateActiveChallengesForEmailAsync(
+            "user@example.com",
+            TimeProvider.System.GetUtcNow(),
+            CancellationToken.None);
+
+        EmailOtpChallengeCompletionOutcome invalidated = await sut.TryCompleteAsync(
+            knownId,
+            "hash-a",
+            TimeProvider.System.GetUtcNow(),
+            maxFailedAttempts: 5,
+            CancellationToken.None);
+
+        invalidated.Result.Should().Be(EmailOtpChallengeCompletionResult.Invalidated);
+    }
+
+    [Fact]
+    public async Task InsertAsync_throws_when_challenge_id_already_exists()
+    {
+        InMemoryEmailOtpChallengeRepository sut = new();
+        Guid id = Guid.NewGuid();
+        DateTimeOffset expires = TimeProvider.System.GetUtcNow().AddMinutes(10);
+
+        await sut.InsertAsync(
+            new EmailOtpChallengeInsert
+            {
+                Id = id,
+                NormalizedEmail = "user@example.com",
+                CodeHash = "hash-a",
+                ExpiresUtc = expires,
+            },
+            CancellationToken.None);
+
+        Func<Task> duplicate = () => sut.InsertAsync(
+            new EmailOtpChallengeInsert
+            {
+                Id = id,
+                NormalizedEmail = "other@example.com",
+                CodeHash = "hash-b",
+                ExpiresUtc = expires,
+            },
+            CancellationToken.None);
+
+        await duplicate.Should().ThrowAsync<DuplicateEmailOtpChallengeException>();
+        (await sut.GetByIdAsync(id, CancellationToken.None))!.CodeHash.Should().Be("hash-a");
+    }
+
+    [Fact]
+    public async Task TryComplete_covers_not_found_expired_invalid_lockout_and_success()
+    {
+        InMemoryEmailOtpChallengeRepository sut = new();
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+
+        EmailOtpChallengeRecord active = await sut.InsertAsync(
+            new EmailOtpChallengeInsert
+            {
+                NormalizedEmail = "otp@example.com",
+                CodeHash = "correct-hash",
+                ExpiresUtc = now.AddMinutes(5),
+            },
+            CancellationToken.None);
+
+        EmailOtpChallengeRecord expired = await sut.InsertAsync(
+            new EmailOtpChallengeInsert
+            {
+                NormalizedEmail = "otp@example.com",
+                CodeHash = "expired-hash",
+                ExpiresUtc = now.AddMinutes(-1),
+            },
+            CancellationToken.None);
+
+        (await sut.TryCompleteAsync(Guid.NewGuid(), "x", now, 3, CancellationToken.None))
+            .Result.Should()
+            .Be(EmailOtpChallengeCompletionResult.NotFound);
+
+        (await sut.TryCompleteAsync(expired.Id, "expired-hash", now, 3, CancellationToken.None))
+            .Result.Should()
+            .Be(EmailOtpChallengeCompletionResult.Expired);
+
+        (await sut.TryCompleteAsync(active.Id, "wrong", now, maxFailedAttempts: 2, CancellationToken.None))
+            .Result.Should()
+            .Be(EmailOtpChallengeCompletionResult.InvalidCode);
+
+        (await sut.CountRecentFailedVerificationsByEmailAsync("otp@example.com", now.AddMinutes(-1), now, CancellationToken.None))
+            .Should()
+            .Be(1);
+
+        (await sut.TryCompleteAsync(active.Id, "wrong-again", now, maxFailedAttempts: 2, CancellationToken.None))
+            .Result.Should()
+            .Be(EmailOtpChallengeCompletionResult.TooManyAttempts);
+
+        EmailOtpChallengeRecord fresh = await sut.InsertAsync(
+            new EmailOtpChallengeInsert
+            {
+                NormalizedEmail = "otp@example.com",
+                CodeHash = "ok-hash",
+                ExpiresUtc = now.AddMinutes(5),
+            },
+            CancellationToken.None);
+
+        EmailOtpChallengeCompletionOutcome completed = await sut.TryCompleteAsync(
+            fresh.Id,
+            "ok-hash",
+            now,
+            maxFailedAttempts: 5,
+            CancellationToken.None);
+
+        completed.Result.Should().Be(EmailOtpChallengeCompletionResult.Completed);
+        completed.Challenge.Should().NotBeNull();
+
+        (await sut.TryCompleteAsync(fresh.Id, "ok-hash", now, 5, CancellationToken.None))
+            .Result.Should()
+            .Be(EmailOtpChallengeCompletionResult.AlreadyCompleted);
+    }
+
+    [Fact]
+    public async Task CountRecentFailedVerifications_ignores_invalidated_challenges_when_replaced_by_active_challenge()
+    {
+        InMemoryEmailOtpChallengeRepository sut = new();
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+
+        EmailOtpChallengeRecord active = await sut.InsertAsync(
+            new EmailOtpChallengeInsert
+            {
+                NormalizedEmail = "otp@example.com",
+                CodeHash = "correct-hash",
+                ExpiresUtc = now.AddMinutes(5),
+            },
+            CancellationToken.None);
+
+        (await sut.TryCompleteAsync(active.Id, "wrong", now, maxFailedAttempts: 5, CancellationToken.None))
+            .Result.Should()
+            .Be(EmailOtpChallengeCompletionResult.InvalidCode);
+
+        await sut.ReplaceActiveChallengeForEmailAsync(
+            new EmailOtpChallengeInsert
+            {
+                NormalizedEmail = "otp@example.com",
+                CodeHash = "replacement-hash",
+                ExpiresUtc = now.AddMinutes(5),
+            },
+            now,
+            CancellationToken.None);
+
+        (await sut.CountRecentFailedVerificationsByEmailAsync("otp@example.com", now.AddMinutes(-1), now, CancellationToken.None))
+            .Should()
+            .Be(0);
+    }
+
+    [Fact]
+    public async Task CountRecentFailedVerifications_ignores_expired_challenges()
+    {
+        InMemoryEmailOtpChallengeRepository sut = new();
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+
+        EmailOtpChallengeRecord active = await sut.InsertAsync(
+            new EmailOtpChallengeInsert
+            {
+                NormalizedEmail = "otp@example.com",
+                CodeHash = "correct-hash",
+                ExpiresUtc = now.AddMinutes(5),
+            },
+            CancellationToken.None);
+
+        (await sut.TryCompleteAsync(active.Id, "wrong", now, maxFailedAttempts: 5, CancellationToken.None))
+            .Result.Should()
+            .Be(EmailOtpChallengeCompletionResult.InvalidCode);
+
+        DateTimeOffset afterExpiry = now.AddMinutes(10);
+
+        (await sut.CountRecentFailedVerificationsByEmailAsync(
+                "otp@example.com",
+                afterExpiry.AddHours(-1),
+                afterExpiry,
+                CancellationToken.None))
+            .Should()
+            .Be(0);
+    }
+
+    [Fact]
+    public async Task CountRecentRequestsByEmail_ignores_completed_challenges()
+    {
+        InMemoryEmailOtpChallengeRepository sut = new();
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+        DateTimeOffset since = now.AddMinutes(-5);
+
+        EmailOtpChallengeRecord active = await sut.InsertAsync(
+            new EmailOtpChallengeInsert
+            {
+                NormalizedEmail = "otp@example.com",
+                CodeHash = "correct-hash",
+                ExpiresUtc = now.AddMinutes(5),
+            },
+            CancellationToken.None);
+
+        await sut.TryCompleteAsync(active.Id, "correct-hash", now, maxFailedAttempts: 5, CancellationToken.None);
+
+        (await sut.CountRecentRequestsByEmailAsync("otp@example.com", since, now, CancellationToken.None))
+            .Should()
+            .Be(0);
+    }
+
+    [Fact]
+    public async Task GetLatestRequestUtc_ignores_expired_active_challenges()
+    {
+        InMemoryEmailOtpChallengeRepository sut = new();
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+
+        await sut.InsertAsync(
+            new EmailOtpChallengeInsert
+            {
+                NormalizedEmail = "otp@example.com",
+                CodeHash = "expired-hash",
+                ExpiresUtc = now.AddMinutes(-1),
+            },
+            CancellationToken.None);
+
+        (await sut.GetLatestRequestUtcByEmailAsync("otp@example.com", now, CancellationToken.None))
+            .Should()
+            .BeNull();
+    }
+
+    [Fact]
+    public async Task CountRecentRequestsByEmail_ignores_invalidated_unused_challenges()
+    {
+        InMemoryEmailOtpChallengeRepository sut = new();
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+        DateTimeOffset since = now.AddMinutes(-5);
+
+        EmailOtpChallengeRecord active = await sut.InsertAsync(
+            new EmailOtpChallengeInsert
+            {
+                NormalizedEmail = "otp@example.com",
+                CodeHash = "correct-hash",
+                ExpiresUtc = now.AddMinutes(5),
+            },
+            CancellationToken.None);
+
+        (await sut.TryCompleteAsync(active.Id, "wrong", now, maxFailedAttempts: 1, CancellationToken.None))
+            .Result.Should()
+            .Be(EmailOtpChallengeCompletionResult.TooManyAttempts);
+
+        (await sut.CountRecentRequestsByEmailAsync("otp@example.com", since, now, CancellationToken.None))
+            .Should()
+            .Be(0);
+    }
+
+    [Fact]
+    public async Task CountRecentRequests_ignores_expired_unused_challenges()
+    {
+        InMemoryEmailOtpChallengeRepository sut = new();
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+
+        await sut.InsertAsync(
+            new EmailOtpChallengeInsert
+            {
+                NormalizedEmail = "otp@example.com",
+                CodeHash = "expired-hash",
+                ExpiresUtc = now.AddMinutes(-1),
+                ClientIpHash = "ip-expired",
+            },
+            CancellationToken.None);
+
+        DateTimeOffset since = now.AddHours(-1);
+
+        (await sut.CountRecentRequestsForRateLimitAsync("otp@example.com", "ip-expired", since, now, CancellationToken.None))
+            .Should()
+            .Be(new EmailOtpRecentRequestCounts(0, 0));
+    }
+
+    [Fact]
+    public async Task CountRecentFailedVerifications_counts_lockout_invalidated_challenge_when_no_replacement_is_active()
+    {
+        InMemoryEmailOtpChallengeRepository sut = new();
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+
+        EmailOtpChallengeRecord active = await sut.InsertAsync(
+            new EmailOtpChallengeInsert
+            {
+                NormalizedEmail = "otp@example.com",
+                CodeHash = "correct-hash",
+                ExpiresUtc = now.AddMinutes(5),
+            },
+            CancellationToken.None);
+
+        (await sut.TryCompleteAsync(active.Id, "wrong", now, maxFailedAttempts: 2, CancellationToken.None))
+            .Result.Should()
+            .Be(EmailOtpChallengeCompletionResult.InvalidCode);
+
+        (await sut.TryCompleteAsync(active.Id, "wrong-again", now, maxFailedAttempts: 2, CancellationToken.None))
+            .Result.Should()
+            .Be(EmailOtpChallengeCompletionResult.TooManyAttempts);
+
+        (await sut.CountRecentFailedVerificationsByEmailAsync("otp@example.com", now.AddMinutes(-1), now, CancellationToken.None))
+            .Should()
+            .Be(1);
+    }
+
+    [Fact]
+    public async Task CountRecentFailedVerifications_counts_lockout_when_only_other_challenge_is_expired()
+    {
+        InMemoryEmailOtpChallengeRepository sut = new();
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+
+        await sut.InsertAsync(
+            new EmailOtpChallengeInsert
+            {
+                NormalizedEmail = "otp@example.com",
+                CodeHash = "expired-hash",
+                ExpiresUtc = now.AddMinutes(-1),
+            },
+            CancellationToken.None);
+
+        EmailOtpChallengeRecord lockout = await sut.InsertAsync(
+            new EmailOtpChallengeInsert
+            {
+                NormalizedEmail = "otp@example.com",
+                CodeHash = "correct-hash",
+                ExpiresUtc = now.AddMinutes(5),
+            },
+            CancellationToken.None);
+
+        (await sut.TryCompleteAsync(lockout.Id, "wrong", now, maxFailedAttempts: 1, CancellationToken.None))
+            .Result.Should()
+            .Be(EmailOtpChallengeCompletionResult.TooManyAttempts);
+
+        (await sut.CountRecentFailedVerificationsByEmailAsync("otp@example.com", now.AddHours(-1), now, CancellationToken.None))
+            .Should()
+            .Be(1);
+    }
+}

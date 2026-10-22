@@ -1,0 +1,138 @@
+import type {
+  EnterpriseCompactEmptyStateAction,
+  EnterpriseCompactEmptyStateProps,
+} from "@/components/EnterpriseCompactEmptyState";
+import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { WORKING_NEW_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
+import {
+  IMPACT_PREVIEW_EMPTY_NO_BASELINE_BODY,
+  IMPACT_PREVIEW_EMPTY_NO_BASELINE_TITLE,
+} from "@/lib/impact-preview-page-copy";
+import {
+  REVIEW_SCORECARD_EMPTY_DESCRIPTION,
+  REVIEW_SCORECARD_EMPTY_HEADING,
+  buildReviewScorecardSampleHref,
+} from "@/lib/review-scorecard-empty-state";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+
+export type InsightsFinalizedReviewJobId =
+  | "compare"
+  | "ask"
+  | "scorecard"
+  | "impact-preview"
+  | "evidence-graph";
+
+export const INSIGHTS_FINALIZED_REVIEW_PREREQUISITE_TITLE_ZERO =
+  "No finalized reviews yet" as const;
+
+export const INSIGHTS_FINALIZED_REVIEW_OPEN_REVIEWS_ACTION = {
+  label: "Open reviews",
+  href: "/architecture/reviews",
+  variant: "primary" as const,
+};
+
+export const INSIGHTS_FINALIZED_REVIEW_START_REVIEW_ACTION = {
+  label: BUYER_START_ARCHITECTURE_REVIEW_CTA,
+  href: "/architecture/reviews/new",
+  variant: "outline" as const,
+};
+
+const INSIGHTS_JOB_DESCRIPTIONS: Record<InsightsFinalizedReviewJobId, string> = {
+  compare:
+    "You need at least two finalized reviews before ArchLucid can compare changes over time.",
+  ask: "Finalize an architecture review before asking questions across workspace evidence.",
+  scorecard: REVIEW_SCORECARD_EMPTY_DESCRIPTION,
+  "impact-preview": IMPACT_PREVIEW_EMPTY_NO_BASELINE_BODY,
+  "evidence-graph":
+    "Select a finalized architecture review to explore evidence links, or start a review to build the graph.",
+};
+
+const INSIGHTS_JOB_TEST_IDS: Record<InsightsFinalizedReviewJobId, string> = {
+  compare: "compare-zero-finalized-empty-state",
+  ask: "ask-no-review-empty-state",
+  scorecard: "review-scorecard-empty-state",
+  "impact-preview": "impact-preview-no-baseline-empty-state",
+  "evidence-graph": "evidence-graph-finalized-prerequisite-empty-state",
+};
+
+export type BuildInsightsFinalizedReviewPrerequisiteEmptyInput = {
+  readonly jobId: InsightsFinalizedReviewJobId;
+  readonly finalizedCount?: number;
+  readonly includeSampleAction?: boolean;
+  /** Working live desk — single start href and no sample workspace CTA on Ask. */
+  readonly workingMode?: boolean;
+};
+
+function resolveInsightsStartReviewAction(workingMode: boolean): EnterpriseCompactEmptyStateAction {
+  if (workingMode) {
+    return {
+      label: WORKING_NEW_REVIEW_LABEL,
+      href: ARCHITECTURES_NEW_PATH,
+      variant: "outline" as const,
+    };
+  }
+
+  return INSIGHTS_FINALIZED_REVIEW_START_REVIEW_ACTION;
+}
+
+/** Shared Insights prerequisite empty when no finalized architecture reviews exist (TB-2389). */
+export function buildInsightsFinalizedReviewPrerequisiteEmpty(
+  input: BuildInsightsFinalizedReviewPrerequisiteEmptyInput,
+): EnterpriseCompactEmptyStateProps {
+  const workingMode = input.workingMode === true;
+  const startReviewAction = resolveInsightsStartReviewAction(workingMode);
+  const sampleScorecardAction: EnterpriseCompactEmptyStateAction | null =
+    input.includeSampleAction === true
+      ? {
+          label: "View sample scorecard",
+          href: buildReviewScorecardSampleHref(),
+          variant: "outline",
+        }
+      : null;
+
+  const askSampleWorkspaceAction: EnterpriseCompactEmptyStateAction | null =
+    input.jobId === "ask" && !workingMode
+      ? {
+          label: "Load sample workspace",
+          href: `/insights/evidence-graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
+          variant: "outline",
+        }
+      : null;
+
+  const actions: EnterpriseCompactEmptyStateAction[] = [
+    INSIGHTS_FINALIZED_REVIEW_OPEN_REVIEWS_ACTION,
+    startReviewAction,
+    ...(sampleScorecardAction !== null ? [sampleScorecardAction] : []),
+    ...(askSampleWorkspaceAction !== null ? [askSampleWorkspaceAction] : []),
+  ];
+
+  const title =
+    input.jobId === "impact-preview"
+      ? IMPACT_PREVIEW_EMPTY_NO_BASELINE_TITLE
+      : input.jobId === "scorecard"
+        ? REVIEW_SCORECARD_EMPTY_HEADING
+        : INSIGHTS_FINALIZED_REVIEW_PREREQUISITE_TITLE_ZERO;
+
+  return {
+    testId: INSIGHTS_JOB_TEST_IDS[input.jobId],
+    title,
+    description: INSIGHTS_JOB_DESCRIPTIONS[input.jobId],
+    actions,
+  };
+}
+
+/** Compare when exactly one finalized review exists — still needs a second package. */
+export function buildCompareInsufficientFinalizedEmpty(workingMode = false): EnterpriseCompactEmptyStateProps {
+  const startReviewAction = resolveInsightsStartReviewAction(workingMode);
+
+  return {
+    testId: "compare-insufficient-finalized-empty-state",
+    title: "One finalized review available",
+    description: "Finalize one more review to compare changes over time.",
+    actions: [
+      INSIGHTS_FINALIZED_REVIEW_OPEN_REVIEWS_ACTION,
+      { ...startReviewAction, variant: "outline" },
+    ],
+  };
+}

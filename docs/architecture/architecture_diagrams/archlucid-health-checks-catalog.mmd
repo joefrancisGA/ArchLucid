@@ -1,0 +1,8 @@
+flowchart TB
+  Live["/health/live"] --> Min["minimal liveness"]
+  Ready["/health/ready"] --> Sql["SqlConnectionHealthCheck"]
+  Ready --> DbLive["DatabaseLivenessHealthCheck"]
+  Ready --> Vec["VectorStoreHealthCheck"]
+  Ready --> GM["RunGoldenManifestConsistencyHealthCheck"]
+  Ready --> CS["ContentSafetyHealthCheck"]
+  Detail["DetailedHealthCheckResponseWriter"] --> Ready

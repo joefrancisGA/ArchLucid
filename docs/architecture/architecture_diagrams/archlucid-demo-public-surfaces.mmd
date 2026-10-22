@@ -1,0 +1,18 @@
+flowchart TB
+  subgraph public["Anonymous / public"]
+    DEMO["/v1/demo/preview"]
+    SAMPLE["/v1/public/demo/sample-run"]
+    MKT["Marketing pages"]
+  end
+
+  subgraph rules["Hard rules"]
+    RO["Read-only demo bundles"]
+    NO["Never bypass tenant RLS/catalogs"]
+    SEED["Demo seed expensive rate limit"]
+  end
+
+  DEMO --> RO
+  SAMPLE --> RO
+  MKT --> RO
+  RO --> NO
+  SEED --> DEMO

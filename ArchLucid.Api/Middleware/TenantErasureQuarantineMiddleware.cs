@@ -1,0 +1,145 @@
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Security;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
+
+namespace ArchLucid.Api.Middleware;
+
+/// <summary>
+///     Blocks tenant-scoped traffic while erasure quarantine is active
+///     (<c>OffboardedUtc</c> or past-due <c>TenantErasureRequestedUtc</c>).
+/// </summary>
+internal sealed class TenantErasureQuarantineMiddleware(RequestDelegate next)
+{
+    private static PathString NormalizeRequestPath(PathString path)
+    {
+        string? value = path.Value;
+
+        if (string.IsNullOrEmpty(value))
+            return path;
+
+        while (value.StartsWith("//", StringComparison.Ordinal))
+            value = value[1..];
+
+        while (value.Contains("//", StringComparison.Ordinal))
+            value = value.Replace("//", "/", StringComparison.Ordinal);
+
+        string[] segments = value.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        List<string> normalizedSegments = [];
+
+        foreach (string segment in segments)
+        {
+            if (segment == ".")
+                continue;
+
+            if (segment == "..")
+            {
+                if (normalizedSegments.Count > 0)
+                    normalizedSegments.RemoveAt(normalizedSegments.Count - 1);
+
+                continue;
+            }
+
+            normalizedSegments.Add(segment);
+        }
+
+        if (normalizedSegments.Count == 0)
+            return new PathString("/");
+
+        return new PathString("/" + string.Join('/', normalizedSegments));
+    }
+
+    private static bool Skip(PathString path)
+    {
+        PathString rawPath = path;
+        path = NormalizeRequestPath(path);
+
+        // Lifecycle erasure routes intentionally accept dot-segment and duplicate-slash normalization.
+
+        if (path.StartsWithSegments("/v1/tenant/erasure", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (ApiPathSkipSafety.BlocksPathBasedSkip(rawPath.Value))
+            return false;
+
+        if (path == "/" || path.StartsWithSegments("/robots.txt", StringComparison.OrdinalIgnoreCase) ||
+            path.StartsWithSegments("/sitemap.xml", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (path.StartsWithSegments("/health", StringComparison.OrdinalIgnoreCase) ||
+            path.StartsWithSegments("/version", StringComparison.OrdinalIgnoreCase) ||
+            path.StartsWithSegments("/openapi", StringComparison.OrdinalIgnoreCase) ||
+            path.StartsWithSegments("/swagger", StringComparison.OrdinalIgnoreCase) ||
+            path.StartsWithSegments("/scalar", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (path.StartsWithSegments("/v1/register", StringComparison.OrdinalIgnoreCase))
+            return rawPath.StartsWithSegments("/v1/register", StringComparison.OrdinalIgnoreCase);
+
+        if (!path.StartsWithSegments("/v1/admin", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        // Parent-segment traversal can normalize tenant-scoped URLs onto /v1/admin and bypass quarantine.
+        return rawPath.StartsWithSegments("/v1/admin", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>Runs after authentication; denies tenant routes during erasure quarantine.</summary>
+    public async Task InvokeAsync(HttpContext context)
+    {
+        if (Skip(context.Request.Path) || context.User.Identity?.IsAuthenticated != true)
+        {
+            await next(context);
+
+            return;
+        }
+
+        IScopeContextProvider scopes = context.RequestServices.GetRequiredService<IScopeContextProvider>();
+        ScopeContext scope = scopes.GetCurrentScope();
+
+        if (scope.TenantId == Guid.Empty)
+        {
+            await next(context);
+
+            return;
+        }
+
+        ITenantGetByIdRequestCache tenants =
+            context.RequestServices.GetRequiredService<ITenantGetByIdRequestCache>();
+        TenantRecord? tenant = await tenants.GetByIdAsync(scope.TenantId, context.RequestAborted);
+        TimeProvider timeProvider = context.RequestServices.GetRequiredService<TimeProvider>();
+        DateTimeOffset utcNow = timeProvider.GetUtcNow();
+
+        if (tenant is null)
+        {
+            // Missing rows are not in erasure quarantine. Isolated live-E2E create-run sends a
+            // fresh tenant id before dbo.Tenants is primed; existence 404 belongs downstream.
+            await next(context);
+
+            return;
+        }
+
+        if (!TenantErasureEligibility.IsTenantLoginBlocked(tenant, utcNow))
+        {
+            await next(context);
+
+            return;
+        }
+
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
+        {
+            Type = ProblemTypes.TenantErasureQuarantine,
+            Title = "Tenant erasure quarantine",
+            Status = StatusCodes.Status403Forbidden,
+            Detail = "This tenant is in scheduled erasure quarantine and cannot access APIs.",
+            Instance = context.Request.Path.Value
+        };
+
+        ProblemErrorCodes.AttachErrorCode(problem, ProblemTypes.TenantErasureQuarantine);
+        ProblemSupportHints.AttachForProblemType(problem);
+        ProblemCorrelation.Attach(problem, context);
+
+        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+        context.Response.ContentType = ApplicationProblemMapper.ProblemJsonMediaType;
+        await context.Response.WriteAsJsonAsync(problem, context.RequestAborted);
+    }
+}

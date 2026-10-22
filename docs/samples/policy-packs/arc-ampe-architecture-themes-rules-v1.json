@@ -1,0 +1,1695 @@
+{
+  "schemaVersion": 1,
+  "kind": "archlucid.policyPack.curatedRules.v1",
+  "pack": {
+    "name": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities)",
+    "description": "Architecture-review themes mapped to ARC-AMPE Volumes I and II. Not CMS conformity assessment or SSPP authoring.",
+    "version": "1.0.0",
+    "category": "Compliance",
+    "isDefault": true,
+    "suggestedPackType": "PlatformDefault",
+    "policyPackContentDocumentPath": "docs/samples/policy-packs/arc-ampe-architecture-themes.json"
+  },
+  "rules": [
+    {
+      "id": "arc-ampe-001",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 1",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 1. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "Pillars"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-002",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 2",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 2. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "Enterprise Risk Management"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-003",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 3",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 3. Thematic mapping only \u2014 not certification.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "US Data Residency"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-004",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 4",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 4. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P0",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Identify"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-005",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 5",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 5. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P0",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Protect"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-006",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 6",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 6. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P0",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Detect"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-007",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 7",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 7. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P0",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Respond"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-008",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 8",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 8. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P0",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Recover"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-009",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 9",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 9. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P0",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST Privacy Framework"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-010",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 10",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 10. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P0",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "Pillars"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-011",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 11",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 11. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P0",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "Enterprise Risk Management"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-012",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 12",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 12. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P0",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "US Data Residency"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-013",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 13",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 13. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P0",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Identify"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-014",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 14",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 14. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P0",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Protect"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-015",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 15",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 15. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P0",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Detect"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-016",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 16",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 16. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P0",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Respond"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-017",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 17",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 17. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Recover"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-018",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 18",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 18. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST Privacy Framework"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-019",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 19",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 19. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "Pillars"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-020",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 20",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 20. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "Enterprise Risk Management"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-021",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 21",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 21. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "US Data Residency"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-022",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 22",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 22. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Identify"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-023",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 23",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 23. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Protect"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-024",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 24",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 24. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Detect"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-025",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 25",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 25. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Respond"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-026",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 26",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 26. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Recover"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-027",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 27",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 27. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST Privacy Framework"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-028",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 28",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 28. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "Pillars"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-029",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 29",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 29. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "Enterprise Risk Management"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-030",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 30",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 30. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "US Data Residency"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-031",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 31",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 31. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Identify"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-032",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 32",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 32. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Protect"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-033",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 33",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 33. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Detect"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-034",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 34",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 34. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Respond"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-035",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 35",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 35. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Recover"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-036",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 36",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 36. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST Privacy Framework"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-037",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 37",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 37. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "Pillars"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-038",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 38",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 38. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "Enterprise Risk Management"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-039",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 39",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 39. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "US Data Residency"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-040",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 40",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 40. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Identify"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-041",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 41",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 41. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Protect"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-042",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 42",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 42. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Detect"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-043",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 43",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 43. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Respond"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-044",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 44",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 44. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Recover"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-045",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 45",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 45. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST Privacy Framework"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-046",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 46",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 46. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "Pillars"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-047",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 47",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 47. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "Enterprise Risk Management"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-048",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 48",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 48. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "US Data Residency"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-049",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 49",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 49. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Identify"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-050",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 50",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 50. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Protect"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-051",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 51",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 51. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Detect"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-052",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 52",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 52. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Respond"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-053",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 53",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 53. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Recover"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-054",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 54",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 54. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST Privacy Framework"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-055",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 55",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 55. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "Pillars"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-056",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 56",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 56. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "Enterprise Risk Management"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-057",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 57",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 57. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "US Data Residency"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-058",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 58",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 58. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Identify"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-059",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 59",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 59. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Protect"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-060",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 60",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 60. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Detect"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-061",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 61",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 61. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Respond"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-062",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 62",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 62. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Recover"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-063",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 63",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 63. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST Privacy Framework"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-064",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 64",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 64. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "Pillars"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-065",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 65",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 65. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "Enterprise Risk Management"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-066",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 66",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 66. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "US Data Residency"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-067",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 67",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 67. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Identify"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-068",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 68",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 68. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Protect"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-069",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 69",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 69. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Detect"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-070",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 70",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 70. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Respond"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-071",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 71",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 71. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Recover"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-072",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 72",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 72. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST Privacy Framework"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-073",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 73",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 73. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "Pillars"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-074",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 74",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 74. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "Enterprise Risk Management"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-075",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 75",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 75. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "US Data Residency"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-076",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 76",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 76. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Identify"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-077",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 77",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 77. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Protect"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-078",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 78",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 78. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Detect"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-079",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 79",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 79. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Respond"
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-080",
+      "title": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) \u2014 control theme 80",
+      "description": "Architecture manifest and Azure extractor evidence should support: arc-ampe architecture themes (cms aca / medicaid partner entities) \u2014 control theme 80. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CMS ARC-AMPE Volume I v1.02",
+          "theme": "NIST CSF Recover"
+        }
+      ]
+    }
+  ]
+}

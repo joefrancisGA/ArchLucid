@@ -1,0 +1,22 @@
+flowchart TB
+  subgraph hot["Keep off first paint"]
+    MER["Mermaid"]
+    RF["React Flow"]
+    CH["Charts / recharts"]
+  end
+
+  subgraph defer["Import-policy deferred"]
+    DYN["Dynamic import only on diagram panels"]
+  end
+
+  subgraph apihot["API hot paths"]
+    LIST["List endpoints avoid fat JSON blobs"]
+    CACHE["Caching repository decorators"]
+    RL["Rate limits fixed vs expensive"]
+  end
+
+  MER --> DYN
+  RF --> DYN
+  CH --> DYN
+  LIST --> CACHE
+  LIST --> RL

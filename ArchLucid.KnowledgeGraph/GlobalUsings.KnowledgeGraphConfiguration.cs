@@ -1,0 +1,5 @@
+global using GraphProjectionCacheBackend = ArchLucid.Core.Configuration.GraphProjectionCacheBackend;
+global using GraphProjectionCacheProvider = ArchLucid.Core.Configuration.GraphProjectionCacheProvider;
+global using GraphProjectionCacheProviderResolver = ArchLucid.Core.Configuration.GraphProjectionCacheProviderResolver;
+global using KnowledgeGraphLimitsOptions = ArchLucid.Core.Configuration.KnowledgeGraphLimitsOptions;
+global using KnowledgeGraphProjectionCacheOptions = ArchLucid.Core.Configuration.KnowledgeGraphProjectionCacheOptions;

@@ -1,0 +1,15 @@
+sequenceDiagram
+  participant Pipe as AuthorityPipelineStagesExecutor
+  participant Stage as Knowledge graph stage
+  participant KG as ArchLucid.KnowledgeGraph
+  participant SQL as Tenant SQL catalog
+  participant Outbox as Cosmos graph snapshot outbox
+  Note over Pipe,Stage: OTel span authority.graph<br/>tag archlucid.stage.name
+
+  Pipe->>Stage: Run after context ingestion
+  Stage->>KG: Build / update provenance graph from context
+  KG->>SQL: Persist graph snapshot JSON (authority-of-record)
+  opt CosmosDb:GraphSnapshotsEnabled
+    KG->>Outbox: Enlist CosmosGraphSnapshotOutbox same TX
+  end
+  Stage-->>Pipe: Stage complete → next authority.findings

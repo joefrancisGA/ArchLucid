@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "effectiveDate": "2026-09-07",
+  "currency": "USD",
+  "architectStripeCheckoutUrl": "https://checkout.stripe.com/placeholder-replace-before-launch",
+  "architectStripeCheckoutUrlSalesLedPlaceholder": true,
+  "teamStripeCheckoutUrl": "https://checkout.stripe.com/placeholder-replace-before-launch",
+  "teamStripeCheckoutUrlSalesLedPlaceholder": true,
+  "packages": [
+    {
+      "id": "architect",
+      "title": "Architect",
+      "summary": "For one architect creating and reviewing architecture packages.",
+      "planMonthlyUsd": 169,
+      "pricingDisplay": "monthly",
+      "includedUsers": 1,
+      "includedWorkspaces": 1,
+      "monthlyAiCredits": 500,
+      "includedReviewsPerMonth": 5,
+      "overageReviewUsd": 30,
+      "llmIncludedUsdPerUtcMonth": 20,
+      "llmHardCutoffUsdPerUtcMonth": 35
+    },
+    {
+      "id": "team",
+      "title": "Team",
+      "summary": "Small architecture team with basic governance",
+      "planMonthlyUsd": 1169,
+      "pricingDisplay": "monthly",
+      "includedUsers": 5,
+      "includedWorkspaces": 1,
+      "monthlyAiCredits": 2500,
+      "workspaceMonthlyUsd": 339,
+      "includedArchitectSeats": 5,
+      "maxArchitectSeats": 10,
+      "seatMonthlyUsd": 211,
+      "includedReviewsPerMonth": 20,
+      "overageReviewUsd": 25,
+      "llmIncludedUsdPerUtcMonth": 50,
+      "llmHardCutoffUsdPerUtcMonth": 75
+    },
+    {
+      "id": "professional",
+      "title": "Professional",
+      "summary": "Governed architecture review practice with policy packs and audit exports",
+      "planMonthlyUsd": 2299,
+      "pricingDisplay": "monthly",
+      "includedUsers": 10,
+      "includedWorkspaces": 1,
+      "monthlyAiCredits": 10000,
+      "workspaceMonthlyUsd": 1079,
+      "maxWorkspaces": 5,
+      "includedArchitectSeats": 10,
+      "maxArchitectSeats": 20,
+      "seatMonthlyUsd": 215,
+      "includedReviewsPerMonth": 100,
+      "overageReviewUsd": 20,
+      "llmIncludedUsdPerUtcMonth": 200,
+      "llmHardCutoffUsdPerUtcMonth": 300
+    },
+    {
+      "id": "enterprise",
+      "title": "Enterprise",
+      "summary": "Large organization \u2014 SSO, procurement, and private deployment",
+      "pricingDisplay": "custom",
+      "includedUsers": 0,
+      "includedWorkspaces": 0,
+      "monthlyAiCredits": 0,
+      "annualFloorUsd": 60000,
+      "annualCeilingUsd": 250000
+    }
+  ]
+}

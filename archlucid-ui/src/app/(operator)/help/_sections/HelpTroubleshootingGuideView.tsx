@@ -1,0 +1,288 @@
+"use client";
+
+import Link from "next/link";
+
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+
+import { HelpTroubleshootingClaimOrientationStrip } from "@/app/(operator)/help/_sections/HelpTroubleshootingClaimOrientationStrip";
+import { HelpTroubleshootingHeaderActions } from "@/app/(operator)/help/_sections/HelpTroubleshootingHeaderActions";
+import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { HelpTroubleshootingAdvancedDiagnostics } from "@/app/(operator)/help/_sections/HelpTroubleshootingAdvancedDiagnostics";
+import { HelpTroubleshootingAdvancedDiagnosticsDisclosure } from "@/app/(operator)/help/_sections/HelpTroubleshootingAdvancedDiagnosticsDisclosure";
+import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
+import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
+import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+import { TroubleshootingCommonIssuesList } from "@/components/help/TroubleshootingCommonIssuesList";
+import { TroubleshootingStartHerePlatformStatus } from "@/components/help/TroubleshootingStartHerePlatformStatus";
+import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
+import { Button } from "@/components/ui/button";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
+import {
+  OPERATOR_BODY_INLINE_LINK_CLASS,
+  OPERATOR_LAYOUT,
+  OPERATOR_LINK,
+  OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
+import {
+  inAppHelpHref,
+  type ProductDocumentationEntry,
+} from "@/lib/product-documentation-registry";
+import { cn } from "@/lib/utils";
+import { EvidenceOrientationMetaLine } from "@/components/evidence-orientation/EvidenceOrientationMetaLine";
+import {
+  TROUBLESHOOTING_HELP_CANONICAL_PATH,
+  TROUBLESHOOTING_HELP_CLAIM_HEADING_ID,
+  TROUBLESHOOTING_HELP_LAST_REVIEWED_LABEL,
+  TROUBLESHOOTING_SUPPORT_EXPECTATIONS,
+  resolveTroubleshootingHelpApplicability,
+  resolveTroubleshootingHelpClaimDiscipline,
+} from "@/lib/troubleshooting-help-evidence-copy";
+import {
+  TROUBLESHOOTING_GUIDE_HEADINGS,
+  TROUBLESHOOTING_HELP_PAGE_TITLE,
+  TROUBLESHOOTING_HELP_PRIMARY_ACTION,
+  TROUBLESHOOTING_HELP_START_HERE_CARD_TITLE,
+  TROUBLESHOOTING_PRIMARY_ACTIONS,
+  troubleshootingBeforeContactItems,
+  troubleshootingDecisionTreeSteps,
+  troubleshootingHelpOverview,
+  troubleshootingStartHereItems,
+} from "@/lib/troubleshooting-help-guide-content";
+import {
+  TROUBLESHOOTING_HELP_FIRST_VIEWPORT_TEST_ID,
+  TROUBLESHOOTING_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  TROUBLESHOOTING_HELP_PRIMARY_CONTENT_ID,
+  TROUBLESHOOTING_HELP_SKIP_LINK_LABEL,
+  TROUBLESHOOTING_HELP_SKIP_TARGET_ID,
+} from "@/lib/troubleshooting-help-page-copy";
+
+type HelpTroubleshootingGuideViewProps = {
+  readonly entry: ProductDocumentationEntry;
+};
+
+function HelpSectionHeading(props: { readonly id: string; readonly children: string }): React.ReactElement {
+  return (
+    <h2
+      id={props.id}
+      className={cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY.sectionTitle, "m-0 mt-10 first:mt-0")}
+    >
+      {props.children}
+    </h2>
+  );
+}
+
+/** Buyer-safe troubleshooting guide for `/help/troubleshooting`. */
+export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideViewProps): React.ReactElement {
+  const { entry } = props;
+  const { productLine: productLineId } = useProductLine();
+  const overview = troubleshootingHelpOverview(productLineId);
+  const startHereItems = troubleshootingStartHereItems(productLineId);
+  const decisionTreeSteps = troubleshootingDecisionTreeSteps(productLineId);
+  const beforeContactItems = troubleshootingBeforeContactItems(productLineId);
+  const claimDiscipline = resolveTroubleshootingHelpClaimDiscipline(productLineId);
+  const applicability = resolveTroubleshootingHelpApplicability(productLineId);
+  const guideHeadings = resolveGuideHeadingsForStrip(
+    "help-troubleshooting",
+    TROUBLESHOOTING_GUIDE_HEADINGS,
+    TROUBLESHOOTING_HELP_CLAIM_HEADING_ID,
+  );
+  const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
+  const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
+
+  return (
+    <article
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
+      data-testid="help-troubleshooting-guide"
+    >
+      <a href={`#${TROUBLESHOOTING_HELP_SKIP_TARGET_ID}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+        {TROUBLESHOOTING_HELP_SKIP_LINK_LABEL}
+      </a>
+      <HelpTopicHashScroll />
+
+      <div
+        id={TROUBLESHOOTING_HELP_PRIMARY_CONTENT_ID}
+        data-testid={TROUBLESHOOTING_HELP_PRIMARY_CONTENT_ID}
+        className={cn("scroll-mt-24 space-y-6", OPERATOR_LAYOUT.sectionStack)}
+      >
+        <HelpTopicGuidePageHeader
+          title={TROUBLESHOOTING_HELP_PAGE_TITLE}
+          titleTestId="help-troubleshooting-page-title"
+          subtitle={undefined}
+          navHref={TROUBLESHOOTING_HELP_CANONICAL_PATH}
+          headingLevel="h1"
+          claimDiscipline={claimDiscipline}
+          claimDisciplineTestId={TROUBLESHOOTING_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID}
+          metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
+          actions={<HelpTroubleshootingHeaderActions entry={entry} />}
+        />
+
+        <div
+          id={TROUBLESHOOTING_HELP_SKIP_TARGET_ID}
+          data-testid={TROUBLESHOOTING_HELP_FIRST_VIEWPORT_TEST_ID}
+          className={cn(
+            "scroll-mt-24 space-y-6 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+            OPERATOR_LAYOUT.sectionStack,
+          )}
+        >
+          <p className={readingBodyClass} data-testid="help-troubleshooting-overview">
+            {overview}
+          </p>
+
+          <SponsorSendPathHonestyPanel testIdPrefix="help-troubleshooting" showSsoOptional={false} />
+
+          <section
+            id="start-here"
+            className={cn(
+              OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
+              "space-y-4 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40",
+            )}
+            data-testid="troubleshooting-start-here-card"
+            aria-labelledby="troubleshooting-start-here-heading"
+          >
+            <h2
+              id="troubleshooting-start-here-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              {TROUBLESHOOTING_HELP_START_HERE_CARD_TITLE}
+            </h2>
+            <TroubleshootingStartHerePlatformStatus />
+            <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
+              {startHereItems.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+            <div className="flex flex-wrap gap-2">
+              <Button asChild size="sm" variant="primary" data-testid={TROUBLESHOOTING_HELP_PRIMARY_ACTION.testId}>
+                <Link href={TROUBLESHOOTING_HELP_PRIMARY_ACTION.href}>
+                  {TROUBLESHOOTING_HELP_PRIMARY_ACTION.label}
+                </Link>
+              </Button>
+              <SupportBundleDownloadButton showContentsDisclosure />
+              <Button asChild size="sm" variant="outline">
+                <a href={TROUBLESHOOTING_PRIMARY_ACTIONS.contactSupport.href}>
+                  {TROUBLESHOOTING_PRIMARY_ACTIONS.contactSupport.label}
+                </a>
+              </Button>
+            </div>
+            <p
+              className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="troubleshooting-support-expectations-start-here"
+            >
+              {TROUBLESHOOTING_SUPPORT_EXPECTATIONS}{" "}
+              <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("report-a-problem")}>
+                Report a problem
+              </Link>
+            </p>
+          </section>
+        </div>
+
+        <div className={contentGridClass}>
+          <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
+            <section aria-labelledby="common-issues" className="space-y-3">
+              <HelpSectionHeading id="common-issues">Common issues</HelpSectionHeading>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                Expand the symptom that matches what you see. Each card shows who can usually fix it and where to go next.
+              </p>
+              <TroubleshootingCommonIssuesList />
+            </section>
+
+            <section aria-labelledby="decision-tree" className="space-y-4">
+              <HelpSectionHeading id="decision-tree">Decision tree</HelpSectionHeading>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                Use this guided triage when quick fixes did not resolve the issue.
+              </p>
+              <ol className="m-0 list-none space-y-4 p-0" data-testid="troubleshooting-decision-tree">
+                {decisionTreeSteps.map((step, index) => (
+                  <li
+                    key={step.id}
+                    id={step.id}
+                    className={cn(
+                      "rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800",
+                      OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
+                    )}
+                  >
+                    <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                      {index + 1}. {step.question}
+                    </p>
+                    <ul className={cn("m-0 mt-3 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body)}>
+                      {step.branches.map((branch) => (
+                        <li key={`${step.id}-${branch.label}`} className="flex flex-wrap items-center gap-2">
+                          <span className="font-medium text-al-text-primary">{branch.label}</span>
+                          <span aria-hidden className="text-al-text-secondary">
+                            →
+                          </span>
+                          <Link href={branch.href} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
+                            {branch.linkLabel}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </li>
+                ))}
+              </ol>
+            </section>
+
+            <section aria-labelledby="before-contacting-support" className="space-y-3">
+              <HelpSectionHeading id="before-contacting-support">Before contacting support</HelpSectionHeading>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+                Collect these details before you email support. A support bundle helps support reproduce platform issues
+                faster.
+              </p>
+              <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
+                {beforeContactItems.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+              <div className="flex flex-wrap items-start gap-2">
+                <SupportBundleDownloadButton showContentsDisclosure />
+                <Button asChild size="sm" variant="outline">
+                  <a href={TROUBLESHOOTING_PRIMARY_ACTIONS.contactSupport.href}>
+                    {TROUBLESHOOTING_PRIMARY_ACTIONS.contactSupport.label}
+                  </a>
+                </Button>
+              </div>
+              <p
+                className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="troubleshooting-support-expectations"
+              >
+                {TROUBLESHOOTING_SUPPORT_EXPECTATIONS}{" "}
+                <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("report-a-problem")}>
+                  Report a problem
+                </Link>
+              </p>
+            </section>
+
+            <HelpTroubleshootingAdvancedDiagnosticsDisclosure
+              className={cn(HELP_PAGE_LAYOUT.details, OPERATOR_SHELL_SCROLL_OFFSET_CLASS)}
+              summaryClassName={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}
+              summary="Advanced diagnostics"
+              bodyClassName={cn(HELP_PAGE_LAYOUT.detailsBody, "space-y-4")}
+            >
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+                Technical checks for workspace administrators and support. Most users should start with the quick fixes
+                and decision tree above.
+              </p>
+              <HelpTroubleshootingAdvancedDiagnostics />
+            </HelpTroubleshootingAdvancedDiagnosticsDisclosure>
+
+            <EvidenceOrientationMetaLine
+              testId="troubleshooting-help-freshness"
+              label={TROUBLESHOOTING_HELP_LAST_REVIEWED_LABEL}
+              text={applicability}
+            />
+          </div>
+
+          <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
+        </div>
+
+        <div data-testid="help-troubleshooting-orientation-bottom">
+          <HelpTroubleshootingClaimOrientationStrip />
+        </div>
+      </div>
+    </article>
+  );
+}

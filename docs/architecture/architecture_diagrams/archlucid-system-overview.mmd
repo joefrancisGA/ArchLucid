@@ -1,0 +1,65 @@
+flowchart TB
+  subgraph actors["People & automation"]
+    OP["Operators / architects"]
+    SP["Sponsors / evaluators"]
+    CLI["CLI / CI automation"]
+  end
+
+  subgraph edge["Edge optional"]
+    FD["Front Door"]
+    GW["APIM"]
+  end
+
+  subgraph product["ArchLucid platform"]
+    UI["Architect workspace<br/>Next.js BFF proxy"]
+    API["ArchLucid.Api<br/>REST · auth · orchestration"]
+    WK["ArchLucid.Worker<br/>outbox · queues · jobs"]
+  end
+
+  subgraph domain["Application domain libraries"]
+    APP["Application<br/>runs · export · replay"]
+    DEC["Decisioning<br/>policy packs · merge · governance"]
+    SYN["ArtifactSynthesis<br/>bundles · packaging"]
+    RET["Retrieval<br/>RAG · indexing"]
+    CTX["ContextIngestion"]
+    KG["KnowledgeGraph"]
+    PER["Persistence<br/>Dapper · SQL authority"]
+  end
+
+  subgraph azure["Azure data plane"]
+    SQL[("SQL Server<br/>tenant catalogs")]
+    SB["Service Bus optional"]
+    BL["Blob optional"]
+    ID["Entra ID"]
+    AOAI["Azure OpenAI optional"]
+  end
+
+  OP --> UI
+  SP --> UI
+  CLI --> FD
+  UI --> FD
+  FD --> GW
+  GW --> API
+  UI -.->|"local / direct"| API
+  CLI -.->|"API client"| API
+
+  API --> APP
+  API --> DEC
+  API --> SYN
+  API --> RET
+  APP --> PER
+  DEC --> PER
+  SYN --> PER
+  RET --> PER
+  CTX --> PER
+  KG --> CTX
+
+  API --> ID
+  API --> SQL
+  WK --> SQL
+  API --> SB
+  WK --> SB
+  API --> BL
+  WK --> BL
+  API --> AOAI
+  WK --> AOAI

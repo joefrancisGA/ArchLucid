@@ -1,0 +1,153 @@
+using ArchLucid.Contracts.User;
+
+namespace ArchLucid.Application.Advisory;
+
+/// <summary>Weekly operating loop coverage derived from schedules, digest subscriptions, and sponsor email prefs.</summary>
+public sealed class WeeklyDigestHealthSnapshot
+{
+    public int EnabledAdvisoryScheduleCount
+    {
+        get;
+        init;
+    }
+
+    public DateTimeOffset? EarliestNextAdvisoryRunUtc
+    {
+        get;
+        init;
+    }
+
+    public int DigestSubscriptionCount
+    {
+        get;
+        init;
+    }
+
+    public int EnabledDigestSubscriptionCount
+    {
+        get;
+        init;
+    }
+
+    public int DigestSubscriptionsByEmailChannel
+    {
+        get;
+        init;
+    }
+
+    public int DigestSubscriptionsBySlackChannel
+    {
+        get;
+        init;
+    }
+
+    public int DigestSubscriptionsByTeamsChannel
+    {
+        get;
+        init;
+    }
+
+    public DateTimeOffset? LatestDigestSubscriptionDeliveryUtc
+    {
+        get;
+        init;
+    }
+
+    public Guid? LatestArchitectureDigestId
+    {
+        get;
+        init;
+    }
+
+    public DateTimeOffset? LatestArchitectureDigestGeneratedUtc
+    {
+        get;
+        init;
+    }
+
+    public bool ExecutiveEmailDigestIsConfigured
+    {
+        get;
+        init;
+    }
+
+    public bool ExecutiveEmailDigestEnabled
+    {
+        get;
+        init;
+    }
+
+    public int ExecutiveDigestRecipientCount
+    {
+        get;
+        init;
+    }
+
+    public string ExecutiveDigestIanaTimeZoneId
+    {
+        get;
+        init;
+    } = IanaTimeZonePreferenceValues.Default;
+
+    public int ExecutiveDigestDayOfWeek
+    {
+        get;
+        init;
+    }
+
+    public int ExecutiveDigestHourOfDay
+    {
+        get;
+        init;
+    }
+
+    public bool SponsorEmailDigestIsConfigured
+    {
+        get;
+        init;
+    }
+
+    public bool SponsorEmailDigestEnabled
+    {
+        get;
+        init;
+    }
+
+    public int SponsorDigestRecipientCount
+    {
+        get;
+        init;
+    }
+
+    public string SponsorDigestIanaTimeZoneId
+    {
+        get;
+        init;
+    } = IanaTimeZonePreferenceValues.Default;
+
+    public int SponsorDigestDayOfWeek
+    {
+        get;
+        init;
+    }
+
+    public int SponsorDigestHourOfDay
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Human-readable gaps for empty-state UX (no PII).</summary>
+    public IReadOnlyList<string> SetupGaps
+    {
+        get;
+        init;
+    } = [];
+
+    /// <summary>Stable setup-gap identifiers aligned by index with <see cref="SetupGaps"/>.</summary>
+    public IReadOnlyList<string> SetupGapCodes
+    {
+        get;
+        init;
+    } = [];
+}

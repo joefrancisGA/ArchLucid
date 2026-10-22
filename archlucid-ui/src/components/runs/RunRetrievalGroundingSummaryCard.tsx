@@ -1,0 +1,115 @@
+"use client";
+
+import { cn } from "@/lib/utils";
+import type { ReactElement } from "react";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { RunRetrievalGraphRagDiagnosticsStrip } from "@/components/runs/RunRetrievalGraphRagDiagnosticsStrip";
+import { RunRetrievalExemplarStylePriorStrip } from "@/components/runs/RunRetrievalExemplarStylePriorStrip";
+import { downloadRunRetrievalGroundingJson } from "@/lib/api/downloads-blob-trigger-retrieval-grounding-json";
+import { OPERATOR_TYPOGRAPHY, operatorConfidenceSurface, operatorSemanticSurface } from "@/lib/design-tokens";
+import { showError } from "@/lib/toast";
+import type { RunRetrievalGroundingSummary } from "@/types/authority";
+import {
+  formatRetrievalGroundingCount,
+  formatRetrievalGroundingRatioPercent,
+  resolveRetrievalGroundingDispositionPresentation,
+} from "@/lib/runs/run-retrieval-grounding-summary-display";
+
+function dispositionClass(disposition: string | null): string {
+  if (disposition === null) {
+    return operatorSemanticSurface("neutral");
+  }
+
+  switch (disposition.toUpperCase()) {
+    case "PASS":
+      return operatorConfidenceSurface("high");
+
+    case "WARN":
+      return operatorConfidenceSurface("medium");
+
+    case "HOLD":
+      return operatorConfidenceSurface("low");
+
+    default:
+      return operatorSemanticSurface("neutral");
+  }
+}
+
+/** Operator rollup of persisted retrieval grounding traces on run detail (assessment #5). */
+export function RunRetrievalGroundingSummaryCard(props: {
+  readonly summary: RunRetrievalGroundingSummary | null | undefined;
+  readonly runId: string;
+}): ReactElement | null {
+  const summary = props.summary;
+
+  if (summary === null || summary === undefined)
+    return null;
+
+  const dispositionPresentation = resolveRetrievalGroundingDispositionPresentation(summary.disposition);
+  const agentsWithTraces = summary.agentsWithTraces ?? [];
+  const missingAgents = summary.expectedAgentsMissingTraces ?? [];
+
+  return (
+    <Card
+      className={`rounded-lg border shadow-sm ${dispositionClass(dispositionPresentation.dispositionKey)}`}
+    >
+      <CardHeader className="pb-2">
+        <CardTitle className={cn(OPERATOR_TYPOGRAPHY.cardTitle, "text-al-text-primary")}>
+          Retrieval grounding — {dispositionPresentation.titleSuffix}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className={cn("space-y-3 pt-0", OPERATOR_TYPOGRAPHY.body)}>
+        <dl className="m-0 grid gap-1 sm:grid-cols-[minmax(8rem,auto)_1fr] sm:gap-x-4">
+          <dt>Trace rows</dt>
+          <dd className="m-0 tabular-nums sm:justify-self-end">{formatRetrievalGroundingCount(summary.traceCount)}</dd>
+          <dt>Retrieved chunks</dt>
+          <dd className="m-0 tabular-nums sm:justify-self-end">
+            {formatRetrievalGroundingCount(summary.totalRetrievedChunks)}
+          </dd>
+          <dt>Avg citation coverage</dt>
+          <dd className="m-0 tabular-nums sm:justify-self-end">
+            {formatRetrievalGroundingRatioPercent(summary.averageCitationCoverage)}
+          </dd>
+        </dl>
+
+        {agentsWithTraces.length > 0 ? (
+          <p className="m-0">
+            <span className="font-medium">Agents with traces:</span> {agentsWithTraces.join(", ")}
+          </p>
+        ) : null}
+
+        {missingAgents.length > 0 ? (
+          <p className="m-0 font-medium">
+            Missing traces: {missingAgents.join(", ")}
+          </p>
+        ) : null}
+
+        {typeof summary.operatorDetail === "string" && summary.operatorDetail.length > 0 ? (
+          <p className="m-0">{summary.operatorDetail}</p>
+        ) : null}
+
+        <RunRetrievalGraphRagDiagnosticsStrip summary={summary} />
+
+        <RunRetrievalExemplarStylePriorStrip summary={summary} />
+
+        <p className="m-0">
+          <button
+            type="button"
+            className="font-medium underline underline-offset-2"
+            onClick={() => {
+              void downloadRunRetrievalGroundingJson(props.runId).catch((error: unknown) => {
+                showError(
+                  "Retrieval grounding JSON",
+                  error instanceof Error ? error.message : "Download failed.",
+                );
+              });
+            }}
+          >
+            Open full retrieval-grounding JSON
+          </button>
+        </p>
+      </CardContent>
+    </Card>
+  );
+}

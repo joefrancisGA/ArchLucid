@@ -1,0 +1,172 @@
+using ArchLucid.ArtifactSynthesis.Docx.Builders;
+using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Explanation;
+
+using DocumentFormat.OpenXml.Wordprocessing;
+
+namespace ArchLucid.ArtifactSynthesis.Docx;
+
+public sealed partial class DocxExportService
+{
+    private static void AppendManifestComparison(Body body, ComparisonResult c)
+    {
+        WordDocumentBuilder.AddHeading(body, "Architecture Comparison");
+        WordDocumentBuilder.AddBodyText(
+            body,
+            $"Base run: {c.BaseRunId} → Target run: {c.TargetRunId}");
+        WordDocumentBuilder.AddSpacer(body);
+
+        WordDocumentBuilder.AddHeading(body, "Summary Highlights", DocxStyleIds.Heading2);
+        if (c.SummaryHighlights.Count == 0)
+            WordDocumentBuilder.AddBodyText(body, "No summary highlights were recorded.");
+        else
+            WordDocumentBuilder.AddBulletList(body, c.SummaryHighlights.Select(SanitizeArtifactText));
+
+        WordDocumentBuilder.AddHeading(body, "Decision Changes", DocxStyleIds.Heading2);
+        if (c.DecisionChanges.Count == 0)
+            WordDocumentBuilder.AddBodyText(body, "No decision changes were recorded.");
+        else
+
+            foreach (DecisionDelta d in c.DecisionChanges)
+
+                WordDocumentBuilder.AddBodyText(
+                    body,
+                    SanitizeArtifactText(
+                        $"{d.DecisionKey}: {FormatOptional(d.BaseValue)} → {FormatOptional(d.TargetValue)} ({d.ChangeType})"));
+
+        WordDocumentBuilder.AddHeading(body, "Requirement Changes", DocxStyleIds.Heading2);
+        if (c.RequirementChanges.Count == 0)
+            WordDocumentBuilder.AddBodyText(body, "No requirement changes were recorded.");
+        else
+
+            foreach (RequirementDelta r in c.RequirementChanges)
+            {
+                string requirementName = DocxManifestFieldPresentation.FormatManifestTableCell(
+                    r.RequirementName,
+                    "Requirement name");
+                string line = requirementName.Contains("was not stored", StringComparison.Ordinal)
+                    || requirementName.Contains("stored empty", StringComparison.Ordinal)
+                    ? $"{requirementName} {r.ChangeType}"
+                    : $"{requirementName}: {r.ChangeType}";
+
+                WordDocumentBuilder.AddBodyText(body, SanitizeArtifactText(line));
+            }
+
+        WordDocumentBuilder.AddHeading(body, "Security Posture Delta", DocxStyleIds.Heading2);
+        if (c.SecurityChanges.Count == 0)
+            WordDocumentBuilder.AddBodyText(body, "No security control changes were recorded.");
+        else
+
+            foreach (SecurityDelta s in c.SecurityChanges)
+
+                WordDocumentBuilder.AddBodyText(
+                    body,
+                    SanitizeArtifactText(
+                        $"{s.ControlName}: {FormatOptional(s.BaseStatus)} → {FormatOptional(s.TargetStatus)}"));
+
+        WordDocumentBuilder.AddHeading(body, "Topology Changes", DocxStyleIds.Heading2);
+        if (c.TopologyChanges.Count == 0)
+            WordDocumentBuilder.AddBodyText(body, "No topology resource changes were recorded.");
+        else
+
+            foreach (TopologyDelta t in c.TopologyChanges)
+                WordDocumentBuilder.AddBodyText(
+                    body,
+                    SanitizeArtifactText($"{t.Resource} ({t.ChangeType})"));
+
+        WordDocumentBuilder.AddHeading(body, "Cost Delta", DocxStyleIds.Heading2);
+        if (c.CostChanges.Count == 0)
+            WordDocumentBuilder.AddBodyText(body, "No cost changes were recorded.");
+        else
+
+            foreach (CostDelta x in c.CostChanges)
+
+                WordDocumentBuilder.AddBodyText(
+                    body,
+                    SanitizeArtifactText($"{FormatCost(x.BaseCost)} → {FormatCost(x.TargetCost)}"));
+
+        WordDocumentBuilder.AddSpacer(body);
+    }
+
+    private static void AppendRunExplanation(Body body, ExplanationResult e)
+    {
+        WordDocumentBuilder.AddHeading(body, "Sponsor Narrative (AI)");
+        WordDocumentBuilder.AddBodyText(
+            body,
+            string.IsNullOrWhiteSpace(e.Summary)
+                ? "Sponsor narrative summary was not stored."
+                : SanitizeArtifactText(e.Summary));
+        WordDocumentBuilder.AddSpacer(body);
+        WordDocumentBuilder.AddHeading(body, "Key Drivers", DocxStyleIds.Heading2);
+        WordDocumentBuilder.AddBulletList(
+            body,
+            e.KeyDrivers.Count > 0
+                ? e.KeyDrivers.Select(SanitizeArtifactText)
+                : ["Key drivers were not recorded in this narrative."]);
+        WordDocumentBuilder.AddHeading(body, "Risk Implications", DocxStyleIds.Heading2);
+        WordDocumentBuilder.AddBulletList(
+            body,
+            e.RiskImplications.Count > 0
+                ? e.RiskImplications.Select(SanitizeArtifactText)
+                : ["Risk implications were not recorded in this narrative."]);
+        WordDocumentBuilder.AddHeading(body, "Cost Implications", DocxStyleIds.Heading2);
+        WordDocumentBuilder.AddBulletList(
+            body,
+            e.CostImplications.Count > 0
+                ? e.CostImplications.Select(SanitizeArtifactText)
+                : ["Cost implications were not recorded in this narrative."]);
+        WordDocumentBuilder.AddHeading(body, "Compliance Implications", DocxStyleIds.Heading2);
+        WordDocumentBuilder.AddBulletList(
+            body,
+            e.ComplianceImplications.Count > 0
+                ? e.ComplianceImplications.Select(SanitizeArtifactText)
+                : ["Compliance implications were not recorded in this narrative."]);
+        WordDocumentBuilder.AddHeading(body, "Detailed Explanation", DocxStyleIds.Heading2);
+        WordDocumentBuilder.AddMultilineBodyText(
+            body,
+            string.IsNullOrWhiteSpace(e.DetailedNarrative)
+                ? "Detailed explanation was not stored."
+                : SanitizeArtifactText(e.DetailedNarrative));
+        WordDocumentBuilder.AddSpacer(body, 2);
+    }
+
+    private static void AppendComparisonExplanation(Body body, ComparisonExplanationResult e)
+    {
+        WordDocumentBuilder.AddHeading(body, "Sponsor Change Narrative (AI)");
+        WordDocumentBuilder.AddBodyText(
+            body,
+            string.IsNullOrWhiteSpace(e.HighLevelSummary)
+                ? "Change narrative summary was not stored."
+                : SanitizeArtifactText(e.HighLevelSummary));
+        WordDocumentBuilder.AddSpacer(body);
+        WordDocumentBuilder.AddHeading(body, "Major Changes (structured)", DocxStyleIds.Heading2);
+        WordDocumentBuilder.AddBulletList(
+            body,
+            e.MajorChanges.Count > 0
+                ? e.MajorChanges.Select(SanitizeArtifactText)
+                : ["No major changes were recorded."]);
+        WordDocumentBuilder.AddHeading(body, "Key Tradeoffs (AI)", DocxStyleIds.Heading2);
+        WordDocumentBuilder.AddBulletList(
+            body,
+            e.KeyTradeoffs.Count > 0
+                ? e.KeyTradeoffs.Select(SanitizeArtifactText)
+                : ["No key tradeoffs were recorded."]);
+        WordDocumentBuilder.AddHeading(body, "Detailed Explanation", DocxStyleIds.Heading2);
+        WordDocumentBuilder.AddMultilineBodyText(
+            body,
+            string.IsNullOrWhiteSpace(e.Narrative)
+                ? "Detailed explanation was not stored."
+                : SanitizeArtifactText(e.Narrative));
+        WordDocumentBuilder.AddSpacer(body, 2);
+    }
+
+    private static string FormatOptional(string? v)
+    {
+        return DocxManifestFieldPresentation.FormatComparedOptionalValue(v);
+    }
+
+    private static string FormatCost(decimal? v)
+    {
+        return v.HasValue ? v.Value.ToString("0.00") : "Cost was not stored";
+    }
+}

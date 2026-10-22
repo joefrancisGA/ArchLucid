@@ -1,0 +1,289 @@
+using ArchLucid.Application.Drafts;
+using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Application.Tests.Architecture;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Drafts;
+using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Persistence.Data.Repositories;
+
+using FluentAssertions;
+
+using Moq;
+
+namespace ArchLucid.Application.Tests.Drafts;
+
+[Trait("Category", "Unit")]
+public sealed class DraftRequestServiceTests
+{
+    private readonly IDraftRequestRepository _repository = new InMemoryDraftRequestRepository();
+    private readonly Mock<IEffectiveGovernanceLoader> _governanceLoader = new();
+    private readonly Mock<IArchitectureRunCommandService> _architectureRunCommandService = new();
+    private readonly Mock<IRequestContentSafetyPrecheck> _contentSafety = new();
+
+    private readonly DraftRequestService _service;
+    private readonly ScopeContext _scope = new()
+    {
+        TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+        WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+        ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+    };
+
+    public DraftRequestServiceTests()
+    {
+        _governanceLoader
+            .Setup(static loader => loader.LoadEffectiveContentAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPackContentDocument());
+
+        _contentSafety
+            .Setup(static s => s.EvaluateAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RequestContentSafetyResult { IsAllowed = true });
+
+        DraftRunCommandServiceTestDoubles.SetupStandardReviewCreate(_architectureRunCommandService);
+
+        _service = DraftRequestServiceTestFactory.CreateWithDefaults(
+            _repository,
+            _governanceLoader,
+            _architectureRunCommandService,
+            _contentSafety,
+            new DraftIntakeBranchOptions());
+    }
+
+    [Fact]
+    public async Task CreateAsync_StoresDraftInDraftingStatus()
+    {
+        DraftRequestResponse created = await _service.CreateAsync(
+            _scope,
+            "user-1",
+            new CreateDraftRequest { FreeTextIntent = DraftIntakeTestIntents.ValidGrcWorkflow },
+            CancellationToken.None);
+
+        created.Status.Should().Be(DraftRequestStatus.Drafting);
+        created.Document.FreeTextIntent.Should().Contain("GRC");
+    }
+
+    [Fact]
+    public async Task CreateAsync_returns_current_updated_utc_for_immediate_conditional_patch()
+    {
+        DraftRequestResponse created = await _service.CreateAsync(
+            _scope,
+            "user-1",
+            new CreateDraftRequest { FreeTextIntent = DraftIntakeTestIntents.ValidGrcWorkflow },
+            CancellationToken.None);
+
+        DraftRequestResponse? reloaded = await _repository.GetAsync(
+            _scope.TenantId,
+            _scope.WorkspaceId,
+            _scope.ProjectId,
+            created.DraftId,
+            CancellationToken.None);
+
+        created.UpdatedUtc.Should().Be(reloaded!.UpdatedUtc);
+
+        DraftRequestResponse? patched = await _service.PatchAsync(
+            _scope,
+            created.DraftId,
+            new PatchDraftRequest
+            {
+                BusinessOutcome = "Faster audit preparation",
+                ExpectedUpdatedUtc = created.UpdatedUtc,
+            },
+            CancellationToken.None);
+
+        patched.Should().NotBeNull();
+        patched!.Document.BusinessOutcome.Should().Be("Faster audit preparation");
+    }
+
+    [Fact]
+    public async Task RequestAdmissionAsync_Redirects_WhenActorMissing()
+    {
+        DraftRequestResponse created = await _service.CreateAsync(
+            _scope,
+            "user-1",
+            new CreateDraftRequest
+            {
+                FreeTextIntent = DraftIntakeTestIntents.ValidGrcWorkflow,
+            },
+            CancellationToken.None);
+
+        await _service.PatchAsync(
+            _scope,
+            created.DraftId,
+            new PatchDraftRequest { BusinessOutcome = "Faster audit prep", ExpectedUpdatedUtc = created.UpdatedUtc },
+            CancellationToken.None);
+
+        DraftAdmissionResponse? admission = await _service.RequestAdmissionAsync(
+            _scope,
+            created.DraftId,
+            CancellationToken.None);
+
+        admission.Should().NotBeNull();
+        admission!.Admitted.Should().BeFalse();
+        admission.Status.Should().Be(DraftRequestStatus.Redirected);
+        admission.Verdict.Kind.Should().Be(FeasibilityVerdictKind.SoftInfeasible);
+        admission.Verdict.SoftEnvelope.Should().NotBeNull();
+        admission.Verdict.HardCitations.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task SubmitAsync_SpawnsRun_WhenAdmitted()
+    {
+        DraftRequestResponse created = await _service.CreateAsync(
+            _scope,
+            "user-1",
+            new CreateDraftRequest
+            {
+                FreeTextIntent = DraftIntakeTestIntents.ValidGrcWorkflow,
+            },
+            CancellationToken.None);
+
+        await _service.PatchAsync(
+            _scope,
+            created.DraftId,
+            new PatchDraftRequest
+            {
+                BusinessOutcome = "Faster audit prep",
+                ExpectedUpdatedUtc = created.UpdatedUtc,
+                ActorSet = new ActorSet
+                {
+                    Actors =
+                    [
+                        new ActorDescriptor
+                        {
+                            Kind = ActorKind.Human,
+                            TrustOrigin = TrustOrigin.Internal,
+                            Contract = InteractionContract.Sync,
+                            Origin = ActorOrigin.Asserted,
+                        },
+                    ],
+                },
+            },
+            CancellationToken.None);
+
+        DraftAdmissionResponse? admission = await _service.RequestAdmissionAsync(
+            _scope,
+            created.DraftId,
+            CancellationToken.None);
+
+        admission!.Admitted.Should().BeTrue();
+
+        foreach (string mustKey in admission.RequiredMustQuestionKeys)
+        {
+            await _service.AnswerQuestionAsync(
+                _scope,
+                created.DraftId,
+                new AnswerDraftQuestionRequest { QuestionKey = mustKey, Answer = "Addressed." },
+                CancellationToken.None);
+        }
+
+        SubmitDraftResponse? submit = await _service.SubmitAsync(_scope, created.DraftId, null, CancellationToken.None);
+
+        submit.Should().NotBeNull();
+        submit!.Status.Should().Be(DraftRequestStatus.RunSpawned);
+        submit.RunId.Should().Be("abc123run");
+
+        _architectureRunCommandService.Verify(
+            static o => o.CreateRunAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task ReopenAsync_ReturnsNull_WhenMissing()
+    {
+        DraftRequestResponse? reopened = await _service.ReopenAsync(
+            _scope,
+            Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            CancellationToken.None);
+
+        reopened.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task ReopenAsync_Throws_WhenDrafting()
+    {
+        DraftRequestResponse created = await _service.CreateAsync(
+            _scope,
+            "user-1",
+            new CreateDraftRequest { FreeTextIntent = DraftIntakeTestIntents.ValidGrcWorkflow },
+            CancellationToken.None);
+
+        Func<Task> act = async () => await _service.ReopenAsync(_scope, created.DraftId, CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*cannot be reopened from status 'Drafting'*");
+    }
+
+    [Fact]
+    public async Task ReopenAsync_AdmitThenReopenThenPatch()
+    {
+        DraftRequestResponse created = await _service.CreateAsync(
+            _scope,
+            "user-1",
+            new CreateDraftRequest
+            {
+                FreeTextIntent = DraftIntakeTestIntents.ValidGrcWorkflow,
+            },
+            CancellationToken.None);
+
+        await _service.PatchAsync(
+            _scope,
+            created.DraftId,
+            new PatchDraftRequest
+            {
+                BusinessOutcome = "Faster audit prep",
+                ExpectedUpdatedUtc = created.UpdatedUtc,
+                ActorSet = new ActorSet
+                {
+                    Actors =
+                    [
+                        new ActorDescriptor
+                        {
+                            Kind = ActorKind.Human,
+                            TrustOrigin = TrustOrigin.Internal,
+                            Contract = InteractionContract.Sync,
+                            Origin = ActorOrigin.Asserted,
+                        },
+                    ],
+                },
+            },
+            CancellationToken.None);
+
+        DraftAdmissionResponse? admission = await _service.RequestAdmissionAsync(
+            _scope,
+            created.DraftId,
+            CancellationToken.None);
+
+        admission.Should().NotBeNull();
+        admission!.Admitted.Should().BeTrue();
+
+        DraftRequestResponse? reopened = await _service.ReopenAsync(_scope, created.DraftId, CancellationToken.None);
+
+        reopened.Should().NotBeNull();
+        reopened!.Status.Should().Be(DraftRequestStatus.Drafting);
+        reopened.Document.BusinessOutcome.Should().Be("Faster audit prep");
+        reopened.SpawnedRunId.Should().Be(admission.Draft.SpawnedRunId);
+
+        DraftRequestResponse? patched = await _service.PatchAsync(
+            _scope,
+            created.DraftId,
+            new PatchDraftRequest { BusinessOutcome = "Edited after unlock", ExpectedUpdatedUtc = reopened.UpdatedUtc },
+            CancellationToken.None);
+
+        patched.Should().NotBeNull();
+        patched!.Status.Should().Be(DraftRequestStatus.Drafting);
+        patched.Document.BusinessOutcome.Should().Be("Edited after unlock");
+    }
+}

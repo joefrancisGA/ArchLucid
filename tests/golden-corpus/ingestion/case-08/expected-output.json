@@ -1,0 +1,15 @@
+[
+  {
+    "objectType": "TopologyResource",
+    "name": "storage",
+    "sourceType": "InfrastructureDeclaration",
+    "sourceId": "ingestion-case-08",
+    "properties": {
+      "apiVersion": "2023-01-01",
+      "bicepSymbolicName": "storage",
+      "publicNetworkAccess": "enabled",
+      "resourceType": "microsoft.storage/storageaccounts",
+      "tf.publicnetworkaccess": "enabled"
+    }
+  }
+]

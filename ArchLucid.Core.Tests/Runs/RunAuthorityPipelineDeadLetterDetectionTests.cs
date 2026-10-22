@@ -1,0 +1,334 @@
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.Runs;
+
+using FluentAssertions;
+
+namespace ArchLucid.Core.Tests.Runs;
+
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
+public sealed class RunAuthorityPipelineDeadLetterDetectionTests
+{
+    [Fact]
+    public void IsDeadLettered_returns_true_for_pipeline_dead_letter_failure_class()
+    {
+        AgentExecutionFailureSummary summary = new()
+        {
+            FailureClass = AgentExecutionFailureClasses.PipelineDeadLetter,
+        };
+
+        string json = $$"""
+            {"schemaVersion":1,"failureClass":"{{AgentExecutionFailureClasses.PipelineDeadLetter}}"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_true_for_PascalCase_pipeline_dead_letter_failure_class_value()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":"PipelineDeadLetter"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_false_for_other_failure_classes()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":"timeout"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_false_for_null_or_non_json()
+    {
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered((string?)null).Should().BeFalse();
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered("plain text").Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_true_for_string_encoded_schema_version()
+    {
+        const string json = """
+            {"schemaVersion":"1","failureClass":"PipelineDeadLetter"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_true_for_whole_number_double_schema_version()
+    {
+        const string json = """
+            {"schemaVersion":1.0,"failureClass":"PipelineDeadLetter"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_true_when_schema_version_property_is_omitted()
+    {
+        const string json = """
+            {"failureClass":"PipelineDeadLetter"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_true_when_schema_version_property_is_null()
+    {
+        const string json = """
+            {"schemaVersion":null,"failureClass":"PipelineDeadLetter"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_false_for_boolean_true_schema_version()
+    {
+        const string json = """
+            {"schemaVersion":true,"failureClass":"PipelineDeadLetter"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_false_for_boolean_false_schema_version()
+    {
+        const string json = """
+            {"schemaVersion":false,"failureClass":"PipelineDeadLetter"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_false_for_string_on_schema_version_synonym()
+    {
+        const string json = """
+            {"schemaVersion":"on","failureClass":"PipelineDeadLetter"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_false_for_string_encoded_boolean_true_schema_version()
+    {
+        const string json = """
+            {"schemaVersion":"true","failureClass":"PipelineDeadLetter"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_true_for_PascalCase_failure_class_property_name()
+    {
+        const string json = """
+            {"schemaVersion":1,"FailureClass":"PipelineDeadLetter"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_true_when_later_case_variant_failure_class_is_empty()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":"PipelineDeadLetter","FAILURECLASS":""}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_true_for_forward_compatible_schema_version_2_pipeline_dead_letter()
+    {
+        const string json = """
+            {"schemaVersion":2,"failureClass":"PipelineDeadLetter","reasonCode":"authorityPipelineWorkDeadLettered"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_false_for_schema_version_below_minimum()
+    {
+        const string json = """
+            {"schemaVersion":0,"failureClass":"PipelineDeadLetter"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_false_for_negative_schema_version()
+    {
+        const string json = """
+            {"schemaVersion":-1,"failureClass":"PipelineDeadLetter"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_false_for_truncated_pipeline_dead_letter_failure_class_token()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":"PipelineDeadLette"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_true_for_all_lowercase_pipeline_dead_letter_failure_class()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":"pipelinedeadletter"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_false_for_utf8_bom_prefixed_json_without_leading_brace()
+    {
+        const string json = "\uFEFF{\"schemaVersion\":1,\"failureClass\":\"PipelineDeadLetter\"}";
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsDeadLettered_classifies_pipeline_dead_letter_after_leading_unicode_whitespace_before_open_brace()
+    {
+        const string json = "\u2003{\"schemaVersion\":1,\"failureClass\":\"PipelineDeadLetter\"}";
+
+        // Leading-brace gate uses TrimStart (ASCII whitespace only); writers emit trimmed object JSON (#1203).
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_false_for_json_array_root_even_when_element_has_pipeline_dead_letter()
+    {
+        const string json = """
+            [{"schemaVersion":1,"failureClass":"PipelineDeadLetter"}]
+            """;
+
+        // AgentExecutionFailureSummaryJson.Serialize and pipeline writers persist object-shaped summaries only.
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_false_for_boolean_false_failure_class_token()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":false}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_false_for_whitespace_only_failure_class_token()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":"   "}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_false_for_numeric_failure_class_token()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":1}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_false_for_array_valued_failure_class_token()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":["PipelineDeadLetter"]}
+            """;
+
+        // AgentExecutionFailureSummaryJson.Serialize and AuthorityPipelineDeadLetterRunMarker emit string failureClass only.
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_false_for_internal_whitespace_in_failure_class_token()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":"Pipeline  DeadLetter"}
+            """;
+
+        // Writers emit AgentExecutionFailureClasses.PipelineDeadLetter without internal whitespace; conservative parse fails closed.
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_true_for_leading_and_trailing_whitespace_in_failure_class_token()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":" pipelineDeadLetter "}
+            """;
+
+        // TryDeserialize trims failureClass before comparison; writers emit canonical class strings without padding.
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_false_for_null_failure_class_literal()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":null}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_false_for_pipeline_dead_lettered_typo_suffix_failure_class()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":"PipelineDeadLettered"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_false_for_empty_json_object_without_failure_class()
+    {
+        const string json = "{}";
+
+        // Conservative reader requires a non-empty failureClass token; empty objects are not pipeline dead letters.
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_true_when_later_case_variant_schema_version_is_below_minimum()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":"PipelineDeadLetter","SCHEMAVERSION":0}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeTrue(
+            "a trailing poison schemaVersion alias must not hide an earlier supported version");
+    }
+}

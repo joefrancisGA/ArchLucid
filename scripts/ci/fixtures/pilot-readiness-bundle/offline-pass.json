@@ -1,0 +1,17 @@
+{
+  "repositoryRoot": "C:\\repo\\ArchLucid",
+  "generatedUtc": "2026-06-30T12:00:00.0000000Z",
+  "overallVerdict": "Pass",
+  "slots": [
+    { "slotKey": "buyer-proof-evidence-ledger", "verdict": "Pass" },
+    { "slotKey": "return-trigger-telemetry", "verdict": "Pass" },
+    { "slotKey": "decision-owner-scoreboard", "verdict": "Pass" },
+    { "slotKey": "frontier-ai-baseline", "verdict": "Warn" },
+    { "slotKey": "citation-integrity", "verdict": "Pass" },
+    { "slotKey": "tenant-isolation-negative-test", "verdict": "Pass" },
+    { "slotKey": "itsm-pull-forward-gate", "verdict": "Pass" },
+    { "slotKey": "ship-gate-evidence", "verdict": "Skipped" }
+  ],
+  "jsonArtifactPath": "artifacts/pilot-readiness-bundle/offline-fixture/pilot-readiness-bundle.json",
+  "markdownArtifactPath": "artifacts/pilot-readiness-bundle/offline-fixture/pilot-readiness-bundle.md"
+}

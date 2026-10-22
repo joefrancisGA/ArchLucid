@@ -1,0 +1,228 @@
+using ArchLucid.ContextIngestion.Canonicalization;
+using ArchLucid.Contracts.Persistence.Context;
+using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.KnowledgeGraph.Inference;
+using ArchLucid.KnowledgeGraph.Mapping;
+
+using FluentAssertions;
+
+namespace ArchLucid.ContextIngestion.Tests;
+
+[Trait("Suite", "Core")]
+public sealed class AppServiceNetworkAccessSecurityBaselineExpanderTests
+{
+    [Fact]
+    public void Expand_open_internet_rule_creates_security_baseline_linked_to_app_service()
+    {
+        CanonicalObject appService = new()
+        {
+            ObjectType = "TopologyResource",
+            Name = "web-app",
+            SourceType = "InfrastructureDeclaration",
+            SourceId = "decl-1",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["resourceType"] = "Microsoft.Web/sites",
+                ["ipSecurityRestrictions"] =
+                    """[{"name":"AllowAll","ipAddress":"0.0.0.0/0","action":"Allow"}]""",
+            },
+        };
+
+        IReadOnlyList<CanonicalObject> expanded = AppServiceNetworkAccessSecurityBaselineExpander.Expand([appService]);
+
+        expanded.Should().HaveCountGreaterThan(1);
+
+        CanonicalObject? baseline = expanded.FirstOrDefault(o =>
+            o.ObjectType == "SecurityBaseline"
+            && o.Properties.TryGetValue("ruleKind", out string? kind)
+            && kind == "OpenPublicEndpoint");
+
+        baseline.Should().NotBeNull();
+        baseline!.Properties["status"].Should().Be("missing");
+        baseline.Properties["protectedTopologyNodeIds"].Should().Be($"obj-{appService.ObjectId}");
+
+        GraphNodeFactory factory = new();
+        List<GraphNode> nodes = expanded.Select(factory.CreateNode).ToList();
+
+        DefaultGraphEdgeInferer inferer = new();
+        ContextSnapshot snapshot = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid().ToString(),
+            CanonicalObjects = expanded.ToList(),
+        };
+
+        IReadOnlyList<GraphEdge> edges = inferer.InferEdges(snapshot, nodes);
+
+        edges.Should().Contain(e =>
+            e.EdgeType == "PROTECTS"
+            && e.FromNodeId == $"obj-{baseline.ObjectId}"
+            && e.ToNodeId == $"obj-{appService.ObjectId}");
+    }
+
+    [Fact]
+    public void Expand_sites_config_child_resource_does_not_create_security_baselines()
+    {
+        CanonicalObject siteConfig = new()
+        {
+            ObjectType = "TopologyResource",
+            Name = "web-app/web",
+            SourceType = "InfrastructureDeclaration",
+            SourceId = "decl-1",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["resourceType"] = "Microsoft.Web/sites/config",
+                ["ipSecurityRestrictions"] =
+                    """[{"name":"AllowAll","ipAddress":"0.0.0.0/0","action":"Allow"}]""",
+            },
+        };
+
+        IReadOnlyList<CanonicalObject> expanded = AppServiceNetworkAccessSecurityBaselineExpander.Expand([siteConfig]);
+
+        expanded.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void Expand_application_gateway_with_ip_rules_does_not_create_security_baselines()
+    {
+        CanonicalObject gateway = new()
+        {
+            ObjectType = "TopologyResource",
+            Name = "application-gateway",
+            SourceType = "InfrastructureDeclaration",
+            SourceId = "decl-1",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["resourceType"] = "Microsoft.Network/applicationGateways",
+                ["ipSecurityRestrictions"] =
+                    """[{"name":"AllowAll","ipAddress":"0.0.0.0/0","action":"Allow"}]""",
+            },
+        };
+
+        IReadOnlyList<CanonicalObject> expanded = AppServiceNetworkAccessSecurityBaselineExpander.Expand([gateway]);
+
+        expanded.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void Expand_terraform_linux_web_app_with_open_internet_rule_creates_security_baseline()
+    {
+        CanonicalObject appService = new()
+        {
+            ObjectType = "TopologyResource",
+            Name = "web-app",
+            SourceType = "InfrastructureDeclaration",
+            SourceId = "decl-1",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["terraformType"] = "azurerm_linux_web_app",
+                ["ipSecurityRestrictions"] =
+                    """[{"name":"AllowAll","ipAddress":"0.0.0.0/0","action":"Allow"}]""",
+            },
+        };
+
+        IReadOnlyList<CanonicalObject> expanded = AppServiceNetworkAccessSecurityBaselineExpander.Expand([appService]);
+
+        expanded.Should().HaveCountGreaterThan(1);
+
+        CanonicalObject? baseline = expanded.FirstOrDefault(o =>
+            o.ObjectType == "SecurityBaseline"
+            && o.Properties.TryGetValue("ruleKind", out string? kind)
+            && kind == "OpenPublicEndpoint");
+
+        baseline.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void Expand_terraform_tf_ip_security_restrictions_creates_security_baseline()
+    {
+        CanonicalObject appService = new()
+        {
+            ObjectType = "TopologyResource",
+            Name = "web-app",
+            SourceType = "InfrastructureDeclaration",
+            SourceId = "decl-1",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["terraformType"] = "azurerm_linux_web_app",
+                ["tf.ip_security_restrictions"] =
+                    """[{"name":"AllowAll","ipAddress":"0.0.0.0/0","action":"Allow"}]""",
+            },
+        };
+
+        IReadOnlyList<CanonicalObject> expanded = AppServiceNetworkAccessSecurityBaselineExpander.Expand([appService]);
+
+        expanded.Should().HaveCountGreaterThan(1);
+
+        CanonicalObject? baseline = expanded.FirstOrDefault(o =>
+            o.ObjectType == "SecurityBaseline"
+            && o.Properties.TryGetValue("ruleKind", out string? kind)
+            && kind == "OpenPublicEndpoint");
+
+        baseline.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void Expand_terraform_snake_case_ip_address_detects_open_internet()
+    {
+        CanonicalObject appService = new()
+        {
+            ObjectType = "TopologyResource",
+            Name = "web-app",
+            SourceType = "InfrastructureDeclaration",
+            SourceId = "decl-1",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["terraformType"] = "azurerm_linux_web_app",
+                ["tf.ip_security_restrictions"] =
+                    """[{"name":"AllowAll","ip_address":"0.0.0.0/0","action":"Allow"}]""",
+            },
+        };
+
+        IReadOnlyList<CanonicalObject> expanded = AppServiceNetworkAccessSecurityBaselineExpander.Expand([appService]);
+
+        CanonicalObject? baseline = expanded.FirstOrDefault(o =>
+            o.ObjectType == "SecurityBaseline"
+            && o.Properties.TryGetValue("ruleKind", out string? kind)
+            && kind == "OpenPublicEndpoint");
+
+        baseline.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void Expand_reparse_produces_stable_object_ids_for_network_baselines()
+    {
+        CanonicalObject appService = new()
+        {
+            ObjectId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            ObjectType = "TopologyResource",
+            Name = "web-app",
+            SourceType = "InfrastructureDeclaration",
+            SourceId = "decl-1",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["terraformType"] = "azurerm_linux_web_app",
+                ["tf.ip_security_restrictions"] =
+                    """[{"name":"AllowAll","ipAddress":"0.0.0.0/0","action":"Allow"}]""",
+            },
+        };
+
+        IReadOnlyList<CanonicalObject> firstExpand =
+            AppServiceNetworkAccessSecurityBaselineExpander.Expand([appService]);
+        IReadOnlyList<CanonicalObject> secondExpand =
+            AppServiceNetworkAccessSecurityBaselineExpander.Expand([appService]);
+
+        List<string> firstBaselineIds = firstExpand
+            .Where(static o => string.Equals(o.ObjectType, "SecurityBaseline", StringComparison.OrdinalIgnoreCase))
+            .Select(static o => o.ObjectId)
+            .ToList();
+        List<string> secondBaselineIds = secondExpand
+            .Where(static o => string.Equals(o.ObjectType, "SecurityBaseline", StringComparison.OrdinalIgnoreCase))
+            .Select(static o => o.ObjectId)
+            .ToList();
+
+        secondBaselineIds.Should().Equal(firstBaselineIds);
+        firstBaselineIds.Should().OnlyContain(static id => !string.IsNullOrWhiteSpace(id));
+    }
+}

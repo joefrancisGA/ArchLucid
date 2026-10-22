@@ -1,0 +1,162 @@
+using System.IO.Compression;
+using System.Text;
+
+using ArchLucid.Application.Findings;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Findings.Payloads;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Models;
+
+using FluentAssertions;
+
+using Microsoft.Extensions.Options;
+
+using Moq;
+
+namespace ArchLucid.Application.Tests.Findings;
+
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
+public sealed class AdvisorCostRecommendationFindingEngineTests
+{
+    private static readonly ScopeContext TestScope = new()
+    {
+        TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+        WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+        ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+    };
+
+    [Fact]
+    public async Task AnalyzeAsync_returns_advisor_cost_findings_from_zip()
+    {
+        const string advisorCostJson =
+            """
+            {
+              "recommendations": [
+                {
+                  "id": "rec-1",
+                  "category": "Cost",
+                  "description": "Right-size underutilized VM",
+                  "annualSavingsAmount": 500
+                }
+              ]
+            }
+            """;
+
+        (AdvisorCostRecommendationFindingEngine sut, FindingAnalysisContext context) =
+            CreateSut(CreatePackage(advisorCostJson));
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), context, CancellationToken.None);
+
+        findings.Should().ContainSingle();
+        findings[0].FindingType.Should().Be("AdvisorCostRecommendation");
+        findings[0].EngineType.Should().Be("advisor-cost-recommendation");
+        findings[0].Payload.Should().BeOfType<AdvisorCostRecommendationFindingPayload>();
+        ((AdvisorCostRecommendationFindingPayload)findings[0].Payload!).EstimatedAnnualSavingsUsd.Should().Be(500m);
+        findings[0].EvidenceRefs.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_populates_EvidenceRefs_when_resourceMetadata_has_arm_id()
+    {
+        const string advisorCostJson =
+            """
+            {
+              "recommendations": [
+                {
+                  "id": "rec-1",
+                  "category": "Cost",
+                  "description": "Right-size underutilized VM",
+                  "annualSavingsAmount": 500,
+                  "resourceMetadata": {
+                    "resourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-demo/providers/Microsoft.Compute/virtualMachines/vm-demo"
+                  }
+                }
+              ]
+            }
+            """;
+
+        (AdvisorCostRecommendationFindingEngine sut, FindingAnalysisContext context) =
+            CreateSut(CreatePackage(advisorCostJson));
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), context, CancellationToken.None);
+
+        findings.Should().ContainSingle();
+        findings[0].EvidenceRefs.Should().ContainSingle()
+            .Which.Should().Contain("/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-demo/");
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_returns_empty_when_advisor_cost_json_missing()
+    {
+        (AdvisorCostRecommendationFindingEngine sut, FindingAnalysisContext context) =
+            CreateSut(CreatePackageWithoutAdvisorCost());
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), context, CancellationToken.None);
+
+        findings.Should().BeEmpty();
+    }
+
+    private static (AdvisorCostRecommendationFindingEngine Engine, FindingAnalysisContext Context) CreateSut(
+        AzureExtractorPackageDownloadRecord package)
+    {
+        Mock<IAzureExtractorPackageRepository> packageRepository = new();
+        packageRepository
+            .Setup(repo => repo.TryGetLatestCollectionTimestampUtcInScopeAsync(TestScope, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DateTime.UtcNow);
+        EffectfulFindingEngineTestSupport.SetupAzurePinnedDownload(packageRepository, TestScope, package);
+
+        FindingAnalysisContext context = EffectfulFindingEngineTestSupport.CreateAzurePinnedContext(package.PackageId);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(TestScope);
+
+        AdvisorCostRecommendationFindingEngine engine = new(
+            scopeProvider.Object,
+            packageRepository.Object,
+            TimeProvider.System,
+            Options.Create(new RoiCostEvidenceFreshnessOptions { StaleAfterDays = 90 }));
+
+        return (engine, context);
+    }
+
+    private static AzureExtractorPackageDownloadRecord CreatePackage(string advisorCostJson)
+    {
+        return new AzureExtractorPackageDownloadRecord
+        {
+            PackageId = Guid.NewGuid(),
+            OriginalFileName = "inventory.zip",
+            PackageBytes = BuildZip(("advisor-cost.json", advisorCostJson)),
+        };
+    }
+
+    private static AzureExtractorPackageDownloadRecord CreatePackageWithoutAdvisorCost()
+    {
+        return new AzureExtractorPackageDownloadRecord
+        {
+            PackageId = Guid.NewGuid(),
+            OriginalFileName = "inventory.zip",
+            PackageBytes = BuildZip(("manifest.json", "{}")),
+        };
+    }
+
+    private static byte[] BuildZip(params (string Name, string Content)[] entries)
+    {
+        using MemoryStream stream = new();
+        using (ZipArchive archive = new(stream, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            foreach ((string name, string content) in entries)
+            {
+                ZipArchiveEntry entry = archive.CreateEntry(name);
+                using StreamWriter writer = new(entry.Open(), Encoding.UTF8);
+                writer.Write(content);
+            }
+        }
+
+        return stream.ToArray();
+    }
+}

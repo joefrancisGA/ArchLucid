@@ -1,0 +1,19 @@
+{
+  "schema": "archlucid.paid-pilot-baseline-schema.v1",
+  "payloadSchema": "archlucid.paid-pilot-baseline.v1",
+  "reportSchema": "archlucid.paid-pilot-baseline-readiness-report.v1",
+  "canonicalTemplate": "docs/go-to-market/templates/paid-pilot-baseline.template.json",
+  "storageRoot": "artifacts/paid-pilot-baseline",
+  "requiredFields": ["pilotLabel", "paidPilot", "baselineCapturedUtc"],
+  "baselineReviewCycleSourceValues": [
+    "buyer-provided",
+    "measured",
+    "team-estimate",
+    "defaulted",
+    "demo-derived",
+    "not-collected"
+  ],
+  "strongSourceValues": ["buyer-provided", "measured"],
+  "partialSourceValues": ["team-estimate", "defaulted"],
+  "blockedSourceValues": ["not-collected", "demo-derived"]
+}

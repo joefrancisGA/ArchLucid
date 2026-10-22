@@ -1,0 +1,155 @@
+using System.Text.Json.Serialization;
+
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Serialization;
+
+namespace ArchLucid.Contracts.Drafts;
+
+/// <summary>
+///     Mutable JSON payload stored on a draft row (ADR 0048 / ADR 0013 <c>schemaVersion</c>).
+/// </summary>
+public sealed class DraftRequestDocument
+{
+    /// <summary>Document schema version for additive evolution.</summary>
+    [JsonPropertyName("schemaVersion")]
+    public int SchemaVersion
+    {
+        get;
+        set;
+    } = DraftRequestDocumentSchema.CurrentVersion;
+
+    /// <summary>Raw free-text intent supplied at draft creation.</summary>
+    [JsonPropertyName("freeTextIntent")]
+    public string FreeTextIntent
+    {
+        get;
+        set;
+    } = string.Empty;
+
+    /// <summary>Optional short system name projected into <c>ArchitectureRequest.SystemName</c>.</summary>
+    [JsonPropertyName("systemName")]
+    public string? SystemName
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     The non-inferable business outcome origin (R4).  When asserted by the user it is recorded
+    ///     in <see cref="TransparencyTrail" /> as well.
+    /// </summary>
+    [JsonPropertyName("businessOutcome")]
+    public string? BusinessOutcome
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Inferred-then-confirmed actor set (ADR 0049).</summary>
+    private ActorSet actorSet = new();
+
+    [JsonPropertyName("actorSet")]
+    public ActorSet ActorSet
+    {
+        get => actorSet;
+        set => actorSet = value ?? new ActorSet();
+    }
+
+    /// <summary>Mandatory transparency trail accumulating asserted / inferred / skipped items (ADR 0050).</summary>
+    private TransparencyTrail transparencyTrail = new();
+
+    [JsonPropertyName("transparencyTrail")]
+    public TransparencyTrail TransparencyTrail
+    {
+        get => transparencyTrail;
+        set => transparencyTrail = value ?? new TransparencyTrail();
+    }
+
+    /// <summary>Answers keyed by <see cref="Governance.ElicitationQuestion.QuestionKey" />.</summary>
+    private Dictionary<string, string> questionAnswers = new(StringComparer.OrdinalIgnoreCase);
+
+    [JsonPropertyName("questionAnswers")]
+    public Dictionary<string, string> QuestionAnswers
+    {
+        get => questionAnswers;
+        set => questionAnswers = ContractCollectionDefaults.CoalesceStringDictionaryOrdinalIgnoreCase(value);
+    }
+
+    /// <summary>
+    ///     MUST-tier question keys still required before submit (populated at admission by ADR 0051 L0/L1 selection).
+    /// </summary>
+    private List<string> requiredMustQuestionKeys = [];
+
+    [JsonPropertyName("requiredMustQuestionKeys")]
+    public List<string> RequiredMustQuestionKeys
+    {
+        get => requiredMustQuestionKeys;
+        set => requiredMustQuestionKeys = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    /// <summary>Optional conversation thread for pre-run intake (reuses <c>IConversationService</c>).</summary>
+    [JsonPropertyName("conversationThreadId")]
+    public Guid? ConversationThreadId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Parent draft when this row is a what-if branch snapshot (R12 — reserved).</summary>
+    [JsonPropertyName("parentDraftId")]
+    public Guid? ParentDraftId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     When true (default), submit projects <see cref="FocusedPilotModePolicyPacks.ReferenceToken" /> into
+    ///     <c>ArchitectureRequest.PolicyReferences</c>.
+    /// </summary>
+    [JsonPropertyName("focusedPilotModeEnabled")]
+    public bool? FocusedPilotModeEnabled
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     Homepage workflow intent copied to <see cref="Requests.ArchitectureRequest.WorkflowIntent" /> on submit.
+    /// </summary>
+    [JsonPropertyName("workflowIntent")]
+    public string? WorkflowIntent
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Confirmable structured brief lists and quality notes (TB-2282).</summary>
+    private ArchitectureDraftStructuredBrief structuredBrief = new();
+
+    [JsonPropertyName("structuredBrief")]
+    public ArchitectureDraftStructuredBrief StructuredBrief
+    {
+        get => structuredBrief;
+        set => structuredBrief = value ?? new ArchitectureDraftStructuredBrief();
+    }
+
+    /// <summary>Prior committed run id for semantic inheritance on second reviews (TB-2350).</summary>
+    [JsonPropertyName("priorRunId")]
+    public string? PriorRunId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     Expert working notes for BA follow-ups — unsealed draft document only (ADR 0080 / WS-19).
+    ///     Not part of the sealed review unless later mapped through transparency with user confirm.
+    /// </summary>
+    [JsonPropertyName("openQuestions")]
+    public string? OpenQuestions
+    {
+        get;
+        set;
+    }
+}

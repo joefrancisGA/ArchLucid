@@ -1,0 +1,47 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "hc-ctrl-001",
+    "hc-ctrl-002",
+    "hc-ctrl-003",
+    "hc-ctrl-004",
+    "hc-ctrl-005",
+    "hc-ctrl-006",
+    "hc-ctrl-007",
+    "hc-ctrl-008"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning"
+  },
+  "metadata": {
+    "vertical": "healthcare",
+    "regulatoryAnchor": "HIPAA Security Rule themes for architecture review \u2014 not HIPAA certification"
+  },
+  "packManifest": {
+    "id": "healthcare",
+    "title": "Healthcare \u2014 PHI and safeguard architecture controls",
+    "targetBuyer": "Healthcare platform or compliance lead",
+    "buyerJob": "HIPAA-oriented safeguard review on Azure health workloads",
+    "owner": "ArchLucid Policy SME",
+    "lastReviewedUtc": "2026-06-01",
+    "requiredInputs": [
+      "Policy pack enabled on scope",
+      "Architecture request describing PHI flows and encryption boundaries",
+      "Synthetic or redacted evidence only in pilots"
+    ],
+    "expectedOutputs": [
+      "Advisory findings on hc-ctrl-* rules (minimum necessary, audit, encryption)",
+      "Proof checklist alignment when paired with healthcare starter pack"
+    ],
+    "scopeLabel": "Product-ready",
+    "doNotUseWhen": [
+      "Real PHI in prompts or uploads without contractual basis",
+      "Buyer expects HIPAA certification or BAAs from ArchLucid"
+    ],
+    "deferredScopeNotes": "Does not certify HIPAA compliance or provide legal/regulatory attestation.",
+    "buyerSafeCaveat": "Architecture-review input only \u2014 not certification and not legal advice.",
+    "sampleFindingSummary": "Example warning: PHI store without encryption-at-rest evidence (hc-ctrl-003)."
+  }
+}

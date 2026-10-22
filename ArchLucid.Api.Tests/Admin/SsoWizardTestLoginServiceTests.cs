@@ -1,0 +1,466 @@
+using ArchLucid.Api.Controllers.Admin;
+using ArchLucid.Api.Services.Admin;
+using ArchLucid.Core.Scoping;
+
+using FluentAssertions;
+
+namespace ArchLucid.Api.Tests.Admin;
+
+[Trait("Suite", "Core")]
+public sealed class SsoWizardTestLoginServiceTests
+{
+    [Fact]
+    public void Execute_maps_sample_claim_values_to_archlucid_roles()
+    {
+        SsoWizardTestLoginService sut = new();
+        ScopeContext scope = new()
+        {
+            TenantId = ScopeIds.DefaultTenant,
+            WorkspaceId = ScopeIds.DefaultWorkspace,
+            ProjectId = ScopeIds.DefaultProject
+        };
+
+        IdentityProviderTestLoginResponse response = sut.Execute(
+            new IdentityProviderTestLoginRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = new IdentityClaimRoleMappingRequest
+                {
+                    RoleClaimName = "groups",
+                    Mappings =
+                    [
+                        new IdentityClaimRoleMappingEntryRequest
+                        {
+                            IdpValue = "al-admins",
+                            ArchLucidRole = "Admin"
+                        }
+                    ]
+                },
+                SampleClaimValues = ["al-admins"]
+            },
+            scope);
+
+        response.Success.Should().BeTrue();
+        response.MappedRoles.Should().Contain("Admin");
+        response.AccessToken.Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
+    public void Execute_returns_failure_when_custom_group_claim_regex_match_times_out()
+    {
+        // (a+)+$ backtracks on a long run of a's that does not match. The sandbox must not throw.
+        SsoWizardTestLoginService sut = new();
+        ScopeContext scope = new()
+        {
+            TenantId = ScopeIds.DefaultTenant,
+            WorkspaceId = ScopeIds.DefaultWorkspace,
+            ProjectId = ScopeIds.DefaultProject
+        };
+
+        IdentityProviderTestLoginResponse response = sut.Execute(
+            new IdentityProviderTestLoginRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = new IdentityClaimRoleMappingRequest
+                {
+                    RoleClaimName = "groups",
+                    CustomGroupClaimRegex = "(a+)+$",
+                    Mappings =
+                    [
+                        new IdentityClaimRoleMappingEntryRequest
+                        {
+                            IdpValue = "al-admins",
+                            ArchLucidRole = "Admin"
+                        }
+                    ]
+                },
+                SampleClaimValues = [new string('a', 28) + "!"]
+            },
+            scope);
+
+        response.Success.Should().BeFalse();
+        response.DiagnosticSummary.Should().Contain("timed out");
+        response.AccessToken.Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("file:///etc/passwd")]
+    [InlineData("javascript:alert('xss')")]
+    public void Execute_rejects_non_http_scheme_issuer_uri(string issuerUri)
+    {
+        SsoWizardTestLoginService sut = new();
+        ScopeContext scope = new()
+        {
+            TenantId = ScopeIds.DefaultTenant,
+            WorkspaceId = ScopeIds.DefaultWorkspace,
+            ProjectId = ScopeIds.DefaultProject
+        };
+
+        IdentityProviderTestLoginResponse response = sut.Execute(
+            new IdentityProviderTestLoginRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = issuerUri,
+                ClaimMapping = new IdentityClaimRoleMappingRequest
+                {
+                    RoleClaimName = "groups",
+                    Mappings =
+                    [
+                        new IdentityClaimRoleMappingEntryRequest
+                        {
+                            IdpValue = "al-admins",
+                            ArchLucidRole = "Admin"
+                        }
+                    ]
+                },
+                SampleClaimValues = ["al-admins"]
+            },
+            scope);
+
+        response.Success.Should().BeFalse();
+        response.DiagnosticSummary.Should().Contain("HTTP(S)");
+    }
+
+    [Fact]
+    public void Execute_rejects_non_http_scheme_issuer_uri_when_called_directly()
+    {
+        SsoWizardTestLoginService sut = new();
+        ScopeContext scope = new()
+        {
+            TenantId = ScopeIds.DefaultTenant,
+            WorkspaceId = ScopeIds.DefaultWorkspace,
+            ProjectId = ScopeIds.DefaultProject,
+        };
+
+        IdentityProviderTestLoginResponse response = sut.Execute(
+            new IdentityProviderTestLoginRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "file:///etc/passwd",
+                ClaimMapping = new IdentityClaimRoleMappingRequest
+                {
+                    RoleClaimName = "groups",
+                    Mappings =
+                    [
+                        new IdentityClaimRoleMappingEntryRequest
+                        {
+                            IdpValue = "al-admins",
+                            ArchLucidRole = "Admin",
+                        },
+                    ],
+                },
+                SampleClaimValues = ["al-admins"],
+            },
+            scope);
+
+        response.Success.Should().BeFalse();
+        response.DiagnosticSummary.Should().Contain("HTTP(S)");
+    }
+
+    [Fact]
+    public void Execute_returns_failure_when_sample_claim_values_is_null()
+    {
+        SsoWizardTestLoginService sut = new();
+        ScopeContext scope = new()
+        {
+            TenantId = ScopeIds.DefaultTenant,
+            WorkspaceId = ScopeIds.DefaultWorkspace,
+            ProjectId = ScopeIds.DefaultProject,
+        };
+
+        IdentityProviderTestLoginResponse response = sut.Execute(
+            new IdentityProviderTestLoginRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = new IdentityClaimRoleMappingRequest
+                {
+                    RoleClaimName = "groups",
+                    Mappings =
+                    [
+                        new IdentityClaimRoleMappingEntryRequest
+                        {
+                            IdpValue = "al-admins",
+                            ArchLucidRole = "Admin",
+                        },
+                    ],
+                },
+                SampleClaimValues = null!,
+            },
+            scope);
+
+        response.Success.Should().BeFalse();
+        response.DiagnosticSummary.Should().Contain("SampleClaimValues");
+    }
+
+    [Fact]
+    public void Execute_returns_failure_when_claim_mapping_contains_null_entry()
+    {
+        SsoWizardTestLoginService sut = new();
+        ScopeContext scope = new()
+        {
+            TenantId = ScopeIds.DefaultTenant,
+            WorkspaceId = ScopeIds.DefaultWorkspace,
+            ProjectId = ScopeIds.DefaultProject,
+        };
+
+        IdentityProviderTestLoginResponse response = sut.Execute(
+            new IdentityProviderTestLoginRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = new IdentityClaimRoleMappingRequest
+                {
+                    RoleClaimName = "groups",
+                    Mappings = [null!],
+                },
+                SampleClaimValues = ["al-admins"],
+            },
+            scope);
+
+        response.Success.Should().BeFalse();
+        response.DiagnosticSummary.Should().Contain("Mapping");
+    }
+
+    [Fact]
+    public void Execute_returns_failure_when_claim_mapping_contains_duplicate_idp_values()
+    {
+        SsoWizardTestLoginService sut = new();
+        ScopeContext scope = new()
+        {
+            TenantId = ScopeIds.DefaultTenant,
+            WorkspaceId = ScopeIds.DefaultWorkspace,
+            ProjectId = ScopeIds.DefaultProject,
+        };
+
+        IdentityProviderTestLoginResponse response = sut.Execute(
+            new IdentityProviderTestLoginRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = new IdentityClaimRoleMappingRequest
+                {
+                    RoleClaimName = "groups",
+                    Mappings =
+                    [
+                        new IdentityClaimRoleMappingEntryRequest
+                        {
+                            IdpValue = "al-admins",
+                            ArchLucidRole = "Admin"
+                        },
+                        new IdentityClaimRoleMappingEntryRequest
+                        {
+                            IdpValue = "al-admins",
+                            ArchLucidRole = "Operator"
+                        }
+                    ]
+                },
+                SampleClaimValues = ["al-admins"],
+            },
+            scope);
+
+        response.Success.Should().BeFalse();
+        response.DiagnosticSummary.Should().Contain("Duplicate IdpValue");
+    }
+
+    [Fact]
+    public void Execute_returns_failure_when_claim_mapping_mappings_is_null()
+    {
+        SsoWizardTestLoginService sut = new();
+        ScopeContext scope = new()
+        {
+            TenantId = ScopeIds.DefaultTenant,
+            WorkspaceId = ScopeIds.DefaultWorkspace,
+            ProjectId = ScopeIds.DefaultProject,
+        };
+
+        IdentityProviderTestLoginResponse response = sut.Execute(
+            new IdentityProviderTestLoginRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = new IdentityClaimRoleMappingRequest
+                {
+                    RoleClaimName = "groups",
+                    Mappings = null!,
+                },
+                SampleClaimValues = ["al-admins"],
+            },
+            scope);
+
+        response.Success.Should().BeFalse();
+        response.DiagnosticSummary.Should().Contain("ClaimMapping.Mappings");
+    }
+
+    [Fact]
+    public void Execute_returns_failure_when_claim_mapping_is_null()
+    {
+        SsoWizardTestLoginService sut = new();
+        ScopeContext scope = new()
+        {
+            TenantId = ScopeIds.DefaultTenant,
+            WorkspaceId = ScopeIds.DefaultWorkspace,
+            ProjectId = ScopeIds.DefaultProject,
+        };
+
+        IdentityProviderTestLoginResponse response = sut.Execute(
+            new IdentityProviderTestLoginRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = null!,
+                SampleClaimValues = ["al-admins"],
+            },
+            scope);
+
+        response.Success.Should().BeFalse();
+        response.DiagnosticSummary.Should().Contain("ClaimMapping");
+    }
+
+    [Fact]
+    public void Execute_returns_failure_when_mapping_entry_has_whitespace_only_idp_value()
+    {
+        SsoWizardTestLoginService sut = new();
+        ScopeContext scope = new()
+        {
+            TenantId = ScopeIds.DefaultTenant,
+            WorkspaceId = ScopeIds.DefaultWorkspace,
+            ProjectId = ScopeIds.DefaultProject,
+        };
+
+        IdentityProviderTestLoginResponse response = sut.Execute(
+            new IdentityProviderTestLoginRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = new IdentityClaimRoleMappingRequest
+                {
+                    RoleClaimName = "groups",
+                    Mappings =
+                    [
+                        new IdentityClaimRoleMappingEntryRequest
+                        {
+                            IdpValue = "   ",
+                            ArchLucidRole = "Admin",
+                        },
+                    ],
+                },
+                SampleClaimValues = ["al-admins"],
+            },
+            scope);
+
+        response.Success.Should().BeFalse();
+        response.DiagnosticSummary.Should().Contain("IdpValue");
+    }
+
+    [Fact]
+    public void Execute_returns_failure_when_custom_group_claim_regex_is_whitespace_only()
+    {
+        SsoWizardTestLoginService sut = new();
+        ScopeContext scope = new()
+        {
+            TenantId = ScopeIds.DefaultTenant,
+            WorkspaceId = ScopeIds.DefaultWorkspace,
+            ProjectId = ScopeIds.DefaultProject,
+        };
+
+        IdentityProviderTestLoginResponse response = sut.Execute(
+            new IdentityProviderTestLoginRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = new IdentityClaimRoleMappingRequest
+                {
+                    RoleClaimName = "groups",
+                    CustomGroupClaimRegex = "   ",
+                    Mappings =
+                    [
+                        new IdentityClaimRoleMappingEntryRequest
+                        {
+                            IdpValue = "al-admins",
+                            ArchLucidRole = "Admin",
+                        },
+                    ],
+                },
+                SampleClaimValues = ["al-admins"],
+            },
+            scope);
+
+        response.Success.Should().BeFalse();
+        response.DiagnosticSummary.Should().Contain("CustomGroupClaimRegex");
+    }
+
+    [Fact]
+    public void Execute_rejects_invisible_unicode_only_role_claim_name()
+    {
+        SsoWizardTestLoginService sut = new();
+        ScopeContext scope = new()
+        {
+            TenantId = ScopeIds.DefaultTenant,
+            WorkspaceId = ScopeIds.DefaultWorkspace,
+            ProjectId = ScopeIds.DefaultProject,
+        };
+
+        IdentityProviderTestLoginResponse response = sut.Execute(
+            new IdentityProviderTestLoginRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = new IdentityClaimRoleMappingRequest
+                {
+                    RoleClaimName = "\u200B",
+                    Mappings =
+                    [
+                        new IdentityClaimRoleMappingEntryRequest
+                        {
+                            IdpValue = "al-admins",
+                            ArchLucidRole = "Admin",
+                        },
+                    ],
+                },
+                SampleClaimValues = ["al-admins"],
+            },
+            scope);
+
+        response.Success.Should().BeFalse();
+        response.DiagnosticSummary.Should().Contain("RoleClaimName");
+    }
+
+    [Fact]
+    public void Execute_returns_failure_when_no_roles_mapped()
+    {
+        SsoWizardTestLoginService sut = new();
+        ScopeContext scope = new()
+        {
+            TenantId = ScopeIds.DefaultTenant,
+            WorkspaceId = ScopeIds.DefaultWorkspace,
+            ProjectId = ScopeIds.DefaultProject
+        };
+
+        IdentityProviderTestLoginResponse response = sut.Execute(
+            new IdentityProviderTestLoginRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = new IdentityClaimRoleMappingRequest
+                {
+                    RoleClaimName = "groups",
+                    Mappings =
+                    [
+                        new IdentityClaimRoleMappingEntryRequest
+                        {
+                            IdpValue = "al-admins",
+                            ArchLucidRole = "Admin"
+                        }
+                    ]
+                },
+                SampleClaimValues = ["unknown-group"]
+            },
+            scope);
+
+        response.Success.Should().BeFalse();
+        response.DiagnosticSummary.Should().Contain("No ArchLucid roles");
+    }
+}

@@ -1,0 +1,314 @@
+using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
+
+namespace ArchLucid.Application.Governance.PolicyPacks;
+
+public sealed partial class PolicyPackHttpFacade
+{
+    /// <inheritdoc />
+    public async Task<PolicyPackHttpResult<PolicyPack>> CreatePackAsync(
+        PolicyPackCreateBody request,
+        CancellationToken ct)
+    {
+        if (!await EnsureScopeAsync(ct).ConfigureAwait(false))
+            return PolicyPackHttpResult<PolicyPack>.ScopeNotFound();
+
+        await EnsureMutationSealedManifestOrThrowAsync(ct).ConfigureAwait(false);
+
+        PolicyPack pack = await _workflow.CreatePackAsync(
+            request.Name,
+            request.Description,
+            request.PackType,
+            request.InitialContentJson,
+            ct).ConfigureAwait(false);
+
+        return PolicyPackHttpResult<PolicyPack>.Success(pack);
+    }
+
+    /// <inheritdoc />
+    public async Task<PolicyPackHttpResult<PolicyPackVersion>> PublishVersionAsync(
+        Guid policyPackId,
+        PolicyPackPublishBody request,
+        CancellationToken ct)
+    {
+        if (!await EnsureScopeAsync(ct).ConfigureAwait(false))
+            return PolicyPackHttpResult<PolicyPackVersion>.ScopeNotFound();
+
+        await EnsureMutationSealedManifestOrThrowAsync(ct).ConfigureAwait(false);
+
+        PolicyPackVersion? version;
+
+        try
+        {
+            version = await _workflow.TryPublishVersionAsync(
+                policyPackId,
+                PolicyPackSemVerVersion.Parse(request.Version).Value,
+                request.ContentJson,
+                ct).ConfigureAwait(false);
+        }
+        catch (InvalidOperationException ex)
+            when (ex.Message.Contains("Platform-default", StringComparison.OrdinalIgnoreCase))
+        {
+            return new PolicyPackHttpResult<PolicyPackVersion>
+            {
+                Outcome = PolicyPackHttpOutcome.ValidationFailed,
+                Message = ex.Message,
+            };
+        }
+
+        if (version is null)
+        {
+            return new PolicyPackHttpResult<PolicyPackVersion>
+            {
+                Outcome = PolicyPackHttpOutcome.ResourceNotFound,
+                Message = $"Policy pack '{policyPackId}' was not found in the current scope.",
+            };
+        }
+
+        return PolicyPackHttpResult<PolicyPackVersion>.Success(version);
+    }
+
+    /// <inheritdoc />
+    public async Task<PolicyPackAssignHttpResult> AssignAsync(
+        Guid policyPackId,
+        PolicyPackAssignBody request,
+        CancellationToken ct)
+    {
+        if (!await EnsureScopeAsync(ct).ConfigureAwait(false))
+            return new PolicyPackAssignHttpResult { Outcome = PolicyPackHttpOutcome.ScopeNotFound };
+
+        await EnsureMutationSealedManifestOrThrowAsync(ct).ConfigureAwait(false);
+
+        string versionKey = PolicyPackSemVerVersion.Parse(request.Version).Value;
+        string scopeLevel = string.IsNullOrWhiteSpace(request.ScopeLevel) ? "Project" : request.ScopeLevel;
+
+        PolicyPackAssignWorkflowResult assignResult = await _workflow.TryAssignAsync(
+            policyPackId,
+            versionKey,
+            scopeLevel,
+            request.IsPinned,
+            request.IsOrganizationRequired,
+            ct).ConfigureAwait(false);
+
+        return assignResult.Outcome switch
+        {
+            PolicyPackAssignOutcome.Assigned => new PolicyPackAssignHttpResult
+            {
+                Outcome = PolicyPackHttpOutcome.Success,
+                Assignment = assignResult.Assignment,
+            },
+            PolicyPackAssignOutcome.Forbidden => new PolicyPackAssignHttpResult
+            {
+                Outcome = PolicyPackHttpOutcome.Forbidden,
+            },
+            PolicyPackAssignOutcome.PackNotFound => new PolicyPackAssignHttpResult
+            {
+                Outcome = PolicyPackHttpOutcome.ResourceNotFound,
+                PolicyPackId = policyPackId,
+            },
+            PolicyPackAssignOutcome.VersionNotFound => new PolicyPackAssignHttpResult
+            {
+                Outcome = PolicyPackHttpOutcome.VersionNotFound,
+                PolicyPackId = policyPackId,
+                VersionKey = versionKey,
+            },
+            _ => throw new InvalidOperationException($"Unexpected assign outcome: {assignResult.Outcome}."),
+        };
+    }
+
+    /// <inheritdoc />
+    public async Task<PolicyPackHttpResult<bool>> ArchiveAssignmentAsync(Guid assignmentId, CancellationToken ct)
+    {
+        if (!await EnsureScopeAsync(ct).ConfigureAwait(false))
+            return PolicyPackHttpResult<bool>.ScopeNotFound();
+
+        await EnsureMutationSealedManifestOrThrowAsync(ct).ConfigureAwait(false);
+
+        PolicyPackArchiveAssignmentOutcome outcome =
+            await _workflow.TryArchiveAssignmentWithOutcomeAsync(assignmentId, ct).ConfigureAwait(false);
+
+        return outcome switch
+        {
+            PolicyPackArchiveAssignmentOutcome.Archived => PolicyPackHttpResult<bool>.Success(true),
+            PolicyPackArchiveAssignmentOutcome.OrganizationRequiredLock => new PolicyPackHttpResult<bool>
+            {
+                Outcome = PolicyPackHttpOutcome.Conflict,
+                Message = "Organization-required policy pack assignments cannot be archived. Clear organization-required first.",
+            },
+            _ => new PolicyPackHttpResult<bool> { Outcome = PolicyPackHttpOutcome.ResourceNotFound },
+        };
+    }
+
+    /// <inheritdoc />
+    public async Task<PolicyPackHttpResult<bool>> SoftDeletePackAsync(Guid policyPackId, CancellationToken ct)
+    {
+        if (!await EnsureScopeAsync(ct).ConfigureAwait(false))
+            return PolicyPackHttpResult<bool>.ScopeNotFound();
+
+        await EnsureMutationSealedManifestOrThrowAsync(ct).ConfigureAwait(false);
+
+        bool ok = await _workflow.TrySoftDeletePackAsync(policyPackId, ct).ConfigureAwait(false);
+
+        return ok
+            ? PolicyPackHttpResult<bool>.Success(true)
+            : new PolicyPackHttpResult<bool> { Outcome = PolicyPackHttpOutcome.ResourceNotFound };
+    }
+
+    /// <inheritdoc />
+    public async Task<PolicyPackHttpResult<PolicyPack>> DuplicatePackAsync(Guid policyPackId, CancellationToken ct)
+    {
+        if (!await EnsureScopeAsync(ct).ConfigureAwait(false))
+            return PolicyPackHttpResult<PolicyPack>.ScopeNotFound();
+
+        await EnsureMutationSealedManifestOrThrowAsync(ct).ConfigureAwait(false);
+
+        PolicyPack? duplicate = await _workflow.TryDuplicatePackAsync(policyPackId, ct).ConfigureAwait(false);
+
+        return duplicate is null
+            ? new PolicyPackHttpResult<PolicyPack> { Outcome = PolicyPackHttpOutcome.ResourceNotFound }
+            : PolicyPackHttpResult<PolicyPack>.Success(duplicate);
+    }
+
+    /// <inheritdoc />
+    public async Task<PolicyPackHttpResult<bool>> SetAssignmentEnabledAsync(
+        Guid assignmentId,
+        bool isEnabled,
+        CancellationToken ct)
+    {
+        if (!await EnsureScopeAsync(ct).ConfigureAwait(false))
+            return PolicyPackHttpResult<bool>.ScopeNotFound();
+
+        await EnsureMutationSealedManifestOrThrowAsync(ct).ConfigureAwait(false);
+
+        PolicyPackSetAssignmentEnabledOutcome outcome =
+            await _workflow.TrySetAssignmentEnabledWithOutcomeAsync(assignmentId, isEnabled, ct).ConfigureAwait(false);
+
+        return outcome switch
+        {
+            PolicyPackSetAssignmentEnabledOutcome.Updated => PolicyPackHttpResult<bool>.Success(true),
+            PolicyPackSetAssignmentEnabledOutcome.OrganizationRequiredLock => new PolicyPackHttpResult<bool>
+            {
+                Outcome = PolicyPackHttpOutcome.Conflict,
+                Message = "Organization-required policy pack assignments cannot be disabled. Clear organization-required first.",
+            },
+            PolicyPackSetAssignmentEnabledOutcome.PlatformPackInactive => new PolicyPackHttpResult<bool>
+            {
+                Outcome = PolicyPackHttpOutcome.Conflict,
+                Message = "Policy pack assignments cannot be enabled while the platform pack is inactive in the global catalog.",
+            },
+            _ => new PolicyPackHttpResult<bool> { Outcome = PolicyPackHttpOutcome.ResourceNotFound },
+        };
+    }
+
+    /// <inheritdoc />
+    public async Task<PolicyPackHttpResult<bool>> SetAssignmentOrganizationRequiredAsync(
+        Guid assignmentId,
+        bool isOrganizationRequired,
+        CancellationToken ct)
+    {
+        if (!await EnsureScopeAsync(ct).ConfigureAwait(false))
+            return PolicyPackHttpResult<bool>.ScopeNotFound();
+
+        await EnsureMutationSealedManifestOrThrowAsync(ct).ConfigureAwait(false);
+
+        PolicyPackSetAssignmentOrganizationRequiredOutcome outcome =
+            await _workflow.TrySetAssignmentOrganizationRequiredWithOutcomeAsync(assignmentId, isOrganizationRequired, ct)
+                .ConfigureAwait(false);
+
+        return outcome switch
+        {
+            PolicyPackSetAssignmentOrganizationRequiredOutcome.Updated => PolicyPackHttpResult<bool>.Success(true),
+            PolicyPackSetAssignmentOrganizationRequiredOutcome.PlatformPackInactive => new PolicyPackHttpResult<bool>
+            {
+                Outcome = PolicyPackHttpOutcome.Conflict,
+                Message = "Organization-required policy pack assignments cannot be set while the platform pack is inactive in the global catalog.",
+            },
+            _ => new PolicyPackHttpResult<bool> { Outcome = PolicyPackHttpOutcome.ResourceNotFound },
+        };
+    }
+
+    /// <inheritdoc />
+    public async Task<PolicyPackHttpResult<IReadOnlyList<PolicyPackVersion>>> ListVersionsAsync(
+        Guid policyPackId,
+        CancellationToken ct)
+    {
+        if (!await EnsureScopeAsync(ct).ConfigureAwait(false))
+            return PolicyPackHttpResult<IReadOnlyList<PolicyPackVersion>>.ScopeNotFound();
+
+        IReadOnlyList<PolicyPackVersion>? versions =
+            await _workflow.TryListVersionsAsync(policyPackId, ct).ConfigureAwait(false);
+
+        return versions is null
+            ? new PolicyPackHttpResult<IReadOnlyList<PolicyPackVersion>> { Outcome = PolicyPackHttpOutcome.ResourceNotFound }
+            : PolicyPackHttpResult<IReadOnlyList<PolicyPackVersion>>.Success(versions);
+    }
+
+    /// <inheritdoc />
+    public async Task<PolicyPackVersionHttpResult> GetVersionAsync(
+        Guid policyPackId,
+        string packVersion,
+        CancellationToken ct)
+    {
+        if (!await EnsureScopeAsync(ct).ConfigureAwait(false))
+        {
+            return new PolicyPackVersionHttpResult
+            {
+                Outcome = PolicyPackVersionLookupOutcome.PackNotFound,
+                PolicyPackId = policyPackId,
+            };
+        }
+
+        PolicyPackSemVerVersion normalizedPackVersion = PolicyPackSemVerVersion.Parse(packVersion);
+        PolicyPackVersionLookupResult lookup =
+            await _workflow.TryGetVersionAsync(policyPackId, normalizedPackVersion.Value, ct).ConfigureAwait(false);
+
+        return new PolicyPackVersionHttpResult
+        {
+            Outcome = lookup.Outcome,
+            Version = lookup.Version,
+            PolicyPackId = policyPackId,
+            PackVersion = normalizedPackVersion.Value,
+        };
+    }
+
+    /// <inheritdoc />
+    public async Task<PolicyPackHttpResult<string>> ExplainPackMarkdownAsync(Guid policyPackId, CancellationToken ct)
+    {
+        if (!await EnsureScopeAsync(ct).ConfigureAwait(false))
+            return PolicyPackHttpResult<string>.ScopeNotFound();
+
+        string? markdown = await _workflow.TryExplainPackMarkdownAsync(policyPackId, ct).ConfigureAwait(false);
+
+        return markdown is null
+            ? new PolicyPackHttpResult<string> { Outcome = PolicyPackHttpOutcome.ResourceNotFound }
+            : PolicyPackHttpResult<string>.Success(markdown);
+    }
+
+    /// <inheritdoc />
+    public async Task<PolicyPackHttpResult<EffectivePolicyPackSet>> GetEffectiveAsync(CancellationToken ct)
+    {
+        if (!await EnsureScopeAsync(ct).ConfigureAwait(false))
+            return PolicyPackHttpResult<EffectivePolicyPackSet>.ScopeNotFound();
+
+        EffectivePolicyPackSet effective = await _workflow.GetEffectiveAsync(ct).ConfigureAwait(false);
+        return PolicyPackHttpResult<EffectivePolicyPackSet>.Success(effective);
+    }
+
+    /// <inheritdoc />
+    public async Task<PolicyPackHttpResult<PolicyPackContentDocument>> GetEffectiveContentAsync(CancellationToken ct)
+    {
+        if (!await EnsureScopeAsync(ct).ConfigureAwait(false))
+            return PolicyPackHttpResult<PolicyPackContentDocument>.ScopeNotFound();
+
+        PolicyPackContentDocument doc = await _workflow.GetEffectiveContentAsync(ct).ConfigureAwait(false);
+        return PolicyPackHttpResult<PolicyPackContentDocument>.Success(doc);
+    }
+
+    /// <inheritdoc />
+    public PolicyPackHttpResult<IReadOnlyList<PolicyPackRuleTemplateItem>> ListRuleTemplates()
+    {
+        IReadOnlyList<PolicyPackRuleTemplateItem> templates = _workflow.ListRuleTemplates();
+        return PolicyPackHttpResult<IReadOnlyList<PolicyPackRuleTemplateItem>>.Success(templates);
+    }
+}

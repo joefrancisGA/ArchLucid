@@ -1,0 +1,77 @@
+---
+description: Emit STILL EXECUTING... HH:mm:ss every 8s during long agent Shell commands (Windows)
+alwaysApply: true
+---
+
+# Shell heartbeat (terminal progress)
+
+When the user may watch the terminal, long **`Shell`** commands must emit a visible heartbeat so the session does not look hung.
+
+## When required
+
+Use heartbeat for **Medium** or **Slow** tier commands per **`shell-hygiene.mdc`** (expected **>15s**), including:
+
+- `.\scripts\ci\agent-compile-check.ps1`
+- `dotnet build`, `dotnet test`, `npm run …`, Docker, Terraform apply
+- Any command whose **child stdout/stderr is redirected** (silent terminal until exit)
+
+## When to skip
+
+Skip for **Fast** tier: chained `git status` / `git diff` / `git log`, `gh pr view`, `Get-ChildItem`, and anything expected to finish in **<15s**.
+
+## Message format
+
+Every **8 seconds** while the child runs:
+
+```text
+STILL EXECUTING... HH:mm:ss
+```
+
+Use `Get-Date -Format 'HH:mm:ss'` (24-hour). Emit with **`Write-Host`** so lines appear on the host, not inside a redirect file.
+
+## How to run (one Shell invocation)
+
+Wrap the real work inside the **same** `Shell` call as the heartbeat loop. Do **not** start a second shell for progress lines.
+
+```powershell
+$intervalSec = 8
+$repoRoot = (Get-Location).Path
+
+$job = Start-Job -ScriptBlock {
+    param($Root)
+    Set-StrictMode -Version Latest
+    Set-Location -LiteralPath $Root
+    & .\scripts\ci\agent-compile-check.ps1 -ProjectPath 'ArchLucid.Core/ArchLucid.Core.csproj'
+    exit $LASTEXITCODE
+} -ArgumentList $repoRoot
+
+try {
+    while ($job.State -eq 'Running') {
+        Write-Host ("STILL EXECUTING... {0}" -f (Get-Date -Format 'HH:mm:ss'))
+        Start-Sleep -Seconds $intervalSec
+    }
+
+    $output = Receive-Job $job -Wait -AutoRemoveJob
+    if ($null -ne $output) { $output | ForEach-Object { Write-Host $_ } }
+
+    if ($job.JobStateInfo.State -eq 'Failed') {
+        $reason = $job.ChildJobs[0].JobStateInfo.Reason
+        if ($null -ne $reason) { Write-Error $reason }
+        exit 1
+    }
+
+    exit 0
+}
+finally {
+    if ($job.State -eq 'Running') {
+        Stop-Job $job -Force
+        Remove-Job $job -Force
+    }
+}
+```
+
+Adapt the script block for the actual command. Always **`exit $LASTEXITCODE`** inside the job when the child is an external executable.
+
+## Repo scripts
+
+When a **`.ps1`** already redirects child stdout/stderr, add the heartbeat loop there (e.g. inside `Invoke-TimedExternalProcess` in **`agent-compile-check.ps1`**) so agents call the script directly without copying the wrapper.

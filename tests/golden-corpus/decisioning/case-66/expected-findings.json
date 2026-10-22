@@ -1,0 +1,118 @@
+[
+  {
+    "findingId": "836844d2-032c-8ed4-5d7a-b03b07b9fd8d",
+    "findingType": "IdentityBlastRadiusFinding",
+    "category": "Security",
+    "severity": "Error",
+    "title": "Machine actor \u0027pay_runner\u0027 has amazons3fullaccess access to regulated datastore \u0027pay_bucket\u0027",
+    "rationale": "A machine identity can reach datastore \u0027pay_bucket\u0027 through role \u0027amazons3fullaccess\u0027 within 2 graph hop(s).",
+    "relatedNodeIds": [
+      "declaration-actor-10000000000040008000000000000066-1",
+      "obj-078cfb0b458980e088408857fd8608ec",
+      "obj-eae6b7917897cf7e0a6f65ffdf324c4b"
+    ],
+    "payloadType": "IdentityBlastRadiusFindingPayload",
+    "rulesApplied": [
+      "amazons3fullaccess",
+      "identity-blast-radius"
+    ],
+    "decisionsTaken": [
+      "Machine actor path to regulated datastore through allow-listed write/admin role."
+    ]
+  },
+  {
+    "findingId": "b8e4e050-21f5-d8d7-450a-483cc40b872f",
+    "findingType": "RequirementExpectationFinding",
+    "category": "Requirement",
+    "severity": "Warning",
+    "title": "Workload-conditioned requirement themes are incomplete",
+    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "relatedNodeIds": [
+      "obj-e6bc50bc70ea2c4b509840ee0d8132eb",
+      "obj-eae6b7917897cf7e0a6f65ffdf324c4b"
+    ],
+    "payloadType": "RequirementExpectationFindingPayload",
+    "rulesApplied": [
+      "requirement-expectation-workload-scope"
+    ],
+    "decisionsTaken": [
+      "Compared workload-conditioned requirement themes to themes inferred from requirement nodes."
+    ]
+  },
+  {
+    "findingId": "65367659-b46d-d6f5-efa0-83bceb0e04b1",
+    "findingType": "SecurityBaselineCompletenessFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Workload security baseline control-family coverage is incomplete",
+    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "relatedNodeIds": [
+      "obj-e6bc50bc70ea2c4b509840ee0d8132eb",
+      "obj-eae6b7917897cf7e0a6f65ffdf324c4b"
+    ],
+    "payloadType": "SecurityBaselineCompletenessFindingPayload",
+    "rulesApplied": [
+      "security-baseline-completeness-matrix"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected control families to families inferred from active security baseline nodes."
+    ]
+  },
+  {
+    "findingId": "5d83fe06-b78b-3d66-2730-f0a3d75cd1bb",
+    "findingType": "SecurityBaselineExpectationFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Category-scoped security baseline coverage is incomplete",
+    "rationale": "Workload-expected topology categories lack any protected resources linked by security baseline PROTECTS edges.",
+    "relatedNodeIds": [
+      "obj-e6bc50bc70ea2c4b509840ee0d8132eb",
+      "obj-eae6b7917897cf7e0a6f65ffdf324c4b"
+    ],
+    "payloadType": "SecurityBaselineExpectationFindingPayload",
+    "rulesApplied": [
+      "security-baseline-category-expectation"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected topology categories to categories with protected resources."
+    ]
+  },
+  {
+    "findingId": "62930852-3f8b-0355-2a21-f8aa80c07f00",
+    "findingType": "SecurityCoverageFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Some topology resources are not protected by any security baseline nodes",
+    "rationale": "Security protection coverage is incomplete for the current topology graph.",
+    "relatedNodeIds": [
+      "pay_bucket",
+      "pay_runner"
+    ],
+    "payloadType": "SecurityCoverageFindingPayload",
+    "rulesApplied": [
+      "security-coverage-protection"
+    ],
+    "decisionsTaken": [
+      "Compared topology resources against PROTECTS edges."
+    ]
+  },
+  {
+    "findingId": "fc87f6df-22cb-a01e-bd73-7e6bfea82be1",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "Topology coverage is incomplete",
+    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "relatedNodeIds": [
+      "obj-e6bc50bc70ea2c4b509840ee0d8132eb",
+      "obj-eae6b7917897cf7e0a6f65ffdf324c4b"
+    ],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-categories"
+    ],
+    "decisionsTaken": [
+      "Compared present topology categories to expected coverage categories."
+    ]
+  }
+]

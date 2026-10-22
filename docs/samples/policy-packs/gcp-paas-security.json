@@ -1,0 +1,50 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "gcp-paas-001",
+    "gcp-paas-002",
+    "gcp-paas-003",
+    "gcp-paas-004",
+    "gcp-paas-005",
+    "gcp-paas-006",
+    "gcp-paas-007",
+    "gcp-paas-008",
+    "gcp-paas-009",
+    "gcp-paas-010",
+    "gcp-paas-011",
+    "gcp-paas-012",
+    "gcp-paas-013",
+    "gcp-paas-014",
+    "gcp-paas-015",
+    "gcp-paas-016",
+    "gcp-paas-017",
+    "gcp-paas-018",
+    "gcp-paas-019",
+    "gcp-paas-020",
+    "gcp-paas-021",
+    "gcp-paas-022",
+    "gcp-paas-023",
+    "gcp-paas-024",
+    "gcp-paas-025",
+    "gcp-paas-026",
+    "gcp-paas-027",
+    "gcp-paas-028"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "priorityFloor": "P0",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "gcp-paas-security-v1",
+    "pack.displayName": "GCP Serverless & PaaS Security",
+    "pack.category": "Application Platform",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "Cloud Run, Cloud Functions, and App Engine ingress, secrets, and VPC connector themes.",
+    "frameworkMappingDisclaimer": "PaaS mapping is thematic only.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/gcp-paas-security-rules-v1.json"
+  }
+}

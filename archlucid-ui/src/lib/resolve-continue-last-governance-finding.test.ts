@@ -1,0 +1,61 @@
+import { describe, expect, it } from "vitest";
+
+import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
+import { resolveContinueLastGovernanceFinding } from "@/lib/resolve-continue-last-governance-finding";
+
+function row(overrides: Partial<GovernanceFindingQueueRow> = {}): GovernanceFindingQueueRow {
+  return {
+    runId: "run-1",
+    runLabel: "Review 1",
+    manifestId: "manifest-1",
+    findingId: "finding-1",
+    title: "Private endpoint gap",
+    severity: "High",
+    category: "Security",
+    status: "Open",
+    recommended: "Fix",
+    recordKind: "finding",
+    agingDays: 2,
+    ...overrides,
+  };
+}
+
+describe("resolveContinueLastGovernanceFinding", () => {
+  it("returns null when input is not an array", () => {
+    expect(resolveContinueLastGovernanceFinding(null)).toBeNull();
+    expect(resolveContinueLastGovernanceFinding({})).toBeNull();
+    expect(resolveContinueLastGovernanceFinding("nope")).toBeNull();
+    expect(resolveContinueLastGovernanceFinding([])).toBeNull();
+  });
+
+  it("preserves findings queue runId on continue-last href when scoped", () => {
+    const match = resolveContinueLastGovernanceFinding(
+      [row({ findingId: "finding-old", title: "Oldest", agingDays: 12 })],
+      "run-queue-scope",
+    );
+
+    expect(match?.href).toBe("/architecture/reviews/run-1/findings/finding-old?runId=run-queue-scope");
+  });
+
+  it("falls back to the oldest open finding when no recent view exists", () => {
+    const match = resolveContinueLastGovernanceFinding([
+      row({ findingId: "finding-new", title: "Newer", agingDays: 1 }),
+      row({ findingId: "finding-old", title: "Oldest", agingDays: 12 }),
+    ]);
+
+    expect(match?.findingId).toBe("finding-old");
+    expect(match?.href).toBe("/architecture/reviews/run-1/findings/finding-old");
+  });
+
+  it("uses nested focusedFinding when inhabited inspect options are wired", () => {
+    const match = resolveContinueLastGovernanceFinding(
+      [row({ findingId: "finding-old", title: "Oldest", agingDays: 12 })],
+      null,
+      { architectureId: "arch-1", isWorkingMode: true },
+    );
+
+    expect(match?.href).toBe(
+      "/architecture/architectures/arch-1/findings?runId=run-1&focusedFinding=finding-old",
+    );
+  });
+});

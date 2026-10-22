@@ -1,0 +1,12 @@
+# Sample variables for terraform validate / plan dry-run only.
+# Replace GUIDs and URLs before apply. Do not commit real API keys.
+
+subscription_id            = "00000000-0000-0000-0000-000000000003"
+location                   = "eastus"
+resource_group_name        = "rg-archlucid-extractor-agent"
+automation_account_name    = "aa-archlucid-extractor"
+archlucid_api_base_url     = "https://api.example.com"
+archlucid_tenant_id        = "00000000-0000-0000-0000-000000000010"
+archlucid_workspace_id     = "00000000-0000-0000-0000-000000000011"
+schedule_start_time_utc    = "2026-09-22T06:00:00Z"
+include_cost               = true

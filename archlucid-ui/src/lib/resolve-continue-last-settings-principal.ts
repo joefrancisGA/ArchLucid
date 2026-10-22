@@ -1,0 +1,100 @@
+import { asNonemptyReadonlyArray } from "@/lib/continue-last-list-guard";
+
+export const SETTINGS_PRINCIPAL_LAST_VIEWED_STORAGE_KEY =
+  "archlucid_settings_principal_continue_last_v1";
+
+export type SettingsPrincipalContinueLastInput = {
+  readonly id: string;
+  readonly kind: "user" | "api_key";
+  readonly name: string;
+  readonly detail: string;
+};
+
+export type SettingsRolesContinueLastTarget = {
+  readonly principalId: string;
+  readonly kind: SettingsPrincipalContinueLastInput["kind"];
+  readonly name: string;
+};
+
+function principalStorageKey(kind: SettingsPrincipalContinueLastInput["kind"], id: string): string {
+  return `${kind}:${id}`;
+}
+
+function readStoredPrincipalKey(): string | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    const stored = window.localStorage.getItem(SETTINGS_PRINCIPAL_LAST_VIEWED_STORAGE_KEY)?.trim() ?? "";
+
+    return stored.length > 0 ? stored : null;
+  } catch {
+    return null;
+  }
+}
+
+export function writeSettingsPrincipalLastViewedId(
+  kind: SettingsPrincipalContinueLastInput["kind"],
+  id: string,
+): void {
+  const normalizedId = id.trim();
+
+  if (normalizedId.length === 0 || typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(
+      SETTINGS_PRINCIPAL_LAST_VIEWED_STORAGE_KEY,
+      principalStorageKey(kind, normalizedId),
+    );
+  } catch {
+    /* ignore */
+  }
+}
+
+function toTarget(row: SettingsPrincipalContinueLastInput): SettingsRolesContinueLastTarget {
+  return {
+    principalId: row.id,
+    kind: row.kind,
+    name: row.name.trim().length > 0 ? row.name : row.detail,
+  };
+}
+
+/** Resolves the directory principal to pin as Continue last viewed. */
+export function resolveContinueLastSettingsPrincipal(
+  rows: unknown,
+): SettingsRolesContinueLastTarget | null {
+  const normalized = asNonemptyReadonlyArray<SettingsPrincipalContinueLastInput>(rows);
+
+  if (normalized === null) {
+    return null;
+  }
+
+  const validRows = normalized.filter(
+    (row) =>
+      typeof row?.id === "string"
+      && (row?.kind === "user" || row?.kind === "api_key")
+      && typeof row?.name === "string"
+      && typeof row?.detail === "string",
+  );
+
+  if (validRows.length === 0) {
+    return null;
+  }
+
+  const storedKey = readStoredPrincipalKey();
+
+  if (storedKey !== null) {
+    const storedMatch = validRows.find((row) => principalStorageKey(row.kind, row.id) === storedKey);
+
+    if (storedMatch !== undefined) {
+      return toTarget(storedMatch);
+    }
+  }
+
+  const first = validRows[0];
+
+  return first === undefined ? null : toTarget(first);
+}

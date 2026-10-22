@@ -1,0 +1,287 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState, type SetStateAction } from "react";
+
+import type { WizardEvidenceUploadTrackState } from "@/components/wizard/steps/WizardPostCreateEvidenceUploadPanel";
+import type { ApiProblemDetails } from "@/lib/api-problem";
+import type { CloudInventoryPlatform } from "@/lib/cloud-inventory-platform";
+import { detectTier1InventoryPlatformFromFile } from "@/lib/read-tier1-inventory-package-zip";
+import {
+  uploadWizardPendingDocumentEvidence,
+  uploadWizardPendingInventoryEvidence,
+} from "@/lib/wizard-pending-evidence-upload";
+
+type PendingEvidenceUploadFailure = {
+  readonly message: string;
+  readonly problem: ApiProblemDetails | null;
+  readonly correlationId: string | null;
+};
+
+type PendingEvidenceOptions = {
+  readonly runId: string | null;
+  /** Quick start uploads as soon as the review exists; the full wizard waits for the pipeline slide. */
+  readonly autoUploadOnCreate: boolean;
+  readonly onInventoryFileSelected: (platform: CloudInventoryPlatform) => void;
+};
+
+function resolvePendingEvidenceUploadExceptionMessage(error: unknown): string {
+  if (error instanceof Error && error.message.trim().length > 0) {
+    return error.message;
+  }
+
+  return "Evidence upload failed.";
+}
+
+/**
+ * Evidence chosen before the review exists, and its upload once a run id is available.
+ *
+ * Evidence cannot be attached until the review is created, so the wizard holds the files and replays
+ * them afterwards — including a retry path, because a failed upload must not discard the operator's
+ * selection.
+ */
+export function useNewRunWizardPendingEvidence(options: PendingEvidenceOptions) {
+  const { autoUploadOnCreate, onInventoryFileSelected, runId } = options;
+
+  const [pendingEvidenceFile, setPendingEvidenceFile] = useState<File | null>(null);
+  const [pendingInventoryPlatform, setPendingInventoryPlatform] = useState<CloudInventoryPlatform | null>(null);
+  const [inventoryPlatformDetectionPending, setInventoryPlatformDetectionPending] = useState(false);
+  const [pendingDocumentFiles, setPendingDocumentFiles] = useState<File[]>([]);
+  const [evidenceUploadState, setEvidenceUploadState] = useState<WizardEvidenceUploadTrackState>("idle");
+  const [evidenceUploadProgressPercent, setEvidenceUploadProgressPercent] = useState<number | null>(null);
+  const [evidenceUploadError, setEvidenceUploadError] = useState<PendingEvidenceUploadFailure | null>(null);
+  const inventoryPlatformDetectionGenerationRef = useRef(0);
+  const pendingEvidenceUploadGenerationRef = useRef(0);
+  const pendingDocumentFilesRef = useRef<File[]>([]);
+
+  useEffect(() => {
+    pendingDocumentFilesRef.current = pendingDocumentFiles;
+  }, [pendingDocumentFiles]);
+
+  const setPendingDocumentFilesWithUploadGeneration = useCallback((next: SetStateAction<File[]>) => {
+    pendingEvidenceUploadGenerationRef.current += 1;
+    setPendingDocumentFiles(next);
+  }, []);
+
+  const handlePendingEvidenceFileChange = useCallback(
+    (file: File | null) => {
+      pendingEvidenceUploadGenerationRef.current += 1;
+      setPendingEvidenceFile(file);
+
+      if (file === null) {
+        inventoryPlatformDetectionGenerationRef.current += 1;
+        setPendingInventoryPlatform(null);
+        setInventoryPlatformDetectionPending(false);
+
+        return;
+      }
+
+      const detectionGeneration = inventoryPlatformDetectionGenerationRef.current + 1;
+      inventoryPlatformDetectionGenerationRef.current = detectionGeneration;
+      setPendingInventoryPlatform(null);
+      setInventoryPlatformDetectionPending(true);
+
+      void (async () => {
+        const platform = await detectTier1InventoryPlatformFromFile(file);
+
+        if (inventoryPlatformDetectionGenerationRef.current !== detectionGeneration) {
+          return;
+        }
+
+        setInventoryPlatformDetectionPending(false);
+
+        if (platform === null) {
+          setPendingInventoryPlatform(null);
+
+          return;
+        }
+
+        setPendingInventoryPlatform(platform);
+        onInventoryFileSelected(platform);
+      })();
+    },
+    [onInventoryFileSelected],
+  );
+
+  const clearPendingEvidence = useCallback(() => {
+    pendingEvidenceUploadGenerationRef.current += 1;
+    setPendingEvidenceFile(null);
+    setPendingInventoryPlatform(null);
+    setInventoryPlatformDetectionPending(false);
+    setPendingDocumentFiles([]);
+  }, []);
+
+  const uploadPendingEvidence = useCallback(
+    async (runIdValue: string): Promise<void> => {
+      const inventoryFile = pendingEvidenceFile;
+      const inventoryPlatform = pendingInventoryPlatform;
+      const hasInventory = inventoryFile !== null && inventoryPlatform !== null;
+      const hasDocuments =
+        pendingDocumentFilesRef.current.length > 0 || pendingDocumentFiles.length > 0;
+
+      if (!hasInventory && !hasDocuments) {
+        return;
+      }
+
+      const uploadGeneration = pendingEvidenceUploadGenerationRef.current;
+
+      setEvidenceUploadState("uploading");
+      setEvidenceUploadError(null);
+      setEvidenceUploadProgressPercent(null);
+
+      try {
+        if (hasInventory && inventoryFile !== null && inventoryPlatform !== null) {
+          const inventoryResult = await uploadWizardPendingInventoryEvidence(
+            runIdValue,
+            inventoryPlatform,
+            inventoryFile,
+            {
+              onUploadProgress: (percent) => {
+                setEvidenceUploadProgressPercent(percent);
+              },
+            },
+          );
+
+          if (!inventoryResult.ok) {
+            if (pendingEvidenceUploadGenerationRef.current !== uploadGeneration) {
+              setEvidenceUploadState("idle");
+
+              return;
+            }
+
+            setEvidenceUploadState("failed");
+            setEvidenceUploadProgressPercent(null);
+            setEvidenceUploadError({
+              message: inventoryResult.message,
+              problem: inventoryResult.problem,
+              correlationId: inventoryResult.correlationId,
+            });
+
+            return;
+          }
+
+          if (pendingEvidenceUploadGenerationRef.current !== uploadGeneration) {
+            setEvidenceUploadState("idle");
+
+            return;
+          }
+
+          setPendingEvidenceFile(null);
+          setPendingInventoryPlatform(null);
+        }
+
+        const documentFiles = pendingDocumentFilesRef.current;
+
+        if (documentFiles.length > 0) {
+          const documentResult = await uploadWizardPendingDocumentEvidence(runIdValue, documentFiles);
+
+          if (!documentResult.ok) {
+            if (pendingEvidenceUploadGenerationRef.current !== uploadGeneration) {
+              setEvidenceUploadState("idle");
+
+              return;
+            }
+
+            setEvidenceUploadState("failed");
+            setEvidenceUploadProgressPercent(null);
+            setEvidenceUploadError({
+              message: documentResult.message,
+              problem: documentResult.problem,
+              correlationId: documentResult.correlationId,
+            });
+
+            return;
+          }
+
+          if (pendingEvidenceUploadGenerationRef.current !== uploadGeneration) {
+            setEvidenceUploadState("idle");
+
+            return;
+          }
+
+          setPendingDocumentFiles([]);
+        }
+
+        if (pendingEvidenceUploadGenerationRef.current !== uploadGeneration) {
+          setEvidenceUploadState("idle");
+
+          return;
+        }
+
+        setEvidenceUploadState("success");
+        setEvidenceUploadProgressPercent(null);
+      } catch (error: unknown) {
+        if (pendingEvidenceUploadGenerationRef.current !== uploadGeneration) {
+          setEvidenceUploadState("idle");
+
+          return;
+        }
+
+        setEvidenceUploadState("failed");
+        setEvidenceUploadProgressPercent(null);
+        setEvidenceUploadError({
+          message: resolvePendingEvidenceUploadExceptionMessage(error),
+          problem: null,
+          correlationId: null,
+        });
+      }
+    },
+    [pendingDocumentFiles, pendingEvidenceFile, pendingInventoryPlatform],
+  );
+
+  const retryEvidenceUpload = useCallback(async () => {
+    if (runId === null) {
+      return;
+    }
+
+    if (pendingEvidenceFile === null && pendingDocumentFiles.length === 0) {
+      return;
+    }
+
+    await uploadPendingEvidence(runId);
+  }, [pendingDocumentFiles, pendingEvidenceFile, runId, uploadPendingEvidence]);
+
+  useEffect(() => {
+    if (runId === null || !autoUploadOnCreate) {
+      return;
+    }
+
+    if (pendingEvidenceFile === null && pendingDocumentFiles.length === 0) {
+      return;
+    }
+
+    if (pendingEvidenceFile !== null && inventoryPlatformDetectionPending) {
+      return;
+    }
+
+    if (evidenceUploadState !== "idle") {
+      return;
+    }
+
+    void uploadPendingEvidence(runId);
+  }, [
+    autoUploadOnCreate,
+    evidenceUploadState,
+    inventoryPlatformDetectionPending,
+    pendingDocumentFiles,
+    pendingEvidenceFile,
+    pendingInventoryPlatform,
+    runId,
+    uploadPendingEvidence,
+  ]);
+
+  const hasPendingEvidence = pendingEvidenceFile !== null || pendingDocumentFiles.length > 0;
+
+  return {
+    pendingEvidenceFile,
+    pendingDocumentFiles,
+    setPendingDocumentFiles: setPendingDocumentFilesWithUploadGeneration,
+    evidenceUploadState,
+    evidenceUploadProgressPercent,
+    evidenceUploadError,
+    hasPendingEvidence,
+    handlePendingEvidenceFileChange,
+    clearPendingEvidence,
+    uploadPendingEvidence,
+    retryEvidenceUpload,
+  };
+}

@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archlucid.dev/schemas/integration-events/governance-policy-pack-published.v1.schema.json",
+  "title": "com.archlucid.governance.policy-pack.published.v1",
+  "description": "Policy pack version published and available for governed reviews.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "tenantId",
+    "workspaceId",
+    "projectId",
+    "policyPackId",
+    "policyPackVersionId",
+    "name",
+    "packType",
+    "version",
+    "publishedUtc"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "tenantId": { "type": "string", "format": "uuid" },
+    "workspaceId": { "type": "string", "format": "uuid" },
+    "projectId": { "type": "string", "format": "uuid" },
+    "policyPackId": { "type": "string", "format": "uuid" },
+    "policyPackVersionId": { "type": "string", "format": "uuid" },
+    "name": { "type": "string" },
+    "packType": { "type": "string" },
+    "version": { "type": "string" },
+    "publishedUtc": { "type": "string", "format": "date-time" }
+  },
+  "additionalProperties": true
+}

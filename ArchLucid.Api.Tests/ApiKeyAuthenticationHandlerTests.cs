@@ -1,0 +1,1160 @@
+using System.Security.Claims;
+using System.Text.Encodings.Web;
+
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Auth.Services;
+using ArchLucid.Api.Authentication;
+using ArchLucid.Core.Authorization;
+
+using FluentAssertions;
+
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
+
+using Moq;
+
+namespace ArchLucid.Api.Tests;
+[Trait("Category", "Unit")]
+
+/// <summary>
+///     Unit tests for <see cref="ApiKeyAuthenticationHandler" /> (handler is non-sealed to allow this test double).
+/// </summary>
+public sealed class ApiKeyAuthenticationHandlerTests
+{
+    [SkippableFact]
+    public async Task When_enabled_false_and_bypass_false_returns_failure()
+    {
+        DefaultHttpContext http = new();
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "false",
+                ["Authentication:ApiKey:DevelopmentBypassAll"] = "false"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeFalse();
+        result.Failure.Should().NotBeNull();
+    }
+
+    [SkippableFact]
+    public async Task When_enabled_true_and_valid_admin_key_returns_success_with_admin_role()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "secret-admin"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.FindFirst(ClaimTypes.Name)?.Value.Should().Be("ApiKeyAdmin");
+        result.Principal?.IsInRole(ArchLucidRoles.Admin).Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task When_allow_test_actor_headers_overrides_admin_display_name()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        http.Request.Headers.Append(ArchLucidAuthOptions.TestActorNameHeader, "e2e-peer-reviewer");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "secret-admin",
+                ["ArchLucidAuth:AllowTestActorHeaders"] = "true"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.FindFirst(ClaimTypes.Name)?.Value.Should().Be("e2e-peer-reviewer");
+        result.Principal?.IsInRole(ArchLucidRoles.Admin).Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task When_test_actor_headers_disallowed_ignores_override_name()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        http.Request.Headers.Append(ArchLucidAuthOptions.TestActorNameHeader, "e2e-peer-reviewer");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "secret-admin",
+                ["ArchLucidAuth:AllowTestActorHeaders"] = "false"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.FindFirst(ClaimTypes.Name)?.Value.Should().Be("ApiKeyAdmin");
+    }
+
+    [SkippableFact]
+    public async Task When_scope_ids_configured_emits_tenant_workspace_and_project_claims()
+    {
+        Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid workspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        Guid projectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "secret-admin",
+                ["Authentication:ApiKey:TenantId"] = tenantId.ToString("D"),
+                ["Authentication:ApiKey:WorkspaceId"] = workspaceId.ToString("D"),
+                ["Authentication:ApiKey:ProjectId"] = projectId.ToString("D")
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.FindFirst("tenant_id")?.Value.Should().Be(tenantId.ToString("D"));
+        result.Principal?.FindFirst("workspace_id")?.Value.Should().Be(workspaceId.ToString("D"));
+        result.Principal?.FindFirst("project_id")?.Value.Should().Be(projectId.ToString("D"));
+    }
+
+    [SkippableFact]
+    public async Task When_enabled_true_and_comma_separated_admin_keys_either_segment_authenticates()
+    {
+        DefaultHttpContext httpFirst = new();
+        httpFirst.Request.Headers.Append("X-Api-Key", "new-admin");
+        DefaultHttpContext httpSecond = new();
+        httpSecond.Request.Headers.Append("X-Api-Key", "old-admin");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        IReadOnlyDictionary<string, string?> cfg = new Dictionary<string, string?>
+        {
+            ["Authentication:ApiKey:Enabled"] = "true",
+            ["Authentication:ApiKey:AdminKey"] = "new-admin, old-admin"
+        };
+
+        AuthenticateResult first = await CreateHandler(cfg, httpFirst, env).InvokeHandleAuthenticateAsync();
+        AuthenticateResult second = await CreateHandler(cfg, httpSecond, env).InvokeHandleAuthenticateAsync();
+
+        first.Succeeded.Should().BeTrue();
+        second.Succeeded.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task When_enabled_true_and_comma_separated_reader_keys_with_empty_segment_ignores_blanks()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "only-reader");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:ReadOnlyKey"] = "  only-reader  , , "
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal!.IsInRole(ArchLucidRoles.Reader).Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task When_enabled_true_and_comma_separated_reader_keys_either_segment_authenticates()
+    {
+        DefaultHttpContext httpFirst = new();
+        httpFirst.Request.Headers.Append("X-Api-Key", "new-reader");
+        DefaultHttpContext httpSecond = new();
+        httpSecond.Request.Headers.Append("X-Api-Key", "old-reader");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        IReadOnlyDictionary<string, string?> cfg = new Dictionary<string, string?>
+        {
+            ["Authentication:ApiKey:Enabled"] = "true",
+            ["Authentication:ApiKey:ReadOnlyKey"] = "new-reader, old-reader"
+        };
+
+        AuthenticateResult first = await CreateHandler(cfg, httpFirst, env).InvokeHandleAuthenticateAsync();
+        AuthenticateResult second = await CreateHandler(cfg, httpSecond, env).InvokeHandleAuthenticateAsync();
+
+        first.Succeeded.Should().BeTrue();
+        first.Principal!.IsInRole(ArchLucidRoles.Reader).Should().BeTrue();
+        second.Succeeded.Should().BeTrue();
+        second.Principal!.IsInRole(ArchLucidRoles.Reader).Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task When_enabled_true_and_comma_separated_admin_keys_with_empty_segment_ignores_blanks()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "only-key");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "  only-key  , , "
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task When_enabled_true_and_invalid_key_returns_failure()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "wrong");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "good-key"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeFalse();
+        result.Failure?.Message.Should().Contain("Invalid");
+    }
+
+    [SkippableFact]
+    public async Task When_development_bypass_and_allow_test_actor_headers_overrides_display_name()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append(ArchLucidAuthOptions.TestActorNameHeader, "e2e-peer-reviewer");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "false",
+                ["Authentication:ApiKey:DevelopmentBypassAll"] = "true",
+                ["ArchLucidAuth:AllowTestActorHeaders"] = "true"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.FindFirst(ClaimTypes.Name)?.Value.Should().Be("e2e-peer-reviewer");
+    }
+
+    [SkippableFact]
+    public async Task When_enabled_false_and_bypass_true_in_development_returns_success_without_header()
+    {
+        DefaultHttpContext http = new();
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "false",
+                ["Authentication:ApiKey:DevelopmentBypassAll"] = "true"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.Identity?.Name.Should().Be("DevUser");
+        result.Principal?.IsInRole(ArchLucidRoles.Admin).Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task When_enabled_false_and_bypass_true_in_production_returns_failure()
+    {
+        DefaultHttpContext http = new();
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Production);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "false",
+                ["Authentication:ApiKey:DevelopmentBypassAll"] = "true"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeFalse();
+        result.Failure?.Message.Should().Contain("Production");
+    }
+
+    /// <summary>
+    ///     Simulates configuration reload: first request sees key A, subsequent
+    ///     <see cref="IOptionsMonitor{TOptions}.CurrentValue" /> sees key B.
+    /// </summary>
+    [SkippableFact]
+    public async Task When_api_key_options_monitor_advances_old_material_fails_and_new_succeeds()
+    {
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthenticationOptions first = new()
+        {
+            Enabled = true,
+            AdminKey = "rotate-a"
+        };
+        ApiKeyAuthenticationOptions second = new()
+        {
+            Enabled = true,
+            AdminKey = "rotate-b"
+        };
+        int pass = 0;
+        Mock<IOptionsMonitor<ApiKeyAuthenticationOptions>> apiKeyMonitor = new();
+        apiKeyMonitor.Setup(m => m.CurrentValue).Returns(() => Interlocked.Increment(ref pass) == 1 ? first : second);
+
+        DefaultHttpContext httpOkOld = new();
+        httpOkOld.Request.Headers.Append("X-Api-Key", "rotate-a");
+        ApiKeyAuthHandlerTestDouble h1 = CreateHandlerWithApiKeyMonitor(apiKeyMonitor.Object, httpOkOld, env);
+        (await h1.InvokeHandleAuthenticateAsync()).Succeeded.Should().BeTrue();
+
+        DefaultHttpContext httpFailOld = new();
+        httpFailOld.Request.Headers.Append("X-Api-Key", "rotate-a");
+        ApiKeyAuthHandlerTestDouble h2 = CreateHandlerWithApiKeyMonitor(apiKeyMonitor.Object, httpFailOld, env);
+        (await h2.InvokeHandleAuthenticateAsync()).Succeeded.Should().BeFalse();
+
+        DefaultHttpContext httpOkNew = new();
+        httpOkNew.Request.Headers.Append("X-Api-Key", "rotate-b");
+        ApiKeyAuthHandlerTestDouble h3 = CreateHandlerWithApiKeyMonitor(apiKeyMonitor.Object, httpOkNew, env);
+        (await h3.InvokeHandleAuthenticateAsync()).Succeeded.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task When_admin_key_is_expired_returns_failure_with_expiry_message()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "admin-key");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+
+        // Set time past the expiry date.
+        Mock<TimeProvider> frozenTime = new();
+        frozenTime.Setup(t => t.GetUtcNow())
+            .Returns(new DateTimeOffset(2026, 1, 2, 0, 0, 0, TimeSpan.Zero));
+
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "admin-key",
+                ["Authentication:ApiKey:AdminKeyExpiresAt"] = "2026-01-01T00:00:00Z"
+            },
+            http,
+            env,
+            frozenTime.Object);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeFalse();
+        result.Failure?.Message.Should().Contain("expired");
+    }
+
+    [SkippableFact]
+    public async Task When_admin_key_expiry_is_in_future_returns_success()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "admin-key");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+
+        // Set time before the expiry date.
+        Mock<TimeProvider> frozenTime = new();
+        frozenTime.Setup(t => t.GetUtcNow())
+            .Returns(new DateTimeOffset(2025, 12, 31, 0, 0, 0, TimeSpan.Zero));
+
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "admin-key",
+                ["Authentication:ApiKey:AdminKeyExpiresAt"] = "2026-01-01T00:00:00Z"
+            },
+            http,
+            env,
+            frozenTime.Object);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task When_admin_key_config_is_only_utf8_bom_returns_invalid_key()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "\uFEFF"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeFalse();
+        result.Failure?.Message.Should().Contain("Invalid API key");
+    }
+
+    [SkippableFact]
+    public async Task When_readonly_key_config_is_only_zero_width_space_returns_invalid_key()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "reader-key");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:ReadOnlyKey"] = "\u200B"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeFalse();
+        result.Failure?.Message.Should().Contain("Invalid API key");
+    }
+
+    [SkippableFact]
+    public async Task When_admin_key_config_has_utf8_bom_prefix_still_authenticates()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "\uFEFFsecret-admin"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.IsInRole(ArchLucidRoles.Admin).Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task When_admin_key_config_has_embedded_line_separator_still_authenticates()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "sec\u2028ret-admin"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.IsInRole(ArchLucidRoles.Admin).Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task When_admin_key_config_has_embedded_tab_still_authenticates()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "sec\tret-admin"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.IsInRole(ArchLucidRoles.Admin).Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task When_admin_key_config_has_embedded_no_break_space_still_authenticates()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "sec\u00A0ret-admin"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.IsInRole(ArchLucidRoles.Admin).Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task When_admin_key_config_has_embedded_soft_hyphen_still_authenticates()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "sec\u00ADret-admin"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.IsInRole(ArchLucidRoles.Admin).Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task When_admin_key_config_has_embedded_left_to_right_isolate_still_authenticates()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "sec\u2066ret-admin"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.IsInRole(ArchLucidRoles.Admin).Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task When_admin_key_config_has_embedded_left_to_right_embedding_still_authenticates()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "sec\u202Aret-admin"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.IsInRole(ArchLucidRoles.Admin).Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task When_admin_key_config_has_embedded_left_to_right_mark_still_authenticates()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "sec\u200Eret-admin"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.IsInRole(ArchLucidRoles.Admin).Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task When_admin_key_config_has_embedded_zero_width_space_still_authenticates()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "sec\u200Bret-admin"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.IsInRole(ArchLucidRoles.Admin).Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task When_enabled_true_and_admin_key_has_surrounding_whitespace_in_header_still_authenticates()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "  secret-admin  ");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "secret-admin"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task When_enabled_true_and_header_is_blank_returns_missing_failure()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "   ");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "secret-admin"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeFalse();
+        result.Failure?.Message.Should().Contain("missing");
+    }
+
+    [SkippableFact]
+    public async Task When_enabled_true_and_duplicate_api_key_headers_use_first_value()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        http.Request.Headers.Append("X-Api-Key", "other-value");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "secret-admin"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.FindFirst(ClaimTypes.Name)?.Value.Should().Be("ApiKeyAdmin");
+    }
+
+    [SkippableFact]
+    public async Task When_enabled_true_and_duplicate_api_key_headers_skip_invisible_only_first_value()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "\u200B");
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "secret-admin"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.FindFirst(ClaimTypes.Name)?.Value.Should().Be("ApiKeyAdmin");
+    }
+
+    [SkippableFact]
+    public async Task When_enabled_true_and_duplicate_api_key_headers_skip_blank_first_value()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "   ");
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "secret-admin"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.FindFirst(ClaimTypes.Name)?.Value.Should().Be("ApiKeyAdmin");
+    }
+
+    [SkippableFact]
+    public async Task When_allow_test_actor_headers_and_actor_name_is_whitespace_only_keeps_api_key_display_name()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        http.Request.Headers.Append(ArchLucidAuthOptions.TestActorNameHeader, "   ");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "secret-admin",
+                ["ArchLucidAuth:AllowTestActorHeaders"] = "true"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.FindFirst(ClaimTypes.Name)?.Value.Should().Be("ApiKeyAdmin");
+    }
+
+    [SkippableFact]
+    public async Task When_allow_test_actor_headers_and_duplicate_actor_name_headers_use_first_value()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        http.Request.Headers.Append(ArchLucidAuthOptions.TestActorNameHeader, "e2e-peer-reviewer");
+        http.Request.Headers.Append(ArchLucidAuthOptions.TestActorNameHeader, "other-actor");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "secret-admin",
+                ["ArchLucidAuth:AllowTestActorHeaders"] = "true"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.FindFirst(ClaimTypes.Name)?.Value.Should().Be("e2e-peer-reviewer");
+    }
+
+    [SkippableFact]
+    public async Task When_admin_key_config_and_header_differ_only_by_hex_casing_still_authenticates()
+    {
+        const string lowercaseHex =
+            "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef12345678";
+        string uppercaseHex = lowercaseHex.ToUpperInvariant();
+
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", lowercaseHex);
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = uppercaseHex
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.IsInRole(ArchLucidRoles.Admin).Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task When_shared_key_admin_expired_but_reader_slot_still_valid_authenticates_as_reader()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "shared-key");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+
+        Mock<TimeProvider> frozenTime = new();
+        frozenTime.Setup(t => t.GetUtcNow())
+            .Returns(new DateTimeOffset(2026, 1, 2, 0, 0, 0, TimeSpan.Zero));
+
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "shared-key",
+                ["Authentication:ApiKey:ReadOnlyKey"] = "shared-key",
+                ["Authentication:ApiKey:AdminKeyExpiresAt"] = "2026-01-01T00:00:00Z",
+                ["Authentication:ApiKey:ReadOnlyKeyExpiresAt"] = "2026-12-31T00:00:00Z"
+            },
+            http,
+            env,
+            frozenTime.Object);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.FindFirst(ClaimTypes.Name)?.Value.Should().Be("ApiKeyReadOnly");
+        result.Principal?.IsInRole(ArchLucidRoles.Reader).Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task When_read_only_key_is_expired_returns_failure_with_expiry_message()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "reader-key");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+
+        Mock<TimeProvider> frozenTime = new();
+        frozenTime.Setup(t => t.GetUtcNow())
+            .Returns(new DateTimeOffset(2026, 1, 2, 0, 0, 0, TimeSpan.Zero));
+
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:ReadOnlyKey"] = "reader-key",
+                ["Authentication:ApiKey:ReadOnlyKeyExpiresAt"] = "2026-01-01T00:00:00Z"
+            },
+            http,
+            env,
+            frozenTime.Object);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeFalse();
+        result.Failure?.Message.Should().Contain("read-only API key has expired");
+    }
+
+    [SkippableFact]
+    public async Task When_enabled_true_and_valid_reader_key_returns_success_with_reader_role()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "reader-key");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:ReadOnlyKey"] = "reader-key"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.FindFirst(ClaimTypes.Name)?.Value.Should().Be("ApiKeyReadOnly");
+        result.Principal?.IsInRole(ArchLucidRoles.Reader).Should().BeTrue();
+        result.Principal?.IsInRole(ArchLucidRoles.Admin).Should().BeFalse();
+    }
+
+    [SkippableFact]
+    public async Task When_allow_test_actor_headers_in_production_throws_before_authenticate()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        http.Request.Headers.Append(ArchLucidAuthOptions.TestActorNameHeader, "e2e-peer-reviewer");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Production);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "secret-admin",
+                ["ArchLucidAuth:AllowTestActorHeaders"] = "true"
+            },
+            http,
+            env);
+
+        Func<Task> act = () => handler.InvokeHandleAuthenticateAsync();
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*AllowTestActorHeaders*Production*");
+    }
+
+    [SkippableFact]
+    public async Task When_read_only_key_expiry_is_exactly_now_returns_failure()
+    {
+        DateTimeOffset expiresAt = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "reader-key");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+
+        Mock<TimeProvider> frozenTime = new();
+        frozenTime.Setup(t => t.GetUtcNow()).Returns(expiresAt);
+
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:ReadOnlyKey"] = "reader-key",
+                ["Authentication:ApiKey:ReadOnlyKeyExpiresAt"] = expiresAt.ToString("O")
+            },
+            http,
+            env,
+            frozenTime.Object);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeFalse();
+        result.Failure?.Message.Should().Contain("read-only API key has expired");
+    }
+
+    [SkippableFact]
+    public async Task When_allow_test_actor_headers_and_duplicate_actor_name_headers_skip_invisible_only_first_value()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        http.Request.Headers.Append(ArchLucidAuthOptions.TestActorNameHeader, "\u200B");
+        http.Request.Headers.Append(ArchLucidAuthOptions.TestActorNameHeader, "e2e-peer-reviewer");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "secret-admin",
+                ["ArchLucidAuth:AllowTestActorHeaders"] = "true"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.FindFirst(ClaimTypes.Name)?.Value.Should().Be("e2e-peer-reviewer");
+    }
+
+    [SkippableFact]
+    public async Task When_allow_test_actor_headers_and_duplicate_actor_name_headers_skip_blank_first_value()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        http.Request.Headers.Append(ArchLucidAuthOptions.TestActorNameHeader, "   ");
+        http.Request.Headers.Append(ArchLucidAuthOptions.TestActorNameHeader, "e2e-peer-reviewer");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "secret-admin",
+                ["ArchLucidAuth:AllowTestActorHeaders"] = "true"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.FindFirst(ClaimTypes.Name)?.Value.Should().Be("e2e-peer-reviewer");
+    }
+
+    [SkippableFact]
+    public async Task When_empty_guid_scope_ids_do_not_emit_scope_claims()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "secret-admin",
+                ["Authentication:ApiKey:TenantId"] = Guid.Empty.ToString("D"),
+                ["Authentication:ApiKey:WorkspaceId"] = Guid.Empty.ToString("D"),
+                ["Authentication:ApiKey:ProjectId"] = Guid.Empty.ToString("D")
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.FindFirst("tenant_id").Should().BeNull();
+        result.Principal?.FindFirst("workspace_id").Should().BeNull();
+        result.Principal?.FindFirst("project_id").Should().BeNull();
+    }
+
+    [SkippableFact]
+    public async Task When_enabled_false_and_bypass_false_valid_api_key_header_still_fails()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "false",
+                ["Authentication:ApiKey:DevelopmentBypassAll"] = "false",
+                ["Authentication:ApiKey:AdminKey"] = "secret-admin"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeFalse();
+        result.Failure?.Message.Should().Contain("disabled");
+    }
+
+    [SkippableFact]
+    public async Task When_admin_key_expiry_is_exactly_now_returns_failure()
+    {
+        DateTimeOffset expiresAt = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "admin-key");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+
+        Mock<TimeProvider> frozenTime = new();
+        frozenTime.Setup(t => t.GetUtcNow()).Returns(expiresAt);
+
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "admin-key",
+                ["Authentication:ApiKey:AdminKeyExpiresAt"] = expiresAt.ToString("O")
+            },
+            http,
+            env,
+            frozenTime.Object);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeFalse();
+        result.Failure?.Message.Should().Contain("expired");
+    }
+
+    private static ApiKeyAuthHandlerTestDouble CreateHandler(
+        IReadOnlyDictionary<string, string?> configData,
+        HttpContext httpContext,
+        IHostEnvironment environment,
+        TimeProvider? timeProvider = null)
+    {
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(configData).Build();
+        ServiceCollection services = [];
+        services.AddOptions();
+        services.Configure<ApiKeyAuthenticationOptions>(
+            configuration.GetSection(ApiKeyAuthenticationOptions.SectionPath));
+        services.Configure<ArchLucidAuthOptions>(configuration.GetSection("ArchLucidAuth"));
+        using ServiceProvider sp = services.BuildServiceProvider();
+        IOptionsMonitor<ApiKeyAuthenticationOptions> apiKeyMonitor =
+            sp.GetRequiredService<IOptionsMonitor<ApiKeyAuthenticationOptions>>();
+        IOptions<ArchLucidAuthOptions> archLucidAuth =
+            sp.GetRequiredService<IOptions<ArchLucidAuthOptions>>();
+
+        return CreateHandlerWithApiKeyMonitor(apiKeyMonitor, archLucidAuth, httpContext, environment, timeProvider);
+    }
+
+    private static ApiKeyAuthHandlerTestDouble CreateHandlerWithApiKeyMonitor(
+        IOptionsMonitor<ApiKeyAuthenticationOptions> apiKeyMonitor,
+        HttpContext httpContext,
+        IHostEnvironment environment,
+        TimeProvider? timeProvider = null)
+    {
+        return CreateHandlerWithApiKeyMonitor(
+            apiKeyMonitor,
+            Options.Create(new ArchLucidAuthOptions()),
+            httpContext,
+            environment,
+            timeProvider);
+    }
+
+    private static ApiKeyAuthHandlerTestDouble CreateHandlerWithApiKeyMonitor(
+        IOptionsMonitor<ApiKeyAuthenticationOptions> apiKeyMonitor,
+        IOptions<ArchLucidAuthOptions> archLucidAuth,
+        HttpContext httpContext,
+        IHostEnvironment environment,
+        TimeProvider? timeProvider = null)
+    {
+        Mock<IOptionsMonitor<AuthenticationSchemeOptions>> monitor = new();
+        AuthenticationSchemeOptions schemeOptions = new();
+        monitor.Setup(m => m.CurrentValue).Returns(schemeOptions);
+        monitor.Setup(m => m.Get(It.IsAny<string>())).Returns(schemeOptions);
+
+        ApiKeyAuthHandlerTestDouble handler = new(
+            monitor.Object,
+            NullLoggerFactory.Instance,
+            UrlEncoder.Default,
+            apiKeyMonitor,
+            archLucidAuth,
+            environment,
+            timeProvider ?? TimeProvider.System);
+
+        AuthenticationScheme scheme = new(
+            AuthServiceCollectionExtensions.ApiKeySchemeName,
+            "API Key",
+            typeof(ApiKeyAuthenticationHandler));
+
+        handler.InitializeAsync(scheme, httpContext).GetAwaiter().GetResult();
+        return handler;
+    }
+
+    private sealed class ApiKeyAuthHandlerTestDouble(
+        IOptionsMonitor<AuthenticationSchemeOptions> options,
+        ILoggerFactory loggerFactory,
+        UrlEncoder encoder,
+        IOptionsMonitor<ApiKeyAuthenticationOptions> apiKeyOptions,
+        IOptions<ArchLucidAuthOptions> authOptions,
+        IHostEnvironment environment,
+        TimeProvider timeProvider)
+        : ApiKeyAuthenticationHandler(options, loggerFactory, encoder, apiKeyOptions, authOptions, environment, timeProvider)
+    {
+        public Task<AuthenticateResult> InvokeHandleAuthenticateAsync()
+        {
+            return HandleAuthenticateAsync();
+        }
+    }
+}

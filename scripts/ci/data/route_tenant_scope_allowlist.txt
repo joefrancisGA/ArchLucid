@@ -1,0 +1,3 @@
+# Routes that bind {tenantId} but are intentionally exempt from RouteTenantScopeBindingFilter.
+# Platform lifecycle and internal cross-tenant surfaces use {id} or /internal/* — none listed today.
+# Add one line per exempt route: VERB /path/with/{tenantId:guid}/segment

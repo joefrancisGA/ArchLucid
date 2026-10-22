@@ -1,0 +1,72 @@
+[
+  {
+    "findingId": "a4065286-57ce-b62a-bb2d-bddd5a2316ab",
+    "findingType": "RequirementCoverageFinding",
+    "category": "Requirement",
+    "severity": "Warning",
+    "title": "Some requirements are not related to any topology resources",
+    "rationale": "Requirement coverage is incomplete because some requirements do not relate to architecture resources in the graph.",
+    "relatedNodeIds": [
+      "Auth-2"
+    ],
+    "payloadType": "RequirementCoverageFindingPayload",
+    "rulesApplied": [
+      "requirement-coverage-relation"
+    ],
+    "decisionsTaken": [
+      "Detected requirement nodes without RELATES_TO edges to topology resources."
+    ]
+  },
+  {
+    "findingId": "5ad84d82-67cd-dd6a-a37d-abb13b3f98ee",
+    "findingType": "RequirementFinding",
+    "category": "Requirement",
+    "severity": "Info",
+    "title": "Requirement detected: Auth-2",
+    "rationale": "A requirement node exists and must be reflected in the resolved architecture.",
+    "relatedNodeIds": [
+      "req-1"
+    ],
+    "payloadType": "RequirementFindingPayload",
+    "rulesApplied": [
+      "requirement-surface"
+    ],
+    "decisionsTaken": [
+      "Promote requirement into candidate architecture decision input."
+    ]
+  },
+  {
+    "findingId": "96a19ff9-8d0c-8c9b-b67e-3e098677aa65",
+    "findingType": "RequirementGap",
+    "category": "Requirement",
+    "severity": "Warning",
+    "title": "Requirement \u0027Auth-2\u0027 is not linked to topology resources",
+    "rationale": "No RELATES_TO edge connects this requirement to any TopologyResource node.",
+    "relatedNodeIds": [
+      "req-1"
+    ],
+    "payloadType": "TopologyGapFindingPayload",
+    "rulesApplied": [
+      "requirement-gap-requirement-without-topology-link"
+    ],
+    "decisionsTaken": [
+      "Detected requirement traceability gap: Requirement \u0027Auth-2\u0027 cannot be traced to architecture resources in the graph."
+    ]
+  },
+  {
+    "findingId": "b7cd0803-a0f2-e73f-b426-60a9f1fa57c3",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "No topology resources were found",
+    "rationale": "The graph does not contain any TopologyResource nodes.",
+    "relatedNodeIds": [],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-presence"
+    ],
+    "decisionsTaken": [
+      "No TopologyResource nodes found in graph \u2014 emitted coverage warning."
+    ]
+  }
+]
