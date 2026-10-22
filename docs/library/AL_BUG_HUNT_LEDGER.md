@@ -1,3 +1,16 @@
+﻿2026-10-22 seed hunt (seed-only): `application-tenancy-lifecycle` - continued seed hunt after picker blocked on legacy run-log rows; no new hunt-ready defect (migration `StartAsync` pre-started-audit guard and scoped regressions already on `bugsmash` tip); cheap-disproof closed prior zone-head `(candidate)` rows; scoped tenancy filter 284/284.
+
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.StartAsync` - offboard between post-insert read and started audit - **cheap-disproof 2026-10-22:** `tenantBeforeStartedAuditAppend` guard + regression on trunk.
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.CompleteAsync` - offboard between pre-audit read and completed audit - **cheap-disproof 2026-10-22:** pre-audit guard + regression on trunk.
+- [x] (invalid) `TenantWorkspaceScopeGuard` - no erasure quarantine short-circuit - **cheap-disproof 2026-10-22:** workspace-not-found vs quarantine is facade responsibility.
+- [x] (invalid) `TenantMigrationProjectionRefreshService.RefreshAsync` - cache invalidation without offboard gate - **cheap-disproof 2026-10-22:** orchestrator guards surround refresh.
+- [x] (invalid) `TenantTrialIdentityHandoffStage.LinkEntraAsync` - audit uses parameter tenant id - **cheap-disproof 2026-10-22:** same tenant id as scope; offboard race tests on trunk.
+
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator` - TOCTOU between final pre-audit read and `AppendPlatformAuditAsync` - locus: narrow scheduler race class (reachability: accepted residual).
+- [ ] (candidate) `TrialTenantBootstrapService` - duplicate quarantine reads before failure metric - locus: redundant guard only.
+- [ ] (candidate) `TenantErasureCommandService` - legal hold reapply between pre-audit reads - locus: saturated erasure command race tests on trunk.
+- [ ] (candidate) `TrialLifecycleTransitionEngine` - purge after deleted transition without post-gate read - locus: covered by 2026-10-22 purge regressions (verify before re-promote).
+- [ ] (candidate) `AL_BUG_HUNT_RUN_LOG.jsonl` - legacy `zone` field without `zoneId` - locus: picker strict mode (reachability: normalize on append).
 2026-10-22 seed hunt (seed->hit): `api-policy-packs` - promoted hunt-ready from seed re-read `CreatePolicyPackRequestValidator` / `PublishPolicyPackVersionRequestValidator` - whitespace-only `InitialContentJson` / `ContentJson` passed `NotEmpty` + `BeValidJson` (whitespace treated as valid) and reached `Create`/`Publish`; require `BeRequiredTextAfterTrim` for both JSON fields; controller forwards trimmed JSON; regressions `Whitespace_only_initial_content_json_fails`, `Whitespace_only_content_json_fails`, `Publish_forwards_trimmed_content_json_to_facade`; scoped controller + validator tests 117/117.
 
 - [x] (proven) `Create`/`Publish` required JSON fields - whitespace-only content passes validation - **hit 2026-10-22 seed hunt:** `BeRequiredTextAfterTrim` + trimmed forward; regressions above.
