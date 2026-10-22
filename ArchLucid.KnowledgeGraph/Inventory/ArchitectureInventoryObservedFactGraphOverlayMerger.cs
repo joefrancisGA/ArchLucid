@@ -15,13 +15,6 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
         ArgumentNullException.ThrowIfNull(baseGraph);
         ArgumentNullException.ThrowIfNull(inventoryOverlay);
 
-        if (inventoryOverlay.Nodes.Count == 0
-            && inventoryOverlay.Edges.Count == 0
-            && inventoryOverlay.Warnings.Count == 0)
-        {
-            return baseGraph;
-        }
-
         HashSet<string> existingNodeIds = baseGraph.Nodes
             .Select(static node => NormalizeNodeId(node.NodeId))
             .ToHashSet(StringComparer.OrdinalIgnoreCase);

@@ -309,6 +309,47 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void Merge_normalizes_base_warnings_when_inventory_overlay_is_fully_empty()
+    {
+        const string warning = "base-warning-only";
+        string paddedDuplicate = $"  {warning}  ";
+        string caseVariantDuplicate = "BASE-WARNING-ONLY";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "context-node",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "Context",
+                },
+            ],
+            Edges = [],
+            Warnings = [warning, paddedDuplicate, caseVariantDuplicate],
+        };
+
+        GraphSnapshot emptyOverlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes = [],
+            Edges = [],
+            Warnings = [],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, emptyOverlay);
+
+        merged.Warnings.Should().ContainSingle().Which.Should().Be(warning);
+        merged.Nodes.Should().HaveCount(baseGraph.Nodes.Count);
+    }
+
+    [Fact]
     public void Merge_appends_inventory_overlay_warnings_when_overlay_has_no_nodes_or_edges()
     {
         const string overlayWarning = "inventory-overlay-warning-only";
