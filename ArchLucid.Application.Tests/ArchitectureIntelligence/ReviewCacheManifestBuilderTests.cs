@@ -635,6 +635,55 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_tenant_configuration_hash_when_project_is_null_vs_empty_string()
+    {
+        ClosedLoopReasoningRequest nullProject = CreateRequest("Architecture note.");
+        nullProject.ProjectId = null;
+
+        ClosedLoopReasoningRequest emptyProject = CreateRequest("Architecture note.");
+        emptyProject.ProjectId = string.Empty;
+
+        ReviewCacheManifestBuilder.Build(nullProject).TenantConfigurationHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(emptyProject).TenantConfigurationHash);
+    }
+
+    [Fact]
+    public void BuildContinueFromExistingRunCoalesceManifest_matches_hash_when_tenant_differs_only_by_surrounding_whitespace()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.ContinueFromExistingRun = true;
+
+        ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                request,
+                "  tenant-cache  ",
+                "run-continue")
+            .ContentHash
+            .Should()
+            .Be(
+                ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                    request,
+                    "tenant-cache",
+                    "run-continue").ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_framing_answer_is_whitespace_only_vs_omitted()
+    {
+        ClosedLoopReasoningRequest whitespaceAnswer = CreateRequest("Architecture note.");
+        whitespaceAnswer.FramingAnswers = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["scope"] = "   \u00a0  ",
+        };
+
+        ClosedLoopReasoningRequest omitted = CreateRequest("Architecture note.");
+
+        ReviewCacheManifestBuilder.Build(whitespaceAnswer).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(omitted).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_tenant_configuration_hash_when_workspace_is_null_vs_empty_string()
     {
         ClosedLoopReasoningRequest nullWorkspace = CreateRequest("Architecture note.");

@@ -8712,6 +8712,30 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed-only): re-read continue coalesce tenant segment, scope `ProjectId`, and framing whitespace-only answers; cheap-disproof closed `ProjectId` null vs empty, continue tenant padding, framing whitespace-only vs omitted, and prior tombstone/continue-route rows; no new hunt-ready normalization scalar (picker saturated `other`); 116 scoped tests passed.
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashTenantConfiguration` — `ProjectId` null vs empty — **cheap-disproof 2026-10-22 seed hunt:** regression `Build_matches_tenant_configuration_hash_when_project_is_null_vs_empty_string`.
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest` — tenant segment surrounding whitespace — **cheap-disproof 2026-10-22 seed hunt:** regression `BuildContinueFromExistingRunCoalesceManifest_matches_hash_when_tenant_differs_only_by_surrounding_whitespace`.
+
+- [x] (valid-no-repro) `ClosedLoopFramingAnswersNormalizer` — whitespace-only framing answer vs omitted key — **cheap-disproof 2026-10-22 seed hunt:** regression `Build_matches_content_hash_when_framing_answer_is_whitespace_only_vs_omitted` (empty-after-trim drop).
+
+- [x] (invalid) `ReviewCacheManifestBuilder.HashPriorities` — null `DeclaredPriorities` list reference — **cheap-disproof 2026-10-22 seed hunt:** contract setter coalesces null to `[]`; field default non-null; not reachable from OpenAPI deserialization.
+
+- [x] (valid-no-repro) `ReviewResultCache.TryGet` — tombstone vs pinned TTL refresh — **cheap-disproof 2026-10-22 seed hunt:** `TryGet_misses_tombstoned_pinned_expired_entry_without_refreshing_ttl` covers invalidate-before-expiry path.
+
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — continue with blank request `RunId` — **cheap-disproof 2026-10-22 seed hunt:** `RunAsync_continue_without_request_run_id_does_not_load_prior_persisted_model` documents continue contract.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — consolidated C0/C1 line-break audit (picker saturated `other`; batch only).
+
+- (candidate) `ReviewCacheManifestBuilder.HashContent` — duplicate `SourceTexts` rows identical after normalize but distinct object references in list order before `GroupBy` — locus: dedupe `First()` tie; input: verify stable hash when duplicates are adjacent vs separated.
+
+- (candidate) `ReviewResultCache.InvalidateForRun` — run id with surrounding whitespace vs canonical tombstone set — locus: `ClosedLoopRunIdNormalizer.NormalizeRequired`; input: invalidate with padded GUID string.
+
+- (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — `PublishToProduct` true stores to cache with publish partition while analysis `TryGet` uses non-publish in-flight key — locus: `ReviewCacheKeyBuilder.BuildInFlight`; input: verify no cross-partition false hit.
+
+- (candidate) `ReviewCacheManifestBuilder.HashContent` — `golden=1` with non-empty `SourceTexts` still in hash — locus: `UseGoldenFixture` flag; input: client sends golden flag plus attachments (verify intended cache key).
+
 2026-10-22 seed hunt (seed-only): re-read manifest hashing, cache coalesce, and normalizers; cheap-disproof closed open candidates (`ContentType` null/whitespace, `WorkspaceId` null/empty/padding, whitespace-only declared priority row, coalesce publish-strip, conflicting framing casing); deferred remaining C0 line-break batch (picker saturated `other`); added valid-no-repro guard tests; 113 scoped orchestrator/cache/manifest/framing tests passed.
 
 - [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — `ContentType` null vs empty vs whitespace-only — **cheap-disproof 2026-10-22 seed hunt:** regressions `Build_matches_content_hash_when_source_content_type_is_null_vs_empty_string` and `Build_matches_content_hash_when_source_content_type_is_whitespace_only_vs_empty_string`.
@@ -8726,13 +8750,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 - (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — consolidated C0/C1 line-break audit (picker saturated `other`; batch only).
 
-- (candidate) `ReviewCacheManifestBuilder.HashContent` — `ProjectId` null vs empty in `TenantConfigurationHash` — locus: `HashTenantConfiguration`; input: JSON body omitting project scope.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashTenantConfiguration` — `ProjectId` null vs empty — **cheap-disproof 2026-10-22 seed hunt:** see seed-only row above.
 
-- (candidate) `ReviewCacheManifestBuilder.HashContent` — `DeclaredPriorities` null list reference on request built without setter — locus: `HashPriorities` + contract defaults; input: reflection or deserializer edge.
+- [x] (invalid) `ReviewCacheManifestBuilder.HashPriorities` — null declared priorities list — **cheap-disproof 2026-10-22 seed hunt:** see seed-only row above.
 
-- (candidate) `ReviewResultCache.TryGet` — refresh TTL on pinned hit does not re-check tombstone after deferred invalidation cleared — locus: `TryGet` expiry refresh branch; input: pin + invalidate + unpin + retry before flush completes.
+- [x] (valid-no-repro) `ReviewResultCache.TryGet` — tombstone TTL refresh — **cheap-disproof 2026-10-22 seed hunt:** see seed-only row above.
 
-- (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — `ContinueFromExistingRun` with blank `RunId` on request but resolved run from path — locus: continue entry vs `BuildWithResolvedRunId`; input: continue API contract with run id only in route.
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — continue blank `RunId` — **cheap-disproof 2026-10-22 seed hunt:** see seed-only row above.
 
 2026-10-22 seed hunt (seed→hit): promoted next-line (`\u0084`) in source `Content` splitting `ContentHash` from LF; extended `UnicodeLineBreakScalars`; regression `Build_matches_content_hash_when_source_content_uses_unicode_line_separators` (`\u0084`); cheap-disproof declared-priority whitespace duplicate, null vs empty `FileName`, and whitespace-only `Content`; added guard regressions for null or whitespace-only attachment fields; 108 scoped tests passed. [class:other]
 
@@ -8903,7 +8927,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 52
+- **hunts:** 53
 - **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
