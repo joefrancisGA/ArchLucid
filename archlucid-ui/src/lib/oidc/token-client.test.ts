@@ -334,6 +334,24 @@ describe("refreshAccessToken", () => {
     expect(message.length).toBeLessThanOrEqual(280);
   });
 
+  it("humanizes percent-encoded plus glue in token JSON error codes like authorize callbacks", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "unauthorized%2Bclient" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/not enabled/i);
+  });
+
   it("humanizes standard OAuth error codes from token endpoint JSON like authorize callbacks", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,
