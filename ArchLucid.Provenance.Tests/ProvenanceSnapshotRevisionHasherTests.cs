@@ -865,6 +865,58 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     }
 
     [Fact]
+    public void Compute_unchanged_when_graph_node_type_differs_only_by_surrounding_whitespace()
+    {
+        GraphNode baselineNode = new()
+        {
+            NodeId = "node-a",
+            Label = "Node A",
+            NodeType = "Resource",
+            Category = "compute",
+        };
+
+        GraphNode updatedNode = new()
+        {
+            NodeId = "node-a",
+            Label = "Node A",
+            NodeType = "  Resource  ",
+            Category = "compute",
+        };
+
+        ProvenanceBuildInput baseline = CreateInput([], graphNodes: [baselineNode]);
+        ProvenanceBuildInput updated = CreateInput([], graphNodes: [updatedNode]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
+    public void Compute_unchanged_when_graph_node_category_differs_only_by_surrounding_whitespace()
+    {
+        GraphNode baselineNode = new()
+        {
+            NodeId = "node-a",
+            Label = "Node A",
+            NodeType = "Resource",
+            Category = "compute",
+        };
+
+        GraphNode updatedNode = new()
+        {
+            NodeId = "node-a",
+            Label = "Node A",
+            NodeType = "Resource",
+            Category = "  compute  ",
+        };
+
+        ProvenanceBuildInput baseline = CreateInput([], graphNodes: [baselineNode]);
+        ProvenanceBuildInput updated = CreateInput([], graphNodes: [updatedNode]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
     public void Compute_changes_when_contributing_decision_ids_change_but_content_hash_is_unchanged()
     {
         Guid artifactId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");

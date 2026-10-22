@@ -12470,19 +12470,24 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 117
-- **bugs-found:** 112
+- **hunts:** 118
+- **bugs-found:** 113
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — graph fingerprint ignored padded EdgeType values
+- **last-bug:** 2026-10-22 — inventory overlay merge ignored padded EdgeType in edge dedupe keys
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): cheap-disproved padded graph node `NodeType` / `Category` revision fingerprint candidate (`SelectLastNonEmptyGraphField` already trims; regressions `Compute_unchanged_when_graph_node_type_differs_only_by_surrounding_whitespace` and `Compute_unchanged_when_graph_node_category_differs_only_by_surrounding_whitespace`); promoted inventory overlay edge-key candidate; proved `ArchitectureInventoryObservedFactGraphOverlayMerger.BuildEdgeKey` trimmed endpoints but left raw `EdgeType`, so padded overlay edges duplicated directed relationships already present on the base graph; trim edge type in overlay edge keys; regression `Merge_skips_inventory_edge_when_directed_key_differs_only_by_edge_type_padding`; seeded `GraphEdgeInferenceHelpers.Deduplicate` whitespace endpoint key follow-on; 414 KnowledgeGraph + 134 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` — padded graph node `NodeType` / `Category` — **cheap-disproof 2026-10-22 seed hunt:** `SelectLastNonEmptyGraphField`; regressions above.
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — padded `EdgeType` bypassed overlay edge dedupe — **hit 2026-10-22 seed hunt (seed→hit):** trim edge type in `BuildEdgeKey`; regression above.
+
+- [ ] (candidate) `GraphEdgeInferenceHelpers.Deduplicate` — edge dedupe keys use raw `FromNodeId` / `ToNodeId` / `EdgeType` without trim — locus: inference dedupe; input: parallel inferred edges differing only by endpoint or type padding; wrong outcome: duplicate directed edges in materialized graph.
 
 2026-10-22 seed hunt (seed→hit): cheap-disproved padded `GetNodesByType` candidate (`NormalizeGraphField` already trims stored and lookup types; regression `GetNodesByType_resolves_nodes_when_stored_node_type_has_surrounding_whitespace`); promoted graph revision fingerprint edge-type trim candidate; proved `ComputeGraphFingerprint` trimmed edge endpoints but hashed raw `EdgeType` strings, forcing `ProvenanceGraphAccessService` cache misses when edge types differed only by padding; trim edge types in fingerprint segments; regression `Compute_unchanged_when_graph_edge_type_differs_only_by_surrounding_whitespace`; seeded graph node type fingerprint trim parity follow-on; 413 KnowledgeGraph + 132 Provenance scoped tests passed.
 
 - [x] (valid-no-repro) `GraphSnapshotExtensions.GetNodesByType` — padded stored `NodeType` — **cheap-disproof 2026-10-22 seed hunt:** `NormalizeGraphField`; regression above.
 - [x] (proven) `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` — padded `EdgeType` changed revision fingerprint — **hit 2026-10-22 seed hunt (seed→hit):** trim edge type in fingerprint; regression above.
-
-- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeGraphFingerprint` — padded `NodeType` / `Category` on graph nodes may still change fingerprint when only surrounding whitespace differs — locus: node fingerprint fields; input: node with padded `NodeType`; wrong outcome: revision cache miss without semantic graph change.
 
 2026-10-22 seed hunt (seed→hit): promoted duplicate normalized directed edge candidate; proved `GraphValidator` validated edge endpoints individually but allowed multiple edges sharing the same trim/case-insensitive directed key (including padding-only variants), diverging from κ-merge and revision fingerprint dedupe semantics; reject duplicate directed edge groups before membership checks; regressions `Validate_DuplicateDirectedEdgesWithSameNormalizedEndpointsAndType_ThrowsInvalidOperationException` and `Validate_DuplicateDirectedEdgesDifferingOnlyByEdgeTypePadding_ThrowsInvalidOperationException`; seeded graph snapshot extension duplicate node type padding follow-on; 412 KnowledgeGraph + 131 Provenance scoped tests passed.
 
