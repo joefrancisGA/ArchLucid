@@ -61,4 +61,58 @@ public sealed class GraphSnapshotExtensionsTests
         graph.GetIncomingSources("t", "PROTECTS").Should().ContainSingle()
             .Which.NodeId.Should().Be("a");
     }
+
+    [Fact]
+    public void GetOutgoingTargets_resolves_target_when_edge_type_has_surrounding_whitespace()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode { NodeId = "a", NodeType = "SecurityBaseline", Label = "sec" },
+                new GraphNode { NodeId = "t", NodeType = "TopologyResource", Label = "net" },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "e1",
+                    FromNodeId = "a",
+                    ToNodeId = "t",
+                    EdgeType = " PROTECTS ",
+                    Label = "protects",
+                },
+            ],
+        };
+
+        graph.GetOutgoingTargets("a", "PROTECTS").Should().ContainSingle()
+            .Which.NodeId.Should().Be("t");
+    }
+
+    [Fact]
+    public void GetEdgesByType_resolves_edges_when_stored_edge_type_has_surrounding_whitespace()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode { NodeId = "a", NodeType = "SecurityBaseline", Label = "sec" },
+                new GraphNode { NodeId = "t", NodeType = "TopologyResource", Label = "net" },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "e1",
+                    FromNodeId = "a",
+                    ToNodeId = "t",
+                    EdgeType = " protects ",
+                    Label = "protects",
+                },
+            ],
+        };
+
+        graph.GetEdgesByType("PROTECTS").Should().ContainSingle()
+            .Which.EdgeId.Should().Be("e1");
+    }
 }

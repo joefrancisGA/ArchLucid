@@ -68,6 +68,18 @@ public sealed class GraphValidatorTests
     }
 
     [Fact]
+    public void Validate_EdgeWithWhitespaceOnlyEdgeType_ThrowsInvalidOperationException()
+    {
+        GraphNode node = ValidNode("n1");
+        GraphSnapshot snapshot = BuildSnapshot(node);
+        snapshot.Edges.Add(new GraphEdge { EdgeId = "e1", FromNodeId = "n1", ToNodeId = "n1", EdgeType = "   " });
+
+        Action act = () => _sut.Validate(snapshot);
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*EdgeType*");
+    }
+
+    [Fact]
     public void Validate_EdgeFromNodeNotInSnapshot_ThrowsInvalidOperationException()
     {
         GraphNode node = ValidNode("n1");
