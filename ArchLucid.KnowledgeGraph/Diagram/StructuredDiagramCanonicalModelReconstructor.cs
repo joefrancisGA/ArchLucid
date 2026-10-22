@@ -89,14 +89,25 @@ public static class StructuredDiagramCanonicalModelReconstructor
                 };
             }
 
-            diagramNodes.Add(new ArchitectureDiagramNodeRecord
+            ArchitectureDiagramNodeRecord incomingNode = new()
             {
                 Id = diagramNodeId,
                 Label = ReadLabel(canonicalObject),
                 Kind = ReadDiagramNodeKind(canonicalObject),
                 Provenance = ReadProvenance(canonicalObject),
                 SubgraphId = subgraphId,
-            });
+            };
+
+            ArchitectureDiagramNodeRecord? existingNode = diagramNodes.FirstOrDefault(
+                candidate => string.Equals(candidate.Id, diagramNodeId, StringComparison.OrdinalIgnoreCase));
+
+            if (existingNode is null)
+            {
+                diagramNodes.Add(incomingNode);
+                continue;
+            }
+
+            CoalesceDiagramNodeRecord(existingNode, incomingNode);
         }
 
         if (diagramNodes.Count == 0)
@@ -299,6 +310,31 @@ public static class StructuredDiagramCanonicalModelReconstructor
 
         diagramNodeId = raw.Trim();
         return true;
+    }
+
+    private static void CoalesceDiagramNodeRecord(
+        ArchitectureDiagramNodeRecord existing,
+        ArchitectureDiagramNodeRecord incoming)
+    {
+        if (!string.IsNullOrWhiteSpace(incoming.Label))
+        {
+            existing.Label = incoming.Label;
+        }
+
+        if (!string.IsNullOrWhiteSpace(incoming.Kind))
+        {
+            existing.Kind = incoming.Kind;
+        }
+
+        if (!string.IsNullOrWhiteSpace(incoming.Provenance))
+        {
+            existing.Provenance = incoming.Provenance;
+        }
+
+        if (!string.IsNullOrWhiteSpace(incoming.SubgraphId))
+        {
+            existing.SubgraphId = incoming.SubgraphId;
+        }
     }
 
     private static string ReadLabel(CanonicalObject canonicalObject)

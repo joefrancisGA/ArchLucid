@@ -12470,19 +12470,23 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 98
-- **bugs-found:** 93
+- **hunts:** 99
+- **bugs-found:** 94
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — weaker inferred diagram recompiles no longer retarget source evidence after asserted merge
+- **last-bug:** 2026-10-22 — duplicate diagram canonical rows in one document no longer emit sparse duplicate nodes
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted duplicate canonical node row candidate; proved `ReconstructSingleDocument` appended a second `ArchitectureDiagramNodeRecord` for the same `diagramNodeId` when bundle ingestion repeated a node object with sparse `text`/`Name`, leaving an empty-label duplicate that survived into compile/merge; coalesce duplicate diagram node ids per document with last non-empty label/kind/provenance/subgraph fields; regression `ReconstructDocuments_preserves_label_when_later_sparse_row_repeats_diagram_node_id`; seeded diagram subgraph sparse label follow-on; 393 KnowledgeGraph + 116 Provenance scoped tests passed.
+
+- [x] (proven) `StructuredDiagramCanonicalModelReconstructor` — sparse duplicate canonical node rows emitted empty-label duplicates within one document — **hit 2026-10-22 seed hunt (seed→hit):** per-document node id coalesce; regression above.
+
+- [ ] (candidate) `StructuredDiagramCanonicalModelReconstructor` — sparse duplicate rows may clear `diagramSubgraphLabel` when a later canonical object omits subgraph label text — locus: subgraph dictionary first-wins insert; input: labeled subgraph then sparse repeat; wrong outcome: subgraph label falls back to id only.
 
 2026-10-22 seed hunt (seed→hit): promoted edge property-confidence candidate; proved edge property confidence already maxed with node coalesce helper but weaker later compiles still retargeted `structuredDiagram.sourceEvidenceItemId` (and diagram citation refs) while confidence stayed asserted-high; skip evidence-pointer properties when incoming compile confidence is lower; regressions `Merge_preserves_asserted_edge_inference_confidence_when_later_inferred_document_recompiles_same_endpoints` and `Merge_preserves_asserted_source_evidence_when_later_inferred_document_recompiles_same_node_id`; seeded structured diagram subgraph sparse label follow-on; 392 KnowledgeGraph + 116 Provenance scoped tests passed.
 
 - [x] (proven) `StructuredDiagramGraphMerger.Merge` — weaker inferred compile retargeted source evidence after asserted node/edge merge — **hit 2026-10-22 seed hunt (seed→hit):** guarded evidence properties on weaker incoming confidence; regressions above.
 - [x] (valid-no-repro) `StructuredDiagramGraphMerger.Merge` — edge property `structuredDiagram.inferenceConfidence` downgrade after asserted compile — **cheap-disproof 2026-10-22 seed hunt:** already covered by `CoalesceDiagramEdgeMetadata` max confidence; regression above.
-
-- [ ] (candidate) `StructuredDiagramCanonicalModelReconstructor` — duplicate canonical node rows within one `SourceId` group may emit blank `Label` on reconstruct when a later sparse row omits `text`/`Name` — locus: per-document node list append; input: two diagram canonical objects same node id in one document; wrong outcome: recompiled model carries empty label into merge.
 
 2026-10-22 seed hunt (seed→hit): promoted duplicate-node inference downgrade candidate; proved node coalesce last-wins property merge overwrote `structuredDiagram.inferenceConfidence` and reasoning trace when a later inferred document recompiled the same `NodeId` after an asserted document; retain max inference confidence and only refresh reasoning when incoming confidence is not weaker; mirror edge metadata coalesce for property confidence; regression `Merge_preserves_asserted_node_inference_confidence_when_later_inferred_document_recompiles_same_node_id`; seeded duplicate-edge inference-confidence property downgrade follow-on; 390 KnowledgeGraph + 116 Provenance scoped tests passed.
 

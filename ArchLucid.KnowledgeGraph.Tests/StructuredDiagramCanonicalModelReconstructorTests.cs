@@ -273,4 +273,51 @@ public sealed class StructuredDiagramCanonicalModelReconstructorTests
             node.Id == "api"
             && node.SubgraphId == "corp");
     }
+
+    [Fact]
+    public void ReconstructDocuments_preserves_label_when_later_sparse_row_repeats_diagram_node_id()
+    {
+        List<CanonicalObject> canonicalObjects =
+        [
+            new CanonicalObject
+            {
+                ObjectId = "obj-labeled",
+                ObjectType = "TopologyResource",
+                Name = "API Gateway",
+                SourceType = ArchitectureDiagramCanonicalObjectMapper.StructuredDiagramSourceType,
+                SourceId = "doc-dup-node",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["text"] = "API Gateway",
+                    ["diagramNodeId"] = "api",
+                    ["diagramNodeKind"] = ArchitectureDiagramNodeKinds.System,
+                    ["inferenceConfidence"] = "1",
+                },
+            },
+            new CanonicalObject
+            {
+                ObjectId = "obj-sparse",
+                ObjectType = "TopologyResource",
+                Name = string.Empty,
+                SourceType = ArchitectureDiagramCanonicalObjectMapper.StructuredDiagramSourceType,
+                SourceId = "doc-dup-node",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["diagramNodeId"] = "api",
+                    ["diagramNodeKind"] = ArchitectureDiagramNodeKinds.System,
+                    ["inferenceConfidence"] = "1",
+                },
+            },
+        ];
+
+        ArchitectureDiagramModelRecord model = StructuredDiagramCanonicalModelReconstructor
+            .ReconstructDocuments(canonicalObjects)
+            .Should()
+            .ContainSingle()
+            .Subject
+            .Model;
+
+        model.Nodes.Should().HaveCount(1);
+        model.Nodes[0].Label.Should().Be("API Gateway");
+    }
 }
