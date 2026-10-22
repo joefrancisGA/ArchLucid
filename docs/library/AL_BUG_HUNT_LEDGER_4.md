@@ -12470,19 +12470,23 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 115
-- **bugs-found:** 110
+- **hunts:** 116
+- **bugs-found:** 111
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — padded edge types broke graph snapshot neighbor queries
+- **last-bug:** 2026-10-22 — GraphValidator accepted duplicate directed edges
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted duplicate normalized directed edge candidate; proved `GraphValidator` validated edge endpoints individually but allowed multiple edges sharing the same trim/case-insensitive directed key (including padding-only variants), diverging from κ-merge and revision fingerprint dedupe semantics; reject duplicate directed edge groups before membership checks; regressions `Validate_DuplicateDirectedEdgesWithSameNormalizedEndpointsAndType_ThrowsInvalidOperationException` and `Validate_DuplicateDirectedEdgesDifferingOnlyByEdgeTypePadding_ThrowsInvalidOperationException`; seeded graph snapshot extension duplicate node type padding follow-on; 412 KnowledgeGraph + 131 Provenance scoped tests passed.
+
+- [x] (proven) `GraphValidator.Validate` — duplicate directed edges after endpoint/type normalization — **hit 2026-10-22 seed hunt (seed→hit):** directed edge key duplicate guard; regressions above.
+
+- [ ] (candidate) `GraphSnapshotExtensions.GetNodesByType` — padded stored `NodeType` values may not match trimmed lookup type when only leading/trailing spaces differ on the node row — locus: `GetNodesByType`; input: node `NodeType` of ` Service `; wrong outcome: type filter misses topology nodes.
 
 2026-10-22 seed hunt (seed→hit): cheap-disproved whitespace-only `EdgeType` validator candidate (`IsNullOrWhiteSpace` already rejects; regression `Validate_EdgeWithWhitespaceOnlyEdgeType_ThrowsInvalidOperationException`); promoted graph snapshot extension edge-type trim candidate; proved `GraphSnapshotExtensions` matched `EdgeType` literally while endpoints were normalized, so padded stored edge types dropped RAG/decisioning neighbor expansion; normalize graph fields on edge type filters (and node type lookup parity); regressions `GetOutgoingTargets_resolves_target_when_edge_type_has_surrounding_whitespace` and `GetEdgesByType_resolves_edges_when_stored_edge_type_has_surrounding_whitespace`; seeded duplicate normalized directed edge key follow-on; 410 KnowledgeGraph + 131 Provenance scoped tests passed.
 
 - [x] (invalid) `GraphValidator.Validate` — whitespace-only `EdgeType` accepted — **cheap-disproof 2026-10-22 seed hunt:** `IsNullOrWhiteSpace` guard; regression above.
 - [x] (proven) `GraphSnapshotExtensions` — padded `EdgeType` breaks neighbor and type filters — **hit 2026-10-22 seed hunt (seed→hit):** `NormalizeGraphField` on comparisons; regressions above.
-
-- [ ] (candidate) `GraphValidator.Validate` — duplicate directed edges with the same normalized endpoints and edge type may both pass validation — locus: edge loop; input: two parallel edges sharing trim/case-insensitive keys; wrong outcome: duplicate topology edges accepted.
 
 2026-10-22 seed hunt (seed→hit): promoted duplicate normalized node id candidate; proved `GraphValidator` built a trim/case-insensitive node id set for edge checks but never rejected multiple node rows sharing the same normalized id (for example `a` and ` a `); reject duplicate normalized node id groups before edge validation; regressions `Validate_DuplicateNodeIdsDifferingOnlyBySurroundingWhitespace_ThrowsInvalidOperationException` and `Validate_DuplicateNodeIdsDifferingOnlyByCase_ThrowsInvalidOperationException`; seeded graph edge duplicate normalized endpoint self-loop follow-on; 407 KnowledgeGraph + 131 Provenance scoped tests passed.
 

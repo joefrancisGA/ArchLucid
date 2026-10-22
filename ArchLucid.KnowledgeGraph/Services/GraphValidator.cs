@@ -37,6 +37,16 @@ public class GraphValidator : IGraphValidator
                 $"Graph snapshot lists duplicate node ids for '{duplicateNodeIdGroup.Key}'.");
         }
 
+        IGrouping<string, GraphEdge>? duplicateDirectedEdgeGroup = snapshot.Edges
+            .GroupBy(BuildDirectedEdgeKey, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault(static group => group.Count() > 1);
+
+        if (duplicateDirectedEdgeGroup is not null)
+        {
+            throw new InvalidOperationException(
+                $"Graph snapshot lists duplicate directed edges for '{duplicateDirectedEdgeGroup.Key}'.");
+        }
+
         foreach (GraphEdge edge in snapshot.Edges)
         {
             if (string.IsNullOrWhiteSpace(edge.EdgeType))
@@ -51,5 +61,14 @@ public class GraphValidator : IGraphValidator
             if (!nodeIds.Contains(toNodeId))
                 throw new InvalidOperationException($"Graph edge target node '{edge.ToNodeId}' does not exist.");
         }
+    }
+
+    private static string BuildDirectedEdgeKey(GraphEdge edge)
+    {
+        string fromNodeId = (edge.FromNodeId ?? string.Empty).Trim();
+        string toNodeId = (edge.ToNodeId ?? string.Empty).Trim();
+        string edgeType = (edge.EdgeType ?? string.Empty).Trim();
+
+        return $"{fromNodeId}|{toNodeId}|{edgeType}";
     }
 }
