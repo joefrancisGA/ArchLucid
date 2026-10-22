@@ -1,4 +1,5 @@
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Mapping;
 using ArchLucid.KnowledgeGraph.Materialization;
 using ArchLucid.KnowledgeGraph.Models;
@@ -201,6 +202,39 @@ public sealed class GraphNodeFactoryTests
         {
             ["category"] = "compute",
             ["Category"] = "storage"
+        });
+
+        Action act = () => _sut.CreateNode(item);
+
+        act.Should().Throw<ArgumentException>().WithParameterName("item");
+    }
+
+    [Fact]
+    public void CreateNode_deduplicates_property_keys_differing_only_by_surrounding_whitespace_on_key()
+    {
+        CanonicalObject item = BuildItem(properties: new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["k8s.kind"] = "Deployment",
+            ["  k8s.kind  "] = "Deployment",
+        });
+
+        GraphNode node = _sut.CreateNode(item);
+
+        node.Properties.Should().HaveCount(1);
+        node.Properties.Should().ContainKey("k8s.kind").WhoseValue.Should().Be("Deployment");
+
+        GraphNodePropertyReader.TryGetPropertyValue(node.Properties, "k8s.kind", out string? kind)
+            .Should().BeTrue();
+        kind.Should().Be("Deployment");
+    }
+
+    [Fact]
+    public void CreateNode_throws_when_padded_duplicate_property_keys_have_conflicting_values()
+    {
+        CanonicalObject item = BuildItem(properties: new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["k8s.kind"] = "Deployment",
+            ["  k8s.kind  "] = "Service",
         });
 
         Action act = () => _sut.CreateNode(item);
