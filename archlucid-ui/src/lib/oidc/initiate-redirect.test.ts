@@ -9,6 +9,7 @@ import {
   OIDC_OAUTH_STATE_KEY,
   OIDC_AUTHORIZE_CALLBACK_FAILED_KEY,
   OIDC_POST_SIGN_IN_RETURN_URL_KEY,
+  OIDC_USER_SUBJECT_KEY,
 } from "@/lib/oidc/storage-keys";
 import {
   IDLE_DESK_RESTORE_STORAGE_KEY,
@@ -698,6 +699,7 @@ describe("initiate redirect PKCE isolation", () => {
   });
 
   it("clears stale post-sign-in return after sign-out even when authorize callback retry was pending", async () => {
+    sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, "user-123");
     sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, "/stale-review");
     markAuthorizeCallbackFailed();
     clearOidcSession();
