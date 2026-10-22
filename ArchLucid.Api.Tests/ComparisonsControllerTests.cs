@@ -510,4 +510,22 @@ public sealed class ComparisonsControllerTests
 
         action.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
     }
+
+    [Fact]
+    public async Task CompareQuality_GetComparisonSummary_returns_career_blocked_problem_when_replay_blocks_metadata_read()
+    {
+        Mock<IComparisonReplayService> replayService = new();
+        replayService
+            .Setup(s => s.ReplayAsync(It.IsAny<Application.Analysis.ReplayComparisonRequest>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new CareerArtifactExportBlockedException(
+                SimulatorCareerHonestyPresenter.SimulatorRehearsalBlockedMessage,
+                CareerArtifactCompletenessValidator.SimulatorRehearsalCode));
+
+        ComparisonsController controller = CreateControllerWithScopedComparison(
+            comparisonReplayService: replayService.Object);
+
+        IActionResult action = await controller.GetComparisonSummary(ComparisonId, CancellationToken.None);
+
+        action.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+    }
 }
