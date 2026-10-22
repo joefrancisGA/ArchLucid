@@ -249,6 +249,60 @@ public sealed class DeclarationIdentityActorMaterializerTests
     }
 
     [Fact]
+    public void MaterializeFromNodes_maps_anonymous_property_with_surrounding_whitespace_to_public_anonymous_trust()
+    {
+        Guid snapshotId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+
+        GraphNode role = new()
+        {
+            NodeId = "obj-role-padded-anon",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "public_role",
+            SourceType = "InfrastructureDeclaration",
+            SourceId = "decl-padded-anon",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["terraformType"] = "aws_iam_role",
+                ["anonymous"] = "  true  ",
+            },
+        };
+
+        IReadOnlyList<GraphNode> materialized =
+            DeclarationIdentityActorMaterializer.MaterializeFromNodes([role], snapshotId);
+
+        materialized.Single(n => n.NodeType == GraphNodeTypes.Actor).Properties["trustOrigin"]
+            .Should()
+            .Be(nameof(TrustOrigin.PublicAnonymous));
+    }
+
+    [Fact]
+    public void MaterializeFromNodes_maps_public_flag_property_with_surrounding_whitespace_to_external_trust()
+    {
+        Guid snapshotId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+
+        GraphNode role = new()
+        {
+            NodeId = "obj-role-public-flag",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "edge_role",
+            SourceType = "InfrastructureDeclaration",
+            SourceId = "decl-public-flag",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["terraformType"] = "aws_iam_role",
+                ["allowPublicAccess"] = "  true  ",
+            },
+        };
+
+        IReadOnlyList<GraphNode> materialized =
+            DeclarationIdentityActorMaterializer.MaterializeFromNodes([role], snapshotId);
+
+        materialized.Single(n => n.NodeType == GraphNodeTypes.Actor).Properties["trustOrigin"]
+            .Should()
+            .Be(nameof(TrustOrigin.External));
+    }
+
+    [Fact]
     public void MaterializeFromNodes_maps_anonymous_property_to_public_anonymous_trust()
     {
         Guid snapshotId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");

@@ -432,9 +432,11 @@ public static class DeclarationIdentityActorMaterializer
                 continue;
             }
 
-            if (string.Equals(entry.Value, "true", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(entry.Value, "enabled", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(entry.Value, "allow", StringComparison.OrdinalIgnoreCase))
+            string flagValue = entry.Value.Trim();
+
+            if (string.Equals(flagValue, "true", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(flagValue, "enabled", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(flagValue, "allow", StringComparison.OrdinalIgnoreCase))
             {
                 return TrustOrigin.External;
             }
