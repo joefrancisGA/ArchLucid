@@ -108,6 +108,22 @@ describe("refreshAccessToken", () => {
     ).rejects.toThrow(/missing access_token/i);
   });
 
+  it("does not mark authorize callback failed when token endpoint URL is invalid", async () => {
+    sessionStorage.clear();
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "javascript:alert(1)",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/Invalid token endpoint URL/i);
+
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBeNull();
+  });
+
   it("marks authorize callback failed when authorization code exchange fails", async () => {
     sessionStorage.clear();
 

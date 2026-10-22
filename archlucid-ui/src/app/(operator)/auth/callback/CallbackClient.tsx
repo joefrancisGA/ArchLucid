@@ -17,7 +17,10 @@ import {
   isJwtAuthMode,
 } from "@/lib/oidc/config";
 import { loadDiscoveryDocument } from "@/lib/oidc/discovery";
-import { exchangeAuthorizationCode } from "@/lib/oidc/token-client";
+import {
+  exchangeAuthorizationCode,
+  shouldMarkAuthorizeCallbackFailedOnExchangeError,
+} from "@/lib/oidc/token-client";
 import { decodeJwtPayload, readNonceFromPayload } from "@/lib/oidc/jwt-payload";
 import { AUTH_CALLBACK_LOADING_DETAIL } from "@/lib/auth/auth-callback-page-copy";
 import {
@@ -209,7 +212,9 @@ export function CallbackClient() {
         clearSlowHintTimer();
 
         if (!canceled) {
-          fail(e instanceof Error ? e.message : String(e), true);
+          const message = e instanceof Error ? e.message : String(e);
+
+          fail(message, shouldMarkAuthorizeCallbackFailedOnExchangeError(e));
         }
       }
     })();

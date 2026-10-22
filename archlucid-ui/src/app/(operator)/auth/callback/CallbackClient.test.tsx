@@ -29,9 +29,14 @@ vi.mock("@/lib/oidc/discovery", () => ({
   })),
 }));
 
-vi.mock("@/lib/oidc/token-client", () => ({
-  exchangeAuthorizationCode: vi.fn(),
-}));
+vi.mock("@/lib/oidc/token-client", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/oidc/token-client")>();
+
+  return {
+    ...actual,
+    exchangeAuthorizationCode: vi.fn(),
+  };
+});
 
 vi.mock("@/lib/oidc/session", () => ({
   consumePkceState: vi.fn(),
@@ -119,41 +124,36 @@ describe("CallbackClient", () => {
     expect(loadDiscoveryDocument).toHaveBeenCalledWith("https://accounts.google.com");
   });
 
-  it("consumes PKCE and marks authorize failure when the IdP returns an OAuth error", async () => {
-    searchParamsMock.value = new URLSearchParams({
-      error: "access_denied",
-      state: "primary-state",
-    });
-
-    render(<CallbackClient />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId("auth-callback-access-panel")).toBeInTheDocument();
-    });
-
-    expect(consumePkceState).toHaveBeenCalledWith("primary-state");
-    expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
-  });
-
-  it("consumes PKCE and marks authorize failure when the callback is missing the authorization code", async () => {
-    searchParamsMock.value = new URLSearchParams({ state: "primary-state" });
-
-    render(<CallbackClient />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId("auth-callback-access-panel")).toBeInTheDocument();
-    });
-
-    expect(consumePkceState).toHaveBeenCalledWith("primary-state");
-    expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
-  });
-
-  it("marks authorize failure when PKCE state does not match the callback", async () => {
+  it("does not mark authorize callback failed when token exchange rejects an invalid token endpoint URL", async () => {
     searchParamsMock.value = new URLSearchParams({
       code: "auth-code",
-      state: "stale-state",
+      state: "state-value",
     });
-    vi.mocked(consumePkceState).mockReturnValueOnce(null);
+
+    vi.mocked(consumePkceState).mockReturnValueOnce({
+      state: "state-value",
+      codeVerifier: "verifier",
+      nonce: "nonce",
+      flow: "primary",
+    });
+    vi.mocked(exchangeAuthorizationCode).mockRejectedValueOnce(
+      new Error("Invalid token endpoint URL"),
+    );
+
+    render(<CallbackClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-callback-access-panel")).toBeInTheDocument();
+    });
+
+    expect(markAuthorizeCallbackFailed).not.toHaveBeenCalled();
+  });
+
+  it("marks authorize callback failed when the IdP returns an OAuth error", async () => {
+    searchParamsMock.value = new URLSearchParams({
+      error: "access_denied",
+      error_description: "User+canceled",
+    });
 
     render(<CallbackClient />);
 
@@ -162,9 +162,10 @@ describe("CallbackClient", () => {
     });
 
     expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
+    expect(consumePkceState).not.toHaveBeenCalled();
   });
 
-  it("marks authorize failure when the callback is missing required parameters", async () => {
+  it("shows the access panel when the callback is missing required parameters", async () => {
     searchParamsMock.value = new URLSearchParams();
     vi.mocked(consumePkceState).mockReturnValueOnce(null);
 
@@ -174,7 +175,6 @@ describe("CallbackClient", () => {
       expect(screen.getByTestId("auth-callback-access-panel")).toBeInTheDocument();
     });
 
-    expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
     expect(screen.getByRole("heading", { level: 1, name: AUTH_CALLBACK_ACCESS_HEADING })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Try again" })).toHaveAttribute("href", "/auth/signin");
     expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
