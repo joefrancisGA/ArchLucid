@@ -422,6 +422,13 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("org_internal");
   });
 
+  it("humanizes invalid_target authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_target", "");
+
+    expect(message).toMatch(/invalid target/i);
+    expect(message).not.toContain("invalid_target");
+  });
+
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
     expect(humanizeAuthorizeCallbackError("   ", "")).toContain("complete response");
     expect(humanizeAuthorizeCallbackError("   ", "")).not.toMatch(/\(\s*\)/u);
