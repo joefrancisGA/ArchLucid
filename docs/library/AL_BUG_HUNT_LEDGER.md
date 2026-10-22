@@ -25262,6 +25262,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `initiateSupplementalOidcRedirect` — discovery failure preserved stale post-sign-in return without primary PKCE — **hit 2026-10-22 seed hunt:** symmetry with primary discovery error cleanup; regression above.
 
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `initiateOidcRedirect` orphaned Google PKCE — stale `OIDC_POST_SIGN_IN_RETURN_URL_KEY` from session expiry survived primary sign-in without `returnUrl` when abandoned supplemental Google PKCE remained in sessionStorage because stale-return cleanup required the other flow's PKCE slot to be empty; starting primary now clears supplemental PKCE (and supplemental clears primary) before storing new state so switching IdPs abandons the other flow; regressions `clears stale post-sign-in return when primary redirect starts without a return URL while orphaned Google PKCE remains` and updated cross-flow discovery-failure tests; scoped `src/lib/oidc` vitest 322/322.
+
+- [x] (proven) `initiateOidcRedirect` — orphaned Google PKCE blocked stale post-sign-in return cleanup — **hit 2026-10-22 seed hunt:** clear opposing PKCE before store; regression above.
+
 ## Zone: ui-oidc
 
 - **id:** ui-oidc
@@ -25270,11 +25274,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 80
-- **bugs-found:** 74
+- **hunts:** 81
+- **bugs-found:** 75
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — supplemental Google discovery failure stale return
+- **last-bug:** 2026-10-22 — orphaned Google PKCE blocked stale return cleanup
 
 - **id:** ui-oidc
 - **status:** open

@@ -35,6 +35,7 @@ export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
   const state = randomOpaqueState();
   const nonce = randomOpaqueState();
 
+  clearPkceState("google");
   storePkceState(state, verifier, nonce, "primary");
 
   let storedReturnUrlThisAttempt = false;
@@ -98,6 +99,7 @@ export async function initiateSupplementalOidcRedirect(
   const state = randomOpaqueState();
   const nonce = randomOpaqueState();
 
+  clearPkceState("primary");
   storePkceState(state, verifier, nonce, "google");
 
   let storedReturnUrlThisAttempt = false;

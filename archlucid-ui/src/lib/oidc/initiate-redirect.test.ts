@@ -164,6 +164,43 @@ describe("initiate redirect PKCE isolation", () => {
     expect(assignMock).toHaveBeenCalled();
   });
 
+  it("clears stale post-sign-in return when primary redirect starts without a return URL while orphaned Google PKCE remains", async () => {
+    sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, "/stale-review");
+    storePkceState("google-state", "google-verifier", "google-nonce", "google");
+
+    const assignMock = vi.fn();
+    vi.stubGlobal("location", { assign: assignMock });
+
+    vi.doMock("@/lib/oidc/config", () => ({
+      getOidcAuthority: () => "https://issuer.example",
+      getOidcClientId: () => "client-id",
+      getOidcRedirectUri: () => "https://app.example/auth/callback",
+      getOidcScopes: () => "openid",
+    }));
+    vi.doMock("@/lib/oidc/pkce", () => ({
+      createPkcePair: vi.fn(async () => ({ verifier: "primary-verifier", challenge: "challenge" })),
+      randomOpaqueState: vi.fn(() => "primary-state"),
+    }));
+    vi.doMock("@/lib/oidc/discovery", () => ({
+      loadDiscoveryDocument: vi.fn(async () => ({
+        issuer: "https://issuer.example",
+        authorization_endpoint: "https://issuer.example/authorize",
+        token_endpoint: "https://issuer.example/token",
+      })),
+    }));
+    vi.doMock("@/lib/oidc/build-authorize-url", () => ({
+      buildAuthorizeUrl: vi.fn(() => "https://issuer.example/authorize?state=primary-state"),
+    }));
+
+    const { initiateOidcRedirect } = await import("@/lib/oidc/initiate-redirect");
+
+    await initiateOidcRedirect();
+
+    expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBeNull();
+    expect(readPkceState("google")).toBeNull();
+    expect(assignMock).toHaveBeenCalled();
+  });
+
   it("clears stale post-sign-in return path when primary redirect succeeds without a return URL", async () => {
     sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, "/stale-review");
 
@@ -287,7 +324,7 @@ describe("initiate redirect PKCE isolation", () => {
     expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBeNull();
   });
 
-  it("preserves an existing post-sign-in return path when supplemental Google discovery fails without a new return URL", async () => {
+  it("clears stale post-sign-in return when supplemental Google starts without a return URL after abandoning primary PKCE", async () => {
     sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, "/architecture/reviews/primary-flow");
     storePkceState("primary-state", "primary-verifier", "primary-nonce", "primary");
 
@@ -307,9 +344,9 @@ describe("initiate redirect PKCE isolation", () => {
     const { initiateSupplementalOidcRedirect } = await import("@/lib/oidc/initiate-redirect");
 
     await expect(initiateSupplementalOidcRedirect("google")).rejects.toThrow("google discovery unavailable");
-    expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBe("/architecture/reviews/primary-flow");
+    expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBeNull();
     expect(sessionStorage.getItem(OIDC_GOOGLE_OAUTH_STATE_KEY)).toBeNull();
-    expect(sessionStorage.getItem(OIDC_OAUTH_STATE_KEY)).toBe("primary-state");
+    expect(sessionStorage.getItem(OIDC_OAUTH_STATE_KEY)).toBeNull();
   });
 
   it("clears the post-sign-in return path when supplemental Google discovery fails after storing a return URL", async () => {
@@ -334,7 +371,7 @@ describe("initiate redirect PKCE isolation", () => {
     expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBeNull();
   });
 
-  it("preserves post-sign-in return path when primary discovery fails but supplemental Google PKCE is pending", async () => {
+  it("clears stale post-sign-in return when primary OIDC starts without a return URL after abandoning Google PKCE", async () => {
     sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, "/architecture/reviews/supplemental-flow");
     storePkceState("google-state", "google-verifier", "google-nonce", "google");
 
@@ -357,8 +394,8 @@ describe("initiate redirect PKCE isolation", () => {
     const { initiateOidcRedirect } = await import("@/lib/oidc/initiate-redirect");
 
     await expect(initiateOidcRedirect()).rejects.toThrow("discovery unavailable");
-    expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBe("/architecture/reviews/supplemental-flow");
-    expect(sessionStorage.getItem(OIDC_GOOGLE_OAUTH_STATE_KEY)).toBe("google-state");
+    expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBeNull();
+    expect(sessionStorage.getItem(OIDC_GOOGLE_OAUTH_STATE_KEY)).toBeNull();
     expect(sessionStorage.getItem(OIDC_OAUTH_STATE_KEY)).toBeNull();
   });
 
