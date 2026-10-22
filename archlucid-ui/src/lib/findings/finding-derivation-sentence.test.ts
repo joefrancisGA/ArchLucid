@@ -4,6 +4,8 @@ import {
   buildFindingDerivationSentence,
   FINDING_DERIVATION_ASSEMBLED_RULE_ONLY_PREFIX,
   FINDING_DERIVATION_NOT_AVAILABLE,
+  FINDING_DERIVATION_NOT_STORED,
+  FINDING_DERIVATION_STORED_EMPTY,
   findingDerivationFromGovernanceQueueRow,
   findingDerivationFromQuickDecisionFinding,
 } from "@/lib/findings/finding-derivation-sentence";
@@ -113,7 +115,12 @@ describe("finding-derivation-sentence (TB-2154)", () => {
   });
 
   it("returns honest unavailable copy when synthesis inputs are missing", () => {
-    expect(buildFindingDerivationSentence({}).sentence).toBe(FINDING_DERIVATION_NOT_AVAILABLE);
+    expect(buildFindingDerivationSentence({}).sentence).toBe(FINDING_DERIVATION_NOT_STORED);
+  });
+
+  it("labels absent reasoning as not stored and blank reasoning as stored empty (P-08)", () => {
+    expect(buildFindingDerivationSentence({ reasoningSummary: null }).sentence).toBe(FINDING_DERIVATION_NOT_STORED);
+    expect(buildFindingDerivationSentence({ reasoningSummary: "   " }).sentence).toBe(FINDING_DERIVATION_STORED_EMPTY);
   });
 
   it("derives from quick-decision finding wire JSON", () => {

@@ -87,4 +87,32 @@ public static class InventoryDiagramRelationshipLabelTexts
 
         return $"Peering to {remoteVirtualNetworkName.Trim()} is not connected";
     }
+
+    public static string FormatPeeringStateNotStored(string remoteVirtualNetworkName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(remoteVirtualNetworkName);
+
+        return $"Peering state was not stored for {remoteVirtualNetworkName.Trim()}.";
+    }
+
+    public static string FormatPeeringConnectedOffCanvas(string remoteVirtualNetworkName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(remoteVirtualNetworkName);
+
+        return $"Peering to {remoteVirtualNetworkName.Trim()} is connected. The remote network is not on this diagram.";
+    }
+
+    public static string FormatSendsTrafficToBackend(int? backendPort)
+    {
+        return backendPort is null
+            ? "Sends traffic to this backend. Backend port was not stored."
+            : $"Sends traffic to this backend on port {backendPort.Value}.";
+    }
+
+    public static string FormatBackendOffCanvasOutline(string backendName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(backendName);
+
+        return $"Backend {backendName.Trim()} is not on this diagram.";
+    }
 }

@@ -193,19 +193,29 @@ function formatUnknownSectionCount(shown: number, total: number): string {
 }
 
 function formatOutlineCell(value: string | null, missingLabel = "Not recorded"): string {
-  if (value == null || value.trim().length === 0) {
+  if (value === null) {
     return missingLabel;
+  }
+
+  if (value.trim().length === 0) {
+    return missingLabel.includes("was not stored")
+      ? missingLabel.replace("was not stored", "was stored empty")
+      : "Entry was stored empty.";
   }
 
   return value;
 }
 
 function formatOutlineResourceType(resourceType: string | null): string {
-  if (resourceType == null || resourceType.trim().length === 0) {
+  if (resourceType === null) {
     return "Resource type was not stored";
   }
 
-  return formatOutlineCell(formatDiagramArmTypeFriendlyName(resourceType), "Resource type was not stored");
+  if (resourceType.trim().length === 0) {
+    return "Resource type was stored empty.";
+  }
+
+  return formatDiagramArmTypeFriendlyName(resourceType);
 }
 
 function formatOutlineEdgeSource(
