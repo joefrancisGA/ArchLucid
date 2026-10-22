@@ -6691,17 +6691,24 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-22 seed hunt (seed-only): `application-analysis` — cheap-disproof closed four open `(candidate)` rows on PATCH response, cost-estimator cache, export replay completeness, and batch pin-inventory conflict passthrough; no failing repro promoted (deferred further artifact-read gate expansions while 14d `other` class saturated); seeded four follow-on mechanism rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 54/54.
+
+- [x] (valid-no-repro) `ComparisonsApplicationService.TryUpdateLabelAndTagsAsync` - PATCH response reloads full `ComparisonRecord` without artifact-read gate - **cheap-disproof 2026-10-22:** label/tags mutation echoes stored row; explicit artifact read remains `GET comparisons/{id}` via `TryGetScopedRecordForArtifactReadAsync`.
+- [x] (invalid) `ComparisonReplayCostEstimator` - memory cache key omits career posture revision - **cheap-disproof 2026-10-22:** `TryEstimateReplayCostAsync` runs `EnsureArtifactReplayAccessAllowedAsync` before every estimator call; cache cannot bypass gate.
+- [x] (valid-no-repro) `RunExportQueryFacade.ReplayExportAsync` - export replay omits `CareerArtifactExportCompletenessGate` at facade layer - **cheap-disproof 2026-10-22:** `ExportReplayService.ReplayAsync` enforces completeness after facade career/lifecycle guards.
+- [x] (valid-no-repro) `ComparisonBatchReplayPinInventoryGuard` - batch pin/inventory `ConflictException` handling - **cheap-disproof 2026-10-22:** `TryBuildBatchReplayZipAsync` rethrows `ConflictException`; controller maps sealed-manifest conflicts.
+
+- [ ] (candidate) `ComparisonBatchReplayPinInventoryGuard` - E2E batch `artifact` mode skips pin/inventory guard while `regenerate` enforces `LoadScopedRunPairAsync` - locus: batch ZIP builder; reachability: intentional fast path vs regenerate batch only (audit parity with single replay artifact mode).
+- [ ] (candidate) `ExportReplayService.ReplayAsync` - duplicate lifecycle/sealed-manifest checks after `RunExportQueryFacade.ReplayExportAsync` pre-checks - locus: export replay stack; reachability: performance-only unless ordering diverges (currently aligned).
+- [ ] (candidate) `ComparisonReplayManifestHashGuard` - sealed-hash verification skipped for `artifact` replay mode inside service while HTTP controllers still run sealed guards - locus: mode branch line 46-47; reachability: controller+service double-guard on regenerate/verify only.
+- [ ] (candidate) `ComparisonsApplicationService.TryBuildBatchReplayZipAsync` - per-id failure loop could centralize passthrough exceptions (`ConflictException`, career, verification) - locus: batch replay; reachability: engineering consolidation to avoid missed passthrough when adding new terminal exceptions.
+
 2026-10-22 seed hunt (seed-only): `application-analysis` — re-read comparison/export/replay after batch exception passthrough fixes; no new hunt-ready defect (saturated 14d `other` class: further list/history career-gate rows deferred as audit surfaces); cheap-disproof closed four open `(candidate)` rows; seeded four follow-on rows on non-replay mechanisms; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 54/54.
 
 - [x] (valid-no-repro) `ComparisonsController.GetRunComparisonHistory` - run comparison history lists `PayloadJson` without per-row artifact-read gates - **cheap-disproof 2026-10-22:** history/index surface (same trust boundary as `SearchAsync`); artifact read is `GET comparisons/{id}` now gated via `TryGetScopedRecordForArtifactReadAsync`.
 - [x] (valid-no-repro) `ComparisonsApplicationService.TryReplayAsync` - facade omits `EnsureArtifactReplayAccessAllowedAsync` before delegating replay - **cheap-disproof 2026-10-22:** `ComparisonReplayService.ReplayAsync` runs sealed-manifest guard then lifecycle/career inside type-specific replay paths.
 - [x] (invalid) `ComparisonReplayService.RegenerateEndToEndAsync` - inner regenerate omits career gate - **cheap-disproof 2026-10-22:** public replay/drift entry points call `EnsureArtifactReplayAccessAllowedCoreAsync` before regenerate/verify branches invoke private helpers.
 - [x] (valid-no-repro) `ExportReplayService.ReplayAsync` - regenerate export replay vs `RunExportQueryFacade` career posture parity - **cheap-disproof 2026-10-22:** completeness gate on regenerate replay complements posture gate on metadata reads; no new route divergence found.
-
-- [ ] (candidate) `ComparisonsApplicationService.TryUpdateLabelAndTagsAsync` - PATCH label/tags response reloads full `ComparisonRecord` without artifact-read gate - locus: comparison metadata mutation response; reachability: client updates label on rehearsal-blocked anchor comparison.
-- [ ] (candidate) `ComparisonReplayCostEstimator` - 15-minute memory cache key omits career posture revision - locus: `TryEstimateAsync` cache hit after `TryEstimateReplayCostAsync` gate removed on miss only; reachability: posture change within TTL (gate still runs on every HTTP call after 2026-10-22 fix).
-- [ ] (candidate) `RunExportQueryFacade.ReplayExportAsync` - delegates to `ExportReplayService` after career gate without `CareerArtifactExportCompletenessGate` on artifact replay path - locus: export replay regenerate vs query read; reachability: incomplete export material on regenerate replay.
-- [ ] (candidate) `ComparisonBatchReplayPinInventoryGuard` - end-to-end batch pin check throws `ConflictException` absorbed only when batch loop rethrows - locus: batch replay with `replayMode=artifact` on inventory-mismatch pairs; reachability: verify `ConflictException` passthrough already matches single replay (regression-only audit).
 
 2026-10-22 seed hunt (seed→hit): `ComparisonsApplicationService.TryBuildBatchReplayZipAsync` swallowed `ComparisonVerificationFailedException` in its per-id failure loop, so verify-mode batch replay returned null and `ReplayComparisonsBatch` responded HTTP 422 `BatchReplayAllFailed` instead of HTTP 422 comparison verification problem with drift extensions; rethrow verification failures and map on batch route; regression `CompareQuality_TryBuildBatchReplayZipAsync_rethrows_verification_failure_instead_of_batch_all_failed`; scoped application filter 54/54.
 
@@ -6825,7 +6832,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 71
+- **hunts:** 72
 - **bugs-found:** 68
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
