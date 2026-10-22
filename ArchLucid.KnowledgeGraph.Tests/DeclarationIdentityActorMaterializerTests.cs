@@ -172,6 +172,32 @@ public sealed class DeclarationIdentityActorMaterializerTests
     }
 
     [Fact]
+    public void MaterializeFromNodes_honors_trustOrigin_when_property_has_surrounding_whitespace()
+    {
+        Guid snapshotId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+
+        GraphNode role = new()
+        {
+            NodeId = "obj-role-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "app_role",
+            SourceType = "InfrastructureDeclaration",
+            SourceId = "decl-2",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["terraformType"] = "aws_iam_role",
+                ["trustOrigin"] = $"  {nameof(TrustOrigin.External)}  ",
+            },
+        };
+
+        IReadOnlyList<GraphNode> materialized =
+            DeclarationIdentityActorMaterializer.MaterializeFromNodes([role], snapshotId);
+
+        GraphNode actor = materialized.Should().ContainSingle(n => n.NodeType == GraphNodeTypes.Actor).Subject;
+        actor.Properties["trustOrigin"].Should().Be(nameof(TrustOrigin.External));
+    }
+
+    [Fact]
     public void MaterializeFromNodes_emits_actor_for_aws_iam_role_terraform_type()
     {
         Guid snapshotId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");

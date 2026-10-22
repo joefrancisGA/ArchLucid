@@ -1,5 +1,6 @@
 using System.Globalization;
 
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Materialization;
@@ -43,6 +44,25 @@ public sealed class CostConstraintProjectedSpendEnricherTests
         nodes[1].Properties["ProjectedMonthlySpendUsd"].Should().Be("5000");
         nodes[1].Properties["projectedImpactUsdLowerBound"].Should().Be("4500");
         nodes[1].Properties["projectedImpactUsdUpperBound"].Should().Be("5500");
+    }
+
+    [Fact]
+    public async Task EnrichFromTopologyAsync_matches_vm_projection_when_runtime_platform_property_has_surrounding_whitespace()
+    {
+        List<GraphNode> paddedNodes = BuildTopologyAndBudgetNodesForExplicitPlatform($"  {nameof(RuntimePlatform.Vm)}  ");
+        List<GraphNode> baselineNodes = BuildTopologyAndBudgetNodesForExplicitPlatform(nameof(RuntimePlatform.Vm));
+
+        await CostConstraintProjectedSpendEnricher.EnrichFromTopologyAsync(paddedNodes, CancellationToken.None);
+        await CostConstraintProjectedSpendEnricher.EnrichFromTopologyAsync(baselineNodes, CancellationToken.None);
+
+        decimal paddedSpend = decimal.Parse(
+            paddedNodes[1].Properties["projectedMonthlySpendUsd"],
+            CultureInfo.InvariantCulture);
+        decimal baselineSpend = decimal.Parse(
+            baselineNodes[1].Properties["projectedMonthlySpendUsd"],
+            CultureInfo.InvariantCulture);
+
+        paddedSpend.Should().Be(baselineSpend);
     }
 
     [Fact]
@@ -96,6 +116,31 @@ public sealed class CostConstraintProjectedSpendEnricherTests
                 Properties = new Dictionary<string, string>
                 {
                     [instanceCountKey] = instanceCountValue,
+                },
+            },
+            new GraphNode
+            {
+                NodeId = "cost-1",
+                NodeType = GraphNodeTypes.CostConstraint,
+                Label = "Budget",
+                Properties = new Dictionary<string, string>(),
+            },
+        ];
+    }
+
+    private static List<GraphNode> BuildTopologyAndBudgetNodesForExplicitPlatform(string runtimePlatform)
+    {
+        return
+        [
+            new GraphNode
+            {
+                NodeId = "top-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = "custom",
+                Properties = new Dictionary<string, string>
+                {
+                    ["runtimePlatform"] = runtimePlatform,
                 },
             },
             new GraphNode
