@@ -1,3 +1,17 @@
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `readOAuthJsonErrorDescription` — mixed literal `+` and `%2B` in token JSON pre-replaced percent-plus with space before decode, dropping `%2B` before pictograph glue when authorize would preserve `User+denied+🏷️`; fully decode first and keep when `shouldPreserveLiteralPlusInAuthorizeDescription` applies; extend mixed-plus regression; scoped `src/lib/oidc` vitest 415/415.
+
+- [x] (proven) `readOAuthJsonErrorDescription` — mixed literal and `%2B` plus with pictograph glue — **hit 2026-10-22 seed hunt:** conditional full decode; regression above.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — multiply-encoded `%252B` with pictograph glue — **cheap-disproof 2026-10-22:** repeated decode + preserve on authorize path.
+- [x] (invalid) `humanizeAuthorizeCallbackError` — dedicated `temporarily_unavailable` admin copy — **cheap-disproof 2026-10-22:** UX-only.
+- [x] (valid-no-repro) BFF refresh route — `temporarily_unavailable` 503 cookie test — **cheap-disproof 2026-10-22:** route.test.ts regression on trunk.
+- [x] (invalid) `normalizeOAuthErrorCode` — percent-encoded pictograph in `error` field — **cheap-disproof 2026-10-22:** rare IdP paste.
+
+- [ ] (candidate) `readOAuthJsonErrorDescription` — mixed literal `%2B` with skin-tone modifier glue — locus: mixed branch; input: `User+denied%2B👍🏻` (reachability: token JSON).
+- [ ] (candidate) `decodeOAuthErrorDescription` — authorize query mixed literal `%2B` before regional-indicator flag — locus: URLSearchParams parity (reachability: callback query).
+- [ ] (candidate) `exchangeAuthorizationCode` — humanized `temporarily_unavailable` marks authorize retry — locus: sessionStorage (reachability: token-client.test).
+- [ ] (candidate) `initiateSupplementalOidcRedirect` — discovery failure preserves retry without returnUrl argument — locus: supplemental flow (reachability: initiate-redirect.test).
+- [ ] (candidate) `OAuthTokenEndpointError` — normalizedErrorCode for unreadable JSON `error` — locus: errorFromOAuthJson (reachability: BFF refresh).
+
 2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `readOAuthJsonErrorDescription` — token JSON `error_description` with only `%2B` (no literal `+`) collapsed decoded plus to space even when authorize mixed-plus glue (spaces, emoji pictographs) would preserve it; apply `shouldPreserveLiteralPlusInAuthorizeDescription` before plus collapse; regression `preserves percent-decoded plus in JSON when authorize mixed-plus glue applies`; scoped `src/lib/oidc` vitest 413/413.
 
 - [x] (proven) `readOAuthJsonErrorDescription` — percent-encoded plus with emoji/space glue — **hit 2026-10-22 seed hunt:** mixed-plus parity; regression above.
@@ -25679,11 +25693,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 81
-- **bugs-found:** 75
+- **hunts:** 82
+- **bugs-found:** 76
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — JSON error_description percent-plus parity with authorize mixed-plus glue
+- **last-bug:** 2026-10-22 — JSON mixed literal and percent-plus pictograph parity
 
 - **id:** ui-oidc
 - **status:** open

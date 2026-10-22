@@ -38,6 +38,7 @@ describe("readOAuthJsonErrorDescription", () => {
 
   it("preserves literal plus in JSON when the description also includes percent-encoded plus", () => {
     expect(readOAuthJsonErrorDescription("User+denied%2Bextra")).toBe("User+denied extra");
+    expect(readOAuthJsonErrorDescription("User+denied%2B🏷️")).toBe("User+denied+🏷️");
   });
 
   it("still decodes valid percent-escapes when IdPs send them in JSON", () => {
