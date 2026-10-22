@@ -189,11 +189,26 @@ export function decodeOAuthErrorDescription(encoded: string | null | undefined):
   let decoded: string;
 
   try {
-    decoded = collapseOAuthErrorDescriptionLineBreaks(
-      decodeRepeatedPercentEncoding(trimmed).replace(/\+/g, " "),
-    );
+    decoded = decodeRepeatedPercentEncoding(trimmed);
+
+    // After URLSearchParams, form `+` is often already a space while `%2B` survives as a literal plus.
+    const hasWhitespace = /\s/u.test(decoded);
+
+    if (!(hasWhitespace && decoded.includes("+"))) {
+      decoded = decoded.replace(/\+/g, " ");
+    }
+
+    decoded = collapseOAuthErrorDescriptionLineBreaks(decoded);
   } catch {
-    decoded = collapseOAuthErrorDescriptionLineBreaks(trimmed.replace(/\+/g, " "));
+    let fallback = trimmed;
+
+    const hasWhitespace = /\s/u.test(fallback);
+
+    if (!(hasWhitespace && fallback.includes("+"))) {
+      fallback = fallback.replace(/\+/g, " ");
+    }
+
+    decoded = collapseOAuthErrorDescriptionLineBreaks(fallback);
   }
 
   return isReadableOAuthErrorDetail(decoded) ? decoded : "";

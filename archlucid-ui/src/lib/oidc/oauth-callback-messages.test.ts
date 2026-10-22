@@ -105,6 +105,13 @@ describe("decodeOAuthErrorDescription", () => {
     expect(decodeOAuthErrorDescription("Policy%252Bdenied")).toBe("Policy denied");
   });
 
+  it("preserves literal plus in authorize error descriptions when form plus was already decoded to space", () => {
+    const mixed = new URLSearchParams("error_description=User+denied%2Bextra").get("error_description");
+
+    expect(mixed).toBe("User denied+extra");
+    expect(decodeOAuthErrorDescription(mixed)).toBe("User denied+extra");
+  });
+
   it("decodes doubly percent-encoded authorize error descriptions", () => {
     expect(decodeOAuthErrorDescription("User%2520denied")).toBe("User denied");
   });

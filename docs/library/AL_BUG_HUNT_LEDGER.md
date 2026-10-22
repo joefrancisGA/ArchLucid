@@ -26,6 +26,20 @@
 - [ ] (candidate) `exchangeAuthorizationCode` - refresh grant failure should not mark authorize retry - locus: token-client; input: refresh path (covered).
 - [ ] (candidate) `persistTokenResponse` - fractional `expires_in` wall-clock flake in vitest - locus: session.test timing tolerance.
 - [ ] (candidate) `shouldPreservePostSignInReturnForCallbackQuery` - document parity with authorize `?error=` path - locus: comment-only hygiene.
+2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `decodeOAuthErrorDescription` - after URLSearchParams, authorize `error_description` values like `User denied+extra` still ran global plus-to-space and dropped the literal plus decoded from `%2B`; skip plus collapse when decoded copy already contains whitespace and a plus; regression `preserves literal plus in authorize error descriptions when form plus was already decoded to space`; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 375/375.
+
+- [x] (proven) `decodeOAuthErrorDescription` - mixed form-space and percent-decoded plus - **hit 2026-10-22 seed hunt:** whitespace+plus guard; regression above.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` - `User+denied%252Bextra` - **cheap-disproof 2026-10-22 seed hunt:** mixed-path pre-replace; expect `User+denied extra`.
+- [x] (valid-no-repro) `CallbackClient` - JWT mode disabled with `?code=&state=` - **cheap-disproof 2026-10-22 seed hunt:** `preserveReturnForQuery` on early fail; mirror config-invalid regression.
+- [x] (invalid) `initiateSupplementalOidcRedirect` - explicit returnUrl consume order - **cheap-disproof 2026-10-22 seed hunt:** supplemental test `clears authorize retry marker when supplemental Google retry uses a different explicit return URL`.
+- [x] (invalid) `readOAuthErrorString` - numeric JSON `error` field - **cheap-disproof 2026-10-22 seed hunt:** description-only throw path; error code ignored by design.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` - mixed plus JSON path - **cheap-disproof 2026-10-22 seed hunt:** prior hit; authorize path separate.
+
+- [ ] (candidate) `humanizeAuthorizeCallbackError` - surfaces mixed plus authorize descriptions end-to-end - locus: CallbackClient; input: access_denied + mixed description (reachability: new regression).
+- [ ] (candidate) `decodeOAuthErrorDescription` - all-plus authorize string without whitespace - locus: plus collapse; input: `User+denied+extra` pre-parser (reachability: existing tests).
+- [ ] (candidate) `token-client` - token JSON mixed plus in error_description on exchange - locus: integration; input: invalid_grant + `User+denied%2Bextra` body.
+- [ ] (candidate) `shouldPreservePostSignInReturnForCallbackQuery` - oauth error without code/state - locus: helper; input: `?error=access_denied` only.
+- [ ] (candidate) `normalizeOAuthErrorCode` - authorize error codes with mixed plus encoding - locus: query error param; input: `invalid%2Bclient` (reachability: prior regressions).
 
 2026-10-22 seed hunt (seed-only): `ui-oidc` - re-read authorize-retry return URL parity after recent discovery re-mark fixes; promoted no new hunt-ready row; added regressions for trailing-slash and query-param-order repeat paths, supplemental Google different explicit returnUrl marker clear, and renamed discovery re-mark test title; repaired malformed `AL_BUG_HUNT_RUN_LOG.jsonl` row (`ts` -> `at`); cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 373/373.
 
