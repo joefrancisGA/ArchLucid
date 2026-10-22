@@ -145,6 +145,14 @@ function appendCareerExportHonestyMarkdownSection(
   return `${body.trim()}\n\n${combinedHonesty}\n`;
 }
 
+function formatExportMarkdownFiniteCount(value: unknown, notStoredLabel: string): string {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return notStoredLabel;
+  }
+
+  return String(Math.trunc(value));
+}
+
 function formatManifestSummaryFallback(
   summary: ManifestSummary,
   runId?: string | null,
@@ -215,12 +223,14 @@ function formatManifestSummaryFallback(
   lines.push("## Objectives");
   lines.push("");
 
+  const operatorSummaryTrimmed = summary.operatorSummary?.trim() ?? "";
+
   if (summary.operatorSummary === null || summary.operatorSummary === undefined) {
     lines.push("Operator summary was not stored.");
-  } else if (summary.operatorSummary.length === 0) {
+  } else if (operatorSummaryTrimmed.length === 0) {
     lines.push("Operator summary was stored empty.");
   } else {
-    lines.push(summary.operatorSummary);
+    lines.push(operatorSummaryTrimmed);
   }
 
   lines.push("");
@@ -231,9 +241,11 @@ function formatManifestSummaryFallback(
     "Full review record JSON was not available in the browser session; this export contains summary counts only.",
   );
   lines.push("");
-  lines.push(`- **Decisions:** ${summary.decisionCount}`);
-  lines.push(`- **Warnings:** ${summary.warningCount}`);
-  lines.push(`- **Unresolved issues:** ${summary.unresolvedIssueCount}`);
+  lines.push(`- **Decisions:** ${formatExportMarkdownFiniteCount(summary.decisionCount, "Decision count was not stored.")}`);
+  lines.push(`- **Warnings:** ${formatExportMarkdownFiniteCount(summary.warningCount, "Warning count was not stored.")}`);
+  lines.push(
+    `- **Unresolved issues:** ${formatExportMarkdownFiniteCount(summary.unresolvedIssueCount, "Unresolved issue count was not stored.")}`,
+  );
   lines.push("");
 
   lines.push("## Component breakdown");

@@ -62,9 +62,12 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
                         : $"Access: {rule.Access.Trim()}",
                 string.IsNullOrWhiteSpace(rule.Direction) ? "Direction was not stored" : null,
             }.Where(static label => label is not null));
+        string ruleName = string.IsNullOrWhiteSpace(rule.RuleName)
+            ? "Rule name was not stored."
+            : rule.RuleName.Trim();
         string text = string.IsNullOrWhiteSpace(missingLabel)
-            ? $"in {port}/{protocol} · {source}"
-            : $"{missingLabel} · in {port}/{protocol} · {source}";
+            ? $"{ruleName} · in {port}/{protocol} · {source}"
+            : $"{ruleName} · {missingLabel} · in {port}/{protocol} · {source}";
         bool risky = string.Equals(rule.Direction, "Inbound", StringComparison.OrdinalIgnoreCase)
             && string.Equals(rule.Access, "Allow", StringComparison.OrdinalIgnoreCase)
             && string.Equals(source, "Internet", StringComparison.Ordinal)

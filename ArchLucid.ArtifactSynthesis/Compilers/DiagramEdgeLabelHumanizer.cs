@@ -67,6 +67,12 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryPrivateEndpoint, StringComparison.OrdinalIgnoreCase))
         {
             return string.Equals(label, InventoryDiagramRelationshipLabelTexts.PrivateAccess, StringComparison.OrdinalIgnoreCase)
+                || label.StartsWith("Private endpoint connection:", StringComparison.Ordinal)
+                || string.Equals(
+                    label,
+                    InventoryDiagramRelationshipLabelTexts.PrivateEndpointConnectionStatusNotStored,
+                    StringComparison.Ordinal)
+                || label.StartsWith($"{InventoryDiagramRelationshipLabelTexts.PrivateAccess} ·", StringComparison.Ordinal)
                 || HasEvidenceCurrencyPrefix(label);
         }
 

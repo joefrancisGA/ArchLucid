@@ -782,9 +782,9 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                       className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                       data-testid="infra-diagrams-unknown-questions"
                     >
-                      {filteredUnknownNodes.length === 1
+                      {unknownNodes.length === 1
                         ? "ArchLucid has a question about 1 resource."
-                        : `ArchLucid has questions about ${filteredUnknownNodes.length} resources.`}
+                        : `ArchLucid has questions about ${unknownNodes.length} resources.`}
                     </p>
                     <div
                       className="flex flex-col gap-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-700"
@@ -887,7 +887,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                     className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                     data-testid="infra-diagrams-ledger-drops-not-returned"
                   >
-                    Ledger drops not returned
+                    This diagram response did not include dropped-relationship rows.
                   </p>
                 ) : null}
                 {showLedgerSection ? (
