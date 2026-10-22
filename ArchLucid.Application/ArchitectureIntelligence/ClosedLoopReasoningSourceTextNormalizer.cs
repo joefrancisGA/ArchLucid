@@ -10,10 +10,11 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
     {
         ArgumentNullException.ThrowIfNull(source);
 
-        string contentType = SupportedContextDocumentContentTypes.NormalizeContentTypeForLookup(source.ContentType);
+        string contentType = NormalizeUnicodeSpaces(
+            SupportedContextDocumentContentTypes.NormalizeContentTypeForLookup(source.ContentType));
 
         if (contentType.Length > 0)
-            contentType = contentType.ToLowerInvariant();
+            contentType = CollapseInteriorAsciiSpaces(contentType).ToLowerInvariant();
 
         string fileName = NormalizeFileNameForHash(source.FileName);
 

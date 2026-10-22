@@ -1729,6 +1729,93 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_client_run_id_differs_only_by_nbsp_vs_space()
+    {
+        ClosedLoopReasoningRequest spaced = CreateRequest("Architecture note.");
+        spaced.RunId = "run id-001";
+
+        ClosedLoopReasoningRequest nbsp = CreateRequest("Architecture note.");
+        nbsp.RunId = "run\u00A0id-001";
+
+        ReviewCacheManifestBuilder.Build(spaced).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(nbsp).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_model_alias_id_differs_only_by_narrow_nbsp_vs_space()
+    {
+        ClosedLoopReasoningRequest spaced = CreateRequest("Architecture note.");
+        spaced.ModelAliasId = "gpt 4.1";
+
+        ClosedLoopReasoningRequest narrow = CreateRequest("Architecture note.");
+        narrow.ModelAliasId = "gpt\u202F4.1";
+
+        ReviewCacheManifestBuilder.Build(spaced).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(narrow).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_model_tenant_id_differs_only_by_narrow_nbsp_vs_space()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-tenant-narrow-nbsp";
+
+        ArchitectureKnowledgeModel spaced = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            TenantId = "tenant cache",
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ArchitectureKnowledgeModel narrow = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            TenantId = "tenant\u202Fcache",
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, spaced).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, narrow).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_source_content_type_differs_only_by_nbsp_vs_space()
+    {
+        ClosedLoopReasoningRequest spaced = CreateRequest("Same body.");
+        spaced.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "arch.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest nbsp = CreateRequest("ignored");
+        nbsp.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "arch.md",
+                ContentType = "text/mark\u00A0down",
+                Content = "Same body.",
+            },
+        ];
+
+        spaced.SourceTexts[0].ContentType = "text/mark down";
+
+        ReviewCacheManifestBuilder.Build(spaced).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(nbsp).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_tenant_configuration_hash_when_tenant_id_differs_only_by_nbsp_vs_space()
     {
         ClosedLoopReasoningRequest spaced = CreateRequest("Architecture note.");

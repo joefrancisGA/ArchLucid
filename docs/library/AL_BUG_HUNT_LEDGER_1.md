@@ -8712,6 +8712,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted NBSP in client `RunId` and `SourceTexts.ContentType` splitting review-cache hash; `ClosedLoopRunIdComparer.Normalize` and source content-type normalization now unicode-space normalize and collapse ASCII runs; regressions `Build_matches_content_hash_when_client_run_id_differs_only_by_nbsp_vs_space` and `Build_matches_content_hash_when_source_content_type_differs_only_by_nbsp_vs_space`; added coverage for narrow-NBSP model alias and baseline tenant id; 194 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ClosedLoopRunIdComparer.Normalize` — NBSP in client run ids split `runid=` manifest segment — **hit 2026-10-22 seed hunt:** unicode space + collapse before dash strip; regression above.
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` — NBSP in MIME content types split `ContentHash` — **hit 2026-10-22 seed hunt:** normalize lookup token; regression above.
+
 2026-10-22 seed hunt (seed→hit): promoted NBSP in non-GUID tenant scope ids splitting `TenantConfigurationHash`/`ContentHash`; `ClosedLoopScopeIdHashNormalizer` now unicode-space normalizes and collapses interior ASCII spaces before GUID canonicalization; regressions `Build_matches_tenant_configuration_hash_when_tenant_id_differs_only_by_nbsp_vs_space`, `Build_matches_content_hash_when_ledger_evidence_ref_differs_only_by_consecutive_spaces`, and `Build_matches_declared_priorities_hash_when_priority_differs_only_by_narrow_nbsp_vs_space`; 190 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `ClosedLoopScopeIdHashNormalizer.Normalize` — NBSP in tenant/workspace/project scope ids split tenant-config hash — **hit 2026-10-22 seed hunt:** unicode space + collapse on scope ids; regression above.
@@ -9182,11 +9187,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 80
-- **bugs-found:** 67
+- **hunts:** 82
+- **bugs-found:** 70
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — declared priorities, file names, and ledger label whitespace in review-cache hash
+- **last-bug:** 2026-10-22 — NBSP in client run id and content type for review-cache hash
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
