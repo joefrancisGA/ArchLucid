@@ -8712,6 +8712,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted duplicate baseline elements with the same normalized id but different `ExtractionConfidence` list order splitting review-cache `modelfp`; `SelectCanonicalKnowledgeModelElements` now tie-breaks on confidence/kind/lifecycle scope; regression `Build_matches_content_hash_when_baseline_duplicate_element_ids_differ_only_by_extraction_confidence_list_order`; added regression coverage for workspace NBSP, resolved run-id NBSP, provenance note spaces, and model framing-value NBSP; 199 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.SelectCanonicalKnowledgeModelElements` — duplicate element rows with equal name/description but different confidence split `modelfp` by list order — **hit 2026-10-22 seed hunt:** deterministic tie-break chain; regression above.
+
 2026-10-22 seed hunt (seed→hit): promoted NBSP in client `RunId` and `SourceTexts.ContentType` splitting review-cache hash; `ClosedLoopRunIdComparer.Normalize` and source content-type normalization now unicode-space normalize and collapse ASCII runs; regressions `Build_matches_content_hash_when_client_run_id_differs_only_by_nbsp_vs_space` and `Build_matches_content_hash_when_source_content_type_differs_only_by_nbsp_vs_space`; added coverage for narrow-NBSP model alias and baseline tenant id; 194 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `ClosedLoopRunIdComparer.Normalize` — NBSP in client run ids split `runid=` manifest segment — **hit 2026-10-22 seed hunt:** unicode space + collapse before dash strip; regression above.
@@ -9187,11 +9191,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 82
-- **bugs-found:** 70
+- **hunts:** 83
+- **bugs-found:** 71
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — NBSP in client run id and content type for review-cache hash
+- **last-bug:** 2026-10-22 — duplicate element confidence list order in review-cache modelfp
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
