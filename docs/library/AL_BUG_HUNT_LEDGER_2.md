@@ -1801,6 +1801,18 @@
 
 ## Zone: finding-inspect-sql
 
+2026-10-22 seed hunt #91 (seed-only): re-read disposition join, rule-field resolution, and main inspect SQL; cheap-disproof closed four open `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` saturated); seeded four follow-on `(candidate)` rows; scoped inspect filter not run on this host.
+
+- [x] (invalid) `LoadDispositionJoinAsync` — related nodes / trace rules unnormalized before rule pairing — **cheap-disproof 2026-10-22 seed #91:** related nodes only feed `BuildEvidenceFromRelatedNodes` (filtered); trace rule text uses `ResolveFirstTraceRuleText` → `FilterNonBlankTrimmedStrings` before `ResolveRuleFields`; no cross-stream pairing of raw node ids.
+- [x] (valid-no-repro) `MainInspectWithTypedPayload` — `@ScopeProjectId` vs `r.ScopeProjectId` parameter naming — **cheap-disproof 2026-10-22 seed #91:** `LoadMainRowAsync` / `LoadDispositionJoinAsync` bind `ScopeProjectId = scope.ProjectId` for both predicates; mismatch would require a caller bug outside these files.
+- [x] (valid-no-repro) `InMemoryFindingInspectReadRepository` — missing disposition / waiver fields — **cheap-disproof 2026-10-22 seed #91:** demo regex gate only; production SQL path owns disposition pointer joins (proven #1230 / #1233).
+- [x] (valid-no-repro) `ParseFindingSeverity` — invisible-only token defaults to `Info` — **cheap-disproof 2026-10-22 seed #91:** intentional symmetric default with `ParseHumanReview` → `NotRequired`; invalid substantive tokens still throw `InvalidDataException`.
+
+- [ ] (candidate) `FindingInspectReadSql.FollowUpBatch` — `AuditEvents` subquery selects latest run-level `AuthorityCommittedChainPersisted` without binding `FindingId`, so inspect may surface an audit row unrelated to the finding when multiple commits occur on the same run.
+- [ ] (candidate) `MapInspectResponse` — `RemediationDueUtc` uses `ToUtcDateTimeOffset` on `DateTime?` without rejecting `DateTimeKind.Unspecified` mislabeled local values from legacy rows (display shift vs stored UTC intent).
+- [ ] (candidate) `ResolveTypedPayloadForInspectRead` — when `includeTypedPayload` is false, metadata-only payload still includes `whyThisMatters` when title is whitespace-only if `includeWhyThisMattersWhenTitleMissing` default differs between SQL and in-memory demo paths.
+- [ ] (candidate) `FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel` — returns null for unknown enum strings while `ParseFindingSeverity` throws on unknown substantive tokens (asymmetric strictness may hide corrupt evaluation level while surfacing severity failures).
+
 2026-10-22 seed hunt #90 (seed-only): re-read Dapper map/join, SQL main+batch, and repository core; cheap-disproof closed four open `(candidate)` rows; no hunt-ready promotion; seeded four follow-on `(candidate)` rows; scoped inspect filter not run on this host.
 
 - [x] (invalid) `MapInspectResponse` — `Treatment` / `Classification` skip display-text normalization — **cheap-disproof 2026-10-22 seed #90:** columns are `byte?` storage via `FindingInsightDensityColumnCodec`, not NVARCHAR display strings; resolved through `ResolveInspectTreatment` / `ResolveInspectClassification`.
