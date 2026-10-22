@@ -12470,7 +12470,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 212
+- **hunts:** 213
 - **bugs-found:** 172
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-overlay rebind deduped parallel edges separately when EdgeType differed only by whitespace
@@ -12617,7 +12617,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (valid-no-repro) `ArchitectureDiagramToGraphCompiler` — compiled diagram edges minted padded `diagram-edge:*` ids — **cheap-disproof 2026-10-22 seed hunt:** trim on edge id mint; regression above.
 
-- [ ] (candidate) `ArchitectureDiagramToGraphCompiler` — compiled diagram edges may retain padded `Label` values when edge record labels carry surrounding whitespace — locus: edge label assignment without trim; input: diagram edge label padded; wrong outcome: graph edge labels display padding tokens.
+2026-10-22 seed hunt (valid-no-repro): promoted `ArchitectureDiagramToGraphCompiler` padded diagram edge `Label` on compiled edge output candidate; proved compile already assigns `edge.Label.Trim()` when the diagram edge label is non-whitespace; regression `Compile_trims_diagram_edge_label_when_edge_record_label_has_surrounding_whitespace`; seeded `ArchitectureDiagramToGraphCompiler` padded diagram node `Label` on compiled node output follow-on; 505 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ArchitectureDiagramToGraphCompiler` — compiled diagram edges retained padded `Label` values — **cheap-disproof 2026-10-22 seed hunt:** trim on edge label assign; regression above.
+
+- [ ] (candidate) `ArchitectureDiagramToGraphCompiler` — compiled diagram nodes may retain padded `Label` values when node record labels carry surrounding whitespace — locus: node label assignment uses `node.Label.Trim()` only when label non-empty else `node.Id.Trim()`; input: diagram node label padded; wrong outcome: graph node labels display padding tokens.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
