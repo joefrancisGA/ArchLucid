@@ -12470,7 +12470,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 258
+- **hunts:** 259
 - **bugs-found:** 177
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — fully empty overlay merge returned base graph without warning normalization
@@ -12801,7 +12801,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — padded overlay edge property keys duplicated metadata — **cheap-disproof 2026-10-22 seed hunt:** trim-then-coalesce; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — overlay property values differing only by surrounding whitespace may throw on trim-equal keys — locus: `NormalizeOverlayPropertyBag` value trim before duplicate-key compare; input: overlay node property bag with trim-colliding keys and values `evidence-42` vs `  evidence-42  `; wrong outcome: `ArgumentException` despite logically identical trimmed values.
+2026-10-22 seed hunt (valid-no-repro): promoted `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` padded overlay property value trim candidate; proved `NormalizeOverlayPropertyBag` trims values before duplicate-key comparison so trim-colliding keys with padding-only value differences coalesce without `ArgumentException`; regression `Merge_coalesces_overlay_property_values_differing_only_by_padding_when_property_keys_trim_equal`; seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` whitespace-only distinct overlay property keys may both persist follow-on; 552 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — padded overlay property values threw on trim-equal keys — **cheap-disproof 2026-10-22 seed hunt:** value trim before compare; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — whitespace-only distinct overlay property keys may both persist on merged nodes — locus: `NormalizeOverlayPropertyBag` key branch for `IsNullOrWhiteSpace`; input: overlay node property bag with `""` and `"   "` keys; wrong outcome: duplicate whitespace keys retained or unstable merge throw.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
