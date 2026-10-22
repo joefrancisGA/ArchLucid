@@ -78,6 +78,30 @@ Examples:
 - **Do not** run `/fix-ci` or full CI unless the user explicitly asks — scoped tests + one compile check are enough for this command.
 - **Do not** log `PD-###` / `TB-###` unless the user also asked for defect/backlog intake.
 - **Do not** shorten this run because another `/al-bug` is queued. Each message is an independent full kind (seed hunt or thorough hunt). Forbidden when anything is queued: skipping scoped tests, stopping after the picker without hunting (except `--status`), recording `seed-only` without reading zone `paths` and existing tests, recording `dry` without a failing-repro attempt on remaining hunt-ready rows, inventing another zone to reach the next queued command.
+- **Private beta (every shipped hit):** when a fix lands on `bugsmash` / `bugsmash-N` (and eventually **`RC35`** / the private-beta cut), include **one or two plain sentences** on what changes for **private beta** — see [Private beta impact](#private-beta-impact-required-on-every-hit) below. Do not skip with generic “quality” language.
+
+---
+
+## Private beta impact (required on every hit)
+
+**Private beta** here matches **`/al-beta`**: an invited user can reliably complete **invitation → authentication → correct tenant → Operator first meaningful action** under **JwtBearer** (not `DevelopmentBypass`-only), with **`RC35`** corset + beta-readiness wiring staying green. See `docs/assessments/PRIVATE_BETA_CURSOR_AGENT_WORKLIST.md` when unsure.
+
+For every **Outcome: hit** (fix shipped or `--find-only` after repro), write **1–2 sentences** that answer: *When this commit is integrated into the private-beta release line, what is different for a real invited operator?*
+
+| If the fix… | Say… |
+| --- | --- |
+| Touches invite/auth/tenant/Operator UI/API on the pilot path | Name the step that was broken or risky and what the invitee can do now. |
+| Fixes wrong data, security, or crash on paths pilots use | Name the user-visible harm removed (even if only under JwtBearer / production-like config). |
+| Is internal-only (batch job, theory test, dev-only tool) | State **no direct pilot-path change today**, and what failure mode is gone before RC35 absorbs the fix (or what must still ship for pilots to feel it). |
+| Only affects `DevelopmentBypass` | Say it is **not proven for private beta** until the same behavior is verified under JwtBearer / invite flow. |
+
+**Required surfaces (hits only):**
+
+1. **Git commit body** — after the defect sentence, a `Private beta:` paragraph (1–2 sentences).
+2. **Phase 4 result table** — `Private beta` row (same wording).
+3. **Set ledger diary line** — prepend or append the same `Private beta:` sentence on the hunt note line for that zone (e.g. `2026-10-22 thorough hunt (hit): … Private beta: …`).
+
+For **dry** or **seed-only** outcomes, set `Private beta` to `n/a` in chat unless the hunt surfaced a **latent pilot-path risk** worth one sentence for humans (optional, not required).
 
 ---
 
@@ -246,8 +270,9 @@ Report:
 - **Root cause** — file + mechanism
 - **Repro** — test name or minimal steps
 - **Severity** — high / medium / low
+- **Private beta (draft)** — 1–2 sentences on pilot impact if this repro ships (required in commit + result table on hit)
 
-If `--find-only`, **stop here**.
+If `--find-only`, **stop here** (still include **Private beta (draft)** in the Phase 1 report).
 
 ---
 
@@ -298,6 +323,10 @@ When the main working tree has unrelated dirty files, push via isolated worktree
   -CommitMessage @'
 One-sentence why focused on the defect.
 
+Private beta: One or two sentences on what changes for invited operators when this
+fix is on the RC35 / private-beta line (invite → auth → tenant → first action, or
+honest internal-only hardening).
+
 '@
 ```
 
@@ -311,7 +340,7 @@ When the main tree is clean except for your bugfix files:
 
 ```powershell
 git add <scoped-paths>
-git commit -m "Fix <concise defect description>."
+git commit -m "Fix <concise defect description>." -m "Private beta: <1–2 sentences on pilot impact when integrated.>"
 git push -u origin bugsmash
 ```
 
@@ -363,6 +392,7 @@ If the only fix is an instance-list append and severity is low, **stop and repor
 | Bug | <one-line title, or n/a if dry/seed-only> |
 | Root cause | <short mechanism, or n/a if dry> |
 | Fix | <what changed, or ledger-only if dry/seed-only> |
+| Private beta | <1–2 sentences on pilot impact when this ships; `n/a` if dry/seed-only unless latent risk noted> |
 | Claim | <one sentence stating the behavior the fix claims to establish> |
 | Disproof check | <the test or check that could disprove the claim, and its result> |
 | Scope | <paths, inputs, and runtime mode covered; state what remains untested> |
