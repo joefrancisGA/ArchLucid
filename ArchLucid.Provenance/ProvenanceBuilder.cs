@@ -22,23 +22,27 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
 
         RuleAuditTracePayload trace = ruleAuditTrace.RuleAudit;
 
+        IReadOnlyList<GraphNode> graphNodes = graph.Nodes ?? [];
+        IReadOnlyList<Finding> findingRows = findings.Findings ?? [];
+        IReadOnlyList<ResolvedArchitectureDecision> manifestDecisions = manifest.Decisions ?? [];
+
         DecisionProvenanceGraph result = new() { Id = Guid.NewGuid(), RunId = runId };
 
         Dictionary<string, Guid> nodeMap = new(StringComparer.OrdinalIgnoreCase);
 
         HashSet<string> graphNodeIds = new(
-            graph.Nodes.Select(n => NormalizeId(n.NodeId)),
+            graphNodes.Select(n => NormalizeId(n.NodeId)),
             StringComparer.OrdinalIgnoreCase);
 
         IEnumerable<string> DistinctDecisionKeys()
         {
-            return manifest.Decisions
+            return manifestDecisions
                 .Select(d => NormalizeId(d.DecisionId))
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .Select(id => $"decision:{id}");
         }
 
-        foreach (GraphNode n in graph.Nodes)
+        foreach (GraphNode n in graphNodes)
 
             AddNode(
                 $"graph:{NormalizeId(n.NodeId)}",
@@ -46,29 +50,30 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                 {
                     Type = ProvenanceNodeType.GraphNode,
                     ReferenceId = NormalizeId(n.NodeId),
-                    Name = string.IsNullOrWhiteSpace(n.Label) ? n.NodeId : n.Label,
+                    Name = ResolveGraphNodeDisplayName(n),
                     Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                     {
-                        ["nodeType"] = n.NodeType, ["category"] = n.Category ?? ""
+                        ["nodeType"] = NormalizeProvenanceMetadataValue(n.NodeType),
+                        ["category"] = NormalizeProvenanceMetadataValue(n.Category),
                     }
                 });
 
 
-        foreach (Finding f in findings.Findings)
+        foreach (Finding f in findingRows)
 
             AddNode(
                 $"finding:{NormalizeId(f.FindingId)}",
                 CreateFindingNode(f));
 
 
-        foreach (string ruleId in trace.AppliedRuleIds.Select(NormalizeId).Distinct(StringComparer.OrdinalIgnoreCase))
+        foreach (string ruleId in DistinctAppliedRuleIds(trace.AppliedRuleIds))
 
             AddNode(
                 $"rule:{ruleId}",
                 new ProvenanceNode { Type = ProvenanceNodeType.Rule, ReferenceId = ruleId, Name = ruleId });
 
 
-        foreach (ResolvedArchitectureDecision d in manifest.Decisions)
+        foreach (ResolvedArchitectureDecision d in manifestDecisions)
 
             AddNode(
                 $"decision:{NormalizeId(d.DecisionId)}",
@@ -76,15 +81,15 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                 {
                     Type = ProvenanceNodeType.Decision,
                     ReferenceId = NormalizeId(d.DecisionId),
-                    Name = d.Title,
+                    Name = ResolveDecisionDisplayTitle(d),
                     Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                     {
-                        ["category"] = d.Category
+                        ["category"] = NormalizeProvenanceMetadataValue(d.Category),
                     }
                 });
 
 
-        foreach (SynthesizedArtifact a in DistinctArtifacts())
+        foreach (SynthesizedArtifact a in artifacts)
 
             AddNode(
                 $"artifact:{a.ArtifactId:N}",
@@ -92,10 +97,11 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                 {
                     Type = ProvenanceNodeType.Artifact,
                     ReferenceId = a.ArtifactId.ToString("N"),
-                    Name = a.Name,
+                    Name = ResolveArtifactDisplayName(a),
                     Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                     {
-                        ["artifactType"] = a.ArtifactType, ["format"] = a.Format
+                        ["artifactType"] = NormalizeProvenanceMetadataValue(a.ArtifactType),
+                        ["format"] = NormalizeProvenanceMetadataValue(a.Format),
                     }
                 });
 
@@ -109,13 +115,13 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                 Name = "ManifestDocument",
                 Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
-                    ["manifestHash"] = manifest.ManifestHash
+                    ["manifestHash"] = NormalizeProvenanceMetadataValue(manifest.ManifestHash),
                 }
             });
 
         // Findings → Decisions (decision supported by findings)
 
-        foreach (IGrouping<string, ResolvedArchitectureDecision> decisionGroup in manifest.Decisions.GroupBy(
+        foreach (IGrouping<string, ResolvedArchitectureDecision> decisionGroup in manifestDecisions.GroupBy(
                      d => NormalizeId(d.DecisionId),
                      StringComparer.OrdinalIgnoreCase))
         {
@@ -139,7 +145,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
 
         // Graph nodes → Findings (finding influenced by graph context)
 
-        foreach (IGrouping<string, Finding> findingGroup in findings.Findings.GroupBy(
+        foreach (IGrouping<string, Finding> findingGroup in findingRows.GroupBy(
                      f => NormalizeId(f.FindingId),
                      StringComparer.OrdinalIgnoreCase))
         {
@@ -175,7 +181,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                 continue;
 
 
-            foreach (string ruleId in trace.AppliedRuleIds.Select(NormalizeId).Distinct(StringComparer.OrdinalIgnoreCase))
+            foreach (string ruleId in DistinctAppliedRuleIds(trace.AppliedRuleIds))
             {
 
                 string rk = $"rule:{ruleId}";
@@ -191,27 +197,30 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
 
         // Decisions → Artifacts (bundle payloads may repeat the same artifact row)
 
-        foreach (SynthesizedArtifact a in DistinctArtifacts())
+        foreach (IGrouping<Guid, SynthesizedArtifact> artifactGroup in artifacts.GroupBy(static artifact => artifact.ArtifactId))
         {
-            string ak = $"artifact:{a.ArtifactId:N}";
+            SynthesizedArtifact representative =
+                ProvenanceSnapshotRevisionHasher.SelectRevisionArtifactRepresentative(artifactGroup);
+
+            string ak = $"artifact:{representative.ArtifactId:N}";
 
             if (!nodeMap.TryGetValue(ak, out Guid artifactNid))
                 continue;
 
+            IEnumerable<string> contributingDecisionIds = artifactGroup
+                .SelectMany(static artifact => artifact.ContributingDecisionIds)
+                .Select(NormalizeId)
+                .Distinct(StringComparer.OrdinalIgnoreCase);
 
-            foreach (string dId in a.ContributingDecisionIds.Select(NormalizeId).Distinct(StringComparer.OrdinalIgnoreCase))
-
+            foreach (string dId in contributingDecisionIds)
             {
-
                 string dk = $"decision:{dId}";
 
                 if (!nodeMap.TryGetValue(dk, out Guid decisionNid))
-
                     continue;
 
                 AddEdge(decisionNid, artifactNid, ProvenanceEdgeType.ContributedToArtifact);
             }
-
         }
 
 
@@ -227,23 +236,22 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
 
         return result;
 
-        IEnumerable<SynthesizedArtifact> DistinctArtifacts() =>
-            SynthesizedArtifactBundleCanonicalizer.DistinctByArtifactId(artifacts);
-
         ProvenanceNode CreateFindingNode(Finding finding)
         {
             Dictionary<string, string> metadata = new(StringComparer.OrdinalIgnoreCase)
             {
-                ["findingType"] = finding.FindingType,
-                ["category"] = finding.Category
+                ["findingType"] = NormalizeProvenanceMetadataValue(finding.FindingType),
+                ["category"] = NormalizeProvenanceMetadataValue(finding.Category),
             };
 
             string? agentTraceId = ResolveAgentExecutionTraceId(finding);
+            string displayTitle = ResolveFindingDisplayTitle(finding);
+
             ProvenanceNode node = new()
             {
                 Type = ProvenanceNodeType.Finding,
                 ReferenceId = NormalizeId(finding.FindingId),
-                Name = finding.Title,
+                Name = displayTitle,
                 Metadata = metadata,
                 AgentExecutionTraceId = agentTraceId
             };
@@ -262,10 +270,64 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
             return finding.Trace?.SourceAgentExecutionTraceId?.Trim();
         }
 
+        static string ResolveGraphNodeDisplayName(GraphNode node)
+        {
+            string nodeId = NormalizeId(node.NodeId);
+
+            return string.IsNullOrWhiteSpace(node.Label) ? nodeId : node.Label.Trim();
+        }
+
+        static string ResolveFindingDisplayTitle(Finding finding)
+        {
+            string findingId = NormalizeId(finding.FindingId);
+
+            return string.IsNullOrWhiteSpace(finding.Title) ? findingId : finding.Title.Trim();
+        }
+
+        static string ResolveDecisionDisplayTitle(ResolvedArchitectureDecision decision)
+        {
+            string decisionId = NormalizeId(decision.DecisionId);
+
+            return string.IsNullOrWhiteSpace(decision.Title) ? decisionId : decision.Title.Trim();
+        }
+
+        static string ResolveArtifactDisplayName(SynthesizedArtifact artifact)
+        {
+            string artifactId = artifact.ArtifactId.ToString("N");
+
+            return string.IsNullOrWhiteSpace(artifact.Name) ? artifactId : artifact.Name.Trim();
+        }
+
         Guid AddNode(string key, ProvenanceNode node)
         {
-            if (nodeMap.TryGetValue(key, out Guid existing))
-                return existing;
+            if (nodeMap.TryGetValue(key, out Guid existingId))
+            {
+                ProvenanceNode existingNode = result.Nodes.First(n => n.Id == existingId);
+
+                if (!string.IsNullOrWhiteSpace(node.Name)
+                    && !ShouldSkipGraphNodeNameDowngrade(existingNode, node))
+                {
+                    existingNode.Name = node.Name;
+                }
+
+                if (!string.IsNullOrWhiteSpace(node.ReferenceId))
+                    existingNode.ReferenceId = node.ReferenceId;
+
+                if (!string.IsNullOrWhiteSpace(node.AgentExecutionTraceId))
+                {
+                    existingNode.AgentExecutionTraceId = node.AgentExecutionTraceId;
+                    existingNode.Metadata[ProvenanceMetadataKeys.AgentExecutionTraceId] =
+                        node.AgentExecutionTraceId;
+                }
+
+                foreach (KeyValuePair<string, string> entry in node.Metadata)
+                {
+                    if (!string.IsNullOrWhiteSpace(entry.Value))
+                        existingNode.Metadata[entry.Key] = entry.Value;
+                }
+
+                return existingId;
+            }
 
             node.Id = Guid.NewGuid();
             result.Nodes.Add(node);
@@ -279,5 +341,45 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         }
 
         static string NormalizeId(string id) => id.Trim();
+
+        static string NormalizeProvenanceMetadataValue(string? value) =>
+            string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
+
+        static IEnumerable<string> DistinctAppliedRuleIds(IEnumerable<string>? appliedRuleIds) =>
+            (appliedRuleIds ?? [])
+                .Select(NormalizeId)
+                .Where(static ruleId => ruleId.Length > 0)
+                .Distinct(StringComparer.OrdinalIgnoreCase);
+
+        static bool ShouldSkipGraphNodeNameDowngrade(ProvenanceNode existingNode, ProvenanceNode incomingNode)
+        {
+            if (existingNode.Type != incomingNode.Type
+                || (existingNode.Type != ProvenanceNodeType.GraphNode
+                    && existingNode.Type != ProvenanceNodeType.Finding
+                    && existingNode.Type != ProvenanceNodeType.Decision
+                    && existingNode.Type != ProvenanceNodeType.Artifact))
+            {
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(existingNode.Name)
+                || string.IsNullOrWhiteSpace(incomingNode.Name)
+                || string.IsNullOrWhiteSpace(incomingNode.ReferenceId))
+            {
+                return false;
+            }
+
+            bool incomingNameIsReferenceId = string.Equals(
+                incomingNode.Name,
+                incomingNode.ReferenceId,
+                StringComparison.OrdinalIgnoreCase);
+
+            bool existingNameIsReferenceId = string.Equals(
+                existingNode.Name,
+                existingNode.ReferenceId,
+                StringComparison.OrdinalIgnoreCase);
+
+            return incomingNameIsReferenceId && !existingNameIsReferenceId;
+        }
     }
 }

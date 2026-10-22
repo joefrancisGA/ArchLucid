@@ -3,7 +3,7 @@ using System.Text;
 
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
-using ArchLucid.Core.Artifacts;
+using ArchLucid.Contracts.Persistence.Artifacts;
 using ArchLucid.Decisioning.Models;
 
 namespace ArchLucid.Provenance;
@@ -64,17 +64,16 @@ public static class ProvenanceSnapshotRevisionHasher
                 .OrderBy(static group => group.Key, StringComparer.OrdinalIgnoreCase)
                 .Select(static group =>
                 {
-                    GraphNode representative = group.First();
-                    string label = (representative.Label ?? string.Empty).Trim();
-                    string nodeType = (representative.NodeType ?? string.Empty).Trim();
-                    string category = (representative.Category ?? string.Empty).Trim();
+                    string label = SelectLastNonEmptyGraphField(group, static node => node.Label);
+                    string nodeType = SelectLastNonEmptyGraphField(group, static node => node.NodeType);
+                    string category = SelectLastNonEmptyGraphField(group, static node => node.Category);
 
                     return $"{group.Key}|{label}|{nodeType}|{category}";
                 }));
 
         IEnumerable<string> edgeParts = graph.Edges
             .Select(static edge =>
-                $"{edge.FromNodeId.Trim()}|{edge.ToNodeId.Trim()}|{edge.EdgeType}")
+                $"{edge.FromNodeId.Trim()}|{edge.ToNodeId.Trim()}|{(edge.EdgeType ?? string.Empty).Trim()}")
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(static part => part, StringComparer.OrdinalIgnoreCase);
 
@@ -95,8 +94,6 @@ public static class ProvenanceSnapshotRevisionHasher
             .OrderBy(group => group.Key, StringComparer.OrdinalIgnoreCase)
             .Select(group =>
             {
-                ResolvedArchitectureDecision representative = group.First();
-
                 string supportingFindingIds = string.Join(
                     ",",
                     group.SelectMany(decision => decision.SupportingFindingIds)
@@ -105,8 +102,8 @@ public static class ProvenanceSnapshotRevisionHasher
                         .Distinct(StringComparer.OrdinalIgnoreCase)
                         .OrderBy(static findingId => findingId, StringComparer.OrdinalIgnoreCase));
 
-                string title = (representative.Title ?? string.Empty).Trim();
-                string category = (representative.Category ?? string.Empty).Trim();
+                string title = SelectLastNonEmptyManifestDecisionField(group, static decision => decision.Title);
+                string category = SelectLastNonEmptyManifestDecisionField(group, static decision => decision.Category);
 
                 return $"{group.Key}|{supportingFindingIds}|{title}|{category}";
             });
@@ -126,8 +123,6 @@ public static class ProvenanceSnapshotRevisionHasher
             .OrderBy(group => group.Key, StringComparer.OrdinalIgnoreCase)
             .Select(group =>
             {
-                Finding representative = group.First();
-
                 string relatedNodeIds = string.Join(
                     ",",
                     group.SelectMany(finding => finding.RelatedNodeIds)
@@ -136,10 +131,13 @@ public static class ProvenanceSnapshotRevisionHasher
                         .Distinct(StringComparer.OrdinalIgnoreCase)
                         .OrderBy(static nodeId => nodeId, StringComparer.OrdinalIgnoreCase));
 
-                string title = (representative.Title ?? string.Empty).Trim();
-                string findingType = (representative.FindingType ?? string.Empty).Trim();
-                string category = (representative.Category ?? string.Empty).Trim();
-                string agentExecutionTraceId = ResolveAgentExecutionTraceId(representative);
+                string title = SelectLastNonEmptyFindingField(group, static finding => finding.Title);
+                string findingType = SelectLastNonEmptyFindingField(group, static finding => finding.FindingType);
+                string category = SelectLastNonEmptyFindingField(group, static finding => finding.Category);
+                string agentExecutionTraceId = group
+                    .Select(ResolveAgentExecutionTraceId)
+                    .Where(static traceId => traceId.Length > 0)
+                    .LastOrDefault() ?? string.Empty;
 
                 return $"{group.Key}|{relatedNodeIds}|{title}|{findingType}|{category}|{agentExecutionTraceId}";
             });
@@ -155,34 +153,95 @@ public static class ProvenanceSnapshotRevisionHasher
         return finding.Trace?.SourceAgentExecutionTraceId?.Trim() ?? string.Empty;
     }
 
+    private static string SelectLastNonEmptyFindingField(
+        IGrouping<string, Finding> group,
+        Func<Finding, string?> selector)
+    {
+        return group
+            .Select(selector)
+            .Select(static value => (value ?? string.Empty).Trim())
+            .LastOrDefault(static value => value.Length > 0) ?? string.Empty;
+    }
+
+    private static string SelectLastNonEmptyGraphField(
+        IGrouping<string, GraphNode> group,
+        Func<GraphNode, string?> selector)
+    {
+        return group
+            .Select(selector)
+            .Select(static value => (value ?? string.Empty).Trim())
+            .LastOrDefault(static value => value.Length > 0) ?? string.Empty;
+    }
+
+    private static string SelectLastNonEmptyManifestDecisionField(
+        IGrouping<string, ResolvedArchitectureDecision> group,
+        Func<ResolvedArchitectureDecision, string?> selector)
+    {
+        return group
+            .Select(selector)
+            .Select(static value => (value ?? string.Empty).Trim())
+            .LastOrDefault(static value => value.Length > 0) ?? string.Empty;
+    }
+
+    private static string SelectLastNonEmptyArtifactField(
+        IGrouping<Guid, SynthesizedArtifact> group,
+        Func<SynthesizedArtifact, string?> selector)
+    {
+        return group
+            .Select(selector)
+            .Select(static value => (value ?? string.Empty).Trim())
+            .LastOrDefault(static value => value.Length > 0) ?? string.Empty;
+    }
+
     private static string ComputeArtifactsFingerprint(IReadOnlyList<SynthesizedArtifact> artifacts)
     {
         if (artifacts.Count == 0)
             return string.Empty;
 
-        IEnumerable<string> parts = SynthesizedArtifactBundleCanonicalizer
-            .DistinctByArtifactId(artifacts)
-            .OrderBy(static artifact => artifact.ArtifactId)
-            .Select(static artifact =>
+        IEnumerable<string> parts = artifacts
+            .GroupBy(static artifact => artifact.ArtifactId)
+            .OrderBy(static group => group.Key)
+            .Select(group =>
             {
+                SynthesizedArtifact representative = SelectRevisionArtifactRepresentative(group);
+
                 string contributingDecisionIds = string.Join(
                     ",",
-                    artifact.ContributingDecisionIds
+                    group.SelectMany(static artifact => artifact.ContributingDecisionIds)
                         .Select(static decisionId => decisionId.Trim())
                         .Where(static decisionId => decisionId.Length > 0)
                         .Distinct(StringComparer.OrdinalIgnoreCase)
                         .OrderBy(static decisionId => decisionId, StringComparer.OrdinalIgnoreCase));
 
-                string name = (artifact.Name ?? string.Empty).Trim();
-                string artifactType = (artifact.ArtifactType ?? string.Empty).Trim();
-                string format = (artifact.Format ?? string.Empty).Trim();
+                string name = SelectLastNonEmptyArtifactField(group, static artifact => artifact.Name);
+                string artifactType = SelectLastNonEmptyArtifactField(group, static artifact => artifact.ArtifactType);
+                string format = SelectLastNonEmptyArtifactField(group, static artifact => artifact.Format);
 
-                string contentHash = (artifact.ContentHash ?? string.Empty).Trim();
+                string contentHash = (representative.ContentHash ?? string.Empty).Trim();
 
-                return $"{artifact.ArtifactId:N}|{contentHash}|{contributingDecisionIds}|{name}|{artifactType}|{format}";
+                return $"{group.Key:N}|{contentHash}|{contributingDecisionIds}|{name}|{artifactType}|{format}";
             });
 
         return string.Join(";", parts);
+    }
+
+    internal static SynthesizedArtifact SelectRevisionArtifactRepresentative(
+        IEnumerable<SynthesizedArtifact> artifactsWithSameId)
+    {
+        List<SynthesizedArtifact> rows = artifactsWithSameId.ToList();
+
+        IEnumerable<string> distinctHashes = rows
+            .Select(static artifact => artifact.ContentHash ?? string.Empty)
+            .Distinct(StringComparer.Ordinal);
+
+        if (distinctHashes.Skip(1).Any())
+        {
+            return rows
+                .OrderByDescending(static artifact => artifact.ContentHash ?? string.Empty, StringComparer.Ordinal)
+                .First();
+        }
+
+        return rows[^1];
     }
 
     private static Guid ResolveDecisionTraceId(DecisionTraceDto trace)

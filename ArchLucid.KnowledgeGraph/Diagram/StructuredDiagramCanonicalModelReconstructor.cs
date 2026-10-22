@@ -78,25 +78,42 @@ public static class StructuredDiagramCanonicalModelReconstructor
             string? subgraphId = ReadDiagramSubgraphId(canonicalObject);
             string? subgraphLabel = ReadDiagramSubgraphLabel(canonicalObject);
 
-            if (!string.IsNullOrWhiteSpace(subgraphId)
-                && !subgraphs.ContainsKey(subgraphId))
+            if (!string.IsNullOrWhiteSpace(subgraphId))
             {
-                subgraphs[subgraphId] = new ArchitectureDiagramSubgraphRecord
+                if (!subgraphs.TryGetValue(subgraphId, out ArchitectureDiagramSubgraphRecord? subgraph))
                 {
-                    Id = subgraphId,
-                    Label = string.IsNullOrWhiteSpace(subgraphLabel) ? subgraphId : subgraphLabel,
-                    OrderKey = subgraphOrder++,
-                };
+                    subgraphs[subgraphId] = new ArchitectureDiagramSubgraphRecord
+                    {
+                        Id = subgraphId,
+                        Label = string.IsNullOrWhiteSpace(subgraphLabel) ? subgraphId : subgraphLabel,
+                        OrderKey = subgraphOrder++,
+                    };
+                }
+                else if (!string.IsNullOrWhiteSpace(subgraphLabel))
+                {
+                    subgraph.Label = subgraphLabel.Trim();
+                }
             }
 
-            diagramNodes.Add(new ArchitectureDiagramNodeRecord
+            ArchitectureDiagramNodeRecord incomingNode = new()
             {
                 Id = diagramNodeId,
                 Label = ReadLabel(canonicalObject),
                 Kind = ReadDiagramNodeKind(canonicalObject),
                 Provenance = ReadProvenance(canonicalObject),
                 SubgraphId = subgraphId,
-            });
+            };
+
+            ArchitectureDiagramNodeRecord? existingNode = diagramNodes.FirstOrDefault(
+                candidate => string.Equals(candidate.Id, diagramNodeId, StringComparison.OrdinalIgnoreCase));
+
+            if (existingNode is null)
+            {
+                diagramNodes.Add(incomingNode);
+                continue;
+            }
+
+            CoalesceDiagramNodeRecord(existingNode, incomingNode);
         }
 
         if (diagramNodes.Count == 0)
@@ -205,18 +222,47 @@ public static class StructuredDiagramCanonicalModelReconstructor
                     ? diagramEdgeId.Trim()
                     : $"edge-{edgeIndex++}";
 
-                edges.Add(new ArchitectureDiagramEdgeRecord
+                ArchitectureDiagramEdgeRecord incomingEdge = new()
                 {
                     Id = resolvedEdgeId,
                     SourceId = sourceDiagramNodeId,
                     TargetId = targetDiagramNodeId,
                     Label = edgeLabel ?? string.Empty,
                     Provenance = edgeProvenance ?? ReadProvenance(source),
-                });
+                };
+
+                ArchitectureDiagramEdgeRecord? existingEdge = edges.FirstOrDefault(
+                    candidate =>
+                        string.Equals(candidate.Id, resolvedEdgeId, StringComparison.OrdinalIgnoreCase)
+                        && string.Equals(candidate.SourceId, sourceDiagramNodeId, StringComparison.OrdinalIgnoreCase)
+                        && string.Equals(candidate.TargetId, targetDiagramNodeId, StringComparison.OrdinalIgnoreCase));
+
+                if (existingEdge is null)
+                {
+                    edges.Add(incomingEdge);
+                    continue;
+                }
+
+                CoalesceDiagramEdgeRecord(existingEdge, incomingEdge);
             }
         }
 
         return edges;
+    }
+
+    private static void CoalesceDiagramEdgeRecord(
+        ArchitectureDiagramEdgeRecord existing,
+        ArchitectureDiagramEdgeRecord incoming)
+    {
+        if (!string.IsNullOrWhiteSpace(incoming.Label))
+        {
+            existing.Label = incoming.Label;
+        }
+
+        if (!string.IsNullOrWhiteSpace(incoming.Provenance))
+        {
+            existing.Provenance = incoming.Provenance;
+        }
     }
 
     private static (string ObjectToken, string? EdgeLabel, string? EdgeProvenance, string? DiagramEdgeId)
@@ -299,6 +345,31 @@ public static class StructuredDiagramCanonicalModelReconstructor
 
         diagramNodeId = raw.Trim();
         return true;
+    }
+
+    private static void CoalesceDiagramNodeRecord(
+        ArchitectureDiagramNodeRecord existing,
+        ArchitectureDiagramNodeRecord incoming)
+    {
+        if (!string.IsNullOrWhiteSpace(incoming.Label))
+        {
+            existing.Label = incoming.Label;
+        }
+
+        if (!string.IsNullOrWhiteSpace(incoming.Kind))
+        {
+            existing.Kind = incoming.Kind;
+        }
+
+        if (!string.IsNullOrWhiteSpace(incoming.Provenance))
+        {
+            existing.Provenance = incoming.Provenance;
+        }
+
+        if (!string.IsNullOrWhiteSpace(incoming.SubgraphId))
+        {
+            existing.SubgraphId = incoming.SubgraphId;
+        }
     }
 
     private static string ReadLabel(CanonicalObject canonicalObject)

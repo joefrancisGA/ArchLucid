@@ -128,6 +128,57 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void Merge_skips_inventory_edge_when_directed_key_differs_only_by_edge_type_padding()
+    {
+        const string fromNodeId = "node-a";
+        const string toNodeId = "node-b";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode { NodeId = fromNodeId, NodeType = GraphNodeTypes.TopologyResource, Label = "A" },
+                new GraphNode { NodeId = toNodeId, NodeType = GraphNodeTypes.TopologyResource, Label = "B" },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "base-edge",
+                    FromNodeId = fromNodeId,
+                    ToNodeId = toNodeId,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                },
+            ],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes = [],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "overlay-edge",
+                    FromNodeId = fromNodeId,
+                    ToNodeId = toNodeId,
+                    EdgeType = $"  {GraphEdgeTypes.ConnectsTo}  ",
+                },
+            ],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Edges.Should().ContainSingle();
+    }
+
+    [Fact]
     public void BuildOverlay_deduplicates_resources_when_arm_id_differs_only_by_case()
     {
         const string armIdLower =

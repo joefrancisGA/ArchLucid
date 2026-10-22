@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.KnowledgeGraph.Models;
@@ -91,18 +93,7 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
                         existing.Category = node.Category;
                     }
 
-                    if (node.Properties.Count > 0)
-                    {
-                        foreach (KeyValuePair<string, string> property in node.Properties)
-                        {
-                            existing.Properties[property.Key] = property.Value;
-                        }
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(node.ReasoningTrace))
-                    {
-                        existing.ReasoningTrace = node.ReasoningTrace;
-                    }
+                    CoalesceDiagramNodeMetadata(existing, node);
 
                     continue;
                 }
@@ -126,20 +117,9 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
                         existingEdge.Label = edge.Label;
                     }
 
-                    existingEdge.Weight = edge.Weight;
+                    existingEdge.Weight = Math.Max(existingEdge.Weight, edge.Weight);
 
-                    if (edge.Properties.Count > 0)
-                    {
-                        foreach (KeyValuePair<string, string> property in edge.Properties)
-                        {
-                            existingEdge.Properties[property.Key] = property.Value;
-                        }
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(edge.ReasoningTrace))
-                    {
-                        existingEdge.ReasoningTrace = edge.ReasoningTrace;
-                    }
+                    CoalesceDiagramEdgeMetadata(existingEdge, edge);
 
                     continue;
                 }
@@ -155,6 +135,107 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
             Warnings = warnings,
             CanonicalBindings = bindings,
         };
+    }
+
+    private static void CoalesceDiagramNodeMetadata(GraphNode existing, GraphNode incoming)
+    {
+        double existingConfidence = ReadInferenceConfidence(existing.Properties);
+        double incomingConfidence = ReadInferenceConfidence(incoming.Properties);
+
+        if (incoming.Properties.Count > 0)
+        {
+            foreach (KeyValuePair<string, string> property in incoming.Properties)
+            {
+                if (ShouldSkipPropertyOnWeakerIncomingCompile(
+                        property.Key,
+                        existingConfidence,
+                        incomingConfidence))
+                {
+                    continue;
+                }
+
+                existing.Properties[property.Key] = property.Value;
+            }
+        }
+
+        WriteInferenceConfidence(existing.Properties, Math.Max(existingConfidence, incomingConfidence));
+
+        if (!string.IsNullOrWhiteSpace(incoming.ReasoningTrace)
+            && incomingConfidence >= existingConfidence)
+        {
+            existing.ReasoningTrace = incoming.ReasoningTrace;
+        }
+    }
+
+    private static void CoalesceDiagramEdgeMetadata(GraphEdge existing, GraphEdge incoming)
+    {
+        double existingConfidence = ReadInferenceConfidence(existing.Properties);
+        double incomingConfidence = ReadInferenceConfidence(incoming.Properties);
+
+        if (incoming.Properties.Count > 0)
+        {
+            foreach (KeyValuePair<string, string> property in incoming.Properties)
+            {
+                if (ShouldSkipPropertyOnWeakerIncomingCompile(
+                        property.Key,
+                        existingConfidence,
+                        incomingConfidence))
+                {
+                    continue;
+                }
+
+                existing.Properties[property.Key] = property.Value;
+            }
+        }
+
+        WriteInferenceConfidence(existing.Properties, Math.Max(existingConfidence, incomingConfidence));
+
+        if (!string.IsNullOrWhiteSpace(incoming.ReasoningTrace)
+            && incomingConfidence >= existingConfidence)
+        {
+            existing.ReasoningTrace = incoming.ReasoningTrace;
+        }
+    }
+
+    private static bool ShouldSkipPropertyOnWeakerIncomingCompile(
+        string propertyKey,
+        double existingConfidence,
+        double incomingConfidence)
+    {
+        if (incomingConfidence >= existingConfidence)
+        {
+            return false;
+        }
+
+        if (string.Equals(
+                propertyKey,
+                StructuredDiagramGraphPropertyKeys.InferenceConfidence,
+                StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        return string.Equals(propertyKey, StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId, StringComparison.Ordinal)
+            || string.Equals(propertyKey, StructuredDiagramGraphPropertyKeys.DiagramCitationRef, StringComparison.Ordinal);
+    }
+
+    private static double ReadInferenceConfidence(IReadOnlyDictionary<string, string> properties)
+    {
+        if (!properties.TryGetValue(StructuredDiagramGraphPropertyKeys.InferenceConfidence, out string? raw)
+            || string.IsNullOrWhiteSpace(raw))
+        {
+            return 0d;
+        }
+
+        return double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out double confidence)
+            ? confidence
+            : 0d;
+    }
+
+    private static void WriteInferenceConfidence(IDictionary<string, string> properties, double confidence)
+    {
+        properties[StructuredDiagramGraphPropertyKeys.InferenceConfidence] =
+            confidence.ToString("0.###", CultureInfo.InvariantCulture);
     }
 }
 

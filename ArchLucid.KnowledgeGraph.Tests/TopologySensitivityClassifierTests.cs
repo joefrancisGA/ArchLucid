@@ -9,6 +9,32 @@ namespace ArchLucid.KnowledgeGraph.Tests;
 public sealed class TopologySensitivityClassifierTests
 {
     [Fact]
+    public void Classify_identity_category_with_surrounding_whitespace_returns_identity()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["category"] = $"  {GraphTopologyCategories.Identity}  ",
+        };
+
+        TopologySensitivityClassifier.Classify("entra-app", properties)
+            .Should()
+            .Be(TopologySensitivityLevels.Identity);
+    }
+
+    [Fact]
+    public void Classify_data_category_with_surrounding_whitespace_returns_data_bearing()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["category"] = $"  {GraphTopologyCategories.Data}  ",
+        };
+
+        TopologySensitivityClassifier.Classify("sql-primary", properties)
+            .Should()
+            .Be(TopologySensitivityLevels.DataBearing);
+    }
+
+    [Fact]
     public void Classify_data_category_returns_data_bearing()
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)

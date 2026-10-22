@@ -81,5 +81,5 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
     private static string NormalizeNodeId(string nodeId) => nodeId.Trim();
 
     private static string BuildEdgeKey(GraphEdge edge) =>
-        $"{NormalizeNodeId(edge.FromNodeId)}|{NormalizeNodeId(edge.ToNodeId)}|{edge.EdgeType}";
+        $"{NormalizeNodeId(edge.FromNodeId)}|{NormalizeNodeId(edge.ToNodeId)}|{(edge.EdgeType ?? string.Empty).Trim()}";
 }

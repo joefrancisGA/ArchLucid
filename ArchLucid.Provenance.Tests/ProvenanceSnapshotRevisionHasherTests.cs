@@ -345,6 +345,16 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     }
 
     [Fact]
+    public void Compute_unchanged_when_applied_rule_ids_include_blank_duplicates()
+    {
+        ProvenanceBuildInput baseline = CreateInput([], ["rule-a"]);
+        ProvenanceBuildInput updated = CreateInput([], ["rule-a", "  ", string.Empty]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
     public void Compute_unchanged_when_only_rule_set_hash_changes()
     {
         ProvenanceBuildInput baseline = CreateInput([], ["rule-a"]);
@@ -507,6 +517,128 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
 
         ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
             .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
+    public void Compute_unchanged_when_later_case_variant_graph_node_row_omits_label()
+    {
+        GraphNode firstRow = new() { NodeId = "node-a", NodeType = "Resource", Label = "API Gateway" };
+        GraphNode secondRow = new() { NodeId = "NODE-A", NodeType = "Resource", Label = string.Empty };
+
+        ProvenanceBuildInput baseline = CreateInput([], graphNodes: [firstRow]);
+        ProvenanceBuildInput updated = CreateInput([], graphNodes: [firstRow, secondRow]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
+    public void Compute_changes_when_later_case_variant_graph_node_has_different_label()
+    {
+        GraphNode firstRow = new() { NodeId = "node-a", NodeType = "Resource", Label = "Original label" };
+        GraphNode secondRow = new() { NodeId = "NODE-A", NodeType = "Resource", Label = "Renamed label" };
+
+        ProvenanceBuildInput baseline = CreateInput([], graphNodes: [firstRow]);
+        ProvenanceBuildInput updated = CreateInput([], graphNodes: [firstRow, secondRow]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
+    public void Compute_unchanged_when_later_case_variant_manifest_decision_row_omits_title()
+    {
+        ResolvedArchitectureDecision firstRow = new()
+        {
+            DecisionId = "dec-1",
+            Category = "security",
+            Title = "Enable WAF",
+            SelectedOption = "opt",
+            Rationale = "why",
+            SupportingFindingIds = [],
+        };
+
+        ResolvedArchitectureDecision secondRow = new()
+        {
+            DecisionId = "DEC-1",
+            Category = string.Empty,
+            Title = string.Empty,
+            SelectedOption = "opt",
+            Rationale = "why",
+            SupportingFindingIds = [],
+        };
+
+        ProvenanceBuildInput baseline = CreateInput([], decisions: [firstRow]);
+        ProvenanceBuildInput updated = CreateInput([], decisions: [firstRow, secondRow]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
+    public void Compute_changes_when_later_case_variant_manifest_decision_row_has_different_title()
+    {
+        ResolvedArchitectureDecision firstRow = new()
+        {
+            DecisionId = "dec-1",
+            Category = "c",
+            Title = "Original title",
+            SelectedOption = "opt",
+            Rationale = "why",
+            SupportingFindingIds = [],
+        };
+
+        ResolvedArchitectureDecision secondRow = new()
+        {
+            DecisionId = "DEC-1",
+            Category = "c",
+            Title = "Renamed title",
+            SelectedOption = "opt",
+            Rationale = "why",
+            SupportingFindingIds = [],
+        };
+
+        ProvenanceBuildInput baseline = CreateInput([], decisions: [firstRow]);
+        ProvenanceBuildInput updated = CreateInput([], decisions: [firstRow, secondRow]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
+    public void Compute_unchanged_when_later_case_variant_finding_row_omits_agent_execution_trace_id()
+    {
+        Finding firstRow = CreateSampleFinding();
+        firstRow.FindingId = "find-1";
+        firstRow.AgentExecutionTraceId = "trace-v1";
+
+        Finding secondRow = CreateSampleFinding();
+        secondRow.FindingId = "FIND-1";
+        secondRow.AgentExecutionTraceId = string.Empty;
+
+        ProvenanceBuildInput baseline = CreateInput([], findings: [firstRow]);
+        ProvenanceBuildInput updated = CreateInput([], findings: [firstRow, secondRow]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
+    public void Compute_changes_when_later_case_variant_finding_row_has_different_agent_execution_trace_id()
+    {
+        Finding firstRow = CreateSampleFinding();
+        firstRow.FindingId = "find-1";
+        firstRow.AgentExecutionTraceId = "trace-v1";
+
+        Finding secondRow = CreateSampleFinding();
+        secondRow.FindingId = "FIND-1";
+        secondRow.AgentExecutionTraceId = "trace-v2";
+
+        ProvenanceBuildInput baseline = CreateInput([], findings: [firstRow]);
+        ProvenanceBuildInput updated = CreateInput([], findings: [firstRow, secondRow]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
     }
 
     [Fact]
@@ -707,6 +839,84 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     }
 
     [Fact]
+    public void Compute_unchanged_when_graph_edge_type_differs_only_by_surrounding_whitespace()
+    {
+        GraphEdge baselineEdge = new()
+        {
+            EdgeId = "edge-1",
+            FromNodeId = "node-a",
+            ToNodeId = "node-b",
+            EdgeType = "ConnectsTo",
+        };
+
+        GraphEdge updatedEdge = new()
+        {
+            EdgeId = "edge-1",
+            FromNodeId = "node-a",
+            ToNodeId = "node-b",
+            EdgeType = "  ConnectsTo  ",
+        };
+
+        ProvenanceBuildInput baseline = CreateInput([], graphEdges: [baselineEdge]);
+        ProvenanceBuildInput updated = CreateInput([], graphEdges: [updatedEdge]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
+    public void Compute_unchanged_when_graph_node_type_differs_only_by_surrounding_whitespace()
+    {
+        GraphNode baselineNode = new()
+        {
+            NodeId = "node-a",
+            Label = "Node A",
+            NodeType = "Resource",
+            Category = "compute",
+        };
+
+        GraphNode updatedNode = new()
+        {
+            NodeId = "node-a",
+            Label = "Node A",
+            NodeType = "  Resource  ",
+            Category = "compute",
+        };
+
+        ProvenanceBuildInput baseline = CreateInput([], graphNodes: [baselineNode]);
+        ProvenanceBuildInput updated = CreateInput([], graphNodes: [updatedNode]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
+    public void Compute_unchanged_when_graph_node_category_differs_only_by_surrounding_whitespace()
+    {
+        GraphNode baselineNode = new()
+        {
+            NodeId = "node-a",
+            Label = "Node A",
+            NodeType = "Resource",
+            Category = "compute",
+        };
+
+        GraphNode updatedNode = new()
+        {
+            NodeId = "node-a",
+            Label = "Node A",
+            NodeType = "Resource",
+            Category = "  compute  ",
+        };
+
+        ProvenanceBuildInput baseline = CreateInput([], graphNodes: [baselineNode]);
+        ProvenanceBuildInput updated = CreateInput([], graphNodes: [updatedNode]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
     public void Compute_changes_when_contributing_decision_ids_change_but_content_hash_is_unchanged()
     {
         Guid artifactId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
@@ -845,6 +1055,104 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
         string reverse = ProvenanceSnapshotRevisionHasher.Compute(CreateInput([v2, v1]), BundleId);
 
         reverse.Should().Be(forward);
+    }
+
+    [Fact]
+    public void Compute_unchanged_when_later_duplicate_artifact_row_omits_name()
+    {
+        Guid artifactId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+        SynthesizedArtifact firstRow = new()
+        {
+            ArtifactId = artifactId,
+            ArtifactType = "doc",
+            Name = "overview.md",
+            Format = "md",
+            Content = "v1",
+            ContentHash = "hash-v1",
+        };
+
+        SynthesizedArtifact secondRow = new()
+        {
+            ArtifactId = artifactId,
+            ArtifactType = "doc",
+            Name = string.Empty,
+            Format = "md",
+            Content = "v1",
+            ContentHash = "hash-v1",
+        };
+
+        ProvenanceBuildInput baseline = CreateInput([firstRow]);
+        ProvenanceBuildInput updated = CreateInput([firstRow, secondRow]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
+    public void Compute_changes_when_later_duplicate_artifact_row_adds_contributing_decision_id()
+    {
+        Guid artifactId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+        SynthesizedArtifact firstRow = new()
+        {
+            ArtifactId = artifactId,
+            ArtifactType = "doc",
+            Name = "overview.md",
+            Format = "md",
+            Content = "v1",
+            ContentHash = "hash-v1",
+            ContributingDecisionIds = ["dec-a"],
+        };
+
+        SynthesizedArtifact secondRow = new()
+        {
+            ArtifactId = artifactId,
+            ArtifactType = "doc",
+            Name = "overview.md",
+            Format = "md",
+            Content = "v1",
+            ContentHash = "hash-v1",
+            ContributingDecisionIds = ["dec-b"],
+        };
+
+        ProvenanceBuildInput baseline = CreateInput([firstRow]);
+        ProvenanceBuildInput updated = CreateInput([firstRow, secondRow]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
+    public void Compute_changes_when_later_duplicate_artifact_row_has_different_name_but_same_content_hash()
+    {
+        Guid artifactId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+        SynthesizedArtifact firstRow = new()
+        {
+            ArtifactId = artifactId,
+            ArtifactType = "doc",
+            Name = "overview-old.md",
+            Format = "md",
+            Content = "v1",
+            ContentHash = "hash-v1",
+        };
+
+        SynthesizedArtifact secondRow = new()
+        {
+            ArtifactId = artifactId,
+            ArtifactType = "doc",
+            Name = "overview-renamed.md",
+            Format = "md",
+            Content = "v1",
+            ContentHash = "hash-v1",
+        };
+
+        ProvenanceBuildInput baseline = CreateInput([firstRow]);
+        ProvenanceBuildInput updated = CreateInput([firstRow, secondRow]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
     }
 
     [Fact]
