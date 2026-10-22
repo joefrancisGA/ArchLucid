@@ -35,18 +35,12 @@ public static class GraphSnapshotKnowledgeModelMerger
         Dictionary<string, string> canonicalNodeIdByNormalized = BuildCanonicalNodeIdLookup(mergedNodes);
 
         List<GraphEdge> mergedEdges = [];
-        HashSet<string> edgeKeys = new(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, GraphEdge> mergedEdgeByKey = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (GraphEdge modelEdge in modelGraph.Edges ?? [])
         {
             GraphEdge canonicalEdge = CanonicalizeEdgeEndpoints(modelEdge, canonicalNodeIdByNormalized);
-            string key = BuildEdgeKey(canonicalEdge.FromNodeId, canonicalEdge.ToNodeId, canonicalEdge.EdgeType);
-
-            if (edgeKeys.Contains(key))
-                continue;
-
-            edgeKeys.Add(key);
-            mergedEdges.Add(canonicalEdge);
+            AddOrCoalesceEdge(mergedEdges, mergedEdgeByKey, canonicalEdge);
         }
 
         foreach (GraphEdge contextEdge in contextGraph.Edges ?? [])
@@ -54,11 +48,12 @@ public static class GraphSnapshotKnowledgeModelMerger
             GraphEdge canonicalEdge = CanonicalizeEdgeEndpoints(contextEdge, canonicalNodeIdByNormalized);
             string key = BuildEdgeKey(canonicalEdge.FromNodeId, canonicalEdge.ToNodeId, canonicalEdge.EdgeType);
 
-            if (edgeKeys.Contains(key))
+            if (mergedEdgeByKey.ContainsKey(key))
+            {
                 continue;
+            }
 
-            edgeKeys.Add(key);
-            mergedEdges.Add(canonicalEdge);
+            AddOrCoalesceEdge(mergedEdges, mergedEdgeByKey, canonicalEdge);
         }
 
         List<string> warnings = [.. modelGraph.Warnings ?? [], .. contextGraph.Warnings ?? []];
@@ -111,6 +106,38 @@ public static class GraphSnapshotKnowledgeModelMerger
         {
             existing.Category = incoming.Category;
         }
+    }
+
+    private static void AddOrCoalesceEdge(
+        List<GraphEdge> mergedEdges,
+        Dictionary<string, GraphEdge> mergedEdgeByKey,
+        GraphEdge candidate)
+    {
+        string key = BuildEdgeKey(candidate.FromNodeId, candidate.ToNodeId, candidate.EdgeType);
+
+        if (mergedEdgeByKey.TryGetValue(key, out GraphEdge? existing))
+        {
+            CoalesceGraphEdge(existing, candidate);
+            return;
+        }
+
+        mergedEdgeByKey[key] = candidate;
+        mergedEdges.Add(candidate);
+    }
+
+    private static void CoalesceGraphEdge(GraphEdge existing, GraphEdge incoming)
+    {
+        if (!string.IsNullOrWhiteSpace(incoming.Label))
+        {
+            existing.Label = incoming.Label;
+        }
+
+        if (!string.IsNullOrWhiteSpace(incoming.EdgeId))
+        {
+            existing.EdgeId = incoming.EdgeId;
+        }
+
+        existing.Weight = Math.Max(existing.Weight, incoming.Weight);
     }
 
     private static GraphNode NormalizeNodeIdWhitespace(GraphNode node)

@@ -12470,18 +12470,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 103
-- **bugs-found:** 98
+- **hunts:** 104
+- **bugs-found:** 99
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — duplicate model graph node rows coalesce with last non-empty labels
+- **last-bug:** 2026-10-22 — duplicate graph snapshot edge rows coalesce with last non-empty labels
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted graph snapshot merger sparse edge label candidate; proved duplicate directed-edge keys skipped later rows so an initial empty-label edge blocked a later labeled duplicate in the same graph pass; coalesce edges by directed key with last non-empty label (and max weight) while keeping model-over-context precedence; regressions `Merge_uses_last_non_empty_model_edge_label_when_model_lists_duplicate_edges` and `Merge_preserves_context_edge_label_when_later_duplicate_context_row_omits_label`; seeded provenance builder sparse finding title follow-on; 400 KnowledgeGraph + 118 Provenance scoped tests passed.
+
+- [x] (proven) `GraphSnapshotKnowledgeModelMerger.Merge` — duplicate edge rows kept first empty label — **hit 2026-10-22 seed hunt (seed→hit):** in-pass edge coalesce; regressions above.
+
+- [ ] (candidate) `ProvenanceBuilder.AddNode` — duplicate case-variant finding rows may still downgrade graph node display names when later rows carry only whitespace titles — locus: graph node name downgrade guard; input: labeled graph node then case-variant row with whitespace title; wrong outcome: provenance graph node title cleared.
 
 2026-10-22 seed hunt (seed→hit): promoted graph snapshot merger sparse label candidate; proved duplicate model `NodeId` rows skipped later entries outright so an initial empty-label row blocked a later labeled duplicate from surfacing; coalesce duplicate ids within each graph pass with last non-empty label/type/category while keeping model-over-context precedence; regressions `Merge_uses_last_non_empty_model_label_when_model_lists_duplicate_node_ids` and `Merge_preserves_context_label_when_later_duplicate_context_row_omits_label`; seeded graph snapshot merger sparse edge label follow-on; 398 KnowledgeGraph + 118 Provenance scoped tests passed.
 
 - [x] (proven) `GraphSnapshotKnowledgeModelMerger.Merge` — duplicate model node rows kept first empty label — **hit 2026-10-22 seed hunt (seed→hit):** in-pass node coalesce; regressions above.
-
-- [ ] (candidate) `GraphSnapshotKnowledgeModelMerger.Merge` — duplicate context/model edge rows with the same directed key may drop later edge `Label` metadata when a sparse repeat omits caption text — locus: edge dedup hash set; input: duplicate edges same endpoints within one graph pass; wrong outcome: buyer-visible edge title cleared.
 
 2026-10-22 seed hunt (seed→hit): promoted rule-audit sparse trace candidate after cheap-disproof; proved `ProvenanceBuilder` emitted a `Rule` provenance node with empty `ReferenceId`/`Name` when `AppliedRuleIds` contained blank entries (revision hasher already filtered blanks); filter normalized rule ids before distinct; regression `Build_ignores_blank_applied_rule_ids_when_emitting_rule_nodes` plus hasher guard `Compute_unchanged_when_applied_rule_ids_include_blank_duplicates`; seeded graph snapshot merger sparse node label follow-on; 396 KnowledgeGraph + 118 Provenance scoped tests passed.
 
