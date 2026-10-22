@@ -20,7 +20,7 @@ internal static class ClosedLoopFramingAnswersNormalizer
             pairs.Add(
                 new KeyValuePair<string, string>(
                     NormalizeUnicode(pair.Key.Trim()),
-                    NormalizeUnicode(pair.Value?.Trim() ?? string.Empty)));
+                    NormalizeFramingValue(pair.Value)));
         }
 
         Dictionary<string, string> normalized = new(StringComparer.Ordinal);
@@ -42,6 +42,16 @@ internal static class ClosedLoopFramingAnswersNormalizer
         }
 
         return normalized;
+    }
+
+    private static string NormalizeFramingValue(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return string.Empty;
+
+        string normalized = NormalizeUnicode(value.Trim());
+
+        return normalized.Length == 0 ? normalized : normalized.ToLowerInvariant();
     }
 
     private static string NormalizeUnicode(string value)

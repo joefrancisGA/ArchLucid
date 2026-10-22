@@ -2927,6 +2927,48 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_tenant_configuration_hash_when_workspace_slug_differs_only_by_casing()
+    {
+        ClosedLoopReasoningRequest lower = CreateRequest("Architecture note.");
+        lower.WorkspaceId = "workspace-slug";
+
+        ClosedLoopReasoningRequest upper = CreateRequest("Architecture note.");
+        upper.WorkspaceId = "Workspace-Slug";
+
+        ReviewCacheManifestBuilder.Build(lower).TenantConfigurationHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(upper).TenantConfigurationHash);
+    }
+
+    [Fact]
+    public void Build_matches_tenant_configuration_hash_when_project_slug_differs_only_by_casing()
+    {
+        ClosedLoopReasoningRequest lower = CreateRequest("Architecture note.");
+        lower.ProjectId = "project-slug";
+
+        ClosedLoopReasoningRequest upper = CreateRequest("Architecture note.");
+        upper.ProjectId = "Project-Slug";
+
+        ReviewCacheManifestBuilder.Build(lower).TenantConfigurationHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(upper).TenantConfigurationHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_request_framing_answer_value_differs_only_by_casing()
+    {
+        ClosedLoopReasoningRequest lower = CreateRequest("Architecture note.");
+        lower.FramingAnswers = new Dictionary<string, string> { ["business-outcome"] = "secure intake." };
+
+        ClosedLoopReasoningRequest upper = CreateRequest("Architecture note.");
+        upper.FramingAnswers = new Dictionary<string, string> { ["business-outcome"] = "Secure Intake." };
+
+        ReviewCacheManifestBuilder.Build(lower).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(upper).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_source_content_differs_only_by_consecutive_spaces()
     {
         ClosedLoopReasoningRequest single = CreateRequest("Claims intake for architects.");
