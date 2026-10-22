@@ -359,6 +359,13 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("invalid_client");
   });
 
+  it("humanizes redirect_uri_mismatch authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("redirect_uri_mismatch", "");
+
+    expect(message).toMatch(/redirect uri mismatch/i);
+    expect(message).not.toContain("redirect_uri_mismatch");
+  });
+
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
     expect(humanizeAuthorizeCallbackError("   ", "")).toContain("complete response");
     expect(humanizeAuthorizeCallbackError("   ", "")).not.toMatch(/\(\s*\)/u);
