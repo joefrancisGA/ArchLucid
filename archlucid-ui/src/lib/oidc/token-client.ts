@@ -63,7 +63,7 @@ function shouldClearBffSessionForOAuthTokenErrorCode(normalizedErrorCode: string
     return true;
   }
 
-  // IdPs may return extension OAuth codes on refresh that are not in the humanize allowlist.
+  // Rare IdP codes (e.g. unsupported_grant_type) still surface as OAuthTokenEndpointError without humanize copy.
   return isReadableOAuthErrorCode(normalizedErrorCode);
 }
 
@@ -89,9 +89,11 @@ export function isOAuthRefreshTokenRejectedError(error: unknown): boolean {
     message.includes("interaction_required") ||
     message.includes("invalid_client") ||
     message.includes("invalid_grant") ||
+    message.includes("invalid_request") ||
     message.includes("invalid_scope") ||
     message.includes("invalid_token") ||
     message.includes("login_required") ||
+    message.includes("redirect_uri_mismatch") ||
     message.includes("unauthorized_client")
   );
 }
@@ -128,7 +130,10 @@ function errorFromOAuthJson(json: unknown): Error | null {
   }
 
   if (errorCode.length === 0) {
-    return new Error(sanitizeOAuthUserFacingMessage(errorDescription));
+    return new OAuthTokenEndpointError(
+      sanitizeOAuthUserFacingMessage(errorDescription),
+      "invalid_request",
+    );
   }
 
   if (shouldHumanizeTokenOAuthErrorCode(errorCode)) {

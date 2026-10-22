@@ -119,6 +119,35 @@ describe("POST /api/auth/bff-session/refresh", () => {
     expect(response.headers.get("set-cookie")).toContain("Max-Age=0");
   });
 
+  it("returns 503 without clearing BFF session cookies when refreshAccessToken throws humanized server_error", async () => {
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() + 3_600_000,
+      refreshToken: "refresh-token",
+      workingMode: true,
+    });
+
+    refreshAccessTokenMock.mockRejectedValue(
+      new OAuthTokenEndpointError(
+        "Your identity provider reported a temporary error. Wait a minute and try signing in again.",
+        "server_error",
+      ),
+    );
+
+    const req = new NextRequest("http://localhost/api/auth/bff-session/refresh", {
+      method: "POST",
+      headers: {
+        cookie: `${BFF_SESSION_COOKIE_NAME}=${issueResult?.sessionCookieValue ?? ""}`,
+        [BFF_CSRF_HEADER]: issueResult?.csrfToken ?? "",
+      },
+    });
+
+    const response = await POST(req);
+
+    expect(response.status).toBe(503);
+    expect(response.headers.get("set-cookie")).toBeNull();
+  });
+
   it("clears BFF session cookies when refreshAccessToken throws humanized unauthorized_client", async () => {
     const issueResult = createBffSessionCookieValue({
       accessToken: "access-token",
@@ -269,6 +298,63 @@ describe("POST /api/auth/bff-session/refresh", () => {
     expect(response.headers.get("set-cookie")).toContain("Max-Age=0");
   });
 
+  it("clears BFF session cookies when refreshAccessToken throws humanized invalid_request", async () => {
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() + 3_600_000,
+      refreshToken: "refresh-token",
+      workingMode: true,
+    });
+
+    refreshAccessTokenMock.mockRejectedValue(
+      new OAuthTokenEndpointError(
+        "This sign-in request was not valid. Try signing in again.",
+        "invalid_request",
+      ),
+    );
+
+    const req = new NextRequest("http://localhost/api/auth/bff-session/refresh", {
+      method: "POST",
+      headers: {
+        cookie: `${BFF_SESSION_COOKIE_NAME}=${issueResult?.sessionCookieValue ?? ""}`,
+        [BFF_CSRF_HEADER]: issueResult?.csrfToken ?? "",
+      },
+    });
+
+    const response = await POST(req);
+
+    expect(response.status).toBe(401);
+    expect(response.headers.get("set-cookie")).toContain("archlucid-bff-session=");
+    expect(response.headers.get("set-cookie")).toContain("Max-Age=0");
+  });
+
+  it("clears BFF session cookies when refreshAccessToken throws non-humanized unsupported_grant_type", async () => {
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() + 3_600_000,
+      refreshToken: "refresh-token",
+      workingMode: true,
+    });
+
+    refreshAccessTokenMock.mockRejectedValue(
+      new OAuthTokenEndpointError("unsupported_grant_type", "unsupported_grant_type"),
+    );
+
+    const req = new NextRequest("http://localhost/api/auth/bff-session/refresh", {
+      method: "POST",
+      headers: {
+        cookie: `${BFF_SESSION_COOKIE_NAME}=${issueResult?.sessionCookieValue ?? ""}`,
+        [BFF_CSRF_HEADER]: issueResult?.csrfToken ?? "",
+      },
+    });
+
+    const response = await POST(req);
+
+    expect(response.status).toBe(401);
+    expect(response.headers.get("set-cookie")).toContain("archlucid-bff-session=");
+    expect(response.headers.get("set-cookie")).toContain("Max-Age=0");
+  });
+
   it("clears BFF session cookies when refreshAccessToken throws humanized login_required", async () => {
     const issueResult = createBffSessionCookieValue({
       accessToken: "access-token",
@@ -299,7 +385,7 @@ describe("POST /api/auth/bff-session/refresh", () => {
     expect(response.headers.get("set-cookie")).toContain("Max-Age=0");
   });
 
-  it("clears BFF session cookies when refreshAccessToken throws a non-humanized OAuth extension code", async () => {
+  it("clears BFF session cookies when refreshAccessToken throws description-only OAuth JSON", async () => {
     const issueResult = createBffSessionCookieValue({
       accessToken: "access-token",
       expiresAtMs: Date.now() + 3_600_000,
@@ -308,7 +394,7 @@ describe("POST /api/auth/bff-session/refresh", () => {
     });
 
     refreshAccessTokenMock.mockRejectedValue(
-      new OAuthTokenEndpointError("unsupported_grant_type", "unsupported_grant_type"),
+      new OAuthTokenEndpointError("Refresh token was revoked", "invalid_request"),
     );
 
     const req = new NextRequest("http://localhost/api/auth/bff-session/refresh", {

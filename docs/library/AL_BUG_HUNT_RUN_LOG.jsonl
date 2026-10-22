@@ -3914,7 +3914,6 @@
 {"at":"2026-10-08T16:46:53.3434114Z","zoneId":"core-safety-network","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/Safety/","ArchLucid.Core/Http/"]}
 {"at":"2026-10-08T16:57:36.3269615Z","zoneId":"core-safety-network","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Core/Safety/","ArchLucid.Core/Http/"]}
 {"at":"2026-10-08T17:09:57.8675922Z","zoneId":"billing-webhooks","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs","ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs","ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs","ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs"]}
-{"at":"2026-10-08T16:10:12.639831Z","zoneId":"billing-webhooks","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs","ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs","ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs","ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs"]}
 {"at":"2026-10-08T17:20:19.6853757Z","zoneId":"billing-webhooks","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs","ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs","ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs","ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs"],"severity":"medium","defectClass":"other"}
 {"at":"2026-10-08T17:32:31.3641864Z","zoneId":"billing-webhooks","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs","ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs","ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs","ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs"],"severity":"high","defectClass":"other"}
 {"at":"2026-10-08T19:05:04.6968154Z","zoneId":"technology-ledger-merge","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs"]}
@@ -4179,7 +4178,6 @@
 {"at":"2026-10-10T07:09:35.2644668Z","zoneId":"context-ingestion","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.ContextIngestion/"]}
 {"at":"2026-10-10T07:14:47.4992914Z","zoneId":"context-ingestion","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.ContextIngestion/"]}
 {"at":"2026-10-10T07:22:11.735516Z","zoneId":"context-ingestion","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.ContextIngestion/"]}
-{"at":"2026-10-10T07:27:19.6356368Z","zoneId":"context-ingestion","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.ContextIngestion/"]}
 {"at":"2026-10-10T07:27:19.6356368Z","zoneId":"context-ingestion","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.ContextIngestion/"]}
 {"at":"2026-10-10T07:36:16.2989417Z","zoneId":"context-ingestion","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.ContextIngestion/"]}
 {"at":"2026-10-10T07:42:27.7377236Z","zoneId":"context-ingestion","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.ContextIngestion/"]}
@@ -5687,7 +5685,6 @@
 {"at":"2026-10-20T20:33:33.7479601Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/lib/oidc/)"]}
 {"at":"2026-10-21T00:13:15Z","zoneId":"identity-provider-config","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T00:36:00Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/oidc/"]}
-{"at":"2026-10-21T00:13:15Z","zoneId":"identity-provider-config","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-20T20:35:52.3637102Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/lib/oidc/)"]}
 {"at":"2026-10-20T20:38:14.4304013Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/lib/oidc/)"]}
 {"at":"2026-10-20T20:42:13.5465813Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
@@ -5749,7 +5746,6 @@
 {"at":"2026-10-20T23:34:17.0374518Z","zoneId":"orchestrator-transient-retry","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-20T23:36:45.3837176Z","zoneId":"agent-runtime-evaluation","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-20T23:43:56.3565867Z","zoneId":"extraction-router","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-20T23:28:50.031371Z","zoneId":"scim-users","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Persistence/Scim/SqlScimUserFilterTranslator.cs,ArchLucid.Core/Scim/Filtering/ScimFilterInMemoryEvaluator.cs)"]}
 {"at":"2026-10-20T23:44:54Z","zoneId":"identity-provider-config","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-20T23:45:46.3220806Z","zoneId":"topology-proposal-merge","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-20T23:51:46.6373629Z","zoneId":"extraction-router","outcome":"hit","productLine":"archlucid-shared"}
@@ -5773,8 +5769,6 @@
 {"at":"2026-10-21T01:44:11.4723088Z","zoneId":"host-composition","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T01:50:29.1932207Z","zoneId":"retrieval","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-21T01:58:07.9301622Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
-{"zoneId":"cloud-extractors","outcome":"hit","lane":"B","kind":"seed hunt","note":"ListChildJsonElementsAsync partialCollection wiring for AX-DE collectors","at":"2026-10-21T01:42:23.0000000Z"}
-{"at":"2026-10-21T01:44:11.4723088Z","zoneId":"host-composition","outcome":"hit","productLine":"archlucid-shared"}
 {"zoneId":"topology-proposal-merge","outcome":"dry","lane":"B","kind":"thorough hunt","note":"cheap-disproof four open candidates","at":"2026-10-21T01:50:37.0000000Z"}
 {"at":"2026-10-21T01:56:30.7334759Z","zoneId":"retrieval","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Retrieval/"]}
 {"at":"2026-10-21T02:10:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Configuration/"]}
@@ -5827,7 +5821,6 @@
 {"at":"2026-10-21T04:52:11.573Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T04:54:14.992Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T04:56:52.3283410Z","zoneId":"host-core-jobs","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Jobs/,ArchLucid.Host.Core/Hosted/"]}
-
 {"at":"2026-10-21T04:59:54.513Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T05:03:34.601Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T05:06:36.243Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared"}
@@ -5841,7 +5834,6 @@
 {"at":"2026-10-21T05:38:16.260Z","zoneId":"core-explanation-json","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Explanation/"]}
 {"at":"2026-10-21T05:42:10.129Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/reviews/technology-baseline/TechnologyBaselinePanel.tsx"]}
 {"at":"2026-10-21T05:43:04.8886772Z","zoneId":"llm-wallet","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Budgeting/"]}
-{"at":"2026-10-21T04:59:54.513Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T05:44:40.0112731Z","zoneId":"run-execute-ownership","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/,ArchLucid.Application/Runs/ExecuteOwnership/"]}
 {"at":"2026-10-21T05:45:01.0429074Z","zoneId":"run-execute-ownership","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/,ArchLucid.Application/Runs/ExecuteOwnership/"]}
 {"at":"2026-10-21T05:47:32.507Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/reviews/WorkspaceAiAvailabilityPanel.tsx"]}
@@ -5879,7 +5871,7 @@
 {"at":"2026-10-21T07:53:07.8968960Z","zoneId":"identity-provider-config","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T07:55:30.2251211Z","zoneId":"cli-terraform-evidence","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-21T08:05:00.0000000Z","zoneId":"identity-provider-config","outcome":"hit","productLine":"archlucid-shared"}
-{"at": "2026-10-21T08:07:37.553640Z", "zoneId": "ui-review-intake-wizards", "outcome": "hit", "productLine": "archlucid-shared", "paths": ["archlucid-ui/src/app/(operator)/architecture/reviews/new/"]}
+{"at":"2026-10-21T08:07:37.553640Z","zoneId":"ui-review-intake-wizards","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/new/"]}
 {"at":"2026-10-21T08:07:37.6174052Z","zoneId":"ui-review-intake-wizards","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/new/"]}
 {"at":"2026-10-21T08:10:20.4196296Z","zoneId":"identity-provider-config","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-21T08:33:10.3530405Z","zoneId":"identity-provider-config","outcome":"hit","productLine":"archlucid-shared"}
@@ -6043,7 +6035,6 @@
 {"outcome":"hit","zoneId":"ui-oidc","productLine":"archlucid-shared","at":"2026-10-22T01:11:13.2942159Z"}
 {"at":"2026-10-22T01:12:08.5150537Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-22T01:18:10.601Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
-{"outcome":"hit","zoneId":"ui-oidc","kind":"seed hunt","ts":"2026-10-22T01:18:10.601Z"}
 {"at":"2026-10-22T01:16:16.8436285Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-22T01:20:05.9300910Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-22T01:27:57.6050000Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
@@ -6051,24 +6042,10 @@
 {"at":"2026-10-22T01:26:44.2022551Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-22T01:30:48.9770000Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
 {"outcome":"hit","zoneId":"ui-oidc","productLine":"archlucid-shared","at":"2026-10-22T01:28:04.618Z"}
-{"outcome":"hit","zoneId":"ui-oidc","kind":"seed hunt","ts":"2026-10-22T01:18:10.601Z"}
-{"at":"2026-10-22T01:16:16.8436285Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-22T01:20:05.9300910Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-22T01:23:47.9496119Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-22T01:26:44.2022551Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-22T01:30:15.6418171Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-22T01:32:47.3230000Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-22T01:34:02.6393164Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-22T01:35:49.4184852Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-22T01:37:20.0792343Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-22T01:38:31.4426050Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-22T01:39:48.6929593Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-22T01:40:03.8959021Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-22T01:40:57.3756827Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-22T01:41:48.5314353Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-22T01:42:11.1226376Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-22T01:42:32.4281316Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-22T01:38:05.9732660Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-22T01:43:33.9801256Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-22T01:44:20.4798824Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-22T01:45:14.3277994Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
+{"outcome":"seed-only","zoneId":"ui-oidc","productLine":"archlucid-shared","at":"2026-10-22T01:44:53.991Z"}
+{"at":"2026-10-22T01:47:30.4184505Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
