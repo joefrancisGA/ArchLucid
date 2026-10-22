@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed credentials_required authorize-query UX, BFF refresh 454 parity, and saturated readOAuthJsonErrorDescription ideographic-space glue; regression documents authorize-retry is marked when authorization code exchange returns em-space-only access_token; scoped vitest 595/595.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - credentials_required authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 454 shouldClearSession false - **regression 2026-10-22:** transient refresh soft-fail without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string em-space-only skips authorize retry marker - **regression 2026-10-22:** em-space-only tokens reject exchange and set retry marker.
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with ideographic-space glue - **cheap-disproof 2026-10-22:** saturated JSON encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - binding_required authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 455 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string three-per-em-space-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with punctuation-space glue - locus: saturated encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed authentication_required authorize-query UX, BFF refresh 453 parity, and saturated decodeOAuthErrorDescription ideographic-space glue; regression documents authorize-retry is marked when authorization code exchange returns en-space-only access_token; scoped vitest 592/592.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - authentication_required authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
