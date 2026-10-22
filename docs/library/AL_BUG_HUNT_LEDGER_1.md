@@ -8712,6 +8712,12 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted baseline passage locator `StartOffset`/`EndOffset` null vs zero splitting review-cache `modelfp`; `FormatPassageOffsetToken` treats paired zero offsets as unset; regression `Build_matches_content_hash_when_baseline_element_provenance_passage_offsets_are_null_vs_zero`; added cheap-disproof regressions for continue-coalesce tenant/run id casing, client run id casing, model framing-key casing, and intentional source-content casing partition; 235 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatElementProvenance` — passage offsets null vs `0` split `modelfp` — **hit 2026-10-22 seed hunt:** `FormatPassageOffsetToken`; regression above.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest` — tenant slug and run id casing — **cheap-disproof 2026-10-22 seed hunt:** scope/run normalizers; regressions above.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — source body casing — **cheap-disproof 2026-10-22 seed hunt:** intentional partition; regression `Build_changes_content_hash_when_source_content_differs_only_by_casing`.
+
 2026-10-22 seed hunt (seed→hit): promoted request framing-answer **values** letter-casing splitting review-cache `ContentHash`; `ClosedLoopFramingAnswersNormalizer` lower-cases values after unicode normalize while preserving key casing; regression `Build_matches_content_hash_when_request_framing_answer_value_differs_only_by_casing`; cheap-disproof workspace/project slug casing via prior `ClosedLoopScopeIdHashNormalizer` fix; 229 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `ClosedLoopFramingAnswersNormalizer` — request framing value casing split `ContentHash` — **hit 2026-10-22 seed hunt:** `NormalizeFramingValue`; regression above.
@@ -9238,11 +9244,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 93
-- **bugs-found:** 81
+- **hunts:** 94
+- **bugs-found:** 82
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — request framing answer value casing in review-cache ContentHash
+- **last-bug:** 2026-10-22 — passage locator null vs zero offsets in review-cache modelfp
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
