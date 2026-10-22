@@ -84,6 +84,7 @@ describe("readOAuthJsonErrorDescription", () => {
     const detail = "🇺🇸";
 
     expect(readOAuthJsonErrorDescription(detail)).toBe(detail);
+    expect(readOAuthJsonErrorDescription("🇺🇸%252Bextra")).toBe("🇺🇸+extra");
   });
 
   it("preserves literal plus in token error_description when skin-tone emoji modifiers are present", () => {
@@ -498,6 +499,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toMatch(/verification required/i);
     expect(message).not.toContain("verification_required");
+  });
+
+  it("humanizes mfa_required authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("mfa_required", "");
+
+    expect(message).toMatch(/mfa required/i);
+    expect(message).not.toContain("mfa_required");
   });
 
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
