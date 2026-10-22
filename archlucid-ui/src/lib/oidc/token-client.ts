@@ -29,7 +29,11 @@ export class OAuthTokenEndpointError extends Error {
   }
 }
 
-const OAUTH_REFRESH_REJECTION_ERROR_CODES = new Set(["invalid_grant", "invalid_token"]);
+const OAUTH_REFRESH_REJECTION_ERROR_CODES = new Set([
+  "invalid_client",
+  "invalid_grant",
+  "invalid_token",
+]);
 
 /**
  * True when the IdP rejected a refresh-token grant and the BFF session should be cleared.
@@ -46,7 +50,11 @@ export function isOAuthRefreshTokenRejectedError(error: unknown): boolean {
 
   const message = error.message.toLowerCase();
 
-  return message.includes("invalid_grant") || message.includes("invalid_token");
+  return (
+    message.includes("invalid_client") ||
+    message.includes("invalid_grant") ||
+    message.includes("invalid_token")
+  );
 }
 
 /** OAuth error codes that share fixed authorize-callback operator copy when description is absent. */
