@@ -8712,6 +8712,18 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted ledger fingerprint ordering that stopped after evidence ref so rows differing only by `Status`/`Source`/`IsLocked` hashed differently by list order; `ReviewCacheLedgerFingerprint.Compute` now `ThenBy` status, source, and lock flag; regression `Build_matches_content_hash_when_ledger_entries_differ_only_by_status_with_equal_prefix_sort_keys`; cheap-disproof duplicate declared priorities with surrounding whitespace (`Build_matches_declared_priorities_hash_when_duplicate_priorities_differ_only_by_surrounding_whitespace`); 134 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ReviewCacheLedgerFingerprint.Compute` — missing status/source/lock sort tie-breakers split `ledgerfp` — **hit 2026-10-22 seed hunt:** extended `ThenBy` chain; regression above.
+
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashPriorities` — duplicate declared priorities differing only by surrounding whitespace — **cheap-disproof 2026-10-22 seed hunt:** `ClosedLoopDeclaredPrioritiesNormalizer` trims before dedupe; regression above.
+
+- (candidate) `ReviewCacheModelFingerprint.Compute` — baseline model string fields with whitespace-only vs empty — locus: `GraphSnapshotCanonicalFingerprint`; input: sparse knowledge model from loader.
+
+- (candidate) `ClosedLoopReasoningSourceTextNormalizer.NormalizeLineEndings` — consolidated C0/C1 line-break audit (picker saturated `other`; batch only).
+
+- (candidate) `ReviewResultCache.CoalesceAsync` — follower publish leak when publish intent false — locus: existing analysis-follower regressions; input: verify no new partition gap.
+
 2026-10-22 seed hunt (seed→hit): promoted ledger fingerprint ordering that ignored `EvidenceRef` tie-breakers so equivalent rows hashed differently by list order or ref padding; `ReviewCacheLedgerFingerprint.Compute` now `ThenBy` normalized evidence ref; regressions `Build_matches_content_hash_when_ledger_entries_with_equal_sort_keys_differ_only_by_list_order` and `Build_matches_content_hash_when_ledger_evidence_refs_differ_only_by_padding_that_changes_sort_order`; 132 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `ReviewCacheLedgerFingerprint.Compute` — missing `EvidenceRef` sort tie-breaker split `ledgerfp` — **hit 2026-10-22 seed hunt:** `ThenBy(NormalizeEvidenceRef(...))`; regressions above.
@@ -9015,11 +9027,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 60
-- **bugs-found:** 36
+- **hunts:** 61
+- **bugs-found:** 37
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — ledger fingerprint missing evidence-ref sort tie-breaker
+- **last-bug:** 2026-10-22 — ledger fingerprint missing status/source/lock sort tie-breakers
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

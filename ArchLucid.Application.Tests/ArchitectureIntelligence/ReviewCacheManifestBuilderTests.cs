@@ -564,6 +564,37 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_ledger_entries_differ_only_by_status_with_equal_prefix_sort_keys()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-ledger-status-order";
+
+        TechnologyLedgerEntry chosen = CreateLedgerEntry(request.RunId, evidenceRef: "evidence:shared");
+        chosen.Status = TechnologyLedgerStatus.Chosen;
+
+        TechnologyLedgerEntry assumed = CreateLedgerEntry(request.RunId, evidenceRef: "evidence:shared");
+        assumed.Status = TechnologyLedgerStatus.Assumed;
+
+        ReviewCacheManifestBuilder.Build(request, null, [chosen, assumed]).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, null, [assumed, chosen]).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_declared_priorities_hash_when_duplicate_priorities_differ_only_by_surrounding_whitespace()
+    {
+        ClosedLoopReasoningRequest padded = CreateRequest("Architecture note.");
+        padded.DeclaredPriorities = ["  Security  ", "Cost"];
+
+        ClosedLoopReasoningRequest trimmed = CreateRequest("Architecture note.");
+        trimmed.DeclaredPriorities = ["Security", "Cost"];
+
+        ReviewCacheManifestBuilder.Build(padded).DeclaredPrioritiesHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(trimmed).DeclaredPrioritiesHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_ledger_technology_names_differ_only_by_padding_that_changes_sort_order()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");

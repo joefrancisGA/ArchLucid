@@ -23,7 +23,10 @@ public static class ReviewCacheLedgerFingerprint
                      .OrderBy(item => item.Role)
                      .ThenBy(item => NormalizeTechnologyName(item.TechnologyName), StringComparer.Ordinal)
                      .ThenBy(item => item.ProviderFamily)
-                     .ThenBy(item => NormalizeEvidenceRef(item.EvidenceRef), StringComparer.Ordinal))
+                     .ThenBy(item => NormalizeEvidenceRef(item.EvidenceRef), StringComparer.Ordinal)
+                     .ThenBy(item => item.Status)
+                     .ThenBy(item => item.Source)
+                     .ThenBy(item => item.IsLocked))
         {
             builder.Append(entry.Role.ToString()).Append('|');
             builder.Append(NormalizeTechnologyName(entry.TechnologyName)).Append('|');
