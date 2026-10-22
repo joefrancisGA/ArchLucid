@@ -545,11 +545,28 @@ describe("refreshAccessToken", () => {
     expect((caught as OAuthTokenEndpointError).message).not.toContain("expired_token");
   });
 
-  it("classifies legacy Error messages that embed unsupported_grant_type for BFF session clearing", () => {
+  it("classifies legacy Error messages that embed readable snake_case OAuth codes for BFF session clearing", () => {
     expect(isOAuthRefreshTokenRejectedError(new Error("unsupported_grant_type"))).toBe(true);
+    expect(isOAuthRefreshTokenRejectedError(new Error("unsupported_response_type"))).toBe(true);
+    expect(isOAuthRefreshTokenRejectedError(new Error("token refresh failed: invalid_grant"))).toBe(
+      true,
+    );
     expect(
       isOAuthRefreshTokenRejectedError(new Error("token refresh failed: unsupported_grant_type")),
     ).toBe(true);
+  });
+
+  it("does not classify legacy Error messages that embed transient snake_case OAuth codes", () => {
+    expect(isOAuthRefreshTokenRejectedError(new Error("server_error"))).toBe(false);
+    expect(isOAuthRefreshTokenRejectedError(new Error("temporarily_unavailable"))).toBe(false);
+  });
+
+  it("does not classify legacy Error messages with only humanized copy and no snake_case codes", () => {
+    expect(
+      isOAuthRefreshTokenRejectedError(
+        new Error("Your identity provider reported a temporary error. Wait a minute and try signing in again."),
+      ),
+    ).toBe(false);
   });
 
   it("classifies description-only OAuth JSON refresh failures for BFF session clearing", async () => {
