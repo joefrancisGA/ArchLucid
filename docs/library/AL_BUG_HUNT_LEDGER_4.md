@@ -12470,18 +12470,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 78
-- **bugs-found:** 73
+- **hunts:** 79
+- **bugs-found:** 74
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — manifest architecture version id in revision fingerprint
+- **last-bug:** 2026-10-22 — manifest rule set id in revision fingerprint
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted manifest rule set header candidate; proved `ProvenanceSnapshotRevisionHasher.Compute` omitted `Manifest.RuleSetId`, so rule-set re-linking under stable manifest id/hash and decisions left `ProvenanceGraphAccessService` serving a cache hit; include trimmed rule set id in canonical string; regressions `Compute_changes_when_manifest_rule_set_id_differs_but_manifest_id_hash_and_decisions_are_unchanged` and `Compute_unchanged_when_manifest_rule_set_id_differs_only_by_surrounding_whitespace`; seeded `StructuredDiagramGraphMerger` cross-document node label conflict follow-on; 379 KnowledgeGraph + 99 Provenance scoped tests passed.
+
+- [x] (proven) `ProvenanceSnapshotRevisionHasher.Compute` — `Manifest.RuleSetId` drift did not change revision fingerprint when manifest id, hash, and decisions were unchanged — **hit 2026-10-22 seed hunt (seed→hit):** trimmed rule set id in canonical string; regressions above.
+
+- [ ] (candidate) `StructuredDiagramGraphMerger.Merge` — cross-document merge may keep the first compiled node label when later documents bind the same `NodeId` with a different display label — locus: `nodesById.TryAdd`; input: two diagram documents sharing a canonical node id; wrong outcome: stale graph node label on multi-document merge.
 
 2026-10-22 seed hunt (seed→hit): promoted manifest architecture version header candidate; proved `ProvenanceSnapshotRevisionHasher.Compute` omitted `Manifest.ArchitectureVersionId`, so architecture version re-linking under stable manifest id/hash and decisions left `ProvenanceGraphAccessService` serving a cache hit; include manifest architecture version id in canonical string (`Guid.Empty` when unset); regression `Compute_changes_when_manifest_architecture_version_id_differs_but_manifest_id_hash_and_decisions_are_unchanged`; seeded manifest `RuleSetId` header drift follow-on; 379 KnowledgeGraph + 97 Provenance scoped tests passed.
 
 - [x] (proven) `ProvenanceSnapshotRevisionHasher.Compute` — `Manifest.ArchitectureVersionId` drift did not change revision fingerprint when manifest id, hash, and decisions were unchanged — **hit 2026-10-22 seed hunt (seed→hit):** manifest architecture version id in canonical string; regression above.
-
-- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.Compute` — `Manifest.RuleSetId` may drift without changing manifest hash or decisions fingerprint — locus: canonical revision string; input: manifest rule-set re-link under stable manifest id; wrong outcome: stale manifest rule-set binding metadata.
 
 2026-10-22 seed hunt (seed→hit): promoted manifest decision trace header candidate; proved `ProvenanceSnapshotRevisionHasher.Compute` keyed trace lineage only from `RuleAuditTracePayload.DecisionTraceId`, so manifest header `DecisionTraceId` could drift under stable trace payload and manifest decisions and leave `ProvenanceGraphAccessService` serving a cache hit; include manifest decision trace id in canonical string; regression `Compute_changes_when_manifest_decision_trace_id_differs_but_trace_payload_decision_trace_id_and_decisions_are_unchanged`; seeded manifest `ArchitectureVersionId` header drift follow-on; 379 KnowledgeGraph + 96 Provenance scoped tests passed.
 
