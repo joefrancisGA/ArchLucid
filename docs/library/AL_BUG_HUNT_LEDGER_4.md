@@ -12470,21 +12470,25 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 75
-- **bugs-found:** 69
+- **hunts:** 76
+- **bugs-found:** 71
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — manifest snapshot linkage ids + graph context snapshot id in revision fingerprint
+- **last-bug:** 2026-10-22 — manifest and findings context snapshot ids in revision fingerprint
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted manifest and findings context snapshot candidates; proved `ProvenanceSnapshotRevisionHasher.Compute` omitted `Manifest.ContextSnapshotId` and `FindingsSnapshot.ContextSnapshotId`, so context re-linking under stable manifest/findings ids and unchanged payloads left `ProvenanceGraphAccessService` serving a cache hit; include manifest and findings context snapshot ids in canonical string; regressions `Compute_changes_when_manifest_context_snapshot_id_differs_but_manifest_id_hash_and_decisions_are_unchanged` and `Compute_changes_when_findings_context_snapshot_id_differs_but_findings_snapshot_id_and_payload_are_unchanged`; seeded manifest `DecisionTraceId` header drift vs trace payload follow-on; 379 KnowledgeGraph + 95 Provenance scoped tests passed.
+
+- [x] (proven) `ProvenanceSnapshotRevisionHasher.Compute` — `Manifest.ContextSnapshotId` drift did not change revision fingerprint when manifest id, hash, and decisions were unchanged — **hit 2026-10-22 seed hunt (seed→hit):** manifest context snapshot id in canonical string; regression above.
+- [x] (proven) `ProvenanceSnapshotRevisionHasher.Compute` — `FindingsSnapshot.ContextSnapshotId` drift did not change revision fingerprint when findings snapshot id and payload were unchanged — **hit 2026-10-22 seed hunt (seed→hit):** findings context snapshot id in canonical string; regression above.
+
+- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.Compute` — `Manifest.DecisionTraceId` may drift without changing trace `DecisionTraceId` or manifest decisions fingerprint — locus: canonical revision string; input: manifest header re-linked under stable manifest id; wrong outcome: stale manifest-to-trace lineage metadata.
 
 2026-10-22 seed hunt (seed→hit): promoted manifest snapshot linkage candidates; proved `ProvenanceSnapshotRevisionHasher.Compute` omitted `Manifest.GraphSnapshotId` and `Manifest.FindingsSnapshotId`, so manifest header re-linking under stable manifest id/hash and unchanged child payloads left `ProvenanceGraphAccessService` serving a cache hit; include manifest graph and findings snapshot ids in canonical string; regressions `Compute_changes_when_manifest_graph_snapshot_id_differs_but_manifest_id_hash_and_graph_topology_are_unchanged` and `Compute_changes_when_manifest_findings_snapshot_id_differs_but_manifest_id_hash_and_findings_payload_are_unchanged`. Promoted graph context snapshot candidate; proved graph `ContextSnapshotId` drift under stable `GraphSnapshotId` and topology did not bust cache; include graph context snapshot id in canonical string; regression `Compute_changes_when_graph_context_snapshot_id_differs_but_graph_snapshot_id_and_nodes_are_unchanged`; seeded manifest/findings context snapshot id follow-ons; 379 KnowledgeGraph + 93 Provenance scoped tests passed.
 
 - [x] (proven) `ProvenanceSnapshotRevisionHasher.Compute` — `Manifest.GraphSnapshotId` drift did not change revision fingerprint when manifest id, hash, and graph topology were unchanged — **hit 2026-10-22 seed hunt (seed→hit):** manifest graph snapshot id in canonical string; regression above.
 - [x] (proven) `ProvenanceSnapshotRevisionHasher.Compute` — `Manifest.FindingsSnapshotId` drift did not change revision fingerprint when manifest id, hash, and findings payload were unchanged — **hit 2026-10-22 seed hunt (seed→hit):** manifest findings snapshot id in canonical string; regression above.
 - [x] (proven) `ProvenanceSnapshotRevisionHasher.Compute` — graph `ContextSnapshotId` drift did not change revision fingerprint when graph snapshot id and topology were unchanged — **hit 2026-10-22 seed hunt (seed→hit):** graph context snapshot id in canonical string; regression above.
-
-- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.Compute` — `Manifest.ContextSnapshotId` may drift without changing manifest hash or decisions fingerprint — locus: canonical revision string; input: manifest context re-link under stable manifest id; wrong outcome: stale manifest-to-context lineage metadata.
-- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.Compute` — `FindingsSnapshot.ContextSnapshotId` may drift without changing findings fingerprint when findings payload is unchanged — locus: canonical revision string; input: findings context repair under stable findings snapshot id; wrong outcome: stale findings provenance context metadata.
 
 2026-10-22 seed hunt (seed→hit): promoted findings header graph snapshot linkage candidate; proved `ProvenanceSnapshotRevisionHasher.Compute` omitted `FindingsSnapshot.GraphSnapshotId`, so findings header re-linking under stable attached graph snapshot id and topology left `ProvenanceGraphAccessService` serving a cache hit; include findings graph snapshot id in canonical string; regression `Compute_changes_when_findings_header_graph_snapshot_id_differs_but_graph_snapshot_id_and_nodes_are_unchanged`. Promoted duplicate parallel edge candidate; proved `ComputeGraphFingerprint` counted duplicate `ConnectsTo` rows so deduplicating edges in the materialized graph changed the revision fingerprint without affecting provenance graph shape; dedupe directed edge keys before ordering; regression `Compute_unchanged_when_duplicate_parallel_graph_edge_is_removed`; cheap-disproved graph `SchemaVersion`-only drift with `Compute_unchanged_when_only_graph_schema_version_changes`; seeded manifest snapshot linkage ids and graph context snapshot id follow-ons; 379 KnowledgeGraph + 90 Provenance scoped tests passed.
 
