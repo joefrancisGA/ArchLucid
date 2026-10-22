@@ -127,6 +127,19 @@ function includesPercentEncodedPlus(value: string): boolean {
   return /%(?:25)*2[bB]/i.test(value);
 }
 
+/** Authorize query copy may mix literal plus with spaces or zero-width glue (ZWSP is not matched by `\s`). */
+function shouldPreserveLiteralPlusInAuthorizeDescription(decoded: string): boolean {
+  if (!decoded.includes("+")) {
+    return false;
+  }
+
+  if (/\s/u.test(decoded)) {
+    return true;
+  }
+
+  return OIDC_DISPLAY_GLUE_FORMAT_CHARS.test(decoded);
+}
+
 /** Some IdPs over-encode `error_description` (proxy chains); decode until stable, capped, without breaking literal `%` copy. */
 function decodeRepeatedPercentEncoding(value: string): string {
   let current = value;
@@ -191,10 +204,7 @@ export function decodeOAuthErrorDescription(encoded: string | null | undefined):
   try {
     decoded = decodeRepeatedPercentEncoding(trimmed);
 
-    // After URLSearchParams, form `+` is often already a space while `%2B` survives as a literal plus.
-    const hasWhitespace = /\s/u.test(decoded);
-
-    if (!(hasWhitespace && decoded.includes("+"))) {
+    if (!shouldPreserveLiteralPlusInAuthorizeDescription(decoded)) {
       decoded = decoded.replace(/\+/g, " ");
     }
 
@@ -202,9 +212,7 @@ export function decodeOAuthErrorDescription(encoded: string | null | undefined):
   } catch {
     let fallback = trimmed;
 
-    const hasWhitespace = /\s/u.test(fallback);
-
-    if (!(hasWhitespace && fallback.includes("+"))) {
+    if (!shouldPreserveLiteralPlusInAuthorizeDescription(fallback)) {
       fallback = fallback.replace(/\+/g, " ");
     }
 
