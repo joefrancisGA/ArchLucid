@@ -2842,6 +2842,14 @@
 
 ## Zone: scim-users
 
+2026-10-22 thorough hunt #37 (dry): cheap-disproof closed five `(candidate)` rows (`count=0` empty page hunt #6 regression; missing PATCH `value` → `invalidValue` `Missing_value_on_replace_throws`; filter literal spaces compared without auto-trim—intentional; PUT `active` string via `ScimUserResourceParser.ReadActive`; remove unknown flat key no-op on persist hunt #29 class); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count=0` — **cheap-disproof 2026-10-22 #37:** duplicate hunt #6; `ListAsync_count_zero_returns_empty_page_with_total_results`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `replace` without `value` — **cheap-disproof 2026-10-22 #37:** `Missing_value_on_replace_throws`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — spaced `userName eq` literal — **cheap-disproof 2026-10-22 #37:** lexer preserves literal; compare to stored trimmed `userName` only matches when equal.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — `active` string `"true"` — **cheap-disproof 2026-10-22 #37:** `ReadActive` `bool.TryParse` on PUT (hunt #35 PATCH class).
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `remove` unknown attribute — **cheap-disproof 2026-10-22 #37:** hunt #29; non-core keys not persisted.
+
 2026-10-22 thorough hunt #36 (dry): cheap-disproof closed five `(candidate)` rows (`count` capped at 200 in service + repository `Math.Clamp`; unsupported PATCH `op` → `invalidSyntax`; `active eq "FALSE"` via `bool.TryParse` in `ScimActiveFilterLiteralParser`; PATCH `active` string `"True"` same `ReadActive` path as hunt #35; tombstoned rows excluded before filter per regression `ListAsync_external_id_filter_excludes_directory_removed_users`); no failing repro; five replacement `(candidate)` rows; scoped `ScimUsers` tests not run (Application.Tests merge conflicts).
 
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count` > 200 — **cheap-disproof 2026-10-22 #36:** `Math.Clamp(count, 0, 200)` at service and repo layers.
@@ -3159,9 +3167,9 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 70
+- **hunts:** 71
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 15
+- **consecutive-dry-hunts:** 16
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — SCIM PATCH remove on active returned silent no-op instead of mutability
 - **related-pd-tb:** none
@@ -3474,11 +3482,17 @@
 - [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `active` `"True"` — **cheap-disproof 2026-10-22 #36:** `ReadActive` string parse.
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — tombstone exclusion — **cheap-disproof 2026-10-22 #36:** #1755 regression.
 
-- [ ] (candidate) `ScimUsersController.ListAsync` — `count=0` returns empty items — locus: `Take(0)` after clamp; input: zero page size (hunt #8 negative count class).
-- [ ] (candidate) `ScimUsersController.PatchAsync` — missing `value` on `replace` — locus: `ApplyOne` `invalidValue`; input: `replace` without `value` property.
-- [ ] (candidate) `ScimUsersController.ListAsync` — `userName eq` with leading/trailing spaces in literal — locus: quoted string lexer; input: filter literal preserves interior trim semantics on compare.
-- [ ] (candidate) `ScimUsersController.ReplaceAsync` — PUT `active` string `"true"` — locus: `ScimUserResourceParser.ReadActive`; input: string boolean on full replace.
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `remove` on unknown flat attribute — locus: `ApplyFlat` removes key ignored on persist; input: extra attribute drop no-op on write.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count=0` — **cheap-disproof 2026-10-22 #37:** hunt #6 regression.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — missing `value` — **cheap-disproof 2026-10-22 #37:** `invalidValue`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — spaced filter literal — **cheap-disproof 2026-10-22 #37:** exact literal compare.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — string `active` — **cheap-disproof 2026-10-22 #37:** parser `ReadActive`.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — remove unknown key — **cheap-disproof 2026-10-22 #37:** hunt #29.
+
+- [ ] (candidate) `ScimUsersController.ListAsync` — negative `count` clamped — locus: `Math.Clamp(count, 0, 200)`; input: `count=-5` (regression `ListAsync_negative_count_clamped_to_empty_page`).
+- [ ] (candidate) `ScimUsersController.PatchAsync` — `replace` with JSON number on `userName` — locus: `ReadPatchRequiredString` type guard; input: non-string `userName` value.
+- [ ] (candidate) `ScimUsersController.ListAsync` — `or` of two `userName eq` — locus: `ScimOrNode`; input: union returns both users.
+- [ ] (candidate) `ScimUsersController.DeactivateAsync` — second DELETE 404 — locus: `DirectoryRemovedUtc` guard; input: proven `DeactivateAsync_throws_not_found_when_user_already_directory_removed`.
+- [ ] (candidate) `ScimUsersController.PatchAsync` — `add` on `active` when absent — locus: flat add then `ReadActive`; input: first assignment of boolean field.
 
 - [x] (proven) `ScimUserService.CreateAsync` / `PatchAsync` / `ScimUsersController` — a second live user with the same `userName` and a different `externalId` was stored, including case-only names — **hit 2026-10-09 seed hunt:** live `userName` lookup returns `uniqueness`. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
 - [x] (proven) `ScimFilterParser.ParseFilter` / `ScimUsersController.ListAsync` — ungrouped `or` before `and` was parsed left-to-right, so an active user matching only the left comparison was omitted — **hit 2026-10-09 seed hunt:** `not` over `and` over `or` per RFC 7644 §3.4.2.2. Regressions `ListAsync_filter_gives_and_precedence_over_or`, `Parse_or_binds_looser_than_and`, and `Parse_not_binds_tighter_than_and`.
