@@ -44,6 +44,17 @@
 - [ ] (candidate) refreshBffSessionCookie - refresh 481 shouldClearSession false - locus: transient refresh parity.
 - [ ] (candidate) exchangeAuthorizationCode - access_token JSON string variation-selector-2-only skips authorize retry marker - locus: literal whitespace token shape.
 - [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with thin-space glue - locus: saturated encoding class.
+2026-10-22 seed hunt (seed->hit): `application-tenancy-lifecycle` - promoted hunt-ready from seed re-read `TenantProvisioningService.ProvisionAsync` - nav settings upserts ran after `tenantBeforeNavSettings` without a final re-read, so erasure offboard between that read and `UpsertAsync` could write default nav settings for quarantined tenants; pre-upsert `GetByIdAsync` quarantine guard (`tenantBeforeNavSettingsUpsert`); regression `ProvisionAsync_skips_nav_settings_when_offboard_completes_after_tenant_before_nav_settings_read_before_upsert`; tightened marketing and provisioned-audit race mock read counters (+1 active); scoped tenancy filter 281/281.
+
+- [x] (proven) `ProvisionAsync` - offboard after tenantBeforeNavSettings read before nav upsert - **hit 2026-10-22 seed hunt:** `tenantBeforeNavSettingsUpsert` re-read + quarantine guard; regression above.
+- [x] (valid-no-repro) `ProvisionAsync` - offboard after policy pack seed before nav settings read - **cheap-disproof 2026-10-22:** existing five-read regression on trunk.
+- [x] (valid-no-repro) `ProvisionAsync` - offboard after tenantBeforePolicyPackSeed read - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
+- [x] (valid-no-repro) `ProvisionAsync` - offboard after tenantBeforeProvisionedAudit read - **cheap-disproof 2026-10-22:** hit earlier same day on trunk.
+
+- [ ] (candidate) `TenantProvisioningService` - offboard after tenantBeforeMarketingAttribution read before first-touch persist - locus: marketing attribution side-effect race (reachability: provision path).
+- [ ] (candidate) `TrialLifecycleTransitionEngine` - offboard on deleted-transition purge gate after audit - locus: deleted-path automation gate (reachability: trial scheduler).
+- [ ] (candidate) `TenantErasureCommandService` - consolidate pre-append audit re-read helpers - locus: refactor batch (not hunt-ready defect).
+- [ ] (candidate) `DeleteTenantAsync` - further pre-append read stacking - locus: defer to helper refactor (reachability: low).
 
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_oidc_response authorize-query UX (existing parity) and saturated decodeOAuthErrorDescription ZWJ glue; regression documents BFF refresh 479 parity and variation-selector-4-only access_token rejection; scoped vitest 656/656.
 
