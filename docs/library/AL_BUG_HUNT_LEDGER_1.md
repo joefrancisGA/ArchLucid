@@ -6691,6 +6691,18 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-22 seed hunt (seed-only): `application-analysis` - no hunt-ready product defect after re-read of export compare/replay career-gate parity on trunk; cheap-disproof closed four legacy `(candidate)` rows (delta coverage heuristic, summary-without-evidence UX, cross-format manifest diff ordering, preload optimization); scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 45/45.
+
+- [x] (valid-no-repro) `CompareQualityDeltaCalculator.Build` - functional requirement coverage uses requirements-minus-covered heuristic when requirements lack design links - **cheap-disproof 2026-10-22:** intentional coverage math; existing `CompareQualityDeltaCalculator` regressions document the heuristic.
+- [x] (valid-no-repro) `ArchitectureAnalysisService.BuildAsync` - `IncludeSummary` with `IncludeEvidence=false` omits evidence section without explicit warning - **cheap-disproof 2026-10-22:** generator contract; summary-only requests do not imply evidence completeness.
+- [x] (valid-no-repro) `MarkdownArchitectureAnalysisExportService` - manifest diff warnings section ordering differs from DOCX export - **cheap-disproof 2026-10-22:** independent markdown/DOCX formatters; no shared ordering invariant on trunk.
+- [x] (invalid) `ExportReplayService.ReplayAsync` - pass `PreloadedRunDetail` from resolved architecture detail into `BuildAsync` to avoid duplicate run loads - **cheap-disproof 2026-10-22:** performance-only optimization; not a correctness defect locus.
+
+- [ ] (candidate) `ComparisonReplayService.ReplayExportDiffAsync` - career gate uses comparison `LeftRunId`/`RightRunId` columns only; when those columns are null but export record ids are present, `EnsureCareerAllowsExportRecordMetadataOrThrowAsync` returns before gating underlying export `RunId` values (reachable input: persisted export-diff comparison with export ids only).
+- [ ] (candidate) `ComparisonReplayService.RegenerateExportDiffAsync` - regenerate export-diff replay does not re-invoke career gate on export-record `RunId` after loading pairs (reachable input: replay mode `regenerate` when comparison anchor run ids were cleared).
+- [ ] (candidate) `RunExportQueryFacade.ReplayExportAsync` - dashed `record.RunId` on stored export record bypasses career gate when `Guid.TryParse` fails before gate (reachable input: malformed run id on export record row).
+- [ ] (candidate) `ComparisonsApplicationService.TryHydrateRunMetadataAsync` - hydrates run detail when `LeftRunId` matches without career posture gate (reachable input: comparison list/detail surfaces for simulator-rehearsal runs).
+
 2026-10-21 seed hunt (seed→hit): `ComparisonReplayService.ReplayExportDiffAsync` (export-record-diff comparison replay) skipped `IRunExportCareerPostureGate` while `RunExportQueryFacade.CompareExportRecordsAsync` blocked simulator-rehearsal metadata reads; gate both run ids before artifact/regenerate/verify export-diff replay; `ComparisonsController` replay routes map `CareerArtifactExportBlockedException`; regression `ReplayAsync_export_diff_artifact_throws_when_career_posture_blocks_metadata_read`; 45 scoped ArchitectureAnalysis/CompareQuality tests passed.
 
 - [x] (proven) `ComparisonReplayService.ReplayExportDiffAsync` — export-record-diff replay bypassed `IRunExportCareerPostureGate` on artifact/regenerate paths (reachable `POST /v1/planning/comparisons/{id}/replay` with `ComparisonTypes.ExportRecordDiff`) — regression above.
@@ -6704,10 +6716,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 59
+- **hunts:** 60
 - **bugs-found:** 57
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-21 — export-record-diff comparison replay skipped career metadata gate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
