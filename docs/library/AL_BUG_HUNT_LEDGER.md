@@ -1,3 +1,17 @@
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `errorFromOAuthJson` / `shouldHumanizeTokenOAuthErrorCode` — token endpoint JSON `invalid_grant` on authorization code exchange surfaced raw `invalid_grant` in `CallbackClient` while `access_denied` already used `humanizeAuthorizeCallbackError`; add `invalid_grant` to the humanize allowlist; regressions `humanizes invalid_grant authorization code exchange errors like access_denied` and updated exchange marker test; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 368/368.
+
+- [x] (proven) `errorFromOAuthJson` — raw `invalid_grant` on code exchange — **hit 2026-10-22 seed hunt:** `invalid_grant` in `shouldHumanizeTokenOAuthErrorCode`; regressions above.
+- [x] (valid-no-repro) `refreshAccessToken` — `invalid_grant` refresh failures — **cheap-disproof 2026-10-22:** same humanize path; tests updated for operator copy.
+- [x] (valid-no-repro) `humanizeAuthorizeCallbackError` — authorize query `invalid_grant` — **cheap-disproof 2026-10-22:** default branch already humanizes authorize callback errors.
+- [x] (invalid) `readOAuthJsonErrorDescription` — `100%%20blocked` literal — **cheap-disproof 2026-10-22:** decode leaves malformed `%%` copy; not operator glue.
+- [x] (invalid) `initiateSupplementalOidcRedirect` — consume-on-URL-change test gap — **cheap-disproof 2026-10-22:** primary + supplemental share consume-before-store ordering.
+
+- [ ] (candidate) `humanizeAuthorizeCallbackError` — dedicated `invalid_grant` copy for expired authorization codes — locus: switch case; input: code-only vs description (reachability: UX polish).
+- [ ] (candidate) `shouldMarkAuthorizeCallbackFailedOnExchangeError` — exclude additional misconfiguration errors — locus: exchange catch; input: discovery HTML token body (reachability: proxy misconfig).
+- [ ] (candidate) `initiateSupplementalOidcRedirect` — vitest for Google explicit returnUrl change consuming retry marker — locus: test gap; input: mirror primary test 504.
+- [ ] (candidate) `errorFromOAuthJson` — `invalid_client` humanize parity — locus: shouldHumanize list; input: token 400 JSON (reachability: compare access_denied).
+- [ ] (candidate) `sanitizeOAuthUserFacingMessage` — truncation on long `invalid grant:` token messages — locus: 280 cap; input: oversized description (reachability: IdP copy).
+
 2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `initiateOidcRedirect` / `shouldConsumeAuthorizeRetryForReturnUrl` — explicit `returnUrl` was written to session before comparing against the prior post-sign-in path, so changing the deep link on authorize retry never consumed `OIDC_AUTHORIZE_CALLBACK_FAILED_KEY` and a later sign-in without `returnUrl` still skipped abandoned-return cleanup; consume authorize retry before `storePostSignInReturnUrl` (primary + supplemental); regression `consumes authorize retry marker when explicit return URL changes before redirect`; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` vitest 363/363.
 
 - [x] (proven) `initiateOidcRedirect` — consume-after-store on explicit returnUrl change — **hit 2026-10-22 seed hunt:** reorder consume before store; regression above.

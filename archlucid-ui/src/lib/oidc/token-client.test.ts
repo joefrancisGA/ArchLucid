@@ -143,9 +143,33 @@ describe("refreshAccessToken", () => {
         redirectUri: "https://app.example/callback",
         codeVerifier: "verifier",
       }),
-    ).rejects.toThrow(/invalid_grant/i);
+    ).rejects.toThrow(/Sign-in did not finish \(invalid grant\)/i);
 
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
+  });
+
+  it("humanizes invalid_grant authorization code exchange errors like access_denied", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () =>
+        JSON.stringify({
+          error: "invalid_grant",
+          error_description: "Authorization code expired",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/invalid grant: Authorization code expired/);
   });
 
   it("does not mark authorize callback failed when refresh token exchange fails", async () => {
@@ -165,7 +189,7 @@ describe("refreshAccessToken", () => {
         clientId: "client",
         refreshToken: "rt",
       }),
-    ).rejects.toThrow(/invalid_grant/i);
+    ).rejects.toThrow(/Sign-in did not finish \(invalid grant\)/i);
 
     expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBeNull();
   });
@@ -405,7 +429,7 @@ describe("refreshAccessToken", () => {
         clientId: "client",
         refreshToken: "rt",
       }),
-    ).rejects.toThrow(/^invalid_grant: 100% failed$/);
+    ).rejects.toThrow(/^invalid grant: 100% failed$/);
   });
 
   it("does not treat plus as space in JSON error_description on token responses", async () => {
@@ -427,7 +451,7 @@ describe("refreshAccessToken", () => {
         clientId: "client",
         refreshToken: "rt",
       }),
-    ).rejects.toThrow(/^invalid_grant: User\+denied$/);
+    ).rejects.toThrow(/^invalid grant: User\+denied$/);
   });
 
   it("preserves OAuth error codes when JSON error field contains a soft hyphen", async () => {
@@ -449,7 +473,7 @@ describe("refreshAccessToken", () => {
         clientId: "client",
         refreshToken: "rt",
       }),
-    ).rejects.toThrow(/^invalid_grant: Session expired$/);
+    ).rejects.toThrow(/^invalid grant: Session expired$/);
   });
 
   it("surfaces regional-indicator flag emoji from JSON error_description on token responses", async () => {
@@ -472,7 +496,7 @@ describe("refreshAccessToken", () => {
         clientId: "client",
         refreshToken: "rt",
       }),
-    ).rejects.toThrow(/^invalid_grant: 🇺🇸$/u);
+    ).rejects.toThrow(/^invalid grant: 🇺🇸$/u);
   });
 
   it("surfaces emoji ZWJ sequences from JSON error_description on token responses", async () => {
@@ -495,7 +519,7 @@ describe("refreshAccessToken", () => {
         clientId: "client",
         refreshToken: "rt",
       }),
-    ).rejects.toThrow(new RegExp(`invalid_grant: ${detail.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`));
+    ).rejects.toThrow(new RegExp(`invalid grant: ${detail.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`));
   });
 
   it("preserves OAuth error codes when JSON error field contains interior zero-width characters", async () => {
@@ -517,7 +541,7 @@ describe("refreshAccessToken", () => {
         clientId: "client",
         refreshToken: "rt",
       }),
-    ).rejects.toThrow(/^invalid_grant: Session expired$/);
+    ).rejects.toThrow(/^invalid grant: Session expired$/);
   });
 
   it("collapses interior zero-width characters in JSON error_description on token responses", async () => {
@@ -539,7 +563,7 @@ describe("refreshAccessToken", () => {
         clientId: "client",
         refreshToken: "rt",
       }),
-    ).rejects.toThrow(/^invalid_grant: Policy denied$/);
+    ).rejects.toThrow(/^invalid grant: Policy denied$/);
   });
 
   it("decodes percent-encoded OAuth error_description fields from JSON token responses", async () => {
@@ -561,7 +585,7 @@ describe("refreshAccessToken", () => {
         clientId: "client",
         refreshToken: "rt",
       }),
-    ).rejects.toThrow(/^invalid_grant: User denied$/);
+    ).rejects.toThrow(/^invalid grant: User denied$/);
   });
 
   it("collapses soft hyphens in token endpoint OAuth error descriptions", async () => {
@@ -583,7 +607,7 @@ describe("refreshAccessToken", () => {
         clientId: "client",
         refreshToken: "rt",
       }),
-    ).rejects.toThrow(/^invalid_grant: Policy denied$/);
+    ).rejects.toThrow(/^invalid grant: Policy denied$/);
   });
 
   it("omits underscore-only OAuth error codes when building token endpoint errors", async () => {
@@ -637,7 +661,7 @@ describe("refreshAccessToken", () => {
         clientId: "client",
         refreshToken: "rt",
       }),
-    ).rejects.toThrow(/^invalid_grant$/);
+    ).rejects.toThrow(/Sign-in did not finish \(invalid grant\)/i);
   });
 
   it("ignores invisible-only OAuth error_description values on token endpoint errors", async () => {
@@ -655,7 +679,7 @@ describe("refreshAccessToken", () => {
         clientId: "client",
         refreshToken: "rt",
       }),
-    ).rejects.toThrow(/^invalid_grant$/);
+    ).rejects.toThrow(/Sign-in did not finish \(invalid grant\)/i);
   });
 
   it("uses only string OAuth error fields when token JSON mixes types", async () => {
@@ -672,7 +696,7 @@ describe("refreshAccessToken", () => {
         clientId: "client",
         refreshToken: "rt",
       }),
-    ).rejects.toThrow(/^invalid_grant$/);
+    ).rejects.toThrow(/Sign-in did not finish \(invalid grant\)/i);
   });
 
   it("trims authorization code and PKCE fields before posting the form", async () => {
@@ -863,7 +887,7 @@ describe("refreshAccessToken", () => {
       message = error instanceof Error ? error.message : String(error);
     }
 
-    expect(message).toBe("invalid_grant: expired injected");
+    expect(message).toBe("invalid grant: expired injected");
     expect(message).not.toMatch(/\r|\n/u);
   });
 
@@ -952,6 +976,6 @@ describe("refreshAccessToken", () => {
         clientId: "client",
         refreshToken: "rt",
       }),
-    ).rejects.toThrow(/invalid_grant/i);
+    ).rejects.toThrow(/invalid grant: refresh token expired/);
   });
 });
