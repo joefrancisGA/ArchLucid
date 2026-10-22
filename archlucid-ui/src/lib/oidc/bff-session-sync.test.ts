@@ -304,12 +304,12 @@ describe("refreshBffSessionCookie (LK-06 P2)", () => {
     expect(result).toEqual({ ok: false, shouldClearSession: false });
   });
 
-  it("sets shouldClearSession when the refresh route returns 403", async () => {
+  it("sets shouldClearSession when the refresh route returns 401", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => ({
         ok: false,
-        status: 403,
+        status: 401,
       })),
     );
 
@@ -318,12 +318,12 @@ describe("refreshBffSessionCookie (LK-06 P2)", () => {
     expect(result).toEqual({ ok: false, shouldClearSession: true });
   });
 
-  it("sets shouldClearSession when the refresh route returns 401", async () => {
+  it("sets shouldClearSession when the refresh route returns 403", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => ({
         ok: false,
-        status: 401,
+        status: 403,
       })),
     );
 

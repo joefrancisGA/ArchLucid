@@ -658,6 +658,63 @@ describe("initiate redirect PKCE isolation", () => {
     expect(assignMock).toHaveBeenCalled();
   });
 
+  it("preserves a new return path after supplemental Google discovery failure when authorize retry changed explicit return URL then sign-in omits returnUrl", async () => {
+    sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, "/architecture/reviews/run-old");
+    sessionStorage.setItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY, "1");
+
+    vi.stubEnv("NEXT_PUBLIC_GOOGLE_OIDC_AUTHORITY", "https://accounts.google.com");
+    vi.stubEnv("NEXT_PUBLIC_GOOGLE_OIDC_CLIENT_ID", "google-client");
+    mockOidcConfigWithRedirectUri();
+    vi.doMock("@/lib/oidc/pkce", () => ({
+      createPkcePair: vi.fn(async () => ({ verifier: "google-verifier", challenge: "challenge" })),
+      randomOpaqueState: vi.fn(() => "google-state"),
+    }));
+    vi.doMock("@/lib/oidc/discovery", () => ({
+      loadDiscoveryDocument: vi.fn(async () => {
+        throw new Error("google discovery unavailable");
+      }),
+    }));
+
+    const { initiateSupplementalOidcRedirect } = await import("@/lib/oidc/initiate-redirect");
+
+    await expect(
+      initiateSupplementalOidcRedirect("google", "/architecture/reviews/run-new"),
+    ).rejects.toThrow("google discovery unavailable");
+
+    vi.resetModules();
+
+    vi.stubEnv("NEXT_PUBLIC_GOOGLE_OIDC_AUTHORITY", "https://accounts.google.com");
+    vi.stubEnv("NEXT_PUBLIC_GOOGLE_OIDC_CLIENT_ID", "google-client");
+    mockOidcConfigWithRedirectUri();
+    vi.doMock("@/lib/oidc/pkce", () => ({
+      createPkcePair: vi.fn(async () => ({ verifier: "google-verifier-2", challenge: "challenge" })),
+      randomOpaqueState: vi.fn(() => "google-state-2"),
+    }));
+    vi.doMock("@/lib/oidc/discovery", () => ({
+      loadDiscoveryDocument: vi.fn(async () => ({
+        issuer: "https://accounts.google.com",
+        authorization_endpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+        token_endpoint: "https://oauth2.googleapis.com/token",
+      })),
+    }));
+    vi.doMock("@/lib/oidc/build-authorize-url", () => ({
+      buildAuthorizeUrl: vi.fn(() => "https://accounts.google.com/o/oauth2/v2/auth?state=google-state-2"),
+    }));
+
+    const assignMock = vi.fn();
+    vi.stubGlobal("location", { assign: assignMock });
+
+    const { initiateSupplementalOidcRedirect: initiateGoogleAgain } = await import(
+      "@/lib/oidc/initiate-redirect"
+    );
+
+    await initiateGoogleAgain("google");
+
+    expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBe("/architecture/reviews/run-new");
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
+    expect(assignMock).toHaveBeenCalled();
+  });
+
   it("does not consume authorize retry marker when explicit returnUrl matches stored path with reordered query params", async () => {
     sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, "/architecture/reviews/run-1?b=2&a=1");
     sessionStorage.setItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY, "1");
