@@ -187285,6 +187285,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-20 seed hunt (seed-only): identity-provider-config ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ re-read IdentityProviderConfigurationController discover/test-login/activate/get-configuration paths and IdentityProviderActivationService activation persistence after recent field-limit and camelCase claim-mapping hits; no row met the hunt-ready bar for a failing repro in the selected files. Seeded five bounded (candidate) rows for discover request validation parity, empty metadata URL handling, claim-mapping JSON size, test-login guard delegation, and legacy oversize Key Vault secret names on same-protocol re-activate. Scoped IdentityProviderActivationServiceTests passed 51/51 and IdentityProviderConfigurationControllerTests passed 15/15. No production change.
 
+
+2026-10-22 seed hunt (seed-only) #83: re-read `IdentityProviderConfigurationController` discover/test-login/activate/get-configuration and `IdentityProviderActivationService` after bugsmash policy-pack churn; cheap-disproof closed ledger candidate on GET echoing oversize canonical issuer (`GetConfigurationAsync_rejects_stored_canonical_issuer_uri_longer_than_persisted_column`); promoted no new hunt-ready row with failing repro; seeded five `(candidate)` rows; 63 scoped `IdentityProviderActivationServiceTests` and 21 `IdentityProviderConfigurationControllerTests` passed (84 total filter). No production change.
+
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.GetConfigurationAsync` — GET echoed stored canonical issuer longer than NVARCHAR(2048) — **cheap-disproof 2026-10-22 #83:** `EnsureIssuerUriFits` after canonicalization; regression `GetConfigurationAsync_rejects_stored_canonical_issuer_uri_longer_than_persisted_column`.
+- (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` — GET may return `UpdatedByActorId` longer than NVARCHAR(256) for legacy rows without HTTP 400 — locus: read path has no `EnsureUpdatedByActorIdFits`; input: direct DB upsert of 257-char actor id; reachability: `GET /v1/admin/identity/configuration` forensics reload.
+- (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` — GET may return OIDC `KeyVaultSecretName` longer than NVARCHAR(256) for legacy rows — locus: `PrepareConfigurationResponse` omits `EnsureKeyVaultSecretNameFits`; input: legacy row with 257-char secret name; reachability: wizard reload before re-activate (saturated `[fail-open-validation]` — do not ship sibling without owner direction).
+- (candidate) `IdentityProviderConfigurationController.ActivateAsync` — forwards raw `IdentityProviderActivateRequest` to the service while `TestLogin` rebuilds a canonical-issuer request — locus: controller activate vs test-login paths; input: issuer with redundant `:443` from OpenAPI client; reachability: `POST /v1/admin/identity/activate` (expect valid-no-repro: service canonicalizes).
+- (candidate) `IdentityProviderActivationService.ActivateAsync` — `JsonSerializer.Serialize` for `ClaimMappingJson` has no explicit max-length guard before upsert — locus: post-`ValidateMapping` serialize; input: very large `claimMapping.mappings` from wizard; reachability: OpenAPI activate body (SQL MERGE boundary; prior valid-no-repro).
+- (candidate) `IdentityProviderConfigurationController.DiscoverAsync` — applies `EnsureIssuerUriFits` only when `DiscoverySucceeded` is true — locus: success-path guard after `WithCanonicalWizardUris`; input: discovery failure envelope still carrying a long diagnostic issuer string; reachability: failed discover response shape (expect valid-no-repro: wizard does not activate from failed discover).
+
 ## Zone: identity-provider-config
 
 2026-10-20 seed hunt (seed->hit): promoted GET /v1/admin/identity/configuration returning legacy MetadataXml on OIDC rows (and KeyVaultSecretName on SAML) after activate began stripping cross-protocol fields; PrepareConfigurationResponse omits protocol-inapplicable columns on read; regression GetConfigurationAsync_omits_metadata_xml_when_stored_protocol_is_oidc; 16 scoped IdentityProviderConfigurationControllerTests passed.
@@ -187386,10 +187396,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 60
+- **hunts:** 61
 - **bugs-found:** 42
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
+- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-09 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½ activation persisted issuer, secret name, or actor id past SQL column width
 - **related-pd-tb:** none
 - **code-changed-since:** yes
