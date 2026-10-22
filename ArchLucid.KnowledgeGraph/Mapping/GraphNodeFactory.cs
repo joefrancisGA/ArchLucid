@@ -17,7 +17,8 @@ public class GraphNodeFactory : IGraphNodeFactory
 
         try
         {
-            properties = new Dictionary<string, string>(properties, StringComparer.OrdinalIgnoreCase);
+            properties = NormalizePropertyBag(
+                new Dictionary<string, string>(properties, StringComparer.OrdinalIgnoreCase));
         }
         catch (ArgumentException ex)
         {
@@ -42,5 +43,19 @@ public class GraphNodeFactory : IGraphNodeFactory
             SourceId = string.IsNullOrWhiteSpace(item.SourceId) ? item.SourceId : item.SourceId.Trim(),
             Properties = properties
         };
+    }
+
+    private static Dictionary<string, string> NormalizePropertyBag(Dictionary<string, string> properties)
+    {
+        Dictionary<string, string> normalized = new(properties.Comparer);
+
+        foreach (KeyValuePair<string, string> entry in properties)
+        {
+            normalized[entry.Key] = string.IsNullOrWhiteSpace(entry.Value)
+                ? entry.Value
+                : entry.Value.Trim();
+        }
+
+        return normalized;
     }
 }

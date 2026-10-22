@@ -1,5 +1,6 @@
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.KnowledgeGraph.Mapping;
+using ArchLucid.KnowledgeGraph.Materialization;
 using ArchLucid.KnowledgeGraph.Models;
 
 using FluentAssertions;
@@ -126,6 +127,26 @@ public sealed class GraphNodeFactoryTests
         GraphNode node = _sut.CreateNode(item);
 
         node.Category.Should().BeNull();
+    }
+
+    [Fact]
+    public void CreateNode_trims_surrounding_whitespace_on_property_bag_string_values()
+    {
+        const string armSqlId =
+            "/subscriptions/11111111-2222-3333-4444-555555555555/resourceGroups/pay/providers/Microsoft.Sql/servers/pay-sql";
+
+        CanonicalObject item = BuildItem(properties: new Dictionary<string, string>
+        {
+            ["azureResourceId"] = $"  {armSqlId}  ",
+            ["principalId"] = "  principal-1  ",
+        });
+
+        GraphNode node = _sut.CreateNode(item);
+
+        node.Properties["azureResourceId"].Should().Be(armSqlId);
+        node.Properties["principalId"].Should().Be("principal-1");
+
+        DeclarationExistingNodeResolver.NodeMatchesDeclaredId(node, armSqlId).Should().BeTrue();
     }
 
     [Fact]
