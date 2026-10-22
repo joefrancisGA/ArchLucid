@@ -12470,24 +12470,26 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 170
+- **hunts:** 171
 - **bugs-found:** 149
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — graph node property reader returned padded property values
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-10-22 seed hunt (valid-no-repro): promoted `ProvenanceBuilder` padded artifact display-metadata candidate; proved artifact nodes already trim `Name` via `ResolveArtifactDisplayName` and `artifactType`/`format` via `NormalizeProvenanceMetadataValue` (duplicate merge path trims via `ProvenanceNodeCoalesce`); regression `Build_trims_padded_artifact_name_type_and_format_on_initial_projection`; seeded `ProvenanceBuilder` padded graph node `Label` / `NodeType` / `Category` projection parity follow-on; 465 KnowledgeGraph + 163 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `ProvenanceBuilder` — padded artifact `Name` / `ArtifactType` / `Format` emitted distinct artifact node metadata — **cheap-disproof 2026-10-22 seed hunt:** trim on display name and metadata normalization; regression above.
+
+- [ ] (candidate) `ProvenanceBuilder` — padded graph node `Label` / `NodeType` / `Category` may emit distinct graph provenance node metadata — locus: `ResolveGraphNodeDisplayName` and graph node metadata projection; input: `GraphSnapshot` nodes with surrounding whitespace on display fields; wrong outcome: provenance graph node labels diverge when only padding differs.
+
 2026-10-22 seed hunt (valid-no-repro): promoted `ProvenanceSnapshotRevisionHasher.ComputeArtifactsFingerprint` padded artifact `Name` / `ArtifactType` / `Format` candidate; proved artifact fingerprint scalars already trim via `SelectLastNonEmptyArtifactField` before canonical segment composition; regression `Compute_unchanged_when_artifact_display_fields_differ_only_by_surrounding_whitespace`; seeded `ProvenanceBuilder` padded artifact display-name parity follow-on; 465 KnowledgeGraph + 162 Provenance scoped tests passed.
 
 - [x] (valid-no-repro) `ProvenanceSnapshotRevisionHasher.ComputeArtifactsFingerprint` — padded artifact `Name`, `ArtifactType`, or `Format` split fingerprint scalar tokens — **cheap-disproof 2026-10-22 seed hunt:** trim on last-non-empty artifact fields; regression above.
 
-- [ ] (candidate) `ProvenanceBuilder` — padded artifact `Name` / `ArtifactType` / `Format` may emit distinct artifact node metadata — locus: artifact node property projection vs `ResolveArtifactDisplayName`; input: synthesized artifact display fields with surrounding whitespace; wrong outcome: provenance graph artifact labels diverge when only padding differs.
-
 2026-10-22 seed hunt (valid-no-repro): promoted `ProvenanceSnapshotRevisionHasher.ComputeArtifactsFingerprint` padded `ContributingDecisionIds` candidate; proved artifact fingerprint union already trims decision ids, drops blanks, and case-insensitively dedupes before canonical composition; regressions `Compute_unchanged_when_contributing_decision_ids_differ_only_by_surrounding_whitespace` and `Compute_unchanged_when_contributing_decision_ids_list_includes_case_variant_padding_duplicate`; seeded `ComputeArtifactsFingerprint` padded artifact `Name` / `ArtifactType` / `Format` scalar parity follow-on; 465 KnowledgeGraph + 161 Provenance scoped tests passed.
 
 - [x] (valid-no-repro) `ProvenanceSnapshotRevisionHasher.ComputeArtifactsFingerprint` — padded `ContributingDecisionIds` split fingerprint entries — **cheap-disproof 2026-10-22 seed hunt:** trim + distinct on contributing decision ids; regressions above.
-
-- [ ] (candidate) `ProvenanceSnapshotRevisionHasher.ComputeArtifactsFingerprint` — padded artifact `Name`, `ArtifactType`, or `Format` may fingerprint as distinct scalar tokens — locus: `SelectLastNonEmptyArtifactField` trim in artifact fingerprint segment; input: artifact display fields with surrounding whitespace; wrong outcome: stale revision hash when only padding differs.
 
 2026-10-22 seed hunt (valid-no-repro): promoted `ProvenanceSnapshotRevisionHasher.ComputeAppliedRuleIdsFingerprint` padded applied-rule-id candidate; proved trace rule fingerprint already trims rule ids, drops blanks, and case-insensitively dedupes before canonical composition; regressions `Compute_unchanged_when_applied_rule_ids_differ_only_by_surrounding_whitespace` and `Compute_unchanged_when_applied_rule_ids_list_includes_case_variant_padding_duplicate`; seeded `ComputeArtifactsFingerprint` padded `ContributingDecisionIds` token parity follow-on; 465 KnowledgeGraph + 159 Provenance scoped tests passed.
 

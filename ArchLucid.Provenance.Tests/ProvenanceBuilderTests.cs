@@ -1211,6 +1211,37 @@ public sealed class ProvenanceBuilderTests
     }
 
     [Fact]
+    public void Build_trims_padded_artifact_name_type_and_format_on_initial_projection()
+    {
+        SynthesizedArtifact artifact = new()
+        {
+            ArtifactId = ArtifactId,
+            ArtifactType = "  doc  ",
+            Name = "  overview.md  ",
+            Format = "  md  ",
+            Content = "x",
+            ContentHash = "h",
+            ContributingDecisionIds = [],
+        };
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot { Nodes = [] },
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [artifact],
+        });
+
+        ProvenanceNode artifactNode = graph.Nodes.Should().ContainSingle(n => n.Type == ProvenanceNodeType.Artifact).Subject;
+        artifactNode.Name.Should().Be("overview.md");
+        artifactNode.Metadata["artifactType"].Should().Be("doc");
+        artifactNode.Metadata["format"].Should().Be("md");
+    }
+
+    [Fact]
     public void Build_normalizes_whitespace_only_artifact_type_and_format_in_metadata()
     {
         SynthesizedArtifact artifact = new()
