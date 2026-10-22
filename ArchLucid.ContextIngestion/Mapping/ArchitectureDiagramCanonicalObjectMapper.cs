@@ -137,12 +137,15 @@ public static class ArchitectureDiagramCanonicalObjectMapper
                 connectedTargetsBySource[sourceObjectId] = targets;
             }
 
-            string targetToken = $"obj-{targetObjectId}";
+            string encodedLabel = string.IsNullOrWhiteSpace(edge.Label)
+                ? string.Empty
+                : Uri.EscapeDataString(edge.Label.Trim());
 
-            if (!string.IsNullOrWhiteSpace(edge.Label))
-            {
-                targetToken += $"|{Uri.EscapeDataString(edge.Label.Trim())}";
-            }
+            string edgeProvenance = string.IsNullOrWhiteSpace(edge.Provenance)
+                ? ArchitectureDiagramProvenanceKinds.Inferred
+                : edge.Provenance.Trim();
+
+            string targetToken = $"obj-{targetObjectId}|{encodedLabel}|{edgeProvenance}";
 
             targets.Add(targetToken);
         }

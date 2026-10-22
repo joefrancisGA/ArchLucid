@@ -68,6 +68,56 @@ public sealed class StructuredDiagramCanonicalModelReconstructorTests
     }
 
     [Fact]
+    public void ReconstructModels_preserves_inferred_edge_provenance_between_asserted_nodes()
+    {
+        ArchitectureDiagramModelRecord sourceModel = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API Gateway",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "db",
+                    Label = "SQL Database",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+            ],
+            Edges =
+            [
+                new ArchitectureDiagramEdgeRecord
+                {
+                    Id = "e1",
+                    SourceId = "api",
+                    TargetId = "db",
+                    Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        IReadOnlyList<CanonicalObject> canonicalObjects = ArchitectureDiagramCanonicalObjectMapper.Map(
+            sourceModel,
+            "doc-edge-provenance",
+            labelOnlyInferenceConfidence: 0.5);
+
+        IReadOnlyList<StructuredDiagramReconstructedDocument> documents =
+            StructuredDiagramCanonicalModelReconstructor.ReconstructDocuments(canonicalObjects);
+
+        documents.Should().ContainSingle();
+        documents[0].Model.Edges.Should().ContainSingle(edge =>
+            edge.SourceId == "api"
+            && edge.TargetId == "db"
+            && edge.Provenance == ArchitectureDiagramProvenanceKinds.Inferred);
+    }
+
+    [Fact]
     public void ReconstructModels_ignores_non_structured_diagram_objects()
     {
         List<CanonicalObject> canonicalObjects =

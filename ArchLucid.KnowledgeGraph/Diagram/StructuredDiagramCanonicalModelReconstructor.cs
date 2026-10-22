@@ -192,7 +192,7 @@ public static class StructuredDiagramCanonicalModelReconstructor
 
             foreach (string targetToken in connectedRaw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             {
-                (string objectToken, string? edgeLabel) = ParseConnectedTargetToken(targetToken);
+                (string objectToken, string? edgeLabel, string? edgeProvenance) = ParseConnectedTargetToken(targetToken);
                 string objectId = StripObjPrefix(objectToken);
 
                 if (!diagramNodeIdByObjectId.TryGetValue(objectId, out string? targetDiagramNodeId))
@@ -206,7 +206,7 @@ public static class StructuredDiagramCanonicalModelReconstructor
                     SourceId = sourceDiagramNodeId,
                     TargetId = targetDiagramNodeId,
                     Label = edgeLabel ?? string.Empty,
-                    Provenance = ReadProvenance(source),
+                    Provenance = edgeProvenance ?? ReadProvenance(source),
                 });
             }
         }
@@ -214,24 +214,39 @@ public static class StructuredDiagramCanonicalModelReconstructor
         return edges;
     }
 
-    private static (string ObjectToken, string? EdgeLabel) ParseConnectedTargetToken(string targetToken)
+    private static (string ObjectToken, string? EdgeLabel, string? EdgeProvenance) ParseConnectedTargetToken(string targetToken)
     {
-        int separatorIndex = targetToken.IndexOf('|');
+        int firstSeparatorIndex = targetToken.IndexOf('|');
 
-        if (separatorIndex < 0)
+        if (firstSeparatorIndex < 0)
         {
-            return (targetToken, null);
+            return (targetToken, null, null);
         }
 
-        string objectToken = targetToken[..separatorIndex];
-        string encodedLabel = targetToken[(separatorIndex + 1)..];
+        string objectToken = targetToken[..firstSeparatorIndex];
+        int secondSeparatorIndex = targetToken.IndexOf('|', firstSeparatorIndex + 1);
 
-        if (string.IsNullOrWhiteSpace(encodedLabel))
+        if (secondSeparatorIndex < 0)
         {
-            return (objectToken, null);
+            string legacyEncodedLabel = targetToken[(firstSeparatorIndex + 1)..];
+
+            if (string.IsNullOrWhiteSpace(legacyEncodedLabel))
+            {
+                return (objectToken, null, null);
+            }
+
+            return (objectToken, Uri.UnescapeDataString(legacyEncodedLabel), null);
         }
 
-        return (objectToken, Uri.UnescapeDataString(encodedLabel));
+        string encodedLabel = targetToken[(firstSeparatorIndex + 1)..secondSeparatorIndex];
+        string? edgeLabel = string.IsNullOrWhiteSpace(encodedLabel)
+            ? null
+            : Uri.UnescapeDataString(encodedLabel);
+
+        string provenancePart = targetToken[(secondSeparatorIndex + 1)..];
+        string? edgeProvenance = string.IsNullOrWhiteSpace(provenancePart) ? null : provenancePart.Trim();
+
+        return (objectToken, edgeLabel, edgeProvenance);
     }
 
     private static string StripObjPrefix(string graphNodeOrObjectToken)
