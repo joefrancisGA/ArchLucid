@@ -130,6 +130,25 @@ public sealed class GraphNodeFactoryTests
     }
 
     [Fact]
+    public void CreateNode_trims_surrounding_whitespace_on_property_bag_keys()
+    {
+        CanonicalObject item = BuildItem(properties: new Dictionary<string, string>
+        {
+            ["  principalId  "] = "principal-1",
+            ["  category  "] = $"  {GraphTopologyCategories.Storage}  ",
+        });
+
+        GraphNode node = _sut.CreateNode(item);
+
+        node.Properties.Should().ContainKey("principalId").WhoseValue.Should().Be("principal-1");
+        node.Category.Should().Be(GraphTopologyCategories.Storage);
+
+        DeclarationExistingNodeResolver.TryReadProperty(node.Properties, "principalId", out string principalId)
+            .Should().BeTrue();
+        principalId.Should().Be("principal-1");
+    }
+
+    [Fact]
     public void CreateNode_trims_surrounding_whitespace_on_property_bag_string_values()
     {
         const string armSqlId =

@@ -51,9 +51,19 @@ public class GraphNodeFactory : IGraphNodeFactory
 
         foreach (KeyValuePair<string, string> entry in properties)
         {
-            normalized[entry.Key] = string.IsNullOrWhiteSpace(entry.Value)
+            string key = string.IsNullOrWhiteSpace(entry.Key) ? entry.Key : entry.Key.Trim();
+            string value = string.IsNullOrWhiteSpace(entry.Value)
                 ? entry.Value
                 : entry.Value.Trim();
+
+            if (normalized.TryGetValue(key, out string? existing)
+                && !string.Equals(existing, value, StringComparison.Ordinal))
+            {
+                throw new ArgumentException(
+                    "CanonicalObject.Properties contains duplicate keys that collide under ordinal case-insensitive comparison.");
+            }
+
+            normalized[key] = value;
         }
 
         return normalized;
