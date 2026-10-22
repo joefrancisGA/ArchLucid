@@ -42,6 +42,8 @@ export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
   if (returnUrl !== undefined && isSafeReturnPath(returnUrl)) {
     storePostSignInReturnUrl(returnUrl);
     storedReturnUrlThisAttempt = true;
+  } else if (returnUrl === undefined && readPkceState("google") === null) {
+    clearPostSignInReturnUrl();
   }
 
   let doc;
@@ -103,6 +105,8 @@ export async function initiateSupplementalOidcRedirect(
   if (returnUrl !== undefined && isSafeReturnPath(returnUrl)) {
     storePostSignInReturnUrl(returnUrl);
     storedReturnUrlThisAttempt = true;
+  } else if (returnUrl === undefined && readPkceState("primary") === null) {
+    clearPostSignInReturnUrl();
   }
 
   let doc;

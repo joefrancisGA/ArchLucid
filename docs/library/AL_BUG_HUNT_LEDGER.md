@@ -25250,6 +25250,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #1923 (seed-only): reseeded retrieval; scoped retrieval/indexing tests passed; no new hunt-ready defect proven this pass.
 ---
 
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `initiateOidcRedirect` stale return path — successful primary OIDC redirect without `returnUrl` left `OIDC_POST_SIGN_IN_RETURN_URL_KEY` from a prior session-expiry sign-in, so callback `consumePostSignInReturnUrl` sent operators back to an abandoned deep link; clear stale return paths when a new redirect starts without an explicit safe return URL (preserve when the other PKCE flow is still pending); regression `clears stale post-sign-in return path when primary redirect succeeds without a return URL`; scoped `src/lib/oidc` vitest 319/319.
+
+- [x] (proven) `initiateOidcRedirect` — stale post-sign-in return path survived successful redirect without returnUrl — **hit 2026-10-22 seed hunt:** clear when no parallel Google PKCE; regression above.
+
 ## Zone: ui-oidc
 
 - **id:** ui-oidc
@@ -25258,8 +25262,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 78
-- **bugs-found:** 72
+- **hunts:** 79
+- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-20
 - **last-bug:** 2026-10-20 — identity-less OIDC token responses still synced BFF cookie
