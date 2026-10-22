@@ -29,11 +29,28 @@ This is a local `Task` handoff, the same shape as `/al-ui-rate`. Do not launch i
 
 With no count, ask for **10 output** suggestions and **10 usability** suggestions. With a count, split the batch in half. When that count is odd, the extra item is an output suggestion.
 
-## Allowlist
+Optional in the same message: **`use composer for implementation`** (or similar) — Phase 2 uses **Composer 2.5 slow** (`composer-2.5`) instead of Luna. No extra model prompt.
 
-`grok-4.7-high` and `gpt-5.6-luna-medium` are outside `.cursor/rules/Model-Allowlist-Override.mdc`.
+## Pre-authorized (no prompts)
 
-Before Phase 1, confirm this conversation already contains **`ok`** or **`yes`** authorizing both slugs for this `/al-polish` run. If it does not, ask once and wait. Name both display names and slugs, say why this command needs them, and state that the default without approval is Composer 2.5 slow (`composer-2.5`). Do not start Phase 1 in the same turn as that question. Do not substitute Composer or Grok 4.6.
+Invoking **`/al-polish`** is explicit owner consent for the full pipeline. **Do not** stop to ask for permission mid-run.
+
+| Prompt type | Rule |
+|-------------|------|
+| **Models** | **Do not** ask for `ok` / `yes` or any other model override before Phase 1 or Phase 2. |
+| **File edits** | **Do not** ask the user to approve individual `Write` / `StrReplace` calls, “allow editing this file,” dirty-path overrides, or `check-working-tree-path.ps1` for batch paths. Apply changes directly in the **polish worktree** (Phase 2) or when opening the PR (parent). |
+| **Branch** | Parent picks the PR branch per delegated-branch-naming; **do not** ask unless the user named a branch in the same `/al-polish` message. |
+
+Cursor **Auto-review** or hook approval UI is IDE policy, not a reason to pause and ask in chat. If a write is blocked by tooling, use the isolated worktree path from this command — do not substitute “should I edit X?” in chat.
+
+### Models
+
+| Phase | Default model | User override |
+|-------|---------------|---------------|
+| 1 — Suggest | **Grok 4.7 High** (`grok-4.7-high`) | — |
+| 2 — Implement | **GPT-5.6 Luna** (`gpt-5.6-luna-medium`) | **Composer 2.5 slow** (`composer-2.5`) when the user asks for Composer in the same invocation |
+
+Do not substitute Grok 4.6 or other slugs. See `.cursor/rules/Model-Allowlist-Override.mdc` (`/al-polish` carve-out).
 
 ## What a suggestion is
 
@@ -52,17 +69,18 @@ The first-review path is collect → diagram → findings → one question → o
 - Do not invent a relationship, an owner, a path, or a resource.
 - Do not call an Azure write API.
 - Do not open a new product surface.
-- Luna does not commit or push. After Phase 2, the parent opens one pull request against `master` for the files Luna changed. `--suggest-only` does not open a pull request.
-- Follow `.cursor/rules/Agent-Working-Tree-Safety.mdc` before Luna edits a tracked file. A blocked dirty path is skipped, not overwritten.
+- The implementer does not commit or push. After Phase 2, the parent opens one pull request against `master` for the files changed in the polish worktree. `--suggest-only` does not open a pull request.
+- **Isolated worktree only:** create or reset a git worktree from `origin/master` on the polish branch **before** Phase 2 edits. Implement only inside that worktree. Do not edit the user's current checkout for batch files.
+- Skipped items are only those that violate guardrails (new API, invented relationship, etc.), not “blocked” or dirty paths on the main tree — the worktree avoids that.
 - Follow `.cursor/rules/shell-hygiene.mdc` and `.cursor/rules/shell-heartbeat.mdc` for every shell.
 
 ## Workflow
 
 ### Step 0 — Parse
 
-1. Read the count, the focus text, and `--suggest-only`.
+1. Read the count, the focus text, `--suggest-only`, and whether the user asked for **Composer** in Phase 2.
 2. When no count is given, use **10 output** and **10 usability**. Otherwise clamp the total to 1–20, split it in half, and give any odd extra to output. Say both numbers before Phase 1.
-3. Complete the allowlist check above.
+3. Fetch `origin/master` and ensure a polish worktree exists (create on first use in Step 4 prep if Phase 2 will run).
 
 ### Phase 1 — Suggest (Grok 4.7 High)
 
@@ -91,20 +109,22 @@ Each suggestion uses this shape:
 
 Print the batch in chat before Phase 2. Stop here when `--suggest-only` was set or the batch is empty.
 
-### Phase 2 — Implement (GPT-5.6 Luna)
+### Phase 2 — Implement (Luna or Composer)
 
-Launch **one** `Task` subagent:
+Launch **one** `Task` subagent (or implement in the polish worktree when Task is unavailable):
 
 | Setting | Value |
 |---------|-------|
 | `subagent_type` | `generalPurpose` |
-| `model` | `gpt-5.6-luna-medium` |
+| `model` | `gpt-5.6-luna-medium`, or `composer-2.5` when the user requested Composer |
 | `run_in_background` | `false` |
-| `description` | `Implement polish batch (Luna)` |
+| `description` | `Implement polish batch` |
 
-Pass the batch verbatim. Luna implements every item that stays inside the guardrails. An item that needs a new API, a new relationship, or a dirty blocked path is **skipped** with a one-line reason.
+Pass the batch verbatim and the **absolute polish worktree path**. The implementer edits **only** that worktree — **apply all batch file changes without asking the user to approve each edit**. It implements every item that stays inside the guardrails. An item that needs a new API or a new relationship is **skipped** with a one-line reason.
 
-Luna updates or adds the focused test for each shipped item and runs those tests. One scoped UI typecheck is allowed when the edits are in `archlucid-ui`. Luna does not commit.
+The implementer updates or adds focused tests and runs them when the environment allows. One scoped UI typecheck is allowed when the edits are in `archlucid-ui`. The implementer does not commit.
+
+The **parent** agent, when finishing the PR in Step 4, also **does not** ask for per-file edit permission on paths in the implementer's file list.
 
 ### Step 3 — Report
 
