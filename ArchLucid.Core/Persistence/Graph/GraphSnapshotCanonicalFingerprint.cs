@@ -257,14 +257,18 @@ public static class GraphSnapshotCanonicalFingerprint
             properties);
     }
 
-    private static string NormalizeSectionPathForFingerprint(string? value)
+    private static string NormalizeSectionPathForFingerprint(string? value) =>
+        NormalizePathLikeFingerprintToken(NormalizeLabelForFingerprint(value));
+
+    private static string NormalizeArtifactReferenceForFingerprint(string? value) =>
+        NormalizePathLikeFingerprintToken(NormalizeElementIdForFingerprint(value));
+
+    private static string NormalizePathLikeFingerprintToken(string normalizedToken)
     {
-        string normalized = NormalizeLabelForFingerprint(value);
+        if (normalizedToken.Length == 0)
+            return normalizedToken;
 
-        if (normalized.Length == 0)
-            return normalized;
-
-        string path = normalized.Replace('\\', '/');
+        string path = normalizedToken.Replace('\\', '/');
 
         while (path.Contains("//", StringComparison.Ordinal))
             path = path.Replace("//", "/", StringComparison.Ordinal);
@@ -316,7 +320,7 @@ public static class GraphSnapshotCanonicalFingerprint
         if (passageLocator is null)
             return string.Empty;
 
-        string artifactId = NormalizeElementIdForFingerprint(passageLocator.ArtifactId);
+        string artifactId = NormalizeArtifactReferenceForFingerprint(passageLocator.ArtifactId);
         string startOffset = FormatPassageOffsetToken(
             passageLocator.StartOffset,
             passageLocator.EndOffset,
@@ -376,7 +380,7 @@ public static class GraphSnapshotCanonicalFingerprint
             provenance.Origin.ToString(),
             provenance.SupportStatus.ToString(),
             provenance.Confidence.ToString(System.Globalization.CultureInfo.InvariantCulture),
-            NormalizeElementIdForFingerprint(provenance.SourceArtifactId),
+            NormalizeArtifactReferenceForFingerprint(provenance.SourceArtifactId),
             NormalizeLabelForFingerprint(provenance.Notes),
             locator);
     }
