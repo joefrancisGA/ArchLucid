@@ -555,6 +555,13 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("invalid_client_id");
   });
 
+  it("humanizes invalid_client_secret authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_client_secret", "");
+
+    expect(message).toMatch(/invalid client secret/i);
+    expect(message).not.toContain("invalid_client_secret");
+  });
+
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
     expect(humanizeAuthorizeCallbackError("   ", "")).toContain("complete response");
     expect(humanizeAuthorizeCallbackError("   ", "")).not.toMatch(/\(\s*\)/u);
