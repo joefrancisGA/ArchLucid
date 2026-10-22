@@ -3,12 +3,19 @@
 - [x] (invalid) humanizeAuthorizeCallbackError - invalid_session_id authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
 - [x] (valid-no-repro) refreshBffSessionCookie - refresh 466 shouldClearSession false - **regression 2026-10-22:** transient refresh soft-fail without cookie clear.
 - [x] (proven) exchangeAuthorizationCode - access_token JSON string variation-selector-only skips authorize retry marker - **fix 2026-10-22:** strip U+FE00–U+FE0F variation selectors in normalizeTokenString before empty-token rejection.
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_session_id authorize-query UX, BFF refresh 466 parity (client + route opaque 466), and saturated readOAuthJsonErrorDescription hair-space multiply-encoded glue; regression documents authorize-retry is not marked when authorization code exchange accepts variation-selector-only access_token; scoped vitest 699/699.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - invalid_session_id authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 466 shouldClearSession false - **regression 2026-10-22:** client soft-fail plus BFF route opaque 466 without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string variation-selector-only skips authorize retry marker - **regression 2026-10-22:** variation-selector-only tokens normalize without failed marker.
 - [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with hair-space glue - **cheap-disproof 2026-10-22:** saturated JSON encoding class.
 
 - [ ] (candidate) humanizeAuthorizeCallbackError - session_expired authorize-query copy - locus: default branch UX.
 - [ ] (candidate) refreshBffSessionCookie - refresh 467 shouldClearSession false - locus: transient refresh parity.
 - [ ] (candidate) exchangeAuthorizationCode - access_token JSON string variation-selector-16-only skips authorize retry marker - locus: literal whitespace token shape.
 - [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with hair-space glue - locus: saturated encoding class.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string ogham-space-only skips authorize retry marker - locus: literal whitespace token shape.
+- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with figure-space glue - locus: saturated encoding class.
 
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed nonce_replay authorize-query UX, BFF refresh 465 parity, and saturated decodeOAuthErrorDescription hair-space glue; regression documents authorize-retry is marked when authorization code exchange returns replacement-character-only access_token; scoped vitest 628/628.
 
