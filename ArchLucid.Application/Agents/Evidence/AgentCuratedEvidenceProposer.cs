@@ -150,7 +150,7 @@ public sealed class AgentCuratedEvidenceProposer(
             if (!ProposedEvidenceSupportedTypes.IsSupported(payload.Type))
                 return null;
 
-            payload.Type = payload.Type.Trim();
+            ProposedEvidencePayloadNormalizer.NormalizeTextFields(payload);
             return JsonSerializer.Serialize(payload, JsonOptions);
         }
         catch (JsonException)

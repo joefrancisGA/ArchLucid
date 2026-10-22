@@ -34,7 +34,7 @@ public static class ProposedEvidencePayloadValidator
             if (!ProposedEvidenceTextValidation.HasSubstantiveText(parsed.Rationale))
                 return false;
 
-            parsed.Type = parsed.Type.Trim();
+            ProposedEvidencePayloadNormalizer.NormalizeTextFields(parsed);
             payload = parsed;
             return true;
         }

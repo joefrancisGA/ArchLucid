@@ -159,6 +159,21 @@ public sealed class AgentCuratedEvidenceProposerTests
     }
 
     [Fact]
+    public void NormalizeResponse_trims_surrounding_whitespace_on_text_fields()
+    {
+        const string json =
+            """
+            {"type":"Policy","title":" Encrypt SQL TDE ","description":" Require TDE. ","rationale":" Findings cited missing encryption. "}
+            """;
+
+        string? normalized = AgentCuratedEvidenceProposer.NormalizeResponse(json);
+
+        normalized.Should().NotBeNull();
+        normalized.Should().Contain("\"title\":\"Encrypt SQL TDE\"");
+        normalized.Should().Contain("\"description\":\"Require TDE.\"");
+    }
+
+    [Fact]
     public void NormalizeResponse_parses_valid_policy_proposal_when_type_has_surrounding_whitespace()
     {
         const string json =
