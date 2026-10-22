@@ -7403,6 +7403,46 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: agent-runtime-evaluation
 
+2026-10-22 thorough hunt (hit): promoted `AgentOutputQualityGate.ResolveRejectReasonCategory` mis-mapping `finding_citation_coverage_below_floor` to structural telemetry; regression `ResolveRejectReasonCategory_maps_finding_citation_coverage_below_floor_to_semantic`; cheap-disproved saturated JSON-casing and scalar-coercion picker rows; 229 scoped Evaluation tests passed.
+
+- [x] (proven) `AgentOutputQualityGate.ResolveRejectReasonCategory` — PilotStrict finding-citation reject token lacked `citations` substring so category fell through to structural — **hit 2026-10-22 thorough hunt:** match `citation_coverage` reason token; regression above. [class:state-machine-gap]
+
+- [x] (invalid) `RunExplanationAggregateJsonReader.TryReadFiniteDouble` — boolean-like strings accepted as `1.0` — **cheap-disproof 2026-10-22 thorough hunt:** intentional aggregate lenient coercion (2026-10-12 / 2026-10-21 lane C).
+
+- [x] (invalid) `RunExplanationAggregateJsonReader.TryReadWholeNumber` — boolean accepted as count `1` — **cheap-disproof 2026-10-22 thorough hunt:** documented aggregate compatibility; disposition regressions cover callouts.
+
+- [x] (invalid) `StructuredExplanationParser.TryReadStringList` — numeric/boolean coerced into evidence refs — **cheap-disproof 2026-10-22 thorough hunt:** opaque list normalization by design at LLM boundary.
+
+- [x] (invalid) `HeuristicAgentOutputTraceQualityStage.EvaluateProposedChangesSurfaceRatio` — case-variant nested keys — **cheap-disproof 2026-10-22 thorough hunt:** `AgentOutputJsonPropertyReader.TryGetPropertyIgnoreCase` on all nested lookups (2026-10-11 hits).
+
+- [x] (invalid) `AgentOutputFaithfulnessEvaluator.ReadScore` — judge key casing — **cheap-disproof 2026-10-22 thorough hunt:** case-insensitive `faithfulnessScore` / `faithfulness_score` reads (2026-10-11 hit).
+
+- [x] (invalid) `AgentOutputTraceCitationGate` — `Citations` / `EvidenceRefs` casing — **cheap-disproof 2026-10-22 thorough hunt:** case-insensitive top-level reads (2026-10-11 hits).
+
+- [x] (invalid) `HeuristicAgentOutputTraceQualityStage.EvaluateFindings` — finding field casing — **cheap-disproof 2026-10-22 thorough hunt:** case-insensitive severity/description/recommendation reads.
+
+- [x] (valid-no-repro) `AgentOutputQualityGate.Evaluate` — non-finite calibrated confidence bypass — **cheap-disproof 2026-10-22 thorough hunt:** explicit reject for NaN/Infinity; regression `Evaluate_rejects_when_calibrated_confidence_is_non_finite`.
+
+- [x] (valid-no-repro) `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` — unknown citation object property satisfies presence — **cheap-disproof 2026-10-22 thorough hunt:** intentional nonblank string property contract (2026-10-10 hit); schema contract out of scope.
+
+- [x] (valid-no-repro) `AgentResultEmbeddingFaithfulnessScorer` — non-finite embedding components — **cheap-disproof 2026-10-22 thorough hunt:** provider finite-vector contract; no reachable malformed embed in unit tests without mocking provider contract.
+
+- [x] (valid-no-repro) `FindingClaimCoverageEvaluator.Evaluate` — non-empty refs without package resolution — **cheap-disproof 2026-10-22 thorough hunt:** per-finding ref presence is the documented LP-04 metric; package resolution is a separate gate.
+
+- [x] (proven) `AgentOutputQualityGate.ResolveRejectReasonCategory` — citation-only PilotStrict reject classified from free-form tokens — **hit 2026-10-22 thorough hunt:** same fix as `finding_citation_coverage_below_floor` token; regression above.
+
+- [x] (invalid) `AgentOutputEvaluationHarness.Evaluate` — required JSON keys case-sensitive — **cheap-disproof 2026-10-22 thorough hunt:** ordinal-ignore-case key set (2026-10-11 hit).
+
+- [x] (invalid) `AgentOutputFaithfulnessEvaluator.TrimForJudge` — surrogate split — **cheap-disproof 2026-10-22 thorough hunt:** `AgentOutputJudgePayloadTrimmer` + regression `TryEvaluateAsync_trims_evidence_without_splitting_surrogate_pairs`.
+
+- [x] (valid-no-repro) `AgentOutputReferenceCaseRunEvaluator.EvaluateTraceAsync` — partial persist on cancel — **cheap-disproof 2026-10-22 thorough hunt:** repository append semantics; no run-level completion marker contract in zone paths.
+
+- [x] (invalid) `AgentOutputReferenceCaseRunEvaluator` / `AgentOutputEvaluationHarness` — required-key casing — **cheap-disproof 2026-10-22 thorough hunt:** duplicate of 2026-10-11 proven rows.
+
+- [x] (valid-no-repro) `AgentOutputLlmSemanticJudge.TryParseJudgeResponse` — out-of-range `overallQuality` clamped — **cheap-disproof 2026-10-22 thorough hunt:** values outside `[0,1]` return null before clamp; saturated score-validation class.
+
+- (candidate) `AgentOutputTraceRejectionSummaryBuilder.BuildPublicRejectionSummary` — recomputes `qualityGate.Evaluate` without calibrated confidence so threshold token may be omitted when only calibrated reject applies — locus: summary builder; input: reject after calibration pipeline lowers confidence below floor.
+
 2026-10-12 seed hunt (seed-only): re-read the structured parser, aggregate scalar/property readers, confidence/citation callouts, and focused explanation tests. No fresh candidate reached the same-run failing-repro bar; the focused `RunExplanation` filter was blocked before discovery on both attempts by unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors. Seeded three bounded scalar-coercion candidates; no production or regression code changed.
 
 - [x] (invalid) `RunExplanationAggregateJsonReader.TryReadFiniteDouble` — boolean-like strings such as `"yes"` or `"enabled"` are accepted as `1.0` for aggregate `faithfulnessSupportRatio`, so malformed persisted aggregate data could produce a full-support ratio instead of an unavailable value; input is aggregate JSON consumed by explanation confidence callouts. — **cheap-disproof 2026-10-21 lane C:** aggregate lenient coercion is intentional; structured confidence rejects booleans (proven 2026-10-09).
@@ -7463,13 +7503,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 53
-- **bugs-found:** 32
+- **hunts:** 54
+- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-12
-- **last-bug:** 2026-10-10 — reference-case catalog stayed empty after configuration enablement
+- **last-hunt:** 2026-10-22
+- **last-bug:** 2026-10-22 — quality-gate reject telemetry for finding citation coverage
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-12 seed hunt (seed-only): re-read the selected evaluation boundary and focused heuristic, structural, citation, faithfulness, and harness paths. No distinct new reachable mechanism-backed wrong outcome met the promotion bar; the scoped Evaluation filter was blocked before discovery on both attempts by unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors. No new candidate was added and no production or regression code changed.
 
