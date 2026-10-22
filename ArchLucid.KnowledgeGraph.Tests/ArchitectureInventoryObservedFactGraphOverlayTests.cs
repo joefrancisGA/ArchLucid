@@ -1064,6 +1064,58 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void Merge_skips_second_overlay_node_when_node_ids_differ_only_by_surrounding_whitespace()
+    {
+        string canonicalNodeId = CloudResourceId.ToString("D");
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "context-node",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "Context",
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = canonicalNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL first",
+                },
+                new GraphNode
+                {
+                    NodeId = $"  {canonicalNodeId}  ",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL second",
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Nodes.Should().HaveCount(2);
+        merged.Nodes.Should().ContainSingle(node => node.NodeId.Trim() == canonicalNodeId);
+        merged.Nodes.Single(node => node.NodeId.Trim() == canonicalNodeId).Label.Should().Be("SQL first");
+    }
+
+    [Fact]
     public void Merge_appends_inventory_overlay_edge_when_endpoints_have_surrounding_whitespace_matching_base_nodes()
     {
         const string NodeA = "node-a";
