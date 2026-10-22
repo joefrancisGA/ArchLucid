@@ -12470,18 +12470,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 145
+- **hunts:** 146
 - **bugs-found:** 139
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — diagram merge dropped bound-only remapped edges
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-10-22 seed hunt (valid-no-repro): promoted `StructuredDiagramGraphMerger` remapped-edge endpoint node candidate; proved bound-only merge output intentionally omits canonical inventory rows from `mergeResult.Nodes` while `GraphMaterializationStages` unions `context.Nodes` (bind targets) before neighbor expansion; cheap-disproof regressions `BuildAsync_FullyBoundDiagramEdge_RemainsReachableViaGraphSnapshotNeighborExpansion` and merge-only vs bind-target union checks in `Merge_deduplicates_remapped_edges_when_inventory_node_id_has_surrounding_whitespace`; seeded `StructuredDiagramGraphMerger` `mergedBindingKeys` padded `CanonicalGraphNodeId` dedupe follow-on; 446 KnowledgeGraph + 148 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `StructuredDiagramGraphMerger.Merge` — remapped edges without merge-local node rows break neighbor expansion — **cheap-disproof 2026-10-22 seed hunt:** materialization unions bind targets; regressions above.
+
+- [ ] (candidate) `StructuredDiagramGraphMerger.Merge` — padded `CanonicalGraphNodeId` on `mergedBindingKeys` may duplicate canonical bindings — locus: binding dedupe key; input: bindings whose canonical ids differ only by surrounding whitespace; wrong outcome: duplicate `StructuredDiagramCanonicalBinding` rows.
+
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded inventory bind plus merge e2e candidate; proved merge skipped compile snapshots whose diagram nodes were fully bound to canonical inventory (empty `Snapshot.Nodes`) even when `BindToCanonicalNodes` emitted remapped edges, dropping canonical endpoint edges across multi-document merge (reproduced with padded inventory `NodeId` bind targets); only skip empty node-and-edge snapshots; regressions `Merge_deduplicates_remapped_edges_when_inventory_node_id_has_surrounding_whitespace` and `BindToCanonicalNodes_remaps_edges_when_both_canonical_targets_have_surrounding_whitespace_on_node_id`; seeded `StructuredDiagramGraphMerger` bound-only snapshot with remapped edges but no orphan diagram nodes follow-on audit; 445 KnowledgeGraph + 148 Provenance scoped tests passed.
 
 - [x] (proven) `StructuredDiagramGraphMerger.Merge` — bound-only compile snapshots dropped remapped edges — **hit 2026-10-22 seed hunt (seed→hit):** skip only when nodes and edges empty; regressions above.
-
-- [ ] (candidate) `StructuredDiagramGraphMerger.Merge` — remapped edges whose endpoints are not present in merged `Nodes` may break downstream neighbor expansion — locus: edge list without bound diagram node rows; input: fully bound multi-document compile; wrong outcome: graph algorithms skip edges referencing missing node ids.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramCompiledGraphBinder` padded canonical `NodeId` remap candidate; proved bind remap copied raw `bindTargets` node ids onto remapped edge endpoints and binding rows while `ApplyBindingsToGraphNodes` keyed inventory nodes on unpadded ids, splitting endpoints and skipping property stamp when ids differed only by surrounding whitespace; trim canonical ids on remap/bindings, trim remapped endpoints and edge dedupe keys; regression `BindToCanonicalNodes_trims_padded_canonical_node_id_when_remapping_edges`; seeded `StructuredDiagramGraphMerger.Merge` inventory bind plus padded canonical id end-to-end follow-on; 443 KnowledgeGraph + 148 Provenance scoped tests passed.
 

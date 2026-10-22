@@ -835,6 +835,26 @@ public sealed class StructuredDiagramGraphMergerTests
             result.CanonicalBindings);
 
         inventorySql.Properties[StructuredDiagramGraphPropertyKeys.BoundDiagramNodeId].Should().Be("sql");
+
+        result.Nodes.Should().NotContain(node => node.NodeId == "obj-api-inv-1");
+
+        GraphSnapshot mergeOnlyGraph = new()
+        {
+            Nodes = [.. result.Nodes],
+            Edges = [.. result.Edges],
+        };
+
+        mergeOnlyGraph.GetOutgoingTargets("obj-api-inv-1", GraphEdgeTypes.ConnectsTo).Should().BeEmpty();
+
+        GraphSnapshot withBindTargets = new()
+        {
+            Nodes = [inventoryApi, inventorySql, .. result.Nodes],
+            Edges = [.. result.Edges],
+        };
+
+        withBindTargets.GetOutgoingTargets("obj-api-inv-1", GraphEdgeTypes.ConnectsTo)
+            .Should()
+            .ContainSingle(node => string.Equals(node.NodeId.Trim(), "obj-sql-inv-1", StringComparison.Ordinal));
     }
 
     [Fact]
