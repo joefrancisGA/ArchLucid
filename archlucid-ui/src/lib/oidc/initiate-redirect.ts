@@ -27,14 +27,13 @@ import {
   storePkceState,
   storePostSignInReturnUrl,
 } from "@/lib/oidc/session";
-import { OIDC_POST_SIGN_IN_RETURN_URL_KEY } from "@/lib/oidc/storage-keys";
 
 function clearAbandonedPostSignInReturnUrl(): void {
   if (typeof sessionStorage === "undefined") {
     return;
   }
 
-  const current = sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY);
+  const current = readPostSignInReturnUrl();
 
   if (current === null) {
     return;
@@ -43,15 +42,13 @@ function clearAbandonedPostSignInReturnUrl(): void {
   const idle = readIdleDeskRestorePayload();
 
   if (idle !== null) {
-    const currentNormalized = normalizeOidcConfigurationString(current);
-    const currentComparable = normalizeComparableReturnPath(currentNormalized);
+    const currentComparable = normalizeComparableReturnPath(current);
     const idleComparable = normalizeComparableReturnPath(idle.returnPath);
 
     if (
       currentComparable !== null &&
       idleComparable !== null &&
-      currentComparable === idleComparable &&
-      isSafeReturnPath(currentNormalized)
+      currentComparable === idleComparable
     ) {
       return;
     }
@@ -119,11 +116,6 @@ export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
 
   let storedReturnUrlThisAttempt = false;
   const preservingAuthorizeCallbackRetry = hasAuthorizeCallbackFailedRetry();
-
-  if (preservingAuthorizeCallbackRetry) {
-    // Drop tampered legacy absolute return URLs without clearing authorize-retry state.
-    readPostSignInReturnUrl();
-  }
 
   if (returnUrl !== undefined && isSafeReturnPath(returnUrl)) {
     const consumeAuthorizeRetryMarker = shouldConsumeAuthorizeRetryForReturnUrl(returnUrl);
@@ -208,10 +200,6 @@ export async function initiateSupplementalOidcRedirect(
 
   let storedReturnUrlThisAttempt = false;
   const preservingAuthorizeCallbackRetry = hasAuthorizeCallbackFailedRetry();
-
-  if (preservingAuthorizeCallbackRetry) {
-    readPostSignInReturnUrl();
-  }
 
   if (returnUrl !== undefined && isSafeReturnPath(returnUrl)) {
     const consumeAuthorizeRetryMarker = shouldConsumeAuthorizeRetryForReturnUrl(returnUrl);

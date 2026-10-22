@@ -790,6 +790,32 @@ describe("refreshAccessToken", () => {
     expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("slow_down");
   });
 
+  it("does not classify transient authorization_pending refresh failures for BFF session clearing", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "authorization_pending" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect(isOAuthRefreshTokenRejectedError(caught)).toBe(false);
+    expect((caught as OAuthTokenEndpointError).normalizedErrorCode).toBe("authorization_pending");
+  });
+
   it("classifies humanized expired_token refresh failures for BFF session clearing", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,
