@@ -224,7 +224,7 @@ public static class GraphSnapshotCanonicalFingerprint
         IEnumerable<string> propertyParts = (element.Properties ?? [])
             .Select(static pair => (
                 Key: NormalizeLabelForFingerprint(pair.Key),
-                Value: NormalizeLabelForFingerprint(pair.Value)))
+                Value: NormalizeArtifactReferenceForFingerprint(pair.Value)))
             .Where(static pair => pair.Key.Length > 0)
             .GroupBy(static pair => pair.Key, StringComparer.Ordinal)
             .OrderBy(static group => group.Key, StringComparer.Ordinal)
