@@ -162,6 +162,13 @@ public static class GraphSnapshotCanonicalFingerprint
         return CollapseInteriorAsciiSpaces(NormalizeUnicodeSpaces(value.Trim())).Normalize(NormalizationForm.FormC);
     }
 
+    private static string NormalizeElementIdForFingerprint(string? value)
+    {
+        string normalized = NormalizeFingerprintText(value);
+
+        return normalized.Length == 0 ? normalized : normalized.ToLowerInvariant();
+    }
+
     private static string NormalizeUnicodeSpaces(string value) =>
         value
             .Replace('\u00a0', ' ')
@@ -180,7 +187,7 @@ public static class GraphSnapshotCanonicalFingerprint
     {
         return (elements ?? [])
             .Where(static element => element is not null)
-            .GroupBy(element => NormalizeFingerprintText(element.ElementId), StringComparer.Ordinal)
+            .GroupBy(element => NormalizeElementIdForFingerprint(element.ElementId), StringComparer.Ordinal)
             .OrderBy(static group => group.Key, StringComparer.Ordinal)
             .Select(static group => group
                 .OrderBy(FormatKnowledgeModelElementFingerprint, StringComparer.Ordinal)
@@ -221,7 +228,7 @@ public static class GraphSnapshotCanonicalFingerprint
 
         return string.Join(
             "|",
-            NormalizeFingerprintText(element.ElementId),
+            NormalizeElementIdForFingerprint(element.ElementId),
             element.Kind.ToString(),
             name,
             description,

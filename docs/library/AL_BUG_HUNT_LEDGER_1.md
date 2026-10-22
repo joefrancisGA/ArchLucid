@@ -8712,6 +8712,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted baseline `ElementId` casing and duplicate case-variant rows splitting review-cache `modelfp`; `GraphSnapshotCanonicalFingerprint` now lowercases normalized element ids for grouping and fingerprint tokens; regressions `Build_matches_content_hash_when_baseline_element_ids_differ_only_by_casing`, `Build_matches_content_hash_when_baseline_elements_include_duplicate_element_ids_differing_only_by_casing`, and `Build_matches_content_hash_when_baseline_duplicate_element_ids_differ_only_by_provenance_notes_list_order`; 206 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `GraphSnapshotCanonicalFingerprint.SelectCanonicalKnowledgeModelElements` — `el-1` vs `EL-1` treated as distinct element ids in `modelfp` — **hit 2026-10-22 seed hunt:** `NormalizeElementIdForFingerprint`; regressions above.
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint.SelectCanonicalKnowledgeModelElements` — duplicate element provenance notes list order — **cheap-disproof 2026-10-22 seed hunt:** fingerprint ordinal tie-break; regression above.
+
 2026-10-22 seed hunt (seed→hit): promoted duplicate identical technology-ledger rows splitting review-cache `ledgerfp`; `ReviewCacheLedgerFingerprint.Compute` now `DistinctBy` normalized entry fingerprints after sort; regressions `Build_matches_content_hash_when_ledger_contains_duplicate_identical_entries` and `Build_matches_content_hash_when_baseline_duplicate_element_ids_differ_only_by_lifecycle_scope_list_order`; 203 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `ReviewCacheLedgerFingerprint.Compute` — duplicate identical ledger rows doubled `ledgerfp` payload — **hit 2026-10-22 seed hunt:** `DistinctBy(FormatLedgerEntryFingerprint)`; regression above.
@@ -9200,11 +9205,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 85
-- **bugs-found:** 73
+- **hunts:** 86
+- **bugs-found:** 74
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — duplicate identical ledger rows in review-cache ledgerfp
+- **last-bug:** 2026-10-22 — baseline element id casing in review-cache modelfp
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

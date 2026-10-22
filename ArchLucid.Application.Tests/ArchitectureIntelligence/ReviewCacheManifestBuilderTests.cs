@@ -3245,6 +3245,125 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_baseline_element_ids_differ_only_by_casing()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-element-id-casing";
+
+        ArchitectureKnowledgeModel lower = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ArchitectureKnowledgeModel upper = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements = [new ArchitectureModelElement { ElementId = "EL-1", Name = "API" }],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, lower).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, upper).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_elements_include_duplicate_element_ids_differing_only_by_casing()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-duplicate-element-id-casing";
+
+        ArchitectureKnowledgeModel lowerFirst = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement { ElementId = "el-1", Name = "API" },
+                new ArchitectureModelElement { ElementId = "EL-1", Name = "API" },
+            ],
+        };
+
+        ArchitectureKnowledgeModel upperFirst = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement { ElementId = "EL-1", Name = "API" },
+                new ArchitectureModelElement { ElementId = "el-1", Name = "API" },
+            ],
+        };
+
+        ArchitectureKnowledgeModel canonical = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, lowerFirst).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, upperFirst).ContentHash)
+            .And.Be(ReviewCacheManifestBuilder.Build(request, canonical).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_duplicate_element_ids_differ_only_by_provenance_notes_list_order()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-duplicate-element-provenance-notes";
+
+        ArchitectureKnowledgeModel alphaFirst = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance { Notes = "alpha" },
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance { Notes = "beta" },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel betaFirst = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance { Notes = "beta" },
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance { Notes = "alpha" },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, alphaFirst).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, betaFirst).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_baseline_duplicate_element_ids_differ_only_by_lifecycle_scope_list_order()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
