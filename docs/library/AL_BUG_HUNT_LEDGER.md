@@ -1,3 +1,4 @@
+2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; removed duplicate/malformed `AL_BUG_HUNT_RUN_LOG.jsonl` rows (`zone` vs `zoneId`) blocking picker; cheap-disproof closed saturated encoding/UX candidates; parity regressions supplemental Google idle-desk rehydrate after tampered return purge, BFF client refresh HTTP 504 without `shouldClearSession`, and BFF route opaque `Token endpoint error 504`; scoped vitest 463/463.
 2026-10-22 seed hunt (seed->hit): ui-oidc - tampered unsafe post-sign-in return URLs during authorize retry were purged at sign-in start without restoring the operator return path when idle-desk backup existed; rehydrate safe return from idle desk when retry is pending and storage is empty after purge; scoped vitest 440/440.
 
 - [x] (proven) initiateOidcRedirect - tampered unsafe return during authorize retry loses return path - **hit 2026-10-22:** preparePostSignInReturnUrlForSignInStart rehydrates idle-desk return path after purge when authorize retry is pending.
@@ -25843,7 +25844,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 87
+- **hunts:** 90
 - **hunts:** 89
 - **bugs-found:** 78
 - **consecutive-dry-hunts:** 0
