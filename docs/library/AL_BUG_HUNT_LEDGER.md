@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed login_required authorize-query UX, BFF refresh 504 parity, saturated readOAuthJsonErrorDescription pictograph glue, and in-flight Google PKCE clearAbandoned skip theory (prepare purges/rehydrates before PKCE rotation); regression primary initiate rehydrates authorize-retry snapshot with Google PKCE + tampered unsafe URL; scoped vitest 468/468.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - login_required authorize-query copy - **cheap-disproof 2026-10-22:** fixed interaction-required UX; not a defect.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 504 shouldClearSession false - **cheap-disproof 2026-10-22:** existing client regression on trunk.
+- [x] (valid-no-repro) initiateOidcRedirect - poisoned unsafe URL with in-flight Google PKCE state - **regression 2026-10-22:** preparePostSignInReturnUrlForSignInStart purges tamper and rehydrates snapshot before primary PKCE replaces Google state.
+- [x] (invalid) readOAuthJsonErrorDescription - multiply-encoded %252B with pictograph glue - **cheap-disproof 2026-10-22:** saturated JSON encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - interaction_required authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 503 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) initiateSupplementalOidcRedirect - poisoned unsafe URL with in-flight primary PKCE state - locus: supplemental sign-in parity.
+- [ ] (candidate) exchangeAuthorizationCode - invalid_grant marks authorize retry - locus: transient vs permanent exchange policy.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed saturated decodeOAuthErrorDescription pictograph glue and BFF refresh 502 parity; Google supplemental sign-in parity regressions for poisoned unsafe URL purge and authorize-retry snapshot vs idle-desk during retry; temporarily_unavailable authorize-query UX parity; scoped vitest 465/465.
 
 - [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with pictograph glue - **cheap-disproof 2026-10-22:** saturated encoding class; no reachable issuer authorize-query shape.
