@@ -8712,6 +8712,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-22 seed hunt (seed→hit): promoted request declared-priority casing, non-GUID tenant slug casing, and source `FileName` path casing splitting review-cache hash; `ClosedLoopDeclaredPrioritiesNormalizer`, `ClosedLoopScopeIdHashNormalizer`, and `NormalizeFileNameForHash` lower-case after normalize; regressions `Build_matches_declared_priorities_hash_when_priorities_differ_only_by_casing`, `Build_matches_tenant_configuration_hash_when_tenant_slug_differs_only_by_casing`, `Build_matches_content_hash_when_source_file_name_differs_only_by_casing`, and `Build_matches_content_hash_when_baseline_element_provenance_passage_quote_differs_only_by_casing`; 226 scoped orchestrator/cache/manifest/continue-flight tests passed.
+
+- [x] (proven) `ClosedLoopDeclaredPrioritiesNormalizer` / `ClosedLoopScopeIdHashNormalizer` / `ClosedLoopReasoningSourceTextNormalizer.NormalizeFileNameForHash` — request priority, tenant slug, and attachment path casing split cache hash — **hit 2026-10-22 seed hunt:** invariant lower-case; regressions above.
+- [x] (valid-no-repro) `GraphSnapshotCanonicalFingerprint.FormatElementProvenance` — passage `Quote` casing — **cheap-disproof 2026-10-22 seed hunt:** `NormalizeLabelForFingerprint` from prior hit; regression above.
+
 2026-10-22 seed hunt (seed→hit): promoted element property keys/values, provenance `Notes`, and related label casing gaps in review-cache `modelfp`; property bag, provenance quotes/notes, and baseline declared priorities now use `NormalizeLabelForFingerprint`; regressions `Build_matches_content_hash_when_baseline_element_property_value_differs_only_by_casing`, `Build_matches_content_hash_when_baseline_element_property_key_differs_only_by_casing`, and `Build_matches_content_hash_when_baseline_element_provenance_notes_differs_only_by_casing`; 222 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (proven) `GraphSnapshotCanonicalFingerprint.FormatKnowledgeModelElementFingerprint` — property and provenance label casing split `modelfp` — **hit 2026-10-22 seed hunt:** `NormalizeLabelForFingerprint` on property bag and provenance notes; regressions above.
@@ -9228,11 +9233,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 91
-- **bugs-found:** 79
+- **hunts:** 92
+- **bugs-found:** 80
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — element property and provenance label casing in review-cache modelfp
+- **last-bug:** 2026-10-22 — request priorities, tenant slug, and source path casing in review-cache hash
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
