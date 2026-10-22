@@ -323,6 +323,7 @@ public static class GraphSnapshotCanonicalFingerprint
             return value;
 
         return value
+            .Replace('\u2044', '/')
             .Replace('\u2215', '/')
             .Replace('\uFF0F', '/');
     }

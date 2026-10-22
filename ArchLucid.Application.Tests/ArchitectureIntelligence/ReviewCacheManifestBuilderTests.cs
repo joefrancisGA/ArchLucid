@@ -7072,6 +7072,36 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_file_name_differs_only_by_fraction_slash()
+    {
+        ClosedLoopReasoningRequest ascii = CreateRequest("Same body.");
+        ascii.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/architecture/overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest fraction = CreateRequest("Same body.");
+        fraction.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs\u2044architecture\u2044overview.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(ascii).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(fraction).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_space()
     {
         ClosedLoopReasoningRequest literalSpace = CreateRequest("Same body.");
@@ -7806,6 +7836,59 @@ public sealed class ReviewCacheManifestBuilderTests
         ReviewCacheManifestBuilder.Build(slashKey).ContentHash
             .Should()
             .Be(ReviewCacheManifestBuilder.Build(encodedKey).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_element_provenance_passage_artifact_id_differs_only_by_fraction_slash()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-passage-artifact-fraction-slash";
+
+        ArchitectureKnowledgeModel ascii = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator
+                        {
+                            ArtifactId = "docs/architecture/overview.md",
+                        },
+                    },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel fraction = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator
+                        {
+                            ArtifactId = "docs\u2044architecture\u2044overview.md",
+                        },
+                    },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, ascii).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, fraction).ContentHash);
     }
 
     [Fact]
