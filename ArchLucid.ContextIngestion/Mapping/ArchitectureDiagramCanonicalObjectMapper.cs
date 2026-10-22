@@ -145,7 +145,9 @@ public static class ArchitectureDiagramCanonicalObjectMapper
                 ? ArchitectureDiagramProvenanceKinds.Inferred
                 : edge.Provenance.Trim();
 
-            string targetToken = $"obj-{targetObjectId}|{encodedLabel}|{edgeProvenance}";
+            string encodedEdgeId = Uri.EscapeDataString(edge.Id.Trim());
+
+            string targetToken = $"obj-{targetObjectId}|{encodedLabel}|{edgeProvenance}|{encodedEdgeId}";
 
             targets.Add(targetToken);
         }

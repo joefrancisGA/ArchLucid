@@ -12470,12 +12470,20 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 86
-- **bugs-found:** 81
+- **hunts:** 87
+- **bugs-found:** 82
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — diagram edge provenance persists through canonical round-trip
+- **last-bug:** 2026-10-22 — diagram edge id persists through canonical round-trip and merge coalesce
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted duplicate-edge `EdgeId` coalesce candidate; proved connectivity tokens omitted diagram edge `Id`, so reconstruction synthesized `edge-0` and `StructuredDiagramGraphMerger` kept the first `EdgeId` when later documents recompiled the same directed edge with different buyer edge ids; encode edge id as a fourth connectivity segment, decode on reconstruct, and last-wins `EdgeId` on merge coalesce; regression `Merge_uses_latest_diagram_edge_id_when_multiple_documents_share_equivalent_endpoints` and `ReconstructModels_groups_by_document_and_rebuilds_edges` id assertion; cheap-disproved duplicate-edge `InferenceSource` coalesce (`ArchitectureDiagramToGraphCompiler` always sets `GraphEdgeInferenceSources.StructuredParse` for diagram `ConnectsTo` rows); seeded duplicate-edge top-level `ProvenanceKind` / `DeclaredConnectionId` coalesce follow-on; 387 KnowledgeGraph + 99 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureDiagramCanonicalObjectMapper` / `StructuredDiagramCanonicalModelReconstructor` — diagram edge `Id` dropped on canonical round-trip — **hit 2026-10-22 seed hunt (seed→hit):** fourth connectivity token segment; reconstruct id assertion above.
+- [x] (proven) `StructuredDiagramGraphMerger.Merge` — duplicate directed-edge coalesce kept the first `EdgeId` when later documents compiled the same edge with a different diagram edge id — **hit 2026-10-22 seed hunt (seed→hit):** last-wins `EdgeId` on coalesce; regression above.
+- [x] (invalid) `StructuredDiagramGraphMerger.Merge` — duplicate directed-edge coalesce may not refresh `InferenceSource` — **cheap-disproof 2026-10-22 seed hunt:** diagram compile path uses a single inference source for equivalent `ConnectsTo` edges.
+
+- [ ] (candidate) `StructuredDiagramGraphMerger.Merge` — duplicate directed-edge coalesce may not refresh top-level `GraphEdge.ProvenanceKind` or `DeclaredConnectionId` when later documents compile richer schema-v1 edge metadata — locus: directed-edge dedup; input: two documents sharing endpoints; wrong outcome: stale additive edge fields on multi-document merge.
 
 2026-10-22 seed hunt (seed→hit): promoted per-edge provenance reconstruct candidate; proved `StructuredDiagramCanonicalModelReconstructor.ReconstructEdges` copied `Provenance` from the source node, flattening inferred edges between asserted nodes to asserted after canonical round-trip; persist edge provenance as a third connectivity token segment and decode on reconstruct; regression `ReconstructModels_preserves_inferred_edge_provenance_between_asserted_nodes`; seeded duplicate-edge `InferenceSource` coalesce on merge follow-on; 386 KnowledgeGraph + 99 Provenance scoped tests passed.
 

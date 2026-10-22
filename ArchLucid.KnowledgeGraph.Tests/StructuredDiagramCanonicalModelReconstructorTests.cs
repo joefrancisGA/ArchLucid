@@ -63,6 +63,7 @@ public sealed class StructuredDiagramCanonicalModelReconstructorTests
         model.Edges.Should().ContainSingle(edge =>
             edge.SourceId == "api"
             && edge.TargetId == "db"
+            && edge.Id == "e1"
             && edge.Label == "HTTPS data flow");
         model.ExtractionMethod.Should().Be(DiagramExtractionMethods.StructuredParse);
     }

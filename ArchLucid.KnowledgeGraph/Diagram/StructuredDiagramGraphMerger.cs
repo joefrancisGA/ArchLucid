@@ -116,6 +116,11 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
 
                 if (edgesByDirectedPair.TryGetValue(directedPairKey, out GraphEdge? existingEdge))
                 {
+                    if (!string.IsNullOrWhiteSpace(edge.EdgeId))
+                    {
+                        existingEdge.EdgeId = edge.EdgeId;
+                    }
+
                     if (!string.IsNullOrWhiteSpace(edge.Label))
                     {
                         existingEdge.Label = edge.Label;

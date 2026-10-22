@@ -192,7 +192,8 @@ public static class StructuredDiagramCanonicalModelReconstructor
 
             foreach (string targetToken in connectedRaw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             {
-                (string objectToken, string? edgeLabel, string? edgeProvenance) = ParseConnectedTargetToken(targetToken);
+                (string objectToken, string? edgeLabel, string? edgeProvenance, string? diagramEdgeId) =
+                    ParseConnectedTargetToken(targetToken);
                 string objectId = StripObjPrefix(objectToken);
 
                 if (!diagramNodeIdByObjectId.TryGetValue(objectId, out string? targetDiagramNodeId))
@@ -200,9 +201,13 @@ public static class StructuredDiagramCanonicalModelReconstructor
                     continue;
                 }
 
+                string resolvedEdgeId = !string.IsNullOrWhiteSpace(diagramEdgeId)
+                    ? diagramEdgeId.Trim()
+                    : $"edge-{edgeIndex++}";
+
                 edges.Add(new ArchitectureDiagramEdgeRecord
                 {
-                    Id = $"edge-{edgeIndex++}",
+                    Id = resolvedEdgeId,
                     SourceId = sourceDiagramNodeId,
                     TargetId = targetDiagramNodeId,
                     Label = edgeLabel ?? string.Empty,
@@ -214,13 +219,14 @@ public static class StructuredDiagramCanonicalModelReconstructor
         return edges;
     }
 
-    private static (string ObjectToken, string? EdgeLabel, string? EdgeProvenance) ParseConnectedTargetToken(string targetToken)
+    private static (string ObjectToken, string? EdgeLabel, string? EdgeProvenance, string? DiagramEdgeId)
+        ParseConnectedTargetToken(string targetToken)
     {
         int firstSeparatorIndex = targetToken.IndexOf('|');
 
         if (firstSeparatorIndex < 0)
         {
-            return (targetToken, null, null);
+            return (targetToken, null, null, null);
         }
 
         string objectToken = targetToken[..firstSeparatorIndex];
@@ -232,10 +238,10 @@ public static class StructuredDiagramCanonicalModelReconstructor
 
             if (string.IsNullOrWhiteSpace(legacyEncodedLabel))
             {
-                return (objectToken, null, null);
+                return (objectToken, null, null, null);
             }
 
-            return (objectToken, Uri.UnescapeDataString(legacyEncodedLabel), null);
+            return (objectToken, Uri.UnescapeDataString(legacyEncodedLabel), null, null);
         }
 
         string encodedLabel = targetToken[(firstSeparatorIndex + 1)..secondSeparatorIndex];
@@ -243,10 +249,27 @@ public static class StructuredDiagramCanonicalModelReconstructor
             ? null
             : Uri.UnescapeDataString(encodedLabel);
 
-        string provenancePart = targetToken[(secondSeparatorIndex + 1)..];
+        int thirdSeparatorIndex = targetToken.IndexOf('|', secondSeparatorIndex + 1);
+
+        if (thirdSeparatorIndex < 0)
+        {
+            string legacyProvenancePart = targetToken[(secondSeparatorIndex + 1)..];
+            string? legacyEdgeProvenance = string.IsNullOrWhiteSpace(legacyProvenancePart)
+                ? null
+                : legacyProvenancePart.Trim();
+
+            return (objectToken, edgeLabel, legacyEdgeProvenance, null);
+        }
+
+        string provenancePart = targetToken[(secondSeparatorIndex + 1)..thirdSeparatorIndex];
         string? edgeProvenance = string.IsNullOrWhiteSpace(provenancePart) ? null : provenancePart.Trim();
 
-        return (objectToken, edgeLabel, edgeProvenance);
+        string encodedEdgeId = targetToken[(thirdSeparatorIndex + 1)..];
+        string? diagramEdgeId = string.IsNullOrWhiteSpace(encodedEdgeId)
+            ? null
+            : Uri.UnescapeDataString(encodedEdgeId);
+
+        return (objectToken, edgeLabel, edgeProvenance, diagramEdgeId);
     }
 
     private static string StripObjPrefix(string graphNodeOrObjectToken)
