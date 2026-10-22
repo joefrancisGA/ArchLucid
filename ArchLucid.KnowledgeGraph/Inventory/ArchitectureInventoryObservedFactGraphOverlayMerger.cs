@@ -62,9 +62,7 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
             mergedEdges.Add(NormalizeOverlayEdge(inventoryEdge));
         }
 
-        List<string> warnings = inventoryOverlay.Warnings.Count == 0
-            ? [.. baseGraph.Warnings]
-            : [.. baseGraph.Warnings, .. inventoryOverlay.Warnings];
+        List<string> warnings = MergeWarnings(baseGraph.Warnings, inventoryOverlay.Warnings);
 
         return new GraphSnapshot
         {
@@ -78,6 +76,47 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
             Warnings = warnings,
         };
     }
+
+    private static List<string> MergeWarnings(
+        IReadOnlyList<string> baseWarnings,
+        IReadOnlyList<string> overlayWarnings)
+    {
+        if (overlayWarnings.Count == 0)
+        {
+            return [.. baseWarnings];
+        }
+
+        HashSet<string> seen = new(StringComparer.Ordinal);
+        List<string> merged = [];
+
+        foreach (string warning in baseWarnings)
+        {
+            string normalized = NormalizeWarning(warning);
+
+            if (normalized.Length == 0 || !seen.Add(normalized))
+            {
+                continue;
+            }
+
+            merged.Add(normalized);
+        }
+
+        foreach (string warning in overlayWarnings)
+        {
+            string normalized = NormalizeWarning(warning);
+
+            if (normalized.Length == 0 || !seen.Add(normalized))
+            {
+                continue;
+            }
+
+            merged.Add(normalized);
+        }
+
+        return merged;
+    }
+
+    private static string NormalizeWarning(string? warning) => (warning ?? string.Empty).Trim();
 
     private static string NormalizeNodeId(string nodeId) => nodeId.Trim();
 

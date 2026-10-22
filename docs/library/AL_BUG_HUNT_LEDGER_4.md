@@ -12470,8 +12470,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 204
-- **bugs-found:** 168
+- **hunts:** 205
+- **bugs-found:** 169
 - **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-overlay rebind deduped parallel edges separately when EdgeType differed only by whitespace
 - **related-pd-tb:** none
@@ -12585,7 +12585,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ArchitectureInventoryObservedFactGraphBuilder.ResolveLabel` — minted overlay node labels retained padded ARM name segments — **hit 2026-10-22 seed hunt (seed→hit):** trim label resolution; regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — inventory overlay warnings appended to merged graph may retain padded warning tokens — locus: warning list merge copies overlay warning strings without normalization; input: overlay snapshot carries warnings with surrounding whitespace; wrong outcome: merged graph warning rows preserve padding-only differences as distinct entries.
+2026-10-22 seed hunt (seed→hit): promoted `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` padded inventory overlay warning concatenation candidate; proved warning merge concatenated raw overlay strings without trim or trim-equal dedupe against base warnings, so padding-only variants could duplicate logical warnings; normalize via `MergeWarnings`/`NormalizeWarning`; regression `Merge_normalizes_padded_inventory_overlay_warnings_and_dedupes_trim_equal_entries`; seeded `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` overlay-only warnings skipped when nodes and edges empty follow-on; 497 KnowledgeGraph + 170 Provenance scoped tests passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — appended overlay warnings retained padded tokens and trim-equal duplicates — **hit 2026-10-22 seed hunt (seed→hit):** trim and dedupe merged warnings; regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — overlay snapshots that carry warnings but no nodes or edges are ignored by early return — locus: empty overlay short-circuit before warning merge; input: inventory overlay warnings-only payload; wrong outcome: merged graph never receives overlay warnings.
 
 2026-10-22 seed hunt (seed→hit): promoted `StructuredDiagramGraphMerger` padded diagram property-key coalesce candidate; proved duplicate node/edge metadata coalesce indexed raw `property.Key`, so a later compile with surrounding-whitespace keys left parallel bag entries and `GraphNodePropertyReader` could return stale source-evidence values; trim keys before skip/coalesce (parity with `GraphNodeFactory.NormalizePropertyBag`); regression `Merge_coalesces_node_properties_when_incoming_property_keys_differ_only_by_surrounding_whitespace`; seeded diagram edge metadata padded-key coalesce regression follow-on; 468 KnowledgeGraph + 170 Provenance scoped tests passed.
 
