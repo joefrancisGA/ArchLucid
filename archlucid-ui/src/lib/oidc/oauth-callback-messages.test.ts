@@ -124,6 +124,10 @@ describe("decodeOAuthErrorDescription", () => {
     expect(decodeOAuthErrorDescription("👨\u200d👩\u200d👧+extra")).toBe("👨\u200d👩\u200d👧+extra");
   });
 
+  it("preserves literal plus in authorize error descriptions when regional-indicator flag emoji is present", () => {
+    expect(decodeOAuthErrorDescription("🇺🇸+extra")).toBe("🇺🇸+extra");
+  });
+
   it("decodes doubly percent-encoded authorize error descriptions", () => {
     expect(decodeOAuthErrorDescription("User%2520denied")).toBe("User denied");
   });

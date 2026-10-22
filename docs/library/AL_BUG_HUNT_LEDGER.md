@@ -11,6 +11,19 @@
 - [ ] (candidate) `shouldMarkAuthorizeCallbackFailedOnExchangeError` — treat `OAuthTokenEndpointError` as IdP outcome — locus: exchange catch; input: distinguish config URL errors (reachability: callback).
 - [ ] (candidate) `decodeOAuthErrorDescription` — regional-indicator flag sequence with trailing literal plus — locus: `shouldPreserveLiteralPlusInAuthorizeDescription`; input: 🇺🇸+code (reachability: authorize query).
 - [ ] (candidate) `shouldHumanizeTokenOAuthErrorCode` — `expired_token` on refresh JSON — locus: allowlist; input: BFF 400 (reachability: rare IdP code).
+2026-10-22 seed hunt (seed->hit): `ui-oidc` - promoted hunt-ready `decodeOAuthErrorDescription` / `shouldPreserveLiteralPlusInAuthorizeDescription` - authorize `error_description` with regional-indicator flag emoji plus literal plus collapsed plus to space because mixed-plus guard covered ZWJ family emoji but not regional-indicator code points; preserve literal plus when `\p{Regional_Indicator}` matches; regression `preserves literal plus in authorize error descriptions when regional-indicator flag emoji is present`; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped oauth-callback-messages + token-client + BFF refresh route vitest 155/155.
+
+- [x] (proven) `decodeOAuthErrorDescription` - flag emoji plus literal plus collapsed - **hit 2026-10-22 seed hunt:** Regional_Indicator mixed-plus guard; regression above.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` - flag emoji plus in JSON - **cheap-disproof 2026-10-22:** JSON path already preserved literal plus for same input.
+- [x] (invalid) `OAuthTokenEndpointError` - attach HTTP status from token POST - **cheap-disproof 2026-10-22:** policy enhancement; BFF still keys off classifier and status substring today.
+- [x] (valid-no-repro) `shouldMarkAuthorizeCallbackFailedOnExchangeError` - recognize `OAuthTokenEndpointError` - **cheap-disproof 2026-10-22:** only skips invalid token URL message; OAuth failures should mark retry.
+- [x] (invalid) `exchangeAuthorizationCode` - `OAuthTokenEndpointError` for logging - **cheap-disproof 2026-10-22:** `normalizedErrorCode` already on error type.
+
+- [ ] (candidate) `isOAuthRefreshTokenRejectedError` - `invalid_client` on refresh grant - locus: classifier set; input: misconfigured client clears BFF session (reachability: humanized message lacks snake_case).
+- [ ] (candidate) `shouldHumanizeTokenOAuthErrorCode` - `expired_token` on token JSON refresh - locus: allowlist gap; input: raw snake_case in CallbackClient (reachability: authorize default humanizes).
+- [ ] (candidate) `OAuthTokenEndpointError` - attach HTTP status for proxy non-JSON 401 vs 400 - locus: `readOAuthError`; input: corporate proxy body (reachability: session clear policy).
+- [ ] (candidate) `refreshBffSessionCookie` - client trusts 401 from BFF refresh route - locus: `bff-session-sync.ts`; input: humanized invalid_grant path (reachability: `ensureAccessTokenFresh`).
+- [ ] (candidate) `CallbackClient` - access_denied panel with flag emoji plus authorize description - locus: integration; input: mock query (reachability: decode unit covered).
 
 2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `errorFromOAuthJson` / BFF refresh session policy — humanized `invalid_grant` token errors removed snake_case from `Error.message` so BFF `shouldClearSessionOnRefreshFailure` no longer cleared HttpOnly cookies (503 transient instead of 401); throw `OAuthTokenEndpointError` with `normalizedErrorCode` and export `isOAuthRefreshTokenRejectedError`; regressions `classifies humanized invalid_grant refresh failures for BFF session clearing` and BFF route humanized invalid_grant cookie clear; cheap-disproof closed five zone-head `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped `src/lib/oidc` + BFF refresh route vitest 380/380.
 
