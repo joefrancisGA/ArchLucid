@@ -21,6 +21,18 @@
 - [ ] (candidate) refreshBffSessionCookie - refresh 411 shouldClearSession false - locus: transient refresh parity.
 - [ ] (candidate) exchangeAuthorizationCode - invalid token endpoint URL skips authorize retry marker - locus: misconfiguration vs OAuth outcome.
 - [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B with regional-indicator glue - locus: saturated encoding class.
+2026-10-22 seed hunt (seed-only): `ui-oidc` - no hunt-ready product defect; cheap-disproof closed interaction_required fixed authorize UX, invalid_grant exchange retry policy, and BFF refresh 503 client parity; parity regressions opaque token endpoint 503/414 without cookie clear, BFF client 414 soft-fail, zero-width-only post-sign-in purge at sign-in start during retry, and supplemental Google rehydrate with in-flight primary PKCE + tampered URL; scoped `src/lib/oidc` + BFF refresh route vitest 502/502.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - interaction_required authorize-query copy - **cheap-disproof 2026-10-22:** fixed interaction-required UX; not a defect.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 503 shouldClearSession false - **regression 2026-10-22:** client + route opaque 503 without cookie clear.
+- [x] (valid-no-repro) initiateSupplementalOidcRedirect - poisoned unsafe URL with in-flight primary PKCE state - **regression 2026-10-22:** prepare rehydrates snapshot before supplemental PKCE rotation.
+- [x] (valid-no-repro) exchangeAuthorizationCode - invalid_grant marks authorize retry - **cheap-disproof 2026-10-22:** existing exchange failure regression marks retry to preserve return path.
+- [x] (valid-no-repro) preparePostSignInReturnUrlForSignInStart - ZWSP-only post-sign-in purge during retry - **regression 2026-10-22:** initiate purges zero-width tamper at sign-in start.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - consent_required authorize-query copy - locus: fixed-branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 415 shouldClearSession false - locus: proxy transient policy.
+- [ ] (candidate) initiateOidcRedirect - poisoned unsafe URL with in-flight supplemental Google PKCE - locus: primary sign-in parity (mirror supplemental+primary).
+- [ ] (candidate) decodeOAuthErrorDescription - multiply-encoded %252B pictograph glue - locus: saturated encoding class.
 
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed login_required authorize-query UX, BFF refresh 504 parity, saturated readOAuthJsonErrorDescription pictograph glue, and in-flight Google PKCE clearAbandoned skip theory (prepare purges/rehydrates before PKCE rotation); regression primary initiate rehydrates authorize-retry snapshot with Google PKCE + tampered unsafe URL; scoped vitest 468/468.
 
@@ -26029,6 +26041,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
+- **hunts:** 86
+- **hunts:** 85
+- **hunts:** 84
+- **hunts:** 83
+- **hunts:** 82
 - **hunts:** 81
 - **hunts:** 87
 - **hunts:** 91
