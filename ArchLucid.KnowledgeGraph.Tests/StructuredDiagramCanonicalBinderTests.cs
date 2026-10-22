@@ -243,6 +243,62 @@ public sealed class StructuredDiagramCanonicalBinderTests
     }
 
     [Fact]
+    public void BindToCanonicalNodes_remaps_edges_when_both_canonical_targets_have_surrounding_whitespace_on_node_id()
+    {
+        GraphNode apiNode = CreateTopologyNode("  obj-api-1  ", "API Gateway", []);
+        GraphNode sqlNode = CreateTopologyNode(
+            "  obj-sql-1  ",
+            "pay-sql",
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["azureResourceId"] = ArmSqlServerId,
+            });
+
+        ArchitectureDiagramToGraphCompiler compiler = new();
+        StructuredDiagramGraphCompileResult compileResult = compiler.Compile(
+            new ArchitectureDiagramModelRecord
+            {
+                Nodes =
+                [
+                    new ArchitectureDiagramNodeRecord
+                    {
+                        Id = "api",
+                        Label = "API Gateway",
+                        Kind = ArchitectureDiagramNodeKinds.System,
+                        Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                    },
+                    new ArchitectureDiagramNodeRecord
+                    {
+                        Id = "sql",
+                        Label = ArmSqlServerId,
+                        Kind = ArchitectureDiagramNodeKinds.System,
+                        Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                    },
+                ],
+                Edges =
+                [
+                    new ArchitectureDiagramEdgeRecord
+                    {
+                        Id = "e1",
+                        SourceId = "api",
+                        TargetId = "sql",
+                        Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                    },
+                ],
+                ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+            },
+            CreateCompileOptions());
+
+        StructuredDiagramGraphCompileResult bound = StructuredDiagramCompiledGraphBinder.BindToCanonicalNodes(
+            compileResult,
+            [apiNode, sqlNode]);
+
+        bound.Snapshot.Edges.Should().ContainSingle(edge =>
+            edge.FromNodeId == "obj-api-1"
+            && edge.ToNodeId == "obj-sql-1");
+    }
+
+    [Fact]
     public void BindToCanonicalNodes_trims_padded_canonical_node_id_when_remapping_edges()
     {
         GraphNode apiNode = CreateTopologyNode("obj-api-1", "API Gateway", []);

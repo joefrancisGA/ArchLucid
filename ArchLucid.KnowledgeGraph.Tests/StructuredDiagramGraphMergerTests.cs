@@ -751,6 +751,93 @@ public sealed class StructuredDiagramGraphMergerTests
     }
 
     [Fact]
+    public void Merge_deduplicates_remapped_edges_when_inventory_node_id_has_surrounding_whitespace()
+    {
+        const string armSqlId =
+            "/subscriptions/11111111-2222-3333-4444-555555555555/resourceGroups/pay/providers/Microsoft.Sql/servers/pay-sql";
+
+        GraphNode inventoryApi = new()
+        {
+            NodeId = "  obj-api-inv-1  ",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "API Gateway",
+        };
+
+        GraphNode inventorySql = new()
+        {
+            NodeId = "  obj-sql-inv-1  ",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "pay-sql",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["azureResourceId"] = armSqlId,
+            },
+        };
+
+        ArchitectureDiagramModelRecord diagramModel = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API Gateway",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                },
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "sql",
+                    Label = armSqlId,
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                },
+            ],
+            Edges =
+            [
+                new ArchitectureDiagramEdgeRecord
+                {
+                    Id = "e1",
+                    SourceId = "api",
+                    TargetId = "sql",
+                    Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        List<CanonicalObject> canonicalObjects = [];
+        canonicalObjects.AddRange(
+            ArchitectureDiagramCanonicalObjectMapper.Map(diagramModel, "doc-padded-bind-a", labelOnlyInferenceConfidence: 0.7));
+        canonicalObjects.AddRange(
+            ArchitectureDiagramCanonicalObjectMapper.Map(diagramModel, "doc-padded-bind-b", labelOnlyInferenceConfidence: 0.7));
+
+        ContextSnapshot snapshot = new()
+        {
+            SnapshotId = Guid.Parse("bbbbbbbb-cccc-dddd-eeee-ffffffffff01"),
+            RunId = Guid.Parse("22222222-3333-4444-5555-666666666667"),
+            ProjectId = "project-padded-inventory-edge-dedup",
+            CanonicalObjects = canonicalObjects,
+        };
+
+        StructuredDiagramGraphMerger merger = GraphMaterializationTestHelpers.CreateStructuredDiagramGraphMerger();
+        StructuredDiagramGraphMergeResult result = merger.Merge(snapshot, [inventoryApi, inventorySql]);
+
+        result.Edges
+            .Should()
+            .ContainSingle(edge =>
+                edge.EdgeType == GraphEdgeTypes.ConnectsTo
+                && edge.FromNodeId == "obj-api-inv-1"
+                && edge.ToNodeId == "obj-sql-inv-1");
+
+        StructuredDiagramCompiledGraphBinder.ApplyBindingsToGraphNodes(
+            [inventorySql],
+            result.CanonicalBindings);
+
+        inventorySql.Properties[StructuredDiagramGraphPropertyKeys.BoundDiagramNodeId].Should().Be("sql");
+    }
+
+    [Fact]
     public void Merge_preserves_diagram_label_when_later_document_omits_node_label()
     {
         ArchitectureDiagramModelRecord labeledDocument = new()

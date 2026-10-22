@@ -69,7 +69,7 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
                 bindings.Add(binding);
             }
 
-            if (compileResult.Snapshot.Nodes.Count == 0)
+            if (compileResult.Snapshot.Nodes.Count == 0 && compileResult.Snapshot.Edges.Count == 0)
             {
                 continue;
             }
