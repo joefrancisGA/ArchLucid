@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { OIDC_AUTHORIZE_CALLBACK_FAILED_KEY } from "@/lib/oidc/storage-keys";
 import { exchangeAuthorizationCode, refreshAccessToken } from "@/lib/oidc/token-client";
 
 describe("refreshAccessToken", () => {
@@ -105,6 +106,52 @@ describe("refreshAccessToken", () => {
         refreshToken: "rt",
       }),
     ).rejects.toThrow(/missing access_token/i);
+  });
+
+  it("marks authorize callback failed when authorization code exchange fails", async () => {
+    sessionStorage.clear();
+
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "invalid_grant" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/invalid_grant/i);
+
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBe("1");
+  });
+
+  it("does not mark authorize callback failed when refresh token exchange fails", async () => {
+    sessionStorage.clear();
+
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "invalid_grant" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/invalid_grant/i);
+
+    expect(sessionStorage.getItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY)).toBeNull();
   });
 
   it("posts authorization code grants to token endpoints that include required query parameters (B2C policy)", async () => {
