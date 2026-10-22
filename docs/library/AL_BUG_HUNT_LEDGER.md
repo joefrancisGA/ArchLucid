@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed request_uri_too_long authorize-query UX, BFF refresh 433 parity, and saturated decodeOAuthErrorDescription ZWJ glue; regression documents authorize-retry is not marked when authorization code exchange returns object-string access_token; scoped vitest 534/534.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - request_uri_too_long authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 433 shouldClearSession false - **regression 2026-10-22:** transient refresh soft-fail without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string [object Object] skips authorize retry marker - **regression 2026-10-22:** literal object-string tokens are valid (retry marker not set).
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with ZWJ glue - **cheap-disproof 2026-10-22:** saturated encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_dpop_proof authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 434 shouldClearSession false - locus: transient refresh parity.
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string empty array literal skips authorize retry marker - locus: literal bracket token shape.
+- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with ZWJ glue - locus: saturated JSON encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed request_not_supported authorize-query UX, BFF refresh 432 parity, and saturated readOAuthJsonErrorDescription pictograph glue; regression documents authorize-retry is not marked when authorization code exchange returns negative-Infinity-string access_token; scoped vitest 531/531.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - request_not_supported authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.

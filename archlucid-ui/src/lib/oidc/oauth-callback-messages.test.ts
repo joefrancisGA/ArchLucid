@@ -464,6 +464,13 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("request_not_supported");
   });
 
+  it("humanizes request_uri_too_long authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("request_uri_too_long", "");
+
+    expect(message).toMatch(/request uri too long/i);
+    expect(message).not.toContain("request_uri_too_long");
+  });
+
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
     expect(humanizeAuthorizeCallbackError("   ", "")).toContain("complete response");
     expect(humanizeAuthorizeCallbackError("   ", "")).not.toMatch(/\(\s*\)/u);
