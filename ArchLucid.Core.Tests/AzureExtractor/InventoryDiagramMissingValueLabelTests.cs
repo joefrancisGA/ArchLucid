@@ -55,7 +55,7 @@ public sealed class InventoryDiagramMissingValueLabelTests
     }
 
     [Fact]
-    public void RouteOutline_keeps_resolve_sentence_for_stored_virtual_appliance_type()
+    public void RouteOutline_labels_missing_next_hop_name_for_stored_virtual_appliance_type()
     {
         InventoryDiagramRouteOutlineSentenceFormatter
             .TryFormat(
@@ -66,6 +66,21 @@ public sealed class InventoryDiagramMissingValueLabelTests
                 },
                 resolvedNextHopName: null)
             .Should()
-            .Be("route next hop does not resolve");
+            .Be("Next hop name was not stored for VirtualAppliance on 10.0.0.0/24.");
+    }
+
+    [Fact]
+    public void RouteOutline_describes_internet_next_hop_with_stored_prefix()
+    {
+        InventoryDiagramRouteOutlineSentenceFormatter
+            .TryFormat(
+                new AzureInventoryRouteTableRoute
+                {
+                    AddressPrefix = "0.0.0.0/1",
+                    NextHopType = "Internet",
+                },
+                resolvedNextHopName: null)
+            .Should()
+            .Be("Traffic to 0.0.0.0/1 is sent directly to the internet.");
     }
 }

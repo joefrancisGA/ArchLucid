@@ -42,7 +42,7 @@ describe("finding-detail-route-display buyer summary copy", () => {
 
     expect(summary.disposition).toBe("Status was not stored");
     expect(summary.riskOwner).toBe("Risk owner was not stored");
-    expect(summary.requiredMonitoring).toBe("No recommended action recorded for this finding.");
+    expect(summary.requiredMonitoring).toBe("Recommended action was not stored.");
     expect(summary.nextReview).toBe(resolveBuyerShowcaseResidualRiskNextReviewIso(new Date("2026-08-22T12:00:00Z")));
   });
 
@@ -57,11 +57,9 @@ describe("finding-detail-route-display buyer summary copy", () => {
   });
 
   it("does not invent PHI monitoring for non-PHI findings", () => {
-    expect(mitigationPosture(null, "some-other-finding")).toBe(
-      "No recommended action recorded for this finding.",
-    );
+    expect(mitigationPosture(null, "some-other-finding")).toBe("Recommended action was not stored.");
     expect(findingRecommendedActionParagraph(emptyPayload(), "some-other-finding")).toBe(
-      "No recommended action recorded for this finding.",
+      "Recommended action was not stored.",
     );
   });
 
@@ -101,5 +99,17 @@ describe("finding-detail-route-display buyer summary copy", () => {
     expect(fallbackImpactedScope(emptyPayload(), "generic-finding")).toBe(
       "Impacted area was not stored.",
     );
+  });
+
+  it("distinguishes missing and stored-empty business impact on buyer decision copy", () => {
+    expect(buyerFindingDecisionImpactCopy(emptyPayload(), "generic-finding")).toBe(
+      "Business impact was not stored",
+    );
+    expect(
+      buyerFindingDecisionImpactCopy(
+        emptyPayload({ typedPayload: { businessImpact: "" } as FindingInspectPayload["typedPayload"] }),
+        "generic-finding",
+      ),
+    ).toBe("Business impact was stored empty.");
   });
 });

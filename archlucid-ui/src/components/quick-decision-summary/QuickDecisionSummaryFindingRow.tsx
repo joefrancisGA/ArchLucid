@@ -74,6 +74,8 @@ export function QuickDecisionSummaryFindingRow({
   const reviewStatus = humanReviewStatusDisplay(finding.humanReviewStatus);
   const owner = finding.assignedToUserId?.trim() ?? "";
   const workspaceCardMode = props.workspaceCardMode === true;
+  const findingTitleDisplay =
+    finding.title.trim().length > 0 ? finding.title : "Finding title was not stored.";
 
   const rowBody = (
     <>
@@ -99,7 +101,9 @@ export function QuickDecisionSummaryFindingRow({
         ) : null}
         {finding.confidenceLevel === "High" || finding.confidenceLevel === "Medium" || finding.confidenceLevel === "Low" ? (
           <FindingConfidenceBadge level={finding.confidenceLevel} />
-        ) : null}
+        ) : (
+          <StatusTag kind="neutral" label="Confidence level was not stored." className="shrink-0" />
+        )}
         <AiOutputGovernanceLabel findingId={finding.findingId} />
         <FindingTrustChip finding={finding} />
         <FindingClassificationChip
@@ -127,11 +131,11 @@ export function QuickDecisionSummaryFindingRow({
         {!workspaceCardMode ? (
           <Link href={href} prefetch={false} className={cn(OPERATOR_LINK.nav, "min-w-0 flex-1")}>
             <span className="sr-only">Finding {finding.findingId}: </span>
-            {finding.title}
+            {findingTitleDisplay}
           </Link>
         ) : (
           <span className={cn("min-w-0 flex-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-            {finding.title}
+            {findingTitleDisplay}
           </span>
         )}
         {viewEvidenceHref !== null ? (
@@ -214,19 +218,19 @@ export function QuickDecisionSummaryFindingRow({
           Evaluation score was not stored
         </p>
       ) : null}
-      {snippet.length > 0 && !workspaceCardMode ? (
+      {workspaceCardMode || snippet.length > 0 ? (
         <p className={cn("m-0 mt-1 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           <span className="font-semibold text-neutral-700 dark:text-neutral-300">Recommended action: </span>
           <span>{snippet}</span>
         </p>
       ) : null}
-      {owner.length > 0 && !workspaceCardMode ? (
+      {!workspaceCardMode ? (
         <p
           className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
           data-testid={`finding-owner-${finding.findingId}`}
         >
           <span className="font-semibold text-neutral-700 dark:text-neutral-300">Owner: </span>
-          {owner}
+          {owner.length > 0 ? owner : "Owner was not stored."}
         </p>
       ) : null}
       <FindingPolicyEvidenceCitationLinks model={citationModel} compact className="mt-2" />

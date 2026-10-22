@@ -259,6 +259,13 @@ public sealed class HostedAzureExtractorClient(
             subscriptionId,
             cancellationToken).ConfigureAwait(false);
 
+        HostedAzureDefenderCompanionCollectResult defenderCompanions =
+            await CollectDefenderCompanionsOrEmptyAsync(accessToken.Token, subscriptionId, cancellationToken)
+                .ConfigureAwait(false);
+        collectionWarnings.AddRange(defenderCompanions.Warnings);
+        collectionWarnings.AddRange(
+            DefenderPlanCoverageWarnings.Create(defenderCompanions.Pricings, inventoryResources));
+
         byte[] zipBytes = HostedAzureExtractorZipBuilder.BuildZip(
             subscriptionId,
             inventoryResources,
@@ -295,7 +302,12 @@ public sealed class HostedAzureExtractorClient(
             actualCostSummary: actualCostSummary,
             policyComplianceDocument: policyComplianceDocument,
             policyDefinitionDocuments: policyDefinitionDocuments,
-            policyAssignmentDocuments: policyAssignmentDocuments);
+            policyAssignmentDocuments: policyAssignmentDocuments,
+            defenderPricings: defenderCompanions.Pricings,
+            defenderScoreControls: defenderCompanions.ScoreControls,
+            defenderAssessments: defenderCompanions.Assessments,
+            defenderAssessmentCounts: defenderCompanions.AssessmentCounts,
+            defenderSecurityContacts: defenderCompanions.SecurityContacts);
 
         string fileName =
             $"archlucid-hosted-azure-{subscriptionId.ToLowerInvariant()}-{collectionTimestampUtc:yyyyMMddHHmmss}.zip";
@@ -332,6 +344,12 @@ public sealed class HostedAzureExtractorClient(
         List<HostedAzureArmRoleAssignmentRecord> eligibleRoleAssignments = [];
         List<HostedAzureArmPolicyAssignmentRecord> policyAssignments = [];
         List<HostedAzureArmDefenderSummaryRecord> defenderSummaries = [];
+        List<HostedAzureArmDefenderPricingRecord> defenderPricings = [];
+        List<HostedAzureArmDefenderScoreControlRecord> defenderScoreControls = [];
+        List<HostedAzureArmDefenderAssessmentRecord> defenderAssessments = [];
+        List<HostedAzureArmDefenderAssessmentCountRecord> defenderAssessmentCounts = [];
+        List<HostedAzureArmDefenderSecurityContactRecord> defenderSecurityContacts = [];
+        List<string> defenderCompanionWarnings = [];
 
         standingRoleAssignments.AddRange(
             await _armReadClient
@@ -395,6 +413,16 @@ public sealed class HostedAzureExtractorClient(
                 await _armReadClient
                     .ListSubscriptionDefenderSummariesAsync(accessTokenValue, subscriptionId, cancellationToken)
                     .ConfigureAwait(false));
+
+            HostedAzureDefenderCompanionCollectResult subscriptionCompanions =
+                await CollectDefenderCompanionsOrEmptyAsync(accessTokenValue, subscriptionId, cancellationToken)
+                    .ConfigureAwait(false);
+            defenderPricings.AddRange(subscriptionCompanions.Pricings);
+            defenderScoreControls.AddRange(subscriptionCompanions.ScoreControls);
+            defenderAssessments.AddRange(subscriptionCompanions.Assessments);
+            defenderAssessmentCounts.AddRange(subscriptionCompanions.AssessmentCounts);
+            defenderSecurityContacts.AddRange(subscriptionCompanions.SecurityContacts);
+            defenderCompanionWarnings.AddRange(subscriptionCompanions.Warnings);
         }
 
         defenderSummaries = defenderSummaries
@@ -497,6 +525,10 @@ public sealed class HostedAzureExtractorClient(
             managementGroupId,
             cancellationToken).ConfigureAwait(false);
 
+        collectionWarnings.AddRange(defenderCompanionWarnings);
+        collectionWarnings.AddRange(
+            DefenderPlanCoverageWarnings.Create(defenderPricings, inventoryResources));
+
         byte[] zipBytes = HostedAzureExtractorZipBuilder.BuildZip(
             subscriptionId: null,
             inventoryResources,
@@ -529,7 +561,12 @@ public sealed class HostedAzureExtractorClient(
             directoryRoleAssignments: addCredentialSnapshot.DirectoryRoleAssignments,
             entraApplicationRegistrations: addCredentialSnapshot.ApplicationRegistrations,
             graphAppRoleAssignments: addCredentialSnapshot.GraphAppRoleAssignments,
-            collectionWarnings: collectionWarnings);
+            collectionWarnings: collectionWarnings,
+            defenderPricings: defenderPricings,
+            defenderScoreControls: defenderScoreControls,
+            defenderAssessments: defenderAssessments,
+            defenderAssessmentCounts: defenderAssessmentCounts,
+            defenderSecurityContacts: defenderSecurityContacts);
 
         string fileName =
             $"archlucid-hosted-azure-mg-{managementGroupId.ToLowerInvariant()}-{collectionTimestampUtc:yyyyMMddHHmmss}.zip";
@@ -540,6 +577,43 @@ public sealed class HostedAzureExtractorClient(
             OriginalFileName = fileName,
             ResourceCount = CountPackagedResources(inventoryResources)
         };
+    }
+
+    private async Task<HostedAzureDefenderCompanionCollectResult> CollectDefenderCompanionsOrEmptyAsync(
+        string accessToken,
+        string subscriptionId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await _armReadClient
+                .CollectSubscriptionDefenderCompanionsAsync(accessToken, subscriptionId, cancellationToken)
+                .ConfigureAwait(false)
+                ?? new HostedAzureDefenderCompanionCollectResult();
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            return new HostedAzureDefenderCompanionCollectResult
+            {
+                SecurityContacts =
+                [
+                    new HostedAzureArmDefenderSecurityContactRecord
+                    {
+                        SubscriptionId = subscriptionId,
+                        CollectionStatus = "Unavailable",
+                    },
+                ],
+                Warnings =
+                [
+                    "defender-companions-failed",
+                    "defender-security-contacts-not-collected",
+                ],
+            };
+        }
     }
 
     private static int CountPackagedResources(IReadOnlyList<HostedAzureArmResourceRecord> resources)

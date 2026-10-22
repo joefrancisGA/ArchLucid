@@ -58,6 +58,36 @@ public sealed class AzureInventorySnapshotDetailReadModel
         get;
         init;
     } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderPricingReadModel> DefenderPricings
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderScoreControlReadModel> DefenderScoreControls
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderAssessmentReadModel> DefenderAssessments
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderAssessmentCountReadModel> DefenderAssessmentCounts
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryDefenderSecurityContactReadModel> DefenderSecurityContacts
+    {
+        get;
+        init;
+    } = [];
 }
 
 public sealed class AzureInventoryResourcePropertyReadModel
