@@ -373,6 +373,13 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("invalid_grant");
   });
 
+  it("humanizes unsupported_grant_type authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("unsupported_grant_type", "");
+
+    expect(message).toMatch(/unsupported grant type/i);
+    expect(message).not.toContain("unsupported_grant_type");
+  });
+
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
     expect(humanizeAuthorizeCallbackError("   ", "")).toContain("complete response");
     expect(humanizeAuthorizeCallbackError("   ", "")).not.toMatch(/\(\s*\)/u);
