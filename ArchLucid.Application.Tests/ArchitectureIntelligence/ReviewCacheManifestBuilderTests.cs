@@ -7689,6 +7689,133 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_ledger_evidence_ref_differs_only_by_percent_encoded_backslash()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-ledger-evidence-percent-backslash";
+
+        TechnologyLedgerEntry slash = CreateLedgerEntry(request.RunId, evidenceRef: "docs/architecture/overview.md");
+        TechnologyLedgerEntry encoded = CreateLedgerEntry(request.RunId, evidenceRef: "docs%5Carchitecture%5Coverview.md");
+
+        ReviewCacheManifestBuilder.Build(request, null, [slash]).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, null, [encoded]).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_tenant_configuration_hash_when_tenant_slug_differs_only_by_percent_encoded_slash()
+    {
+        ClosedLoopReasoningRequest slash = CreateRequest("Architecture note.");
+        slash.TenantId = "tenants/acme/reviews";
+
+        ClosedLoopReasoningRequest encoded = CreateRequest("Architecture note.");
+        encoded.TenantId = "tenants%2Facme%2Freviews";
+
+        ReviewCacheManifestBuilder.Build(slash).TenantConfigurationHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(encoded).TenantConfigurationHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_request_framing_answer_keys_differ_only_by_percent_encoded_slash_in_path()
+    {
+        ClosedLoopReasoningRequest slash = CreateRequest("Architecture note.");
+        slash.FramingAnswers = new Dictionary<string, string> { ["questions/cost/driver"] = "optimize" };
+
+        ClosedLoopReasoningRequest encoded = CreateRequest("Architecture note.");
+        encoded.FramingAnswers = new Dictionary<string, string> { ["questions%2Fcost%2Fdriver"] = "optimize" };
+
+        ReviewCacheManifestBuilder.Build(slash).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(encoded).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_request_framing_answers_include_path_equivalent_keys_differing_only_by_percent_encoding()
+    {
+        ClosedLoopReasoningRequest slashKey = CreateRequest("Architecture note.");
+        slashKey.FramingAnswers = new Dictionary<string, string> { ["questions/cost/driver"] = "optimize" };
+
+        ClosedLoopReasoningRequest encodedKey = CreateRequest("Architecture note.");
+        encodedKey.FramingAnswers = new Dictionary<string, string>
+        {
+            ["questions/cost/driver"] = "optimize",
+            ["questions%2Fcost%2Fdriver"] = "ignore",
+        };
+
+        ReviewCacheManifestBuilder.Build(slashKey).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(encodedKey).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_baseline_element_provenance_passage_artifact_id_differs_only_by_unicode_division_slash()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-model-passage-artifact-unicode-slash";
+
+        ArchitectureKnowledgeModel ascii = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator
+                        {
+                            ArtifactId = "docs/architecture/overview.md",
+                        },
+                    },
+                },
+            ],
+        };
+
+        ArchitectureKnowledgeModel unicode = new()
+        {
+            ModelId = "model-1",
+            RunId = request.RunId,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Name = "API",
+                    Provenance = new ClaimProvenance
+                    {
+                        PassageLocator = new SourcePassageLocator
+                        {
+                            ArtifactId = "docs\u2215architecture\u2215overview.md",
+                        },
+                    },
+                },
+            ],
+        };
+
+        ReviewCacheManifestBuilder.Build(request, ascii).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, unicode).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_ledger_evidence_ref_differs_only_by_double_percent_encoded_slash()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-ledger-evidence-double-percent";
+
+        TechnologyLedgerEntry slash = CreateLedgerEntry(request.RunId, evidenceRef: "docs/architecture/overview.md");
+        TechnologyLedgerEntry encoded = CreateLedgerEntry(request.RunId, evidenceRef: "docs%252Farchitecture%252Foverview.md");
+
+        ReviewCacheManifestBuilder.Build(request, null, [slash]).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, null, [encoded]).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_baseline_model_framing_answer_key_differs_only_by_dot_dot_slash_segment()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");

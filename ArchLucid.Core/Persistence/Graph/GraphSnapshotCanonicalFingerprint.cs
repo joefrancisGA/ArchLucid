@@ -271,7 +271,7 @@ public static class GraphSnapshotCanonicalFingerprint
         if (normalizedToken.Length == 0)
             return normalizedToken;
 
-        string path = DecodePercentEncodedPathTokens(normalizedToken).Replace('\\', '/');
+        string path = NormalizeUnicodeSlashScalars(DecodePercentEncodedPathTokens(normalizedToken)).Replace('\\', '/');
 
         while (path.Contains("//", StringComparison.Ordinal))
             path = path.Replace("//", "/", StringComparison.Ordinal);
@@ -309,6 +309,16 @@ public static class GraphSnapshotCanonicalFingerprint
         }
 
         return decoded;
+    }
+
+    private static string NormalizeUnicodeSlashScalars(string value)
+    {
+        if (value.Length == 0)
+            return value;
+
+        return value
+            .Replace('\u2215', '/')
+            .Replace('\uFF0F', '/');
     }
 
     private static string CollapseParentPathSegments(string path)
