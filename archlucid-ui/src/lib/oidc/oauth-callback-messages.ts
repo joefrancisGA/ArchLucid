@@ -267,15 +267,18 @@ export function readOAuthJsonErrorDescription(value: string): string {
   let decoded: string;
 
   try {
-    const decodeSource =
-      percentEncodedPlus && literalPlusInSource
-        ? collapsed.replace(/%(?:25)*2[bB]/gi, " ")
-        : collapsed;
+    if (percentEncodedPlus && literalPlusInSource) {
+      const fullyDecoded = decodeRepeatedPercentEncoding(collapsed);
 
-    decoded = decodeRepeatedPercentEncoding(decodeSource);
+      decoded = shouldPreserveLiteralPlusInAuthorizeDescription(fullyDecoded)
+        ? fullyDecoded
+        : decodeRepeatedPercentEncoding(collapsed.replace(/%(?:25)*2[bB]/gi, " "));
+    } else {
+      decoded = decodeRepeatedPercentEncoding(collapsed);
 
-    if (percentEncodedPlus && !literalPlusInSource && !shouldPreserveLiteralPlusInAuthorizeDescription(decoded)) {
-      decoded = decoded.replace(/\+/g, " ");
+      if (percentEncodedPlus && !literalPlusInSource && !shouldPreserveLiteralPlusInAuthorizeDescription(decoded)) {
+        decoded = decoded.replace(/\+/g, " ");
+      }
     }
 
     decoded = collapseOAuthErrorDescriptionLineBreaks(decoded);
