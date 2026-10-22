@@ -12470,19 +12470,24 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 130
-- **bugs-found:** 125
+- **hunts:** 131
+- **bugs-found:** 126
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — declaration actor materializer ignored padded trustOrigin property
+- **last-bug:** 2026-10-22 — declaration actor public-flag heuristic ignored padded truthy values
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): cheap-disproved `ResolveTrustOrigin` padded `anonymous` candidate (anonymous gate already trim-normalized in prior hit; regression `MaterializeFromNodes_maps_anonymous_property_with_surrounding_whitespace_to_public_anonymous_trust`); promoted public/anonymous property-bag heuristic candidate; proved `ResolveTrustOrigin` scanned `public`/`anonymous` keys with literal truthy value equality, missing padded `true`/`enabled`/`allow` tokens and materializing `Internal` actors; trim flag values in heuristic loop; regression `MaterializeFromNodes_maps_public_flag_property_with_surrounding_whitespace_to_external_trust`; seeded `TopologySensitivityClassifier.IsTruthy` padded `publicNetworkAccess` follow-on; 437 KnowledgeGraph + 136 Provenance scoped tests passed.
+
+- [x] (valid-no-repro) `DeclarationIdentityActorMaterializer.ResolveTrustOrigin` — padded `anonymous` property — **cheap-disproof 2026-10-22 seed hunt:** trim on anonymous gate from prior fix; regression above.
+- [x] (proven) `DeclarationIdentityActorMaterializer.ResolveTrustOrigin` — padded public/anonymous flag values missed external trust — **hit 2026-10-22 seed hunt (seed→hit):** trim heuristic flag values; regression above.
+
+- [ ] (candidate) `TopologySensitivityClassifier.IsPublicEdgeResource` — padded `publicNetworkAccess` truthy tokens may miss public-edge classification — locus: `IsTruthy`; input: topology properties with `publicNetworkAccess` `" true "`; wrong outcome: `Internal` sensitivity instead of `PublicEdge`.
 
 2026-10-22 seed hunt (seed→hit): cheap-disproved `GraphTopologyInfrastructureCostNodes` padded `runtimePlatform` candidate (`ReadProperty` already trims property bag values before `Enum.TryParse`; regression `EnrichFromTopologyAsync_matches_vm_projection_when_runtime_platform_property_has_surrounding_whitespace`); promoted `DeclarationIdentityActorMaterializer.ResolveTrustOrigin` padded `trustOrigin` candidate; proved terraform/arm identity seeds called `Enum.TryParse` on raw `trustOrigin` property tokens, defaulting padded `External` declarations to `Internal`; trim `trustOrigin` and `anonymous` before parse; regression `MaterializeFromNodes_honors_trustOrigin_when_property_has_surrounding_whitespace`; seeded `ResolveTrustOrigin` padded `anonymous=true` follow-on; 435 KnowledgeGraph + 136 Provenance scoped tests passed.
 
 - [x] (valid-no-repro) `GraphTopologyInfrastructureCostNodes.ResolveRuntimePlatform` — padded `runtimePlatform` property — **cheap-disproof 2026-10-22 seed hunt:** `ReadProperty` trim; regression above.
 - [x] (proven) `DeclarationIdentityActorMaterializer.ResolveTrustOrigin` — padded `trustOrigin` property ignored explicit external origin — **hit 2026-10-22 seed hunt (seed→hit):** trim before `Enum.TryParse`; regression above.
-
-- [ ] (candidate) `DeclarationIdentityActorMaterializer.ResolveTrustOrigin` — padded `anonymous` property may miss `PublicAnonymous` classification — locus: anonymous truthy gate; input: terraform identity with `anonymous` `" true "`; wrong outcome: actor materialized as `Internal` instead of `PublicAnonymous`.
 
 2026-10-22 seed hunt (seed→hit): cheap-disproved declaration materializer padded `Category` candidate (`DeclarationExistingNodeResolver.TryReadProperty` already trims property values before datastore category gates; regressions `Materialize_emits_data_flow_path_when_datastore_category_has_surrounding_whitespace` and `Materialize_connects_subnet_to_datastore_when_category_has_surrounding_whitespace`); promoted `CostConstraintProjectedSpendEnricher` padded `GraphNode.Category` candidate; proved `ResolveRuntimePlatform` compared raw `topologyNode.Category` strings, mapping padded compute nodes to `Unknown` ($25 illustrative) instead of `Vm` ($120); trim category before platform inference and cost-query row materialization; regression `EnrichFromTopologyAsync_matches_compute_projection_when_topology_category_has_surrounding_whitespace`; seeded `GraphTopologyInfrastructureCostNodes` explicit `runtimePlatform` property padding follow-on; 433 KnowledgeGraph + 136 Provenance scoped tests passed.
 
