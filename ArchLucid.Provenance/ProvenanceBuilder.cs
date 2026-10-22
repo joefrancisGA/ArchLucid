@@ -61,7 +61,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                 CreateFindingNode(f));
 
 
-        foreach (string ruleId in trace.AppliedRuleIds.Select(NormalizeId).Distinct(StringComparer.OrdinalIgnoreCase))
+        foreach (string ruleId in DistinctAppliedRuleIds(trace.AppliedRuleIds))
 
             AddNode(
                 $"rule:{ruleId}",
@@ -175,7 +175,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                 continue;
 
 
-            foreach (string ruleId in trace.AppliedRuleIds.Select(NormalizeId).Distinct(StringComparer.OrdinalIgnoreCase))
+            foreach (string ruleId in DistinctAppliedRuleIds(trace.AppliedRuleIds))
             {
 
                 string rk = $"rule:{ruleId}";
@@ -305,6 +305,12 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         }
 
         static string NormalizeId(string id) => id.Trim();
+
+        static IEnumerable<string> DistinctAppliedRuleIds(IEnumerable<string> appliedRuleIds) =>
+            appliedRuleIds
+                .Select(NormalizeId)
+                .Where(static ruleId => ruleId.Length > 0)
+                .Distinct(StringComparer.OrdinalIgnoreCase);
 
         static bool ShouldSkipGraphNodeNameDowngrade(ProvenanceNode existingNode, ProvenanceNode incomingNode)
         {

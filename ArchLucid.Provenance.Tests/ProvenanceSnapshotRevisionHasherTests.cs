@@ -345,6 +345,16 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     }
 
     [Fact]
+    public void Compute_unchanged_when_applied_rule_ids_include_blank_duplicates()
+    {
+        ProvenanceBuildInput baseline = CreateInput([], ["rule-a"]);
+        ProvenanceBuildInput updated = CreateInput([], ["rule-a", "  ", string.Empty]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(baseline, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(updated, BundleId));
+    }
+
+    [Fact]
     public void Compute_unchanged_when_only_rule_set_hash_changes()
     {
         ProvenanceBuildInput baseline = CreateInput([], ["rule-a"]);

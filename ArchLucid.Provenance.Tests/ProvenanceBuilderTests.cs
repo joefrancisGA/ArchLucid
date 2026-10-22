@@ -1120,4 +1120,28 @@ public sealed class ProvenanceBuilderTests
 
         graph.Edges.Should().ContainSingle(e => e.Type == ProvenanceEdgeType.InfluencedByGraphNode);
     }
+
+    [Fact]
+    public void Build_ignores_blank_applied_rule_ids_when_emitting_rule_nodes()
+    {
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot { Nodes = [] },
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload
+            {
+                AppliedRuleIds = ["rule-a", "  ", string.Empty],
+            }),
+            Artifacts = [],
+        });
+
+        graph.Nodes
+            .Where(n => n.Type == ProvenanceNodeType.Rule)
+            .Should()
+            .ContainSingle()
+            .Which.ReferenceId.Should().Be("rule-a");
+    }
 }
