@@ -25,22 +25,6 @@ import {
 } from "@/lib/oidc/session";
 import { OIDC_POST_SIGN_IN_RETURN_URL_KEY } from "@/lib/oidc/storage-keys";
 
-function stripTrailingSlashOnComparablePath(comparable: string): string {
-  if (comparable.length <= 1) {
-    return comparable;
-  }
-
-  const questionIndex = comparable.indexOf("?");
-  const pathPart = questionIndex === -1 ? comparable : comparable.slice(0, questionIndex);
-  const queryPart = questionIndex === -1 ? "" : comparable.slice(questionIndex);
-
-  if (pathPart.length > 1 && pathPart.endsWith("/")) {
-    return `${pathPart.slice(0, -1)}${queryPart}`;
-  }
-
-  return comparable;
-}
-
 function clearAbandonedPostSignInReturnUrl(): void {
   if (typeof sessionStorage === "undefined") {
     return;
@@ -62,8 +46,7 @@ function clearAbandonedPostSignInReturnUrl(): void {
     if (
       currentComparable !== null &&
       idleComparable !== null &&
-      stripTrailingSlashOnComparablePath(currentComparable) ===
-        stripTrailingSlashOnComparablePath(idleComparable) &&
+      currentComparable === idleComparable &&
       isSafeReturnPath(currentNormalized)
     ) {
       return;

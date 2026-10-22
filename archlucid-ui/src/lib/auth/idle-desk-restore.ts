@@ -30,8 +30,23 @@ export function normalizeComparableReturnPath(returnPath: string): string | null
 
   try {
     const url = new URL(trimmed, "http://localhost");
+    const sortedParams = new URLSearchParams();
+    const entries = [...new URLSearchParams(url.search).entries()].sort(([left], [right]) =>
+      left.localeCompare(right, undefined, { sensitivity: "variant" }),
+    );
 
-    return `${url.pathname}${url.search}`;
+    for (const [key, value] of entries) {
+      sortedParams.append(key, value);
+    }
+
+    const search = sortedParams.toString();
+    let pathname = url.pathname;
+
+    if (pathname.length > 1 && pathname.endsWith("/")) {
+      pathname = pathname.slice(0, -1);
+    }
+
+    return search.length > 0 ? `${pathname}?${search}` : pathname;
   } catch {
     return trimmed.startsWith("/") ? trimmed : null;
   }

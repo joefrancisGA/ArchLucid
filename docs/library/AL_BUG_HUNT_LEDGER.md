@@ -25236,6 +25236,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `clearAbandonedPostSignInReturnUrl` — scope-less idle restore return cleared as stale — **hit 2026-10-22 seed hunt:** return-only idle payload; regressions above.
 
+2026-10-22 seed hunt (seed→hit): `ui-oidc` — promoted hunt-ready `clearAbandonedPostSignInReturnUrl` query order drift — idle-desk restore `returnPath` and `OIDC_POST_SIGN_IN_RETURN_URL_KEY` compared raw pathname+search strings, so reordered query params (e.g. `?runId=abc&reviewTab=findings` vs `?reviewTab=findings&runId=abc`) failed pairing and stale-return cleanup cleared the desk hint; `normalizeComparableReturnPath` now sorts query keys and normalizes trailing slashes; regressions `treats query parameter order and trailing slashes as equivalent` and `preserves idle-desk restore return path when session hint query order differs`; scoped oidc + idle-desk vitest 339/339.
+
+- [x] (proven) `clearAbandonedPostSignInReturnUrl` — idle-desk return query order mismatch — **hit 2026-10-22 seed hunt:** canonical comparable paths; regressions above.
+
 ## Zone: ui-oidc
 
 - **id:** ui-oidc
@@ -25244,11 +25248,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 84
-- **bugs-found:** 78
+- **hunts:** 85
+- **bugs-found:** 79
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — scope-less idle restore return cleared as stale
+- **last-bug:** 2026-10-22 — idle-desk return query order compare drift
 - **hunts:** 78
 - **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
