@@ -1508,6 +1508,8 @@ describe("refreshBffSessionCookie (LK-06 P2)", () => {
     expect(result).toEqual({ ok: false, shouldClearSession: false });
   });
 
+<<<<<<< Updated upstream
+=======
   it("soft-fails refresh without clearing session when the refresh route returns 493", async () => {
     vi.stubGlobal(
       "fetch",
@@ -1536,6 +1538,7 @@ describe("refreshBffSessionCookie (LK-06 P2)", () => {
     expect(result).toEqual({ ok: false, shouldClearSession: false });
   });
 
+>>>>>>> Stashed changes
   it("sets shouldClearSession when the refresh route returns 401", async () => {
     vi.stubGlobal(
       "fetch",

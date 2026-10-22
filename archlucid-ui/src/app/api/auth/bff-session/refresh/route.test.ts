@@ -1583,6 +1583,8 @@ describe("POST /api/auth/bff-session/refresh", () => {
     expect(response.headers.get("set-cookie")).toBeNull();
   });
 
+<<<<<<< Updated upstream
+=======
   it("returns 503 without clearing BFF session cookies when refreshAccessToken throws opaque token endpoint error 493", async () => {
     const issueResult = createBffSessionCookieValue({
       accessToken: "access-token",
@@ -1631,6 +1633,7 @@ describe("POST /api/auth/bff-session/refresh", () => {
     expect(response.headers.get("set-cookie")).toBeNull();
   });
 
+>>>>>>> Stashed changes
   it("returns 503 without clearing BFF session cookies when refreshAccessToken throws opaque token endpoint error 503", async () => {
     const issueResult = createBffSessionCookieValue({
       accessToken: "access-token",
