@@ -1,3 +1,15 @@
+2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_resource authorize-query UX, BFF refresh 428 parity, and saturated decodeOAuthErrorDescription regional-indicator glue; regression documents authorize-retry is not marked when authorization code exchange returns undefined-string access_token; scoped vitest 522/522.
+
+- [x] (invalid) humanizeAuthorizeCallbackError - invalid_resource authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.
+- [x] (valid-no-repro) refreshBffSessionCookie - refresh 428 shouldClearSession false - **regression 2026-10-22:** transient refresh soft-fail without cookie clear.
+- [x] (valid-no-repro) exchangeAuthorizationCode - access_token JSON string undefined skips authorize retry marker - **regression 2026-10-22:** literal undefined-string tokens are valid (retry marker not set).
+- [x] (invalid) decodeOAuthErrorDescription - multiply-encoded %252B with regional-indicator glue - **cheap-disproof 2026-10-22:** saturated encoding class.
+
+- [ ] (candidate) humanizeAuthorizeCallbackError - invalid_client_metadata authorize-query copy - locus: default branch UX.
+- [ ] (candidate) refreshBffSessionCookie - refresh 430 shouldClearSession false - locus: transient refresh parity (429 pre-existing).
+- [ ] (candidate) exchangeAuthorizationCode - access_token JSON string NaN skips authorize retry marker - locus: literal NaN token shape.
+- [ ] (candidate) readOAuthJsonErrorDescription - multiply-encoded %252B with regional-indicator glue - locus: saturated JSON encoding class.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_request_uri authorize-query UX, BFF refresh 427 parity, and saturated readOAuthJsonErrorDescription skin-tone modifier glue; regression documents authorize-retry is not marked when authorization code exchange returns null-string access_token; scoped vitest 519/519.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - invalid_request_uri authorize-query copy - **cheap-disproof 2026-10-22:** readable default-branch UX parity test.

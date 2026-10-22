@@ -436,6 +436,13 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("invalid_request_uri");
   });
 
+  it("humanizes invalid_resource authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_resource", "");
+
+    expect(message).toMatch(/invalid resource/i);
+    expect(message).not.toContain("invalid_resource");
+  });
+
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
     expect(humanizeAuthorizeCallbackError("   ", "")).toContain("complete response");
     expect(humanizeAuthorizeCallbackError("   ", "")).not.toMatch(/\(\s*\)/u);
