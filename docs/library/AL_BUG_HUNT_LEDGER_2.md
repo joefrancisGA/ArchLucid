@@ -262,18 +262,25 @@
 
 ## Zone: email-otp-auth
 
+2026-10-22 seed hunt #93 (seed→hit, `-Refresh`): promoted `(candidate)` whitespace-only `DisplayEmail`; proved `VerifyAsync` null-only guard allowed `Succeeded` + whitespace `DisplayEmail` to reach `IssueAccessToken` (parity gap with empty `PlatformUserId` guard); fail-closed with `string.IsNullOrWhiteSpace`; regression `VerifyAsync_rejects_success_result_with_whitespace_only_display_email`; cheap-disproof closed four sibling `(candidate)` rows; scoped OTP tests not run on this host.
+
+- [x] (proven) `EmailOtpAuthController.VerifyAsync` — whitespace-only `DisplayEmail` passed null guard — **hit 2026-10-22 seed #93:** `string.IsNullOrWhiteSpace(result.DisplayEmail)`; regression `VerifyAsync_rejects_success_result_with_whitespace_only_display_email`.
+- [x] (invalid) `EmailOtpAuthController.RequestChallengeAsync` — empty-string `Email` passes API null guard — **cheap-disproof 2026-10-22 seed #93:** `EmailOtpRequestFlow` rejects via `IdentityEmailNormalizer.TryNormalize` ~61.
+- [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — `ExpiresInSeconds` clamp parity — **cheap-disproof 2026-10-22 seed #93:** same `Math.Clamp` minutes drive JWT issue and response seconds (~138–139); proven JWT lifetime hit 2026-10-09.
+- [x] (valid-no-repro) `EmailOtpRequestFlow` resend cooldown — **cheap-disproof 2026-10-22 seed #93:** regression `RequestCodeAsync_resend_cooldown_preserves_active_challenge_for_verify`.
+- [x] (valid-no-repro) `EmailOtpAuthController.IsEmailOtpEnabled` options snapshot — **cheap-disproof 2026-10-22 seed #93:** `IOptions` construction-time snapshot; prior valid-no-repro.
+
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — null `body` returns HTTP 400 but empty `Code` and missing `ChallengeId` share one problem message — locus: combined guard ~97–99; input: distinguish validation detail for OpenAPI clients.
+- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — `ClientIp` from `RemoteIpAddress` may be IPv6-mapped IPv4 without normalization parity with rate-limit keys in `EmailOtpRequestFlow`.
+- [ ] (candidate) `EmailOtpVerifyFlow.ExecuteAsync` — `displayEmail` derived from stored `NormalizedEmail` only; challenge row corruption with blank normalized email fails closed only at normalizer, not at controller.
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — `InvitationId` echoed on success without redaction when invitation acceptance fails partially (service-layer only).
+
 2026-10-22 seed hunt (seed-only): re-read `EmailOtpAuthController` and `EmailOtpAuthService` request/verify flows; cheap-disproof closed four open `(candidate)` rows (SSO path sets `SsoMessage` from the same `CustomerMessage` ~102–107; `CreateWorkspace` trial default scope only when `NextStep == CreateWorkspace` ~125–136; `IOptions<EmailOtpAuthOptions>.Value` captured at service construction is documented singleton options contract; controller trusts service `InvitationId` on successful verify — no HTTP caller forge path); no hunt-ready row promoted; five replacement `(candidate)` rows; scoped OTP tests not run (RS1034 analyzer build block).
 
 - [x] (valid-no-repro) `EmailOtpAuthController.RequestChallengeAsync` — inconsistent `SsoRequired`/`SsoMessage` — **cheap-disproof 2026-10-22 seed hunt:** `EmailOtpRequestFlow` assigns both from `domainEvaluation.CustomerMessage` ~104–106.
 - [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — partial tenant/workspace scope fallback — **cheap-disproof 2026-10-22 seed hunt:** trial defaults apply only for `NextStep == CreateWorkspace` ~125–136; intentional.
 - [x] (valid-no-repro) `EmailOtpAuthService` — options snapshot at construction — **cheap-disproof 2026-10-22 seed hunt:** `IOptions` not monitor; prior hunt classified mutable-provider concern valid-no-repro.
 - [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — unvalidated `InvitationId` mapping — **cheap-disproof 2026-10-22 seed hunt:** invitation binding enforced in `EmailOtpVerifyFlow` / repository layer; controller maps trusted service result ~161.
-
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — `DisplayEmail` guard is null-only not whitespace — locus: `result.DisplayEmail is null` ~114; input: corrupted service result with whitespace-only display email.
-- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — empty-string `Email` passes API null guard — locus: only `body?.Email is null` ~53–56; input: `{ "email": "" }` rejected in `EmailOtpRequestFlow` via `IdentityEmailNormalizer.TryNormalize` ~61.
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — `ExpiresInSeconds` uses clamped minutes × 60 — locus: ~138–139; input: parity with `IssueAccessToken` lifetime (proven 2026-10-09 JWT mismatch hit).
-- [ ] (candidate) `EmailOtpRequestFlow` — resend cooldown compares `GetLatestRequestUtcByEmailAsync` — locus: cooldown gate ~152; input: `RequestCodeAsync_resend_cooldown_preserves_active_challenge_for_verify`.
-- [ ] (candidate) `EmailOtpAuthController` — `IsEmailOtpEnabled` reads controller options snapshot — locus: `_emailOtpOptions.Enabled` ~165 vs service `_options.Enabled` at flow construct; input: disabled flag toggled after host start without restart.
 
 2026-10-21 seed hunt (seed→hit, lane-C): promoted `EmailOtpAuthController.RequestChallengeAsync` leaking `ChallengeId` when service marks `EmailDeliverySucceeded=false`; controller now omits challenge id on failed delivery; regression `RequestChallengeAsync_omits_challenge_id_when_email_delivery_failed`; 51 scoped OTP tests passed (46 `EmailOtpAuthServiceTests` + concurrency, 5 `EmailOtpAuthControllerChallengeTests`).
 
@@ -291,7 +298,7 @@
 
 2026-10-09 seed hunt (seed-only): repeated the selected controller/service review and focused test inventory; no fresh reachable mechanism-backed candidate emerged and no hypothesis was promoted. The exact scoped test run was blocked again by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
-**Hunts:** 52 · **Bugs found:** 15 · **Consecutive dry hunts:** 0
+**Hunts:** 55 · **Bugs found:** 16 · **Consecutive dry hunts:** 0
 
 2026-10-08 thorough hunt (hit): proved that a successful OTP result with `PlatformUserId = Guid.Empty` passed the controller's null-only guard and issued a token for the empty identity; added a fail-closed guard and regression; 1 API regression, 41 service tests, and 3 concurrency tests passed.
 
@@ -1820,11 +1827,6 @@
 - [x] (valid-no-repro) `InMemoryFindingInspectReadRepository` — missing disposition / waiver fields — **cheap-disproof 2026-10-22 seed #91:** demo regex gate only; production SQL path owns disposition pointer joins (proven #1230 / #1233).
 - [x] (valid-no-repro) `ParseFindingSeverity` — invisible-only token defaults to `Info` — **cheap-disproof 2026-10-22 seed #91:** intentional symmetric default with `ParseHumanReview` → `NotRequired`; invalid substantive tokens still throw `InvalidDataException`.
 
-- [ ] (candidate) `FindingInspectReadSql.FollowUpBatch` — `AuditEvents` subquery selects latest run-level `AuthorityCommittedChainPersisted` without binding `FindingId`, so inspect may surface an audit row unrelated to the finding when multiple commits occur on the same run.
-- [ ] (candidate) `MapInspectResponse` — `RemediationDueUtc` uses `ToUtcDateTimeOffset` on `DateTime?` without rejecting `DateTimeKind.Unspecified` mislabeled local values from legacy rows (display shift vs stored UTC intent).
-- [ ] (candidate) `ResolveTypedPayloadForInspectRead` — when `includeTypedPayload` is false, metadata-only payload still includes `whyThisMatters` when title is whitespace-only if `includeWhyThisMattersWhenTitleMissing` default differs between SQL and in-memory demo paths.
-- [ ] (candidate) `FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel` — returns null for unknown enum strings while `ParseFindingSeverity` throws on unknown substantive tokens (asymmetric strictness may hide corrupt evaluation level while surfacing severity failures).
-
 2026-10-22 seed hunt #90 (seed-only): re-read Dapper map/join, SQL main+batch, and repository core; cheap-disproof closed four open `(candidate)` rows; no hunt-ready promotion; seeded four follow-on `(candidate)` rows; scoped inspect filter not run on this host.
 
 - [x] (invalid) `MapInspectResponse` — `Treatment` / `Classification` skip display-text normalization — **cheap-disproof 2026-10-22 seed #90:** columns are `byte?` storage via `FindingInsightDensityColumnCodec`, not NVARCHAR display strings; resolved through `ResolveInspectTreatment` / `ResolveInspectClassification`.
@@ -1852,7 +1854,7 @@
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 91
+- **hunts:** 92
 - **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-22
@@ -4461,7 +4463,7 @@
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 91
+- **hunts:** 92
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 11
 - **last-hunt:** 2026-10-22
