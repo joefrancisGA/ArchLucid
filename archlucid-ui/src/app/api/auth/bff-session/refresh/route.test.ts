@@ -1583,6 +1583,174 @@ describe("POST /api/auth/bff-session/refresh", () => {
     expect(response.headers.get("set-cookie")).toBeNull();
   });
 
+  it("returns 503 without clearing BFF session cookies when refreshAccessToken throws opaque token endpoint error 493", async () => {
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() + 3_600_000,
+      refreshToken: "refresh-token",
+      workingMode: true,
+    });
+
+    refreshAccessTokenMock.mockRejectedValue(new Error("Token endpoint error 493"));
+
+    const req = new NextRequest("http://localhost/api/auth/bff-session/refresh", {
+      method: "POST",
+      headers: {
+        cookie: `${BFF_SESSION_COOKIE_NAME}=${issueResult?.sessionCookieValue ?? ""}`,
+        [BFF_CSRF_HEADER]: issueResult?.csrfToken ?? "",
+      },
+    });
+
+    const response = await POST(req);
+
+    expect(response.status).toBe(503);
+    expect(response.headers.get("set-cookie")).toBeNull();
+  });
+
+  it("returns 503 without clearing BFF session cookies when refreshAccessToken throws opaque token endpoint error 494", async () => {
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() + 3_600_000,
+      refreshToken: "refresh-token",
+      workingMode: true,
+    });
+
+    refreshAccessTokenMock.mockRejectedValue(new Error("Token endpoint error 494"));
+
+    const req = new NextRequest("http://localhost/api/auth/bff-session/refresh", {
+      method: "POST",
+      headers: {
+        cookie: `${BFF_SESSION_COOKIE_NAME}=${issueResult?.sessionCookieValue ?? ""}`,
+        [BFF_CSRF_HEADER]: issueResult?.csrfToken ?? "",
+      },
+    });
+
+    const response = await POST(req);
+
+    expect(response.status).toBe(503);
+    expect(response.headers.get("set-cookie")).toBeNull();
+  });
+
+  it("returns 503 without clearing BFF session cookies when refreshAccessToken throws opaque token endpoint error 495", async () => {
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() + 3_600_000,
+      refreshToken: "refresh-token",
+      workingMode: true,
+    });
+
+    refreshAccessTokenMock.mockRejectedValue(new Error("Token endpoint error 495"));
+
+    const req = new NextRequest("http://localhost/api/auth/bff-session/refresh", {
+      method: "POST",
+      headers: {
+        cookie: `${BFF_SESSION_COOKIE_NAME}=${issueResult?.sessionCookieValue ?? ""}`,
+        [BFF_CSRF_HEADER]: issueResult?.csrfToken ?? "",
+      },
+    });
+
+    const response = await POST(req);
+
+    expect(response.status).toBe(503);
+    expect(response.headers.get("set-cookie")).toBeNull();
+  });
+
+  it("returns 503 without clearing BFF session cookies when refreshAccessToken throws opaque token endpoint error 496", async () => {
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() + 3_600_000,
+      refreshToken: "refresh-token",
+      workingMode: true,
+    });
+
+    refreshAccessTokenMock.mockRejectedValue(new Error("Token endpoint error 496"));
+
+    const req = new NextRequest("http://localhost/api/auth/bff-session/refresh", {
+      method: "POST",
+      headers: {
+        cookie: `${BFF_SESSION_COOKIE_NAME}=${issueResult?.sessionCookieValue ?? ""}`,
+        [BFF_CSRF_HEADER]: issueResult?.csrfToken ?? "",
+      },
+    });
+
+    const response = await POST(req);
+
+    expect(response.status).toBe(503);
+    expect(response.headers.get("set-cookie")).toBeNull();
+  });
+
+  it("returns 503 without clearing BFF session cookies when refreshAccessToken throws opaque token endpoint error 497", async () => {
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() + 3_600_000,
+      refreshToken: "refresh-token",
+      workingMode: true,
+    });
+
+    refreshAccessTokenMock.mockRejectedValue(new Error("Token endpoint error 497"));
+
+    const req = new NextRequest("http://localhost/api/auth/bff-session/refresh", {
+      method: "POST",
+      headers: {
+        cookie: `${BFF_SESSION_COOKIE_NAME}=${issueResult?.sessionCookieValue ?? ""}`,
+        [BFF_CSRF_HEADER]: issueResult?.csrfToken ?? "",
+      },
+    });
+
+    const response = await POST(req);
+
+    expect(response.status).toBe(503);
+    expect(response.headers.get("set-cookie")).toBeNull();
+  });
+
+  it("returns 503 without clearing BFF session cookies when refreshAccessToken throws opaque token endpoint error 498", async () => {
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() + 3_600_000,
+      refreshToken: "refresh-token",
+      workingMode: true,
+    });
+
+    refreshAccessTokenMock.mockRejectedValue(new Error("Token endpoint error 498"));
+
+    const req = new NextRequest("http://localhost/api/auth/bff-session/refresh", {
+      method: "POST",
+      headers: {
+        cookie: `${BFF_SESSION_COOKIE_NAME}=${issueResult?.sessionCookieValue ?? ""}`,
+        [BFF_CSRF_HEADER]: issueResult?.csrfToken ?? "",
+      },
+    });
+
+    const response = await POST(req);
+
+    expect(response.status).toBe(503);
+    expect(response.headers.get("set-cookie")).toBeNull();
+  });
+
+  it("returns 503 without clearing BFF session cookies when refreshAccessToken throws opaque token endpoint error 499", async () => {
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() + 3_600_000,
+      refreshToken: "refresh-token",
+      workingMode: true,
+    });
+
+    refreshAccessTokenMock.mockRejectedValue(new Error("Token endpoint error 499"));
+
+    const req = new NextRequest("http://localhost/api/auth/bff-session/refresh", {
+      method: "POST",
+      headers: {
+        cookie: `${BFF_SESSION_COOKIE_NAME}=${issueResult?.sessionCookieValue ?? ""}`,
+        [BFF_CSRF_HEADER]: issueResult?.csrfToken ?? "",
+      },
+    });
+
+    const response = await POST(req);
+
+    expect(response.status).toBe(503);
+    expect(response.headers.get("set-cookie")).toBeNull();
+  });
+
   it("returns 503 without clearing BFF session cookies when refreshAccessToken throws opaque token endpoint error 503", async () => {
     const issueResult = createBffSessionCookieValue({
       accessToken: "access-token",
