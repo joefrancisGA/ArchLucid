@@ -94,6 +94,23 @@ public sealed class CreatePolicyPackRequestValidatorTests
     }
 
     [Fact]
+    public void Whitespace_only_initial_content_json_fails()
+    {
+        CreatePolicyPackRequest request = new()
+        {
+            Name = "Pack",
+            PackType = PolicyPackType.TenantCustom,
+            InitialContentJson = "   ",
+        };
+
+        ValidationResult result = _validator.Validate(request);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == nameof(CreatePolicyPackRequest.InitialContentJson));
+        result.Errors.Should().Contain(e => e.ErrorMessage.Contains("InitialContentJson is required"));
+    }
+
+    [Fact]
     public void Empty_initial_content_json_fails()
     {
         CreatePolicyPackRequest request = new()
