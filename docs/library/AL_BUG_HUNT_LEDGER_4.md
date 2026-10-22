@@ -12470,18 +12470,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 106
-- **bugs-found:** 101
+- **hunts:** 107
+- **bugs-found:** 102
 - **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — manifest decision whitespace titles lacked DecisionId fallback
+- **last-bug:** 2026-10-22 — artifact whitespace names lacked ArtifactId fallback
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-22 seed hunt (seed→hit): promoted artifact whitespace name candidate; proved synthesized artifact provenance nodes copied whitespace-only `Name` without `ArtifactId` (`N` format) fallback and sparse duplicate bundle rows could replace buyer-visible names without an artifact-aware downgrade guard; `ResolveArtifactDisplayName` plus artifact node in name-downgrade skip; regressions `Build_uses_artifact_id_when_name_is_whitespace_only` and `Build_preserves_artifact_name_when_later_duplicate_row_has_whitespace_only_name`; seeded rule node whitespace id follow-on; 400 KnowledgeGraph + 125 Provenance scoped tests passed.
+
+- [x] (proven) `ProvenanceBuilder` — synthesized artifact whitespace-only names and sparse duplicate bundle rows — **hit 2026-10-22 seed hunt (seed→hit):** artifact id fallback + artifact-aware downgrade guard; regressions above.
+
+- [ ] (candidate) `ProvenanceBuilder` — rule nodes use raw `AppliedRuleIds` entries without trim/whitespace guard before `AddNode` — locus: rule emission loop; input: applied rule id `"   "` or padded id; wrong outcome: empty or misleading rule provenance node.
 
 2026-10-22 seed hunt (seed→hit): promoted manifest decision whitespace title candidate; proved decision provenance nodes copied whitespace-only `Title` without `DecisionId` fallback and sparse case-variant rows could replace buyer-visible titles once fallback was added without a decision-aware downgrade guard; `ResolveDecisionDisplayTitle` plus decision node in name-downgrade skip; regressions `Build_uses_decision_id_when_title_is_whitespace_only` and `Build_preserves_decision_title_when_later_case_variant_row_has_whitespace_only_title`; seeded artifact whitespace name parity follow-on; 400 KnowledgeGraph + 123 Provenance scoped tests passed.
 
 - [x] (proven) `ProvenanceBuilder` — manifest decision whitespace-only titles and sparse case-variant rows — **hit 2026-10-22 seed hunt (seed→hit):** decision id fallback + decision-aware downgrade guard; regressions above.
-
-- [ ] (candidate) `ProvenanceBuilder` — synthesized artifact nodes may copy whitespace-only `Name` without `ArtifactId` fallback parity with findings/decisions — locus: artifact `AddNode` name assignment; input: artifact row with whitespace `Name`; wrong outcome: blank artifact node name in provenance graph.
 
 2026-10-22 seed hunt (seed→hit): promoted sparse finding title follow-on; proved `ProvenanceBuilder.CreateFindingNode` copied whitespace-only `Finding.Title` verbatim (no `FindingId` fallback parity with graph node labels) and duplicate case-variant rows with whitespace-only titles resolved to reference id and overwrote buyer-visible titles because the name-downgrade guard applied only to graph nodes; `ResolveFindingDisplayTitle` plus finding-aware downgrade skip; regressions `Build_uses_finding_id_when_title_is_whitespace_only`, `Build_preserves_finding_title_when_later_case_variant_row_has_whitespace_only_title`, and `Build_preserves_graph_node_label_when_later_case_variant_row_has_whitespace_only_label`; seeded manifest decision whitespace title parity follow-on; 400 KnowledgeGraph + 121 Provenance scoped tests passed.
 

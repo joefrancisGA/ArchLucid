@@ -92,7 +92,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                 {
                     Type = ProvenanceNodeType.Artifact,
                     ReferenceId = a.ArtifactId.ToString("N"),
-                    Name = a.Name,
+                    Name = ResolveArtifactDisplayName(a),
                     Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                     {
                         ["artifactType"] = a.ArtifactType, ["format"] = a.Format
@@ -278,6 +278,13 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
             return string.IsNullOrWhiteSpace(decision.Title) ? decisionId : decision.Title.Trim();
         }
 
+        static string ResolveArtifactDisplayName(SynthesizedArtifact artifact)
+        {
+            string artifactId = artifact.ArtifactId.ToString("N");
+
+            return string.IsNullOrWhiteSpace(artifact.Name) ? artifactId : artifact.Name.Trim();
+        }
+
         Guid AddNode(string key, ProvenanceNode node)
         {
             if (nodeMap.TryGetValue(key, out Guid existingId))
@@ -333,7 +340,8 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
             if (existingNode.Type != incomingNode.Type
                 || (existingNode.Type != ProvenanceNodeType.GraphNode
                     && existingNode.Type != ProvenanceNodeType.Finding
-                    && existingNode.Type != ProvenanceNodeType.Decision))
+                    && existingNode.Type != ProvenanceNodeType.Decision
+                    && existingNode.Type != ProvenanceNodeType.Artifact))
             {
                 return false;
             }
